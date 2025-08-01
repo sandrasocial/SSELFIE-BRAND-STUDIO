@@ -47,30 +47,34 @@ router.post('/generate', isAuthenticated, async (req: any, res) => {
     // Core website generation logic
     const generatedWebsite = await generateWebsiteFromRequirements(validatedData, websiteId);
 
-    // Save to database
+    // Save to database with correct schema mapping
     const [website] = await db.insert(websites).values({
-      id: websiteId,
       userId,
-      businessName: validatedData.businessName,
-      businessType: validatedData.businessType,
-      status: 'generated',
-      template: generatedWebsite.template,
-      content: generatedWebsite.content,
-      design: generatedWebsite.design,
-      metadata: {
-        generatedAt: new Date().toISOString(),
+      title: validatedData.businessName,
+      slug: validatedData.businessName.toLowerCase().replace(/\s+/g, '-'),
+      content: {
+        businessType: validatedData.businessType,
+        businessDescription: validatedData.businessDescription,
+        targetAudience: validatedData.targetAudience,
         keyFeatures: validatedData.keyFeatures,
-        targetAudience: validatedData.targetAudience
-      }
+        brandPersonality: validatedData.brandPersonality,
+        contentStrategy: validatedData.contentStrategy,
+        generatedAt: new Date().toISOString(),
+        ...generatedWebsite
+      },
+      status: 'generated',
+      templateId: 'victoria-editorial'
     }).returning();
 
     res.json({
       success: true,
       website: {
-        id: websiteId,
-        preview: generatedWebsite.preview,
-        template: generatedWebsite.template,
-        estimatedGenerationTime: generatedWebsite.estimatedTime
+        id: website.id,
+        title: website.title,
+        slug: website.slug,
+        preview: generatedWebsite?.preview || null,
+        template: website.templateId,
+        estimatedGenerationTime: generatedWebsite?.estimatedTime || 0
       }
     });
 
@@ -134,15 +138,14 @@ router.post('/customize', isAuthenticated, async (req: any, res) => {
       validatedData.modifications
     );
 
-    // Update database
+    // Update database with correct schema
     await db
       .update(websites)
       .set({
-        design: updatedWebsite.design,
         content: updatedWebsite.content,
         updatedAt: new Date()
       })
-      .where(eq(websites.id, validatedData.siteId));
+      .where(eq(websites.id, parseInt(validatedData.siteId)));
 
     res.json({
       success: true,
@@ -182,19 +185,20 @@ router.post('/deploy', isAuthenticated, async (req: any, res) => {
     // Deploy website
     const deployment = await deployWebsite(website, domainPreferences);
 
-    // Update database with deployment info
+    // Update database with deployment info using correct schema
     await db
       .update(websites)
       .set({
         status: 'deployed',
-        deploymentUrl: deployment.url,
-        metadata: {
-          ...website.metadata,
+        url: deployment.url,
+        content: {
+          ...website.content as any,
           deployedAt: new Date().toISOString(),
           deploymentId: deployment.id
-        }
+        },
+        updatedAt: new Date()
       })
-      .where(eq(websites.id, siteId));
+      .where(eq(websites.id, parseInt(siteId)));
 
     res.json({
       success: true,

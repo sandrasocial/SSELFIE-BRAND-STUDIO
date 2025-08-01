@@ -43,12 +43,12 @@ export function VictoriaEditorialBuilder({ onWebsiteGenerated }: VictoriaEditori
   const [websiteData, setWebsiteData] = useState<WebsiteData | null>(null);
 
   // Fetch user's gallery images
-  const { data: galleryImages = [] } = useQuery({
+  const { data: galleryImages = [] } = useQuery<any[]>({
     queryKey: ['/api/ai-images'],
   });
 
   // Fetch flatlay library
-  const { data: flatlayLibrary = [] } = useQuery({
+  const { data: flatlayLibrary = [] } = useQuery<string[]>({
     queryKey: ['/api/flatlay-library'],
   });
 

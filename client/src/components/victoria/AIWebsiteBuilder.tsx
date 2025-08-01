@@ -38,7 +38,7 @@ export function AIWebsiteBuilder() {
       });
       
       // If user has completed brand onboarding and has websites, skip to website management
-      if (existingOnboarding && userWebsites?.length > 0) {
+      if (existingOnboarding && userWebsites && userWebsites.length > 0) {
         console.log('✅ Returning user with websites, skipping to preview');
         setCurrentView('preview');
       } else if (existingOnboarding) {
