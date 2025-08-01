@@ -1,3 +1,4 @@
+import { setupEnhancementRoutes } from './services/backend-enhancement-services';
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
@@ -197,6 +198,9 @@ function generateWebsiteHTML(websiteData: any, onboardingData: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Agent-generated enhancement routes
+  setupEnhancementRoutes(app);
+
   console.log('🚀 Starting route registration...');
   
   // Basic middleware and authentication setup
