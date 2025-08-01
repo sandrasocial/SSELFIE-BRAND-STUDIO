@@ -309,7 +309,7 @@ export default ${componentName};`;
    */
   private static generateReactJSXComponent(componentName: string, agentId: string, message: string): string {
     return this.generateReactTSXComponent(componentName, agentId, message)
-      .replace(/interface.*?Props.*?\n.*?\n}/s, '')
+      .replace(/interface.*?Props.*?\n.*?\n}/g, '')
       .replace(/: React\.FC<.*?>/g, '')
       .replace(/: string/g, '')
       .replace(/: \(\) => void/g, '')
@@ -321,11 +321,11 @@ export default ${componentName};`;
    */
   private static generateJavaScriptFile(componentName: string, agentId: string, message: string): string {
     return this.generateTypeScriptFile(componentName, agentId, message)
-      .replace(/interface.*?\n.*?\n}/gs, '')
+      .replace(/interface.*?\n.*?\n}/g, '')
       .replace(/: any/g, '')
       .replace(/: boolean/g, '')
       .replace(/: string/g, '')
-      .replace(/export interface.*?\n.*?\n}/gs, '');
+      .replace(/export interface.*?\n.*?\n}/g, '');
   }
 
   /**
