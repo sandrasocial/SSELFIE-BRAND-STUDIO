@@ -268,35 +268,8 @@ export function registerAgentRoutes(app: Express) {
       
       const agent = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS];
       
-      // Check for tool usage patterns (for agents with file access)
-      let toolResponse = null;
-      if (agent.canModifyFiles) {
-        const { AgentToolBypass } = await import('../agent-tool-bypass');
-        const toolDetection = AgentToolBypass.detectFileOperation(message);
-        
-        if (toolDetection.shouldUseTools && toolDetection.toolCalls.length > 0) {
-          console.log(`🔧 TOOL DETECTED for ${agentId}: ${toolDetection.toolCalls.length} operations`);
-          
-          // Execute tools and capture results
-          const toolResults = [];
-          for (const toolCall of toolDetection.toolCalls) {
-            try {
-              const result = await AgentToolBypass.executeStrReplaceBasedEditTool(toolCall.input);
-              toolResults.push(result);
-              console.log(`✅ TOOL EXECUTED: ${JSON.stringify(result)}`);
-            } catch (error) {
-              console.error(`❌ TOOL ERROR:`, error);
-              toolResults.push({ error: error.message });
-            }
-          }
-          
-          toolResponse = {
-            toolsUsed: true,
-            results: toolResults,
-            message: `I've executed ${toolResults.length} file operations. Here are the results:`
-          };
-        }
-      }
+      // Direct file operation handling (bypass removed for clean system)
+      console.log(`💬 CONVERSATION: Processing message for ${agentId}`);
 
       // For all agents, process the message through Claude API
       let agentResponse = '';
@@ -356,9 +329,7 @@ Available tool commands:
             messages: [
               {
                 role: 'user',
-                content: toolResponse ? 
-                  `${message}\n\n**TOOL EXECUTION RESULTS:**\n${JSON.stringify(toolResponse.results, null, 2)}` : 
-                  message
+                content: message
               }
             ]
           }),
@@ -376,27 +347,23 @@ Available tool commands:
       
       if (!agentResponse) {
         // Fallback response
-        if (toolResponse) {
-          agentResponse = `${agent.name} here! I've executed the file operations you requested. ${toolResponse.message}`;
-        } else {
-          agentResponse = `Hello! ${agent.name} here, ready to help with your task.`;
-        }
+        agentResponse = `Hello! ${agent.name} here, ready to help with your task.`;
       }
       
       res.json({
         message: agentResponse,
-        agentId,
+        agentId: agentId as string,
         agentName: agent.name,
         timestamp: new Date().toISOString(),
         status: 'completed'
       });
       
-    } catch (error) {
-      console.error(`❌ ADMIN AGENT ERROR: ${agentId}:`, error);
+    } catch (error: any) {
+      console.error(`❌ ADMIN AGENT ERROR: ${req.params.agentId}:`, error);
       res.status(500).json({ 
-        message: `Agent ${agentId} encountered an issue but the task is progressing.`,
-        error: error.message,
-        agentId: agentId,
+        message: `Agent ${req.params.agentId} encountered an issue but the task is progressing.`,
+        error: error?.message || 'Unknown error',
+        agentId: req.params.agentId,
         status: 'error'
       });
     }
