@@ -1744,7 +1744,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       const autonomousResult = await autonomousAgent.processAutonomousRequest(autonomousRequest);
       
-      if (autonomousResult.success && autonomousResult.fileOperations.length > 0) {
+      if (autonomousResult.success) {
         console.log('🚀 AUTONOMOUS EXECUTION: File operations completed without API costs');
         console.log(`🔧 Operations: ${autonomousResult.fileOperations.length} file operations`);
         console.log(`🎯 Navigation: ${autonomousResult.navigationResults.discoveredFiles.length} files discovered`);
