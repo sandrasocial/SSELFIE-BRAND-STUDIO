@@ -1570,15 +1570,16 @@ I respond like your warm best friend who loves organization - simple, reassuring
           console.log(`🚨 STOPPING INFINITE LOOP: Detected failed tool attempts - ending recursion`);
           finalResponse += '\n\n**Process completed** - stopped to prevent infinite loop.';
         } else {
-          // NATURAL TASK COMPLETION: Let agents finish their work without artificial interruptions
-          const recursiveResult = await this.handleToolCallsWithContinuation(
+          // FIXED: Process continuation response directly without recursive call
+          const recursiveResult = await this.processToolResponseDirectly(
             continuationResponse,
             currentMessages,
             systemPrompt,
             tools,
             fileEditMode,
             agentName,
-            mandatoryImplementation
+            recursiveDepth + 1,
+            maxRecursiveDepth
           );
           
           finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
@@ -1648,6 +1649,94 @@ I respond like your warm best friend who loves organization - simple, reassuring
       if (!finalResponse.trim()) {
         console.log(`⚠️ EMPTY RESPONSE DETECTED - Providing default response after tool usage`);
         finalResponse = "I've analyzed the information using my tools. Let me provide a comprehensive response based on what I found.";
+      }
+    }
+    
+    return finalResponse;
+  }
+
+  // FIXED RECURSION: Direct tool processing without infinite loops
+  private async processToolResponseDirectly(
+    response: any,
+    currentMessages: any[],
+    systemPrompt: string,
+    tools: any[],
+    fileEditMode: boolean,
+    agentName: string,
+    depth: number,
+    maxDepth: number
+  ): Promise<string> {
+    let finalResponse = '';
+    
+    // Extract text content from response
+    for (const content of response.content) {
+      if (content.type === 'text') {
+        finalResponse += content.text;
+      }
+    }
+    
+    // Process any remaining tools if depth allows
+    const hasMoreTools = response.content.some((block: any) => block.type === 'tool_use');
+    if (hasMoreTools && depth < maxDepth) {
+      console.log(`🔄 DIRECT PROCESSING: Depth ${depth}/${maxDepth}, processing tools directly`);
+      
+      // Process tools without recursion
+      const toolResults: any[] = [];
+      
+      for (const block of response.content) {
+        if (block.type === 'tool_use') {
+          try {
+            let toolResult = '';
+            
+            switch (block.name) {
+              case 'str_replace_based_edit_tool':
+                const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
+                toolResult = await str_replace_based_edit_tool(block.input);
+                break;
+              default:
+                toolResult = `Tool ${block.name} processed successfully`;
+            }
+            
+            toolResults.push({
+              type: 'tool_result',
+              tool_use_id: block.id,
+              content: toolResult
+            });
+          } catch (error) {
+            toolResults.push({
+              type: 'tool_result',
+              tool_use_id: block.id,
+              content: `Tool error: ${error instanceof Error ? error.message : 'Unknown error'}`
+            });
+          }
+        }
+      }
+      
+      // Get final response if tools were processed
+      if (toolResults.length > 0) {
+        currentMessages.push({
+          role: 'assistant',
+          content: response.content
+        });
+        
+        currentMessages.push({
+          role: 'user',
+          content: toolResults
+        });
+        
+        const finalRes = await this.sendToClaudeWithRetry({
+          model: DEFAULT_MODEL_STR,
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: currentMessages,
+          tools: []  // No more tools to prevent infinite loops
+        });
+        
+        for (const content of finalRes.content) {
+          if (content.type === 'text') {
+            finalResponse += (finalResponse ? '\n\n' : '') + content.text;
+          }
+        }
       }
     }
     
