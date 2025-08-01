@@ -209,7 +209,7 @@ export class ApiOrchestrationLayer {
   async performHealthCheck(): Promise<Record<string, boolean>> {
     const healthStatus: Record<string, boolean> = {};
     
-    for (const [serviceName, connection] of this.serviceConnections) {
+    for (const [serviceName, connection] of Array.from(this.serviceConnections)) {
       try {
         // Perform basic connectivity check
         const validation = integrationManager.validateServiceConfig(serviceName);
