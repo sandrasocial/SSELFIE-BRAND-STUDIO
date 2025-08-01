@@ -42,35 +42,53 @@ class HybridAgentSystem {
   }
 
   private analyzeContentNeed(message: string): boolean {
-    const contentKeywords = [
-      'create', 'generate', 'write', 'implement', 'build', 'design',
-      'component', 'function', 'interface', 'service', 'code',
-      'tsx', 'ts', 'js', 'css', 'html', 'react',
-      'luxury', 'editorial', 'sophisticated', 'professional'
-    ];
-
-    const toolKeywords = [
-      'view', 'check', 'list', 'find', 'search', 'debug',
-      'test', 'verify', 'validate', 'monitor', 'status'
-    ];
-
-    const messageWords = message.toLowerCase().split(/\s+/);
+    const messageWords = message.toLowerCase();
     
-    const contentScore = messageWords.filter(word => 
-      contentKeywords.some(keyword => word.includes(keyword))
-    ).length;
+    // CRITICAL FIX: Always use Claude API for implementation requests
+    // These patterns indicate agents need to generate working code/content
+    const alwaysClaudePatterns = [
+      // File creation patterns
+      'create', 'build', 'implement', 'generate', 'write', 'design',
+      // File extensions
+      '.tsx', '.ts', '.js', '.css', '.html', '.jsx',
+      // Code generation terms
+      'component', 'function', 'interface', 'service', 'class',
+      'working', 'complete', 'full', 'autonomous', 'demonstrate',
+      // Agent task patterns
+      'test autonomous', 'show', 'skills', 'capabilities', 'specialized',
+      // Implementation terms
+      'implementation', 'solution', 'system', 'functionality'
+    ];
     
-    const toolScore = messageWords.filter(word => 
-      toolKeywords.some(keyword => word.includes(keyword))
-    ).length;
-
-    // If asking for file creation or code generation, use Claude
-    if (message.includes('.tsx') || message.includes('.ts') || message.includes('component')) {
+    // Simple tool operations that can use autonomous system
+    const toolOnlyPatterns = [
+      'view', 'check', 'list', 'find', 'search', 'debug', 'status',
+      'monitor', 'verify', 'validate'
+    ];
+    
+    // If ANY implementation pattern is found, use Claude API
+    const hasImplementationPattern = alwaysClaudePatterns.some(pattern => 
+      messageWords.includes(pattern)
+    );
+    
+    if (hasImplementationPattern) {
+      console.log('🎨 ROUTING TO CLAUDE: Implementation pattern detected');
       return true;
     }
-
-    // If content score is higher, use Claude for generation
-    return contentScore > toolScore;
+    
+    // Only use tool operations for pure view/check operations
+    const isToolOnly = toolOnlyPatterns.some(pattern => 
+      messageWords.includes(pattern)
+    ) && !alwaysClaudePatterns.some(pattern => messageWords.includes(pattern));
+    
+    if (isToolOnly) {
+      console.log('🔧 ROUTING TO TOOLS: Simple operation detected');
+      return false;
+    }
+    
+    // Default to Claude API for ambiguous cases to ensure complete implementations
+    console.log('🎨 ROUTING TO CLAUDE: Default for complete implementation');
+    return true;
   }
 
   private async generateContentWithClaude(request: HybridAgentRequest): Promise<HybridAgentResponse> {

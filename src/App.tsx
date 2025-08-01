@@ -17,6 +17,7 @@ import ModelTraining from './pages/ModelTraining';
 import AgentActivity from './pages/AgentActivity';
 import AdminPanel from './pages/AdminPanel';
 import EditorialShowcase from './components/EditorialShowcase';
+import TestComponent from './components/TestComponent';
 
 // Context Providers
 import { AuthProvider } from './context/AuthContext';
@@ -51,6 +52,7 @@ const App: React.FC = () => {
                 {/* Public Routes */}
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/editorial" element={<EditorialShowcase />} />
+                <Route path="/test" element={<TestComponent />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 
                 {/* Protected Routes */}
