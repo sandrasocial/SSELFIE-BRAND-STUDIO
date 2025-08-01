@@ -1825,12 +1825,24 @@ Available tools (USE THEM):
               }
             ];
 
+            // DEBUG: Log parameters before Claude API call
+            console.log('🔍 CLAUDE API PARAMETERS DEBUG:');
+            console.log('  userId:', userId, '(type:', typeof userId, ')');
+            console.log('  agentId:', agentId, '(type:', typeof agentId, ')');
+            console.log('  finalConversationId:', finalConversationId, '(type:', typeof finalConversationId, ')');
+            console.log('  message:', message.substring(0, 50) + '...', '(length:', message.length, ')');
+            console.log('  systemPrompt preview:', systemPrompt.substring(0, 50) + '...', '(length:', systemPrompt.length, ')');
+            console.log('  agentTools:', agentTools?.length || 0, 'tools');
+            console.log('  fileEditMode:', fileEditMode);
+
             const claudeResponse = await claudeApiService.sendMessage(
-              systemPrompt,
-              message,
               userId,
+              agentId,
               finalConversationId,
-              agentTools
+              message,
+              systemPrompt,
+              agentTools,
+              fileEditMode
             );
 
             return res.json({
@@ -2021,7 +2033,8 @@ Available tools (USE THEM):
               finalConversationId,
               message,
               systemPrompt,
-              agentTools // Provide actual tools for file operations
+              agentTools, // Provide actual tools for file operations
+              fileEditMode
             );
             
             if (response && response.length > 0) {

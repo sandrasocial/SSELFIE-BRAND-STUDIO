@@ -63,6 +63,8 @@ export class ContentDetector {
     const hasCodeWithStyling = /(?:component|interface|service).*(?:styling|design|luxury|editorial|professional)/i.test(message);
     const hasReactTypeScript = /react.*typescript|typescript.*react|\.tsx.*(?:complete|working|functional)/i.test(message);
     const hasComplexImplementation = /(?:implement|build|generate).*(?:complete|full|working|functional|proper|detailed)/i.test(message);
+    const hasCodeGeneration = /(?:generate|write).*(?:code|component|typescript|react|function|class|interface)/i.test(message);
+    const hasWorkingCode = /(?:working|functional|complete).*(?:code|component|react|typescript)/i.test(message);
 
     // Priority routing decisions
     if (hasFileDeletion || hasDeleteCommand) {
@@ -74,10 +76,10 @@ export class ContentDetector {
       };
     }
 
-    if (hasComplexCodeRequest || hasCodeWithStyling || hasReactTypeScript || hasComplexImplementation) {
+    if (hasComplexCodeRequest || hasCodeWithStyling || hasReactTypeScript || hasComplexImplementation || hasCodeGeneration || hasWorkingCode) {
       return {
         needsClaudeGeneration: true,
-        confidence: 0.9,
+        confidence: 0.95,
         detectedType: 'content_generation',
         reasoning: 'Complex code generation with styling/TypeScript - requires Claude API for quality'
       };

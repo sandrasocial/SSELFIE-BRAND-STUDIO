@@ -49,8 +49,17 @@ export class ClaudeApiService {
     agentName: string, 
     conversationId: string | null
   ): Promise<number> {
-    console.log('🔧 Creating conversation - userId:', typeof userId, 'agentName:', typeof agentName, 'conversationId:', typeof conversationId);
-    console.log('🔧 Actual values - userId:', userId, 'agentName:', agentName, 'conversationId:', conversationId);
+    console.log('🔧 CRITICAL DEBUG: Creating conversation - userId type:', typeof userId, 'agentName type:', typeof agentName, 'conversationId type:', typeof conversationId);
+    console.log('🔧 CRITICAL DEBUG: userId first 100 chars:', userId.substring(0, 100));
+    console.log('🔧 CRITICAL DEBUG: agentName:', agentName);
+    console.log('🔧 CRITICAL DEBUG: conversationId:', conversationId);
+
+    // CRITICAL BUG DETECTION: Check if userId is actually a system prompt
+    if (userId.includes('You are') || userId.includes('COMMUNICATION RULES') || userId.length > 100) {
+      console.error('❌ CRITICAL BUG: userId is actually a system prompt!');
+      console.error('❌ This indicates parameter order confusion in the calling function');
+      throw new Error('Parameter order error: userId is actually a system prompt. Check sendMessage call parameters.');
+    }
     
     // Validate userId is not null/undefined
     if (!userId) {
@@ -133,10 +142,24 @@ export class ClaudeApiService {
       }
     }
 
-    // CRITICAL BUG FIX: Extract actual string values from object parameters
-    const actualUserId = typeof userId === 'object' ? userId.userId || userId.agentId : userId;
-    const actualAgentName = typeof userId === 'object' ? userId.agentId : agentName;
-    const actualConversationId = typeof userId === 'object' ? (userId.conversationId || conversationId) : conversationId;
+    // CRITICAL BUG FIX: Ensure userId is a valid string that exists in the users table
+    let actualUserId = userId;
+    
+    // Validate the userId exists in the users table
+    const userExists = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, actualUserId))
+      .limit(1);
+    
+    if (userExists.length === 0) {
+      console.error('❌ Foreign key constraint violation - userId does not exist:', actualUserId);
+      throw new Error(`User with ID ${actualUserId} does not exist in users table`);
+    }
+    
+    console.log('✅ User validation passed for userId:', actualUserId);
+    const actualAgentName = agentName;
+    const actualConversationId = conversationId;
     
     console.log('🔧 FIXED PARAMETERS - userId:', actualUserId, 'agentName:', actualAgentName, 'conversationId:', actualConversationId);
 
@@ -1475,20 +1498,13 @@ I respond like your warm best friend who loves organization - simple, reassuring
     if (toolResults.length > 0) {
       console.log(`🎯 TOOL COMPLETION: ${agentName} used ${toolResults.length} tools - continuing with authentic personality response`);
       
-      // NORMAL MODE: Continue conversation with personality analysis
-      // Add a user message with tool results (this is the correct format for Claude API)
+      // FIXED: Proper Claude API tool flow - add tool results as user message
       currentMessages.push({
         role: 'user',
         content: toolResults
       });
       
       console.log(`🔄 CONTINUING CONVERSATION: Processing ${toolResults.length} tool results. Current response length: ${finalResponse.length}`);
-      
-      // CRITICAL FIX: Allow agents to continue using tools dynamically as needed
-      currentMessages.push({
-        role: 'user',
-        content: "Based on the tool results above, provide your analysis and continue working. You can use additional tools if needed to complete the task."
-      });
       
       // Continue conversation with tool results - KEEP TOOLS AVAILABLE for dynamic work
       const continuationResponse = await this.sendToClaudeWithRetry({
