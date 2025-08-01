@@ -44,50 +44,58 @@ class HybridAgentSystem {
   private analyzeContentNeed(message: string): boolean {
     const messageWords = message.toLowerCase();
     
-    // CRITICAL FIX: Always use Claude API for implementation requests
-    // These patterns indicate agents need to generate working code/content
-    const alwaysClaudePatterns = [
-      // File creation patterns
-      'create', 'build', 'implement', 'generate', 'write', 'design',
-      // File extensions
-      '.tsx', '.ts', '.js', '.css', '.html', '.jsx',
-      // Code generation terms
-      'component', 'function', 'interface', 'service', 'class',
-      'working', 'complete', 'full', 'autonomous', 'demonstrate',
-      // Agent task patterns
-      'test autonomous', 'show', 'skills', 'capabilities', 'specialized',
-      // Implementation terms
-      'implementation', 'solution', 'system', 'functionality'
-    ];
+    // FIXED: Proper conversation vs implementation detection
     
-    // Simple tool operations that can use autonomous system
+    // Pure tool operations - only for specific file system commands
     const toolOnlyPatterns = [
-      'view', 'check', 'list', 'find', 'search', 'debug', 'status',
-      'monitor', 'verify', 'validate'
+      'cleanup elena', 'cleanup multiagent', 'delete elena', 'remove elena'
     ];
     
-    // If ANY implementation pattern is found, use Claude API
-    const hasImplementationPattern = alwaysClaudePatterns.some(pattern => 
+    // Check for exact tool patterns first
+    const isExactToolPattern = toolOnlyPatterns.some(pattern => 
       messageWords.includes(pattern)
     );
     
-    if (hasImplementationPattern) {
-      console.log('🎨 ROUTING TO CLAUDE: Implementation pattern detected');
-      return true;
-    }
-    
-    // Only use tool operations for pure view/check operations
-    const isToolOnly = toolOnlyPatterns.some(pattern => 
-      messageWords.includes(pattern)
-    ) && !alwaysClaudePatterns.some(pattern => messageWords.includes(pattern));
-    
-    if (isToolOnly) {
-      console.log('🔧 ROUTING TO TOOLS: Simple operation detected');
+    if (isExactToolPattern) {
+      console.log('🔧 ROUTING TO TOOLS: Exact cleanup pattern detected');
       return false;
     }
     
-    // Default to Claude API for ambiguous cases to ensure complete implementations
-    console.log('🎨 ROUTING TO CLAUDE: Default for complete implementation');
+    // Conversational patterns - questions, greetings, discussions
+    const conversationalPatterns = [
+      'hello', 'hi', 'hey', 'how are you', 'what do you think', 'tell me', 'explain',
+      'why', 'what', 'how', 'when', 'where', 'who', 'can you', 'would you',
+      'feeling', 'today', 'opinion', 'thoughts', 'advice', 'help me understand',
+      'maya', 'elena', 'zara', 'quinn', 'olga', 'victoria'  // Agent names always conversational
+    ];
+    
+    // Implementation patterns - anything requiring code/content generation
+    const implementationPatterns = [
+      'create', 'build', 'implement', 'generate', 'write', 'design', 'fix',
+      'develop', 'code', 'component', 'function', 'interface', 'service',
+      'audit', 'analyze', 'report', 'upgrade', 'improve', 'solution',
+      'working', 'demonstration', 'test', 'show capabilities'
+    ];
+    
+    // Check for conversational patterns
+    const isConversational = conversationalPatterns.some(pattern => 
+      messageWords.includes(pattern)
+    );
+    
+    // Check for implementation patterns
+    const needsImplementation = implementationPatterns.some(pattern => 
+      messageWords.includes(pattern)
+    );
+    
+    // Logic: Use Claude API for conversations AND implementations
+    if (isConversational || needsImplementation) {
+      const reasonType = isConversational ? 'conversational' : 'implementation';
+      console.log(`🎨 ROUTING TO CLAUDE: ${reasonType} pattern detected`);
+      return true;
+    }
+    
+    // Default to Claude API for ambiguous cases
+    console.log('🎨 ROUTING TO CLAUDE: Default for natural interaction');
     return true;
   }
 
@@ -202,7 +210,7 @@ CRITICAL: When creating files, include complete functional code in the file_text
       // EXECUTE ACTUAL TOOLS BASED ON REQUEST
       const message = request.message.toLowerCase();
 
-      // File cleanup operations
+      // File cleanup operations - IMPROVED with better pattern matching
       if (message.includes('cleanup') || message.includes('delete') || message.includes('remove')) {
         const fs = await import('fs').then(m => m.promises);
         const path = await import('path');
@@ -224,9 +232,26 @@ CRITICAL: When creating files, include complete functional code in the file_text
               response += `✅ DELETED: ${filePath}\n`;
               actualWorkPerformed = true;
               toolsUsed.push('file-deletion');
+              fileOperations.push({ action: 'delete', path: filePath });
             } catch (error) {
               response += `ℹ️  SKIP: ${filePath} (already deleted)\n`;
             }
+          }
+        }
+        
+        // Generic file operations for direct paths
+        const filePathMatch = message.match(/(?:delete|remove|cleanup)\s+([^\s]+\.[a-zA-Z]+)/i);
+        if (filePathMatch) {
+          const filePath = filePathMatch[1];
+          try {
+            await fs.access(filePath);
+            await fs.unlink(filePath);
+            response += `✅ DELETED: ${filePath}\n`;
+            actualWorkPerformed = true;
+            toolsUsed.push('file-deletion');
+            fileOperations.push({ action: 'delete', path: filePath });
+          } catch (error) {
+            response += `❌ FAILED: Could not delete ${filePath} - ${error}\n`;
           }
         }
       }
