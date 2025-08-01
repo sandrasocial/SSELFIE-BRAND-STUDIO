@@ -349,8 +349,8 @@ export class CrossAgentIntelligence {
     const categories1 = new Set(knowledge1.map(k => k.category));
     const categories2 = new Set(knowledge2.map(k => k.category));
     
-    const uniqueCategories1 = [...categories1].filter(c => !categories2.has(c));
-    const uniqueCategories2 = [...categories2].filter(c => !categories1.has(c));
+    const uniqueCategories1 = Array.from(categories1).filter(c => !categories2.has(c));
+    const uniqueCategories2 = Array.from(categories2).filter(c => !categories1.has(c));
     
     const complementScore = (uniqueCategories1.length + uniqueCategories2.length) / 
                            (categories1.size + categories2.size);

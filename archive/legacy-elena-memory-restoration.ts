@@ -360,7 +360,7 @@ export class ElenaMemoryRestoration {
   private async integrateWithExistingMemory(memory: HistoricalMemory): Promise<void> {
     try {
       // Save to Elena's memory integration system
-      const { ElenaMemoryIntegration } = await import('./elena-memory-integration');
+      // Legacy import removed - using advanced memory system instead
       const memoryIntegration = ElenaMemoryIntegration.getInstance();
       
       // Store historical insights

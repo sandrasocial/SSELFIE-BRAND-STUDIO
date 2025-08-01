@@ -38,12 +38,12 @@ export class AgentFileAccessVerifier {
       'server/api/autonomous-orchestrator/deploy-all-agents.ts',
       'server/api/autonomous-orchestrator/coordination-metrics.ts',
       'server/services/intelligent-task-distributor.ts',
-      'server/services/agent-knowledge-sharing.ts',
+      'server/services/cross-agent-intelligence.ts',
       'server/templates/workflow-templates.ts'
     ];
     
     const searchKeywords = [
-      'deploy-all-agents', 'intelligent-task-distributor', 'agent-knowledge-sharing',
+      'deploy-all-agents', 'intelligent-task-distributor', 'cross-agent-intelligence',
       'workflow-templates', 'coordination-metrics', 'autonomous-orchestrator',
       'orchestrator', 'deployment', 'coordination', 'workflow', 'knowledge', 'sharing',
       'task assignment', 'agent coordination', 'multi-agent', 'workflow execution'
@@ -141,7 +141,7 @@ export class AgentFileAccessVerifier {
     const searchGuide = [
       'Use "autonomous-orchestrator" to find deployment system files',
       'Use "intelligent-task-distributor" to find agent assignment system',
-      'Use "agent-knowledge-sharing" to find cross-agent learning system',
+      'Use "cross-agent-intelligence" to find cross-agent learning system',
       'Use "workflow-templates" to find multi-agent collaboration workflows',
       'Use "coordination-metrics" to find system monitoring capabilities',
       'Search in server/api/autonomous-orchestrator/ directory',
