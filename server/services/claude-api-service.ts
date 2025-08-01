@@ -1405,7 +1405,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
             case 'search_filesystem':
               const { search_filesystem } = await import('../tools/search_filesystem');
               const searchResult = await search_filesystem(block.input);
-              console.log(`✅ SEARCH SUCCESS: Found ${searchResult.length || 0} files`);
+              console.log(`✅ SEARCH SUCCESS: Found ${searchResult.results?.length || 0} files`);
               toolResult = JSON.stringify(searchResult, null, 2);
               break;
               
@@ -1724,7 +1724,8 @@ I respond like your warm best friend who loves organization - simple, reassuring
                 
                 // Import parameter injection system
                 const { ParameterInjectionSystem } = await import('../utils/parameter-injection-system');
-                const fix = ParameterInjectionSystem.fixMissingFileText(block, currentMessages[currentMessages.length - 1]?.content || '', agentName);
+                const userMessage = messages[messages.length - 1]?.content || '';
+                const fix = ParameterInjectionSystem.fixMissingFileText(block, userMessage, agentName);
                 
                 if (fix.injectedParameters.length > 0) {
                   console.log(`✅ PARAMETER INJECTION: ${fix.reason}`);
