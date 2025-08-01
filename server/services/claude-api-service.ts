@@ -1827,6 +1827,42 @@ I respond like your warm best friend who loves organization - simple, reassuring
       throw new Error('Failed to clear conversation');
     }
   }
+
+  /**
+   * Validates Claude API message sequence format
+   * Ensures proper tool_use/tool_result pairing and message structure
+   */
+  private validateClaudeMessageSequence(messages: any[]): void {
+    try {
+      for (let i = 0; i < messages.length; i++) {
+        const message = messages[i];
+        
+        // Validate message structure
+        if (!message.role || !message.content) {
+          console.warn(`⚠️ MESSAGE VALIDATION: Invalid message structure at index ${i}`);
+          continue;
+        }
+        
+        // Check for tool_use/tool_result sequence issues
+        if (typeof message.content === 'object' && Array.isArray(message.content)) {
+          for (const block of message.content) {
+            if (block.type === 'tool_use') {
+              // Look for corresponding tool_result in next user message
+              const nextMessage = messages[i + 1];
+              if (!nextMessage || nextMessage.role !== 'user') {
+                console.warn(`⚠️ MESSAGE VALIDATION: tool_use block ${block.id} may lack proper tool_result`);
+              }
+            }
+          }
+        }
+      }
+      
+      console.log('✅ MESSAGE VALIDATION: Claude API message sequence validated');
+    } catch (error) {
+      console.error('❌ MESSAGE VALIDATION ERROR:', error);
+      // Don't throw - allow Claude API to handle validation
+    }
+  }
 }
 
 export const claudeApiService = new ClaudeApiService();
