@@ -1,0 +1,5 @@
+File created by Zara at 2025-08-01T16:59:04.868Z
+
+Content: CRITICAL: Claude API database constraint error persists. The foreign key claude_conversations_user_id_fkey is failing. User 42585527 exists in users table but conversation creation fails. Debug the createConversationIfNotExists method and fix the constraint violation. This is blocking content generation.
+
+Generated automatically by SSELFIE Studio agent system.
