@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useAgentActivityData } from '@/hooks/useAgentActivityData';
 import { ElenaWorkflowsTab } from './ElenaWorkflowsTab';
-import WorkflowCreator from '../Elena/WorkflowCreator';
 
 interface AgentStatus {
   agentName: string;
@@ -214,7 +213,9 @@ export default function AgentActivityDashboard() {
           </TabsContent>
 
           <TabsContent value="workflow-creator" className="space-y-6">
-            <WorkflowCreator />
+            <div className="text-center text-zinc-600 py-8">
+              Workflow Creator temporarily unavailable
+            </div>
           </TabsContent>
 
           <TabsContent value="deployments" className="space-y-6">

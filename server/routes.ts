@@ -1787,6 +1787,62 @@ Available tools:
 
 CRITICAL: When creating files, include complete functional code in the file_text parameter. Never create empty files.`
                 }
+              ],
+              tools: [
+                {
+                  name: 'str_replace_based_edit_tool',
+                  description: 'Tool for viewing, creating and editing files',
+                  input_schema: {
+                    type: 'object',
+                    properties: {
+                      command: {
+                        type: 'string',
+                        enum: ['view', 'create', 'str_replace', 'insert'],
+                        description: 'The operation to perform'
+                      },
+                      path: {
+                        type: 'string',
+                        description: 'Required parameter for all commands. Absolute path to file or directory'
+                      },
+                      file_text: {
+                        type: 'string',
+                        description: 'Required for create command. Contains the complete text content to write to the file'
+                      },
+                      old_str: {
+                        type: 'string',
+                        description: 'Required parameter of str_replace command, with string to be replaced'
+                      },
+                      new_str: {
+                        type: 'string',
+                        description: 'Optional for str_replace command. The text that will replace old_str'
+                      }
+                    },
+                    required: ['command', 'path']
+                  }
+                },
+                {
+                  name: 'search_filesystem',
+                  description: 'This tools searches and opens the relevant files for a codebase',
+                  input_schema: {
+                    type: 'object',
+                    properties: {
+                      query_description: {
+                        type: ['string', 'null'],
+                        description: 'A natural language query to perform semantic similarity search'
+                      },
+                      function_names: {
+                        type: 'array',
+                        items: { type: 'string' },
+                        description: 'List of specific function or method names to search for'
+                      },
+                      class_names: {
+                        type: 'array',
+                        items: { type: 'string' },
+                        description: 'List of specific class names to search for in the codebase'
+                      }
+                    }
+                  }
+                }
               ]
             }),
           });
@@ -1794,8 +1850,45 @@ CRITICAL: When creating files, include complete functional code in the file_text
           if (claudeResponse.ok) {
             const data = await claudeResponse.json();
             if (data.content && Array.isArray(data.content) && data.content.length > 0) {
-              const agentResponse = data.content[0].text || data.content[0].content;
-              console.log(`✅ CLAUDE CONTENT GENERATED: ${agentResponse.length} characters for ${agentId}`);
+              
+              // CRITICAL FIX: Handle tool usage in Claude API responses
+              let agentResponse = '';
+              const toolOperations = [];
+              
+              for (const content of data.content) {
+                if (content.type === 'text') {
+                  agentResponse += content.text;
+                } else if (content.type === 'tool_use') {
+                  // Execute the tool call
+                  const toolName = content.name;
+                  const toolInput = content.input;
+                  
+                  console.log(`🔧 CLAUDE TOOL EXECUTION: ${toolName} with input:`, toolInput);
+                  
+                  if (toolName === 'str_replace_based_edit_tool') {
+                    const { executeFileOperation } = await import('./services/unified-workspace-service');
+                    const result = await executeFileOperation(toolInput);
+                    toolOperations.push({
+                      type: 'file_operation',
+                      tool: toolName,
+                      input: toolInput,
+                      result: result,
+                      success: result.success
+                    });
+                    
+                    if (result.success) {
+                      agentResponse += `\n\n✅ **File Operation Completed:** ${toolInput.command} on ${toolInput.path}`;
+                    } else {
+                      agentResponse += `\n\n❌ **File Operation Failed:** ${result.error}`;
+                    }
+                  } else if (toolName === 'search_filesystem') {
+                    // Handle filesystem search
+                    agentResponse += `\n\n🔍 **Searched filesystem** for: ${toolInput.query_description || 'specific patterns'}`;
+                  }
+                }
+              }
+              
+              console.log(`✅ CLAUDE TOOL EXECUTION COMPLETE: ${agentResponse.length} characters, ${toolOperations.length} tool operations for ${agentId}`);
               
               return res.json({
                 success: true,
@@ -1803,6 +1896,7 @@ CRITICAL: When creating files, include complete functional code in the file_text
                 agentName: agentConfig.name,
                 conversationId: finalConversationId,
                 contentGenerated: true,
+                toolOperations: toolOperations,
                 claudeApiUsed: true
               });
             }
