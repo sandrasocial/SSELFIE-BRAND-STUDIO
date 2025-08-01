@@ -3,8 +3,7 @@ import { z } from 'zod';
 import { db } from '../db';
 import { claudeConversations, claudeMessages, agentLearning, agentCapabilities, users } from '@shared/schema';
 // Competing tool systems moved to archive - using only essential tools
-import { agentImplementationToolkit, AgentImplementationRequest } from '../tools/agent_implementation_toolkit';
-import { agentImplementationDetector } from '../tools/agent_implementation_detector';
+// Legacy tool imports removed during competing systems cleanup
 import { agentSearchCache } from './agent-search-cache';
 import { advancedMemorySystem } from './advanced-memory-system';
 import { crossAgentIntelligence } from './cross-agent-intelligence';
@@ -98,11 +97,10 @@ export class ClaudeApiService {
           const [newAdmin] = await db
             .insert(users)
             .values({
+              id: `admin-${Date.now()}`,
               email: 'ssa@ssasocial.com',
               firstName: 'Sandra',
-              lastName: 'Admin',
-              role: 'admin',
-              plan: 'premium'
+              lastName: 'Admin'
             })
             .onConflictDoNothing()
             .returning();
@@ -111,7 +109,13 @@ export class ClaudeApiService {
             userId = newAdmin.id;
             console.log('✅ Created admin user with ID:', userId);
           } else {
-            userId = 'admin-user-123'; // Use the expected ID if conflict happened
+            // Get the existing user ID from database instead of hardcoding
+            const existingAdmin = await db
+              .select()
+              .from(users)
+              .where(eq(users.email, 'ssa@ssasocial.com'))
+              .limit(1);
+            userId = existingAdmin.length > 0 ? existingAdmin[0].id : 'admin-user-123';
           }
         } else {
           // Use existing admin user ID
@@ -125,11 +129,10 @@ export class ClaudeApiService {
           const [fallbackUser] = await db
             .insert(users)
             .values({
+              id: `fallback-admin-${Date.now()}`,
               email: `admin-${Date.now()}@test.com`,
               firstName: 'Test',
-              lastName: 'Admin',
-              role: 'admin',
-              plan: 'premium'
+              lastName: 'Admin'
             })
             .returning();
           
@@ -331,7 +334,7 @@ export class ClaudeApiService {
         metadata: msg.metadata,
         toolCalls: msg.toolCalls,
         toolResults: msg.toolResults,
-        timestamp: msg.timestamp?.toISOString() || new Date().toISOString()
+        timestamp: msg.timestamp ? msg.timestamp.toISOString() : new Date().toISOString()
       }));
 
       console.log('📜 Successfully returning', mappedMessages.length, 'mapped messages');
@@ -439,10 +442,10 @@ export class ClaudeApiService {
 **Previous Context:** ${savedMemory.currentContext || 'No previous context'}
 
 **Key Tasks Completed:**
-${savedMemory.keyTasks?.map(task => `• ${task}`).join('\n') || '• No completed tasks'}
+${savedMemory.keyTasks?.map((task: any) => `• ${task}`).join('\n') || '• No completed tasks'}
 
 **Recent Decisions:**
-${savedMemory.recentDecisions?.map(decision => `• ${decision}`).join('\n') || '• No recent decisions'}
+${savedMemory.recentDecisions?.map((decision: any) => `• ${decision}`).join('\n') || '• No recent decisions'}
 
 **Current Workflow Stage:** ${savedMemory.workflowStage || 'ongoing'}
 
@@ -527,9 +530,9 @@ ${searchResult.results.slice(0, 10).map((file: any) => `• ${file.path}`).join(
       // ADVANCED MEMORY INTEGRATION: Get contextual memories for enhanced intelligence
       try {
         const contextualMemories = await advancedMemorySystem.getContextualMemories(agentName, userId, userMessage);
-        if (contextualMemories.length > 0) {
+        if (contextualMemories && contextualMemories.length > 0) {
           enhancedSystemPrompt += `\n\n## 🧠 CONTEXTUAL MEMORY INTELLIGENCE\n\n`;
-          enhancedSystemPrompt += contextualMemories.map(memory => 
+          enhancedSystemPrompt += contextualMemories.map((memory: any) => 
             `**${memory.category}** (confidence: ${typeof memory.confidence === 'number' ? memory.confidence.toFixed(2) : memory.confidence}): ${memory.pattern}`
           ).join('\n') + '\n';
           console.log(`🧠 ADVANCED MEMORY: Loaded ${contextualMemories.length} contextual memories for ${agentName}`);
@@ -882,7 +885,7 @@ Provide thorough, detailed analysis and implementation as Sandra's expert agent.
         system: claudeRequest.system.substring(0, 200) + '...',
         messages: claudeRequest.messages.length,
         tools: claudeRequest.tools?.length || 0,
-        toolNames: claudeRequest.tools?.map(t => t.name) || []
+        toolNames: claudeRequest.tools?.map((t: any) => t.name) || []
       }, null, 2));
       
       // CRITICAL DEBUG: Check if tools are actually in the request
@@ -899,7 +902,7 @@ Provide thorough, detailed analysis and implementation as Sandra's expert agent.
 
       let assistantMessage = '';
       if (response.content[0] && 'text' in response.content[0]) {
-        assistantMessage = response.content[0].text;
+        assistantMessage = (response.content[0] as any).text;
       }
 
       // FULL AGENT CAPABILITIES: Process tool usage when agents need to use tools
@@ -1409,8 +1412,8 @@ I respond like your warm best friend who loves organization - simple, reassuring
             case 'str_replace_based_edit_tool':
               // ✅ ENHANCED PARAMETER VALIDATION: Fix complex file operations
               const conversationalPaths = ['me', 'the', 'files', 'show', 'list', 'find'];
-              const pathValue = block.input.path;
-              console.log(`🔍 PATH VALIDATION: "${pathValue}", empty: ${!pathValue}, trim empty: ${pathValue?.trim() === ''}, conversational: ${conversationalPaths.includes(pathValue?.toLowerCase())}`);
+              const pathValue = block.input?.path as string;
+              console.log(`🔍 PATH VALIDATION: "${pathValue}", empty: ${!pathValue}, trim empty: ${pathValue?.trim() === ''}, conversational: ${pathValue ? conversationalPaths.includes(pathValue.toLowerCase()) : false}`);
               
               if (!pathValue || pathValue.trim() === '' || conversationalPaths.includes(pathValue.toLowerCase())) {
                 console.log(`❌ INVALID FILE PATH DETECTED: "${pathValue}" - Redirecting to search`);
@@ -1419,7 +1422,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
               }
               
               // ✅ PARAMETER VALIDATION: Check for missing required parameters
-              if (block.input.command === 'create' && !block.input.file_text) {
+              if (block.input?.command === 'create' && !block.input?.file_text) {
                 console.log(`❌ MISSING PARAMETER: file_text required for create command`);
                 toolResult = `Parameter Error: The 'create' command requires 'file_text' parameter. Please generate the complete file content and retry the create command with the file_text parameter included.`;
                 
@@ -1427,13 +1430,13 @@ I respond like your warm best friend who loves organization - simple, reassuring
                 break;
               }
               
-              if (block.input.command === 'str_replace' && !block.input.old_str) {
+              if (block.input?.command === 'str_replace' && !block.input?.old_str) {
                 console.log(`❌ MISSING PARAMETER: old_str required for str_replace command`);
                 toolResult = `Parameter Error: The 'str_replace' command requires 'old_str' parameter. Please view the file first to see the exact text to replace, then retry with the old_str parameter.`;
                 break;
               }
               
-              if (block.input.command === 'insert' && (block.input.insert_line === undefined || !block.input.insert_text)) {
+              if (block.input?.command === 'insert' && (block.input?.insert_line === undefined || !block.input?.insert_text)) {
                 console.log(`❌ MISSING PARAMETER: insert_line and insert_text required for insert command`);
                 toolResult = `Parameter Error: The 'insert' command requires both 'insert_line' and 'insert_text' parameters. Please specify the line number and the text content to insert.`;
                 break;

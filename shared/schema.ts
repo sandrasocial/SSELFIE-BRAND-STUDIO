@@ -770,7 +770,6 @@ export { userStyleguides, styleguideTemplates } from "./styleguide-schema";
 export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema";
 
 // Website management schema types
-// Website schema already defined above
-export type Website = typeof websites.$inferSelect;
+// Note: Website type already defined above at line 502
 
 // Note: Type exports are handled individually above to avoid conflicts
