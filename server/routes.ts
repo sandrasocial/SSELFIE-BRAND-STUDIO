@@ -82,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Victoria AI Website Builder - Missing endpoints from useWebsiteBuilder hook
+  // Victoria AI Website Builder - Uses saved onboarding data for enhanced generation
   app.post('/api/victoria/generate', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
@@ -90,7 +90,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Generate website using Victoria AI
       const { db } = await import('./db');
-      const { websites } = await import('../shared/schema');
+      const { websites, onboardingData } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      // Get user's saved onboarding data for enhanced generation
+      const userOnboarding = await db
+        .select()
+        .from(onboardingData)
+        .where(eq(onboardingData.userId, userId))
+        .limit(1);
+
+      console.log('🎯 Victoria Generation: Using saved onboarding data:', userOnboarding[0] ? 'Found' : 'Not found');
+      
+      // Combine form data with saved onboarding data for comprehensive website generation
+      const enhancedWebsiteData = {
+        ...websiteData,
+        // Include saved onboarding context for better generation
+        savedOnboarding: userOnboarding[0] || null
+      };
       
       const [newWebsite] = await db
         .insert(websites)
@@ -103,7 +120,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             brandPersonality: websiteData.brandPersonality,
             targetAudience: websiteData.targetAudience,
             keyFeatures: websiteData.keyFeatures,
-            contentStrategy: websiteData.contentStrategy
+            contentStrategy: websiteData.contentStrategy,
+            // Include saved onboarding context
+            enhancedData: userOnboarding[0] || null
           },
           status: 'draft',
           isPublished: false,
@@ -118,7 +137,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           template: 'victoria-editorial',
           estimatedGenerationTime: 45,
           status: 'generated',
-          deploymentUrl: null
+          deploymentUrl: null,
+          hasOnboardingData: !!userOnboarding[0]
         }
       });
     } catch (error) {
@@ -203,6 +223,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // BUILD onboarding API endpoints - Save user onboarding data for Victoria
+  app.post('/api/build/onboarding', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { businessName, businessDescription, businessType, brandPersonality, targetAudience, keyFeatures, contentStrategy } = req.body;
+
+      if (!businessName || !businessType || !brandPersonality || !targetAudience) {
+        return res.status(400).json({ 
+          error: "Business name, type, brand personality, and target audience are required" 
+        });
+      }
+
+      const { db } = await import('./db');
+      const { onboardingData } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+
+      // Check if user already has onboarding data
+      const existingOnboarding = await db
+        .select()
+        .from(onboardingData)
+        .where(eq(onboardingData.userId, userId))
+        .limit(1);
+
+      let result;
+      if (existingOnboarding.length > 0) {
+        // Update existing onboarding data
+        result = await db
+          .update(onboardingData)
+          .set({
+            businessGoals: businessDescription,
+            businessType,
+            brandVoice: brandPersonality,
+            targetAudience,
+            brandStory: contentStrategy,
+            personalMission: keyFeatures?.join(', '),
+            completed: true,
+            currentStep: 4,
+            completedAt: new Date(),
+            updatedAt: new Date()
+          })
+          .where(eq(onboardingData.userId, userId))
+          .returning();
+      } else {
+        // Create new onboarding data
+        result = await db
+          .insert(onboardingData)
+          .values({
+            userId,
+            businessGoals: businessDescription,
+            businessType,
+            brandVoice: brandPersonality,
+            targetAudience,
+            brandStory: contentStrategy,
+            personalMission: keyFeatures?.join(', '),
+            completed: true,
+            currentStep: 4,
+            completedAt: new Date()
+          })
+          .returning();
+      }
+
+      res.json({ success: true, onboarding: result[0] });
+    } catch (error) {
+      console.error("Build onboarding error:", error);
+      res.status(500).json({ error: "Failed to save onboarding data" });
+    }
+  });
+
+  // GET /api/build/onboarding - Get existing BUILD onboarding data
+  app.get('/api/build/onboarding', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
+
+      const { db } = await import('./db');
+      const { onboardingData } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+
+      const onboarding = await db
+        .select()
+        .from(onboardingData)
+        .where(eq(onboardingData.userId, userId))
+        .limit(1);
+
+      res.json({ 
+        success: true, 
+        onboarding: onboarding[0] || null,
+        isCompleted: onboarding[0]?.completed || false
+      });
+    } catch (error) {
+      console.error("Get build onboarding error:", error);
+      res.status(500).json({ error: "Failed to retrieve onboarding data" });
+    }
+  });
+
   // Website management endpoints
   app.get('/api/websites', isAuthenticated, async (req: any, res) => {
     try {
