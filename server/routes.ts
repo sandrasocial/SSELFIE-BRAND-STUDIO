@@ -1701,14 +1701,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       console.log('🔄 ADMIN AGENT CHAT BYPASS: Processing request');
       
-      // Admin authentication
-      const adminToken = req.headers['x-admin-token'];
+      // Admin authentication - Fixed: Allow admin token OR authenticated session
+      const adminToken = req.headers['x-admin-token'] || req.body.adminToken;
       const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
       
       if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ 
           success: false, 
-          message: 'Admin access required' 
+          message: 'Admin access required - use X-Admin-Token header or authenticate as ssa@ssasocial.com' 
         });
       }
       

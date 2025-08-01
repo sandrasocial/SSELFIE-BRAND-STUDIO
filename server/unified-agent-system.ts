@@ -354,7 +354,7 @@ export class UnifiedAgentSystem {
       }
     }
 
-    return [...new Set(filePaths)]; // Remove duplicates
+    return Array.from(new Set(filePaths)); // Remove duplicates
   }
 
   /**
