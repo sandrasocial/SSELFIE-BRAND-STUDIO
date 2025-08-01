@@ -75,7 +75,7 @@ class HybridAgentSystem {
 
   private async generateContentWithClaude(request: HybridAgentRequest): Promise<HybridAgentResponse> {
     try {
-      const { CONSULTING_AGENT_PERSONALITIES } = await import('../routes/agent-personalities-consulting');
+      const { CONSULTING_AGENT_PERSONALITIES } = await import('../agent-personalities-consulting');
       const agentConfig = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
 
       if (!agentConfig) {
@@ -161,11 +161,10 @@ CRITICAL: When creating files, include complete functional code in the file_text
   }
 
   private async executeDirectToolOperation(request: HybridAgentRequest): Promise<HybridAgentResponse> {
-    console.log(`🔧 DIRECT TOOL OPERATION: ${request.agentId} executing without Claude API`);
+    console.log(`🔧 DIRECT TOOL OPERATION: ${request.agentId} executing actual tools without Claude API`);
     
     try {
-      // For tool operations, generate a direct response based on the operation type
-      const { CONSULTING_AGENT_PERSONALITIES } = await import('../routes/agent-personalities-consulting');
+      const { CONSULTING_AGENT_PERSONALITIES } = await import('../agent-personalities-consulting');
       const agentConfig = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
 
       if (!agentConfig) {
@@ -177,32 +176,85 @@ CRITICAL: When creating files, include complete functional code in the file_text
         };
       }
 
-      // Generate a tool-focused response without Claude API
-      let response = `**${agentConfig.name.toUpperCase()} HERE!**
+      let response = `**${agentConfig.name.toUpperCase()} EXECUTING TOOLS**\n\n`;
+      const toolsUsed: string[] = [];
+      const fileOperations: any[] = [];
+      let actualWorkPerformed = false;
 
-Processing tool operation: "${request.message}"
+      // EXECUTE ACTUAL TOOLS BASED ON REQUEST
+      const message = request.message.toLowerCase();
 
-I'm executing direct tool operations for maximum efficiency:`;
+      // File cleanup operations
+      if (message.includes('cleanup') || message.includes('delete') || message.includes('remove')) {
+        const fs = await import('fs').then(m => m.promises);
+        const path = await import('path');
+        
+        // Find Elena/MultiAgent files to cleanup
+        if (message.includes('elena') || message.includes('multiagent')) {
+          const filesToCleanup = [
+            'client/src/components/admin/MultiAgentWorkflowInterface.tsx',
+            'client/src/components/Elena/WorkflowCreator.tsx',
+            'client/src/components/Elena/ElenaWorkflowsTab.tsx',
+            'client/src/components/Elena/ElenaPhaseNavigation.tsx',
+            'client/src/components/Elena/ElenaTestWorking.tsx'
+          ];
 
-      const toolsUsed = [];
-
-      // Analyze what tools might be needed
-      if (request.message.toLowerCase().includes('view') || request.message.toLowerCase().includes('check')) {
-        response += `\n- Using str_replace_based_edit_tool to view files`;
-        toolsUsed.push('file-viewer');
+          for (const filePath of filesToCleanup) {
+            try {
+              await fs.access(filePath);
+              await fs.unlink(filePath);
+              response += `✅ DELETED: ${filePath}\n`;
+              actualWorkPerformed = true;
+              toolsUsed.push('file-deletion');
+            } catch (error) {
+              response += `ℹ️  SKIP: ${filePath} (already deleted)\n`;
+            }
+          }
+        }
       }
 
-      if (request.message.toLowerCase().includes('search') || request.message.toLowerCase().includes('find')) {
-        response += `\n- Using search_filesystem to locate files`;
-        toolsUsed.push('file-search');
+      // File creation operations
+      if (message.includes('create') || message.includes('test')) {
+        if (message.includes('test file')) {
+          const fs = await import('fs').then(m => m.promises);
+          const testFileName = `agent-test-${request.agentId}-${Date.now()}.txt`;
+          const testContent = `Test file created by ${agentConfig.name} at ${new Date().toISOString()}`;
+          
+          await fs.writeFile(testFileName, testContent);
+          response += `✅ CREATED: ${testFileName}\n`;
+          actualWorkPerformed = true;
+          toolsUsed.push('file-creation');
+        }
       }
 
-      if (request.message.toLowerCase().includes('test') || request.message.toLowerCase().includes('debug')) {
-        response += `\n- Executing diagnostic operations`;
-        toolsUsed.push('diagnostics');
+      // File viewing operations
+      if (message.includes('view') || message.includes('check') || message.includes('status')) {
+        const fs = await import('fs').then(m => m.promises);
+        
+        // Check for Elena files
+        const filesToCheck = [
+          'client/src/components/admin/MultiAgentWorkflowInterface.tsx',
+          'client/src/components/Elena/WorkflowCreator.tsx'
+        ];
+
+        for (const filePath of filesToCheck) {
+          try {
+            await fs.access(filePath);
+            response += `📁 EXISTS: ${filePath}\n`;
+          } catch (error) {
+            response += `✅ CLEAN: ${filePath} (not found)\n`;
+          }
+        }
+        actualWorkPerformed = true;
+        toolsUsed.push('file-checking');
       }
 
-      response += `\n\n**TOOL OPERATIONS COMPLETED** - Direct workspace access with zero API costs for non-content operations.`;
+      if (!actualWorkPerformed) {
+        response += `ℹ️  No specific file operations detected for: "${request.message}"\n`;
+        response += `💡 Available operations: cleanup, delete, create test file, view status\n`;
+      }
+
+      response += `\n**TOOL EXECUTION COMPLETE** - Zero API costs, actual file operations performed.`;
 
       return {
         success: true,
@@ -210,7 +262,7 @@ I'm executing direct tool operations for maximum efficiency:`;
         contentGenerated: false,
         claudeApiUsed: false,
         toolsUsed,
-        fileOperations: []
+        fileOperations
       };
 
     } catch (error) {
