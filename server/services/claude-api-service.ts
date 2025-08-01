@@ -1570,20 +1570,17 @@ I respond like your warm best friend who loves organization - simple, reassuring
           console.log(`🚨 STOPPING INFINITE LOOP: Detected failed tool attempts - ending recursion`);
           finalResponse += '\n\n**Process completed** - stopped to prevent infinite loop.';
         } else {
-          // FIXED: Process continuation response directly without recursive call
-          const recursiveResult = await this.processToolResponseDirectly(
-            continuationResponse,
-            currentMessages,
-            systemPrompt,
-            tools,
-            fileEditMode,
-            agentName,
-            recursiveDepth + 1,
-            maxRecursiveDepth
-          );
+          // Extract text content from continuation response
+          for (const content of continuationResponse.content) {
+            if (content.type === 'text') {
+              finalResponse += (finalResponse ? '\n\n' : '') + content.text;
+            }
+          }
           
-          finalResponse += (finalResponse ? '\n\n' : '') + recursiveResult;
-          console.log(`✅ AGENT TASK COMPLETED: Agent finished work naturally`);
+          // SIMPLIFIED: No additional tool processing to prevent errors
+          console.log(`📝 RESPONSE EXTRACTION: Content blocks processed, length: ${finalResponse.length}`);
+          
+          console.log(`✅ AGENT TASK COMPLETED: Combined response length: ${finalResponse.length}`);
         }
         
       } else if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
@@ -1737,11 +1734,15 @@ I respond like your warm best friend who loves organization - simple, reassuring
             finalResponse += (finalResponse ? '\n\n' : '') + content.text;
           }
         }
+        
+        console.log(`📝 DIRECT PROCESSING COMPLETE: Combined response length: ${finalResponse.length}`);
       }
     }
     
     return finalResponse;
   }
+
+  // REMOVED: processSimpleTools method to prevent function not found errors
 
   private async handleToolCalls(content: any[], assistantMessage: string, conversationId?: string, agentName?: string): Promise<string> {
     let enhancedMessage = assistantMessage;
