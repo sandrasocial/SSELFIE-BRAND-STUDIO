@@ -5,16 +5,51 @@ import { VictoriaChat } from './VictoriaChat';
 import { VictoriaEditorialBuilder } from './VictoriaEditorialBuilder';
 import { useWebsiteBuilder } from '@/hooks/useWebsiteBuilder';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
 
 export function AIWebsiteBuilder() {
-  const [currentView, setCurrentView] = useState<'wizard' | 'preview' | 'customize'>('wizard');
+  const [currentView, setCurrentView] = useState<'checking' | 'mode-select' | 'wizard' | 'chat' | 'preview' | 'customize'>('checking');
   const { currentWebsite, generationProgress, isGenerating, simulateProgress } = useWebsiteBuilder();
+
+  // Check if user has existing onboarding data
+  const { data: existingOnboarding, isLoading: checkingOnboarding } = useQuery({
+    queryKey: ['/api/build/onboarding/check'],
+    retry: false,
+  }) as { data: { hasOnboarding: boolean; onboardingData: any } | undefined; isLoading: boolean };
+
+  // Check if user has existing websites
+  const { data: userWebsites, isLoading: checkingWebsites } = useQuery({
+    queryKey: ['/api/victoria/websites'],
+    retry: false,
+  }) as { data: { websites: any[] } | undefined; isLoading: boolean };
 
   useEffect(() => {
     if (isGenerating && generationProgress === 0) {
       simulateProgress();
     }
   }, [isGenerating, generationProgress, simulateProgress]);
+
+  // Handle onboarding check and route users appropriately
+  useEffect(() => {
+    if (!checkingOnboarding && !checkingWebsites) {
+      console.log('🔍 BUILD Navigation:', {
+        hasOnboarding: existingOnboarding?.hasOnboarding,
+        websiteCount: userWebsites?.websites?.length || 0
+      });
+      
+      // If user has completed onboarding and has websites, skip to website management
+      if (existingOnboarding?.hasOnboarding && userWebsites?.websites?.length > 0) {
+        console.log('✅ Returning user with websites, skipping onboarding');
+        setCurrentView('preview');
+      } else if (existingOnboarding?.hasOnboarding) {
+        console.log('✅ Returning user without websites, showing mode selection');
+        setCurrentView('mode-select');
+      } else {
+        console.log('🆕 New user, showing mode selection');
+        setCurrentView('mode-select');
+      }
+    }
+  }, [checkingOnboarding, checkingWebsites, existingOnboarding, userWebsites]);
 
   const handleWizardComplete = (website: any) => {
     setCurrentView('preview');
@@ -27,6 +62,29 @@ export function AIWebsiteBuilder() {
   const handleDeploy = () => {
     // Website deployed, stay on preview to show success
   };
+
+  // Show loading state while checking onboarding status
+  if (currentView === 'checking' || checkingOnboarding || checkingWebsites) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-4xl mx-auto p-8">
+          <div className="text-center py-20">
+            <h1 className="text-4xl font-normal mb-8" style={{ fontFamily: 'Times New Roman' }}>
+              Loading Your Workspace
+            </h1>
+            <div className="max-w-md mx-auto">
+              <div className="bg-gray-200 rounded-full h-2 mb-4">
+                <div className="bg-black h-2 rounded-full w-1/2 animate-pulse"></div>
+              </div>
+              <p className="text-gray-600">
+                Checking your account setup...
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isGenerating) {
     return (
@@ -131,9 +189,9 @@ export function AIWebsiteBuilder() {
         <VictoriaEditorialBuilder onWebsiteGenerated={handleWizardComplete} />
       )}
       
-      {currentView === 'preview' && currentWebsite && (
+      {currentView === 'preview' && (currentWebsite || (userWebsites?.websites && userWebsites.websites.length > 0)) && (
         <WebsitePreview
-          website={currentWebsite}
+          website={currentWebsite || userWebsites?.websites?.[0]}
           onCustomize={handleCustomize}
           onDeploy={handleDeploy}
         />
