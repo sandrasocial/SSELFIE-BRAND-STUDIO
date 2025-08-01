@@ -169,8 +169,10 @@ export class UnifiedAgentSystem {
         request.enforceTools || false // fileEditMode
       );
 
-      // HOOK: Trigger implementation protocol after agent execution
-      await this.postExecutionImplementationHook(request, response);
+      // CONDITIONAL HOOK: Only trigger implementation for actual implementation tasks
+      if (this.shouldTriggerImplementation(request, response)) {
+        await this.postExecutionImplementationHook(request, response);
+      }
 
       // Broadcast to WebSocket clients
       this.broadcastToClients({
@@ -182,8 +184,8 @@ export class UnifiedAgentSystem {
 
       return {
         success: true,
-        response: response.content,
-        toolsUsed: response.toolsUsed || [],
+        response: typeof response === 'string' ? response : response.content || response,
+        toolsUsed: typeof response === 'object' && response.toolsUsed ? response.toolsUsed : [],
       };
 
     } catch (error) {
@@ -236,6 +238,28 @@ export class UnifiedAgentSystem {
         }
       });
     }
+  }
+
+  /**
+   * Check if implementation protocol should be triggered
+   */
+  private shouldTriggerImplementation(request: AgentRequest, response: any): boolean {
+    const message = request.message.toLowerCase();
+    
+    // Don't trigger for diagnostic, audit, or consultation requests
+    if (message.includes('diagnostic') || 
+        message.includes('audit') || 
+        message.includes('report') || 
+        message.includes('status') || 
+        message.includes('analysis')) {
+      return false;
+    }
+    
+    // Only trigger for actual implementation tasks
+    return message.includes('implement') || 
+           message.includes('create') || 
+           message.includes('build') || 
+           message.includes('generate');
   }
 
   /**
