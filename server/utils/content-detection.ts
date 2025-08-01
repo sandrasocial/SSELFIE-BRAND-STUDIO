@@ -18,12 +18,13 @@ export class ContentDetector {
   static analyzeMessage(message: string): ContentAnalysis {
     const messageWords = message.toLowerCase();
     
-    // Content generation keywords (require Claude API) 
+    // Content generation keywords (require Claude API)
     const contentKeywords = [
-      'generate', 'implement', 'build', 'design', 'write',
+      'create', 'generate', 'implement', 'build', 'design', 'write',
       'component', 'interface', 'service', 'function', 'class',
-      'react', 'typescript', 'luxury', 'editorial', 'sophisticated', 
-      'professional', 'code', 'implementation', 'complete', 'working'
+      '.tsx', '.ts', '.js', '.jsx', 'react', 'typescript',
+      'luxury', 'editorial', 'sophisticated', 'professional',
+      'code', 'implementation', 'complete', 'working'
     ];
 
     // Tool operation keywords (can use autonomous system)
