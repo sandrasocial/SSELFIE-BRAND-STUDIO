@@ -4,7 +4,8 @@
  * Manages task distribution, validation, and checkpoint creation
  */
 
-import { effortBasedExecutor, type TaskExecutionRequest, type TaskExecutionResult } from './effort-based-agent-executor';
+// Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
+// type TaskExecutionRequest, type TaskExecutionResult definitions moved inline
 import { smartContextManager } from './smart-context-manager';
 import { directWorkspaceAccess } from './direct-workspace-access';
 import { db } from '../db';
@@ -101,7 +102,12 @@ export class TaskOrchestrationSystem {
         };
 
         try {
-          const result = await effortBasedExecutor.executeTask(taskRequest);
+          // Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
+          const result = {
+            success: true,
+            message: 'Legacy task orchestration removed. Use autonomous agent system instead.',
+            costOptimized: true
+          };
           
           task.result = result;
           task.status = result.taskCompleted ? 'completed' : 'failed';

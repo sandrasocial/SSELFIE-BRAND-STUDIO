@@ -1,5 +1,5 @@
-const { str_replace_based_edit_tool } = require('../tools/str_replace_based_edit_tool');
-const { search_filesystem } = require('../tools/search_filesystem');
+import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_tool.js';
+import { search_filesystem } from '../tools/search_filesystem.js';
 import fs from 'fs/promises';
 import path from 'path';
 

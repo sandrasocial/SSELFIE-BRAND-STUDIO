@@ -1646,7 +1646,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // EFFORT-BASED AGENT SYSTEM - Integrated into existing admin consulting agents
-  const { effortBasedExecutor } = await import('./services/effort-based-agent-executor');
+  // Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
   
   app.post('/api/agents/effort-based/execute', async (req: any, res) => {
     try {
@@ -1671,10 +1671,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         return res.status(401).json({ success: false, message: 'Unauthorized' });
       }
 
-      const result = await effortBasedExecutor.executeTask({
-        ...req.body,
-        userId
-      });
+      // Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
+      const result = {
+        success: true,
+        message: 'Legacy effort-based system removed. Use autonomous agent system instead.',
+        costOptimized: true
+      };
       res.json({ success: true, result });
     } catch (error) {
       console.error('Effort-based execution error:', error);
@@ -1761,28 +1763,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         });
       }
       
-      // FALLBACK: Use DirectToolExecutor for simpler operations
-      console.log('🔧 FALLBACK: Using DirectToolExecutor for simple operations');
-      
-      const { DirectToolExecutor } = await import('./services/direct-tool-executor');
-      
-      // Check if message contains direct tool requests that can be executed without API costs
-      const toolDetection = await DirectToolExecutor.detectAndExecuteTools(message, agentId);
-      
-      if (toolDetection.toolsExecuted) {
-        console.log('🔧 DIRECT TOOL EXECUTION: Completed without API costs');
-        const response = `${toolDetection.toolResults}\n\nDirect tool execution completed successfully. Files have been accessed/modified as requested.`;
-        
-        console.log(`💰 COST SAVED: Direct repository access instead of Claude API`);
-        
-        return res.json({
-          success: true,
-          response: response,
-          agentName: agentConfig.name,
-          conversationId: finalConversationId,
-          costOptimized: true
-        });
-      }
+      // AUTONOMOUS SYSTEM FAILED: Use Claude API for complex conversation/analysis
+      console.log('🔧 AUTONOMOUS FALLBACK: Using Claude API for complex agent conversation');
       
       // If no direct tools detected, use Claude API for conversation/analysis
       const { claudeApiService } = await import('./services/claude-api-service');

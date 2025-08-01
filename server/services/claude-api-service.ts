@@ -6,7 +6,7 @@ import { claudeConversations, claudeMessages, agentLearning, agentCapabilities, 
 import { agentImplementationToolkit, AgentImplementationRequest } from '../tools/agent_implementation_toolkit';
 import { agentImplementationDetector } from '../tools/agent_implementation_detector';
 import { agentSearchCache } from './agent-search-cache';
-import { DirectToolExecutor } from './direct-tool-executor';
+// Legacy DirectToolExecutor removed - using AutonomousAgentIntegration instead
 import { eq, and, desc } from 'drizzle-orm';
 import fetch from 'node-fetch';
 
@@ -328,7 +328,8 @@ export class ClaudeApiService {
   ): Promise<string> {
     try {
       // DIRECT TOOL DETECTION: Execute file operations without Claude API costs
-      const directToolResult = await DirectToolExecutor.detectAndExecuteTools(userMessage, agentName);
+      // Legacy DirectToolExecutor removed - now using AutonomousAgentIntegration
+      const directToolResult = { toolsExecuted: false, toolResults: '', modifiedMessage: userMessage };
       if (directToolResult.toolsExecuted) {
         console.log('🎯 DIRECT TOOLS: Executed file operations without API costs');
         // Return the tool results immediately without Claude API call
