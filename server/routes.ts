@@ -1731,12 +1731,88 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      // AUTONOMOUS AGENT INTEGRATION: Use new autonomous capabilities for ZERO API costs
-      console.log('🤖 AUTONOMOUS INTEGRATION: Using autonomous agent system - ZERO API costs');
+      // HYBRID SYSTEM: Use Claude API for content generation, autonomous for tool operations
+      const { ContentDetector } = await import('./utils/content-detection');
+      const contentAnalysis = ContentDetector.analyzeMessage(message);
+      
+      console.log(`🤖 HYBRID SYSTEM: ${contentAnalysis.detectedType} detected (confidence: ${contentAnalysis.confidence})`);
+      console.log(`🎯 REASONING: ${contentAnalysis.reasoning}`);
+      
+      if (contentAnalysis.needsClaudeGeneration) {
+        // Use Claude API for content generation
+        console.log('🎨 CLAUDE API: Generating actual content with Claude API');
+        
+        try {
+          const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
+
+${agentConfig.systemPrompt}
+
+CRITICAL CONTENT GENERATION INSTRUCTIONS:
+- Generate complete, functional code when creating files
+- Use str_replace_based_edit_tool to create files with actual working code
+- Include all necessary imports, interfaces, and implementations
+- Never create empty files - always include meaningful content
+- For React components: include complete JSX structure and TypeScript types
+- Use luxury design system: Times New Roman, black/white/gray palette
+- Add proper error handling and production-ready code
+
+Available tools:
+- str_replace_based_edit_tool (view, create, str_replace)
+- search_filesystem (find files and code)`;
+
+          const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+              'anthropic-version': '2023-06-01',
+            },
+            body: JSON.stringify({
+              model: 'claude-3-5-sonnet-20241022',
+              max_tokens: 4000,
+              system: systemPrompt,
+              messages: [
+                {
+                  role: 'user',
+                  content: `${message}
+
+CRITICAL: When creating files, include complete functional code in the file_text parameter. Never create empty files.`
+                }
+              ]
+            }),
+          });
+
+          if (claudeResponse.ok) {
+            const data = await claudeResponse.json();
+            if (data.content && Array.isArray(data.content) && data.content.length > 0) {
+              const agentResponse = data.content[0].text || data.content[0].content;
+              console.log(`✅ CLAUDE CONTENT GENERATED: ${agentResponse.length} characters for ${agentId}`);
+              
+              return res.json({
+                success: true,
+                response: agentResponse,
+                agentName: agentConfig.name,
+                conversationId: finalConversationId,
+                contentGenerated: true,
+                claudeApiUsed: true
+              });
+            }
+          } else {
+            console.log(`❌ CLAUDE API ERROR: ${claudeResponse.status} ${claudeResponse.statusText}`);
+            throw new Error(`Claude API failed: ${claudeResponse.status}`);
+          }
+        } catch (claudeError) {
+          console.error('❌ Claude content generation failed:', claudeError);
+          // Fall through to autonomous system as backup
+        }
+      }
+      
+      // Use autonomous system for tool operations or as fallback
+      console.log('🔧 AUTONOMOUS TOOLS: Using autonomous system for tool operations');
       
       const { autonomousAgent } = await import('./services/autonomous-agent-integration');
       
-      // Process request through autonomous agent integration
+      // Process request through autonomous agent integration  
       const autonomousRequest = {
         agentId,
         message,
