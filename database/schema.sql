@@ -170,14 +170,43 @@ CREATE TABLE collection_images (
     UNIQUE(collection_id, image_generation_id)
 );
 
--- Indexes for performance
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_image_generations_user_month ON image_generations(user_id, generation_month);
-CREATE INDEX idx_monthly_usage_user_month ON monthly_usage(user_id, month_year);
-CREATE INDEX idx_workspaces_user ON workspaces(user_id);
-CREATE INDEX idx_projects_workspace ON projects(workspace_id);
-CREATE INDEX idx_projects_user ON projects(user_id);
-CREATE INDEX idx_collections_project ON image_collections(project_id);
+-- PRODUCTION-GRADE PERFORMANCE INDEXES
+-- Core user authentication (sub-10ms queries)
+CREATE UNIQUE INDEX idx_users_email_active ON users(email) WHERE is_active = true;
+CREATE UNIQUE INDEX idx_users_username_active ON users(username) WHERE is_active = true;
+CREATE INDEX idx_users_subscription ON users(subscription_tier, is_active);
+CREATE INDEX idx_users_created_at ON users(created_at);
+
+-- Business profile optimization
+CREATE INDEX idx_business_profiles_user_active ON business_profiles(user_id) WHERE is_active = true;
+CREATE INDEX idx_business_services_profile_active ON business_services(business_profile_id) WHERE is_active = true;
+
+-- Image generation performance (critical path)
+CREATE INDEX idx_image_generations_user_status ON image_generations(user_id, status);
+CREATE INDEX idx_image_generations_user_month_status ON image_generations(user_id, generation_month, status);
+CREATE INDEX idx_image_generations_created_at ON image_generations(created_at DESC);
+CREATE INDEX idx_image_generations_model ON image_generations(ai_model, status);
+
+-- Monthly usage optimization (rate limiting)
+CREATE UNIQUE INDEX idx_monthly_usage_user_month ON monthly_usage(user_id, month_year);
+CREATE INDEX idx_monthly_usage_last_generation ON monthly_usage(last_generation_at DESC);
+
+-- Workspace and project hierarchy
+CREATE INDEX idx_workspaces_user_active ON workspaces(user_id) WHERE is_archived = false;
+CREATE INDEX idx_workspaces_user_default ON workspaces(user_id, is_default);
+CREATE INDEX idx_projects_workspace_active ON projects(workspace_id) WHERE is_archived = false;
+CREATE INDEX idx_projects_user_active ON projects(user_id) WHERE is_archived = false;
+CREATE INDEX idx_projects_updated_at ON projects(updated_at DESC);
+
+-- Collection optimization
+CREATE INDEX idx_collections_project_user ON image_collections(project_id, user_id);
+CREATE INDEX idx_collections_updated_at ON image_collections(updated_at DESC);
+CREATE INDEX idx_collection_images_collection_order ON collection_images(collection_id, sort_order);
+CREATE INDEX idx_collection_images_image ON collection_images(image_generation_id);
+
+-- COMPOSITE INDEXES for complex queries
+CREATE INDEX idx_user_generations_recent ON image_generations(user_id, created_at DESC) WHERE status = 'completed';
+CREATE INDEX idx_user_workspace_projects ON projects(user_id, workspace_id, updated_at DESC) WHERE is_archived = false;
 
 -- Trigger to update monthly usage
 CREATE OR REPLACE FUNCTION update_monthly_usage()
