@@ -246,20 +246,28 @@ export class UnifiedAgentSystem {
   private shouldTriggerImplementation(request: AgentRequest, response: any): boolean {
     const message = request.message.toLowerCase();
     
-    // Don't trigger for diagnostic, audit, or consultation requests
+    // Don't trigger for diagnostic, audit, consultation, optimization, or cleanup requests
     if (message.includes('diagnostic') || 
         message.includes('audit') || 
         message.includes('report') || 
         message.includes('status') || 
-        message.includes('analysis')) {
+        message.includes('analysis') ||
+        message.includes('optimization') ||
+        message.includes('optimize') ||
+        message.includes('cleanup') ||
+        message.includes('technical') ||
+        message.includes('review') ||
+        message.includes('verify') ||
+        message.includes('examine') ||
+        message.includes('monitor')) {
       return false;
     }
     
-    // Only trigger for actual implementation tasks
-    return message.includes('implement') || 
-           message.includes('create') || 
-           message.includes('build') || 
-           message.includes('generate');
+    // Only trigger for explicit implementation requests with actual file creation intent
+    return (message.includes('implement') && message.includes('file')) || 
+           (message.includes('create') && (message.includes('component') || message.includes('service'))) || 
+           (message.includes('build') && message.includes('new')) || 
+           (message.includes('generate') && message.includes('code'));
   }
 
   /**
