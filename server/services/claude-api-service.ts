@@ -1421,13 +1421,21 @@ I respond like your warm best friend who loves organization - simple, reassuring
                 break;
               }
               
-              // ✅ PARAMETER VALIDATION: Check for missing required parameters
+              // ✅ PARAMETER INJECTION: Auto-generate missing file_text for create commands
               if (block.input?.command === 'create' && !block.input?.file_text) {
-                console.log(`❌ MISSING PARAMETER: file_text required for create command`);
-                toolResult = `Parameter Error: The 'create' command requires 'file_text' parameter. Please generate the complete file content and retry the create command with the file_text parameter included.`;
+                console.log(`🔧 AUTO-FIXING: Generating missing file_text for create command`);
                 
-                // Don't inject messages mid-tool-processing - let tool_result handle the error
-                break;
+                // Import parameter injection system
+                const { ParameterInjectionSystem } = await import('../utils/parameter-injection-system');
+                const fix = ParameterInjectionSystem.fixMissingFileText(block, userMessage || '', agentName);
+                
+                if (fix.injectedParameters.length > 0) {
+                  console.log(`✅ PARAMETER INJECTION: ${fix.reason}`);
+                  block.input = fix.fixedCall.input;
+                } else {
+                  toolResult = `Parameter Error: Unable to generate file content. Please provide specific content requirements.`;
+                  break;
+                }
               }
               
               if (block.input?.command === 'str_replace' && !block.input?.old_str) {
@@ -1707,24 +1715,40 @@ I respond like your warm best friend who loves organization - simple, reassuring
               break;
               
             case 'str_replace_based_edit_tool':
+              // ✅ PARAMETER INJECTION: Auto-generate missing file_text for create commands
+              if (block.input?.command === 'create' && !block.input?.file_text) {
+                console.log(`🔧 AUTO-FIXING: Generating missing file_text for create command`);
+                
+                // Import parameter injection system
+                const { ParameterInjectionSystem } = await import('../utils/parameter-injection-system');
+                const fix = ParameterInjectionSystem.fixMissingFileText(block, currentMessages[currentMessages.length - 1]?.content || '', agentName);
+                
+                if (fix.injectedParameters.length > 0) {
+                  console.log(`✅ PARAMETER INJECTION: ${fix.reason}`);
+                  block.input.file_text = fix.fixedCall.input.file_text;
+                }
+              }
+              
               const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
               const fileResult = await str_replace_based_edit_tool({
                 command: block.input.command as any,
                 path: block.input.path,
-                content: block.input.file_text,
+                file_text: block.input.file_text, // Fixed property name
                 old_str: block.input.old_str,
                 new_str: block.input.new_str,
                 insert_line: block.input.insert_line,
                 insert_text: block.input.insert_text,
-                view_range: block.input.view_range,
-                backup: true // Always backup for safety
+                view_range: block.input.view_range
               });
               
-              if (fileResult.success) {
+              if (typeof fileResult === 'string') {
                 console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
-                toolResult = `\n\n[File Operation: ${block.input.command}]\n${JSON.stringify(fileResult.result, null, 2)}`;
+                toolResult = `\n\n[File Operation: ${block.input.command}]\n${fileResult}`;
+              } else if (fileResult && typeof fileResult === 'object') {
+                console.log(`✅ FILE OP SUCCESS: ${block.input.command} on ${block.input.path}`);
+                toolResult = `\n\n[File Operation: ${block.input.command}]\n${JSON.stringify(fileResult, null, 2)}`;
               } else {
-                toolResult = `\n\n[File Operation Error: ${fileResult.error}]`;
+                toolResult = `\n\n[File Operation Error: Unexpected result format]`;
               }
               break;
               
