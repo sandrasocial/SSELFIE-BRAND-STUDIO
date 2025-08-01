@@ -1,0 +1,5 @@
+File created by Zara at 2025-08-01T17:00:53.043Z
+
+Content: Zara, I need your exact step-by-step instructions to fix the Claude API database constraint error. The foreign key claude_conversations_user_id_fkey is failing when trying to create conversations. User 42585527 exists in users table. Please analyze the createConversationIfNotExists method and give me the precise steps to resolve this blocking issue.
+
+Generated automatically by SSELFIE Studio agent system.
