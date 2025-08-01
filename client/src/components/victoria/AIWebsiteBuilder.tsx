@@ -11,17 +11,17 @@ export function AIWebsiteBuilder() {
   const [currentView, setCurrentView] = useState<'checking' | 'mode-select' | 'wizard' | 'chat' | 'preview' | 'customize'>('checking');
   const { currentWebsite, generationProgress, isGenerating, simulateProgress } = useWebsiteBuilder();
 
-  // Check if user has existing onboarding data
+  // Check if user has existing brand onboarding data (admin-built system)
   const { data: existingOnboarding, isLoading: checkingOnboarding } = useQuery({
-    queryKey: ['/api/build/onboarding/check'],
+    queryKey: ['/api/brand-onboarding'],
     retry: false,
-  }) as { data: { hasOnboarding: boolean; onboardingData: any } | undefined; isLoading: boolean };
+  }) as { data: any | undefined; isLoading: boolean };
 
   // Check if user has existing websites
   const { data: userWebsites, isLoading: checkingWebsites } = useQuery({
     queryKey: ['/api/victoria/websites'],
     retry: false,
-  }) as { data: { websites: any[] } | undefined; isLoading: boolean };
+  }) as { data: any[] | undefined; isLoading: boolean };
 
   useEffect(() => {
     if (isGenerating && generationProgress === 0) {
@@ -29,24 +29,26 @@ export function AIWebsiteBuilder() {
     }
   }, [isGenerating, generationProgress, simulateProgress]);
 
-  // Handle onboarding check and route users appropriately
+  // Handle brand onboarding check and route users appropriately
   useEffect(() => {
     if (!checkingOnboarding && !checkingWebsites) {
       console.log('🔍 BUILD Navigation:', {
-        hasOnboarding: existingOnboarding?.hasOnboarding,
-        websiteCount: userWebsites?.websites?.length || 0
+        hasBrandOnboarding: !!existingOnboarding,
+        websiteCount: userWebsites?.length || 0
       });
       
-      // If user has completed onboarding and has websites, skip to website management
-      if (existingOnboarding?.hasOnboarding && userWebsites?.websites?.length > 0) {
-        console.log('✅ Returning user with websites, skipping onboarding');
+      // If user has completed brand onboarding and has websites, skip to website management
+      if (existingOnboarding && userWebsites?.length > 0) {
+        console.log('✅ Returning user with websites, skipping to preview');
         setCurrentView('preview');
-      } else if (existingOnboarding?.hasOnboarding) {
-        console.log('✅ Returning user without websites, showing mode selection');
+      } else if (existingOnboarding) {
+        console.log('✅ Returning user with brand onboarding, showing mode selection');
         setCurrentView('mode-select');
       } else {
-        console.log('🆕 New user, showing mode selection');
-        setCurrentView('mode-select');
+        console.log('🆕 New user, redirecting to brand onboarding');
+        // Redirect to admin-built brand onboarding instead of duplicate wizard
+        window.location.href = '/brand-onboarding';
+        return;
       }
     }
   }, [checkingOnboarding, checkingWebsites, existingOnboarding, userWebsites]);
@@ -189,9 +191,9 @@ export function AIWebsiteBuilder() {
         <VictoriaEditorialBuilder onWebsiteGenerated={handleWizardComplete} />
       )}
       
-      {currentView === 'preview' && (currentWebsite || (userWebsites?.websites && userWebsites.websites.length > 0)) && (
+      {currentView === 'preview' && (currentWebsite || (userWebsites && userWebsites.length > 0)) && (
         <WebsitePreview
-          website={currentWebsite || userWebsites?.websites?.[0]}
+          website={currentWebsite || userWebsites?.[0]}
           onCustomize={handleCustomize}
           onDeploy={handleDeploy}
         />
