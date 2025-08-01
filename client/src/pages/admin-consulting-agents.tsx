@@ -611,10 +611,10 @@ export default function AdminConsultingAgents() {
 
         // Add completion summary
         const duration = Date.now() - startTime;
-        const completionSummary: CompletionSummary = {
-          filesModified: fileOperations.map(op => op.path),
+        const completionSummary: CompletionSummaryLegacy = {
+          filesModified: fileOperations.length,
           toolsUsed: toolsUsed,
-          duration: Math.round(duration / 1000),
+          executionTime: Math.round(duration / 1000),
           status: 'success'
         };
 
