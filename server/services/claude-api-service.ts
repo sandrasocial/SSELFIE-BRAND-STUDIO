@@ -1394,19 +1394,27 @@ I respond like your warm best friend who loves organization - simple, reassuring
               // ✅ PARAMETER VALIDATION: Check for missing required parameters
               if (block.input.command === 'create' && !block.input.file_text) {
                 console.log(`❌ MISSING PARAMETER: file_text required for create command`);
-                toolResult = `Parameter Error: The 'create' command requires 'file_text' parameter. Please provide the content for the file you want to create.`;
+                toolResult = `Parameter Error: The 'create' command requires 'file_text' parameter. Please generate the complete file content and retry the create command with the file_text parameter included.`;
+                
+                // Continue the conversation to prompt the agent for file content
+                const promptMessage = {
+                  role: 'user' as const,
+                  content: `You attempted to create a file but didn't provide the file content. Please provide the complete file content for "${block.input.path}" and retry the create command with the file_text parameter.`
+                };
+                
+                currentMessages.push(promptMessage);
                 break;
               }
               
               if (block.input.command === 'str_replace' && !block.input.old_str) {
                 console.log(`❌ MISSING PARAMETER: old_str required for str_replace command`);
-                toolResult = `Parameter Error: The 'str_replace' command requires 'old_str' parameter. Please provide the text you want to replace.`;
+                toolResult = `Parameter Error: The 'str_replace' command requires 'old_str' parameter. Please view the file first to see the exact text to replace, then retry with the old_str parameter.`;
                 break;
               }
               
               if (block.input.command === 'insert' && (block.input.insert_line === undefined || !block.input.insert_text)) {
                 console.log(`❌ MISSING PARAMETER: insert_line and insert_text required for insert command`);
-                toolResult = `Parameter Error: The 'insert' command requires both 'insert_line' and 'insert_text' parameters.`;
+                toolResult = `Parameter Error: The 'insert' command requires both 'insert_line' and 'insert_text' parameters. Please specify the line number and the text content to insert.`;
                 break;
               }
               
@@ -1612,7 +1620,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
     return finalResponse;
   }
 
-  private async handleToolCalls(content: any[], assistantMessage: string): Promise<string> {
+  private async handleToolCalls(content: any[], assistantMessage: string, conversationId?: string, agentName?: string): Promise<string> {
     let enhancedMessage = assistantMessage;
     
     for (const block of content as any[]) {
@@ -1629,9 +1637,9 @@ I respond like your warm best friend who loves organization - simple, reassuring
               let searchResult: any;
               
               // ✅ SEARCH CACHE INTEGRATION: Check if agent should skip this search
-              if (searchInput?.query_description && currentConversationId && agentName) {
+              if (searchInput?.query_description && conversationId && agentName) {
                 const shouldSkip = agentSearchCache.shouldSkipSearch(
-                  currentConversationId, 
+                  conversationId, 
                   agentName, 
                   searchInput.query_description
                 );
@@ -1654,9 +1662,9 @@ I respond like your warm best friend who loves organization - simple, reassuring
                   searchResult = await search_filesystem(searchInput);
                   
                   // Cache the search results for future optimization
-                  if (searchResult?.results) {
+                  if (searchResult?.results && conversationId && agentName) {
                     agentSearchCache.addSearchResults(
-                      currentConversationId,
+                      conversationId,
                       agentName,
                       searchInput.query_description,
                       searchResult.results
