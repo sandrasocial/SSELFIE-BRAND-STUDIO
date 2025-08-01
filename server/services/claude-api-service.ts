@@ -846,7 +846,7 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
       // RESTORED FULL AGENT CAPABILITIES
       let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
-        max_tokens: 1500, // RESTORED from 800 to 1500 for full agent responses
+        max_tokens: 4000, // UNLIMITED ACCESS: Agents have direct tools, no API drain concerns
         system: enhancedSystemPrompt, // FULL system prompt - no truncation
         messages: messages, // FULL conversation history for proper context
         tools: cleanTools,
@@ -1527,7 +1527,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
       // Continue conversation with tool results - KEEP TOOLS AVAILABLE for dynamic work
       const continuationResponse = await this.sendToClaudeWithRetry({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 1500, // AGGRESSIVE COST OPTIMIZATION: Reduced from 4000 to 1500
+        max_tokens: 4000, // FULL ACCESS: Direct tool usage minimizes API costs
         system: systemPrompt,
         messages: currentMessages,
         tools: tools, // CRITICAL FIX: Keep tools available for continued dynamic work
@@ -1723,7 +1723,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
         
         const finalRes = await this.sendToClaudeWithRetry({
           model: DEFAULT_MODEL_STR,
-          max_tokens: 2000, // INCREASED for complete responses
+          max_tokens: 4000, // UNLIMITED: Agent tools handle heavy lifting
           system: systemPrompt,
           messages: currentMessages,
           tools: tools  // Keep tools available for comprehensive analysis
