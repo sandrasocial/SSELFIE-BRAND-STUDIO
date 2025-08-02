@@ -42,6 +42,32 @@ export class DirectWorkspaceAccess {
   }
 
   /**
+   * Resolve relative path to absolute path safely
+   */
+  private resolvePath(filePath: string): string {
+    if (path.isAbsolute(filePath)) {
+      return filePath;
+    }
+    return path.resolve(this.projectRoot, filePath);
+  }
+
+  /**
+   * Check if path is allowed for access
+   */
+  private isPathAllowed(fullPath: string): boolean {
+    // Must be within project root
+    if (!fullPath.startsWith(this.projectRoot)) {
+      return false;
+    }
+
+    // Check forbidden paths
+    const relativePath = path.relative(this.projectRoot, fullPath);
+    return !this.forbiddenPaths.some(forbidden => 
+      relativePath.includes(forbidden)
+    );
+  }
+
+  /**
    * Read file content directly from workspace
    * No API overhead - instant access
    */
@@ -361,34 +387,6 @@ export class DirectWorkspaceAccess {
         error: 'Access denied'
       };
     }
-  }
-
-  /**
-   * Resolve relative path to absolute path
-   */
-  private resolvePath(filePath: string): string {
-    // Handle absolute paths
-    if (path.isAbsolute(filePath)) {
-      return filePath;
-    }
-
-    // Handle relative paths
-    return path.resolve(this.projectRoot, filePath);
-  }
-
-  /**
-   * Check if path is allowed for operations
-   */
-  private isPathAllowed(fullPath: string): boolean {
-    // Must be within project root
-    const relativePath = path.relative(this.projectRoot, fullPath);
-    
-    if (relativePath.startsWith('..')) {
-      return false; // Outside project root
-    }
-
-    // Check forbidden paths
-    return !this.forbiddenPaths.some(forbidden => relativePath.includes(forbidden));
   }
 
   /**

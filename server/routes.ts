@@ -1620,6 +1620,60 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       res.status(500).json({ error: 'Failed to get active deployments' });
     }
   });
+
+  // Token usage monitoring endpoint for smart routing analysis
+  app.get('/api/admin/token-usage-stats', async (req: any, res) => {
+    try {
+      const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor');
+      const timeWindow = parseInt(req.query.hours as string) || 24;
+      const stats = tokenUsageMonitor.getUsageStats(timeWindow);
+      const recentEntries = tokenUsageMonitor.getRecentEntries(20);
+
+      res.json({
+        success: true,
+        stats,
+        recentEntries,
+        message: `Token usage stats for last ${timeWindow} hours`,
+        smartRoutingActive: true
+      });
+    } catch (error) {
+      console.error('Token usage stats error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Smart routing verification test endpoint
+  app.post('/api/admin/test-smart-routing', async (req: any, res) => {
+    try {
+      const { runSmartRoutingTest } = await import('./testing/smart-routing-test');
+      
+      console.log('🧪 ADMIN TRIGGERED: Smart routing verification test starting...');
+      
+      const results = await runSmartRoutingTest();
+      
+      res.json({
+        success: true,
+        results,
+        message: results.routingWorking ? 
+          'Smart routing is working correctly!' : 
+          'Smart routing needs adjustment',
+        recommendation: results.routingWorking ?
+          'Token optimization is active - cost savings achieved' :
+          'Review routing logic and Claude API integration'
+      });
+      
+    } catch (error) {
+      console.error('❌ Smart routing test error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Test failed',
+        recommendation: 'Check smart routing layer implementation'
+      });
+    }
+  });
   
   // Claude API route for frontend compatibility (bypass auth for now)
   app.post('/api/claude/send-message', async (req, res) => {
@@ -1651,15 +1705,24 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Use existing admin user ID 
       const userId = '42585527';
       
-      const response = await claudeApiService.sendMessage(
+      // SMART ROUTING: Use new routing layer to optimize token usage
+      const { smartRoutingLayer } = await import('./services/smart-routing-layer');
+      const result = await smartRoutingLayer.routeRequest(
         userId,
         agentName,
-        conversationId,
         message,
-        undefined, // systemPrompt
-        undefined, // tools
+        conversationId,
         fileEditMode
       );
+      
+      console.log('🎯 SMART ROUTING RESULT:', {
+        routingPath: result.routingPath,
+        costOptimized: result.costOptimized,
+        toolsUsed: result.toolsUsed,
+        tokenUsage: result.tokenUsage || 0
+      });
+      
+      const response = result.response;
       
       res.json({ success: true, response });
     } catch (error) {
@@ -1769,16 +1832,24 @@ ${agentConfig.systemPrompt}`;
         // Import Claude API service
         const { claudeApiService } = await import('./services/claude-api-service');
 
-        // Call Claude API with full tool access for intelligent responses and workspace operations
-        const claudeResponse = await claudeApiService.sendMessage(
+        // SMART ROUTING: Use routing layer to optimize token usage
+        const { smartRoutingLayer } = await import('./services/smart-routing-layer');
+        const result = await smartRoutingLayer.routeRequest(
           userId,
           agentId,
-          finalConversationId,
           message,
-          systemPrompt,
-          [], // Let Claude API service provide the full tool set
+          finalConversationId,
           fileEditMode
         );
+        
+        console.log('🎯 AGENT-CHAT-BYPASS ROUTING:', {
+          agentId,
+          routingPath: result.routingPath,
+          costOptimized: result.costOptimized,
+          tokenUsage: result.tokenUsage || 0
+        });
+        
+        const claudeResponse = result.response;
 
         return res.json({
           success: true,
