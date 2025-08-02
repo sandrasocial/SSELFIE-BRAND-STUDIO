@@ -576,59 +576,24 @@ export default function AdminConsultingAgents() {
         const detectedTools = extractToolUsage(responseContent);
         const detectedFiles = extractFileOperations(responseContent);
         
-        // Show progressive work indicators
-        for (const tool of detectedTools) {
-          currentContent += `🔧 **Using ${tool}**\n`;
-          if (!toolsUsed.includes(tool)) toolsUsed.push(tool);
-          updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
-          await delay(500); // Brief pause for realistic streaming
-        }
+        // SIMPLIFIED: Track tools and files without complex streaming
+        toolsUsed = extractToolUsage(responseContent);
+        fileOperations = extractFileOperations(responseContent).map(file => ({
+          type: file.type,
+          path: file.path,
+          status: 'completed' as const,
+          description: file.description
+        }));
 
-        for (const file of detectedFiles) {
-          const operation: FileOperation = {
-            type: file.type,
-            path: file.path,
-            status: 'in-progress',
-            description: file.description
-          };
-          fileOperations.push(operation);
-          currentContent += `📁 **Working on ${file.path}** (${file.type})\n`;
-          updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
-          await delay(800);
-          
-          // Mark as completed
-          operation.status = 'completed';
-          updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
-        }
-
-        // Stream the actual response content progressively
-        currentContent = ''; // Clear the thinking indicator
+        // CRITICAL FIX: Show agent response immediately, no complex streaming
         const cleanResponse = cleanMessageContent(responseContent);
         
-        // FIXED: Show the full agent response, not just completion status
+        // Clear any indicators and show the full response
         currentContent = cleanResponse;
         updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
         
-        // For technical responses, stream more efficiently to show full analysis
-        if (false) { // Disabled streaming to show full response immediately
-          const sentences = cleanResponse.split(/[.!?]\s+/);
-          for (const sentence of sentences) {
-            if (sentence.trim()) {
-              currentContent += sentence + '. ';
-              updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
-              await delay(200);
-            }
-          }
-        } else {
-          // Original word-by-word streaming for shorter responses
-          const words = cleanResponse.split(' ');
-          for (let i = 0; i < words.length; i += 3) {
-            const chunk = words.slice(i, i + 3).join(' ');
-            currentContent += chunk + ' ';
-            updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
-            await delay(100);
-          }
-        }
+        console.log(`✅ FRONTEND: Displaying full response (${cleanResponse.length} chars)`);
+        console.log(`📝 Response preview:`, cleanResponse.substring(0, 100));
 
         // Minimal completion info - preserve agent content as primary focus
         const duration = Date.now() - startTime;
