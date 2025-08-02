@@ -115,6 +115,7 @@ const loadConversationHistory = async (conversationId: string) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'x-admin-token': 'sandra-admin-2025'
       },
       credentials: 'include',
     });
@@ -150,7 +151,7 @@ const listAgentConversations = async (agentName: string, limit = 10) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer sandra-admin-2025'
+        'x-admin-token': 'sandra-admin-2025'
       },
       credentials: 'include',
     });
