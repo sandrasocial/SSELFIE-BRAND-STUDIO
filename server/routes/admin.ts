@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { db } from '../db/index.js';
-import { users, subscriptions, sessions } from '@shared/schema.ts';
+import { db } from '../db';
+import { users, subscriptions, sessions } from '@shared/schema';
 import { eq, count, sum, desc } from 'drizzle-orm';
 
 const router = Router();
@@ -12,28 +12,27 @@ router.get('/stats', async (req, res) => {
     const totalUsersResult = await db.select({ count: count() }).from(users);
     const totalUsers = totalUsersResult[0]?.count || 0;
 
-    // Get active subscriptions (you might need to adjust based on your subscription schema)
+    // Get active subscriptions (count users with paid plans)
     const activeSubscriptionsResult = await db
       .select({ count: count() })
-      .from(subscriptions)
-      .where(eq(subscriptions.status, 'active'));
+      .from(users)
+      .where(eq(users.plan, 'full-access'));
     const activeSubscriptions = activeSubscriptionsResult[0]?.count || 0;
 
     // Get monthly revenue (mock calculation - adjust based on your revenue tracking)
     const monthlyRevenue = activeSubscriptions * 97; // Assuming $97 per subscription
 
-    // Get completed sessions
-    const completedSessionsResult = await db
+    // Get total sessions (sessions table doesn't have status field)
+    const totalSessionsResult = await db
       .select({ count: count() })
-      .from(sessions)
-      .where(eq(sessions.status, 'completed'));
-    const completedSessions = completedSessionsResult[0]?.count || 0;
+      .from(sessions);
+    const totalSessions = totalSessionsResult[0]?.count || 0;
 
     res.json({
       totalUsers,
       activeSubscriptions,
       monthlyRevenue,
-      completedSessions
+      totalSessions
     });
   } catch (error) {
     console.error('Error fetching admin stats:', error);
@@ -48,40 +47,39 @@ router.get('/activity', async (req, res) => {
     const recentUsers = await db
       .select({
         id: users.id,
-        username: users.username,
+        email: users.email,
+        firstName: users.firstName,
         createdAt: users.createdAt
       })
       .from(users)
       .orderBy(desc(users.createdAt))
       .limit(10);
 
-    // Get recent sessions
+    // Get recent sessions (sessions table only has sid, sess, expire)
     const recentSessions = await db
       .select({
-        id: sessions.id,
-        userId: sessions.userId,
-        type: sessions.type,
-        createdAt: sessions.createdAt
+        sid: sessions.sid,
+        expire: sessions.expire
       })
       .from(sessions)
-      .orderBy(desc(sessions.createdAt))
+      .orderBy(desc(sessions.expire))
       .limit(10);
 
     // Combine and format activities
     const activities = [
-      ...recentUsers.map(user => ({
+      ...recentUsers.map((user: any) => ({
         id: `user-${user.id}`,
         type: 'user_registration',
-        title: `New user registration: ${user.username}`,
+        title: `New user registration: ${user.email || user.firstName || 'Unknown'}`,
         timestamp: formatTimestamp(user.createdAt),
-        user: user.username,
+        user: user.email || user.firstName || 'Unknown',
         avatar: '/gallery/default-avatar.jpg'
       })),
-      ...recentSessions.map(session => ({
-        id: `session-${session.id}`,
-        type: 'session_start',
-        title: `New ${session.type} session started`,
-        timestamp: formatTimestamp(session.createdAt),
+      ...recentSessions.map((session: any) => ({
+        id: `session-${session.sid}`,
+        type: 'session_activity',
+        title: `Session activity`,
+        timestamp: formatTimestamp(session.expire),
         avatar: '/gallery/session-icon.jpg'
       }))
     ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
@@ -100,10 +98,12 @@ router.get('/users', async (req, res) => {
     const allUsers = await db
       .select({
         id: users.id,
-        username: users.username,
         email: users.email,
-        createdAt: users.createdAt,
-        lastLoginAt: users.lastLoginAt
+        firstName: users.firstName,
+        lastName: users.lastName,
+        plan: users.plan,
+        role: users.role,
+        createdAt: users.createdAt
       })
       .from(users)
       .orderBy(desc(users.createdAt));
@@ -116,7 +116,11 @@ router.get('/users', async (req, res) => {
 });
 
 // Helper function to format timestamp
-function formatTimestamp(date: Date): string {
+function formatTimestamp(date: Date | null): string {
+  if (!date) return 'Unknown';
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
   const now = new Date();
   const diff = now.getTime() - date.getTime();
   const minutes = Math.floor(diff / (1000 * 60));
