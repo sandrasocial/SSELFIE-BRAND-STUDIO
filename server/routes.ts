@@ -1349,9 +1349,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Add essential API routes
   const { claudeApiService } = await import('./services/claude-api-service');
   
-  // Register Claude API routes (includes conversation list endpoint)
-  const claudeApiRoutes = await import('./routes/claude-api-routes');
-  app.use('/api/claude', claudeApiRoutes.default);
+  // Register Claude API routes (includes conversation list endpoint) - DISABLED FOR SMART ROUTING
+  // const claudeApiRoutes = await import('./routes/claude-api-routes');
+  // app.use('/api/claude', claudeApiRoutes.default);
+  console.log('⚠️ SMART ROUTING: Disabled old claude-api-routes to force smart routing usage');
   
   // Register flatlay library routes for Victoria
   const flatlayLibraryRoutes = await import('./routes/flatlay-library');
