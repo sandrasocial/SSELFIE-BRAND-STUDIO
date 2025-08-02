@@ -345,6 +345,43 @@ export class ClaudeApiService {
     }
   }
 
+  // INTELLIGENT TOKEN SCALING: Dynamic limits based on task complexity
+  private getOptimalTokenLimit(userMessage: string, agentName: string): number {
+    const complexityIndicators = [
+      'entire codebase', 'fix all', 'complete system', 'comprehensive',
+      'multiple files', 'full implementation', 'end-to-end', 'build entire',
+      'create complete', 'full website', 'entire application', 'complex system',
+      'large scale', 'multi-agent', 'collaboration', 'fix everything'
+    ];
+    
+    const hasHighComplexity = complexityIndicators.some(indicator => 
+      userMessage.toLowerCase().includes(indicator)
+    );
+    
+    // Scale tokens based on complexity
+    if (hasHighComplexity) {
+      console.log(`🧠 COMPLEX TASK DETECTED: Scaling to 32k tokens for comprehensive work`);
+      return 32000; // 4x scaling for complex tasks
+    }
+    
+    // Standard complexity detection
+    const standardComplexityIndicators = [
+      'analyze', 'implement', 'create', 'build', 'fix', 'update', 'modify'
+    ];
+    
+    const hasStandardComplexity = standardComplexityIndicators.some(indicator =>
+      userMessage.toLowerCase().includes(indicator)
+    );
+    
+    if (hasStandardComplexity) {
+      console.log(`🧠 STANDARD TASK DETECTED: Using 8k tokens for ${agentName}`);
+      return 8000; // Current standard
+    }
+    
+    console.log(`🧠 SIMPLE TASK DETECTED: Using 4k tokens for ${agentName}`);
+    return 4000; // Simple responses
+  }
+
   async sendMessage(
     userId: string,
     agentName: string,
@@ -872,7 +909,7 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
       // RESTORED FULL AGENT CAPABILITIES
       let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
-        max_tokens: 8000, // INCREASED TOKEN LIMIT: Support comprehensive agent analysis
+        max_tokens: this.getOptimalTokenLimit(userMessage, agentName), // INTELLIGENT SCALING: Dynamic token allocation
         system: enhancedSystemPrompt, // FULL system prompt - no truncation
         messages: messages, // FULL conversation history for proper context
         tools: cleanTools,
@@ -982,7 +1019,12 @@ Use tools naturally as part of your specialized expertise to complete Sandra's r
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(`🔄 Claude API attempt ${attempt}/${maxRetries}`);
-        const response = await anthropic.messages.create(params);
+        const response = await anthropic.messages.create({
+          ...params,
+          headers: {
+            "anthropic-beta": "prompt-caching-2024-07-31" // COST OPTIMIZATION: 90% savings on repeated content
+          }
+        });
         
         if (attempt > 1) {
           console.log(`✅ Claude API succeeded on attempt ${attempt}`);
@@ -1558,7 +1600,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
       // Continue conversation with tool results - KEEP TOOLS AVAILABLE for dynamic work
       const continuationResponse = await this.sendToClaudeWithRetry({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 8000, // INCREASED LIMIT: Support comprehensive agent responses
+        max_tokens: 16000, // INTELLIGENT SCALING: Continuation tasks need more tokens
         system: systemPrompt,
         messages: currentMessages,
         tools: tools, // CRITICAL FIX: Keep tools available for continued dynamic work
@@ -1698,7 +1740,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
         
         const finalRes = await this.sendToClaudeWithRetry({
           model: DEFAULT_MODEL_STR,
-          max_tokens: 4000, // UNLIMITED: Agent tools handle heavy lifting
+          max_tokens: 8000, // INTELLIGENT SCALING: Recursive tools need adequate tokens
           system: systemPrompt,
           messages: currentMessages,
           tools: tools  // Keep tools available for implementation
