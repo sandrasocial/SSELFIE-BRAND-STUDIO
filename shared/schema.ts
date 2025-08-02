@@ -149,7 +149,7 @@ export const claudeConversations = pgTable("claude_conversations", {
 // Claude API messages table for detailed conversation history
 export const claudeMessages = pgTable("claude_messages", {
   id: serial("id").primaryKey(),
-  conversationId: integer("conversation_id").references(() => claudeConversations.id, { onDelete: "cascade" }).notNull(),
+  conversationId: varchar("conversation_id").references(() => claudeConversations.conversationId, { onDelete: "cascade" }).notNull(),
   role: varchar("role").notNull(), // user, assistant, system
   content: text("content").notNull(),
   metadata: jsonb("metadata"), // tool calls, attachments, etc
