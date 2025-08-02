@@ -942,7 +942,7 @@ Use tools naturally as part of your specialized expertise to complete Sandra's r
         console.log(`💪 CLAUDE API SERVICE: UNLIMITED CAPABILITIES for ${agentName} - bash, web_search, file tools ALL ACTIVE`);
       }
 
-      // DEBUG: Log the exact request being sent to Claude
+      // DEBUG: Log the exact request being sent to Claude  
       console.log('🔍 CLAUDE REQUEST DEBUG:', JSON.stringify({
         model: claudeRequest.model,
         max_tokens: claudeRequest.max_tokens,
@@ -951,6 +951,21 @@ Use tools naturally as part of your specialized expertise to complete Sandra's r
         tools: claudeRequest.tools?.length || 0,
         toolNames: claudeRequest.tools?.map((t: any) => t.name) || []
       }, null, 2));
+
+      // DEBUG: Check for invalid parameters that might cause "headers: Extra inputs are not permitted" error
+      console.log('🔍 PARAMETER VALIDATION: Checking for invalid parameters in claudeRequest...');
+      const validParams = ['model', 'max_tokens', 'system', 'messages', 'tools', 'tool_choice'];
+      const requestKeys = Object.keys(claudeRequest);
+      const invalidParams = requestKeys.filter(key => !validParams.includes(key));
+      if (invalidParams.length > 0) {
+        console.error('❌ INVALID PARAMETERS DETECTED:', invalidParams);
+        console.error('❌ This may cause "headers: Extra inputs are not permitted" error');
+        // Remove invalid parameters
+        invalidParams.forEach(param => delete claudeRequest[param]);
+        console.log('✅ CLEANED REQUEST: Removed invalid parameters');
+      } else {
+        console.log('✅ PARAMETER VALIDATION PASSED: All parameters are valid');
+      }
       
       // CRITICAL DEBUG: Check if tools are actually in the request
       if (!claudeRequest.tools || claudeRequest.tools.length === 0) {
@@ -1019,12 +1034,7 @@ Use tools naturally as part of your specialized expertise to complete Sandra's r
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(`🔄 Claude API attempt ${attempt}/${maxRetries}`);
-        const response = await anthropic.messages.create({
-          ...params,
-          headers: {
-            "anthropic-beta": "prompt-caching-2024-07-31" // COST OPTIMIZATION: 90% savings on repeated content
-          }
-        });
+        const response = await anthropic.messages.create(params);
         
         if (attempt > 1) {
           console.log(`✅ Claude API succeeded on attempt ${attempt}`);
