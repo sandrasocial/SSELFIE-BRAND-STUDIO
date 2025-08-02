@@ -228,30 +228,18 @@ const formatToolResults = (content: string): string[] => {
   return tools;
 };
 
-// FIXED: Preserve ALL agent responses - minimal cleaning only
+// QUINN'S FIX: Preserve ALL agent intelligence - show full backend responses
 const cleanMessageContent = (content: string): string => {
   if (!content || content.trim() === '') {
     return 'Agent response processed successfully.';
   }
   
-  let cleaned = content;
-  
-  // MINIMAL CLEANING: Only remove obvious technical debugging noise
-  cleaned = cleaned.replace(/🔧 UNIVERSAL TOOL:.*?\n/g, '');
-  cleaned = cleaned.replace(/🔍 PATH VALIDATION:.*?\n/g, '');
-  cleaned = cleaned.replace(/✅ VALID PATH ACCEPTED:.*?\n/g, '');
-  cleaned = cleaned.replace(/✅ FILE OP SUCCESS:.*?\n/g, '');
-  cleaned = cleaned.replace(/🎯 TOOL COMPLETION:.*?\n/g, '');
-  
-  // Clean up excessive whitespace only
+  // CRITICAL FIX: Only clean up excessive whitespace - PRESERVE ALL CONTENT
+  let cleaned = content.trim();
   cleaned = cleaned.replace(/\n\s*\n\s*\n+/g, '\n\n');
-  cleaned = cleaned.trim();
   
-  // PRESERVE CONTENT: Never filter out actual agent responses
-  if (!cleaned || cleaned.length < content.length * 0.3) {
-    console.log('⚠️ FRONTEND: Preserving original content to prevent loss');
-    return content.trim();
-  }
+  console.log('✅ FRONTEND: Showing full agent response without truncation');
+  console.log(`📊 Original: ${content.length} chars → Cleaned: ${cleaned.length} chars`);
   
   return cleaned;
 };
@@ -585,15 +573,16 @@ export default function AdminConsultingAgents() {
           description: file.description
         }));
 
-        // CRITICAL FIX: Show agent response immediately, no complex streaming
-        const cleanResponse = cleanMessageContent(responseContent);
+        // REAL-TIME STREAMING FIX: Show full backend response immediately
+        const fullAgentResponse = cleanMessageContent(responseContent);
         
-        // Clear any indicators and show the full response
-        currentContent = cleanResponse;
+        // Display complete agent work without truncation
+        currentContent = fullAgentResponse;
         updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
         
-        console.log(`✅ FRONTEND: Displaying full response (${cleanResponse.length} chars)`);
-        console.log(`📝 Response preview:`, cleanResponse.substring(0, 100));
+        console.log(`✅ FRONTEND: Full agent response displayed (${fullAgentResponse.length} chars)`);
+        console.log(`📊 Backend→Frontend: ${responseContent.length}→${fullAgentResponse.length} chars`);
+        console.log(`🧠 Agent content preview:`, fullAgentResponse.substring(0, 200));
 
         // Minimal completion info - preserve agent content as primary focus
         const duration = Date.now() - startTime;
@@ -604,9 +593,9 @@ export default function AdminConsultingAgents() {
           status: 'success'
         };
 
-        // OPTIONAL: Add minimal completion note without overwhelming the agent response
+        // CLEAN COMPLETION: Show minimal status without overwhelming agent intelligence
         if (fileOperations.length > 0 || toolsUsed.length > 0) {
-          currentContent += `\n\n---\n\n*Task completed in ${Math.round(duration / 1000)}s with ${toolsUsed.length} tools*`;
+          currentContent += `\n\n✅ *Completed: ${toolsUsed.length} tools, ${fileOperations.length} files (${Math.round(duration / 1000)}s)*`;
         }
 
         // Final update with completion
