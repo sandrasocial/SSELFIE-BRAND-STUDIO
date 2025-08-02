@@ -176,7 +176,7 @@ export class AgentIntegrationSystem {
       }
     });
 
-    return [...new Set(routes)]; // Remove duplicates
+    return Array.from(new Set(routes)); // Remove duplicates
   }
 
   private extractRequestedFeatures(actions: AgentAction[]): string[] {
