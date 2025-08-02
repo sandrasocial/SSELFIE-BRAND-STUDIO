@@ -221,7 +221,7 @@ export class AdvancedMemorySystem {
       .where(and(
         eq(agentLearning.agentName, agentName),
         eq(agentLearning.userId, userId),
-        gte(agentLearning.confidence, 0.4)
+        gte(agentLearning.confidence, '0.4')
       ))
       .orderBy(desc(agentLearning.confidence), desc(agentLearning.frequency));
 

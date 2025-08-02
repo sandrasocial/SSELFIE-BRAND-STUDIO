@@ -1,22 +1,15 @@
-// Standard component structure
-import { FC } from 'react';
-import { cn } from '@/lib/utils';
-
-interface ComponentProps {
-  className?: string;
-  // specific props
+// Shared types for the application
+export interface User {
+  id: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  profileImageUrl?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export const ComponentName: FC<ComponentProps> = ({ 
-  className,
-  ...props 
-}) => {
-  return (
-    <div 
-      className={cn("base-styles", className)}
-      style={{ fontFamily: '"Times New Roman", serif' }}
-    >
-      {/* component content */}
-    </div>
-  );
-};
+export interface ComponentProps {
+  className?: string;
+  children?: React.ReactNode;
+}
