@@ -41,6 +41,15 @@ export class EnhancedContentDetector {
       'replit ai-level', 'advanced', 'enterprise', 'scalable', 'optimization'
     ];
 
+    // Conversational keywords (require Claude API for intelligent responses)
+    const conversationalKeywords = [
+      'hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening',
+      'how are you', 'how\'s it going', 'what\'s up', 'greetings',
+      'thanks', 'thank you', 'please', 'help', 'can you',
+      'what do you think', 'your opinion', 'advice', 'suggest',
+      'tell me', 'explain', 'describe', 'discuss', 'chat'
+    ];
+
     // Complex analysis keywords (lower threshold for Claude routing)
     const complexAnalysisKeywords = [
       'architecture', 'system', 'integration', 'dependency', 'mapping',
@@ -71,6 +80,10 @@ export class EnhancedContentDetector {
 
     // Count keyword matches with enhanced weighting
     const contentMatches = contentKeywords.filter(keyword => 
+      messageWords.includes(keyword)
+    ).length;
+
+    const conversationalMatches = conversationalKeywords.filter(keyword => 
       messageWords.includes(keyword)
     ).length;
 
@@ -147,7 +160,7 @@ export class EnhancedContentDetector {
       'maya', 'elena', 'zara', 'quinn', 'olga', 'victoria'  // Agent names
     ];
     
-    const isConversational = conversationalPatterns.some(pattern => 
+    const isConversational = conversationalMatches > 0 || conversationalPatterns.some(pattern => 
       messageWords.includes(pattern)
     );
     
