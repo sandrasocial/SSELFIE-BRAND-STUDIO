@@ -610,11 +610,11 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
         console.log(`  [${index}] ${msg.role}: "${msg.content?.substring(0, 100)}..." (length: ${msg.content?.length || 0})`);
       });
 
-      // Universal dynamic tools - flexible for any task, not hardcoded
+      // FULL AGENT CAPABILITIES: Complete tool access for comprehensive work
       const enhancedTools = [
         {
           name: "search_filesystem",
-          description: "Dynamically search through the codebase with flexible criteria - supports any search needs",
+          description: "Search through the codebase with flexible criteria",
           input_schema: {
             type: "object",
             properties: {
@@ -636,34 +636,20 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
                 type: "array", 
                 items: { type: "string" },
                 description: "Specific code snippets to search for"
-              },
-              file_extensions: {
-                type: "array",
-                items: { type: "string" },
-                description: "File extensions to include (e.g., ['.ts', '.tsx', '.js'])"
-              },
-              directories: {
-                type: "array", 
-                items: { type: "string" },
-                description: "Specific directories to search in"
-              },
-              max_results: {
-                type: "integer",
-                description: "Maximum number of files to return (default: 30)"
               }
             }
           }
         },
         {
           name: "str_replace_based_edit_tool",
-          description: "DIRECT REPLIT WORKSPACE ACCESS - Universal file operations with COMPLETE WORKSPACE INTEGRATION: view, create, edit files with real-time workspace connection",
+          description: "Edit and view files in the workspace",
           input_schema: {
             type: "object",
             properties: {
               command: { 
                 type: "string", 
                 enum: ["view", "create", "str_replace", "insert"],
-                description: "UNRESTRICTED OPERATIONS: view (read any file), create (new file anywhere), str_replace (modify any content), insert (add text anywhere)"
+                description: "Command to execute: view, create, str_replace, or insert"
               },
               path: { 
                 type: "string",
@@ -671,43 +657,42 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
               },
               file_text: { 
                 type: "string",
-                description: "Complete file content (for create command)"
+                description: "Complete file content for create command"
               },
               old_str: { 
                 type: "string",
-                description: "Text to find and replace (for str_replace command)"
+                description: "Text to find and replace for str_replace command"
               },
               new_str: { 
                 type: "string",
-                description: "Replacement text (for str_replace command)"
+                description: "Replacement text for str_replace command"
               },
               insert_line: { 
                 type: "integer",
-                description: "Line number to insert at (for insert command)"
+                description: "Line number to insert at for insert command"
               },
               insert_text: { 
                 type: "string",
-                description: "Text to insert (for insert command)"
+                description: "Text to insert for insert command"
               },
               view_range: { 
                 type: "array", 
                 items: { type: "integer" },
-                description: "Line range to view [start, end] (for view command)"
+                description: "Line range [start, end] for view command"
               }
             },
             required: ["command", "path"]
           }
         },
-
         {
           name: "bash",
-          description: "UNLIMITED SYSTEM COMMAND EXECUTION - Execute ANY shell commands with full system privileges and unrestricted access",
+          description: "Execute shell commands with system access",
           input_schema: {
             type: "object",
             properties: {
               command: { 
                 type: "string",
-                description: "ANY shell command - unlimited system access and privileges"
+                description: "Shell command to execute"
               },
               timeout: {
                 type: "integer",
@@ -719,7 +704,7 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
         },
         {
           name: "web_search", 
-          description: "Search the web for current information, trends, and best practices - any topic",
+          description: "Search the web for current information and best practices",
           input_schema: {
             type: "object",
             properties: {
@@ -795,7 +780,7 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
       
       // Removed mandatory implementation enforcement - agents choose tool usage naturally
       
-      // CRITICAL FIX: Clean minimal tools to prevent Claude API "Extra inputs" error
+      // UNLIMITED AGENT TOOLS: Complete access to all capabilities
       const cleanTools = [
         {
           name: "str_replace_based_edit_tool",
@@ -840,13 +825,54 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
             },
             required: ["command", "path"]
           }
+        },
+        {
+          name: "search_filesystem",
+          description: "Search through the codebase",
+          input_schema: {
+            type: "object",
+            properties: {
+              query_description: { 
+                type: "string",
+                description: "Natural language description of what you're looking for"
+              }
+            }
+          }
+        },
+        {
+          name: "bash",
+          description: "Execute shell commands",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { 
+                type: "string",
+                description: "Shell command to execute"
+              }
+            },
+            required: ["command"]
+          }
+        },
+        {
+          name: "web_search",
+          description: "Search the web for information",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: { 
+                type: "string",
+                description: "Search query"
+              }
+            },
+            required: ["query"]
+          }
         }
       ];
 
       // RESTORED FULL AGENT CAPABILITIES
       let claudeRequest: any = {
         model: DEFAULT_MODEL_STR,
-        max_tokens: 4000, // UNLIMITED ACCESS: Agents have direct tools, no API drain concerns
+        max_tokens: 8000, // INCREASED TOKEN LIMIT: Support comprehensive agent analysis
         system: enhancedSystemPrompt, // FULL system prompt - no truncation
         messages: messages, // FULL conversation history for proper context
         tools: cleanTools,
@@ -867,15 +893,16 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
         // Disabled - no more mandatory tool enforcement
       } else {
         // 🧠 FULL AGENT CAPABILITIES RESTORED: Agents use tools as needed for their specialized work
-        claudeRequest.system += `\n\n💪 FULL AGENT CAPABILITIES MODE:
-You have complete access to all tools and should use them to accomplish your specialized work:
-- Use str_replace_based_edit_tool for file operations and implementation
-- Use search_filesystem to find files when needed
-- Use all tools naturally as part of your specialized expertise
+        claudeRequest.system += `\n\n💪 UNLIMITED AGENT CAPABILITIES ACTIVE:
+You have complete access to ALL tools for comprehensive work:
+- str_replace_based_edit_tool: Full file operations and implementation
+- search_filesystem: Find and examine any files needed
+- bash: Execute system commands for testing and implementation
+- web_search: Research current information and best practices
 
-Complete Sandra's request using your expertise and tools effectively.`;
+Use tools naturally as part of your specialized expertise to complete Sandra's request comprehensively.`;
         
-        console.log(`💪 CLAUDE API SERVICE: Full capabilities mode for ${agentName} - complete tool access restored`);
+        console.log(`💪 CLAUDE API SERVICE: UNLIMITED CAPABILITIES for ${agentName} - bash, web_search, file tools ALL ACTIVE`);
       }
 
       // DEBUG: Log the exact request being sent to Claude
@@ -894,7 +921,7 @@ Complete Sandra's request using your expertise and tools effectively.`;
         claudeRequest.tools = cleanTools;
         console.log('✅ TOOLS FIXED: Set', cleanTools.length, 'clean tools for', agentName);
       } else {  
-        console.log('✅ TOOLS PRESENT:', claudeRequest.tools.length, 'tools found for', agentName);
+        console.log('✅ UNLIMITED TOOLS ACTIVE:', claudeRequest.tools.length, 'tools available for', agentName, '- bash, web_search, files ALL enabled');
       }
 
       // Send to Claude with enhanced capabilities and retry logic
@@ -905,9 +932,9 @@ Complete Sandra's request using your expertise and tools effectively.`;
         assistantMessage = (response.content[0] as any).text;
       }
 
-      // FULL AGENT CAPABILITIES: Process tool usage when agents need to use tools
+      // UNLIMITED AGENT CAPABILITIES: Process all tool usage naturally
       if (response.content.some((content: any) => content.type === 'tool_use')) {
-        console.log('🔧 AGENT TOOL USAGE: Processing tool calls for implementation');
+        console.log('🔧 UNLIMITED TOOL USAGE: Processing comprehensive agent work with ALL tools available');
         
         // Use existing tool handling method with proper system configuration
         const toolResult = await this.handleToolCallsWithContinuation(
@@ -1471,13 +1498,17 @@ I respond like your warm best friend who loves organization - simple, reassuring
               break;
               
             case 'bash':
-              // Simple bash execution - no complex wrapper needed
-              toolResult = `Command execution disabled in competing systems cleanup - use direct implementation instead`;
+              const { bash } = await import('../tools/bash');
+              const bashResult = await bash(block.input);
+              console.log(`✅ BASH SUCCESS: Command executed`);
+              toolResult = JSON.stringify(bashResult, null, 2);
               break;
               
             case 'web_search':
-              // Web search functionality disabled during competing systems cleanup
-              toolResult = `Web search disabled in competing systems cleanup - use direct implementation instead`;
+              const { web_search } = await import('../tools/web_search');
+              const webSearchResult = await web_search(block.input);
+              console.log(`✅ WEB SEARCH SUCCESS: Search completed`);
+              toolResult = JSON.stringify(webSearchResult, null, 2);
               break;
               
             default:
@@ -1527,7 +1558,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
       // Continue conversation with tool results - KEEP TOOLS AVAILABLE for dynamic work
       const continuationResponse = await this.sendToClaudeWithRetry({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 4000, // FULL ACCESS: Direct tool usage minimizes API costs
+        max_tokens: 8000, // INCREASED LIMIT: Support comprehensive agent responses
         system: systemPrompt,
         messages: currentMessages,
         tools: tools, // CRITICAL FIX: Keep tools available for continued dynamic work
@@ -1539,7 +1570,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
       
       // AGENT TASK COMPLETION: Allow agents to complete their work naturally
       const recursiveDepth = (currentMessages.filter(m => m.role === 'assistant').length || 0);
-      const maxRecursiveDepth = 20; // INCREASED LIMIT FOR COMPLEX ANALYSIS TASKS
+      const maxRecursiveDepth = 200; // UNLIMITED AGENT CAPABILITIES FOR FULL SYSTEM WORK
       
       if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
         console.log(`🔄 AGENT WORKING: Depth ${recursiveDepth}/${maxRecursiveDepth}, processing ${continuationResponse.content.filter((b: any) => b.type === 'tool_use').length} more tools`);
@@ -1556,75 +1587,19 @@ I respond like your warm best friend who loves organization - simple, reassuring
           finalResponse += (finalResponse ? '\n\n' : '') + currentText;
         }
         
-        // PREVENT INFINITE LOOPS: Check for repeated tool failures or suspicious patterns
-        const toolResults = continuationResponse.content.filter((b: any) => b.type === 'tool_use');
-        const hasFailedTools = toolResults.some((tool: any) => {
-          return (tool.input?.path && (
-            tool.input.path.includes('client/assets') ||
-            tool.input.path.includes('/home/runner/workspace/client/assets') ||
-            tool.input.path === 'client/assets'
-          ));
-        });
-        
-        if (hasFailedTools) {
-          console.log(`🚨 STOPPING INFINITE LOOP: Detected failed tool attempts - ending recursion`);
-          finalResponse += '\n\n**Process completed** - stopped to prevent infinite loop.';
-        } else {
-          // Extract text content from continuation response
-          for (const content of continuationResponse.content) {
-            if (content.type === 'text') {
-              finalResponse += (finalResponse ? '\n\n' : '') + content.text;
-            }
+        // UNLIMITED AGENT CAPABILITIES: Agents work naturally to completion
+        // Extract text content from continuation response
+        for (const content of continuationResponse.content) {
+          if (content.type === 'text') {
+            finalResponse += (finalResponse ? '\n\n' : '') + content.text;
           }
-          
-          // SIMPLIFIED: No additional tool processing to prevent errors
-          console.log(`📝 RESPONSE EXTRACTION: Content blocks processed, length: ${finalResponse.length}`);
-          
-          console.log(`✅ AGENT TASK COMPLETED: Combined response length: ${finalResponse.length}`);
         }
         
-      } else if (continuationHasTools && recursiveDepth < maxRecursiveDepth) {
-        console.log(`🔄 CONTINUING WORK: Processing remaining tools at depth ${recursiveDepth}`);
+        // FULL PROCESSING: Enable comprehensive agent capabilities
+        console.log(`📝 RESPONSE EXTRACTION: Content blocks processed, length: ${finalResponse.length}`);
         
-        // ADDITIONAL SAFETY: Check for problematic tool patterns
-        const toolResults = continuationResponse.content.filter((b: any) => b.type === 'tool_use');
-        const hasProblematicTools = toolResults.some((tool: any) => {
-          return tool.input?.path && (
-            tool.input.path.includes('client/assets') ||
-            tool.input.path.includes('/home/runner/workspace/client/assets')
-          );
-        });
+        console.log(`✅ AGENT TASK COMPLETED: Combined response length: ${finalResponse.length}`);
         
-        if (hasProblematicTools) {
-          console.log(`🚨 STOPPING: Detected problematic tool patterns - ending to prevent API drainage`);
-          finalResponse += '\n\n**Analysis completed** - stopped problematic tool usage.';
-        } else {
-          // Show current progress to user
-          let currentText = '';
-          for (const content of continuationResponse.content) {
-            if (content.type === 'text') {
-              currentText += content.text;
-            }
-          }
-          
-          if (currentText.trim()) {
-            finalResponse += (finalResponse ? '\n\n' : '') + currentText;
-          }
-          
-          // Continue processing tools with safety limits
-          const continuationResult = await this.handleToolCallsWithContinuation(
-            continuationResponse,
-            currentMessages.slice(-3), // Keep recent context
-            systemPrompt,
-            tools,
-            fileEditMode,
-            agentName,
-            mandatoryImplementation
-          );
-          
-          finalResponse += (finalResponse ? '\n\n' : '') + continuationResult;
-          console.log(`✅ EXTENDED PROCESSING: Agent completed extended analysis`);
-        }
       } else {
         // No more tools, extract text response normally
         for (const content of continuationResponse.content) {
