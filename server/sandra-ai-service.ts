@@ -393,7 +393,7 @@ Only include elements specifically mentioned or strongly implied. Return empty a
     const mood = styleInsights.mood?.length > 0 ? styleInsights.mood.join(', ') : 'confident, elegant';
     
     // Lighting
-    const lighting = styleInsights.lighting?.length > 0 ? styleInsights.lighting.join(', ') : 'professional lighting';
+    const lighting = (styleInsights.lighting && styleInsights.lighting.length > 0) ? styleInsights.lighting.join(', ') : 'professional lighting';
     
     // Pose
     const pose = styleInsights.pose && styleInsights.pose.length > 0 ? styleInsights.pose.join(', ') : 'natural, confident pose';

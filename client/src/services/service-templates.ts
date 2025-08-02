@@ -365,10 +365,10 @@ export async function getUserProfile(userId: string) {
 }
 
 export function getLoginUrl(redirectUri: string) {
-  return `https://${auth0Config.domain}/authorize?` +
-    `client_id=${auth0Config.clientId}&` +
-    `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-    `response_type=code&scope=openid profile email`;
+  return \`https://\${auth0Config.domain}/authorize?\` +
+    \`client_id=\${auth0Config.clientId}&\` +
+    \`redirect_uri=\${encodeURIComponent(redirectUri)}&\` +
+    \`response_type=code&scope=openid profile email\`;
 }
     `.trim();
   }
