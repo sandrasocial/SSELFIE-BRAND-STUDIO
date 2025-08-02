@@ -229,8 +229,6 @@ const formatToolResults = (content: string): string[] => {
   return tools;
 };
 
-// REMOVED: cleanMessageContent function completely eliminated for direct agent display
-
 export default function AdminConsultingAgents() {
   const { user } = useAuth();
   const [location] = useLocation();
