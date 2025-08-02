@@ -120,6 +120,35 @@ export class EnhancedContentDetector {
     const hasComplexAnalysisRequest = complexAnalysisMatches >= 2; // LOWERED from 3
     const hasEnterpriseLevel = /enterprise|scalable|production|global/i.test(message);
     
+    // PRIORITY: Enhanced conversational detection for Claude API routing (MUST be checked first)
+    const conversationalPatterns = [
+      'hello', 'hi', 'hey', 'how are you', 'what do you think', 'tell me', 'explain',
+      'why', 'what', 'how', 'when', 'where', 'who', 'can you', 'would you',
+      'feeling', 'today', 'opinion', 'thoughts', 'advice', 'help me understand',
+      'are you', 'you today', 'elena', 'zara', 'maya', 'quinn', 'olga', 'victoria'
+    ];
+    
+    const isConversational = conversationalPatterns.some(pattern => 
+      messageWords.includes(pattern)
+    );
+    
+    // DEBUG: Log conversational detection
+    console.log(`🔍 CONVERSATIONAL DEBUG: "${message}" -> patterns found:`, 
+      conversationalPatterns.filter(pattern => messageWords.includes(pattern)));
+    console.log(`🔍 CONVERSATIONAL DEBUG: isConversational = ${isConversational}`);
+    
+    // Force Claude API for greetings and agent interactions (HIGHEST PRIORITY)
+    if (isConversational) {
+      return {
+        needsClaudeGeneration: true,
+        confidence: 0.95,
+        detectedType: 'content_generation',
+        complexity: 'low',
+        contextualFactors: [...contextualFactors, 'Conversational interaction'],
+        reasoning: 'Conversational pattern detected - routing to Claude for natural response'
+      };
+    }
+
     // Determine complexity level
     let complexity: 'low' | 'medium' | 'high' | 'enterprise' = 'low';
     if (hasReplitAILevel || hasEnterpriseLevel) complexity = 'enterprise';
@@ -139,17 +168,6 @@ export class EnhancedContentDetector {
       };
     }
     
-    // Default to Claude API for conversational messages
-    const conversationalPatterns = [
-      'hello', 'hi', 'hey', 'how are you', 'what do you think', 'tell me', 'explain',
-      'why', 'what', 'how', 'when', 'where', 'who', 'can you', 'would you',
-      'feeling', 'today', 'opinion', 'thoughts', 'advice', 'help me understand'
-    ];
-    
-    const isConversational = conversationalPatterns.some(pattern => 
-      messageWords.includes(pattern)
-    );
-    
     // FIXED: Simple file operations that actually need tool mode
     if (hasFileDeletion || hasDeleteCommand || hasSimpleFileCreation) {
       return {
@@ -162,14 +180,14 @@ export class EnhancedContentDetector {
       };
     }
     
-    // Default to autonomous system for simple operations
+    // Default to Claude API for conversational interactions and general requests
     return {
-      needsClaudeGeneration: false,
-      confidence: 0.6,
-      detectedType: 'tool_operation',
+      needsClaudeGeneration: true,
+      confidence: 0.8,
+      detectedType: 'content_generation',
       complexity,
-      contextualFactors: [...contextualFactors, 'Simple operation'],
-      reasoning: 'Simple request - using autonomous system for efficiency'
+      contextualFactors: [...contextualFactors, 'General request'],
+      reasoning: 'General request - routing to Claude API for natural response'
     };
   }
 
