@@ -1758,53 +1758,42 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      // DIRECT WORKSPACE ACCESS - YOUR AGENTS' NATIVE CAPABILITIES
-      console.log('🚀 DIRECT WORKSPACE: Using native agent workspace access (ZERO API COST)');
+      // CLAUDE API WITH FULL WORKSPACE TOOLS - YOUR AGENTS' COMPLETE CAPABILITIES
+      console.log('🤖 AGENT PROCESSING: Using Claude API with full workspace tool access');
       
       try {
-        // Use autonomous system for NATIVE workspace operations
-        const { autonomousAgent } = await import('./services/autonomous-agent-integration');
-        
-        const autonomousRequest = {
+        const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
+
+${agentConfig.systemPrompt}`;
+
+        // Import Claude API service
+        const { claudeApiService } = await import('./services/claude-api-service');
+
+        // Call Claude API with full tool access for intelligent responses and workspace operations
+        const claudeResponse = await claudeApiService.sendMessage(
+          userId,
           agentId,
+          finalConversationId,
           message,
-          context: 'admin_consulting',
-          conversationId: finalConversationId
-        };
-        
-        const autonomousResult = await autonomousAgent.processAutonomousRequest(autonomousRequest);
-        
-        if (autonomousResult.success) {
-          console.log('✅ NATIVE WORKSPACE SUCCESS: Direct agent access completed');
-          console.log(`🔧 Operations: ${autonomousResult.fileOperations.length} operations`);
-          console.log(`💰 ZERO COST: Native workspace access - no API tokens used`);
-          
-          return res.json({
-            success: true,
-            response: autonomousResult.response,
-            agentName: agentConfig.name,
-            conversationId: finalConversationId,
-            nativeWorkspaceAccess: true,
-            fileOperations: autonomousResult.fileOperations,
-            autonomousCapabilities: true,
-            zeroCost: true
-          });
-        } else {
-          // Fallback to basic response if autonomous system has issues
-          return res.json({
-            success: true,
-            response: `${agentConfig.name} received your message but encountered a technical issue. The agent system is being optimized for direct workspace access.`,
-            agentName: agentConfig.name,
-            conversationId: finalConversationId,
-            fallback: true
-          });
-        }
-      } catch (error) {
-        console.error('Native workspace access error:', error);
+          systemPrompt,
+          [], // Let Claude API service provide the full tool set
+          fileEditMode
+        );
+
+        return res.json({
+          success: true,
+          response: claudeResponse,
+          agentName: agentConfig.name,
+          conversationId: finalConversationId,
+          claudeApiUsed: true,
+          fullCapabilities: true
+        });
+      } catch (claudeError) {
+        console.error('Claude API Error:', claudeError);
         return res.status(500).json({
           success: false,
-          message: 'Agent workspace access temporarily unavailable',
-          error: error instanceof Error ? error.message : 'Unknown workspace error'
+          message: 'Agent processing temporarily unavailable',
+          error: claudeError instanceof Error ? claudeError.message : 'Unknown agent error'
         });
       }
     } catch (error) {
