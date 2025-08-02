@@ -903,6 +903,19 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
             },
             required: ["query"]
           }
+        },
+        {
+          name: "get_latest_lsp_diagnostics",
+          description: "Check for TypeScript/JavaScript errors and diagnostics in code files",
+          input_schema: {
+            type: "object",
+            properties: {
+              file_path: { 
+                type: "string",
+                description: "Optional file path to check diagnostics for specific file"
+              }
+            }
+          }
         }
       ];
 
@@ -936,6 +949,12 @@ You have complete access to ALL tools for comprehensive work:
 - search_filesystem: Find and examine any files needed
 - bash: Execute system commands for testing and implementation
 - web_search: Research current information and best practices
+- get_latest_lsp_diagnostics: Check for TypeScript/JavaScript errors and fix them immediately
+
+🚨 MANDATORY QUALITY PROTOCOLS:
+- ALWAYS use get_latest_lsp_diagnostics after creating or modifying files
+- Fix ALL TypeScript errors immediately before completing tasks
+- Create production-ready code with proper imports, types, and syntax
 
 Use tools naturally as part of your specialized expertise to complete Sandra's request comprehensively.`;
         
