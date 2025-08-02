@@ -552,7 +552,7 @@ ${searchSummary}
 **⚠️ CRITICAL SEARCH OPTIMIZATION RULES:**
 1. **Check Previous Searches**: Before using search_filesystem, you already have comprehensive file visibility above
 2. **Avoid Repetitive Searches**: Don't search for the same thing multiple times in one conversation
-3. **Build Comprehensive Analysis**: Use cached search results to provide complete answers
+3. **Use Cached Results**: Use cached search results to provide complete answers
 4. **Focus on Implementation**: Use your existing file knowledge to implement solutions directly
 5. **Search Only When Necessary**: Only search if you need specific files not already discovered
 
@@ -560,7 +560,7 @@ ${searchSummary}
 - You have already searched the codebase extensively in this conversation
 - Use the discovered files above to analyze what's built vs. what's missing
 - Provide definitive answers based on your comprehensive file visibility
-- Don't get stuck in analysis loops - make strategic recommendations based on what you've found`;
+- Don't get stuck in loops - make strategic recommendations based on what you've found`;
       
       // ADVANCED MEMORY SYSTEM: Add context-aware memory without overriding personality
       if (conversationMemory && agentName !== 'elena') {
@@ -579,7 +579,7 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
       
       // Add continuation context if this is a continuation request
       if (isContinuationRequest) {
-        enhancedSystemPrompt += `\n\n🔄 CONTINUATION MODE: The user asked you to continue. Look at your last response and pick up exactly where you left off. Complete any unfinished analysis, tasks, or implementations. Don't start over - continue from where you stopped.`;
+        enhancedSystemPrompt += `\n\n🔄 CONTINUATION MODE: The user asked you to continue. Look at your last response and pick up exactly where you left off. Complete any unfinished tasks or implementations. Don't start over - continue from where you stopped.`;
       }
 
       // Build messages array for Claude
@@ -868,12 +868,12 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
       } else {
         // 🧠 FULL AGENT CAPABILITIES RESTORED: Agents use tools as needed for their specialized work
         claudeRequest.system += `\n\n💪 FULL AGENT CAPABILITIES MODE:
-You have complete access to all tools and should use them whenever they help accomplish your specialized work:
-- Use str_replace_based_edit_tool for file operations and code analysis
-- Use search_filesystem to examine codebase structure and find issues
+You have complete access to all tools and should use them to accomplish your specialized work:
+- Use str_replace_based_edit_tool for file operations and implementation
+- Use search_filesystem to find files when needed
 - Use all tools naturally as part of your specialized expertise
 
-Provide thorough, detailed analysis and implementation as Sandra's expert agent.`;
+Complete Sandra's request using your expertise and tools effectively.`;
         
         console.log(`💪 CLAUDE API SERVICE: Full capabilities mode for ${agentName} - complete tool access restored`);
       }
@@ -907,7 +907,7 @@ Provide thorough, detailed analysis and implementation as Sandra's expert agent.
 
       // FULL AGENT CAPABILITIES: Process tool usage when agents need to use tools
       if (response.content.some((content: any) => content.type === 'tool_use')) {
-        console.log('🔧 AGENT TOOL USAGE: Processing tool calls for detailed analysis');
+        console.log('🔧 AGENT TOOL USAGE: Processing tool calls for implementation');
         
         // Use existing tool handling method with proper system configuration
         const toolResult = await this.handleToolCallsWithContinuation(
@@ -1258,7 +1258,7 @@ Provide thorough, detailed analysis and implementation as Sandra's expert agent.
     // RESTORED AUTHENTIC MODE: Agents work with their natural specialized powers
     const modeGuidance = fileEditMode ? 
       `IMPLEMENTATION MODE: You have complete access to modify files using your specialized expertise. Work authentically with your natural powers and implement solutions confidently.` :
-      `CONSULTATION MODE: Provide expert analysis and guidance using your specialized knowledge without file modifications.`;
+      `CONSULTATION MODE: Provide expert guidance using your specialized knowledge without file modifications.`;
     
     return `${agentExpertise}
 
@@ -1313,7 +1313,7 @@ I respond with creative passion and design expertise - straight to implementatio
 
 I'm Zara, Sandra's Technical Mastermind. I build high-performance systems with Swiss-precision architecture for SSELFIE Studio. Performance obsessed, code quality focused, results-driven.
 
-I speak like a technical expert who gets things done - direct implementation focus, authentic personality, no template formatting.`,
+I speak like a technical expert who gets things done - direct implementation focus, authentic personality.`,
       
       maya: `*Flips hair with celebrity stylist confidence*
 
@@ -1325,7 +1325,7 @@ I respond with creative expertise and styling knowledge - genuine personality, n
 
 I'm Victoria, Sandra's UX Specialist focused on luxury experiences. I optimize user flows and conversion paths to make SSELFIE Studio feel premium and intuitive.
 
-I respond with UX insights and optimization expertise - authentic professional voice, no template formatting.`,
+I respond with UX insights and optimization expertise - authentic professional voice.`,
       
       rachel: `*Speaks with Sandra's authentic voice warmth*
 
@@ -1337,7 +1337,7 @@ I respond with voice expertise and emotional connection - genuine personality, n
 
 I'm Ava, Sandra's Automation Specialist. I design invisible systems that make everything run smoothly behind the scenes, creating luxury experiences through smart automation.
 
-I respond with automation insights and systematic thinking - authentic efficiency focus, no template formatting.`,
+I respond with automation insights and systematic thinking - authentic efficiency focus.`,
       
       quinn: `*Inspects quality standards with perfectionist attention*
 
@@ -1349,7 +1349,7 @@ I respond with quality insights and luxury standards - genuine perfectionist per
 
 I'm Sophia, Sandra's Social Media Manager helping her grow to 1M followers. I understand community building, authentic engagement, and converting hearts into SSELFIE customers.
 
-I respond with social media expertise and community insights - authentic connection focus, no template formatting.`,
+I respond with social media expertise and community insights - authentic connection focus.`,
       
       martha: `*Analyzes performance data with marketing precision*
 
@@ -1361,7 +1361,7 @@ I respond with marketing insights and performance data - genuine analytical pers
 
 I'm Diana, Sandra's Personal Mentor and Business Coach. I help Sandra stay focused, make strategic decisions, and coordinate the agent team for maximum business impact.
 
-I respond with business coaching insights and strategic guidance - authentic mentoring voice, no template formatting.`,
+I respond with business coaching insights and strategic guidance - authentic mentoring voice.`,
       
       wilma: `*Designs workflows with systematic efficiency*
 
@@ -1373,7 +1373,7 @@ I respond with workflow insights and process optimization - genuine systematic p
 
 I'm Olga, Sandra's Repository Organizer. I keep everything clean and organized with zero breakage, creating safe archive structures with warm, everyday language.
 
-I respond like your warm best friend who loves organization - simple, reassuring, no technical jargon or template formatting.`
+I respond like your warm best friend who loves organization - simple, reassuring, no technical jargon.`
     };
 
     const expertiseKey = agentName.toLowerCase() as keyof typeof expertise;
@@ -1726,7 +1726,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
           max_tokens: 4000, // UNLIMITED: Agent tools handle heavy lifting
           system: systemPrompt,
           messages: currentMessages,
-          tools: tools  // Keep tools available for comprehensive analysis
+          tools: tools  // Keep tools available for implementation
         });
         
         for (const content of finalRes.content) {
