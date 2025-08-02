@@ -228,21 +228,7 @@ const formatToolResults = (content: string): string[] => {
   return tools;
 };
 
-// QUINN'S FIX: Preserve ALL agent intelligence - show full backend responses
-const cleanMessageContent = (content: string): string => {
-  if (!content || content.trim() === '') {
-    return 'Agent response processed successfully.';
-  }
-  
-  // CRITICAL FIX: Only clean up excessive whitespace - PRESERVE ALL CONTENT
-  let cleaned = content.trim();
-  cleaned = cleaned.replace(/\n\s*\n\s*\n+/g, '\n\n');
-  
-  console.log('✅ FRONTEND: Showing full agent response without truncation');
-  console.log(`📊 Original: ${content.length} chars → Cleaned: ${cleaned.length} chars`);
-  
-  return cleaned;
-};
+// REMOVED: cleanMessageContent function completely eliminated for direct agent display
 
 export default function AdminConsultingAgents() {
   const { user } = useAuth();
@@ -573,16 +559,12 @@ export default function AdminConsultingAgents() {
           description: file.description
         }));
 
-        // REAL-TIME STREAMING FIX: Show full backend response immediately
-        const fullAgentResponse = cleanMessageContent(responseContent);
-        
-        // Display complete agent work without truncation
-        currentContent = fullAgentResponse;
+        // DIRECT DISPLAY: Show complete backend response without any processing
+        currentContent = responseContent || 'Agent response completed successfully.';
         updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
         
-        console.log(`✅ FRONTEND: Full agent response displayed (${fullAgentResponse.length} chars)`);
-        console.log(`📊 Backend→Frontend: ${responseContent.length}→${fullAgentResponse.length} chars`);
-        console.log(`🧠 Agent content preview:`, fullAgentResponse.substring(0, 200));
+        console.log(`✅ FRONTEND: Direct agent response displayed (${currentContent.length} chars)`);
+        console.log(`🧠 Raw agent response:`, currentContent.substring(0, 200));
 
         // Minimal completion info - preserve agent content as primary focus
         const duration = Date.now() - startTime;
@@ -997,7 +979,7 @@ export default function AdminConsultingAgents() {
                               blockquote: ({children}) => <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 my-3">{children}</blockquote>
                             }}
                           >
-                            {cleanMessageContent(msg.content)}
+                            {msg.content || 'Agent response processed.'}
                           </ReactMarkdown>
                         </div>
                         {msg.timestamp && (
