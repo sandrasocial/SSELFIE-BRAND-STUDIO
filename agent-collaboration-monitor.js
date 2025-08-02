@@ -86,12 +86,37 @@ if (require.main === module) {
   console.log('📊 AGENT COLLABORATION MONITOR STARTED');
   console.log('🎯 Tracking: Zara and Quinn collaboration without interference');
   
-  // Monitor for 30 minutes then generate report
-  setTimeout(() => {
+  // Monitor continuously until task completion
+  console.log('⏰ CONTINUOUS MONITORING: Will track until task completion...');
+  
+  // Check every 30 seconds for task completion indicators
+  const checkInterval = setInterval(() => {
     const report = monitor.generateReport();
-    console.log('\n📊 FINAL COLLABORATION REPORT:');
-    console.log('='.repeat(50));
-    console.log(JSON.stringify(report, null, 2));
-    monitor.saveReport();
-  }, 30 * 60 * 1000); // 30 minutes
+    
+    // Look for completion indicators
+    const recentActions = report.latest_actions.slice(-3);
+    const hasCompletionSignals = recentActions.some(action => 
+      action.details && (
+        action.details.includes('complete') ||
+        action.details.includes('finished') ||
+        action.details.includes('done') ||
+        action.details.includes('optimized') ||
+        action.details.includes('fixed')
+      )
+    );
+    
+    if (hasCompletionSignals) {
+      console.log('\n🎯 TASK COMPLETION DETECTED!');
+      console.log('📊 GENERATING FINAL REPORT...');
+      console.log('='.repeat(50));
+      console.log(JSON.stringify(report, null, 2));
+      monitor.saveReport();
+      clearInterval(checkInterval);
+    }
+    
+    // Status update every 2 minutes
+    if (report.monitoring_duration_ms % 120000 < 30000) {
+      console.log(`📊 STATUS: ${Math.floor(report.monitoring_duration_ms/60000)}min - Actions: ${report.total_actions}, Tools: ${report.total_tool_usage}, Files: ${report.total_file_changes}`);
+    }
+  }, 30000); // Check every 30 seconds
 }
