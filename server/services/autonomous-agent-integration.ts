@@ -27,7 +27,7 @@ export interface AutonomousAgentResponse {
   agentState: AgentState;
 }
 
-export class AutonomousAgentIntegration {
+class AutonomousAgentIntegration {
   private static instance: AutonomousAgentIntegration;
 
   private constructor() {}
@@ -45,31 +45,77 @@ export class AutonomousAgentIntegration {
    */
   async processAutonomousRequest(request: AutonomousAgentRequest): Promise<AutonomousAgentResponse> {
     console.log(`🤖 AUTONOMOUS AGENT: Processing request for ${request.agentId}`);
+    console.log(`📝 AUTONOMOUS REQUEST: "${request.message}"`);
 
     try {
       // 1. Register agent and get work context
       const agentState = await unifiedState.registerAgent(request.agentId, request.message);
       
-      // 2. Analyze the request with intelligent context
-      const workContext = await intelligentContext.analyzeAgentRequest(request.message, request.agentId);
-      console.log(`🧠 WORK CONTEXT ANALYSIS:`, JSON.stringify(workContext, null, 2));
-      
-      // 3. Perform autonomous navigation if needed
-      const navigationIntent: NavigationIntent = {
-        goal: request.message,
-        currentContext: request.context,
-        agentType: request.agentId
-      };
-      
-      const navigationResults = await autonomousNavigation.navigateToRelevantFiles(navigationIntent);
-      
-      // 4. Execute file operations with validation
+      // 2. DIRECT FILE OPERATIONS - Skip complex analysis for simple requests
       const fileOperations: WorkspaceOperation[] = [];
       const validationResults: ValidationResult[] = [];
       
-      // ANALYZE REQUEST FOR ACTUAL FILE OPERATIONS
-      console.log(`🔍 SUGGESTED ACTIONS: ${workContext.suggestedActions.length} actions found`);
-      console.log('🔍 SUGGESTED ACTIONS:', JSON.stringify(workContext.suggestedActions, null, 2));
+      // IMMEDIATE FILE OPERATION DETECTION
+      const createMatch = request.message.match(/create.*?(\w+\.\w+)/i);
+      const viewMatch = request.message.match(/(?:view|show|read|display).*?(\w+\.\w+)/i);
+      const editMatch = request.message.match(/(?:edit|modify|update|change).*?(\w+\.\w+)/i);
+      
+      console.log(`🔍 FILE OPERATION DETECTION:`);
+      console.log(`  Create: ${createMatch ? createMatch[1] : 'none'}`);
+      console.log(`  View: ${viewMatch ? viewMatch[1] : 'none'}`);
+      console.log(`  Edit: ${editMatch ? editMatch[1] : 'none'}`);
+      
+      let directResponse = '';
+      
+      // HANDLE CREATE OPERATIONS  
+      if (createMatch) {
+        const fileName = createMatch[1];
+        console.log(`🔨 CREATING FILE: ${fileName}`);
+        
+        // Extract content from message
+        let fileContent = `// File created by ${request.agentId} agent\n// Generated: ${new Date().toISOString()}\n`;
+        
+        const contentMatch = request.message.match(/with content[:\s]+(.*?)(?:\n|$)/i) ||
+                           request.message.match(/content[:\s]+"([^"]+)"/i) ||
+                           request.message.match(/content[:\s]+(.+?)(?:\.|$)/i);
+        
+        if (contentMatch) {
+          fileContent = contentMatch[1].trim().replace(/"/g, '');
+        }
+        
+        console.log(`📝 FILE CONTENT: "${fileContent}"`);
+        
+        const createOperation = await unifiedWorkspace.executeFileOperation('create', fileName, {
+          file_text: fileContent
+        });
+        
+        fileOperations.push(createOperation);
+        
+        if (createOperation.success) {
+          directResponse = `✅ **File created successfully!**\n\nFile \`${fileName}\` has been created with the content "${fileContent}" at \`${process.cwd()}/${fileName}\`.\n\nThe file is ready to use!`;
+          console.log(`✅ AUTONOMOUS SUCCESS: Created ${fileName}`);
+        } else {
+          directResponse = `❌ **File creation failed**\n\nCould not create \`${fileName}\`: ${createOperation.error}`;
+          console.log(`❌ AUTONOMOUS ERROR: Failed to create ${fileName}: ${createOperation.error}`);
+        }
+      }
+      
+      // If we handled a direct operation, return immediately
+      if (directResponse) {
+        return {
+          success: true,
+          response: directResponse,
+          fileOperations,
+          navigationResults: { success: true, suggestedActions: [] },
+          validationResults: [],
+          costOptimized: true,
+          agentState
+        };
+      }
+      
+      // 3. FALLBACK: Complex analysis for non-direct operations
+      const workContext = await intelligentContext.analyzeAgentRequest(request.message, request.agentId);
+      console.log(`🧠 COMPLEX ANALYSIS: ${workContext.suggestedActions.length} actions found`);
       
       if (workContext.suggestedActions.length === 0) {
         // Parse agent message for file creation/modification/deletion intent
@@ -467,3 +513,6 @@ export class AutonomousAgentIntegration {
 
 // Export singleton instance
 export const autonomousAgent = AutonomousAgentIntegration.getInstance();
+
+// Also export the class for import in routes
+export { AutonomousAgentIntegration };

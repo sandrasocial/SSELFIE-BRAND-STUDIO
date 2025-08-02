@@ -157,7 +157,7 @@ export class UnifiedWorkspaceService {
         type: 'file_search',
         query: intent.intent,
         success: true,
-        result: this.rankFilesByRelevance(result.files || [], intent),
+        result: this.rankFilesByRelevance(result.results || [], intent),
         costOptimized: true
       };
     } catch (error) {

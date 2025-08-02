@@ -1758,67 +1758,58 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      // Direct Claude API for all agent interactions (HYBRID SYSTEM REMOVED)
-      console.log('🎨 CLAUDE API: Processing agent request with Claude API');
+      // INTELLIGENT ROUTING: Check if request can be handled by direct workspace access (ZERO COST)
+      const canUseDirectWorkspace = detectFileOperationIntent(message);
+      
+      if (canUseDirectWorkspace) {
+        console.log('🔧 ZERO-COST ROUTING: Using direct workspace access for file operations');
+        
+        // Use autonomous system for ZERO API COST file operations
+        const { autonomousAgent } = await import('./services/autonomous-agent-integration');
+        
+        const autonomousRequest = {
+          agentId,
+          message,
+          context: 'admin_consulting',
+          conversationId: finalConversationId
+        };
+        
+        const autonomousResult = await autonomousAgent.processAutonomousRequest(autonomousRequest);
+        
+        if (autonomousResult.success) {
+          console.log('✅ ZERO-COST SUCCESS: File operations completed without API token usage');
+          console.log(`🔧 Operations: ${autonomousResult.fileOperations.length} file operations`);
+          console.log(`💰 COST SAVED: Direct workspace access eliminated API token drainage`);
+          
+          return res.json({
+            success: true,
+            response: autonomousResult.response,
+            agentName: agentConfig.name,
+            conversationId: finalConversationId,
+            costOptimized: true,
+            fileOperations: autonomousResult.fileOperations,
+            autonomousCapabilities: true,
+            tokensSaved: true
+          });
+        }
+      }
+      
+      // FALLBACK: Use Claude API only for conversation/analysis that requires AI reasoning
+      console.log('🎨 CLAUDE API FALLBACK: Using Claude API for conversation/analysis tasks');
       
       try {
         const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
 
 ${agentConfig.systemPrompt}
 
-CRITICAL CONTENT GENERATION INSTRUCTIONS:
-- Generate complete, functional code when creating files
-- ALWAYS use str_replace_based_edit_tool to actually create files - do not just describe what to create
-- Include all necessary imports, interfaces, and implementations
-- Never create empty files - always include meaningful content
-- For React components: include complete JSX structure and TypeScript types
-- Use luxury design system: Times New Roman, black/white/gray palette
-- Add proper error handling and production-ready code
+COMMUNICATION FOCUS:
+- Focus on conversation, analysis, and strategic guidance
+- For file operations, recommend specific actions but note that file operations are handled by direct workspace access
+- Provide clear, actionable guidance without unnecessary tool usage
+- Be conversational and helpful in your specialized expertise area`;
 
-MANDATORY TOOL USAGE:
-When asked to create files, you MUST use the str_replace_based_edit_tool with:
-- command: "create" 
-- path: "filename.ext"
-- file_text: "complete file content"
-
-Available tools (USE THEM):
-- str_replace_based_edit_tool (view, create, str_replace) - REQUIRED for file operations
-- search_filesystem (find files and code)`;
-
-        // Use the existing Claude API service with DIRECT tool access
+        // Use Claude API service for conversation only (no tool overhead)
         const { claudeApiService } = await import('./services/claude-api-service');
-        
-        // Provide essential tools for file operations
-        const agentTools = [
-          {
-            name: "str_replace_based_edit_tool",
-            description: "Create, view, and edit files with exact string replacement",
-            input_schema: {
-              type: "object",
-              properties: {
-                command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
-                path: { type: "string", description: "File path" },
-                file_text: { type: "string", description: "Complete file content for create command" },
-                old_str: { type: "string", description: "Exact string to replace" },
-                new_str: { type: "string", description: "Replacement string" }
-              },
-              required: ["command", "path"]
-            }
-          },
-          {
-            name: "search_filesystem",
-            description: "Search for files and code in the project",
-            input_schema: {
-              type: "object",
-              properties: {
-                query_description: { type: "string", description: "Natural language search query" }
-              }
-            }
-          }
-        ];
-
-        console.log('🔧 Claude API Debug - Sending request with parameters:');
-        console.log(`  userId: ${userId}, agentId: ${agentId}, message length: ${message.length}`);
 
         const claudeResponse = await claudeApiService.sendMessage(
           userId,
@@ -1826,8 +1817,8 @@ Available tools (USE THEM):
           finalConversationId,
           message,
           systemPrompt,
-          agentTools,
-          fileEditMode
+          [], // No tools - conversation only
+          false // Disable file edit mode for conversation
         );
 
         return res.json({
@@ -1836,7 +1827,8 @@ Available tools (USE THEM):
           contentGenerated: true,
           claudeApiUsed: true,
           agentId,
-          conversationId: finalConversationId
+          conversationId: finalConversationId,
+          mode: 'conversation'
         });
       } catch (claudeError) {
         console.error('Claude API Error:', claudeError);
@@ -1855,6 +1847,30 @@ Available tools (USE THEM):
       });
     }
   });
+
+  // INTELLIGENT ROUTING HELPER METHOD
+  function detectFileOperationIntent(message: string): boolean {
+    const fileOperationKeywords = [
+      'create', 'make', 'build', 'generate', 'add',
+      'modify', 'update', 'edit', 'change', 'fix',
+      'delete', 'remove', 'cleanup', 'clean',
+      'view', 'show', 'display', 'read', 'open',
+      'search', 'find', 'locate', 'look for',
+      'file', 'component', 'page', '.tsx', '.ts', '.js', '.jsx',
+      'implement', 'code', 'function', 'class', 'interface'
+    ];
+
+    const messageWords = message.toLowerCase().split(/\s+/);
+    const hasFileOperationIntent = fileOperationKeywords.some(keyword => 
+      messageWords.some(word => word.includes(keyword) || keyword.includes(word))
+    );
+
+    // Also check for file extensions or path patterns
+    const hasFilePattern = /\.(tsx?|jsx?|css|html?|json|md|py|php|rb|go|rs|kt|swift|java|cpp?|h|scss|less|yaml|yml|toml|ini|cfg|conf)\b/i.test(message);
+    const hasPathPattern = /(src\/|client\/|server\/|components\/|pages\/|services\/|utils\/|lib\/|hooks\/)/i.test(message);
+
+    return hasFileOperationIntent || hasFilePattern || hasPathPattern;
+  }
 
   // Claude conversation management endpoints
   app.post('/api/claude/conversation/new', async (req, res) => {
