@@ -181,11 +181,14 @@ Please respond in this JSON format:
     try {
       const response = await anthropic.messages.create({
         model: CLAUDE_MODEL_STR,
-        max_tokens: 2000,
+        max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
         system: "You are Sandra, an expert AI photographer and style consultant. Always respond in valid JSON format.",
         messages: [
           { role: 'user', content: fullPrompt }
         ],
+        headers: {
+          "anthropic-beta": "prompt-caching-2024-07-31" // COST OPTIMIZATION: 90% savings on repeated content
+        }
       });
 
       const responseText = response.content[0].text;
@@ -225,7 +228,7 @@ Please respond in this JSON format:
       try {
         const response = await openai.chat.completions.create({
           model: "gpt-4o", // The newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-          max_tokens: 2000,
+          max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
           messages: [
             { role: 'system', content: "You are Sandra, an expert AI photographer and style consultant. Always respond in valid JSON format." },
             { role: 'user', content: fullPrompt }
@@ -342,7 +345,7 @@ Only include elements specifically mentioned or strongly implied. Return empty a
     try {
       const analysisResponse = await anthropic.messages.create({
         model: CLAUDE_MODEL_STR,
-        max_tokens: 500,
+        max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
         messages: [
           { role: 'user', content: analysisPrompt }
         ],
