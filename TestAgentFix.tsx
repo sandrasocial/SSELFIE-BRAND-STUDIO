@@ -21,7 +21,7 @@ const TestAgentFix: React.FC<TestAgentFixProps> = ({ message = "Agent Fix Test C
         <p>Status: ✅ Component rendered successfully</p>
       </div>
       
-      <style jsx>{`
+      <style>{`
         .test-agent-fix {
           padding: 20px;
           border: 2px solid #007acc;
