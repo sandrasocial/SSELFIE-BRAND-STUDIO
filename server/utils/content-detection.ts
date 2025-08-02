@@ -41,15 +41,6 @@ export class EnhancedContentDetector {
       'replit ai-level', 'advanced', 'enterprise', 'scalable', 'optimization'
     ];
 
-    // Conversational keywords (require Claude API for intelligent responses)
-    const conversationalKeywords = [
-      'hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening',
-      'how are you', 'how\'s it going', 'what\'s up', 'greetings',
-      'thanks', 'thank you', 'please', 'help', 'can you',
-      'what do you think', 'your opinion', 'advice', 'suggest',
-      'tell me', 'explain', 'describe', 'discuss', 'chat'
-    ];
-
     // Complex analysis keywords (lower threshold for Claude routing)
     const complexAnalysisKeywords = [
       'architecture', 'system', 'integration', 'dependency', 'mapping',
@@ -80,10 +71,6 @@ export class EnhancedContentDetector {
 
     // Count keyword matches with enhanced weighting
     const contentMatches = contentKeywords.filter(keyword => 
-      messageWords.includes(keyword)
-    ).length;
-
-    const conversationalMatches = conversationalKeywords.filter(keyword => 
       messageWords.includes(keyword)
     ).length;
 
@@ -152,15 +139,14 @@ export class EnhancedContentDetector {
       };
     }
     
-    // Enhanced conversational detection - CRITICAL FIX
+    // Default to Claude API for conversational messages
     const conversationalPatterns = [
       'hello', 'hi', 'hey', 'how are you', 'what do you think', 'tell me', 'explain',
       'why', 'what', 'how', 'when', 'where', 'who', 'can you', 'would you',
-      'feeling', 'today', 'opinion', 'thoughts', 'advice', 'help me understand',
-      'maya', 'elena', 'zara', 'quinn', 'olga', 'victoria'  // Agent names
+      'feeling', 'today', 'opinion', 'thoughts', 'advice', 'help me understand'
     ];
     
-    const isConversational = conversationalMatches > 0 || conversationalPatterns.some(pattern => 
+    const isConversational = conversationalPatterns.some(pattern => 
       messageWords.includes(pattern)
     );
     
@@ -176,26 +162,14 @@ export class EnhancedContentDetector {
       };
     }
     
-    // FIXED: Conversational messages should use Claude API
-    if (isConversational) {
-      return {
-        needsClaudeGeneration: true,
-        confidence: 0.9,
-        detectedType: 'content_generation',
-        complexity,
-        contextualFactors: [...contextualFactors, 'Conversational interaction'],
-        reasoning: 'Conversational pattern detected - routing to Claude for natural response'
-      };
-    }
-    
-    // Default to Claude API for all other ambiguous cases (like Replit AI)
+    // Default to autonomous system for simple operations
     return {
-      needsClaudeGeneration: true,
-      confidence: 0.7,
-      detectedType: 'complex_analysis',
+      needsClaudeGeneration: false,
+      confidence: 0.6,
+      detectedType: 'tool_operation',
       complexity,
-      contextualFactors: [...contextualFactors, 'Ambiguous request'],
-      reasoning: 'Ambiguous request - defaulting to Claude for comprehensive response'
+      contextualFactors: [...contextualFactors, 'Simple operation'],
+      reasoning: 'Simple request - using autonomous system for efficiency'
     };
   }
 
