@@ -88,7 +88,7 @@ export class AgentCodebaseIntegration {
       
       return content;
     } catch (error) {
-      throw new Error(`File read error: ${error.message}`);
+      throw new Error(`File read error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
   
@@ -132,6 +132,7 @@ export class AgentCodebaseIntegration {
         console.log(`📂 Created backup: ${backupPath}`);
       } catch (error) {
         // File doesn't exist, no backup needed
+        console.log('No existing file to backup');
       }
       
       // Write new content
@@ -151,7 +152,7 @@ export class AgentCodebaseIntegration {
       console.log(`📂 Full path: ${fullPath}`);
       console.log(`📄 Content length: ${content.length} characters`);
     } catch (error) {
-      throw new Error(`File write error: ${error.message}`);
+      throw new Error(`File write error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -179,7 +180,7 @@ export class AgentCodebaseIntegration {
         return { 
           filePath: file.filePath, 
           success: false, 
-          error: error.message 
+          error: error instanceof Error ? error.message : 'Unknown error'
         };
       }
     });
@@ -239,7 +240,7 @@ export class AgentCodebaseIntegration {
       
       return { diff, versions };
     } catch (error) {
-      throw new Error(`Diff error: ${error.message}`);
+      throw new Error(`Diff error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -286,7 +287,7 @@ export class AgentCodebaseIntegration {
       
       console.log(`🔄 Restored ${filePath} from backup: ${backupVersion}`);
     } catch (error) {
-      throw new Error(`Restore error: ${error.message}`);
+      throw new Error(`Restore error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -337,7 +338,7 @@ export class AgentCodebaseIntegration {
       console.error(`❌ Command failed:`, error);
       return { 
         stdout: '', 
-        stderr: error.message, 
+        stderr: error instanceof Error ? error.message : 'Unknown error', 
         success: false 
       };
     }
@@ -365,7 +366,7 @@ export class AgentCodebaseIntegration {
         return { success: false, output: result.stderr };
       }
     } catch (error) {
-      return { success: false, output: error.message };
+      return { success: false, output: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -379,8 +380,8 @@ export class AgentCodebaseIntegration {
   ): Promise<{ errors: Array<{line: number, message: string, severity: 'error' | 'warning'}>; suggestions: string[] }> {
     try {
       const content = await this.readFile(agentId, filePath);
-      const errors = [];
-      const suggestions = [];
+      const errors: Array<{line: number, message: string, severity: 'error' | 'warning'}> = [];
+      const suggestions: string[] = [];
       
       // Basic TypeScript/JavaScript error detection
       const lines = content.split('\n');
@@ -432,7 +433,7 @@ export class AgentCodebaseIntegration {
       
       return { errors, suggestions };
     } catch (error) {
-      throw new Error(`Code analysis error: ${error.message}`);
+      throw new Error(`Code analysis error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -458,7 +459,7 @@ export class AgentCodebaseIntegration {
         return { success: false, output: result.stderr };
       }
     } catch (error) {
-      return { success: false, output: error.message };
+      return { success: false, output: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -476,9 +477,9 @@ export class AgentCodebaseIntegration {
       const packageJson = JSON.parse(await this.readFile(agentId, 'package.json'));
       const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
       
-      const missing = [];
-      const outdated = [];
-      const suggestions = [];
+      const missing: string[] = [];
+      const outdated: string[] = [];
+      const suggestions: string[] = [];
       
       // Check for common missing dependencies based on code analysis
       const commonFiles = [
@@ -508,9 +509,9 @@ export class AgentCodebaseIntegration {
         }
       }
       
-      return { missing: [...new Set(missing)], outdated, suggestions };
+      return { missing: Array.from(new Set(missing)), outdated, suggestions };
     } catch (error) {
-      throw new Error(`Dependency analysis error: ${error.message}`);
+      throw new Error(`Dependency analysis error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
   

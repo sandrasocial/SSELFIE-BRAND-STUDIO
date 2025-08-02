@@ -149,11 +149,11 @@ router.post('/send-message', async (req, res) => {
     // Elena workflow detection integration (optional - skip if service not available)
     if (agentName.toLowerCase() === 'elena') {
       try {
-        const { elenaWorkflowDetectionService } = await import('../services/elena-workflow-detection-service');
-        const analysis = elenaWorkflowDetectionService.analyzeConversation(response, agentName);
+        const { elenaWorkflowService } = await import('../services/elena-workflow-service');
+        const analysis = elenaWorkflowService.analyzeConversation(response, agentName);
         
         if (analysis.hasWorkflow && analysis.workflow) {
-          elenaWorkflowDetectionService.stageWorkflow(analysis.workflow);
+          elenaWorkflowService.stageWorkflow(analysis.workflow);
           console.log(`🎯 ELENA WORKFLOW DETECTED: ${analysis.workflow.title} (confidence: ${analysis.confidence})`);
         }
       } catch (error) {
