@@ -7,14 +7,14 @@ import { unifiedAgentSystem } from "./unified-agent-system";
 import cors from "cors";
 
 // 🚀 ENHANCED SERVICES INTEGRATION - ZARA COORDINATION
-import { apiOrchestrationLayer } from "./services/api-orchestration-layer";
+import { apiOrchestrator } from "./services/api-orchestration-layer";
 import { checkpointAutomation } from "./services/checkpoint-automation";
 import { webSearchOptimization } from "./services/web-search-optimization";
 import { taskDependencyMapping } from "./services/task-dependency-mapping";
 import { progressTracking } from "./services/progress-tracking";
 import { advancedMemorySystem } from "./services/advanced-memory-system";
-import { predictiveErrorPrevention } from "./services/predictive-error-prevention";
-import { autonomousNavigationSystem } from "./services/autonomous-navigation-system";
+import { PredictiveErrorPrevention } from "./services/predictive-error-prevention";
+import { AutonomousNavigationSystem } from "./services/autonomous-navigation-system";
 import { crossAgentIntelligence } from "./services/cross-agent-intelligence";
 
 const app = express();
