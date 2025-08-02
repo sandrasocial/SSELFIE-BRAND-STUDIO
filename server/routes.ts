@@ -938,7 +938,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
           },
           body: JSON.stringify({
             model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 1000,
+            max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
             messages: [
               ...chatHistory.map((msg: any) => ({
                 role: msg.role === 'maya' ? 'assistant' : 'user',
@@ -995,7 +995,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
                 },
                 body: JSON.stringify({
                   model: "claude-3-5-sonnet-20241022",
-                  max_tokens: 800,
+                  max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
                   messages: [{
                     role: "user",
                     content: `Convert Maya's exact description into a detailed FLUX generation prompt. Keep her exact vision - don't change locations, clothing, or mood. Just format it technically.
@@ -1094,7 +1094,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           },
           body: JSON.stringify({
             model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 1000,
+            max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
             messages: [
               ...(conversationHistory || []).map((msg: any) => ({
                 role: msg.role === 'victoria' ? 'assistant' : 'user',
@@ -2395,7 +2395,7 @@ Available tools (USE THEM):
           },
           body: JSON.stringify({
             model: "claude-3-5-sonnet-20241022",
-            max_tokens: 600,
+            max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
             messages: [{
               role: "user",
               content: `You are Maya, the celebrity stylist expert. Create ONE sophisticated editorial photoshoot prompt for "${category} - ${subcategory}".
@@ -2600,7 +2600,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
               },
               body: JSON.stringify({
                 model: "claude-3-5-sonnet-20241022",
-                max_tokens: 700,
+                max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
                 messages: [{
                   role: "user",
                   content: `You are Maya, celebrity stylist expert. Upgrade this photoshoot prompt with your latest 2025 fashion expertise and sophisticated editorial vision.

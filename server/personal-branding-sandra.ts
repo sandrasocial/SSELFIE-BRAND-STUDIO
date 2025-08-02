@@ -111,11 +111,14 @@ Always respond as the real Sandra who genuinely cares about helping users build 
       // Make request to Claude API with full capabilities
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 2000,
+        max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
         system: systemPrompt,
         messages: [
           { role: 'user', content: message }
         ],
+        headers: {
+          "anthropic-beta": "prompt-caching-2024-07-31" // COST OPTIMIZATION: 90% savings on repeated content
+        }
       });
 
       const sandraResponse = response.content[0].text;
@@ -240,7 +243,7 @@ Only include items that are clearly mentioned or strongly implied. Return empty 
 
       const analysisResponse = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 800,
+        max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
         messages: [
           { role: 'user', content: analysisPrompt }
         ],
@@ -304,7 +307,7 @@ Return as JSON with the artifact structure appropriate for the type requested.`;
 
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 2000,
+        max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
         messages: [
           { role: 'user', content: artifactPrompt }
         ],

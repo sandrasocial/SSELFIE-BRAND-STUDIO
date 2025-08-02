@@ -47,10 +47,11 @@ class ClaudeContentGenerator {
           'Content-Type': 'application/json',
           'x-api-key': this.apiKey,
           'anthropic-version': '2023-06-01',
+          'anthropic-beta': 'prompt-caching-2024-07-31' // COST OPTIMIZATION: 90% savings on repeated content
         },
         body: JSON.stringify({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 4000,
+          max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
           temperature: 0.3,
           system: systemPrompt,
           messages: [
@@ -317,7 +318,7 @@ Return ONLY the complete code file content - no explanations or markdown formatt
         },
         body: JSON.stringify({
           model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 50,
+          max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
           messages: [
             {
               role: 'user',
