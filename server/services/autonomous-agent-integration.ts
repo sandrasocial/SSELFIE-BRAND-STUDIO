@@ -438,44 +438,10 @@ export class AutonomousAgentIntegration {
     fileOperations: WorkspaceOperation[],
     validationResults: ValidationResult[]
   ): string {
-    const agentName = this.getAgentDisplayName(request.agentId);
+    // REMOVED: All autonomous response templates - agents now use Claude API for natural responses
+    // Return simple status report instead of template response
     const operationCount = fileOperations.filter(op => op.success).length;
-    const discoveredCount = navigationResults.discoveredFiles.length;
-
-    let response = `**${agentName.toUpperCase()} HERE!** 🔥\n\n`;
-    
-    response += `Autonomous processing completed for: "${request.message}"\n\n`;
-
-    if (discoveredCount > 0) {
-      response += `🎯 **Autonomous File Discovery:** Found ${discoveredCount} relevant files\n`;
-      response += `📁 **Key Files:** ${navigationResults.discoveredFiles.slice(0, 3).join(', ')}\n\n`;
-    }
-
-    if (operationCount > 0) {
-      response += `🔧 **Operations Completed:** ${operationCount} file operations (ZERO API COSTS)\n`;
-      
-      const successfulOps = fileOperations.filter(op => op.success);
-      if (successfulOps.length > 0) {
-        response += `✅ **Files Modified:** ${successfulOps.map(op => op.path).join(', ')}\n\n`;
-      }
-    }
-
-    if (workContext.suggestedActions.length > 0) {
-      response += `💡 **Autonomous Recommendations:**\n`;
-      workContext.suggestedActions.forEach((action, index) => {
-        response += `${index + 1}. ${action.action.toUpperCase()}: ${action.reason}\n`;
-      });
-      response += '\n';
-    }
-
-    if (navigationResults.errorPrevention.length > 0) {
-      response += `🛡️ **Error Prevention:** ${navigationResults.errorPrevention[0]}\n\n`;
-    }
-
-    response += `**💰 COST OPTIMIZATION:** All operations executed with ZERO API costs through direct workspace integration\n`;
-    response += `**🎯 AUTONOMOUS STATUS:** Full workspace awareness and intelligent navigation active`;
-
-    return response;
+    return `Task processed with ${operationCount} operations completed via direct workspace access.`;
   }
 
   private getAgentDisplayName(agentId: string): string {

@@ -1713,178 +1713,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // MAIN Admin agent chat endpoint (CRITICAL - was missing!)
-  app.post('/api/admin/agent-chat', async (req: any, res) => {
-    try {
-      console.log('🔄 ADMIN AGENT CHAT: Processing request');
-      
-      // Admin authentication - Fixed: Allow admin token OR authenticated session
-      const adminToken = req.headers['x-admin-token'] || req.body.adminToken;
-      const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
-      
-      if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
-        return res.status(401).json({ 
-          success: false, 
-          message: 'Admin access required - use X-Admin-Token header or authenticate as ssa@ssasocial.com' 
-        });
-      }
-      
-      const { agentId, message, fileEditMode = true, conversationId } = req.body;
-      
-      if (!agentId || !message?.trim()) {
-        return res.status(400).json({
-          success: false,
-          message: 'Agent ID and message are required'
-        });
-      }
-      
-      console.log(`🤖 ADMIN AGENT: ${agentId} - Processing message with file edit mode: ${fileEditMode}`);
-      
-      // Get agent personality from consulting system
-      const { CONSULTING_AGENT_PERSONALITIES } = await import('./agent-personalities-consulting');
-      const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-      
-      if (!agentConfig) {
-        return res.status(404).json({
-          success: false,
-          message: `Agent ${agentId} not found in consulting system`
-        });
-      }
-      
-      // Use Sandra's admin user ID
-      const userId = '42585527';
-      
-      // Generate conversation ID if not provided
-      const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
-      
-      // HYBRID SYSTEM: Use Claude API for content generation, autonomous for tool operations
-      const { ContentDetector } = await import('./utils/content-detection');
-      const contentAnalysis = ContentDetector.analyzeMessage(message);
-      
-      console.log(`🤖 HYBRID SYSTEM: ${contentAnalysis.detectedType} detected (confidence: ${contentAnalysis.confidence})`);
-      console.log(`🎯 REASONING: ${contentAnalysis.reasoning}`);
-      console.log(`⚡ ROUTING DECISION: needsClaudeGeneration = ${contentAnalysis.needsClaudeGeneration}`);
-      
-      if (contentAnalysis.needsClaudeGeneration) {
-        // Use Claude API for content generation
-        console.log('🎨 CLAUDE API: Generating actual content with Claude API');
-        
-        try {
-          const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
 
-${agentConfig.systemPrompt}
-
-CRITICAL CONTENT GENERATION INSTRUCTIONS:
-- Generate complete, functional code when creating files
-- ALWAYS use str_replace_based_edit_tool to actually create files - do not just describe what to create
-- Include all necessary imports, interfaces, and implementations
-- Never create empty files - always include meaningful content
-- For React components: include complete JSX structure and TypeScript types
-- Use luxury design system: Times New Roman, black/white/gray palette
-- Add proper error handling and production-ready code
-
-MANDATORY TOOL USAGE:
-When asked to create files, you MUST use the str_replace_based_edit_tool with:
-- command: "create" 
-- path: "filename.ext"
-- file_text: "complete file content"
-
-Available tools (USE THEM):
-- str_replace_based_edit_tool (view, create, str_replace) - REQUIRED for file operations
-- search_filesystem (find files and code)`;
-
-          // Use the existing Claude API service with DIRECT tool access
-          try {
-            const { claudeApiService } = await import('./services/claude-api-service');
-            
-            // Provide essential tools for file operations
-            const agentTools = [
-              {
-                name: "str_replace_based_edit_tool",
-                description: "Create, view, and edit files with exact string replacement",
-                input_schema: {
-                  type: "object",
-                  properties: {
-                    command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
-                    path: { type: "string", description: "File path" },
-                    file_text: { type: "string", description: "Complete file content for create command" },
-                    old_str: { type: "string", description: "Text to replace" },
-                    new_str: { type: "string", description: "Replacement text" },
-                    view_range: { type: "array", items: { type: "number" }, description: "Line range for view" }
-                  },
-                  required: ["command", "path"]
-                }
-              },
-              {
-                name: "search_filesystem",
-                description: "Search for files and code",
-                input_schema: {
-                  type: "object",
-                  properties: {
-                    query_description: { type: "string" },
-                    function_names: { type: "array", items: { type: "string" } },
-                    class_names: { type: "array", items: { type: "string" } }
-                  }
-                }
-              }
-            ];
-
-            // DEBUG: Log parameters before Claude API call
-            console.log('🔍 CLAUDE API PARAMETERS DEBUG:');
-            console.log('  userId:', userId, '(type:', typeof userId, ')');
-            console.log('  agentId:', agentId, '(type:', typeof agentId, ')');
-            console.log('  finalConversationId:', finalConversationId, '(type:', typeof finalConversationId, ')');
-            console.log('  message:', message.substring(0, 50) + '...', '(length:', message.length, ')');
-            console.log('  systemPrompt preview:', systemPrompt.substring(0, 50) + '...', '(length:', systemPrompt.length, ')');
-            console.log('  agentTools:', agentTools?.length || 0, 'tools');
-            console.log('  fileEditMode:', fileEditMode);
-
-            const claudeResponse = await claudeApiService.sendMessage(
-              userId,
-              agentId,
-              finalConversationId,
-              message,
-              systemPrompt,
-              agentTools,
-              fileEditMode
-            );
-
-            return res.json({
-              success: true,
-              response: claudeResponse,
-              contentGenerated: true,
-              claudeApiUsed: true,
-              agentId,
-              conversationId: finalConversationId
-            });
-          } catch (claudeError) {
-            console.error('Claude API Error:', claudeError);
-            return res.status(500).json({
-              success: false,
-              message: 'Claude API service temporarily unavailable',
-              error: claudeError instanceof Error ? claudeError.message : 'Unknown Claude error'
-            });
-          }
-        } catch (importError) {
-          console.error('Service import error:', importError);
-          return res.status(500).json({
-            success: false,
-            message: 'Service import failed',
-            error: importError instanceof Error ? importError.message : 'Unknown import error'
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Admin agent chat error:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Agent execution failed',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  // Admin agent chat bypass endpoint for consulting agents
+  // Admin agent chat bypass endpoint for consulting agents - CLEANED UP VERSION
   app.post('/api/admin/agent-chat-bypass', async (req: any, res) => {
     try {
       console.log('🔄 ADMIN AGENT CHAT BYPASS: Processing request');
@@ -1928,20 +1758,11 @@ Available tools (USE THEM):
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      // HYBRID SYSTEM: Use Claude API for content generation, autonomous for tool operations
-      const { ContentDetector } = await import('./utils/content-detection');
-      const contentAnalysis = ContentDetector.analyzeMessage(message);
+      // Direct Claude API for all agent interactions (HYBRID SYSTEM REMOVED)
+      console.log('🎨 CLAUDE API: Processing agent request with Claude API');
       
-      console.log(`🤖 HYBRID SYSTEM: ${contentAnalysis.detectedType} detected (confidence: ${contentAnalysis.confidence})`);
-      console.log(`🎯 REASONING: ${contentAnalysis.reasoning}`);
-      console.log(`⚡ ROUTING DECISION: needsClaudeGeneration = ${contentAnalysis.needsClaudeGeneration}`);
-      
-      if (contentAnalysis.needsClaudeGeneration) {
-        // Use Claude API for content generation
-        console.log('🎨 CLAUDE API: Generating actual content with Claude API');
-        
-        try {
-          const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
+      try {
+        const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
 
 ${agentConfig.systemPrompt}
 
@@ -1964,138 +1785,73 @@ Available tools (USE THEM):
 - str_replace_based_edit_tool (view, create, str_replace) - REQUIRED for file operations
 - search_filesystem (find files and code)`;
 
-          // Use the existing Claude API service with DIRECT tool access
-          try {
-            const { claudeApiService } = await import('./services/claude-api-service');
-            
-            // Provide essential tools for file operations
-            const agentTools = [
-              {
-                name: "str_replace_based_edit_tool",
-                description: "Create, view, and edit files with exact string replacement",
-                input_schema: {
-                  type: "object",
-                  properties: {
-                    command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
-                    path: { type: "string", description: "File path" },
-                    file_text: { type: "string", description: "Complete file content for create command" },
-                    old_str: { type: "string", description: "Exact string to replace" },
-                    new_str: { type: "string", description: "Replacement string" }
-                  },
-                  required: ["command", "path"]
-                }
-              },
-              {
-                name: "search_filesystem",
-                description: "Search for files and code in the project",
-                input_schema: {
-                  type: "object",
-                  properties: {
-                    query_description: { type: "string", description: "Natural language search query" },
-                    function_names: { type: "array", items: { type: "string" } },
-                    class_names: { type: "array", items: { type: "string" } }
-                  }
-                }
-              }
-            ];
-            
-            const response = await claudeApiService.sendMessage(
-              userId,
-              agentId,
-              finalConversationId,
-              message,
-              systemPrompt,
-              agentTools, // Provide actual tools for file operations
-              fileEditMode
-            );
-            
-            if (response && response.length > 0) {
-              console.log(`✅ CLAUDE API SUCCESS: ${response.length} characters for ${agentId}`);
-              
-              return res.json({
-                success: true,
-                response: response,
-                agentName: agentConfig.name,
-                conversationId: finalConversationId,
-                contentGenerated: true,
-                claudeApiUsed: true
-              });
-            }
-          } catch (methodError) {
-            console.log(`❌ CLAUDE API METHOD ERROR: ${(methodError as Error).message}`);
-            throw methodError;
-          }
-        } catch (claudeError) {
-          console.error('❌ Claude content generation failed:', claudeError);
-          // Fall through to autonomous system as backup
-        }
-      }
-      
-      // Use autonomous system for tool operations or as fallback
-      console.log('🔧 AUTONOMOUS TOOLS: Using autonomous system for tool operations');
-      
-      const { autonomousAgent } = await import('./services/autonomous-agent-integration');
-      
-      // Process request through autonomous agent integration  
-      const autonomousRequest = {
-        agentId,
-        message,
-        context: 'admin_consulting',
-        conversationId: finalConversationId
-      };
-      
-      const autonomousResult = await autonomousAgent.processAutonomousRequest(autonomousRequest);
-      
-      if (autonomousResult.success) {
-        console.log('🚀 AUTONOMOUS EXECUTION: File operations completed without API costs');
-        console.log(`🔧 Operations: ${autonomousResult.fileOperations.length} file operations`);
-        console.log(`🎯 Navigation: ${autonomousResult.navigationResults.discoveredFiles.length} files discovered`);
-        console.log(`💰 COST SAVED: Direct workspace access with autonomous intelligence`);
+        // Use the existing Claude API service with DIRECT tool access
+        const { claudeApiService } = await import('./services/claude-api-service');
         
+        // Provide essential tools for file operations
+        const agentTools = [
+          {
+            name: "str_replace_based_edit_tool",
+            description: "Create, view, and edit files with exact string replacement",
+            input_schema: {
+              type: "object",
+              properties: {
+                command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
+                path: { type: "string", description: "File path" },
+                file_text: { type: "string", description: "Complete file content for create command" },
+                old_str: { type: "string", description: "Exact string to replace" },
+                new_str: { type: "string", description: "Replacement string" }
+              },
+              required: ["command", "path"]
+            }
+          },
+          {
+            name: "search_filesystem",
+            description: "Search for files and code in the project",
+            input_schema: {
+              type: "object",
+              properties: {
+                query_description: { type: "string", description: "Natural language search query" }
+              }
+            }
+          }
+        ];
+
+        console.log('🔧 Claude API Debug - Sending request with parameters:');
+        console.log(`  userId: ${userId}, agentId: ${agentId}, message length: ${message.length}`);
+
+        const claudeResponse = await claudeApiService.sendMessage(
+          userId,
+          agentId,
+          finalConversationId,
+          message,
+          systemPrompt,
+          agentTools,
+          fileEditMode
+        );
+
         return res.json({
           success: true,
-          response: autonomousResult.response,
-          agentName: agentConfig.name,
-          conversationId: finalConversationId,
-          costOptimized: true,
-          fileOperations: autonomousResult.fileOperations,
-          autonomousCapabilities: true
+          response: claudeResponse,
+          contentGenerated: true,
+          claudeApiUsed: true,
+          agentId,
+          conversationId: finalConversationId
+        });
+      } catch (claudeError) {
+        console.error('Claude API Error:', claudeError);
+        return res.status(500).json({
+          success: false,
+          message: 'Claude API service temporarily unavailable',
+          error: claudeError instanceof Error ? claudeError.message : 'Unknown Claude error'
         });
       }
-      
-      // AUTONOMOUS SYSTEM FAILED: Use Claude API for complex conversation/analysis
-      console.log('🔧 AUTONOMOUS FALLBACK: Using Claude API for complex agent conversation');
-      
-      // If no direct tools detected, use Claude API for conversation/analysis
-      const { claudeApiService } = await import('./services/claude-api-service');
-      const response = await claudeApiService.sendMessage(
-        userId,
-        agentId,
-        finalConversationId,
-        message,
-        undefined, // systemPrompt
-        undefined, // tools  
-        fileEditMode
-      );
-      
-      const finalResponse = typeof response === 'string' ? response : 'Task completed successfully';
-      console.log(`💰 COST CONTROL: Direct Claude API - real agent execution`);
-      
-      console.log(`✅ ADMIN AGENT ${agentId}: Response generated successfully`);
-      
-      res.json({
-        success: true,
-        response: finalResponse,
-        agentName: agentConfig.name,
-        conversationId: finalConversationId
-      });
-      
-    } catch (error: any) {
-      console.error('❌ ADMIN AGENT CHAT BYPASS ERROR:', error);
-      res.status(500).json({
+    } catch (error) {
+      console.error('Admin agent chat error:', error);
+      return res.status(500).json({
         success: false,
-        message: 'Admin agent chat failed',
-        error: error?.message || 'Unknown error'
+        message: 'Agent execution failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
