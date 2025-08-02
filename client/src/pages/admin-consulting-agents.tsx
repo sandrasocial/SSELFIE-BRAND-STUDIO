@@ -228,7 +228,7 @@ const formatToolResults = (content: string): string[] => {
   return tools;
 };
 
-// ENHANCED: Preserve complete agent responses while removing only technical noise
+// FIXED: Preserve ALL agent responses - minimal cleaning only
 const cleanMessageContent = (content: string): string => {
   if (!content || content.trim() === '') {
     return 'Agent response processed successfully.';
@@ -236,27 +236,21 @@ const cleanMessageContent = (content: string): string => {
   
   let cleaned = content;
   
-  // Only remove specific technical debugging noise, NOT the actual response content
+  // MINIMAL CLEANING: Only remove obvious technical debugging noise
   cleaned = cleaned.replace(/🔧 UNIVERSAL TOOL:.*?\n/g, '');
   cleaned = cleaned.replace(/🔍 PATH VALIDATION:.*?\n/g, '');
   cleaned = cleaned.replace(/✅ VALID PATH ACCEPTED:.*?\n/g, '');
   cleaned = cleaned.replace(/✅ FILE OP SUCCESS:.*?\n/g, '');
   cleaned = cleaned.replace(/🎯 TOOL COMPLETION:.*?\n/g, '');
-  cleaned = cleaned.replace(/🔄 CONTINUING CONVERSATION:.*?\n/g, '');
-  cleaned = cleaned.replace(/📝 CONTINUATION RESPONSE:.*?\n/g, '');
   
-  // Remove additional technical noise while preserving content
-  cleaned = cleaned.replace(/\*\*Process completed\*\* - stopped to prevent infinite loop\./g, '');
-  cleaned = cleaned.replace(/\*\*Analysis completed\*\* - stopped problematic tool usage\./g, '');
-  
-  // Clean up excessive whitespace but preserve content structure
+  // Clean up excessive whitespace only
   cleaned = cleaned.replace(/\n\s*\n\s*\n+/g, '\n\n');
   cleaned = cleaned.trim();
   
-  // CRITICAL FIX: Ensure we never return empty content - preserve original if cleaning fails
-  if (!cleaned || cleaned.length < 10) {
-    console.log('⚠️ FRONTEND: cleanMessageContent removed too much content, returning original');
-    return content.trim() || 'Agent response processed successfully.';
+  // PRESERVE CONTENT: Never filter out actual agent responses
+  if (!cleaned || cleaned.length < content.length * 0.3) {
+    console.log('⚠️ FRONTEND: Preserving original content to prevent loss');
+    return content.trim();
   }
   
   return cleaned;
@@ -608,18 +602,21 @@ export default function AdminConsultingAgents() {
         }
 
         // Stream the actual response content progressively
-        currentContent += `\n---\n\n`;
+        currentContent = ''; // Clear the thinking indicator
         const cleanResponse = cleanMessageContent(responseContent);
         
+        // FIXED: Show the full agent response, not just completion status
+        currentContent = cleanResponse;
+        updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
+        
         // For technical responses, stream more efficiently to show full analysis
-        if (cleanResponse.length > 100) {
-          // Stream in larger chunks for detailed technical content
+        if (false) { // Disabled streaming to show full response immediately
           const sentences = cleanResponse.split(/[.!?]\s+/);
           for (const sentence of sentences) {
             if (sentence.trim()) {
               currentContent += sentence + '. ';
               updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
-              await delay(200); // Slower for technical analysis readability
+              await delay(200);
             }
           }
         } else {
@@ -633,7 +630,7 @@ export default function AdminConsultingAgents() {
           }
         }
 
-        // Add completion summary
+        // Minimal completion info - preserve agent content as primary focus
         const duration = Date.now() - startTime;
         const completionSummary: CompletionSummaryLegacy = {
           filesModified: fileOperations.length,
@@ -642,10 +639,10 @@ export default function AdminConsultingAgents() {
           status: 'success'
         };
 
-        currentContent += `\n\n---\n\n✅ **Task Completed**\n`;
-        currentContent += `• Modified ${fileOperations.length} file${fileOperations.length !== 1 ? 's' : ''}\n`;
-        currentContent += `• Used ${toolsUsed.length} tool${toolsUsed.length !== 1 ? 's' : ''}: ${toolsUsed.join(', ')}\n`;
-        currentContent += `• Duration: ${Math.round(duration / 1000)}s\n`;
+        // OPTIONAL: Add minimal completion note without overwhelming the agent response
+        if (fileOperations.length > 0 || toolsUsed.length > 0) {
+          currentContent += `\n\n---\n\n*Task completed in ${Math.round(duration / 1000)}s with ${toolsUsed.length} tools*`;
+        }
 
         // Final update with completion
         setMessages(prev => prev.map(msg => 
