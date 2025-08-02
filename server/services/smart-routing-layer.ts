@@ -397,31 +397,45 @@ export class SmartRoutingLayer {
   } | null {
     const lowerMessage = message.toLowerCase();
 
-    // Extract file path
-    const pathMatch = message.match(/(?:file|path)\s+([^\s]+\.[a-zA-Z]+)/i) ||
-                     message.match(/([^\s]+\.[a-zA-Z]+)/);
+    // Enhanced path extraction patterns
+    const pathPatterns = [
+      /(?:read|view|show|open)\s+(?:file\s+)?([^\s]+\.[a-zA-Z]+)/i,
+      /(?:create|write|edit|update|modify)\s+(?:file\s+)?([^\s]+\.[a-zA-Z]+)/i,
+      /(?:file|path)\s+([^\s]+\.[a-zA-Z]+)/i,
+      /([^\s]+\.[a-zA-Z]+)/i
+    ];
+
+    let pathMatch: RegExpMatchArray | null = null;
+    for (const pattern of pathPatterns) {
+      pathMatch = message.match(pattern);
+      if (pathMatch) break;
+    }
     
-    if (!pathMatch) return null;
+    if (!pathMatch) {
+      console.log('❌ PARSE ERROR: No file path found in message:', message);
+      return null;
+    }
 
     const path = pathMatch[1];
+    console.log('✅ PARSED PATH:', path, 'from message:', message);
 
     // Determine operation type
-    if (lowerMessage.includes('read') || lowerMessage.includes('view') || lowerMessage.includes('show')) {
+    if (lowerMessage.includes('read') || lowerMessage.includes('view') || lowerMessage.includes('show') || lowerMessage.includes('open')) {
       return { type: 'read', path };
     }
 
     if (lowerMessage.includes('create') || lowerMessage.includes('new')) {
       // Extract content if provided
-      const contentMatch = message.match(/(?:content|with)[\s:]+(.+)$/i);
+      const contentMatch = message.match(/(?:content|with|:)\s*(.+)$/i);
       return { 
         type: 'create', 
         path, 
-        content: contentMatch ? contentMatch[1] : '' 
+        content: contentMatch ? contentMatch[1] : 'Default content for new file' 
       };
     }
 
-    if (lowerMessage.includes('write') || lowerMessage.includes('save')) {
-      const contentMatch = message.match(/(?:content|with)[\s:]+(.+)$/i);
+    if (lowerMessage.includes('write') || lowerMessage.includes('save') || lowerMessage.includes('update') || lowerMessage.includes('edit')) {
+      const contentMatch = message.match(/(?:content|with|:)\s*(.+)$/i);
       return { 
         type: 'write', 
         path, 
