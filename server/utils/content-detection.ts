@@ -120,34 +120,14 @@ export class EnhancedContentDetector {
     const hasComplexAnalysisRequest = complexAnalysisMatches >= 2; // LOWERED from 3
     const hasEnterpriseLevel = /enterprise|scalable|production|global/i.test(message);
     
-    // PRIORITY: Enhanced conversational detection for Claude API routing (MUST be checked first)
+    // Conversational patterns (for complex content generation only)
     const conversationalPatterns = [
-      'hello', 'hi', 'hey', 'how are you', 'what do you think', 'tell me', 'explain',
-      'why', 'what', 'how', 'when', 'where', 'who', 'can you', 'would you',
-      'feeling', 'today', 'opinion', 'thoughts', 'advice', 'help me understand',
-      'are you', 'you today', 'elena', 'zara', 'maya', 'quinn', 'olga', 'victoria'
+      'explain architecture', 'analyze system', 'comprehensive review', 'detailed analysis'
     ];
     
     const isConversational = conversationalPatterns.some(pattern => 
       messageWords.includes(pattern)
     );
-    
-    // DEBUG: Log conversational detection
-    console.log(`🔍 CONVERSATIONAL DEBUG: "${message}" -> patterns found:`, 
-      conversationalPatterns.filter(pattern => messageWords.includes(pattern)));
-    console.log(`🔍 CONVERSATIONAL DEBUG: isConversational = ${isConversational}`);
-    
-    // Force Claude API for greetings and agent interactions (HIGHEST PRIORITY)
-    if (isConversational) {
-      return {
-        needsClaudeGeneration: true,
-        confidence: 0.95,
-        detectedType: 'content_generation',
-        complexity: 'low',
-        contextualFactors: [...contextualFactors, 'Conversational interaction'],
-        reasoning: 'Conversational pattern detected - routing to Claude for natural response'
-      };
-    }
 
     // Determine complexity level
     let complexity: 'low' | 'medium' | 'high' | 'enterprise' = 'low';
