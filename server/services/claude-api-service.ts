@@ -906,7 +906,7 @@ Provide thorough, detailed analysis and implementation as Sandra's expert agent.
       }
 
       // FULL AGENT CAPABILITIES: Process tool usage when agents need to use tools
-      if (response.content.some(content => content.type === 'tool_use')) {
+      if (response.content.some((content: any) => content.type === 'tool_use')) {
         console.log('🔧 AGENT TOOL USAGE: Processing tool calls for detailed analysis');
         
         // Use existing tool handling method with proper system configuration
@@ -1808,19 +1808,11 @@ I respond like your warm best friend who loves organization - simple, reassuring
               break;
               
             case 'str_replace_based_edit_tool':
-              // ✅ PARAMETER INJECTION: Auto-generate missing file_text for create commands
+              // ✅ SIMPLIFIED PARAMETER HANDLING: Skip missing file_text for create commands in this context
               if (block.input?.command === 'create' && !block.input?.file_text) {
-                console.log(`🔧 AUTO-FIXING: Generating missing file_text for create command`);
-                
-                // Import parameter injection system
-                const { ParameterInjectionSystem } = await import('../utils/parameter-injection-system');
-                const userMessage = messages[messages.length - 1]?.content || '';
-                const fix = ParameterInjectionSystem.fixMissingFileText(block, userMessage, agentName);
-                
-                if (fix.injectedParameters.length > 0) {
-                  console.log(`✅ PARAMETER INJECTION: ${fix.reason}`);
-                  block.input.file_text = fix.fixedCall.input.file_text;
-                }
+                console.log(`❌ MISSING PARAMETER: file_text required for create command`);
+                toolResult = `Parameter Error: The 'create' command requires 'file_text' parameter. Please specify the content to write to the file.`;
+                break;
               }
               
               const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
