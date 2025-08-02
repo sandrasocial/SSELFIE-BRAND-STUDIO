@@ -204,9 +204,9 @@ export class ClaudeApiService {
 
     const conversationDbId = conversation[0].id;
 
-    // Save message
+    // Save message - FIXED: Use conversationId string instead of numeric foreign key
     await db.insert(claudeMessages).values({
-      conversationId: conversationDbId,
+      conversationId: conversationId,
       role,
       content,
       metadata,
@@ -249,7 +249,7 @@ export class ClaudeApiService {
       const messages = await db
         .select()
         .from(claudeMessages)
-        .where(eq(claudeMessages.conversationId, latestConversation.id))
+        .where(eq(claudeMessages.conversationId, latestConversation.conversationId))
         .orderBy(desc(claudeMessages.timestamp))
         .limit(10);
 
@@ -318,7 +318,7 @@ export class ClaudeApiService {
       const messages = await db
         .select()
         .from(claudeMessages)
-        .where(eq(claudeMessages.conversationId, conversation[0].id))
+        .where(eq(claudeMessages.conversationId, conversation[0].conversationId))
         .orderBy(claudeMessages.timestamp);
 
       console.log('📜 Database query returned', messages.length, 'messages for conversation');
