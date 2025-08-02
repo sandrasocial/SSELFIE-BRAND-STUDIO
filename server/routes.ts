@@ -1543,7 +1543,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
   // AUTONOMOUS ORCHESTRATOR ENDPOINTS - Import and register the router
   try {
-    // Autonomous orchestrator routes removed - agents use Claude API directly
+    const autonomousOrchestratorRoutes = await import('./api/autonomous-orchestrator/deploy-all-agents');
+    const coordinationMetricsRoutes = await import('./api/autonomous-orchestrator/coordination-metrics');
+    
+    app.use('/api/autonomous-orchestrator', autonomousOrchestratorRoutes.default);
+    app.use('/api/autonomous-orchestrator', coordinationMetricsRoutes.default);
     
     console.log('✅ AUTONOMOUS ORCHESTRATOR: Routes registered successfully');
   } catch (error) {
@@ -1697,6 +1701,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const result = {
         success: true,
         message: 'Legacy effort-based system removed. Use autonomous agent system instead.',
+        costOptimized: true
       };
       res.json({ success: true, result });
     } catch (error) {
@@ -2026,8 +2031,12 @@ Available tools (USE THEM):
         }
       }
       
+      // Use autonomous system for tool operations or as fallback
+      console.log('🔧 AUTONOMOUS TOOLS: Using autonomous system for tool operations');
       
+      const { autonomousAgent } = await import('./services/autonomous-agent-integration');
       
+      // Process request through autonomous agent integration  
       const autonomousRequest = {
         agentId,
         message,
@@ -2035,8 +2044,10 @@ Available tools (USE THEM):
         conversationId: finalConversationId
       };
       
+      const autonomousResult = await autonomousAgent.processAutonomousRequest(autonomousRequest);
       
       if (autonomousResult.success) {
+        console.log('🚀 AUTONOMOUS EXECUTION: File operations completed without API costs');
         console.log(`🔧 Operations: ${autonomousResult.fileOperations.length} file operations`);
         console.log(`🎯 Navigation: ${autonomousResult.navigationResults.discoveredFiles.length} files discovered`);
         console.log(`💰 COST SAVED: Direct workspace access with autonomous intelligence`);
@@ -2046,7 +2057,9 @@ Available tools (USE THEM):
           response: autonomousResult.response,
           agentName: agentConfig.name,
           conversationId: finalConversationId,
+          costOptimized: true,
           fileOperations: autonomousResult.fileOperations,
+          autonomousCapabilities: true
         });
       }
       
