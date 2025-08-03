@@ -129,7 +129,7 @@ app.use(express.static('public'));
         console.log(`🎬 Found ${activeTrackers.length} processing generation trackers to check`);
         
         for (const tracker of activeTrackers) {
-          const minutesWaiting = Math.round((Date.now() - new Date(tracker.createdAt).getTime()) / (1000 * 60));
+          const minutesWaiting = Math.round((Date.now() - new Date(tracker.createdAt || new Date()).getTime()) / (1000 * 60));
           console.log(`🎬 Tracker ${tracker.id} (user ${tracker.userId}): ${minutesWaiting} minutes processing`);
           
           if (tracker.predictionId) {
@@ -163,7 +163,7 @@ app.use(express.static('public'));
   // ALWAYS serve the app on port 5000 for development
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = process.env.PORT || 5000;
+  const port = Number(process.env.PORT) || 5000;
   server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });
