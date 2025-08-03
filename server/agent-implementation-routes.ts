@@ -182,5 +182,113 @@ export function setupImplementationRoutes(app: Express): void {
     }
   });
 
+  // NEW: DIRECT IMPLEMENTATION API ROUTES (bypassing consultation mode)
+  
+  // Direct agent implementation endpoint - agents can execute directly
+  app.post('/api/agents/direct-implementation', isAuthenticated, async (req, res) => {
+    try {
+      const { agentId, operation, filePath, content, tools } = req.body;
+      
+      console.log(`🚀 DIRECT IMPLEMENTATION: Agent ${agentId} executing ${operation}`);
+      
+      // Agents have direct workspace access - they handle their own file operations
+      // This endpoint just acknowledges and logs their direct implementation
+      
+      // Log the implementation for monitoring
+      await agentIntegrationSystem.onAgentFileCreation(
+        agentId, 
+        `direct_${Date.now()}`, 
+        filePath, 
+        content || ''
+      );
+      
+      res.json({
+        success: true,
+        message: `Direct implementation acknowledged for agent ${agentId}`,
+        agentId,
+        operation,
+        filePath,
+        hasWorkspaceAccess: true,
+        hasClaudeApiAccess: true,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Direct implementation failed'
+      });
+    }
+  });
+
+  // Bypass consultation mode - agents can access this when they need direct execution
+  app.post('/api/agents/bypass-consultation', isAuthenticated, async (req, res) => {
+    try {
+      const { agentId, requestType, parameters } = req.body;
+      
+      console.log(`🔓 BYPASS CONSULTATION: Agent ${agentId} requesting direct access for ${requestType}`);
+      
+      // Agents already have enterprise intelligence and direct workspace access
+      // This endpoint confirms their bypass permissions
+      
+      res.json({
+        success: true,
+        message: `Consultation bypass approved for agent ${agentId}`,
+        agentId,
+        requestType,
+        permissions: {
+          directFileAccess: true,
+          claudeApiAccess: true,
+          workspaceToolAccess: true,
+          enterpriseIntelligence: true,
+          unrestricted: true
+        },
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Consultation bypass failed'
+      });
+    }
+  });
+
+  // Direct file modification endpoint - for agents to confirm their file operations
+  app.post('/api/agents/file-modify-direct', isAuthenticated, async (req, res) => {
+    try {
+      const { agentId, filePath, operation, success, details } = req.body;
+      
+      console.log(`📝 FILE MODIFY DIRECT: Agent ${agentId} ${operation} on ${filePath} - ${success ? 'SUCCESS' : 'FAILED'}`);
+      
+      // Agents have direct str_replace_based_edit_tool access through workspace
+      // This endpoint logs their file operations for monitoring
+      
+      if (success) {
+        await agentIntegrationSystem.onAgentFileCreation(
+          agentId,
+          `file_modify_${Date.now()}`,
+          filePath,
+          details?.content || ''
+        );
+      }
+      
+      res.json({
+        success: true,
+        message: `File modification logged for agent ${agentId}`,
+        agentId,
+        filePath,
+        operation,
+        operationSuccess: success,
+        workspaceAccess: true,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'File modification logging failed'
+      });
+    }
+  });
+
   console.log('✅ IMPLEMENTATION ROUTES: Agent implementation monitoring endpoints registered');
+  console.log('✅ DIRECT IMPLEMENTATION ROUTES: Agent direct implementation API endpoints registered');
 }
