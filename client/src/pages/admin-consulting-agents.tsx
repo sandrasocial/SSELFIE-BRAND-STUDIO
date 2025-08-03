@@ -219,13 +219,19 @@ const clearConversation = async (agentName: string) => {
   return response.json();
 };
 
-// Tool result formatting functions
+// Tool result formatting functions - ENHANCED for agent response detection
 const formatToolResults = (content: string): string[] => {
   const tools: string[] = [];
-  if (content.includes('[Codebase Search Results]')) tools.push('search_filesystem');
-  if (content.includes('[File Operation:')) tools.push('str_replace_based_edit_tool');
+  if (content.includes('[Codebase Search Results]') || content.includes('[Search Results]')) tools.push('search_filesystem');
+  if (content.includes('[File Operation:') || content.includes('File created') || content.includes('File modified')) tools.push('str_replace_based_edit_tool');
   if (content.includes('[Command Execution]')) tools.push('bash');
   if (content.includes('[Web Search Results]')) tools.push('web_search');
+  
+  // Additional detection for agent responses
+  if (content.includes('🔧') || content.includes('📁') || content.includes('✅')) {
+    tools.push('implementation_protocol');
+  }
+  
   return tools;
 };
 
@@ -542,21 +548,41 @@ export default function AdminConsultingAgents() {
       const result = await response.json();
       
       if (result.success) {
+        console.log('🔧 PARSING AGENT RESPONSE:', result);
+        
+        // Parse response for tool usage and file operations
+        toolsUsed = formatToolResults(result.response || '');
+        
+        // Detect file operations from response
+        if (result.response && (
+          result.response.includes('File created') ||
+          result.response.includes('File modified') ||
+          result.response.includes('[File Operation')
+        )) {
+          fileOperations.push({
+            type: 'create',
+            path: 'implementation',
+            status: 'completed',
+            description: 'Agent file operation completed'
+          });
+        }
+        
         // Parse response for tool usage and file operations
         const responseContent = result.response || 'Task completed successfully';
         
-        // Extract tool information from response
-        const detectedTools = extractToolUsage(responseContent);
-        const detectedFiles = extractFileOperations(responseContent);
-        
         // SIMPLIFIED: Track tools and files without complex streaming
-        toolsUsed = extractToolUsage(responseContent);
-        fileOperations = extractFileOperations(responseContent).map(file => ({
-          type: file.type,
-          path: file.path,
-          status: 'completed' as const,
-          description: file.description
-        }));
+        toolsUsed = formatToolResults(responseContent);
+        
+        // Enhanced file operation detection
+        if (result.fileOperationsDetected || result.implementationProtocolActive || 
+            responseContent.includes('File created') || responseContent.includes('File modified')) {
+          fileOperations.push({
+            type: 'create',
+            path: 'agent_implementation',
+            status: 'completed',
+            description: `${selectedAgent.name} completed implementation task`
+          });
+        }
 
         // DIRECT DISPLAY: Show complete backend response without any processing
         currentContent = responseContent || 'Agent response completed successfully.';
