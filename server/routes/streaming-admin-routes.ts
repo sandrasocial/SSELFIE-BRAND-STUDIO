@@ -40,32 +40,8 @@ class StreamingAgentManager {
 const streamingManager = new StreamingAgentManager();
 
 export function registerStreamingAdminRoutes(app: Express, httpServer: Server) {
-  // WebSocket server for real-time agent communication
-  const wss = new WebSocketServer({ 
-    server: httpServer, 
-    path: '/ws/admin-agents' 
-  });
-  
-  wss.on('connection', (ws: WebSocket, req) => {
-    const agentId = new URL(req.url!, `http://${req.headers.host}`).searchParams.get('agentId');
-    
-    if (agentId) {
-      streamingManager.addConnection(agentId, ws);
-      
-      ws.on('close', () => {
-        streamingManager.removeConnection(agentId);
-      });
-      
-      ws.on('message', (data) => {
-        try {
-          const message: AgentStreamingMessage = JSON.parse(data.toString());
-          streamingManager.broadcastToAgent(message.agentId, message);
-        } catch (error) {
-          console.error('WebSocket message parse error:', error);
-        }
-      });
-    }
-  });
+  // Use the unified WebSocket system to prevent conflicts - delegating to unified-agent-system.ts
+  console.log('✅ STREAMING ADMIN ROUTES: Using unified WebSocket system to prevent conflicts');
   
   // REST endpoint for agent streaming status
   app.get('/api/admin/streaming/status', (req: Request, res: Response) => {
