@@ -207,7 +207,7 @@ export default function AgentApprovalDashboard() {
                       </Badge>
                     </div>
                     <h3 className="font-medium mb-1">{proposal.title}</h3>
-                    <p className="text-sm text-gray-600 line-clamp-2">{proposal.description}</p>
+                    <p className="text-sm text-gray-600">{proposal.description}</p>
                     <div className="mt-2 text-xs text-gray-500">
                       {proposal.impact.estimatedRevenue && (
                         <span>Est. Revenue: €{proposal.impact.estimatedRevenue}</span>
