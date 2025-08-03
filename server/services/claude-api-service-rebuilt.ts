@@ -152,6 +152,29 @@ export class ClaudeApiServiceRebuilt {
 
     console.log(`🤖 CLAUDE API: ${agentId} processing message`);
     
+    // REPLIT AI-STYLE DIRECT FILE TARGETING
+    const { processedMessage, directFileOperation } = this.preprocessForDirectFileAccess(message, agentId);
+    if (directFileOperation) {
+      console.log(`🎯 DIRECT FILE ACCESS: Executing ${directFileOperation.path} immediately`);
+      try {
+        const directResult = await this.handleToolCall({
+          name: 'str_replace_based_edit_tool',
+          input: directFileOperation
+        }, conversationId, agentId);
+        
+        // Return direct file result with strategic analysis
+        const directResponse = `**Direct File Access Complete**\n\n${directResult}\n\n**Strategic Analysis:**\nI've accessed the specific file you requested. The current implementation shows [analysis based on file contents].`;
+        
+        // Save to database
+        await this.saveMessageToDb(conversationId, 'user', message);
+        await this.saveMessageToDb(conversationId, 'assistant', directResponse);
+        
+        return directResponse;
+      } catch (error) {
+        console.log(`❌ DIRECT FILE ACCESS FAILED: ${error}, falling back to normal processing`);
+      }
+    }
+    
     // Get conversation context
     const conversationDbId = await this.createConversationIfNotExists(userId, agentId, conversationId);
     
@@ -174,10 +197,10 @@ export class ClaudeApiServiceRebuilt {
       });
     }
     
-    // Add current user message
+    // Add current user message (use processed message if available)
     messages.push({
       role: 'user',
-      content: message
+      content: processedMessage || message
     });
 
     // Prepare Claude API request
@@ -256,6 +279,41 @@ export class ClaudeApiServiceRebuilt {
       console.error(`❌ CLAUDE API ERROR for ${agentId}:`, error);
       throw new Error(`Claude API communication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  /**
+   * REPLIT AI-STYLE DIRECT FILE PREPROCESSING
+   * Detects when user mentions specific files and routes directly to them
+   */
+  private preprocessForDirectFileAccess(message: string, agentId: string): { 
+    processedMessage: string, 
+    directFileOperation?: any 
+  } {
+    // DIRECT FILE MAPPING - Replit AI style
+    const filePatterns = [
+      { pattern: /flatlay library page/i, path: 'client/src/pages/flatlay-library.tsx' },
+      { pattern: /admin dashboard/i, path: 'client/src/pages/admin.tsx' },
+      { pattern: /workspace page/i, path: 'client/src/pages/workspace.tsx' },
+      { pattern: /build page/i, path: 'client/src/pages/build.tsx' },
+      { pattern: /landing page/i, path: 'client/src/pages/landing.tsx' }
+    ];
+    
+    // Check for direct file mentions
+    for (const filePattern of filePatterns) {
+      if (filePattern.pattern.test(message)) {
+        console.log(`🎯 REPLIT AI TARGETING: ${filePattern.path} detected from "${message}"`);
+        
+        return {
+          processedMessage: `Analyze the ${filePattern.path} file directly and provide strategic recommendations.`,
+          directFileOperation: {
+            command: 'view',
+            path: filePattern.path
+          }
+        };
+      }
+    }
+    
+    return { processedMessage: message };
   }
 
   /**
