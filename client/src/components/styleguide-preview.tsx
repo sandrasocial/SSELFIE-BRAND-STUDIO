@@ -90,7 +90,7 @@ export default function StyleguidePreview({ userId, className = "" }: Styleguide
           <div className="text-[10px] uppercase tracking-widest text-gray-600 mb-2">
             Personal Mission
           </div>
-          <div className="text-xs font-light leading-tight text-gray-800 line-clamp-3">
+          <div className="text-xs font-light leading-tight text-gray-800">
             {styleguide.personalMission || styleguide.brandVoice || "Authentic personal branding"}
           </div>
         </div>
