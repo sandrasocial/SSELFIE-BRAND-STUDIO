@@ -83,12 +83,14 @@ class AgentSearchCacheService {
     context.searchHistory.push(entry);
     context.lastSearchTime = Date.now();
     
-    // Aggregate unique results
-    results.forEach(result => {
-      if (result.path && !context.aggregatedResults.has(result.path)) {
-        context.aggregatedResults.set(result.path, result);
-      }
-    });
+    // Aggregate unique results (with null safety)
+    if (results && Array.isArray(results)) {
+      results.forEach(result => {
+        if (result && result.path && !context.aggregatedResults.has(result.path)) {
+          context.aggregatedResults.set(result.path, result);
+        }
+      });
+    }
     
     context.totalFilesSearched = context.aggregatedResults.size;
     
