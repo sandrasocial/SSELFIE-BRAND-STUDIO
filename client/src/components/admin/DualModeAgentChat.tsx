@@ -215,7 +215,7 @@ export default function DualModeAgentChat() {
         </CardHeader>
         <CardContent>
           {/* Chat Messages */}
-          <div className="space-y-4 mb-6 max-h-[800px] overflow-y-auto">
+          <div className="space-y-4 mb-6 max-h-[800px] overflow-y-auto w-full">
             {conversation.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
                 Start a conversation with {selectedAgent.name} in {chatMode} mode
@@ -227,7 +227,7 @@ export default function DualModeAgentChat() {
                   className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-full px-4 py-2 rounded-lg ${
+                    className={`w-full px-4 py-2 rounded-lg ${
                       msg.sender === 'user'
                         ? 'bg-black text-white'
                         : 'bg-gray-100 text-gray-800'
@@ -244,7 +244,7 @@ export default function DualModeAgentChat() {
                         <Badge className="bg-green-100 text-green-800 text-xs">📁 Files Created</Badge>
                       )}
                     </div>
-                    <div className="text-sm whitespace-pre-wrap break-words">{msg.content}</div>
+                    <div className="text-sm whitespace-pre-wrap break-words w-full overflow-wrap-anywhere">{msg.content}</div>
                     <div className="text-xs opacity-70 mt-1">
                       {msg.timestamp.toLocaleTimeString()}
                     </div>
