@@ -156,7 +156,7 @@ export class ClaudeApiServiceRebuilt {
     console.log(`🤖 CLAUDE API: ${agentId} processing message`);
     
     // REPLIT AI-STYLE DIRECT FILE TARGETING (Only for specialist agents, not coordinators)
-    const agentPersonality = agentPersonalities[agentId];
+    const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
     const isCoordinator = agentPersonality?.specialization === 'TEAM_COORDINATION';
     
     if (!isCoordinator) {
