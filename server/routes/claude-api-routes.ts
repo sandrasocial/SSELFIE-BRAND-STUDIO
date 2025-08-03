@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { claudeApiService } from '../services/claude-api-service';
+import { claudeApiService } from '../services/claude-api-service-rebuilt';
 import { db } from '../db';
 import { claudeConversations } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
@@ -146,20 +146,7 @@ router.post('/send-message', async (req, res) => {
       forceFileEditMode  // Always use full editing capabilities for admin agents
     );
 
-    // Elena workflow detection integration (optional - skip if service not available)
-    if (agentName.toLowerCase() === 'elena') {
-      try {
-        const { elenaWorkflowService } = await import('../services/elena-workflow-service');
-        const analysis = elenaWorkflowService.analyzeConversation(response, agentName);
-        
-        if (analysis.hasWorkflow && analysis.workflow) {
-          elenaWorkflowService.stageWorkflow(analysis.workflow);
-          console.log(`🎯 ELENA WORKFLOW DETECTED: ${analysis.workflow.title} (confidence: ${analysis.confidence})`);
-        }
-      } catch (error) {
-        console.log('📝 Elena workflow detection service not available (optional feature)');
-      }
-    }
+    // Elena workflow detection disabled - using consulting-agents-routes.ts
 
     res.json({
       success: true,
