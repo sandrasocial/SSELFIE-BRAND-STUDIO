@@ -757,7 +757,7 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
             required: ["query"]
           }
         },
-        ...(tools || [])
+        ...(Array.isArray(tools) ? tools : [])
       ];
 
       // 🧠 INTELLIGENT INTENT DETECTION: Context-aware analysis of request type
