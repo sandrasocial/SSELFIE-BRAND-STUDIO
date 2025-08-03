@@ -1,5 +1,6 @@
-// Elena Workflow Routes - Visual Editor Integration
-// Handles workflow creation and execution from visual editor
+// CONSOLIDATED: Elena Workflow Routes - DEACTIVATED
+// All agent routing now flows through unified-agent-system.ts to prevent conflicts
+// This file is preserved for reference but routes are not registered
 
 import { Router } from 'express';
 import { ElenaWorkflowSystem } from '../elena-workflow-system';
