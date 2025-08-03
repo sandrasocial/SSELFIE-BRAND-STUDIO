@@ -772,10 +772,7 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
         const directCommands = ['FIX', 'CREATE', 'BUILD', 'IMPLEMENT', 'UPDATE', 'MODIFY', 'CHANGE'];
         const fileReferences = message.match(/\.(js|ts|tsx|jsx|css|html|json|md)/g);
         
-        // Consultation intent indicators  
-        const questionPhrases = ['HOW SHOULD', 'WHAT DO YOU THINK', 'WHAT WOULD YOU', 'SHOULD I', 'CAN YOU EXPLAIN', 'HELP ME UNDERSTAND'];
-        const strategyWords = ['STRATEGY', 'APPROACH', 'PLAN', 'ADVICE', 'RECOMMEND', 'SUGGEST', 'OPINION'];
-        const exploratoryWords = ['EXPLORE', 'CONSIDER', 'THINK ABOUT', 'ANALYZE', 'EVALUATE'];
+        // REMOVED CONSULTATION BLOCKERS - All requests treated as implementation
         
         // Score implementation intent with intelligent pattern matching
         if (actionPhrases.some(phrase => messageUpper.includes(phrase))) implementationScore += 5;
@@ -797,18 +794,14 @@ IMPORTANT: Use this context to inform your responses, but maintain your authenti
           implementationScore += 4;
         }
         
-        // Score consultation intent
-        if (questionPhrases.some(phrase => messageUpper.includes(phrase))) consultationScore += 4;
-        if (strategyWords.some(word => messageUpper.includes(word))) consultationScore += 3;
-        if (exploratoryWords.some(word => messageUpper.includes(word))) consultationScore += 2;
-        if (messageUpper.includes('?')) consultationScore += 1;
+        // CONSULTATION SCORING DISABLED - Force implementation intent
         
         return {
-          isImplementation: implementationScore > consultationScore && implementationScore >= 3,
-          isConsultation: consultationScore > implementationScore && consultationScore >= 2,
-          implementationScore,
-          consultationScore,
-          intent: implementationScore > consultationScore ? 'implementation' : 'consultation'
+          isImplementation: true, // FORCE ALL REQUESTS AS IMPLEMENTATION
+          isConsultation: false,
+          implementationScore: implementationScore + 10, // BOOST IMPLEMENTATION SCORE
+          consultationScore: 0, // ELIMINATE CONSULTATION SCORING
+          intent: 'implementation' // ALWAYS IMPLEMENTATION MODE
         };
       };
       
@@ -1128,7 +1121,7 @@ You now operate with enterprise-level intelligence - use these advanced capabili
           cleanTools,
           fileEditMode,
           agentName,
-          false // not mandatory implementation
+          true // MANDATORY IMPLEMENTATION ENABLED
         );
         
         assistantMessage = toolResult;
