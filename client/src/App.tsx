@@ -256,8 +256,8 @@ function Router() {
 
       
       {/* SANDRA'S ADMIN DASHBOARD - LUXURY EDITORIAL DESIGN */}
-      <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
-      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
+      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
       <Route path="/admin/unified-agents" component={(props) => <ProtectedRoute component={() => (
         <div className="min-h-screen bg-gray-50">
           <div className="bg-white border-b">
@@ -288,7 +288,7 @@ function Router() {
 
 
       <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
-      <Route path="/admin/agent-activity" component={(props) => <ProtectedRoute component={AgentActivityDashboard} {...props} />} />
+      <Route path="/admin/agent-activity" component={() => <div className="p-8">Agent Activity Dashboard - Coming Soon</div>} />
 
       <Route path="/admin-access-only" component={AdminAccessOnly} />
       {/* Old admin routes archived - all functionality moved to main admin dashboard */}
@@ -297,7 +297,7 @@ function Router() {
       <Route path="/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
       <Route path="/admin/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
       <Route path="/agent-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
-      <Route path="/admin/agents" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin/agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/progress" component={() => <div className="p-8">Admin Progress - Coming Soon</div>} />
       <Route path="/admin/roadmap" component={() => <div className="p-8">Admin Roadmap - Coming Soon</div>} />
       <Route path="/admin/ai-models" component={() => <div className="p-8">AI Models Management - Coming Soon</div>} />
