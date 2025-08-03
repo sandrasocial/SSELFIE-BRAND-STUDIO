@@ -13,7 +13,7 @@ import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
 import subscriberImportRouter from './routes/subscriber-import';
-import adminBusinessMetricsRouter from './routes/admin-business-metrics';
+// Removed: admin-business-metrics moved to backup
 import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
@@ -775,9 +775,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   
-  // Test endpoint for search cache system
-  const { agentSearchCacheTestRouter } = await import('./routes/agent-search-cache-test');
-  app.use('/api', agentSearchCacheTestRouter);
+  // Removed: agent-search-cache-test moved to backup
   
   // Email automation routes
   app.use('/api/email', emailAutomation);
@@ -785,14 +783,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
   app.use('/api/subscribers', subscriberImport.default);
-  app.use('/api/admin', adminBusinessMetricsRouter);
+  // Removed: admin-business-metrics moved to backup
   
   // Register white-label client setup endpoints
   app.use(whitelabelRoutes);
   
-  // Admin user management routes
-  const adminUserManagement = await import('./routes/admin-user-management');
-  app.use(adminUserManagement.default);
+  // Removed: admin-user-management moved to backup
   
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
