@@ -114,7 +114,7 @@ class AutonomousAgentIntegration {
       }
       
       // 3. FALLBACK: Complex analysis for non-direct operations
-      const workContext = await intelligentContext.analyzeAgentRequest(request.message, request.agentId);
+      const workContext = await intelligentContext.prepareAgentWorkspace(request.message, request.agentId);
       console.log(`🧠 COMPLEX ANALYSIS: ${workContext.suggestedActions.length} actions found`);
       
       if (workContext.suggestedActions.length === 0) {

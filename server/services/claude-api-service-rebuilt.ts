@@ -136,7 +136,7 @@ export class ClaudeApiServiceRebuilt {
     
     // Step 2: Intelligent Context Analysis
     try {
-      const contextAnalysis = await this.contextManager.analyzeAgentRequest(message, agentId);
+      const contextAnalysis = await this.contextManager.prepareAgentWorkspace(message, agentId);
       console.log(`🧠 CONTEXT: Enhanced ${agentId} with ${contextAnalysis.relevantFiles.length} relevant files`);
     } catch (error) {
       console.warn('Context analysis failed, continuing:', error);
@@ -162,8 +162,8 @@ export class ClaudeApiServiceRebuilt {
           input: directFileOperation
         }, conversationId, agentId);
         
-        // Return direct file result with strategic analysis
-        const directResponse = `**Direct File Access Complete**\n\n${directResult}\n\n**Strategic Analysis:**\nI've accessed the specific file you requested. The current implementation shows [analysis based on file contents].`;
+        // Return direct file result with implementation focus
+        const directResponse = `**Direct File Access Complete**\n\n${directResult}\n\n**Implementation Ready:**\nI've accessed the requested file and am prepared to execute immediate modifications. Ready to implement your requested changes.`;
         
         // Save to database
         await this.saveMessageToDb(conversationId, 'user', message);
