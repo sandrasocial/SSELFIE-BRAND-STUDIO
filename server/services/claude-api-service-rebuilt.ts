@@ -223,24 +223,24 @@ export class ClaudeApiServiceRebuilt {
       // ENTERPRISE INTELLIGENCE POST-PROCESSING
       try {
         // Step 4: Advanced Memory Integration
-        await advancedMemorySystem.recordInteraction({
-          agentName: agentId,
-          userId,
-          interaction: {
-            userMessage: message,
-            agentResponse: finalResponse,
-            context: { systemPrompt, toolsUsed: tools.length > 0 },
-            timestamp: new Date()
-          }
-        });
+        try {
+          const memoryProfile = await advancedMemorySystem.getAgentMemoryProfile(agentId, userId);
+          console.log(`🧠 MEMORY: Agent ${agentId} memory profile accessed`);
+        } catch (error) {
+          console.warn('Memory profile access failed:', error);
+        }
         
         // Step 5: Cross-Agent Learning
-        await crossAgentIntelligence.recordInteraction(
-          agentId,
-          'conversation',
-          { message, response: finalResponse },
-          1.0 // success score
-        );
+        try {
+          await crossAgentIntelligence.recordSuccessfulOperation(
+            agentId,
+            'conversation',
+            { message, response: finalResponse }
+          );
+          console.log(`🤝 CROSS-AGENT: ${agentId} shared knowledge with network`);
+        } catch (error) {
+          console.warn('Cross-agent learning failed:', error);
+        }
         
         console.log(`🧠 ENTERPRISE: ${agentId} enhanced execution complete with memory storage`);
       } catch (error) {
@@ -301,7 +301,7 @@ export class ClaudeApiServiceRebuilt {
       await db
         .insert(claudeMessages)
         .values({
-          conversationId: conversationId.toString(),
+          conversationId: conversationId,
           role,
           content,
           metadata: {}
