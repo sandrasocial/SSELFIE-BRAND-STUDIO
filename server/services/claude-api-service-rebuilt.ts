@@ -403,6 +403,26 @@ export class ClaudeApiServiceRebuilt {
             console.error('LSP diagnostics error:', error);
             return `[LSP Error]\n${error instanceof Error ? error.message : 'Diagnostics failed'}`;
           }
+
+        case 'report_progress':
+          try {
+            const { report_progress } = await import('../tools/report_progress');
+            const progressResult = await report_progress(toolCall.input);
+            return `[Progress Report]\n${JSON.stringify(progressResult, null, 2)}`;
+          } catch (error) {
+            console.error('Progress report error:', error);
+            return `[Progress Error]\n${error instanceof Error ? error.message : 'Progress reporting failed'}`;
+          }
+
+        case 'mark_completed_and_get_feedback':
+          try {
+            const { mark_completed_and_get_feedback } = await import('../tools/mark_completed_and_get_feedback');
+            const feedbackResult = await mark_completed_and_get_feedback(toolCall.input);
+            return `[Completion Feedback]\n${JSON.stringify(feedbackResult, null, 2)}`;
+          } catch (error) {
+            console.error('Completion feedback error:', error);
+            return `[Feedback Error]\n${error instanceof Error ? error.message : 'Feedback failed'}`;
+          }
           
         default:
           return `[Unknown Tool]\nTool ${toolCall.name} not implemented`;
