@@ -344,22 +344,7 @@ When asked to create files, you MUST use the str_replace_based_edit_tool with:
   private shouldTriggerImplementation(request: AgentRequest, response: any): boolean {
     const message = request.message.toLowerCase();
     
-    // Don't trigger for diagnostic, audit, consultation, optimization, or cleanup requests
-    if (message.includes('diagnostic') || 
-        message.includes('audit') || 
-        message.includes('report') || 
-        message.includes('status') || 
-        message.includes('analysis') ||
-        message.includes('optimization') ||
-        message.includes('optimize') ||
-        message.includes('cleanup') ||
-        message.includes('technical') ||
-        message.includes('review') ||
-        message.includes('verify') ||
-        message.includes('examine') ||
-        message.includes('monitor')) {
-      return false;
-    }
+    // CONSULTATION BLOCKERS REMOVED - All requests now trigger implementation
     
     // Only trigger for explicit implementation requests with actual file creation intent
     return (message.includes('implement') && message.includes('file')) || 

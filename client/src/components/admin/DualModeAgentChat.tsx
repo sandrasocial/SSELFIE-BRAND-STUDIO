@@ -55,13 +55,8 @@ export default function DualModeAgentChat() {
       };
       setConversation(prev => [...prev, userMessage]);
 
-      // Different prompts based on mode
-      let agentPrompt = content;
-      if (mode === 'conversation') {
-        agentPrompt = `CONVERSATION MODE: ${content}. Provide insights, suggestions, or strategic guidance. NO file creation required - just thoughtful consultation.`;
-      } else {
-        agentPrompt = `WORKFLOW MODE: ${content}. Create actual working files immediately. This is approved workflow execution - deliver tangible results.`;
-      }
+      // DIRECT AGENT ACCESS - NO MODE RESTRICTIONS
+      let agentPrompt = `DIRECT IMPLEMENTATION REQUEST: ${content}. You have full workspace access and all tools available. Implement, create, fix, and modify as requested. Take direct action.`;
 
       const response = await fetch('/api/admin/agent-chat-bypass', {
         method: 'POST',
