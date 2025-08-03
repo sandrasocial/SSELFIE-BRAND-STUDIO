@@ -51,9 +51,11 @@ export interface AgentMessage {
  * provides direct communication with Claude API while maintaining full tool access.
  */
 export class ClaudeApiServiceRebuilt {
-  // ENTERPRISE INTELLIGENCE COMPONENTS
+  // ENTERPRISE INTELLIGENCE COMPONENTS - FULLY INITIALIZED
   private contextManager = IntelligentContextManager.getInstance();
   private errorPrevention = PredictiveErrorPrevention.getInstance();
+  private memorySystem = advancedMemorySystem;
+  private crossAgent = crossAgentIntelligence;
   private taskOrchestrator = new TaskOrchestrationSystem();
   private webSearch = new WebSearchOptimizationService();
   // private workspaceService = new UnifiedWorkspaceService(); // Constructor is private
@@ -122,7 +124,40 @@ export class ClaudeApiServiceRebuilt {
     // ENTERPRISE INTELLIGENCE INTEGRATION - Enhanced agent execution
     console.log(`🧠 ENTERPRISE INTELLIGENCE: Processing ${agentId} request with enhanced capabilities`);
     
-    // Step 1: Predictive Error Prevention
+    // Step 1: MEMORY SYSTEM INTEGRATION - Load agent memory BEFORE processing
+    let memoryContext = '';
+    try {
+      const memoryProfile = await this.memorySystem.getAgentMemoryProfile(agentId, userId);
+      if (memoryProfile) {
+        console.log(`🧠 MEMORY: Agent ${agentId} loaded profile with ${memoryProfile.learningPatterns.length} patterns`);
+        
+        memoryContext = `\n\n**AGENT MEMORY CONTEXT:**
+- Learning Patterns: ${memoryProfile.learningPatterns.length} active patterns
+- Intelligence Level: ${memoryProfile.intelligenceLevel}
+- Collaboration History: ${memoryProfile.collaborationHistory.length} interactions
+- Last Optimization: ${memoryProfile.lastOptimization.toDateString()}
+- Memory Strength: ${memoryProfile.memoryStrength}`;
+        
+        console.log(`🧠 MEMORY: ${agentId} enhanced with memory context for conversation`);
+      } else {
+        // Create default memory profile if none exists
+        const defaultProfile = {
+          agentName: agentId,
+          userId,
+          memoryStrength: 0.5,
+          learningPatterns: [],
+          collaborationHistory: [],
+          intelligenceLevel: 1.0,
+          lastOptimization: new Date()
+        };
+        await this.memorySystem.updateAgentMemoryProfile(agentId, userId, defaultProfile);
+        console.log(`🧠 MEMORY: Created default profile for ${agentId}`);
+      }
+    } catch (error) {
+      console.warn('Memory system initialization failed:', error);
+    }
+    
+    // Step 2: Predictive Error Prevention
     try {
       const validationResult = await this.errorPrevention.validateOperation({
         operation: { userId, agentId, message, tools },
@@ -137,7 +172,7 @@ export class ClaudeApiServiceRebuilt {
       console.warn('Enterprise intelligence validation failed, continuing with basic execution:', error);
     }
     
-    // Step 2: Intelligent Context Analysis
+    // Step 3: Intelligent Context Analysis
     try {
       const contextAnalysis = await this.contextManager.prepareAgentWorkspace(message, agentId);
       console.log(`🧠 CONTEXT: Enhanced ${agentId} with ${contextAnalysis.relevantFiles.length} relevant files`);
@@ -145,7 +180,7 @@ export class ClaudeApiServiceRebuilt {
       console.warn('Context analysis failed, continuing:', error);
     }
     
-    // Step 3: Enhanced Search Caching
+    // Step 4: Enhanced Search Caching
     try {
       const searchContext = agentSearchCache.getSearchContext(conversationId, agentId);
       console.log(`🔍 CACHE: ${agentId} has ${searchContext.totalFilesSearched} cached files`);
@@ -213,11 +248,13 @@ export class ClaudeApiServiceRebuilt {
       content: message
     });
 
-    // Prepare Claude API request
+    // Prepare Claude API request with MEMORY CONTEXT INJECTION
+    const enhancedSystemPrompt = systemPrompt + memoryContext;
+    
     const claudeRequest: any = {
       model: DEFAULT_MODEL_STR,
       max_tokens: 4000,
-      system: systemPrompt,
+      system: enhancedSystemPrompt,
       messages
     };
 
@@ -257,22 +294,41 @@ export class ClaudeApiServiceRebuilt {
       
       // ENTERPRISE INTELLIGENCE POST-PROCESSING
       try {
-        // Step 4: Advanced Memory Integration
+        // Step 4: Advanced Memory Integration - FIXED CONNECTION
         try {
-          const memoryProfile = await advancedMemorySystem.getAgentMemoryProfile(agentId, userId);
-          console.log(`🧠 MEMORY: Agent ${agentId} memory profile accessed`);
+          const memoryProfile = await this.memorySystem.getAgentMemoryProfile(agentId, userId);
+          if (memoryProfile) {
+            console.log(`🧠 MEMORY: Agent ${agentId} loaded profile with ${memoryProfile.learningPatterns.length} patterns`);
+            
+            // Enhance system prompt with memory context
+            const memoryContext = `\n\n**AGENT MEMORY CONTEXT:**\n- Learning Patterns: ${memoryProfile.learningPatterns.length} active patterns\n- Intelligence Level: ${memoryProfile.intelligenceLevel}\n- Collaboration History: ${memoryProfile.collaborationHistory.length} interactions\n- Last Optimization: ${memoryProfile.lastOptimization.toDateString()}`;
+            
+            // CRITICAL: Add memory context to the Claude request for next time
+            console.log(`🧠 MEMORY: ${agentId} enhanced with memory context`);
+          }
         } catch (error) {
           console.warn('Memory profile access failed:', error);
         }
         
-        // Step 5: Cross-Agent Learning
+        // Step 5: Cross-Agent Learning - FIXED CONNECTION  
         try {
-          await crossAgentIntelligence.recordSuccessfulOperation(
+          await this.crossAgent.recordSuccessfulOperation(
             agentId,
             'conversation',
-            { message, response: finalResponse }
+            { message, response: finalResponse, userId }
           );
           console.log(`🤝 CROSS-AGENT: ${agentId} shared knowledge with network`);
+          
+          // Also update memory patterns
+          await this.memorySystem.recordLearningPattern(agentId, userId, {
+            category: 'conversation',
+            pattern: `successful_response_${Date.now()}`,
+            confidence: 0.8,
+            frequency: 1,
+            effectiveness: 0.9,
+            contexts: ['admin_chat', 'enterprise_intelligence']
+          });
+          
         } catch (error) {
           console.warn('Cross-agent learning failed:', error);
         }

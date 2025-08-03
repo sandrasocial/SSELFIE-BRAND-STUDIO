@@ -57,26 +57,72 @@ router.post('/admin/consulting-chat', async (req, res) => {
     // FULL ENTERPRISE SYSTEM PROMPT: Complete agent personalities with all capabilities
     const enterpriseSystemPrompt = agentConfig.systemPrompt;
     
-    // ENTERPRISE TOOLS: Full tool arsenal from agent configuration
+    // ENTERPRISE TOOLS: Properly formatted tool definitions  
     const enterpriseTools = [
-      // Core Replit Tools
-      { name: 'str_replace_based_edit_tool', description: 'Create, view, edit files with precision' },
-      { name: 'search_filesystem', description: 'Intelligent file discovery and search' },
-      { name: 'bash', description: 'Command execution, testing, building, verification' },
-      { name: 'web_search', description: 'Research, API documentation, latest information' },
-      { name: 'get_latest_lsp_diagnostics', description: 'Error detection and code validation' },
-      { name: 'execute_sql_tool', description: 'Database operations and queries' },
-      { name: 'packager_tool', description: 'Install libraries and dependencies' },
-      { name: 'programming_language_install_tool', description: 'Language setup and configuration' },
-      { name: 'ask_secrets', description: 'Request API keys when needed' },
-      { name: 'check_secrets', description: 'Verify secret availability' },
-      { name: 'web_fetch', description: 'Fetch web content and documentation' },
-      { name: 'suggest_deploy', description: 'Deployment suggestions' },
-      { name: 'restart_workflow', description: 'Restart development workflows' },
-      { name: 'create_postgresql_database_tool', description: 'Database creation' },
-      { name: 'suggest_rollback', description: 'Project rollback options' },
-      { name: 'report_progress', description: 'Progress reporting and coordination' },
-      { name: 'mark_completed_and_get_feedback', description: 'Task completion and feedback' }
+      {
+        name: 'str_replace_based_edit_tool',
+        description: 'Create, view, edit files with precision',
+        input_schema: {
+          type: 'object',
+          properties: {
+            command: { type: 'string', enum: ['view', 'create', 'str_replace', 'insert'] },
+            path: { type: 'string' },
+            file_text: { type: 'string' },
+            old_str: { type: 'string' },
+            new_str: { type: 'string' },
+            insert_line: { type: 'integer' },
+            insert_text: { type: 'string' },
+            view_range: { type: 'array', items: { type: 'integer' } }
+          },
+          required: ['command', 'path']
+        }
+      },
+      {
+        name: 'search_filesystem',
+        description: 'Intelligent file discovery and search',
+        input_schema: {
+          type: 'object',
+          properties: {
+            query_description: { type: 'string' },
+            code: { type: 'array', items: { type: 'string' } },
+            class_names: { type: 'array', items: { type: 'string' } },
+            function_names: { type: 'array', items: { type: 'string' } },
+            search_paths: { type: 'array', items: { type: 'string' } }
+          }
+        }
+      },
+      {
+        name: 'bash',
+        description: 'Command execution, testing, building, verification',
+        input_schema: {
+          type: 'object',
+          properties: {
+            command: { type: 'string' },
+            restart: { type: 'boolean' }
+          }
+        }
+      },
+      {
+        name: 'web_search',
+        description: 'Research, API documentation, latest information',
+        input_schema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string' }
+          },
+          required: ['query']
+        }
+      },
+      {
+        name: 'get_latest_lsp_diagnostics',
+        description: 'Error detection and code validation',
+        input_schema: {
+          type: 'object',
+          properties: {
+            file_path: { type: 'string' }
+          }
+        }
+      }
     ];
     
     console.log(`🧠 ENTERPRISE: Initializing ${agentId} with full intelligence system`);
@@ -85,15 +131,15 @@ router.post('/admin/consulting-chat', async (req, res) => {
     console.log(`📋 SPECIALIZATION: ${agentConfig.specialization}`);
     console.log(`⚡ TOOLS ALLOWED: ${agentConfig.allowedTools?.length || 0} configured tools`);
     
-    // Route through the FULL enterprise intelligence system
+    // Route through the FULL enterprise intelligence system with MEMORY + TOOLS
     const result = await claudeService.sendMessage(
       userId,
       agentId,
       conversationId,
       message,
       enterpriseSystemPrompt,
-      enterpriseTools,
-      true // Enable full tool access
+      enterpriseTools.slice(0, 3), // Start with basic tools to test schema
+      true // Re-enable tools now that memory is working
     );
     
     // Add consulting mode indicator to response

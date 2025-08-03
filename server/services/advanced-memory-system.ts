@@ -71,24 +71,96 @@ export class AdvancedMemorySystem {
         return this.memoryCache.get(cacheKey)!;
       }
       
-      // Create default profile if none exists
+      // Load from database first
+      const existingLearning = await db
+        .select()
+        .from(agentLearning)
+        .where(and(
+          eq(agentLearning.agentName, agentName),
+          eq(agentLearning.userId, userId)
+        ))
+        .orderBy(desc(agentLearning.lastSeen))
+        .limit(50);
+      
+      // Create profile with existing learning patterns
+      const learningPatterns: LearningPattern[] = existingLearning.map(learning => ({
+        category: learning.category || 'general',
+        pattern: learning.learningType || 'conversation',
+        confidence: learning.confidence || 0.7,
+        frequency: learning.frequency || 1,
+        effectiveness: 0.8,
+        contexts: ['conversation', 'implementation']
+      }));
+      
       const profile: AgentMemoryProfile = {
         agentName,
         userId,
-        memoryStrength: 0.7, // Default strength
-        learningPatterns: [],
-        collaborationHistory: [],
-        intelligenceLevel: 7, // Default intelligence level
+        memoryStrength: Math.min(0.9, 0.5 + (learningPatterns.length * 0.1)), // Grow with experience
+        learningPatterns,
+        collaborationHistory: [], // Will be populated by cross-agent system
+        intelligenceLevel: Math.min(10, 5 + learningPatterns.length), // Intelligence grows with learning
         lastOptimization: new Date()
       };
       
       // Cache and return
       this.memoryCache.set(cacheKey, profile);
+      console.log(`🧠 MEMORY LOADED: ${agentName} has ${learningPatterns.length} patterns, intelligence level ${profile.intelligenceLevel}`);
       return profile;
       
     } catch (error) {
       console.error('Failed to get agent memory profile:', error);
       return null;
+    }
+  }
+
+  /**
+   * Update agent memory profile
+   */
+  async updateAgentMemoryProfile(agentName: string, userId: string, profile: Partial<AgentMemoryProfile>): Promise<void> {
+    try {
+      const cacheKey = `${agentName}-${userId}`;
+      const existing = this.memoryCache.get(cacheKey);
+      
+      if (existing) {
+        const updated = { ...existing, ...profile };
+        this.memoryCache.set(cacheKey, updated);
+        console.log(`🧠 MEMORY UPDATED: ${agentName} profile enhanced`);
+      }
+    } catch (error) {
+      console.error('Failed to update agent memory profile:', error);
+    }
+  }
+
+  /**
+   * Record learning pattern for agent
+   */
+  async recordLearningPattern(agentName: string, userId: string, pattern: LearningPattern): Promise<void> {
+    try {
+      // Save to database
+      await db.insert(agentLearning).values({
+        agentName,
+        userId,
+        learningType: pattern.pattern,
+        category: pattern.category,
+        data: { pattern },
+        confidence: pattern.confidence,
+        frequency: pattern.frequency,
+        lastSeen: new Date(),
+        context: pattern.contexts.join(',')
+      });
+
+      // Update cache
+      const cacheKey = `${agentName}-${userId}`;
+      const profile = this.memoryCache.get(cacheKey);
+      if (profile) {
+        profile.learningPatterns.push(pattern);
+        profile.intelligenceLevel = Math.min(10, profile.intelligenceLevel + 0.1);
+        this.memoryCache.set(cacheKey, profile);
+      }
+
+      console.log(`🧠 LEARNING: ${agentName} recorded new pattern: ${pattern.category}`);
+    } catch (error) {
+      console.error('Failed to record learning pattern:', error);
     }
   }
 
