@@ -253,11 +253,11 @@ When asked to create files, you MUST use the str_replace_based_edit_tool with:
         }
       ];
 
-      // Import Claude API service for actual agent execution
-      const { claudeApiService } = await import('./services/claude-api-service');
+      // STREAMLINED SERVICE: Use rebuilt Claude API service
+      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
       
-      // Execute through the unified Claude API with complete capabilities
-      const response = await claudeApiService.sendMessage(
+      // Execute through the streamlined Claude API with complete capabilities
+      const response = await claudeApiServiceRebuilt.sendMessage(
         '42585527', // userId - existing admin user ID
         request.agentId, // agentName 
         request.conversationId,
