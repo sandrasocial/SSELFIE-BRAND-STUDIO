@@ -38,27 +38,46 @@ router.post('/admin/consulting-chat', async (req, res) => {
 
     console.log(`🔄 PHASE 3.1: Redirecting ${agentId} to implementation-aware routing`);
 
-    // FIXED: Direct agent chat execution instead of broken redirection
-    const { claudeChat } = await import('../services/claude-api-service');
+    // FIXED: Use existing agent-chat-bypass system for proper routing
+    console.log(`🚀 ROUTING TO AGENT-CHAT-BYPASS: ${agentId}`);
     
-    console.log(`🤖 DIRECT AGENT EXECUTION: ${agentId}`);
+    try {
+      // Internal fetch to the existing agent-chat-bypass endpoint
+      const bypassResponse = await fetch(`http://localhost:${process.env.PORT || 3000}/api/admin/agent-chat-bypass`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer sandra-admin-2025'
+        },
+        body: JSON.stringify({
+          agentId,
+          message,
+          fileEditMode: true,
+          conversationId: req.body.conversationId
+        })
+      });
+      
+      const result = await bypassResponse.json();
+      console.log('🎯 BYPASS ROUTING SUCCESS:', result.success);
+      
+      if (!bypassResponse.ok) {
+        throw new Error(`Bypass routing failed: ${result.message || 'Unknown error'}`);
+      }
     
-    const result = await claudeChat(agentId, message, {
-      userId: req.user ? (req.user as any).claims.sub : '42585527',
-      conversationId: req.body.conversationId || `admin_${agentId}_${Date.now()}`,
-      fileEditMode: req.body.fileEditMode || false,
-      adminMode: true
-    });
-    
-    // Add consulting mode indicator to response
-    const consultingResult = {
-      ...result,
-      consultingMode: true,
-      implementationDetected: result.agentId ? true : false,
-      routedThrough: 'implementation-aware-system'
-    };
+      // Add consulting mode indicator to response
+      const consultingResult = {
+        ...result,
+        consultingMode: true,
+        implementationDetected: result.success ? true : false,
+        routedThrough: 'agent-chat-bypass-system'
+      };
 
-    res.status(200).json(consultingResult);
+      res.status(200).json(consultingResult);
+      
+    } catch (bypassError: any) {
+      console.error('❌ BYPASS ROUTING ERROR:', bypassError);
+      throw new Error(`Agent bypass routing failed: ${bypassError.message}`);
+    }
 
   } catch (error: any) {
     console.error('❌ PHASE 3.1 CONSULTING REDIRECTION ERROR:', error);
