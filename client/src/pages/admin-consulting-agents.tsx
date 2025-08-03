@@ -1023,6 +1023,35 @@ export default function AdminConsultingAgents() {
                   
                   {messages.length === 0 && !isLoading && (
                     <div className="text-center py-16 px-8">
+                      <div className="mb-6">
+                        <div className="w-12 h-12 rounded-full bg-gray-100 border flex items-center justify-center mx-auto mb-4">
+                          <span className="text-2xl">💭</span>
+                        </div>
+                        <h3 className="text-lg font-light text-black mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+                          Ready for Strategic Consultation
+                        </h3>
+                        <p className="text-gray-600 text-sm font-light">
+                          {selectedAgent.name} is ready to analyze your codebase and provide actionable insights.
+                        </p>
+                      </div>
+                      
+                      {/* Quick Suggestion Buttons */}
+                      <div className="flex flex-wrap justify-center gap-2 mb-8">
+                        {[
+                          "Analyze current architecture",
+                          "Review recent changes", 
+                          "Optimize user experience",
+                          "Check for improvements"
+                        ].map((suggestion, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setMessage(suggestion)}
+                            className="px-3 py-1 text-xs border border-gray-200 hover:border-black hover:bg-black hover:text-white transition-all font-light uppercase tracking-wider"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
                       <div className="max-w-md mx-auto">
                         <h3 className="text-lg font-light mb-3 text-gray-700" style={{ fontFamily: 'Times New Roman, serif' }}>
                           {selectedAgent?.name} - {selectedAgent?.role}
