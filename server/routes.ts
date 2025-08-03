@@ -216,8 +216,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
   
   // Import and register fixed agent routes
-  const { registerFixedAgentRoutes } = await import('./routes/agent-chat-fixed');
-  registerFixedAgentRoutes(app);
+  // REMOVED: Using consulting-agents-routes.ts instead to prevent conflicts
+  // REMOVED: Conflicted with consulting-agents-routes.ts
   
   // Setup authentication
   await setupAuth(app);
@@ -352,12 +352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const htmlPreview = generateWebsiteHTML(websiteData, userOnboarding[0]);
         
         // Call unified agent system for Victoria
-        const victoriaResponse = await unifiedAgentSystem.executeAgent({
-          agentId: 'victoria',
-          message: `Generate website for ${websiteData.businessName}`,
-          conversationId: `website-${Date.now()}`,
-          enforceTools: false
-        });
+        // Victoria integration disabled - using basic generation
         
         console.log('✅ Victoria: Website generated successfully');
         

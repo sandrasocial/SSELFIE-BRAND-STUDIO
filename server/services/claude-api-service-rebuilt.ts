@@ -639,4 +639,5 @@ export class ClaudeApiServiceRebuilt {
 }
 
 // Export singleton instance
+export const claudeApiService = new ClaudeApiServiceRebuilt();
 export const claudeApiServiceRebuilt = new ClaudeApiServiceRebuilt();
