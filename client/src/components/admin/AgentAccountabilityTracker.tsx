@@ -123,7 +123,7 @@ export default function AgentAccountabilityTracker() {
             {/* Recent Activity */}
             <div className="space-y-4">
               <h5 className="font-medium text-sm text-gray-700">Recent Activity (Last 20 Interactions)</h5>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-3">
                 {accountabilityData.recentActivity.map((activity, index) => {
                   const deliveryStatus = getDeliveryStatus(activity.promisedDeliverable, activity.actualDelivery);
                   

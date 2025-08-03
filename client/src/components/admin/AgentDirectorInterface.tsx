@@ -186,7 +186,7 @@ export default function AgentDirectorInterface() {
           </CardHeader>
           <CardContent>
             {/* Chat Messages */}
-            <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+            <div className="space-y-4 mb-6">
               {conversation.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
                   <div className="mb-4">💼</div>
