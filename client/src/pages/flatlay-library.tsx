@@ -25,10 +25,64 @@ export default function FlatlayLibraryClean() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-4xl font-serif mb-8" style={{ fontFamily: 'Times New Roman, serif' }}>
-          Flatlay Library
-        </h1>
+      {/* Luxury Editorial Hero Section */}
+      <div className="relative h-screen bg-gradient-to-b from-black via-gray-900 to-black overflow-hidden">
+        <div className="absolute inset-0 bg-black/40 z-10"></div>
+        
+        {/* Hero Background with First Available Image */}
+        {filteredImages.length > 0 && (
+          <img
+            src={filteredImages[0].url}
+            alt="Hero flatlay"
+            className="absolute inset-0 w-full h-full object-cover opacity-60"
+          />
+        )}
+        
+        {/* Editorial Content Overlay */}
+        <div className="relative z-20 h-full flex items-center justify-center">
+          <div className="text-center text-white max-w-4xl px-8">
+            <h1 
+              className="text-7xl md:text-9xl font-normal mb-8 tracking-tight leading-none"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              FLATLAY
+            </h1>
+            <h2 
+              className="text-2xl md:text-4xl font-light mb-12 tracking-wider opacity-90"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              EDITORIAL LIBRARY
+            </h2>
+            <div className="w-24 h-px bg-white mx-auto mb-12"></div>
+            <p className="text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed opacity-80">
+              Curated collection of luxury flatlay compositions.<br />
+              Transform your vision into editorial perfection.
+            </p>
+          </div>
+        </div>
+        
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="w-px h-16 bg-white/40 mx-auto mb-4"></div>
+          <p className="text-white/60 text-xs tracking-widest uppercase">Scroll</p>
+        </div>
+      </div>
+      
+      {/* Main Content Section */}
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        {/* Editorial Section Header */}
+        <div className="text-center mb-16">
+          <h3 
+            className="text-5xl md:text-6xl mb-6 text-black"
+            style={{ fontFamily: 'Times New Roman, serif' }}
+          >
+            Collections
+          </h3>
+          <div className="w-16 h-px bg-black mx-auto mb-8"></div>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+            Each flatlay tells a story of transformation and style
+          </p>
+        </div>
         
         {/* Category Filter */}
         <div className="mb-8">
