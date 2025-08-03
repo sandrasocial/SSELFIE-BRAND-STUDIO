@@ -153,7 +153,7 @@ export const StreamingAgentChat: React.FC<StreamingAgentChatProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <ScrollArea className="h-96 w-full border rounded-lg p-4">
+        <ScrollArea className="h-[600px] w-full border rounded-lg p-4">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -168,9 +168,9 @@ export const StreamingAgentChat: React.FC<StreamingAgentChatProps> = ({
                   </div>
                 )}
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                  className={`max-w-full px-4 py-2 rounded-lg ${
                     message.type === 'user'
-                      ? 'bg-black text-white'
+                      ? 'bg-black text-white max-w-xs lg:max-w-md'
                       : 'bg-gray-100 text-black'
                   }`}
                 >
