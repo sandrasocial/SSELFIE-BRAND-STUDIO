@@ -178,7 +178,16 @@ PERSONALITY & VOICE:
 4. Apply luxury design standards without compromise
 5. Ensure cross-browser compatibility and responsive design`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets'],
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
     specialization: 'VISUAL_DESIGN' // Creates UI components, layouts, styling systems
   },
 
@@ -243,7 +252,16 @@ PERSONALITY & VOICE:
 5. Apply enterprise-grade code standards and security practices
 6. Optimize for performance and scalability`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets'],
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
     specialization: 'BACKEND_TECHNICAL' // Builds backend systems, APIs, databases
   },
 
@@ -295,7 +313,16 @@ PERSONALITY & VOICE:
 4. Create celebrity-level styling visions with AI enhancement
 5. Optimize generation prompts for maximum photorealistic results`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets'],
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
     specialization: 'AI_GENERATION' // Creates AI prompts, styling concepts, generation systems
   },
 
@@ -359,7 +386,16 @@ UX SUPERPOWERS:
 
 Victoria optimizes user experiences for maximum conversion while maintaining luxury brand standards.`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets'],
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
     specialization: 'UX_OPTIMIZATION' // Optimizes user flows, conversion funnels, navigation
   },
 
@@ -421,7 +457,16 @@ COPYWRITING SUPERPOWERS:
 
 Rachel writes authentic copy that bridges vulnerability to strength using Sandra's distinctive voice and transformation story.`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets'],
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
     specialization: 'CONTENT_CREATION' // Creates copy, brand voice, email sequences, social content
   },
 
@@ -471,7 +516,16 @@ PERSONALITY & VOICE:
 
 Ava creates and implements automation workflows directly in the files Sandra requests.`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets'],
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
     specialization: 'AUTOMATION_WORKFLOWS' // Creates integrations, workflows, process automation
   },
 
@@ -534,7 +588,17 @@ Focus ONLY on Sandra's actual user journey pages for quality audits:
 
 **Quality assurance through direct implementation and hands-on optimization of routed pages and user journey.**`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets']
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
+    specialization: 'QUALITY_ASSURANCE' // Testing, quality audits, luxury standards verification
   },
 
   sophia: {
@@ -576,7 +640,17 @@ PERSONALITY & VOICE:
 
 Sophia creates and optimizes social media features directly in the files Sandra requests.`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets']
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
+    specialization: 'SOCIAL_MEDIA' // Community building, content strategy, engagement optimization
   },
 
   martha: {
@@ -618,7 +692,17 @@ PERSONALITY & VOICE:
 
 Martha implements and optimizes marketing features directly in the files Sandra requests.`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets']
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
+    specialization: 'MARKETING_AUTOMATION' // Performance marketing, campaigns, conversion optimization
   },
 
   diana: {
@@ -659,7 +743,17 @@ PERSONALITY & VOICE:
 
 Diana provides strategic guidance and business coaching with executive-level clarity.`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets']
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
+    specialization: 'STRATEGIC_COACHING' // Business strategy, team direction, executive guidance
   },
 
   wilma: {
@@ -700,7 +794,17 @@ PERSONALITY & VOICE:
 
 Wilma designs efficient business processes and workflow systems with operational excellence.`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets']
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
+    specialization: 'WORKFLOW_OPTIMIZATION' // Process design, automation blueprints, operational efficiency
   },
 
   olga: {
@@ -733,7 +837,17 @@ CORE IDENTITY:
 
 Olga organizes files safely with warm, friendly guidance and comprehensive backup systems.`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets']
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
+    specialization: 'REPOSITORY_ORGANIZATION' // File organization, cleanup, architecture maintenance
   },
 
   flux: {
@@ -792,7 +906,17 @@ Olga organizes files safely with warm, friendly guidance and comprehensive backu
 
 Flux creates celebrity-level styling experiences with master-level FLUX technical expertise.`,
     canModifyFiles: true,
-    allowedTools: ['str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets']
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
+    specialization: 'AI_MODEL_OPTIMIZATION' // FLUX AI models, prompt engineering, celebrity styling
   }
 };
 
