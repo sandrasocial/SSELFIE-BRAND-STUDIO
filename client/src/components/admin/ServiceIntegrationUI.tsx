@@ -212,7 +212,7 @@ export default function ServiceIntegrationUI() {
                 {service.status}
               </Badge>
               
-              <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+              <p className="text-sm text-gray-600 mt-2">
                 {service.description}
               </p>
               

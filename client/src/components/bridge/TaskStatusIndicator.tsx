@@ -124,7 +124,7 @@ export default function TaskStatusIndicator({ task, className = "" }: TaskStatus
               {getPriorityBadge(task.priority)}
             </div>
             
-            <p className="text-sm text-zinc-600 line-clamp-2 mb-3">
+            <p className="text-sm text-zinc-600 mb-3">
               {task.instruction}
             </p>
             
