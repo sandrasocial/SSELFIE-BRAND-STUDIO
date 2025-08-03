@@ -248,12 +248,9 @@ Always respond as Victoria, Sandra's visionary creative director who creates ult
 };
 
 export function registerAgentRoutes(app: Express) {
-  // Agent chat endpoint - BYPASS AUTHENTICATION FOR AUTONOMOUS OPERATION  
+  // Agent chat endpoint with proper memory and conversation handling
   app.post('/api/agents/:agentId/chat', (req: any, res, next) => {
-    // CREATE MOCK AUTHENTICATION FOR AGENT ENDPOINTS
-    console.log(`🤖 AGENT ENDPOINT: Creating mock authentication for ${req.params.agentId}`);
-    
-    // Mock authenticated session for agents
+    // Mock authentication for agent endpoints
     req.user = {
       claims: {
         sub: '42585527',
@@ -261,18 +258,15 @@ export function registerAgentRoutes(app: Express) {
       }
     };
     req.isAuthenticated = () => true;
-    
     next();
   }, async (req: any, res) => {
+    let agentResponse = '';
+    
     try {
       const { agentId } = req.params;
-      const { message } = req.body;
+      const { message, conversationId } = req.body;
       
-      console.log(`🤖 AGENT CHAT REQUEST: ${agentId} - "${message}"`);
-      
-      // Use admin user ID for autonomous agent operations  
-      const userId = '42585527';
-      console.log(`🤖 AGENT ACCESS: Using admin user ID ${userId} for autonomous operation`);
+      console.log(`🤖 AGENT CHAT: ${agentId} - "${message}"`);
       
       if (!AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS]) {
         return res.status(404).json({ error: 'Agent not found' });
@@ -280,72 +274,48 @@ export function registerAgentRoutes(app: Express) {
       
       const agent = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS];
       
-      // Direct file operation handling (bypass removed for clean system)
-      console.log(`💬 CONVERSATION: Processing message for ${agentId}`);
-
-      // FORCE CLAUDE API USAGE - NEVER USE AUTONOMOUS WORKSPACE FOR CONTENT GENERATION
-    // Agents MUST use Claude API to generate actual code content
-      let agentResponse = '';
+      // Get conversation history for memory persistence
+      let conversationHistory = [];
+      const currentConversationId = conversationId || `${agentId}_conversation_${Date.now()}`;
       
       try {
-        // Inject search optimization into system prompt based on request context
-        const contextKeywords = message.toLowerCase();
-        let requestContext = 'general';
-        
-        if (contextKeywords.includes('user journey') || contextKeywords.includes('audit')) {
-          requestContext = 'user journey';
-        } else if (contextKeywords.includes('landing') || contextKeywords.includes('homepage')) {
-          requestContext = 'landing experience';
-        } else if (contextKeywords.includes('workspace') || contextKeywords.includes('step')) {
-          requestContext = 'workspace flow';
-        } else if (contextKeywords.includes('onboard') || contextKeywords.includes('signup')) {
-          requestContext = 'onboarding';
-        } else if (contextKeywords.includes('maya') || contextKeywords.includes('ai')) {
-          requestContext = 'ai features';
-        } else if (contextKeywords.includes('admin')) {
-          requestContext = 'admin functionality';
+        // Load conversation history from database 
+        const historyResponse = await fetch(`http://localhost:5000/api/conversations/${currentConversationId}/messages`);
+        if (historyResponse.ok) {
+          const historyData = await historyResponse.json();
+          conversationHistory = historyData.messages || [];
+          console.log(`📜 LOADED CONVERSATION HISTORY: ${conversationHistory.length} messages`);
         }
+      } catch (historyError) {
+        console.log('📜 No existing conversation history found, starting fresh');
+      }
+      
+      // Build conversation context for Claude
+      const conversationMessages = [];
+      
+      // Add recent conversation history (last 10 messages for context)
+      const recentHistory = conversationHistory.slice(-10);
+      for (const historyMsg of recentHistory) {
+        conversationMessages.push({
+          role: historyMsg.role,
+          content: historyMsg.content
+        });
+      }
+      
+      // Add current message
+      conversationMessages.push({
+        role: 'user',
+        content: message
+      });
+      
+      // Clean system prompt focused on conversation
+      let enhancedSystemPrompt = agent.systemPrompt;
+      enhancedSystemPrompt += `\n\nYou are having a direct conversation with Sandra. Respond naturally and helpfully as ${agent.name}. Focus on your specialized expertise and provide clear, actionable advice. Keep responses conversational and focused.`;
         
-        const optimizedSystemPrompt = injectSearchOptimizationIntoPrompt(agent.systemPrompt, requestContext);
-        console.log(`🎯 SEARCH CONTEXT: ${requestContext} for ${agentId}`);
-        
-        // Enhance system prompt with tool capabilities for file-enabled agents
-        let enhancedSystemPrompt = optimizedSystemPrompt;
-        
-        if (agent.canModifyFiles) {
-          enhancedSystemPrompt += `\n\nCRITICAL: ACTUAL CODE GENERATION REQUIRED
-You MUST generate actual code content, not empty files. When creating files:
-
-1. ALWAYS include complete, functional code
-2. Use appropriate imports and dependencies
-3. Follow TypeScript/React best practices
-4. Include proper JSX structure for components
-5. Add proper interfaces and types
-6. Never create empty files - always include meaningful implementation
-
-FULL ACCESS CAPABILITIES (COMPLETE CODEBASE ACCESS):
-- Use str_replace_based_edit_tool to view, create, and modify files
-- Use search_filesystem to find specific files based on your priority search system
-- Focus on the routed pages listed in your search optimization guide
-- NEVER search archive/ directory - only live application files
-- Modify existing pages instead of creating new components
-
-Available tool commands:
-- view: Show file contents (add view_range: [start, end] for specific lines)
-- create: Create new files WITH ACTUAL CODE CONTENT
-- str_replace: Modify existing files
-- search_filesystem: Find files using query_description, class_names, or function_names
-
-EXAMPLE: When creating a React component, include:
-import React from 'react';
-export function ComponentName() {
-  return (
-    <div>Actual component content</div>
-  );
-}`;
-        }
-        
-        // Try Claude API first
+      // Agent response will be generated below
+      
+      // Generate response using Claude API with conversation context
+      try {
         const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: {
@@ -355,16 +325,9 @@ export function ComponentName() {
           },
           body: JSON.stringify({
             model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 4000,
+            max_tokens: 2000,
             system: enhancedSystemPrompt,
-            messages: [
-              {
-                role: 'user',
-                content: `${message}
-
-CRITICAL INSTRUCTION: You must create actual functional code content. Do not create empty files. When using str_replace_based_edit_tool with 'create' command, always include complete, working code in the file_text parameter.`
-              }
-            ]
+            messages: conversationMessages
           }),
         });
 
@@ -372,34 +335,59 @@ CRITICAL INSTRUCTION: You must create actual functional code content. Do not cre
           const data = await claudeResponse.json();
           if (data.content && Array.isArray(data.content) && data.content.length > 0) {
             agentResponse = data.content[0].text || data.content[0].content;
-            console.log(`✅ CLAUDE API SUCCESS: ${agentId} received ${agentResponse.length} characters`);
-          } else {
-            console.log(`⚠️ CLAUDE API EMPTY RESPONSE: ${agentId}`);
+            console.log(`✅ CLAUDE RESPONSE: ${agentId} generated ${agentResponse.length} characters`);
           }
         } else {
-          console.log(`❌ CLAUDE API HTTP ERROR: ${claudeResponse.status} ${claudeResponse.statusText}`);
+          console.log(`❌ CLAUDE API ERROR: ${claudeResponse.status}`);
         }
       } catch (apiError) {
         console.log('❌ Claude API Error:', apiError);
       }
       
       if (!agentResponse) {
-        // Fallback response
-        agentResponse = `Hello! ${agent.name} here, ready to help with your task.`;
+        agentResponse = `Hello! I'm ${agent.name}, ready to help with your request.`;
+      }
+      
+      // Save conversation to database for memory persistence
+      try {
+        await fetch(`http://localhost:5000/api/conversations/${currentConversationId}/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            role: 'user',
+            content: message,
+            agentId: agentId
+          })
+        });
+        
+        await fetch(`http://localhost:5000/api/conversations/${currentConversationId}/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            role: 'assistant',
+            content: agentResponse,
+            agentId: agentId
+          })
+        });
+        
+        console.log(`💾 MEMORY: Saved conversation for ${agentId}`);
+      } catch (saveError) {
+        console.log('💾 Memory save failed:', saveError);
       }
       
       res.json({
         message: agentResponse,
         agentId: agentId as string,
         agentName: agent.name,
+        conversationId: currentConversationId,
         timestamp: new Date().toISOString(),
         status: 'completed'
       });
       
     } catch (error: any) {
-      console.error(`❌ ADMIN AGENT ERROR: ${req.params.agentId}:`, error);
+      console.error(`❌ AGENT ERROR: ${req.params.agentId}:`, error);
       res.status(500).json({ 
-        message: `Agent ${req.params.agentId} encountered an issue but the task is progressing.`,
+        message: agentResponse || `Hello! I'm ${req.params.agentId}, ready to help.`,
         error: error?.message || 'Unknown error',
         agentId: req.params.agentId,
         status: 'error'
