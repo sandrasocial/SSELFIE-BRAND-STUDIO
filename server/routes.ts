@@ -1344,8 +1344,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   setupImplementationRoutes(app);
   console.log('✅ IMPLEMENTATION PROTOCOL: Agent autonomous implementation system active');
   
-  // Add essential API routes
-  const { claudeApiService } = await import('./services/claude-api-service');
+  // STREAMLINED SERVICE: Import rebuilt Claude API service
+  const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
   
   // Register Claude API routes (includes conversation list endpoint) - DISABLED FOR SMART ROUTING
   // const claudeApiRoutes = await import('./routes/claude-api-routes');
@@ -2017,13 +2017,16 @@ ${agentConfig.systemPrompt}
         userId = (req.user as any).claims.sub;
       }
 
-      // Use the Claude API service for agent communication
-      const response = await claudeApiService.sendMessage(
+      // STREAMLINED SERVICE: Use rebuilt Claude API service
+      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+      const response = await claudeApiServiceRebuilt.sendMessage(
+        userId,
         agentName,
-        message,
         conversationId || `conv_${agentName}_${Date.now()}`,
-        fileEditMode,
-        userId
+        message,
+        `You are ${agentName}, a helpful AI assistant.`, // Basic system prompt
+        [], // No tools for simple messaging
+        fileEditMode
       );
 
       res.json({
