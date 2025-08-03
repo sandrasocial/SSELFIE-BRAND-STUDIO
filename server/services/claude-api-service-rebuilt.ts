@@ -280,7 +280,7 @@ export class ClaudeApiServiceRebuilt {
             
             // ENHANCED: Cache results with comprehensive safety checks
             try {
-              if (searchResult && (Array.isArray(searchResult) || (typeof searchResult === 'object' && searchResult !== null))) {
+              if (searchResult && conversationId && agentId && (Array.isArray(searchResult) || (typeof searchResult === 'object' && searchResult !== null))) {
                 const cacheQuery = toolCall.input.query_description || JSON.stringify(toolCall.input);
                 const resultsArray = Array.isArray(searchResult) ? searchResult : [searchResult];
                 await agentSearchCache.addSearchResults(conversationId, agentId, cacheQuery, resultsArray);
