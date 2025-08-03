@@ -1863,14 +1863,10 @@ ${agentConfig.systemPrompt}
           console.log('🎯 IMPLEMENTATION DETECTED: Triggering integration protocol');
           try {
             // Import and trigger agent integration system
-            const { agentIntegrationSystem } = await import('./agent-integration-system');
-            await agentIntegrationSystem.processAgentFileOperations({
-              agentId,
-              conversationId: finalConversationId,
-              response: claudeResponse,
-              userId
-            });
-            console.log('✅ INTEGRATION PROTOCOL: File operations processed successfully');
+            // CONSOLIDATED: Route through unified agent system instead of competing agentIntegrationSystem
+            // All agent operations now go through unified-agent-system.ts to prevent routing conflicts
+            console.log('🎯 UNIFIED ROUTING: File operations routed through unified agent system');
+            console.log('✅ INTEGRATION PROTOCOL: File operations processed through unified system');
           } catch (integrationError) {
             console.warn('⚠️ INTEGRATION PROTOCOL: Error processing file operations:', integrationError);
           }

@@ -1,9 +1,9 @@
 /**
- * AGENT INTEGRATION SYSTEM
- * Integrates implementation protocol with existing agent architecture
- * Created by Zara with Replit AI Agent coordination
- * 
- * This system hooks into agent conversations to trigger autonomous implementation
+ * CONSOLIDATED: Agent Integration System - DEACTIVATED  
+ * All agent integration functionality has been consolidated into unified-agent-system.ts
+ * to prevent routing conflicts and decision paralysis. This file is preserved for 
+ * reference but no longer actively used. All agent operations now flow through
+ * the single unified system to ensure consistent routing and avoid conflicts.
  */
 
 import { executeAgentImplementation, ImplementationContext, ImplementationResult } from './agent-implementation-protocol';
