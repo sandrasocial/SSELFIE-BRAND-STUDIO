@@ -59,8 +59,8 @@ export function useAuth() {
     }
   });
 
-  // UNIFIED ADMIN CHECK: Standardized role checking
-  const isAdmin = user?.email === 'ssa@ssasocial.com' || user?.role === 'admin';
+  // SINGLE ADMIN CHECK: Sandra's email only
+  const isAdmin = user?.email === 'ssa@ssasocial.com';
   
   // CRITICAL: Determine authentication state
   const isAuthenticated = !!(user && user.id);
