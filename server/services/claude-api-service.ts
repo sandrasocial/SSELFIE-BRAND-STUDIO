@@ -358,10 +358,10 @@ export class ClaudeApiService {
       userMessage.toLowerCase().includes(indicator)
     );
     
-    // Scale tokens based on complexity
+    // Scale tokens based on complexity - reduced to prevent timeout
     if (hasHighComplexity) {
-      console.log(`🧠 COMPLEX TASK DETECTED: Scaling to 32k tokens for comprehensive work`);
-      return 32000; // 4x scaling for complex tasks
+      console.log(`🧠 COMPLEX TASK DETECTED: Scaling to 16k tokens for comprehensive work (timeout prevention)`);
+      return 16000; // 2x scaling for complex tasks - reduced to prevent streaming timeout
     }
     
     // Standard complexity detection
@@ -1163,7 +1163,10 @@ You now operate with enterprise-level intelligence - use these advanced capabili
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(`🔄 Claude API attempt ${attempt}/${maxRetries}`);
-        const response = await anthropic.messages.create(params);
+        const response = await anthropic.messages.create({
+          ...params,
+          stream: false // Explicitly disable streaming to avoid timeout warnings
+        });
         
         if (attempt > 1) {
           console.log(`✅ Claude API succeeded on attempt ${attempt}`);
