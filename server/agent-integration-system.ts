@@ -201,6 +201,95 @@ export class AgentIntegrationSystem {
     return session;
   }
 
+  /**
+   * MAIN ENTRY POINT: Process agent file operations from bypass route
+   * This is the function called by the admin agent chat bypass
+   */
+  async processAgentFileOperations(params: {
+    agentId: string;
+    conversationId: string;
+    response: string;
+    userId: string;
+  }): Promise<void> {
+    console.log(`🔧 PROCESSING FILE OPERATIONS: Agent ${params.agentId} response analysis`);
+    
+    // Extract file operations from agent response
+    const fileOperations = this.extractFileOperationsFromResponse(params.response);
+    
+    if (fileOperations.length === 0) {
+      console.log('📝 No file operations detected in agent response');
+      return;
+    }
+    
+    console.log(`📁 DETECTED ${fileOperations.length} file operations:`, fileOperations);
+    
+    // Process each file operation
+    for (const operation of fileOperations) {
+      if (operation.type === 'create' || operation.type === 'modify') {
+        await this.onAgentFileCreation(
+          params.agentId,
+          params.conversationId,
+          operation.path,
+          operation.content || ''
+        );
+      }
+    }
+    
+    // Check if we need to trigger implementation protocol
+    const session = this.getOrCreateSession(params.agentId, params.conversationId);
+    if (this.shouldTriggerImplementation(session)) {
+      await this.triggerImplementationProtocol(session);
+    }
+  }
+  
+  /**
+   * Extract file operations from agent response text
+   */
+  private extractFileOperationsFromResponse(response: string): Array<{
+    type: 'create' | 'modify' | 'view';
+    path: string;
+    content?: string;
+  }> {
+    const operations: Array<{ type: 'create' | 'modify' | 'view'; path: string; content?: string; }> = [];
+    
+    // Look for file creation patterns
+    const createPatterns = [
+      /File created successfully at: (.+)/g,
+      /Created: (.+)/g,
+      /Creating file: (.+)/g
+    ];
+    
+    const modifyPatterns = [
+      /File updated successfully: (.+)/g,
+      /Modified: (.+)/g,
+      /Editing file: (.+)/g
+    ];
+    
+    // Extract file creations
+    for (const pattern of createPatterns) {
+      let match;
+      while ((match = pattern.exec(response)) !== null) {
+        operations.push({
+          type: 'create',
+          path: match[1].trim()
+        });
+      }
+    }
+    
+    // Extract file modifications
+    for (const pattern of modifyPatterns) {
+      let match;
+      while ((match = pattern.exec(response)) !== null) {
+        operations.push({
+          type: 'modify',
+          path: match[1].trim()
+        });
+      }
+    }
+    
+    return operations;
+  }
+
   private async broadcastImplementationSuccess(session: AgentSession, result: ImplementationResult): Promise<void> {
     // Notify other agents of successful implementation
     console.log(`📢 BROADCAST: Agent ${session.agentId} completed autonomous implementation`);
@@ -334,22 +423,11 @@ export class AgentIntegrationSystem {
    */
   getActiveSessions(): AgentSession[] {
     return Array.from(this.sessions.values()).filter(s => 
-      s.implementationStatus === 'running' || 
-      (new Date().getTime() - s.lastActivity.getTime()) < 300000 // Active in last 5 minutes
+      s.implementationStatus !== 'completed' && 
+      (new Date().getTime() - s.lastActivity.getTime()) < 3600000 // Active in last hour
     );
-  }
-
-  /**
-   * PUBLIC API: Force implementation for an agent session
-   */
-  async forceImplementation(agentId: string, sessionId: string): Promise<ImplementationResult | null> {
-    const session = this.sessions.get(`${agentId}-${sessionId}`);
-    if (!session) return null;
-
-    await this.triggerImplementationProtocol(session);
-    return null; // Result will be available via status check
   }
 }
 
-// Export singleton instance
+// SINGLETON EXPORT: Create single instance for use across the application
 export const agentIntegrationSystem = new AgentIntegrationSystem();
