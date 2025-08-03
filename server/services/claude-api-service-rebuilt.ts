@@ -304,7 +304,7 @@ export class ClaudeApiServiceRebuilt {
         console.log(`🎯 REPLIT AI TARGETING: ${filePattern.path} detected from "${message}"`);
         
         return {
-          processedMessage: `Analyze the ${filePattern.path} file directly and provide strategic recommendations.`,
+          processedMessage: `IMPLEMENT ACTUAL CHANGES to ${filePattern.path}. Use str_replace_based_edit_tool to make real file modifications. Access the file, then immediately implement the requested improvements - do not just analyze or provide recommendations.`,
           directFileOperation: {
             command: 'view',
             path: filePattern.path
