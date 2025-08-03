@@ -1854,21 +1854,23 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('🤖 AGENT PROCESSING: Using Claude API with full workspace tool access + implementation protocol');
       
       try {
-        // Enhanced system prompt with implementation capabilities
+        // Enhanced system prompt with MANDATORY implementation directives
         const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
 
 ${agentConfig.systemPrompt}
 
-🔧 IMPLEMENTATION PROTOCOL ACTIVE:
+🔧 MANDATORY IMPLEMENTATION PROTOCOL:
 - You have COMPLETE file system access through tools
-- ALWAYS use str_replace_based_edit_tool for file operations
+- IMMEDIATELY execute file modifications using str_replace_based_edit_tool
+- NEVER just view files - always implement requested changes
+- When asked to modify code, use str_replace command, not view command
 - Create, modify, and update files directly in Sandra's workspace
 - Provide real-time progress updates for file operations
-- When creating components, include complete functional code
 - Use the luxury design system: Times New Roman, black/white/gray palette
 
 📁 WORKSPACE ACCESS: Full access to client/, server/, components/, and all directories
-⚡ MANDATORY: Use tools for ALL file operations - never just describe what to create`;
+⚡ CRITICAL: Execute str_replace_based_edit_tool immediately for ANY modification request
+⚡ FORBIDDEN: Analyzing without implementing - always make actual file changes`;
 
         // COMPLETE REPLIT TOOL ARSENAL FOR AGENTS (14 CORE TOOLS)
         const implementationTools = [
