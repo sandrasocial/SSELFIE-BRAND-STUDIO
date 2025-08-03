@@ -13,16 +13,18 @@ import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
 import subscriberImportRouter from './routes/subscriber-import';
-// Removed: admin-business-metrics moved to backup
+import adminBusinessMetricsRouter from './routes/admin-business-metrics';
+import adminUserManagementRouter from './routes/admin-user-management';
 import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
-// PHASE 3: UNIFIED AGENT API CONSOLIDATION
-// Consolidated agent system replacing competing endpoints
+// RESTORED: Sandra's designed admin and consulting agent system
 import { registerStreamingAdminRoutes } from './routes/streaming-admin-routes';
-// Consolidated agent system imports removed - using unified approach
+import consultingAgentsRouter from './routes/consulting-agents-routes';
+import adminRouter from './routes/admin';
+import { registerAdminConversationRoutes } from './routes/admin-conversation-routes';
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML(websiteData: any, onboardingData: any) {
@@ -783,12 +785,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
   app.use('/api/subscribers', subscriberImport.default);
-  // Removed: admin-business-metrics moved to backup
+  app.use('/api/admin', adminBusinessMetricsRouter);
+  app.use('/api/admin', adminUserManagementRouter);
   
   // Register white-label client setup endpoints
   app.use(whitelabelRoutes);
   
-  // Removed: admin-user-management moved to backup
+  // RESTORED: Sandra's admin user management system active
   
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
@@ -1346,8 +1349,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
   // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
   
-  // PHASE 3 COMPLETE: Agent API consolidation completed
-  console.log('✅ AGENT API CONSOLIDATION: Competing endpoints eliminated, streamlined system active');
+  // RESTORED: Sandra's designed admin and consulting agent routes
+  app.use('/api/admin', adminRouter);
+  app.use('/api/consulting-agents', consultingAgentsRouter);
+  registerAdminConversationRoutes(app);
+  console.log('✅ RESTORED: Sandra\'s designed admin and consulting agent system active');
   
   // Register flatlay library routes for Victoria
   const flatlayLibraryRoutes = await import('./routes/flatlay-library');
