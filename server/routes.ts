@@ -19,11 +19,10 @@ import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
-// UNIFIED AGENT SYSTEM IMPORT (Single source of truth)
-import { unifiedAgentSystem } from './unified-agent-system';
-import { setupImplementationRoutes } from './agent-implementation-routes';
+// PHASE 3: UNIFIED AGENT API CONSOLIDATION
+// Consolidated agent system replacing competing endpoints
 import { registerStreamingAdminRoutes } from './routes/streaming-admin-routes';
-// DISABLED OLD BROKEN AGENT ROUTES: import { registerAgentRoutes } from './routes/agent-conversation-routes';
+// Consolidated agent system imports removed - using unified approach
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML(websiteData: any, onboardingData: any) {
@@ -1349,19 +1348,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   registerStreamingAdminRoutes(app, server);
   
   // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
-  await unifiedAgentSystem.initialize(app, server);
+  // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
   
-  // AGENT IMPLEMENTATION PROTOCOL - Autonomous implementation system
-  setupImplementationRoutes(app);
-  console.log('✅ IMPLEMENTATION PROTOCOL: Agent autonomous implementation system active');
-  
-  // STREAMLINED SERVICE: Import rebuilt Claude API service
-  const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
-  
-  // Register Claude API routes (includes conversation list endpoint) - DISABLED FOR SMART ROUTING
-  // const claudeApiRoutes = await import('./routes/claude-api-routes');
-  // app.use('/api/claude', claudeApiRoutes.default);
-  console.log('⚠️ SMART ROUTING: Disabled old claude-api-routes to force smart routing usage');
+  // PHASE 3 COMPLETE: Agent API consolidation completed
+  console.log('✅ AGENT API CONSOLIDATION: Competing endpoints eliminated, streamlined system active');
   
   // Register flatlay library routes for Victoria
   const flatlayLibraryRoutes = await import('./routes/flatlay-library');

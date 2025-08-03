@@ -43,7 +43,6 @@ import AdminConsultingAgents from "@/pages/admin-consulting-agents";
 import AdminSubscriberImport from "@/pages/admin-subscriber-import";
 
 import BridgeMonitor from "@/pages/admin/bridge-monitor";
-import AgentActivityDashboard from "@/components/admin/AgentActivityDashboard";
 import { UnifiedAgentInterface } from "@/components/admin/UnifiedAgentInterface";
 
 
@@ -64,10 +63,7 @@ import BrandOnboarding from "@/pages/brand-onboarding";
 import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
 import Login from "@/pages/login";
-import AuthLogin from "@/pages/auth-login";
-import AuthBridge from "@/pages/auth-bridge";
-import AuthExplainer from "@/pages/auth-explainer";
-import CustomLogin from "@/pages/custom-login";
+// Unified login system - removed competing auth components
 import LoginPrompt from "@/components/LoginPrompt";
 import DomainHelp from "@/pages/domain-help";
 import SwitchAccount from "@/pages/switch-account";
@@ -156,8 +152,17 @@ function Router() {
       {/* PUBLIC PAGES */}
       <Route path="/" component={EditorialLanding} />
       
-      {/* BRANDED AUTHENTICATION PAGES */}
-      <Route path="/login" component={AuthExplainer} />
+      {/* UNIFIED AUTHENTICATION PAGE */}
+      <Route path="/login" component={() => {
+        const UnifiedLoginButton = React.lazy(() => import('@/components/UnifiedLoginButton'));
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-white">
+            <React.Suspense fallback={<div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />}>
+              <UnifiedLoginButton text="Sign in to continue" showBrand={true} />
+            </React.Suspense>
+          </div>
+        );
+      }} />
       <Route path="/login-direct" component={() => {
         // Direct redirect to Replit Auth (for cases that need immediate redirect)
         React.useEffect(() => {
@@ -206,9 +211,18 @@ function Router() {
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
       <Route path="/switch-account" component={SwitchAccount} />
-      <Route path="/auth" component={AuthBridge} />
-      <Route path="/sign-in" component={CustomLogin} />
-      <Route path="/auth-custom" component={AuthLogin} />
+      <Route path="/auth" component={() => {
+        React.useEffect(() => { window.location.href = '/api/login'; }, []);
+        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
+      }} />
+      <Route path="/sign-in" component={() => {
+        React.useEffect(() => { window.location.href = '/api/login'; }, []);
+        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
+      }} />
+      <Route path="/auth-custom" component={() => {
+        React.useEffect(() => { window.location.href = '/api/login'; }, []);
+        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
+      }} />
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
