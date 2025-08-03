@@ -63,17 +63,14 @@ export default function DualModeAgentChat() {
         agentPrompt = `WORKFLOW MODE: ${content}. Create actual working files immediately. This is approved workflow execution - deliver tangible results.`;
       }
 
-      const response = await fetch('/api/admin/agent-chat-bypass', {
+      const response = await fetch('/api/admin/agents/chat', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Admin-Token': 'sandra-admin-2025'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           agentId: selectedAgent.id,
           message: agentPrompt,
-          conversationId: `admin_${Date.now()}`,
-          userId: 'sandra-admin'
+          adminToken: 'sandra-admin-2025',
+          conversationHistory: conversation.slice(-5) // Send last 5 messages for context
         })
       });
 
@@ -215,7 +212,7 @@ export default function DualModeAgentChat() {
         </CardHeader>
         <CardContent>
           {/* Chat Messages */}
-          <div className="space-y-4 mb-6 max-h-[800px] overflow-y-auto">
+          <div className="space-y-4 mb-6 max-h-[600px] overflow-y-auto">
             {conversation.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
                 Start a conversation with {selectedAgent.name} in {chatMode} mode
@@ -244,7 +241,7 @@ export default function DualModeAgentChat() {
                         <Badge className="bg-green-100 text-green-800 text-xs">📁 Files Created</Badge>
                       )}
                     </div>
-                    <div className="text-sm whitespace-pre-wrap max-w-none">{msg.content}</div>
+                    <div className="text-sm">{msg.content}</div>
                     <div className="text-xs opacity-70 mt-1">
                       {msg.timestamp.toLocaleTimeString()}
                     </div>
