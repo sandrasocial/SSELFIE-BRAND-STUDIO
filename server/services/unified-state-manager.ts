@@ -84,7 +84,7 @@ export class UnifiedStateManager {
   async registerAgent(agentId: string, currentTask: string): Promise<AgentState> {
     console.log(`👥 STATE MANAGER: Registering agent ${agentId}`);
 
-    const workContext = await intelligentContext.analyzeAgentRequest(currentTask, agentId);
+    const workContext = await intelligentContext.prepareAgentWorkspace(currentTask, agentId);
     
     const agentState: AgentState = {
       agentId,

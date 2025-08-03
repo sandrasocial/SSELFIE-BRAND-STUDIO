@@ -61,7 +61,7 @@ export class AutonomousNavigationSystem {
         this.discoverContextualFiles(intent),
         this.performIntentBasedSearch(intent),
         this.smartPathResolution(intent.goal),
-        intelligentContext.analyzeAgentRequest(intent.goal, intent.agentType)
+        intelligentContext.prepareAgentWorkspace(intent.goal, intent.agentType)
       ]);
 
       // Combine and deduplicate results

@@ -1727,7 +1727,7 @@ I respond like your warm best friend who loves organization - simple, reassuring
               try {
                 const { IntelligentContextManager } = await import('./intelligent-context-manager');
                 const contextManager = IntelligentContextManager.getInstance();
-                const context = await contextManager.analyzeAgentRequest(block.input.request, block.input.agent_type);
+                const context = await contextManager.prepareAgentWorkspace(block.input.request, block.input.agent_type);
                 console.log(`✅ CONTEXT ANALYSIS SUCCESS: ${context.relevantFiles.length} relevant files found`);
                 toolResult = JSON.stringify(context, null, 2);
               } catch (error) {

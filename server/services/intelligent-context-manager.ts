@@ -48,11 +48,11 @@ export class IntelligentContextManager {
   }
 
   /**
-   * INTELLIGENT TASK ANALYSIS
-   * Understands what files an agent needs based on their request
+   * INTELLIGENT WORKSPACE PREPARATION
+   * Prepares workspace context for immediate agent implementation
    */
-  async analyzeAgentRequest(request: string, agentType?: string): Promise<AgentWorkContext> {
-    console.log(`🧠 CONTEXT MANAGER: Analyzing request for ${agentType || 'agent'}`);
+  async prepareAgentWorkspace(request: string, agentType?: string): Promise<AgentWorkContext> {
+    console.log(`🧠 CONTEXT MANAGER: Preparing workspace for ${agentType || 'agent'} implementation`);
 
     const projectContext = await unifiedWorkspace.buildProjectContext();
     const relevantFiles = await this.findRelevantFiles(request);
