@@ -212,8 +212,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const server = createServer(app);
   
   // 🚨 CRITICAL FIX: Register agent routes BEFORE authentication to bypass auth middleware
-  console.log('🤖 REGISTERING AGENT ROUTES BEFORE AUTH: Preventing authentication blocks');
-  registerAgentRoutes(app);
+  console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
+  
+  // Import and register fixed agent routes
+  const { registerFixedAgentRoutes } = await import('./routes/agent-chat-fixed');
+  registerFixedAgentRoutes(app);
   
   // Setup authentication
   await setupAuth(app);
