@@ -353,6 +353,46 @@ export class ClaudeApiServiceRebuilt {
             console.error('Search filesystem error:', error);
             return `[Search Error]\n${error instanceof Error ? error.message : 'Search failed'}`;
           }
+
+        case 'bash':
+          try {
+            const { bash } = await import('../tools/bash');
+            const bashResult = await bash(toolCall.input);
+            return `[Command Execution]\n${JSON.stringify(bashResult, null, 2)}`;
+          } catch (error) {
+            console.error('Bash execution error:', error);
+            return `[Bash Error]\n${error instanceof Error ? error.message : 'Command failed'}`;
+          }
+
+        case 'web_search':
+          try {
+            const { web_search } = await import('../tools/web_search');
+            const searchResult = await web_search(toolCall.input);
+            return `[Web Search Results]\n${JSON.stringify(searchResult, null, 2)}`;
+          } catch (error) {
+            console.error('Web search error:', error);
+            return `[Web Search Error]\n${error instanceof Error ? error.message : 'Search failed'}`;
+          }
+
+        case 'execute_sql_tool':
+          try {
+            const { execute_sql_tool } = await import('../tools/execute_sql_tool');
+            const sqlResult = await execute_sql_tool(toolCall.input);
+            return `[SQL Execution]\n${JSON.stringify(sqlResult, null, 2)}`;
+          } catch (error) {
+            console.error('SQL execution error:', error);
+            return `[SQL Error]\n${error instanceof Error ? error.message : 'SQL execution failed'}`;
+          }
+
+        case 'get_latest_lsp_diagnostics':
+          try {
+            const { get_latest_lsp_diagnostics } = await import('../tools/get_latest_lsp_diagnostics');
+            const diagnosticsResult = await get_latest_lsp_diagnostics(toolCall.input);
+            return `[LSP Diagnostics]\n${JSON.stringify(diagnosticsResult, null, 2)}`;
+          } catch (error) {
+            console.error('LSP diagnostics error:', error);
+            return `[LSP Error]\n${error instanceof Error ? error.message : 'Diagnostics failed'}`;
+          }
           
         default:
           return `[Unknown Tool]\nTool ${toolCall.name} not implemented`;
