@@ -1209,9 +1209,7 @@ Your agent bypass system is working correctly - I have unlimited access to analy
                   <div className="flex gap-4 p-4">
                     <textarea
                       value={message}
-                      onChange={useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        setMessage(e.target.value);
-                      }, [])}
+                      onChange={(e) => setMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder={`Ask ${selectedAgent?.name} for strategic analysis...`}
                       className="flex-1 resize-none border border-gray-200 rounded-sm p-4 font-light leading-relaxed focus:outline-none focus:border-black focus:bg-white transition-none shadow-sm"
