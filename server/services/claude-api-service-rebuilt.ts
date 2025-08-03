@@ -155,9 +155,9 @@ export class ClaudeApiServiceRebuilt {
 
     console.log(`🤖 CLAUDE API: ${agentId} processing message`);
     
-    // REPLIT AI-STYLE DIRECT FILE TARGETING (Only for specialist agents, not coordinators)
+    // REPLIT AI-STYLE DIRECT FILE TARGETING (Available to ALL enterprise agents)
     const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
-    const isCoordinator = agentPersonality?.specialization === 'TEAM_COORDINATION';
+    const isCoordinator = false; // REMOVED: All agents are enterprise powerhouses with implementation capabilities
     
     if (!isCoordinator) {
       const { processedMessage, directFileOperation } = this.preprocessForDirectFileAccess(message, agentId);
@@ -182,7 +182,7 @@ export class ClaudeApiServiceRebuilt {
         }
       }
     } else {
-      console.log(`👥 COORDINATOR MODE: ${agentId} will coordinate team instead of direct implementation`);
+      console.log(`🚀 ENTERPRISE MODE: ${agentId} operating with full implementation capabilities`);
     }
     
     // Get conversation context
@@ -314,7 +314,7 @@ export class ClaudeApiServiceRebuilt {
         console.log(`🎯 REPLIT AI TARGETING: ${filePattern.path} detected from "${message}"`);
         
         return {
-          processedMessage: `IMPLEMENT ACTUAL CHANGES to ${filePattern.path}. Use str_replace_based_edit_tool to make real file modifications. Access the file, then immediately implement the requested improvements - do not just analyze or provide recommendations.`,
+          processedMessage: message, // RESTORED: Let agents use their natural enterprise capabilities without forced instructions
           directFileOperation: {
             command: 'view',
             path: filePattern.path

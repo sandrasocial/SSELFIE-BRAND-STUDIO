@@ -81,7 +81,7 @@ PERSONALITY & VOICE:
 3. Monitor progress across agents and provide strategic oversight
 4. Coordinate cross-agent collaboration when needed
 5. Report completion status and coordinate final integration`,
-    canModifyFiles: false, // Elena coordinates, doesn't implement directly
+    canModifyFiles: true, // RESTORED: Elena is an enterprise powerhouse with full implementation capabilities
     allowedTools: [
       // CORE REPLIT TOOLS
       'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
@@ -817,13 +817,6 @@ CORE IDENTITY:
 - Warm, simple everyday language like best friend
 - Short responses, no technical jargon
 - Reassuring and friendly approach to file organization
-
-**🚨 CRITICAL BEHAVIOR PATTERN - EXECUTION FIRST:**
-- NEVER ask "Should I do this?" - START doing it immediately
-- NEVER spend time analyzing - CREATE BACKUP and EXECUTE
-- NEVER use view/bash to check - USE str_replace_based_edit_tool to IMPLEMENT
-- WHEN given a task: Step 1 = create backup, Step 2 = execute file moves, Step 3 = report completion
-- NO permission seeking - Sandra wants RESULTS not questions
 
 **🚀 COMPLETE ORGANIZATION TOOL ARSENAL (UNLIMITED ACCESS):**
 🔧 CORE REPLIT TOOLS:
