@@ -1778,19 +1778,63 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate conversation ID if not provided
       const finalConversationId = conversationId || `admin_${agentId}_${Date.now()}`;
       
-      // CLAUDE API WITH FULL WORKSPACE TOOLS - YOUR AGENTS' COMPLETE CAPABILITIES
-      console.log('🤖 AGENT PROCESSING: Using Claude API with full workspace tool access');
+      // CLAUDE API WITH FULL WORKSPACE TOOLS + IMPLEMENTATION PROTOCOL
+      console.log('🤖 AGENT PROCESSING: Using Claude API with full workspace tool access + implementation protocol');
       
       try {
+        // Enhanced system prompt with implementation capabilities
         const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
 
-${agentConfig.systemPrompt}`;
+${agentConfig.systemPrompt}
 
-        // DIRECT AGENT ACCESS: Route directly to Claude API with workspace tools
+🔧 IMPLEMENTATION PROTOCOL ACTIVE:
+- You have COMPLETE file system access through tools
+- ALWAYS use str_replace_based_edit_tool for file operations
+- Create, modify, and update files directly in Sandra's workspace
+- Provide real-time progress updates for file operations
+- When creating components, include complete functional code
+- Use the luxury design system: Times New Roman, black/white/gray palette
+
+📁 WORKSPACE ACCESS: Full access to client/, server/, components/, and all directories
+⚡ MANDATORY: Use tools for ALL file operations - never just describe what to create`;
+
+        // COMPLETE TOOL SUITE FOR IMPLEMENTATION
+        const implementationTools = [
+          {
+            name: "str_replace_based_edit_tool",
+            description: "Create, view, and edit files with exact string replacement",
+            input_schema: {
+              type: "object",
+              properties: {
+                command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
+                path: { type: "string", description: "File path" },
+                file_text: { type: "string", description: "Complete file content for create command" },
+                old_str: { type: "string", description: "Text to replace" },
+                new_str: { type: "string", description: "Replacement text" },
+                view_range: { type: "array", items: { type: "number" }, description: "Line range for view" }
+              },
+              required: ["command", "path"]
+            }
+          },
+          {
+            name: "search_filesystem",
+            description: "Search for files and code in the codebase",
+            input_schema: {
+              type: "object",
+              properties: {
+                function_names: { type: "array", items: { type: "string" } },
+                class_names: { type: "array", items: { type: "string" } },
+                code: { type: "array", items: { type: "string" } }
+              }
+            }
+          }
+        ];
+
+        // DIRECT AGENT ACCESS: Route to Claude API with full implementation tools
         const { ClaudeApiService } = await import('./services/claude-api-service');
         const claudeService = new ClaudeApiService();
         
-        console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
+        console.log('🎯 IMPLEMENTATION-ENABLED AGENT ACCESS: Using Claude API with complete tool suite');
         
         const claudeResponse = await claudeService.sendMessage(
           userId,
@@ -1798,9 +1842,39 @@ ${agentConfig.systemPrompt}`;
           finalConversationId,
           message,
           systemPrompt,
-          [], // tools parameter - empty array for direct workspace access
+          implementationTools, // Full tool suite for file operations
           fileEditMode
         );
+
+        // IMPLEMENTATION PROTOCOL INTEGRATION
+        console.log('🔧 IMPLEMENTATION PROTOCOL: Checking for file operations in agent response');
+        
+        // Check if agent performed file operations (implementation detection)
+        const hasFileOperations = claudeResponse && (
+          claudeResponse.includes('str_replace_based_edit_tool') ||
+          claudeResponse.includes('File created successfully') ||
+          claudeResponse.includes('File updated successfully') ||
+          claudeResponse.includes('Modified:') ||
+          claudeResponse.includes('Created:')
+        );
+
+        // INTEGRATION SYSTEM HOOK: Trigger file integration protocol if files were created
+        if (hasFileOperations) {
+          console.log('🎯 IMPLEMENTATION DETECTED: Triggering integration protocol');
+          try {
+            // Import and trigger agent integration system
+            const { agentIntegrationSystem } = await import('./agent-integration-system');
+            await agentIntegrationSystem.processAgentFileOperations({
+              agentId,
+              conversationId: finalConversationId,
+              response: claudeResponse,
+              userId
+            });
+            console.log('✅ INTEGRATION PROTOCOL: File operations processed successfully');
+          } catch (integrationError) {
+            console.warn('⚠️ INTEGRATION PROTOCOL: Error processing file operations:', integrationError);
+          }
+        }
 
         return res.json({
           success: true,
@@ -1808,7 +1882,10 @@ ${agentConfig.systemPrompt}`;
           agentName: agentConfig.name,
           conversationId: finalConversationId,
           claudeApiUsed: true,
-          fullCapabilities: true
+          fullCapabilities: true,
+          implementationProtocolActive: true,
+          fileOperationsDetected: hasFileOperations,
+          toolsEnabled: true
         });
       } catch (claudeError) {
         console.error('Claude API Error:', claudeError);
