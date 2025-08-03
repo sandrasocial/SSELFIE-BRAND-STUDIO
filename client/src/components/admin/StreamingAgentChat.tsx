@@ -144,7 +144,7 @@ export const StreamingAgentChat: React.FC<StreamingAgentChatProps> = ({
   };
   
   return (
-    <Card className={`w-full max-w-4xl mx-auto ${className}`}>
+    <Card className={`w-full mx-auto ${className}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot className="w-5 h-5" />
@@ -153,7 +153,7 @@ export const StreamingAgentChat: React.FC<StreamingAgentChatProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <ScrollArea className="h-[600px] w-full border rounded-lg p-4">
+        <ScrollArea className="h-[1000px] w-full border rounded-lg p-4">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -168,13 +168,13 @@ export const StreamingAgentChat: React.FC<StreamingAgentChatProps> = ({
                   </div>
                 )}
                 <div
-                  className={`max-w-full px-4 py-2 rounded-lg ${
+                  className={`w-full px-4 py-2 rounded-lg ${
                     message.type === 'user'
-                      ? 'bg-black text-white max-w-xs lg:max-w-md'
+                      ? 'bg-black text-white'
                       : 'bg-gray-100 text-black'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-sm whitespace-pre-wrap break-words w-full overflow-wrap-anywhere max-w-none">{message.content}</p>
                   <p className="text-xs opacity-70 mt-1">
                     {new Date(message.timestamp).toLocaleTimeString()}
                   </p>
