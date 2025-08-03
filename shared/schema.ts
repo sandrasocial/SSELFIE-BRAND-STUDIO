@@ -25,6 +25,23 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
+// Agent session contexts for persistent memory between user sessions
+export const agentSessionContexts = pgTable("agent_session_contexts", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  agentId: varchar("agent_id").notNull(),
+  sessionId: varchar("session_id").notNull(),
+  contextData: jsonb("context_data").notNull(), // Conversation history, memory, state
+  workflowState: varchar("workflow_state").default("ready"), // ready, active, paused, completed
+  lastInteraction: timestamp("last_interaction").defaultNow(),
+  memorySnapshot: jsonb("memory_snapshot"), // Consolidated memory for quick restoration
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_agent_session_user").on(table.userId, table.agentId),
+  index("idx_agent_session_updated").on(table.updatedAt),
+]);
+
 // User storage table for Replit OAuth
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),

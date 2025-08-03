@@ -60,6 +60,39 @@ export class AdvancedMemorySystem {
   }
 
   /**
+   * Get or create agent memory profile
+   */
+  async getAgentMemoryProfile(agentName: string, userId: string): Promise<AgentMemoryProfile | null> {
+    try {
+      const cacheKey = `${agentName}-${userId}`;
+      
+      // Check cache first
+      if (this.memoryCache.has(cacheKey)) {
+        return this.memoryCache.get(cacheKey)!;
+      }
+      
+      // Create default profile if none exists
+      const profile: AgentMemoryProfile = {
+        agentName,
+        userId,
+        memoryStrength: 0.7, // Default strength
+        learningPatterns: [],
+        collaborationHistory: [],
+        intelligenceLevel: 7, // Default intelligence level
+        lastOptimization: new Date()
+      };
+      
+      // Cache and return
+      this.memoryCache.set(cacheKey, profile);
+      return profile;
+      
+    } catch (error) {
+      console.error('Failed to get agent memory profile:', error);
+      return null;
+    }
+  }
+
+  /**
    * IMPROVEMENT #1: ADAPTIVE MEMORY CONSOLIDATION
    * Automatically consolidates related memories and strengthens important patterns
    */
