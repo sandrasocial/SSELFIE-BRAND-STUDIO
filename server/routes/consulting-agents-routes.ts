@@ -38,46 +38,66 @@ router.post('/admin/consulting-chat', async (req, res) => {
 
     console.log(`🔄 PHASE 3.1: Redirecting ${agentId} to implementation-aware routing`);
 
-    // FIXED: Use existing agent-chat-bypass system for proper routing
-    console.log(`🚀 ROUTING TO AGENT-CHAT-BYPASS: ${agentId}`);
+    // FIXED: Use Claude API service directly - no broken routing
+    console.log(`🤖 DIRECT CLAUDE API: ${agentId}`);
     
-    try {
-      // Internal fetch to the existing agent-chat-bypass endpoint
-      const bypassResponse = await fetch(`http://localhost:${process.env.PORT || 3000}/api/admin/agent-chat-bypass`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025'
-        },
-        body: JSON.stringify({
-          agentId,
-          message,
-          fileEditMode: true,
-          conversationId: req.body.conversationId
-        })
+    const { ClaudeApiServiceRebuilt } = await import('../services/claude-api-service-rebuilt');
+    const claudeService = new ClaudeApiServiceRebuilt();
+    
+    // Get agent configuration
+    const { CONSULTING_AGENT_PERSONALITIES } = await import('../agent-personalities-consulting');
+    const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+    
+    if (!agentConfig) {
+      return res.status(404).json({
+        success: false,
+        message: `Agent ${agentId} not found in consulting system`
       });
-      
-      const result = await bypassResponse.json();
-      console.log('🎯 BYPASS ROUTING SUCCESS:', result.success);
-      
-      if (!bypassResponse.ok) {
-        throw new Error(`Bypass routing failed: ${result.message || 'Unknown error'}`);
-      }
-    
-      // Add consulting mode indicator to response
-      const consultingResult = {
-        ...result,
-        consultingMode: true,
-        implementationDetected: result.success ? true : false,
-        routedThrough: 'agent-chat-bypass-system'
-      };
-
-      res.status(200).json(consultingResult);
-      
-    } catch (bypassError: any) {
-      console.error('❌ BYPASS ROUTING ERROR:', bypassError);
-      throw new Error(`Agent bypass routing failed: ${bypassError.message}`);
     }
+    
+    const userId = req.user ? (req.user as any).claims.sub : '42585527';
+    const conversationId = req.body.conversationId || `admin_${agentId}_${Date.now()}`;
+    
+    // Enhanced system prompt with implementation protocol
+    const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
+
+${agentConfig.systemPrompt}
+
+🔧 MANDATORY IMPLEMENTATION PROTOCOL:
+- You have COMPLETE file system access through tools
+- IMMEDIATELY execute file modifications using str_replace_based_edit_tool
+- NEVER just view files - always implement requested changes
+- When asked to modify code, use str_replace command, not view command
+- Create, modify, and update files directly in Sandra's workspace
+- Provide real-time progress updates for file operations
+- Use the luxury design system: Times New Roman, black/white/gray palette
+
+📁 WORKSPACE ACCESS: Full access to client/, server/, components/, and all directories
+⚡ CRITICAL: Execute str_replace_based_edit_tool immediately for ANY modification request
+⚡ FORBIDDEN: Analyzing without implementing - always make actual file changes`;
+
+    const result = await claudeService.sendMessage(
+      userId,
+      agentId,
+      conversationId,
+      message,
+      systemPrompt,
+      [], // Tools will be added automatically
+      true // Enable tools
+    );
+    
+    // Add consulting mode indicator to response
+    const consultingResult = {
+      success: true,
+      response: result,
+      agentId,
+      conversationId,
+      consultingMode: true,
+      implementationDetected: true,
+      routedThrough: 'claude-api-direct'
+    };
+
+    res.status(200).json(consultingResult);
 
   } catch (error: any) {
     console.error('❌ PHASE 3.1 CONSULTING REDIRECTION ERROR:', error);
