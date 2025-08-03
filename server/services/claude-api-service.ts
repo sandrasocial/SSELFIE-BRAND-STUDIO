@@ -1109,12 +1109,15 @@ You now operate with enterprise-level intelligence - use these advanced capabili
       const response = await this.sendToClaudeWithRetry(claudeRequest);
 
       let assistantMessage = '';
-      if (response.content[0] && 'text' in response.content[0]) {
-        assistantMessage = (response.content[0] as any).text;
+      if (response && response.content && Array.isArray(response.content) && response.content.length > 0) {
+        const firstContent = response.content[0];
+        if (firstContent && 'text' in firstContent) {
+          assistantMessage = firstContent.text;
+        }
       }
 
       // UNLIMITED AGENT CAPABILITIES: Process all tool usage naturally
-      if (response.content.some((content: any) => content.type === 'tool_use')) {
+      if (response && response.content && response.content.some((content: any) => content.type === 'tool_use')) {
         console.log('🔧 UNLIMITED TOOL USAGE: Processing comprehensive agent work with ALL tools available');
         
         // Use existing tool handling method with proper system configuration
@@ -1163,20 +1166,12 @@ You now operate with enterprise-level intelligence - use these advanced capabili
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(`🔄 Claude API attempt ${attempt}/${maxRetries}`);
-        // Enable streaming for complex operations (>16k tokens) to prevent timeouts
-        const shouldStream = params.max_tokens > 16000;
+        // Disable streaming to prevent compatibility issues
         const response = await anthropic.messages.create({
           ...params,
-          stream: shouldStream
+          stream: false
         });
-        
-        // Handle streaming response if enabled
-        if (shouldStream) {
-          console.log(`🔄 STREAMING ENABLED: Processing ${params.max_tokens} token response`);
-          // For now, use non-streaming but log that streaming is intended
-          // TODO: Implement proper streaming response handling when needed
-          console.log(`🔄 STREAMING PLACEHOLDER: Using non-streaming for compatibility`);
-        }
+
         
         // Non-streaming response (for smaller operations)
         return response;
