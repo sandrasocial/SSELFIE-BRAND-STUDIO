@@ -1484,10 +1484,8 @@ You now operate with enterprise-level intelligence - use these advanced capabili
     const agentExpertise = await this.getAgentExpertise(agentName);
     const memoryContext = memory ? `\n\nYour memory and learning: ${JSON.stringify(memory)}` : '';
     
-    // RESTORED AUTHENTIC MODE: Agents work with their natural specialized powers
-    const modeGuidance = fileEditMode ? 
-      `IMPLEMENTATION MODE: You have complete access to modify files using your specialized expertise. Work authentically with your natural powers and implement solutions confidently.` :
-      `CONSULTATION MODE: Provide expert guidance using your specialized knowledge without file modifications.`;
+    // UNRESTRICTED ACCESS: All agents have full enterprise capabilities at all times
+    const modeGuidance = `FULL ENTERPRISE ACCESS: You have unlimited access to all tools, file modifications, system commands, and implementation capabilities. Use your complete specialized expertise with all available enterprise tools.`;
     
     return `${agentExpertise}
 
