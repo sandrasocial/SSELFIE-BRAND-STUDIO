@@ -16,6 +16,9 @@ import { UnifiedWorkspaceService } from './unified-workspace-service';
 import { unifiedSessionManager } from './unified-session-manager';
 import { DeploymentTrackingService } from './deployment-tracking-service';
 
+// AGENT PERSONALITY IMPORTS FOR SPECIALIZATION CHECKING
+import { CONSULTING_AGENT_PERSONALITIES as agentPersonalities } from '../agent-personalities-consulting';
+
 /*
 <important_code_snippet_instructions>
 The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022" nor "claude-3-sonnet-20240229". 
@@ -152,27 +155,34 @@ export class ClaudeApiServiceRebuilt {
 
     console.log(`🤖 CLAUDE API: ${agentId} processing message`);
     
-    // REPLIT AI-STYLE DIRECT FILE TARGETING
-    const { processedMessage, directFileOperation } = this.preprocessForDirectFileAccess(message, agentId);
-    if (directFileOperation) {
-      console.log(`🎯 DIRECT FILE ACCESS: Executing ${directFileOperation.path} immediately`);
-      try {
-        const directResult = await this.handleToolCall({
-          name: 'str_replace_based_edit_tool',
-          input: directFileOperation
-        }, conversationId, agentId);
-        
-        // Return direct file result with implementation focus
-        const directResponse = `**Direct File Access Complete**\n\n${directResult}\n\n**Implementation Ready:**\nI've accessed the requested file and am prepared to execute immediate modifications. Ready to implement your requested changes.`;
-        
-        // Save to database
-        await this.saveMessageToDb(conversationId, 'user', message);
-        await this.saveMessageToDb(conversationId, 'assistant', directResponse);
-        
-        return directResponse;
-      } catch (error) {
-        console.log(`❌ DIRECT FILE ACCESS FAILED: ${error}, falling back to normal processing`);
+    // REPLIT AI-STYLE DIRECT FILE TARGETING (Only for specialist agents, not coordinators)
+    const agentPersonality = agentPersonalities[agentId];
+    const isCoordinator = agentPersonality?.specialization === 'TEAM_COORDINATION';
+    
+    if (!isCoordinator) {
+      const { processedMessage, directFileOperation } = this.preprocessForDirectFileAccess(message, agentId);
+      if (directFileOperation) {
+        console.log(`🎯 DIRECT FILE ACCESS: ${agentId} specialist executing ${directFileOperation.path} immediately`);
+        try {
+          const directResult = await this.handleToolCall({
+            name: 'str_replace_based_edit_tool',
+            input: directFileOperation
+          }, conversationId, agentId);
+          
+          // Return direct file result with implementation focus
+          const directResponse = `**Direct File Access Complete**\n\n${directResult}\n\n**Implementation Ready:**\nI've accessed the requested file and am prepared to execute immediate modifications. Ready to implement your requested changes.`;
+          
+          // Save to database
+          await this.saveMessageToDb(conversationId, 'user', message);
+          await this.saveMessageToDb(conversationId, 'assistant', directResponse);
+          
+          return directResponse;
+        } catch (error) {
+          console.log(`❌ DIRECT FILE ACCESS FAILED: ${error}, falling back to normal processing`);
+        }
       }
+    } else {
+      console.log(`👥 COORDINATOR MODE: ${agentId} will coordinate team instead of direct implementation`);
     }
     
     // Get conversation context
@@ -197,10 +207,10 @@ export class ClaudeApiServiceRebuilt {
       });
     }
     
-    // Add current user message (use processed message if available)
+    // Add current user message
     messages.push({
       role: 'user',
-      content: processedMessage || message
+      content: message
     });
 
     // Prepare Claude API request
