@@ -147,7 +147,7 @@ const loadConversationHistory = async (conversationId: string) => {
 const listAgentConversations = async (agentName: string, limit = 10) => {
   try {
     console.log('📋 Frontend: Listing conversations for agent:', agentName);
-    const response = await fetch(`/api/claude/conversations/list?agentName=${agentName}&limit=${limit}`, {
+    const response = await fetch(`/api/claude/conversations/${agentName}?limit=${limit}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -5,6 +5,9 @@ import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { db } from "./db";
+import { claudeConversations, claudeMessages } from "@shared/schema";
+import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
@@ -1741,6 +1744,75 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+
+  // API endpoint for loading agent conversation history
+  app.get('/api/claude/conversations/:agentId', async (req: any, res) => {
+    try {
+      const { agentId } = req.params;
+      const userId = '42585527'; // Sandra's admin user ID
+      
+      console.log(`📋 API: Listing conversations for agent: ${agentId}`);
+      
+      // Get recent conversations for this agent
+      const conversations = await db
+        .select()
+        .from(claudeConversations)
+        .where(and(
+          eq(claudeConversations.userId, userId),
+          eq(claudeConversations.agentName, agentId),
+          eq(claudeConversations.status, 'active')
+        ))
+        .orderBy(desc(claudeConversations.lastMessageAt))
+        .limit(10);
+
+      console.log(`📋 API: Found ${conversations.length} conversations for ${agentId}`);
+      
+      return res.json({
+        success: true,
+        conversations,
+        agentName: agentId
+      });
+    } catch (error) {
+      console.error('Error listing conversations:', error);
+      return res.status(500).json({
+        success: false,
+        conversations: [],
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // API endpoint for loading conversation history messages
+  app.get('/api/claude/conversation/:conversationId/history', async (req: any, res) => {
+    try {
+      const { conversationId } = req.params;
+      
+      console.log(`📜 API: Loading history for conversation: ${conversationId}`);
+      
+      // Get recent messages for this conversation (last 5 messages)
+      const messages = await db
+        .select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, conversationId))
+        .orderBy(desc(claudeMessages.timestamp))
+        .limit(5);
+
+      console.log(`📜 API: Found ${messages.length} messages for conversation ${conversationId}`);
+      
+      return res.json({
+        success: true,
+        messages: messages.reverse(), // Return in chronological order
+        conversationId
+      });
+    } catch (error) {
+      console.error('Error loading conversation history:', error);
+      return res.status(500).json({
+        success: false,
+        messages: [],
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 
   // Admin agent chat bypass endpoint for consulting agents - CLEANED UP VERSION
   app.post('/api/admin/agent-chat-bypass', async (req: any, res) => {
