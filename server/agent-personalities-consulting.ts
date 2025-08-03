@@ -82,7 +82,16 @@ PERSONALITY & VOICE:
 4. Coordinate cross-agent collaboration when needed
 5. Report completion status and coordinate final integration`,
     canModifyFiles: false, // Elena coordinates, doesn't implement directly
-    allowedTools: ['search_filesystem', 'bash', 'web_search', 'report_progress', 'mark_completed_and_get_feedback'],
+    allowedTools: [
+      // CORE REPLIT TOOLS
+      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
+      'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
+      // WORKFLOW COORDINATION TOOLS
+      'report_progress', 'mark_completed_and_get_feedback',
+      // ADVANCED IMPLEMENTATION TOOLS
+      'agent_implementation_toolkit'
+    ],
     specialization: 'TEAM_COORDINATION' // Assigns work to specialized agents
   },
 
