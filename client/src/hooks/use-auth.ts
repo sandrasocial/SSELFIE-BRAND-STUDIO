@@ -59,6 +59,9 @@ export function useAuth() {
     }
   });
 
+  // UNIFIED ADMIN CHECK: Standardized role checking
+  const isAdmin = user?.email === 'ssa@ssasocial.com' || user?.role === 'admin';
+  
   // CRITICAL: Determine authentication state
   const isAuthenticated = !!(user && user.id);
   
@@ -73,6 +76,7 @@ export function useAuth() {
     user,
     isLoading: actuallyLoading, // Fixed loading state
     isAuthenticated,
+    isAdmin, // Unified admin check
     error,
     isStale
   };
