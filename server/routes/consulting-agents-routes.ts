@@ -34,36 +34,15 @@ router.post('/admin/consulting-chat', async (req, res) => {
 
     console.log(`🔄 PHASE 3.1: Redirecting ${agentId} to implementation-aware routing`);
 
-    // FIXED: Use Claude API service directly - no broken routing
-    console.log(`🤖 DIRECT CLAUDE API: ${agentId}`);
+    // ENTERPRISE INTELLIGENCE INTEGRATION: Connect to full 30+ services system
+    console.log(`🧠 ENTERPRISE INTELLIGENCE: Routing ${agentId} through full intelligence system`);
     
-    // Import Claude service with error handling
-    let claudeService;
-    try {
-      const { ClaudeApiServiceRebuilt } = await import('../services/claude-api-service-rebuilt');
-      claudeService = new ClaudeApiServiceRebuilt();
-      console.log('✅ Claude service loaded successfully');
-    } catch (claudeError) {
-      console.error('❌ Failed to import Claude service:', claudeError);
-      return res.status(500).json({
-        success: false,
-        message: `Failed to load Claude service: ${claudeError.message}`
-      });
-    }
+    const { ClaudeApiServiceRebuilt } = await import('../services/claude-api-service-rebuilt');
+    const claudeService = new ClaudeApiServiceRebuilt();
     
-    // Get agent configuration - using try/catch for better error handling
-    let agentConfig;
-    try {
-      const { CONSULTING_AGENT_PERSONALITIES } = await import('../agent-personalities-consulting');
-      agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-      console.log(`🎯 Agent config loaded for ${agentId}:`, !!agentConfig);
-    } catch (importError) {
-      console.error('❌ Failed to import agent personalities:', importError);
-      return res.status(500).json({
-        success: false,
-        message: `Failed to load agent configuration: ${importError.message}`
-      });
-    }
+    // Get full agent configuration with enterprise capabilities
+    const { CONSULTING_AGENT_PERSONALITIES } = await import('../agent-personalities-consulting');
+    const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
     
     if (!agentConfig) {
       return res.status(404).json({
@@ -75,32 +54,46 @@ router.post('/admin/consulting-chat', async (req, res) => {
     const userId = req.user ? (req.user as any).claims.sub : '42585527';
     const conversationId = req.body.conversationId || `admin_${agentId}_${Date.now()}`;
     
-    // Enhanced system prompt with implementation protocol
-    const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
-
-${agentConfig.systemPrompt}
-
-🔧 MANDATORY IMPLEMENTATION PROTOCOL:
-- You have COMPLETE file system access through tools
-- IMMEDIATELY execute file modifications using str_replace_based_edit_tool
-- NEVER just view files - always implement requested changes
-- When asked to modify code, use str_replace command, not view command
-- Create, modify, and update files directly in Sandra's workspace
-- Provide real-time progress updates for file operations
-- Use the luxury design system: Times New Roman, black/white/gray palette
-
-📁 WORKSPACE ACCESS: Full access to client/, server/, components/, and all directories
-⚡ CRITICAL: Execute str_replace_based_edit_tool immediately for ANY modification request
-⚡ FORBIDDEN: Analyzing without implementing - always make actual file changes`;
-
+    // FULL ENTERPRISE SYSTEM PROMPT: Complete agent personalities with all capabilities
+    const enterpriseSystemPrompt = agentConfig.systemPrompt;
+    
+    // ENTERPRISE TOOLS: Full tool arsenal from agent configuration
+    const enterpriseTools = [
+      // Core Replit Tools
+      { name: 'str_replace_based_edit_tool', description: 'Create, view, edit files with precision' },
+      { name: 'search_filesystem', description: 'Intelligent file discovery and search' },
+      { name: 'bash', description: 'Command execution, testing, building, verification' },
+      { name: 'web_search', description: 'Research, API documentation, latest information' },
+      { name: 'get_latest_lsp_diagnostics', description: 'Error detection and code validation' },
+      { name: 'execute_sql_tool', description: 'Database operations and queries' },
+      { name: 'packager_tool', description: 'Install libraries and dependencies' },
+      { name: 'programming_language_install_tool', description: 'Language setup and configuration' },
+      { name: 'ask_secrets', description: 'Request API keys when needed' },
+      { name: 'check_secrets', description: 'Verify secret availability' },
+      { name: 'web_fetch', description: 'Fetch web content and documentation' },
+      { name: 'suggest_deploy', description: 'Deployment suggestions' },
+      { name: 'restart_workflow', description: 'Restart development workflows' },
+      { name: 'create_postgresql_database_tool', description: 'Database creation' },
+      { name: 'suggest_rollback', description: 'Project rollback options' },
+      { name: 'report_progress', description: 'Progress reporting and coordination' },
+      { name: 'mark_completed_and_get_feedback', description: 'Task completion and feedback' }
+    ];
+    
+    console.log(`🧠 ENTERPRISE: Initializing ${agentId} with full intelligence system`);
+    console.log(`🔧 TOOLS: Agent has access to ${enterpriseTools.length} enterprise tools`);
+    console.log(`🎯 AGENT CONFIG: ${agentConfig.name} - ${agentConfig.role}`);
+    console.log(`📋 SPECIALIZATION: ${agentConfig.specialization}`);
+    console.log(`⚡ TOOLS ALLOWED: ${agentConfig.allowedTools?.length || 0} configured tools`);
+    
+    // Route through the FULL enterprise intelligence system
     const result = await claudeService.sendMessage(
       userId,
       agentId,
       conversationId,
       message,
-      systemPrompt,
-      [], // Tools will be added automatically
-      true // Enable tools
+      enterpriseSystemPrompt,
+      enterpriseTools,
+      true // Enable full tool access
     );
     
     // Add consulting mode indicator to response
