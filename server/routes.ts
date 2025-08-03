@@ -1870,7 +1870,7 @@ ${agentConfig.systemPrompt}
 📁 WORKSPACE ACCESS: Full access to client/, server/, components/, and all directories
 ⚡ MANDATORY: Use tools for ALL file operations - never just describe what to create`;
 
-        // COMPLETE TOOL SUITE FOR IMPLEMENTATION
+        // COMPLETE REPLIT TOOL ARSENAL FOR AGENTS (14 CORE TOOLS)
         const implementationTools = [
           {
             name: "str_replace_based_edit_tool",
@@ -1883,6 +1883,8 @@ ${agentConfig.systemPrompt}
                 file_text: { type: "string", description: "Complete file content for create command" },
                 old_str: { type: "string", description: "Text to replace" },
                 new_str: { type: "string", description: "Replacement text" },
+                insert_line: { type: "integer", description: "Line number for insert" },
+                insert_text: { type: "string", description: "Text to insert" },
                 view_range: { type: "array", items: { type: "number" }, description: "Line range for view" }
               },
               required: ["command", "path"]
@@ -1896,8 +1898,145 @@ ${agentConfig.systemPrompt}
               properties: {
                 function_names: { type: "array", items: { type: "string" } },
                 class_names: { type: "array", items: { type: "string" } },
-                code: { type: "array", items: { type: "string" } }
+                code: { type: "array", items: { type: "string" } },
+                query_description: { type: "string", description: "Description of what to search for" },
+                search_paths: { type: "array", items: { type: "string" } }
               }
+            }
+          },
+          {
+            name: "bash",
+            description: "Run commands in bash shell",
+            input_schema: {
+              type: "object",
+              properties: {
+                command: { type: "string", description: "Bash command to execute" },
+                restart: { type: "boolean", description: "Restart the tool" }
+              }
+            }
+          },
+          {
+            name: "get_latest_lsp_diagnostics",
+            description: "Get LSP diagnostics for code errors",
+            input_schema: {
+              type: "object",
+              properties: {
+                file_path: { type: "string", description: "File path to check" }
+              }
+            }
+          },
+          {
+            name: "execute_sql_tool",
+            description: "Execute SQL queries on the database",
+            input_schema: {
+              type: "object",
+              properties: {
+                sql_query: { type: "string", description: "SQL query to execute" },
+                environment: { type: "string", enum: ["development"], default: "development" }
+              },
+              required: ["sql_query"]
+            }
+          },
+          {
+            name: "packager_tool",
+            description: "Install or uninstall packages",
+            input_schema: {
+              type: "object",
+              properties: {
+                install_or_uninstall: { type: "string", enum: ["install", "uninstall"] },
+                language_or_system: { type: "string", description: "Language or system (nodejs, python, system)" },
+                dependency_list: { type: "array", items: { type: "string" } }
+              },
+              required: ["install_or_uninstall", "language_or_system"]
+            }
+          },
+          {
+            name: "web_search",
+            description: "Search the internet for information",
+            input_schema: {
+              type: "object",
+              properties: {
+                query: { type: "string", description: "Search query" }
+              },
+              required: ["query"]
+            }
+          },
+          {
+            name: "web_fetch",
+            description: "Fetch content from a URL",
+            input_schema: {
+              type: "object",
+              properties: {
+                url: { type: "string", description: "URL to fetch" }
+              },
+              required: ["url"]
+            }
+          },
+          {
+            name: "restart_workflow",
+            description: "Restart a workflow",
+            input_schema: {
+              type: "object",
+              properties: {
+                name: { type: "string", description: "Workflow name" },
+                workflow_timeout: { type: "integer", default: 30 }
+              },
+              required: ["name"]
+            }
+          },
+          {
+            name: "ask_secrets",
+            description: "Ask user for API keys and secrets",
+            input_schema: {
+              type: "object",
+              properties: {
+                secret_keys: { type: "array", items: { type: "string" } },
+                user_message: { type: "string", description: "Message explaining why secrets are needed" }
+              },
+              required: ["secret_keys", "user_message"]
+            }
+          },
+          {
+            name: "check_secrets",
+            description: "Check if secrets exist in environment",
+            input_schema: {
+              type: "object",
+              properties: {
+                secret_keys: { type: "array", items: { type: "string" } }
+              },
+              required: ["secret_keys"]
+            }
+          },
+          {
+            name: "mark_completed_and_get_feedback",
+            description: "Mark task complete and get user feedback",
+            input_schema: {
+              type: "object",
+              properties: {
+                query: { type: "string", description: "Question for user" },
+                workflow_name: { type: "string", description: "Workflow name" },
+                website_route: { type: "string", description: "Website route to check" }
+              },
+              required: ["query", "workflow_name"]
+            }
+          },
+          {
+            name: "report_progress",
+            description: "Report progress to user",
+            input_schema: {
+              type: "object",
+              properties: {
+                summary: { type: "string", description: "Progress summary" }
+              },
+              required: ["summary"]
+            }
+          },
+          {
+            name: "suggest_deploy",
+            description: "Suggest deployment when ready",
+            input_schema: {
+              type: "object",
+              properties: {}
             }
           }
         ];
