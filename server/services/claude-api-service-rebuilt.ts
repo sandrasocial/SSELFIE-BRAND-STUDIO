@@ -278,9 +278,17 @@ export class ClaudeApiServiceRebuilt {
             const { search_filesystem } = await import('../tools/search_filesystem');
             const searchResult = await search_filesystem(toolCall.input);
             
-            // ALSO cache the results for cross-agent intelligence
-            await agentSearchCache.addSearchResults('search_filesystem', toolCall.input, searchResult);
-            console.log(`🔍 ENHANCED SEARCH: Results cached for future agent intelligence`);
+            // ENHANCED: Cache results with comprehensive safety checks
+            try {
+              if (searchResult && (Array.isArray(searchResult) || (typeof searchResult === 'object' && searchResult !== null))) {
+                const cacheQuery = toolCall.input.query_description || JSON.stringify(toolCall.input);
+                const resultsArray = Array.isArray(searchResult) ? searchResult : [searchResult];
+                await agentSearchCache.addSearchResults(conversationId, agentId, cacheQuery, resultsArray);
+                console.log(`🔍 ENHANCED SEARCH: Results cached for future agent intelligence`);
+              }
+            } catch (cacheError) {
+              console.warn('Search cache failed, continuing without caching:', cacheError);
+            }
             
             return `[Search Results]\n${JSON.stringify(searchResult, null, 2)}`;
           } catch (error) {
