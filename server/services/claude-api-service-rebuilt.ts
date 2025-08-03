@@ -273,12 +273,19 @@ export class ClaudeApiServiceRebuilt {
           return `[File Operation Result]\n${JSON.stringify(result, null, 2)}`;
           
         case 'search_filesystem':
-          // ENHANCED SEARCH: Use enterprise search caching
+          // FORCE ENTERPRISE SEARCH: Always use intelligence systems
           try {
-            const searchResults = await this.webSearch.optimizedSearch(toolCall.input.query_description || '');
-            return `[Enhanced Search Results]\n${JSON.stringify(searchResults.results, null, 2)}`;
+            const { search_filesystem } = await import('../tools/search_filesystem');
+            const searchResult = await search_filesystem(toolCall.input);
+            
+            // ALSO cache the results for cross-agent intelligence
+            await agentSearchCache.addSearchResults('search_filesystem', toolCall.input, searchResult);
+            console.log(`🔍 ENHANCED SEARCH: Results cached for future agent intelligence`);
+            
+            return `[Search Results]\n${JSON.stringify(searchResult, null, 2)}`;
           } catch (error) {
-            return `[Search Results]\nFilesystem search completed for: ${JSON.stringify(toolCall.input)}`;
+            console.error('Search filesystem error:', error);
+            return `[Search Error]\n${error instanceof Error ? error.message : 'Search failed'}`;
           }
           
         default:

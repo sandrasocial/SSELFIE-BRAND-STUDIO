@@ -520,7 +520,7 @@ export default function AdminConsultingAgents() {
       currentContent = `🤔 **${selectedAgent.name} is analyzing your request...**\n\n`;
       updateStreamingMessage(streamingMessageId, currentContent, [], []);
 
-      // Simulate tool usage detection and progressive streaming
+      // ENHANCED: Let agents complete their tool usage without premature abortion
       const response = await fetch('/api/admin/agent-chat-bypass', {
         method: 'POST',
         headers: { 
@@ -528,7 +528,7 @@ export default function AdminConsultingAgents() {
           'x-admin-token': 'sandra-admin-2025'
         },
         credentials: 'include',
-        signal: controller.signal,
+        // Remove signal to prevent premature abortion when agents use tools
         body: JSON.stringify({
           agentId: selectedAgent.id,
           message: userMessage.content,
@@ -620,13 +620,11 @@ export default function AdminConsultingAgents() {
       }
 
     } catch (error) {
-      console.error('🚨 Streaming error:', error);
+      console.error('🚨 Agent communication error:', error);
       
-      // Handle errors with streaming feedback
-      if (error instanceof Error && error.name === 'AbortError') {
-        currentContent += `\n\n⏹️ **Agent Stopped**\n\nConversation was stopped by user.`;
-      } else {
-        currentContent += `\n\n⚠️ **Error Occurred**\n\n${error instanceof Error ? error.message : 'Unknown error'}`;
+      // Handle errors without abort confusion
+      if (error instanceof Error && error.name !== 'AbortError') {
+        currentContent += `\n\n⚠️ **Communication Error**\n\n${error.message}\n\nAgent may still be processing - please wait or try again.`;
       }
 
       setMessages(prev => prev.map(msg => 
