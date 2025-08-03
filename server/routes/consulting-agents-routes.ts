@@ -38,18 +38,17 @@ router.post('/admin/consulting-chat', async (req, res) => {
 
     console.log(`🔄 PHASE 3.1: Redirecting ${agentId} to implementation-aware routing`);
 
-    // Forward to implementation-aware agent-chat-bypass endpoint
-    const response = await fetch(`${req.protocol}://${req.get('host')}/api/admin/agent-chat-bypass`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Admin-Token': 'sandra-admin-2025',
-        'Authorization': req.headers.authorization || 'Bearer sandra-admin-2025'
-      },
-      body: JSON.stringify(enhancedRequest)
+    // FIXED: Direct agent chat execution instead of broken redirection
+    const { claudeChat } = await import('../services/claude-api-service');
+    
+    console.log(`🤖 DIRECT AGENT EXECUTION: ${agentId}`);
+    
+    const result = await claudeChat(agentId, message, {
+      userId: req.user ? (req.user as any).claims.sub : '42585527',
+      conversationId: req.body.conversationId || `admin_${agentId}_${Date.now()}`,
+      fileEditMode: req.body.fileEditMode || false,
+      adminMode: true
     });
-
-    const result = await response.json();
     
     // Add consulting mode indicator to response
     const consultingResult = {
@@ -59,7 +58,7 @@ router.post('/admin/consulting-chat', async (req, res) => {
       routedThrough: 'implementation-aware-system'
     };
 
-    res.status(response.status).json(consultingResult);
+    res.status(200).json(consultingResult);
 
   } catch (error: any) {
     console.error('❌ PHASE 3.1 CONSULTING REDIRECTION ERROR:', error);

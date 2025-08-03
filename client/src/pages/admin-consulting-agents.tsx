@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { Switch } from '@/components/ui/switch';
@@ -22,6 +22,68 @@ import AgentMartha from '@assets/out-0 (29)_1753426218044.png';
 import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
 import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
 import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
+
+// OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
+const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
+  return (
+    <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+      <div className={`max-w-[80%] p-6 ${
+        message.type === 'user' 
+          ? 'bg-black text-white ml-4 shadow-sm' 
+          : 'bg-white text-black mr-4 border border-gray-100 shadow-sm'
+      }`}>
+        {message.type === 'agent' && (
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs uppercase tracking-wide text-gray-500">
+              {message.agentName}
+            </span>
+            {/* Elegant Tool Usage Indicators */}
+            {formatToolResults(message.content).length > 0 && (
+              <div className="flex items-center gap-2">
+                {formatToolResults(message.content).map(tool => (
+                  <span key={tool} className="inline-flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
+                    <span className="text-xs text-gray-500 uppercase tracking-wider">
+                      {tool === 'str_replace_based_edit_tool' ? 'Files' :
+                       tool === 'search_filesystem' ? 'Search' :
+                       tool === 'bash' ? 'Execute' :
+                       tool === 'web_search' ? 'Research' : tool}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        <div className="text-sm leading-relaxed">
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]}
+            components={{
+              h1: ({children}) => <h1 className="text-lg font-semibold mb-3 text-black" style={{ fontFamily: 'Times New Roman, serif' }}>{children}</h1>,
+              h2: ({children}) => <h2 className="text-base font-semibold mb-2 text-black" style={{ fontFamily: 'Times New Roman, serif' }}>{children}</h2>,
+              h3: ({children}) => <h3 className="text-sm font-semibold mb-2 text-black" style={{ fontFamily: 'Times New Roman, serif' }}>{children}</h3>,
+              strong: ({children}) => <strong className="font-semibold text-black">{children}</strong>,
+              em: ({children}) => <em className="italic text-gray-700">{children}</em>,
+              p: ({children}) => <p className="mb-3 last:mb-0">{children}</p>,
+              ul: ({children}) => <ul className="list-disc pl-6 mb-3 space-y-1">{children}</ul>,
+              ol: ({children}) => <ol className="list-decimal pl-6 mb-3 space-y-1">{children}</ol>,
+              li: ({children}) => <li className="text-sm">{children}</li>,
+              blockquote: ({children}) => <blockquote className="border-l-4 border-gray-200 pl-4 italic text-gray-600 mb-3">{children}</blockquote>,
+              code: ({children, className}) => {
+                const isInline = !className;
+                return isInline 
+                  ? <code className="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono text-black">{children}</code>
+                  : <code className="block bg-gray-50 p-4 rounded text-xs font-mono text-black whitespace-pre-wrap overflow-x-auto">{children}</code>;
+              }
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 
 interface ConsultingAgent {
@@ -520,12 +582,11 @@ export default function AdminConsultingAgents() {
       currentContent = `🤔 **${selectedAgent.name} is analyzing your request...**\n\n`;
       updateStreamingMessage(streamingMessageId, currentContent, [], []);
 
-      // RESTORED ADMIN BYPASS SYSTEM: Full workspace access for agents
-      const response = await fetch('/api/admin/agent-chat-bypass', {
+      // FIXED: Direct consulting agent endpoint
+      const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'x-admin-token': 'sandra-admin-2025'
+          'Content-Type': 'application/json'
         },
         credentials: 'include',
         body: JSON.stringify({
@@ -692,18 +753,28 @@ Your agent bypass system is working correctly - I have unlimited access to analy
   };
 
   // Helper functions for streaming
-  const updateStreamingMessage = (id: string, content: string, fileOps: FileOperation[], tools: string[]) => {
-    setMessages(prev => prev.map(msg => 
-      msg.id === id 
-        ? { 
-            ...msg, 
-            content, 
-            fileOperations: fileOps,
-            toolsUsed: tools
-          }
-        : msg
-    ));
-  };
+  // OPTIMIZED: Debounced message updates to prevent input lag
+  const updateStreamingMessage = React.useCallback(
+    React.useMemo(() => {
+      let timeoutId: NodeJS.Timeout;
+      return (id: string, content: string, fileOps: FileOperation[], tools: string[]) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          setMessages(prev => prev.map(msg => 
+            msg.id === id 
+              ? { 
+                  ...msg, 
+                  content, 
+                  fileOperations: fileOps,
+                  toolsUsed: tools
+                }
+              : msg
+          ));
+        }, 50); // Debounce updates to reduce rendering lag
+      };
+    }, []),
+    []
+  );
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -1138,11 +1209,14 @@ Your agent bypass system is working correctly - I have unlimited access to analy
                   <div className="flex gap-4 p-4">
                     <textarea
                       value={message}
-                      onChange={(e) => setMessage(e.target.value)}
+                      onChange={useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        setMessage(e.target.value);
+                      }, [])}
                       onKeyPress={handleKeyPress}
                       placeholder={`Ask ${selectedAgent?.name} for strategic analysis...`}
-                      className="flex-1 resize-none border border-gray-200 rounded-sm p-4 font-light leading-relaxed focus:outline-none focus:border-black focus:bg-white transition-all duration-200 shadow-sm"
+                      className="flex-1 resize-none border border-gray-200 rounded-sm p-4 font-light leading-relaxed focus:outline-none focus:border-black focus:bg-white transition-none shadow-sm"
                       rows={3}
+                      disabled={isLoading}
                     />
                     <div className="flex flex-col gap-2">
                       {isLoading && abortController && (
