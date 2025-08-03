@@ -166,9 +166,7 @@ export async function setupAuth(app: Express) {
         name: `replitauth:${domain}`,
         config,
         scope: "openid email profile offline_access",
-        callbackURL,
-        passReqToCallback: false,
-        skipUserProfile: true
+        callbackURL
       },
       verify,
     );
@@ -207,11 +205,14 @@ export async function setupAuth(app: Express) {
     }
     
     // Check if user is already authenticated (unless forcing account selection)
-    if (!forceAccountSelection && req.isAuthenticated() && req.user?.expires_at) {
-      const now = Math.floor(Date.now() / 1000);
-      if (now <= req.user.expires_at) {
-        console.log('✅ User already authenticated, redirecting to workspace');
-        return res.redirect('/workspace');
+    if (!forceAccountSelection && req.isAuthenticated() && req.user) {
+      const user = req.user as any;
+      if (user.expires_at) {
+        const now = Math.floor(Date.now() / 1000);
+        if (now <= user.expires_at) {
+          console.log('✅ User already authenticated, redirecting to workspace');
+          return res.redirect('/workspace');
+        }
       }
     }
     
@@ -365,7 +366,6 @@ export async function setupAuth(app: Express) {
       
       // FIX: Use current openid-client v5+ API with proper parameters
       const tokenSet = await client.authorizationCodeGrant(config, currentUrl, {
-        client_id: process.env.REPL_ID!,
         redirect_uri: `https://${hostname}/api/callback`
       });
       
@@ -423,17 +423,17 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated || !req.isAuthenticated() || !user?.expires_at) {
+  if (!req.isAuthenticated || !req.isAuthenticated() || !user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   // CRITICAL FIX: Handle impersonation by overriding user claims
-  if (req.session?.impersonatedUser) {
-    const impersonatedUser = req.session.impersonatedUser;
+  if ((req.session as any)?.impersonatedUser) {
+    const impersonatedUser = (req.session as any).impersonatedUser;
     console.log(`🎭 Using impersonated user in isAuthenticated: ${impersonatedUser.email}`);
     
     // Override the user claims to use impersonated user's data
-    req.user.claims = {
+    (req.user as any).claims = {
       sub: impersonatedUser.id,
       email: impersonatedUser.email,
       first_name: impersonatedUser.firstName,

@@ -170,10 +170,12 @@ export class UnifiedAgentSystem {
     try {
       // Get agent personality for enhanced execution
       const { CONSULTING_AGENT_PERSONALITIES } = await import('./agent-personalities-consulting');
-      const agentConfig = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+      // Normalize agent ID to lowercase for lookup
+      const normalizedAgentId = request.agentId.toLowerCase();
+      const agentConfig = CONSULTING_AGENT_PERSONALITIES[normalizedAgentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
       
       if (!agentConfig) {
-        throw new Error(`Agent ${request.agentId} not found in consulting system`);
+        throw new Error(`Agent ${request.agentId} (normalized: ${normalizedAgentId}) not found in consulting system. Available agents: ${Object.keys(CONSULTING_AGENT_PERSONALITIES).join(', ')}`);
       }
 
       // UNIFIED SESSION AND MEMORY SYSTEM: Restore complete agent context
