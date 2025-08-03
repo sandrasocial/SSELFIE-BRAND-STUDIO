@@ -207,7 +207,7 @@ export class ClaudeApiServiceRebuilt {
             assistantResponse += block.text;
           } else if (block.type === 'tool_use') {
             // Handle tool calls
-            const toolResult = await this.handleToolCall(block);
+            const toolResult = await this.handleToolCall(block, conversationId, agentId);
             toolResults += toolResult;
           }
         }
@@ -262,7 +262,7 @@ export class ClaudeApiServiceRebuilt {
    * HANDLE TOOL CALLS
    * Simplified tool execution without competing systems
    */
-  private async handleToolCall(toolCall: any): Promise<string> {
+  private async handleToolCall(toolCall: any, conversationId?: string, agentId?: string): Promise<string> {
     try {
       console.log(`🔧 TOOL CALL: ${toolCall.name}`);
       
