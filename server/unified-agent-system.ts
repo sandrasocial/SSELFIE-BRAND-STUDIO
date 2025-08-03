@@ -47,9 +47,15 @@ export class UnifiedAgentSystem {
   }
 
   /**
-   * Initialize the SINGLE agent integration system
+   * Initialize the SINGLE agent integration system (with duplicate protection)
    */
   async initialize(app: Express, httpServer: Server) {
+    // Prevent duplicate initialization (OLGA audit fix)
+    if (this.wss !== null) {
+      console.log('✅ UNIFIED AGENT SYSTEM: Already initialized, skipping duplicate');
+      return;
+    }
+
     console.log('🎯 UNIFIED AGENT SYSTEM: Initializing single integration layer...');
 
     // Setup WebSocket for agent communication
