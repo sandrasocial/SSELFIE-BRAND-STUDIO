@@ -4,9 +4,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Switch } from '@/components/ui/switch';
 import { MemberNavigation } from '@/components/member-navigation';
 import { GlobalFooter } from '@/components/global-footer';
-import AgentBridgeToggle from '@/components/admin/AgentBridgeToggle';
-import LuxuryProgressDisplay from '@/components/admin/LuxuryProgressDisplay';
-import { useAgentBridge } from '@/hooks/use-agent-bridge';
+// Removed Bridge System - Using only main consulting chat
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -252,9 +250,7 @@ export default function AdminConsultingAgents() {
   const [activeFileOperations, setActiveFileOperations] = useState<FileOperation[]>([]);
   const [streamStartTime, setStreamStartTime] = useState<number | null>(null);
   
-  // Bridge System State - ALWAYS ENABLED for cost optimization
-  const [bridgeEnabled, setBridgeEnabled] = useState(true);
-  const { submitTask, isSubmitting, activeTasks } = useAgentBridge();
+  // Using only main consulting chat system - Bridge system removed
 
   // Define agents with matching admin dashboard data
   const consultingAgents: ConsultingAgent[] = [
@@ -903,14 +899,7 @@ export default function AdminConsultingAgents() {
                       </div>
                     </div>
                     
-                    {/* Agent Bridge Toggle */}
-                    <div className="mb-4">
-                      <AgentBridgeToggle
-                        enabled={bridgeEnabled}
-                        onToggle={setBridgeEnabled}
-                        agentName={selectedAgent.name}
-                      />
-                    </div>
+                    {/* Bridge system removed for streamlined chat */}
 
                     {/* Chat Management Controls */}
                     <div className="flex items-center gap-3">
@@ -1118,7 +1107,7 @@ export default function AdminConsultingAgents() {
                         disabled={isLoading || !message.trim()}
                         className="px-8 py-4 bg-black text-white font-light uppercase tracking-wide hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                       >
-                        {bridgeEnabled ? 'Chat & Implement' : 'Send'}
+                        Send
                       </button>
                     </div>
                   </div>
@@ -1140,21 +1129,7 @@ export default function AdminConsultingAgents() {
         </div>
       </div>
 
-      {/* Active Bridge Tasks Progress Display */}
-      {activeTasks.length > 0 && (
-        <div className="max-w-7xl mx-auto px-8 py-8 space-y-4">
-          {activeTasks.map((task) => (
-            <LuxuryProgressDisplay
-              key={task.id}
-              taskId={task.id}
-              agentName={task.agentName}
-              steps={task.steps}
-              overallProgress={task.progress}
-              status={task.status}
-            />
-          ))}
-        </div>
-      )}
+      {/* Bridge system removed - using streamlined consulting chat only */}
 
       <GlobalFooter />
     </div>
