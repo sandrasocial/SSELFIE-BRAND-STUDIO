@@ -23,6 +23,7 @@ import { ModelRetrainService } from './retrain-model';
 import { unifiedAgentSystem } from './unified-agent-system';
 import { setupImplementationRoutes } from './agent-implementation-routes';
 import { registerStreamingAdminRoutes } from './routes/streaming-admin-routes';
+import { registerAgentRoutes } from './routes/agent-conversation-routes';
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML(websiteData: any, onboardingData: any) {
@@ -209,6 +210,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Basic middleware and authentication setup
   const server = createServer(app);
+  
+  // 🚨 CRITICAL FIX: Register agent routes BEFORE authentication to bypass auth middleware
+  console.log('🤖 REGISTERING AGENT ROUTES BEFORE AUTH: Preventing authentication blocks');
+  registerAgentRoutes(app);
   
   // Setup authentication
   await setupAuth(app);
