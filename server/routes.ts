@@ -1542,13 +1542,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // AUTONOMOUS ORCHESTRATOR ENDPOINTS - Import and register the router
+  // AUTONOMOUS ORCHESTRATOR ENDPOINTS - Consolidated to prevent conflicts
   try {
     const autonomousOrchestratorRoutes = await import('./api/autonomous-orchestrator/deploy-all-agents');
-    const coordinationMetricsRoutes = await import('./api/autonomous-orchestrator/coordination-metrics');
     
     app.use('/api/autonomous-orchestrator', autonomousOrchestratorRoutes.default);
-    app.use('/api/autonomous-orchestrator', coordinationMetricsRoutes.default);
     
     console.log('✅ AUTONOMOUS ORCHESTRATOR: Routes registered successfully');
   } catch (error) {
