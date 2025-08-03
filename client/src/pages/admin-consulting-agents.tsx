@@ -520,20 +520,15 @@ export default function AdminConsultingAgents() {
       currentContent = `🤔 **${selectedAgent.name} is analyzing your request...**\n\n`;
       updateStreamingMessage(streamingMessageId, currentContent, [], []);
 
-      // ENHANCED: Let agents complete their tool usage without premature abortion
-      const response = await fetch('/api/admin/agent-chat-bypass', {
+      // CONNECTED TO WORKING AGENT SYSTEM: Use fixed agent endpoints
+      const response = await fetch(`/api/agents/${selectedAgent.id}/chat`, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'x-admin-token': 'sandra-admin-2025'
+          'Content-Type': 'application/json'
         },
         credentials: 'include',
-        // Remove signal to prevent premature abortion when agents use tools
         body: JSON.stringify({
-          agentId: selectedAgent.id,
-          message: userMessage.content,
-          conversationId: conversationId || `streaming-${selectedAgent.id}-${Date.now()}`,
-          fileEditMode: fileEditMode
+          message: userMessage.content
         }),
       });
 
@@ -543,17 +538,17 @@ export default function AdminConsultingAgents() {
 
       const result = await response.json();
       
-      if (result.success) {
+      if (result.message) {
         console.log('🔧 PARSING AGENT RESPONSE:', result);
         
         // Parse response for tool usage and file operations
-        toolsUsed = formatToolResults(result.response || '');
+        toolsUsed = formatToolResults(result.message || '');
         
         // Detect file operations from response
-        if (result.response && (
-          result.response.includes('File created') ||
-          result.response.includes('File modified') ||
-          result.response.includes('[File Operation')
+        if (result.message && (
+          result.message.includes('File created') ||
+          result.message.includes('File modified') ||
+          result.message.includes('[File Operation')
         )) {
           fileOperations.push({
             type: 'create',
@@ -564,14 +559,13 @@ export default function AdminConsultingAgents() {
         }
         
         // Parse response for tool usage and file operations
-        const responseContent = result.response || 'Task completed successfully';
+        const responseContent = result.message || 'Task completed successfully';
         
         // SIMPLIFIED: Track tools and files without complex streaming
         toolsUsed = formatToolResults(responseContent);
         
         // Enhanced file operation detection
-        if (result.fileOperationsDetected || result.implementationProtocolActive || 
-            responseContent.includes('File created') || responseContent.includes('File modified')) {
+        if (responseContent.includes('File created') || responseContent.includes('File modified')) {
           fileOperations.push({
             type: 'create',
             path: 'agent_implementation',
@@ -654,7 +648,7 @@ The detailed technical analysis has been processed and strategic recommendations
         ));
 
       } else {
-        throw new Error(result.error || 'Agent execution failed');
+        throw new Error('Agent execution failed');
       }
 
     } catch (error) {
