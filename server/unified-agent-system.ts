@@ -16,6 +16,11 @@ import { ConversationManager } from './agents/ConversationManager';
 import { AgentLearningSystem } from './agents/agent-learning-system';
 import { AdvancedMemorySystem } from './services/advanced-memory-system';
 import { unifiedSessionManager } from './services/unified-session-manager';
+import { IntelligentContextManager } from './services/intelligent-context-manager';
+import { agentSearchCache } from './services/agent-search-cache';
+import { crossAgentIntelligence } from './services/cross-agent-intelligence';
+import { TaskOrchestrationSystem } from './services/task-orchestration-system';
+import { DeploymentTrackingService } from './services/deployment-tracking-service';
 // CONSOLIDATED: Removed competing agentIntegrationSystem import - all routing through unified system
 
 export interface AgentRequest {
@@ -40,6 +45,11 @@ export class UnifiedAgentSystem {
   private static instance: UnifiedAgentSystem;
   private wss: WebSocketServer | null = null;
   private activeSessions = new Map<string, any>();
+  
+  // ENTERPRISE INTELLIGENCE INTEGRATION
+  private contextManager = IntelligentContextManager.getInstance();
+  private taskOrchestrator = new TaskOrchestrationSystem();
+  private deploymentTracker = new DeploymentTrackingService();
 
   private constructor() {}
 

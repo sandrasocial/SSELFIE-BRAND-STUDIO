@@ -6,8 +6,8 @@
 
 // Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
 // type TaskExecutionRequest, type TaskExecutionResult definitions moved inline
-import { smartContextManager } from './smart-context-manager';
-import { directWorkspaceAccess } from './direct-workspace-access';
+// import { smartContextManager } from './smart-context-manager'; // Missing file
+// import { directWorkspaceAccess } from './direct-workspace-access'; // Missing file
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '@shared/schema';
 import { desc, eq } from 'drizzle-orm';
