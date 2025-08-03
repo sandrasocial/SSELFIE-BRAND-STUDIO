@@ -1,4 +1,10 @@
 import { storage } from '../storage';
+import { AgentLearningSystem } from './agent-learning-system';
+import { AdvancedMemorySystem } from '../services/advanced-memory-system';
+
+// CONSOLIDATED MEMORY SYSTEM INTEGRATION
+const learningSystem = new AgentLearningSystem();
+const memorySystem = AdvancedMemorySystem.getInstance();
 
 export interface ConversationSummary {
   agentId: string;
@@ -34,8 +40,21 @@ export class ConversationManager {
     // Create intelligent summary of the conversation
     const summary = await this.createConversationSummary(agentId, userId, currentHistory);
     
-    // Save summary to database
+    // UNIFIED MEMORY PERSISTENCE: Save to all memory systems
     await this.saveAgentMemory(summary);
+    
+    // Cross-connect with learning system
+    await learningSystem.recordLearningEvent({
+      agentId,
+      taskType: 'conversation_management',
+      context: summary.currentContext,
+      outcome: 'success',
+      learningNotes: `Auto-cleared conversation: ${currentHistory.length} → ${5} messages`,
+      metadata: { keyTasks: summary.keyTasks, workflowStage: summary.workflowStage }
+    });
+    
+    // Connect with advanced memory system
+    await memorySystem.consolidateAgentMemory(agentId, userId);
     
     // Keep only the last 5 messages for context
     const recentMessages = currentHistory.slice(-5);
@@ -245,6 +264,58 @@ export class ConversationManager {
     } catch (error) {
       console.error('Failed to retrieve agent memory:', error);
       return null;
+    }
+  }
+
+  /**
+   * UNIFIED CONTEXT RESTORATION: Restore agent context between sessions
+   */
+  static async restoreAgentContext(agentId: string, userId: string): Promise<any[]> {
+    try {
+      console.log(`🔄 RESTORING CONTEXT: Agent ${agentId} for user ${userId}`);
+      
+      // Get latest memory from ConversationManager
+      const latestMemory = await this.retrieveAgentMemory(agentId, userId);
+      
+      // Get learning patterns from AgentLearningSystem
+      const agentKnowledge = await learningSystem.getAgentKnowledge(agentId);
+      
+      // Get advanced memory profile
+      const memoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
+      
+      const contextMessages: any[] = [];
+      
+      if (latestMemory) {
+        // Add conversation memory
+        contextMessages.push({
+          role: 'system',
+          content: `**SESSION CONTEXT RESTORED**\n\n**Previous Context:**\n${latestMemory.currentContext}\n\n**Key Tasks:**\n${latestMemory.keyTasks.map(task => `• ${task}`).join('\n')}\n\n**Recent Decisions:**\n${latestMemory.recentDecisions.map(decision => `• ${decision}`).join('\n')}\n\n**Workflow Stage:** ${latestMemory.workflowStage}`
+        });
+      }
+      
+      if (agentKnowledge.length > 0) {
+        // Add learned knowledge
+        const recentKnowledge = agentKnowledge.slice(0, 5);
+        contextMessages.push({
+          role: 'system',
+          content: `**LEARNED KNOWLEDGE:**\n${recentKnowledge.map(k => `• ${k.topic}: ${k.content.substring(0, 100)}...`).join('\n')}`
+        });
+      }
+      
+      if (memoryProfile) {
+        // Add intelligence optimization data
+        contextMessages.push({
+          role: 'system',
+          content: `**AGENT OPTIMIZATION:**\nIntelligence Level: ${memoryProfile.intelligenceLevel}/10\nMemory Strength: ${(memoryProfile.memoryStrength * 100).toFixed(1)}%\nLast Optimization: ${memoryProfile.lastOptimization.toISOString().split('T')[0]}`
+        });
+      }
+      
+      console.log(`✅ CONTEXT RESTORED: ${contextMessages.length} memory segments loaded for ${agentId}`);
+      return contextMessages;
+      
+    } catch (error) {
+      console.error('Failed to restore agent context:', error);
+      return [];
     }
   }
 

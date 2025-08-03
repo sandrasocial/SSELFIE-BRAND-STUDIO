@@ -12,6 +12,10 @@ import { WebSocketServer } from 'ws';
 import type { Server } from 'http';
 import { db } from './db';
 import { storage } from './storage';
+import { ConversationManager } from './agents/ConversationManager';
+import { AgentLearningSystem } from './agents/agent-learning-system';
+import { AdvancedMemorySystem } from './services/advanced-memory-system';
+import { unifiedSessionManager } from './services/unified-session-manager';
 // CONSOLIDATED: Removed competing agentIntegrationSystem import - all routing through unified system
 
 export interface AgentRequest {
@@ -172,8 +176,26 @@ export class UnifiedAgentSystem {
         throw new Error(`Agent ${request.agentId} not found in consulting system`);
       }
 
-      // Build comprehensive system prompt for autonomous operation
-      const systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
+      // UNIFIED SESSION AND MEMORY SYSTEM: Restore complete agent context
+      const userId = 'current_user'; // TODO: Get from session  
+      
+      // Restore unified session (Replit Auth + Agent contexts)
+      const sessionData = await unifiedSessionManager.restoreUserSession(userId);
+      
+      // Get conversation memory
+      const contextMessages = await ConversationManager.restoreAgentContext(request.agentId, userId);
+      
+      // Save agent session for persistence
+      await unifiedSessionManager.saveAgentSessionContext({
+        userId,
+        agentId: request.agentId,
+        sessionId: request.conversationId,
+        contextData: { message: request.message, timestamp: new Date() },
+        workflowState: 'active'
+      });
+      
+      // Build comprehensive system prompt with memory restoration
+      let systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
 
 ${agentConfig.systemPrompt}
 
@@ -191,6 +213,11 @@ When asked to create files, you MUST use the str_replace_based_edit_tool with:
 - command: "create" 
 - path: "filename.ext"
 - file_text: "complete file content"`;
+
+      // Add memory context to system prompt
+      if (contextMessages.length > 0) {
+        systemPrompt += '\n\n' + contextMessages.map(msg => msg.content).join('\n\n');
+      }
 
       // Define essential tools for autonomous operation
       const tools = [
