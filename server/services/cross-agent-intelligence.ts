@@ -63,6 +63,32 @@ export class CrossAgentIntelligence {
   }
 
   /**
+   * RECORD SUCCESSFUL OPERATION
+   * Track agent success for cross-agent learning
+   */
+  async recordSuccessfulOperation(
+    agentId: string,
+    operationType: string,
+    operationData: any
+  ): Promise<void> {
+    try {
+      // Record the successful operation for learning
+      await db.insert(agentLearning).values({
+        agentName: agentId,
+        learningType: 'pattern',
+        category: operationType,
+        data: operationData,
+        confidence: "0.8",
+        frequency: 1
+      });
+      
+      console.log(`🤝 CROSS-AGENT: ${agentId} shared knowledge with network`);
+    } catch (error) {
+      console.warn('Failed to record successful operation:', error);
+    }
+  }
+
+  /**
    * INTELLIGENT AGENT COLLABORATION
    * Facilitates multi-agent collaboration for complex tasks
    */

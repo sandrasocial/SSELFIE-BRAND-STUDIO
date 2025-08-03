@@ -155,11 +155,11 @@ export class ClaudeApiServiceRebuilt {
     // Get conversation context
     const conversationDbId = await this.createConversationIfNotExists(userId, agentId, conversationId);
     
-    // Get recent conversation history (last 10 messages)
+    // Get recent conversation history (last 10 messages) using conversationId string
     const recentMessages = await db
       .select()
       .from(claudeMessages)
-      .where(eq(claudeMessages.conversationId, conversationDbId.toString()))
+      .where(eq(claudeMessages.conversationId, conversationId))
       .orderBy(desc(claudeMessages.timestamp))
       .limit(10);
 
@@ -216,9 +216,11 @@ export class ClaudeApiServiceRebuilt {
       // Combine response with tool results
       const finalResponse = assistantResponse + (toolResults ? `\n\n${toolResults}` : '');
 
-      // Save messages to database
-      await this.saveMessageToDb(conversationDbId, 'user', message);
-      await this.saveMessageToDb(conversationDbId, 'assistant', finalResponse);
+      // Save messages to database using conversationId string (not the numeric DB id)
+      console.log(`💾 PERSISTENCE: Saving conversation to database - conversationId: ${conversationId}`);
+      await this.saveMessageToDb(conversationId, 'user', message);
+      await this.saveMessageToDb(conversationId, 'assistant', finalResponse);
+      console.log(`✅ PERSISTENCE: Both messages saved for conversation ${conversationId}`);
       
       // ENTERPRISE INTELLIGENCE POST-PROCESSING
       try {
@@ -293,11 +295,12 @@ export class ClaudeApiServiceRebuilt {
    * Simple message persistence
    */
   private async saveMessageToDb(
-    conversationId: number, 
+    conversationId: string, 
     role: 'user' | 'assistant', 
     content: string
   ): Promise<void> {
     try {
+      console.log(`💾 SAVING MESSAGE: ${role} to conversation ${conversationId}`);
       await db
         .insert(claudeMessages)
         .values({
@@ -306,8 +309,10 @@ export class ClaudeApiServiceRebuilt {
           content,
           metadata: {}
         });
+      console.log(`✅ MESSAGE SAVED: ${role} message saved successfully`);
     } catch (error) {
-      console.warn('Message save failed:', error);
+      console.error('❌ MESSAGE SAVE FAILED:', error);
+      console.error(`❌ Failed conversation ID: ${conversationId}`);
       // Non-fatal error - don't throw
     }
   }
