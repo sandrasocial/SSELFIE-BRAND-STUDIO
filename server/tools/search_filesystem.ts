@@ -28,7 +28,7 @@ export async function search_filesystem(params: SearchParams) {
         const entries = await fs.readdir(dirPath, { withFileTypes: true });
         
         for (const entry of entries) {
-          if (results.length >= 10) break; // EMERGENCY: Prevent token overflow
+          if (results.length >= 25) break; // Reasonable limit to prevent token overflow
           
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);

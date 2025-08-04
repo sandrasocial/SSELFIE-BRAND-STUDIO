@@ -394,19 +394,9 @@ You have complete access to all Replit-level tools for comprehensive implementat
     // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
     
-    // EMERGENCY TOKEN CONSERVATION: Block all Claude API calls temporarily
-    console.log(`🚨 EMERGENCY: Claude API blocked to prevent token drain for ${agentId}`);
-    return res.json({ 
-      success: true, 
-      response: `Claude API temporarily disabled to prevent token overflow. Agent ${agentId} direct responses only.`,
-      tokensSaved: true,
-      executionType: 'emergency-bypass',
-      agentId,
-      conversationId
-    });
     const claudeService = getClaudeService();
     
-    // Try direct tool execution to save tokens
+    // Try direct tool execution to save tokens FIRST
     const directResult = await claudeService.tryDirectToolExecution?.(message, conversationId, agentId);
     if (directResult) {
       console.log(`⚡ DIRECT SUCCESS: ${agentId} executed without Claude API tokens`);
@@ -419,6 +409,9 @@ You have complete access to all Replit-level tools for comprehensive implementat
         executionType: 'direct-bypass'
       });
     }
+    
+    // If not direct execution, proceed with Claude API for content generation
+    console.log(`💰 CLAUDE API: ${agentId} needs content generation, using Claude API with optimized prompt`);
 
     // STREAMING IMPLEMENTATION: Use response streaming for real-time updates
     res.setHeader('Content-Type', 'text/event-stream');
