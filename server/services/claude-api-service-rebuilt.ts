@@ -109,6 +109,7 @@ export class ClaudeApiServiceRebuilt {
         let currentResponseText = '';
         let toolCalls: any[] = [];
         let hasContent = false;
+        let toolBuffer: { [key: string]: { name: string, parameters: any, complete: boolean } } = {};
         
         // Process the stream
         for await (const chunk of stream) {
@@ -124,18 +125,19 @@ export class ClaudeApiServiceRebuilt {
           
           if (chunk.type === 'content_block_start') {
             if (chunk.content_block.type === 'tool_use') {
-              // Tool execution started
+              // Tool started - initialize parameter buffer, DON'T execute yet
               res.write(`data: ${JSON.stringify({
                 type: 'tool_start',
                 toolName: chunk.content_block.name,
-                message: `${agentName} is using ${chunk.content_block.name}...`
+                message: `${agentName} is preparing ${chunk.content_block.name}...`
               })}\n\n`);
               
-              toolCalls.push({
-                id: chunk.content_block.id,
+              // Initialize tool buffer - wait for complete parameters
+              toolBuffer[chunk.content_block.id] = {
                 name: chunk.content_block.name,
-                input: chunk.content_block.input
-              });
+                parameters: {},
+                complete: false
+              };
             }
           }
           
@@ -150,6 +152,46 @@ export class ClaudeApiServiceRebuilt {
               res.write(`data: ${JSON.stringify({
                 type: 'text_delta',
                 content: textDelta
+              })}\n\n`);
+            } else if (chunk.delta.type === 'input_json_delta') {
+              // CRITICAL: Accumulate tool parameters safely
+              const toolId = chunk.index; // This should be the tool block index
+              // Find the correct tool buffer entry by matching the delta
+              for (const [id, tool] of Object.entries(toolBuffer)) {
+                if (!tool.complete) {
+                  try {
+                    // Accumulate JSON parameters
+                    const partialJson = chunk.delta.partial_json || '';
+                    if (partialJson) {
+                      // Try to parse and merge parameters safely
+                      const parsed = JSON.parse(partialJson);
+                      tool.parameters = { ...tool.parameters, ...parsed };
+                    }
+                  } catch (e) {
+                    // Partial JSON may not be valid yet, continue accumulating
+                    console.log(`🔧 Accumulating parameters for ${tool.name}...`);
+                  }
+                  break;
+                }
+              }
+            }
+          }
+          
+          if (chunk.type === 'content_block_stop') {
+            // Tool parameter collection complete - NOW execute
+            const completedTools = Object.entries(toolBuffer).filter(([id, tool]) => !tool.complete);
+            for (const [toolId, tool] of completedTools) {
+              tool.complete = true;
+              toolCalls.push({
+                id: toolId,
+                name: tool.name,
+                input: tool.parameters
+              });
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_ready',
+                toolName: tool.name,
+                message: `${agentName} executing ${tool.name} with complete parameters...`
               })}\n\n`);
             }
           }
@@ -946,11 +988,22 @@ I have complete workspace access and can implement any changes you need. What wo
           try {
             const { bash } = await import('../tools/bash');
             // PARAMETER VALIDATION FIX: Ensure command is properly extracted
-            const commandInput = toolCall.input?.command || toolCall.input;
-            if (!commandInput || typeof commandInput !== 'string') {
-              console.error('❌ BASH PARAMETER ERROR: Missing command parameter', { input: toolCall.input });
-              return `[Bash Error]\nInvalid command parameter. Expected string, got: ${typeof commandInput}`;
+            let commandInput = toolCall.input?.command;
+            
+            // Handle different parameter formats from Claude
+            if (!commandInput && typeof toolCall.input === 'string') {
+              commandInput = toolCall.input;
             }
+            
+            if (!commandInput || typeof commandInput !== 'string') {
+              console.error('❌ BASH PARAMETER ERROR: Missing command parameter', { 
+                input: toolCall.input,
+                type: typeof toolCall.input,
+                keys: toolCall.input ? Object.keys(toolCall.input) : 'no input'
+              });
+              return `[Bash Error]\nInvalid command parameter. Expected string command, got: ${typeof commandInput}`;
+            }
+            
             const bashResult = await bash({ command: commandInput });
             return `[Command Execution]\n${JSON.stringify(bashResult, null, 2)}`;
           } catch (error) {
