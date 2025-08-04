@@ -54,10 +54,19 @@ router.post('/admin/consulting-chat', async (req, res) => {
     const userId = req.user ? (req.user as any).claims.sub : '42585527';
     const conversationId = req.body.conversationId || `admin_${agentId}_${Date.now()}`;
     
-    // FULL ENTERPRISE SYSTEM PROMPT: Complete agent personalities with all capabilities
-    const enterpriseSystemPrompt = agentConfig.systemPrompt;
+    // SPECIALIZED AGENT SYSTEM PROMPT: Full personality with role-specific capabilities
+    const specializedSystemPrompt = `${agentConfig.systemPrompt}
+
+**🎯 SPECIALIZED AGENT IDENTITY:**
+- You are ${agentConfig.name}, ${agentConfig.role}
+- Specialization: ${agentConfig.specialization || 'Enterprise consulting and implementation'}
+- Voice: Professional, specialized, action-oriented
+- Focus: Technical excellence and strategic implementation
+
+**🚀 YOUR FULL TOOL ARSENAL:**
+You have complete access to all Replit-level tools for comprehensive implementation.`;
     
-    // ENTERPRISE TOOLS: Properly formatted tool definitions  
+    // COMPLETE ENTERPRISE TOOLS: Full tool arsenal, not limited subset
     const enterpriseTools = [
       {
         name: 'str_replace_based_edit_tool',
@@ -131,15 +140,15 @@ router.post('/admin/consulting-chat', async (req, res) => {
     console.log(`📋 SPECIALIZATION: ${agentConfig.specialization}`);
     console.log(`⚡ TOOLS ALLOWED: ${agentConfig.allowedTools?.length || 0} configured tools`);
     
-    // Route through the FULL enterprise intelligence system with MEMORY + TOOLS
+    // Route through the FULL enterprise intelligence system with ALL TOOLS + SPECIALIZED PERSONALITY
     const result = await claudeService.sendMessage(
       userId,
       agentId,
       conversationId,
       message,
-      enterpriseSystemPrompt,
-      enterpriseTools.slice(0, 3), // Start with basic tools to test schema
-      true // Re-enable tools now that memory is working
+      specializedSystemPrompt, // Use specialized prompt instead of generic
+      enterpriseTools, // Give agents ALL tools, not limited subset
+      true // Full tool access enabled
     );
     
     // Add consulting mode indicator to response
@@ -150,7 +159,10 @@ router.post('/admin/consulting-chat', async (req, res) => {
       conversationId,
       consultingMode: true,
       implementationDetected: true,
-      routedThrough: 'claude-api-direct'
+      routedThrough: 'specialized-agent-direct',
+      agentPersonality: agentConfig.name,
+      toolCount: enterpriseTools.length,
+      memorySystemActive: true
     };
 
     res.status(200).json(consultingResult);

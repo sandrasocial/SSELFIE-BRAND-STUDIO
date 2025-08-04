@@ -1025,13 +1025,9 @@ Your agent bypass system is working correctly - I have unlimited access to analy
 
                     {/* Chat Management Controls */}
                     <div className="flex items-center gap-3">
-                      {isLoadingHistory && (
-                        <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
-                          <div className="w-3 h-3 border border-gray-400 border-t-black rounded-full animate-spin"></div>
-                          Loading Memory
-                        </div>
-                      )}
-                      {isLoading && abortController && (
+                      {/* CONSOLIDATED LOADING: History loading integrated into main loading state */}
+                      {/* STOP AGENT: Only show during active streaming */}
+                      {messages.some(m => m.streaming) && abortController && (
                         <button
                           onClick={stopAgent}
                           className="px-3 py-1 text-xs font-light text-red-600 hover:text-red-700 border border-red-300 hover:border-red-500 transition-colors uppercase tracking-wider"
@@ -1131,32 +1127,7 @@ Your agent bypass system is working correctly - I have unlimited access to analy
                     </div>
                   ))}
                   
-                  {isLoading && (
-                    <div className="flex justify-start">
-                      <div className="max-w-[80%] p-6 bg-white text-black mr-4 border border-gray-100 shadow-sm">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xs uppercase tracking-wide text-gray-500">
-                            {selectedAgent.name}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wider">Working</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-4 h-4 border border-gray-300 border-t-black rounded-full animate-spin"></div>
-                          <span className="text-sm text-gray-600 font-light">Agent is analyzing your request...</span>
-                        </div>
-                        <div className="mt-4 pt-3 border-t border-gray-100">
-                          <div className="flex gap-2">
-                            <div className="w-2 h-1 bg-gray-200 rounded animate-pulse"></div>
-                            <div className="w-3 h-1 bg-gray-200 rounded animate-pulse delay-75"></div>
-                            <div className="w-2 h-1 bg-gray-200 rounded animate-pulse delay-150"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {/* CONSOLIDATED LOADING: Single loading state managed by streaming messages */}
                   
                   {messages.length === 0 && !isLoading && (
                     <div className="text-center py-16 px-8">
