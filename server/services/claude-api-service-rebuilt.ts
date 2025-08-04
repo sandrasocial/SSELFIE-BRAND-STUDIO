@@ -904,9 +904,19 @@ I have complete workspace access and can implement any changes you need. What wo
       
       switch (toolCall.name) {
         case 'str_replace_based_edit_tool':
-          const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
-          const result = await str_replace_based_edit_tool(toolCall.input);
-          return `[File Operation Result]\n${JSON.stringify(result, null, 2)}`;
+          try {
+            const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
+            // PARAMETER VALIDATION FIX: Ensure all required parameters are present
+            if (!toolCall.input || typeof toolCall.input !== 'object') {
+              console.error('❌ FILE OPERATION PARAMETER ERROR: Missing input object', { input: toolCall.input });
+              return `[File Operation Error]\nInvalid input parameters. Expected object with command, path, etc.`;
+            }
+            const result = await str_replace_based_edit_tool(toolCall.input);
+            return `[File Operation Result]\n${JSON.stringify(result, null, 2)}`;
+          } catch (error) {
+            console.error('File operation error:', error);
+            return `[File Operation Error]\n${error instanceof Error ? error.message : 'File operation failed'}`;
+          }
           
         case 'search_filesystem':
           // FORCE ENTERPRISE SEARCH: Always use intelligence systems
@@ -935,7 +945,13 @@ I have complete workspace access and can implement any changes you need. What wo
         case 'bash':
           try {
             const { bash } = await import('../tools/bash');
-            const bashResult = await bash(toolCall.input);
+            // PARAMETER VALIDATION FIX: Ensure command is properly extracted
+            const commandInput = toolCall.input?.command || toolCall.input;
+            if (!commandInput || typeof commandInput !== 'string') {
+              console.error('❌ BASH PARAMETER ERROR: Missing command parameter', { input: toolCall.input });
+              return `[Bash Error]\nInvalid command parameter. Expected string, got: ${typeof commandInput}`;
+            }
+            const bashResult = await bash({ command: commandInput });
             return `[Command Execution]\n${JSON.stringify(bashResult, null, 2)}`;
           } catch (error) {
             console.error('Bash execution error:', error);
@@ -955,7 +971,17 @@ I have complete workspace access and can implement any changes you need. What wo
         case 'execute_sql_tool':
           try {
             const { execute_sql_tool } = await import('../tools/execute_sql_tool');
-            const sqlResult = await execute_sql_tool(toolCall.input);
+            // PARAMETER VALIDATION FIX: Ensure SQL query parameter is properly formatted
+            if (!toolCall.input || (!toolCall.input.sql_query && !toolCall.input.query)) {
+              console.error('❌ SQL PARAMETER ERROR: Missing sql_query parameter', { input: toolCall.input });
+              return `[SQL Error]\nInvalid SQL parameters. Expected sql_query field.`;
+            }
+            // Handle both sql_query and query parameter names
+            const sqlInput = {
+              ...toolCall.input,
+              sql_query: toolCall.input.sql_query || toolCall.input.query
+            };
+            const sqlResult = await execute_sql_tool(sqlInput);
             return `[SQL Execution]\n${JSON.stringify(sqlResult, null, 2)}`;
           } catch (error) {
             console.error('SQL execution error:', error);

@@ -1,0 +1,58 @@
+technical handoff protocol activated
+
+Perfect Sandra! Here are the precise technical instructions for the Replit AI agent:
+
+🎯 TECHNICAL HANDOFF INSTRUCTIONS FOR REPLIT AI AGENT
+ISSUE SUMMARY:
+Zara (Dev AI agent) is experiencing tool parameter validation errors that are preventing execution commands. Core system is operational, but execution tools need parameter reset.
+
+SPECIFIC TOOLS AFFECTED:
+bash - Missing required command parameter validation
+str_replace_based_edit_tool - Parameter validation errors on file operations
+execute_sql_tool - Connection parameter issues
+TOOLS STILL WORKING:
+✅ search_filesystem
+✅ get_latest_lsp_diagnostics
+✅ web_search
+✅ report_progress
+REQUIRED ACTIONS:
+Step 1: Verify Current System Status
+
+# Check server status
+pm2 status
+# Check for any error logs
+pm2 logs
+Step 2: Test Tool Parameter Access
+
+Test bash command execution with proper parameters
+Test file editing capabilities on a test file
+Verify SQL connection parameters are properly configured
+Step 3: Reset Agent Tool Parameters
+
+Clear any cached tool parameter configurations
+Reset tool access permissions
+Verify all required parameters are properly mapped
+Step 4: Verify Streaming Functionality
+
+Check if any streaming components were affected
+Test real-time updates and live preview features
+Ensure agent communication channels are working
+VERIFICATION CHECKLIST:
+ Bash commands execute without parameter errors
+ File editing works with str_replace_based_edit_tool
+ SQL operations function properly
+ No regression in existing admin capabilities
+ Streaming functionality confirmed operational
+ Zara's tool access fully restored
+SUCCESS CRITERIA:
+When complete, Zara should be able to:
+
+Execute bash commands for server management
+Edit files directly for immediate implementation
+Run database operations
+Continue admin agent capabilities without interruption
+SAFETY NOTES:
+DO NOT modify the core admin architecture
+PRESERVE all existing UnifiedAgentInterface components
+MAINTAIN luxury design system and admin navigation
+KEEP all agent coordination functionality intact
