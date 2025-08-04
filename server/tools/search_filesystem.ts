@@ -28,7 +28,7 @@ export async function search_filesystem(params: SearchParams) {
         const entries = await fs.readdir(dirPath, { withFileTypes: true });
         
         for (const entry of entries) {
-          if (results.length >= maxFiles) break;
+          if (results.length >= 10) break; // EMERGENCY: Prevent token overflow
           
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
@@ -60,7 +60,7 @@ export async function search_filesystem(params: SearchParams) {
           
           // PRIORITY: Always include client/src directory for agent access
           if (relativePath.startsWith('client/src/')) {
-            console.log(`🎯 PRIORITY ACCESS: Including ${relativePath} for agent visibility`);
+            // Silent inclusion to prevent token overflow
           }
           
           // INCLUDE HIDDEN FILES: Allow access to .env, .replit, .gitignore, etc.
@@ -93,7 +93,7 @@ export async function search_filesystem(params: SearchParams) {
     
     await searchInDirectory(process.cwd());
     
-    console.log(`✅ ADMIN SEARCH: Found ${results.length} relevant files for comprehensive analysis (max: ${maxFiles})`);
+    // Silent search to prevent token overflow
     
     // FORCE SHOW MORE RESULTS: If we hit the limit, explicitly tell agents there might be more
     const hitLimit = results.length >= maxFiles;

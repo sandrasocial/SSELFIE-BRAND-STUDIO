@@ -20,9 +20,9 @@ export const IMPLEMENTATION_MODE = {
 
 export const UNLIMITED_CAPABILITIES = {
   // File System Access
-  maxFileReads: Infinity,
-  maxFileWrites: Infinity,
-  maxDirectoryDepth: Infinity,
+  maxFileReads: 50, // Prevent token overflow
+  maxFileWrites: 50, // Reasonable limit  
+  maxDirectoryDepth: 10, // Prevent infinite recursion
   allowedPaths: ["*"], // All paths accessible
   
   // Tool Execution
@@ -31,15 +31,15 @@ export const UNLIMITED_CAPABILITIES = {
   apiCalls: "UNLIMITED",
   systemModifications: "ENABLED",
   
-  // Repository Operations
-  codebaseAnalysis: "COMPLETE",
+  // Repository Operations (Token Optimized)
+  codebaseAnalysis: "TARGETED", // Focused analysis to prevent token overflow  
   architectureChanges: "AUTHORIZED",
   dependencyManagement: "FULL",
   deploymentOperations: "ENABLED",
   
-  // Advanced Capabilities
-  multiAgentCoordination: "UNLIMITED",
-  crossSystemIntegration: "ENABLED",
+  // Advanced Capabilities (Token Optimized)
+  multiAgentCoordination: "EFFICIENT", // Coordinated but token-aware
+  crossSystemIntegration: "ENABLED", 
   realTimeModifications: "ACTIVE",
   autonomousDecisionMaking: "FULL"
 };
