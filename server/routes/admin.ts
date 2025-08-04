@@ -1,9 +1,20 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { users, subscriptions, sessions } from '@shared/schema';
-import { eq, count, sum, desc } from 'drizzle-orm';
+import { users, subscriptions, sessions, importedSubscribers, aiImages, userModels } from '@shared/schema';
+import { eq, count, sum, desc, sql, gte } from 'drizzle-orm';
+import { isAuthenticated } from '../replitAuth';
+import { storage } from '../storage';
 
 const router = Router();
+
+// Admin-only middleware  
+const isAdmin = (req: any, res: any, next: any) => {
+  const user = req.user;
+  if (!user || (user.claims?.email !== 'ssa@ssasocial.com' && user.role !== 'admin')) {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+};
 
 // Get dashboard stats
 router.get('/stats', async (req, res) => {
@@ -132,5 +143,211 @@ function formatTimestamp(date: Date | null): string {
   if (hours < 24) return `${hours} hours ago`;
   return `${days} days ago`;
 }
+
+// CONSOLIDATED: Business metrics endpoints (from admin-business-metrics.ts)
+router.get('/business-metrics', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    console.log('📊 Fetching comprehensive business metrics...');
+
+    // Calculate total revenue from subscriptions
+    const revenueResult = await db
+      .select({
+        totalRevenue: sql<number>`COALESCE(SUM(CASE WHEN plan = 'sselfie-studio' THEN 67 WHEN plan = 'basic' THEN 29 ELSE 0 END), 0)`
+      })
+      .from(users)
+      .where(sql`plan IN ('sselfie-studio', 'basic')`);
+
+    // Calculate monthly revenue (active subscriptions)
+    const monthlyRevenueResult = await db
+      .select({
+        activeSubscriptions: count(),
+        studioUsers: sql<number>`COUNT(CASE WHEN plan = 'sselfie-studio' THEN 1 END)`,
+        basicUsers: sql<number>`COUNT(CASE WHEN plan = 'basic' THEN 1 END)`
+      })
+      .from(users)
+      .where(sql`plan IN ('sselfie-studio', 'basic')`);
+
+    // Get total subscribers from all sources
+    const subscriberStats = await db
+      .select({
+        total: count(),
+        flodesk: sql<number>`COUNT(CASE WHEN source = 'flodesk' THEN 1 END)`,
+        manychat: sql<number>`COUNT(CASE WHEN source = 'manychat' THEN 1 END)`
+      })
+      .from(importedSubscribers);
+
+    // Get total AI images generated
+    const aiImageStats = await db
+      .select({
+        totalImages: count()
+      })
+      .from(aiImages);
+
+    // Get trained models count
+    const trainedModelsStats = await db
+      .select({
+        totalModels: count()
+      })
+      .from(userModels);
+
+    // Calculate metrics
+    const totalRevenue = revenueResult[0]?.totalRevenue || 0;
+    const studioUsers = monthlyRevenueResult[0]?.studioUsers || 0;
+    const basicUsers = monthlyRevenueResult[0]?.basicUsers || 0;
+    const monthlyRevenue = (studioUsers * 67) + (basicUsers * 29);
+    const totalSubscribers = subscriberStats[0]?.total || 0;
+    const activeUsers = (await db.select({ count: count() }).from(users))[0]?.count || 0;
+    const totalAIImages = aiImageStats[0]?.totalImages || 0;
+    const trainedModels = trainedModelsStats[0]?.totalModels || 0;
+
+    const businessMetrics = {
+      totalRevenue: totalRevenue.toString(),
+      monthlyRevenue,
+      totalSubscribers,
+      activeUsers,
+      totalAIImages,
+      trainedModels
+    };
+
+    console.log('✅ Business metrics calculated:', businessMetrics);
+    res.json(businessMetrics);
+  } catch (error) {
+    console.error('❌ Error fetching business metrics:', error);
+    res.status(500).json({ error: 'Failed to fetch business metrics' });
+  }
+});
+
+// CONSOLIDATED: Subscriber stats endpoint
+router.get('/subscriber-stats', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    console.log('📊 Fetching subscriber statistics by source...');
+    
+    const stats = await db
+      .select({
+        source: importedSubscribers.source,
+        count: count()
+      })
+      .from(importedSubscribers)
+      .groupBy(importedSubscribers.source);
+
+    const result = stats.reduce((acc, stat) => {
+      acc[stat.source] = stat.count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    console.log('✅ Subscriber stats:', result);
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Error fetching subscriber stats:', error);
+    res.status(500).json({ error: 'Failed to fetch subscriber statistics' });
+  }
+});
+
+// CONSOLIDATED: Recent activity endpoint (enhanced version)
+router.get('/recent-activity', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    console.log('📊 Fetching recent platform activity...');
+    
+    const recentUsers = await db
+      .select({
+        email: users.email,
+        firstName: users.firstName,
+        plan: users.plan,
+        createdAt: users.createdAt
+      })
+      .from(users)
+      .orderBy(desc(users.createdAt))
+      .limit(15);
+
+    const recentAIImages = await db
+      .select({
+        userId: aiImages.userId,
+        imageUrl: aiImages.imageUrl,
+        prompt: aiImages.prompt,
+        createdAt: aiImages.createdAt
+      })
+      .from(aiImages)
+      .orderBy(desc(aiImages.createdAt))
+      .limit(10);
+
+    res.json({
+      recentUsers,
+      recentAIImages,
+      totalUsers: recentUsers.length,
+      totalImages: recentAIImages.length
+    });
+    
+    console.log('✅ Recent activity fetched');
+  } catch (error) {
+    console.error('❌ Error fetching recent activity:', error);
+    res.status(500).json({ error: 'Failed to fetch recent activity' });
+  }
+});
+
+// CONSOLIDATED: User management endpoints (from admin-user-management.ts)
+router.post('/impersonate-user', async (req: any, res) => {
+  try {
+    // Check admin authentication
+    const adminToken = req.headers['x-admin-token'];
+    const isAdminAuth = adminToken === 'sandra-admin-2025';
+    
+    const sessionUser = req.user;
+    const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+    
+    if (!isAdminAuth && !isSessionAdmin) {
+      return res.status(401).json({ message: "Admin access required" });
+    }
+
+    const { userId, email } = req.body;
+    
+    let targetUser;
+    if (userId) {
+      targetUser = await storage.getUser(userId);
+    } else if (email) {
+      targetUser = await storage.getUserByEmail(email);
+    }
+    
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Store admin session before impersonation
+    req.session.adminOriginalUser = {
+      id: '42585527',
+      email: 'ssa@ssasocial.com',
+      firstName: 'Sandra',
+      lastName: 'Sigurjonsdottir'
+    };
+    
+    // Create full user impersonation session
+    req.session.impersonatedUser = targetUser;
+    
+    // Override user claims for complete impersonation
+    if (req.user) {
+      req.user.claims = {
+        sub: targetUser.id,
+        email: targetUser.email,
+        first_name: targetUser.firstName,
+        last_name: targetUser.lastName,
+        profile_image_url: targetUser.profileImageUrl
+      };
+    }
+
+    res.json({
+      success: true,
+      message: `Now impersonating user: ${targetUser.email}`,
+      impersonatedUser: {
+        id: targetUser.id,
+        email: targetUser.email,
+        firstName: targetUser.firstName,
+        plan: targetUser.plan
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Admin user impersonation error:', error);
+    res.status(500).json({ error: 'Failed to impersonate user' });
+  }
+});
 
 export default router;
