@@ -3,6 +3,76 @@ import { Router } from 'express';
 const router = Router();
 
 /**
+ * CONVERSATION HISTORY ENDPOINT
+ * Load conversation history for specific agent
+ */
+router.get('/conversation-history/:agentId', async (req, res) => {
+  try {
+    const { agentId } = req.params;
+    const userId = req.user ? (req.user as any).claims.sub : '42585527';
+    
+    console.log(`📚 Loading conversation history for agent: ${agentId}, user: ${userId}`);
+    
+    const { ClaudeApiServiceRebuilt } = await import('../services/claude-api-service-rebuilt');
+    const claudeService = new ClaudeApiServiceRebuilt();
+    
+    // Find the most recent conversation for this agent and user
+    const { db } = await import('../db');
+    const { claudeConversations, claudeMessages } = await import('../../shared/schema');
+    const { eq, and, desc } = await import('drizzle-orm');
+    
+    // Get the most recent conversation for this agent
+    const conversations = await db
+      .select()
+      .from(claudeConversations)
+      .where(
+        and(
+          eq(claudeConversations.userId, userId),
+          eq(claudeConversations.agentName, agentId)
+        )
+      )
+      .orderBy(desc(claudeConversations.createdAt))
+      .limit(1);
+
+    if (conversations.length === 0) {
+      return res.json({
+        success: true,
+        messages: [],
+        conversationId: null
+      });
+    }
+
+    const conversation = conversations[0];
+    
+    // Get all messages for this conversation
+    const messages = await db
+      .select()
+      .from(claudeMessages)
+      .where(eq(claudeMessages.conversationId, conversation.conversationId))
+      .orderBy(claudeMessages.timestamp);
+
+    console.log(`📚 Found ${messages.length} messages in conversation ${conversation.conversationId}`);
+
+    res.json({
+      success: true,
+      messages: messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp
+      })),
+      conversationId: conversation.conversationId
+    });
+
+  } catch (error) {
+    console.error('Error loading conversation history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to load conversation history'
+    });
+  }
+});
+
+/**
  * PHASE 3.1: CONSULTING AGENTS REDIRECTION TO IMPLEMENTATION-AWARE ROUTING
  * All consulting requests now flow through implementation detection system
  */
