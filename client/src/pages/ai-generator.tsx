@@ -44,7 +44,7 @@ export default function AIGenerator() {
   // Flux Collection Creation Workflow
   const createFluxCollectionMutation = useMutation({
     mutationFn: async (request: { styleDescription: string; targetAudience: string; moodKeywords: string }) => {
-      const response = await apiRequest('POST', '/api/admin/agents/consulting-chat', {
+      const response = await apiRequest('POST', '/api/admin/agent-chat-bypass', {
         agentId: 'flux',
         message: `Create a new AI photoshoot collection based on:
         
