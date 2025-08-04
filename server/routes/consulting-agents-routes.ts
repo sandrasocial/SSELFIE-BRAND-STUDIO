@@ -3,13 +3,13 @@ import { db } from '../db';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
-import { ClaudeApiServiceWorking } from '../services/claude-api-service-working';
+import { ClaudeApiServiceRebuilt } from '../services/claude-api-service-rebuilt';
 
 // SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
-let claudeServiceInstance: ClaudeApiServiceWorking | null = null;
-function getClaudeService(): ClaudeApiServiceWorking {
+let claudeServiceInstance: ClaudeApiServiceRebuilt | null = null;
+function getClaudeService(): ClaudeApiServiceRebuilt {
   if (!claudeServiceInstance) {
-    claudeServiceInstance = new ClaudeApiServiceWorking();
+    claudeServiceInstance = new ClaudeApiServiceRebuilt();
   }
   return claudeServiceInstance;
 }
@@ -122,10 +122,19 @@ router.post('/consulting-chat', async (req, res) => {
       });
     }
 
+    // PHASE 3.1: Add consulting flag and redirect to implementation-aware endpoint
+    const enhancedRequest = {
+      ...req.body,
+      consultingMode: true,
+      implementationDetectionRequired: true,
+      adminToken: 'sandra-admin-2025', // Ensure admin access for redirect
+      userId: req.user ? (req.user as any).id : 'admin-sandra'
+    };
+
+    console.log(`🔄 PHASE 3.1: Redirecting ${agentId} to implementation-aware routing`);
+
+    // OPTIMIZED ENTERPRISE INTELLIGENCE: Use singleton instance to prevent performance issues
     console.log(`🧠 ENTERPRISE INTELLIGENCE: Routing ${agentId} through optimized intelligence system`);
-    
-    // DIRECT STREAMING: Use ClaudeApiServiceWorking directly without redirects
-    const claudeService = getClaudeService();
     
     // Get agent configuration with enterprise capabilities
     const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
@@ -384,9 +393,10 @@ You have complete access to all Replit-level tools for comprehensive implementat
     
     // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
+    const claudeService = getClaudeService();
     
-    // Try direct tool execution to save tokens using the singleton instance
-    const directResult = await getClaudeService().tryDirectToolExecution?.(message, conversationId, agentId);
+    // Try direct tool execution to save tokens
+    const directResult = await claudeService.tryDirectToolExecution?.(message, conversationId, agentId);
     if (directResult) {
       console.log(`⚡ DIRECT SUCCESS: ${agentId} executed without Claude API tokens`);
       return res.status(200).json({
@@ -414,7 +424,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
     
     try {
       // Stream the Claude API response with real-time updates
-      const streamingResult = await getClaudeService().sendStreamingMessage(
+      const streamingResult = await claudeService.sendStreamingMessage(
         userId,
         agentId,
         conversationId,

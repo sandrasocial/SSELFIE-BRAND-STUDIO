@@ -97,63 +97,66 @@ export class ClaudeApiServiceRebuilt {
       
       // Continue conversation until Claude is done (handles tool execution cycles)
       while (!conversationComplete) {
-        // INTELLIGENT TOKEN OPTIMIZATION: Scale tokens based on task complexity
-        const optimalTokens = this.getOptimalTokenLimit(message, agentName);
-        
-        // FIXED: Use non-streaming for tool calls, streaming only for text response
-        const response = await anthropic.messages.create({
+        const stream = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
-          max_tokens: optimalTokens,
+          max_tokens: 8000,
           messages: currentMessages as any,
           system: systemPrompt,
           tools: tools,
-          stream: false  // Tools require non-streaming for proper parameter capture
+          stream: true
         });
 
         let currentResponseText = '';
         let toolCalls: any[] = [];
         let hasContent = false;
         
-        // CORRECTLY HANDLE CLAUDE RESPONSE FORMAT
-        if (response.content) {
-          for (const contentBlock of response.content) {
-            if (contentBlock.type === 'text') {
-              currentResponseText += contentBlock.text;
-              hasContent = true;
-              
-              // Stream text content to frontend
+        // Process the stream
+        for await (const chunk of stream) {
+          if (chunk.type === 'message_start') {
+            if (!hasContent) {
               res.write(`data: ${JSON.stringify({
-                type: 'text_delta',
-                content: contentBlock.text
-              })}\n\n`);
-              
-            } else if (contentBlock.type === 'tool_use') {
-              // PROPER TOOL PARAMETER CAPTURE - Claude sends complete parameters here
-              console.log('🔧 CLAUDE TOOL CAPTURE:', {
-                id: contentBlock.id,
-                name: contentBlock.name,
-                input: contentBlock.input,
-                hasInput: !!contentBlock.input,
-                inputKeys: contentBlock.input ? Object.keys(contentBlock.input) : []
-              });
-              
-              toolCalls.push({
-                id: contentBlock.id,
-                name: contentBlock.name,
-                input: contentBlock.input || {}
-              });
-              
-              res.write(`data: ${JSON.stringify({
-                type: 'tool_start',
-                toolName: contentBlock.name,
-                message: `${agentName} is using ${contentBlock.name}...`
+                type: 'message_start',
+                agentName,
+                message: `${agentName} is thinking...`
               })}\n\n`);
             }
           }
-        }
-        
-        // Check if we have tool calls to execute
-        if (toolCalls.length > 0) {
+          
+          if (chunk.type === 'content_block_start') {
+            if (chunk.content_block.type === 'tool_use') {
+              // Tool execution started
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_start',
+                toolName: chunk.content_block.name,
+                message: `${agentName} is using ${chunk.content_block.name}...`
+              })}\n\n`);
+              
+              toolCalls.push({
+                id: chunk.content_block.id,
+                name: chunk.content_block.name,
+                input: chunk.content_block.input
+              });
+            }
+          }
+          
+          if (chunk.type === 'content_block_delta') {
+            if (chunk.delta.type === 'text_delta') {
+              // Stream text content
+              const textDelta = chunk.delta.text;
+              currentResponseText += textDelta;
+              fullResponse += textDelta;
+              hasContent = true;
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: textDelta
+              })}\n\n`);
+            }
+          }
+          
+          if (chunk.type === 'message_stop') {
+            // Check if we have tool calls to execute
+            if (toolCalls.length > 0) {
               res.write(`data: ${JSON.stringify({
                 type: 'tools_executing',
                 message: `${agentName} is executing ${toolCalls.length} tool(s)...`
@@ -266,47 +269,6 @@ export class ClaudeApiServiceRebuilt {
   }
 
 
-
-  /**
-   * INTELLIGENT TOKEN OPTIMIZATION
-   * Scale token usage based on task complexity to prevent excessive costs
-   */
-  private getOptimalTokenLimit(userMessage: string, agentName: string): number {
-    const complexityIndicators = [
-      'entire codebase', 'fix all', 'complete system', 'comprehensive',
-      'multiple files', 'full implementation', 'end-to-end', 'build entire',
-      'create complete', 'full website', 'entire application', 'complex system',
-      'large scale', 'multi-agent', 'collaboration', 'fix everything'
-    ];
-    
-    const hasHighComplexity = complexityIndicators.some(indicator => 
-      userMessage.toLowerCase().includes(indicator)
-    );
-    
-    // Scale tokens based on complexity - prevent excessive usage
-    if (hasHighComplexity) {
-      console.log(`🧠 COMPLEX TASK DETECTED: Scaling to 32k tokens for comprehensive work`);
-      return 32000; // Full scaling for complex tasks only when needed
-    }
-    
-    // Standard complexity detection
-    const standardComplexityIndicators = [
-      'analyze', 'implement', 'create', 'build', 'fix', 'update', 'modify',
-      'generate', 'write', 'develop', 'configure', 'setup', 'install'
-    ];
-    
-    const hasStandardComplexity = standardComplexityIndicators.some(indicator =>
-      userMessage.toLowerCase().includes(indicator)
-    );
-    
-    if (hasStandardComplexity) {
-      console.log(`🧠 STANDARD TASK DETECTED: Using 8k tokens for ${agentName}`);
-      return 8000; // Standard task complexity
-    }
-    
-    console.log(`🧠 SIMPLE TASK DETECTED: Using 4k tokens for ${agentName}`);
-    return 4000; // Simple conversations and basic questions
-  }
 
   /**
    * LOAD CONVERSATION MESSAGES
@@ -525,12 +487,9 @@ export class ClaudeApiServiceRebuilt {
     // Prepare Claude API request with MEMORY CONTEXT INJECTION
     const enhancedSystemPrompt = systemPrompt + memoryContext;
     
-    // INTELLIGENT TOKEN OPTIMIZATION: Scale tokens based on task complexity
-    const optimalTokens = this.getOptimalTokenLimit(message, agentId);
-    
     const claudeRequest: any = {
       model: DEFAULT_MODEL_STR,
-      max_tokens: optimalTokens,
+      max_tokens: 4000,
       system: enhancedSystemPrompt,
       messages
     };
@@ -945,19 +904,9 @@ I have complete workspace access and can implement any changes you need. What wo
       
       switch (toolCall.name) {
         case 'str_replace_based_edit_tool':
-          try {
-            const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
-            // PARAMETER VALIDATION FIX: Ensure all required parameters are present
-            if (!toolCall.input || typeof toolCall.input !== 'object') {
-              console.error('❌ FILE OPERATION PARAMETER ERROR: Missing input object', { input: toolCall.input });
-              return `[File Operation Error]\nInvalid input parameters. Expected object with command, path, etc.`;
-            }
-            const result = await str_replace_based_edit_tool(toolCall.input);
-            return `[File Operation Result]\n${JSON.stringify(result, null, 2)}`;
-          } catch (error) {
-            console.error('File operation error:', error);
-            return `[File Operation Error]\n${error instanceof Error ? error.message : 'File operation failed'}`;
-          }
+          const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
+          const result = await str_replace_based_edit_tool(toolCall.input);
+          return `[File Operation Result]\n${JSON.stringify(result, null, 2)}`;
           
         case 'search_filesystem':
           // FORCE ENTERPRISE SEARCH: Always use intelligence systems
@@ -986,24 +935,7 @@ I have complete workspace access and can implement any changes you need. What wo
         case 'bash':
           try {
             const { bash } = await import('../tools/bash');
-            // PARAMETER VALIDATION FIX: Ensure command is properly extracted
-            let commandInput = toolCall.input?.command;
-            
-            // Handle different parameter formats from Claude
-            if (!commandInput && typeof toolCall.input === 'string') {
-              commandInput = toolCall.input;
-            }
-            
-            if (!commandInput || typeof commandInput !== 'string') {
-              console.error('❌ BASH PARAMETER ERROR: Missing command parameter', { 
-                input: toolCall.input,
-                type: typeof toolCall.input,
-                keys: toolCall.input ? Object.keys(toolCall.input) : 'no input'
-              });
-              return `[Bash Error]\nInvalid command parameter. Expected string command, got: ${typeof commandInput}`;
-            }
-            
-            const bashResult = await bash({ command: commandInput });
+            const bashResult = await bash(toolCall.input);
             return `[Command Execution]\n${JSON.stringify(bashResult, null, 2)}`;
           } catch (error) {
             console.error('Bash execution error:', error);
@@ -1023,17 +955,7 @@ I have complete workspace access and can implement any changes you need. What wo
         case 'execute_sql_tool':
           try {
             const { execute_sql_tool } = await import('../tools/execute_sql_tool');
-            // PARAMETER VALIDATION FIX: Ensure SQL query parameter is properly formatted
-            if (!toolCall.input || (!toolCall.input.sql_query && !toolCall.input.query)) {
-              console.error('❌ SQL PARAMETER ERROR: Missing sql_query parameter', { input: toolCall.input });
-              return `[SQL Error]\nInvalid SQL parameters. Expected sql_query field.`;
-            }
-            // Handle both sql_query and query parameter names
-            const sqlInput = {
-              ...toolCall.input,
-              sql_query: toolCall.input.sql_query || toolCall.input.query
-            };
-            const sqlResult = await execute_sql_tool(sqlInput);
+            const sqlResult = await execute_sql_tool(toolCall.input);
             return `[SQL Execution]\n${JSON.stringify(sqlResult, null, 2)}`;
           } catch (error) {
             console.error('SQL execution error:', error);

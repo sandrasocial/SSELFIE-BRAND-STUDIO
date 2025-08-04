@@ -3,7 +3,7 @@
  * Implements advanced coordination patterns from 2025 research
  */
 
-import { ClaudeApiServiceWorking } from './claude-api-service-working';
+import { ClaudeApiServiceRebuilt } from './claude-api-service-rebuilt';
 import { workflowOrchestrator, WorkflowPlan, WorkflowTask } from './workflow-orchestrator';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -47,7 +47,7 @@ export interface CoordinationResult {
 }
 
 export class MultiAgentCoordinator {
-  private claudeService: ClaudeApiServiceWorking;
+  private claudeService: ClaudeApiServiceRebuilt;
   private agentCapabilities: Map<string, AgentCapability> = new Map();
   private activeCoordinations: Map<string, CoordinationRequest> = new Map();
 
@@ -126,7 +126,7 @@ export class MultiAgentCoordinator {
   };
 
   constructor() {
-    this.claudeService = new ClaudeApiServiceWorking();
+    this.claudeService = new ClaudeApiServiceRebuilt();
     this.initializeAgentCapabilities();
   }
 

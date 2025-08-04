@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { claudeApiServiceWorking as claudeApiService } from '../services/claude-api-service-working';
+import { claudeApiService } from '../services/claude-api-service-rebuilt';
 import { db } from '../db';
 import { claudeConversations } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
