@@ -905,6 +905,10 @@ I have complete workspace access and can implement any changes you need. What wo
       switch (toolCall.name) {
         case 'str_replace_based_edit_tool':
           const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
+          // CRITICAL FIX: Validate tool input before calling
+          if (!toolCall.input || typeof toolCall.input !== 'object') {
+            throw new Error('Invalid tool input for str_replace_based_edit_tool');
+          }
           const result = await str_replace_based_edit_tool(toolCall.input);
           return `[File Operation Result]\n${JSON.stringify(result, null, 2)}`;
           
