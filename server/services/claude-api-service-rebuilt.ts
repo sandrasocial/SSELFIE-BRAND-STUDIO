@@ -19,6 +19,9 @@ import { DeploymentTrackingService } from './deployment-tracking-service';
 // AGENT PERSONALITY IMPORTS FOR SPECIALIZATION CHECKING
 import { CONSULTING_AGENT_PERSONALITIES as agentPersonalities } from '../agent-personalities-consulting';
 
+// MEMORY SYSTEM INTEGRATION
+import { ConversationManager } from '../agents/ConversationManager';
+
 /*
 <important_code_snippet_instructions>
 The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022" nor "claude-3-sonnet-20240229". 
@@ -341,18 +344,33 @@ export class ClaudeApiServiceRebuilt {
       // 📝 CONTENT GENERATION: Use Claude API for agent responses, strategy, creative work
       console.log(`🌊 CONTENT GENERATION: ${agentName} creating response via Claude API (legitimate use)`);
       
-      // Load conversation history
+      // Load conversation history WITH MEMORY RESTORATION
       const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
       
-      // Prepare Claude API request with streaming enabled
+      // 🧠 RESTORE AGENT MEMORY: Load agent context and personality
+      const agentContextMessages = await ConversationManager.restoreAgentContext(agentName, userId);
+      console.log(`🧠 MEMORY RESTORED: ${agentContextMessages.length} context segments for ${agentName}`);
+      
+      // Prepare Claude API request with streaming enabled AND MEMORY CONTEXT
       const claudeMessages = [
+        ...agentContextMessages, // Add restored memory context FIRST
         ...messages.map((msg: any) => ({
           role: msg.role === 'agent' ? 'assistant' : msg.role,
           content: msg.content
         })),
         { role: 'user', content: message }
       ];
+      
+      console.log(`💬 CONVERSATION READY: ${claudeMessages.length} messages (${agentContextMessages.length} memory + ${messages.length} history + 1 current)`);
+      
+      // 🎭 ENHANCED SYSTEM PROMPT: Merge with agent personality data
+      const agentPersonality = agentPersonalities[agentName as keyof typeof agentPersonalities];
+      const enhancedSystemPrompt = agentPersonality 
+        ? `${systemPrompt}\n\n**🎭 AGENT PERSONALITY CONTEXT:**\n${agentPersonality.systemPrompt}\n\n**💫 SPECIALIZED IDENTITY:** You are ${agentPersonality.name}, ${agentPersonality.role}`
+        : systemPrompt;
+      
+      console.log(`🎭 PERSONALITY LOADED: ${agentPersonality?.name} - ${agentPersonality?.role || 'Generic Agent'}`);
 
       let fullResponse = '';
       let currentMessages = claudeMessages;
@@ -379,7 +397,7 @@ export class ClaudeApiServiceRebuilt {
           model: DEFAULT_MODEL_STR,
           max_tokens: 8000,
           messages: currentMessages as any,
-          system: systemPrompt.substring(0, 50000), // Truncate system prompt if too long
+          system: enhancedSystemPrompt.substring(0, 50000), // Use enhanced system prompt with personality
           tools: tools,
           stream: true
         });
