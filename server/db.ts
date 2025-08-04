@@ -20,7 +20,7 @@ export const pool = new Pool({
   min: 1,  // Always keep one connection alive
   idleTimeoutMillis: 60000, // Longer idle timeout
   connectionTimeoutMillis: 5000, // Longer connection timeout
-  acquireTimeoutMillis: 5000, // Max time to get connection from pool
+  // acquireTimeoutMillis removed - not supported in this pool version
   maxUses: 7500, // Rotate connections
   allowExitOnIdle: false, // Keep pool alive
 });
