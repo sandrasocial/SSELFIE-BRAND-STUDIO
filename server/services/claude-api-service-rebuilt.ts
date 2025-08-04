@@ -269,8 +269,7 @@ export class ClaudeApiServiceRebuilt {
     // Only add tools if no direct execution occurred (reduce token consumption)
     if (enableTools && tools.length > 0) {
       claudeRequest.tools = tools;
-      // Add prompt caching to reduce token consumption for repeated tool definitions
-      claudeRequest.cache_control = { type: "ephemeral" };
+      // Note: Removed cache_control as it's causing API errors
     }
 
     try {

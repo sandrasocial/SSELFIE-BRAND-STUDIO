@@ -408,7 +408,7 @@ export default function AdminConsultingAgents() {
 
     try {
       // Call the correct enterprise consulting endpoint
-      const response = await fetch('/api/admin/agents/consulting-chat', {
+      const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json'
