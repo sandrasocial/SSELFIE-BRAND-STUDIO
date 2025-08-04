@@ -568,14 +568,35 @@ export class ClaudeApiServiceRebuilt {
                 }
               }
               
-              // RESILIENCE: Always continue conversation even if some tools failed
-              console.log(`🔄 CONVERSATION CONTINUATION: Tools executed, continuing agent flow`);
-              res.write(`data: ${JSON.stringify({
-                type: 'continuing',
-                message: `${agentName} is processing results and continuing...`
-              })}\n\n`);
-              
-              // Already handled in tool execution loop above
+              // CRITICAL FIX: Only continue conversation if more tools needed
+              // Check if Claude expects to continue the conversation
+              if (toolExecutionSuccessful && currentMessages.length > 0) {
+                console.log(`🔄 CONVERSATION CONTINUATION: Tools executed, checking if Claude needs to continue...`);
+                
+                // Make follow-up Claude request with tool results
+                try {
+                  const followUpResponse = await this.makeClaudeRequest(currentMessages, agentName, agentConfig);
+                  
+                  if (followUpResponse && followUpResponse.content) {
+                    // Stream the follow-up response
+                    res.write(`data: ${JSON.stringify({
+                      type: 'continuing',
+                      message: `${agentName} is processing results and continuing...`
+                    })}\n\n`);
+                    
+                    // Handle follow-up streaming
+                    await this.handleFollowUpResponse(followUpResponse, res, agentName, currentMessages, conversationId);
+                  } else {
+                    // No follow-up needed, conversation complete
+                    conversationComplete = true;
+                  }
+                } catch (followUpError) {
+                  console.error('Follow-up request failed:', followUpError);
+                  conversationComplete = true;
+                }
+              } else {
+                conversationComplete = true;
+              }
               
             } else {
               // No tools used, conversation is complete
