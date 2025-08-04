@@ -270,30 +270,33 @@ export class ClaudeApiServiceRebuilt {
       let assistantResponse = '';
       let toolResults = '';
 
-      // Process Claude response
+      // Process Claude response with proper streaming/continuation support
       if (response.content && Array.isArray(response.content)) {
         for (const block of response.content) {
           if (block.type === 'text') {
             assistantResponse += block.text;
           } else if (block.type === 'tool_use') {
-            // Handle tool calls
+            console.log(`🔧 TOOL EXECUTION: ${agentId} using ${block.name}`);
+            // Handle tool calls and continue agent response
             const toolResult = await this.handleToolCall(block, conversationId, agentId);
             toolResults += toolResult;
+            console.log(`✅ TOOL COMPLETE: ${agentId} can now continue response`);
           }
         }
       }
 
-      // Filter raw tool results and let agent personality come through
+      // FIXED: Allow agents to continue after tool execution without truncation
       let finalResponse = assistantResponse;
       
-      // If there are tool results but no agent response, the agent is letting tools speak
-      // Extract the valuable summary from tool results without overwhelming JSON
-      if (toolResults && (!assistantResponse || assistantResponse.trim().length < 50)) {
+      // If we have tool results AND an assistant response, combine them naturally
+      if (toolResults && assistantResponse) {
+        // Agent provided response and used tools - let them continue naturally
+        finalResponse = assistantResponse;
+      } else if (toolResults && !assistantResponse) {
+        // Only tool results, no agent response - extract summary
         finalResponse = this.extractAgentSummaryFromToolResults(toolResults, agentId);
-      }
-      
-      // If both exist, prioritize agent's natural response
-      if (assistantResponse && assistantResponse.trim().length > 50) {
+      } else if (assistantResponse) {
+        // Only agent response, no tools - use as is
         finalResponse = assistantResponse;
       }
 

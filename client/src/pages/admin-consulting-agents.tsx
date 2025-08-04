@@ -442,7 +442,7 @@ export default function AdminConsultingAgents() {
 
         setMessages(prev => [...prev, agentMessage]);
         
-        console.log(`✅ Agent ${selectedAgent.name} responded:`, result.response.substring(0, 100));
+        console.log(`✅ Agent ${selectedAgent.name} responded:`, `${result.response.length} characters`);
 
       } else {
         throw new Error(result.error || 'Agent communication failed');
