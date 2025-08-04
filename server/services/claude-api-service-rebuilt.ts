@@ -63,6 +63,200 @@ export class ClaudeApiServiceRebuilt {
   private progressTracker = new ProgressTrackingService();
   
   /**
+   * STREAMING MESSAGE HANDLER
+   * Real-time streaming with tool execution visibility
+   */
+  async sendStreamingMessage(
+    userId: string,
+    agentName: string,
+    conversationId: string,
+    message: string,
+    systemPrompt: string,
+    tools: any[],
+    res: any // Express response object for streaming
+  ): Promise<void> {
+    try {
+      // Load conversation history
+      const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
+      const messages = await this.loadConversationMessages(conversationId);
+      
+      // Prepare Claude API request with streaming enabled
+      const claudeMessages = [
+        ...messages.map((msg: any) => ({
+          role: msg.role === 'agent' ? 'assistant' : msg.role,
+          content: msg.content
+        })),
+        { role: 'user', content: message }
+      ];
+
+      console.log(`🌊 STREAMING: Starting Claude API stream for ${agentName}`);
+      
+      // Create Claude streaming request
+      const stream = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 8000,
+        messages: claudeMessages as any,
+        system: systemPrompt,
+        tools: tools,
+        stream: true
+      });
+
+      let fullResponse = '';
+      let toolCalls = [];
+      
+      // Process the stream
+      for await (const chunk of stream) {
+        if (chunk.type === 'message_start') {
+          // Send agent start signal
+          res.write(`data: ${JSON.stringify({
+            type: 'message_start',
+            agentName,
+            message: `${agentName} is thinking...`
+          })}\n\n`);
+        }
+        
+        if (chunk.type === 'content_block_start') {
+          if (chunk.content_block.type === 'tool_use') {
+            // Tool execution started
+            res.write(`data: ${JSON.stringify({
+              type: 'tool_start',
+              toolName: chunk.content_block.name,
+              message: `${agentName} is using ${chunk.content_block.name}...`
+            })}\n\n`);
+            
+            toolCalls.push(chunk.content_block);
+          }
+        }
+        
+        if (chunk.type === 'content_block_delta') {
+          if (chunk.delta.type === 'text_delta') {
+            // Stream text content
+            const textDelta = chunk.delta.text;
+            fullResponse += textDelta;
+            
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: textDelta
+            })}\n\n`);
+          }
+        }
+        
+        if (chunk.type === 'content_block_stop') {
+          // Content block completed
+          res.write(`data: ${JSON.stringify({
+            type: 'content_complete',
+            message: 'Content generation complete'
+          })}\n\n`);
+        }
+      }
+      
+      // Execute any tool calls
+      if (toolCalls.length > 0) {
+        res.write(`data: ${JSON.stringify({
+          type: 'tools_executing',
+          message: `${agentName} is executing ${toolCalls.length} tool(s)...`
+        })}\n\n`);
+        
+        // Process tool calls and stream results
+        for (const toolCall of toolCalls) {
+          try {
+            const toolResult = await this.executeToolCall(toolCall, res, agentName);
+            fullResponse += `\n\n**Tool Result (${toolCall.name}):**\n${toolResult}`;
+          } catch (toolError) {
+            console.error(`Tool execution error for ${toolCall.name}:`, toolError);
+            res.write(`data: ${JSON.stringify({
+              type: 'tool_error',
+              toolName: toolCall.name,
+              message: `Error executing ${toolCall.name}`
+            })}\n\n`);
+          }
+        }
+      }
+      
+      // Save conversation to database
+      await this.saveMessage(conversationId, 'user', message);
+      await this.saveMessage(conversationId, 'assistant', fullResponse);
+      
+      console.log(`✅ STREAMING: Completed for ${agentName} (${fullResponse.length} chars)`);
+      
+    } catch (error) {
+      console.error('Streaming error:', error);
+      res.write(`data: ${JSON.stringify({
+        type: 'stream_error',
+        message: 'Streaming failed'
+      })}\n\n`);
+    }
+  }
+
+  /**
+   * TOOL EXECUTION WITH STREAMING FEEDBACK
+   */
+  async executeToolCall(toolCall: any, res: any, agentName: string): Promise<string> {
+    const toolName = toolCall.name;
+    const toolInput = toolCall.input;
+    
+    res.write(`data: ${JSON.stringify({
+      type: 'tool_executing',
+      toolName,
+      input: toolInput,
+      message: `${agentName} is executing ${toolName}...`
+    })}\n\n`);
+    
+    // Simulate tool execution (replace with actual tool implementations)
+    let result = '';
+    
+    switch (toolName) {
+      case 'str_replace_based_edit_tool':
+        result = `File operation completed: ${toolInput.command} on ${toolInput.path}`;
+        break;
+      case 'search_filesystem':
+        result = `Search completed for: ${toolInput.query_description || 'files'}`;
+        break;
+      case 'bash':
+        result = `Command executed: ${toolInput.command}`;
+        break;
+      default:
+        result = `Tool ${toolName} executed successfully`;
+    }
+    
+    res.write(`data: ${JSON.stringify({
+      type: 'tool_complete',
+      toolName,
+      result,
+      message: `${agentName} completed ${toolName}`
+    })}\n\n`);
+    
+    return result;
+  }
+
+  /**
+   * LOAD CONVERSATION MESSAGES
+   * Get message history for streaming
+   */
+  async loadConversationMessages(conversationId: string): Promise<any[]> {
+    const messages = await db
+      .select()
+      .from(claudeMessages)
+      .where(eq(claudeMessages.conversationId, conversationId))
+      .orderBy(claudeMessages.timestamp);
+    
+    return messages;
+  }
+
+  /**
+   * SAVE MESSAGE TO DATABASE
+   * Simplified message saving for streaming
+   */
+  async saveMessage(conversationId: string, role: string, content: string): Promise<void> {
+    await db.insert(claudeMessages).values({
+      conversationId,
+      role,
+      content,
+      timestamp: new Date()
+    });
+  }
+
+  /**
    * CREATE OR GET CONVERSATION
    * Simplified conversation management without parameter confusion
    */

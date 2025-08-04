@@ -409,32 +409,49 @@ You have complete access to all Replit-level tools for comprehensive implementat
       });
     }
 
-    // Fallback to Claude API with token optimization
-    const result = await claudeService.sendMessage(
-      userId,
-      agentId,
-      conversationId,
-      message,
-      specializedSystemPrompt, // Use specialized prompt instead of generic
-      enterpriseTools, // Give agents ALL tools, not limited subset
-      true // Full tool access enabled
-    );
+    // STREAMING IMPLEMENTATION: Use response streaming for real-time updates
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     
-    // Add consulting mode indicator to response
-    const consultingResult = {
-      success: true,
-      response: result,
-      agentId,
-      conversationId,
-      consultingMode: true,
-      implementationDetected: true,
-      routedThrough: 'specialized-agent-direct',
-      agentPersonality: agentConfig.name,
-      toolCount: enterpriseTools.length,
-      memorySystemActive: true
-    };
-
-    res.status(200).json(consultingResult);
+    // Send initial status
+    res.write(`data: ${JSON.stringify({
+      type: 'agent_start',
+      agentName: agentConfig.name,
+      message: `${agentConfig.name} is analyzing your request...`
+    })}\n\n`);
+    
+    try {
+      // Stream the Claude API response with real-time updates
+      const streamingResult = await claudeService.sendStreamingMessage(
+        userId,
+        agentId,
+        conversationId,
+        message,
+        specializedSystemPrompt,
+        enterpriseTools,
+        res // Pass response object for streaming
+      );
+      
+      // Send completion signal
+      res.write(`data: ${JSON.stringify({
+        type: 'completion',
+        agentId,
+        conversationId,
+        consultingMode: true,
+        success: true
+      })}\n\n`);
+      
+    } catch (streamError) {
+      console.error('Streaming error:', streamError);
+      res.write(`data: ${JSON.stringify({
+        type: 'error',
+        message: 'Agent encountered an error while processing'
+      })}\n\n`);
+    }
+    
+    res.end();
 
   } catch (error: any) {
     console.error('❌ PHASE 3.1 CONSULTING REDIRECTION ERROR:', error);
