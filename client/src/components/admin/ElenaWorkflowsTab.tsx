@@ -78,8 +78,8 @@ export function ElenaWorkflowsTab() {
         
         // Refresh both workflows and active deployments
         queryClient.invalidateQueries({ queryKey: ['/api/elena/staged-workflows'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/autonomous-orchestrator/active-deployments'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/autonomous-orchestrator/coordination-metrics'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/agents/active-deployments'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/agents/coordination-metrics'] });
       } else {
         toast({
           variant: "destructive",

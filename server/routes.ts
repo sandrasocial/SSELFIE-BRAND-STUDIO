@@ -1344,9 +1344,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
-  // UNIFIED ADMIN SYSTEM: Single consulting agents router handles all admin agent interactions
-  app.use('/api/consulting-agents', consultingAgentsRouter);
-  console.log('✅ RESTORED: Sandra\'s designed admin and consulting agent system active');
+  // CONSOLIDATED: All admin agent interactions under unified /api/admin/agents/* pattern
+  app.use('/api/admin/agents', consultingAgentsRouter);
+  console.log('✅ CONSOLIDATED: Admin agent system active at /api/admin/agents/*');
   
   // Register flatlay library routes for Victoria
   const flatlayLibraryRoutes = await import('./routes/flatlay-library');
@@ -1536,19 +1536,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // AUTONOMOUS ORCHESTRATOR ENDPOINTS - Consolidated to prevent conflicts
-  try {
-    const autonomousOrchestratorRoutes = await import('./api/autonomous-orchestrator/deploy-all-agents');
-    
-    app.use('/api/autonomous-orchestrator', autonomousOrchestratorRoutes.default);
-    
-    console.log('✅ AUTONOMOUS ORCHESTRATOR: Routes registered successfully');
-  } catch (error) {
-    console.error('❌ AUTONOMOUS ORCHESTRATOR: Failed to register routes:', error);
-  }
+  // REMOVED: Competing autonomous orchestrator - consolidated into /api/admin/agents/*
 
-  // AGENT ACTIVITY DASHBOARD - Legacy coordination metrics endpoint (deprecated)
-  app.get('/api/autonomous-orchestrator/coordination-metrics-legacy', async (req: any, res) => {
+  // CONSOLIDATED: Legacy coordination metrics moved to /api/admin/agents/coordination-metrics
+  app.get('/api/admin/agents/coordination-metrics', async (req: any, res) => {
     try {
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
@@ -1594,7 +1585,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Active deployments endpoint for AgentActivityDashboard
-  app.get('/api/autonomous-orchestrator/active-deployments', async (req: any, res) => {
+  app.get('/api/admin/agents/active-deployments', async (req: any, res) => {
     try {
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
@@ -1698,7 +1689,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // EFFORT-BASED AGENT SYSTEM - Integrated into existing admin consulting agents
   // Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
   
-  app.post('/api/agents/effort-based/execute', async (req: any, res) => {
+  app.post('/api/admin/agents/execute', async (req: any, res) => {
     try {
       // Admin authentication bypass
       const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
@@ -1808,7 +1799,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Admin agent chat bypass endpoint for consulting agents - CLEANED UP VERSION
-  app.post('/api/admin/agent-chat-bypass', async (req: any, res) => {
+  app.post('/api/admin/agents/chat-bypass', async (req: any, res) => {
     try {
       console.log('🔄 ADMIN AGENT CHAT BYPASS: Processing request');
       
