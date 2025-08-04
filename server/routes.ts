@@ -20,11 +20,11 @@ import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
-// RESTORED: Sandra's designed admin and consulting agent system
+// UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface
 import { registerStreamingAdminRoutes } from './routes/streaming-admin-routes';
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
-import { registerAdminConversationRoutes } from './routes/admin-conversation-routes';
+// REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML(websiteData: any, onboardingData: any) {
@@ -1346,8 +1346,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
+  // UNIFIED ADMIN SYSTEM: Single consulting agents router handles all admin agent interactions
   app.use('/api/consulting-agents', consultingAgentsRouter);
-  registerAdminConversationRoutes(app);
   console.log('✅ RESTORED: Sandra\'s designed admin and consulting agent system active');
   
   // Register flatlay library routes for Victoria

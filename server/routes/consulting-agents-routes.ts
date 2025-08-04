@@ -5,6 +5,15 @@ import { eq, and, desc } from 'drizzle-orm';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
 import { ClaudeApiServiceRebuilt } from '../services/claude-api-service-rebuilt';
 
+// SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
+let claudeServiceInstance: ClaudeApiServiceRebuilt | null = null;
+function getClaudeService(): ClaudeApiServiceRebuilt {
+  if (!claudeServiceInstance) {
+    claudeServiceInstance = new ClaudeApiServiceRebuilt();
+  }
+  return claudeServiceInstance;
+}
+
 const router = Router();
 
 /**
@@ -14,7 +23,8 @@ const router = Router();
 router.get('/conversation-history/:agentId', async (req, res) => {
   try {
     const { agentId } = req.params;
-    const userId = req.user ? (req.user as any).claims.sub : '42585527';
+    const user = req.user as any;
+    const userId = user?.claims?.sub || '42585527';
     
     console.log(`📚 Loading conversation history for agent: ${agentId}, user: ${userId}`);
     
@@ -77,9 +87,25 @@ router.post('/admin/consulting-chat', async (req, res) => {
   try {
     console.log('🔄 PHASE 3.1 REDIRECT: Consulting agent -> Implementation-aware routing');
 
-    // TEMPORARILY DISABLED FOR TESTING - Admin access validation
-    // TODO: Re-enable Sandra-only access once Claude API is working
-    console.log('🔓 ADMIN ACCESS: Temporarily allowing all authenticated users for testing');
+    // FIXED ADMIN ACCESS: Proper Sandra authentication with fallback
+    const user = req.user as any;
+    const isSessionAuthenticated = user?.claims?.email === 'ssa@ssasocial.com';
+    const adminToken = req.body.adminToken || req.headers['x-admin-token'];
+    const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
+    
+    if (!isSessionAuthenticated && !isTokenAuthenticated) {
+      console.log('❌ Admin access denied:', { 
+        sessionAuth: isSessionAuthenticated, 
+        tokenAuth: !!isTokenAuthenticated,
+        userEmail: user?.claims?.email 
+      });
+      return res.status(401).json({
+        success: false,
+        message: 'Admin access required. Please authenticate as Sandra.'
+      });
+    }
+    
+    console.log('✅ ADMIN ACCESS: Authenticated successfully');
 
     const { agentId, message } = req.body;
 
@@ -101,14 +127,10 @@ router.post('/admin/consulting-chat', async (req, res) => {
 
     console.log(`🔄 PHASE 3.1: Redirecting ${agentId} to implementation-aware routing`);
 
-    // ENTERPRISE INTELLIGENCE INTEGRATION: Connect to full 30+ services system
-    console.log(`🧠 ENTERPRISE INTELLIGENCE: Routing ${agentId} through full intelligence system`);
+    // OPTIMIZED ENTERPRISE INTELLIGENCE: Use singleton instance to prevent performance issues
+    console.log(`🧠 ENTERPRISE INTELLIGENCE: Routing ${agentId} through optimized intelligence system`);
     
-    const { ClaudeApiServiceRebuilt } = await import('../services/claude-api-service-rebuilt');
-    const claudeService = new ClaudeApiServiceRebuilt();
-    
-    // Get full agent configuration with enterprise capabilities
-    const { CONSULTING_AGENT_PERSONALITIES } = await import('../agent-personalities-consulting');
+    // Get agent configuration with enterprise capabilities
     const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
     
     if (!agentConfig) {
@@ -208,6 +230,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`⚡ TOOLS ALLOWED: ${agentConfig.allowedTools?.length || 0} configured tools`);
     
     // Route through the FULL enterprise intelligence system with ALL TOOLS + SPECIALIZED PERSONALITY
+    const claudeService = getClaudeService();
     const result = await claudeService.sendMessage(
       userId,
       agentId,
@@ -241,6 +264,140 @@ You have complete access to all Replit-level tools for comprehensive implementat
       message: 'Consulting agent redirection failed',
       error: error?.message || 'Unknown error'
     });
+  }
+});
+
+/**
+ * UNIFIED ADMIN CONVERSATION HISTORY ENDPOINTS
+ * Migrated from admin-conversation-routes.ts to prevent conflicts
+ */
+
+// Load conversation history for specific agent (legacy endpoint compatibility)
+router.post('/admin/agent-conversation-history/:agentId', async (req, res) => {
+  try {
+    const { agentId } = req.params;
+    const { adminToken } = req.body;
+    
+    // Admin authentication
+    const user = req.user as any;
+    const isSessionAuthenticated = user?.claims?.email === 'ssa@ssasocial.com';
+    const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
+    
+    if (!isSessionAuthenticated && !isTokenAuthenticated) {
+      console.log('❌ Admin auth failed:', { 
+        sessionAuth: isSessionAuthenticated, 
+        tokenAuth: isTokenAuthenticated,
+        userEmail: user?.claims?.email 
+      });
+      return res.status(401).json({ error: 'Admin access required' });
+    }
+
+    const userId = user?.claims?.sub || '42585527';
+    console.log(`📚 Loading conversation history for agent: ${agentId} (user: ${userId})`);
+
+    // Get conversation history using claudeConversations/claudeMessages tables
+    const conversations = await db
+      .select()
+      .from(claudeConversations)
+      .where(
+        and(
+          eq(claudeConversations.userId, userId),
+          eq(claudeConversations.agentName, agentId)
+        )
+      )
+      .orderBy(desc(claudeConversations.createdAt))
+      .limit(10);
+
+    // Get messages for all conversations
+    const allMessages = [];
+    for (const conversation of conversations) {
+      const messages = await db
+        .select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, conversation.conversationId))
+        .orderBy(claudeMessages.timestamp);
+      
+      allMessages.push(...messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp,
+        conversationId: conversation.conversationId
+      })));
+    }
+        
+    console.log(`✅ Found ${allMessages.length} messages for ${agentId} (user: ${userId})`);
+
+    res.json({
+      success: true,
+      agentId,
+      conversations: allMessages.reverse(), // Show newest first
+      count: allMessages.length
+    });
+
+  } catch (error) {
+    console.error("Failed to load conversation history:", error);
+    res.status(500).json({ error: "Failed to load conversation history" });
+  }
+});
+
+// Clear conversation history for specific agent
+router.post('/admin/agent-conversation-clear/:agentId', async (req, res) => {
+  try {
+    const { agentId } = req.params;
+    
+    // Admin authentication
+    const user = req.user as any;
+    const isSessionAuthenticated = user?.claims?.email === 'ssa@ssasocial.com';
+    const adminToken = req.body.adminToken || req.headers['x-admin-token'];
+    const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
+    
+    if (!isSessionAuthenticated && !isTokenAuthenticated) {
+      return res.status(401).json({ error: 'Admin access required' });
+    }
+
+    const userId = user?.claims?.sub || '42585527';
+    console.log(`🗑️ Clearing conversation history for agent: ${agentId} (user: ${userId})`);
+
+    // Delete conversations and messages for this agent
+    const conversationsToDelete = await db
+      .select({ conversationId: claudeConversations.conversationId })
+      .from(claudeConversations)
+      .where(
+        and(
+          eq(claudeConversations.userId, userId),
+          eq(claudeConversations.agentName, agentId)
+        )
+      );
+
+    // Delete messages first (foreign key constraint)
+    for (const conv of conversationsToDelete) {
+      await db
+        .delete(claudeMessages)
+        .where(eq(claudeMessages.conversationId, conv.conversationId));
+    }
+
+    // Delete conversations
+    await db
+      .delete(claudeConversations)
+      .where(
+        and(
+          eq(claudeConversations.userId, userId),
+          eq(claudeConversations.agentName, agentId)
+        )
+      );
+        
+    console.log(`✅ Cleared ${conversationsToDelete.length} conversations for ${agentId}`);
+
+    res.json({
+      success: true,
+      agentId,
+      cleared: conversationsToDelete.length,
+      message: `Conversation history cleared for ${agentId}`
+    });
+
+  } catch (error) {
+    console.error("Failed to clear conversation history:", error);
+    res.status(500).json({ error: "Failed to clear conversation history" });
   }
 });
 
