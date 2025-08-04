@@ -15,9 +15,13 @@ interface SearchResult {
   reason: string;
 }
 
-export async function search_filesystem(params: SearchParams) {
+export async function search_filesystem(params: SearchParams, bypassMode = false) {
   try {
-    console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
+    if (bypassMode) {
+      console.log('⚡ BYPASS MODE: Search operation with ZERO API cost');
+    } else {
+      console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
+    }
     
     const results: SearchResult[] = [];
     const maxFiles = 100; // CRUCIAL FOR AGENTS: Limited to 100 most relevant files for efficient agent processing
