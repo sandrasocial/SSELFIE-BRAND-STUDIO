@@ -1352,6 +1352,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   app.use('/api/workflow', workflowOrchestrationRouter);
+  
+  // ENTERPRISE TOOLS API: Direct access to 30+ enterprise services
+  const enterpriseToolsApi = await import('./routes/enterprise-tools-api');
+  app.use('/api/enterprise/tools', enterpriseToolsApi.default);
   console.log('🎯 WORKFLOW ORCHESTRATION: Advanced multi-agent coordination active at /api/workflow/*');
   
   // Register flatlay library routes for Victoria
