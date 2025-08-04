@@ -4,6 +4,8 @@ import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
 import { ClaudeApiServiceRebuilt } from '../services/claude-api-service-rebuilt';
+import { AdvancedMemorySystem } from '../services/advanced-memory-system';
+import { IntelligentContextManager } from '../services/intelligent-context-manager';
 
 // SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
 let claudeServiceInstance: ClaudeApiServiceRebuilt | null = null;
@@ -391,6 +393,47 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`🚀 PARALLEL EXECUTION: Claude 4 parallel tool support enabled`);
     console.log(`💰 TOKEN OPTIMIZATION: Direct execution + efficient API usage active`);
     
+    // MEMORY SYSTEM INTEGRATION: Load agent memory profile
+    const memorySystem = AdvancedMemorySystem.getInstance();
+    const contextManager = IntelligentContextManager.getInstance();
+    
+    console.log(`🧠 MEMORY: Loading ${agentId} memory profile for user ${userId}`);
+    const memoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
+    const workspaceContext = await contextManager.prepareAgentWorkspace(message, agentId);
+    
+    // ENHANCED SYSTEM PROMPT: Inject memory and context
+    let enhancedSystemPrompt = specializedSystemPrompt;
+    
+    if (memoryProfile) {
+      const memoryContext = `
+**AGENT MEMORY PROFILE LOADED**
+- Memory Strength: ${memoryProfile.memoryStrength.toFixed(2)}
+- Intelligence Level: ${memoryProfile.intelligenceLevel}
+- Learning Patterns: ${memoryProfile.learningPatterns.length} patterns
+- Recent Optimization: ${memoryProfile.lastOptimization.toISOString()}
+
+**LEARNED CAPABILITIES:**
+${memoryProfile.learningPatterns.map(pattern => 
+  `• ${pattern.category}: ${pattern.pattern} (confidence: ${pattern.confidence.toFixed(2)})`
+).join('\n')}
+
+**WORKSPACE CONTEXT:**
+- Relevant Files: ${workspaceContext.relevantFiles.slice(0, 5).join(', ')}
+- Suggested Actions: ${workspaceContext.suggestedActions.length} recommendations
+- Current Task: ${workspaceContext.currentTask}
+
+**MEMORY INSTRUCTIONS:**
+You have persistent memory of previous interactions and learned capabilities. Use this context to provide more intelligent, contextual responses that build on your previous work with this user.
+
+---
+
+`;
+      enhancedSystemPrompt = memoryContext + specializedSystemPrompt;
+      console.log(`🧠 MEMORY INJECTED: Enhanced system prompt with ${memoryProfile.learningPatterns.length} patterns`);
+    } else {
+      console.log(`🧠 MEMORY: No existing profile found, will create new profile for ${agentId}`);
+    }
+    
     // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
     const claudeService = getClaudeService();
@@ -423,16 +466,29 @@ You have complete access to all Replit-level tools for comprehensive implementat
     })}\n\n`);
     
     try {
-      // Stream the Claude API response with real-time updates
+      // Stream the Claude API response with real-time updates and memory context
       const streamingResult = await claudeService.sendStreamingMessage(
         userId,
         agentId,
         conversationId,
         message,
-        specializedSystemPrompt,
+        enhancedSystemPrompt, // Use enhanced prompt with memory context
         enterpriseTools,
         res // Pass response object for streaming
       );
+      
+      // MEMORY LEARNING: Record interaction pattern
+      if (memoryProfile && memorySystem) {
+        await memorySystem.recordLearningPattern(agentId, userId, {
+          category: 'consultation',
+          pattern: 'user_interaction',
+          confidence: 0.8,
+          frequency: 1,
+          effectiveness: 0.9,
+          contexts: ['admin_consulting', agentConfig.specialization]
+        });
+        console.log(`🧠 MEMORY: Recorded learning pattern for ${agentId}`);
+      }
       
       // Send completion signal
       res.write(`data: ${JSON.stringify({
