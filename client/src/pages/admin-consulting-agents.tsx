@@ -220,17 +220,12 @@ export default function AdminConsultingAgents() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [fileEditMode, setFileEditMode] = useState(true);
 
-  // Optimized input handler - prevents unnecessary re-renders
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
-  }, []);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-  }, [sendMessage]);
+  };
   
   // Using only main consulting chat system - Bridge system removed
 
@@ -414,7 +409,7 @@ export default function AdminConsultingAgents() {
   }
 
   // Clean agent communication - direct to enterprise backend
-  const sendMessage = useCallback(async () => {
+  const sendMessage = async () => {
     if (!selectedAgent || !message.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -488,7 +483,7 @@ export default function AdminConsultingAgents() {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedAgent, message, conversationId, fileEditMode]);
+  };
 
   // Simplified helper functions
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -829,8 +824,8 @@ export default function AdminConsultingAgents() {
                   <div className="flex gap-4 p-4">
                     <textarea
                       value={message}
-                      onChange={handleInputChange}
-                      onKeyDown={handleKeyDown}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
                       placeholder={`Ask ${selectedAgent?.name} for strategic analysis...`}
                       className="flex-1 resize-none border border-gray-200 rounded-sm p-4 font-light leading-relaxed focus:outline-none focus:border-black focus:bg-white transition-none shadow-sm"
                       rows={3}
