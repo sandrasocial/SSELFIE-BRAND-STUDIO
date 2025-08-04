@@ -112,8 +112,8 @@ export class ClaudeApiServiceRebuilt {
         return;
       }
       
-      // 📝 CONTENT GENERATION: Use Claude API only for responses/content
-      console.log(`🌊 STREAMING: Using Claude API for content generation only - ${agentName}`);
+      // 📝 CONTENT GENERATION: Use Claude API for agent responses, strategy, creative work
+      console.log(`🌊 CONTENT GENERATION: ${agentName} creating response via Claude API (legitimate use)`);
       
       // Load conversation history
       const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
@@ -802,24 +802,12 @@ I have complete workspace access and can implement any changes you need. What wo
    * Force all tool operations through bypass system to prevent $110+ charges
    */
   public async tryDirectToolExecution(message: string, conversationId?: string, agentId?: string): Promise<string | null> {
-    // 🚨 CRITICAL: Detect ANY tool operation and force bypass
-    const toolKeywords = [
-      'view', 'examine', 'look', 'access', 'show', 'read', 'display',
-      'search', 'find', 'locate', 'scan',
-      'create', 'generate', 'make', 'build',
-      'edit', 'modify', 'update', 'change',
-      'run', 'execute', 'command',
-      'install', 'add', 'package',
-      'check', 'analyze', 'debug'
-    ];
+    // 🎯 SMART BYPASS: Only intercept actual tool operations, allow content generation
+    const isContentRequest = /(?:explain|describe|tell me|what|how|why|provide|suggest|recommend|strategy|analysis|opinion|thoughts|ideas|brainstorm|create content|write|design|plan)/i.test(message);
     
-    // Force bypass for any message containing tool keywords
-    const hasToolKeyword = toolKeywords.some(keyword => 
-      message.toLowerCase().includes(keyword)
-    );
-    
-    if (hasToolKeyword) {
-      console.log(`🚨 FORCED BYPASS: Detected tool operation in message, preventing API charges`);
+    if (isContentRequest) {
+      console.log(`📝 CONTENT GENERATION: Allowing Claude API for creative/strategic response`);
+      return null; // Allow Claude API for content generation
     }
     
     // Enhanced patterns for comprehensive direct execution
