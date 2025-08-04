@@ -3,13 +3,13 @@ import { db } from '../db';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
-import { ClaudeApiServiceRebuilt } from '../services/claude-api-service-rebuilt';
+import { ClaudeApiServiceWorking } from '../services/claude-api-service-working';
 
 // SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
-let claudeServiceInstance: ClaudeApiServiceRebuilt | null = null;
-function getClaudeService(): ClaudeApiServiceRebuilt {
+let claudeServiceInstance: ClaudeApiServiceWorking | null = null;
+function getClaudeService(): ClaudeApiServiceWorking {
   if (!claudeServiceInstance) {
-    claudeServiceInstance = new ClaudeApiServiceRebuilt();
+    claudeServiceInstance = new ClaudeApiServiceWorking();
   }
   return claudeServiceInstance;
 }

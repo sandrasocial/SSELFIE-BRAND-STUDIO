@@ -264,10 +264,10 @@ When asked to create files, you MUST use the str_replace_based_edit_tool with:
       ];
 
       // STREAMLINED SERVICE: Use rebuilt Claude API service
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+      const { claudeApiServiceWorking } = await import('./services/claude-api-service-working');
       
       // Execute through the streamlined Claude API with complete capabilities
-      const response = await claudeApiServiceRebuilt.sendMessage(
+      const response = await claudeApiServiceWorking.sendMessage(
         '42585527', // userId - existing admin user ID
         request.agentId, // agentName 
         request.conversationId,
