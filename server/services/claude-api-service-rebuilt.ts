@@ -125,19 +125,27 @@ export class ClaudeApiServiceRebuilt {
           
           if (chunk.type === 'content_block_start') {
             if (chunk.content_block.type === 'tool_use') {
-              // Tool started - initialize parameter buffer, DON'T execute yet
+              // FIXED: Claude sends complete parameters in content_block_start
+              console.log('🔧 CLAUDE TOOL DEBUG:', {
+                id: chunk.content_block.id,
+                name: chunk.content_block.name,
+                input: chunk.content_block.input,
+                hasInput: !!chunk.content_block.input,
+                inputType: typeof chunk.content_block.input
+              });
+              
               res.write(`data: ${JSON.stringify({
                 type: 'tool_start',
                 toolName: chunk.content_block.name,
-                message: `${agentName} is preparing ${chunk.content_block.name}...`
+                message: `${agentName} is using ${chunk.content_block.name}...`
               })}\n\n`);
               
-              // Initialize tool buffer - wait for complete parameters
-              toolBuffer[chunk.content_block.id] = {
+              // IMMEDIATE execution with parameters from content_block_start
+              toolCalls.push({
+                id: chunk.content_block.id,
                 name: chunk.content_block.name,
-                parameters: {},
-                complete: false
-              };
+                input: chunk.content_block.input || {}
+              });
             }
           }
           
@@ -153,47 +161,12 @@ export class ClaudeApiServiceRebuilt {
                 type: 'text_delta',
                 content: textDelta
               })}\n\n`);
-            } else if (chunk.delta.type === 'input_json_delta') {
-              // CRITICAL: Accumulate tool parameters safely
-              const toolId = chunk.index; // This should be the tool block index
-              // Find the correct tool buffer entry by matching the delta
-              for (const [id, tool] of Object.entries(toolBuffer)) {
-                if (!tool.complete) {
-                  try {
-                    // Accumulate JSON parameters
-                    const partialJson = chunk.delta.partial_json || '';
-                    if (partialJson) {
-                      // Try to parse and merge parameters safely
-                      const parsed = JSON.parse(partialJson);
-                      tool.parameters = { ...tool.parameters, ...parsed };
-                    }
-                  } catch (e) {
-                    // Partial JSON may not be valid yet, continue accumulating
-                    console.log(`🔧 Accumulating parameters for ${tool.name}...`);
-                  }
-                  break;
-                }
-              }
             }
           }
           
           if (chunk.type === 'content_block_stop') {
-            // Tool parameter collection complete - NOW execute
-            const completedTools = Object.entries(toolBuffer).filter(([id, tool]) => !tool.complete);
-            for (const [toolId, tool] of completedTools) {
-              tool.complete = true;
-              toolCalls.push({
-                id: toolId,
-                name: tool.name,
-                input: tool.parameters
-              });
-              
-              res.write(`data: ${JSON.stringify({
-                type: 'tool_ready',
-                toolName: tool.name,
-                message: `${agentName} executing ${tool.name} with complete parameters...`
-              })}\n\n`);
-            }
+            // Content block complete - parameters already captured in content_block_start
+            console.log('🔧 Content block stopped, tools ready for execution');
           }
           
           if (chunk.type === 'message_stop') {
