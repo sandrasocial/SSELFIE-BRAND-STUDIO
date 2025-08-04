@@ -6,6 +6,10 @@ import { registerCoverImageRoutes } from "./routes/cover-image-routes";
 import { unifiedAgentSystem } from "./unified-agent-system";
 import cors from "cors";
 
+// ADD: Admin bypass system - ZERO API COSTS for admin operations
+import { adminBypass } from './middleware/admin-bypass.js';
+import adminToolsRouter from './routes/admin-tools.js';
+
 // 🚀 ENHANCED SERVICES INTEGRATION - ZARA COORDINATION
 // REMOVED: Old api-orchestration-layer - replaced with advanced workflow orchestration
 // REMOVED: Old checkpoint-automation - replaced with advanced workflow orchestration
@@ -96,8 +100,14 @@ app.use((req, res, next) => {
 // Add static file serving for public directory (flatlays, etc.) BEFORE routes
 app.use(express.static('public'));
 
+// ADD: Admin bypass middleware - ZERO API COSTS for admin operations
+app.use(adminBypass); // Global middleware
+
 (async () => {
   const server = await registerRoutes(app);
+  
+  // ADD: Admin tools routes - Direct system access without Claude API
+  app.use('/api/admin-tools', adminToolsRouter);
   
   // Register cover image routes for Flux approval system
   registerCoverImageRoutes(app);
