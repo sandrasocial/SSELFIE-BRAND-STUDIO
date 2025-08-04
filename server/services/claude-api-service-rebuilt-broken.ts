@@ -97,10 +97,13 @@ export class ClaudeApiServiceRebuilt {
       
       // Continue conversation until Claude is done (handles tool execution cycles)
       while (!conversationComplete) {
+        // INTELLIGENT TOKEN OPTIMIZATION: Scale tokens based on task complexity
+        const optimalTokens = this.getOptimalTokenLimit(message, agentName);
+        
         // FIXED: Use non-streaming for tool calls, streaming only for text response
         const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
-          max_tokens: 8000,
+          max_tokens: optimalTokens,
           messages: currentMessages as any,
           system: systemPrompt,
           tools: tools,
@@ -263,6 +266,47 @@ export class ClaudeApiServiceRebuilt {
   }
 
 
+
+  /**
+   * INTELLIGENT TOKEN OPTIMIZATION
+   * Scale token usage based on task complexity to prevent excessive costs
+   */
+  private getOptimalTokenLimit(userMessage: string, agentName: string): number {
+    const complexityIndicators = [
+      'entire codebase', 'fix all', 'complete system', 'comprehensive',
+      'multiple files', 'full implementation', 'end-to-end', 'build entire',
+      'create complete', 'full website', 'entire application', 'complex system',
+      'large scale', 'multi-agent', 'collaboration', 'fix everything'
+    ];
+    
+    const hasHighComplexity = complexityIndicators.some(indicator => 
+      userMessage.toLowerCase().includes(indicator)
+    );
+    
+    // Scale tokens based on complexity - prevent excessive usage
+    if (hasHighComplexity) {
+      console.log(`🧠 COMPLEX TASK DETECTED: Scaling to 32k tokens for comprehensive work`);
+      return 32000; // Full scaling for complex tasks only when needed
+    }
+    
+    // Standard complexity detection
+    const standardComplexityIndicators = [
+      'analyze', 'implement', 'create', 'build', 'fix', 'update', 'modify',
+      'generate', 'write', 'develop', 'configure', 'setup', 'install'
+    ];
+    
+    const hasStandardComplexity = standardComplexityIndicators.some(indicator =>
+      userMessage.toLowerCase().includes(indicator)
+    );
+    
+    if (hasStandardComplexity) {
+      console.log(`🧠 STANDARD TASK DETECTED: Using 8k tokens for ${agentName}`);
+      return 8000; // Standard task complexity
+    }
+    
+    console.log(`🧠 SIMPLE TASK DETECTED: Using 4k tokens for ${agentName}`);
+    return 4000; // Simple conversations and basic questions
+  }
 
   /**
    * LOAD CONVERSATION MESSAGES
@@ -481,9 +525,12 @@ export class ClaudeApiServiceRebuilt {
     // Prepare Claude API request with MEMORY CONTEXT INJECTION
     const enhancedSystemPrompt = systemPrompt + memoryContext;
     
+    // INTELLIGENT TOKEN OPTIMIZATION: Scale tokens based on task complexity
+    const optimalTokens = this.getOptimalTokenLimit(message, agentId);
+    
     const claudeRequest: any = {
       model: DEFAULT_MODEL_STR,
-      max_tokens: 4000,
+      max_tokens: optimalTokens,
       system: enhancedSystemPrompt,
       messages
     };
