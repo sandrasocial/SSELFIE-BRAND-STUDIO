@@ -360,32 +360,16 @@ export class ClaudeApiServiceRebuilt {
       
       // Continue conversation until Claude is done (handles tool execution cycles)
       while (!conversationComplete) {
-        // 💰 SMART TOKEN MANAGEMENT: Proper token estimation (characters ÷ 4 ≈ tokens)
-        const estimatedChars = JSON.stringify(currentMessages).length + systemPrompt.length;
-        const estimatedTokens = Math.ceil(estimatedChars / 4); // More accurate token estimation
+        // 💰 SMART TOKEN MANAGEMENT: Keep conversation context manageable
+        // Remove old tool results to prevent token bloat while keeping recent context
+        const cleanMessages = this.cleanConversationForAPI(currentMessages);
+        const estimatedChars = JSON.stringify(cleanMessages).length + systemPrompt.length;
+        const estimatedTokens = Math.ceil(estimatedChars / 4);
         
-        console.log(`📊 TOKEN ANALYSIS: ${estimatedChars} chars ≈ ${estimatedTokens} tokens`);
+        console.log(`📊 TOKEN ANALYSIS: ${estimatedChars} chars ≈ ${estimatedTokens} tokens (cleaned conversation)`);
         
-        // TOKEN MANAGEMENT: Reasonable limits to prevent actual token drain
-        if (estimatedTokens > 190000) {
-          console.log(`🚨 TOKEN LIMIT: ${estimatedTokens} tokens exceeds Claude limits - splitting request`);
-          
-          res.write(`data: ${JSON.stringify({
-            type: 'text_delta',
-            content: `I need to split this large request into smaller parts to stay within API limits. Let me process this systematically...`
-          })}\n\n`);
-          
-          res.write(`data: ${JSON.stringify({
-            type: 'completion',
-            agentId: agentName,
-            conversationId,
-            tokenLimited: true,
-            success: true
-          })}\n\n`);
-          
-          res.end();
-          return;
-        }
+        // Use cleaned messages for API call
+        currentMessages = cleanMessages;
         
         console.log(`✅ TOKEN CHECK: ${estimatedTokens} tokens - within limits, proceeding with Claude API`);
         
@@ -704,7 +688,45 @@ export class ClaudeApiServiceRebuilt {
     }
   }
 
-
+  /**
+   * CLEAN CONVERSATION FOR API - Remove tool result bloat
+   */
+  private cleanConversationForAPI(messages: any[]): any[] {
+    const cleanMessages = [];
+    const maxMessages = 8; // Keep only recent messages to prevent token bloat
+    
+    // Take only the most recent messages
+    const recentMessages = messages.slice(-maxMessages);
+    
+    for (const message of recentMessages) {
+      if (message.role === 'user' && message.content) {
+        // For user messages, keep only text content, remove massive tool_result blocks
+        const cleanContent = message.content.filter((content: any) => 
+          content.type === 'text' || (content.type === 'tool_result' && content.content.length < 500)
+        );
+        
+        if (cleanContent.length > 0) {
+          cleanMessages.push({
+            ...message,
+            content: cleanContent
+          });
+        }
+      } else if (message.role === 'assistant') {
+        // Keep assistant messages but limit size
+        if (typeof message.content === 'string') {
+          cleanMessages.push({
+            ...message,
+            content: message.content.substring(0, 1000) // Limit assistant content
+          });
+        } else {
+          cleanMessages.push(message);
+        }
+      }
+    }
+    
+    console.log(`🧹 CONVERSATION CLEANED: ${messages.length} → ${cleanMessages.length} messages`);
+    return cleanMessages;
+  }
 
   /**
    * LOAD CONVERSATION MESSAGES
