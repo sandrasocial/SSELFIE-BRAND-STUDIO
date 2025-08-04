@@ -89,9 +89,18 @@ router.post('/consulting-chat', async (req, res) => {
   try {
     console.log('🔄 PHASE 3.1 REDIRECT: Consulting agent -> Implementation-aware routing');
 
-    // FIXED ADMIN ACCESS: Proper Sandra authentication with fallback
-    const user = req.user as any;
-    const isSessionAuthenticated = user?.claims?.email === 'ssa@ssasocial.com';
+    // FIXED ADMIN ACCESS: Proper Sandra authentication with fallback and error handling
+    let user = null;
+    let isSessionAuthenticated = false;
+    
+    try {
+      user = req.user as any;
+      isSessionAuthenticated = user?.claims?.email === 'ssa@ssasocial.com';
+    } catch (authError) {
+      console.log('🔄 Session auth error, proceeding with token auth:', authError.message);
+      // Continue with token authentication
+    }
+    
     const adminToken = req.body.adminToken || req.headers['x-admin-token'];
     const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
     
@@ -135,13 +144,13 @@ router.post('/consulting-chat', async (req, res) => {
 
     console.log(`🔄 PHASE 3.1: Redirecting ${agentId} to implementation-aware routing`);
 
+    // Get user ID for memory lookup
+    const userId = user?.claims?.sub || 'admin-sandra';
+    
     // MEMORY SYSTEM INTEGRATION: Load BEFORE any routing to save tokens
     console.log(`🧠 MEMORY: Loading ${agentId} memory profile for user ${userId} (PRE-ROUTING)`);
     const memorySystem = AdvancedMemorySystem.getInstance();
     const contextManager = IntelligentContextManager.getInstance();
-    
-    // Get user ID for memory lookup
-    const userId = user?.claims?.sub || 'admin-sandra';
     
     // Load memory profile and workspace context FIRST
     const memoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
