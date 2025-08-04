@@ -478,14 +478,34 @@ export class ClaudeApiServiceWorking {
   private generateDirectResponse(action: string, agentId: string): string {
     const agentPersonalities = {
       zara: "Perfect! I've executed that directly using my technical mastery - 100% token savings achieved.",
-      aria: "Executed with editorial precision - direct tool access working beautifully.",
+      aria: "Executed with editorial precision - direct tool access working beautifully.", 
       maya: "Darling, handled that with celebrity-level efficiency through direct execution.",
-      elena: "Enterprise coordination complete - direct bypass system operational."
+      elena: "Enterprise coordination complete - direct bypass system operational.",
+      greeting: {
+        elena: "Hello! I'm Elena, your strategic workflow coordinator. Ready to orchestrate your next project with precision and excellence.",
+        aria: "Hello! I'm Aria, your luxury design partner. Let's create something beautiful that elevates your brand to new heights.",
+        zara: "Hello! I'm Zara, your technical architect. Ready to build robust, scalable solutions with enterprise-grade quality.",
+        maya: "Hello! I'm Maya, your AI image specialist. Let's create stunning visuals that capture your unique brand essence.",
+        victoria: "Hello! I'm Victoria, your UX designer. Ready to craft user experiences that delight and convert.",
+        rachel: "Hello! I'm Rachel, your content strategist. Let's tell your brand story with compelling, luxury-focused content.",
+        ava: "Hello! I'm Ava, your automation specialist. Ready to streamline your workflows for maximum efficiency.",
+        quinn: "Hello! I'm Quinn, your quality assurance expert. Let's ensure everything meets the highest standards.",
+        olga: "Hello! I'm Olga, your operations optimizer. Ready to organize and deploy with systematic precision."
+      }
     };
     
+    // Handle greeting responses
+    if (action === 'greeting') {
+      const greetings = agentPersonalities.greeting as Record<string, string>;
+      return greetings[agentId] || 
+             `Hello! I'm ${agentId}, ready to assist with your SSELFIE Studio needs.`;
+    }
+    
+    // Handle direct tool execution responses
     return agentPersonalities[agentId as keyof typeof agentPersonalities] || 
            `${agentId} executed operation directly through enterprise tool system.`;
   }
+
   /**
    * EXECUTE TOOLS AND CONTINUE STREAMING
    * Complete the tool execution cycle within streaming response
@@ -677,24 +697,7 @@ export class ClaudeApiServiceWorking {
     }
   }
 
-  private generateDirectResponse(action: string, agentId: string): string {
-    const agentResponses: Record<string, Record<string, string>> = {
-      greeting: {
-        elena: "Hello! I'm Elena, your strategic workflow coordinator. Ready to orchestrate your next project with precision and excellence.",
-        aria: "Hello! I'm Aria, your luxury design partner. Let's create something beautiful that elevates your brand to new heights.",
-        zara: "Hello! I'm Zara, your technical architect. Ready to build robust, scalable solutions with enterprise-grade quality.",
-        maya: "Hello! I'm Maya, your AI image specialist. Let's create stunning visuals that capture your unique brand essence.",
-        victoria: "Hello! I'm Victoria, your UX designer. Ready to craft user experiences that delight and convert.",
-        rachel: "Hello! I'm Rachel, your content strategist. Let's tell your brand story with compelling, luxury-focused content.",
-        ava: "Hello! I'm Ava, your automation specialist. Ready to streamline your workflows for maximum efficiency.",
-        quinn: "Hello! I'm Quinn, your quality assurance expert. Let's ensure everything meets the highest standards.",
-        olga: "Hello! I'm Olga, your operations optimizer. Ready to organize and deploy with systematic precision."
-      }
-    };
 
-    return agentResponses[action]?.[agentId] || 
-           `Hello! I'm ${agentId}, ready to assist with your SSELFIE Studio needs.`;
-  }
 
   /**
    * CONVERSATION MANAGEMENT
