@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { agentConversations } from '@shared/schema';
+import { claudeConversations, claudeMessages } from '@shared/schema';
 import { eq, desc, and } from 'drizzle-orm';
 
 export interface AgentHandoffContext {
@@ -40,11 +40,24 @@ export class EnhancedHandoffSystem {
     
     try {
       // Store handoff with enhanced tracking
-      await db.insert(agentConversations).values({
+      const convId = `enhanced_handoff_${workflowId}_${Date.now()}`;
+      await db.insert(claudeConversations).values({
         userId,
         agentName: handoffContext.fromAgent,
-        userMessage: `Workflow handoff to ${handoffContext.toAgent}`,
-        agentResponse: JSON.stringify({
+        conversationId: convId,
+        title: `Enhanced handoff to ${handoffContext.toAgent}`,
+        status: 'active'
+      });
+      await db.insert(claudeMessages).values({
+        conversationId: convId,
+        role: 'user',
+        content: `Workflow handoff to ${handoffContext.toAgent}`,
+        metadata: { type: 'enhanced_handoff_request' }
+      });
+      await db.insert(claudeMessages).values({
+        conversationId: convId,
+        role: 'assistant',
+        content: JSON.stringify({
           type: 'enhanced_handoff',
           workflowId,
           context: handoffContext,
@@ -55,7 +68,7 @@ export class EnhancedHandoffSystem {
             speedOptimized: true
           }
         }),
-        timestamp: new Date()
+        metadata: { type: 'enhanced_handoff_response' }
       });
       
       // Create next step for receiving agent
@@ -110,18 +123,19 @@ export class EnhancedHandoffSystem {
         task.result = `${task.agentName} completed: ${task.context.taskContext}`;
         
         // Store completion
-        await db.insert(agentConversations).values({
+        const taskConvId = `parallel_task_${task.stepId}_${Date.now()}`;
+        await db.insert(claudeConversations).values({
           userId,
           agentName: task.agentName,
-          userMessage: `Parallel task: ${task.context.taskContext}`,
-          agentResponse: JSON.stringify({
-            type: 'parallel_completion',
-            taskId: task.stepId,
-            result: task.result,
-            processingTime: processingTime,
-            optimized: true
-          }),
-          timestamp: new Date()
+          conversationId: taskConvId,
+          title: `Parallel task ${task.stepId}`,
+          status: 'active'
+        });
+        await db.insert(claudeMessages).values({
+          conversationId: taskConvId,
+          role: 'system',
+          content: `Parallel task execution: ${task.stepId}`,
+          metadata: { type: 'parallel_task' }
         });
         
         completed.push(task);
@@ -153,19 +167,23 @@ export class EnhancedHandoffSystem {
     
     const contextKey = `workflow_${workflowId}_context`;
     
-    await db.insert(agentConversations).values({
+    const batchConvId = `batch_${Date.now()}`;
+    await db.insert(claudeConversations).values({
       userId,
       agentName: 'system',
-      userMessage: 'Context preservation',
-      agentResponse: JSON.stringify({
-        type: 'context_preservation',
-        workflowId,
-        contextKey,
-        data: contextData,
-        timestamp: new Date().toISOString(),
-        optimization: 'fast_retrieval'
+      conversationId: batchConvId,
+      title: 'Batch task completion',
+      status: 'active'
+    });
+    await db.insert(claudeMessages).values({
+      conversationId: batchConvId,
+      role: 'system',
+      content: JSON.stringify({
+        type: 'batch_completion',
+        completedTasks: results,
+        timestamp: new Date().toISOString()
       }),
-      timestamp: new Date()
+      metadata: { type: 'batch_completion' }
     });
     
     console.log(`💾 CONTEXT PRESERVED: ${contextKey} (${JSON.stringify(contextData).length} bytes)`);
@@ -199,9 +217,10 @@ export class EnhancedHandoffSystem {
     // Get recent agent activity
     const recentActivity = await db
       .select()
-      .from(agentConversations)
-      .where(eq(agentConversations.userId, userId))
-      .orderBy(desc(agentConversations.timestamp))
+      .from(claudeConversations)
+      .innerJoin(claudeMessages, eq(claudeMessages.conversationId, claudeConversations.conversationId))
+      .where(eq(claudeConversations.userId, userId))
+      .orderBy(desc(claudeMessages.timestamp))
       .limit(50);
     
     // Analyze agent workload distribution

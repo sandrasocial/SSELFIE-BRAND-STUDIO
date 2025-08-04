@@ -5,7 +5,7 @@
 
 import { db } from '../db';
 import { eq, desc, and } from 'drizzle-orm';
-import { agentConversations } from '../../shared/schema';
+import { claudeConversations, claudeMessages } from '../../shared/schema';
 
 interface UserPattern {
   userId: string;
@@ -49,12 +49,13 @@ export class PredictiveIntelligenceSystem {
     console.log(`🧠 PREDICTIVE: Analyzing patterns for user ${userId}`);
     
     try {
-      // Get recent conversation history (last 50 conversations)
-      const recentConversations = await db
+      // Get recent conversation history (last 50 messages)
+      const recentMessages = await db
         .select()
-        .from(agentConversations)
-        .where(eq(agentConversations.userId, userId))
-        .orderBy(desc(agentConversations.timestamp))
+        .from(claudeMessages)
+        .innerJoin(claudeConversations, eq(claudeMessages.conversationId, claudeConversations.conversationId))
+        .where(eq(claudeConversations.userId, userId))
+        .orderBy(desc(claudeMessages.timestamp))
         .limit(50);
 
       const agentUsage = new Map<string, number>();
@@ -63,10 +64,10 @@ export class PredictiveIntelligenceSystem {
       let recentContext = '';
 
       // Analyze agent preferences and task patterns
-      recentConversations.forEach((conv, index) => {
-        const agentId = conv.agentId;
-        const message = conv.userMessage;
-        const response = conv.agentResponse;
+      recentMessages.forEach((msg, index) => {
+        const agentId = msg.claudeConversations.agentName;
+        const message = msg.claudeMessages.content;
+        const response = msg.claudeMessages.role === 'assistant' ? msg.claudeMessages.content : '';
 
         // Track agent usage frequency
         agentUsage.set(agentId, (agentUsage.get(agentId) || 0) + 1);
@@ -92,8 +93,8 @@ export class PredictiveIntelligenceSystem {
         .slice(0, 5)
         .map(([agent]) => agent);
 
-      // Analyze task sequences
-      const typicalTaskSequences = this.analyzeTaskSequences(recentConversations);
+      // Analyze task sequences  
+      const typicalTaskSequences = this.analyzeTaskSequences(recentMessages);
 
       // Determine current project phase
       const projectPhases = this.identifyProjectPhases(recentContext, taskPatterns);

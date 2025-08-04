@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../db';
-import { agentConversations } from '@shared/schema';
+import { claudeConversations, claudeMessages } from '@shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 interface WorkflowStage {
@@ -123,19 +123,26 @@ export class AgentCoordinationSystem {
     if (projectType === 'strategy') startingStage = 'strategic_planning';
     
     // Store workflow initiation
-    await db.insert(agentConversations).values({
+    const convId = `workflow_${workflowId}`;
+    await db.insert(claudeConversations).values({
       userId,
       agentName: 'system',
-      conversationData: {
+      conversationId: convId,
+      title: `Workflow ${workflowId}`,
+      status: 'active'
+    });
+    await db.insert(claudeMessages).values({
+      conversationId: convId,
+      role: 'system',
+      content: JSON.stringify({
         workflowId,
         projectType,
         currentStage: startingStage,
         requirements,
         status: 'initiated',
         stages: this.workflowStages
-      },
-      workflowStage: startingStage,
-      timestamp: new Date()
+      }),
+      metadata: { type: 'workflow_initiation', workflowStage: startingStage }
     });
 
     return workflowId;
@@ -143,10 +150,18 @@ export class AgentCoordinationSystem {
 
   static async executeHandoff(handoff: AgentHandoff, userId: string, workflowId: string): Promise<void> {
     // Store handoff information
-    await db.insert(agentConversations).values({
+    const convId = `handoff_${workflowId}_${Date.now()}`;
+    await db.insert(claudeConversations).values({
       userId,
       agentName: 'system',
-      conversationData: {
+      conversationId: convId,
+      title: `Handoff ${handoff.fromAgent} to ${handoff.toAgent}`,
+      status: 'active'
+    });
+    await db.insert(claudeMessages).values({
+      conversationId: convId,
+      role: 'system',
+      content: JSON.stringify({
         type: 'agent_handoff',
         workflowId,
         fromAgent: handoff.fromAgent,
@@ -155,9 +170,8 @@ export class AgentCoordinationSystem {
         completedTasks: handoff.completedTasks,
         nextActions: handoff.nextActions,
         timestamp: handoff.timestamp
-      },
-      workflowStage: 'handoff',
-      timestamp: new Date()
+      }),
+      metadata: { type: 'handoff', workflowStage: 'handoff' }
     });
 
     // Notify next agent with context
@@ -170,22 +184,23 @@ export class AgentCoordinationSystem {
   static async getWorkflowStatus(workflowId: string, userId: string): Promise<any> {
     const conversations = await db
       .select()
-      .from(agentConversations)
+      .from(claudeConversations)
+      .innerJoin(claudeMessages, eq(claudeMessages.conversationId, claudeConversations.conversationId))
       .where(
         and(
-          eq(agentConversations.userId, userId),
-          eq(agentConversations.conversationData, workflowId)
+          eq(claudeConversations.userId, userId),
+          eq(claudeConversations.title, `Workflow ${workflowId}`)
         )
       )
-      .orderBy(desc(agentConversations.timestamp));
+      .orderBy(desc(claudeMessages.timestamp));
 
     return {
       workflowId,
       conversations: conversations.map(c => ({
-        agent: c.agentName,
-        stage: c.workflowStage,
-        data: c.conversationData,
-        timestamp: c.timestamp
+        agent: c.claudeConversations.agentName,
+        stage: c.claudeMessages.metadata?.workflowStage,
+        data: JSON.parse(c.claudeMessages.content || '{}'),
+        timestamp: c.claudeMessages.timestamp
       }))
     };
   }
@@ -194,13 +209,14 @@ export class AgentCoordinationSystem {
     // Analyze agent performance and utilization
     const recentConversations = await db
       .select()
-      .from(agentConversations)
-      .where(eq(agentConversations.userId, userId))
-      .orderBy(desc(agentConversations.timestamp))
+      .from(claudeConversations)
+      .innerJoin(claudeMessages, eq(claudeMessages.conversationId, claudeConversations.conversationId))
+      .where(eq(claudeConversations.userId, userId))
+      .orderBy(desc(claudeMessages.timestamp))
       .limit(100);
 
     const agentStats = recentConversations.reduce((stats, conv) => {
-      const agent = conv.agentName;
+      const agent = conv.claudeConversations.agentName;
       if (!stats[agent]) {
         stats[agent] = {
           totalConversations: 0,
@@ -213,8 +229,9 @@ export class AgentCoordinationSystem {
       }
       
       stats[agent].totalConversations++;
-      stats[agent].totalMessages += (conv.conversationData as any)?.messages?.length || 1;
-      if (conv.workflowStage) stats[agent].stages.push(conv.workflowStage);
+      stats[agent].totalMessages += 1;
+      const workflowStage = conv.claudeMessages.metadata?.workflowStage;
+      if (workflowStage) stats[agent].stages.push(workflowStage);
       
       return stats;
     }, {} as any);

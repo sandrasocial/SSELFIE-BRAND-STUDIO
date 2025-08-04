@@ -50,9 +50,12 @@ import {
   type InsertMayaChat,
   type MayaChatMessage,
   type InsertMayaChatMessage,
-  agentConversations,
-  type AgentConversation,
-  type InsertAgentConversation,
+  claudeConversations,
+  claudeMessages,
+  type ClaudeConversation,
+  type ClaudeMessage,
+  type InsertClaudeConversation,
+  type InsertClaudeMessage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
@@ -147,10 +150,10 @@ export interface IStorage {
   saveSandraConversation(data: any): Promise<any>;
 
   // Agent conversation operations
-  saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations: any[], conversationId?: string): Promise<AgentConversation>;
-  getAgentConversations(agentId: string, userId: string): Promise<AgentConversation[]>;
+  saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations: any[], conversationId?: string): Promise<ClaudeConversation>;
+  getAgentConversations(agentId: string, userId: string): Promise<ClaudeMessage[]>;
   getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<any[]>;
-  getAllAgentConversations(userId: string): Promise<AgentConversation[]>;
+  getAllAgentConversations(userId: string): Promise<ClaudeMessage[]>;
   
   // Agent memory operations
   saveAgentMemory(agentId: string, userId: string, memoryData: any): Promise<void>;
@@ -889,51 +892,128 @@ export class DatabaseStorage implements IStorage {
     return data;
   }
 
-  // Agent Conversations (for admin dashboard persistence)
-  async saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations?: any[], conversationId?: string): Promise<AgentConversation> {
-    const [conversation] = await db.insert(agentConversations).values({
-      agentId,
-      userId,
-      userMessage,
-      agentResponse,
-      devPreview: fileOperations ? JSON.stringify({ fileOperations, conversationId }) : null
-    }).returning();
+  // Agent Conversations (unified with claudeConversations/claudeMessages)
+  async saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations?: any[], conversationId?: string): Promise<ClaudeConversation> {
+    // Create or get conversation
+    const convId = conversationId || `admin_${agentId}_${Date.now()}`;
+    
+    let conversation = await db.query.claudeConversations.findFirst({
+      where: eq(claudeConversations.conversationId, convId)
+    });
+    
+    if (!conversation) {
+      [conversation] = await db.insert(claudeConversations).values({
+        userId,
+        agentName: agentId,
+        conversationId: convId,
+        title: `Admin chat with ${agentId}`,
+        lastMessageAt: new Date(),
+        messageCount: 0
+      }).returning();
+    }
+    
+    // Save user message
+    await db.insert(claudeMessages).values({
+      conversationId: convId,
+      role: 'user',
+      content: userMessage,
+      metadata: fileOperations ? { fileOperations } : null
+    });
+    
+    // Save agent response  
+    await db.insert(claudeMessages).values({
+      conversationId: convId,
+      role: 'assistant', 
+      content: agentResponse,
+      metadata: fileOperations ? { fileOperations } : null
+    });
+    
+    // Update conversation metadata
+    await db.update(claudeConversations)
+      .set({ 
+        lastMessageAt: new Date(),
+        messageCount: sql`${claudeConversations.messageCount} + 2`
+      })
+      .where(eq(claudeConversations.conversationId, convId));
+      
     return conversation;
   }
 
-  async getAgentConversations(agentId: string, userId: string): Promise<AgentConversation[]> {
+  async getAgentConversations(agentId: string, userId: string): Promise<ClaudeMessage[]> {
+    // Get all conversations for this agent and user
     const conversations = await db.select()
-      .from(agentConversations)
+      .from(claudeConversations)
       .where(and(
-        eq(agentConversations.agentId, agentId),
-        eq(agentConversations.userId, userId)
+        eq(claudeConversations.agentName, agentId),
+        eq(claudeConversations.userId, userId)
       ))
-      .orderBy(agentConversations.timestamp);
-    return conversations;
+      .orderBy(desc(claudeConversations.lastMessageAt));
+    
+    if (conversations.length === 0) return [];
+    
+    // Get messages from the most recent conversation
+    const messages = await db.select()
+      .from(claudeMessages)
+      .where(eq(claudeMessages.conversationId, conversations[0].conversationId))
+      .orderBy(claudeMessages.timestamp);
+      
+    return messages;
   }
 
   async getAgentConversationHistory(agentId: string, userId: string, conversationId?: string): Promise<any[]> {
-    const conversations = await db.select()
-      .from(agentConversations)
-      .where(and(
-        eq(agentConversations.agentId, agentId),
-        eq(agentConversations.userId, userId)
-      ))
-      .orderBy(agentConversations.timestamp);
+    if (conversationId) {
+      // Get specific conversation
+      const messages = await db.select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, conversationId))
+        .orderBy(claudeMessages.timestamp);
+      
+      return messages.map(msg => ({ 
+        role: msg.role === 'assistant' ? 'ai' : msg.role, 
+        content: msg.content 
+      }));
+    }
     
-    // Convert to message format for conversation continuity
-    return conversations.map(conv => [
-      { role: 'user', content: conv.userMessage },
-      { role: 'ai', content: conv.agentResponse }
-    ]).flat();
+    // Get all conversations for this agent and user
+    const conversations = await db.select()
+      .from(claudeConversations)
+      .where(and(
+        eq(claudeConversations.agentName, agentId),
+        eq(claudeConversations.userId, userId)
+      ))
+      .orderBy(desc(claudeConversations.lastMessageAt));
+    
+    if (conversations.length === 0) return [];
+    
+    // Get messages from most recent conversation
+    const messages = await db.select()
+      .from(claudeMessages)
+      .where(eq(claudeMessages.conversationId, conversations[0].conversationId))
+      .orderBy(claudeMessages.timestamp);
+      
+    return messages.map(msg => ({ 
+      role: msg.role === 'assistant' ? 'ai' : msg.role, 
+      content: msg.content 
+    }));
   }
 
-  async getAllAgentConversations(userId: string): Promise<AgentConversation[]> {
+  async getAllAgentConversations(userId: string): Promise<ClaudeMessage[]> {
+    // Get all agent conversations for this user
     const conversations = await db.select()
-      .from(agentConversations)
-      .where(eq(agentConversations.userId, userId))
-      .orderBy(agentConversations.timestamp);
-    return conversations;
+      .from(claudeConversations)
+      .where(eq(claudeConversations.userId, userId))
+      .orderBy(desc(claudeConversations.lastMessageAt));
+    
+    if (conversations.length === 0) return [];
+    
+    // Get messages from all conversations
+    const conversationIds = conversations.map(c => c.conversationId);
+    const messages = await db.select()
+      .from(claudeMessages)
+      .where(sql`${claudeMessages.conversationId} = ANY(${conversationIds})`)
+      .orderBy(claudeMessages.timestamp);
+      
+    return messages;
   }
 
   // Sandra AI conversation operations (minimal implementation)
@@ -969,17 +1049,25 @@ export class DatabaseStorage implements IStorage {
     try {
       const conversations = await this.getAgentConversations(agentId, userId);
       
-      // Find the most recent memory entry
+      // Find the most recent memory entry (user message was '**CONVERSATION_MEMORY**')
       const memoryEntry = conversations
-        .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
+        .filter(msg => msg.role === 'user' && msg.content === '**CONVERSATION_MEMORY**')
         .sort((a, b) => {
           const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
           const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
           return dateB - dateA;
         })[0];
       
-      if (memoryEntry && memoryEntry.agentResponse) {
-        return JSON.parse(memoryEntry.agentResponse);
+      if (memoryEntry) {
+        // Find the corresponding assistant response
+        const memoryResponse = conversations.find(msg => 
+          msg.role === 'assistant' && 
+          Math.abs(new Date(msg.timestamp).getTime() - new Date(memoryEntry.timestamp).getTime()) < 1000
+        );
+        
+        if (memoryResponse && memoryResponse.content) {
+          return JSON.parse(memoryResponse.content);
+        }
       }
       
       return null;
@@ -991,13 +1079,23 @@ export class DatabaseStorage implements IStorage {
 
   async clearAgentMemory(agentId: string, userId: string): Promise<void> {
     try {
-      // Delete all memory entries for this agent
-      await db.delete(agentConversations)
-        .where(and(
-          eq(agentConversations.agentId, agentId),
-          eq(agentConversations.userId, userId),
-          eq(agentConversations.userMessage, '**CONVERSATION_MEMORY**')
-        ));
+      // Find memory conversation
+      const conversation = await db.query.claudeConversations.findFirst({
+        where: and(
+          eq(claudeConversations.agentName, agentId),
+          eq(claudeConversations.userId, userId)
+        )
+      });
+      
+      if (conversation) {
+        // Delete memory messages (where content is '**CONVERSATION_MEMORY**')
+        await db.delete(claudeMessages)
+          .where(and(
+            eq(claudeMessages.conversationId, conversation.conversationId),
+            eq(claudeMessages.content, '**CONVERSATION_MEMORY**')
+          ));
+      }
+      
       console.log(`🧹 Agent memory cleared for ${agentId}`);
     } catch (error) {
       console.error('Failed to clear agent memory:', error);
@@ -1192,7 +1290,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAgentConversationCount(): Promise<number> {
-    const result = await db.select({ count: sql`count(*)` }).from(agentConversations);
+    const result = await db.select({ count: sql`count(*)` }).from(claudeMessages);
     return Number(result[0]?.count || 0);
   }
 }
