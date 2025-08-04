@@ -23,8 +23,17 @@ import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
 import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
 import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
 
-// OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
+// OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders + handles large content
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // PERFORMANCE FIX: Truncate massive responses that cause input lag
+  const MAX_CONTENT_LENGTH = 5000; // Characters before truncation
+  const isLargeMessage = message.content.length > MAX_CONTENT_LENGTH;
+  const displayContent = isLargeMessage && !isExpanded 
+    ? message.content.substring(0, MAX_CONTENT_LENGTH) + '\n\n[Content truncated for performance...]'
+    : message.content;
+
   return (
     <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
       <div className={`max-w-[80%] p-6 ${
@@ -37,6 +46,12 @@ const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
             <span className="text-xs uppercase tracking-wide text-gray-500">
               {message.agentName}
             </span>
+            {/* Performance indicator for large messages */}
+            {isLargeMessage && (
+              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                Large Response ({Math.round(message.content.length / 1000)}k chars)
+              </span>
+            )}
             {/* Elegant Tool Usage Indicators */}
             {formatToolResults(message.content).length > 0 && (
               <div className="flex items-center gap-2">
@@ -77,8 +92,17 @@ const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
               }
             }}
           >
-            {message.content}
+            {displayContent}
           </ReactMarkdown>
+          {/* Expand/Collapse button for large messages */}
+          {isLargeMessage && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="mt-3 text-xs text-gray-500 hover:text-gray-700 underline"
+            >
+              {isExpanded ? 'Show Less' : 'Show Full Response'}
+            </button>
+          )}
         </div>
       </div>
     </div>
