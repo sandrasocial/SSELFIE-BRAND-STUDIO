@@ -51,7 +51,7 @@ export class MultiAgentCoordinator {
   private agentCapabilities: Map<string, AgentCapability> = new Map();
   private activeCoordinations: Map<string, CoordinationRequest> = new Map();
 
-  // Enterprise agent registry with specialized capabilities
+  // COMPLETE 14-AGENT ENTERPRISE REGISTRY (FIXED FROM 9 TO 14)
   private readonly ENTERPRISE_AGENTS = {
     'elena': {
       specialization: 'STRATEGIC_PLANNING',
@@ -59,8 +59,8 @@ export class MultiAgentCoordinator {
       tools: ['comprehensive_agent_toolkit', 'agent_implementation_toolkit']
     },
     'aria': {
-      specialization: 'CONTENT_STRATEGY', 
-      capabilities: ['content_creation', 'brand_strategy', 'editorial_direction'],
+      specialization: 'VISUAL_DESIGN', 
+      capabilities: ['luxury_design', 'editorial_layouts', 'visual_content'],
       tools: ['str_replace_based_edit_tool', 'web_search', 'advanced_agent_capabilities']
     },
     'zara': {
@@ -74,29 +74,54 @@ export class MultiAgentCoordinator {
       tools: ['web_fetch', 'str_replace_based_edit_tool']
     },
     'victoria': {
-      specialization: 'FRONTEND_UX',
-      capabilities: ['ui_design', 'user_experience', 'interface_development'],
+      specialization: 'UX_OPTIMIZATION',
+      capabilities: ['ui_design', 'user_experience', 'conversion_optimization'],
       tools: ['str_replace_based_edit_tool', 'search_filesystem']
     },
     'rachel': {
-      specialization: 'DATA_ANALYTICS',
-      capabilities: ['data_analysis', 'reporting', 'insights_generation'],
-      tools: ['execute_sql_tool', 'web_search', 'report_progress']
+      specialization: 'CONTENT_CREATION',
+      capabilities: ['copywriting', 'voice_consistency', 'content_strategy'],
+      tools: ['str_replace_based_edit_tool', 'web_search', 'report_progress']
     },
     'ava': {
-      specialization: 'AUTOMATION',
+      specialization: 'AUTOMATION_WORKFLOWS',
       capabilities: ['workflow_automation', 'process_optimization', 'integration'],
       tools: ['comprehensive_agent_toolkit', 'packager_tool', 'bash']
     },
     'quinn': {
+      specialization: 'QUALITY_ASSURANCE',
+      capabilities: ['testing', 'quality_control', 'luxury_standards'],
+      tools: ['get_latest_lsp_diagnostics', 'bash', 'execute_sql_tool']
+    },
+    'sophia': {
+      specialization: 'SOCIAL_MEDIA',
+      capabilities: ['community_building', 'content_strategy', 'engagement_optimization'],
+      tools: ['str_replace_based_edit_tool', 'web_search', 'execute_sql_tool']
+    },
+    'martha': {
       specialization: 'MARKETING_AUTOMATION',
-      capabilities: ['marketing_strategy', 'automation_workflows', 'lead_generation'],
-      tools: ['web_search', 'comprehensive_agent_toolkit']
+      capabilities: ['performance_marketing', 'campaigns', 'conversion_optimization'],
+      tools: ['str_replace_based_edit_tool', 'web_search', 'execute_sql_tool']
+    },
+    'diana': {
+      specialization: 'STRATEGIC_COACHING',
+      capabilities: ['business_strategy', 'team_direction', 'executive_guidance'],
+      tools: ['str_replace_based_edit_tool', 'web_search', 'execute_sql_tool']
+    },
+    'wilma': {
+      specialization: 'WORKFLOW_OPTIMIZATION',
+      capabilities: ['process_design', 'automation_blueprints', 'operational_efficiency'],
+      tools: ['str_replace_based_edit_tool', 'bash', 'execute_sql_tool']
     },
     'olga': {
-      specialization: 'QUALITY_ASSURANCE',
-      capabilities: ['testing', 'quality_control', 'system_validation'],
-      tools: ['get_latest_lsp_diagnostics', 'bash', 'execute_sql_tool']
+      specialization: 'REPOSITORY_ORGANIZATION',
+      capabilities: ['file_organization', 'cleanup', 'architecture_maintenance'],
+      tools: ['str_replace_based_edit_tool', 'bash', 'search_filesystem']
+    },
+    'flux': {
+      specialization: 'AI_MODEL_OPTIMIZATION',
+      capabilities: ['flux_ai_models', 'prompt_engineering', 'celebrity_styling'],
+      tools: ['str_replace_based_edit_tool', 'web_search', 'bash']
     }
   };
 
