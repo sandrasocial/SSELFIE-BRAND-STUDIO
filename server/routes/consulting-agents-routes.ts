@@ -1,4 +1,9 @@
 import { Router } from 'express';
+import { db } from '../db';
+import { claudeConversations, claudeMessages } from '../../shared/schema';
+import { eq, and, desc } from 'drizzle-orm';
+import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
+import { ClaudeApiServiceRebuilt } from '../services/claude-api-service-rebuilt';
 
 const router = Router();
 
@@ -12,14 +17,6 @@ router.get('/conversation-history/:agentId', async (req, res) => {
     const userId = req.user ? (req.user as any).claims.sub : '42585527';
     
     console.log(`📚 Loading conversation history for agent: ${agentId}, user: ${userId}`);
-    
-    const { ClaudeApiServiceRebuilt } = await import('../services/claude-api-service-rebuilt');
-    const claudeService = new ClaudeApiServiceRebuilt();
-    
-    // Find the most recent conversation for this agent and user
-    const { db } = await import('../db');
-    const { claudeConversations, claudeMessages } = await import('../../shared/schema');
-    const { eq, and, desc } = await import('drizzle-orm');
     
     // Get the most recent conversation for this agent
     const conversations = await db
