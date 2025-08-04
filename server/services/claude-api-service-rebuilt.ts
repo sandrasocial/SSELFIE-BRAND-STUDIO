@@ -897,39 +897,7 @@ I have complete workspace access and can implement any changes you need. What wo
       return null; // Use Claude API for content generation
     }
     
-    // SIMPLE STATUS/PERSONALITY RESPONSES (NO API CALLS)
-    const simpleResponses = [
-      /^(?:hi|hello|hey|greetings)/i,
-      /^(?:who are you|introduce yourself|tell me about yourself)/i,
-      /^(?:status|how are you|what's your role)/i,
-      /^(?:thanks|thank you|ok|okay|good|great)/i
-    ];
-    
-    const isSimpleResponse = simpleResponses.some(pattern => pattern.test(message.trim()));
-    
-    if (isSimpleResponse) {
-      console.log(`💬 SIMPLE RESPONSE: Template response without API usage`);
-      
-      if (/^(?:who are you|introduce yourself|tell me about yourself)/i.test(message)) {
-        const agentPersonalities = {
-          zara: "I'm Zara, your Dev AI and Technical Mastermind. I specialize in backend development, system architecture, and solving complex technical challenges with precision and sass.",
-          elena: "I'm Elena, your AI Agent Director and strategic orchestrator. I coordinate all agents and ensure seamless workflow execution.",
-          maya: "I'm Maya, your Photography AI. I create stunning flatlay compositions and manage your visual brand assets.",
-          // Add other agent personalities...
-        };
-        
-        const personality = agentPersonalities[agentId as keyof typeof agentPersonalities] || 
-                           `I'm your specialized AI assistant, ready to help with technical tasks and content creation.`;
-        
-        return personality;
-      }
-      
-      if (/^(?:status|how are you|what's your role)/i.test(message)) {
-        return `I'm operational and ready to assist! I have full access to development tools and can help with file operations, searches, and content generation.`;
-      }
-      
-      return `Hello! I'm ready to help you with development tasks, file operations, and content creation. What would you like me to work on?`;
-    }
+    // NO TEMPLATE RESPONSES - All personality/content goes through Claude API
     
     console.log(`🤖 COMPLEX REQUEST: Using Claude API for sophisticated response`);
     return null; // Use Claude API for complex requests
@@ -942,6 +910,7 @@ I have complete workspace access and can implement any changes you need. What wo
   private async handleToolCall(toolCall: any, conversationId?: string, agentId?: string): Promise<string> {
     try {
       console.log(`🔧 TOOL CALL: ${toolCall.name}`);
+      console.log(`🔍 TOOL PARAMETERS:`, JSON.stringify(toolCall.input || toolCall.parameters, null, 2));
       
       switch (toolCall.name) {
         case 'str_replace_based_edit_tool':

@@ -29,8 +29,13 @@ export async function str_replace_based_edit_tool(params: EditToolParams, bypass
       });
     }
     
-    // CRITICAL FIX: Validate required parameters
+    // CRITICAL FIX: Validate required parameters with detailed logging
     if (!params.path || typeof params.path !== 'string') {
+      console.log('❌ PARAMETER VALIDATION FAILED:', {
+        params: JSON.stringify(params, null, 2),
+        pathExists: !!params.path,
+        pathType: typeof params.path
+      });
       throw new Error('Missing or invalid path parameter');
     }
     
