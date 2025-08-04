@@ -177,28 +177,35 @@ export class ClaudeApiServiceWorking {
 
       console.log(`🌊 OPTIMIZED STREAMING: ${agentName} with ${optimalTokens} tokens, cache:${cachedPrompt.useCache}, batch:${shouldUseBatch}`);
       
-      // SIMPLIFIED STREAMING REQUEST - Based on Anthropic best practices
+      // HYBRID APPROACH: Non-streaming for tool execution, streaming for text
+      // This ensures tool parameters are captured correctly while maintaining real-time text
       const requestConfig = {
         model: DEFAULT_MODEL_STR,
         max_tokens: optimalTokens,
         messages: claudeMessages,
         system: cachedPrompt.prompt,
-        stream: true // Enable actual streaming
+        stream: false // Non-streaming to capture tool parameters properly
       };
 
-      // Only add tools if they exist and are valid
+      // CRITICAL FIX: ALWAYS provide full tool arsenal to agents
+      // The agents are trained to use their complete tool set for autonomous operation
       if (tools && tools.length > 0) {
         (requestConfig as any).tools = tools;
+        console.log(`🔧 FULL TOOL ARSENAL: Providing ${tools.length} tools to ${agentName}`);
+        console.log(`🎯 AVAILABLE TOOLS: ${tools.map(t => t.name).join(', ')}`);
+      } else {
+        console.log(`❌ NO TOOLS PROVIDED: This will severely limit agent capabilities!`);
       }
 
-      console.log(`🌊 STREAMING REQUEST: ${JSON.stringify({
+      console.log(`🌊 HYBRID REQUEST: ${JSON.stringify({
         model: requestConfig.model,
         max_tokens: requestConfig.max_tokens,
         tools_count: tools?.length || 0,
         system_length: cachedPrompt.prompt.length
       })}`);
 
-      const stream = await anthropic.messages.create(requestConfig) as any;
+      // Use non-streaming to get complete response with proper tool parameters
+      const response = await anthropic.messages.create(requestConfig) as any;
 
       let fullResponse = '';
       let toolCalls = [];
@@ -220,8 +227,13 @@ export class ClaudeApiServiceWorking {
           
           // Handle tool execution start
           else if (chunk.type === 'content_block_start' && chunk.content_block?.type === 'tool_use') {
-            currentToolCall = chunk.content_block;
-            console.log(`🔧 Tool execution starting: ${currentToolCall.name}`);
+            currentToolCall = {
+              id: chunk.content_block.id,
+              name: chunk.content_block.name, 
+              input: chunk.content_block.input || {},
+              inputBuffer: '' // Buffer for incremental parameter building
+            };
+            console.log(`🔧 Tool execution starting: ${currentToolCall.name} with initial input:`, currentToolCall.input);
             
             res.write(`data: ${JSON.stringify({
               type: 'tool_start',
@@ -230,14 +242,45 @@ export class ClaudeApiServiceWorking {
             })}\n\n`);
           }
           
+          // Handle tool input delta (parameter building) - FIXED PARAMETER CAPTURE
+          else if (chunk.type === 'content_block_delta' && chunk.delta && currentToolCall) {
+            if (chunk.delta.type === 'input_json_delta') {
+              // Build tool input incrementally from JSON deltas
+              const partialInput = chunk.delta.partial_json;
+              console.log(`🔧 Building tool input delta: ${partialInput}`);
+              
+              if (!currentToolCall.inputBuffer) currentToolCall.inputBuffer = '';
+              currentToolCall.inputBuffer += partialInput;
+              
+              // Try to parse complete input
+              try {
+                currentToolCall.input = JSON.parse(currentToolCall.inputBuffer);
+                console.log(`✅ Tool input parsed successfully:`, currentToolCall.input);
+              } catch (e) {
+                // Continue building - JSON not complete yet
+              }
+            }
+          }
+          
           // Handle tool completion  
           else if (chunk.type === 'content_block_stop' && currentToolCall) {
-            toolCalls.push(currentToolCall);
-            
-            res.write(`data: ${JSON.stringify({
-              type: 'tool_complete',
-              toolName: currentToolCall.name
-            })}\n\n`);
+            // Ensure tool has proper structure before adding to toolCalls
+            if (currentToolCall.name && currentToolCall.id) {
+              console.log(`✅ Tool completed: ${currentToolCall.name} with final input:`, currentToolCall.input);
+              toolCalls.push({
+                id: currentToolCall.id,
+                name: currentToolCall.name,
+                input: currentToolCall.input || {}
+              });
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_complete',
+                toolName: currentToolCall.name,
+                hasValidInput: !!currentToolCall.input
+              })}\n\n`);
+            } else {
+              console.log(`❌ Tool completion failed: Invalid tool structure`);
+            }
             
             currentToolCall = null;
           }
@@ -404,11 +447,19 @@ export class ClaudeApiServiceWorking {
           switch (tool.name) {
             case 'str_replace_based_edit_tool':
               try {
+                console.log(`🔧 TOOL EXECUTION: str_replace_based_edit_tool with input:`, tool.input);
+                
+                // Validate tool input before execution
+                if (!tool.input || typeof tool.input !== 'object') {
+                  throw new Error(`Invalid tool input: ${JSON.stringify(tool.input)}`);
+                }
+                
                 const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
                 result = await str_replace_based_edit_tool(tool.input);
+                console.log(`✅ TOOL SUCCESS: str_replace_based_edit_tool executed successfully`);
               } catch (importError: any) {
-                console.log(`Tool import fallback for str_replace_based_edit_tool:`, importError?.message);
-                result = `File operation completed: ${tool.input?.command} on ${tool.input?.path}`;
+                console.log(`❌ TOOL ERROR: str_replace_based_edit_tool failed:`, importError?.message);
+                result = `File operation failed: ${importError?.message || 'Unknown error'}`;
               }
               break;
               
