@@ -93,8 +93,8 @@ export class ClaudeApiServiceWorking {
     
     // Scale tokens based on complexity - prevent excessive usage
     if (hasHighComplexity) {
-      console.log(`🧠 COMPLEX TASK DETECTED: Scaling to 32k tokens for comprehensive work`);
-      return 32000; // Full scaling for complex tasks only when needed
+      console.log(`🧠 COMPLEX TASK DETECTED: Using max 8k tokens for comprehensive work`);
+      return 8192; // Claude 3.5 Sonnet maximum output tokens
     }
     
     // Standard complexity detection
