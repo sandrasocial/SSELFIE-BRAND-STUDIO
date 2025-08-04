@@ -35,13 +35,8 @@ export function AdminNavigation({ transparent = true }: AdminNavigationProps) {
     return false;
   };
   
-  // Determine current account from auth state
-  const currentAccount = user?.email || 'ssa@ssasocial.com';
-
-  const accounts = [
-    { email: 'ssa@ssasocial.com', label: 'SSA Admin' },
-    { email: 'shannon@soulresets.com', label: 'Shannon' }
-  ];
+  // Use actual authenticated user without fallback to prevent auth conflicts
+  const currentAccount = user?.email;
 
   // Admin navigation items
   const navItems = [
@@ -50,55 +45,7 @@ export function AdminNavigation({ transparent = true }: AdminNavigationProps) {
     { path: '/analytics', label: 'Analytics' },
   ];
 
-  const switchAccount = async (email: string) => {
-    if (email === currentAccount || isLoading) return;
-    
-    setIsLoading(true);
-    try {
-      if (email === 'shannon@soulresets.com') {
-        // Switch to Shannon's account
-        const response = await fetch('/api/admin/impersonate-user', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'x-admin-token': 'sandra-admin-2025'
-          },
-          body: JSON.stringify({ email: 'shannon@soulresets.com' })
-        });
-        
-        const result = await response.json();
-        if (response.ok && result.success) {
-          console.log('Successfully switched to Shannon:', result.user);
-          // Navigate to workspace for Shannon's account
-          window.location.href = '/workspace';
-        } else {
-          console.error('Failed to switch to Shannon:', result);
-        }
-      } else {
-        // Switch back to admin account
-        const response = await fetch('/api/admin/stop-impersonation', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'x-admin-token': 'sandra-admin-2025'
-          }
-        });
-        
-        const result = await response.json();
-        if (response.ok && result.success) {
-          console.log('Successfully switched back to admin');
-          // Navigate back to admin dashboard
-          window.location.href = '/admin-dashboard';
-        } else {
-          console.error('Failed to switch back to admin:', result);
-        }
-      }
-    } catch (error) {
-      console.error('Account switch failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Removed account switching to prevent auth conflicts
 
   const handleLogout = () => {
     window.location.href = '/api/logout';
@@ -140,30 +87,13 @@ export function AdminNavigation({ transparent = true }: AdminNavigationProps) {
               </button>
             ))}
             
-            {/* Elegant Account Switcher */}
-            <div className="relative group">
-              <div className="flex items-center space-x-2">
-                <div className="w-px h-4 bg-white/20"></div>
-                <div className="text-xs text-white/60">
-                  {accounts.find(acc => acc.email === currentAccount)?.label}
-                </div>
-                <button
-                  onClick={() => {
-                    const nextAccount = accounts.find(acc => acc.email !== currentAccount);
-                    if (nextAccount) switchAccount(nextAccount.email);
-                  }}
-                  disabled={isLoading}
-                  className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300 disabled:opacity-50"
-                >
-                  {isLoading ? '...' : '⇄'}
-                </button>
-                <div className="w-px h-4 bg-white/20"></div>
+            {/* User Display */}
+            <div className="flex items-center space-x-2">
+              <div className="w-px h-4 bg-white/20"></div>
+              <div className="text-xs text-white/60">
+                {currentAccount ? currentAccount.split('@')[0] : 'Admin'}
               </div>
-              
-              {/* Elegant Tooltip */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black/90 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
-                Switch to {accounts.find(acc => acc.email !== currentAccount)?.label}
-              </div>
+              <div className="w-px h-4 bg-white/20"></div>
             </div>
 
             <button
@@ -204,21 +134,11 @@ export function AdminNavigation({ transparent = true }: AdminNavigationProps) {
                 </button>
               ))}
               
-              {/* Mobile Account Switcher */}
-              <div className="flex items-center justify-between pt-4 border-t border-white/10">
+              {/* Mobile User Display */}
+              <div className="pt-4 border-t border-white/10">
                 <div className="text-xs text-white/60">
-                  {accounts.find(acc => acc.email === currentAccount)?.label}
+                  {currentAccount ? currentAccount.split('@')[0] : 'Admin'}
                 </div>
-                <button
-                  onClick={() => {
-                    const nextAccount = accounts.find(acc => acc.email !== currentAccount);
-                    if (nextAccount) switchAccount(nextAccount.email);
-                  }}
-                  disabled={isLoading}
-                  className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300 disabled:opacity-50"
-                >
-                  {isLoading ? '...' : '⇄ Switch'}
-                </button>
               </div>
               
               <button
