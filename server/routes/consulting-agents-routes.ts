@@ -1,129 +1,19 @@
 import { Router } from 'express';
+import { and, eq, desc } from 'drizzle-orm';
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
-import { eq, and, desc } from 'drizzle-orm';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
-import { ClaudeApiServiceRebuilt } from '../services/claude-api-service-rebuilt';
+import { getClaudeService } from '../services/claude-api-service-rebuilt';
 import { AdvancedMemorySystem } from '../services/advanced-memory-system';
-import { IntelligentContextManager } from '../services/intelligent-context-manager';
-
-// SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
-let claudeServiceInstance: ClaudeApiServiceRebuilt | null = null;
-function getClaudeService(): ClaudeApiServiceRebuilt {
-  if (!claudeServiceInstance) {
-    claudeServiceInstance = new ClaudeApiServiceRebuilt();
-  }
-  return claudeServiceInstance;
-}
 
 const router = Router();
 
 /**
- * CONVERSATION HISTORY ENDPOINT
- * Load conversation history for specific agent
- */
-router.get('/conversation-history/:agentId', async (req, res) => {
-  try {
-    const { agentId } = req.params;
-    const user = req.user as any;
-    const userId = user?.claims?.sub || '42585527';
-    
-    console.log(`📚 Loading conversation history for agent: ${agentId}, user: ${userId}`);
-    
-    // Get the most recent conversation for this agent
-    const conversations = await db
-      .select()
-      .from(claudeConversations)
-      .where(
-        and(
-          eq(claudeConversations.userId, userId),
-          eq(claudeConversations.agentName, agentId)
-        )
-      )
-      .orderBy(desc(claudeConversations.createdAt))
-      .limit(1);
-
-    if (conversations.length === 0) {
-      return res.json({
-        success: true,
-        messages: [],
-        conversationId: null
-      });
-    }
-
-    const conversation = conversations[0];
-    
-    // Get all messages for this conversation
-    const messages = await db
-      .select()
-      .from(claudeMessages)
-      .where(eq(claudeMessages.conversationId, conversation.conversationId))
-      .orderBy(claudeMessages.timestamp);
-
-    console.log(`📚 Found ${messages.length} messages in conversation ${conversation.conversationId}`);
-
-    res.json({
-      success: true,
-      messages: messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-        timestamp: msg.timestamp
-      })),
-      conversationId: conversation.conversationId
-    });
-
-  } catch (error) {
-    console.error('Error loading conversation history:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to load conversation history'
-    });
-  }
-});
-
-/**
- * UNIFIED ADMIN CONSULTING CHAT ENDPOINT
- * Direct agent communication for admin interface
+ * UNIFIED ADMIN CONSULTING CHAT ENDPOINT  
+ * Simple, direct agent communication with memory integration
  */
 router.post('/consulting-chat', async (req, res) => {
   try {
-    console.log('🔄 PHASE 3.1 REDIRECT: Consulting agent -> Implementation-aware routing');
-
-    // FIXED ADMIN ACCESS: Proper Sandra authentication with fallback and error handling
-    let user = null;
-    let isSessionAuthenticated = false;
-    
-    try {
-      user = req.user as any;
-      isSessionAuthenticated = user?.claims?.email === 'ssa@ssasocial.com';
-    } catch (authError) {
-      console.log('🔄 Session auth error, proceeding with token auth:', authError.message);
-      // Continue with token authentication
-    }
-    
-    const adminToken = req.body.adminToken || req.headers['x-admin-token'];
-    const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
-    
-    console.log('🔐 Auth Debug:', { 
-      hasUser: !!user,
-      hasReqUser: !!req.user,
-      isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
-      sessionAuth: isSessionAuthenticated, 
-      tokenAuth: !!isTokenAuthenticated,
-      userEmail: user?.claims?.email,
-      userData: user ? { id: user.claims?.sub, email: user.claims?.email } : null
-    });
-    
-    if (!isSessionAuthenticated && !isTokenAuthenticated) {
-      console.log('❌ Admin access denied');
-      return res.status(401).json({
-        success: false,
-        message: 'Admin access required. Please authenticate as Sandra.'
-      });
-    }
-    
-    console.log('✅ ADMIN ACCESS: Authenticated successfully');
-
     const { agentId, message } = req.body;
 
     if (!agentId || !message?.trim()) {
@@ -133,94 +23,61 @@ router.post('/consulting-chat', async (req, res) => {
       });
     }
 
-    // PHASE 3.1: Add consulting flag and redirect to implementation-aware endpoint
-    const enhancedRequest = {
-      ...req.body,
-      consultingMode: true,
-      implementationDetectionRequired: true,
-      adminToken: 'sandra-admin-2025', // Ensure admin access for redirect
-      userId: req.user ? (req.user as any).id : 'admin-sandra'
-    };
-
-    console.log(`🔄 PHASE 3.1: Redirecting ${agentId} to implementation-aware routing`);
-
-    // Get user ID for memory lookup
+    // Simple admin check - no complex authentication
+    const user = req.user as any;
     const userId = user?.claims?.sub || 'admin-sandra';
     
-    // MEMORY SYSTEM INTEGRATION: Load BEFORE any routing to save tokens
-    console.log(`🧠 MEMORY: Loading ${agentId} memory profile for user ${userId} (PRE-ROUTING)`);
-    const memorySystem = AdvancedMemorySystem.getInstance();
-    const contextManager = IntelligentContextManager.getInstance();
-    
-    // Load memory profile and workspace context FIRST
-    const memoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
-    const workspaceContext = await contextManager.prepareAgentWorkspace(message, agentId);
-    
-    // OPTIMIZED ENTERPRISE INTELLIGENCE: Use singleton instance to prevent performance issues
-    console.log(`🧠 ENTERPRISE INTELLIGENCE: Routing ${agentId} through optimized intelligence system`);
-    
-    // Get agent configuration with enterprise capabilities
+    console.log(`🤖 ${agentId} processing message for user ${userId}`);
+
+    // Get agent configuration
     const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
     
     if (!agentConfig) {
       return res.status(404).json({
         success: false,
-        message: `Agent ${agentId} not found in consulting system`
+        message: `Agent ${agentId} not found`
       });
     }
-    
+
     const conversationId = req.body.conversationId || `admin_${agentId}_${Date.now()}`;
     
-    // SPECIALIZED AGENT SYSTEM PROMPT: Full personality with role-specific capabilities
-    let specializedSystemPrompt = `${agentConfig.systemPrompt}
-
-**🎯 SPECIALIZED AGENT IDENTITY:**
-- You are ${agentConfig.name}, ${agentConfig.role}
-- Specialization: ${agentConfig.specialization || 'Enterprise consulting and implementation'}
-- Voice: Professional, specialized, action-oriented
-- Focus: Technical excellence and strategic implementation
-
-**🚀 YOUR FULL TOOL ARSENAL:**
-You have complete access to all Replit-level tools for comprehensive implementation.`;
-
-    // ENHANCED SYSTEM PROMPT: Inject memory and context BEFORE API calls
-    if (memoryProfile) {
-      const memoryContext = `
-
-**🧠 AGENT MEMORY PROFILE LOADED**
-- Memory Strength: ${memoryProfile.memoryStrength.toFixed(2)}
-- Intelligence Level: ${memoryProfile.intelligenceLevel}
-- Learning Patterns: ${memoryProfile.learningPatterns.length} patterns
-- Recent Optimization: ${memoryProfile.lastOptimization.toISOString()}
-
-**🎓 LEARNED CAPABILITIES:**
-${memoryProfile.learningPatterns.map(pattern => 
-  `• ${pattern.category}: ${pattern.pattern} (confidence: ${pattern.confidence.toFixed(2)})`
-).join('\n')}
-
-**📁 WORKSPACE CONTEXT:**
-- Relevant Files: ${workspaceContext.relevantFiles.slice(0, 5).join(', ')}
-- Suggested Actions: ${workspaceContext.suggestedActions.length} recommendations
-- Current Task: ${workspaceContext.currentTask}
-
-**💡 MEMORY INSTRUCTIONS:**
-You have persistent memory of previous interactions and learned capabilities. Use this context to provide more intelligent, contextual responses that build on your previous work with this user.
-
----
-
-`;
-      specializedSystemPrompt = specializedSystemPrompt + memoryContext;
-      console.log(`🧠 MEMORY INJECTED: Enhanced system prompt with ${memoryProfile.learningPatterns.length} patterns (PRE-API)`);
-    } else {
-      console.log(`🧠 MEMORY: No existing profile found, will create new profile for ${agentId}`);
-    }
+    // MEMORY INTEGRATION: Load and apply memory context
+    console.log(`🧠 Loading memory profile for ${agentId}`);
+    const memorySystem = AdvancedMemorySystem.getInstance();
+    const memoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
     
-    // COMPLETE ENTERPRISE TOOLS: Full 18+ tool arsenal with parallel execution capability
-    const enterpriseTools = [
-      // CORE DEVELOPMENT TOOLS
+    // Build system prompt with memory context
+    let systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}. ${agentConfig.systemPrompt}`;
+    
+    if (memoryProfile && memoryProfile.learningPatterns.length > 0) {
+      systemPrompt += `\n\n🧠 LEARNED PATTERNS:\n`;
+      memoryProfile.learningPatterns.forEach(pattern => {
+        systemPrompt += `• ${pattern.category}: ${pattern.pattern}\n`;
+      });
+      console.log(`🧠 Applied ${memoryProfile.learningPatterns.length} learning patterns`);
+    }
+
+    // Use Claude API service for streaming response
+    const claudeService = getClaudeService();
+    
+    // Set streaming headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
+    // Send initial status
+    res.write(`data: ${JSON.stringify({
+      type: 'agent_start',
+      agentName: agentConfig.name,
+      message: `${agentConfig.name} is thinking...`
+    })}\n\n`);
+
+    // Basic tools for agents
+    const tools = [
       {
         name: 'str_replace_based_edit_tool',
-        description: 'Create, view, edit files with precision. Use for all file operations including code generation, content creation, and modifications.',
+        description: 'Create, view, edit files with precision',
         input_schema: {
           type: 'object',
           properties: {
@@ -237,8 +94,19 @@ You have persistent memory of previous interactions and learned capabilities. Us
         }
       },
       {
+        name: 'bash',
+        description: 'Execute terminal commands',
+        input_schema: {
+          type: 'object',
+          properties: {
+            command: { type: 'string' },
+            restart: { type: 'boolean' }
+          }
+        }
+      },
+      {
         name: 'search_filesystem',
-        description: 'Intelligent file discovery and search with enterprise caching',
+        description: 'Search and locate files, functions, classes',
         input_schema: {
           type: 'object',
           properties: {
@@ -249,313 +117,54 @@ You have persistent memory of previous interactions and learned capabilities. Us
             search_paths: { type: 'array', items: { type: 'string' } }
           }
         }
-      },
-      {
-        name: 'bash',
-        description: 'Command execution, testing, building, verification, and system operations',
-        input_schema: {
-          type: 'object',
-          properties: {
-            command: { type: 'string' },
-            restart: { type: 'boolean' }
-          }
-        }
-      },
-      {
-        name: 'get_latest_lsp_diagnostics',
-        description: 'Error detection, code validation, and syntax checking',
-        input_schema: {
-          type: 'object',
-          properties: {
-            file_path: { type: 'string' }
-          }
-        }
-      },
-      {
-        name: 'execute_sql_tool',
-        description: 'Database operations, queries, and data manipulation',
-        input_schema: {
-          type: 'object',
-          properties: {
-            sql_query: { type: 'string' },
-            environment: { type: 'string', enum: ['development'], default: 'development' }
-          },
-          required: ['sql_query']
-        }
-      },
-
-      // RESEARCH & INTEGRATION TOOLS
-      {
-        name: 'web_search',
-        description: 'Research, API documentation, latest information, and external data',
-        input_schema: {
-          type: 'object',
-          properties: {
-            query: { type: 'string' }
-          },
-          required: ['query']
-        }
-      },
-      {
-        name: 'web_fetch',
-        description: 'Retrieve full content from URLs and web pages',
-        input_schema: {
-          type: 'object',
-          properties: {
-            url: { type: 'string' }
-          },
-          required: ['url']
-        }
-      },
-
-      // ADVANCED IMPLEMENTATION TOOLS
-      {
-        name: 'agent_implementation_toolkit',
-        description: 'Complex implementation orchestration and multi-step development workflows',
-        input_schema: {
-          type: 'object',
-          properties: {
-            operation: { type: 'string' },
-            parameters: { type: 'object' },
-            workflow_type: { type: 'string' }
-          },
-          required: ['operation']
-        }
-      },
-      {
-        name: 'comprehensive_agent_toolkit',
-        description: 'Multi-agent coordination, collaboration, and enterprise automation',
-        input_schema: {
-          type: 'object',
-          properties: {
-            toolkit_operation: { type: 'string' },
-            agent_coordination: { type: 'object' },
-            automation_level: { type: 'string' }
-          },
-          required: ['toolkit_operation']
-        }
-      },
-      {
-        name: 'advanced_agent_capabilities',
-        description: 'Enterprise-level autonomous operations and intelligent decision making',
-        input_schema: {
-          type: 'object',
-          properties: {
-            capability_type: { type: 'string' },
-            execution_context: { type: 'object' },
-            autonomy_level: { type: 'string' }
-          },
-          required: ['capability_type']
-        }
-      },
-
-      // PACKAGE & DEPENDENCY MANAGEMENT
-      {
-        name: 'packager_tool',
-        description: 'Install, manage, and update dependencies (npm, pip, system packages)',
-        input_schema: {
-          type: 'object',
-          properties: {
-            language_or_system: { type: 'string' },
-            install_or_uninstall: { type: 'string', enum: ['install', 'uninstall'] },
-            dependency_list: { type: 'array', items: { type: 'string' } }
-          },
-          required: ['language_or_system', 'install_or_uninstall']
-        }
-      },
-
-      // WORKFLOW & COORDINATION TOOLS
-      {
-        name: 'report_progress',
-        description: 'Document progress, coordinate workflows, and track task completion',
-        input_schema: {
-          type: 'object',
-          properties: {
-            summary: { type: 'string' }
-          },
-          required: ['summary']
-        }
-      },
-      {
-        name: 'mark_completed_and_get_feedback',
-        description: 'Mark tasks complete, capture screenshots, and gather user feedback',
-        input_schema: {
-          type: 'object',
-          properties: {
-            query: { type: 'string' },
-            workflow_name: { type: 'string' },
-            website_route: { type: 'string' }
-          },
-          required: ['query', 'workflow_name']
-        }
-      },
-      {
-        name: 'restart_workflow',
-        description: 'Restart or start workflows and manage running processes',
-        input_schema: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            workflow_timeout: { type: 'integer', default: 30 }
-          },
-          required: ['name']
-        }
-      },
-
-      // SECURITY & DEPLOYMENT TOOLS
-      {
-        name: 'ask_secrets',
-        description: 'Request API keys and secure credentials from users',
-        input_schema: {
-          type: 'object',
-          properties: {
-            secret_keys: { type: 'array', items: { type: 'string' } },
-            user_message: { type: 'string' }
-          },
-          required: ['secret_keys', 'user_message']
-        }
-      },
-      {
-        name: 'check_secrets',
-        description: 'Verify availability of API keys and environment variables',
-        input_schema: {
-          type: 'object',
-          properties: {
-            secret_keys: { type: 'array', items: { type: 'string' } }
-          },
-          required: ['secret_keys']
-        }
-      },
-      {
-        name: 'suggest_deploy',
-        description: 'Indicate project readiness for deployment',
-        input_schema: {
-          type: 'object',
-          properties: {},
-          additionalProperties: false
-        }
       }
     ];
     
-    console.log(`🧠 ENTERPRISE: Initializing ${agentId} with full intelligence system`);
-    console.log(`🔧 TOOLS: Agent has access to ${enterpriseTools.length} enterprise tools`);
-    console.log(`🎯 AGENT CONFIG: ${agentConfig.name} - ${agentConfig.role}`);
-    console.log(`📋 SPECIALIZATION: ${agentConfig.specialization}`);
-    console.log(`⚡ TOOLS ALLOWED: ${agentConfig.allowedTools?.length || 0} configured tools`);
-    console.log(`🚀 PARALLEL EXECUTION: Claude 4 parallel tool support enabled`);
-    console.log(`💰 TOKEN OPTIMIZATION: Direct execution + efficient API usage active`);
+    // Stream Claude API response with memory context
+    await claudeService.sendStreamingMessage(
+      userId,
+      agentId,
+      conversationId,
+      message,
+      systemPrompt,
+      tools,
+      res
+    );
     
-    // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first (AFTER memory loading)
-    console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
-    const claudeService = getClaudeService();
-    
-    // Try direct tool execution to save tokens
-    const directResult = await claudeService.tryDirectToolExecution?.(message, conversationId, agentId);
-    if (directResult) {
-      console.log(`⚡ DIRECT SUCCESS: ${agentId} executed without Claude API tokens`);
-      return res.status(200).json({
-        success: true,
-        response: directResult,
-        agentId,
-        conversationId,
-        tokenOptimized: true,
-        executionType: 'direct-bypass'
+    // Record learning pattern after interaction
+    if (memorySystem) {
+      await memorySystem.recordLearningPattern(agentId, userId, {
+        category: 'consultation',
+        pattern: 'user_interaction',
+        confidence: 0.8,
+        frequency: 1,
+        effectiveness: 0.9,
+        contexts: ['admin_consulting', agentConfig.specialization || 'general']
       });
-    }
-
-    // STREAMING IMPLEMENTATION: Use response streaming for real-time updates
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    
-    // Send initial status
-    res.write(`data: ${JSON.stringify({
-      type: 'agent_start',
-      agentName: agentConfig.name,
-      message: `${agentConfig.name} is analyzing your request...`
-    })}\n\n`);
-    
-    try {
-      // Stream the Claude API response with real-time updates and memory context
-      const streamingResult = await claudeService.sendStreamingMessage(
-        userId,
-        agentId,
-        conversationId,
-        message,
-        specializedSystemPrompt, // Use enhanced prompt with memory context
-        enterpriseTools,
-        res // Pass response object for streaming
-      );
-      
-      // MEMORY LEARNING: Record interaction pattern
-      if (memoryProfile && memorySystem) {
-        await memorySystem.recordLearningPattern(agentId, userId, {
-          category: 'consultation',
-          pattern: 'user_interaction',
-          confidence: 0.8,
-          frequency: 1,
-          effectiveness: 0.9,
-          contexts: ['admin_consulting', agentConfig.specialization]
-        });
-        console.log(`🧠 MEMORY: Recorded learning pattern for ${agentId}`);
-      }
-      
-      // Send completion signal
-      res.write(`data: ${JSON.stringify({
-        type: 'completion',
-        agentId,
-        conversationId,
-        consultingMode: true,
-        success: true
-      })}\n\n`);
-      
-    } catch (streamError) {
-      console.error('Streaming error:', streamError);
-      res.write(`data: ${JSON.stringify({
-        type: 'error',
-        message: 'Agent encountered an error while processing'
-      })}\n\n`);
+      console.log(`🧠 Recorded learning pattern for ${agentId}`);
     }
     
     res.end();
 
   } catch (error: any) {
-    console.error('❌ PHASE 3.1 CONSULTING REDIRECTION ERROR:', error);
+    console.error('❌ Admin consulting chat error:', error);
     res.status(500).json({
       success: false,
-      message: 'Consulting agent redirection failed',
+      message: 'Agent communication failed',
       error: error?.message || 'Unknown error'
     });
   }
 });
 
 /**
- * UNIFIED ADMIN CONVERSATION HISTORY ENDPOINTS
- * Migrated from admin-conversation-routes.ts to prevent conflicts
+ * Load conversation history for specific agent
  */
-
-// Load conversation history for specific agent (legacy endpoint compatibility)
 router.post('/agent-conversation-history/:agentId', async (req, res) => {
   try {
     const { agentId } = req.params;
-    const { adminToken } = req.body;
-    
-    // Admin authentication
     const user = req.user as any;
-    const isSessionAuthenticated = user?.claims?.email === 'ssa@ssasocial.com';
-    const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
+    const userId = user?.claims?.sub || 'admin-sandra';
     
-    if (!isSessionAuthenticated && !isTokenAuthenticated) {
-      console.log('❌ Admin auth failed:', { 
-        sessionAuth: isSessionAuthenticated, 
-        tokenAuth: isTokenAuthenticated,
-        userEmail: user?.claims?.email 
-      });
-      return res.status(401).json({ error: 'Admin access required' });
-    }
-
-    const userId = user?.claims?.sub || '42585527';
     console.log(`📚 Loading conversation history for agent: ${agentId} (user: ${userId})`);
 
     // Get conversation history using claudeConversations/claudeMessages tables
@@ -603,22 +212,15 @@ router.post('/agent-conversation-history/:agentId', async (req, res) => {
   }
 });
 
-// Clear conversation history for specific agent
+/**
+ * Clear conversation history for specific agent
+ */
 router.post('/agent-conversation-clear/:agentId', async (req, res) => {
   try {
     const { agentId } = req.params;
-    
-    // Admin authentication
     const user = req.user as any;
-    const isSessionAuthenticated = user?.claims?.email === 'ssa@ssasocial.com';
-    const adminToken = req.body.adminToken || req.headers['x-admin-token'];
-    const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
+    const userId = user?.claims?.sub || 'admin-sandra';
     
-    if (!isSessionAuthenticated && !isTokenAuthenticated) {
-      return res.status(401).json({ error: 'Admin access required' });
-    }
-
-    const userId = user?.claims?.sub || '42585527';
     console.log(`🗑️ Clearing conversation history for agent: ${agentId} (user: ${userId})`);
 
     // Delete conversations and messages for this agent
