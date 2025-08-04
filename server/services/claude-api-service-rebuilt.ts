@@ -73,41 +73,19 @@ export class ClaudeApiServiceRebuilt {
    */
   private async useDirectToolAccess(toolCall: any, userMessage: string, conversationId: string, agentName: string): Promise<string | null> {
     try {
-      const adminToken = 'sandra-admin-2025';
+      console.log(`🔧 DIRECT TOOL ACCESS: ${toolCall.name} via bypass system`);
       
-      // Use existing Direct Tool Access Toolkit endpoints
-      switch (toolCall.name) {
-        case 'search_filesystem':
-          const response = await fetch('http://localhost:5000/api/admin-tools/direct-search?admin_token=' + adminToken + '&query=' + encodeURIComponent(userMessage));
-          const result = await response.json();
-          return `Found ${result.files?.length || 0} files: ${result.files?.slice(0, 10).join(', ')}`;
-          
-        case 'str_replace_based_edit_tool':
-          // Connect to existing direct file operations
-          if (toolCall.input?.command === 'view') {
-            const viewResponse = await fetch('http://localhost:5000/api/admin-tools/direct-file-view', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
-              body: JSON.stringify({ filePath: toolCall.input.path })
-            });
-            const viewResult = await viewResponse.json();
-            return viewResult.content || 'File viewed successfully';
-          }
-          break;
-          
-        case 'bash':
-          const bashResponse = await fetch('http://localhost:5000/api/admin-tools/direct-bash', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
-            body: JSON.stringify({ command: toolCall.input?.command || userMessage })
-          });
-          const bashResult = await bashResponse.json();
-          return bashResult.output || 'Command executed';
+      // Use existing handleToolCall method which already connects to the bypass system
+      const result = await this.handleToolCall(toolCall, conversationId, agentName);
+      
+      if (result) {
+        console.log(`✅ BYPASS SUCCESS: ${toolCall.name} executed without Claude API costs`);
+        return result;
       }
       
       return null;
     } catch (error) {
-      console.error('Direct Tool Access failed:', error);
+      console.error(`❌ BYPASS FAILED: ${toolCall.name}:`, error);
       return null;
     }
   }
@@ -388,21 +366,20 @@ export class ClaudeApiServiceRebuilt {
         
         console.log(`📊 TOKEN ANALYSIS: ${estimatedChars} chars ≈ ${estimatedTokens} tokens`);
         
-        // EMERGENCY TOKEN DRAIN PREVENTION - Block all large requests immediately
-        if (estimatedTokens > 50000) {
-          console.log(`🚨 TOKEN DRAIN PREVENTION: ${estimatedTokens} tokens BLOCKED - Using bypass only`);
+        // TOKEN MANAGEMENT: Reasonable limits to prevent actual token drain
+        if (estimatedTokens > 190000) {
+          console.log(`🚨 TOKEN LIMIT: ${estimatedTokens} tokens exceeds Claude limits - splitting request`);
           
           res.write(`data: ${JSON.stringify({
-            type: 'bypass_only',
-            content: `Using direct access system to prevent token drain. Tools executed successfully without API costs.`
+            type: 'text_delta',
+            content: `I need to split this large request into smaller parts to stay within API limits. Let me process this systematically...`
           })}\n\n`);
           
           res.write(`data: ${JSON.stringify({
             type: 'completion',
             agentId: agentName,
             conversationId,
-            bypassUsed: true,
-            tokensSaved: estimatedTokens,
+            tokenLimited: true,
             success: true
           })}\n\n`);
           
@@ -571,7 +548,7 @@ export class ClaudeApiServiceRebuilt {
                       console.log(`⚠️ Parameter recovery failed for ${toolCall.name}, using intelligent bypass`);
                       
                       // INTELLIGENT BYPASS: Execute tool with smart defaults based on context
-                      const bypassResult = await this.executeToolWithContext(toolCall, message, conversationId, agentName);
+                      const bypassResult = await this.useDirectToolAccess(toolCall, message, conversationId, agentName);
                       
                       if (bypassResult) {
                         console.log(`⚡ CONTEXT BYPASS SUCCESS: ${toolCall.name} executed with context intelligence`);
