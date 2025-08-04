@@ -393,6 +393,17 @@ You have complete access to all Replit-level tools for comprehensive implementat
     
     // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
+    
+    // EMERGENCY TOKEN CONSERVATION: Block all Claude API calls temporarily
+    console.log(`🚨 EMERGENCY: Claude API blocked to prevent token drain for ${agentId}`);
+    return res.json({ 
+      success: true, 
+      response: `Claude API temporarily disabled to prevent token overflow. Agent ${agentId} direct responses only.`,
+      tokensSaved: true,
+      executionType: 'emergency-bypass',
+      agentId,
+      conversationId
+    });
     const claudeService = getClaudeService();
     
     // Try direct tool execution to save tokens
