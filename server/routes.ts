@@ -20,7 +20,7 @@ import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface
-// REMOVED: streaming-admin-routes - consolidated into unified agent system
+import { registerStreamingAdminRoutes } from './routes/streaming-admin-routes';
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
 // STEP 3: Advanced Multi-Agent Workflow Orchestration
@@ -1339,7 +1339,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
   
   // STREAMING ADMIN ROUTES - Fixed WebSocket communication
-  // REMOVED: registerStreamingAdminRoutes - consolidated into unified agent system
+  registerStreamingAdminRoutes(app, server);
   
   // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
   // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
@@ -1668,8 +1668,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const userId = '42585527';
       
       // DIRECT AGENT ACCESS: Route directly to Claude API with workspace tools
-      const { ClaudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
-      const claudeService = new ClaudeApiServiceRebuilt();
+      const { ClaudeApiService } = await import('./services/claude-api-service');
+      const claudeService = new ClaudeApiService();
       
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
       
