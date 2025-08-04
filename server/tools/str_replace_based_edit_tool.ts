@@ -14,11 +14,25 @@ interface EditToolParams {
 
 export async function str_replace_based_edit_tool(params: EditToolParams) {
   try {
+    // CRITICAL FIX: Validate params exist
+    if (!params || typeof params !== 'object') {
+      throw new Error('Invalid parameters provided to str_replace_based_edit_tool');
+    }
+    
     console.log('🔧 ADMIN FILE TOOL: Starting file operation:', {
       command: params.command,
       path: params.path,
       hasWriteAccess: true
     });
+    
+    // CRITICAL FIX: Validate required parameters
+    if (!params.path || typeof params.path !== 'string') {
+      throw new Error('Missing or invalid path parameter');
+    }
+    
+    if (!params.command || typeof params.command !== 'string') {
+      throw new Error('Missing or invalid command parameter');
+    }
     
     // ADMIN AGENTS: ENHANCED PATH RESOLUTION for complex file creation
     // Convert absolute paths starting with / to relative paths
