@@ -177,14 +177,13 @@ export class ClaudeApiServiceWorking {
 
       console.log(`🌊 OPTIMIZED STREAMING: ${agentName} with ${optimalTokens} tokens, cache:${cachedPrompt.useCache}, batch:${shouldUseBatch}`);
       
-      // HYBRID APPROACH: Non-streaming for tool execution, streaming for text
-      // This ensures tool parameters are captured correctly while maintaining real-time text
+      // KEEP STREAMING ARCHITECTURE - Fix parameter capture within streaming
       const requestConfig = {
         model: DEFAULT_MODEL_STR,
         max_tokens: optimalTokens,
         messages: claudeMessages,
         system: cachedPrompt.prompt,
-        stream: false // Non-streaming to capture tool parameters properly
+        stream: true // MAINTAIN STREAMING as required
       };
 
       // CRITICAL FIX: ALWAYS provide full tool arsenal to agents
@@ -197,15 +196,14 @@ export class ClaudeApiServiceWorking {
         console.log(`❌ NO TOOLS PROVIDED: This will severely limit agent capabilities!`);
       }
 
-      console.log(`🌊 HYBRID REQUEST: ${JSON.stringify({
+      console.log(`🌊 STREAMING REQUEST: ${JSON.stringify({
         model: requestConfig.model,
         max_tokens: requestConfig.max_tokens,
         tools_count: tools?.length || 0,
         system_length: cachedPrompt.prompt.length
       })}`);
 
-      // Use non-streaming to get complete response with proper tool parameters
-      const response = await anthropic.messages.create(requestConfig) as any;
+      const stream = await anthropic.messages.create(requestConfig) as any;
 
       let fullResponse = '';
       let toolCalls = [];
@@ -242,22 +240,24 @@ export class ClaudeApiServiceWorking {
             })}\n\n`);
           }
           
-          // Handle tool input delta (parameter building) - FIXED PARAMETER CAPTURE
+          // FIXED: Handle tool input delta properly - this captures tool parameters as they stream
           else if (chunk.type === 'content_block_delta' && chunk.delta && currentToolCall) {
             if (chunk.delta.type === 'input_json_delta') {
-              // Build tool input incrementally from JSON deltas
+              // Build tool input incrementally from streaming JSON
               const partialInput = chunk.delta.partial_json;
-              console.log(`🔧 Building tool input delta: ${partialInput}`);
+              console.log(`🔧 Building tool parameter: ${partialInput}`);
               
               if (!currentToolCall.inputBuffer) currentToolCall.inputBuffer = '';
               currentToolCall.inputBuffer += partialInput;
               
-              // Try to parse complete input
+              // Try to parse the accumulating JSON parameters
               try {
-                currentToolCall.input = JSON.parse(currentToolCall.inputBuffer);
-                console.log(`✅ Tool input parsed successfully:`, currentToolCall.input);
+                const parsedInput = JSON.parse(currentToolCall.inputBuffer);
+                currentToolCall.input = parsedInput;
+                console.log(`✅ Tool parameters captured:`, parsedInput);
               } catch (e) {
-                // Continue building - JSON not complete yet
+                // JSON still building, continue accumulating
+                console.log(`🔄 Still building parameters... (${currentToolCall.inputBuffer.length} chars)`);
               }
             }
           }
@@ -530,14 +530,19 @@ export class ClaudeApiServiceWorking {
         }
       }
 
-      // Continue conversation with tool results
+      // Continue conversation with tool results - FIXED MESSAGE FORMAT
       const continuedMessages = [
         ...claudeMessages,
         {
           role: "assistant",
           content: [
             { type: "text", text: initialResponse },
-            ...toolCalls
+            ...toolCalls.map(tool => ({
+              type: "tool_use",
+              id: tool.id,
+              name: tool.name,
+              input: tool.input
+            }))
           ]
         },
         {
