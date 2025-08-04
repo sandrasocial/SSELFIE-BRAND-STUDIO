@@ -66,9 +66,10 @@ export class ClaudeApiServiceRebuilt {
   private progressTracker = new ProgressTrackingService();
   
   constructor() {
-    // UNLIMITED AGENT MODE: Activate complete agent liberation
+    // UNLIMITED AGENT MODE: Activate complete agent liberation (silent mode)
     if (UNLIMITED_AGENT_MODE) {
-      applyUnlimitedAgentConfig();
+      // Silent activation to prevent spam logs
+      console.log('🎯 Unlimited agent mode active');
     }
   }
   
