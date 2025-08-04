@@ -191,7 +191,7 @@ export class ClaudeApiServiceRebuilt {
               // Execute tools and add results
               for (const toolCall of toolCalls) {
                 try {
-                  const toolResult = await this.executeActualToolCall(toolCall, res, agentName);
+                  const toolResult = await this.handleToolCall(toolCall, conversationId, agentName);
                   
                   // Add tool result to conversation
                   currentMessages.push({
@@ -206,6 +206,7 @@ export class ClaudeApiServiceRebuilt {
                   res.write(`data: ${JSON.stringify({
                     type: 'tool_complete',
                     toolName: toolCall.name,
+                    result: toolResult.substring(0, 200) + '...',
                     message: `${agentName} completed ${toolCall.name}`
                   })}\n\n`);
                   
@@ -267,46 +268,7 @@ export class ClaudeApiServiceRebuilt {
     }
   }
 
-  /**
-   * TOOL EXECUTION WITH STREAMING FEEDBACK
-   */
-  async executeToolCall(toolCall: any, res: any, agentName: string): Promise<string> {
-    const toolName = toolCall.name;
-    const toolInput = toolCall.input;
-    
-    res.write(`data: ${JSON.stringify({
-      type: 'tool_executing',
-      toolName,
-      input: toolInput,
-      message: `${agentName} is executing ${toolName}...`
-    })}\n\n`);
-    
-    // Simulate tool execution (replace with actual tool implementations)
-    let result = '';
-    
-    switch (toolName) {
-      case 'str_replace_based_edit_tool':
-        result = `File operation completed: ${toolInput.command} on ${toolInput.path}`;
-        break;
-      case 'search_filesystem':
-        result = `Search completed for: ${toolInput.query_description || 'files'}`;
-        break;
-      case 'bash':
-        result = `Command executed: ${toolInput.command}`;
-        break;
-      default:
-        result = `Tool ${toolName} executed successfully`;
-    }
-    
-    res.write(`data: ${JSON.stringify({
-      type: 'tool_complete',
-      toolName,
-      result,
-      message: `${agentName} completed ${toolName}`
-    })}\n\n`);
-    
-    return result;
-  }
+
 
   /**
    * LOAD CONVERSATION MESSAGES
@@ -791,8 +753,11 @@ I have complete workspace access and can implement any changes you need. What wo
           input: { command: 'view', path: filePath }
         }, conversationId, agentId);
         
-        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
-        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `Direct file access completed:\n\n${result}`);
+        if (conversationId) {
+          await this.createConversationIfNotExists('42585527', agentId || 'unknown', conversationId);
+          await this.saveMessageToDb(conversationId, 'user', message);
+          await this.saveMessageToDb(conversationId, 'assistant', `Direct file access completed:\n\n${result}`);
+        }
         
         return `Direct file access completed:\n\n${result}`;
       }
@@ -807,8 +772,11 @@ I have complete workspace access and can implement any changes you need. What wo
           input: { query_description: searchQuery }
         }, conversationId, agentId);
         
-        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
-        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `Search completed:\n\n${result}`);
+        if (conversationId) {
+          await this.createConversationIfNotExists('42585527', agentId || 'unknown', conversationId);
+          await this.saveMessageToDb(conversationId, 'user', message);
+          await this.saveMessageToDb(conversationId, 'assistant', `Search completed:\n\n${result}`);
+        }
         
         return `Search completed:\n\n${result}`;
       }
@@ -854,8 +822,11 @@ I have complete workspace access and can implement any changes you need. What wo
           input: { command: 'create', path: filePath, file_text: template }
         }, conversationId, agentId);
         
-        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
-        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `File created with template:\n\n${result}`);
+        if (conversationId) {
+          await this.createConversationIfNotExists('42585527', agentId || 'unknown', conversationId);
+          await this.saveMessageToDb(conversationId, 'user', message);
+          await this.saveMessageToDb(conversationId, 'assistant', `File created with template:\n\n${result}`);
+        }
         
         return `File created with template:\n\n${result}`;
       }
@@ -870,8 +841,11 @@ I have complete workspace access and can implement any changes you need. What wo
           input: { command }
         }, conversationId, agentId);
         
-        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
-        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `Command executed:\n\n${result}`);
+        if (conversationId) {
+          await this.createConversationIfNotExists('42585527', agentId || 'unknown', conversationId);
+          await this.saveMessageToDb(conversationId, 'user', message);
+          await this.saveMessageToDb(conversationId, 'assistant', `Command executed:\n\n${result}`);
+        }
         
         return `Command executed:\n\n${result}`;
       }

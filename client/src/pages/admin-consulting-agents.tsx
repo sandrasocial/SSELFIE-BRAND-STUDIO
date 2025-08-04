@@ -489,6 +489,17 @@ export default function AdminConsultingAgents() {
                     ));
                     break;
                     
+                  case 'continuing':
+                    setMessages(prev => prev.map(msg => 
+                      msg.id === agentMessageId 
+                        ? { 
+                            ...msg, 
+                            content: msg.content + `\n\n🔄 **${data.message}**\n`
+                          }
+                        : msg
+                    ));
+                    break;
+                    
                   case 'tool_complete':
                     setMessages(prev => prev.map(msg => 
                       msg.id === agentMessageId 
