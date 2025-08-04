@@ -9,7 +9,7 @@ import { advancedMemorySystem } from './advanced-memory-system';
 import { crossAgentIntelligence } from './cross-agent-intelligence';
 import { IntelligentContextManager } from './intelligent-context-manager';
 import { PredictiveErrorPrevention } from './predictive-error-prevention';
-import { TaskOrchestrationSystem } from './task-orchestration-system';
+// REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
 import { WebSearchOptimizationService } from './web-search-optimization';
 import { ProgressTrackingService } from './progress-tracking';
 import { UnifiedWorkspaceService } from './unified-workspace-service';
@@ -56,7 +56,7 @@ export class ClaudeApiServiceRebuilt {
   private errorPrevention = PredictiveErrorPrevention.getInstance();
   private memorySystem = advancedMemorySystem;
   private crossAgent = crossAgentIntelligence;
-  private taskOrchestrator = new TaskOrchestrationSystem();
+  // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
   private webSearch = new WebSearchOptimizationService();
   // private workspaceService = new UnifiedWorkspaceService(); // Constructor is private
   private deploymentTracker = new DeploymentTrackingService();

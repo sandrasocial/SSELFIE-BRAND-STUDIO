@@ -19,7 +19,7 @@ import { unifiedSessionManager } from './services/unified-session-manager';
 import { IntelligentContextManager } from './services/intelligent-context-manager';
 import { agentSearchCache } from './services/agent-search-cache';
 import { crossAgentIntelligence } from './services/cross-agent-intelligence';
-import { TaskOrchestrationSystem } from './services/task-orchestration-system';
+// REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
 import { DeploymentTrackingService } from './services/deployment-tracking-service';
 // CONSOLIDATED: Removed competing agentIntegrationSystem import - all routing through unified system
 
@@ -48,7 +48,7 @@ export class UnifiedAgentSystem {
   
   // ENTERPRISE INTELLIGENCE INTEGRATION
   private contextManager = IntelligentContextManager.getInstance();
-  private taskOrchestrator = new TaskOrchestrationSystem();
+  // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
   private deploymentTracker = new DeploymentTrackingService();
 
   private constructor() {}
