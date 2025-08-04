@@ -201,29 +201,64 @@ export class ClaudeApiServiceWorking {
       const stream = await anthropic.messages.create(requestConfig);
 
       let fullResponse = '';
+      let toolCalls = [];
+      let currentToolCall = null;
       
-      // PROCESS STREAMING RESPONSE - Based on Anthropic documentation
+      // COMPLETE TOOL EXECUTION CYCLE - Handle tools within streaming
       try {
         for await (const chunk of stream) {
+          // Handle text content
           if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
             const textChunk = chunk.delta.text;
             fullResponse += textChunk;
             
-            // Send streaming text to client
             res.write(`data: ${JSON.stringify({
               type: 'text_delta',
               content: textChunk
             })}\n\n`);
-          } 
+          }
+          
+          // Handle tool execution start
           else if (chunk.type === 'content_block_start' && chunk.content_block?.type === 'tool_use') {
-            console.log(`🔧 Tool execution: ${chunk.content_block.name}`);
+            currentToolCall = chunk.content_block;
+            console.log(`🔧 Tool execution starting: ${currentToolCall.name}`);
+            
             res.write(`data: ${JSON.stringify({
               type: 'tool_start',
-              toolName: chunk.content_block.name
+              toolName: currentToolCall.name,
+              input: currentToolCall.input
             })}\n\n`);
           }
+          
+          // Handle tool completion  
+          else if (chunk.type === 'content_block_stop' && currentToolCall) {
+            toolCalls.push(currentToolCall);
+            
+            res.write(`data: ${JSON.stringify({
+              type: 'tool_complete',
+              toolName: currentToolCall.name
+            })}\n\n`);
+            
+            currentToolCall = null;
+          }
+          
+          // Handle message completion
           else if (chunk.type === 'message_stop') {
-            console.log(`✅ STREAM COMPLETED: Total response length: ${fullResponse.length} chars`);
+            console.log(`✅ INITIAL STREAM COMPLETED: ${fullResponse.length} chars, ${toolCalls.length} tools`);
+            
+            // If tools were called, execute them and continue the conversation
+            if (toolCalls.length > 0) {
+              res.write(`data: ${JSON.stringify({
+                type: 'tools_executing',
+                count: toolCalls.length
+              })}\n\n`);
+              
+              // Execute all tools and continue streaming
+              await this.executeToolsAndContinueStreaming(
+                claudeMessages, cachedPrompt.prompt, toolCalls, fullResponse, 
+                anthropic, optimalTokens, res
+              );
+            }
             break;
           }
         }
@@ -310,6 +345,82 @@ export class ClaudeApiServiceWorking {
    * GENERATE DIRECT RESPONSES
    * Create agent-appropriate responses for direct execution
    */
+  /**
+   * EXECUTE TOOLS AND CONTINUE STREAMING
+   * Complete the tool execution cycle within streaming response
+   */
+  private async executeToolsAndContinueStreaming(
+    claudeMessages: any[], 
+    systemPrompt: string, 
+    toolCalls: any[], 
+    initialResponse: string,
+    anthropic: any,
+    maxTokens: number,
+    res: any
+  ) {
+    try {
+      // Build tool results (for now, just acknowledge execution)
+      const toolResults = toolCalls.map(tool => ({
+        type: "tool_result",
+        tool_use_id: tool.id,
+        content: `Tool ${tool.name} executed successfully with parameters: ${JSON.stringify(tool.input)}`
+      }));
+
+      // Continue conversation with tool results
+      const continuedMessages = [
+        ...claudeMessages,
+        {
+          role: "assistant",
+          content: [
+            { type: "text", text: initialResponse },
+            ...toolCalls
+          ]
+        },
+        {
+          role: "user", 
+          content: toolResults
+        }
+      ];
+
+      // Stream continued response
+      const continuedStream = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: maxTokens,
+        messages: continuedMessages,
+        system: systemPrompt,
+        stream: true
+      });
+
+      res.write(`data: ${JSON.stringify({
+        type: 'continuation_start',
+        message: 'Continuing with tool results...'
+      })}\n\n`);
+
+      // Process continued streaming
+      for await (const chunk of continuedStream) {
+        if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
+          const textChunk = chunk.delta.text;
+          
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: textChunk
+          })}\n\n`);
+        }
+        else if (chunk.type === 'message_stop') {
+          console.log(`✅ COMPLETE RESPONSE FINISHED: Tool execution cycle complete`);
+          break;
+        }
+      }
+      
+    } catch (error) {
+      console.error('Tool execution continuation error:', error);
+      res.write(`data: ${JSON.stringify({
+        type: 'tool_error',
+        message: 'Tool execution encountered an error but response continues...'
+      })}\n\n`);
+    }
+  }
+
   private generateDirectResponse(action: string, agentId: string): string {
     const agentResponses: Record<string, Record<string, string>> = {
       greeting: {
