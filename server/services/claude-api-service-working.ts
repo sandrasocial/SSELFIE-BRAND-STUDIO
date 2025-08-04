@@ -283,29 +283,27 @@ export class ClaudeApiServiceWorking {
   }
 
   /**
-   * DIRECT EXECUTION DETECTION
-   * Identify tasks that can bypass Claude API entirely
+   * DIRECT EXECUTION DETECTION - 2025 OPTIMIZED
+   * Only bypass Claude API for truly simple operations (following research best practices)
    */
   private attemptDirectExecution(message: string): any {
-    const lowerMessage = message.toLowerCase();
+    const lowerMessage = message.toLowerCase().trim();
     
-    // Simple greetings and status checks  
-    if (lowerMessage.match(/^(hello|hi|hey|status|ping|test)$/)) {
+    // ONLY very simple, single-word greetings and status checks  
+    if (lowerMessage.match(/^(hello|hi|hey|status|ping)$/)) {
       console.log(`🚀 DIRECT EXECUTION TRIGGERED: Simple greeting detected`);
       return { type: 'direct_execution', action: 'greeting' };
     }
     
-    // File viewing requests
-    if (lowerMessage.includes('view file') || lowerMessage.includes('show me')) {
-      return { type: 'direct_execution', action: 'file_view' };
+    // System health checks
+    if (lowerMessage.match(/^(health|uptime|system status)$/)) {
+      return { type: 'direct_execution', action: 'system_status' };
     }
     
-    // Simple searches
-    if (lowerMessage.includes('search for') && lowerMessage.length < 50) {
-      return { type: 'direct_execution', action: 'search' };
-    }
+    // IMPORTANT: Let complex requests (create, write, analyze, test, etc.) go through full Claude API
+    // This ensures agents maintain their personalities, memory, and specialized capabilities
     
-    return null; // No direct execution possible
+    return null; // Most operations should use full Claude API with streaming
   }
 
   /**
@@ -343,7 +341,8 @@ export class ClaudeApiServiceWorking {
       };
     }
 
-    // Enhanced: Try enterprise tool execution
+    // Enhanced: Try enterprise tool execution (ONLY for very specific operations)
+    // Most complex tasks should use Claude API to maintain agent personalities
     const enterpriseResult = await this.tryEnterpriseToolExecution(message, agentId, enterpriseToolRegistry);
     if (enterpriseResult) {
       console.log(`⚡ ENTERPRISE TOOL: ${agentId} executed via enterprise registry - ${enterpriseResult.tokensUsed} tokens`);
@@ -360,37 +359,19 @@ export class ClaudeApiServiceWorking {
   }
 
   /**
-   * ENTERPRISE TOOL EXECUTION LOGIC
+   * ENTERPRISE TOOL EXECUTION LOGIC - 2025 HYBRID APPROACH
+   * ONLY for non-creative, specific operational tasks - most work goes through Claude API
    */
   private async tryEnterpriseToolExecution(message: string, agentId: string, registry: any): Promise<any> {
-    const lowerMessage = message.toLowerCase();
+    const lowerMessage = message.toLowerCase().trim();
     
-    // Intelligence operations
-    if (lowerMessage.includes('analyze') || lowerMessage.includes('understand')) {
-      return await registry.executeTool('intelligent_context_manager', { content: message }, agentId, {});
-    }
+    // VERY RESTRICTIVE: Only exact matches for simple operations
+    // ALL creative work, coding, analysis must use Claude API with full personality
     
-    // Memory operations
-    if (lowerMessage.includes('remember') || lowerMessage.includes('recall')) {
-      return await registry.executeTool('advanced_memory_system', { query: message }, agentId, {});
-    }
+    // DISABLED FOR NOW: Let all complex tasks use Claude API streaming
+    // This ensures agents maintain their personalities, memory, and specialized capabilities
     
-    // Coordination operations
-    if (lowerMessage.includes('coordinate') || lowerMessage.includes('collaborate')) {
-      return await registry.executeTool('multi_agent_coordinator', { task: message }, agentId, {});
-    }
-    
-    // File operations (enhanced)
-    if (lowerMessage.includes('search') || lowerMessage.includes('find')) {
-      return await registry.executeTool('file_search', { query: message }, agentId, {});
-    }
-    
-    // System operations
-    if (lowerMessage.includes('status') || lowerMessage.includes('health')) {
-      return await registry.executeTool('system_status', {}, agentId, {});
-    }
-    
-    return null;
+    return null; // Route ALL tasks through Claude API for full agent capabilities
   }
 
   /**
