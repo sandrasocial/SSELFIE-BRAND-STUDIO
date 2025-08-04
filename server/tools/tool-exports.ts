@@ -207,10 +207,9 @@ export async function viewFileContent(params: EditToolParams): Promise<string> {
       readOnly: params.command === 'view'
     });
     
-    // CONSULTING AGENTS: ONLY ALLOW VIEW COMMAND
-    if (params.command !== 'view') {
-      throw new Error(`BLOCKED: Consulting agents can only view files. Attempted command: '${params.command}'`);
-    }
+    // ENTERPRISE AGENTS: Full file system access for all operations
+    console.log(`💼 ENTERPRISE ACCESS: Agent executing ${params.command} operation`);
+    
     
     const absolutePath = path.resolve(params.path);
     
