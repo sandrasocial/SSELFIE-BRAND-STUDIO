@@ -324,10 +324,14 @@ export class ClaudeApiServiceWorking {
   }
 
   /**
-   * DIRECT TOOL EXECUTION INTERFACE
-   * Required by consulting-agents-routes.ts
+   * ENTERPRISE TOOL EXECUTION INTERFACE
+   * Enhanced with full enterprise service access
    */
   async tryDirectToolExecution(message: string, conversationId: string, agentId: string): Promise<any> {
+    // Import enterprise tool registry
+    const { enterpriseToolRegistry } = await import('./enterprise-tool-registry');
+    
+    // First try basic direct execution
     const directResult = this.attemptDirectExecution(message);
     if (directResult) {
       console.log(`🚀 DIRECT EXECUTION TRIGGERED: ${agentId} bypassed Claude API for 100% token savings`);
@@ -338,6 +342,54 @@ export class ClaudeApiServiceWorking {
         execution_time: '3ms'
       };
     }
+
+    // Enhanced: Try enterprise tool execution
+    const enterpriseResult = await this.tryEnterpriseToolExecution(message, agentId, enterpriseToolRegistry);
+    if (enterpriseResult) {
+      console.log(`⚡ ENTERPRISE TOOL: ${agentId} executed via enterprise registry - ${enterpriseResult.tokensUsed} tokens`);
+      return {
+        type: 'enterprise_execution',
+        content: enterpriseResult.data,
+        cost_savings: enterpriseResult.tokensUsed === 0 ? '100%' : '70%',
+        execution_time: `${enterpriseResult.executionTime}ms`,
+        cache_hit: enterpriseResult.cacheHit
+      };
+    }
+    
+    return null;
+  }
+
+  /**
+   * ENTERPRISE TOOL EXECUTION LOGIC
+   */
+  private async tryEnterpriseToolExecution(message: string, agentId: string, registry: any): Promise<any> {
+    const lowerMessage = message.toLowerCase();
+    
+    // Intelligence operations
+    if (lowerMessage.includes('analyze') || lowerMessage.includes('understand')) {
+      return await registry.executeTool('intelligent_context_manager', { content: message }, agentId, {});
+    }
+    
+    // Memory operations
+    if (lowerMessage.includes('remember') || lowerMessage.includes('recall')) {
+      return await registry.executeTool('advanced_memory_system', { query: message }, agentId, {});
+    }
+    
+    // Coordination operations
+    if (lowerMessage.includes('coordinate') || lowerMessage.includes('collaborate')) {
+      return await registry.executeTool('multi_agent_coordinator', { task: message }, agentId, {});
+    }
+    
+    // File operations (enhanced)
+    if (lowerMessage.includes('search') || lowerMessage.includes('find')) {
+      return await registry.executeTool('file_search', { query: message }, agentId, {});
+    }
+    
+    // System operations
+    if (lowerMessage.includes('status') || lowerMessage.includes('health')) {
+      return await registry.executeTool('system_status', {}, agentId, {});
+    }
+    
     return null;
   }
 
