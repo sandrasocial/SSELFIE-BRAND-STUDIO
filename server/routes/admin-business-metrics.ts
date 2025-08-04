@@ -152,12 +152,12 @@ router.get('/recent-activity', isAuthenticated, isAdmin, async (req, res) => {
       .orderBy(desc(users.createdAt))
       .limit(10);
 
-    // Get recent AI image generations
+    // Get recent AI image generations - fixed query
     const recentImages = await db
       .select({
         userId: aiImages.userId,
         createdAt: aiImages.createdAt,
-        status: aiImages.status
+        generationStatus: aiImages.generationStatus
       })
       .from(aiImages)
       .where(gte(aiImages.createdAt, sql`NOW() - INTERVAL '7 days'`))
