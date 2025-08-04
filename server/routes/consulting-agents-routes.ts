@@ -395,63 +395,36 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
     const claudeService = getClaudeService();
     
-    // Try direct tool execution to save tokens
+    // 🚨 FORCE BYPASS: All consulting agents must use bypass system (no Claude API)
+    console.log(`🚨 CONSULTING BYPASS: Forcing ${agentId} to use ZERO-cost bypass system`);
+    
     const directResult = await claudeService.tryDirectToolExecution?.(message, conversationId, agentId);
     if (directResult) {
-      console.log(`⚡ DIRECT SUCCESS: ${agentId} executed without Claude API tokens`);
+      console.log(`⚡ BYPASS SUCCESS: ${agentId} executed without Claude API tokens`);
       return res.status(200).json({
         success: true,
         response: directResult,
         agentId,
         conversationId,
         tokenOptimized: true,
-        executionType: 'direct-bypass'
+        executionType: 'forced-bypass'
       });
     }
+    
+    // 🚨 NO STREAMING FALLBACK: Stop using Claude API for consulting agents
+    console.log(`❌ CONSULTING BYPASS FAIL: ${agentId} cannot complete request without API costs`);
+    return res.status(200).json({
+      success: false,
+      response: `BYPASS SYSTEM LIMITATION: Agent ${agentId} cannot complete this complex request without using Claude API (which would cost money). Please try a simpler, more direct request.`,
+      agentId,
+      conversationId,
+      tokenOptimized: true,
+      executionType: 'bypass-limitation',
+      error: 'Complex request requires Claude API - blocked to prevent costs'
+    });
 
-    // STREAMING IMPLEMENTATION: Use response streaming for real-time updates
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    
-    // Send initial status
-    res.write(`data: ${JSON.stringify({
-      type: 'agent_start',
-      agentName: agentConfig.name,
-      message: `${agentConfig.name} is analyzing your request...`
-    })}\n\n`);
-    
-    try {
-      // Stream the Claude API response with real-time updates
-      const streamingResult = await claudeService.sendStreamingMessage(
-        userId,
-        agentId,
-        conversationId,
-        message,
-        specializedSystemPrompt,
-        enterpriseTools,
-        res // Pass response object for streaming
-      );
-      
-      // Send completion signal
-      res.write(`data: ${JSON.stringify({
-        type: 'completion',
-        agentId,
-        conversationId,
-        consultingMode: true,
-        success: true
-      })}\n\n`);
-      
-    } catch (streamError) {
-      console.error('Streaming error:', streamError);
-      res.write(`data: ${JSON.stringify({
-        type: 'error',
-        message: 'Agent encountered an error while processing'
-      })}\n\n`);
-    }
-    
-    res.end();
+    // 🚨 REMOVED: No streaming fallback to prevent Claude API usage and costs
+    // All consulting agents now MUST use bypass system only
 
   } catch (error: any) {
     console.error('❌ PHASE 3.1 CONSULTING REDIRECTION ERROR:', error);
