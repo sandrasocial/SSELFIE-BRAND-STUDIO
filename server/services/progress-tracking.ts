@@ -59,7 +59,7 @@ export class ProgressTrackingService {
     if (this.isTracking) return;
     
     this.isTracking = true;
-    console.log('📊 PROGRESS TRACKING: Real-time monitoring started');
+    // console.log('📊 PROGRESS TRACKING: Real-time monitoring started');
 
     // Create snapshot every 5 minutes
     this.trackingInterval = setInterval(() => {
@@ -144,7 +144,7 @@ export class ProgressTrackingService {
       this.snapshots = this.snapshots.slice(-100);
     }
 
-    console.log(`📸 SNAPSHOT CREATED: ${snapshot.id}`);
+    // console.log(`📸 SNAPSHOT CREATED: ${snapshot.id}`);
   }
 
   /**

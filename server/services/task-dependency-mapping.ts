@@ -170,7 +170,7 @@ export class TaskDependencyMappingService {
       this.activeTasks.set(task.id, task);
     });
 
-    console.log('📋 TASK MAPPING: Workflow templates initialized');
+    // console.log('📋 TASK MAPPING: Workflow templates initialized');
   }
 
   /**

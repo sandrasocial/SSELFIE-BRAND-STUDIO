@@ -337,60 +337,42 @@ export default function AdminConsultingAgents() {
     }
   }, [location, selectedAgent, consultingAgents]);
 
-  // Initialize conversation when agent is selected - LOAD HISTORY
+  // Simple conversation loading - no heavy operations
   useEffect(() => {
-    if (selectedAgent) {
-      console.log('🔄 Initializing conversation for agent:', selectedAgent.id);
-      loadAgentConversationHistory(selectedAgent.id);
-    }
-  }, [selectedAgent?.id]);
-
-  // Load conversation history from backend
-  const loadAgentConversationHistory = async (agentId: string) => {
-    try {
-      const response = await fetch(`/api/consulting-agents/conversation-history/${agentId}`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (response.ok) {
+    if (!selectedAgent) return;
+    
+    const loadHistory = async () => {
+      try {
+        const response = await fetch(`/api/consulting-agents/conversation-history/${selectedAgent.id}`, {
+          credentials: 'include'
+        });
+        
         const result = await response.json();
         
-        if (result.success && result.messages && result.messages.length > 0) {
-          console.log(`📚 Loaded ${result.messages.length} messages for ${agentId}`);
-          
-          // Convert backend messages to frontend format
+        if (result.success && result.messages) {
           const formattedMessages: ChatMessage[] = result.messages.map((msg: any, index: number) => ({
-            id: `${msg.timestamp}-${index}`,
+            id: `${index}`,
             type: msg.role === 'user' ? 'user' : 'agent',
             content: msg.content,
             timestamp: msg.timestamp,
-            agentName: agentId
+            agentName: selectedAgent.name,
+            streaming: false
           }));
           
           setMessages(formattedMessages);
           setConversationId(result.conversationId);
         } else {
-          // No history found - start fresh
-          console.log(`📝 No history found for ${agentId}, starting fresh`);
           setMessages([]);
-          const newConversationId = `admin_${agentId}_${Date.now()}`;
-          setConversationId(newConversationId);
+          setConversationId(null);
         }
-      } else {
-        // Error loading history - start fresh
-        console.log(`⚠️ Error loading history for ${agentId}, starting fresh`);
+      } catch (error) {
         setMessages([]);
-        const newConversationId = `admin_${agentId}_${Date.now()}`;
-        setConversationId(newConversationId);
+        setConversationId(null);
       }
-    } catch (error) {
-      console.error('Error loading conversation history:', error);
-      setMessages([]);
-      const newConversationId = `admin_${agentId}_${Date.now()}`;
-      setConversationId(newConversationId);
-    }
-  };
+    };
+
+    loadHistory();
+  }, [selectedAgent?.id]);
 
 
 
