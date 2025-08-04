@@ -76,9 +76,39 @@ export class ClaudeApiServiceRebuilt {
     res: any // Express response object for streaming
   ): Promise<void> {
     try {
-      // 🚀 CRITICAL TOKEN OPTIMIZATION: Try direct tool execution FIRST
+      // 🚀 CRITICAL TOKEN OPTIMIZATION: Try direct tool execution FIRST  
       console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentName}`);
       const directResult = await this.tryDirectToolExecution(message, conversationId, agentName);
+      
+      // ENHANCED: Also try bypass detection for file operations
+      if (!directResult) {
+        const bypassResult = await this.detectAndExecuteBypass(message, conversationId, agentName);
+        if (bypassResult) {
+          console.log(`⚡ BYPASS SUCCESS: Direct operation completed`);
+          
+          res.write(`data: ${JSON.stringify({
+            type: 'agent_start',
+            agentName: agentName.charAt(0).toUpperCase() + agentName.slice(1),
+            message: `${agentName.charAt(0).toUpperCase() + agentName.slice(1)} is executing...`
+          })}\n\n`);
+          
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: bypassResult
+          })}\n\n`);
+          
+          res.write(`data: ${JSON.stringify({
+            type: 'completion',
+            agentId: agentName,
+            conversationId,
+            consultingMode: true,
+            success: true
+          })}\n\n`);
+          
+          res.end();
+          return;
+        }
+      }
       
       if (directResult) {
         // SUCCESS: Tool executed without Claude API tokens
@@ -223,12 +253,20 @@ export class ClaudeApiServiceRebuilt {
                 content: textDelta
               })}\n\n`);
             } else if (chunk.delta.type === 'input_json_delta') {
-              // CRITICAL FIX: Capture tool parameters from streaming deltas
-              const contentBlock = toolCalls.find(tc => tc.id === chunk.index);
+              // CRITICAL FIX: Capture tool parameters from streaming deltas with proper indexing
+              console.log(`🔍 RAW CHUNK:`, JSON.stringify(chunk, null, 2));
+              
+              // Find the correct tool call by content_block index, not chunk.index
+              const contentBlockIndex = typeof chunk.index === 'number' ? chunk.index : 0;
+              const contentBlock = toolCalls[contentBlockIndex];
+              
               if (contentBlock) {
                 if (!contentBlock.inputBuffer) contentBlock.inputBuffer = '';
                 contentBlock.inputBuffer += chunk.delta.partial_json;
-                console.log(`🔍 PARAMETER BUFFER for ${contentBlock.name}:`, contentBlock.inputBuffer);
+                console.log(`✅ PARAMETER CAPTURE: ${contentBlock.name} buffer: "${contentBlock.inputBuffer}"`);
+              } else {
+                console.error(`❌ PARAMETER CAPTURE FAILED: No tool call found at index ${contentBlockIndex}`);
+                console.error(`Available tool calls:`, toolCalls.map(tc => ({ id: tc.id, name: tc.name })));
               }
             }
           }
@@ -294,10 +332,34 @@ export class ClaudeApiServiceRebuilt {
                     }
                   }
                   
-                  // If input is still empty, try to extract from original tool call
+                  // FINAL VALIDATION: Skip tools without proper parameters
                   if (!toolCall.input || Object.keys(toolCall.input).length === 0) {
-                    console.log(`🚨 EMPTY PARAMETERS: ${toolCall.name} has no input - using fallback detection`);
-                    // Don't execute tools with no parameters - this prevents crashes
+                    console.log(`🚨 SKIPPING TOOL: ${toolCall.name} - no valid parameters captured`);
+                    console.log(`Tool call debug:`, {
+                      id: toolCall.id,
+                      name: toolCall.name,
+                      input: toolCall.input,
+                      bufferContent: toolCall.inputBuffer,
+                      inputKeys: toolCall.input ? Object.keys(toolCall.input) : []
+                    });
+                    
+                    // Add error result to conversation instead of crashing
+                    currentMessages.push({
+                      role: 'user',
+                      content: [{
+                        type: 'tool_result',
+                        tool_use_id: toolCall.id,
+                        content: `[Parameter Error] Tool ${toolCall.name} received no parameters - this indicates a streaming capture issue.`
+                      }]
+                    });
+                    
+                    res.write(`data: ${JSON.stringify({
+                      type: 'tool_error',
+                      toolName: toolCall.name,
+                      error: 'No parameters captured from streaming',
+                      message: `${agentName} encountered parameter capture error`
+                    })}\n\n`);
+                    
                     continue;
                   }
                   
@@ -1268,6 +1330,89 @@ I have complete workspace access and can implement any changes you need. What wo
       console.error('Error fetching conversation history:', error);
       return [];
     }
+  }
+
+  /**
+   * SMART BYPASS DETECTION SYSTEM
+   * Routes operations directly to bypass system without Claude API overhead
+   */
+  private async detectAndExecuteBypass(message: string, conversationId?: string, agentId?: string): Promise<string | null> {
+    console.log(`🔍 BYPASS DETECTION: Analyzing "${message}"`);
+    
+    // FILE CREATION PATTERNS
+    const createPatterns = [
+      /(?:create|make|write)\s+(?:file|a file|component|test)\s*(?:called|named)?\s*(.+?)(?:\s+with(?:\s+content)?:?\s*(.+))?$/i,
+      /(?:create|make|write)\s+(.+\.(?:tsx?|jsx?|css|md|txt|json))\s*(?:with|containing|that has)?:?\s*(.+)/i
+    ];
+    
+    for (const pattern of createPatterns) {
+      const match = message.match(pattern);
+      if (match) {
+        const filePath = match[1]?.trim();
+        const content = match[2]?.trim() || 'Hello World';
+        
+        if (filePath) {
+          console.log(`🎯 CREATE OPERATION: ${filePath}`);
+          const result = await this.handleToolCall({
+            name: 'str_replace_based_edit_tool',
+            input: { command: 'create', path: filePath, file_text: content }
+          }, conversationId, agentId);
+          return `✅ File Created: ${filePath}\n\n${result}`;
+        }
+      }
+    }
+    
+    // FILE VIEW PATTERNS
+    const viewPatterns = [
+      /(?:view|read|show|display|open|check)\s+(?:file|the file)?\s*(.+)/i
+    ];
+    
+    for (const pattern of viewPatterns) {
+      const match = message.match(pattern);
+      if (match) {
+        const filePath = match[1]?.trim();
+        if (filePath && !filePath.includes('?') && !filePath.includes('how')) {
+          console.log(`🎯 VIEW OPERATION: ${filePath}`);
+          const result = await this.handleToolCall({
+            name: 'str_replace_based_edit_tool',
+            input: { command: 'view', path: filePath }
+          }, conversationId, agentId);
+          return `📁 File Content: ${filePath}\n\n${result}`;
+        }
+      }
+    }
+    
+    // COMMAND PATTERNS
+    const commandPatterns = [
+      /(?:run|execute)\s+(?:command)?:?\s*(.+)/i,
+      /^(ls|pwd|cat|grep|find|mkdir|rm|cp|mv)\s+(.+)/i
+    ];
+    
+    for (const pattern of commandPatterns) {
+      const match = message.match(pattern);
+      if (match) {
+        const command = match[1]?.trim();
+        if (command) {
+          console.log(`🎯 COMMAND OPERATION: ${command}`);
+          const result = await this.handleToolCall({
+            name: 'bash',
+            input: { command }
+          }, conversationId, agentId);
+          return `⚡ Command Executed: ${command}\n\n${result}`;
+        }
+      }
+    }
+    
+    // No bypass pattern matched - use Claude API for content generation
+    return null;
+  }
+
+  /**
+   * PUBLIC BYPASS METHOD 
+   * Exposed for direct access from routes
+   */
+  async tryDirectBypass(message: string, conversationId?: string, agentId?: string): Promise<string | null> {
+    return await this.detectAndExecuteBypass(message, conversationId, agentId);
   }
 }
 

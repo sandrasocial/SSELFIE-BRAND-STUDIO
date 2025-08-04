@@ -421,6 +421,35 @@ You have complete access to all Replit-level tools for comprehensive implementat
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     try {
+      // ENHANCED BYPASS DETECTION: Try direct bypass BEFORE Claude API
+      const bypassResult = await claudeService.tryDirectBypass?.(message, conversationId, agentId);
+      if (bypassResult) {
+        console.log(`⚡ ADMIN BYPASS SUCCESS: Direct operation completed without Claude API`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'agent_start',
+          agentName: agentId.charAt(0).toUpperCase() + agentId.slice(1),
+          message: `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} is executing...`
+        })}\n\n`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'text_delta',
+          content: bypassResult
+        })}\n\n`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'completion',
+          agentId: agentId,
+          conversationId,
+          consultingMode: true,
+          success: true
+        })}\n\n`);
+        
+        res.end();
+        return;
+      }
+      
+      // CONTENT GENERATION: Use Claude API for intelligent responses
       await claudeService.sendStreamingMessage(
         userId,
         agentId,
