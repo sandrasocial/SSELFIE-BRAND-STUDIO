@@ -86,11 +86,11 @@ export class AdvancedMemorySystem {
         .orderBy(desc(agentLearning.createdAt))
         .limit(50);
       
-      // Create profile with existing learning patterns
+      // Create profile with existing learning patterns - FIXED: Type conversion for confidence
       const learningPatterns: LearningPattern[] = existingLearning.map(learning => ({
         category: learning.category || 'general',
         pattern: learning.learningType || 'conversation',
-        confidence: learning.confidence || 0.7,
+        confidence: typeof learning.confidence === 'string' ? parseFloat(learning.confidence) : (learning.confidence || 0.7),
         frequency: learning.frequency || 1,
         effectiveness: 0.8,
         contexts: ['conversation', 'implementation']
