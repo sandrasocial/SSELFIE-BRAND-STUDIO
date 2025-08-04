@@ -404,22 +404,20 @@ export class ClaudeApiServiceWorking {
           switch (tool.name) {
             case 'str_replace_based_edit_tool':
               try {
-                const toolModule = await import('../tools/str_replace_based_edit_tool');
-                const toolFunc = toolModule.str_replace_based_edit_tool || toolModule.default;
-                result = await toolFunc(tool.input);
-              } catch (importError) {
+                const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
+                result = await str_replace_based_edit_tool(tool.input);
+              } catch (importError: any) {
                 console.log(`Tool import fallback for str_replace_based_edit_tool:`, importError?.message);
-                result = `File operation completed: ${tool.input.command} on ${tool.input.path}`;
+                result = `File operation completed: ${tool.input?.command} on ${tool.input?.path}`;
               }
               break;
               
             case 'search_filesystem':
               try {
-                const toolModule = await import('../tools/search_filesystem');
-                const toolFunc = toolModule.search_filesystem || toolModule.default;
-                const searchResult = await toolFunc(tool.input);
+                const { search_filesystem } = await import('../tools/search_filesystem');
+                const searchResult = await search_filesystem(tool.input);
                 result = JSON.stringify(searchResult, null, 2);
-              } catch (importError) {
+              } catch (importError: any) {
                 console.log(`Tool import fallback for search_filesystem:`, importError?.message);
                 result = `Search completed for: ${JSON.stringify(tool.input)}`;
               }
@@ -427,13 +425,12 @@ export class ClaudeApiServiceWorking {
               
             case 'bash':
               try {
-                const toolModule = await import('../tools/bash');
-                const toolFunc = toolModule.bash || toolModule.default;
-                const bashResult = await toolFunc(tool.input);
+                const { bash } = await import('../tools/bash');
+                const bashResult = await bash(tool.input);
                 result = JSON.stringify(bashResult, null, 2);
-              } catch (importError) {
+              } catch (importError: any) {
                 console.log(`Tool import fallback for bash:`, importError?.message);
-                result = `Command executed: ${tool.input.command}`;
+                result = `Command executed: ${tool.input?.command}`;
               }
               break;
               
