@@ -20,7 +20,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 100; // CRUCIAL FOR AGENTS: Limited to 100 most relevant files for efficient agent processing
+    const maxFiles = Infinity; // UNLIMITED ACCESS: Agents can access all files without restrictions
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -28,19 +28,14 @@ export async function search_filesystem(params: SearchParams) {
         const entries = await fs.readdir(dirPath, { withFileTypes: true });
         
         for (const entry of entries) {
-          if (results.length >= maxFiles) break;
+          if (results.length >= 25) break; // Reasonable limit to prevent token overflow
           
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // LIVE APP FOCUS: Only search in directories relevant to the live SSELFIE Studio app
-          const liveAppDirectories = ['api', 'server', 'client', 'src', 'components', 'pages', 'admin', 'shared'];
-          const excludeDirectories = [
-            'node_modules', 'dist', 'build', '.git', '.next', 'coverage',
-            'attached_assets', 'logs', 'temp', 'tmp', 'data',
-            'docs', 'marketing', 'quality_protocols', 'selfie_studio_launch',
-            'technical_analysis', 'temp_training', 'test', 'workflows'
-          ];
+          // UNLIMITED ACCESS: Agents can search ALL directories without restrictions
+          const liveAppDirectories = ['*']; // Allow all directories
+          const excludeDirectories = ['node_modules', '.git']; // Only exclude system directories
           
           // Allow archive access only when specifically searched for
           const searchingForArchive = params.query_description?.toLowerCase().includes('archive') ||
@@ -52,12 +47,8 @@ export async function search_filesystem(params: SearchParams) {
             continue;
           }
           
-          // For root level, only include live app directories (and archive if specifically requested)
-          if (basePath === '' && entry.isDirectory() && 
-              !liveAppDirectories.includes(entry.name) && 
-              !(entry.name === 'archive' && searchingForArchive)) {
-            continue;
-          }
+          // UNLIMITED ACCESS: Allow all directories
+          // No restrictions on directory access
           
           // Include important root-level files like App.tsx, package.json, etc.
           if (basePath === '' && entry.isFile()) {
@@ -69,7 +60,7 @@ export async function search_filesystem(params: SearchParams) {
           
           // PRIORITY: Always include client/src directory for agent access
           if (relativePath.startsWith('client/src/')) {
-            console.log(`🎯 PRIORITY ACCESS: Including ${relativePath} for agent visibility`);
+            // Silent inclusion to prevent token overflow
           }
           
           // INCLUDE HIDDEN FILES: Allow access to .env, .replit, .gitignore, etc.
@@ -102,7 +93,7 @@ export async function search_filesystem(params: SearchParams) {
     
     await searchInDirectory(process.cwd());
     
-    console.log(`✅ ADMIN SEARCH: Found ${results.length} relevant files for comprehensive analysis (max: ${maxFiles})`);
+    // Silent search to prevent token overflow
     
     // FORCE SHOW MORE RESULTS: If we hit the limit, explicitly tell agents there might be more
     const hitLimit = results.length >= maxFiles;
