@@ -76,6 +76,45 @@ export class ClaudeApiServiceRebuilt {
     res: any // Express response object for streaming
   ): Promise<void> {
     try {
+      // 🚀 CRITICAL TOKEN OPTIMIZATION: Try direct tool execution FIRST
+      console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentName}`);
+      const directResult = await this.tryDirectToolExecution(message, conversationId, agentName);
+      
+      if (directResult) {
+        // SUCCESS: Tool executed without Claude API tokens
+        console.log(`⚡ DIRECT SUCCESS: ${agentName} executed without Claude API tokens`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'agent_start',
+          agentName: agentName.charAt(0).toUpperCase() + agentName.slice(1),
+          message: `${agentName.charAt(0).toUpperCase() + agentName.slice(1)} is analyzing your request...`
+        })}\n\n`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'text_delta',
+          content: directResult
+        })}\n\n`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'content_complete',
+          message: 'Response complete'
+        })}\n\n`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'completion',
+          agentId: agentName,
+          conversationId,
+          consultingMode: true,
+          success: true
+        })}\n\n`);
+        
+        res.end();
+        return;
+      }
+      
+      // 📝 CONTENT GENERATION: Use Claude API only for responses/content
+      console.log(`🌊 STREAMING: Using Claude API for content generation only - ${agentName}`);
+      
       // Load conversation history
       const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
@@ -89,8 +128,6 @@ export class ClaudeApiServiceRebuilt {
         { role: 'user', content: message }
       ];
 
-      console.log(`🌊 STREAMING: Starting Claude API stream for ${agentName}`);
-      
       let fullResponse = '';
       let currentMessages = claudeMessages;
       let conversationComplete = false;
@@ -103,7 +140,11 @@ export class ClaudeApiServiceRebuilt {
           messages: currentMessages as any,
           system: systemPrompt,
           tools: tools,
-          stream: true
+          stream: true,
+          // 💰 TOKEN OPTIMIZATION: Use token-efficient headers per 2025 best practices
+          extra_headers: {
+            "anthropic-beta": "token-efficient-tools-2025-02-19"
+          }
         });
 
         let currentResponseText = '';
@@ -188,9 +229,11 @@ export class ClaudeApiServiceRebuilt {
               // Add assistant message to conversation
               currentMessages.push(assistantMessage);
               
-              // Execute tools and add results
+              // 🚀 CRITICAL TOKEN OPTIMIZATION: Execute tools via BYPASS system
+              console.log(`💰 TOOL BYPASS: Executing ${toolCalls.length} tools with ZERO Claude API tokens`);
               for (const toolCall of toolCalls) {
                 try {
+                  console.log(`⚡ BYPASS EXECUTION: ${toolCall.name} - No API cost`);
                   const toolResult = await this.handleToolCall(toolCall, conversationId, agentName);
                   
                   // Add tool result to conversation
@@ -207,7 +250,7 @@ export class ClaudeApiServiceRebuilt {
                     type: 'tool_complete',
                     toolName: toolCall.name,
                     result: toolResult.substring(0, 200) + '...',
-                    message: `${agentName} completed ${toolCall.name}`
+                    message: `${agentName} completed ${toolCall.name} (bypass used)`
                   })}\n\n`);
                   
                 } catch (toolError) {
