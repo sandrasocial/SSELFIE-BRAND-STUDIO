@@ -23,6 +23,8 @@ import { ModelRetrainService } from './retrain-model';
 import { registerStreamingAdminRoutes } from './routes/streaming-admin-routes';
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
+// STEP 3: Advanced Multi-Agent Workflow Orchestration
+import workflowOrchestrationRouter from './routes/workflow-orchestration-routes';
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 // Generate Victoria website HTML content
@@ -1347,6 +1349,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // CONSOLIDATED: All admin agent interactions under unified /api/admin/agents/* pattern
   app.use('/api/admin/agents', consultingAgentsRouter);
   console.log('✅ CONSOLIDATED: Admin agent system active at /api/admin/agents/*');
+  
+  // STEP 3: Advanced Multi-Agent Workflow Orchestration
+  app.use('/api/workflow', workflowOrchestrationRouter);
+  console.log('🎯 WORKFLOW ORCHESTRATION: Advanced multi-agent coordination active at /api/workflow/*');
   
   // Register flatlay library routes for Victoria
   const flatlayLibraryRoutes = await import('./routes/flatlay-library');
