@@ -13,8 +13,7 @@ import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
 import subscriberImportRouter from './routes/subscriber-import';
-import adminBusinessMetricsRouter from './routes/admin-business-metrics';
-import adminUserManagementRouter from './routes/admin-user-management';
+// REMOVED: Conflicting admin routers - consolidated into single adminRouter
 import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
@@ -780,8 +779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
   app.use('/api/subscribers', subscriberImport.default);
-  app.use('/api/admin', adminBusinessMetricsRouter);
-  app.use('/api/admin', adminUserManagementRouter);
+  // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
   
   // Register white-label client setup endpoints
   app.use(whitelabelRoutes);
