@@ -86,7 +86,7 @@ export class AdvancedMemorySystem {
       const learningPatterns: LearningPattern[] = existingLearning.map(learning => ({
         category: learning.category || 'general',
         pattern: learning.learningType || 'conversation',
-        confidence: typeof learning.confidence === 'string' ? parseFloat(learning.confidence) : (learning.confidence || 0.7),
+        confidence: learning.confidence || 0.7,
         frequency: learning.frequency || 1,
         effectiveness: 0.8,
         contexts: ['conversation', 'implementation']
@@ -143,9 +143,10 @@ export class AdvancedMemorySystem {
         learningType: pattern.pattern,
         category: pattern.category,
         data: { pattern },
-        confidence: pattern.confidence.toString(),
+        confidence: pattern.confidence,
         frequency: pattern.frequency,
-        lastSeen: new Date()
+        lastSeen: new Date(),
+        context: pattern.contexts.join(',')
       });
 
       // Update cache
