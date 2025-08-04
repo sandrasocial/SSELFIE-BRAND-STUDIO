@@ -22,6 +22,7 @@ import AgentMartha from '@assets/out-0 (29)_1753426218044.png';
 import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
 import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
 import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
+import ZaraTestButton from '@/components/admin/ZaraTestButton';
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
@@ -668,6 +669,11 @@ export default function AdminConsultingAgents() {
       </section>
 
       <div className="max-w-7xl mx-auto px-8 py-16">
+        {/* Zara Test Button Section */}
+        <div className="mb-16">
+          <ZaraTestButton onTestComplete={(result) => console.log('Test completed:', result)} />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
           {/* Agent Selection Panel */}
