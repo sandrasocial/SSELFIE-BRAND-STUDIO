@@ -361,8 +361,8 @@ export class ClaudeApiServiceRebuilt {
       // Continue conversation until Claude is done (handles tool execution cycles)
       while (!conversationComplete) {
         // 💰 SMART TOKEN MANAGEMENT: Keep conversation context manageable
-        // Remove old tool results to prevent token bloat while keeping recent context
-        const cleanMessages = this.cleanConversationForAPI(currentMessages);
+        // TEMPORARILY DISABLED: Clean conversation to prevent token bloat
+        const cleanMessages = currentMessages; // Use original messages for now
         const estimatedChars = JSON.stringify(cleanMessages).length + systemPrompt.length;
         const estimatedTokens = Math.ceil(estimatedChars / 4);
         
