@@ -297,9 +297,15 @@ export class ClaudeApiServiceRebuilt {
               // CRITICAL FIX: Capture tool parameters from streaming deltas with proper indexing
               console.log(`🔍 RAW CHUNK:`, JSON.stringify(chunk, null, 2));
               
-              // Find the correct tool call by content_block index, not chunk.index
+              // CRITICAL FIX: Claude API index bug - use the LAST tool call when index is out of bounds
               const contentBlockIndex = typeof chunk.index === 'number' ? chunk.index : 0;
-              const contentBlock = toolCalls[contentBlockIndex];
+              let contentBlock = toolCalls[contentBlockIndex];
+              
+              // STREAMING BUG FIX: If index is out of bounds, use the last tool call
+              if (!contentBlock && toolCalls.length > 0) {
+                console.log(`🔧 INDEX FIX: Claude sent index ${contentBlockIndex} but only ${toolCalls.length} tools exist, using last tool`);
+                contentBlock = toolCalls[toolCalls.length - 1];
+              }
               
               if (contentBlock) {
                 if (!contentBlock.inputBuffer) contentBlock.inputBuffer = '';
