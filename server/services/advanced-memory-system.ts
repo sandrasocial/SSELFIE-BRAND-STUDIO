@@ -1,6 +1,6 @@
 import { db } from '../db';
 import { agentLearning, claudeConversations, claudeMessages, agentCapabilities } from '@shared/schema';
-import { eq, desc, and, gte, sql, isNull, or } from 'drizzle-orm';
+import { eq, desc, and, gte, sql } from 'drizzle-orm';
 
 /**
  * ADVANCED MEMORY SYSTEM
@@ -71,26 +71,22 @@ export class AdvancedMemorySystem {
         return this.memoryCache.get(cacheKey)!;
       }
       
-      // Load from database first - FIXED: Use correct column names
+      // Load from database first
       const existingLearning = await db
         .select()
         .from(agentLearning)
         .where(and(
           eq(agentLearning.agentName, agentName),
-          or(
-            eq(agentLearning.userId, userId), 
-            eq(agentLearning.userId, ''),
-            isNull(agentLearning.userId)
-          )
+          eq(agentLearning.userId, userId)
         ))
-        .orderBy(desc(agentLearning.createdAt))
+        .orderBy(desc(agentLearning.lastSeen))
         .limit(50);
       
-      // Create profile with existing learning patterns - FIXED: Type conversion for confidence
+      // Create profile with existing learning patterns
       const learningPatterns: LearningPattern[] = existingLearning.map(learning => ({
         category: learning.category || 'general',
         pattern: learning.learningType || 'conversation',
-        confidence: typeof learning.confidence === 'string' ? parseFloat(learning.confidence) : (learning.confidence || 0.7),
+        confidence: learning.confidence || 0.7,
         frequency: learning.frequency || 1,
         effectiveness: 0.8,
         contexts: ['conversation', 'implementation']
@@ -146,9 +142,11 @@ export class AdvancedMemorySystem {
         userId,
         learningType: pattern.pattern,
         category: pattern.category,
-        data: { pattern, effectiveness: pattern.effectiveness },
-        confidence: pattern.confidence.toString(),
-        frequency: pattern.frequency
+        data: { pattern },
+        confidence: pattern.confidence,
+        frequency: pattern.frequency,
+        lastSeen: new Date(),
+        context: pattern.contexts.join(',')
       });
 
       // Update cache
