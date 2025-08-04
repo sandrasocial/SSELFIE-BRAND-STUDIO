@@ -822,12 +822,22 @@ export default function AdminConsultingAgents() {
                   <div className="flex gap-4 p-4">
                     <textarea
                       value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
+                      onChange={(e) => {
+                        console.log('📝 Input change:', e.target.value);
+                        setMessage(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage();
+                        }
+                      }}
                       placeholder={`Ask ${selectedAgent?.name} for strategic analysis...`}
                       className="flex-1 resize-none border border-gray-200 rounded-sm p-4 font-light leading-relaxed focus:outline-none focus:border-black focus:bg-white transition-none shadow-sm"
                       rows={3}
                       disabled={isLoading}
+                      autoComplete="off"
+                      spellCheck={false}
                     />
                     <div className="flex flex-col gap-2">
                       {isLoading && (
