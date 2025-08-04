@@ -192,10 +192,12 @@ export class ClaudeApiServiceRebuilt {
               })}\n\n`);
               
               // CRITICAL FIX: Ensure tool parameters are properly captured
+              console.log(`🔍 RAW TOOL BLOCK:`, JSON.stringify(chunk.content_block, null, 2));
               toolCalls.push({
                 id: chunk.content_block.id,
                 name: chunk.content_block.name,
-                input: chunk.content_block.input || {} // Prevent undefined inputs
+                input: chunk.content_block.input || {}, // Prevent undefined inputs
+                inputBuffer: '' // Buffer for streaming parameter collection
               });
             }
           }
@@ -212,6 +214,14 @@ export class ClaudeApiServiceRebuilt {
                 type: 'text_delta',
                 content: textDelta
               })}\n\n`);
+            } else if (chunk.delta.type === 'input_json_delta') {
+              // CRITICAL FIX: Capture tool parameters from streaming deltas
+              const contentBlock = toolCalls.find(tc => tc.id === chunk.index);
+              if (contentBlock) {
+                if (!contentBlock.inputBuffer) contentBlock.inputBuffer = '';
+                contentBlock.inputBuffer += chunk.delta.partial_json;
+                console.log(`🔍 PARAMETER BUFFER for ${contentBlock.name}:`, contentBlock.inputBuffer);
+              }
             }
           }
           
@@ -257,6 +267,16 @@ export class ClaudeApiServiceRebuilt {
                 try {
                   console.log(`⚡ BYPASS EXECUTION: ${toolCall.name} - No API cost`);
                   
+                  // PARAMETER FIX: Parse buffered parameters if available
+                  if (toolCall.inputBuffer && !Object.keys(toolCall.input).length) {
+                    try {
+                      toolCall.input = JSON.parse(toolCall.inputBuffer);
+                      console.log(`✅ PARSED BUFFERED PARAMETERS:`, toolCall.input);
+                    } catch (parseError) {
+                      console.log(`⚠️ PARAMETER PARSE FAILED:`, toolCall.inputBuffer);
+                    }
+                  }
+                  
                   // RESILIENCE FIX: Validate tool parameters before execution
                   if (!toolCall.input && !toolCall.parameters) {
                     console.log(`⚠️ TOOL PARAMETER FIX: Adding empty input for ${toolCall.name}`);
@@ -284,26 +304,26 @@ export class ClaudeApiServiceRebuilt {
                   })}\n\n`);
                   
                 } catch (toolError) {
-                  console.error(`❌ TOOL ERROR: ${toolCall.name}:`, toolError);
+                  console.error(`❌ BYPASS FAILURE: ${toolCall.name}:`, toolError);
                   
-                  // RESILIENCE FIX: Don't let tool errors break the conversation
+                  // DIRECT FAILURE REPORTING: No fake responses, clear error reporting
                   const errorMessage = toolError instanceof Error ? toolError.message : 'Tool execution failed';
                   
                   res.write(`data: ${JSON.stringify({
-                    type: 'tool_error',
+                    type: 'bypass_failure',
                     toolName: toolCall.name,
-                    message: `Error executing ${toolCall.name}: ${errorMessage}`
+                    error: errorMessage,
+                    message: `API BYPASS FAILED for ${toolCall.name}: ${errorMessage}`
                   })}\n\n`);
                   
-                  // Add error result but continue conversation
-                  currentMessages.push({
-                    role: 'user',
-                    content: [{
-                      type: 'tool_result',
-                      tool_use_id: toolCall.id,
-                      content: `Error: ${errorMessage}. Please try a different approach or provide more specific parameters.`
-                    }]
-                  });
+                  // Stop the conversation immediately on bypass failure
+                  res.write(`data: ${JSON.stringify({
+                    type: 'bypass_error_complete',
+                    message: 'Tool bypass system failed - conversation stopped for debugging'
+                  })}\n\n`);
+                  
+                  res.end();
+                  return;
                 }
               }
               
@@ -342,45 +362,47 @@ export class ClaudeApiServiceRebuilt {
     } catch (error) {
       console.error('🚨 STREAMING ERROR:', error);
       
-      // RESILIENCE FIX: Don't end conversation on streaming errors, provide helpful continuation
+      // DIRECT ERROR REPORTING: No fake responses, clear system status
       try {
         if (error instanceof Error && error.message.includes('credit balance is too low')) {
-          // API credit issue - use bypass response
           res.write(`data: ${JSON.stringify({
-            type: 'text_delta',
-            content: `I'm continuing with direct tool execution to complete your request without API costs. Let me process this efficiently for you.`
+            type: 'api_credits_exhausted',
+            error: 'Claude API credits exhausted',
+            message: 'API CREDITS EXHAUSTED - Cannot continue with Claude API'
           })}\n\n`);
         } else if (error instanceof Error && error.message.includes('prompt is too long')) {
-          // Token limit issue
           res.write(`data: ${JSON.stringify({
-            type: 'text_delta',
-            content: `I'm optimizing the request to work within system limits. Let me provide a focused solution.`
+            type: 'token_limit_exceeded',
+            error: 'Token limit exceeded',
+            message: 'TOKEN LIMIT EXCEEDED - Request too large for API'
           })}\n\n`);
         } else if (error instanceof Error && error.message.includes('Internal server error')) {
-          // API service issue - continue with bypass
           res.write(`data: ${JSON.stringify({
-            type: 'text_delta',
-            content: `I'm switching to direct execution mode to complete your request reliably.`
+            type: 'api_server_error',
+            error: 'Claude API internal server error',
+            message: 'CLAUDE API SERVER ERROR - Service temporarily unavailable'
           })}\n\n`);
         } else {
-          // Generic error - don't break the agent flow
           res.write(`data: ${JSON.stringify({
-            type: 'text_delta',
-            content: `I'm adapting to continue helping you efficiently. What specific aspect would you like me to focus on?`
+            type: 'streaming_failure',
+            error: error instanceof Error ? error.message : 'Unknown streaming error',
+            message: `STREAMING FAILED: ${error instanceof Error ? error.message : 'Unknown error'}`
           })}\n\n`);
         }
         
         res.write(`data: ${JSON.stringify({
-          type: 'content_complete',
-          message: 'Response complete'
+          type: 'error_complete',
+          message: 'Agent stopped due to system error'
         })}\n\n`);
         
       } catch (fallbackError) {
         res.write(`data: ${JSON.stringify({
-          type: 'stream_error',
-          message: 'Continuing with direct execution...'
+          type: 'critical_error',
+          message: 'CRITICAL SYSTEM ERROR - Agent communication failed'
         })}\n\n`);
       }
+      
+      res.end();
     }
   }
 
