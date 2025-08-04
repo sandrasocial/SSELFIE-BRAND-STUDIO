@@ -93,12 +93,18 @@ router.post('/consulting-chat', async (req, res) => {
     const adminToken = req.body.adminToken || req.headers['x-admin-token'];
     const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
     
+    console.log('🔐 Auth Debug:', { 
+      hasUser: !!user,
+      hasReqUser: !!req.user,
+      isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
+      sessionAuth: isSessionAuthenticated, 
+      tokenAuth: !!isTokenAuthenticated,
+      userEmail: user?.claims?.email,
+      userData: user ? { id: user.claims?.sub, email: user.claims?.email } : null
+    });
+    
     if (!isSessionAuthenticated && !isTokenAuthenticated) {
-      console.log('❌ Admin access denied:', { 
-        sessionAuth: isSessionAuthenticated, 
-        tokenAuth: !!isTokenAuthenticated,
-        userEmail: user?.claims?.email 
-      });
+      console.log('❌ Admin access denied');
       return res.status(401).json({
         success: false,
         message: 'Admin access required. Please authenticate as Sandra.'
