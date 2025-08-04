@@ -44,6 +44,7 @@ import AdminSubscriberImport from "@/pages/admin-subscriber-import";
 
 import BridgeMonitor from "@/pages/admin/bridge-monitor";
 import { UnifiedAgentInterface } from "@/components/admin/UnifiedAgentInterface";
+import UnifiedLoginButton from "@/components/UnifiedLoginButton";
 
 
 import AgentApproval from "@/pages/agent-approval";
@@ -153,16 +154,11 @@ function Router() {
       <Route path="/" component={EditorialLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
-      <Route path="/login" component={() => {
-        const UnifiedLoginButton = React.lazy(() => import('@/components/UnifiedLoginButton'));
-        return (
-          <div className="min-h-screen flex items-center justify-center bg-white">
-            <React.Suspense fallback={<div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />}>
-              <UnifiedLoginButton text="Sign in to continue" showBrand={true} />
-            </React.Suspense>
-          </div>
-        );
-      }} />
+      <Route path="/login" component={() => (
+        <div className="min-h-screen flex items-center justify-center bg-white">
+          <UnifiedLoginButton text="Sign in to continue" showBrand={true} />
+        </div>
+      )} />
       <Route path="/login-direct" component={() => {
         // Direct redirect to Replit Auth (for cases that need immediate redirect)
         React.useEffect(() => {
