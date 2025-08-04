@@ -407,8 +407,8 @@ export default function AdminConsultingAgents() {
     setIsLoading(true);
 
     try {
-      // Call the correct enterprise consulting endpoint
-      const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
+      // Call the unified admin consulting endpoint
+      const response = await fetch('/api/admin/agents/consulting-chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json'
@@ -418,7 +418,8 @@ export default function AdminConsultingAgents() {
           agentId: selectedAgent.id,
           message: userMessage.content,
           conversationId: conversationId || `admin_${selectedAgent.id}_${Date.now()}`,
-          fileEditMode: fileEditMode
+          fileEditMode: fileEditMode,
+          adminToken: 'sandra-admin-2025'
         }),
       });
 
