@@ -43,7 +43,7 @@ export class WebSearchOptimizationService {
     try {
       await fs.mkdir(this.cacheDirectory, { recursive: true });
       await this.loadPersistedCache();
-      console.log('🔍 WEB SEARCH OPTIMIZATION: Cache initialized');
+      // console.log('🔍 WEB SEARCH OPTIMIZATION: Cache initialized');
     } catch (error) {
       console.error('Failed to initialize web search cache:', error);
     }
@@ -350,7 +350,7 @@ export class WebSearchOptimizationService {
         }
       }
       
-      console.log('📂 CACHE LOADED: Restored cached search results and documents');
+      // console.log('📂 CACHE LOADED: Restored cached search results and documents');
     } catch (error) {
       console.error('Failed to load persisted cache:', error);
     }
