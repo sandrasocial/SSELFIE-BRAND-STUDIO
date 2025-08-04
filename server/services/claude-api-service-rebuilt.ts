@@ -19,6 +19,9 @@ import { DeploymentTrackingService } from './deployment-tracking-service';
 // AGENT PERSONALITY IMPORTS FOR SPECIALIZATION CHECKING
 import { CONSULTING_AGENT_PERSONALITIES as agentPersonalities } from '../agent-personalities-consulting';
 
+// UNLIMITED AGENT CONFIGURATION
+import { UNLIMITED_AGENT_MODE, applyUnlimitedAgentConfig, getAgentUnlimitedConfig } from '../../replit-agent-config';
+
 /*
 <important_code_snippet_instructions>
 The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022" nor "claude-3-sonnet-20240229". 
@@ -61,6 +64,13 @@ export class ClaudeApiServiceRebuilt {
   // private workspaceService = new UnifiedWorkspaceService(); // Constructor is private
   private deploymentTracker = new DeploymentTrackingService();
   private progressTracker = new ProgressTrackingService();
+  
+  constructor() {
+    // UNLIMITED AGENT MODE: Activate complete agent liberation
+    if (UNLIMITED_AGENT_MODE) {
+      applyUnlimitedAgentConfig();
+    }
+  }
   
   /**
    * STREAMING MESSAGE HANDLER WITH TOOL CONTINUATION

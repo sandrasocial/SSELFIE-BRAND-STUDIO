@@ -20,7 +20,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 ADMIN SEARCH: Starting full repository analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 100; // CRUCIAL FOR AGENTS: Limited to 100 most relevant files for efficient agent processing
+    const maxFiles = Infinity; // UNLIMITED ACCESS: Agents can access all files without restrictions
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -33,14 +33,9 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // LIVE APP FOCUS: Only search in directories relevant to the live SSELFIE Studio app
-          const liveAppDirectories = ['api', 'server', 'client', 'src', 'components', 'pages', 'admin', 'shared'];
-          const excludeDirectories = [
-            'node_modules', 'dist', 'build', '.git', '.next', 'coverage',
-            'attached_assets', 'logs', 'temp', 'tmp', 'data',
-            'docs', 'marketing', 'quality_protocols', 'selfie_studio_launch',
-            'technical_analysis', 'temp_training', 'test', 'workflows'
-          ];
+          // UNLIMITED ACCESS: Agents can search ALL directories without restrictions
+          const liveAppDirectories = ['*']; // Allow all directories
+          const excludeDirectories = ['node_modules', '.git']; // Only exclude system directories
           
           // Allow archive access only when specifically searched for
           const searchingForArchive = params.query_description?.toLowerCase().includes('archive') ||
@@ -52,12 +47,8 @@ export async function search_filesystem(params: SearchParams) {
             continue;
           }
           
-          // For root level, only include live app directories (and archive if specifically requested)
-          if (basePath === '' && entry.isDirectory() && 
-              !liveAppDirectories.includes(entry.name) && 
-              !(entry.name === 'archive' && searchingForArchive)) {
-            continue;
-          }
+          // UNLIMITED ACCESS: Allow all directories
+          // No restrictions on directory access
           
           // Include important root-level files like App.tsx, package.json, etc.
           if (basePath === '' && entry.isFile()) {
