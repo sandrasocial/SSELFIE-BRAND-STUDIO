@@ -483,7 +483,7 @@ export default function AdminConsultingAgents() {
                         ? { 
                             ...msg, 
                             content: msg.content + `\n\n🔧 **Using ${data.toolName}...**\n`,
-                            toolsUsed: [...(msg.toolsUsed || []), { name: data.toolName, status: 'executing' }]
+                            toolsUsed: [...(msg.toolsUsed || []), data.toolName]
                           }
                         : msg
                     ));
@@ -505,12 +505,7 @@ export default function AdminConsultingAgents() {
                       msg.id === agentMessageId 
                         ? { 
                             ...msg, 
-                            content: msg.content + `✅ **${data.toolName} completed**\n\n`,
-                            toolsUsed: msg.toolsUsed?.map(tool => 
-                              tool.name === data.toolName 
-                                ? { ...tool, status: 'completed', result: data.result }
-                                : tool
-                            ) || []
+                            content: msg.content + `✅ **${data.toolName} completed**\n\n`
                           }
                         : msg
                     ));
@@ -665,29 +660,7 @@ export default function AdminConsultingAgents() {
             </div>
           </div>
 
-          {/* Test Button - Visible proof of agent functionality */}
-          <div className="mt-8 max-w-lg mx-auto">
-            <button
-              onClick={() => {
-                // Automatically select Zara and send test message
-                const zaraAgent = consultingAgents.find(agent => agent.id === 'zara');
-                if (zaraAgent) {
-                  setSelectedAgent(zaraAgent);
-                  setMessage('Test agent capabilities: search for server files and create a test file called agent-test-success.txt with content WORKING');
-                  setTimeout(() => {
-                    sendMessage();
-                  }, 100);
-                }
-              }}
-              className="w-full bg-white/20 hover:bg-white/30 border border-white/40 text-white py-4 px-8 transition-all duration-300 font-light tracking-wide"
-              style={{ fontFamily: 'Times New Roman, serif' }}
-            >
-              🚀 TEST AGENT CAPABILITIES
-            </button>
-            <p className="text-xs text-white/70 text-center mt-2 font-light tracking-wide">
-              Click to verify Zara can search files and create test file with zero API costs
-            </p>
-          </div>
+
         </div>
       </section>
 

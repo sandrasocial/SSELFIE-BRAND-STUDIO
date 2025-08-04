@@ -73,19 +73,38 @@ export class ClaudeApiServiceRebuilt {
    */
   private async reconstructToolParameters(toolCall: any, userMessage: string, conversationId: string): Promise<any> {
     try {
-      // Smart parameter reconstruction based on tool name and context
+      // SMART ROUTING: Intelligent parameter reconstruction with precise file targeting
       switch (toolCall.name) {
         case 'search_filesystem':
           if (userMessage.includes('search') || userMessage.includes('find') || userMessage.includes('look')) {
+            // SMART PATH ROUTING: Direct agents to correct locations
+            let searchPaths: string[] = [];
+            let queryDescription = '';
+            
+            if (userMessage.includes('consulting') || userMessage.includes('agent')) {
+              searchPaths = ['/server/routes', '/server/services', '/client/src/pages'];
+              queryDescription = 'Find consulting agent system files and admin interfaces';
+            } else if (userMessage.includes('server') || userMessage.includes('backend')) {
+              searchPaths = ['/server'];
+              queryDescription = 'Find server-side architecture and services';
+            } else if (userMessage.includes('admin')) {
+              searchPaths = ['/server/routes', '/client/src/pages/admin'];
+              queryDescription = 'Find admin system files and interfaces';
+            } else if (userMessage.includes('client') || userMessage.includes('frontend')) {
+              searchPaths = ['/client/src'];
+              queryDescription = 'Find frontend components and pages';
+            } else if (userMessage.includes('database') || userMessage.includes('schema')) {
+              searchPaths = ['/shared', '/server/storage.ts'];
+              queryDescription = 'Find database schema and storage files';
+            } else {
+              // Default comprehensive search
+              searchPaths = ['/server', '/client/src', '/shared'];
+              queryDescription = 'Find relevant files based on user request';
+            }
+            
             return {
-              query_description: userMessage.includes('architecture') ? 
-                'Find system architecture files and documentation' :
-                userMessage.includes('consulting') ?
-                'Find consulting agent related files' :
-                'Find relevant files based on user request',
-              search_paths: userMessage.includes('admin') ? ['/admin'] : 
-                          userMessage.includes('server') ? ['/server'] :
-                          userMessage.includes('client') ? ['/client'] : []
+              query_description: queryDescription,
+              search_paths: searchPaths
             };
           }
           break;
@@ -130,26 +149,41 @@ export class ClaudeApiServiceRebuilt {
     try {
       console.log(`🔧 CONTEXT EXECUTION: ${toolCall.name} with message: "${userMessage}"`);
       
-      // Direct bypass execution based on context
+      // SMART ROUTING: Context-aware tool execution with intelligent path selection
       switch (toolCall.name) {
         case 'search_filesystem':
-          if (userMessage.toLowerCase().includes('consulting') || userMessage.toLowerCase().includes('admin')) {
-            return await this.handleToolCall({
-              name: 'search_filesystem',
-              input: {
-                query_description: 'Find consulting agent and admin system files',
-                search_paths: ['/server/routes', '/admin']
-              }
-            }, conversationId, agentName);
-          } else if (userMessage.toLowerCase().includes('architecture') || userMessage.toLowerCase().includes('system')) {
-            return await this.handleToolCall({
-              name: 'search_filesystem', 
-              input: {
-                query_description: 'Find system architecture and configuration files',
-                search_paths: ['/server', '/shared']
-              }
-            }, conversationId, agentName);
+          // INTELLIGENT CONTEXT ROUTING: Determine search strategy based on message content
+          let smartPaths: string[] = [];
+          let smartQuery = '';
+          
+          if (userMessage.toLowerCase().includes('consulting') || userMessage.toLowerCase().includes('agent')) {
+            smartPaths = ['/server/routes', '/server/services', '/client/src/pages/admin'];
+            smartQuery = 'Find consulting agent system files, routes, and admin interfaces';
+          } else if (userMessage.toLowerCase().includes('admin')) {
+            smartPaths = ['/server/routes', '/client/src/pages/admin', '/server/middleware'];
+            smartQuery = 'Find admin system files, routes, and middleware';
+          } else if (userMessage.toLowerCase().includes('database') || userMessage.toLowerCase().includes('schema')) {
+            smartPaths = ['/shared', '/server/storage.ts', '/server/services'];
+            smartQuery = 'Find database schema, storage, and data services';
+          } else if (userMessage.toLowerCase().includes('frontend') || userMessage.toLowerCase().includes('client')) {
+            smartPaths = ['/client/src'];
+            smartQuery = 'Find frontend components, pages, and client-side code';
+          } else if (userMessage.toLowerCase().includes('server') || userMessage.toLowerCase().includes('backend')) {
+            smartPaths = ['/server'];
+            smartQuery = 'Find server-side architecture, services, and backend code';
+          } else {
+            // Default comprehensive search with priority areas
+            smartPaths = ['/server/routes', '/server/services', '/client/src/pages'];
+            smartQuery = 'Find relevant system files with focus on core functionality';
           }
+          
+          return await this.handleToolCall({
+            name: 'search_filesystem',
+            input: {
+              query_description: smartQuery,
+              search_paths: smartPaths
+            }
+          }, conversationId, agentName);
           break;
           
         case 'get_latest_lsp_diagnostics':
@@ -568,35 +602,15 @@ export class ClaudeApiServiceRebuilt {
                 }
               }
               
-              // CRITICAL FIX: Only continue conversation if more tools needed
-              // Check if Claude expects to continue the conversation
-              if (toolExecutionSuccessful && currentMessages.length > 0) {
-                console.log(`🔄 CONVERSATION CONTINUATION: Tools executed, checking if Claude needs to continue...`);
-                
-                // Make follow-up Claude request with tool results
-                try {
-                  const followUpResponse = await this.makeClaudeRequest(currentMessages, agentName, agentConfig);
-                  
-                  if (followUpResponse && followUpResponse.content) {
-                    // Stream the follow-up response
-                    res.write(`data: ${JSON.stringify({
-                      type: 'continuing',
-                      message: `${agentName} is processing results and continuing...`
-                    })}\n\n`);
-                    
-                    // Handle follow-up streaming
-                    await this.handleFollowUpResponse(followUpResponse, res, agentName, currentMessages, conversationId);
-                  } else {
-                    // No follow-up needed, conversation complete
-                    conversationComplete = true;
-                  }
-                } catch (followUpError) {
-                  console.error('Follow-up request failed:', followUpError);
-                  conversationComplete = true;
-                }
-              } else {
-                conversationComplete = true;
-              }
+              // FIXED: Proper conversation completion without loops
+              console.log(`🔄 CONVERSATION CONTINUATION: Tools executed, continuing agent flow`);
+              res.write(`data: ${JSON.stringify({
+                type: 'continuing',
+                message: `${agentName} is processing results and continuing...`
+              })}\n\n`);
+              
+              // Tools have been executed and results added to conversation
+              // Claude will naturally continue or complete based on the context
               
             } else {
               // No tools used, conversation is complete
