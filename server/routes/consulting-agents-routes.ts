@@ -229,8 +229,25 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`📋 SPECIALIZATION: ${agentConfig.specialization}`);
     console.log(`⚡ TOOLS ALLOWED: ${agentConfig.allowedTools?.length || 0} configured tools`);
     
-    // Route through the FULL enterprise intelligence system with ALL TOOLS + SPECIALIZED PERSONALITY
+    // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
+    console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
     const claudeService = getClaudeService();
+    
+    // Try direct tool execution to save tokens
+    const directResult = await claudeService.tryDirectToolExecution?.(message, conversationId, agentId);
+    if (directResult) {
+      console.log(`⚡ DIRECT SUCCESS: ${agentId} executed without Claude API tokens`);
+      return res.status(200).json({
+        success: true,
+        response: directResult,
+        agentId,
+        conversationId,
+        tokenOptimized: true,
+        executionType: 'direct-bypass'
+      });
+    }
+
+    // Fallback to Claude API with token optimization
     const result = await claudeService.sendMessage(
       userId,
       agentId,

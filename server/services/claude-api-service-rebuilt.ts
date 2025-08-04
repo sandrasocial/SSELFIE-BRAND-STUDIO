@@ -255,12 +255,25 @@ export class ClaudeApiServiceRebuilt {
       model: DEFAULT_MODEL_STR,
       max_tokens: 4000,
       system: enhancedSystemPrompt,
-      messages
+      messages,
+      // TOKEN OPTIMIZATION: Add token-efficient headers
+      headers: {
+        'token-efficient-tools-2025-02-19': 'true'
+      }
     };
 
-    // Add tools if enabled and provided
+    // DIRECT TOOL EXECUTION: Skip Claude API for common tools
+    const directToolResult = await this.tryDirectToolExecution(message, conversationId, agentId);
+    if (directToolResult) {
+      console.log(`⚡ DIRECT EXECUTION: Bypassed Claude API for tool operation`);
+      return directToolResult;
+    }
+
+    // Only add tools if no direct execution occurred (reduce token consumption)
     if (enableTools && tools.length > 0) {
       claudeRequest.tools = tools;
+      // Add prompt caching to reduce token consumption for repeated tool definitions
+      claudeRequest.cache_control = { type: "ephemeral" };
     }
 
     try {
@@ -482,6 +495,56 @@ I have complete workspace access and can implement any changes you need. What wo
     }
     
     return { processedMessage: message };
+  }
+
+  /**
+   * DIRECT TOOL EXECUTION - BYPASS CLAUDE API
+   * Execute common tools directly without consuming API tokens
+   */
+  public async tryDirectToolExecution(message: string, conversationId?: string, agentId?: string): Promise<string | null> {
+    // Parse message for direct tool commands
+    const fileViewPattern = /(?:view|examine|look at|access)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md))/i;
+    const fileEditPattern = /(?:edit|modify|update|change)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md))/i;
+    const searchPattern = /(?:search|find|locate)\s+(?:for\s+)?(.+?)(?:\s+in\s+|$)/i;
+
+    try {
+      // Direct file view
+      const viewMatch = message.match(fileViewPattern);
+      if (viewMatch) {
+        const filePath = viewMatch[1];
+        console.log(`⚡ DIRECT FILE VIEW: ${filePath} without Claude API tokens`);
+        const result = await this.handleToolCall({
+          name: 'str_replace_based_edit_tool',
+          input: { command: 'view', path: filePath }
+        }, conversationId, agentId);
+        
+        await this.saveMessageToDb(conversationId, 'user', message);
+        await this.saveMessageToDb(conversationId, 'assistant', `Direct file access completed:\n\n${result}`);
+        
+        return `Direct file access completed:\n\n${result}`;
+      }
+
+      // Direct search
+      const searchMatch = message.match(searchPattern);
+      if (searchMatch) {
+        const searchQuery = searchMatch[1].trim();
+        console.log(`⚡ DIRECT SEARCH: "${searchQuery}" without Claude API tokens`);
+        const result = await this.handleToolCall({
+          name: 'search_filesystem',
+          input: { query_description: searchQuery }
+        }, conversationId, agentId);
+        
+        await this.saveMessageToDb(conversationId, 'user', message);
+        await this.saveMessageToDb(conversationId, 'assistant', `Search completed:\n\n${result}`);
+        
+        return `Search completed:\n\n${result}`;
+      }
+
+    } catch (error) {
+      console.log(`❌ DIRECT EXECUTION FAILED: ${error}, fallback to Claude API`);
+    }
+
+    return null; // No direct execution possible, use Claude API
   }
 
   /**
