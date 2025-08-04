@@ -353,8 +353,9 @@ export class ClaudeApiServiceRebuilt {
       console.log(`🧠 MEMORY RESTORED: ${agentContextMessages.length} context segments for ${agentName}`);
       
       // Prepare Claude API request with streaming enabled AND MEMORY CONTEXT
+      // Filter out system messages - they go in the system parameter, not messages array
       const claudeMessages = [
-        ...agentContextMessages, // Add restored memory context FIRST
+        ...agentContextMessages.filter(msg => msg.role !== 'system'), // Exclude system messages
         ...messages.map((msg: any) => ({
           role: msg.role === 'agent' ? 'assistant' : msg.role,
           content: msg.content
@@ -362,13 +363,17 @@ export class ClaudeApiServiceRebuilt {
         { role: 'user', content: message }
       ];
       
+      // Extract system context for the system parameter
+      const systemContextMessages = agentContextMessages.filter(msg => msg.role === 'system');
+      const memoryContext = systemContextMessages.map(msg => msg.content).join('\n\n');
+      
       console.log(`💬 CONVERSATION READY: ${claudeMessages.length} messages (${agentContextMessages.length} memory + ${messages.length} history + 1 current)`);
       
-      // 🎭 ENHANCED SYSTEM PROMPT: Merge with agent personality data
+      // 🎭 ENHANCED SYSTEM PROMPT: Merge with agent personality data AND memory context
       const agentPersonality = agentPersonalities[agentName as keyof typeof agentPersonalities];
       const enhancedSystemPrompt = agentPersonality 
-        ? `${systemPrompt}\n\n**🎭 AGENT PERSONALITY CONTEXT:**\n${agentPersonality.systemPrompt}\n\n**💫 SPECIALIZED IDENTITY:** You are ${agentPersonality.name}, ${agentPersonality.role}`
-        : systemPrompt;
+        ? `${systemPrompt}\n\n**🎭 AGENT PERSONALITY CONTEXT:**\n${agentPersonality.systemPrompt}\n\n**💫 SPECIALIZED IDENTITY:** You are ${agentPersonality.name}, ${agentPersonality.role}\n\n${memoryContext ? `**🧠 RESTORED MEMORY:**\n${memoryContext}` : ''}`
+        : `${systemPrompt}\n\n${memoryContext ? `**🧠 RESTORED MEMORY:**\n${memoryContext}` : ''}`;
       
       console.log(`🎭 PERSONALITY LOADED: ${agentPersonality?.name} - ${agentPersonality?.role || 'Generic Agent'}`);
 
