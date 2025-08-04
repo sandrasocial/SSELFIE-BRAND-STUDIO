@@ -824,9 +824,115 @@ I have complete workspace access and can implement any changes you need. What wo
    * Force all tool operations through bypass system to prevent $110+ charges
    */
   public async tryDirectToolExecution(message: string, conversationId?: string, agentId?: string): Promise<string | null> {
-    // TEMPORARILY DISABLED: Let ALL messages through to test agent tool execution
-    console.log(`🎯 FULL AGENT EXECUTION: Allowing all requests through Claude API with bypass-enabled tools`);
-    return null; // Let agent execute normally with bypass-enabled tools
+    console.log(`🔍 SMART ROUTING: Analyzing message type for token optimization`);
+    
+    // DIRECT TOOL OPERATIONS (NO API CALLS)
+    const toolOperations = [
+      /(?:view|read|show|display|check|look at|examine)\s+(?:file|the file|this file)[\s\w\/\.-]*\.(ts|js|tsx|jsx|json|md|css|html|txt)/i,
+      /(?:search|find|locate|grep)\s+(?:for|files|file|in|containing|with)/i,
+      /(?:create|make|generate|add)\s+(?:file|a file|new file)[\s\w\/\.-]*\.(ts|js|tsx|jsx|json|md|css|html|txt)/i,
+      /(?:edit|modify|update|change|replace)\s+(?:file|the file|in file)/i,
+      /(?:run|execute|bash|command)\s+(?:command|cmd|bash|shell)/i,
+      /(?:npm|yarn|install|uninstall|package)/i,
+      /(?:check|view|show)\s+(?:status|logs|errors|diagnostics)/i
+    ];
+    
+    const isToolOperation = toolOperations.some(pattern => pattern.test(message));
+    
+    if (isToolOperation) {
+      console.log(`⚡ DIRECT TOOL EXECUTION: Bypassing Claude API for tool operation`);
+      
+      // Simple file view
+      if (/(?:view|read|show|display|check|look at|examine)\s+(?:file|the file|this file)[\s\w\/\.-]*\.(ts|js|tsx|jsx|json|md|css|html|txt)/i.test(message)) {
+        const filePathMatch = message.match(/[\w\/\.-]+\.(ts|js|tsx|jsx|json|md|css|html|txt)/i);
+        if (filePathMatch) {
+          const filePath = filePathMatch[0];
+          const result = await this.handleToolCall({
+            name: 'str_replace_based_edit_tool',
+            input: { command: 'view', path: filePath }
+          }, conversationId, agentId);
+          return `File: ${filePath}\n\n${result}`;
+        }
+      }
+      
+      // Simple search
+      if (/(?:search|find|locate|grep)\s+(?:for|files|file|in|containing|with)/i.test(message)) {
+        const searchMatch = message.match(/(?:search|find|locate|grep)\s+(?:for|files|file|in|containing|with)\s+(.+)/i);
+        if (searchMatch) {
+          const query = searchMatch[1].trim();
+          const result = await this.handleToolCall({
+            name: 'search_filesystem',
+            input: { query_description: query }
+          }, conversationId, agentId);
+          return `Search Results for "${query}":\n\n${result}`;
+        }
+      }
+      
+      // Simple bash commands
+      if (/(?:run|execute|bash|command)\s+(.+)/i.test(message)) {
+        const commandMatch = message.match(/(?:run|execute|bash|command)\s+(.+)/i);
+        if (commandMatch) {
+          const command = commandMatch[1].trim();
+          const result = await this.handleToolCall({
+            name: 'bash',
+            input: { command }
+          }, conversationId, agentId);
+          return `Command: ${command}\n\n${result}`;
+        }
+      }
+    }
+    
+    // CONTENT GENERATION REQUESTS (USE CLAUDE API)
+    const contentGeneration = [
+      /(?:create|generate|build|write|code|develop|implement|design|architect)/i,
+      /(?:explain|describe|analyze|review|optimize|refactor|improve)/i,
+      /(?:strategy|approach|solution|methodology|framework|pattern)/i,
+      /(?:help|assist|guide|recommend|suggest|advise)/i
+    ];
+    
+    const needsContentGeneration = contentGeneration.some(pattern => pattern.test(message));
+    
+    if (needsContentGeneration) {
+      console.log(`📝 CONTENT GENERATION: Using Claude API for intelligent response`);
+      return null; // Use Claude API for content generation
+    }
+    
+    // SIMPLE STATUS/PERSONALITY RESPONSES (NO API CALLS)
+    const simpleResponses = [
+      /^(?:hi|hello|hey|greetings)/i,
+      /^(?:who are you|introduce yourself|tell me about yourself)/i,
+      /^(?:status|how are you|what's your role)/i,
+      /^(?:thanks|thank you|ok|okay|good|great)/i
+    ];
+    
+    const isSimpleResponse = simpleResponses.some(pattern => pattern.test(message.trim()));
+    
+    if (isSimpleResponse) {
+      console.log(`💬 SIMPLE RESPONSE: Template response without API usage`);
+      
+      if (/^(?:who are you|introduce yourself|tell me about yourself)/i.test(message)) {
+        const agentPersonalities = {
+          zara: "I'm Zara, your Dev AI and Technical Mastermind. I specialize in backend development, system architecture, and solving complex technical challenges with precision and sass.",
+          elena: "I'm Elena, your AI Agent Director and strategic orchestrator. I coordinate all agents and ensure seamless workflow execution.",
+          maya: "I'm Maya, your Photography AI. I create stunning flatlay compositions and manage your visual brand assets.",
+          // Add other agent personalities...
+        };
+        
+        const personality = agentPersonalities[agentId as keyof typeof agentPersonalities] || 
+                           `I'm your specialized AI assistant, ready to help with technical tasks and content creation.`;
+        
+        return personality;
+      }
+      
+      if (/^(?:status|how are you|what's your role)/i.test(message)) {
+        return `I'm operational and ready to assist! I have full access to development tools and can help with file operations, searches, and content generation.`;
+      }
+      
+      return `Hello! I'm ready to help you with development tasks, file operations, and content creation. What would you like me to work on?`;
+    }
+    
+    console.log(`🤖 COMPLEX REQUEST: Using Claude API for sophisticated response`);
+    return null; // Use Claude API for complex requests
   }
 
   /**
