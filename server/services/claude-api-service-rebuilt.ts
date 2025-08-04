@@ -87,6 +87,31 @@ export class ClaudeApiServiceRebuilt {
     res: any // Express response object for streaming
   ): Promise<void> {
     try {
+      // CRITICAL FIX: INJECT MEMORY SYSTEM BEFORE CLAUDE API CALL
+      let enhancedSystemPrompt = systemPrompt;
+      try {
+        const memoryProfile = await this.memorySystem.getAgentMemoryProfile(agentName, userId);
+        if (memoryProfile) {
+          console.log(`🧠 MEMORY LOADED: ${agentName} - ${memoryProfile.learningPatterns.length} patterns, level ${memoryProfile.intelligenceLevel}`);
+          
+          const memoryContext = `\n\n**AGENT MEMORY PROFILE:**
+Intelligence Level: ${memoryProfile.intelligenceLevel} (grows with experience)
+Learning Patterns: ${memoryProfile.learningPatterns.length} accumulated patterns
+Memory Strength: ${memoryProfile.memoryStrength} 
+Recent Optimizations: ${memoryProfile.lastOptimization.toDateString()}
+
+**YOUR ACCUMULATED LEARNING:**
+${memoryProfile.learningPatterns.slice(0, 10).map(p => `- ${p.category}: ${p.pattern} (confidence: ${p.confidence})`).join('\n')}`;
+          
+          enhancedSystemPrompt = systemPrompt + memoryContext;
+          console.log(`🧠 MEMORY CONTEXT INJECTED: ${agentName} now has access to accumulated intelligence`);
+        } else {
+          console.log(`🧠 MEMORY: Creating new profile for ${agentName}`);
+        }
+      } catch (error) {
+        console.warn('Memory system failed, continuing without memory:', error);
+      }
+
       // Load conversation history
       const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
@@ -112,7 +137,7 @@ export class ClaudeApiServiceRebuilt {
           model: DEFAULT_MODEL_STR,
           max_tokens: 8000,
           messages: currentMessages as any,
-          system: systemPrompt,
+          system: enhancedSystemPrompt, // NOW USING MEMORY-ENHANCED PROMPT
           tools: tools,
           stream: true
         });
