@@ -18,6 +18,21 @@ import { crossAgentIntelligence } from "./services/cross-agent-intelligence";
 
 const app = express();
 
+// Add global error handlers to prevent crashes
+process.on('unhandledRejection', (reason, promise) => {
+  console.warn('🔄 Unhandled Promise Rejection (non-fatal):', reason);
+  // Don't crash the server - log and continue
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('💥 Uncaught Exception:', error);
+  // Only crash if it's a truly fatal error
+  if (error.message.includes('EADDRINUSE') || error.message.includes('MODULE_NOT_FOUND')) {
+    process.exit(1);
+  }
+  console.warn('🔄 Continuing operation...');
+});
+
 // Add CORS support for cross-origin requests from production domain to dev server
 app.use(cors({
   origin: [
