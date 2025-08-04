@@ -97,81 +97,60 @@ export class ClaudeApiServiceRebuilt {
       
       // Continue conversation until Claude is done (handles tool execution cycles)
       while (!conversationComplete) {
-        const stream = await anthropic.messages.create({
+        // FIXED: Use non-streaming for tool calls, streaming only for text response
+        const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
           max_tokens: 8000,
           messages: currentMessages as any,
           system: systemPrompt,
           tools: tools,
-          stream: true
+          stream: false  // Tools require non-streaming for proper parameter capture
         });
 
         let currentResponseText = '';
         let toolCalls: any[] = [];
         let hasContent = false;
-        let toolBuffer: { [key: string]: { name: string, parameters: any, complete: boolean } } = {};
         
-        // Process the stream
-        for await (const chunk of stream) {
-          if (chunk.type === 'message_start') {
-            if (!hasContent) {
+        // CORRECTLY HANDLE CLAUDE RESPONSE FORMAT
+        if (response.content) {
+          for (const contentBlock of response.content) {
+            if (contentBlock.type === 'text') {
+              currentResponseText += contentBlock.text;
+              hasContent = true;
+              
+              // Stream text content to frontend
               res.write(`data: ${JSON.stringify({
-                type: 'message_start',
-                agentName,
-                message: `${agentName} is thinking...`
+                type: 'text_delta',
+                content: contentBlock.text
               })}\n\n`);
-            }
-          }
-          
-          if (chunk.type === 'content_block_start') {
-            if (chunk.content_block.type === 'tool_use') {
-              // FIXED: Claude sends complete parameters in content_block_start
-              console.log('🔧 CLAUDE TOOL DEBUG:', {
-                id: chunk.content_block.id,
-                name: chunk.content_block.name,
-                input: chunk.content_block.input,
-                hasInput: !!chunk.content_block.input,
-                inputType: typeof chunk.content_block.input
+              
+            } else if (contentBlock.type === 'tool_use') {
+              // PROPER TOOL PARAMETER CAPTURE - Claude sends complete parameters here
+              console.log('🔧 CLAUDE TOOL CAPTURE:', {
+                id: contentBlock.id,
+                name: contentBlock.name,
+                input: contentBlock.input,
+                hasInput: !!contentBlock.input,
+                inputKeys: contentBlock.input ? Object.keys(contentBlock.input) : []
+              });
+              
+              toolCalls.push({
+                id: contentBlock.id,
+                name: contentBlock.name,
+                input: contentBlock.input || {}
               });
               
               res.write(`data: ${JSON.stringify({
                 type: 'tool_start',
-                toolName: chunk.content_block.name,
-                message: `${agentName} is using ${chunk.content_block.name}...`
-              })}\n\n`);
-              
-              // IMMEDIATE execution with parameters from content_block_start
-              toolCalls.push({
-                id: chunk.content_block.id,
-                name: chunk.content_block.name,
-                input: chunk.content_block.input || {}
-              });
-            }
-          }
-          
-          if (chunk.type === 'content_block_delta') {
-            if (chunk.delta.type === 'text_delta') {
-              // Stream text content
-              const textDelta = chunk.delta.text;
-              currentResponseText += textDelta;
-              fullResponse += textDelta;
-              hasContent = true;
-              
-              res.write(`data: ${JSON.stringify({
-                type: 'text_delta',
-                content: textDelta
+                toolName: contentBlock.name,
+                message: `${agentName} is using ${contentBlock.name}...`
               })}\n\n`);
             }
           }
-          
-          if (chunk.type === 'content_block_stop') {
-            // Content block complete - parameters already captured in content_block_start
-            console.log('🔧 Content block stopped, tools ready for execution');
-          }
-          
-          if (chunk.type === 'message_stop') {
-            // Check if we have tool calls to execute
-            if (toolCalls.length > 0) {
+        }
+        
+        // Check if we have tool calls to execute
+        if (toolCalls.length > 0) {
               res.write(`data: ${JSON.stringify({
                 type: 'tools_executing',
                 message: `${agentName} is executing ${toolCalls.length} tool(s)...`
