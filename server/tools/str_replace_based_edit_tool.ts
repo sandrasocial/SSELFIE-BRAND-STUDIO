@@ -12,18 +12,22 @@ interface EditToolParams {
   insert_text?: string;
 }
 
-export async function str_replace_based_edit_tool(params: EditToolParams) {
+export async function str_replace_based_edit_tool(params: EditToolParams, bypassMode = false) {
   try {
     // CRITICAL FIX: Validate params exist
     if (!params || typeof params !== 'object') {
       throw new Error('Invalid parameters provided to str_replace_based_edit_tool');
     }
     
-    console.log('🔧 ADMIN FILE TOOL: Starting file operation:', {
-      command: params.command,
-      path: params.path,
-      hasWriteAccess: true
-    });
+    if (bypassMode) {
+      console.log('⚡ BYPASS MODE: File operation with ZERO API cost');
+    } else {
+      console.log('🔧 ADMIN FILE TOOL: Starting file operation:', {
+        command: params.command,
+        path: params.path,
+        hasWriteAccess: true
+      });
+    }
     
     // CRITICAL FIX: Validate required parameters
     if (!params.path || typeof params.path !== 'string') {

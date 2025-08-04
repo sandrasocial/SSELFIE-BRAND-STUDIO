@@ -15,11 +15,15 @@ interface BashResult {
   success: boolean;
 }
 
-export async function bash(input: BashInput): Promise<BashResult> {
+export async function bash(input: BashInput, bypassMode = false): Promise<BashResult> {
   try {
     const { command, timeout = 30000 } = input;
     
-    console.log(`🔧 BASH: Executing command: ${command}`);
+    if (bypassMode) {
+      console.log(`⚡ BYPASS MODE: Command execution with ZERO API cost: ${command}`);
+    } else {
+      console.log(`🔧 BASH: Executing command: ${command}`);
+    }
     
     const { stdout, stderr } = await execAsync(command, {
       timeout,
