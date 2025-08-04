@@ -80,8 +80,8 @@ router.get('/conversation-history/:agentId', async (req, res) => {
 });
 
 /**
- * PHASE 3.1: CONSULTING AGENTS REDIRECTION TO IMPLEMENTATION-AWARE ROUTING
- * All consulting requests now flow through implementation detection system
+ * UNIFIED ADMIN CONSULTING CHAT ENDPOINT
+ * Direct agent communication for admin interface
  */
 router.post('/consulting-chat', async (req, res) => {
   try {
