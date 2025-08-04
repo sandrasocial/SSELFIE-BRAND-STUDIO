@@ -700,16 +700,27 @@ export class ClaudeApiServiceRebuilt {
     
     for (const message of recentMessages) {
       if (message.role === 'user' && message.content) {
-        // For user messages, keep only text content, remove massive tool_result blocks
-        const cleanContent = message.content.filter((content: any) => 
-          content.type === 'text' || (content.type === 'tool_result' && content.content.length < 500)
-        );
-        
-        if (cleanContent.length > 0) {
-          cleanMessages.push({
-            ...message,
-            content: cleanContent
-          });
+        // Handle both string and array content formats
+        if (typeof message.content === 'string') {
+          // Simple string content - keep if not too long
+          if (message.content.length < 2000) {
+            cleanMessages.push(message);
+          }
+        } else if (Array.isArray(message.content)) {
+          // Array content - filter out large tool results
+          const cleanContent = message.content.filter((content: any) => 
+            content.type === 'text' || (content.type === 'tool_result' && content.content && content.content.length < 500)
+          );
+          
+          if (cleanContent.length > 0) {
+            cleanMessages.push({
+              ...message,
+              content: cleanContent
+            });
+          }
+        } else {
+          // Other content types - keep as is if reasonable size
+          cleanMessages.push(message);
         }
       } else if (message.role === 'assistant') {
         // Keep assistant messages but limit size
