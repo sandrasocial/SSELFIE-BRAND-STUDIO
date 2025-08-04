@@ -255,11 +255,7 @@ export class ClaudeApiServiceRebuilt {
       model: DEFAULT_MODEL_STR,
       max_tokens: 4000,
       system: enhancedSystemPrompt,
-      messages,
-      // TOKEN OPTIMIZATION: Add token-efficient headers
-      headers: {
-        'token-efficient-tools-2025-02-19': 'true'
-      }
+      messages
     };
 
     // DIRECT TOOL EXECUTION: Skip Claude API for common tools
@@ -502,13 +498,17 @@ I have complete workspace access and can implement any changes you need. What wo
    * Execute common tools directly without consuming API tokens
    */
   public async tryDirectToolExecution(message: string, conversationId?: string, agentId?: string): Promise<string | null> {
-    // Parse message for direct tool commands
-    const fileViewPattern = /(?:view|examine|look at|access)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md))/i;
-    const fileEditPattern = /(?:edit|modify|update|change)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md))/i;
+    // Enhanced patterns for comprehensive direct execution
+    const fileViewPattern = /(?:view|examine|look at|access|show|read|display)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md|py|txt))/i;
+    const fileEditPattern = /(?:edit|modify|update|change)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md|py|txt))/i;
     const searchPattern = /(?:search|find|locate)\s+(?:for\s+)?(.+?)(?:\s+in\s+|$)/i;
+    const createFilePattern = /(?:create|generate|make)\s+(?:a\s+)?(?:file|component|script)\s+([^\s]+\.(?:tsx?|jsx?|css|html|json|md|py|txt))/i;
+    const commandPattern = /(?:run|execute)\s+(?:command\s+)?[`"']([^`"']+)[`"']/i;
+    const installPattern = /(?:install|add)\s+(?:package\s+)?([^\s]+)(?:\s+(?:for|in|using)\s+(\w+))?/i;
+    const diagnosticsPattern = /(?:check|scan|analyze|debug)\s+(?:for\s+)?(?:errors|issues|problems|diagnostics)/i;
 
     try {
-      // Direct file view
+      // DIRECT FILE VIEW
       const viewMatch = message.match(fileViewPattern);
       if (viewMatch) {
         const filePath = viewMatch[1];
@@ -518,13 +518,13 @@ I have complete workspace access and can implement any changes you need. What wo
           input: { command: 'view', path: filePath }
         }, conversationId, agentId);
         
-        await this.saveMessageToDb(conversationId, 'user', message);
-        await this.saveMessageToDb(conversationId, 'assistant', `Direct file access completed:\n\n${result}`);
+        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
+        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `Direct file access completed:\n\n${result}`);
         
         return `Direct file access completed:\n\n${result}`;
       }
 
-      // Direct search
+      // DIRECT SEARCH
       const searchMatch = message.match(searchPattern);
       if (searchMatch) {
         const searchQuery = searchMatch[1].trim();
@@ -534,10 +534,110 @@ I have complete workspace access and can implement any changes you need. What wo
           input: { query_description: searchQuery }
         }, conversationId, agentId);
         
-        await this.saveMessageToDb(conversationId, 'user', message);
-        await this.saveMessageToDb(conversationId, 'assistant', `Search completed:\n\n${result}`);
+        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
+        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `Search completed:\n\n${result}`);
         
         return `Search completed:\n\n${result}`;
+      }
+
+      // DIRECT FILE CREATION - Simple template generation
+      const createMatch = message.match(createFilePattern);
+      if (createMatch) {
+        const filePath = createMatch[1];
+        console.log(`⚡ DIRECT FILE CREATE: ${filePath} without Claude API tokens`);
+        
+        // Generate appropriate template based on file extension
+        const ext = filePath.split('.').pop()?.toLowerCase();
+        let template = '';
+        
+        switch (ext) {
+          case 'tsx':
+            template = `import React from 'react';\n\nexport default function Component() {\n  return (\n    <div className="p-4">\n      <h1>Generated Component</h1>\n    </div>\n  );\n}\n`;
+            break;
+          case 'jsx':
+            template = `import React from 'react';\n\nexport default function Component() {\n  return (\n    <div className="p-4">\n      <h1>Generated Component</h1>\n    </div>\n  );\n}\n`;
+            break;
+          case 'ts':
+            template = `// Generated TypeScript file\n\nexport interface IGenerated {\n  id: string;\n  name: string;\n}\n\nexport function generatedFunction(data: IGenerated): string {\n  return \`Generated: \${data.name}\`;\n}\n`;
+            break;
+          case 'js':
+            template = `// Generated JavaScript file\n\nfunction generatedFunction(data) {\n  return \`Generated: \${data.name}\`;\n}\n\nmodule.exports = { generatedFunction };\n`;
+            break;
+          case 'css':
+            template = `/* Generated CSS file */\n\n.generated-component {\n  padding: 1rem;\n  margin: 0.5rem;\n  border-radius: 8px;\n  background: #f9f9f9;\n}\n\n.generated-title {\n  font-size: 1.5rem;\n  font-weight: bold;\n  margin-bottom: 1rem;\n}\n`;
+            break;
+          case 'json':
+            template = `{\n  "name": "generated-file",\n  "version": "1.0.0",\n  "description": "Generated JSON configuration",\n  "generated": true\n}\n`;
+            break;
+          case 'md':
+            template = `# Generated Documentation\n\n## Overview\n\nThis file was generated automatically.\n\n## Features\n\n- Feature 1\n- Feature 2\n- Feature 3\n\n## Usage\n\nAdd usage instructions here.\n`;
+            break;
+          default:
+            template = `// Generated file: ${filePath}\n// Add content here\n\n`;
+        }
+        
+        const result = await this.handleToolCall({
+          name: 'str_replace_based_edit_tool',
+          input: { command: 'create', path: filePath, file_text: template }
+        }, conversationId, agentId);
+        
+        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
+        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `File created with template:\n\n${result}`);
+        
+        return `File created with template:\n\n${result}`;
+      }
+
+      // DIRECT COMMAND EXECUTION
+      const commandMatch = message.match(commandPattern);
+      if (commandMatch) {
+        const command = commandMatch[1].trim();
+        console.log(`⚡ DIRECT COMMAND: "${command}" without Claude API tokens`);
+        const result = await this.handleToolCall({
+          name: 'bash',
+          input: { command }
+        }, conversationId, agentId);
+        
+        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
+        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `Command executed:\n\n${result}`);
+        
+        return `Command executed:\n\n${result}`;
+      }
+
+      // DIRECT PACKAGE INSTALLATION
+      const installMatch = message.match(installPattern);
+      if (installMatch) {
+        const packageName = installMatch[1].trim();
+        const system = installMatch[2]?.trim() || 'nodejs';
+        console.log(`⚡ DIRECT INSTALL: "${packageName}" for ${system} without Claude API tokens`);
+        
+        const result = await this.handleToolCall({
+          name: 'packager_tool',
+          input: { 
+            language_or_system: system,
+            install_or_uninstall: 'install',
+            dependency_list: [packageName]
+          }
+        }, conversationId, agentId);
+        
+        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
+        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `Package installation:\n\n${result}`);
+        
+        return `Package installation:\n\n${result}`;
+      }
+
+      // DIRECT DIAGNOSTICS
+      const diagnosticsMatch = message.match(diagnosticsPattern);
+      if (diagnosticsMatch) {
+        console.log(`⚡ DIRECT DIAGNOSTICS: Error checking without Claude API tokens`);
+        const result = await this.handleToolCall({
+          name: 'get_latest_lsp_diagnostics',
+          input: {}
+        }, conversationId, agentId);
+        
+        await this.saveMessageToDb(conversationId || 'unknown', 'user', message);
+        await this.saveMessageToDb(conversationId || 'unknown', 'assistant', `Diagnostics completed:\n\n${result}`);
+        
+        return `Diagnostics completed:\n\n${result}`;
       }
 
     } catch (error) {
@@ -648,13 +748,43 @@ I have complete workspace access and can implement any changes you need. What wo
         // ADVANCED IMPLEMENTATION TOOLKIT
         case 'agent_implementation_toolkit':
           try {
+            console.log('🚀 ACTIVATING: Agent Implementation Toolkit for complex workflows');
             const { AgentImplementationToolkit } = await import('../tools/agent_implementation_toolkit');
             const toolkit = new AgentImplementationToolkit();
             const implementationResult = await toolkit.executeAgentImplementation(toolCall.input);
-            return `[Implementation Result]\n${JSON.stringify(implementationResult, null, 2)}`;
+            return `[Enterprise Implementation]\n${JSON.stringify(implementationResult, null, 2)}`;
           } catch (error) {
             console.error('Implementation toolkit error:', error);
             return `[Implementation Error]\n${error instanceof Error ? error.message : 'Implementation failed'}`;
+          }
+
+        // COMPREHENSIVE AGENT TOOLKIT
+        case 'comprehensive_agent_toolkit':
+          try {
+            console.log('🤝 ACTIVATING: Comprehensive Agent Toolkit for multi-agent coordination');
+            const { comprehensive_agent_toolkit } = await import('../tools/comprehensive_agent_toolkit');
+            const coordinationResult = await comprehensive_agent_toolkit(toolCall.input.toolkit_operation, toolCall.input);
+            return `[Agent Coordination]\n${JSON.stringify(coordinationResult, null, 2)}`;
+          } catch (error) {
+            console.error('Comprehensive toolkit error:', error);
+            return `[Coordination Error]\n${error instanceof Error ? error.message : 'Multi-agent coordination failed'}`;
+          }
+
+        // ADVANCED AGENT CAPABILITIES
+        case 'advanced_agent_capabilities':
+          try {
+            console.log('🧠 ACTIVATING: Advanced Agent Capabilities for autonomous operations');
+            const { advancedAgentCapabilities } = await import('../tools/advanced_agent_capabilities');
+            const capabilityResult = await advancedAgentCapabilities.buildEnterpriseSystem({
+              name: toolCall.input.capability_type || 'enterprise-system',
+              type: 'full-stack-feature',
+              requirements: ['enterprise-capabilities'],
+              designPattern: 'luxury-editorial'
+            });
+            return `[Advanced Capabilities]\n${JSON.stringify(capabilityResult, null, 2)}`;
+          } catch (error) {
+            console.error('Advanced capabilities error:', error);
+            return `[Capability Error]\n${error instanceof Error ? error.message : 'Advanced operation failed'}`;
           }
 
         // REPLIT-LEVEL TOOLS INTEGRATION

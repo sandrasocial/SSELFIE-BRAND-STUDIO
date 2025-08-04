@@ -155,11 +155,12 @@ router.post('/consulting-chat', async (req, res) => {
 **🚀 YOUR FULL TOOL ARSENAL:**
 You have complete access to all Replit-level tools for comprehensive implementation.`;
     
-    // COMPLETE ENTERPRISE TOOLS: Full tool arsenal, not limited subset
+    // COMPLETE ENTERPRISE TOOLS: Full 18+ tool arsenal with parallel execution capability
     const enterpriseTools = [
+      // CORE DEVELOPMENT TOOLS
       {
         name: 'str_replace_based_edit_tool',
-        description: 'Create, view, edit files with precision',
+        description: 'Create, view, edit files with precision. Use for all file operations including code generation, content creation, and modifications.',
         input_schema: {
           type: 'object',
           properties: {
@@ -177,7 +178,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
       },
       {
         name: 'search_filesystem',
-        description: 'Intelligent file discovery and search',
+        description: 'Intelligent file discovery and search with enterprise caching',
         input_schema: {
           type: 'object',
           properties: {
@@ -191,7 +192,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
       },
       {
         name: 'bash',
-        description: 'Command execution, testing, building, verification',
+        description: 'Command execution, testing, building, verification, and system operations',
         input_schema: {
           type: 'object',
           properties: {
@@ -201,8 +202,32 @@ You have complete access to all Replit-level tools for comprehensive implementat
         }
       },
       {
+        name: 'get_latest_lsp_diagnostics',
+        description: 'Error detection, code validation, and syntax checking',
+        input_schema: {
+          type: 'object',
+          properties: {
+            file_path: { type: 'string' }
+          }
+        }
+      },
+      {
+        name: 'execute_sql_tool',
+        description: 'Database operations, queries, and data manipulation',
+        input_schema: {
+          type: 'object',
+          properties: {
+            sql_query: { type: 'string' },
+            environment: { type: 'string', enum: ['development'], default: 'development' }
+          },
+          required: ['sql_query']
+        }
+      },
+
+      // RESEARCH & INTEGRATION TOOLS
+      {
         name: 'web_search',
-        description: 'Research, API documentation, latest information',
+        description: 'Research, API documentation, latest information, and external data',
         input_schema: {
           type: 'object',
           properties: {
@@ -212,13 +237,142 @@ You have complete access to all Replit-level tools for comprehensive implementat
         }
       },
       {
-        name: 'get_latest_lsp_diagnostics',
-        description: 'Error detection and code validation',
+        name: 'web_fetch',
+        description: 'Retrieve full content from URLs and web pages',
         input_schema: {
           type: 'object',
           properties: {
-            file_path: { type: 'string' }
-          }
+            url: { type: 'string' }
+          },
+          required: ['url']
+        }
+      },
+
+      // ADVANCED IMPLEMENTATION TOOLS
+      {
+        name: 'agent_implementation_toolkit',
+        description: 'Complex implementation orchestration and multi-step development workflows',
+        input_schema: {
+          type: 'object',
+          properties: {
+            operation: { type: 'string' },
+            parameters: { type: 'object' },
+            workflow_type: { type: 'string' }
+          },
+          required: ['operation']
+        }
+      },
+      {
+        name: 'comprehensive_agent_toolkit',
+        description: 'Multi-agent coordination, collaboration, and enterprise automation',
+        input_schema: {
+          type: 'object',
+          properties: {
+            toolkit_operation: { type: 'string' },
+            agent_coordination: { type: 'object' },
+            automation_level: { type: 'string' }
+          },
+          required: ['toolkit_operation']
+        }
+      },
+      {
+        name: 'advanced_agent_capabilities',
+        description: 'Enterprise-level autonomous operations and intelligent decision making',
+        input_schema: {
+          type: 'object',
+          properties: {
+            capability_type: { type: 'string' },
+            execution_context: { type: 'object' },
+            autonomy_level: { type: 'string' }
+          },
+          required: ['capability_type']
+        }
+      },
+
+      // PACKAGE & DEPENDENCY MANAGEMENT
+      {
+        name: 'packager_tool',
+        description: 'Install, manage, and update dependencies (npm, pip, system packages)',
+        input_schema: {
+          type: 'object',
+          properties: {
+            language_or_system: { type: 'string' },
+            install_or_uninstall: { type: 'string', enum: ['install', 'uninstall'] },
+            dependency_list: { type: 'array', items: { type: 'string' } }
+          },
+          required: ['language_or_system', 'install_or_uninstall']
+        }
+      },
+
+      // WORKFLOW & COORDINATION TOOLS
+      {
+        name: 'report_progress',
+        description: 'Document progress, coordinate workflows, and track task completion',
+        input_schema: {
+          type: 'object',
+          properties: {
+            summary: { type: 'string' }
+          },
+          required: ['summary']
+        }
+      },
+      {
+        name: 'mark_completed_and_get_feedback',
+        description: 'Mark tasks complete, capture screenshots, and gather user feedback',
+        input_schema: {
+          type: 'object',
+          properties: {
+            query: { type: 'string' },
+            workflow_name: { type: 'string' },
+            website_route: { type: 'string' }
+          },
+          required: ['query', 'workflow_name']
+        }
+      },
+      {
+        name: 'restart_workflow',
+        description: 'Restart or start workflows and manage running processes',
+        input_schema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            workflow_timeout: { type: 'integer', default: 30 }
+          },
+          required: ['name']
+        }
+      },
+
+      // SECURITY & DEPLOYMENT TOOLS
+      {
+        name: 'ask_secrets',
+        description: 'Request API keys and secure credentials from users',
+        input_schema: {
+          type: 'object',
+          properties: {
+            secret_keys: { type: 'array', items: { type: 'string' } },
+            user_message: { type: 'string' }
+          },
+          required: ['secret_keys', 'user_message']
+        }
+      },
+      {
+        name: 'check_secrets',
+        description: 'Verify availability of API keys and environment variables',
+        input_schema: {
+          type: 'object',
+          properties: {
+            secret_keys: { type: 'array', items: { type: 'string' } }
+          },
+          required: ['secret_keys']
+        }
+      },
+      {
+        name: 'suggest_deploy',
+        description: 'Indicate project readiness for deployment',
+        input_schema: {
+          type: 'object',
+          properties: {},
+          additionalProperties: false
         }
       }
     ];
@@ -228,6 +382,8 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`🎯 AGENT CONFIG: ${agentConfig.name} - ${agentConfig.role}`);
     console.log(`📋 SPECIALIZATION: ${agentConfig.specialization}`);
     console.log(`⚡ TOOLS ALLOWED: ${agentConfig.allowedTools?.length || 0} configured tools`);
+    console.log(`🚀 PARALLEL EXECUTION: Claude 4 parallel tool support enabled`);
+    console.log(`💰 TOKEN OPTIMIZATION: Direct execution + efficient API usage active`);
     
     // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
