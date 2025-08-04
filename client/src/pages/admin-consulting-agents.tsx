@@ -822,10 +822,7 @@ export default function AdminConsultingAgents() {
                   <div className="flex gap-4 p-4">
                     <textarea
                       value={message}
-                      onChange={(e) => {
-                        console.log('📝 Input change:', e.target.value);
-                        setMessage(e.target.value);
-                      }}
+                      onChange={(e) => setMessage(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
