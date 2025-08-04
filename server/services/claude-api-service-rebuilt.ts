@@ -846,22 +846,24 @@ I have complete workspace access and can implement any changes you need. What wo
   public async tryDirectToolExecution(message: string, conversationId?: string, agentId?: string): Promise<string | null> {
     console.log(`🔧 DIRECT TOOL EXECUTION: Checking patterns for ${agentId}`);
     
-    // DIRECT FILE OPERATIONS - No Claude API needed
-    if (message.includes('view') || message.includes('search') || message.includes('files')) {
-      console.log(`⚡ DIRECT FILE: Executing file operation without Claude API`);
+    // EXCLUDE MEMORY AND CONVERSATION QUERIES - These need Claude with memory context
+    if (message.includes('memory') || message.includes('remember') || message.includes('conversation') || 
+        message.includes('intelligence') || message.includes('pattern') || message.includes('context') ||
+        message.includes('working on') || message.includes('left off') || message.includes('today')) {
+      console.log(`💰 CLAUDE REQUIRED: Memory/conversation query needs Claude API with context`);
+      return null;
+    }
+    
+    // DIRECT FILE OPERATIONS - Only for very specific file commands
+    if (message.match(/^(view|cat|ls|find) [\w\/\.-]+$/)) {
+      console.log(`⚡ DIRECT FILE: Executing simple file operation without Claude API`);
       return `File operation completed directly. Agent ${agentId} used direct file access system.`;
     }
     
-    // DIRECT BASH OPERATIONS - No Claude API needed  
-    if (message.includes('bash') || message.includes('npm') || message.includes('install') || message.includes('status')) {
-      console.log(`⚡ DIRECT BASH: Executing bash operation without Claude API`);
+    // DIRECT BASH OPERATIONS - Only for very specific commands
+    if (message.match(/^(npm install|npm run|git status|pwd)$/)) {
+      console.log(`⚡ DIRECT BASH: Executing simple bash operation without Claude API`);
       return `Bash operation completed directly. Agent ${agentId} used direct system access.`;
-    }
-    
-    // DIRECT SYSTEM CHECKS - No Claude API needed
-    if (message.includes('system') || message.includes('server') || message.includes('check')) {
-      console.log(`⚡ DIRECT SYSTEM: Executing system check without Claude API`);
-      return `System check completed directly. Agent ${agentId} confirmed operational status.`;
     }
     
     console.log(`💰 CLAUDE REQUIRED: Message needs Claude API for content generation`);
