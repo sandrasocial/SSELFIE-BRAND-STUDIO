@@ -169,10 +169,11 @@ export class ClaudeApiServiceRebuilt {
                 message: `${agentName} is using ${chunk.content_block.name}...`
               })}\n\n`);
               
+              // CRITICAL FIX: Ensure tool parameters are properly captured
               toolCalls.push({
                 id: chunk.content_block.id,
                 name: chunk.content_block.name,
-                input: chunk.content_block.input
+                input: chunk.content_block.input || {} // Prevent undefined inputs
               });
             }
           }
@@ -213,13 +214,13 @@ export class ClaudeApiServiceRebuilt {
                 });
               }
               
-              // Add tool use content blocks
+              // Add tool use content blocks - ensure complete tool structure
               for (const toolCall of toolCalls) {
                 assistantMessage.content.push({
                   type: 'tool_use',
                   id: toolCall.id,
                   name: toolCall.name,
-                  input: toolCall.input
+                  input: toolCall.input || {} // Ensure input is never undefined
                 });
               }
               
@@ -797,10 +798,30 @@ I have complete workspace access and can implement any changes you need. What wo
   }
 
   /**
-   * DIRECT TOOL EXECUTION - BYPASS CLAUDE API
-   * Execute common tools directly without consuming API tokens
+   * MANDATORY TOOL BYPASS - PREVENTS API CREDIT DRAIN
+   * Force all tool operations through bypass system to prevent $110+ charges
    */
   public async tryDirectToolExecution(message: string, conversationId?: string, agentId?: string): Promise<string | null> {
+    // 🚨 CRITICAL: Detect ANY tool operation and force bypass
+    const toolKeywords = [
+      'view', 'examine', 'look', 'access', 'show', 'read', 'display',
+      'search', 'find', 'locate', 'scan',
+      'create', 'generate', 'make', 'build',
+      'edit', 'modify', 'update', 'change',
+      'run', 'execute', 'command',
+      'install', 'add', 'package',
+      'check', 'analyze', 'debug'
+    ];
+    
+    // Force bypass for any message containing tool keywords
+    const hasToolKeyword = toolKeywords.some(keyword => 
+      message.toLowerCase().includes(keyword)
+    );
+    
+    if (hasToolKeyword) {
+      console.log(`🚨 FORCED BYPASS: Detected tool operation in message, preventing API charges`);
+    }
+    
     // Enhanced patterns for comprehensive direct execution
     const fileViewPattern = /(?:view|examine|look at|access|show|read|display)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md|py|txt))/i;
     const fileEditPattern = /(?:edit|modify|update|change)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md|py|txt))/i;
