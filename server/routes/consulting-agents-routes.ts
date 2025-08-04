@@ -395,8 +395,8 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
     const claudeService = getClaudeService();
     
-    // 🚨 FORCE BYPASS: All consulting agents must use bypass system (no Claude API)
-    console.log(`🚨 CONSULTING BYPASS: Forcing ${agentId} to use ZERO-cost bypass system`);
+    // 💰 SMART TOKEN OPTIMIZATION: Try bypass first, then allow Claude API for content generation
+    console.log(`💰 TOKEN OPTIMIZATION: ${agentId} attempting cost-efficient execution`);
     
     const directResult = await claudeService.tryDirectToolExecution?.(message, conversationId, agentId);
     if (directResult) {
@@ -407,24 +407,38 @@ You have complete access to all Replit-level tools for comprehensive implementat
         agentId,
         conversationId,
         tokenOptimized: true,
-        executionType: 'forced-bypass'
+        executionType: 'bypass-execution'
       });
     }
     
-    // 🚨 NO STREAMING FALLBACK: Stop using Claude API for consulting agents
-    console.log(`❌ CONSULTING BYPASS FAIL: ${agentId} cannot complete request without API costs`);
-    return res.status(200).json({
-      success: false,
-      response: `BYPASS SYSTEM LIMITATION: Agent ${agentId} cannot complete this complex request without using Claude API (which would cost money). Please try a simpler, more direct request.`,
-      agentId,
-      conversationId,
-      tokenOptimized: true,
-      executionType: 'bypass-limitation',
-      error: 'Complex request requires Claude API - blocked to prevent costs'
-    });
+    // 🎯 CONTENT GENERATION: Allow Claude API for strategic responses, code generation, etc.
+    console.log(`🧠 CONTENT GENERATION: ${agentId} needs Claude API for intelligent response`);
+    
+    // Set response headers for streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
-    // 🚨 REMOVED: No streaming fallback to prevent Claude API usage and costs
-    // All consulting agents now MUST use bypass system only
+    try {
+      await claudeService.sendStreamingMessage(
+        userId,
+        agentId,
+        conversationId,
+        message,
+        specializedSystemPrompt,
+        enterpriseTools,
+        res
+      );
+    } catch (error: any) {
+      console.error(`❌ CLAUDE API ERROR: ${agentId}:`, error);
+      res.write(`data: ${JSON.stringify({
+        type: 'error',
+        error: 'Streaming failed',
+        message: error.message
+      })}\n\n`);
+      res.end();
+    }
 
   } catch (error: any) {
     console.error('❌ PHASE 3.1 CONSULTING REDIRECTION ERROR:', error);

@@ -100,17 +100,37 @@ export class Phase3EndpointAudit {
 
 // Replace existing consulting-agents-routes.ts logic with:
 router.post('/admin/consulting-chat', async (req, res) => {
-  console.log('🚨 BYPASS ENFORCEMENT: All consulting agents now use ZERO-cost bypass only');
+  console.log('🔄 PHASE 3.1 REDIRECT: Consulting agent -> Implementation-aware routing');
   
-  // FORCE BYPASS: Block all Claude API usage for consulting agents
-  res.status(200).json({
-    success: false,
-    message: 'CONSULTING AGENTS BLOCKED: Claude API usage disabled for cost protection',
-    details: 'All consulting agents must use bypass-only mode to prevent $150+ daily API costs',
-    redirectTo: '/api/admin/agents/consulting-chat',
-    bypassMode: true,
-    apiCostBlocked: true
-  });
+  // Add consulting flag to request
+  const enhancedRequest = {
+    ...req.body,
+    consultingMode: true,
+    implementationDetectionRequired: true
+  };
+  
+  // Forward to implementation-aware agent-chat-bypass endpoint
+  try {
+    const response = await fetch(\`\${req.protocol}://\${req.get('host')}/api/admin/agent-chat-bypass\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Token': req.headers['x-admin-token'],
+        'Authorization': req.headers.authorization
+      },
+      body: JSON.stringify(enhancedRequest)
+    });
+    
+    const result = await response.json();
+    res.status(response.status).json(result);
+    
+  } catch (error) {
+    console.error('🚨 CONSULTING REDIRECTION ERROR:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Consulting agent redirection failed'
+    });
+  }
 });
 `;
   }

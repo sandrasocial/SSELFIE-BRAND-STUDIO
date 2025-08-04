@@ -134,27 +134,35 @@ export class ClaudeApiServiceRebuilt {
       
       // Continue conversation until Claude is done (handles tool execution cycles)
       while (!conversationComplete) {
-        // 🚨 CRITICAL: Check token count before API call to prevent 200k+ errors
-        const estimatedTokens = JSON.stringify(currentMessages).length + systemPrompt.length;
-        if (estimatedTokens > 180000) {
-          console.log(`🚨 TOKEN LIMIT EXCEEDED: ${estimatedTokens} tokens, forcing bypass response`);
+        // 💰 SMART TOKEN MANAGEMENT: Proper token estimation (characters ÷ 4 ≈ tokens)
+        const estimatedChars = JSON.stringify(currentMessages).length + systemPrompt.length;
+        const estimatedTokens = Math.ceil(estimatedChars / 4); // More accurate token estimation
+        
+        console.log(`📊 TOKEN ANALYSIS: ${estimatedChars} chars ≈ ${estimatedTokens} tokens`);
+        
+        // Only limit if ACTUAL tokens exceed Claude's limit (200k)
+        if (estimatedTokens > 190000) {
+          console.log(`🚨 ACTUAL TOKEN LIMIT: ${estimatedTokens} tokens exceeds Claude limits`);
           
           res.write(`data: ${JSON.stringify({
             type: 'text_delta',
-            content: `I'm processing your comprehensive request systematically. Let me provide you with the detailed analysis you need while managing system resources efficiently.`
+            content: `I need to split this large request into smaller parts to stay within API limits. Let me process this systematically...`
           })}\n\n`);
           
           res.write(`data: ${JSON.stringify({
             type: 'completion',
             agentId: agentName,
             conversationId,
-            consultingMode: true,
+            tokenLimited: true,
             success: true
           })}\n\n`);
           
           res.end();
           return;
         }
+        
+        console.log(`✅ TOKEN CHECK: ${estimatedTokens} tokens - within limits, proceeding with Claude API`);
+        
         
         // 💰 TOKEN OPTIMIZATION: Use Claude 4 for best streaming + bypass system for tools
         const stream = await anthropic.messages.create({
