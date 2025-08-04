@@ -382,23 +382,22 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`🚀 PARALLEL EXECUTION: Claude 4 parallel tool support enabled`);
     console.log(`💰 TOKEN OPTIMIZATION: Direct execution + efficient API usage active`);
     
-    // TEMPORARILY DISABLED - Let agents use Claude API for research and analysis
     // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
     
     // Try direct tool execution to save tokens using the singleton instance
-    // const directResult = await getClaudeService().tryDirectToolExecution?.(message, conversationId, agentId);
-    // if (directResult) {
-    //   console.log(`⚡ DIRECT SUCCESS: ${agentId} executed without Claude API tokens`);
-    //   return res.status(200).json({
-    //     success: true,
-    //     response: directResult,
-    //     agentId,
-    //     conversationId,
-    //     tokenOptimized: true,
-    //     executionType: 'direct-bypass'
-    //   });
-    // }
+    const directResult = await getClaudeService().tryDirectToolExecution?.(message, conversationId, agentId);
+    if (directResult) {
+      console.log(`⚡ DIRECT SUCCESS: ${agentId} executed without Claude API tokens`);
+      return res.status(200).json({
+        success: true,
+        response: directResult,
+        agentId,
+        conversationId,
+        tokenOptimized: true,
+        executionType: 'direct-bypass'
+      });
+    }
 
     // STREAMING IMPLEMENTATION: Use response streaming for real-time updates
     res.setHeader('Content-Type', 'text/event-stream');

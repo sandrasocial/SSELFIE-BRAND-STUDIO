@@ -345,29 +345,8 @@ export class ClaudeApiServiceWorking {
       return { type: 'direct_execution', action: 'system_status' };
     }
     
-    // TEMPORARILY DISABLED FOR RESEARCH - Let agents use Claude API for analysis
-    // Tool operations that cause cutoffs - enable direct execution
-    // if (lowerMessage.includes('str_replace_based_edit_tool') || 
-    //     lowerMessage.includes('search_filesystem') ||
-    //     lowerMessage.includes('bash') ||
-    //     lowerMessage.includes('create') ||
-    //     lowerMessage.includes('.txt') ||
-    //     lowerMessage.includes('.tsx') ||
-    //     lowerMessage.includes('file')) {
-    //   console.log(`🔧 DIRECT EXECUTION: Tool/file operation detected - bypassing Claude API to prevent cutoffs`);
-    //   return { type: 'direct_execution', action: 'tool_operation' };
-    // }
-    
-    // TEMPORARILY DISABLED - Let agents use Claude API for research and analysis
-    // Multi-step operations that drain tokens  
-    // if (lowerMessage.includes('search') ||
-    //     lowerMessage.includes('find') ||
-    //     lowerMessage.includes('check') ||
-    //     lowerMessage.includes('analyze') ||
-    //     lowerMessage.includes('using multiple tools')) {
-    //   console.log(`⚡ DIRECT EXECUTION: Multi-step operation - preventing token drain`);
-    //   return { type: 'direct_execution', action: 'multi_step' };
-    // }
+    // Only enable direct execution for simple greetings and status checks
+    // Most operations should use full Claude API with streaming
     
     return null; // Complex creative tasks can still use Claude API if needed
   }
@@ -392,9 +371,6 @@ export class ClaudeApiServiceWorking {
    * Enhanced with full enterprise service access
    */
   async tryDirectToolExecution(message: string, conversationId: string, agentId: string): Promise<any> {
-    // TEMPORARILY DISABLED - Let agents use Claude API for research and analysis
-    return null;
-    
     // Import enterprise tool registry
     const { enterpriseToolRegistry } = await import('./enterprise-tool-registry');
     
@@ -428,52 +404,19 @@ export class ClaudeApiServiceWorking {
   }
 
   /**
-   * ENTERPRISE TOOL EXECUTION LOGIC - 2025 HYBRID APPROACH  
-   * Enable direct tool execution to prevent token drain and cutoffs
+   * ENTERPRISE TOOL EXECUTION LOGIC - 2025 HYBRID APPROACH
+   * ONLY for non-creative, specific operational tasks - most work goes through Claude API
    */
   private async tryEnterpriseToolExecution(message: string, agentId: string, registry: any): Promise<any> {
     const lowerMessage = message.toLowerCase().trim();
     
-    // ENABLE DIRECT TOOL EXECUTION FOR ADMIN AGENTS
-    // This prevents Claude API token drain and tool execution cutoffs
+    // VERY RESTRICTIVE: Only exact matches for simple operations
+    // ALL creative work, coding, analysis must use Claude API with full personality
     
-    // File operations - direct execution
-    if (lowerMessage.includes('create') && (lowerMessage.includes('file') || lowerMessage.includes('.txt') || lowerMessage.includes('.tsx'))) {
-      console.log(`🔧 DIRECT TOOL: File creation detected for ${agentId}`);
-      return {
-        success: true,
-        data: `${agentId} executing file operation directly`,
-        executionTime: 50,
-        tokensUsed: 0,
-        cacheHit: false
-      };
-    }
+    // DISABLED FOR NOW: Let all complex tasks use Claude API streaming
+    // This ensures agents maintain their personalities, memory, and specialized capabilities
     
-    // Search operations - direct execution  
-    if (lowerMessage.includes('search') || lowerMessage.includes('find') || lowerMessage.includes('check')) {
-      console.log(`🔍 DIRECT TOOL: Search operation detected for ${agentId}`);
-      return {
-        success: true,
-        data: `${agentId} executing search operation directly`,
-        executionTime: 30,
-        tokensUsed: 0,
-        cacheHit: false
-      };
-    }
-    
-    // Multi-tool operations - enable direct execution to prevent cutoffs
-    if (lowerMessage.includes('using') && lowerMessage.includes('tool')) {
-      console.log(`⚡ DIRECT TOOL: Multi-tool operation detected for ${agentId} - preventing cutoffs`);
-      return {
-        success: true,
-        data: `${agentId} executing multi-tool operation directly to prevent token drain`,
-        executionTime: 100,
-        tokensUsed: 0,
-        cacheHit: false
-      };
-    }
-    
-    return null; // Complex creative tasks still use Claude API
+    return null; // Route ALL tasks through Claude API for full agent capabilities
   }
 
   /**
@@ -481,11 +424,7 @@ export class ClaudeApiServiceWorking {
    * Create agent-appropriate responses for direct execution
    */
   private generateDirectResponse(action: string, agentId: string): string {
-    const agentPersonalities = {
-      zara: "Perfect! I've executed that directly using my technical mastery - 100% token savings achieved.",
-      aria: "Executed with editorial precision - direct tool access working beautifully.", 
-      maya: "Darling, handled that with celebrity-level efficiency through direct execution.",
-      elena: "Enterprise coordination complete - direct bypass system operational.",
+    const agentResponses: Record<string, Record<string, string>> = {
       greeting: {
         elena: "Hello! I'm Elena, your strategic workflow coordinator. Ready to orchestrate your next project with precision and excellence.",
         aria: "Hello! I'm Aria, your luxury design partner. Let's create something beautiful that elevates your brand to new heights.",
@@ -498,17 +437,9 @@ export class ClaudeApiServiceWorking {
         olga: "Hello! I'm Olga, your operations optimizer. Ready to organize and deploy with systematic precision."
       }
     };
-    
-    // Handle greeting responses
-    if (action === 'greeting') {
-      const greetings = agentPersonalities.greeting as Record<string, string>;
-      return greetings[agentId] || 
-             `Hello! I'm ${agentId}, ready to assist with your SSELFIE Studio needs.`;
-    }
-    
-    // Handle direct tool execution responses
-    return agentPersonalities[agentId as keyof typeof agentPersonalities] || 
-           `${agentId} executed operation directly through enterprise tool system.`;
+
+    return agentResponses[action]?.[agentId] || 
+           `Hello! I'm ${agentId}, ready to assist with your SSELFIE Studio needs.`;
   }
 
   /**
