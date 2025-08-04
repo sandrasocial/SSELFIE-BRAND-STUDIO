@@ -345,27 +345,29 @@ export class ClaudeApiServiceWorking {
       return { type: 'direct_execution', action: 'system_status' };
     }
     
+    // TEMPORARILY DISABLED FOR RESEARCH - Let agents use Claude API for analysis
     // Tool operations that cause cutoffs - enable direct execution
-    if (lowerMessage.includes('str_replace_based_edit_tool') || 
-        lowerMessage.includes('search_filesystem') ||
-        lowerMessage.includes('bash') ||
-        lowerMessage.includes('create') ||
-        lowerMessage.includes('.txt') ||
-        lowerMessage.includes('.tsx') ||
-        lowerMessage.includes('file')) {
-      console.log(`🔧 DIRECT EXECUTION: Tool/file operation detected - bypassing Claude API to prevent cutoffs`);
-      return { type: 'direct_execution', action: 'tool_operation' };
-    }
+    // if (lowerMessage.includes('str_replace_based_edit_tool') || 
+    //     lowerMessage.includes('search_filesystem') ||
+    //     lowerMessage.includes('bash') ||
+    //     lowerMessage.includes('create') ||
+    //     lowerMessage.includes('.txt') ||
+    //     lowerMessage.includes('.tsx') ||
+    //     lowerMessage.includes('file')) {
+    //   console.log(`🔧 DIRECT EXECUTION: Tool/file operation detected - bypassing Claude API to prevent cutoffs`);
+    //   return { type: 'direct_execution', action: 'tool_operation' };
+    // }
     
+    // TEMPORARILY DISABLED - Let agents use Claude API for research and analysis
     // Multi-step operations that drain tokens  
-    if (lowerMessage.includes('search') ||
-        lowerMessage.includes('find') ||
-        lowerMessage.includes('check') ||
-        lowerMessage.includes('analyze') ||
-        lowerMessage.includes('using multiple tools')) {
-      console.log(`⚡ DIRECT EXECUTION: Multi-step operation - preventing token drain`);
-      return { type: 'direct_execution', action: 'multi_step' };
-    }
+    // if (lowerMessage.includes('search') ||
+    //     lowerMessage.includes('find') ||
+    //     lowerMessage.includes('check') ||
+    //     lowerMessage.includes('analyze') ||
+    //     lowerMessage.includes('using multiple tools')) {
+    //   console.log(`⚡ DIRECT EXECUTION: Multi-step operation - preventing token drain`);
+    //   return { type: 'direct_execution', action: 'multi_step' };
+    // }
     
     return null; // Complex creative tasks can still use Claude API if needed
   }
@@ -390,6 +392,9 @@ export class ClaudeApiServiceWorking {
    * Enhanced with full enterprise service access
    */
   async tryDirectToolExecution(message: string, conversationId: string, agentId: string): Promise<any> {
+    // TEMPORARILY DISABLED - Let agents use Claude API for research and analysis
+    return null;
+    
     // Import enterprise tool registry
     const { enterpriseToolRegistry } = await import('./enterprise-tool-registry');
     
