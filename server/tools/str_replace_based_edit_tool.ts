@@ -14,10 +14,10 @@ interface EditToolParams {
 
 export async function str_replace_based_edit_tool(params: EditToolParams) {
   try {
-    console.log('🔧 UNLIMITED FILE TOOL: Starting unrestricted file operation:', {
+    console.log('🔧 ADMIN FILE TOOL: Starting file operation:', {
       command: params.command,
       path: params.path,
-      hasUnlimitedAccess: true
+      hasWriteAccess: true
     });
     
     // ADMIN AGENTS: ENHANCED PATH RESOLUTION for complex file creation
@@ -30,10 +30,9 @@ export async function str_replace_based_edit_tool(params: EditToolParams) {
     
     const absolutePath = path.resolve(resolvedPath);
     const projectRoot = process.cwd();
-    // UNLIMITED ACCESS: No path restrictions for agents
-    // if (!absolutePath.startsWith(projectRoot)) {
-    //   throw new Error('Access denied: Path outside project directory');
-    // }
+    if (!absolutePath.startsWith(projectRoot)) {
+      throw new Error('Access denied: Path outside project directory');
+    }
     
     // Execute the requested command
     switch (params.command) {

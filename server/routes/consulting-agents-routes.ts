@@ -4,6 +4,8 @@ import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
 import { ClaudeApiServiceRebuilt } from '../services/claude-api-service-rebuilt';
+import { AdvancedMemorySystem } from '../services/advanced-memory-system';
+import { IntelligentContextManager } from '../services/intelligent-context-manager';
 
 // SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
 let claudeServiceInstance: ClaudeApiServiceRebuilt | null = null;
@@ -133,6 +135,18 @@ router.post('/consulting-chat', async (req, res) => {
 
     console.log(`🔄 PHASE 3.1: Redirecting ${agentId} to implementation-aware routing`);
 
+    // MEMORY SYSTEM INTEGRATION: Load BEFORE any routing to save tokens
+    console.log(`🧠 MEMORY: Loading ${agentId} memory profile for user ${userId} (PRE-ROUTING)`);
+    const memorySystem = AdvancedMemorySystem.getInstance();
+    const contextManager = IntelligentContextManager.getInstance();
+    
+    // Get user ID for memory lookup
+    const userId = user?.claims?.sub || 'admin-sandra';
+    
+    // Load memory profile and workspace context FIRST
+    const memoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
+    const workspaceContext = await contextManager.prepareAgentWorkspace(message, agentId);
+    
     // OPTIMIZED ENTERPRISE INTELLIGENCE: Use singleton instance to prevent performance issues
     console.log(`🧠 ENTERPRISE INTELLIGENCE: Routing ${agentId} through optimized intelligence system`);
     
@@ -146,11 +160,10 @@ router.post('/consulting-chat', async (req, res) => {
       });
     }
     
-    const userId = req.user ? (req.user as any).claims.sub : '42585527';
     const conversationId = req.body.conversationId || `admin_${agentId}_${Date.now()}`;
     
     // SPECIALIZED AGENT SYSTEM PROMPT: Full personality with role-specific capabilities
-    const specializedSystemPrompt = `${agentConfig.systemPrompt}
+    let specializedSystemPrompt = `${agentConfig.systemPrompt}
 
 **🎯 SPECIALIZED AGENT IDENTITY:**
 - You are ${agentConfig.name}, ${agentConfig.role}
@@ -160,6 +173,38 @@ router.post('/consulting-chat', async (req, res) => {
 
 **🚀 YOUR FULL TOOL ARSENAL:**
 You have complete access to all Replit-level tools for comprehensive implementation.`;
+
+    // ENHANCED SYSTEM PROMPT: Inject memory and context BEFORE API calls
+    if (memoryProfile) {
+      const memoryContext = `
+
+**🧠 AGENT MEMORY PROFILE LOADED**
+- Memory Strength: ${memoryProfile.memoryStrength.toFixed(2)}
+- Intelligence Level: ${memoryProfile.intelligenceLevel}
+- Learning Patterns: ${memoryProfile.learningPatterns.length} patterns
+- Recent Optimization: ${memoryProfile.lastOptimization.toISOString()}
+
+**🎓 LEARNED CAPABILITIES:**
+${memoryProfile.learningPatterns.map(pattern => 
+  `• ${pattern.category}: ${pattern.pattern} (confidence: ${pattern.confidence.toFixed(2)})`
+).join('\n')}
+
+**📁 WORKSPACE CONTEXT:**
+- Relevant Files: ${workspaceContext.relevantFiles.slice(0, 5).join(', ')}
+- Suggested Actions: ${workspaceContext.suggestedActions.length} recommendations
+- Current Task: ${workspaceContext.currentTask}
+
+**💡 MEMORY INSTRUCTIONS:**
+You have persistent memory of previous interactions and learned capabilities. Use this context to provide more intelligent, contextual responses that build on your previous work with this user.
+
+---
+
+`;
+      specializedSystemPrompt = specializedSystemPrompt + memoryContext;
+      console.log(`🧠 MEMORY INJECTED: Enhanced system prompt with ${memoryProfile.learningPatterns.length} patterns (PRE-API)`);
+    } else {
+      console.log(`🧠 MEMORY: No existing profile found, will create new profile for ${agentId}`);
+    }
     
     // COMPLETE ENTERPRISE TOOLS: Full 18+ tool arsenal with parallel execution capability
     const enterpriseTools = [
@@ -391,12 +436,11 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`🚀 PARALLEL EXECUTION: Claude 4 parallel tool support enabled`);
     console.log(`💰 TOKEN OPTIMIZATION: Direct execution + efficient API usage active`);
     
-    // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
+    // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first (AFTER memory loading)
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
-    
     const claudeService = getClaudeService();
     
-    // Try direct tool execution to save tokens FIRST
+    // Try direct tool execution to save tokens
     const directResult = await claudeService.tryDirectToolExecution?.(message, conversationId, agentId);
     if (directResult) {
       console.log(`⚡ DIRECT SUCCESS: ${agentId} executed without Claude API tokens`);
@@ -409,9 +453,6 @@ You have complete access to all Replit-level tools for comprehensive implementat
         executionType: 'direct-bypass'
       });
     }
-    
-    // If not direct execution, proceed with Claude API for content generation
-    console.log(`💰 CLAUDE API: ${agentId} needs content generation, using Claude API with optimized prompt`);
 
     // STREAMING IMPLEMENTATION: Use response streaming for real-time updates
     res.setHeader('Content-Type', 'text/event-stream');
@@ -427,16 +468,29 @@ You have complete access to all Replit-level tools for comprehensive implementat
     })}\n\n`);
     
     try {
-      // Stream the Claude API response with real-time updates
+      // Stream the Claude API response with real-time updates and memory context
       const streamingResult = await claudeService.sendStreamingMessage(
         userId,
         agentId,
         conversationId,
         message,
-        specializedSystemPrompt,
+        specializedSystemPrompt, // Use enhanced prompt with memory context
         enterpriseTools,
         res // Pass response object for streaming
       );
+      
+      // MEMORY LEARNING: Record interaction pattern
+      if (memoryProfile && memorySystem) {
+        await memorySystem.recordLearningPattern(agentId, userId, {
+          category: 'consultation',
+          pattern: 'user_interaction',
+          confidence: 0.8,
+          frequency: 1,
+          effectiveness: 0.9,
+          contexts: ['admin_consulting', agentConfig.specialization]
+        });
+        console.log(`🧠 MEMORY: Recorded learning pattern for ${agentId}`);
+      }
       
       // Send completion signal
       res.write(`data: ${JSON.stringify({

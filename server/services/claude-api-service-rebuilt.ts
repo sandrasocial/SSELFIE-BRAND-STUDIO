@@ -19,9 +19,6 @@ import { DeploymentTrackingService } from './deployment-tracking-service';
 // AGENT PERSONALITY IMPORTS FOR SPECIALIZATION CHECKING
 import { CONSULTING_AGENT_PERSONALITIES as agentPersonalities } from '../agent-personalities-consulting';
 
-// UNLIMITED AGENT CONFIGURATION
-import { UNLIMITED_AGENT_MODE, applyUnlimitedAgentConfig, getAgentUnlimitedConfig } from '../../replit-agent-config';
-
 /*
 <important_code_snippet_instructions>
 The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022" nor "claude-3-sonnet-20240229". 
@@ -65,14 +62,6 @@ export class ClaudeApiServiceRebuilt {
   private deploymentTracker = new DeploymentTrackingService();
   private progressTracker = new ProgressTrackingService();
   
-  constructor() {
-    // UNLIMITED AGENT MODE: Activate complete agent liberation (silent mode)
-    if (UNLIMITED_AGENT_MODE) {
-      // Silent activation to prevent spam logs
-      console.log('🎯 Unlimited agent mode active');
-    }
-  }
-  
   /**
    * STREAMING MESSAGE HANDLER WITH TOOL CONTINUATION
    * Real-time streaming with proper tool execution and conversation continuation
@@ -87,31 +76,6 @@ export class ClaudeApiServiceRebuilt {
     res: any // Express response object for streaming
   ): Promise<void> {
     try {
-      // CRITICAL FIX: INJECT MEMORY SYSTEM BEFORE CLAUDE API CALL
-      let enhancedSystemPrompt = systemPrompt;
-      try {
-        const memoryProfile = await this.memorySystem.getAgentMemoryProfile(agentName, userId);
-        if (memoryProfile) {
-          console.log(`🧠 MEMORY LOADED: ${agentName} - ${memoryProfile.learningPatterns.length} patterns, level ${memoryProfile.intelligenceLevel}`);
-          
-          const memoryContext = `\n\n**AGENT MEMORY PROFILE:**
-Intelligence Level: ${memoryProfile.intelligenceLevel} (grows with experience)
-Learning Patterns: ${memoryProfile.learningPatterns.length} accumulated patterns
-Memory Strength: ${memoryProfile.memoryStrength} 
-Recent Optimizations: ${memoryProfile.lastOptimization.toDateString()}
-
-**YOUR ACCUMULATED LEARNING:**
-${memoryProfile.learningPatterns.slice(0, 10).map(p => `- ${p.category}: ${p.pattern} (confidence: ${p.confidence})`).join('\n')}`;
-          
-          enhancedSystemPrompt = systemPrompt + memoryContext;
-          console.log(`🧠 MEMORY CONTEXT INJECTED: ${agentName} now has access to accumulated intelligence`);
-        } else {
-          console.log(`🧠 MEMORY: Creating new profile for ${agentName}`);
-        }
-      } catch (error) {
-        console.warn('Memory system failed, continuing without memory:', error);
-      }
-
       // Load conversation history
       const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
@@ -137,7 +101,7 @@ ${memoryProfile.learningPatterns.slice(0, 10).map(p => `- ${p.category}: ${p.pat
           model: DEFAULT_MODEL_STR,
           max_tokens: 8000,
           messages: currentMessages as any,
-          system: enhancedSystemPrompt, // NOW USING MEMORY-ENHANCED PROMPT
+          system: systemPrompt,
           tools: tools,
           stream: true
         });
@@ -567,36 +531,8 @@ ${memoryProfile.learningPatterns.slice(0, 10).map(p => `- ${p.category}: ${p.pat
       content: message
     });
 
-    // CRITICAL FIX: Load memory profile BEFORE Claude API call
-    let enhancedMemoryContext = '';
-    try {
-      const agentMemoryProfile = await this.memorySystem.getAgentMemoryProfile(agentId, userId);
-      if (agentMemoryProfile && agentMemoryProfile.learningPatterns.length > 0) {
-        enhancedMemoryContext = `
-
-**🧠 AGENT MEMORY PROFILE - INTELLIGENCE LEVEL ${agentMemoryProfile.intelligenceLevel}**
-You have accumulated ${agentMemoryProfile.learningPatterns.length} learning patterns and specialized knowledge:
-
-**Learning Categories:**
-${agentMemoryProfile.learningPatterns.map(p => `- ${p.category}: ${p.pattern} (confidence: ${Math.round(p.confidence * 100)}%)`).slice(0, 15).join('\n')}
-
-**Intelligence System:**
-- Memory Strength: ${Math.round(agentMemoryProfile.memoryStrength * 100)}%
-- Collaboration History: ${agentMemoryProfile.collaborationHistory.length} cross-agent interactions
-- Last Memory Optimization: ${agentMemoryProfile.lastOptimization.toDateString()}
-
-IMPORTANT: You are NOT starting fresh. You have this accumulated knowledge and should reference your specializations and learning patterns when responding.`;
-        
-        console.log(`🧠 MEMORY LOADED: ${agentId} injected ${agentMemoryProfile.learningPatterns.length} patterns into system prompt`);
-      } else {
-        console.log(`🧠 MEMORY: No patterns found for ${agentId}, creating default profile`);
-      }
-    } catch (error) {
-      console.warn('Failed to load memory profile before Claude call:', error);
-    }
-
-    // Prepare Claude API request with PROPER MEMORY CONTEXT INJECTION
-    const enhancedSystemPrompt = systemPrompt + memoryContext + enhancedMemoryContext;
+    // Prepare Claude API request with MEMORY CONTEXT INJECTION
+    const enhancedSystemPrompt = systemPrompt + memoryContext;
     
     const claudeRequest: any = {
       model: DEFAULT_MODEL_STR,
@@ -844,34 +780,16 @@ I have complete workspace access and can implement any changes you need. What wo
    * Execute common tools directly without consuming API tokens
    */
   public async tryDirectToolExecution(message: string, conversationId?: string, agentId?: string): Promise<string | null> {
-    console.log(`🔧 DIRECT TOOL EXECUTION: Checking patterns for ${agentId}`);
-    
-    // EXCLUDE MEMORY AND CONVERSATION QUERIES - These need Claude with memory context
-    if (message.includes('memory') || message.includes('remember') || message.includes('conversation') || 
-        message.includes('intelligence') || message.includes('pattern') || message.includes('context') ||
-        message.includes('working on') || message.includes('left off') || message.includes('today')) {
-      console.log(`💰 CLAUDE REQUIRED: Memory/conversation query needs Claude API with context`);
-      return null;
-    }
-    
-    // DIRECT FILE OPERATIONS - Only for very specific file commands
-    if (message.match(/^(view|cat|ls|find) [\w\/\.-]+$/)) {
-      console.log(`⚡ DIRECT FILE: Executing simple file operation without Claude API`);
-      return `File operation completed directly. Agent ${agentId} used direct file access system.`;
-    }
-    
-    // DIRECT BASH OPERATIONS - Only for very specific commands
-    if (message.match(/^(npm install|npm run|git status|pwd)$/)) {
-      console.log(`⚡ DIRECT BASH: Executing simple bash operation without Claude API`);
-      return `Bash operation completed directly. Agent ${agentId} used direct system access.`;
-    }
-    
-    console.log(`💰 CLAUDE REQUIRED: Message needs Claude API for content generation`);
-    return null; // Needs Claude API for content generation
-  }
+    // Enhanced patterns for comprehensive direct execution
+    const fileViewPattern = /(?:view|examine|look at|access|show|read|display)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md|py|txt))/i;
+    const fileEditPattern = /(?:edit|modify|update|change)\s+(?:file\s+)?([^\s]+\.(?:tsx?|jsx?|css|html|json|md|py|txt))/i;
+    const searchPattern = /(?:search|find|locate)\s+(?:for\s+)?(.+?)(?:\s+in\s+|$)/i;
+    const createFilePattern = /(?:create|generate|make)\s+(?:a\s+)?(?:file|component|script)\s+([^\s]+\.(?:tsx?|jsx?|css|html|json|md|py|txt))/i;
+    const commandPattern = /(?:run|execute)\s+(?:command\s+)?[`"']([^`"']+)[`"']/i;
+    const installPattern = /(?:install|add)\s+(?:package\s+)?([^\s]+)(?:\s+(?:for|in|using)\s+(\w+))?/i;
+    const diagnosticsPattern = /(?:check|scan|analyze|debug)\s+(?:for\s+)?(?:errors|issues|problems|diagnostics)/i;
 
-  /**
-   * HANDLE TOOL CALLS
+    try {
       // DIRECT FILE VIEW
       const viewMatch = message.match(fileViewPattern);
       if (viewMatch) {
@@ -910,7 +828,55 @@ I have complete workspace access and can implement any changes you need. What wo
         return `Search completed:\n\n${result}`;
       }
 
-
+      // DIRECT FILE CREATION - Simple template generation
+      const createMatch = message.match(createFilePattern);
+      if (createMatch) {
+        const filePath = createMatch[1];
+        console.log(`⚡ DIRECT FILE CREATE: ${filePath} without Claude API tokens`);
+        
+        // Generate appropriate template based on file extension
+        const ext = filePath.split('.').pop()?.toLowerCase();
+        let template = '';
+        
+        switch (ext) {
+          case 'tsx':
+            template = `import React from 'react';\n\nexport default function Component() {\n  return (\n    <div className="p-4">\n      <h1>Generated Component</h1>\n    </div>\n  );\n}\n`;
+            break;
+          case 'jsx':
+            template = `import React from 'react';\n\nexport default function Component() {\n  return (\n    <div className="p-4">\n      <h1>Generated Component</h1>\n    </div>\n  );\n}\n`;
+            break;
+          case 'ts':
+            template = `// Generated TypeScript file\n\nexport interface IGenerated {\n  id: string;\n  name: string;\n}\n\nexport function generatedFunction(data: IGenerated): string {\n  return \`Generated: \${data.name}\`;\n}\n`;
+            break;
+          case 'js':
+            template = `// Generated JavaScript file\n\nfunction generatedFunction(data) {\n  return \`Generated: \${data.name}\`;\n}\n\nmodule.exports = { generatedFunction };\n`;
+            break;
+          case 'css':
+            template = `/* Generated CSS file */\n\n.generated-component {\n  padding: 1rem;\n  margin: 0.5rem;\n  border-radius: 8px;\n  background: #f9f9f9;\n}\n\n.generated-title {\n  font-size: 1.5rem;\n  font-weight: bold;\n  margin-bottom: 1rem;\n}\n`;
+            break;
+          case 'json':
+            template = `{\n  "name": "generated-file",\n  "version": "1.0.0",\n  "description": "Generated JSON configuration",\n  "generated": true\n}\n`;
+            break;
+          case 'md':
+            template = `# Generated Documentation\n\n## Overview\n\nThis file was generated automatically.\n\n## Features\n\n- Feature 1\n- Feature 2\n- Feature 3\n\n## Usage\n\nAdd usage instructions here.\n`;
+            break;
+          default:
+            template = `// Generated file: ${filePath}\n// Add content here\n\n`;
+        }
+        
+        const result = await this.handleToolCall({
+          name: 'str_replace_based_edit_tool',
+          input: { command: 'create', path: filePath, file_text: template }
+        }, conversationId, agentId);
+        
+        if (conversationId) {
+          await this.createConversationIfNotExists('42585527', agentId || 'unknown', conversationId);
+          await this.saveMessageToDb(conversationId, 'user', message);
+          await this.saveMessageToDb(conversationId, 'assistant', `File created with template:\n\n${result}`);
+        }
+        
+        return `File created with template:\n\n${result}`;
+      }
 
       // DIRECT COMMAND EXECUTION
       const commandMatch = message.match(commandPattern);
@@ -1110,11 +1076,47 @@ I have complete workspace access and can implement any changes you need. What wo
             return `[Feedback Error]\n${error instanceof Error ? error.message : 'Feedback failed'}`;
           }
 
-        // REMOVED: Broken toolkit imports that were blocking memory system
+        // ADVANCED IMPLEMENTATION TOOLKIT
         case 'agent_implementation_toolkit':
-        case 'comprehensive_agent_toolkit':  
+          try {
+            console.log('🚀 ACTIVATING: Agent Implementation Toolkit for complex workflows');
+            const { AgentImplementationToolkit } = await import('../tools/agent_implementation_toolkit');
+            const toolkit = new AgentImplementationToolkit();
+            const implementationResult = await toolkit.executeAgentImplementation(toolCall.input);
+            return `[Enterprise Implementation]\n${JSON.stringify(implementationResult, null, 2)}`;
+          } catch (error) {
+            console.error('Implementation toolkit error:', error);
+            return `[Implementation Error]\n${error instanceof Error ? error.message : 'Implementation failed'}`;
+          }
+
+        // COMPREHENSIVE AGENT TOOLKIT
+        case 'comprehensive_agent_toolkit':
+          try {
+            console.log('🤝 ACTIVATING: Comprehensive Agent Toolkit for multi-agent coordination');
+            const { comprehensive_agent_toolkit } = await import('../tools/comprehensive_agent_toolkit');
+            const coordinationResult = await comprehensive_agent_toolkit(toolCall.input.toolkit_operation, toolCall.input);
+            return `[Agent Coordination]\n${JSON.stringify(coordinationResult, null, 2)}`;
+          } catch (error) {
+            console.error('Comprehensive toolkit error:', error);
+            return `[Coordination Error]\n${error instanceof Error ? error.message : 'Multi-agent coordination failed'}`;
+          }
+
+        // ADVANCED AGENT CAPABILITIES
         case 'advanced_agent_capabilities':
-          return `[Enterprise Tool]\nDirect execution tool - functionality preserved in unified system`;
+          try {
+            console.log('🧠 ACTIVATING: Advanced Agent Capabilities for autonomous operations');
+            const { advancedAgentCapabilities } = await import('../tools/advanced_agent_capabilities');
+            const capabilityResult = await advancedAgentCapabilities.buildEnterpriseSystem({
+              name: toolCall.input.capability_type || 'enterprise-system',
+              type: 'full-stack-feature',
+              requirements: ['enterprise-capabilities'],
+              designPattern: 'luxury-editorial'
+            });
+            return `[Advanced Capabilities]\n${JSON.stringify(capabilityResult, null, 2)}`;
+          } catch (error) {
+            console.error('Advanced capabilities error:', error);
+            return `[Capability Error]\n${error instanceof Error ? error.message : 'Advanced operation failed'}`;
+          }
 
         // REPLIT-LEVEL TOOLS INTEGRATION
         case 'packager_tool':
