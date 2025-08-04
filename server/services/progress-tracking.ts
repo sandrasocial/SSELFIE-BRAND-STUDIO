@@ -5,7 +5,7 @@
  */
 
 import { taskDependencyMapping } from './task-dependency-mapping';
-// import { checkpointSystem } from './checkpoint-automation'; // Import error - fixing
+// REMOVED: Old checkpoint-automation - replaced with advanced workflow orchestration
 
 interface ProgressMetrics {
   timestamp: Date;

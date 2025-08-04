@@ -7,8 +7,8 @@ import { unifiedAgentSystem } from "./unified-agent-system";
 import cors from "cors";
 
 // 🚀 ENHANCED SERVICES INTEGRATION - ZARA COORDINATION
-import { apiOrchestrator } from "./services/api-orchestration-layer";
-import { checkpointAutomation } from "./services/checkpoint-automation";
+// REMOVED: Old api-orchestration-layer - replaced with advanced workflow orchestration
+// REMOVED: Old checkpoint-automation - replaced with advanced workflow orchestration
 import { webSearchOptimization } from "./services/web-search-optimization";
 import { taskDependencyMapping } from "./services/task-dependency-mapping";
 import { progressTracking } from "./services/progress-tracking";
