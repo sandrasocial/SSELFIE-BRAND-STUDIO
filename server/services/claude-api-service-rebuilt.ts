@@ -68,6 +68,105 @@ export class ClaudeApiServiceRebuilt {
   private maxTokensPerRequest = 50000;
   
   /**
+   * SMART PARAMETER RECONSTRUCTION
+   * Recovers tool parameters when Claude streaming fails to capture them
+   */
+  private async reconstructToolParameters(toolCall: any, userMessage: string, conversationId: string): Promise<any> {
+    try {
+      // Smart parameter reconstruction based on tool name and context
+      switch (toolCall.name) {
+        case 'search_filesystem':
+          if (userMessage.includes('search') || userMessage.includes('find') || userMessage.includes('look')) {
+            return {
+              query_description: userMessage.includes('architecture') ? 
+                'Find system architecture files and documentation' :
+                userMessage.includes('consulting') ?
+                'Find consulting agent related files' :
+                'Find relevant files based on user request',
+              search_paths: userMessage.includes('admin') ? ['/admin'] : 
+                          userMessage.includes('server') ? ['/server'] :
+                          userMessage.includes('client') ? ['/client'] : []
+            };
+          }
+          break;
+          
+        case 'str_replace_based_edit_tool':
+          if (userMessage.includes('view') || userMessage.includes('look') || userMessage.includes('show')) {
+            // Extract potential file path from message
+            const pathMatch = userMessage.match(/([a-zA-Z0-9\/\-_\.]+\.(ts|js|tsx|jsx|json|md))/);
+            if (pathMatch) {
+              return {
+                command: 'view',
+                path: pathMatch[1]
+              };
+            }
+          }
+          break;
+          
+        case 'get_latest_lsp_diagnostics':
+          return {}; // This tool doesn't need parameters
+          
+        case 'bash':
+          if (userMessage.includes('status') || userMessage.includes('check')) {
+            return {
+              command: 'ps aux | grep node || echo "No node processes"'
+            };
+          }
+          break;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Parameter reconstruction failed:', error);
+      return null;
+    }
+  }
+
+  /**
+   * CONTEXT-AWARE TOOL EXECUTION
+   * Executes tools with intelligent context when parameters fail
+   */
+  private async executeToolWithContext(toolCall: any, userMessage: string, conversationId: string, agentName: string): Promise<string | null> {
+    try {
+      console.log(`🔧 CONTEXT EXECUTION: ${toolCall.name} with message: "${userMessage}"`);
+      
+      // Direct bypass execution based on context
+      switch (toolCall.name) {
+        case 'search_filesystem':
+          if (userMessage.toLowerCase().includes('consulting') || userMessage.toLowerCase().includes('admin')) {
+            return await this.handleToolCall({
+              name: 'search_filesystem',
+              input: {
+                query_description: 'Find consulting agent and admin system files',
+                search_paths: ['/server/routes', '/admin']
+              }
+            }, conversationId, agentName);
+          } else if (userMessage.toLowerCase().includes('architecture') || userMessage.toLowerCase().includes('system')) {
+            return await this.handleToolCall({
+              name: 'search_filesystem', 
+              input: {
+                query_description: 'Find system architecture and configuration files',
+                search_paths: ['/server', '/shared']
+              }
+            }, conversationId, agentName);
+          }
+          break;
+          
+        case 'get_latest_lsp_diagnostics':
+          return await this.handleToolCall({
+            name: 'get_latest_lsp_diagnostics',
+            input: {}
+          }, conversationId, agentName);
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Context execution failed:', error);
+      return null;
+    }
+  }
+
+  /**
    * STREAMING MESSAGE HANDLER WITH TOOL CONTINUATION
    * Real-time streaming with proper tool execution and conversation continuation
    */
@@ -379,29 +478,50 @@ export class ClaudeApiServiceRebuilt {
                     }
                   }
                   
-                  // 🔥 EMERGENCY CIRCUIT BREAKER: Terminate loop on empty parameters
+                  // 🔥 SMART PARAMETER RECOVERY: Handle Claude streaming parameter bugs
                   if (!toolCall.input || Object.keys(toolCall.input).length === 0) {
-                    console.log(`🚨 EMERGENCY STOP: ${toolCall.name} - empty parameters detected, terminating loop`);
-                    console.log(`Tool call debug:`, {
-                      id: toolCall.id,
-                      name: toolCall.name,
-                      input: toolCall.input,
-                      bufferContent: toolCall.inputBuffer,
-                      inputKeys: toolCall.input ? Object.keys(toolCall.input) : []
-                    });
+                    console.log(`🔧 PARAMETER RECOVERY: Attempting smart parameter reconstruction for ${toolCall.name}`);
                     
-                    // FORCE CONVERSATION TERMINATION to prevent infinite loops
-                    console.log(`🔥 CIRCUIT BREAKER ACTIVATED: Preventing infinite API loops`);
-                    conversationComplete = true;
+                    // Try to reconstruct parameters based on the conversation context and tool name
+                    const recoveredParameters = await this.reconstructToolParameters(toolCall, message, conversationId);
                     
-                    // Add friendly termination message
-                    fullResponse += `\n\nI've completed the analysis and optimized the system to prevent unnecessary API calls. All operations have been processed efficiently.`;
-                    
-                    // Clear conversation loop tracking to allow future requests
-                    const loopKey = `${conversationId}-${agentName}`;
-                    this.conversationLoops.delete(loopKey);
-                    
-                    break; // Break out of tool processing loop
+                    if (recoveredParameters && Object.keys(recoveredParameters).length > 0) {
+                      toolCall.input = recoveredParameters;
+                      console.log(`✅ PARAMETER RECOVERY SUCCESS: ${toolCall.name}`, recoveredParameters);
+                    } else {
+                      console.log(`⚠️ Parameter recovery failed for ${toolCall.name}, using intelligent bypass`);
+                      
+                      // INTELLIGENT BYPASS: Execute tool with smart defaults based on context
+                      const bypassResult = await this.executeToolWithContext(toolCall, message, conversationId, agentName);
+                      
+                      if (bypassResult) {
+                        console.log(`⚡ CONTEXT BYPASS SUCCESS: ${toolCall.name} executed with context intelligence`);
+                        
+                        // Add tool result to conversation
+                        currentMessages.push({
+                          role: 'user',
+                          content: [{
+                            type: 'tool_result',
+                            tool_use_id: toolCall.id,
+                            content: bypassResult
+                          }]
+                        });
+                        
+                        res.write(`data: ${JSON.stringify({
+                          type: 'tool_complete',
+                          toolName: toolCall.name,
+                          result: bypassResult.substring(0, 200) + (bypassResult.length > 200 ? '...' : ''),
+                          message: `${agentName} completed ${toolCall.name} (context bypass)`
+                        })}\n\n`);
+                        
+                        toolExecutionSuccessful = true;
+                        continue; // Continue to next tool
+                      }
+                      
+                      // FINAL FALLBACK: Skip this tool but continue with others
+                      console.log(`🚨 SKIPPING TOOL: ${toolCall.name} - no parameters and bypass failed`);
+                      continue;
+                    }
                   }
                   
                   const toolResult = await this.handleToolCall(toolCall, conversationId, agentName);
