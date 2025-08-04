@@ -18,20 +18,26 @@ router.get('/conversation-history/:agentId', async (req, res) => {
     
     console.log(`📚 Loading conversation history for agent: ${agentId}, user: ${userId}`);
     
-    // Get the most recent conversation for this agent
-    const conversations = await db
-      .select()
+    // Single optimized query with join to get messages directly
+    const result = await db
+      .select({
+        conversationId: claudeConversations.conversationId,
+        role: claudeMessages.role,
+        content: claudeMessages.content,
+        timestamp: claudeMessages.timestamp
+      })
       .from(claudeConversations)
+      .innerJoin(claudeMessages, eq(claudeConversations.conversationId, claudeMessages.conversationId))
       .where(
         and(
           eq(claudeConversations.userId, userId),
           eq(claudeConversations.agentName, agentId)
         )
       )
-      .orderBy(desc(claudeConversations.createdAt))
-      .limit(1);
+      .orderBy(desc(claudeConversations.createdAt), claudeMessages.timestamp)
+      .limit(50); // Limit to last 50 messages
 
-    if (conversations.length === 0) {
+    if (result.length === 0) {
       return res.json({
         success: true,
         messages: [],
@@ -39,25 +45,19 @@ router.get('/conversation-history/:agentId', async (req, res) => {
       });
     }
 
-    const conversation = conversations[0];
-    
-    // Get all messages for this conversation
-    const messages = await db
-      .select()
-      .from(claudeMessages)
-      .where(eq(claudeMessages.conversationId, conversation.conversationId))
-      .orderBy(claudeMessages.timestamp);
+    const conversationId = result[0].conversationId;
+    const messages = result.map(row => ({
+      role: row.role,
+      content: row.content,
+      timestamp: row.timestamp
+    }));
 
-    console.log(`📚 Found ${messages.length} messages in conversation ${conversation.conversationId}`);
+    console.log(`📚 Found ${messages.length} messages in conversation ${conversationId}`);
 
     res.json({
       success: true,
-      messages: messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-        timestamp: msg.timestamp
-      })),
-      conversationId: conversation.conversationId
+      messages,
+      conversationId
     });
 
   } catch (error) {
