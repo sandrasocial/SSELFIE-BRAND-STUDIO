@@ -177,41 +177,59 @@ export class ClaudeApiServiceWorking {
 
       console.log(`🌊 OPTIMIZED STREAMING: ${agentName} with ${optimalTokens} tokens, cache:${cachedPrompt.useCache}, batch:${shouldUseBatch}`);
       
-      // Send to Claude API with full optimization stack
-      const requestConfig: any = {
+      // SIMPLIFIED STREAMING REQUEST - Based on Anthropic best practices
+      const requestConfig = {
         model: DEFAULT_MODEL_STR,
         max_tokens: optimalTokens,
         messages: claudeMessages,
         system: cachedPrompt.prompt,
-        tools: tools,
-        stream: false
+        stream: true // Enable actual streaming
       };
 
-      // Note: Cache control implementation for future Anthropic API updates
-      // Currently using in-memory caching for prompt optimization
+      // Only add tools if they exist and are valid
+      if (tools && tools.length > 0) {
+        requestConfig.tools = tools;
+      }
 
-      const response = await anthropic.messages.create(requestConfig);
+      console.log(`🌊 STREAMING REQUEST: ${JSON.stringify({
+        model: requestConfig.model,
+        max_tokens: requestConfig.max_tokens,
+        tools_count: tools?.length || 0,
+        system_length: cachedPrompt.prompt.length
+      })}`);
+
+      const stream = await anthropic.messages.create(requestConfig);
 
       let fullResponse = '';
       
-      // Process Claude response
-      if (response.content && Array.isArray(response.content)) {
-        for (const block of response.content) {
-          if (block.type === 'text') {
-            fullResponse += block.text;
+      // PROCESS STREAMING RESPONSE - Based on Anthropic documentation
+      try {
+        for await (const chunk of stream) {
+          if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
+            const textChunk = chunk.delta.text;
+            fullResponse += textChunk;
+            
+            // Send streaming text to client
             res.write(`data: ${JSON.stringify({
               type: 'text_delta',
-              content: block.text
+              content: textChunk
             })}\n\n`);
-          } else if (block.type === 'tool_use') {
-            // Handle tool execution here
-            console.log(`🔧 Tool execution: ${block.name}`);
+          } 
+          else if (chunk.type === 'content_block_start' && chunk.content_block?.type === 'tool_use') {
+            console.log(`🔧 Tool execution: ${chunk.content_block.name}`);
             res.write(`data: ${JSON.stringify({
               type: 'tool_start',
-              toolName: block.name
+              toolName: chunk.content_block.name
             })}\n\n`);
           }
+          else if (chunk.type === 'message_stop') {
+            console.log(`✅ STREAM COMPLETED: Total response length: ${fullResponse.length} chars`);
+            break;
+          }
         }
+      } catch (streamError) {
+        console.error('Stream processing error:', streamError);
+        throw streamError;
       }
       
       // Save conversation to database
