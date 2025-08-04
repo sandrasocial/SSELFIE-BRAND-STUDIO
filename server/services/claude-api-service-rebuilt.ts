@@ -63,8 +63,8 @@ export class ClaudeApiServiceRebuilt {
   private progressTracker = new ProgressTrackingService();
   
   /**
-   * STREAMING MESSAGE HANDLER
-   * Real-time streaming with tool execution visibility
+   * STREAMING MESSAGE HANDLER WITH TOOL CONTINUATION
+   * Real-time streaming with proper tool execution and conversation continuation
    */
   async sendStreamingMessage(
     userId: string,
@@ -91,85 +91,164 @@ export class ClaudeApiServiceRebuilt {
 
       console.log(`🌊 STREAMING: Starting Claude API stream for ${agentName}`);
       
-      // Create Claude streaming request
-      const stream = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
-        max_tokens: 8000,
-        messages: claudeMessages as any,
-        system: systemPrompt,
-        tools: tools,
-        stream: true
-      });
-
       let fullResponse = '';
-      let toolCalls = [];
+      let currentMessages = claudeMessages;
+      let conversationComplete = false;
       
-      // Process the stream
-      for await (const chunk of stream) {
-        if (chunk.type === 'message_start') {
-          // Send agent start signal
-          res.write(`data: ${JSON.stringify({
-            type: 'message_start',
-            agentName,
-            message: `${agentName} is thinking...`
-          })}\n\n`);
-        }
+      // Continue conversation until Claude is done (handles tool execution cycles)
+      while (!conversationComplete) {
+        const stream = await anthropic.messages.create({
+          model: DEFAULT_MODEL_STR,
+          max_tokens: 8000,
+          messages: currentMessages as any,
+          system: systemPrompt,
+          tools: tools,
+          stream: true
+        });
+
+        let currentResponseText = '';
+        let toolCalls: any[] = [];
+        let hasContent = false;
         
-        if (chunk.type === 'content_block_start') {
-          if (chunk.content_block.type === 'tool_use') {
-            // Tool execution started
-            res.write(`data: ${JSON.stringify({
-              type: 'tool_start',
-              toolName: chunk.content_block.name,
-              message: `${agentName} is using ${chunk.content_block.name}...`
-            })}\n\n`);
-            
-            toolCalls.push(chunk.content_block);
+        // Process the stream
+        for await (const chunk of stream) {
+          if (chunk.type === 'message_start') {
+            if (!hasContent) {
+              res.write(`data: ${JSON.stringify({
+                type: 'message_start',
+                agentName,
+                message: `${agentName} is thinking...`
+              })}\n\n`);
+            }
+          }
+          
+          if (chunk.type === 'content_block_start') {
+            if (chunk.content_block.type === 'tool_use') {
+              // Tool execution started
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_start',
+                toolName: chunk.content_block.name,
+                message: `${agentName} is using ${chunk.content_block.name}...`
+              })}\n\n`);
+              
+              toolCalls.push({
+                id: chunk.content_block.id,
+                name: chunk.content_block.name,
+                input: chunk.content_block.input
+              });
+            }
+          }
+          
+          if (chunk.type === 'content_block_delta') {
+            if (chunk.delta.type === 'text_delta') {
+              // Stream text content
+              const textDelta = chunk.delta.text;
+              currentResponseText += textDelta;
+              fullResponse += textDelta;
+              hasContent = true;
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: textDelta
+              })}\n\n`);
+            }
+          }
+          
+          if (chunk.type === 'message_stop') {
+            // Check if we have tool calls to execute
+            if (toolCalls.length > 0) {
+              res.write(`data: ${JSON.stringify({
+                type: 'tools_executing',
+                message: `${agentName} is executing ${toolCalls.length} tool(s)...`
+              })}\n\n`);
+              
+              // Build assistant message with current response and tool calls
+              const assistantMessage: any = {
+                role: 'assistant',
+                content: []
+              };
+              
+              if (currentResponseText.trim()) {
+                assistantMessage.content.push({
+                  type: 'text',
+                  text: currentResponseText
+                });
+              }
+              
+              // Add tool use content blocks
+              for (const toolCall of toolCalls) {
+                assistantMessage.content.push({
+                  type: 'tool_use',
+                  id: toolCall.id,
+                  name: toolCall.name,
+                  input: toolCall.input
+                });
+              }
+              
+              // Add assistant message to conversation
+              currentMessages.push(assistantMessage);
+              
+              // Execute tools and add results
+              for (const toolCall of toolCalls) {
+                try {
+                  const toolResult = await this.executeActualToolCall(toolCall, res, agentName);
+                  
+                  // Add tool result to conversation
+                  currentMessages.push({
+                    role: 'user',
+                    content: [{
+                      type: 'tool_result',
+                      tool_use_id: toolCall.id,
+                      content: toolResult
+                    }]
+                  });
+                  
+                  res.write(`data: ${JSON.stringify({
+                    type: 'tool_complete',
+                    toolName: toolCall.name,
+                    message: `${agentName} completed ${toolCall.name}`
+                  })}\n\n`);
+                  
+                } catch (toolError) {
+                  console.error(`Tool execution error for ${toolCall.name}:`, toolError);
+                  res.write(`data: ${JSON.stringify({
+                    type: 'tool_error',
+                    toolName: toolCall.name,
+                    message: `Error executing ${toolCall.name}`
+                  })}\n\n`);
+                  
+                  // Add error result to conversation
+                  currentMessages.push({
+                    role: 'user',
+                    content: [{
+                      type: 'tool_result',
+                      tool_use_id: toolCall.id,
+                      content: `Error: ${toolError instanceof Error ? toolError.message : 'Tool execution failed'}`
+                    }]
+                  });
+                }
+              }
+              
+              // Continue conversation - Claude will now process tool results and continue
+              res.write(`data: ${JSON.stringify({
+                type: 'continuing',
+                message: `${agentName} is processing tool results and continuing...`
+              })}\n\n`);
+              
+            } else {
+              // No tools used, conversation is complete
+              conversationComplete = true;
+              res.write(`data: ${JSON.stringify({
+                type: 'content_complete',
+                message: 'Response complete'
+              })}\n\n`);
+            }
           }
         }
         
-        if (chunk.type === 'content_block_delta') {
-          if (chunk.delta.type === 'text_delta') {
-            // Stream text content
-            const textDelta = chunk.delta.text;
-            fullResponse += textDelta;
-            
-            res.write(`data: ${JSON.stringify({
-              type: 'text_delta',
-              content: textDelta
-            })}\n\n`);
-          }
-        }
-        
-        if (chunk.type === 'content_block_stop') {
-          // Content block completed
-          res.write(`data: ${JSON.stringify({
-            type: 'content_complete',
-            message: 'Content generation complete'
-          })}\n\n`);
-        }
-      }
-      
-      // Execute any tool calls
-      if (toolCalls.length > 0) {
-        res.write(`data: ${JSON.stringify({
-          type: 'tools_executing',
-          message: `${agentName} is executing ${toolCalls.length} tool(s)...`
-        })}\n\n`);
-        
-        // Process tool calls and stream results
-        for (const toolCall of toolCalls) {
-          try {
-            const toolResult = await this.executeToolCall(toolCall, res, agentName);
-            fullResponse += `\n\n**Tool Result (${toolCall.name}):**\n${toolResult}`;
-          } catch (toolError) {
-            console.error(`Tool execution error for ${toolCall.name}:`, toolError);
-            res.write(`data: ${JSON.stringify({
-              type: 'tool_error',
-              toolName: toolCall.name,
-              message: `Error executing ${toolCall.name}`
-            })}\n\n`);
-          }
+        // If no tool calls were made, the conversation is complete
+        if (toolCalls.length === 0) {
+          conversationComplete = true;
         }
       }
       
