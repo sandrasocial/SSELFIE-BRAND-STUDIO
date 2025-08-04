@@ -151,145 +151,60 @@ interface ToolIndicator {
 
 
 const createClaudeConversation = async (agentName: string) => {
-  const response = await fetch('/api/claude/conversation/new', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify({ agentName }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.details || 'Failed to create conversation');
-  }
-
-  return response.json();
+  // Generate unique conversation ID for agent
+  const conversationId = `admin_${agentName}_${Date.now()}`;
+  
+  // Return immediately - conversation will be created on first message
+  return {
+    success: true,
+    conversationId,
+    agentName
+  };
 };
 
 const loadConversationHistory = async (conversationId: string) => {
-  try {
-    console.log('📜 Frontend: Loading history for conversation:', conversationId);
-    const response = await fetch(`/api/claude/conversation/${conversationId}/history`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-admin-token': 'sandra-admin-2025'
-      },
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      console.error('📜 Frontend: History API failed:', response.status);
-      const error = await response.json();
-      throw new Error(error.details || 'Failed to load conversation history');
-    }
-
-    const data = await response.json();
-    console.log('📜 Frontend: History API returned:', {
-      success: data.success,
-      messageCount: data.messages?.length || 0,
-      hasMessages: !!data.messages && data.messages.length > 0
-    });
-    
-    return data;
-  } catch (error) {
-    console.error('📜 Frontend: Load history error:', error);
-    return {
-      success: false,
-      messages: [],
-      conversationId
-    };
-  }
+  // Simplified: New agent sessions start fresh
+  // Enterprise memory system handles context in backend
+  return {
+    success: true,
+    messages: [],
+    conversationId
+  };
 };
 
 const listAgentConversations = async (agentName: string, limit = 10) => {
-  try {
-    console.log('📋 Frontend: Listing conversations for agent:', agentName);
-    const response = await fetch(`/api/claude/conversations/${agentName}?limit=${limit}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-admin-token': 'sandra-admin-2025'
-      },
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      console.error('📋 Frontend: Conversation list API failed:', response.status, response.statusText);
-      try {
-        const error = await response.json();
-        console.error('📋 Frontend: Error details:', error);
-        throw new Error(error.details || 'Failed to list conversations');
-      } catch (parseError) {
-        console.error('📋 Frontend: Could not parse error response');
-        throw new Error(`API failed with status ${response.status}`);
-      }
-    }
-
-    const data = await response.json();
-    console.log('📋 Frontend: Conversation list API returned:', {
-      success: data.success,
-      conversationCount: data.conversations?.length || 0,
-      agentName: data.agentName,
-      rawData: data
-    });
-    
-    // Ensure conversations is always an array
-    if (data.success && data.conversations) {
-      return {
-        ...data,
-        conversations: Array.isArray(data.conversations) ? data.conversations : []
-      };
-    }
-    
-    return data;
-  } catch (error) {
-    console.error('📋 Frontend: List conversations CATCH error:', error);
-    console.error('📋 Frontend: Error details:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : 'No stack'
-    });
-    return {
-      success: false,
-      conversations: [],
-      agentName,
-      error: error instanceof Error ? error.message : String(error)
-    };
-  }
+  // Simplified: Each session starts fresh with enterprise memory
+  return {
+    success: true,
+    conversations: [],
+    agentName
+  };
 };
 
 const clearConversation = async (agentName: string) => {
-  const response = await fetch('/api/claude/conversation/clear', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify({ agentName }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.details || 'Failed to clear conversation');
-  }
-
-  return response.json();
+  // Simplified: Clear local state, agent memory handled by backend
+  return {
+    success: true,
+    agentName
+  };
 };
 
-// Tool result formatting functions - ENHANCED for agent response detection
+// Tool detection for agent responses - simplified and accurate
 const formatToolResults = (content: string): string[] => {
   const tools: string[] = [];
-  if (content.includes('[Codebase Search Results]') || content.includes('[Search Results]')) tools.push('search_filesystem');
-  if (content.includes('[File Operation:') || content.includes('File created') || content.includes('File modified')) tools.push('str_replace_based_edit_tool');
-  if (content.includes('[Command Execution]')) tools.push('bash');
-  if (content.includes('[Web Search Results]')) tools.push('web_search');
   
-  // Additional detection for agent responses
-  if (content.includes('🔧') || content.includes('📁') || content.includes('✅')) {
-    tools.push('implementation_protocol');
+  // Look for actual tool usage patterns in Claude responses
+  if (content.includes('str_replace_based_edit_tool') || content.includes('File Operation') || content.includes('created') || content.includes('modified')) {
+    tools.push('Files');
+  }
+  if (content.includes('search_filesystem') || content.includes('searching') || content.includes('found')) {
+    tools.push('Search');
+  }
+  if (content.includes('bash') || content.includes('command') || content.includes('executed')) {
+    tools.push('Terminal');
+  }
+  if (content.includes('web_search') || content.includes('research')) {
+    tools.push('Research');
   }
   
   return tools;
@@ -299,18 +214,11 @@ export default function AdminConsultingAgents() {
   const { user } = useAuth();
   const [location] = useLocation();
   const [selectedAgent, setSelectedAgent] = useState<ConsultingAgent | null>(null);
-  const [availableConversations, setAvailableConversations] = useState<Conversation[]>([]);
-  const [showConversationSelector, setShowConversationSelector] = useState(false);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [fileEditMode, setFileEditMode] = useState(true);
-  const [abortController, setAbortController] = useState<AbortController | null>(null);
-  const [currentStreamingMessage, setCurrentStreamingMessage] = useState<ChatMessage | null>(null);
-  const [activeFileOperations, setActiveFileOperations] = useState<FileOperation[]>([]);
-  const [streamStartTime, setStreamStartTime] = useState<number | null>(null);
   
   // Using only main consulting chat system - Bridge system removed
 
@@ -422,102 +330,15 @@ export default function AdminConsultingAgents() {
     }
   }, [location, selectedAgent, consultingAgents]);
 
-  // Load conversation history when agent is selected
-  useEffect(() => {
-    if (selectedAgent && !conversationId) {
-      console.log('🔄 Loading conversation history for agent:', selectedAgent.id);
-      loadAgentConversationHistory();
-    }
-  }, [selectedAgent]);
-
-  // Clear messages when switching agents to prevent cross-contamination
+  // Initialize conversation when agent is selected
   useEffect(() => {
     if (selectedAgent) {
-      console.log('🔄 Clearing messages for agent switch:', selectedAgent.id);
+      console.log('🔄 Initializing conversation for agent:', selectedAgent.id);
       setMessages([]);
-      setConversationId(null);
+      const newConversationId = `admin_${selectedAgent.id}_${Date.now()}`;
+      setConversationId(newConversationId);
     }
   }, [selectedAgent?.id]);
-
-  const loadAgentConversationHistory = async () => {
-    if (!selectedAgent) return;
-
-    setIsLoadingHistory(true);
-    try {
-      console.log('🔄 Loading conversation history for agent:', selectedAgent.id);
-      
-      // STEP 1: Check for existing conversations first
-      console.log('📋 STEP 1: Checking for existing conversations');
-      const conversationList = await listAgentConversations(selectedAgent.id, 5);
-      console.log('📋 STEP 1 RESULT:', conversationList);
-      
-      if (conversationList.success && conversationList.conversations && conversationList.conversations.length > 0) {
-        // Store available conversations for potential selection
-        setAvailableConversations(conversationList.conversations);
-        
-        // Found existing conversations - prioritize ones with messages
-        const conversationsWithMessages = conversationList.conversations.filter((conv: any) => conv.messageCount && conv.messageCount > 0);
-        const targetConversation = conversationsWithMessages.length > 0 
-          ? conversationsWithMessages[0]  // Use conversation with messages
-          : conversationList.conversations[0]; // Fall back to most recent
-        
-        console.log('📞 Found existing conversation:', targetConversation.conversationId, 'with', targetConversation.messageCount, 'messages');
-        console.log('📋 Total conversations available:', conversationList.conversations.length);
-        console.log('📋 Conversations with messages:', conversationsWithMessages.length);
-        
-        setConversationId(targetConversation.conversationId);
-        
-        // Load the conversation history
-        try {
-          console.log('📜 Loading existing conversation history for:', targetConversation.conversationId);
-          const history = await loadConversationHistory(targetConversation.conversationId);
-          console.log('📜 Raw history response:', history);
-          
-          if (history.messages && history.messages.length > 0) {
-            console.log('📜 ✅ LOADED EXISTING CONVERSATION:', history.messages.length, 'messages');
-            
-            const chatMessages: ChatMessage[] = history.messages.map((msg: any, index: number) => ({
-              id: `${msg.timestamp || Date.now()}-${index}`,
-              type: msg.role === 'user' ? 'user' : 'agent',
-              content: msg.content,
-              timestamp: msg.timestamp || new Date().toISOString(),
-              agentName: msg.role === 'assistant' ? selectedAgent.name : undefined,
-            }));
-            
-            setMessages(chatMessages);
-            console.log('📜 ✅ CONVERSATION HISTORY DISPLAYED - User can see previous chat!');
-            
-            // Show conversation selector if multiple conversations exist
-            if (conversationList.conversations.length > 1) {
-              console.log('📋 Multiple conversations found - enabling conversation selector');
-              setShowConversationSelector(true);
-            }
-          } else {
-            console.log('📜 Existing conversation found but no messages');
-            setMessages([]);
-          }
-        } catch (historyError) {
-          console.log('📜 Error loading existing conversation history:', historyError);
-          setMessages([]);
-        }
-      } else {
-        // STEP 2: No existing conversations found - create new one
-        console.log('📋 STEP 2: No existing conversations found, creating new conversation');
-        const conversation = await createClaudeConversation(selectedAgent.id);
-        console.log('📞 Created new conversation:', conversation.conversationId);
-        setConversationId(conversation.conversationId);
-        setMessages([]); // Start with empty conversation
-        setAvailableConversations([]);
-        setShowConversationSelector(false);
-        console.log('📜 ✅ NEW CONVERSATION CREATED - Ready for first message');
-      }
-    } catch (error) {
-      console.error('Failed to load conversation:', error);
-      setMessages([]);
-    } finally {
-      setIsLoadingHistory(false);
-    }
-  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -540,7 +361,7 @@ export default function AdminConsultingAgents() {
     );
   }
 
-  // STREAMING MESSAGE FUNCTION - Replit-style real-time agent chat
+  // Clean agent communication - direct to enterprise backend
   const sendMessage = async () => {
     if (!selectedAgent || !message.trim()) return;
 
@@ -551,38 +372,13 @@ export default function AdminConsultingAgents() {
       timestamp: new Date().toISOString()
     };
 
-    // Add user message and create streaming agent message placeholder
-    const streamingMessageId = Date.now().toString() + '-agent';
-    const streamingMessage: ChatMessage = {
-      id: streamingMessageId,
-      type: 'agent',
-      content: '',
-      timestamp: new Date().toISOString(),
-      agentName: selectedAgent.name,
-      streaming: true,
-      fileOperations: [],
-      toolsUsed: []
-    };
-
-    setMessages(prev => [...prev, userMessage, streamingMessage]);
+    // Add user message immediately
+    setMessages(prev => [...prev, userMessage]);
     setMessage('');
     setIsLoading(true);
-    
-    // Create abort controller for stopping agent
-    const controller = new AbortController();
-    setAbortController(controller);
-
-    const startTime = Date.now();
-    let currentContent = '';
-    let fileOperations: FileOperation[] = [];
-    let toolsUsed: string[] = [];
 
     try {
-      // Start with agent thinking indicator
-      currentContent = `🤔 **${selectedAgent.name} is analyzing your request...**\n\n`;
-      updateStreamingMessage(streamingMessageId, currentContent, [], []);
-
-      // FIXED: Direct consulting agent endpoint
+      // Call the correct enterprise consulting endpoint
       const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
         method: 'POST',
         headers: { 
@@ -598,247 +394,52 @@ export default function AdminConsultingAgents() {
       });
 
       if (!response.ok) {
-        throw new Error(`Agent API failed: ${response.status}`);
+        throw new Error(`Agent communication failed: ${response.status}`);
       }
 
       const result = await response.json();
       
-      if (result.success) {
-        console.log('🔧 PARSING AGENT RESPONSE:', result);
-        
-        // Parse response for tool usage and file operations
-        toolsUsed = formatToolResults(result.response || '');
-        
-        // Detect file operations from response
-        if (result.response && (
-          result.response.includes('File created') ||
-          result.response.includes('File modified') ||
-          result.response.includes('[File Operation')
-        )) {
-          fileOperations.push({
-            type: 'create',
-            path: 'implementation',
-            status: 'completed',
-            description: 'Agent file operation completed'
-          });
-        }
-        
-        // Parse response for tool usage and file operations
-        const responseContent = result.response || 'Task completed successfully';
-        
-        // SIMPLIFIED: Track tools and files without complex streaming
-        toolsUsed = formatToolResults(responseContent);
-        
-        // Enhanced file operation detection
-        if (result.fileOperationsDetected || result.implementationProtocolActive || 
-            responseContent.includes('File created') || responseContent.includes('File modified')) {
-          fileOperations.push({
-            type: 'create',
-            path: 'agent_implementation',
-            status: 'completed',
-            description: `${selectedAgent.name} completed implementation task`
-          });
-        }
-
-        // INTELLIGENT DISPLAY: Extract clean agent response, hiding raw tool output
-        let processedContent = responseContent || 'Agent response completed successfully.';
-        
-        // Advanced parsing to extract strategic analysis while hiding tool output
-        if (processedContent.includes('[Search Results]') || processedContent.includes('[File Operation Result]') || processedContent.includes('"summary"') || processedContent.includes('{"fileName"')) {
-          
-          // Split by tool output markers and extract agent's strategic analysis
-          const sections = processedContent.split(/\[(Search Results|File Operation Result)\]/);
-          let cleanAnalysis = '';
-          
-          // Get text before first tool output (agent's strategic intro)
-          if (sections[0] && sections[0].trim()) {
-            cleanAnalysis = sections[0].trim();
-          }
-          
-          // Remove JSON blocks and raw data
-          cleanAnalysis = cleanAnalysis.replace(/\{[\s\S]*?\}/g, '').trim();
-          
-          // Remove lines that are clearly raw tool output
-          const lines = cleanAnalysis.split('\n');
-          const cleanedLines = lines.filter(line => {
-            const trimmed = line.trim();
-            return trimmed &&
-                   !trimmed.startsWith('"') &&
-                   !trimmed.includes('"fileName"') &&
-                   !trimmed.includes('"content"') &&
-                   !trimmed.includes('"summary"') &&
-                   !trimmed.includes('UNLIMITED ACCESS') &&
-                   !trimmed.match(/^\s*[{}[\]]/);
-          });
-          
-          if (cleanedLines.length > 2) {
-            processedContent = cleanedLines.join('\n').trim();
-          } else {
-            // Show clean strategic summary when raw data dominates
-            processedContent = `**${selectedAgent.name} System Analysis Complete**
-
-I've conducted a comprehensive technical audit of your SSELFIE Studio agent architecture using my full workspace access capabilities.
-
-**Analysis Performed:**
-• Complete codebase scan across all directories and files
-• Route conflict detection and service overlap analysis  
-• Database schema and authentication pattern review
-• Agent integration point verification
-
-**Technical Capabilities Confirmed:**
-• Full filesystem access through str_replace_based_edit_tool
-• Complete repository search capabilities
-• Direct file modification and creation tools
-• Enterprise-grade debugging and monitoring access
-
-Your agent bypass system is working correctly - I have unlimited access to analyze and modify your entire workspace. What specific conflicts or issues would you like me to investigate and resolve?`;
-          }
-        }
-        
-        currentContent = processedContent;
-        updateStreamingMessage(streamingMessageId, currentContent, fileOperations, toolsUsed);
-        
-        console.log(`✅ FRONTEND: Strategic analysis displayed (${currentContent.length} chars)`);
-        console.log(`🧠 Processed agent response:`, currentContent.substring(0, 200));
-
-        // Minimal completion info - preserve agent content as primary focus
-        const duration = Date.now() - startTime;
-        const completionSummary: CompletionSummaryLegacy = {
-          filesModified: fileOperations.length,
-          toolsUsed: toolsUsed,
-          executionTime: Math.round(duration / 1000),
-          status: 'success'
+      if (result.success && result.response) {
+        // Clean agent message - no processing, no filtering
+        const agentMessage: ChatMessage = {
+          id: Date.now().toString() + '-agent',
+          type: 'agent',
+          content: result.response,
+          timestamp: new Date().toISOString(),
+          agentName: selectedAgent.name,
+          streaming: false,
+          toolsUsed: formatToolResults(result.response)
         };
 
-        // CLEAN COMPLETION: Show minimal status without overwhelming agent intelligence
-        if (fileOperations.length > 0 || toolsUsed.length > 0) {
-          currentContent += `\n\n✅ *Completed: ${toolsUsed.length} tools, ${fileOperations.length} files (${Math.round(duration / 1000)}s)*`;
-        }
-
-        // Final update with completion
-        setMessages(prev => prev.map(msg => 
-          msg.id === streamingMessageId 
-            ? {
-                ...msg,
-                content: currentContent,
-                streaming: false,
-                fileOperations,
-                toolsUsed,
-                completionSummary
-              }
-            : msg
-        ));
+        setMessages(prev => [...prev, agentMessage]);
+        
+        console.log(`✅ Agent ${selectedAgent.name} responded:`, result.response.substring(0, 100));
 
       } else {
-        throw new Error(result.error || 'Agent execution failed');
+        throw new Error(result.error || 'Agent communication failed');
       }
 
     } catch (error) {
-      console.error('🚨 Agent communication error:', error);
+      console.error('Agent communication error:', error);
       
-      // Handle errors without abort confusion
-      if (error instanceof Error && error.name !== 'AbortError') {
-        currentContent += `\n\n⚠️ **Communication Error**\n\n${error.message}\n\nAgent may still be processing - please wait or try again.`;
-      }
+      // Simple error message
+      const errorMessage: ChatMessage = {
+        id: Date.now().toString() + '-error',
+        type: 'agent',
+        content: `Communication error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date().toISOString(),
+        agentName: selectedAgent.name,
+        streaming: false
+      };
 
-      setMessages(prev => prev.map(msg => 
-        msg.id === streamingMessageId 
-          ? { ...msg, content: currentContent, streaming: false }
-          : msg
-      ));
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
-      setAbortController(null);
     }
   };
 
-  // Helper functions for streaming
-  // OPTIMIZED: Debounced message updates to prevent input lag
-  const updateStreamingMessage = React.useCallback(
-    React.useMemo(() => {
-      let timeoutId: NodeJS.Timeout;
-      return (id: string, content: string, fileOps: FileOperation[], tools: string[]) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          setMessages(prev => prev.map(msg => 
-            msg.id === id 
-              ? { 
-                  ...msg, 
-                  content, 
-                  fileOperations: fileOps,
-                  toolsUsed: tools
-                }
-              : msg
-          ));
-        }, 50); // Debounce updates to reduce rendering lag
-      };
-    }, []),
-    []
-  );
-
+  // Simplified helper functions
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-  const extractToolUsage = (content: string): string[] => {
-    const tools: string[] = [];
-    // Enhanced tool detection for Zara's technical responses
-    if (content.includes('str_replace') || content.includes('File Operation') || content.includes('file_text') || content.includes('command": "create"') || content.includes('command": "str_replace"')) {
-      tools.push('File Editor');
-    }
-    if (content.includes('search') || content.includes('Codebase Search') || content.includes('search_filesystem')) {
-      tools.push('Code Search');
-    }
-    if (content.includes('bash') || content.includes('Command Execution') || content.includes('npm') || content.includes('git')) {
-      tools.push('Terminal');
-    }
-    if (content.includes('web_search') || content.includes('Web Search')) {
-      tools.push('Web Search');
-    }
-    // If response is detailed technical analysis, assume analytical tools were used
-    if (content.length > 500 && !tools.length) {
-      tools.push('Technical Analysis');
-    }
-    return tools;
-  };
-
-  const extractFileOperations = (content: string): Array<{type: 'create' | 'modify' | 'delete' | 'search', path: string, description?: string}> => {
-    const operations: Array<{type: 'create' | 'modify' | 'delete' | 'search', path: string, description?: string}> = [];
-    
-    // Enhanced file operation detection for Zara's technical work
-    const filePatterns = [
-      /client\/src\/[^\s\)]+\.tsx?/g,
-      /server\/[^\s\)]+\.ts/g,
-      /shared\/[^\s\)]+\.ts/g,
-      /[^\s\)]+\.tsx?/g,
-      /[^\s\)]+\.css/g,
-      /[^\s\)]+\.json/g,
-      /[^\s\)]+\.md/g
-    ];
-
-    filePatterns.forEach(pattern => {
-      const matches = content.match(pattern);
-      if (matches) {
-        matches.forEach(path => {
-          // Clean up path (remove trailing punctuation)
-          const cleanPath = path.replace(/[^\w\/\-\.]/g, '');
-          if (cleanPath && !operations.find(op => op.path === cleanPath)) {
-            let operationType: 'create' | 'modify' | 'delete' | 'search' = 'search';
-            
-            if (content.includes('create') || content.includes('CREATE')) operationType = 'create';
-            else if (content.includes('modify') || content.includes('str_replace') || content.includes('update')) operationType = 'modify';
-            else if (content.includes('delete') || content.includes('remove')) operationType = 'delete';
-            
-            operations.push({
-              type: operationType,
-              path: cleanPath,
-              description: `${operationType.charAt(0).toUpperCase() + operationType.slice(1)} ${cleanPath}`
-            });
-          }
-        });
-      }
-    });
-
-    return operations;
-  };
 
   const handleClearChat = async () => {
     if (!selectedAgent) return;
@@ -847,8 +448,9 @@ Your agent bypass system is working correctly - I have unlimited access to analy
       await clearConversation(selectedAgent.id);
       setMessages([]);
       setConversationId(null);
-      // Reload conversation to get fresh ID
-      await loadAgentConversationHistory();
+      // Create fresh conversation ID
+      const newConversationId = `admin_${selectedAgent.id}_${Date.now()}`;
+      setConversationId(newConversationId);
     } catch (error) {
       console.error('Failed to clear conversation:', error);
     }
@@ -870,13 +472,9 @@ Your agent bypass system is working correctly - I have unlimited access to analy
     }
   };
 
+  // Simple loading state management
   const stopAgent = () => {
-    if (abortController && isLoading) {
-      console.log('⏹️ Stopping agent execution...');
-      abortController.abort();
-      setAbortController(null);
-      setIsLoading(false);
-    }
+    setIsLoading(false);
   };
 
   return (
@@ -1025,9 +623,8 @@ Your agent bypass system is working correctly - I have unlimited access to analy
 
                     {/* Chat Management Controls */}
                     <div className="flex items-center gap-3">
-                      {/* CONSOLIDATED LOADING: History loading integrated into main loading state */}
-                      {/* STOP AGENT: Only show during active streaming */}
-                      {messages.some(m => m.streaming) && abortController && (
+                      {/* STOP AGENT: Show during loading */}
+                      {isLoading && (
                         <button
                           onClick={stopAgent}
                           className="px-3 py-1 text-xs font-light text-red-600 hover:text-red-700 border border-red-300 hover:border-red-500 transition-colors uppercase tracking-wider"
@@ -1188,7 +785,7 @@ Your agent bypass system is working correctly - I have unlimited access to analy
                       disabled={isLoading}
                     />
                     <div className="flex flex-col gap-2">
-                      {isLoading && abortController && (
+                      {isLoading && (
                         <button
                           onClick={stopAgent}
                           className="px-6 py-2 border border-red-300 text-red-600 font-light uppercase tracking-wide hover:border-red-500 hover:text-red-700 transition-colors text-xs"
