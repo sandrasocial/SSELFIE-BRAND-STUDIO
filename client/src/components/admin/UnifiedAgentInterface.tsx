@@ -34,21 +34,21 @@ export function UnifiedAgentInterface() {
   const [executionResults, setExecutionResults] = useState<ExecutionResult[]>([]);
   const queryClient = useQueryClient();
 
-  // Fetch available agents
+  // Fetch available agents (consolidated to admin pattern)
   const { data: agentsData, isLoading: agentsLoading } = useQuery<AgentsResponse>({
-    queryKey: ['/api/unified-agents/available'],
+    queryKey: ['/api/admin/agents/available'],
     refetchInterval: 30000 // Refresh every 30 seconds
   });
 
-  // Execute agent task mutation
+  // Execute agent task mutation (consolidated to admin pattern)
   const executeTaskMutation = useMutation({
     mutationFn: async (params: { agentName: string; task: string; context: any; priority?: string }) => {
-      return apiRequest('/api/unified-agents/execute', 'POST', params);
+      return apiRequest('/api/admin/agents/execute', 'POST', params);
     },
     onSuccess: (data) => {
       setExecutionResults(prev => [data, ...prev]);
       setTask('');
-      queryClient.invalidateQueries({ queryKey: ['/api/unified-agents/available'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/agents/available'] });
     }
   });
 

@@ -83,7 +83,7 @@ router.get('/conversation-history/:agentId', async (req, res) => {
  * PHASE 3.1: CONSULTING AGENTS REDIRECTION TO IMPLEMENTATION-AWARE ROUTING
  * All consulting requests now flow through implementation detection system
  */
-router.post('/admin/consulting-chat', async (req, res) => {
+router.post('/consulting-chat', async (req, res) => {
   try {
     console.log('🔄 PHASE 3.1 REDIRECT: Consulting agent -> Implementation-aware routing');
 
@@ -273,7 +273,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
  */
 
 // Load conversation history for specific agent (legacy endpoint compatibility)
-router.post('/admin/agent-conversation-history/:agentId', async (req, res) => {
+router.post('/agent-conversation-history/:agentId', async (req, res) => {
   try {
     const { agentId } = req.params;
     const { adminToken } = req.body;
@@ -341,7 +341,7 @@ router.post('/admin/agent-conversation-history/:agentId', async (req, res) => {
 });
 
 // Clear conversation history for specific agent
-router.post('/admin/agent-conversation-clear/:agentId', async (req, res) => {
+router.post('/agent-conversation-clear/:agentId', async (req, res) => {
   try {
     const { agentId } = req.params;
     

@@ -85,7 +85,7 @@ export default function AgentWorkflowAccelerator() {
       // Send coordinated task to all agents involved
       const results = await Promise.all(
         workflow.agents.map(async (agentId) => {
-          const response = await fetch('/api/admin/agent-chat-bypass', {
+          const response = await fetch('/api/admin/agents/chat-bypass', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'

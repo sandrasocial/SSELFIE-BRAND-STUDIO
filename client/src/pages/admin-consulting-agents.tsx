@@ -343,7 +343,7 @@ export default function AdminConsultingAgents() {
     
     const loadHistory = async () => {
       try {
-        const response = await fetch(`/api/consulting-agents/conversation-history/${selectedAgent.id}`, {
+        const response = await fetch(`/api/admin/agents/conversation-history/${selectedAgent.id}`, {
           credentials: 'include'
         });
         
@@ -408,7 +408,7 @@ export default function AdminConsultingAgents() {
 
     try {
       // Call the correct enterprise consulting endpoint
-      const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
+      const response = await fetch('/api/admin/agents/consulting-chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json'

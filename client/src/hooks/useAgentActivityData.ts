@@ -43,10 +43,10 @@ export function useAgentActivityData() {
     error: coordinationError,
     refetch: refetchCoordination
   } = useQuery<CoordinationMetrics>({
-    queryKey: ['/api/autonomous-orchestrator/coordination-metrics'],
+    queryKey: ['/api/admin/agents/coordination-metrics'],
     staleTime: 300000, // Data is stale after 5 minutes (no auto-refresh)
     queryFn: async () => {
-      const response = await fetch('/api/autonomous-orchestrator/coordination-metrics', {
+      const response = await fetch('/api/admin/agents/coordination-metrics', {
         method: 'GET',
         credentials: 'include',
         headers: {
