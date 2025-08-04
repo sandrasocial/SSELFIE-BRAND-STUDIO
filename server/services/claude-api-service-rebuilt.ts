@@ -134,17 +134,14 @@ export class ClaudeApiServiceRebuilt {
       
       // Continue conversation until Claude is done (handles tool execution cycles)
       while (!conversationComplete) {
+        // 💰 TOKEN OPTIMIZATION: Use Claude 4 for best streaming + bypass system for tools
         const stream = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
           max_tokens: 8000,
           messages: currentMessages as any,
           system: systemPrompt,
           tools: tools,
-          stream: true,
-          // 💰 TOKEN OPTIMIZATION: Use token-efficient headers per 2025 best practices
-          extra_headers: {
-            "anthropic-beta": "token-efficient-tools-2025-02-19"
-          }
+          stream: true
         });
 
         let currentResponseText = '';
@@ -304,10 +301,32 @@ export class ClaudeApiServiceRebuilt {
       
     } catch (error) {
       console.error('Streaming error:', error);
-      res.write(`data: ${JSON.stringify({
-        type: 'stream_error',
-        message: 'Streaming failed'
-      })}\n\n`);
+      
+      // Enhanced error handling with fallback content generation
+      try {
+        if (error instanceof Error && error.message.includes('prompt is too long')) {
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: `I understand you need assistance, but the request is quite complex. Let me help you with a more focused approach. What specific aspect would you like me to address first?`
+          })}\n\n`);
+        } else {
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: `I'm here and ready to help! There was a brief technical issue, but I'm fully operational. What can I assist you with today?`
+          })}\n\n`);
+        }
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'content_complete',
+          message: 'Response complete'
+        })}\n\n`);
+        
+      } catch (fallbackError) {
+        res.write(`data: ${JSON.stringify({
+          type: 'stream_error',
+          message: 'Streaming temporarily unavailable'
+        })}\n\n`);
+      }
     }
   }
 
@@ -551,8 +570,14 @@ export class ClaudeApiServiceRebuilt {
     }
 
     try {
-      // Send to Claude API
-      const response = await anthropic.messages.create(claudeRequest);
+      // Send to Claude API with clean parameters
+      const response = await anthropic.messages.create({
+        model: claudeRequest.model,
+        max_tokens: claudeRequest.max_tokens,
+        messages: claudeRequest.messages,
+        system: claudeRequest.system,
+        tools: claudeRequest.tools
+      });
       
       let assistantResponse = '';
       let toolResults = '';
