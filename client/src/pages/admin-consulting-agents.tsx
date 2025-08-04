@@ -94,6 +94,12 @@ interface ConsultingAgent {
   image: string;
 }
 
+interface ToolExecution {
+  name: string;
+  status: 'executing' | 'completed' | 'error';
+  result?: string;
+}
+
 interface ChatMessage {
   id: string;
   type: 'user' | 'agent';
@@ -102,7 +108,7 @@ interface ChatMessage {
   agentName?: string;
   streaming?: boolean;
   fileOperations?: FileOperation[];
-  toolsUsed?: string[];
+  toolsUsed?: ToolExecution[];
   completionSummary?: CompletionSummaryLegacy;
 }
 
@@ -483,7 +489,7 @@ export default function AdminConsultingAgents() {
                         ? { 
                             ...msg, 
                             content: msg.content + `\n\n🔧 **Using ${data.toolName}...**\n`,
-                            toolsUsed: [...(msg.toolsUsed || []), { name: data.toolName, status: 'executing' }]
+                            toolsUsed: [...(msg.toolsUsed || []), { name: data.toolName, status: 'executing' as const }]
                           }
                         : msg
                     ));
@@ -508,7 +514,7 @@ export default function AdminConsultingAgents() {
                             content: msg.content + `✅ **${data.toolName} completed**\n\n`,
                             toolsUsed: msg.toolsUsed?.map(tool => 
                               tool.name === data.toolName 
-                                ? { ...tool, status: 'completed', result: data.result }
+                                ? { ...tool, status: 'completed' as const, result: data.result }
                                 : tool
                             ) || []
                           }
