@@ -103,7 +103,7 @@ interface ChatMessage {
   agentName?: string;
   streaming?: boolean;
   fileOperations?: FileOperation[];
-  toolsUsed?: string[];
+  toolsUsed?: (string | { name: string; status: string; result?: any })[];
   completionSummary?: CompletionSummaryLegacy;
 }
 
@@ -508,7 +508,7 @@ export default function AdminConsultingAgents() {
                             ...msg, 
                             content: msg.content + `✅ **${data.toolName} completed**\n\n`,
                             toolsUsed: msg.toolsUsed?.map(tool => 
-                              tool.name === data.toolName 
+                              typeof tool === 'object' && tool.name === data.toolName 
                                 ? { ...tool, status: 'completed', result: data.result }
                                 : tool
                             ) || []
