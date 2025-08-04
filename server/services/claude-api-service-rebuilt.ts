@@ -275,20 +275,30 @@ export class ClaudeApiServiceRebuilt {
                 try {
                   console.log(`⚡ BYPASS EXECUTION: ${toolCall.name} - No API cost`);
                   
-                  // PARAMETER FIX: Parse buffered parameters if available
-                  if (toolCall.inputBuffer && !Object.keys(toolCall.input).length) {
+                  // CRITICAL PARAMETER FIX: Comprehensive parameter restoration
+                  console.log(`🔍 PARAMETER DEBUG: Tool ${toolCall.name} before processing:`, {
+                    hasInput: !!toolCall.input,
+                    inputKeys: toolCall.input ? Object.keys(toolCall.input) : [],
+                    hasInputBuffer: !!toolCall.inputBuffer,
+                    bufferContent: toolCall.inputBuffer || 'none'
+                  });
+                  
+                  // Try multiple parameter recovery methods
+                  if (toolCall.inputBuffer && toolCall.inputBuffer.trim()) {
                     try {
-                      toolCall.input = JSON.parse(toolCall.inputBuffer);
-                      console.log(`✅ PARSED BUFFERED PARAMETERS:`, toolCall.input);
+                      const parsedInput = JSON.parse(toolCall.inputBuffer);
+                      toolCall.input = { ...toolCall.input, ...parsedInput }; // Merge to preserve existing
+                      console.log(`✅ BUFFER PARAMETERS RESTORED:`, toolCall.input);
                     } catch (parseError) {
-                      console.log(`⚠️ PARAMETER PARSE FAILED:`, toolCall.inputBuffer);
+                      console.log(`⚠️ BUFFER PARSE FAILED:`, toolCall.inputBuffer);
                     }
                   }
                   
-                  // RESILIENCE FIX: Validate tool parameters before execution
-                  if (!toolCall.input && !toolCall.parameters) {
-                    console.log(`⚠️ TOOL PARAMETER FIX: Adding empty input for ${toolCall.name}`);
-                    toolCall.input = {};
+                  // If input is still empty, try to extract from original tool call
+                  if (!toolCall.input || Object.keys(toolCall.input).length === 0) {
+                    console.log(`🚨 EMPTY PARAMETERS: ${toolCall.name} has no input - using fallback detection`);
+                    // Don't execute tools with no parameters - this prevents crashes
+                    continue;
                   }
                   
                   const toolResult = await this.handleToolCall(toolCall, conversationId, agentName);
