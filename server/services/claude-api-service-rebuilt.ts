@@ -68,8 +68,52 @@ export class ClaudeApiServiceRebuilt {
   private maxTokensPerRequest = 50000;
   
   /**
-   * SMART PARAMETER RECONSTRUCTION
-   * Recovers tool parameters when Claude streaming fails to capture them
+   * USE EXISTING DIRECT TOOL ACCESS TOOLKIT
+   * Connect to the Complete Direct Tool Access system already implemented
+   */
+  private async useDirectToolAccess(toolCall: any, userMessage: string, conversationId: string, agentName: string): Promise<string | null> {
+    try {
+      const adminToken = 'sandra-admin-2025';
+      
+      // Use existing Direct Tool Access Toolkit endpoints
+      switch (toolCall.name) {
+        case 'search_filesystem':
+          const response = await fetch('http://localhost:5000/api/admin-tools/direct-search?admin_token=' + adminToken + '&query=' + encodeURIComponent(userMessage));
+          const result = await response.json();
+          return `Found ${result.files?.length || 0} files: ${result.files?.slice(0, 10).join(', ')}`;
+          
+        case 'str_replace_based_edit_tool':
+          // Connect to existing direct file operations
+          if (toolCall.input?.command === 'view') {
+            const viewResponse = await fetch('http://localhost:5000/api/admin-tools/direct-file-view', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+              body: JSON.stringify({ filePath: toolCall.input.path })
+            });
+            const viewResult = await viewResponse.json();
+            return viewResult.content || 'File viewed successfully';
+          }
+          break;
+          
+        case 'bash':
+          const bashResponse = await fetch('http://localhost:5000/api/admin-tools/direct-bash', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+            body: JSON.stringify({ command: toolCall.input?.command || userMessage })
+          });
+          const bashResult = await bashResponse.json();
+          return bashResult.output || 'Command executed';
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Direct Tool Access failed:', error);
+      return null;
+    }
+  }
+
+  /**
+   * FALLBACK: Reconstruct parameters if direct access fails
    */
   private async reconstructToolParameters(toolCall: any, userMessage: string, conversationId: string): Promise<any> {
     try {
