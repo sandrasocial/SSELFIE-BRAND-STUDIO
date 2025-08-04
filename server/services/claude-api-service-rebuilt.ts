@@ -76,31 +76,6 @@ export class ClaudeApiServiceRebuilt {
     res: any // Express response object for streaming
   ): Promise<void> {
     try {
-      // LOAD PERSISTENT MEMORY PROFILE FOR AGENT
-      const memoryProfile = await this.memorySystem.getAgentMemoryProfile(agentName, userId);
-      console.log(`🧠 MEMORY LOADED: ${agentName} intelligence level ${memoryProfile?.intelligenceLevel || 'baseline'}`);
-      
-      // INJECT CONTEXTUAL MEMORIES INTO SYSTEM PROMPT
-      let enhancedSystemPrompt = systemPrompt;
-      if (memoryProfile && memoryProfile.learningPatterns.length > 0) {
-        const contextualMemories = await this.memorySystem.getContextualMemories(
-          agentName, 
-          userId, 
-          message, 
-          'conversation'
-        );
-        
-        if (contextualMemories.length > 0) {
-          const memoryContext = contextualMemories
-            .slice(0, 5) // Top 5 most relevant memories
-            .map(memory => `- ${memory.category}: ${memory.pattern} (confidence: ${memory.confidence.toFixed(2)})`)
-            .join('\n');
-          
-          enhancedSystemPrompt += `\n\n## Your Learning Patterns (Intelligence Level ${memoryProfile.intelligenceLevel}):\n${memoryContext}\n\nUse these patterns to provide more personalized and effective responses.`;
-          console.log(`🎯 ENHANCED: Injected ${contextualMemories.length} relevant memories into system prompt`);
-        }
-      }
-      
       // Load conversation history
       const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
@@ -114,12 +89,11 @@ export class ClaudeApiServiceRebuilt {
         { role: 'user', content: message }
       ];
 
-      console.log(`🌊 STREAMING: Starting Claude API stream for ${agentName} with enhanced memory context`);
+      console.log(`🌊 STREAMING: Starting Claude API stream for ${agentName}`);
       
       let fullResponse = '';
       let currentMessages = claudeMessages;
       let conversationComplete = false;
-      let allToolCalls: any[] = []; // Track all tool calls throughout the conversation
       
       // Continue conversation until Claude is done (handles tool execution cycles)
       while (!conversationComplete) {
@@ -127,7 +101,7 @@ export class ClaudeApiServiceRebuilt {
           model: DEFAULT_MODEL_STR,
           max_tokens: 8000,
           messages: currentMessages as any,
-          system: enhancedSystemPrompt,
+          system: systemPrompt,
           tools: tools,
           stream: true
         });
@@ -151,17 +125,17 @@ export class ClaudeApiServiceRebuilt {
           
           if (chunk.type === 'content_block_start') {
             if (chunk.content_block.type === 'tool_use') {
-              // Tool started - parameters come later in input_json_delta chunks
+              // Tool started - initialize parameter buffer, DON'T execute yet
               res.write(`data: ${JSON.stringify({
                 type: 'tool_start',
                 toolName: chunk.content_block.name,
                 message: `${agentName} is preparing ${chunk.content_block.name}...`
               })}\n\n`);
               
-              // Initialize tool buffer - parameters will be accumulated
+              // Initialize tool buffer - wait for complete parameters
               toolBuffer[chunk.content_block.id] = {
                 name: chunk.content_block.name,
-                parameters: '',
+                parameters: {},
                 complete: false
               };
             }
@@ -180,13 +154,23 @@ export class ClaudeApiServiceRebuilt {
                 content: textDelta
               })}\n\n`);
             } else if (chunk.delta.type === 'input_json_delta') {
-              // CRITICAL: Accumulate tool parameters from JSON deltas
-              const partialJson = chunk.delta.partial_json || '';
-              
-              // Find the most recent incomplete tool in buffer
+              // CRITICAL: Accumulate tool parameters safely
+              const toolId = chunk.index; // This should be the tool block index
+              // Find the correct tool buffer entry by matching the delta
               for (const [id, tool] of Object.entries(toolBuffer)) {
                 if (!tool.complete) {
-                  tool.parameters += partialJson;
+                  try {
+                    // Accumulate JSON parameters
+                    const partialJson = chunk.delta.partial_json || '';
+                    if (partialJson) {
+                      // Try to parse and merge parameters safely
+                      const parsed = JSON.parse(partialJson);
+                      tool.parameters = { ...tool.parameters, ...parsed };
+                    }
+                  } catch (e) {
+                    // Partial JSON may not be valid yet, continue accumulating
+                    console.log(`🔧 Accumulating parameters for ${tool.name}...`);
+                  }
                   break;
                 }
               }
@@ -194,36 +178,21 @@ export class ClaudeApiServiceRebuilt {
           }
           
           if (chunk.type === 'content_block_stop') {
-            // Tool parameter collection complete - parse and execute
-            for (const [toolId, tool] of Object.entries(toolBuffer)) {
-              if (!tool.complete) {
-                tool.complete = true;
-                
-                try {
-                  // Parse accumulated JSON parameters
-                  const parsedInput = tool.parameters ? JSON.parse(tool.parameters) : {};
-                  
-                  toolCalls.push({
-                    id: toolId,
-                    name: tool.name,
-                    input: parsedInput
-                  });
-                  
-                  res.write(`data: ${JSON.stringify({
-                    type: 'tool_ready',
-                    toolName: tool.name,
-                    message: `${agentName} executing ${tool.name} with parameters...`
-                  })}\n\n`);
-                  
-                } catch (parseError) {
-                  console.error(`❌ Failed to parse tool parameters for ${tool.name}:`, tool.parameters);
-                  toolCalls.push({
-                    id: toolId,
-                    name: tool.name,
-                    input: {}
-                  });
-                }
-              }
+            // Tool parameter collection complete - NOW execute
+            const completedTools = Object.entries(toolBuffer).filter(([id, tool]) => !tool.complete);
+            for (const [toolId, tool] of completedTools) {
+              tool.complete = true;
+              toolCalls.push({
+                id: toolId,
+                name: tool.name,
+                input: tool.parameters
+              });
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_ready',
+                toolName: tool.name,
+                message: `${agentName} executing ${tool.name} with complete parameters...`
+              })}\n\n`);
             }
           }
           
@@ -329,14 +298,6 @@ export class ClaudeApiServiceRebuilt {
       // Save conversation to database
       await this.saveMessage(conversationId, 'user', message);
       await this.saveMessage(conversationId, 'assistant', fullResponse);
-      
-      // RECORD LEARNING PATTERNS FROM SUCCESSFUL INTERACTION
-      try {
-        await this.recordSuccessfulInteraction(agentName, userId, message, fullResponse, allToolCalls);
-        console.log(`🧠 LEARNING: Recorded patterns from successful interaction`);
-      } catch (learningError) {
-        console.error('Failed to record learning patterns:', learningError);
-      }
       
       console.log(`✅ STREAMING: Completed for ${agentName} (${fullResponse.length} chars)`);
       
@@ -1295,138 +1256,6 @@ I have complete workspace access and can implement any changes you need. What wo
       console.error('Error fetching conversation history:', error);
       return [];
     }
-  }
-
-  /**
-   * RECORD LEARNING PATTERNS FROM SUCCESSFUL INTERACTIONS
-   * Analyzes completed interactions to extract learning patterns for persistent memory
-   */
-  private async recordSuccessfulInteraction(
-    agentName: string, 
-    userId: string, 
-    userMessage: string, 
-    agentResponse: string, 
-    toolCalls: any[]
-  ): Promise<void> {
-    try {
-      // Analyze the interaction to extract learning patterns
-      const interactionAnalysis = this.analyzeInteraction(userMessage, agentResponse, toolCalls);
-      
-      // Record user preference patterns
-      if (interactionAnalysis.userPreferences.length > 0) {
-        for (const preference of interactionAnalysis.userPreferences) {
-          await this.memorySystem.recordLearningPattern(agentName, userId, {
-            category: 'user_preference',
-            pattern: preference.pattern,
-            confidence: preference.confidence,
-            frequency: 1,
-            effectiveness: 0.8,
-            contexts: ['conversation']
-          });
-        }
-      }
-      
-      // Record successful task patterns
-      if (interactionAnalysis.taskPatterns.length > 0) {
-        for (const taskPattern of interactionAnalysis.taskPatterns) {
-          await this.memorySystem.recordLearningPattern(agentName, userId, {
-            category: 'task_execution',
-            pattern: taskPattern.pattern,
-            confidence: taskPattern.confidence,
-            frequency: 1,
-            effectiveness: taskPattern.success ? 0.9 : 0.3,
-            contexts: ['implementation', 'problem_solving']
-          });
-        }
-      }
-      
-      // Record tool usage patterns
-      if (toolCalls.length > 0) {
-        const toolPattern = {
-          category: 'tool_usage',
-          pattern: `Used tools: ${toolCalls.map(t => t.name).join(', ')} for: ${this.extractTaskType(userMessage)}`,
-          confidence: 0.8,
-          frequency: 1,
-          effectiveness: 0.9,
-          contexts: ['tool_execution']
-        };
-        
-        await this.memorySystem.recordLearningPattern(agentName, userId, toolPattern);
-      }
-      
-      // Trigger memory optimization if we have enough new patterns
-      const profile = await this.memorySystem.getAgentMemoryProfile(agentName, userId);
-      if (profile && profile.learningPatterns.length % 10 === 0) {
-        // Every 10 patterns, run optimization
-        await this.memorySystem.consolidateAgentMemory(agentName, userId);
-        console.log(`🧠 OPTIMIZATION: Consolidated memory for ${agentName}`);
-      }
-      
-    } catch (error) {
-      console.error('Failed to record learning patterns:', error);
-    }
-  }
-
-  /**
-   * ANALYZE INTERACTION FOR LEARNING PATTERNS
-   * Extracts meaningful patterns from user-agent interactions
-   */
-  private analyzeInteraction(userMessage: string, agentResponse: string, toolCalls: any[]): {
-    userPreferences: { pattern: string; confidence: number }[];
-    taskPatterns: { pattern: string; confidence: number; success: boolean }[];
-  } {
-    const userPreferences: { pattern: string; confidence: number }[] = [];
-    const taskPatterns: { pattern: string; confidence: number; success: boolean }[] = [];
-    
-    // Analyze user preferences from message content
-    const messageLower = userMessage.toLowerCase();
-    
-    // Communication style preferences
-    if (messageLower.includes('simple') || messageLower.includes('everyday language')) {
-      userPreferences.push({ pattern: 'prefers_simple_language', confidence: 0.8 });
-    }
-    
-    if (messageLower.includes('technical') || messageLower.includes('detailed')) {
-      userPreferences.push({ pattern: 'prefers_technical_details', confidence: 0.7 });
-    }
-    
-    // Task type patterns
-    const taskTypes = {
-      'file_operations': /(?:create|edit|modify|update|view|read).*file/i,
-      'debugging': /(?:fix|debug|error|problem|issue)/i,
-      'analysis': /(?:analyze|examine|review|check|investigate)/i,
-      'implementation': /(?:build|create|implement|develop|add)/i,
-      'optimization': /(?:optimize|improve|enhance|performance)/i
-    };
-    
-    for (const [taskType, pattern] of Object.entries(taskTypes)) {
-      if (pattern.test(userMessage)) {
-        const success = agentResponse.includes('completed') || agentResponse.includes('successfully') || agentResponse.includes('✅');
-        taskPatterns.push({
-          pattern: `${taskType}_task`,
-          confidence: 0.7,
-          success
-        });
-      }
-    }
-    
-    return { userPreferences, taskPatterns };
-  }
-  
-  /**
-   * EXTRACT TASK TYPE FROM USER MESSAGE
-   * Determines the primary task type for tool usage patterns
-   */
-  private extractTaskType(message: string): string {
-    const messageLower = message.toLowerCase();
-    
-    if (/(?:fix|debug|error)/i.test(messageLower)) return 'debugging';
-    if (/(?:create|build|implement)/i.test(messageLower)) return 'implementation';
-    if (/(?:analyze|examine|review)/i.test(messageLower)) return 'analysis';
-    if (/(?:optimize|improve|enhance)/i.test(messageLower)) return 'optimization';
-    if (/(?:edit|modify|update)/i.test(messageLower)) return 'modification';
-    
-    return 'general_task';
   }
 }
 
