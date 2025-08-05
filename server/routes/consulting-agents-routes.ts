@@ -421,36 +421,13 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`🔍 MESSAGE TYPE: ${classification.type} (${classification.confidence} confidence) - ${classification.reason}`);
 
     if (classification.forceClaudeAPI) {
-      // 🧠 AGENT CONVERSATION: Use full Claude API intelligence
-      console.log(`🧠 AGENT CONVERSATION: ${agentId} using full Claude API for authentic response`);
+      // 🧠 AGENT CONVERSATION: Always use streaming for better UX
+      console.log(`🧠 AGENT CONVERSATION: ${agentId} - Forcing streaming for authentic agent response`);
       
-      const claudeService = getClaudeService();
-      const claudeResponse = await claudeService.sendMessage(
-        userId,
-        agentId,
-        conversationId,
-        message,
-        specializedSystemPrompt,
-        true // enableTools
-      );
-
-      if (typeof claudeResponse === 'string') {
-        console.log(`✅ CLAUDE SUCCESS: ${agentId} - Authentic agent response generated`);
-        
-        // For non-streaming requests, return JSON response
-        if (!res.headersSent) {
-          return res.status(200).json({
-            success: true,
-            response: claudeResponse,
-            agentId,
-            conversationId,
-            processingType: 'claude_api',
-            tokensUsed: 0, // Token counting handled by Claude service
-            tokensSaved: 0,
-            processingTime: 0
-          });
-        }
-      }
+      // Skip JSON response and force streaming mode
+      console.log(`🌊 FORCING STREAMING: ${agentId} will use streaming for authentic personality delivery`);
+      
+      // Continue to streaming section below
     } else {
       // 🔧 TOOL OPERATION: Use hybrid intelligence for zero-cost operations
       console.log(`🔧 TOOL OPERATION: ${agentId} using hybrid intelligence for tool execution`);
@@ -492,19 +469,25 @@ You have complete access to all Replit-level tools for comprehensive implementat
 
     try {
       if (classification.forceClaudeAPI) {
-        // 🧠 CLAUDE STREAMING: Full agent intelligence
-        console.log(`🌊 CLAUDE STREAMING: ${agentId} with full authenticity`);
+        // 🧠 CLAUDE STREAMING: Full agent intelligence via proper service
+        console.log(`🌊 CLAUDE STREAMING: ${agentId} with authentic personality and full tool access`);
         
         const claudeService = getClaudeService();
-        // Use direct Claude API streaming without hybrid interference
-        await streamDirectClaudeResponse(
-          res,
-          message,
-          specializedSystemPrompt,
+        // Use the actual Claude service that has agent personalities
+        const streamingResponse = await claudeService.sendStreamingMessage(
+          userId,
           agentId,
           conversationId,
-          userId
+          message,
+          specializedSystemPrompt,
+          enterpriseTools,
+          res
         );
+        
+        if (streamingResponse) {
+          console.log(`✅ STREAMING SUCCESS: ${agentId} authentic streaming complete`);
+          return; // Response already sent via streaming
+        }
       } else {
         // 🔧 HYBRID STREAMING: Tool operations only
         console.log(`🔧 HYBRID STREAMING: ${agentId} with tool optimization`);
