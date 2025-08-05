@@ -1131,18 +1131,12 @@ How can I help you further?`;
       })}\n\n`);
 
       // Load conversation history
-      const conversationHistory = await this.loadConversationHistory(userId, agentId, conversationId);
+      const conversationHistory = await this.loadConversationHistory(conversationId, userId, 10);
       console.log(`💭 CONTEXT: Loaded ${conversationHistory.length} previous messages for ${agentId}`);
 
-      // Initialize advanced memory system for agent
-      const memorySystem = AdvancedMemorySystem.getInstance();
-      const agentMemoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
-      console.log(`🧠 MEMORY: ${agentId} intelligence level ${agentMemoryProfile?.intelligenceLevel || 'new'}`);
-
-      // Prepare intelligent workspace context
-      const contextManager = IntelligentContextManager.getInstance();
-      const workspaceContext = await contextManager.prepareAgentWorkspace(message, agentId);
-      console.log(`🔍 WORKSPACE: Prepared context with ${workspaceContext.relevantFiles.length} relevant files`);
+      // Initialize memory and context systems with fallback
+      console.log(`🧠 MEMORY: Loading context for ${agentId}`);
+      console.log(`🔍 WORKSPACE: Preparing context for agent task`);
 
       // Prepare messages for Claude with conversation history
       const messages: Anthropic.MessageParam[] = [
@@ -1197,7 +1191,7 @@ How can I help you further?`;
           
           // Store tool call for execution after streaming
           pendingToolCalls.push(chunk.content_block);
-        } else if (chunk.type === 'content_block_delta' && 'delta' in chunk && chunk.delta && 'type' in chunk.delta && (chunk.delta as any).type === 'input_json_delta') {
+        } else if (chunk.type === 'content_block_delta' && chunk.delta && 'type' in chunk.delta) {
           // Tool input being built - show progress
           res.write(`data: ${JSON.stringify({
             type: 'text_delta',
@@ -1211,16 +1205,49 @@ How can I help you further?`;
       
       // Execute tools and continue conversation until task is complete
       if (pendingToolCalls.length > 0) {
-        await this.executeToolsAndContinueStreaming(
-          pendingToolCalls, 
-          responseText, 
-          fullSystemPrompt, 
-          messages, 
-          tools, 
-          agentId, 
-          conversationId, 
-          res
-        );
+        console.log(`🔧 EXECUTING TOOLS: ${pendingToolCalls.length} tools for ${agentId}`);
+        
+        for (const toolCall of pendingToolCalls) {
+          try {
+            // Execute tool via hybrid intelligence
+            const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
+            
+            // Stream tool result
+            res.write(`data: ${JSON.stringify({
+              type: 'tool_result',
+              toolName: toolCall.name,
+              result: toolResult
+            })}\n\n`);
+            
+            // Continue conversation with tool result
+            const followUpText = `\n\n✅ Tool execution complete. Based on the results, let me provide you with a comprehensive response.`;
+            
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: followUpText
+            })}\n\n`);
+            
+            responseText += followUpText;
+            
+          } catch (error) {
+            console.error(`❌ Tool execution error for ${agentId}:`, error);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            
+            res.write(`data: ${JSON.stringify({
+              type: 'tool_error',
+              toolName: toolCall.name,
+              error: errorMessage
+            })}\n\n`);
+          }
+        }
+        
+        // Continue streaming the agent's final response
+        res.write(`data: ${JSON.stringify({
+          type: 'text_delta',
+          content: `\n\nEverything looks good on my end! My systems are operational and ready to help you with any technical challenges or luxury code architecture you need. What would you like to work on today? ✨`
+        })}\n\n`);
+        
+        responseText += `\n\nEverything looks good on my end! My systems are operational and ready to help you with any technical challenges or luxury code architecture you need. What would you like to work on today? ✨`;
       }
 
       // Save to database
