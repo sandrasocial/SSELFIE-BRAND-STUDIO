@@ -511,19 +511,12 @@ async function streamDirectClaudeResponse(
     const claudeService = ClaudeApiServiceClean.getInstance();
     const conversationHistory = await claudeService.loadConversationHistory(conversationId, 10);
 
-    // Enhanced system prompt with tool access
+    // Enhanced system prompt for conversation only (no tool definitions)
     const enhancedSystemPrompt = `${systemPrompt}
 
 CONVERSATION CONTEXT: Maintain context from previous messages in this conversation.
 
-TOOL ACCESS: You have full access to enterprise development tools:
-- File operations (create, edit, analyze code)
-- Search codebase and detect errors  
-- Execute system commands
-- Web research
-- Database operations
-
-Use tools actively to help with code generation, file modifications, and technical tasks.`;
+HYBRID INTELLIGENCE: When you need to use tools for file operations, code analysis, or system commands, I will execute them through our hybrid intelligence system for you. Focus on providing authentic conversational responses with your unique personality and expertise.`;
 
     const stream = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
@@ -533,45 +526,7 @@ Use tools actively to help with code generation, file modifications, and technic
         ...conversationHistory,
         { role: "user", content: message }
       ],
-      tools: [
-        {
-          name: 'search_filesystem',
-          description: 'Search for files and code in the repository',
-          input_schema: {
-            type: 'object',
-            properties: {
-              query_description: { type: 'string' },
-              search_paths: { type: 'array', items: { type: 'string' } }
-            }
-          }
-        },
-        {
-          name: 'str_replace_based_edit_tool',
-          description: 'View, create, and edit files',
-          input_schema: {
-            type: 'object',
-            properties: {
-              command: { type: 'string', enum: ['view', 'create', 'str_replace'] },
-              path: { type: 'string' },
-              file_text: { type: 'string' },
-              old_str: { type: 'string' },
-              new_str: { type: 'string' }
-            },
-            required: ['command', 'path']
-          }
-        },
-        {
-          name: 'bash',
-          description: 'Execute bash commands',
-          input_schema: {
-            type: 'object',
-            properties: {
-              command: { type: 'string' }
-            },
-            required: ['command']
-          }
-        }
-      ],
+      // NO TOOLS - Pure conversation only
       stream: true,
     });
 

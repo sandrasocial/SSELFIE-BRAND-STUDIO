@@ -76,26 +76,21 @@ export class ClaudeApiServiceClean {
     const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
     const baseSystemPrompt = agentPersonality?.systemPrompt || `You are ${agentId}, a helpful AI assistant.`;
     
-    // Enhanced system prompt with tool access and context awareness
+    // Enhanced system prompt for conversation with context awareness
     const enhancedSystemPrompt = `${baseSystemPrompt}
 
 CONVERSATION CONTEXT: You have access to conversation history and should maintain context between messages.
 
-TOOL ACCESS: You have full access to enterprise development tools including:
-- File operations: Create, edit, and analyze code files
-- Code analysis: Search codebase and detect errors
-- System commands: Execute bash commands and install packages
-- Web research: Search for technical information
-- Database operations: Execute SQL queries
+HYBRID INTELLIGENCE: When technical work is needed (file operations, code analysis, system commands), our hybrid intelligence system will handle tool execution while you focus on authentic conversation and strategic guidance.
 
 PERSONALITY: Maintain your unique specialization and voice:
 - Zara: Technical mastery with luxury code architecture focus
 - Elena: Strategic leadership with workflow orchestration expertise  
 - Maya: Artistic vision with sophisticated design approach
 
-INSTRUCTIONS: ${systemPrompt || 'Provide helpful, authentic responses using your specialized expertise.'}`;
+INSTRUCTIONS: ${systemPrompt || 'Provide helpful, authentic responses using your specialized expertise. When tools are needed, describe what should be done and the hybrid system will execute it.'}`;
 
-    console.log(`🤖 CLAUDE API: ${agentId} processing with full tools and context`);
+    console.log(`🤖 CLAUDE API: ${agentId} processing conversation with context (tools via hybrid)`);
     
     // Load conversation history for context
     const conversationHistory = await this.loadConversationHistory(conversationId, 10);
