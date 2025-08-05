@@ -238,7 +238,8 @@ You have complete access to all Replit-level tools for comprehensive implementat
             class_names: { type: 'array', items: { type: 'string' } },
             function_names: { type: 'array', items: { type: 'string' } },
             search_paths: { type: 'array', items: { type: 'string' } }
-          }
+          },
+          required: []
         }
       },
       {
@@ -249,7 +250,8 @@ You have complete access to all Replit-level tools for comprehensive implementat
           properties: {
             command: { type: 'string' },
             restart: { type: 'boolean' }
-          }
+          },
+          required: []
         }
       },
       {
