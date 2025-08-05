@@ -100,7 +100,7 @@ INSTRUCTIONS: ${systemPrompt || 'Provide helpful, authentic responses using your
     console.log(`🤖 CLAUDE API: ${agentId} processing with full tools and context`);
     
     // Load conversation history for context
-    const conversationHistory = await this.loadConversationHistory(conversationId, 10);
+    const conversationHistory = await this.loadConversationHistory(conversationId, userId, 10);
     
     // Process directly through Claude API with full context and tools
     try {
@@ -664,7 +664,7 @@ How can I help you further?`;
     
     try {
       // Load conversation history for context
-      const conversationHistory = await this.loadConversationHistory(conversationId, 10);
+      const conversationHistory = await this.loadConversationHistory(conversationId, userId, 10);
       
       // Prepare messages for Claude with full conversation context
       const messages: Anthropic.MessageParam[] = [
@@ -1470,37 +1470,31 @@ How can I help you further?`;
    * LOAD CONVERSATION HISTORY
    * Retrieves conversation context for maintaining memory across interactions
    */
-  private async loadConversationHistory(
+  async loadConversationHistory(
+    conversationId: string,
     userId: string, 
-    agentId: string, 
-    conversationId: string
+    limit: number = 10
   ): Promise<Anthropic.MessageParam[]> {
     try {
       // Get the conversation
       const conversations = await db
         .select()
         .from(claudeConversations)
-        .where(
-          and(
-            eq(claudeConversations.userId, userId),
-            eq(claudeConversations.agentName, agentId),
-            eq(claudeConversations.conversationId, conversationId)
-          )
-        )
+        .where(eq(claudeConversations.conversationId, conversationId))
         .limit(1);
 
       if (conversations.length === 0) {
-        console.log(`💭 CONTEXT: No existing conversation found for ${agentId}`);
+        console.log(`💭 CONTEXT: No existing conversation found for ${conversationId}`);
         return [];
       }
 
-      // Get recent messages (last 10 to maintain context without overloading)
+      // Get recent messages to maintain context without overloading
       const messages = await db
         .select()
         .from(claudeMessages)
         .where(eq(claudeMessages.conversationId, conversationId))
         .orderBy(claudeMessages.timestamp)
-        .limit(10);
+        .limit(limit);
 
       console.log(`💭 CONTEXT: Found ${messages.length} messages in conversation ${conversationId}`);
 
@@ -1515,7 +1509,7 @@ How can I help you further?`;
       return claudeMessageHistory;
 
     } catch (error) {
-      console.error(`❌ CONTEXT ERROR: Failed to load conversation history for ${agentId}:`, error);
+      console.error(`❌ CONTEXT ERROR: Failed to load conversation history for ${conversationId}:`, error);
       return [];
     }
   }
