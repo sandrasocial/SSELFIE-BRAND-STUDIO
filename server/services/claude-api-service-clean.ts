@@ -1373,13 +1373,19 @@ How can I help you further?`;
             }
           }
           
-          // Execute any additional tools from continuation
+          // Execute any additional tools from continuation with recursive streaming
           if (continuationToolCalls.length > 0) {
             console.log(`🔧 CONTINUATION TOOLS: Executing ${continuationToolCalls.length} additional tools for ${agentId}`);
             
+            // Execute all continuation tools
+            const continuationResults: any[] = [];
             for (const toolCall of continuationToolCalls) {
               try {
                 const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
+                continuationResults.push({
+                  tool_use_id: toolCall.id,
+                  content: typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult)
+                });
                 
                 res.write(`data: ${JSON.stringify({
                   type: 'tool_result',
@@ -1394,6 +1400,10 @@ How can I help you further?`;
                 
               } catch (error) {
                 console.error(`❌ Continuation tool execution error:`, error);
+                continuationResults.push({
+                  tool_use_id: toolCall.id,
+                  content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+                });
                 res.write(`data: ${JSON.stringify({
                   type: 'tool_error',
                   toolName: toolCall.name,
@@ -1402,8 +1412,124 @@ How can I help you further?`;
               }
             }
             
-            // Could recursively continue if needed, but let's avoid infinite loops
-            console.log(`✅ CONTINUATION COMPLETE: ${agentId} executed ${continuationToolCalls.length} additional tools`);
+            // Continue streaming with additional tool results - RECURSIVE CONTINUATION
+            const recursiveContinuationMessages = [
+              ...continuationMessages,
+              {
+                role: "assistant" as const,
+                content: continuationToolCalls.map(toolCall => ({
+                  type: "tool_use",
+                  id: toolCall.id,
+                  name: toolCall.name,
+                  input: toolCall.input
+                }))
+              },
+              {
+                role: "user" as const,
+                content: continuationResults.map(result => ({
+                  type: "tool_result",
+                  tool_use_id: result.tool_use_id,
+                  content: result.content
+                }))
+              }
+            ];
+            
+            console.log(`🔄 RECURSIVE CONTINUATION: ${agentId} may use more tools...`);
+            
+            // Recursively continue streaming for unlimited tool usage
+            const recursiveStream = await anthropic.messages.stream({
+              model: 'claude-3-5-sonnet-20241022',
+              max_tokens: 4000,
+              system: systemPrompt,
+              messages: recursiveContinuationMessages,
+              tools: this.toolDefinitions
+            });
+            
+            // Process recursive stream for additional tools
+            let moreToolCalls: any[] = [];
+            let currentRecursiveTool: any = null;
+            let currentRecursiveInput = '';
+            
+            for await (const chunk of recursiveStream) {
+              if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
+                currentRecursiveTool = { ...chunk.content_block };
+                currentRecursiveInput = '';
+                
+                res.write(`data: ${JSON.stringify({
+                  type: 'text_delta',
+                  content: `\n\n🔧 Using ${chunk.content_block.name}...`
+                })}\n\n`);
+                
+              } else if (chunk.type === 'content_block_delta' && 'delta' in chunk && chunk.delta) {
+                if (chunk.delta && (chunk.delta as any).type === 'input_json_delta') {
+                  if ((chunk.delta as any).partial_json) {
+                    currentRecursiveInput += (chunk.delta as any).partial_json;
+                  }
+                  res.write(`data: ${JSON.stringify({
+                    type: 'text_delta',
+                    content: '.'
+                  })}\n\n`);
+                } else if (chunk.delta.type === 'text_delta') {
+                  responseText += chunk.delta.text;
+                  res.write(`data: ${JSON.stringify({
+                    type: 'text_delta',
+                    content: chunk.delta.text
+                  })}\n\n`);
+                }
+                
+              } else if (chunk.type === 'content_block_stop') {
+                if (currentRecursiveTool) {
+                  try {
+                    if (currentRecursiveInput.trim()) {
+                      currentRecursiveTool.input = JSON.parse(currentRecursiveInput);
+                    } else {
+                      currentRecursiveTool.input = this.inferToolParameters(currentRecursiveTool.name, message, agentId);
+                    }
+                    moreToolCalls.push(currentRecursiveTool);
+                    currentRecursiveTool = null;
+                    currentRecursiveInput = '';
+                  } catch (error) {
+                    console.error(`❌ Recursive tool input parsing error:`, error);
+                    currentRecursiveTool.input = {};
+                    moreToolCalls.push(currentRecursiveTool);
+                    currentRecursiveTool = null;
+                    currentRecursiveInput = '';
+                  }
+                }
+              }
+            }
+            
+            // Execute additional tools if agent requested more
+            if (moreToolCalls.length > 0) {
+              console.log(`🔄 UNLIMITED TOOLS: ${agentId} requested ${moreToolCalls.length} more tools`);
+              
+              for (const toolCall of moreToolCalls) {
+                try {
+                  const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
+                  
+                  res.write(`data: ${JSON.stringify({
+                    type: 'tool_result',
+                    toolName: toolCall.name,
+                    result: toolResult
+                  })}\n\n`);
+                  
+                  res.write(`data: ${JSON.stringify({
+                    type: 'text_delta',
+                    content: ` ✅ ${toolCall.name} completed`
+                  })}\n\n`);
+                  
+                } catch (error) {
+                  console.error(`❌ Additional tool execution error:`, error);
+                  res.write(`data: ${JSON.stringify({
+                    type: 'tool_error',
+                    toolName: toolCall.name,
+                    error: error instanceof Error ? error.message : 'Unknown error'
+                  })}\n\n`);
+                }
+              }
+            }
+            
+            console.log(`✅ UNLIMITED TOOL EXECUTION: ${agentId} completed all requested tools`);
           }
         }
       }
