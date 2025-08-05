@@ -132,7 +132,7 @@ export class SmartDecisionRouter {
     
     // Complex code MUST use Claude for quality
     if (complexCodePatterns.some(pattern => pattern.test(request.message))) {
-      score += 0.1; // Very low local score to force cloud routing
+      score -= 0.8; // Reduce local score to force cloud routing
     }
 
     // Length and complexity adjustments
@@ -188,9 +188,10 @@ export class SmartDecisionRouter {
     // Force Claude API for high-quality code generation
     const matchingPatterns = highQualityCodePatterns.filter(pattern => pattern.test(request.message));
     if (matchingPatterns.length > 0) {
-      score += 0.98; // MAXIMUM cloud necessity for quality code
+      score = 1.0; // FORCE MAXIMUM cloud necessity for quality code
       console.log(`🔥 COMPLEX CODE DETECTED: Forcing Claude API for quality generation`);
       console.log(`🔍 MATCHED PATTERNS: ${matchingPatterns.length} patterns matched for: "${request.message}"`);
+      return 1.0; // Immediately return maximum cloud need
     } else {
       console.log(`❌ NO COMPLEX CODE PATTERNS MATCHED for: "${request.message}"`);
     }
