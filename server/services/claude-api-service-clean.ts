@@ -362,8 +362,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 8192,
-        system: systemPrompt,
-        messages: formattedMessages,
+        system: agentPersonality.systemPrompt,
+        messages: messages,
         tools
       });
 
@@ -434,12 +434,7 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
     console.log(`🔍 TOOL CALL OBJECT:`, JSON.stringify(toolCall, null, 2));
     console.log(`🔍 TOOL INPUT:`, JSON.stringify(toolInput, null, 2));
 
-    // CLAUDE PARAMETER FIX: Inject intelligent parameters when Claude fails to provide them
-    if (!toolInput || Object.keys(toolInput).length === 0) {
-      console.log(`🔧 PARAMETER INJECTION: Claude didn't provide parameters for ${toolName}, injecting intelligent defaults`);
-      toolInput = this.injectIntelligentParameters(toolName, agentName, conversationId);
-      console.log(`🔧 INJECTED PARAMETERS:`, JSON.stringify(toolInput, null, 2));
-    }
+
 
     try {
       // Import and use the actual hybrid intelligence bridge
@@ -472,74 +467,7 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
     }
   }
 
-  /**
-   * INTELLIGENT PARAMETER INJECTION
-   * When Claude fails to provide tool parameters, inject context-aware defaults
-   */
-  private injectIntelligentParameters(toolName: string, agentName: string, conversationId: string): any {
-    switch (toolName) {
-      case 'str_replace_based_edit_tool':
-        // For file operations, create intelligent defaults based on agent context
-        return {
-          command: 'create', // Default to create since most agent requests are to build something
-          path: `client/src/components/${agentName}Component.tsx`, // Agent-specific component
-          file_text: this.generateDefaultComponentContent(agentName)
-        };
-        
-      case 'search_filesystem':
-        // Search for relevant files based on agent context  
-        return {
-          query_description: `Find existing components and files related to ${agentName} agent functionality`
-        };
-        
-      case 'bash':
-        // Safe default command
-        return {
-          command: 'ls -la client/src/components/'
-        };
-        
-      default:
-        console.log(`⚠️ No parameter injection available for ${toolName}, using empty object`);
-        return {};
-    }
-  }
 
-  /**
-   * GENERATE DEFAULT COMPONENT CONTENT
-   * Creates appropriate component code based on agent type
-   */
-  private generateDefaultComponentContent(agentName: string): string {
-    const componentName = agentName.charAt(0).toUpperCase() + agentName.slice(1) + 'Component';
-    
-    return `import React from 'react';
-
-interface ${componentName}Props {
-  children?: React.ReactNode;
-  className?: string;
-}
-
-export const ${componentName}: React.FC<${componentName}Props> = ({ 
-  children, 
-  className = '' 
-}) => {
-  return (
-    <div className={\`sselfie-${agentName.toLowerCase()}-component \${className}\`}>
-      <div className="luxury-design-system bg-white text-black font-serif">
-        <h2 className="text-xl font-bold mb-4">
-          ${agentName.charAt(0).toUpperCase() + agentName.slice(1)} Agent Component
-        </h2>
-        {children || (
-          <p className="text-gray-600">
-            Premium ${agentName} functionality powered by SSELFIE's AI architecture
-          </p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default ${componentName};`;
-  }
 
   /**
    * ENTERPRISE TOOL EXECUTION METHODS
@@ -1212,7 +1140,6 @@ How can I help you further?`;
         } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
           // Handle tool use with continued streaming
           console.log(`🔧 STREAMING: ${agentId} preparing to execute tool ${chunk.content_block.name}`);
-          console.log(`🔧 TOOL BLOCK START:`, JSON.stringify(chunk.content_block, null, 2));
           
           res.write(`data: ${JSON.stringify({
             type: 'tool_start',
@@ -1225,43 +1152,18 @@ How can I help you further?`;
             content: `\n\n🔧 Using ${chunk.content_block.name}...`
           })}\n\n`);
           
-          // Store tool call for execution after streaming (initially with basic structure)
-          pendingToolCalls.push({
-            ...chunk.content_block,
-            input: chunk.content_block.input || {},
-            inputJson: ''
-          });
-        } else if (chunk.type === 'content_block_delta' && chunk.delta && chunk.delta.type === 'input_json_delta') {
-          // Tool input being built progressively - accumulate parameters
-          const currentToolIndex = pendingToolCalls.length - 1;
-          if (currentToolIndex >= 0 && chunk.delta.partial_json) {
-            // Accumulate the JSON input progressively
-            if (!pendingToolCalls[currentToolIndex].inputJson) {
-              pendingToolCalls[currentToolIndex].inputJson = '';
-            }
-            pendingToolCalls[currentToolIndex].inputJson += chunk.delta.partial_json;
+          // Store tool call for execution after streaming
+          pendingToolCalls.push(chunk.content_block);
+        } else if (chunk.type === 'content_block_delta') {
+          // Tool input being built - show progress if it's input_json_delta
+          if ('delta' in chunk && chunk.delta && (chunk.delta as any).type === 'input_json_delta') {
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: '.'
+            })}\n\n`);
           }
-          
-          // Show progress without overwhelming the stream
-          res.write(`data: ${JSON.stringify({
-            type: 'text_delta',
-            content: '.'
-          })}\n\n`);
         } else if (chunk.type === 'content_block_stop') {
-          // Block completed - finalize tool input if needed
-          const currentToolIndex = pendingToolCalls.length - 1;
-          if (currentToolIndex >= 0 && pendingToolCalls[currentToolIndex].inputJson) {
-            try {
-              // Parse the accumulated JSON input
-              pendingToolCalls[currentToolIndex].input = JSON.parse(pendingToolCalls[currentToolIndex].inputJson);
-              console.log(`🔧 TOOL INPUT FINALIZED: ${JSON.stringify(pendingToolCalls[currentToolIndex].input)}`);
-            } catch (error) {
-              console.error(`❌ TOOL INPUT PARSE ERROR:`, error);
-              // Fallback to empty input
-              pendingToolCalls[currentToolIndex].input = {};
-            }
-          }
-          
+          // Block completed - continue streaming
           console.log(`✅ STREAMING: Content block completed for ${agentId}`);
         }
       }
