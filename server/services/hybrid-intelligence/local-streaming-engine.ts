@@ -210,53 +210,40 @@ export class LocalStreamingEngine {
   }
 
   /**
-   * PROCESS PERSONALITY-DRIVEN RESPONSES
-   * Generate responses based on agent personality and memory
+   * PROCESS TOOL-ONLY RESPONSES
+   * RESTRICTED: Only handle tool operations, NOT conversations
    */
   private async processPersonalityDriven(
     request: LocalStreamingRequest,
     memoryProfile: AgentMemoryProfile | null
   ): Promise<LocalStreamingResponse> {
     
-    const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+    // CONVERSATIONS SHOULD NEVER REACH HERE
+    console.log(`⚠️  WARNING: Conversation reached local processing - this should be handled by Claude API`);
+    console.log(`📝 MESSAGE: "${request.message}"`);
     
-    if (!agentPersonality) {
-      return { success: false, content: '', type: 'personality_driven', confidence: 0, tokensUsed: 0 };
-    }
-
-    const memoryContext = memoryProfile 
-      ? `With my intelligence level ${memoryProfile.intelligenceLevel}/10 and ${memoryProfile.learningPatterns.length} learned patterns, ` 
-      : '';
-
-    const content = await this.generateAgentVoiceResponse(request, 'personality_driven', { memoryProfile });
-
-    return {
-      success: true,
-      content,
-      type: 'personality_driven',
-      confidence: 0.7,
-      tokensUsed: 0
+    // Reject conversation processing to force Claude API usage
+    return { 
+      success: false, 
+      content: 'This request requires Claude API processing for authentic agent response', 
+      type: 'personality_driven', 
+      confidence: 0, 
+      tokensUsed: 0 
     };
   }
 
   /**
-   * DYNAMIC AGENT VOICE GENERATORS
-   * Generate authentic responses using each agent's unique personality and voice
+   * TOOL OPERATION RESPONSE GENERATOR
+   * RESTRICTED: Only for tool operations, NOT conversations
    */
   private async generateAgentVoiceResponse(request: LocalStreamingRequest, taskType: string, context: any): Promise<string> {
-    const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-    if (!agentPersonality) {
-      // Use agent ID as fallback name without generic templates
-      const agentName = request.agentId.charAt(0).toUpperCase() + request.agentId.slice(1);
-      return `As ${agentName}, I'll analyze your request and provide you with specialized assistance. Let me process this using the hybrid intelligence system to give you the most effective solution.`;
+    // This should only handle tool operations
+    if (taskType === 'personality_driven') {
+      return `This conversation requires Claude API processing for authentic ${request.agentId} response.`;
     }
 
-    // Extract agent voice patterns from their personality
-    const agentVoiceExamples = this.extractAgentVoicePatterns(agentPersonality);
-    const taskContext = this.getTaskContext(taskType, request.message);
-    
-    // Generate authentic response using agent's speaking style
-    return this.generateAuthenticVoice(agentPersonality, agentVoiceExamples, taskContext, request.message);
+    // For actual tool operations, provide minimal technical response
+    return `Tool operation "${request.message}" processed locally to save tokens.`;
   }
 
   private extractAgentVoicePatterns(personality: any): string[] {

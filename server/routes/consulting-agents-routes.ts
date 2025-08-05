@@ -402,37 +402,72 @@ You have complete access to all Replit-level tools for comprehensive implementat
     
     // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
-    const claudeService = getClaudeService();
     
-    // 🚀 HYBRID INTELLIGENCE: Use hybrid orchestrator for optimal processing
-    console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} using intelligent routing system`);
+    // 🎯 MESSAGE CLASSIFICATION: Separate conversations from tool operations
+    const { MessageClassifier } = await import('../services/hybrid-intelligence/message-classifier');
+    const messageClassifier = MessageClassifier.getInstance();
+    const classification = messageClassifier.classifyMessage(message, agentId);
     
-    const hybridOrchestrator = getHybridOrchestrator();
-    const hybridRequest = {
-      agentId,
-      userId,
-      message,
-      conversationId,
-      context: { specializedSystemPrompt }
-    };
+    console.log(`🔍 MESSAGE TYPE: ${classification.type} (${classification.confidence} confidence) - ${classification.reason}`);
 
-    const hybridResult = await hybridOrchestrator.processHybridRequest(hybridRequest);
-    if (hybridResult.success) {
-      console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
-      return res.status(200).json({
-        success: true,
-        response: hybridResult.content,
+    if (classification.forceClaudeAPI) {
+      // 🧠 AGENT CONVERSATION: Use full Claude API intelligence
+      console.log(`🧠 AGENT CONVERSATION: ${agentId} using full Claude API for authentic response`);
+      
+      const claudeService = getClaudeService();
+      const claudeResponse = await claudeService.sendMessage(
+        userId,
         agentId,
         conversationId,
-        processingType: hybridResult.processingType,
-        tokensUsed: hybridResult.tokensUsed,
-        tokensSaved: hybridResult.tokensSaved,
-        processingTime: hybridResult.processingTime
-      });
+        message,
+        specializedSystemPrompt,
+        true // enableTools
+      );
+
+      if (typeof claudeResponse === 'string') {
+        console.log(`✅ CLAUDE SUCCESS: ${agentId} - Authentic agent response generated`);
+        return res.status(200).json({
+          success: true,
+          response: claudeResponse,
+          agentId,
+          conversationId,
+          processingType: 'claude_api',
+          tokensUsed: 0, // Token counting handled by Claude service
+          tokensSaved: 0,
+          processingTime: 0
+        });
+      }
+    } else {
+      // 🔧 TOOL OPERATION: Use hybrid intelligence for zero-cost operations
+      console.log(`🔧 TOOL OPERATION: ${agentId} using hybrid intelligence for tool execution`);
+      
+      const hybridOrchestrator = getHybridOrchestrator();
+      const hybridRequest = {
+        agentId,
+        userId,
+        message,
+        conversationId,
+        context: { specializedSystemPrompt }
+      };
+
+      const hybridResult = await hybridOrchestrator.processHybridRequest(hybridRequest);
+      if (hybridResult.success) {
+        console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
+        return res.status(200).json({
+          success: true,
+          response: hybridResult.content,
+          agentId,
+          conversationId,
+          processingType: hybridResult.processingType,
+          tokensUsed: hybridResult.tokensUsed,
+          tokensSaved: hybridResult.tokensSaved,
+          processingTime: hybridResult.processingTime
+        });
+      }
     }
     
-    // 🎯 STREAMING FALLBACK: Use streaming when hybrid fails
-    console.log(`⬇️ HYBRID FALLBACK: Using streaming mode for ${agentId}`);
+    // 🎯 STREAMING FALLBACK: Use appropriate streaming based on message type
+    console.log(`⬇️ FALLBACK TO STREAMING: ${agentId} - ${classification.type}`);
     
     // Set response headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
@@ -442,18 +477,35 @@ You have complete access to all Replit-level tools for comprehensive implementat
     res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
 
     try {
-      // 🚀 HYBRID STREAMING: Use intelligent orchestrator for optimal streaming
-      console.log(`🌊 HYBRID STREAMING: ${agentId} with intelligent routing`);
-      
-      const streamRequest = {
-        agentId,
-        userId,
-        message,
-        conversationId,
-        context: { specializedSystemPrompt }
-      };
+      if (classification.forceClaudeAPI) {
+        // 🧠 CLAUDE STREAMING: Full agent intelligence
+        console.log(`🌊 CLAUDE STREAMING: ${agentId} with full authenticity`);
+        
+        const claudeService = getClaudeService();
+        // Use direct Claude API streaming without hybrid interference
+        await streamDirectClaudeResponse(
+          res,
+          message,
+          specializedSystemPrompt,
+          agentId,
+          conversationId,
+          userId
+        );
+      } else {
+        // 🔧 HYBRID STREAMING: Tool operations only
+        console.log(`🔧 HYBRID STREAMING: ${agentId} with tool optimization`);
+        
+        const hybridOrchestrator = getHybridOrchestrator();
+        const streamRequest = {
+          agentId,
+          userId,
+          message,
+          conversationId,
+          context: { specializedSystemPrompt }
+        };
 
-      await hybridOrchestrator.processHybridStreaming(streamRequest, res);
+        await hybridOrchestrator.processHybridStreaming(streamRequest, res);
+      }
       res.end();
     } catch (error: any) {
       console.error(`❌ STREAMING ERROR: ${agentId}:`, error);
@@ -475,6 +527,54 @@ You have complete access to all Replit-level tools for comprehensive implementat
     });
   }
 });
+
+/**
+ * DIRECT CLAUDE STREAMING
+ * Bypasses hybrid system for authentic agent conversations
+ */
+async function streamDirectClaudeResponse(
+  res: any,
+  message: string,
+  systemPrompt: string,
+  agentId: string,
+  conversationId: string,
+  userId: string
+) {
+  try {
+    const anthropic = new (await import('@anthropic-ai/sdk')).default({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    console.log(`🧠 DIRECT CLAUDE: ${agentId} bypassing hybrid for authentic response`);
+
+    const stream = await anthropic.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 4000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: message }],
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+        res.write(`data: ${JSON.stringify({
+          type: 'content',
+          content: chunk.delta.text
+        })}\n\n`);
+      }
+    }
+
+    res.write(`data: [DONE]\n\n`);
+  } catch (error) {
+    console.error('Direct Claude streaming error:', error);
+    res.write(`data: ${JSON.stringify({
+      type: 'error',
+      error: 'Streaming failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    })}\n\n`);
+    res.write(`data: [DONE]\n\n`);
+  }
+}
 
 /**
  * UNIFIED ADMIN CONVERSATION HISTORY ENDPOINTS

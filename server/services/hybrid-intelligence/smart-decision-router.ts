@@ -36,14 +36,16 @@ export class SmartDecisionRouter {
   }
 
   /**
-   * MAIN ROUTING INTELLIGENCE
-   * Decides whether to process locally or use cloud inference
+   * TOOL OPERATION ROUTING INTELLIGENCE
+   * ONLY for tool operations - conversations should never reach here
    */
   async routeRequest(request: LocalStreamingRequest): Promise<RoutingDecision> {
-    console.log(`🧠 SMART ROUTER: Analyzing routing options for ${request.agentId}`);
+    console.log(`🔧 TOOL ROUTER: Analyzing tool operation routing for ${request.agentId}`);
+    console.log(`⚠️  WARNING: This should only handle tool operations, not conversations`);
 
-    const localScore = await this.calculateLocalCapability(request);
-    const cloudNeed = await this.calculateCloudNecessity(request);
+    // For tool operations, prioritize local processing for cost savings
+    const localScore = await this.calculateToolCapability(request);
+    const cloudNeed = await this.calculateToolComplexity(request);
 
     const useLocal = localScore > cloudNeed;
     const confidence = Math.abs(localScore - cloudNeed);
@@ -51,21 +53,21 @@ export class SmartDecisionRouter {
 
     const decision: RoutingDecision = {
       useLocal,
-      reason: this.generateRoutingReason(localScore, cloudNeed, useLocal),
+      reason: this.generateToolRoutingReason(localScore, cloudNeed, useLocal),
       confidence,
       estimatedTokenSaving
     };
 
-    console.log(`🎯 ROUTING DECISION: ${useLocal ? 'LOCAL' : 'CLOUD'} (${confidence.toFixed(2)} confidence, ${estimatedTokenSaving} tokens saved)`);
+    console.log(`🎯 TOOL ROUTING: ${useLocal ? 'LOCAL' : 'CLOUD'} (${confidence.toFixed(2)} confidence, ${estimatedTokenSaving} tokens saved)`);
 
     return decision;
   }
 
   /**
-   * CALCULATE LOCAL PROCESSING CAPABILITY
-   * Determines how well this request can be handled locally
+   * CALCULATE TOOL OPERATION CAPABILITY
+   * Determines how well this TOOL operation can be handled locally
    */
-  private async calculateLocalCapability(request: LocalStreamingRequest): Promise<number> {
+  private async calculateToolCapability(request: LocalStreamingRequest): Promise<number> {
     let score = 0;
 
     // Technical/tool operation patterns (high local capability)
@@ -144,10 +146,10 @@ export class SmartDecisionRouter {
   }
 
   /**
-   * CALCULATE CLOUD NECESSITY
-   * Determines how much this request needs cloud-based intelligence
+   * CALCULATE TOOL COMPLEXITY
+   * Determines how complex this tool operation is (for cloud routing)
    */
-  private async calculateCloudNecessity(request: LocalStreamingRequest): Promise<number> {
+  private async calculateToolComplexity(request: LocalStreamingRequest): Promise<number> {
     let score = 0;
 
     // Creative and strategic patterns (high cloud necessity)
@@ -257,7 +259,7 @@ export class SmartDecisionRouter {
    * GENERATE ROUTING REASON
    * Provides explanation for routing decision
    */
-  private generateRoutingReason(localScore: number, cloudNeed: number, useLocal: boolean): string {
+  private generateToolRoutingReason(localScore: number, cloudNeed: number, useLocal: boolean): string {
     if (useLocal) {
       if (localScore > 0.8) {
         return "High confidence local processing - technical/tool operation detected";
