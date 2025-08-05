@@ -421,11 +421,13 @@ export default function AdminConsultingAgents() {
     setMessages(prev => [...prev, streamingAgentMessage]);
 
     try {
-      // First try JSON response for hybrid system
+      // FIXED: Force streaming mode for agent personalities  
+      console.log(`🌊 ADMIN FRONTEND: ${selectedAgent.id} forcing streaming for agent personalities`);
       const response = await fetch('/api/admin/agents/consulting-chat', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Force-Streaming': 'true' // Force streaming mode
         },
         credentials: 'include',
         body: JSON.stringify({
@@ -433,7 +435,8 @@ export default function AdminConsultingAgents() {
           message: userMessage.content,
           conversationId: conversationId || `admin_${selectedAgent.id}_${Date.now()}`,
           fileEditMode: fileEditMode,
-          adminToken: 'sandra-admin-2025'
+          adminToken: 'sandra-admin-2025',
+          forceStreaming: true // Force streaming response
         }),
       });
 

@@ -419,8 +419,12 @@ You have complete access to all Replit-level tools for comprehensive implementat
     const classification = messageClassifier.classifyMessage(message, agentId);
     
     console.log(`🔍 MESSAGE TYPE: ${classification.type} (${classification.confidence} confidence) - ${classification.reason}`);
+    
+    // CRITICAL FIX: Always force streaming for admin interface to get authentic agent personalities
+    const forceStreaming = req.body.forceStreaming || req.headers['x-force-streaming'] === 'true';
+    console.log(`🌊 FORCE STREAMING CHECK: ${forceStreaming} || admin interface always streams`);
 
-    if (classification.forceClaudeAPI) {
+    if (classification.forceClaudeAPI || forceStreaming || true) { // Always stream for admin interface
       // 🧠 AGENT CONVERSATION: Always use streaming for better UX
       console.log(`🧠 AGENT CONVERSATION: ${agentId} - Forcing streaming for authentic agent response`);
       
