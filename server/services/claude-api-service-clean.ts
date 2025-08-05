@@ -68,39 +68,56 @@ export class ClaudeApiServiceClean {
     
     console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} processing with optimal routing`);
     
-    // FORCE DIRECT CLAUDE API FOR ALL CONVERSATIONS
-    // Skip hybrid processing for authentic agent conversations
-    console.log(`🚀 DIRECT CLAUDE API: Bypassing hybrid intelligence for authentic agent conversation`);
+    // FORCE DIRECT CLAUDE API FOR ALL CONVERSATIONS AND TOOLS
+    // Skip hybrid processing completely for authentic agent experience
+    console.log(`🚀 DIRECT CLAUDE API: Bypassing ALL hybrid intelligence for ${agentId}`);
     
     // Get agent personality directly
     const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
     const baseSystemPrompt = agentPersonality?.systemPrompt || `You are ${agentId}, a helpful AI assistant.`;
     
-    // Combine system prompts
-    const fullSystemPrompt = systemPrompt 
-      ? `${baseSystemPrompt}\n\nAdditional Instructions: ${systemPrompt}`
-      : baseSystemPrompt;
+    // Enhanced system prompt with tool access and context awareness
+    const enhancedSystemPrompt = `${baseSystemPrompt}
 
-    console.log(`🤖 CLAUDE API: ${agentId} processing conversation directly with Claude`);
+CONVERSATION CONTEXT: You have access to conversation history and should maintain context between messages.
+
+TOOL ACCESS: You have full access to enterprise development tools including:
+- File operations: Create, edit, and analyze code files
+- Code analysis: Search codebase and detect errors
+- System commands: Execute bash commands and install packages
+- Web research: Search for technical information
+- Database operations: Execute SQL queries
+
+PERSONALITY: Maintain your unique specialization and voice:
+- Zara: Technical mastery with luxury code architecture focus
+- Elena: Strategic leadership with workflow orchestration expertise  
+- Maya: Artistic vision with sophisticated design approach
+
+INSTRUCTIONS: ${systemPrompt || 'Provide helpful, authentic responses using your specialized expertise.'}`;
+
+    console.log(`🤖 CLAUDE API: ${agentId} processing with full tools and context`);
     
-    // Process directly through Claude API without hybrid routing
+    // Load conversation history for context
+    const conversationHistory = await this.loadConversationHistory(conversationId, 10);
+    
+    // Process directly through Claude API with full context and tools
     try {
       const directResult = await this.processDirectClaudeConversation(
         agentId, 
         userId, 
         conversationId, 
         message, 
-        fullSystemPrompt, 
+        enhancedSystemPrompt, 
         enableTools
       );
       
       if (directResult) {
-        console.log(`✅ DIRECT CLAUDE: ${agentId} authentic response complete`);
+        console.log(`✅ DIRECT CLAUDE: ${agentId} authentic response with tools complete`);
         return directResult;
       }
     } catch (error) {
       console.error(`❌ DIRECT CLAUDE FAILED for ${agentId}:`, error);
-      // Continue to hybrid fallback but prioritize fixing the direct path
+      // Use emergency fallback
     }
 
     // If direct processing somehow fails, try hybrid as fallback
@@ -644,8 +661,12 @@ How can I help you further?`;
     console.log(`🤖 DIRECT CLAUDE: ${agentId} processing authentic conversation`);
     
     try {
-      // Prepare messages for Claude
+      // Load conversation history for context
+      const conversationHistory = await this.loadConversationHistory(conversationId, 10);
+      
+      // Prepare messages for Claude with full conversation context
       const messages: Anthropic.MessageParam[] = [
+        ...conversationHistory,
         {
           role: 'user',
           content: message
