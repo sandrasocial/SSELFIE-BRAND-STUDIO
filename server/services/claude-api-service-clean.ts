@@ -95,7 +95,7 @@ PERSONALITY: Maintain your unique specialization and voice:
 - Elena: Strategic leadership with workflow orchestration expertise  
 - Maya: Artistic vision with sophisticated design approach
 
-INSTRUCTIONS: ${systemPrompt || 'Provide helpful, authentic responses using your specialized expertise. Use tools only when specifically needed to accomplish a task that requires file examination, code creation, or system operations.'}`;
+INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expertise and personality. Only use tools when explicitly asked to implement, examine, or create something specific. For greetings, casual conversation, and advice, respond conversationally without tools.'}`;
 
     console.log(`🤖 CLAUDE API: ${agentId} processing with full tools and context`);
     
