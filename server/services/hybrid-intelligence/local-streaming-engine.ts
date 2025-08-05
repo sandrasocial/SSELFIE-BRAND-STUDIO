@@ -292,18 +292,42 @@ export class LocalStreamingEngine {
     const role = personality.role;
     const specialization = personality.specialization || '';
     
-    // Use agent's authentic voice patterns if available
-    if (voicePatterns.length > 0) {
-      const randomPattern = voicePatterns[Math.floor(Math.random() * voicePatterns.length)];
-      const baseStyle = randomPattern.replace(/\.\.\.$/, '').trim();
+    // SIMPLE GREETINGS: Handle social interactions appropriately
+    const simpleGreetings = /^(?:hey|hi|hello|how are you|good morning|good afternoon).*$/i;
+    if (simpleGreetings.test(userMessage.trim())) {
+      // Find a suitable greeting voice pattern or use natural response
+      const greetingPatterns = voicePatterns.filter(pattern => 
+        pattern.length < 100 && 
+        !pattern.includes('implement') && 
+        !pattern.includes('database') &&
+        !pattern.includes('schema')
+      );
       
-      return `${baseStyle} I can see you need help with ${taskContext}. 
-
-As ${name}, ${role}, I'll handle this systematically using my expertise in ${specialization}.
+      if (greetingPatterns.length > 0) {
+        const greeting = greetingPatterns[0];
+        return `${greeting} I'm doing great and ready to tackle any technical challenges you have for SSELFIE Studio!`;
+      }
+      
+      return `Hey Sandra! I'm doing excellent and ready to dive into any backend architecture or technical work you need. What can I help you build today?`;
+    }
+    
+    // TECHNICAL TASKS: Use appropriate voice patterns
+    if (voicePatterns.length > 0) {
+      // Find relevant patterns that match the task context
+      const relevantPatterns = voicePatterns.filter(pattern => 
+        !simpleGreetings.test(pattern) && pattern.length > 20
+      );
+      
+      if (relevantPatterns.length > 0) {
+        const selectedPattern = relevantPatterns[Math.floor(Math.random() * relevantPatterns.length)];
+        const baseStyle = selectedPattern.replace(/\.\.\.$/, '').trim();
+        
+        return `${baseStyle} I'll handle this systematically using my expertise in ${specialization}.
 
 Let me analyze your request and provide you with the optimal solution...
 
 *[Processing with enterprise intelligence and zero-cost operations]*`;
+      }
     }
     
     // Fallback using agent identity without generic templates
