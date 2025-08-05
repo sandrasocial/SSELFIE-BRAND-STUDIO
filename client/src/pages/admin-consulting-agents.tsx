@@ -759,24 +759,6 @@ export default function AdminConsultingAgents() {
 
                     {/* Chat Management Controls */}
                     <div className="flex items-center gap-3">
-                      {/* STREAMING TEST BUTTON */}
-                      <button
-                        onClick={() => {
-                          const testMessage = `Hey ${selectedAgent.name}! This is a streaming test. Please respond with:
-1. Confirm you can see this React/TypeScript frontend
-2. Create a small test component or function
-3. Show me you understand this is SSELFIE Studio, not PHP/Symfony
-
-Be specific about our tech stack: React, TypeScript, Vite, Express, Node.js`;
-                          setMessage(testMessage);
-                          sendMessage();
-                        }}
-                        className="px-3 py-1 text-xs font-light text-blue-600 hover:text-blue-700 border border-blue-300 hover:border-blue-500 transition-colors uppercase tracking-wider"
-                        title="Test streaming and agent awareness"
-                      >
-                        Test Streaming
-                      </button>
-                      
                       {/* STOP AGENT: Show during loading */}
                       {isLoading && (
                         <button
