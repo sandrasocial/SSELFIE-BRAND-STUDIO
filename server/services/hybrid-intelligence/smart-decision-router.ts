@@ -107,15 +107,32 @@ export class SmartDecisionRouter {
       score += 0.4;
     }
 
-    // Code generation patterns (medium local capability)
-    const codePatterns = [
-      /generate.*(?:code|function|component)/i,
-      /write.*(?:function|class|component)/i,
-      /build.*(?:feature|component|module)/i
+    // DYNAMIC CODE GENERATION ROUTING - Enhanced for Quality
+    const simpleCodePatterns = [
+      /add.*(?:button|input|div|simple)/i,
+      /quick.*(?:fix|change|update)/i,
+      /small.*(?:component|function)/i
+    ];
+    
+    const complexCodePatterns = [
+      /(?:complete|full|comprehensive).*(?:component|system|application)/i,
+      /(?:typescript|react|hooks|types|interfaces)/i,
+      /(?:error handling|state management|authentication)/i,
+      /(?:crud|database|api integration)/i,
+      /(?:advanced|complex|enterprise|production)/i,
+      /(?:dashboard|user profile|management system)/i,
+      /write.*(?:complete|full|comprehensive)/i,
+      /create.*(?:system|application|platform)/i
     ];
 
-    if (codePatterns.some(pattern => pattern.test(request.message))) {
-      score += 0.5;
+    // Simple code tasks can be local (basic patterns)
+    if (simpleCodePatterns.some(pattern => pattern.test(request.message))) {
+      score += 0.3; // Reduced for simple tasks
+    }
+    
+    // Complex code MUST use Claude for quality
+    if (complexCodePatterns.some(pattern => pattern.test(request.message))) {
+      score += 0.1; // Very low local score to force cloud routing
     }
 
     // Length and complexity adjustments
@@ -144,6 +161,26 @@ export class SmartDecisionRouter {
 
     if (creativePatterns.some(pattern => pattern.test(request.message))) {
       score += 0.9;
+    }
+
+    // ENHANCED CODE QUALITY ROUTING - Force Claude for Complex Code
+    const highQualityCodePatterns = [
+      /(?:complete|full|comprehensive).*(?:component|system|class|function)/i,
+      /(?:typescript|react|hooks|types|interfaces|generics)/i,
+      /(?:error handling|validation|authentication|authorization)/i,
+      /(?:state management|context|redux|zustand)/i,
+      /(?:crud|database|api|backend|frontend)/i,
+      /(?:advanced|complex|enterprise|production|scalable)/i,
+      /(?:dashboard|management|profile|admin|user)/i,
+      /write.*(?:complete|comprehensive|production|professional)/i,
+      /create.*(?:full|complete|robust|scalable)/i,
+      /implement.*(?:complex|advanced|enterprise)/i,
+      /build.*(?:complete|full|production|professional)/i
+    ];
+
+    // Force Claude API for high-quality code generation
+    if (highQualityCodePatterns.some(pattern => pattern.test(request.message))) {
+      score += 0.95; // Very high cloud necessity for quality code
     }
 
     // Novel or complex reasoning (high cloud necessity)
