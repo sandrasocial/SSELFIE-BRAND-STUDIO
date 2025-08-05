@@ -410,33 +410,62 @@ You have complete access to all Replit-level tools for comprehensive implementat
     
     console.log(`🔍 MESSAGE TYPE: ${classification.type} (${classification.confidence} confidence) - ${classification.reason}`);
 
-    // FORCE ALL REQUESTS THROUGH CLAUDE API FOR AUTHENTIC RESPONSES
-    console.log(`🧠 CLAUDE API REQUIRED: ${agentId} using full intelligence for all operations`);
-    
-    const claudeService = getClaudeService();
-    const claudeResponse = await claudeService.sendMessage(
-      userId,
-      agentId,
-      conversationId,
-      message,
-      specializedSystemPrompt,
-      true // enableTools - ALWAYS true for authentic agent experience
-    );
-
-    if (typeof claudeResponse === 'string') {
-      console.log(`✅ CLAUDE SUCCESS: ${agentId} - Authentic agent response generated`);
+    if (classification.forceClaudeAPI) {
+      // 🧠 AGENT CONVERSATION: Use full Claude API intelligence
+      console.log(`🧠 AGENT CONVERSATION: ${agentId} using full Claude API for authentic response`);
       
-      // For non-streaming requests, return JSON response
-      if (!res.headersSent) {
+      const claudeService = getClaudeService();
+      const claudeResponse = await claudeService.sendMessage(
+        userId,
+        agentId,
+        conversationId,
+        message,
+        specializedSystemPrompt,
+        true // enableTools
+      );
+
+      if (typeof claudeResponse === 'string') {
+        console.log(`✅ CLAUDE SUCCESS: ${agentId} - Authentic agent response generated`);
+        
+        // For non-streaming requests, return JSON response
+        if (!res.headersSent) {
+          return res.status(200).json({
+            success: true,
+            response: claudeResponse,
+            agentId,
+            conversationId,
+            processingType: 'claude_api',
+            tokensUsed: 0, // Token counting handled by Claude service
+            tokensSaved: 0,
+            processingTime: 0
+          });
+        }
+      }
+    } else {
+      // 🔧 TOOL OPERATION: Use hybrid intelligence for zero-cost operations
+      console.log(`🔧 TOOL OPERATION: ${agentId} using hybrid intelligence for tool execution`);
+      
+      const hybridOrchestrator = getHybridOrchestrator();
+      const hybridRequest = {
+        agentId,
+        userId,
+        message,
+        conversationId,
+        context: { specializedSystemPrompt }
+      };
+
+      const hybridResult = await hybridOrchestrator.processHybridRequest(hybridRequest);
+      if (hybridResult.success) {
+        console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
         return res.status(200).json({
           success: true,
-          response: claudeResponse,
+          response: hybridResult.content,
           agentId,
           conversationId,
-          processingType: 'claude_api',
-          tokensUsed: 0, // Token counting handled by Claude service
-          tokensSaved: 0,
-          processingTime: 0
+          processingType: hybridResult.processingType,
+          tokensUsed: hybridResult.tokensUsed,
+          tokensSaved: hybridResult.tokensSaved,
+          processingTime: hybridResult.processingTime
         });
       }
     }
@@ -452,19 +481,35 @@ You have complete access to all Replit-level tools for comprehensive implementat
     res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
 
     try {
-      // 🌊 CLAUDE STREAMING: Full agent intelligence with tools
-      console.log(`🌊 CLAUDE STREAMING: ${agentId} with full authenticity and tool access`);
-      
-      // Use direct Claude API streaming with enhanced system prompt for tools
-      await streamDirectClaudeResponse(
-        res,
-        message,
-        specializedSystemPrompt,
-        agentId,
-        conversationId,
-        userId
-      );
-      
+      if (classification.forceClaudeAPI) {
+        // 🧠 CLAUDE STREAMING: Full agent intelligence
+        console.log(`🌊 CLAUDE STREAMING: ${agentId} with full authenticity`);
+        
+        const claudeService = getClaudeService();
+        // Use direct Claude API streaming without hybrid interference
+        await streamDirectClaudeResponse(
+          res,
+          message,
+          specializedSystemPrompt,
+          agentId,
+          conversationId,
+          userId
+        );
+      } else {
+        // 🔧 HYBRID STREAMING: Tool operations only
+        console.log(`🔧 HYBRID STREAMING: ${agentId} with tool optimization`);
+        
+        const hybridOrchestrator = getHybridOrchestrator();
+        const streamRequest = {
+          agentId,
+          userId,
+          message,
+          conversationId,
+          context: { specializedSystemPrompt }
+        };
+
+        await hybridOrchestrator.processHybridStreaming(streamRequest, res);
+      }
       res.end();
     } catch (error: any) {
       console.error(`❌ STREAMING ERROR: ${agentId}:`, error);
@@ -511,12 +556,18 @@ async function streamDirectClaudeResponse(
     const claudeService = ClaudeApiServiceClean.getInstance();
     const conversationHistory = await claudeService.loadConversationHistory(conversationId, 10);
 
-    // Enhanced system prompt for conversation only (no tool definitions)
+    // Enhanced system prompt with tool access for authentic agent experience
     const enhancedSystemPrompt = `${systemPrompt}
 
 CONVERSATION CONTEXT: Maintain context from previous messages in this conversation.
 
-HYBRID INTELLIGENCE: When you need to use tools for file operations, code analysis, or system commands, I will execute them through our hybrid intelligence system for you. Focus on providing authentic conversational responses with your unique personality and expertise.`;
+TOOL ACCESS: You have full access to enterprise development tools. Use them actively to analyze, create, and modify code:
+- search_filesystem: Find files and code in the repository
+- str_replace_based_edit_tool: Create, view, and edit files
+- bash: Execute system commands
+- get_latest_lsp_diagnostics: Check for errors
+
+HYBRID OPTIMIZATION: Tool executions are optimized for efficiency while preserving your full capabilities.`;
 
     const stream = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
@@ -526,7 +577,61 @@ HYBRID INTELLIGENCE: When you need to use tools for file operations, code analys
         ...conversationHistory,
         { role: "user", content: message }
       ],
-      // NO TOOLS - Pure conversation only
+      tools: [
+        {
+          name: 'search_filesystem',
+          description: 'Search for files and code in the repository',
+          input_schema: {
+            type: 'object',
+            properties: {
+              query_description: { type: 'string' },
+              search_paths: { type: 'array', items: { type: 'string' } },
+              code: { type: 'array', items: { type: 'string' } },
+              function_names: { type: 'array', items: { type: 'string' } },
+              class_names: { type: 'array', items: { type: 'string' } }
+            }
+          }
+        },
+        {
+          name: 'str_replace_based_edit_tool',
+          description: 'View, create, and edit files',
+          input_schema: {
+            type: 'object',
+            properties: {
+              command: { type: 'string', enum: ['view', 'create', 'str_replace', 'insert'] },
+              path: { type: 'string' },
+              file_text: { type: 'string' },
+              old_str: { type: 'string' },
+              new_str: { type: 'string' },
+              insert_line: { type: 'integer' },
+              insert_text: { type: 'string' },
+              view_range: { type: 'array', items: { type: 'integer' } }
+            },
+            required: ['command', 'path']
+          }
+        },
+        {
+          name: 'bash',
+          description: 'Execute bash commands',
+          input_schema: {
+            type: 'object',
+            properties: {
+              command: { type: 'string' }
+            },
+            required: ['command']
+          }
+        },
+        {
+          name: 'get_latest_lsp_diagnostics',
+          description: 'Check for code errors and diagnostics',
+          input_schema: {
+            type: 'object',
+            properties: {
+              file_path: { type: 'string' }
+            }
+          }
+        }
+      ],
       stream: true,
     });
 
@@ -541,6 +646,40 @@ HYBRID INTELLIGENCE: When you need to use tools for file operations, code analys
           type: 'content',
           content: textChunk
         })}\n\n`);
+      } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
+        // Handle tool execution during streaming
+        const toolUse = chunk.content_block;
+        console.log(`🔧 TOOL EXECUTION DURING STREAMING: ${toolUse.name}`);
+        
+        try {
+          const { claudeHybridBridge } = await import('../services/claude-hybrid-bridge');
+          const toolResult = await claudeHybridBridge.executeToolViaHybrid({
+            toolName: toolUse.name,
+            parameters: toolUse.input,
+            agentId,
+            userId,
+            conversationId,
+            context: { streaming: true }
+          });
+
+          // Stream tool execution result
+          res.write(`data: ${JSON.stringify({
+            type: 'tool_execution',
+            toolName: toolUse.name,
+            result: toolResult.result,
+            tokensUsed: toolResult.tokensUsed,
+            tokensSaved: toolResult.tokensSaved
+          })}\n\n`);
+
+          fullResponse += `\n[Tool executed: ${toolUse.name}]\n`;
+        } catch (error) {
+          console.error(`❌ Tool execution error:`, error);
+          res.write(`data: ${JSON.stringify({
+            type: 'tool_error',
+            toolName: toolUse.name,
+            error: error.message
+          })}\n\n`);
+        }
       }
     }
 
