@@ -308,28 +308,24 @@ How can I help you further?`;
       .select()
       .from(claudeConversations)
       .where(and(
-        eq(claudeConversations.user_id, userId),
-        eq(claudeConversations.agent_name, agentName)
+        eq(claudeConversations.userId, userId),
+        eq(claudeConversations.agentName, agentName)
       ))
-.orderBy(claudeConversations.created_at)
+.orderBy(claudeConversations.createdAt)
       .limit(1);
 
     if (existingConversation) {
       return existingConversation.id.toString();
     }
 
-    // Create new conversation (matching actual database schema)
+    // Create new conversation
     const [newConversation] = await db
       .insert(claudeConversations)
       .values({
-        user_id: userId,
-        agent_name: agentName,
-        conversation_id: `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        title: title || `${agentName} Chat`,
-        status: 'active',
-        message_count: 0,
-        created_at: new Date(),
-        updated_at: new Date()
+        userId,
+        agentName,
+        conversationId: `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        title: title || `${agentName} Chat`
       })
       .returning();
 

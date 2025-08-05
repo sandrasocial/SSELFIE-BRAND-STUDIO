@@ -3,7 +3,7 @@ import { db } from '../db';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
-import { ClaudeApiServiceClean } from '../services/claude-api-service-rebuilt';
+import { ClaudeApiServiceClean } from '../services/claude-api-service-clean';
 
 // SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
 let claudeServiceInstance: ClaudeApiServiceClean | null = null;

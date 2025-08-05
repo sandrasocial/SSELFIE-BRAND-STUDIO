@@ -5,9 +5,6 @@ import { eq, desc } from 'drizzle-orm';
 
 // ENTERPRISE INTELLIGENCE INTEGRATIONS - ALL ENHANCED SERVICES
 // ARCHIVED: Legacy services moved to archive/intelligent-orchestration-cleanup-2025/
-// import { agentSearchCache } from './agent-search-cache';
-// import { advancedMemorySystem } from './advanced-memory-system';
-// import { crossAgentIntelligence } from './cross-agent-intelligence';
 import { IntelligentContextManager } from './intelligent-context-manager';
 import { PredictiveErrorPrevention } from './predictive-error-prevention';
 // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
