@@ -251,7 +251,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
             command: { type: 'string' },
             restart: { type: 'boolean' }
           },
-          required: []
+          required: ['command']
         }
       },
       {
