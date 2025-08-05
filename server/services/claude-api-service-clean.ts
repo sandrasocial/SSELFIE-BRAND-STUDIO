@@ -484,7 +484,7 @@ How can I help you further?`;
           
           // Store tool call for execution after streaming
           pendingToolCalls.push(chunk.content_block);
-        } else if (chunk.type === 'content_block_delta' && chunk.delta.type === 'input_json_delta') {
+        } else if (chunk.type === 'content_block_delta' && 'type' in chunk.delta && chunk.delta.type === 'input_json_delta') {
           // Tool input being built - show progress
           res.write(`data: ${JSON.stringify({
             type: 'text_delta',
