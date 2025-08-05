@@ -68,7 +68,36 @@ export class ClaudeApiServiceClean {
     
     console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} processing with optimal routing`);
     
-    // Try hybrid processing first
+    // FORCE DIRECT CLAUDE API FOR ALL CONVERSATIONS
+    // Skip hybrid processing for authentic agent conversations
+    console.log(`🚀 DIRECT CLAUDE API: Bypassing hybrid intelligence for authentic agent conversation`);
+    
+    // Get agent personality directly
+    const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
+    const baseSystemPrompt = agentPersonality?.systemPrompt || `You are ${agentId}, a helpful AI assistant.`;
+    
+    // Combine system prompts
+    const fullSystemPrompt = systemPrompt 
+      ? `${baseSystemPrompt}\n\nAdditional Instructions: ${systemPrompt}`
+      : baseSystemPrompt;
+
+    console.log(`🤖 CLAUDE API: ${agentId} processing conversation directly with Claude`);
+    
+    // Process directly through Claude API without hybrid routing
+    const directResult = await this.processDirectClaudeConversation(
+      agentId, 
+      userId, 
+      conversationId, 
+      message, 
+      fullSystemPrompt, 
+      enableTools
+    );
+    
+    if (directResult) {
+      return directResult;
+    }
+
+    // If direct processing somehow fails, try hybrid as fallback
     const hybridRequest = {
       agentId,
       userId,
@@ -99,27 +128,23 @@ export class ClaudeApiServiceClean {
     }
     
     // Fallback to traditional processing if hybrid fails
-    console.log(`⬇️ HYBRID FALLBACK: Using traditional Claude processing`);
+    console.log(`⬇️ HYBRID FALLBACK: Using traditional Claude processing - this should not normally happen`);
     
-    // Get agent personality
-    const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
-    const baseSystemPrompt = agentPersonality?.systemPrompt || `You are ${agentId}, a helpful AI assistant.`;
+    // This fallback should rarely be used since direct Claude processing is now primary
+    const fallbackResponse = `${agentId} is temporarily unavailable. Please try your request again.`;
     
-    // Combine system prompts
-    const fullSystemPrompt = systemPrompt 
-      ? `${baseSystemPrompt}\n\nAdditional Instructions: ${systemPrompt}`
-      : baseSystemPrompt;
+    // Save fallback message
+    await this.saveMessageToDb(conversationId, 'user', message);
+    await this.saveMessageToDb(conversationId, 'assistant', fallbackResponse);
+    
+    return fallbackResponse;
+  }
 
-    console.log(`🤖 CLAUDE API: ${agentId} processing message with tools ${enableTools ? 'enabled' : 'disabled'}`);
-    
-    // Prepare messages for Claude
-    const messages: Anthropic.MessageParam[] = [
-      {
-        role: 'user',
-        content: message
-      }
-    ];
-
+  /**
+   * LEGACY METHOD PLACEHOLDER - NOW USING DIRECT CLAUDE API
+   */
+  private async legacyClaudeProcessing(message: string, conversationId: string, agentId: string, enableTools: boolean): Promise<string> {
+    // This method is no longer used but preserved for compatibility
     try {
       // Tool definitions for Claude (COMPLETE enterprise toolkit)
       const tools: Anthropic.Tool[] = enableTools ? [
@@ -571,6 +596,113 @@ How can I help you further?`;
   /**
    * SAVE MESSAGE TO DATABASE
    */
+  /**
+   * PROCESS DIRECT CLAUDE CONVERSATION
+   * Handles agent conversations directly through Claude API without hybrid routing
+   */
+  private async processDirectClaudeConversation(
+    agentId: string,
+    userId: string,
+    conversationId: string,
+    message: string,
+    systemPrompt: string,
+    enableTools: boolean
+  ): Promise<string | null> {
+    
+    console.log(`🤖 DIRECT CLAUDE: ${agentId} processing authentic conversation`);
+    
+    try {
+      // Prepare messages for Claude
+      const messages: Anthropic.MessageParam[] = [
+        {
+          role: 'user',
+          content: message
+        }
+      ];
+
+      // Tool definitions (enterprise toolkit)
+      const tools: Anthropic.Tool[] = enableTools ? [
+        {
+          name: 'search_filesystem',
+          description: 'Search for files and code',
+          input_schema: {
+            type: 'object',
+            properties: {
+              query_description: { type: 'string' },
+              search_paths: { type: 'array', items: { type: 'string' } }
+            }
+          }
+        },
+        {
+          name: 'str_replace_based_edit_tool',
+          description: 'View, create, and edit files',
+          input_schema: {
+            type: 'object',
+            properties: {
+              command: { type: 'string', enum: ['view', 'create', 'str_replace'] },
+              path: { type: 'string' },
+              file_text: { type: 'string' },
+              old_str: { type: 'string' },
+              new_str: { type: 'string' }
+            },
+            required: ['command', 'path']
+          }
+        },
+        {
+          name: 'bash',
+          description: 'Execute bash commands',
+          input_schema: {
+            type: 'object',
+            properties: {
+              command: { type: 'string' }
+            },
+            required: ['command']
+          }
+        }
+      ] : [];
+
+      // Send direct request to Claude API
+      const response = await this.anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: messages,
+        tools: tools.length > 0 ? tools : undefined
+      });
+
+      // Handle response
+      let assistantResponse = '';
+      let toolResults = '';
+
+      for (const content of response.content) {
+        if (content.type === 'text') {
+          assistantResponse += content.text;
+        } else if (content.type === 'tool_use') {
+          try {
+            const toolResult = await this.handleToolCall(content, conversationId, agentId);
+            toolResults += toolResult + '\n';
+          } catch (error) {
+            console.error(`Tool execution failed:`, error);
+          }
+        }
+      }
+
+      // Use assistant response as final response
+      const finalResponse = assistantResponse || this.extractAgentSummaryFromToolResults(toolResults, agentId);
+
+      // Save to database
+      await this.saveMessageToDb(conversationId, 'user', message);
+      await this.saveMessageToDb(conversationId, 'assistant', finalResponse);
+      
+      console.log(`✅ DIRECT CLAUDE: ${agentId} authentic response complete`);
+      return finalResponse;
+
+    } catch (error) {
+      console.error(`❌ DIRECT CLAUDE ERROR for ${agentId}:`, error);
+      return null; // Return null to trigger fallback
+    }
+  }
+
   private async saveMessageToDb(conversationId: string, role: 'user' | 'assistant', content: string): Promise<void> {
     try {
       const { db } = await import('../db');
