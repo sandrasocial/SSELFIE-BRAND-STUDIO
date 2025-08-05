@@ -423,8 +423,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
   }
 
   /**
-   * HANDLE TOOL CALLS THROUGH INTELLIGENT ORCHESTRATION
-   * Routes tools through zero-cost bypass system (COMPLETE ENTERPRISE TOOLKIT)
+   * HANDLE TOOL CALLS THROUGH HYBRID INTELLIGENCE SYSTEM
+   * Routes all tools through the enterprise hybrid intelligence for zero-cost execution
    */
   private async handleToolCall(toolCall: any, conversationId: string, agentName: string): Promise<string> {
     const toolName = toolCall.name;
@@ -433,72 +433,32 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
     console.log(`🔧 TOOL EXECUTION: ${toolName} for ${agentName}`);
 
     try {
-      switch (toolName) {
-        case 'search_filesystem':
-          const { search_filesystem } = await import('../tools/search_filesystem');
-          const searchResult = await search_filesystem(toolInput);
-          return `[Search Results]\n${JSON.stringify(searchResult, null, 2)}`;
+      // Import and use the actual hybrid intelligence bridge
+      const { ClaudeHybridBridge } = await import('./claude-hybrid-bridge');
+      const hybridBridge = ClaudeHybridBridge.getInstance();
+      
+      // Execute tool through hybrid intelligence system
+      const result = await hybridBridge.executeToolViaHybrid({
+        toolName,
+        parameters: toolInput,
+        agentId: agentName,
+        userId: 'streaming-user', // For streaming context
+        conversationId,
+        context: {
+          streamingExecution: true,
+          timestamp: new Date().toISOString()
+        }
+      });
 
-        case 'str_replace_based_edit_tool':
-          const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
-          const editResult = await str_replace_based_edit_tool(toolInput);
-          return `[File Operation Result]\n${JSON.stringify(editResult, null, 2)}`;
-
-        case 'bash':
-          const { bash } = await import('../tools/bash');
-          const bashResult = await bash(toolInput);
-          return `[Command Execution]\n${JSON.stringify(bashResult, null, 2)}`;
-
-        case 'get_latest_lsp_diagnostics':
-          const { get_latest_lsp_diagnostics } = await import('../tools/get_latest_lsp_diagnostics');
-          const diagnosticsResult = await get_latest_lsp_diagnostics(toolInput);
-          return `[LSP Diagnostics]\n${JSON.stringify(diagnosticsResult, null, 2)}`;
-
-        case 'packager_tool':
-          // Import and execute packager tool with zero cost
-          const packagerResult = await this.executePackagerTool(toolInput);
-          return `[Package Management]\n${JSON.stringify(packagerResult, null, 2)}`;
-
-        case 'programming_language_install_tool':
-          // Import and execute programming language installer
-          const langInstallResult = await this.executeProgrammingLanguageInstall(toolInput);
-          return `[Language Installation]\n${JSON.stringify(langInstallResult, null, 2)}`;
-
-        case 'ask_secrets':
-          // Handle secret requests through user interaction
-          const secretsResult = await this.executeAskSecrets(toolInput);
-          return `[Secrets Request]\n${JSON.stringify(secretsResult, null, 2)}`;
-
-        case 'check_secrets':
-          // Check environment secrets
-          const checkSecretsResult = await this.executeCheckSecrets(toolInput);
-          return `[Secrets Check]\n${JSON.stringify(checkSecretsResult, null, 2)}`;
-
-        case 'execute_sql_tool':
-          const { execute_sql_tool } = await import('../tools/execute_sql_tool');
-          const sqlResult = await execute_sql_tool(toolInput);
-          return `[SQL Execution]\n${JSON.stringify(sqlResult, null, 2)}`;
-
-        case 'web_search':
-          const { web_search } = await import('../tools/web_search');
-          const webSearchResult = await web_search(toolInput);
-          return `[Web Search]\n${JSON.stringify(webSearchResult, null, 2)}`;
-
-        case 'mark_completed_and_get_feedback':
-          const { mark_completed_and_get_feedback } = await import('../tools/mark_completed_and_get_feedback');
-          const feedbackResult = await mark_completed_and_get_feedback(toolInput);
-          return `[Task Completion]\n${JSON.stringify(feedbackResult, null, 2)}`;
-
-        case 'report_progress':
-          const { report_progress } = await import('../tools/report_progress');
-          const progressResult = await report_progress(toolInput);
-          return `[Progress Report]\n${JSON.stringify(progressResult, null, 2)}`;
-
-        default:
-          return `[Unknown Tool: ${toolName}]\nTool not implemented`;
+      if (result.success) {
+        console.log(`✅ HYBRID TOOL SUCCESS: ${toolName} completed in ${result.executionTime}ms, saved ${result.tokensSaved} tokens`);
+        return `[${toolName} Results]\n${JSON.stringify(result.result, null, 2)}`;
+      } else {
+        console.error(`❌ HYBRID TOOL FAILED: ${toolName}`);
+        return `[Tool Error: ${toolName}]\nHybrid execution failed`;
       }
     } catch (error) {
-      console.error(`Tool execution error for ${toolName}:`, error);
+      console.error(`❌ TOOL EXECUTION ERROR for ${toolName}:`, error);
       return `[Tool Error: ${toolName}]\n${error instanceof Error ? error.message : 'Execution failed'}`;
     }
   }
