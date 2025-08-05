@@ -19,7 +19,7 @@ export function SandraAiChat({ context, userContext, dashboardConfig, onUpdate, 
       content: context === 'brandbook' 
         ? "Hey! I'm Sandra, and I'm here to help you create a brandbook that's authentically you. What's your business story? What do you want people to feel when they see your brand?"
         : context === 'dashboard-builder'
-        ? "Hey! I'm Sandra, and I'm excited to help you design your perfect dashboard. Think of this as your business command center - what matters most to you? Revenue tracking, client bookings, or showcasing your work? Let's make it stunning and functional!"
+        ? "Hey! I'm Sandra, ready to design your perfect dashboard together. Think of this as your business command center - what matters most to you? Revenue tracking, client bookings, or showcasing your work? Let's make it stunning and functional!"
         : "Hey! I'm Sandra, your personal brand strategist. How can I help you today?"
     }
   ]);
@@ -38,7 +38,7 @@ export function SandraAiChat({ context, userContext, dashboardConfig, onUpdate, 
       return response;
     },
     onSuccess: (response) => {
-      const sandraResponse = response.response || response.message || "I understand! Let me help you with that.";
+      const sandraResponse = response.response || response.message || "I understand! Let me analyze your request and provide you with my strategic insights.";
       
       setChatHistory(prev => [
         ...prev,

@@ -246,7 +246,9 @@ export class LocalStreamingEngine {
   private async generateAgentVoiceResponse(request: LocalStreamingRequest, taskType: string, context: any): Promise<string> {
     const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
     if (!agentPersonality) {
-      return "I'm ready to help you with this task using the hybrid intelligence system.";
+      // Use agent ID as fallback name without generic templates
+      const agentName = request.agentId.charAt(0).toUpperCase() + request.agentId.slice(1);
+      return `As ${agentName}, I'll analyze your request and provide you with specialized assistance. Let me process this using the hybrid intelligence system to give you the most effective solution.`;
     }
 
     // Extract agent voice patterns from their personality
