@@ -92,11 +92,8 @@ export class ClaudeApiServiceClean {
       );
       
       // Save to conversation history
-      await this.saveConversationMessage(conversationId, agentId, message, finalResponse, {
-        processingType: hybridResult.processingType,
-        tokensUsed: hybridResult.tokensUsed,
-        tokensSaved: hybridResult.tokensSaved
-      });
+      await this.saveMessageToDb(conversationId, 'user', message);
+      await this.saveMessageToDb(conversationId, 'assistant', finalResponse);
       
       return finalResponse;
     }
