@@ -1465,6 +1465,8 @@ How can I help you further?`;
     agentName: string
   ): Promise<void> {
     try {
+      console.log(`💾 Creating conversation: ID=${conversationId}, User=${userId}, Agent=${agentName}`);
+      
       // Check if conversation exists
       const existing = await db
         .select()
@@ -1474,16 +1476,19 @@ How can I help you further?`;
 
       if (existing.length === 0) {
         // Create new conversation
-        await db.insert(claudeConversations).values({
+        const [newConversation] = await db.insert(claudeConversations).values({
           conversationId,
           userId,
           agentName,
           title: `Chat with ${agentName}`,
-        });
-        console.log(`💾 Created new conversation: ${conversationId}`);
+        }).returning();
+        console.log(`✅ Created new conversation: ${conversationId} with ID: ${newConversation.id}`);
+      } else {
+        console.log(`✅ Using existing conversation: ${conversationId} with ID: ${existing[0].id}`);
       }
     } catch (error) {
       console.error(`❌ Failed to create conversation ${conversationId}:`, error);
+      throw error; // Throw error to surface the issue
     }
   }
 

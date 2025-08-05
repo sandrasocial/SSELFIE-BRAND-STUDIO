@@ -33,7 +33,7 @@ router.get('/conversation-history/:agentId', async (req, res) => {
   try {
     const { agentId } = req.params;
     const user = req.user as any;
-    const userId = user?.claims?.sub || '42585527';
+    const userId = user?.claims?.sub || '42585527'; // Sandra's actual user ID
     
     console.log(`📚 Loading conversation history for agent: ${agentId}, user: ${userId}`);
     
@@ -165,7 +165,7 @@ router.post('/consulting-chat', async (req, res) => {
       });
     }
     
-    const userId = req.user ? (req.user as any).claims.sub : '42585527';
+    const userId = req.user ? (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
     const conversationId = req.body.conversationId || `admin_${agentId}_${Date.now()}`;
     
     // SPECIALIZED AGENT SYSTEM PROMPT: Full personality with role-specific capabilities
@@ -477,6 +477,11 @@ You have complete access to all Replit-level tools for comprehensive implementat
         console.log(`🌊 CLAUDE STREAMING: ${agentId} with authentic personality and full tool access`);
         
         const claudeService = getClaudeService();
+        
+        // CRITICAL FIX: Ensure conversation exists before streaming to prevent foreign key errors
+        console.log(`📝 Creating conversation ${conversationId} for user ${userId} if not exists`);
+        await claudeService.createConversationIfNotExists(conversationId, userId, agentId);
+        
         // Use the actual Claude service that has agent personalities
         const streamingResponse = await claudeService.sendStreamingMessage(
           userId,
