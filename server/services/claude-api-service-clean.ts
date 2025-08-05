@@ -9,6 +9,8 @@ import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consultin
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
+import { AdvancedMemorySystem } from './advanced-memory-system';
+import { IntelligentContextManager } from './intelligent-context-manager';
 
 // Use comprehensive agent personalities from consulting system
 const agentPersonalities = CONSULTING_AGENT_PERSONALITIES;
@@ -423,10 +425,28 @@ How can I help you further?`;
       const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
       const baseSystemPrompt = agentPersonality?.systemPrompt || `You are ${agentId}, a helpful AI assistant.`;
       
-      // Combine system prompts
+      // Enhance system prompt with memory and context intelligence
+      let enhancedSystemPrompt = baseSystemPrompt;
+      
+      // Add memory intelligence context
+      if (agentMemoryProfile) {
+        const memoryContext = `\n\nMEMORY CONTEXT: You have intelligence level ${agentMemoryProfile.intelligenceLevel}/10 and ${agentMemoryProfile.learningPatterns.length} learned patterns. Your memory strength is ${(agentMemoryProfile.memoryStrength * 100).toFixed(0)}%.`;
+        enhancedSystemPrompt += memoryContext;
+      }
+
+      // Add workspace intelligence context  
+      if (workspaceContext.suggestedActions.length > 0) {
+        const contextSuggestions = workspaceContext.suggestedActions
+          .slice(0, 3)
+          .map(s => `${s.action} ${s.files.join(', ')}: ${s.reason}`)
+          .join('\n');
+        enhancedSystemPrompt += `\n\nINTELLIGENT SUGGESTIONS:\n${contextSuggestions}`;
+      }
+
+      // Combine with additional system prompts
       const fullSystemPrompt = systemPrompt 
-        ? `${baseSystemPrompt}\n\nAdditional Instructions: ${systemPrompt}`
-        : baseSystemPrompt;
+        ? `${enhancedSystemPrompt}\n\nAdditional Instructions: ${systemPrompt}`
+        : enhancedSystemPrompt;
 
       // Send agent start event
       res.write(`data: ${JSON.stringify({
@@ -438,6 +458,16 @@ How can I help you further?`;
       // Load conversation history
       const conversationHistory = await this.loadConversationHistory(userId, agentId, conversationId);
       console.log(`💭 CONTEXT: Loaded ${conversationHistory.length} previous messages for ${agentId}`);
+
+      // Initialize advanced memory system for agent
+      const memorySystem = AdvancedMemorySystem.getInstance();
+      const agentMemoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
+      console.log(`🧠 MEMORY: ${agentId} intelligence level ${agentMemoryProfile?.intelligenceLevel || 'new'}`);
+
+      // Prepare intelligent workspace context
+      const contextManager = IntelligentContextManager.getInstance();
+      const workspaceContext = await contextManager.prepareAgentWorkspace(message, agentId);
+      console.log(`🔍 WORKSPACE: Prepared context with ${workspaceContext.relevantFiles.length} relevant files`);
 
       // Prepare messages for Claude with conversation history
       const messages: Anthropic.MessageParam[] = [
@@ -798,14 +828,14 @@ How can I help you further?`;
       console.log(`💭 CONTEXT: Found ${messages.length} messages in conversation ${conversationId}`);
 
       // Convert to Claude message format
-      const claudeMessages: Anthropic.MessageParam[] = messages
+      const claudeMessageHistory: Anthropic.MessageParam[] = messages
         .filter(msg => msg.role !== 'system') // Exclude system messages
         .map(msg => ({
           role: msg.role as 'user' | 'assistant',
           content: msg.content
         }));
 
-      return claudeMessages;
+      return claudeMessageHistory;
 
     } catch (error) {
       console.error(`❌ CONTEXT ERROR: Failed to load conversation history for ${agentId}:`, error);
