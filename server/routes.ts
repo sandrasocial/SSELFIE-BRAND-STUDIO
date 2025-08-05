@@ -1671,18 +1671,18 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Use existing admin user ID 
       const userId = '42585527';
       
-      // DIRECT AGENT ACCESS: Route directly to Claude API with workspace tools
-      const { ClaudeApiService } = await import('./services/claude-api-service');
-      const claudeService = new ClaudeApiService();
+      // INTELLIGENT ORCHESTRATION: Route to clean Claude API service
+      const { ClaudeApiServiceClean } = await import('./services/claude-api-service-clean');
+      const claudeService = new ClaudeApiServiceClean();
       
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
       
       const response = await claudeService.sendMessage(
         userId,
         agentName,
-        conversationId,
+        conversationId || `conv_${Date.now()}`,
         message,
-        undefined, // systemPrompt
+        '', // systemPrompt
         fileEditMode
       );
       

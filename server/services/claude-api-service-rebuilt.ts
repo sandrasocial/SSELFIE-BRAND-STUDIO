@@ -54,19 +54,13 @@ export interface AgentMessage {
  * five competing architecture layers causing agent dysfunction. This version
  * provides direct communication with Claude API while maintaining full tool access.
  */
-export class ClaudeApiServiceRebuilt {
-  // ENTERPRISE INTELLIGENCE COMPONENTS - FULLY INITIALIZED
-  private contextManager = IntelligentContextManager.getInstance();
-  private errorPrevention = PredictiveErrorPrevention.getInstance();
-  // ARCHIVED: Legacy memory system replaced with intelligent orchestration
-  // private memorySystem = advancedMemorySystem;
-  // ARCHIVED: Legacy cross-agent intelligence replaced with intelligent orchestration
-  // private crossAgent = crossAgentIntelligence;
-  // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
-  private webSearch = new WebSearchOptimizationService();
-  // private workspaceService = new UnifiedWorkspaceService(); // Constructor is private
-  private deploymentTracker = new DeploymentTrackingService();
-  private progressTracker = new ProgressTrackingService();
+export class ClaudeApiServiceClean {
+  // ARCHIVED: Legacy intelligence components replaced with intelligent orchestration
+  // private contextManager = IntelligentContextManager.getInstance();
+  // private errorPrevention = PredictiveErrorPrevention.getInstance();
+  // private webSearch = new WebSearchOptimizationService();
+  // private deploymentTracker = new DeploymentTrackingService();
+  // private progressTracker = new ProgressTrackingService();
   
   // INFINITE LOOP PREVENTION
   private conversationLoops = new Map<string, number>();
@@ -855,69 +849,9 @@ export class ClaudeApiServiceRebuilt {
     // ENTERPRISE INTELLIGENCE INTEGRATION - Enhanced agent execution
     console.log(`🧠 ENTERPRISE INTELLIGENCE: Processing ${agentId} request with enhanced capabilities`);
     
-    // Step 1: MEMORY SYSTEM INTEGRATION - Load agent memory BEFORE processing
+    // INTELLIGENT ORCHESTRATION: Agent uses new zero-cost tool system
+    console.log(`🎯 INTELLIGENT ORCHESTRATION: ${agentId} with zero-cost tool execution`);
     let memoryContext = '';
-    try {
-      const memoryProfile = await this.memorySystem.getAgentMemoryProfile(agentId, userId);
-      if (memoryProfile) {
-        console.log(`🧠 MEMORY: Agent ${agentId} loaded profile with ${memoryProfile.learningPatterns.length} patterns`);
-        
-        memoryContext = `\n\n**AGENT MEMORY CONTEXT:**
-- Learning Patterns: ${memoryProfile.learningPatterns.length} active patterns
-- Intelligence Level: ${memoryProfile.intelligenceLevel}
-- Collaboration History: ${memoryProfile.collaborationHistory.length} interactions
-- Last Optimization: ${memoryProfile.lastOptimization.toDateString()}
-- Memory Strength: ${memoryProfile.memoryStrength}`;
-        
-        console.log(`🧠 MEMORY: ${agentId} enhanced with memory context for conversation`);
-      } else {
-        // Create default memory profile if none exists
-        const defaultProfile = {
-          agentName: agentId,
-          userId,
-          memoryStrength: 0.5,
-          learningPatterns: [],
-          collaborationHistory: [],
-          intelligenceLevel: 1.0,
-          lastOptimization: new Date()
-        };
-        await this.memorySystem.updateAgentMemoryProfile(agentId, userId, defaultProfile);
-        console.log(`🧠 MEMORY: Created default profile for ${agentId}`);
-      }
-    } catch (error) {
-      console.warn('Memory system initialization failed:', error);
-    }
-    
-    // Step 2: Predictive Error Prevention
-    try {
-      const validationResult = await this.errorPrevention.validateOperation({
-        operation: { userId, agentId, message, tools },
-        context: `Agent ${agentId} conversation`,
-        agentType: agentId
-      });
-      
-      if (!validationResult.valid && validationResult.predictions.some(p => p.severity === 'critical')) {
-        console.warn(`⚠️ PREDICTIVE ERROR: Critical issues detected for ${agentId}`);
-      }
-    } catch (error) {
-      console.warn('Enterprise intelligence validation failed, continuing with basic execution:', error);
-    }
-    
-    // Step 3: Intelligent Context Analysis
-    try {
-      const contextAnalysis = await this.contextManager.prepareAgentWorkspace(message, agentId);
-      console.log(`🧠 CONTEXT: Enhanced ${agentId} with ${contextAnalysis.relevantFiles.length} relevant files`);
-    } catch (error) {
-      console.warn('Context analysis failed, continuing:', error);
-    }
-    
-    // Step 4: Enhanced Search Caching
-    try {
-      const searchContext = agentSearchCache.getSearchContext(conversationId, agentId);
-      console.log(`🔍 CACHE: ${agentId} has ${searchContext.totalFilesSearched} cached files`);
-    } catch (error) {
-      console.warn('Search cache failed, continuing:', error);
-    }
 
     console.log(`🤖 CLAUDE API: ${agentId} processing message`);
     
@@ -1694,5 +1628,5 @@ I have complete workspace access and can implement any changes you need. What wo
 }
 
 // Export singleton instance
-export const claudeApiService = new ClaudeApiServiceRebuilt();
-export const claudeApiServiceRebuilt = new ClaudeApiServiceRebuilt();
+export const claudeApiService = new ClaudeApiServiceClean();
+export const claudeApiServiceRebuilt = new ClaudeApiServiceClean();
