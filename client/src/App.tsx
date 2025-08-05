@@ -71,6 +71,7 @@ import SwitchAccount from "@/pages/switch-account";
 import LaunchCountdown from "@/pages/launch-countdown";
 import AdminAccessOnly from "@/pages/admin-access-only";
 import Build from "@/pages/build";
+import HybridChatTest from "@/pages/hybrid-chat-test";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -284,6 +285,7 @@ function Router() {
 
 
       <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
+      <Route path="/admin/hybrid-test" component={(props) => <ProtectedRoute component={HybridChatTest} {...props} />} />
       <Route path="/admin/agent-activity" component={() => <div className="p-8">Agent Activity Dashboard - Coming Soon</div>} />
 
       <Route path="/admin-access-only" component={AdminAccessOnly} />
