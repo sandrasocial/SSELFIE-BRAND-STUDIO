@@ -867,4 +867,56 @@ router.post('/agent-conversation-clear/:agentId', async (req, res) => {
   }
 });
 
+/**
+ * DIRECT REPLIT TOOLS TESTING ENDPOINT
+ * Bypasses hybrid system to test real tool execution
+ */
+router.post('/direct-replit-test', async (req, res) => {
+  try {
+    console.log('🎯 DIRECT REPLIT TEST: Testing real tool execution');
+
+    const { agentId, message, adminToken } = req.body;
+    
+    // Admin authentication
+    if (adminToken !== 'sandra-admin-2025') {
+      return res.status(401).json({
+        success: false,
+        message: 'Admin access required'
+      });
+    }
+
+    if (!agentId || !message?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Agent ID and message are required'
+      });
+    }
+
+    // Import the direct Replit service
+    const { claudeDirectReplit } = await import('../services/claude-direct-replit');
+    
+    // Execute with real Replit tools (no hybrid system)
+    const response = await claudeDirectReplit.executeWithRealTools(
+      agentId,
+      message,
+      `direct-test-${Date.now()}`
+    );
+
+    res.json({
+      success: true,
+      agentId,
+      response,
+      mode: 'direct-replit',
+      toolsUsed: 'real-replit-environment'
+    });
+
+  } catch (error) {
+    console.error('❌ DIRECT REPLIT TEST ERROR:', error);
+    res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Direct tool execution failed'
+    });
+  }
+});
+
 export default router;

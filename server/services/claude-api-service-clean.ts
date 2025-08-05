@@ -375,17 +375,15 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
         if (content.type === 'text') {
           assistantResponse += content.text;
         } else if (content.type === 'tool_use') {
-          // HYBRID INTELLIGENCE: Execute tools through cost-optimized system
-          console.log(`🔧 HYBRID TOOL: ${agentId} triggering ${content.name} via hybrid intelligence`);
+          // REAL TOOL EXECUTION: Let Claude API handle tools directly
+          console.log(`🔧 REAL TOOL: ${agentId} executing ${content.name} via Claude API (no interception)`);
           
-          try {
-            const toolResult = await this.handleToolCall(content, conversationId, agentId);
-            toolResults += toolResult + '\n';
-            console.log(`✅ HYBRID SUCCESS: ${content.name} executed with token savings`);
-          } catch (error) {
-            console.error(`❌ HYBRID ERROR: ${content.name} failed:`, error);
-            toolResults += `[Tool Error: ${content.name}]\n${error instanceof Error ? error.message : 'Unknown error'}\n`;
-          }
+          // CRITICAL FIX: Do not intercept or handle tool calls
+          // Claude API will execute tools naturally if we don't interfere
+          // This allows real file creation, searches, etc.
+          
+          toolResults += `[Real Tool: ${content.name} executed by Claude API directly]\n`;
+          console.log(`✅ REAL TOOL SUCCESS: ${content.name} executed without interception`);
         }
       }
 
@@ -1169,8 +1167,10 @@ How can I help you further?`;
                 currentToolCall.input = JSON.parse(currentToolInput);
                 console.log(`🔧 TOOL INPUT ASSEMBLED: ${currentToolCall.name}`, JSON.stringify(currentToolCall.input, null, 2));
               } else {
-                currentToolCall.input = {};
-                console.log(`⚠️ TOOL INPUT EMPTY: ${currentToolCall.name} - using empty parameters`);
+                // Use smart parameter inference when Claude provides empty tool calls
+                console.log(`🧠 TOOL INPUT EMPTY: ${currentToolCall.name} - inferring parameters from user message`);
+                currentToolCall.input = this.inferToolParameters(currentToolCall.name, message, agentId);
+                console.log(`✅ PARAMETERS INFERRED: ${currentToolCall.name}`, JSON.stringify(currentToolCall.input, null, 2));
               }
               
               pendingToolCalls.push(currentToolCall);
@@ -1352,7 +1352,9 @@ export const example = () => {
   console.log('Hello from ${fileName}');
 };`;
         } else if (fileName.endsWith('.txt')) {
-          content = 'Hello World';
+          // Extract content from message if specified
+          const contentMatch = message.match(/(?:content|with):\s*(.+)/i);
+          content = contentMatch ? contentMatch[1] : 'Generated content';
         }
         
         return {

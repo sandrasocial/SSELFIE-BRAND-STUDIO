@@ -37,13 +37,28 @@ export class SmartDecisionRouter {
 
   /**
    * TOOL OPERATION ROUTING INTELLIGENCE
-   * ONLY for tool operations - conversations should never reach here
+   * CRITICAL FIX: Route tool operations to CLOUD for real execution
    */
   async routeRequest(request: LocalStreamingRequest): Promise<RoutingDecision> {
     console.log(`🔧 TOOL ROUTER: Analyzing tool operation routing for ${request.agentId}`);
-    console.log(`⚠️  WARNING: This should only handle tool operations, not conversations`);
 
-    // For tool operations, prioritize local processing for cost savings
+    // CRITICAL FIX: Check if this is a tool execution request
+    const isToolExecution = request.context?.toolExecution || 
+                           request.context?.originalTool ||
+                           this.isToolExecutionMessage(request.message);
+
+    if (isToolExecution) {
+      console.log(`🎯 TOOL EXECUTION DETECTED: ${request.context?.originalTool || 'unknown'} - routing to CLOUD for real execution`);
+      
+      return {
+        useLocal: false, // FORCE CLOUD execution for real tools
+        reason: 'Tool execution requires real Replit tools via Claude API',
+        confidence: 1.0,
+        estimatedTokenSaving: 0 // No savings, but tools actually work
+      };
+    }
+
+    // For regular conversations, continue with hybrid optimization
     const localScore = await this.calculateToolCapability(request);
     const cloudNeed = await this.calculateToolComplexity(request);
 
@@ -58,9 +73,22 @@ export class SmartDecisionRouter {
       estimatedTokenSaving
     };
 
-    console.log(`🎯 TOOL ROUTING: ${useLocal ? 'LOCAL' : 'CLOUD'} (${confidence.toFixed(2)} confidence, ${estimatedTokenSaving} tokens saved)`);
+    console.log(`🎯 CONVERSATION ROUTING: ${useLocal ? 'LOCAL' : 'CLOUD'} (${confidence.toFixed(2)} confidence, ${estimatedTokenSaving} tokens saved)`);
 
     return decision;
+  }
+
+  /**
+   * DETECT TOOL EXECUTION MESSAGES
+   * Identify when a message represents tool execution
+   */
+  private isToolExecutionMessage(message: string): boolean {
+    const toolPatterns = [
+      /^(?:Search for|Find|View file|Create file|Edit file|Execute command|Check for errors)/i,
+      /^(?:File operation|Search filesystem)/i
+    ];
+    
+    return toolPatterns.some(pattern => pattern.test(message));
   }
 
   /**
