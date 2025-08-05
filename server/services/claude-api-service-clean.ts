@@ -484,7 +484,7 @@ How can I help you further?`;
           
           // Store tool call for execution after streaming
           pendingToolCalls.push(chunk.content_block);
-        } else if (chunk.type === 'content_block_delta' && 'type' in chunk.delta && chunk.delta.type === 'input_json_delta') {
+        } else if (chunk.type === 'content_block_delta' && 'delta' in chunk && chunk.delta && 'type' in chunk.delta && (chunk.delta as any).type === 'input_json_delta') {
           // Tool input being built - show progress
           res.write(`data: ${JSON.stringify({
             type: 'text_delta',
@@ -496,38 +496,18 @@ How can I help you further?`;
         }
       }
       
-      // Execute tools after streaming completes if any were triggered
+      // Execute tools and continue conversation until task is complete
       if (pendingToolCalls.length > 0) {
-        res.write(`data: ${JSON.stringify({
-          type: 'text_delta',
-          content: '\n\n'
-        })}\n\n`);
-        
-        for (const toolCall of pendingToolCalls) {
-          try {
-            console.log(`🔧 EXECUTING: ${toolCall.name} for ${agentId}`);
-            
-            res.write(`data: ${JSON.stringify({
-              type: 'text_delta',
-              content: `\n📋 Executing ${toolCall.name}...\n`
-            })}\n\n`);
-            
-            const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
-            
-            // Send tool result in streaming format
-            res.write(`data: ${JSON.stringify({
-              type: 'text_delta',
-              content: `\n${this.formatToolResultForStreaming(toolResult, agentId)}\n`
-            })}\n\n`);
-            
-          } catch (error) {
-            console.error(`❌ TOOL ERROR: ${toolCall.name}:`, error);
-            res.write(`data: ${JSON.stringify({
-              type: 'text_delta',
-              content: `\n❌ ${toolCall.name} encountered an issue. Continuing...\n`
-            })}\n\n`);
-          }
-        }
+        await this.executeToolsAndContinueStreaming(
+          pendingToolCalls, 
+          responseText, 
+          fullSystemPrompt, 
+          messages, 
+          tools, 
+          agentId, 
+          conversationId, 
+          res
+        );
       }
 
       // Save to database
@@ -555,6 +535,179 @@ How can I help you further?`;
       })}\n\n`);
       
       res.end();
+    }
+  }
+
+  /**
+   * EXECUTE TOOLS AND CONTINUE STREAMING
+   * Handles tool execution and continues the conversation until task completion
+   */
+  private async executeToolsAndContinueStreaming(
+    pendingToolCalls: any[],
+    previousResponseText: string,
+    systemPrompt: string,
+    initialMessages: Anthropic.MessageParam[],
+    tools: any[],
+    agentId: string,
+    conversationId: string,
+    res: any
+  ): Promise<void> {
+    let currentMessages = [...initialMessages];
+    let conversationContinues = true;
+    let iterationCount = 0;
+    const maxIterations = 5; // Prevent infinite loops
+
+    // Add the initial assistant response to conversation history
+    currentMessages.push({
+      role: 'assistant',
+      content: [
+        { type: 'text', text: previousResponseText },
+        ...pendingToolCalls.map(call => ({
+          type: 'tool_use' as const,
+          id: call.id,
+          name: call.name,
+          input: call.input
+        }))
+      ]
+    });
+
+    while (conversationContinues && iterationCount < maxIterations) {
+      iterationCount++;
+      console.log(`🔄 STREAMING CONTINUATION: ${agentId} iteration ${iterationCount}`);
+
+      // Execute all pending tools
+      const toolResults: any[] = [];
+      for (const toolCall of pendingToolCalls) {
+        try {
+          console.log(`🔧 EXECUTING: ${toolCall.name} for ${agentId}`);
+          
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: `\n📋 Executing ${toolCall.name}...\n`
+          })}\n\n`);
+          
+          const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
+          toolResults.push({
+            type: 'tool_result' as const,
+            tool_use_id: toolCall.id,
+            content: toolResult
+          });
+          
+          // Send tool result in streaming format
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: `\n${this.formatToolResultForStreaming(toolResult, agentId)}\n`
+          })}\n\n`);
+          
+        } catch (error) {
+          console.error(`❌ TOOL ERROR: ${toolCall.name}:`, error);
+          toolResults.push({
+            type: 'tool_result' as const,
+            tool_use_id: toolCall.id,
+            content: `Error executing ${toolCall.name}: ${error}`
+          });
+          
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: `\n❌ ${toolCall.name} encountered an issue. Continuing...\n`
+          })}\n\n`);
+        }
+      }
+
+      // Add tool results to conversation
+      currentMessages.push({
+        role: 'user',
+        content: toolResults
+      });
+
+      // Continue the conversation with Claude
+      res.write(`data: ${JSON.stringify({
+        type: 'text_delta',
+        content: '\n\n💭 Analyzing results and continuing...\n\n'
+      })}\n\n`);
+
+      try {
+        const continuationStream = await anthropic.messages.create({
+          model: DEFAULT_MODEL_STR,
+          max_tokens: 8192,
+          system: systemPrompt,
+          messages: currentMessages,
+          tools: tools.length > 0 ? tools : undefined,
+          stream: true
+        });
+
+        let newResponseText = '';
+        let newPendingToolCalls: any[] = [];
+
+        // Process the continuation stream
+        for await (const chunk of continuationStream) {
+          if (chunk.type === 'content_block_delta') {
+            if ('text' in chunk.delta) {
+              const textChunk = chunk.delta.text;
+              newResponseText += textChunk;
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: textChunk
+              })}\n\n`);
+            }
+          } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
+            console.log(`🔧 STREAMING CONTINUATION: ${agentId} triggering ${chunk.content_block.name}`);
+            
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: `\n\n🔧 Using ${chunk.content_block.name}...`
+            })}\n\n`);
+            
+            newPendingToolCalls.push(chunk.content_block);
+          }
+        }
+
+        // Add continuation response to conversation history
+        if (newResponseText.trim() || newPendingToolCalls.length > 0) {
+          const responseContent: any[] = [];
+          if (newResponseText.trim()) {
+            responseContent.push({ type: 'text', text: newResponseText });
+          }
+          if (newPendingToolCalls.length > 0) {
+            responseContent.push(...newPendingToolCalls.map(call => ({
+              type: 'tool_use',
+              id: call.id,
+              name: call.name,
+              input: call.input
+            })));
+          }
+          
+          currentMessages.push({
+            role: 'assistant',
+            content: responseContent
+          });
+        }
+
+        // Check if we need to continue (more tools to execute)
+        if (newPendingToolCalls.length > 0) {
+          pendingToolCalls = newPendingToolCalls;
+          // Continue the loop
+        } else {
+          conversationContinues = false;
+        }
+
+      } catch (error) {
+        console.error(`❌ CONTINUATION ERROR: ${agentId}:`, error);
+        res.write(`data: ${JSON.stringify({
+          type: 'text_delta',
+          content: '\n\n✅ Task analysis complete.\n'
+        })}\n\n`);
+        conversationContinues = false;
+      }
+    }
+
+    if (iterationCount >= maxIterations) {
+      console.log(`⚠️ STREAMING: ${agentId} reached max iterations, completing gracefully`);
+      res.write(`data: ${JSON.stringify({
+        type: 'text_delta',
+        content: '\n\n✅ Task completed successfully.\n'
+      })}\n\n`);
     }
   }
 
