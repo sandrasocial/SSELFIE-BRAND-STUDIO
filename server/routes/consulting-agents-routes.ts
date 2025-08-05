@@ -410,68 +410,39 @@ You have complete access to all Replit-level tools for comprehensive implementat
     
     console.log(`🔍 MESSAGE TYPE: ${classification.type} (${classification.confidence} confidence) - ${classification.reason}`);
 
-    if (classification.forceClaudeAPI) {
-      // 🧠 AGENT CONVERSATION: Use full Claude API intelligence
-      console.log(`🧠 AGENT CONVERSATION: ${agentId} using full Claude API for authentic response`);
-      
-      const claudeService = getClaudeService();
-      const claudeResponse = await claudeService.sendMessage(
-        userId,
-        agentId,
-        conversationId,
-        message,
-        specializedSystemPrompt,
-        true // enableTools
-      );
+    // FORCE ALL REQUESTS THROUGH CLAUDE API FOR AUTHENTIC RESPONSES
+    console.log(`🧠 CLAUDE API REQUIRED: ${agentId} using full intelligence for all operations`);
+    
+    const claudeService = getClaudeService();
+    const claudeResponse = await claudeService.sendMessage(
+      userId,
+      agentId,
+      conversationId,
+      message,
+      specializedSystemPrompt,
+      true // enableTools - ALWAYS true for authentic agent experience
+    );
 
-      if (typeof claudeResponse === 'string') {
-        console.log(`✅ CLAUDE SUCCESS: ${agentId} - Authentic agent response generated`);
-        
-        // For non-streaming requests, return JSON response
-        if (!res.headersSent) {
-          return res.status(200).json({
-            success: true,
-            response: claudeResponse,
-            agentId,
-            conversationId,
-            processingType: 'claude_api',
-            tokensUsed: 0, // Token counting handled by Claude service
-            tokensSaved: 0,
-            processingTime: 0
-          });
-        }
-      }
-    } else {
-      // 🔧 TOOL OPERATION: Use hybrid intelligence for zero-cost operations
-      console.log(`🔧 TOOL OPERATION: ${agentId} using hybrid intelligence for tool execution`);
+    if (typeof claudeResponse === 'string') {
+      console.log(`✅ CLAUDE SUCCESS: ${agentId} - Authentic agent response generated`);
       
-      const hybridOrchestrator = getHybridOrchestrator();
-      const hybridRequest = {
-        agentId,
-        userId,
-        message,
-        conversationId,
-        context: { specializedSystemPrompt }
-      };
-
-      const hybridResult = await hybridOrchestrator.processHybridRequest(hybridRequest);
-      if (hybridResult.success) {
-        console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
+      // For non-streaming requests, return JSON response
+      if (!res.headersSent) {
         return res.status(200).json({
           success: true,
-          response: hybridResult.content,
+          response: claudeResponse,
           agentId,
           conversationId,
-          processingType: hybridResult.processingType,
-          tokensUsed: hybridResult.tokensUsed,
-          tokensSaved: hybridResult.tokensSaved,
-          processingTime: hybridResult.processingTime
+          processingType: 'claude_api',
+          tokensUsed: 0, // Token counting handled by Claude service
+          tokensSaved: 0,
+          processingTime: 0
         });
       }
     }
     
-    // 🎯 STREAMING FALLBACK: Use appropriate streaming based on message type
-    console.log(`⬇️ FALLBACK TO STREAMING: ${agentId} - ${classification.type}`);
+    // 🌊 FORCE STREAMING: All agent responses should use streaming for better UX
+    console.log(`🌊 STREAMING MODE: ${agentId} - Forcing streaming for better user experience`);
     
     // Set response headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
@@ -481,35 +452,19 @@ You have complete access to all Replit-level tools for comprehensive implementat
     res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
 
     try {
-      if (classification.forceClaudeAPI) {
-        // 🧠 CLAUDE STREAMING: Full agent intelligence
-        console.log(`🌊 CLAUDE STREAMING: ${agentId} with full authenticity`);
-        
-        const claudeService = getClaudeService();
-        // Use direct Claude API streaming without hybrid interference
-        await streamDirectClaudeResponse(
-          res,
-          message,
-          specializedSystemPrompt,
-          agentId,
-          conversationId,
-          userId
-        );
-      } else {
-        // 🔧 HYBRID STREAMING: Tool operations only
-        console.log(`🔧 HYBRID STREAMING: ${agentId} with tool optimization`);
-        
-        const hybridOrchestrator = getHybridOrchestrator();
-        const streamRequest = {
-          agentId,
-          userId,
-          message,
-          conversationId,
-          context: { specializedSystemPrompt }
-        };
-
-        await hybridOrchestrator.processHybridStreaming(streamRequest, res);
-      }
+      // 🌊 CLAUDE STREAMING: Full agent intelligence with tools
+      console.log(`🌊 CLAUDE STREAMING: ${agentId} with full authenticity and tool access`);
+      
+      // Use direct Claude API streaming with enhanced system prompt for tools
+      await streamDirectClaudeResponse(
+        res,
+        message,
+        specializedSystemPrompt,
+        agentId,
+        conversationId,
+        userId
+      );
+      
       res.end();
     } catch (error: any) {
       console.error(`❌ STREAMING ERROR: ${agentId}:`, error);
@@ -549,13 +504,74 @@ async function streamDirectClaudeResponse(
       apiKey: process.env.ANTHROPIC_API_KEY,
     });
 
-    console.log(`🧠 DIRECT CLAUDE: ${agentId} bypassing hybrid for authentic response`);
+    console.log(`🧠 DIRECT CLAUDE: ${agentId} with full tool access and context`);
+
+    // Load conversation history for context
+    const { ClaudeApiServiceClean } = await import('../services/claude-api-service-clean');
+    const claudeService = ClaudeApiServiceClean.getInstance();
+    const conversationHistory = await claudeService.loadConversationHistory(conversationId, 10);
+
+    // Enhanced system prompt with tool access
+    const enhancedSystemPrompt = `${systemPrompt}
+
+CONVERSATION CONTEXT: Maintain context from previous messages in this conversation.
+
+TOOL ACCESS: You have full access to enterprise development tools:
+- File operations (create, edit, analyze code)
+- Search codebase and detect errors  
+- Execute system commands
+- Web research
+- Database operations
+
+Use tools actively to help with code generation, file modifications, and technical tasks.`;
 
     const stream = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 4000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: message }],
+      max_tokens: 8000,
+      system: enhancedSystemPrompt,
+      messages: [
+        ...conversationHistory,
+        { role: "user", content: message }
+      ],
+      tools: [
+        {
+          name: 'search_filesystem',
+          description: 'Search for files and code in the repository',
+          input_schema: {
+            type: 'object',
+            properties: {
+              query_description: { type: 'string' },
+              search_paths: { type: 'array', items: { type: 'string' } }
+            }
+          }
+        },
+        {
+          name: 'str_replace_based_edit_tool',
+          description: 'View, create, and edit files',
+          input_schema: {
+            type: 'object',
+            properties: {
+              command: { type: 'string', enum: ['view', 'create', 'str_replace'] },
+              path: { type: 'string' },
+              file_text: { type: 'string' },
+              old_str: { type: 'string' },
+              new_str: { type: 'string' }
+            },
+            required: ['command', 'path']
+          }
+        },
+        {
+          name: 'bash',
+          description: 'Execute bash commands',
+          input_schema: {
+            type: 'object',
+            properties: {
+              command: { type: 'string' }
+            },
+            required: ['command']
+          }
+        }
+      ],
       stream: true,
     });
 
