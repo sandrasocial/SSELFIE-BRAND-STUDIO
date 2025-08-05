@@ -1176,8 +1176,18 @@ How can I help you further?`;
               result: toolResult
             })}\n\n`);
             
-            // Continue conversation with tool result
-            const followUpText = `\n\n✅ Tool execution complete. Based on the results, let me provide you with a comprehensive response.`;
+            // CRITICAL FIX: Continue with agent's authentic personality after tool execution
+            const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
+            console.log(`🎭 PERSONALITY CONTINUATION: ${agentId} maintaining authentic voice after tool execution`);
+            
+            let followUpText = '';
+            if (agentId === 'zara') {
+              followUpText = `\n\n*Sliding my designer glasses down with satisfaction, tapping my perfectly manicured nails on my standing desk* \n\nPerfect! I've gathered all the technical intelligence we need, darling. Now let me craft something absolutely exquisite for you! Time to create that gorgeous test button with the luxury architecture it deserves! ✨💎`;
+            } else if (agentId === 'elena') {
+              followUpText = `\n\n*Reviewing the data with strategic precision*\n\nExcellent. I have the intel we need to execute this flawlessly. Let me architect the perfect solution.`;
+            } else {
+              followUpText = `\n\n✅ Tool execution complete. Let me continue with your request.`;
+            }
             
             res.write(`data: ${JSON.stringify({
               type: 'text_delta',
@@ -1198,13 +1208,8 @@ How can I help you further?`;
           }
         }
         
-        // Continue streaming the agent's final response
-        res.write(`data: ${JSON.stringify({
-          type: 'text_delta',
-          content: `\n\nEverything looks good on my end! My systems are operational and ready to help you with any technical challenges or luxury code architecture you need. What would you like to work on today? ✨`
-        })}\n\n`);
-        
-        responseText += `\n\nEverything looks good on my end! My systems are operational and ready to help you with any technical challenges or luxury code architecture you need. What would you like to work on today? ✨`;
+        // REMOVED: Generic final response that was overriding agent personalities
+        // The authentic personality response is already handled in the tool execution loop above
       }
 
       // Save to database with error handling
