@@ -362,8 +362,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 8192,
-        system: fullSystemPrompt,
-        messages,
+        system: systemPrompt,
+        messages: formattedMessages,
         tools
       });
 
@@ -404,7 +404,7 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
       const processedResponse = await this.processResponseForCodeGeneration(
         finalResponse, 
         agentId, 
-        userId, 
+        'admin', 
         conversationId, 
         message
       );
@@ -442,7 +442,7 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
         toolName,
         parameters: toolInput,
         agentId: agentName,
-        userId: 'streaming-user', // For streaming context
+        userId: 'admin', // Use valid user for streaming context
         conversationId,
         context: {
           streamingExecution: true,
@@ -1559,4 +1559,4 @@ How can I help you further?`;
 }
 
 // Export singleton instance
-export const claudeApiServiceClean = new ClaudeApiServiceClean();
+export const claudeApiServiceClean = ClaudeApiServiceClean.getInstance();
