@@ -84,17 +84,23 @@ export class ClaudeApiServiceClean {
     console.log(`🤖 CLAUDE API: ${agentId} processing conversation directly with Claude`);
     
     // Process directly through Claude API without hybrid routing
-    const directResult = await this.processDirectClaudeConversation(
-      agentId, 
-      userId, 
-      conversationId, 
-      message, 
-      fullSystemPrompt, 
-      enableTools
-    );
-    
-    if (directResult) {
-      return directResult;
+    try {
+      const directResult = await this.processDirectClaudeConversation(
+        agentId, 
+        userId, 
+        conversationId, 
+        message, 
+        fullSystemPrompt, 
+        enableTools
+      );
+      
+      if (directResult) {
+        console.log(`✅ DIRECT CLAUDE: ${agentId} authentic response complete`);
+        return directResult;
+      }
+    } catch (error) {
+      console.error(`❌ DIRECT CLAUDE FAILED for ${agentId}:`, error);
+      // Continue to hybrid fallback but prioritize fixing the direct path
     }
 
     // If direct processing somehow fails, try hybrid as fallback
@@ -127,17 +133,43 @@ export class ClaudeApiServiceClean {
       return finalResponse;
     }
     
-    // Fallback to traditional processing if hybrid fails
-    console.log(`⬇️ HYBRID FALLBACK: Using traditional Claude processing - this should not normally happen`);
+    // EMERGENCY FALLBACK: Direct Claude API call bypassing all intelligence systems
+    console.log(`🚨 EMERGENCY CLAUDE FALLBACK: Direct API call for authentic ${agentId} personality`);
     
-    // This fallback should rarely be used since direct Claude processing is now primary
-    const fallbackResponse = `${agentId} is temporarily unavailable. Please try your request again.`;
-    
-    // Save fallback message
-    await this.saveMessageToDb(conversationId, 'user', message);
-    await this.saveMessageToDb(conversationId, 'assistant', fallbackResponse);
-    
-    return fallbackResponse;
+    try {
+      // Emergency direct Claude call with agent personality
+      const emergencyResponse = await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 4000,
+        system: fullSystemPrompt,
+        messages: [{ role: 'user', content: message }]
+      });
+      
+      let assistantResponse = '';
+      for (const content of emergencyResponse.content) {
+        if (content.type === 'text') {
+          assistantResponse += content.text;
+        }
+      }
+      
+      // Save emergency response
+      await this.saveMessageToDb(conversationId, 'user', message);
+      await this.saveMessageToDb(conversationId, 'assistant', assistantResponse);
+      
+      console.log(`✅ EMERGENCY CLAUDE: ${agentId} authentic emergency response complete`);
+      return assistantResponse;
+      
+    } catch (emergencyError) {
+      console.error(`❌ EMERGENCY CLAUDE FAILED:`, emergencyError);
+      
+      // Last resort - minimal fallback with agent name
+      const lastResortResponse = `I'm ${agentId}, your ${agentPersonality?.role || 'AI assistant'}. I'm experiencing some technical difficulties right now, but I'm here to help. Could you please try your request again?`;
+      
+      await this.saveMessageToDb(conversationId, 'user', message);
+      await this.saveMessageToDb(conversationId, 'assistant', lastResortResponse);
+      
+      return lastResortResponse;
+    }
   }
 
   /**
@@ -772,7 +804,7 @@ How can I help you further?`;
       ] : [];
 
       // Send direct request to Claude API
-      const response = await this.anthropic.messages.create({
+      const response = await anthropic.messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 4000,
         system: systemPrompt,
