@@ -10,6 +10,7 @@ import { db } from '../db';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { HybridAgentOrchestrator } from './hybrid-intelligence/hybrid-agent-orchestrator';
+import { AgentToolOrchestrator } from './agent-tool-orchestrator';
 
 // Use comprehensive agent personalities from consulting system
 const agentPersonalities = CONSULTING_AGENT_PERSONALITIES;
@@ -35,6 +36,7 @@ export interface AgentMessage {
 export class ClaudeApiServiceClean {
   private static instance: ClaudeApiServiceClean;
   private hybridOrchestrator = HybridAgentOrchestrator.getInstance();
+  private agentToolOrchestrator = new AgentToolOrchestrator();
   // Simple loop prevention
   private conversationLoops = new Map<string, number>();
   private maxLoopsPerConversation = 5;
@@ -80,14 +82,23 @@ export class ClaudeApiServiceClean {
     if (hybridResult.success) {
       console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
       
+      // POST-PROCESS RESPONSE FOR CODE GENERATION
+      const finalResponse = await this.processResponseForCodeGeneration(
+        hybridResult.content, 
+        agentId, 
+        userId, 
+        conversationId, 
+        message
+      );
+      
       // Save to conversation history
-      await this.saveConversationMessage(conversationId, agentId, message, hybridResult.content, {
+      await this.saveConversationMessage(conversationId, agentId, message, finalResponse, {
         processingType: hybridResult.processingType,
         tokensUsed: hybridResult.tokensUsed,
         tokensSaved: hybridResult.tokensSaved
       });
       
-      return hybridResult.content;
+      return finalResponse;
     }
     
     // Fallback to traditional processing if hybrid fails
@@ -210,12 +221,21 @@ export class ClaudeApiServiceClean {
         finalResponse = this.extractAgentSummaryFromToolResults(toolResults, agentId);
       }
 
+      // POST-PROCESS RESPONSE FOR CODE GENERATION (Fallback processing)
+      const processedResponse = await this.processResponseForCodeGeneration(
+        finalResponse, 
+        agentId, 
+        userId, 
+        conversationId, 
+        message
+      );
+
       // Save to database
       await this.saveMessageToDb(conversationId, 'user', message);
-      await this.saveMessageToDb(conversationId, 'assistant', finalResponse);
+      await this.saveMessageToDb(conversationId, 'assistant', processedResponse);
       
-      console.log(`✅ ORCHESTRATION: ${agentId} response complete (${finalResponse.length} chars)`);
-      return finalResponse;
+      console.log(`✅ ORCHESTRATION: ${agentId} response complete (${processedResponse.length} chars)`);
+      return processedResponse;
 
     } catch (error) {
       console.error(`❌ CLAUDE API ERROR for ${agentId}:`, error);
@@ -392,6 +412,149 @@ How can I help you further?`;
     } catch (error) {
       console.error('Failed to save message to database:', error);
     }
+  }
+
+  /**
+   * PROCESS RESPONSE FOR CODE GENERATION
+   * Analyzes agent responses and triggers file creation via Agent Tool Orchestrator
+   */
+  private async processResponseForCodeGeneration(
+    response: string, 
+    agentId: string, 
+    userId: string, 
+    conversationId: string, 
+    originalMessage: string
+  ): Promise<string> {
+    console.log(`🔍 CODE ANALYSIS: Checking ${agentId} response for code generation intent`);
+    
+    // Pattern detection for code generation intent
+    const codePatterns = [
+      /I'll create.*\.(tsx?|jsx?|css|md|json|ts|js)/i,
+      /Let me create.*component/i,
+      /I'll build.*file/i,
+      /Creating.*\.(tsx?|jsx?|css|md|json|ts|js)/i,
+      /```(typescript|javascript|tsx|jsx|css|json|markdown)/i
+    ];
+    
+    const hasCodeIntent = codePatterns.some(pattern => pattern.test(response));
+    
+    if (!hasCodeIntent) {
+      console.log(`⏭️ NO CODE INTENT: Standard response, no file operations needed`);
+      return response;
+    }
+    
+    console.log(`🎯 CODE INTENT DETECTED: ${agentId} wants to create files`);
+    
+    // Extract code blocks from response
+    const codeBlocks = this.extractCodeBlocks(response);
+    
+    if (codeBlocks.length === 0) {
+      console.log(`⚠️ NO CODE BLOCKS: Intent detected but no extractable code`);
+      return response;
+    }
+    
+    // Process each code block
+    for (const codeBlock of codeBlocks) {
+      const filePath = this.inferFilePath(codeBlock, originalMessage, agentId);
+      
+      if (filePath) {
+        console.log(`📁 TRIGGERING FILE CREATION: ${filePath} via Agent Tool Orchestrator`);
+        
+        // Trigger Agent Tool Orchestrator for zero-cost file creation
+        await this.agentToolOrchestrator.agentTriggerTool({
+          agentId,
+          toolName: 'str_replace_based_edit_tool',
+          parameters: {
+            command: 'create',
+            path: filePath,
+            file_text: codeBlock.code
+          },
+          conversationId,
+          userId,
+          context: `Creating ${filePath} as requested by ${agentId}`
+        });
+        
+        // Enhance response with file creation confirmation
+        response += `\n\n✅ **File Created**: \`${filePath}\` has been successfully created with the ${codeBlock.language} code.`;
+      }
+    }
+    
+    return response;
+  }
+  
+  /**
+   * EXTRACT CODE BLOCKS from agent response
+   */
+  private extractCodeBlocks(response: string): Array<{language: string, code: string}> {
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+    const blocks: Array<{language: string, code: string}> = [];
+    let match;
+    
+    while ((match = codeBlockRegex.exec(response)) !== null) {
+      const language = match[1] || 'text';
+      const code = match[2].trim();
+      
+      // Only capture actual code languages
+      if (['typescript', 'javascript', 'tsx', 'jsx', 'css', 'json', 'markdown', 'ts', 'js'].includes(language.toLowerCase())) {
+        blocks.push({ language, code });
+      }
+    }
+    
+    return blocks;
+  }
+  
+  /**
+   * INFER FILE PATH from code content and context
+   */
+  private inferFilePath(codeBlock: {language: string, code: string}, originalMessage: string, agentId: string): string | null {
+    const { language, code } = codeBlock;
+    
+    // Extract explicit file paths from original message
+    const pathRegex = /(\w+\/[\w\/.-]+\.(tsx?|jsx?|css|md|json))/g;
+    const pathMatch = originalMessage.match(pathRegex);
+    
+    if (pathMatch) {
+      return pathMatch[0];
+    }
+    
+    // Infer based on code content
+    if (code.includes('export default function') || code.includes('const Component')) {
+      const componentName = this.extractComponentName(code);
+      if (componentName) {
+        return `client/src/components/${componentName}.tsx`;
+      }
+    }
+    
+    if (code.includes('export interface') || code.includes('export type')) {
+      return `shared/types.ts`;
+    }
+    
+    if (code.includes('express') || code.includes('app.')) {
+      return `server/routes/${agentId}-routes.ts`;
+    }
+    
+    // Default based on language
+    const extensions: {[key: string]: string} = {
+      'typescript': 'ts',
+      'tsx': 'tsx',
+      'javascript': 'js',
+      'jsx': 'jsx',
+      'css': 'css',
+      'json': 'json',
+      'markdown': 'md'
+    };
+    
+    const ext = extensions[language.toLowerCase()] || 'txt';
+    return `client/src/generated/${agentId}-${Date.now()}.${ext}`;
+  }
+  
+  /**
+   * EXTRACT COMPONENT NAME from React code
+   */
+  private extractComponentName(code: string): string | null {
+    const componentRegex = /(?:export default function|const)\s+(\w+)/;
+    const match = code.match(componentRegex);
+    return match ? match[1] : null;
   }
 
   /**

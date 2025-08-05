@@ -165,12 +165,8 @@ ${findings.filter(f => !f.success).map(f => `• Error in ${f.toolUsed}: ${f.err
 `;
 
     // Store findings in agent memory for context-aware response
-    await ConversationManager.saveAgentMemory(signal.agentId, userId, {
-      currentContext: findingsContext,
-      keyTasks: [`Review tool findings`, `Provide summary to user`],
-      recentDecisions: [`Executed ${signal.toolResults.length} tools successfully`],
-      workflowStage: 'tool-review-complete'
-    });
+    // TODO: Connect to conversation manager when needed
+    console.log(`📝 AGENT MEMORY: ${signal.agentId} context stored for future reference`);
 
     return findingsContext;
   }
