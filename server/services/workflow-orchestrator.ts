@@ -3,7 +3,7 @@
  * Implements enterprise-grade coordination patterns from 2025 best practices
  */
 
-import { ClaudeApiServiceClean } from './claude-api-service-rebuilt';
+import { ClaudeApiServiceClean } from './claude-api-service-clean';
 
 export interface WorkflowTask {
   id: string;

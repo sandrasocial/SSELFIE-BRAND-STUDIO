@@ -2038,7 +2038,7 @@ ${agentConfig.systemPrompt}
         ];
 
         // STREAMLINED AGENT ACCESS: Route to rebuilt Claude API service (300 lines vs 2,214 lines)
-        const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+        const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-clean');
         
         console.log('🎯 STREAMLINED AGENT ACCESS: Using rebuilt Claude API service with complete tool suite');
         
@@ -2125,7 +2125,7 @@ ${agentConfig.systemPrompt}
       // Generate new conversation ID
       const conversationId = `conv_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
       
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-clean');
       const conversationDbId = await claudeApiServiceRebuilt.createConversationIfNotExists(
         userId,
         agentName,
@@ -2158,7 +2158,7 @@ ${agentConfig.systemPrompt}
         });
       }
       
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-clean');
       const messages = await claudeApiServiceRebuilt.getConversationHistory(conversationId);
       
       res.json({ 
@@ -2225,7 +2225,7 @@ ${agentConfig.systemPrompt}
       }
 
       // STREAMLINED SERVICE: Use rebuilt Claude API service
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-clean');
       const response = await claudeApiServiceRebuilt.sendMessage(
         userId,
         agentName,
