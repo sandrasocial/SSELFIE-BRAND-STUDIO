@@ -82,7 +82,7 @@ Now, let's create your editorial website. Tell me about your business - what do 
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'victoria',
-        content: "I'm sorry, I'm having trouble connecting right now. Could you please try again?",
+        content: "Victoria here - just a quick connection hiccup! Let me reconnect my UX systems and I'll be right back to perfecting your website experience.",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);

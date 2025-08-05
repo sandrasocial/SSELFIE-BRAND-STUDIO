@@ -617,7 +617,7 @@ export default function VictoriaBuilder() {
             <div className="text-center py-8">
               <p className="text-gray-500 mb-4">
                 Hi gorgeous! I'm Victoria, your brand strategist and landing page expert. 
-                I'll help you create a stunning business website that converts visitors into clients.
+                Together we'll create a stunning business website that converts visitors into clients.
               </p>
               <p className="text-gray-400 text-sm">
                 Tell me about your business and let's build something amazing together!

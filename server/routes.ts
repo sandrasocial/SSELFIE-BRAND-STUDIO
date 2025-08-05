@@ -1038,7 +1038,7 @@ Rules:
 
       } catch (error) {
         console.error('Maya Claude API error:', error);
-        response = "I'm having trouble connecting to my creative systems right now. Could you try again in a moment? I'm excited to help you create amazing photos! ✨";
+        response = "Maya here - my creative systems are experiencing a brief connection issue. Give me just a moment to reconnect, and I'll be back to creating stunning photos with you. My artistic vision never rests! ✨";
       }
 
       res.json({

@@ -27,7 +27,7 @@ export function registerMayaAIRoutes(app: Express) {
         } else if (message.toLowerCase().includes('product') || message.toLowerCase().includes('service')) {
           response += "Great idea! Product photography will showcase what you offer beautifully. I can create clean product shots, lifestyle product photos, or service demonstration images that highlight your expertise.";
         } else {
-          response += "I'm ready to create amazing photos for your website! I can generate professional headshots, lifestyle shots, behind-the-scenes photos, or product images. What type of photos would work best for your site?";
+          response += "Maya here - let's create something stunning for your website! I specialize in professional headshots, lifestyle shots, behind-the-scenes photos, and product images. What visual story are we telling today?";
         }
       } else {
         response += "I can help you create stunning AI-generated photos! What kind of images are you looking for today?";
