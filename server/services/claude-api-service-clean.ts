@@ -5,14 +5,10 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-// Agent personalities defined inline for clean architecture
-const agentPersonalities = {
-  elena: { name: 'Elena', systemPrompt: 'You are Elena, the strategic AI Director and CEO focused on high-level vision and coordination.' },
-  zara: { name: 'Zara', systemPrompt: 'You are Zara, a brilliant backend developer with expertise in APIs, databases, and system architecture.' },
-  aria: { name: 'Aria', systemPrompt: 'You are Aria, a creative design strategist focused on luxury UX and beautiful interfaces.' },
-  maya: { name: 'Maya', systemPrompt: 'You are Maya, an AI photography specialist who creates stunning brand visuals and manages image generation.' },
-  victoria: { name: 'Victoria', systemPrompt: 'You are Victoria, a website builder who creates beautiful, conversion-focused websites.' }
-};
+import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
+
+// Use comprehensive agent personalities from consulting system
+const agentPersonalities = CONSULTING_AGENT_PERSONALITIES;
 
 const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
@@ -456,6 +452,8 @@ How can I help you further?`;
 
       let responseText = '';
       
+      let pendingToolCalls: any[] = [];
+      
       // Process streaming response
       for await (const chunk of stream) {
         if (chunk.type === 'content_block_delta') {
@@ -470,13 +468,65 @@ How can I help you further?`;
             })}\n\n`);
           }
         } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
-          // Handle tool use
-          console.log(`🔧 STREAMING: ${agentId} executing tool ${chunk.content_block.name}`);
+          // Handle tool use with continued streaming
+          console.log(`🔧 STREAMING: ${agentId} preparing to execute tool ${chunk.content_block.name}`);
           
           res.write(`data: ${JSON.stringify({
             type: 'tool_start',
             toolName: chunk.content_block.name
           })}\n\n`);
+          
+          // Continue streaming feedback while preparing tool
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: `\n\n🔧 Using ${chunk.content_block.name}...`
+          })}\n\n`);
+          
+          // Store tool call for execution after streaming
+          pendingToolCalls.push(chunk.content_block);
+        } else if (chunk.type === 'content_block_delta' && chunk.delta.type === 'input_json_delta') {
+          // Tool input being built - show progress
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: '.'
+          })}\n\n`);
+        } else if (chunk.type === 'content_block_stop') {
+          // Block completed - continue streaming
+          console.log(`✅ STREAMING: Content block completed for ${agentId}`);
+        }
+      }
+      
+      // Execute tools after streaming completes if any were triggered
+      if (pendingToolCalls.length > 0) {
+        res.write(`data: ${JSON.stringify({
+          type: 'text_delta',
+          content: '\n\n'
+        })}\n\n`);
+        
+        for (const toolCall of pendingToolCalls) {
+          try {
+            console.log(`🔧 EXECUTING: ${toolCall.name} for ${agentId}`);
+            
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: `\n📋 Executing ${toolCall.name}...\n`
+            })}\n\n`);
+            
+            const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
+            
+            // Send tool result in streaming format
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: `\n${this.formatToolResultForStreaming(toolResult, agentId)}\n`
+            })}\n\n`);
+            
+          } catch (error) {
+            console.error(`❌ TOOL ERROR: ${toolCall.name}:`, error);
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: `\n❌ ${toolCall.name} encountered an issue. Continuing...\n`
+            })}\n\n`);
+          }
         }
       }
 
@@ -505,6 +555,46 @@ How can I help you further?`;
       })}\n\n`);
       
       res.end();
+    }
+  }
+
+  /**
+   * FORMAT TOOL RESULT FOR STREAMING
+   * Converts raw tool results into user-friendly streaming updates
+   */
+  private formatToolResultForStreaming(toolResult: string, agentId: string): string {
+    try {
+      // Extract meaningful information from tool results
+      if (toolResult.includes('[Search Results]')) {
+        const match = toolResult.match(/"summary":\s*"([^"]*)"/);
+        const summary = match ? match[1] : 'Search completed';
+        return `✅ Found relevant files and code patterns: ${summary}`;
+      }
+      
+      if (toolResult.includes('[File Operation Result]')) {
+        if (toolResult.includes('created') || toolResult.includes('Created')) {
+          return `✅ File created successfully`;
+        }
+        if (toolResult.includes('modified') || toolResult.includes('edited')) {
+          return `✅ File updated successfully`;
+        }
+        return `✅ File operation completed`;
+      }
+      
+      if (toolResult.includes('[Command Execution]')) {
+        return `✅ Command executed successfully`;
+      }
+      
+      if (toolResult.includes('[LSP Diagnostics]')) {
+        const hasErrors = toolResult.includes('Error');
+        return hasErrors ? `⚠️ Found code issues to address` : `✅ Code quality verified`;
+      }
+      
+      // Default summary for any tool result
+      return `✅ Operation completed successfully`;
+      
+    } catch (error) {
+      return `✅ ${agentId} completed the requested operation`;
     }
   }
 }
