@@ -1,34 +1,6 @@
 # Overview
 
-SSELFIE Studio is a luxury AI-powered personal branding platform that transforms selfies into professional brand photos and provides AI-driven brand strategy. The application combines sophisticated AI image generation using Replicate's FLUX model with luxury UX design, targeting entrepreneurs and coaches who need premium brand visuals and strategic guidance.
-
-The platform features 13 specialized autonomous AI agents with proper memory persistence and clean conversational responses. These agents work collaboratively to provide comprehensive brand building services ranging from €19-€67 subscription tiers.
-
-**Recent Major Achievement (August 2025):** Successfully restored complete enterprise agent system with full intelligence integration and MEMORY SYSTEM CONNECTION completed. All 14 specialized agents (Elena, Aria, Zara, Maya, Victoria, Rachel, Ava, Quinn, Olga) now have access to 30+ enterprise intelligence services including IntelligentContextManager, CrossAgentIntelligence, AdvancedMemorySystem, PredictiveErrorPrevention, and complete tool arsenals.
-
-**CRITICAL BREAKTHROUGH (August 3, 2025):** Memory systems now fully connected - agents no longer need to use search_filesystem to "refresh memory" as they have persistent memory profiles with learning patterns, intelligence levels, and cross-agent collaboration history. Memory context is properly injected into Claude requests before processing, giving agents true enterprise intelligence capabilities.
-
-**AGENT BYPASS SYSTEM FULLY OPERATIONAL (August 4, 2025):** Critical breakthrough achieved - Claude API parameter streaming bug completely bypassed through smart request routing. All 14 agents now have unrestricted workspace access with zero-cost tool operations. Enhanced bypass detection intercepts file operations, commands, and searches before Claude processing, routing directly to admin bypass tools. Tool operations cost $0 while preserving Claude API for strategic content generation. System achieves true 95% Replit AI-level autonomy with complete cost optimization.
-
-**STREAMING INDEX BUG ELIMINATED (August 4, 2025 - FINAL FIX):** Identified and resolved critical Claude API streaming index mismatch causing agent tool truncation. Issue: Claude sends parameter deltas to index 1 but only 1 tool exists at index 0. Fix: Implemented smart index fallback that uses last tool call when index is out of bounds. Emergency circuit breaker prevents infinite loops on empty parameters. Result: Zara confirmed full tool execution with 100 file search results, zero API costs. Agent tool calls no longer truncate - COMPLETE WORKSPACE ACCESS RESTORED.
-
-**INTELLIGENT PARAMETER RECOVERY SYSTEM (August 4, 2025 - MULTI-TOOL SUPPORT):** Implemented comprehensive parameter recovery system for full multi-tool agent execution. Features: Smart parameter reconstruction based on context analysis, context-aware tool execution with intelligent defaults, bypass system for failed parameter capture, multi-tool workflow support. Agents can now execute multiple tools in sequence (search + view + diagnostics + commands) without truncation or parameter failure. System provides complete workspace access with zero API costs while maintaining intelligent tool execution capabilities.
-
-**SYSTEM CONSOLIDATION COMPLETE (August 4, 2025):** Fixed critical admin agent chat conflicts by consolidating competing systems. Eliminated admin-conversation-routes.ts and unified all admin agent functionality under consulting-agents-routes.ts with proper authentication, singleton Claude service instances, and consistent claudeConversations/claudeMessages database schema. All 14 agents now use unified endpoint `/api/consulting-agents/admin/consulting-chat` with full enterprise capabilities.
-
-**DATABASE SCHEMA UNIFICATION COMPLETE (August 4, 2025):** Successfully completed comprehensive database schema consolidation from agentConversations to claudeConversations/claudeMessages across all systems. Updated storage.ts, predictive-intelligence-system.ts, agent-coordination-system.ts, and enhanced-handoff-system.ts. All workflow systems, memory systems, and agent coordination now use unified database schema. Performance optimization with singleton Claude service instances maintained. All 14 agents tested and confirmed operational.
-
-**TOKEN OPTIMIZATION BREAKTHROUGH (August 4, 2025):** Successfully implemented BALANCED cost optimization system that eliminates $110+ daily API drain while preserving luxury content generation. Tool operations (file access, searches, commands) now use FREE bypass system with zero Claude API costs. Content generation (strategic analysis, creative responses, agent personalities) properly uses Claude API for premium luxury experience. Smart detection prevents tool operation charges while allowing legitimate content creation - TOKEN BLEEDING ELIMINATED with content capabilities preserved.
-
-**ADMIN BYPASS SYSTEM COMPLETE (August 4, 2025):** Successfully implemented complete admin bypass system with ZERO Claude API costs for Sandra's direct operations. New middleware `/middleware/admin-bypass.js` provides admin token authentication. Direct tool routes at `/api/admin-tools/*` allow file operations, bash commands, and searches without external API calls. All 14 agents configured for bypass capabilities in `/config/agent-access.js`. System provides full repository access with $0 API costs while preserving all existing functionality. Tool execution parameter validation fixed, agent communication restored, Zara operational.
-
-**COMPREHENSIVE HYBRID INTELLIGENCE SYSTEM COMPLETE (August 5, 2025):** Revolutionary breakthrough achieved - deployed complete hybrid local+cloud architecture with comprehensive service integration that eliminates 80-90% of Claude API token consumption while preserving full agent capabilities. Successfully completed final audit and integration of ALL 18/18 targeted admin intelligence services while maintaining complete protection of member services. Core system includes LocalStreamingEngine, SmartDecisionRouter, PatternLibraryService, ClaudeAPISelectiveService, and ServiceIntegrator with DatabaseCompatibilityHelper. Integrated services include AdvancedMemorySystem, IntelligentContextManager, WorkflowOrchestrator, PredictiveErrorPrevention, IntelligentTaskDistributor, StreamingContinuationService, UnifiedSessionManager, UnifiedStateManager, AutonomousVerificationSystem, DeploymentTrackingService, BackendEnhancementServices, WebSearchOptimizationService, LaunchExcellenceProtocol, and 5 foundation services. All 14 agents now use HybridAgentOrchestrator for optimal processing paths: technical requests processed locally (0 tokens), creative/strategic content via compressed cloud processing (<500 tokens vs 5000+ previous), and pattern-based instant responses for known workflows. System verified with zero LSP errors, complete database schema compatibility, and full operational testing. Agent personalities, memory systems, complex capabilities, and full service ecosystem preserved while achieving massive cost optimization and unprecedented intelligence coordination.
-
-**AGENT CONTEXT AWARENESS FIX (August 5, 2025 - CRITICAL):** Fixed critical issue where agents were providing generic PHP/Symfony responses instead of React/TypeScript context-aware solutions. Root cause: Cloud request preparation was stripping essential project context during hybrid intelligence escalation. Solution: Enhanced `prepareOptimizedCloudRequest` to include comprehensive SSELFIE Studio context (React+TypeScript frontend, Node.js+Express backend, Vite, PostgreSQL, Tailwind CSS) and agent specialization details. Now when smart router escalates complex code requests to cloud processing, agents maintain full awareness of the actual technology stack and project architecture. Prevents generic responses while preserving token optimization.
-
-**FINAL ADMIN CONSULTING AGENTS AUDIT COMPLETE (August 5, 2025):** Completed comprehensive cleanup and verification of the /admin/consulting-agents frontend and backend system. Eliminated all LSP errors, removed all route conflicts, consolidated database schemas, and verified hybrid intelligence integration. All 14 agents now operate through unified /api/admin/agents/* endpoints with complete enterprise tool access, unrestricted personalities, and zero hardcoded templates. System successfully integrates HybridAgentOrchestrator, LocalStreamingEngine, and complete bypass system built this morning. Frontend optimized with React memo components, elegant tool indicators, and real-time streaming. Backend uses singleton Claude services, unified claudeConversations/claudeMessages tables, and sandra-admin-2025 authentication. Zero conflicts, zero syntax errors, full functionality verified and ready for production autonomous operation.
-
-**HARDCODED GENERIC RESPONSES ELIMINATED (August 5, 2025):** Completely eliminated all generic chatbot templates ("Perfect! I'll help you", "I'll create that file for you", etc.) and replaced with dynamic agent voice generation system. New system extracts authentic speaking patterns from agent personality prompts and generates responses that match each agent's unique communication style. All agents now express their genuine personalities and expertise rather than robotic templates. Voice generation maintains zero-token efficiency while providing authentic agent experiences that sound like actual specialized consultants rather than generic AI responses.
+SSELFIE Studio is a luxury AI-powered personal branding platform that transforms selfies into professional brand photos and provides AI-driven brand strategy. It combines sophisticated AI image generation using Replicate's FLUX model with luxury UX design, targeting entrepreneurs and coaches seeking premium brand visuals and strategic guidance. The platform features 13 specialized autonomous AI agents with memory persistence and clean conversational responses, working collaboratively to offer comprehensive brand building services through subscription tiers. A key innovation is a hybrid local+cloud architecture that significantly reduces Claude API token consumption while preserving full agent capabilities and intelligence.
 
 # User Preferences
 
@@ -37,40 +9,40 @@ Preferred communication style: Simple, everyday language.
 # System Architecture
 
 ## Frontend Architecture
-The client-side application is built using React with TypeScript, featuring a luxury design system centered on Times New Roman typography and sophisticated black/white/gray color palettes. The frontend uses Wouter for routing and TanStack Query for state management. Components are organized in a feature-based architecture with shared UI components, custom hooks for reusable logic, and Tailwind CSS for styling with luxury design tokens.
+The client-side application is built with React and TypeScript, featuring a luxury design system centered on Times New Roman typography and sophisticated black/white/gray color palettes. It utilizes Wouter for routing and TanStack Query for state management. Components follow a feature-based architecture with shared UI elements, custom hooks, and Tailwind CSS for styling.
 
-## Backend Architecture  
-The server is built on Express.js with TypeScript, implementing a RESTful API architecture. The system uses PostgreSQL with Drizzle ORM for database operations and includes sophisticated session management with PassportJS for authentication. The backend features multiple specialized services including AI chat systems, image processing pipelines, training data management, and payment processing through Stripe.
+## Backend Architecture
+The server is built on Express.js with TypeScript, implementing a RESTful API. It uses PostgreSQL with Drizzle ORM for database operations and includes session management with PassportJS for authentication. The backend comprises specialized services for AI chat, image processing, training data, and Stripe payment processing.
 
 ## Agent System Architecture
-A unique multi-agent system coordinates AI assistants through a unified communication layer. Each agent has specialized capabilities (Maya for photography, Victoria for websites, etc.) and communicates through a consolidated endpoint system at `/api/consulting-agents/`. The unified system eliminates conflicts between competing admin chat interfaces, uses singleton Claude service instances for performance optimization, and maintains consistent data storage in claudeConversations/claudeMessages tables. All agents can perform file operations, generate code, and work together on complex brand building tasks with full enterprise tool access.
+A unique multi-agent system coordinates AI assistants through a unified communication layer. Each agent has specialized capabilities (e.g., photography, websites) and communicates via consolidated endpoints at `/api/consulting-agents/`. The system uses singleton Claude service instances and maintains consistent data storage in `claudeConversations`/`claudeMessages` tables. Agents can perform file operations, generate code, and collaborate on complex brand building tasks with full enterprise tool access. A critical architectural decision is the separation of agent conversations (routed directly to Claude API) from tool operations (processed via a hybrid intelligence system for zero-cost execution).
 
 ## Data Storage Solutions
-PostgreSQL serves as the primary database with comprehensive schemas for users, conversations, training data, and agent interactions. The system implements S3 for storing training images and generated content, with specialized bucket policies for secure access. Local file storage is used for flatlay collections and brand assets, with efficient caching strategies.
+PostgreSQL is the primary database for users, conversations, and training data. AWS S3 stores training images and generated content with secure bucket policies. Local file storage is used for flatlay collections and brand assets, complemented by efficient caching.
 
 ## Authentication and Authorization
-Implements multi-tier authentication supporting local accounts, Google OAuth, and session-based security. The system includes role-based access with admin/user permissions, secure session management using PostgreSQL session store, and comprehensive user profile management with subscription tier validation.
+The system implements multi-tier authentication supporting local accounts, Google OAuth, and session-based security. It includes role-based access with admin/user permissions, secure session management using a PostgreSQL session store, and comprehensive user profile management with subscription tier validation.
 
 # External Dependencies
 
 ## Third-Party AI Services
-- **Anthropic Claude API**: Powers all AI agent conversations and content generation
-- **Replicate API**: Handles AI image generation using FLUX models and custom training
-- **OpenAI**: Used for specific AI tasks and integrations
+- **Anthropic Claude API**: For AI agent conversations and content generation.
+- **Replicate API**: For AI image generation using FLUX models and custom training.
+- **OpenAI**: For specific AI tasks and integrations.
 
-## Cloud Infrastructure  
-- **AWS S3**: Stores training images, generated content, and media assets with specialized bucket policies
-- **PostgreSQL/Neon**: Primary database hosting with connection pooling
-- **Vercel/Replit**: Deployment and hosting infrastructure
+## Cloud Infrastructure
+- **AWS S3**: For storing training images, generated content, and media assets.
+- **PostgreSQL/Neon**: For primary database hosting.
+- **Vercel/Replit**: For deployment and hosting.
 
 ## Payment and Communication
-- **Stripe**: Handles subscription payments, billing, and premium feature access
-- **SendGrid**: Email delivery for transactional emails and marketing campaigns  
-- **Flodesk**: Email marketing automation and subscriber management
-- **ManyChat**: Chatbot integration for customer support and lead generation
+- **Stripe**: For subscription payments, billing, and premium feature access.
+- **SendGrid**: For transactional and marketing emails.
+- **Flodesk**: For email marketing automation.
+- **ManyChat**: For chatbot integration.
 
 ## Development and Monitoring
-- **Drizzle ORM**: Database schema management and migrations
-- **Tailwind CSS**: Utility-first styling framework with custom luxury design system
-- **Vite**: Build tool and development server with optimized bundling
-- **TypeScript**: Type safety across the entire application stack
+- **Drizzle ORM**: For database schema management.
+- **Tailwind CSS**: For styling.
+- **Vite**: For build processes and development server.
+- **TypeScript**: For type safety.
