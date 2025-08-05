@@ -41,6 +41,34 @@ export class ClaudeApiServiceClean {
   private conversationLoops = new Map<string, number>();
   private maxLoopsPerConversation = 5;
   private maxTokensPerRequest = 50000;
+  
+  // Tool definitions for streaming continuation
+  private toolDefinitions = [
+    {
+      name: "search_filesystem",
+      description: "Search for files and code in the project",
+      input_schema: {
+        type: "object",
+        properties: {
+          query_description: { type: "string", description: "Search query" }
+        }
+      }
+    },
+    {
+      name: "str_replace_based_edit_tool", 
+      description: "Create, view, and edit files",
+      input_schema: {
+        type: "object",
+        properties: {
+          command: { type: "string", enum: ["view", "create", "str_replace"] },
+          path: { type: "string", description: "File path" },
+          file_text: { type: "string", description: "File content for create" },
+          old_str: { type: "string", description: "Text to replace" },
+          new_str: { type: "string", description: "Replacement text" }
+        }
+      }
+    }
+  ];
 
   private constructor() {}
 
@@ -1283,7 +1311,7 @@ How can I help you further?`;
             max_tokens: 4000,
             system: systemPrompt,
             messages: continuationMessages,
-            tools: this.getConsultingToolDefinitions()
+            tools: this.toolDefinitions
           });
           
           // Process continuation stream with support for additional tool calls
