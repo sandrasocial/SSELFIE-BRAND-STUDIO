@@ -74,6 +74,15 @@ export class ClaudeApiServiceClean {
     
     // Get agent personality directly
     const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
+    console.log(`🎭 PERSONALITY CHECK: ${agentId} -> ${agentPersonality ? 'FOUND ✅' : 'NOT FOUND ❌'}`);
+    if (agentPersonality) {
+      console.log(`🎭 LOADED: ${agentPersonality.name} - ${agentPersonality.role}`);
+      console.log(`🎭 SYSTEM PROMPT LENGTH: ${agentPersonality.systemPrompt?.length || 0} characters`);
+    } else {
+      console.error(`❌ PERSONALITY ERROR: No personality found for ${agentId}`);
+      console.error(`❌ Available agents:`, Object.keys(agentPersonalities));
+    }
+    
     const baseSystemPrompt = agentPersonality?.systemPrompt || `You are ${agentId}, a helpful AI assistant.`;
     
     // Enhanced system prompt with tool access and context awareness
