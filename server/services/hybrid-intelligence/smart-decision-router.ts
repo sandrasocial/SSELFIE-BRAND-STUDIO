@@ -175,12 +175,24 @@ export class SmartDecisionRouter {
       /write.*(?:complete|comprehensive|production|professional)/i,
       /create.*(?:full|complete|robust|scalable)/i,
       /implement.*(?:complex|advanced|enterprise)/i,
-      /build.*(?:complete|full|production|professional)/i
+      /build.*(?:complete|full|production|professional)/i,
+      // Enhanced patterns for better detection
+      /create.*(?:react|typescript).*(?:component|hooks|interfaces)/i,
+      /react.*(?:component|typescript|hooks|error handling)/i,
+      /typescript.*(?:component|interfaces|hooks|types)/i,
+      /component.*(?:with|using).*(?:hooks|typescript|error|interfaces)/i,
+      /authentication.*(?:component|system|typescript)/i,
+      /user.*(?:authentication|profile|component|management)/i
     ];
 
     // Force Claude API for high-quality code generation
-    if (highQualityCodePatterns.some(pattern => pattern.test(request.message))) {
-      score += 0.95; // Very high cloud necessity for quality code
+    const matchingPatterns = highQualityCodePatterns.filter(pattern => pattern.test(request.message));
+    if (matchingPatterns.length > 0) {
+      score += 0.98; // MAXIMUM cloud necessity for quality code
+      console.log(`🔥 COMPLEX CODE DETECTED: Forcing Claude API for quality generation`);
+      console.log(`🔍 MATCHED PATTERNS: ${matchingPatterns.length} patterns matched for: "${request.message}"`);
+    } else {
+      console.log(`❌ NO COMPLEX CODE PATTERNS MATCHED for: "${request.message}"`);
     }
 
     // Novel or complex reasoning (high cloud necessity)
