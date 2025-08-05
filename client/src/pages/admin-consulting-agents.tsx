@@ -421,7 +421,7 @@ export default function AdminConsultingAgents() {
     setMessages(prev => [...prev, streamingAgentMessage]);
 
     try {
-      // Send request to admin agents endpoint (with personalities)
+      // First try JSON response for hybrid system
       const response = await fetch('/api/admin/agents/consulting-chat', {
         method: 'POST',
         headers: { 
@@ -441,37 +441,115 @@ export default function AdminConsultingAgents() {
         throw new Error(`Agent communication failed: ${response.status}`);
       }
 
-      // Parse JSON response
-      const result = await response.json();
+      // Check if response is JSON (hybrid processing) or SSE (streaming fallback)
+      const contentType = response.headers.get('content-type');
       
-      if (result.success && result.response) {
-        // Update the streaming message with the actual response
-        setMessages(prev => prev.map(msg => 
-          msg.id === agentMessageId 
-            ? { 
-                ...msg, 
-                content: result.response,
-                streaming: false,
-                toolsUsed: result.toolsUsed || []
-              }
-            : msg
-        ));
+      if (contentType?.includes('application/json')) {
+        // Handle JSON response from hybrid system
+        const result = await response.json();
         
-        // Update conversation ID if provided
-        if (result.conversationId) {
-          setConversationId(result.conversationId);
+        if (result.success && result.response) {
+          // Update the streaming message with the actual response
+          setMessages(prev => prev.map(msg => 
+            msg.id === agentMessageId 
+              ? { 
+                  ...msg, 
+                  content: result.response,
+                  streaming: false,
+                  toolsUsed: result.toolsUsed || []
+                }
+              : msg
+          ));
+          
+          // Update conversation ID if provided
+          if (result.conversationId) {
+            setConversationId(result.conversationId);
+          }
+        } else {
+          // Handle error response
+          setMessages(prev => prev.map(msg => 
+            msg.id === agentMessageId 
+              ? { 
+                  ...msg, 
+                  content: `Error: ${result.message || 'Unknown error occurred'}`,
+                  streaming: false 
+                }
+              : msg
+          ));
+        }
+      } else if (contentType?.includes('text/event-stream')) {
+        // Handle SSE streaming response
+        console.log('📡 Streaming response detected, processing SSE...');
+        
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedContent = '';
+        
+        if (reader) {
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              
+              const chunk = decoder.decode(value);
+              const lines = chunk.split('\n');
+              
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  const data = line.slice(6);
+                  
+                  if (data === '[DONE]') {
+                    // Mark streaming as complete
+                    setMessages(prev => prev.map(msg => 
+                      msg.id === agentMessageId 
+                        ? { ...msg, streaming: false }
+                        : msg
+                    ));
+                    break;
+                  }
+                  
+                  try {
+                    const parsed = JSON.parse(data);
+                    
+                    if (parsed.type === 'text_delta') {
+                      accumulatedContent += parsed.content;
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { ...msg, content: accumulatedContent }
+                          : msg
+                      ));
+                    } else if (parsed.type === 'agent_start') {
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { ...msg, content: parsed.message }
+                          : msg
+                      ));
+                    } else if (parsed.type === 'completion') {
+                      console.log(`✅ Streaming completed: ${parsed.processingType}`);
+                    } else if (parsed.type === 'error') {
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { 
+                              ...msg, 
+                              content: `Error: ${parsed.message}`,
+                              streaming: false 
+                            }
+                          : msg
+                      ));
+                    }
+                  } catch (parseError) {
+                    console.error('Failed to parse streaming data:', parseError);
+                  }
+                }
+              }
+            }
+          } finally {
+            reader.releaseLock();
+          }
         }
       } else {
-        // Handle error response
-        setMessages(prev => prev.map(msg => 
-          msg.id === agentMessageId 
-            ? { 
-                ...msg, 
-                content: `Error: ${result.message || 'Unknown error occurred'}`,
-                streaming: false 
-              }
-            : msg
-        ));
+        // Unknown content type
+        throw new Error(`Unexpected response type: ${contentType}`);
       }
 
       console.log(`✅ Agent ${selectedAgent.name} response completed`);
