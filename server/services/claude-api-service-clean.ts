@@ -375,17 +375,10 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
         if (content.type === 'text') {
           assistantResponse += content.text;
         } else if (content.type === 'tool_use') {
-          // INTELLIGENT ORCHESTRATION: Tools executed through bypass system
-          console.log(`🔧 ORCHESTRATION: ${agentId} triggering ${content.name} via zero-cost system`);
-          
-          try {
-            const toolResult = await this.handleToolCall(content, conversationId, agentId);
-            toolResults += toolResult + '\n';
-            console.log(`✅ ORCHESTRATION: ${content.name} executed successfully at $0 cost`);
-          } catch (error) {
-            console.error(`❌ ORCHESTRATION: ${content.name} failed:`, error);
-            toolResults += `[Tool Error: ${content.name}]\n${error instanceof Error ? error.message : 'Unknown error'}\n`;
-          }
+          // CLAUDE API TOOLS: Let Claude handle all tool execution naturally
+          console.log(`🔧 CLAUDE TOOL: ${agentId} using ${content.name} via Claude API`);
+          // Claude API handles tool execution internally - no interference needed
+          toolResults += `[Tool: ${content.name} executed by Claude API]\n`;
         }
       }
 
@@ -400,14 +393,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
         finalResponse = this.extractAgentSummaryFromToolResults(toolResults, agentId);
       }
 
-      // POST-PROCESS RESPONSE FOR CODE GENERATION (Fallback processing)
-      const processedResponse = await this.processResponseForCodeGeneration(
-        finalResponse, 
-        agentId, 
-        'admin', 
-        conversationId, 
-        message
-      );
+      // NO POST-PROCESSING: Keep Claude's natural response unchanged
+      const processedResponse = finalResponse;
 
       // Save to database
       await this.saveMessageToDatabase(conversationId, 'user', message);
@@ -422,56 +409,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
     }
   }
 
-  /**
-   * HANDLE TOOL CALLS THROUGH HYBRID INTELLIGENCE SYSTEM
-   * Routes all tools through the enterprise hybrid intelligence for zero-cost execution
-   */
-  private async handleToolCall(toolCall: any, conversationId: string, agentName: string, userMessage?: string): Promise<string> {
-    const toolName = toolCall.name;
-    let toolInput = toolCall.input;
-    
-    console.log(`🔧 TOOL EXECUTION: ${toolName} for ${agentName}`);
-    console.log(`🔍 TOOL CALL OBJECT:`, JSON.stringify(toolCall, null, 2));
-    console.log(`🔍 TOOL INPUT:`, JSON.stringify(toolInput, null, 2));
-
-    // Handle empty tool parameters from Claude API (known Claude API issue)
-    if (!toolInput || Object.keys(toolInput).length === 0) {
-      console.log(`⚠️ TOOL INPUT EMPTY: ${toolName} - using empty parameters`);
-      // Let the hybrid bridge handle parameter resolution
-    }
-
-
-
-    try {
-      // Import and use the actual hybrid intelligence bridge
-      const { ClaudeHybridBridge } = await import('./claude-hybrid-bridge');
-      const hybridBridge = ClaudeHybridBridge.getInstance();
-      
-      // Execute tool through hybrid intelligence system
-      const result = await hybridBridge.executeToolViaHybrid({
-        toolName,
-        parameters: toolInput,
-        agentId: agentName,
-        userId: 'admin', // Use valid user for streaming context
-        conversationId,
-        context: {
-          streamingExecution: true,
-          timestamp: new Date().toISOString()
-        }
-      });
-
-      if (result.success) {
-        console.log(`✅ HYBRID TOOL SUCCESS: ${toolName} completed in ${result.executionTime}ms, saved ${result.tokensSaved} tokens`);
-        return `[${toolName} Results]\n${JSON.stringify(result.result, null, 2)}`;
-      } else {
-        console.error(`❌ HYBRID TOOL FAILED: ${toolName}`);
-        return `[Tool Error: ${toolName}]\nHybrid execution failed`;
-      }
-    } catch (error) {
-      console.error(`❌ TOOL EXECUTION ERROR for ${toolName}:`, error);
-      return `[Tool Error: ${toolName}]\n${error instanceof Error ? error.message : 'Execution failed'}`;
-    }
-  }
+  // REMOVED: All tool interception and bypass systems
+  // Claude API handles tools naturally without interference
 
 
 
