@@ -4,9 +4,10 @@ import { claudeConversations, claudeMessages, users } from '@shared/schema';
 import { eq, desc } from 'drizzle-orm';
 
 // ENTERPRISE INTELLIGENCE INTEGRATIONS - ALL ENHANCED SERVICES
-import { agentSearchCache } from './agent-search-cache';
-import { advancedMemorySystem } from './advanced-memory-system';
-import { crossAgentIntelligence } from './cross-agent-intelligence';
+// ARCHIVED: Legacy services moved to archive/intelligent-orchestration-cleanup-2025/
+// import { agentSearchCache } from './agent-search-cache';
+// import { advancedMemorySystem } from './advanced-memory-system';
+// import { crossAgentIntelligence } from './cross-agent-intelligence';
 import { IntelligentContextManager } from './intelligent-context-manager';
 import { PredictiveErrorPrevention } from './predictive-error-prevention';
 // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
@@ -57,8 +58,10 @@ export class ClaudeApiServiceRebuilt {
   // ENTERPRISE INTELLIGENCE COMPONENTS - FULLY INITIALIZED
   private contextManager = IntelligentContextManager.getInstance();
   private errorPrevention = PredictiveErrorPrevention.getInstance();
-  private memorySystem = advancedMemorySystem;
-  private crossAgent = crossAgentIntelligence;
+  // ARCHIVED: Legacy memory system replaced with intelligent orchestration
+  // private memorySystem = advancedMemorySystem;
+  // ARCHIVED: Legacy cross-agent intelligence replaced with intelligent orchestration
+  // private crossAgent = crossAgentIntelligence;
   // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
   private webSearch = new WebSearchOptimizationService();
   // private workspaceService = new UnifiedWorkspaceService(); // Constructor is private

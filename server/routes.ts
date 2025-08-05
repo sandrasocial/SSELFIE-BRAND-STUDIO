@@ -25,6 +25,7 @@ import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
 // STEP 3: Advanced Multi-Agent Workflow Orchestration
 import workflowOrchestrationRouter from './routes/workflow-orchestration-routes';
+import intelligentOrchestrationRoutes from './routes/intelligent-orchestration-routes';
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 // Generate Victoria website HTML content
@@ -1352,6 +1353,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   app.use('/api/workflow', workflowOrchestrationRouter);
+  
+  // INTELLIGENT AGENT-TOOL ORCHESTRATION: Sandra's vision implemented
+  app.use('/api/orchestration', intelligentOrchestrationRoutes);
   console.log('🎯 WORKFLOW ORCHESTRATION: Advanced multi-agent coordination active at /api/workflow/*');
   
   // Register flatlay library routes for Victoria
