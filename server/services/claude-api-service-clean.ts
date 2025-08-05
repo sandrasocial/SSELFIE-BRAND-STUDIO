@@ -431,6 +431,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
     const toolInput = toolCall.input;
     
     console.log(`🔧 TOOL EXECUTION: ${toolName} for ${agentName}`);
+    console.log(`🔍 TOOL CALL OBJECT:`, JSON.stringify(toolCall, null, 2));
+    console.log(`🔍 TOOL INPUT:`, JSON.stringify(toolInput, null, 2));
 
     try {
       // Import and use the actual hybrid intelligence bridge
@@ -1134,6 +1136,7 @@ How can I help you further?`;
         } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
           // Handle tool use with continued streaming
           console.log(`🔧 STREAMING: ${agentId} preparing to execute tool ${chunk.content_block.name}`);
+          console.log(`🔧 TOOL BLOCK START:`, JSON.stringify(chunk.content_block, null, 2));
           
           res.write(`data: ${JSON.stringify({
             type: 'tool_start',
@@ -1146,16 +1149,43 @@ How can I help you further?`;
             content: `\n\n🔧 Using ${chunk.content_block.name}...`
           })}\n\n`);
           
-          // Store tool call for execution after streaming
-          pendingToolCalls.push(chunk.content_block);
+          // Store tool call for execution after streaming (initially with basic structure)
+          pendingToolCalls.push({
+            ...chunk.content_block,
+            input: chunk.content_block.input || {},
+            inputJson: ''
+          });
         } else if (chunk.type === 'content_block_delta' && chunk.delta && chunk.delta.type === 'input_json_delta') {
-          // Tool input being built - show progress
+          // Tool input being built progressively - accumulate parameters
+          const currentToolIndex = pendingToolCalls.length - 1;
+          if (currentToolIndex >= 0 && chunk.delta.partial_json) {
+            // Accumulate the JSON input progressively
+            if (!pendingToolCalls[currentToolIndex].inputJson) {
+              pendingToolCalls[currentToolIndex].inputJson = '';
+            }
+            pendingToolCalls[currentToolIndex].inputJson += chunk.delta.partial_json;
+          }
+          
+          // Show progress without overwhelming the stream
           res.write(`data: ${JSON.stringify({
             type: 'text_delta',
             content: '.'
           })}\n\n`);
         } else if (chunk.type === 'content_block_stop') {
-          // Block completed - continue streaming
+          // Block completed - finalize tool input if needed
+          const currentToolIndex = pendingToolCalls.length - 1;
+          if (currentToolIndex >= 0 && pendingToolCalls[currentToolIndex].inputJson) {
+            try {
+              // Parse the accumulated JSON input
+              pendingToolCalls[currentToolIndex].input = JSON.parse(pendingToolCalls[currentToolIndex].inputJson);
+              console.log(`🔧 TOOL INPUT FINALIZED: ${JSON.stringify(pendingToolCalls[currentToolIndex].input)}`);
+            } catch (error) {
+              console.error(`❌ TOOL INPUT PARSE ERROR:`, error);
+              // Fallback to empty input
+              pendingToolCalls[currentToolIndex].input = {};
+            }
+          }
+          
           console.log(`✅ STREAMING: Content block completed for ${agentId}`);
         }
       }
@@ -1208,116 +1238,10 @@ How can I help you further?`;
           }
         }
         
-        console.log(`🚀 TOOL EXECUTION COMPLETE: Starting continuation logic for ${agentId}`);
-        console.log(`🚀 PENDING TOOL CALLS: ${pendingToolCalls.length} tools executed`);
+        console.log(`✅ TOOL EXECUTION COMPLETE: ${agentId} executed ${pendingToolCalls.length} tools successfully`);
         
-        // CRITICAL: Continue conversation with tool results to let agent complete the task
-        console.log(`🔄 CONTINUING CONVERSATION: ${agentId} will process tool results and continue task`);
-        console.log(`🔧 TOOL RESULTS COUNT: ${toolResults.length} results to process`);
-        console.log(`🔧 PENDING TOOLS: ${pendingToolCalls.map(t => t.name).join(', ')}`);
-        
-        // Add tool results to conversation and continue streaming
-        const continuationMessages: Anthropic.MessageParam[] = [
-          ...messages,
-          {
-            role: 'assistant',
-            content: [
-              {
-                type: 'text',
-                text: responseText
-              },
-              ...pendingToolCalls.map(tool => ({
-                type: 'tool_use' as const,
-                id: tool.id,
-                name: tool.name,
-                input: tool.input
-              }))
-            ]
-          },
-          {
-            role: 'user',
-            content: toolResults
-          }
-        ];
-        
-        console.log(`🔄 STARTING CONTINUATION STREAM: Sending tool results back to ${agentId} to continue task completion`);
-        
-        // Continue streaming with tool results - FORCE CONTINUATION
-        try {
-          const continuationStream = await anthropic.messages.create({
-            model: DEFAULT_MODEL_STR,
-            max_tokens: 8192,
-            system: fullSystemPrompt,
-            messages: continuationMessages,
-            tools: tools.length > 0 ? tools : undefined,
-            stream: true
-          });
-          
-          console.log(`✅ CONTINUATION STREAM CREATED: ${agentId} continuing conversation with tool results`);
-        
-        // Process continuation stream
-        let continuationResponse = '';
-        for await (const chunk of continuationStream) {
-          if (chunk.type === 'content_block_delta') {
-            if ('text' in chunk.delta) {
-              const textChunk = chunk.delta.text;
-              continuationResponse += textChunk;
-              responseText += textChunk;
-              
-              // Stream continuation response
-              res.write(`data: ${JSON.stringify({
-                type: 'text_delta',
-                content: textChunk
-              })}\n\n`);
-            }
-          } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
-            // Handle additional tool calls recursively if needed
-            console.log(`🔧 ADDITIONAL TOOL: ${agentId} wants to execute ${chunk.content_block.name}`);
-            
-            res.write(`data: ${JSON.stringify({
-              type: 'tool_start',
-              toolName: chunk.content_block.name
-            })}\n\n`);
-            
-            res.write(`data: ${JSON.stringify({
-              type: 'text_delta',
-              content: `\n\n🔧 Using ${chunk.content_block.name}...`
-            })}\n\n`);
-            
-            // Execute additional tool immediately
-            try {
-              const additionalResult = await this.handleToolCall(chunk.content_block, conversationId, agentId);
-              res.write(`data: ${JSON.stringify({
-                type: 'tool_result',
-                toolName: chunk.content_block.name,
-                result: additionalResult
-              })}\n\n`);
-              
-              res.write(`data: ${JSON.stringify({
-                type: 'text_delta',
-                content: ` ✅ ${chunk.content_block.name} completed`
-              })}\n\n`);
-              
-            } catch (error) {
-              console.error(`❌ Additional tool error:`, error);
-              res.write(`data: ${JSON.stringify({
-                type: 'tool_error',
-                toolName: chunk.content_block.name,
-                error: error instanceof Error ? error.message : 'Unknown error'
-              })}\n\n`);
-            }
-          }
-        }
-        
-        console.log(`✅ CONVERSATION CONTINUATION: ${agentId} completed full task execution`);
-        
-        } catch (continuationError) {
-          console.error(`❌ CONTINUATION ERROR for ${agentId}:`, continuationError);
-          res.write(`data: ${JSON.stringify({
-            type: 'text_delta',
-            content: `\n\n❌ Error continuing conversation: ${continuationError instanceof Error ? continuationError.message : 'Unknown error'}`
-          })}\n\n`);
-        }
+        // For now, let the single tool execution complete naturally
+        // Future enhancement: Add continuation logic for multi-tool workflows
       }
 
       // Save to database with error handling

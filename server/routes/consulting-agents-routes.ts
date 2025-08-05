@@ -185,18 +185,44 @@ You have complete access to all Replit-level tools for comprehensive implementat
       // CORE DEVELOPMENT TOOLS
       {
         name: 'str_replace_based_edit_tool',
-        description: 'Create, view, edit files with precision. Use for all file operations including code generation, content creation, and modifications.',
+        description: 'Create, view, edit files with precision. ALWAYS provide required parameters: command and path. Example: {"command": "create", "path": "client/src/components/TestComponent.tsx", "file_text": "component code"}',
         input_schema: {
           type: 'object',
           properties: {
-            command: { type: 'string', enum: ['view', 'create', 'str_replace', 'insert'] },
-            path: { type: 'string' },
-            file_text: { type: 'string' },
-            old_str: { type: 'string' },
-            new_str: { type: 'string' },
-            insert_line: { type: 'integer' },
-            insert_text: { type: 'string' },
-            view_range: { type: 'array', items: { type: 'integer' } }
+            command: { 
+              type: 'string', 
+              enum: ['view', 'create', 'str_replace', 'insert'],
+              description: 'The file operation to perform. REQUIRED.'
+            },
+            path: { 
+              type: 'string',
+              description: 'The file path. REQUIRED. Example: client/src/components/MyComponent.tsx'
+            },
+            file_text: { 
+              type: 'string',
+              description: 'Full file content for create command'
+            },
+            old_str: { 
+              type: 'string',
+              description: 'Exact text to replace for str_replace command'
+            },
+            new_str: { 
+              type: 'string',
+              description: 'New text for str_replace command'
+            },
+            insert_line: { 
+              type: 'integer',
+              description: 'Line number for insert command'
+            },
+            insert_text: { 
+              type: 'string',
+              description: 'Text to insert for insert command'
+            },
+            view_range: { 
+              type: 'array', 
+              items: { type: 'integer' },
+              description: 'Line range for view command [start, end]'
+            }
           },
           required: ['command', 'path']
         }
@@ -483,7 +509,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
         await claudeService.createConversationIfNotExists(conversationId, userId, agentId);
         
         // Use the actual Claude service that has agent personalities
-        const streamingResponse = await claudeService.sendStreamingMessage(
+        await claudeService.sendStreamingMessage(
           userId,
           agentId,
           conversationId,
@@ -493,10 +519,8 @@ You have complete access to all Replit-level tools for comprehensive implementat
           res
         );
         
-        if (streamingResponse) {
-          console.log(`✅ STREAMING SUCCESS: ${agentId} authentic streaming complete`);
-          return; // Response already sent via streaming
-        }
+        console.log(`✅ STREAMING SUCCESS: ${agentId} authentic streaming complete`);
+        return; // Response already sent via streaming
       } else {
         // 🔧 HYBRID STREAMING: Tool operations only
         console.log(`🔧 HYBRID STREAMING: ${agentId} with tool optimization`);
