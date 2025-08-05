@@ -138,12 +138,12 @@ export class AdvancedMemorySystem {
     try {
       // Save to database
       await db.insert(agentLearning).values({
-        agentName,
+        agentName: agentName,
         userId,
         learningType: pattern.pattern,
         category: pattern.category,
         data: { pattern },
-        confidence: pattern.confidence,
+        confidence: pattern.confidence.toString(),
         frequency: pattern.frequency,
         lastSeen: new Date(),
         context: pattern.contexts.join(',')

@@ -4,14 +4,23 @@ import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
 import { ClaudeApiServiceClean } from '../services/claude-api-service-clean';
+import { HybridAgentOrchestrator } from '../services/hybrid-intelligence/hybrid-agent-orchestrator';
 
-// SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
+// SINGLETON SERVICES: Prevent performance issues from repeated instantiation
 let claudeServiceInstance: ClaudeApiServiceClean | null = null;
+let hybridOrchestratorInstance: HybridAgentOrchestrator | null = null;
 function getClaudeService(): ClaudeApiServiceClean {
   if (!claudeServiceInstance) {
-    claudeServiceInstance = new ClaudeApiServiceClean();
+    claudeServiceInstance = ClaudeApiServiceClean.getInstance();
   }
   return claudeServiceInstance;
+}
+
+function getHybridOrchestrator(): HybridAgentOrchestrator {
+  if (!hybridOrchestratorInstance) {
+    hybridOrchestratorInstance = HybridAgentOrchestrator.getInstance();
+  }
+  return hybridOrchestratorInstance;
 }
 
 const router = Router();
@@ -395,24 +404,35 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
     const claudeService = getClaudeService();
     
-    // 💰 SMART TOKEN OPTIMIZATION: Try bypass first, then allow Claude API for content generation
-    console.log(`💰 TOKEN OPTIMIZATION: ${agentId} attempting cost-efficient execution`);
+    // 🚀 HYBRID INTELLIGENCE: Use hybrid orchestrator for optimal processing
+    console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} using intelligent routing system`);
     
-    const directResult = await claudeService.tryDirectToolExecution?.(message, conversationId, agentId);
-    if (directResult) {
-      console.log(`⚡ BYPASS SUCCESS: ${agentId} executed without Claude API tokens`);
+    const hybridOrchestrator = getHybridOrchestrator();
+    const hybridRequest = {
+      agentId,
+      userId,
+      message,
+      conversationId,
+      context: { specializedSystemPrompt }
+    };
+
+    const hybridResult = await hybridOrchestrator.processHybridRequest(hybridRequest);
+    if (hybridResult.success) {
+      console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
       return res.status(200).json({
         success: true,
-        response: directResult,
+        response: hybridResult.content,
         agentId,
         conversationId,
-        tokenOptimized: true,
-        executionType: 'bypass-execution'
+        processingType: hybridResult.processingType,
+        tokensUsed: hybridResult.tokensUsed,
+        tokensSaved: hybridResult.tokensSaved,
+        processingTime: hybridResult.processingTime
       });
     }
     
-    // 🎯 CONTENT GENERATION: Allow Claude API for strategic responses, code generation, etc.
-    console.log(`🧠 CONTENT GENERATION: ${agentId} needs Claude API for intelligent response`);
+    // 🎯 FALLBACK: Traditional Claude processing if hybrid fails
+    console.log(`⬇️ HYBRID FALLBACK: Using traditional Claude API for ${agentId}`);
     
     // Set response headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
@@ -421,44 +441,19 @@ You have complete access to all Replit-level tools for comprehensive implementat
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     try {
-      // ENHANCED BYPASS DETECTION: Try direct bypass BEFORE Claude API
-      const bypassResult = await claudeService.tryDirectBypass?.(message, conversationId, agentId);
-      if (bypassResult) {
-        console.log(`⚡ ADMIN BYPASS SUCCESS: Direct operation completed without Claude API`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'agent_start',
-          agentName: agentId.charAt(0).toUpperCase() + agentId.slice(1),
-          message: `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} is executing...`
-        })}\n\n`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'text_delta',
-          content: bypassResult
-        })}\n\n`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'completion',
-          agentId: agentId,
-          conversationId,
-          consultingMode: true,
-          success: true
-        })}\n\n`);
-        
-        res.end();
-        return;
-      }
+      // 🚀 HYBRID STREAMING: Use intelligent orchestrator for optimal streaming
+      console.log(`🌊 HYBRID STREAMING: ${agentId} with intelligent routing`);
       
-      // CONTENT GENERATION: Use Claude API for intelligent responses
-      await claudeService.sendStreamingMessage(
-        userId,
+      const hybridOrchestrator = getHybridOrchestrator();
+      const streamRequest = {
         agentId,
-        conversationId,
+        userId,
         message,
-        specializedSystemPrompt,
-        enterpriseTools,
-        res
-      );
+        conversationId,
+        context: { specializedSystemPrompt }
+      };
+
+      await hybridOrchestrator.processHybridStreaming(streamRequest, res);
     } catch (error: any) {
       console.error(`❌ CLAUDE API ERROR: ${agentId}:`, error);
       res.write(`data: ${JSON.stringify({
