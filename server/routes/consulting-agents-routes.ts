@@ -400,42 +400,69 @@ You have complete access to all Replit-level tools for comprehensive implementat
     console.log(`🚀 PARALLEL EXECUTION: Claude 4 parallel tool support enabled`);
     console.log(`💰 TOKEN OPTIMIZATION: Direct execution + efficient API usage active`);
     
-    // 🚀 CLAUDE API DIRECT: Ensure full agent personalities with Claude API
-    console.log(`🚀 CLAUDE API DIRECT: ${agentId} using full personality processing`);
-    
+    // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
+    console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
     const claudeService = getClaudeService();
     
-    try {
-      const response = await claudeService.sendMessage(
-        userId,
-        agentId,
-        conversationId,
-        message,
-        specializedSystemPrompt,
-        true // Enable tools for full agent capabilities
-      );
-      
-      console.log(`✅ CLAUDE SUCCESS: ${agentId} responded with full personality`);
+    // 🚀 HYBRID INTELLIGENCE: Use hybrid orchestrator for optimal processing
+    console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} using intelligent routing system`);
+    
+    const hybridOrchestrator = getHybridOrchestrator();
+    const hybridRequest = {
+      agentId,
+      userId,
+      message,
+      conversationId,
+      context: { specializedSystemPrompt }
+    };
+
+    const hybridResult = await hybridOrchestrator.processHybridRequest(hybridRequest);
+    if (hybridResult.success) {
+      console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
       return res.status(200).json({
         success: true,
-        response: response,
+        response: hybridResult.content,
         agentId,
         conversationId,
-        processingType: 'claude_api_full',
-        tokensUsed: 'optimized',
-        tokensSaved: 0,
-        processingTime: Date.now() - Date.now()
-      });
-    } catch (error: any) {
-      console.error(`❌ CLAUDE API ERROR: ${agentId}:`, error);
-      return res.status(500).json({
-        success: false,
-        message: 'Agent processing failed',
-        error: error?.message || 'Unknown error'
+        processingType: hybridResult.processingType,
+        tokensUsed: hybridResult.tokensUsed,
+        tokensSaved: hybridResult.tokensSaved,
+        processingTime: hybridResult.processingTime
       });
     }
     
-    // This should not execute since we have direct Claude API response above
+    // 🎯 FALLBACK: Traditional Claude processing if hybrid fails
+    console.log(`⬇️ HYBRID FALLBACK: Using traditional Claude API for ${agentId}`);
+    
+    // Set response headers for streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    try {
+      // 🚀 HYBRID STREAMING: Use intelligent orchestrator for optimal streaming
+      console.log(`🌊 HYBRID STREAMING: ${agentId} with intelligent routing`);
+      
+      const hybridOrchestrator = getHybridOrchestrator();
+      const streamRequest = {
+        agentId,
+        userId,
+        message,
+        conversationId,
+        context: { specializedSystemPrompt }
+      };
+
+      await hybridOrchestrator.processHybridStreaming(streamRequest, res);
+    } catch (error: any) {
+      console.error(`❌ CLAUDE API ERROR: ${agentId}:`, error);
+      res.write(`data: ${JSON.stringify({
+        type: 'error',
+        error: 'Streaming failed',
+        message: error.message
+      })}\n\n`);
+      res.end();
+    }
 
   } catch (error: any) {
     console.error('❌ PHASE 3.1 CONSULTING REDIRECTION ERROR:', error);
