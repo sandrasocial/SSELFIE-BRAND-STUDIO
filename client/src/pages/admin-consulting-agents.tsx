@@ -421,7 +421,7 @@ export default function AdminConsultingAgents() {
     setMessages(prev => [...prev, streamingAgentMessage]);
 
     try {
-      // Send request to agent endpoint
+      // Send request to admin agents endpoint (with personalities)
       const response = await fetch('/api/admin/agents/consulting-chat', {
         method: 'POST',
         headers: { 
