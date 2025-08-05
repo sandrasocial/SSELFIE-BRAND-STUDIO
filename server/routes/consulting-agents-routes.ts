@@ -554,7 +554,7 @@ async function streamDirectClaudeResponse(
     // Load conversation history for context
     const { ClaudeApiServiceClean } = await import('../services/claude-api-service-clean');
     const claudeService = ClaudeApiServiceClean.getInstance();
-    const conversationHistory = await claudeService.loadConversationHistory(conversationId, 10);
+    const conversationHistory = await claudeService.loadConversationHistory(conversationId, userId, 10);
 
     // Enhanced system prompt with tool access for authentic agent experience
     const enhancedSystemPrompt = `${systemPrompt}
@@ -674,10 +674,11 @@ HYBRID OPTIMIZATION: Tool executions are optimized for efficiency while preservi
           fullResponse += `\n[Tool executed: ${toolUse.name}]\n`;
         } catch (error) {
           console.error(`❌ Tool execution error:`, error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown tool execution error';
           res.write(`data: ${JSON.stringify({
             type: 'tool_error',
             toolName: toolUse.name,
-            error: error.message
+            error: errorMessage
           })}\n\n`);
         }
       }
