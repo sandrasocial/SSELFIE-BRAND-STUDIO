@@ -102,6 +102,10 @@ router.post('/consulting-chat', async (req, res) => {
     const adminToken = req.body.adminToken || req.headers['x-admin-token'];
     const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
     
+    // Additional fallback for local development
+    const isDevelopmentMode = process.env.NODE_ENV === 'development';
+    const isLocalAdmin = isDevelopmentMode && (req.body.userId === 'admin-sandra' || req.ip === '127.0.0.1');
+    
     console.log('🔐 Auth Debug:', { 
       hasUser: !!user,
       hasReqUser: !!req.user,
@@ -112,11 +116,17 @@ router.post('/consulting-chat', async (req, res) => {
       userData: user ? { id: user.claims?.sub, email: user.claims?.email } : null
     });
     
-    if (!isSessionAuthenticated && !isTokenAuthenticated) {
+    if (!isSessionAuthenticated && !isTokenAuthenticated && !isLocalAdmin) {
       console.log('❌ Admin access denied');
       return res.status(401).json({
         success: false,
-        message: 'Admin access required. Please authenticate as Sandra.'
+        message: 'Admin access required. Please authenticate as Sandra.',
+        debug: {
+          sessionAuth: isSessionAuthenticated,
+          tokenAuth: isTokenAuthenticated,
+          localAdmin: isLocalAdmin,
+          developmentMode: isDevelopmentMode
+        }
       });
     }
     

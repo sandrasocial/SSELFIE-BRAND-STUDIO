@@ -108,6 +108,9 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
 
     console.log(`🤖 CLAUDE API: ${agentId} processing with full tools and context`);
     
+    // Ensure conversation exists before processing
+    await this.createConversationIfNotExists(conversationId, userId, agentId);
+    
     // Load conversation history for context
     const conversationHistory = await this.loadConversationHistory(conversationId, userId, 10);
     
@@ -155,8 +158,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
       );
       
       // Save to conversation history
-      await this.saveMessageToDb(conversationId, 'user', message);
-      await this.saveMessageToDb(conversationId, 'assistant', finalResponse);
+      await this.saveMessageToDatabase(conversationId, 'user', message);
+      await this.saveMessageToDatabase(conversationId, 'assistant', finalResponse);
       
       return finalResponse;
     }
@@ -181,8 +184,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
       }
       
       // Save emergency response
-      await this.saveMessageToDb(conversationId, 'user', message);
-      await this.saveMessageToDb(conversationId, 'assistant', assistantResponse);
+      await this.saveMessageToDatabase(conversationId, 'user', message);
+      await this.saveMessageToDatabase(conversationId, 'assistant', assistantResponse);
       
       console.log(`✅ EMERGENCY CLAUDE: ${agentId} authentic emergency response complete`);
       return assistantResponse;
@@ -193,8 +196,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
       // Last resort - minimal fallback with agent name
       const lastResortResponse = `I'm ${agentId}, your ${agentPersonality?.role || 'AI assistant'}. I'm experiencing some technical difficulties right now, but I'm here to help. Could you please try your request again?`;
       
-      await this.saveMessageToDb(conversationId, 'user', message);
-      await this.saveMessageToDb(conversationId, 'assistant', lastResortResponse);
+      await this.saveMessageToDatabase(conversationId, 'user', message);
+      await this.saveMessageToDatabase(conversationId, 'assistant', lastResortResponse);
       
       return lastResortResponse;
     }
@@ -407,8 +410,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
       );
 
       // Save to database
-      await this.saveMessageToDb(conversationId, 'user', message);
-      await this.saveMessageToDb(conversationId, 'assistant', processedResponse);
+      await this.saveMessageToDatabase(conversationId, 'user', message);
+      await this.saveMessageToDatabase(conversationId, 'assistant', processedResponse);
       
       console.log(`✅ ORCHESTRATION: ${agentId} response complete (${processedResponse.length} chars)`);
       return processedResponse;
@@ -865,8 +868,8 @@ How can I help you further?`;
       const finalResponse = assistantResponse || this.extractAgentSummaryFromToolResults(toolResults, agentId);
 
       // Save to database
-      await this.saveMessageToDb(conversationId, 'user', message);
-      await this.saveMessageToDb(conversationId, 'assistant', finalResponse);
+      await this.saveMessageToDatabase(conversationId, 'user', message);
+      await this.saveMessageToDatabase(conversationId, 'assistant', finalResponse);
       
       console.log(`✅ DIRECT CLAUDE: ${agentId} authentic response complete`);
       return finalResponse;
@@ -877,7 +880,7 @@ How can I help you further?`;
     }
   }
 
-  private async saveMessageToDb(conversationId: string, role: 'user' | 'assistant', content: string): Promise<void> {
+  private async saveMessageToDbOld(conversationId: string, role: 'user' | 'assistant', content: string): Promise<void> {
     try {
       const { db } = await import('../db');
       const { claudeMessages } = await import('../../shared/schema');
@@ -1260,8 +1263,8 @@ How can I help you further?`;
       }
 
       // Save to database
-      await this.saveMessageToDb(conversationId, 'user', message);
-      await this.saveMessageToDb(conversationId, 'assistant', responseText);
+      await this.saveMessageToDatabase(conversationId, 'user', message);
+      await this.saveMessageToDatabase(conversationId, 'assistant', responseText);
 
       // Send completion event with full response
       res.write(`data: ${JSON.stringify({
@@ -1499,6 +1502,60 @@ How can I help you further?`;
       
     } catch (error) {
       return `✅ ${agentId} completed the requested operation`;
+    }
+  }
+
+  /**
+   * CREATE CONVERSATION IF NOT EXISTS
+   * Ensures conversation record exists before saving messages
+   */
+  async createConversationIfNotExists(
+    conversationId: string,
+    userId: string,
+    agentName: string
+  ): Promise<void> {
+    try {
+      // Check if conversation exists
+      const existing = await db
+        .select()
+        .from(claudeConversations)
+        .where(eq(claudeConversations.conversationId, conversationId))
+        .limit(1);
+
+      if (existing.length === 0) {
+        // Create new conversation
+        await db.insert(claudeConversations).values({
+          conversationId,
+          userId,
+          agentName,
+          title: `Chat with ${agentName}`,
+        });
+        console.log(`💾 Created new conversation: ${conversationId}`);
+      }
+    } catch (error) {
+      console.error(`❌ Failed to create conversation ${conversationId}:`, error);
+    }
+  }
+
+  /**
+   * SAVE MESSAGE TO DATABASE
+   * Saves individual message with conversation reference
+   */
+  async saveMessageToDatabase(
+    conversationId: string,
+    role: string,
+    content: string,
+    metadata?: any
+  ): Promise<void> {
+    try {
+      await db.insert(claudeMessages).values({
+        conversationId,
+        role,
+        content,
+        metadata,
+      });
+    } catch (error) {
+      console.error('Failed to save message to database:', error);
     }
   }
 
