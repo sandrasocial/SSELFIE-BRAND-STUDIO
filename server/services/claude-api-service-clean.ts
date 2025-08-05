@@ -6,6 +6,9 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
+import { db } from '../db';
+import { claudeConversations, claudeMessages } from '../../shared/schema';
+import { eq, and, desc } from 'drizzle-orm';
 
 // Use comprehensive agent personalities from consulting system
 const agentPersonalities = CONSULTING_AGENT_PERSONALITIES;
@@ -432,8 +435,13 @@ How can I help you further?`;
         message: `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} is analyzing your request...`
       })}\n\n`);
 
-      // Prepare messages for Claude
+      // Load conversation history
+      const conversationHistory = await this.loadConversationHistory(userId, agentId, conversationId);
+      console.log(`💭 CONTEXT: Loaded ${conversationHistory.length} previous messages for ${agentId}`);
+
+      // Prepare messages for Claude with conversation history
       const messages: Anthropic.MessageParam[] = [
+        ...conversationHistory,
         {
           role: 'user',
           content: message
@@ -748,6 +756,60 @@ How can I help you further?`;
       
     } catch (error) {
       return `✅ ${agentId} completed the requested operation`;
+    }
+  }
+
+  /**
+   * LOAD CONVERSATION HISTORY
+   * Retrieves conversation context for maintaining memory across interactions
+   */
+  private async loadConversationHistory(
+    userId: string, 
+    agentId: string, 
+    conversationId: string
+  ): Promise<Anthropic.MessageParam[]> {
+    try {
+      // Get the conversation
+      const conversations = await db
+        .select()
+        .from(claudeConversations)
+        .where(
+          and(
+            eq(claudeConversations.userId, userId),
+            eq(claudeConversations.agentName, agentId),
+            eq(claudeConversations.conversationId, conversationId)
+          )
+        )
+        .limit(1);
+
+      if (conversations.length === 0) {
+        console.log(`💭 CONTEXT: No existing conversation found for ${agentId}`);
+        return [];
+      }
+
+      // Get recent messages (last 10 to maintain context without overloading)
+      const messages = await db
+        .select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, conversationId))
+        .orderBy(claudeMessages.timestamp)
+        .limit(10);
+
+      console.log(`💭 CONTEXT: Found ${messages.length} messages in conversation ${conversationId}`);
+
+      // Convert to Claude message format
+      const claudeMessages: Anthropic.MessageParam[] = messages
+        .filter(msg => msg.role !== 'system') // Exclude system messages
+        .map(msg => ({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content
+        }));
+
+      return claudeMessages;
+
+    } catch (error) {
+      console.error(`❌ CONTEXT ERROR: Failed to load conversation history for ${agentId}:`, error);
+      return [];
     }
   }
 }
