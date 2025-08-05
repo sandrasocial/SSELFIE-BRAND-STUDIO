@@ -421,12 +421,11 @@ export default function AdminConsultingAgents() {
     setMessages(prev => [...prev, streamingAgentMessage]);
 
     try {
-      // Start Server-Sent Events stream
+      // Send request to agent endpoint
       const response = await fetch('/api/admin/agents/consulting-chat', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream'
+          'Content-Type': 'application/json'
         },
         credentials: 'include',
         body: JSON.stringify({
@@ -442,107 +441,40 @@ export default function AdminConsultingAgents() {
         throw new Error(`Agent communication failed: ${response.status}`);
       }
 
-      // Handle Server-Sent Events stream
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                
-                // Handle different stream events
-                switch (data.type) {
-                  case 'agent_start':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { ...msg, content: `${data.message}\n\n` }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'text_delta':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { ...msg, content: msg.content + data.content }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'tool_start':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { 
-                            ...msg, 
-                            content: msg.content + `\n\n🔧 **Using ${data.toolName}...**\n`,
-                            toolsUsed: [...(msg.toolsUsed || []), data.toolName]
-                          }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'continuing':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { 
-                            ...msg, 
-                            content: msg.content + `\n\n🔄 **${data.message}**\n`
-                          }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'tool_complete':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { 
-                            ...msg, 
-                            content: msg.content + `✅ **${data.toolName} completed**\n\n`
-                          }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'completion':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { ...msg, streaming: false }
-                        : msg
-                    ));
-                    setIsLoading(false);
-                    break;
-                    
-                  case 'error':
-                  case 'stream_error':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { 
-                            ...msg, 
-                            content: msg.content + `\n\n❌ **Error:** ${data.message}`,
-                            streaming: false 
-                          }
-                        : msg
-                    ));
-                    setIsLoading(false);
-                    break;
-                }
-              } catch (parseError) {
-                console.error('Error parsing stream data:', parseError);
+      // Parse JSON response
+      const result = await response.json();
+      
+      if (result.success && result.response) {
+        // Update the streaming message with the actual response
+        setMessages(prev => prev.map(msg => 
+          msg.id === agentMessageId 
+            ? { 
+                ...msg, 
+                content: result.response,
+                streaming: false,
+                toolsUsed: result.toolsUsed || []
               }
-            }
-          }
+            : msg
+        ));
+        
+        // Update conversation ID if provided
+        if (result.conversationId) {
+          setConversationId(result.conversationId);
         }
+      } else {
+        // Handle error response
+        setMessages(prev => prev.map(msg => 
+          msg.id === agentMessageId 
+            ? { 
+                ...msg, 
+                content: `Error: ${result.message || 'Unknown error occurred'}`,
+                streaming: false 
+              }
+            : msg
+        ));
       }
 
-      console.log(`✅ Agent ${selectedAgent.name} streaming completed`);
+      console.log(`✅ Agent ${selectedAgent.name} response completed`);
 
     } catch (error) {
       console.error('Agent communication error:', error);
