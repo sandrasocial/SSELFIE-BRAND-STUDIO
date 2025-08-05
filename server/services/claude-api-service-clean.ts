@@ -1278,12 +1278,7 @@ How can I help you further?`;
           ];
           
           // Continue streaming with Claude API for authentic agent response
-          const Anthropic = (await import('@anthropic-ai/sdk')).default;
-          const claude = new Anthropic({
-            apiKey: process.env.ANTHROPIC_API_KEY,
-          });
-          
-          const continuationStream = await claude.messages.stream({
+          const continuationStream = await anthropic.messages.stream({
             model: 'claude-3-5-sonnet-20241022',
             max_tokens: 4000,
             system: systemPrompt,
