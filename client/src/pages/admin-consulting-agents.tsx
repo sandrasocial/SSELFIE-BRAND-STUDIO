@@ -449,17 +449,31 @@ export default function AdminConsultingAgents() {
         const result = await response.json();
         
         if (result.success && result.response) {
-          // Update the streaming message with the actual response
-          setMessages(prev => prev.map(msg => 
-            msg.id === agentMessageId 
-              ? { 
-                  ...msg, 
-                  content: result.response,
-                  streaming: false,
-                  toolsUsed: result.toolsUsed || []
-                }
-              : msg
-          ));
+          // FIXED: Simulate streaming for better UX even with JSON responses
+          const fullResponse = result.response;
+          const words = fullResponse.split(' ');
+          let currentContent = '';
+          
+          // Animate the response word by word for consistent streaming feel
+          for (let i = 0; i < words.length; i++) {
+            currentContent += (i > 0 ? ' ' : '') + words[i];
+            
+            setMessages(prev => prev.map(msg => 
+              msg.id === agentMessageId 
+                ? { 
+                    ...msg, 
+                    content: currentContent,
+                    streaming: i < words.length - 1,
+                    toolsUsed: result.toolsUsed || []
+                  }
+                : msg
+            ));
+            
+            // Small delay between words for realistic streaming
+            if (i < words.length - 1) {
+              await new Promise(resolve => setTimeout(resolve, 50));
+            }
+          }
           
           // Update conversation ID if provided
           if (result.conversationId) {
@@ -505,6 +519,7 @@ export default function AdminConsultingAgents() {
                         ? { ...msg, streaming: false }
                         : msg
                     ));
+                    console.log('✅ Agent streaming completed successfully');
                     break;
                   }
                   
@@ -526,6 +541,30 @@ export default function AdminConsultingAgents() {
                       ));
                     } else if (parsed.type === 'completion') {
                       console.log(`✅ Streaming completed: ${parsed.processingType}`);
+                      // Mark as completed and ensure no streaming indicator
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { ...msg, streaming: false }
+                          : msg
+                      ));
+                    } else if (parsed.type === 'tool_execution') {
+                      // Handle tool execution during streaming
+                      console.log(`🔧 Tool execution: ${parsed.toolName}`);
+                      accumulatedContent += `\n🔧 Executing ${parsed.toolName}...\n`;
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { ...msg, content: accumulatedContent }
+                          : msg
+                      ));
+                    } else if (parsed.type === 'tool_result') {
+                      // Handle tool results during streaming
+                      console.log(`✅ Tool completed: ${parsed.toolName}`);
+                      accumulatedContent += `\n✅ ${parsed.toolName} completed\n`;
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { ...msg, content: accumulatedContent }
+                          : msg
+                      ));
                     } else if (parsed.type === 'error') {
                       setMessages(prev => prev.map(msg => 
                         msg.id === agentMessageId 
