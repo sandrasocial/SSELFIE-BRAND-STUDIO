@@ -3,7 +3,7 @@
  * Implements enterprise-grade coordination patterns from 2025 best practices
  */
 
-import { ClaudeApiServiceClean } from './claude-api-service-clean';
+// Import will be done dynamically to avoid circular dependency
 
 export interface WorkflowTask {
   id: string;
@@ -37,13 +37,23 @@ export interface WorkflowResult {
 }
 
 export class WorkflowOrchestrator {
-  private claudeService: ClaudeApiServiceClean;
+  private claudeService: any; // Loaded dynamically
   private activeWorkflows: Map<string, WorkflowPlan> = new Map();
   private taskQueues: Map<string, WorkflowTask[]> = new Map();
   private executionResults: Map<string, any> = new Map();
 
   constructor() {
-    this.claudeService = new ClaudeApiServiceClean();
+    // Initialize Claude service dynamically to avoid circular dependency
+    this.initializeClaudeService();
+  }
+
+  private async initializeClaudeService() {
+    try {
+      const { ClaudeApiServiceClean } = await import('./claude-api-service-clean');
+      this.claudeService = ClaudeApiServiceClean.getInstance();
+    } catch (error) {
+      console.error('Failed to initialize Claude service:', error);
+    }
   }
 
   /**
