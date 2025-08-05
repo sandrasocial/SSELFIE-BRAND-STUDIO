@@ -88,17 +88,17 @@ export class AgentToolOrchestrator extends EventEmitter {
           
         case 'str_replace_based_edit_tool':
           const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
-          result = await str_replace_based_edit_tool(request.parameters, true); // Bypass mode
+          result = await str_replace_based_edit_tool(request.parameters);
           break;
           
         case 'bash':
           const { bash } = await import('../tools/bash');
-          result = await bash(request.parameters, true); // Bypass mode
+          result = await bash(request.parameters);
           break;
           
         case 'get_latest_lsp_diagnostics':
           const { get_latest_lsp_diagnostics } = await import('../tools/get_latest_lsp_diagnostics');
-          result = await get_latest_lsp_diagnostics(request.parameters, true); // Bypass mode
+          result = await get_latest_lsp_diagnostics(request.parameters);
           break;
 
         case 'packager_tool':
