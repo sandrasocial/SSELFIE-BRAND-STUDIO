@@ -843,7 +843,7 @@ How can I help you further?`;
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 4000,
         system: systemPrompt,
-        messages: messages,
+        messages: [{ role: 'user', content: message }],
         tools: tools.length > 0 ? tools : undefined
       });
 
@@ -1112,28 +1112,13 @@ How can I help you further?`;
       const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
       const baseSystemPrompt = agentPersonality?.systemPrompt || `You are ${agentId}, a helpful AI assistant.`;
       
-      // Enhance system prompt with memory and context intelligence
-      let enhancedSystemPrompt = baseSystemPrompt;
-      
-      // Add memory intelligence context
-      if (agentMemoryProfile) {
-        const memoryContext = `\n\nMEMORY CONTEXT: You have intelligence level ${agentMemoryProfile.intelligenceLevel}/10 and ${agentMemoryProfile.learningPatterns.length} learned patterns. Your memory strength is ${(agentMemoryProfile.memoryStrength * 100).toFixed(0)}%.`;
-        enhancedSystemPrompt += memoryContext;
-      }
+      // Use enhanced system prompt 
+      console.log(`🎯 AGENT PERSONALITY: Using specialized ${agentId} system prompt`);
 
-      // Add workspace intelligence context  
-      if (workspaceContext.suggestedActions.length > 0) {
-        const contextSuggestions = workspaceContext.suggestedActions
-          .slice(0, 3)
-          .map(s => `${s.action} ${s.files.join(', ')}: ${s.reason}`)
-          .join('\n');
-        enhancedSystemPrompt += `\n\nINTELLIGENT SUGGESTIONS:\n${contextSuggestions}`;
-      }
-
-      // Combine with additional system prompts
+      // Combine base prompt with additional instructions
       const fullSystemPrompt = systemPrompt 
-        ? `${enhancedSystemPrompt}\n\nAdditional Instructions: ${systemPrompt}`
-        : enhancedSystemPrompt;
+        ? `${baseSystemPrompt}\n\nAdditional Instructions: ${systemPrompt}`
+        : baseSystemPrompt;
 
       // Send agent start event
       res.write(`data: ${JSON.stringify({
@@ -1203,7 +1188,7 @@ How can I help you further?`;
           
           // Store tool call for execution after streaming
           pendingToolCalls.push(chunk.content_block);
-        } else if (chunk.type === 'content_block_delta' && chunk.delta && 'type' in chunk.delta) {
+        } else if (chunk.type === 'content_block_delta' && chunk.delta && chunk.delta.type === 'input_json_delta') {
           // Tool input being built - show progress
           res.write(`data: ${JSON.stringify({
             type: 'text_delta',
@@ -1262,9 +1247,15 @@ How can I help you further?`;
         responseText += `\n\nEverything looks good on my end! My systems are operational and ready to help you with any technical challenges or luxury code architecture you need. What would you like to work on today? ✨`;
       }
 
-      // Save to database
-      await this.saveMessageToDatabase(conversationId, 'user', message);
-      await this.saveMessageToDatabase(conversationId, 'assistant', responseText);
+      // Save to database (ensure conversation exists first)
+      try {
+        await this.ensureConversationExists(conversationId, userId, agentId);
+        await this.saveMessageToDatabase(conversationId, 'user', message);
+        await this.saveMessageToDatabase(conversationId, 'assistant', responseText);
+      } catch (error) {
+        console.error('Database save error:', error);
+        // Continue streaming even if database save fails
+      }
 
       // Send completion event with full response
       res.write(`data: ${JSON.stringify({
