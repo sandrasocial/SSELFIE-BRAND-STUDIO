@@ -172,7 +172,7 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
       const emergencyResponse = await anthropic.messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 4000,
-        system: fullSystemPrompt,
+        system: enhancedSystemPrompt,
         messages: [{ role: 'user', content: message }]
       });
       
