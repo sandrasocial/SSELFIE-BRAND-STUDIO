@@ -43,25 +43,58 @@ export class ClaudeHybridBridge {
    */
   async executeToolViaHybrid(request: ToolExecutionRequest): Promise<ToolExecutionResult> {
     const startTime = Date.now();
-    console.log(`🔧 DIRECT TOOL EXECUTION: ${request.agentId} executing ${request.toolName} directly (bypassing complexity)`);
+    console.log(`🌉 CLAUDE→HYBRID BRIDGE: ${request.agentId} executing ${request.toolName} via hybrid intelligence`);
 
     try {
-      // BYPASS ALL COMPLEXITY - Execute tools directly
-      const directResult = await this.executeToolDirectly(request);
-      return {
-        success: directResult.success,
-        result: directResult.result,
-        tokensUsed: 0, // Direct execution is zero-cost
-        tokensSaved: 5000, // Estimated tokens saved vs Claude API
-        executionTime: Date.now() - startTime
+      // Convert tool execution to hybrid request format
+      const hybridRequest: LocalStreamingRequest = {
+        agentId: request.agentId,
+        userId: request.userId,
+        message: this.formatToolExecutionMessage(request.toolName, request.parameters),
+        conversationId: request.conversationId,
+        context: {
+          toolExecution: true,
+          originalTool: request.toolName,
+          originalParameters: request.parameters,
+          ...request.context
+        }
       };
 
+      // Execute through hybrid intelligence system
+      const hybridResult = await this.hybridOrchestrator.processHybridRequest(hybridRequest);
+
+      if (hybridResult.success) {
+        console.log(`✅ HYBRID EXECUTION SUCCESS: ${request.toolName} completed with ${hybridResult.tokensSaved} tokens saved`);
+        
+        return {
+          success: true,
+          result: this.parseToolResult(hybridResult.content, request.toolName),
+          tokensUsed: hybridResult.tokensUsed,
+          tokensSaved: hybridResult.tokensSaved,
+          executionTime: Date.now() - startTime
+        };
+      } else {
+        console.log(`⚠️ HYBRID EXECUTION PARTIAL: ${request.toolName} - attempting direct execution`);
+        
+        // Fallback to direct tool execution if hybrid fails
+        const directResult = await this.executeToolDirectly(request);
+        return {
+          success: directResult.success,
+          result: directResult.result,
+          tokensUsed: 0, // Direct execution still zero-cost
+          tokensSaved: 1000, // Estimated tokens saved vs Claude API
+          executionTime: Date.now() - startTime
+        };
+      }
+
     } catch (error) {
-      console.error(`❌ DIRECT TOOL EXECUTION ERROR: ${request.toolName}:`, error);
+      console.error(`❌ CLAUDE→HYBRID BRIDGE ERROR: ${request.toolName}:`, error);
       
+      // Emergency fallback
+      const emergencyResult = await this.executeToolDirectly(request);
       return {
-        success: false,
-        result: `Tool execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        success: emergencyResult.success,
+        result: emergencyResult.result,
         tokensUsed: 0,
         tokensSaved: 0,
         executionTime: Date.now() - startTime
