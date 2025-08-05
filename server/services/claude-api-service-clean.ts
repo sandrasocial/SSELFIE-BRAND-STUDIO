@@ -66,43 +66,9 @@ export class ClaudeApiServiceClean {
     enableTools: boolean = true
   ): Promise<string> {
     
-    console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} processing with optimal routing`);
+    console.log(`🚀 CLAUDE API DIRECT: ${agentId} processing with full personality preservation`);
     
-    // Try hybrid processing first
-    const hybridRequest = {
-      agentId,
-      userId,
-      message,
-      conversationId,
-      context: { systemPrompt }
-    };
-
-    const hybridResult = await this.hybridOrchestrator.processHybridRequest(hybridRequest);
-    
-    if (hybridResult.success) {
-      console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
-      
-      // POST-PROCESS RESPONSE FOR CODE GENERATION
-      const finalResponse = await this.processResponseForCodeGeneration(
-        hybridResult.content, 
-        agentId, 
-        userId, 
-        conversationId, 
-        message
-      );
-      
-      // Save to conversation history
-      await this.saveConversationMessage(conversationId, agentId, message, finalResponse, {
-        processingType: hybridResult.processingType,
-        tokensUsed: hybridResult.tokensUsed,
-        tokensSaved: hybridResult.tokensSaved
-      });
-      
-      return finalResponse;
-    }
-    
-    // Fallback to traditional processing if hybrid fails
-    console.log(`⬇️ HYBRID FALLBACK: Using traditional Claude processing`);
+    // SKIP HYBRID FOR ADMIN CONSULTING - Preserve full agent personalities
     
     // Get agent personality
     const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
