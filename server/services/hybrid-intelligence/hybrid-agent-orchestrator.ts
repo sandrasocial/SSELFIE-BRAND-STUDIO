@@ -302,15 +302,27 @@ export class HybridAgentOrchestrator {
 
   /**
    * PREPARE OPTIMIZED CLOUD REQUEST
-   * Creates minimal cloud request for token optimization
+   * Creates context-aware cloud request with essential project information
    */
   private async prepareOptimizedCloudRequest(request: LocalStreamingRequest): Promise<any> {
+    // CRITICAL: Include project context to prevent generic responses
+    const projectContext = `
+**SSELFIE STUDIO PROJECT CONTEXT:**
+- Tech Stack: React + TypeScript frontend, Node.js + Express backend
+- Build Tool: Vite
+- Database: PostgreSQL with Drizzle ORM
+- Styling: Tailwind CSS with luxury design system
+- Architecture: Multi-agent AI platform with hybrid intelligence
+- NOT PHP/Symfony - This is a modern JavaScript/TypeScript application
+
+**AGENT ROLE:** ${request.agentId} - Specialized in ${this.getAgentSpecialization(request.agentId)}`;
+
     return {
       agentId: request.agentId,
       userId: request.userId,
       message: request.message,
       conversationId: request.conversationId,
-      compressedContext: `Agent: ${request.agentId} | Task: creative/strategic`,
+      compressedContext: projectContext,
       essentialHistory: [
         {
           role: 'user',
@@ -318,6 +330,25 @@ export class HybridAgentOrchestrator {
         }
       ]
     };
+  }
+
+  /**
+   * GET AGENT SPECIALIZATION
+   * Returns agent's specific domain expertise
+   */
+  private getAgentSpecialization(agentId: string): string {
+    const specializations = {
+      'zara': 'Backend architecture, TypeScript/Node.js development, database operations',
+      'aria': 'Frontend UI/UX, React components, luxury design systems',
+      'maya': 'AI image generation, styling automation, Replicate integration',
+      'elena': 'Project coordination, multi-agent orchestration, strategic planning',
+      'victoria': 'User experience, interface optimization, workflow design',
+      'rachel': 'Content strategy, copywriting, brand voice consistency',
+      'ava': 'Automation systems, workflow integration, process optimization',
+      'quinn': 'Quality assurance, testing protocols, validation systems',
+      'olga': 'Code cleanup, organization, deployment optimization'
+    };
+    return specializations[agentId as keyof typeof specializations] || 'General consulting and implementation';
   }
 
   /**
