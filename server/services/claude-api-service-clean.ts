@@ -1164,37 +1164,31 @@ How can I help you further?`;
       if (pendingToolCalls.length > 0) {
         console.log(`🔧 EXECUTING TOOLS: ${pendingToolCalls.length} tools for ${agentId}`);
         
+        // Build tool results for continuation
+        const toolResults: any[] = [];
+        
         for (const toolCall of pendingToolCalls) {
           try {
             // Execute tool via hybrid intelligence
             const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
             
-            // Stream tool result
+            // Stream tool result feedback
             res.write(`data: ${JSON.stringify({
               type: 'tool_result',
               toolName: toolCall.name,
               result: toolResult
             })}\n\n`);
             
-            // CRITICAL FIX: Continue with agent's authentic personality after tool execution
-            const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
-            console.log(`🎭 PERSONALITY CONTINUATION: ${agentId} maintaining authentic voice after tool execution`);
-            
-            let followUpText = '';
-            if (agentId === 'zara') {
-              followUpText = `\n\n*Sliding my designer glasses down with satisfaction, tapping my perfectly manicured nails on my standing desk* \n\nPerfect! I've gathered all the technical intelligence we need, darling. Now let me craft something absolutely exquisite for you! Time to create that gorgeous test button with the luxury architecture it deserves! ✨💎`;
-            } else if (agentId === 'elena') {
-              followUpText = `\n\n*Reviewing the data with strategic precision*\n\nExcellent. I have the intel we need to execute this flawlessly. Let me architect the perfect solution.`;
-            } else {
-              followUpText = `\n\n✅ Tool execution complete. Let me continue with your request.`;
-            }
-            
             res.write(`data: ${JSON.stringify({
               type: 'text_delta',
-              content: followUpText
+              content: ` ✅ ${toolCall.name} completed`
             })}\n\n`);
             
-            responseText += followUpText;
+            // Store tool result for conversation continuation
+            toolResults.push({
+              tool_use_id: toolCall.id,
+              content: JSON.stringify(toolResult)
+            });
             
           } catch (error) {
             console.error(`❌ Tool execution error for ${agentId}:`, error);
@@ -1205,11 +1199,125 @@ How can I help you further?`;
               toolName: toolCall.name,
               error: errorMessage
             })}\n\n`);
+            
+            // Store error result for conversation continuation
+            toolResults.push({
+              tool_use_id: toolCall.id,
+              content: `Error: ${errorMessage}`
+            });
           }
         }
         
-        // REMOVED: Generic final response that was overriding agent personalities
-        // The authentic personality response is already handled in the tool execution loop above
+        console.log(`🚀 TOOL EXECUTION COMPLETE: Starting continuation logic for ${agentId}`);
+        console.log(`🚀 PENDING TOOL CALLS: ${pendingToolCalls.length} tools executed`);
+        
+        // CRITICAL: Continue conversation with tool results to let agent complete the task
+        console.log(`🔄 CONTINUING CONVERSATION: ${agentId} will process tool results and continue task`);
+        console.log(`🔧 TOOL RESULTS COUNT: ${toolResults.length} results to process`);
+        console.log(`🔧 PENDING TOOLS: ${pendingToolCalls.map(t => t.name).join(', ')}`);
+        
+        // Add tool results to conversation and continue streaming
+        const continuationMessages: Anthropic.MessageParam[] = [
+          ...messages,
+          {
+            role: 'assistant',
+            content: [
+              {
+                type: 'text',
+                text: responseText
+              },
+              ...pendingToolCalls.map(tool => ({
+                type: 'tool_use' as const,
+                id: tool.id,
+                name: tool.name,
+                input: tool.input
+              }))
+            ]
+          },
+          {
+            role: 'user',
+            content: toolResults
+          }
+        ];
+        
+        console.log(`🔄 STARTING CONTINUATION STREAM: Sending tool results back to ${agentId} to continue task completion`);
+        
+        // Continue streaming with tool results - FORCE CONTINUATION
+        try {
+          const continuationStream = await anthropic.messages.create({
+            model: DEFAULT_MODEL_STR,
+            max_tokens: 8192,
+            system: fullSystemPrompt,
+            messages: continuationMessages,
+            tools: tools.length > 0 ? tools : undefined,
+            stream: true
+          });
+          
+          console.log(`✅ CONTINUATION STREAM CREATED: ${agentId} continuing conversation with tool results`);
+        
+        // Process continuation stream
+        let continuationResponse = '';
+        for await (const chunk of continuationStream) {
+          if (chunk.type === 'content_block_delta') {
+            if ('text' in chunk.delta) {
+              const textChunk = chunk.delta.text;
+              continuationResponse += textChunk;
+              responseText += textChunk;
+              
+              // Stream continuation response
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: textChunk
+              })}\n\n`);
+            }
+          } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
+            // Handle additional tool calls recursively if needed
+            console.log(`🔧 ADDITIONAL TOOL: ${agentId} wants to execute ${chunk.content_block.name}`);
+            
+            res.write(`data: ${JSON.stringify({
+              type: 'tool_start',
+              toolName: chunk.content_block.name
+            })}\n\n`);
+            
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: `\n\n🔧 Using ${chunk.content_block.name}...`
+            })}\n\n`);
+            
+            // Execute additional tool immediately
+            try {
+              const additionalResult = await this.handleToolCall(chunk.content_block, conversationId, agentId);
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_result',
+                toolName: chunk.content_block.name,
+                result: additionalResult
+              })}\n\n`);
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: ` ✅ ${chunk.content_block.name} completed`
+              })}\n\n`);
+              
+            } catch (error) {
+              console.error(`❌ Additional tool error:`, error);
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_error',
+                toolName: chunk.content_block.name,
+                error: error instanceof Error ? error.message : 'Unknown error'
+              })}\n\n`);
+            }
+          }
+        }
+        
+        console.log(`✅ CONVERSATION CONTINUATION: ${agentId} completed full task execution`);
+        
+        } catch (continuationError) {
+          console.error(`❌ CONTINUATION ERROR for ${agentId}:`, continuationError);
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: `\n\n❌ Error continuing conversation: ${continuationError instanceof Error ? continuationError.message : 'Unknown error'}`
+          })}\n\n`);
+        }
       }
 
       // Save to database with error handling
