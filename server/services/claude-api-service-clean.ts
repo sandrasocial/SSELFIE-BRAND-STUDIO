@@ -1247,9 +1247,8 @@ How can I help you further?`;
         responseText += `\n\nEverything looks good on my end! My systems are operational and ready to help you with any technical challenges or luxury code architecture you need. What would you like to work on today? ✨`;
       }
 
-      // Save to database (ensure conversation exists first)
+      // Save to database with error handling
       try {
-        await this.ensureConversationExists(conversationId, userId, agentId);
         await this.saveMessageToDatabase(conversationId, 'user', message);
         await this.saveMessageToDatabase(conversationId, 'assistant', responseText);
       } catch (error) {
