@@ -68,29 +68,36 @@ export class ClaudeApiServiceClean {
     
     console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} processing with optimal routing`);
     
-    // FORCE DIRECT CLAUDE API FOR ALL CONVERSATIONS AND TOOLS
-    // Skip hybrid processing completely for authentic agent experience
-    console.log(`🚀 DIRECT CLAUDE API: Bypassing ALL hybrid intelligence for ${agentId}`);
+    // CLAUDE API FOR CONVERSATIONS WITH HYBRID TOOL INTEGRATION
+    // Authentic conversations while enabling tool execution through hybrid system
+    console.log(`🚀 CLAUDE + HYBRID: ${agentId} conversation with tool integration capability`);
     
     // Get agent personality directly
     const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
     const baseSystemPrompt = agentPersonality?.systemPrompt || `You are ${agentId}, a helpful AI assistant.`;
     
-    // Enhanced system prompt for conversation with context awareness
+    // Enhanced system prompt with tool access and context awareness
     const enhancedSystemPrompt = `${baseSystemPrompt}
 
 CONVERSATION CONTEXT: You have access to conversation history and should maintain context between messages.
 
-HYBRID INTELLIGENCE: When technical work is needed (file operations, code analysis, system commands), our hybrid intelligence system will handle tool execution while you focus on authentic conversation and strategic guidance.
+TOOL ACCESS: You can execute tools during conversations to provide complete assistance:
+- search_filesystem: Find files and code in the project
+- str_replace_based_edit_tool: Create, view, and modify files
+- bash: Execute system commands
+- get_latest_lsp_diagnostics: Check for code errors
+- web_search: Research information
+
+HYBRID INTEGRATION: Tool executions are optimized through our hybrid intelligence system for efficiency while maintaining your full capabilities.
 
 PERSONALITY: Maintain your unique specialization and voice:
 - Zara: Technical mastery with luxury code architecture focus
 - Elena: Strategic leadership with workflow orchestration expertise  
 - Maya: Artistic vision with sophisticated design approach
 
-INSTRUCTIONS: ${systemPrompt || 'Provide helpful, authentic responses using your specialized expertise. When tools are needed, describe what should be done and the hybrid system will execute it.'}`;
+INSTRUCTIONS: ${systemPrompt || 'Provide helpful, authentic responses using your specialized expertise. Use tools actively to analyze, create, and modify code as needed.'}`;
 
-    console.log(`🤖 CLAUDE API: ${agentId} processing conversation with context (tools via hybrid)`);
+    console.log(`🤖 CLAUDE API: ${agentId} processing with full tools and context`);
     
     // Load conversation history for context
     const conversationHistory = await this.loadConversationHistory(conversationId, 10);
@@ -668,11 +675,11 @@ How can I help you further?`;
         }
       ];
 
-      // Tool definitions (COMPLETE enterprise toolkit for direct Claude API)
+      // Tool definitions with hybrid bridge integration
       const tools: Anthropic.Tool[] = enableTools ? [
         {
           name: 'search_filesystem',
-          description: 'Search for files and code in the repository',
+          description: 'Search for files and code in the repository. Executions are optimized via hybrid intelligence.',
           input_schema: {
             type: 'object',
             properties: {
@@ -686,7 +693,7 @@ How can I help you further?`;
         },
         {
           name: 'str_replace_based_edit_tool',
-          description: 'View, create, and edit files',
+          description: 'View, create, and edit files. File operations are optimized via hybrid intelligence for efficiency.',
           input_schema: {
             type: 'object',
             properties: {
