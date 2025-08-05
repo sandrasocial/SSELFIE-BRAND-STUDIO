@@ -620,16 +620,19 @@ How can I help you further?`;
         }
       ];
 
-      // Tool definitions (enterprise toolkit)
+      // Tool definitions (COMPLETE enterprise toolkit for direct Claude API)
       const tools: Anthropic.Tool[] = enableTools ? [
         {
           name: 'search_filesystem',
-          description: 'Search for files and code',
+          description: 'Search for files and code in the repository',
           input_schema: {
             type: 'object',
             properties: {
-              query_description: { type: 'string' },
-              search_paths: { type: 'array', items: { type: 'string' } }
+              query_description: { type: 'string', description: 'Description of what to search for' },
+              search_paths: { type: 'array', items: { type: 'string' }, description: 'Paths to search in' },
+              code: { type: 'array', items: { type: 'string' }, description: 'Code snippets to search for' },
+              function_names: { type: 'array', items: { type: 'string' }, description: 'Function names to find' },
+              class_names: { type: 'array', items: { type: 'string' }, description: 'Class names to find' }
             }
           }
         },
@@ -639,11 +642,14 @@ How can I help you further?`;
           input_schema: {
             type: 'object',
             properties: {
-              command: { type: 'string', enum: ['view', 'create', 'str_replace'] },
-              path: { type: 'string' },
-              file_text: { type: 'string' },
-              old_str: { type: 'string' },
-              new_str: { type: 'string' }
+              command: { type: 'string', enum: ['view', 'create', 'str_replace', 'insert'] },
+              path: { type: 'string', description: 'File path' },
+              file_text: { type: 'string', description: 'Complete file content for create command' },
+              old_str: { type: 'string', description: 'String to replace' },
+              new_str: { type: 'string', description: 'Replacement string' },
+              insert_line: { type: 'integer', description: 'Line number for insertion' },
+              insert_text: { type: 'string', description: 'Text to insert' },
+              view_range: { type: 'array', items: { type: 'integer' }, description: 'Line range for view command' }
             },
             required: ['command', 'path']
           }
@@ -654,9 +660,113 @@ How can I help you further?`;
           input_schema: {
             type: 'object',
             properties: {
-              command: { type: 'string' }
+              command: { type: 'string', description: 'Bash command to execute' }
             },
             required: ['command']
+          }
+        },
+        {
+          name: 'get_latest_lsp_diagnostics',
+          description: 'Get language server diagnostics for error detection',
+          input_schema: {
+            type: 'object',
+            properties: {
+              file_path: { type: 'string', description: 'Optional file path to check' }
+            }
+          }
+        },
+        {
+          name: 'web_search',
+          description: 'Search the web for information',
+          input_schema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Search query' }
+            },
+            required: ['query']
+          }
+        },
+        {
+          name: 'packager_tool',
+          description: 'Install or uninstall packages and dependencies',
+          input_schema: {
+            type: 'object',
+            properties: {
+              install_or_uninstall: { type: 'string', enum: ['install', 'uninstall'] },
+              language_or_system: { type: 'string', description: 'Programming language or system' },
+              dependency_list: { type: 'array', items: { type: 'string' }, description: 'List of dependencies' }
+            },
+            required: ['install_or_uninstall', 'language_or_system']
+          }
+        },
+        {
+          name: 'programming_language_install_tool',
+          description: 'Install programming languages',
+          input_schema: {
+            type: 'object',
+            properties: {
+              programming_languages: { type: 'array', items: { type: 'string' }, description: 'Languages to install' }
+            },
+            required: ['programming_languages']
+          }
+        },
+        {
+          name: 'ask_secrets',
+          description: 'Request API keys or secrets from user',
+          input_schema: {
+            type: 'object',
+            properties: {
+              secret_keys: { type: 'array', items: { type: 'string' }, description: 'Secret keys needed' },
+              user_message: { type: 'string', description: 'Explanation for why secrets are needed' }
+            },
+            required: ['secret_keys', 'user_message']
+          }
+        },
+        {
+          name: 'check_secrets',
+          description: 'Check if secrets exist in environment',
+          input_schema: {
+            type: 'object',
+            properties: {
+              secret_keys: { type: 'array', items: { type: 'string' }, description: 'Secret keys to check' }
+            },
+            required: ['secret_keys']
+          }
+        },
+        {
+          name: 'execute_sql_tool',
+          description: 'Execute SQL queries on development database',
+          input_schema: {
+            type: 'object',
+            properties: {
+              sql_query: { type: 'string', description: 'SQL query to execute' },
+              environment: { type: 'string', enum: ['development'], description: 'Environment to execute in' }
+            },
+            required: ['sql_query']
+          }
+        },
+        {
+          name: 'mark_completed_and_get_feedback',
+          description: 'Mark task as completed and get user feedback',
+          input_schema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Question to ask the user' },
+              workflow_name: { type: 'string', description: 'Name of the workflow' },
+              website_route: { type: 'string', description: 'Specific route if different from root' }
+            },
+            required: ['query', 'workflow_name']
+          }
+        },
+        {
+          name: 'report_progress',
+          description: 'Report progress on completed tasks',
+          input_schema: {
+            type: 'object',
+            properties: {
+              summary: { type: 'string', description: 'Summary of completed work' }
+            },
+            required: ['summary']
           }
         }
       ] : [];
