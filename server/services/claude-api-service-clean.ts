@@ -1145,7 +1145,7 @@ How can I help you further?`;
           currentToolCall = { ...chunk.content_block };
           currentToolInput = '';
           
-        } else if (chunk.type === 'content_block_delta' && 'delta' in chunk) {
+        } else if (chunk.type === 'content_block_delta' && 'delta' in chunk && chunk.delta) {
           // Tool input being built - collect input_json_delta chunks
           if (chunk.delta && (chunk.delta as any).type === 'input_json_delta') {
             console.log(`🔍 INPUT JSON DELTA:`, JSON.stringify(chunk.delta, null, 2));
@@ -1201,7 +1201,7 @@ How can I help you further?`;
         for (const toolCall of pendingToolCalls) {
           try {
             // Execute tool via hybrid intelligence with user message context
-            const toolResult = await this.handleToolCall(toolCall, conversationId, agentId, message);
+            const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
             
             // Stream tool result feedback
             res.write(`data: ${JSON.stringify({
@@ -1241,19 +1241,66 @@ How can I help you further?`;
         
         console.log(`✅ TOOL EXECUTION COMPLETE: ${agentId} executed ${pendingToolCalls.length} tools successfully`);
         
-        // STREAMING CONTINUATION: Add agent commentary about tool results
+        // STREAMING CONTINUATION: Continue Claude API conversation with tool results
         if (toolResults.length > 0) {
-          // Generate agent-specific commentary based on tool results
-          const agentCommentary = this.generateAgentCommentary(agentId, toolResults);
+          console.log(`🌊 CONTINUING CLAUDE CONVERSATION: ${agentId} with tool results for authentic response`);
           
-          // Stream the agent's commentary
-          res.write(`data: ${JSON.stringify({
-            type: 'text_delta',
-            content: agentCommentary
-          })}\n\n`);
+          // Continue the conversation with tool results through Claude API
+          const continuationMessages = [
+            ...messages,
+            {
+              role: "user" as const,
+              content: message
+            },
+            {
+              role: "assistant" as const,
+              content: [
+                {
+                  type: "text",
+                  text: responseText
+                },
+                ...pendingToolCalls.map(toolCall => ({
+                  type: "tool_use",
+                  id: toolCall.id,
+                  name: toolCall.name,
+                  input: toolCall.input
+                }))
+              ]
+            },
+            {
+              role: "user" as const,
+              content: toolResults.map(result => ({
+                type: "tool_result",
+                tool_use_id: result.tool_use_id,
+                content: result.content
+              }))
+            }
+          ];
           
-          // Update response text for database save
-          responseText += agentCommentary;
+          // Continue streaming with Claude API for authentic agent response
+          const Anthropic = (await import('@anthropic-ai/sdk')).default;
+          const claude = new Anthropic({
+            apiKey: process.env.ANTHROPIC_API_KEY,
+          });
+          
+          const continuationStream = await claude.messages.stream({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 4000,
+            system: systemPrompt,
+            messages: continuationMessages,
+            tools: this.getConsultingToolDefinitions()
+          });
+          
+          // Process continuation stream
+          for await (const chunk of continuationStream) {
+            if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+              responseText += chunk.delta.text;
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: chunk.delta.text
+              })}\n\n`);
+            }
+          }
         }
       }
 
