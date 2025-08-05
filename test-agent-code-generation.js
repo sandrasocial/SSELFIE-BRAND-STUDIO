@@ -7,7 +7,7 @@ const testAgentCodeGeneration = async () => {
   console.log('🧪 TESTING: Agent Code Generation Connection');
   
   try {
-    const response = await fetch('http://localhost:5000/api/consulting-agents/consulting-chat', {
+    const response = await fetch('/api/admin/agents/consulting-chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
