@@ -18,8 +18,18 @@ interface StreamingSession {
 }
 
 export class StreamingContinuationService {
+  private static instance: StreamingContinuationService;
   private activeSessions: Map<string, StreamingSession> = new Map();
   private streamingQueues: Map<string, string[]> = new Map();
+
+  private constructor() {}
+
+  public static getInstance(): StreamingContinuationService {
+    if (!StreamingContinuationService.instance) {
+      StreamingContinuationService.instance = new StreamingContinuationService();
+    }
+    return StreamingContinuationService.instance;
+  }
 
   /**
    * START AGENT STREAMING SESSION

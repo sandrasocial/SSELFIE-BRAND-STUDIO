@@ -46,7 +46,8 @@ export interface DeploymentStatus {
   estimatedTimeRemaining: number;
 }
 
-class IntelligentTaskDistributor {
+export class IntelligentTaskDistributor {
+  private static instance: IntelligentTaskDistributor;
   private deployments = new Map<string, DeploymentStatus>();
   private agentCapabilities = {
     elena: ['coordination', 'strategy', 'workflow_management'],
@@ -59,6 +60,15 @@ class IntelligentTaskDistributor {
     ava: ['automation', 'integration', 'workflow_automation'],
     quinn: ['quality_assurance', 'testing', 'validation']
   };
+
+  private constructor() {}
+
+  public static getInstance(): IntelligentTaskDistributor {
+    if (!IntelligentTaskDistributor.instance) {
+      IntelligentTaskDistributor.instance = new IntelligentTaskDistributor();
+    }
+    return IntelligentTaskDistributor.instance;
+  }
 
   /**
    * INTELLIGENT TASK DISTRIBUTION
