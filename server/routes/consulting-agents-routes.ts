@@ -426,16 +426,20 @@ You have complete access to all Replit-level tools for comprehensive implementat
 
       if (typeof claudeResponse === 'string') {
         console.log(`✅ CLAUDE SUCCESS: ${agentId} - Authentic agent response generated`);
-        return res.status(200).json({
-          success: true,
-          response: claudeResponse,
-          agentId,
-          conversationId,
-          processingType: 'claude_api',
-          tokensUsed: 0, // Token counting handled by Claude service
-          tokensSaved: 0,
-          processingTime: 0
-        });
+        
+        // For non-streaming requests, return JSON response
+        if (!res.headersSent) {
+          return res.status(200).json({
+            success: true,
+            response: claudeResponse,
+            agentId,
+            conversationId,
+            processingType: 'claude_api',
+            tokensUsed: 0, // Token counting handled by Claude service
+            tokensSaved: 0,
+            processingTime: 0
+          });
+        }
       }
     } else {
       // 🔧 TOOL OPERATION: Use hybrid intelligence for zero-cost operations
@@ -555,15 +559,29 @@ async function streamDirectClaudeResponse(
       stream: true,
     });
 
+    let fullResponse = '';
+    
     for await (const chunk of stream) {
       if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+        const textChunk = chunk.delta.text;
+        fullResponse += textChunk;
+        
         res.write(`data: ${JSON.stringify({
           type: 'content',
-          content: chunk.delta.text
+          content: textChunk
         })}\n\n`);
       }
     }
 
+    // Send completion signal
+    res.write(`data: ${JSON.stringify({
+      type: 'completion',
+      agentId,
+      conversationId,
+      fullResponse,
+      success: true
+    })}\n\n`);
+    
     res.write(`data: [DONE]\n\n`);
   } catch (error) {
     console.error('Direct Claude streaming error:', error);

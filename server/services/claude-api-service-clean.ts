@@ -1204,15 +1204,17 @@ How can I help you further?`;
       await this.saveMessageToDb(conversationId, 'user', message);
       await this.saveMessageToDb(conversationId, 'assistant', responseText);
 
-      // Send completion event
+      // Send completion event with full response
       res.write(`data: ${JSON.stringify({
         type: 'completion',
         agentId: agentId,
         conversationId,
+        fullResponse: responseText,
         consultingMode: true,
         success: true
       })}\n\n`);
-
+      
+      res.write(`data: [DONE]\n\n`);
       res.end();
       
     } catch (error) {
