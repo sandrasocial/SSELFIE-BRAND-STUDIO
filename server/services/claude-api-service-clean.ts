@@ -1286,15 +1286,96 @@ How can I help you further?`;
             tools: this.getConsultingToolDefinitions()
           });
           
-          // Process continuation stream
+          // Process continuation stream with support for additional tool calls
+          let continuationToolCalls: any[] = [];
+          let currentContinuationTool: any = null;
+          let currentContinuationInput = '';
+          
           for await (const chunk of continuationStream) {
-            if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-              responseText += chunk.delta.text;
+            if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
+              // Agent wants to use another tool
+              currentContinuationTool = { ...chunk.content_block };
+              currentContinuationInput = '';
+              
               res.write(`data: ${JSON.stringify({
                 type: 'text_delta',
-                content: chunk.delta.text
+                content: `\n\n🔧 Using ${chunk.content_block.name}...`
               })}\n\n`);
+              
+            } else if (chunk.type === 'content_block_delta' && 'delta' in chunk && chunk.delta) {
+              if (chunk.delta && (chunk.delta as any).type === 'input_json_delta') {
+                // Building tool input for continuation tool
+                if ((chunk.delta as any).partial_json) {
+                  currentContinuationInput += (chunk.delta as any).partial_json;
+                }
+                res.write(`data: ${JSON.stringify({
+                  type: 'text_delta',
+                  content: '.'
+                })}\n\n`);
+              } else if (chunk.delta.type === 'text_delta') {
+                // Regular text response
+                responseText += chunk.delta.text;
+                res.write(`data: ${JSON.stringify({
+                  type: 'text_delta',
+                  content: chunk.delta.text
+                })}\n\n`);
+              }
+              
+            } else if (chunk.type === 'content_block_stop') {
+              // Tool block completed or text completed
+              if (currentContinuationTool) {
+                try {
+                  if (currentContinuationInput.trim()) {
+                    currentContinuationTool.input = JSON.parse(currentContinuationInput);
+                  } else {
+                    // Use parameter inference for empty continuation tools too
+                    currentContinuationTool.input = this.inferToolParameters(currentContinuationTool.name, message, agentId);
+                  }
+                  continuationToolCalls.push(currentContinuationTool);
+                  currentContinuationTool = null;
+                  currentContinuationInput = '';
+                } catch (error) {
+                  console.error(`❌ Continuation tool input parsing error:`, error);
+                  currentContinuationTool.input = {};
+                  continuationToolCalls.push(currentContinuationTool);
+                  currentContinuationTool = null;
+                  currentContinuationInput = '';
+                }
+              }
             }
+          }
+          
+          // Execute any additional tools from continuation
+          if (continuationToolCalls.length > 0) {
+            console.log(`🔧 CONTINUATION TOOLS: Executing ${continuationToolCalls.length} additional tools for ${agentId}`);
+            
+            for (const toolCall of continuationToolCalls) {
+              try {
+                const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
+                
+                res.write(`data: ${JSON.stringify({
+                  type: 'tool_result',
+                  toolName: toolCall.name,
+                  result: toolResult
+                })}\n\n`);
+                
+                res.write(`data: ${JSON.stringify({
+                  type: 'text_delta',
+                  content: ` ✅ ${toolCall.name} completed`
+                })}\n\n`);
+                
+              } catch (error) {
+                console.error(`❌ Continuation tool execution error:`, error);
+                res.write(`data: ${JSON.stringify({
+                  type: 'tool_error',
+                  toolName: toolCall.name,
+                  error: error instanceof Error ? error.message : 'Unknown error'
+                })}\n\n`);
+              }
+            }
+            
+            // Could recursively continue if needed, but let's avoid infinite loops
+            console.log(`✅ CONTINUATION COMPLETE: ${agentId} executed ${continuationToolCalls.length} additional tools`);
           }
         }
       }
