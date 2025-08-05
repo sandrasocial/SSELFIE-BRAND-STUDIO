@@ -162,7 +162,7 @@ export class LocalStreamingEngine {
     
     if (isTechnical) {
       const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-      const personalityPrefix = agentPersonality?.responseStyle || '';
+      const personalityPrefix = agentPersonality ? `Hello! I'm ${agentPersonality.name}, ${agentPersonality.role}.` : '';
 
       const content = `${personalityPrefix}
 
@@ -208,7 +208,7 @@ I'll continue working on this systematically and provide you with detailed resul
 
     if (relevantPatterns.length > 0) {
       const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-      const personalityPrefix = agentPersonality?.responseStyle || '';
+      const personalityPrefix = agentPersonality ? `Hello! I'm ${agentPersonality.name}, ${agentPersonality.role}.` : '';
 
       const bestPattern = relevantPatterns.sort((a, b) => b.confidence - a.confidence)[0];
       
@@ -253,7 +253,7 @@ Let me apply what I've learned to address your specific needs...
       ? `With my intelligence level ${memoryProfile.intelligenceLevel}/10 and ${memoryProfile.learningPatterns.length} learned patterns, ` 
       : '';
 
-    const content = `${agentPersonality.responseStyle}
+    const content = `Hello! I'm ${agentPersonality.name}, ${agentPersonality.role}.
 
 ${memoryContext}I'm ready to help you with this request. As ${agentPersonality.name}, I bring my specialized expertise in ${agentPersonality.specialization} to provide you with the best possible assistance.
 
