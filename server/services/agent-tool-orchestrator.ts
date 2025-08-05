@@ -5,7 +5,6 @@
  */
 
 import { EventEmitter } from 'events';
-import { ConversationManager } from '../agents/ConversationManager';
 
 interface ToolExecutionRequest {
   agentId: string;

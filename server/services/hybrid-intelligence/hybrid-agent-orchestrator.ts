@@ -9,6 +9,7 @@ import { SmartDecisionRouter } from './smart-decision-router';
 import { ClaudeAPISelectiveService } from './claude-api-selective';
 import { PatternLibraryService } from './pattern-library-service';
 import { AdvancedMemorySystem } from '../advanced-memory-system';
+import { ServiceIntegrator } from './service-integrator';
 
 export interface HybridProcessingResult {
   success: boolean;
@@ -34,6 +35,7 @@ export class HybridAgentOrchestrator {
   private selectiveCloud = ClaudeAPISelectiveService.getInstance();
   private patternLibrary = PatternLibraryService.getInstance();
   private memorySystem = AdvancedMemorySystem.getInstance();
+  private serviceIntegrator = ServiceIntegrator.getInstance();
 
   private config: StreamingConfig = {
     enableLocalFirst: true,
@@ -42,7 +44,25 @@ export class HybridAgentOrchestrator {
     enableMemoryIntegration: true
   };
 
-  private constructor() {}
+  private constructor() {
+    // Initialize service integration on startup
+    this.initializeServiceIntegration();
+  }
+
+  /**
+   * INITIALIZE SERVICE INTEGRATION
+   * Connects all existing services to hybrid intelligence system
+   */
+  private async initializeServiceIntegration(): Promise<void> {
+    try {
+      console.log('🔗 HYBRID ORCHESTRATOR: Initializing comprehensive service integration...');
+      const results = await this.serviceIntegrator.integrateAllServices();
+      const successCount = results.filter(r => r.integrated).length;
+      console.log(`✅ SERVICE INTEGRATION: ${successCount}/${results.length} services connected to hybrid intelligence`);
+    } catch (error) {
+      console.error('❌ Service integration failed:', error);
+    }
+  }
 
   public static getInstance(): HybridAgentOrchestrator {
     if (!HybridAgentOrchestrator.instance) {
