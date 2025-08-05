@@ -426,13 +426,20 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
    * HANDLE TOOL CALLS THROUGH HYBRID INTELLIGENCE SYSTEM
    * Routes all tools through the enterprise hybrid intelligence for zero-cost execution
    */
-  private async handleToolCall(toolCall: any, conversationId: string, agentName: string): Promise<string> {
+  private async handleToolCall(toolCall: any, conversationId: string, agentName: string, userMessage?: string): Promise<string> {
     const toolName = toolCall.name;
     let toolInput = toolCall.input;
     
     console.log(`🔧 TOOL EXECUTION: ${toolName} for ${agentName}`);
     console.log(`🔍 TOOL CALL OBJECT:`, JSON.stringify(toolCall, null, 2));
     console.log(`🔍 TOOL INPUT:`, JSON.stringify(toolInput, null, 2));
+
+    // SMART PARAMETER INFERENCE: Fix empty tool calls from Claude
+    if (!toolInput || Object.keys(toolInput).length === 0) {
+      console.log(`🧠 EMPTY TOOL CALL DETECTED: Inferring parameters from context for ${toolName}`);
+      toolInput = this.inferToolParameters(toolName, userMessage || '', agentName);
+      console.log(`🔧 INFERRED PARAMETERS:`, JSON.stringify(toolInput, null, 2));
+    }
 
 
 
@@ -1121,10 +1128,11 @@ How can I help you further?`;
       });
 
       let responseText = '';
-      
       let pendingToolCalls: any[] = [];
+      let currentToolCall: any = null;
+      let currentToolInput = '';
       
-      // Process streaming response
+      // Process streaming response with proper tool input assembly
       for await (const chunk of stream) {
         if (chunk.type === 'content_block_delta') {
           if ('text' in chunk.delta) {
@@ -1152,18 +1160,50 @@ How can I help you further?`;
             content: `\n\n🔧 Using ${chunk.content_block.name}...`
           })}\n\n`);
           
-          // Store tool call for execution after streaming
-          pendingToolCalls.push(chunk.content_block);
+          // Start tracking this tool call
+          currentToolCall = { ...chunk.content_block };
+          currentToolInput = '';
+          
         } else if (chunk.type === 'content_block_delta' && 'delta' in chunk) {
-          // Tool input being built - show progress if it's input_json_delta
+          // Tool input being built - collect input_json_delta chunks
           if (chunk.delta && (chunk.delta as any).type === 'input_json_delta') {
+            console.log(`🔍 INPUT JSON DELTA:`, JSON.stringify(chunk.delta, null, 2));
+            if ((chunk.delta as any).partial_json) {
+              currentToolInput += (chunk.delta as any).partial_json;
+              console.log(`🔧 ASSEMBLING TOOL INPUT: "${currentToolInput}"`);
+            }
             res.write(`data: ${JSON.stringify({
               type: 'text_delta',
               content: '.'
             })}\n\n`);
           }
         } else if (chunk.type === 'content_block_stop') {
-          // Block completed - continue streaming
+          // Tool block completed - finalize tool input
+          if (currentToolCall) {
+            try {
+              // Parse the accumulated tool input JSON
+              if (currentToolInput.trim()) {
+                currentToolCall.input = JSON.parse(currentToolInput);
+                console.log(`🔧 TOOL INPUT ASSEMBLED: ${currentToolCall.name}`, JSON.stringify(currentToolCall.input, null, 2));
+              } else {
+                currentToolCall.input = {};
+                console.log(`⚠️ TOOL INPUT EMPTY: ${currentToolCall.name} - using empty parameters`);
+              }
+              
+              pendingToolCalls.push(currentToolCall);
+              currentToolCall = null;
+              currentToolInput = '';
+            } catch (error) {
+              console.error(`❌ Tool input parsing error for ${currentToolCall.name}:`, error);
+              console.log(`🔍 Raw input:`, currentToolInput);
+              // Use empty input as fallback
+              currentToolCall.input = {};
+              pendingToolCalls.push(currentToolCall);
+              currentToolCall = null;
+              currentToolInput = '';
+            }
+          }
+          
           console.log(`✅ STREAMING: Content block completed for ${agentId}`);
         }
       }
@@ -1177,8 +1217,8 @@ How can I help you further?`;
         
         for (const toolCall of pendingToolCalls) {
           try {
-            // Execute tool via hybrid intelligence
-            const toolResult = await this.handleToolCall(toolCall, conversationId, agentId);
+            // Execute tool via hybrid intelligence with user message context
+            const toolResult = await this.handleToolCall(toolCall, conversationId, agentId, message);
             
             // Stream tool result feedback
             res.write(`data: ${JSON.stringify({
@@ -1273,6 +1313,138 @@ How can I help you further?`;
    * GENERATE AGENT COMMENTARY
    * Creates agent-specific commentary about tool execution results
    */
+  /**
+   * SMART PARAMETER INFERENCE
+   * Extracts tool parameters from user message when Claude provides empty tool calls
+   */
+  private inferToolParameters(toolName: string, userMessage: string, agentName: string): any {
+    console.log(`🧠 INFERRING PARAMETERS: ${toolName} from message: "${userMessage}"`);
+    
+    switch (toolName) {
+      case 'str_replace_based_edit_tool':
+        return this.inferFileOperationParameters(userMessage);
+      
+      case 'bash':
+        return this.inferBashParameters(userMessage);
+      
+      case 'search_filesystem':
+        return this.inferSearchParameters(userMessage);
+      
+      case 'web_search':
+        return this.inferWebSearchParameters(userMessage);
+      
+      default:
+        console.log(`⚠️ UNKNOWN TOOL: ${toolName} - using empty parameters`);
+        return {};
+    }
+  }
+
+  private inferFileOperationParameters(message: string): any {
+    const lowerMessage = message.toLowerCase();
+    
+    // Extract file operation intent
+    if (lowerMessage.includes('create') && lowerMessage.includes('file')) {
+      // Extract filename
+      const fileMatch = message.match(/(?:create|file)\s+(?:called\s+)?([a-zA-Z0-9._-]+\.(?:tsx?|jsx?|js|ts|txt|md|json|css))/i);
+      if (fileMatch) {
+        const fileName = fileMatch[1];
+        
+        // Generate basic content based on file type
+        let content = '';
+        if (fileName.endsWith('.tsx') || fileName.endsWith('.jsx')) {
+          content = `import React from 'react';
+
+export const ${fileName.replace(/\.(tsx?|jsx?)$/, '')} = () => {
+  return (
+    <div>
+      <h1>${fileName.replace(/\.(tsx?|jsx?)$/, '')} Component</h1>
+    </div>
+  );
+};
+
+export default ${fileName.replace(/\.(tsx?|jsx?)$/, '')};`;
+        } else if (fileName.endsWith('.ts') || fileName.endsWith('.js')) {
+          content = `// ${fileName}
+export const example = () => {
+  console.log('Hello from ${fileName}');
+};`;
+        } else if (fileName.endsWith('.txt')) {
+          content = 'Hello World';
+        }
+        
+        return {
+          command: 'create',
+          path: fileName,
+          file_text: content
+        };
+      }
+    }
+    
+    // Extract view file intent
+    if (lowerMessage.includes('view') || lowerMessage.includes('show') || lowerMessage.includes('read')) {
+      const fileMatch = message.match(/(?:view|show|read)\s+(?:file\s+)?([a-zA-Z0-9._/-]+(?:\.[a-zA-Z0-9]+)?)/i);
+      if (fileMatch) {
+        return {
+          command: 'view',
+          path: fileMatch[1]
+        };
+      }
+    }
+    
+    // Default to view current directory
+    return {
+      command: 'view',
+      path: '.'
+    };
+  }
+
+  private inferBashParameters(message: string): any {
+    const lowerMessage = message.toLowerCase();
+    
+    // Extract bash command intent
+    if (lowerMessage.includes('list') && lowerMessage.includes('file')) {
+      return { command: 'ls -la' };
+    }
+    
+    if (lowerMessage.includes('directory') || lowerMessage.includes('current')) {
+      return { command: 'pwd && ls -la' };
+    }
+    
+    // Extract explicit commands
+    const commandMatch = message.match(/(?:run|execute|command)\s+(.+)/i);
+    if (commandMatch) {
+      return { command: commandMatch[1].trim() };
+    }
+    
+    // Default to list files
+    return { command: 'ls -la' };
+  }
+
+  private inferSearchParameters(message: string): any {
+    const lowerMessage = message.toLowerCase();
+    
+    // Extract search intent
+    if (lowerMessage.includes('find') || lowerMessage.includes('search')) {
+      const searchMatch = message.match(/(?:find|search)\s+(?:for\s+)?([a-zA-Z0-9._\s-]+)/i);
+      if (searchMatch) {
+        return {
+          query_description: searchMatch[1].trim()
+        };
+      }
+    }
+    
+    // Default to general search
+    return {
+      query_description: message
+    };
+  }
+
+  private inferWebSearchParameters(message: string): any {
+    return {
+      query: message
+    };
+  }
+
   private generateAgentCommentary(agentId: string, toolResults: any[]): string {
     const personality = agentPersonalities[agentId];
     
