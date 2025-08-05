@@ -434,11 +434,26 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
     console.log(`🔍 TOOL CALL OBJECT:`, JSON.stringify(toolCall, null, 2));
     console.log(`🔍 TOOL INPUT:`, JSON.stringify(toolInput, null, 2));
 
-    // SMART PARAMETER INFERENCE: Fix empty tool calls from Claude
+    // EMERGENCY FIX: Provide basic parameters when Claude sends empty tool calls
     if (!toolInput || Object.keys(toolInput).length === 0) {
-      console.log(`🧠 EMPTY TOOL CALL DETECTED: Inferring parameters from context for ${toolName}`);
-      toolInput = this.inferToolParameters(toolName, userMessage || '', agentName);
-      console.log(`🔧 INFERRED PARAMETERS:`, JSON.stringify(toolInput, null, 2));
+      console.log(`🧠 EMPTY TOOL CALL DETECTED: Providing basic parameters for ${toolName}`);
+      
+      // Provide minimal working parameters based on tool type
+      switch (toolName) {
+        case 'bash':
+          toolInput = { command: 'ls -la' };
+          break;
+        case 'str_replace_based_edit_tool':
+          toolInput = { command: 'view', path: '.' };
+          break;
+        case 'search_filesystem':
+          toolInput = { query_description: 'search project files' };
+          break;
+        default:
+          toolInput = {};
+      }
+      
+      console.log(`🔧 USING BASIC PARAMETERS:`, JSON.stringify(toolInput, null, 2));
     }
 
 
