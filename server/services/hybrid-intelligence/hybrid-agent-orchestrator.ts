@@ -401,7 +401,7 @@ export class HybridAgentOrchestrator {
       chunks.push(words.slice(i, i + chunkSize).join(' ') + ' ');
     }
 
-    return chunks;
+    return chunks.length > 0 ? chunks : [content];
   }
 
   /**

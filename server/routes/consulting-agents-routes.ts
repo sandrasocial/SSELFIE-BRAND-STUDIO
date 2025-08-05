@@ -431,20 +431,20 @@ You have complete access to all Replit-level tools for comprehensive implementat
       });
     }
     
-    // 🎯 FALLBACK: Traditional Claude processing if hybrid fails
-    console.log(`⬇️ HYBRID FALLBACK: Using traditional Claude API for ${agentId}`);
+    // 🎯 STREAMING FALLBACK: Use streaming when hybrid fails
+    console.log(`⬇️ HYBRID FALLBACK: Using streaming mode for ${agentId}`);
     
     // Set response headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
 
     try {
       // 🚀 HYBRID STREAMING: Use intelligent orchestrator for optimal streaming
       console.log(`🌊 HYBRID STREAMING: ${agentId} with intelligent routing`);
       
-      const hybridOrchestrator = getHybridOrchestrator();
       const streamRequest = {
         agentId,
         userId,
@@ -454,13 +454,15 @@ You have complete access to all Replit-level tools for comprehensive implementat
       };
 
       await hybridOrchestrator.processHybridStreaming(streamRequest, res);
+      res.end();
     } catch (error: any) {
-      console.error(`❌ CLAUDE API ERROR: ${agentId}:`, error);
+      console.error(`❌ STREAMING ERROR: ${agentId}:`, error);
       res.write(`data: ${JSON.stringify({
         type: 'error',
         error: 'Streaming failed',
         message: error.message
       })}\n\n`);
+      res.write(`data: [DONE]\n\n`);
       res.end();
     }
 
