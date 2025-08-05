@@ -9,8 +9,7 @@ import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consultin
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { AdvancedMemorySystem } from './advanced-memory-system';
-import { IntelligentContextManager } from './intelligent-context-manager';
+import { HybridAgentOrchestrator } from './hybrid-intelligence/hybrid-agent-orchestrator';
 
 // Use comprehensive agent personalities from consulting system
 const agentPersonalities = CONSULTING_AGENT_PERSONALITIES;
@@ -34,13 +33,25 @@ export interface AgentMessage {
  * Integrates with new agent-tool orchestration system for zero-cost operations
  */
 export class ClaudeApiServiceClean {
+  private static instance: ClaudeApiServiceClean;
+  private hybridOrchestrator = HybridAgentOrchestrator.getInstance();
   // Simple loop prevention
   private conversationLoops = new Map<string, number>();
   private maxLoopsPerConversation = 5;
   private maxTokensPerRequest = 50000;
 
+  private constructor() {}
+
+  public static getInstance(): ClaudeApiServiceClean {
+    if (!ClaudeApiServiceClean.instance) {
+      ClaudeApiServiceClean.instance = new ClaudeApiServiceClean();
+    }
+    return ClaudeApiServiceClean.instance;
+  }
+
   /**
-   * SEND MESSAGE TO CLAUDE WITH INTELLIGENT ORCHESTRATION
+   * SEND MESSAGE WITH HYBRID INTELLIGENCE
+   * Routes to local processing or selective cloud based on content type
    */
   async sendMessage(
     userId: string,
@@ -51,7 +62,34 @@ export class ClaudeApiServiceClean {
     enableTools: boolean = true
   ): Promise<string> {
     
-    console.log(`🎯 INTELLIGENT ORCHESTRATION: ${agentId} processing with zero-cost tools`);
+    console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} processing with optimal routing`);
+    
+    // Try hybrid processing first
+    const hybridRequest = {
+      agentId,
+      userId,
+      message,
+      conversationId,
+      context: { systemPrompt }
+    };
+
+    const hybridResult = await this.hybridOrchestrator.processHybridRequest(hybridRequest);
+    
+    if (hybridResult.success) {
+      console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
+      
+      // Save to conversation history
+      await this.saveConversationMessage(conversationId, agentId, message, hybridResult.content, {
+        processingType: hybridResult.processingType,
+        tokensUsed: hybridResult.tokensUsed,
+        tokensSaved: hybridResult.tokensSaved
+      });
+      
+      return hybridResult.content;
+    }
+    
+    // Fallback to traditional processing if hybrid fails
+    console.log(`⬇️ HYBRID FALLBACK: Using traditional Claude processing`);
     
     // Get agent personality
     const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
