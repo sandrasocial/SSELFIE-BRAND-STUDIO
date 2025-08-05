@@ -275,7 +275,7 @@ Let me analyze your request and apply my knowledge to give you a comprehensive s
    */
   private async generateAddComponentResponse(request: LocalStreamingRequest, context: any): Promise<string> {
     const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-    return `${agentPersonality?.responseStyle || ''}
+    return `${agentPersonality ? `Hello! I'm ${agentPersonality.name}, ${agentPersonality.role}.` : ''}
 
 Perfect! I'll help you add that component. Based on my analysis of the workspace structure, I can see the relevant files and will implement this systematically.
 
@@ -292,7 +292,7 @@ Let me start by examining the relevant files...
 
   private async generateFixErrorResponse(request: LocalStreamingRequest, context: any): Promise<string> {
     const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-    return `${agentPersonality?.responseStyle || ''}
+    return `${agentPersonality ? `Hello! I'm ${agentPersonality.name}, ${agentPersonality.role}.` : ''}
 
 I'll help you fix that issue! Let me first analyze the error and identify the root cause.
 
@@ -309,7 +309,7 @@ Beginning diagnostic analysis...
 
   private async generateCreateFileResponse(request: LocalStreamingRequest, context: any): Promise<string> {
     const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-    return `${agentPersonality?.responseStyle || ''}
+    return `${agentPersonality ? `Hello! I'm ${agentPersonality.name}, ${agentPersonality.role}.` : ''}
 
 I'll create that file for you! Based on the project structure and your requirements, I'll ensure it follows the established patterns and integrates seamlessly.
 
@@ -326,7 +326,7 @@ Starting file creation...
 
   private async generateViewFileResponse(request: LocalStreamingRequest, context: any): Promise<string> {
     const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-    return `${agentPersonality?.responseStyle || ''}
+    return `${agentPersonality ? `Hello! I'm ${agentPersonality.name}, ${agentPersonality.role}.` : ''}
 
 I'll examine that file for you! Let me open it and provide you with a comprehensive analysis.
 
@@ -343,7 +343,7 @@ Loading file...
 
   private async generateUpdateCodeResponse(request: LocalStreamingRequest, context: any): Promise<string> {
     const agentPersonality = CONSULTING_AGENT_PERSONALITIES[request.agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-    return `${agentPersonality?.responseStyle || ''}
+    return `${agentPersonality ? `Hello! I'm ${agentPersonality.name}, ${agentPersonality.role}.` : ''}
 
 I'll update that code for you! Let me carefully analyze the current implementation and make the necessary improvements.
 
