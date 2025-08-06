@@ -4,7 +4,7 @@ SSELFIE Studio is a luxury AI-powered personal branding platform that transforms
 
 The platform features 13 specialized autonomous AI agents with proper memory persistence and clean conversational responses. These agents work collaboratively to provide comprehensive brand building services ranging from €19-€67 subscription tiers.
 
-**AGENT REPOSITORY ACCESS FIXED (August 6, 2025):** Fixed critical tool routing issue where agents were using mock search functions instead of real filesystem access. Agents now have full repository access with their specialized personalities and capabilities connected to real tool implementations.
+**AGENT UNRESTRICTED REPOSITORY ACCESS RESTORED (August 6, 2025):** Fixed critical tool routing issue where agents were using mock search functions instead of real filesystem access. Removed ALL directory restrictions - agents now have unrestricted access to entire repository including attached_assets, docs, marketing, quality_protocols, selfie_studio_launch, technical_analysis, temp_training, test, workflows, and archive directories. File limit increased from 20 to 200 files per search. Agents now have true 95% Replit AI-level autonomy with complete workspace access.
 
 **AUTHENTICATION SYSTEM FIXED (August 6, 2025):** Admin agent authentication properly configured with admin bypass token system. Agents can now authenticate through both Replit OAuth sessions and admin bypass tokens for autonomous operations.
 

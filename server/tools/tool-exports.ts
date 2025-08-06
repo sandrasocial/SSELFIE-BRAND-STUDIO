@@ -21,7 +21,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 CONSULTING SEARCH: Starting codebase analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 20; // Limit for consulting agents
+    const maxFiles = 200; // UNLIMITED ACCESS: Increased limit for full repository access
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -34,43 +34,13 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // LIVE APP FOCUS: Only search in directories relevant to the live SSELFIE Studio app
-          const liveAppDirectories = ['api', 'server', 'client', 'src', 'components', 'pages', 'admin', 'shared'];
+          // UNRESTRICTED ACCESS: Allow access to ALL directories except system ones
           const excludeDirectories = [
-            'node_modules', '.git', 'dist', 'build', '.cache',
-            'attached_assets', 'logs', 'temp', 'tmp', 'data',
-            'docs', 'marketing', 'quality_protocols', 'selfie_studio_launch', 
-            'technical_analysis', 'temp_training', 'test', 'workflows'
+            'node_modules', '.git', 'dist', 'build', '.cache'
           ];
           
-          // Allow archive access only when specifically searched for
-          const searchingForArchive = params.query_description?.toLowerCase().includes('archive') ||
-                                    params.directories?.some(dir => dir.toLowerCase().includes('archive'));
-          
-          // Skip excluded directories, but allow archive if specifically requested
-          if (excludeDirectories.includes(entry.name) || entry.name.startsWith('.') ||
-              (entry.name === 'archive' && !searchingForArchive)) {
-            continue;
-          }
-          
-          // For root level, only include live app directories (and archive if specifically requested)
-          if (basePath === '' && entry.isDirectory() && 
-              !liveAppDirectories.includes(entry.name) && 
-              !(entry.name === 'archive' && searchingForArchive)) {
-            continue;
-          }
-          
-          // Include important root-level files like App.tsx, package.json, etc.
-          if (basePath === '' && entry.isFile()) {
-            const importantRootFiles = ['app.tsx', 'package.json', 'tsconfig.json', 'vite.config.ts', 'tailwind.config.ts'];
-            if (!importantRootFiles.some(file => entry.name.toLowerCase().includes(file.toLowerCase()))) {
-              continue;
-            }
-          }
-          
-          // Skip any path containing excluded directories
-          if (excludeDirectories.some(exclude => relativePath.includes(exclude))) {
-            console.log(`🚫 CONSULTING SEARCH: Skipping irrelevant path: ${relativePath}`);
+          // UNRESTRICTED ACCESS: Only skip system directories
+          if (excludeDirectories.includes(entry.name) || entry.name.startsWith('.')) {
             continue;
           }
           
@@ -100,10 +70,10 @@ export async function search_filesystem(params: SearchParams) {
     
     await searchInDirectory(process.cwd());
     
-    console.log(`✅ CONSULTING SEARCH: Found ${results.length} relevant files for analysis`);
+    console.log(`✅ UNRESTRICTED SEARCH: Found ${results.length} files with full repository access`);
     
     return { 
-      summary: `Found ${results.length} files relevant to your analysis`,
+      summary: `Found ${results.length} files with unrestricted repository access`,
       results: results.slice(0, maxFiles),
       totalFiles: results.length
     };
