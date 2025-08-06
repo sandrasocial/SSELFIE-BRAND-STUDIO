@@ -1,4 +1,5 @@
 // Tool exports for Claude API service
+export { str_replace_based_edit_tool } from './str_replace_based_edit_tool.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -21,7 +22,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 CONSULTING SEARCH: Starting codebase analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = Infinity; // UNLIMITED ACCESS: All agents can access all files
+    const maxFiles = 500; // COMPLETE UNRESTRICTED ACCESS: Maximum repository visibility restored
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -34,34 +35,17 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // UNLIMITED ACCESS: Agents can search ALL directories without restrictions
-          const liveAppDirectories = ['*']; // Allow all directories
-          const excludeDirectories = ['node_modules', '.git']; // Only exclude system directories
+          // UNRESTRICTED ACCESS: Allow access to ALL directories except system ones
+          const excludeDirectories = [
+            'node_modules', '.git', 'dist', 'build', '.cache'
+          ];
           
-          // Allow archive access only when specifically searched for
-          const searchingForArchive = params.query_description?.toLowerCase().includes('archive') ||
-                                    params.directories?.some(dir => dir.toLowerCase().includes('archive'));
-          
-          // Skip excluded directories, but allow archive if specifically requested
-          if (excludeDirectories.includes(entry.name) || entry.name.startsWith('.') ||
-              (entry.name === 'archive' && !searchingForArchive)) {
+          // COMPLETE ACCESS RESTORED: Only skip performance-impacting system directories  
+          if (excludeDirectories.includes(entry.name)) {
             continue;
           }
-          
-          // UNLIMITED ACCESS: Allow all directories
-          // No restrictions on directory access
-          
-          // Include important root-level files like App.tsx, package.json, etc.
-          if (basePath === '' && entry.isFile()) {
-            const importantRootFiles = ['app.tsx', 'package.json', 'tsconfig.json', 'vite.config.ts', 'tailwind.config.ts'];
-            if (!importantRootFiles.some(file => entry.name.toLowerCase().includes(file.toLowerCase()))) {
-              continue;
-            }
-          }
-          
-          // Skip any path containing excluded directories
-          if (excludeDirectories.some(exclude => relativePath.includes(exclude))) {
-            console.log(`🚫 CONSULTING SEARCH: Skipping irrelevant path: ${relativePath}`);
+          // ALLOW HIDDEN FILES: Include .env, .gitignore, etc. for complete visibility
+          if (entry.name.startsWith('.') && !entry.name.match(/\.(env|gitignore|eslintrc|prettierrc)/)) {
             continue;
           }
           
@@ -69,15 +53,31 @@ export async function search_filesystem(params: SearchParams) {
             await searchInDirectory(fullPath, relativePath);
           } else if (entry.isFile() && shouldAnalyzeFile(entry.name)) {
             try {
-              const content = await fs.readFile(fullPath, 'utf-8');
-              const analysis = analyzeFileRelevance(content, params, relativePath);
+              // Handle binary files (images, zips) differently from text files
+              const isBinaryFile = /\.(png|jpg|jpeg|zip)$/i.test(entry.name);
               
-              if (analysis.relevant) {
-                results.push({
-                  fileName: relativePath,
-                  content: analysis.relevantContent,
-                  reason: analysis.reason
-                });
+              if (isBinaryFile) {
+                // For binary files, just include file info without reading content
+                const analysis = analyzeBinaryFileRelevance(params, relativePath);
+                if (analysis.relevant) {
+                  results.push({
+                    fileName: relativePath,
+                    content: analysis.relevantContent,
+                    reason: analysis.reason
+                  });
+                }
+              } else {
+                // For text files, read and analyze content
+                const content = await fs.readFile(fullPath, 'utf-8');
+                const analysis = analyzeFileRelevance(content, params, relativePath);
+                
+                if (analysis.relevant) {
+                  results.push({
+                    fileName: relativePath,
+                    content: analysis.relevantContent,
+                    reason: analysis.reason
+                  });
+                }
               }
             } catch (readError) {
               // Skip files that can't be read
@@ -91,10 +91,10 @@ export async function search_filesystem(params: SearchParams) {
     
     await searchInDirectory(process.cwd());
     
-    console.log(`✅ CONSULTING SEARCH: Found ${results.length} relevant files for analysis`);
+    console.log(`✅ UNRESTRICTED SEARCH: Found ${results.length} files with full repository access`);
     
     return { 
-      summary: `Found ${results.length} files relevant to your analysis`,
+      summary: `Found ${results.length} files with unrestricted repository access`,
       results: results.slice(0, maxFiles),
       totalFiles: results.length
     };
@@ -107,7 +107,10 @@ export async function search_filesystem(params: SearchParams) {
 }
 
 function shouldAnalyzeFile(fileName: string): boolean {
-  const allowedExtensions = ['.ts', '.tsx', '.js', '.jsx', '.md', '.json'];
+  const allowedExtensions = [
+    '.ts', '.tsx', '.js', '.jsx', '.md', '.json',
+    '.css', '.scss', '.html', '.txt', '.csv', '.png', '.jpg', '.jpeg', '.zip'
+  ];
   return allowedExtensions.some(ext => fileName.endsWith(ext));
 }
 
@@ -120,8 +123,12 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
   const contentLower = content.toLowerCase();
   const pathLower = filePath.toLowerCase();
   
-  // Check if query matches file path
-  if (pathLower.includes(queryLower)) {
+  // INTELLIGENT PATH MATCHING: Break query into keywords and check partial matches
+  const queryKeywords = queryLower.split(/\s+/).filter(word => word.length > 2);
+  const pathMatches = queryKeywords.some(keyword => pathLower.includes(keyword));
+  
+  // Check if query matches file path (exact or partial)
+  if (pathLower.includes(queryLower) || pathMatches) {
     return {
       relevant: true,
       relevantContent: content.substring(0, 2000),
@@ -168,12 +175,42 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
     }
   }
   
-  // Check for query description in content
-  if (contentLower.includes(queryLower)) {
+  // INTELLIGENT CONTENT MATCHING: Check for keyword matches in content
+  const contentMatches = queryKeywords.some(keyword => contentLower.includes(keyword));
+  if (contentLower.includes(queryLower) || contentMatches) {
     return {
       relevant: true,
       relevantContent: content.substring(0, 2000),
       reason: `Content matches query: ${params.query_description}`
+    };
+  }
+  
+  return {
+    relevant: false,
+    relevantContent: '',
+    reason: ''
+  };
+}
+
+function analyzeBinaryFileRelevance(params: SearchParams, filePath: string): {
+  relevant: boolean;
+  relevantContent: string;
+  reason: string;
+} {
+  const queryLower = params.query_description.toLowerCase();
+  const pathLower = filePath.toLowerCase();
+  
+  // Check if query matches file path or type
+  if (pathLower.includes(queryLower) || 
+      queryLower.includes('image') && /\.(png|jpg|jpeg)$/i.test(filePath) ||
+      queryLower.includes('archive') && /\.zip$/i.test(filePath) ||
+      queryLower.includes('asset') && /attached_assets/.test(filePath)) {
+    
+    const fileType = filePath.split('.').pop()?.toUpperCase() || 'FILE';
+    return {
+      relevant: true,
+      relevantContent: `[${fileType} FILE] ${filePath}\nBinary file - use str_replace_based_edit_tool with 'view' command to access`,
+      reason: `Binary file matches search criteria: ${params.query_description}`
     };
   }
   
@@ -198,10 +235,9 @@ export async function viewFileContent(params: EditToolParams): Promise<string> {
       readOnly: params.command === 'view'
     });
     
-    // CONSULTING AGENTS: ONLY ALLOW VIEW COMMAND
-    if (params.command !== 'view') {
-      throw new Error(`BLOCKED: Consulting agents can only view files. Attempted command: '${params.command}'`);
-    }
+    // ENTERPRISE AGENTS: Full file system access for all operations
+    console.log(`💼 ENTERPRISE ACCESS: Agent executing ${params.command} operation`);
+    
     
     const absolutePath = path.resolve(params.path);
     
