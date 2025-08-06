@@ -11,8 +11,8 @@ import { adminBypass } from './middleware/admin-bypass.js';
 import adminToolsRouter from './routes/admin-tools.js';
 
 // 🚀 ENHANCED SERVICES INTEGRATION - ZARA COORDINATION
-// REMOVED: Old api-orchestration-layer - replaced with advanced workflow orchestration
-// REMOVED: Old checkpoint-automation - replaced with advanced workflow orchestration
+// CRITICAL: Initialize Hybrid Intelligence System at startup
+import { hybridIntelligence } from "./services/initialize-hybrid-intelligence";
 import { webSearchOptimization } from "./services/web-search-optimization";
 import { taskDependencyMapping } from "./services/task-dependency-mapping";
 import { progressTracking } from "./services/progress-tracking";
@@ -109,6 +109,12 @@ app.use(adminBypass); // Global middleware
   
   // Register cover image routes for Flux approval system
   registerCoverImageRoutes(app);
+
+  // 🧠 CRITICAL: Initialize HYBRID INTELLIGENCE SYSTEM
+  // This connects all advanced services (memory, cross-learning, enterprise tools)
+  // MUST happen before agent system initialization
+  await hybridIntelligence.initialize();
+  console.log('✅ HYBRID INTELLIGENCE: All advanced services connected and operational');
 
   // 🎯 CRITICAL: Initialize UNIFIED AGENT SYSTEM
   // This replaces 58+ competing agent integration files with ONE system
