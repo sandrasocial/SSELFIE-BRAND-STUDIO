@@ -588,34 +588,58 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
   private async executeRealToolDirectly(toolName: string, parameters: any): Promise<any> {
     console.log(`🚨 DIRECT REAL TOOL: ${toolName} - executing actual Replit tool`);
     
-    // NOTE: In the actual Replit environment, these tools are provided natively
-    // The agents should have the same tool access as the Replit AI assistant
-    // This is a placeholder for the real tool execution that should happen
-    
-    switch (toolName) {
-      case 'str_replace_based_edit_tool':
-        console.log(`📝 REAL FILE OPERATION: ${parameters.command} on ${parameters.path}`);
-        // This should trigger the ACTUAL str_replace_based_edit_tool from Replit
-        return { success: true, message: `Real file ${parameters.command} executed on ${parameters.path}` };
-        
-      case 'search_filesystem':
-        console.log(`🔍 REAL SEARCH: Searching actual project files`);
-        // This should trigger the ACTUAL search_filesystem tool from Replit
-        return { success: true, message: 'Real filesystem search executed' };
-        
-      case 'bash':
-        console.log(`💻 REAL BASH: ${parameters.command}`);
-        // This should trigger the ACTUAL bash execution from Replit
-        return { success: true, message: `Real command executed: ${parameters.command}` };
-        
-      case 'get_latest_lsp_diagnostics':
-        console.log(`🔍 REAL LSP: Checking actual code errors`);
-        // This should trigger the ACTUAL LSP diagnostics from Replit
-        return { success: true, message: 'Real LSP diagnostics retrieved' };
-        
-      default:
-        console.log(`⚠️ TOOL ${toolName} needs real Replit integration`);
-        return { error: `Tool ${toolName} requires real Replit tool access` };
+    try {
+      // Import the REAL Replit tools that actually modify files
+      const { replitTools } = await import('./replit-tools-direct');
+      
+      switch (toolName) {
+        case 'str_replace_based_edit_tool':
+          console.log(`📝 REAL FILE OPERATION: ${parameters.command} on ${parameters.path}`);
+          const fileResult = await replitTools.strReplaceBasedEditTool(parameters);
+          console.log(`✅ FILE OPERATION RESULT:`, fileResult);
+          return fileResult;
+          
+        case 'search_filesystem':
+          console.log(`🔍 REAL SEARCH: Searching actual project files`);
+          const searchResult = await replitTools.searchFilesystem(parameters);
+          return searchResult;
+          
+        case 'bash':
+          console.log(`💻 REAL BASH: ${parameters.command}`);
+          const bashResult = await replitTools.bash(parameters);
+          console.log(`✅ BASH RESULT:`, bashResult);
+          return bashResult;
+          
+        case 'get_latest_lsp_diagnostics':
+          console.log(`🔍 REAL LSP: Checking actual code errors`);
+          const lspResult = await replitTools.getLatestLspDiagnostics(parameters);
+          return lspResult;
+          
+        case 'execute_sql_tool':
+          console.log(`🗄️ REAL SQL: Executing database query`);
+          const sqlResult = await replitTools.executeSqlTool(parameters);
+          return sqlResult;
+          
+        case 'web_search':
+          console.log(`🌐 REAL WEB SEARCH: ${parameters.query}`);
+          const webResult = await replitTools.webSearch(parameters);
+          return webResult;
+          
+        case 'packager_tool':
+          console.log(`📦 REAL PACKAGE OPERATION: ${parameters.install_or_uninstall}`);
+          const packageResult = await replitTools.packagerTool(parameters);
+          return packageResult;
+          
+        default:
+          console.log(`⚠️ TOOL ${toolName} needs real Replit integration`);
+          return { error: `Tool ${toolName} requires real Replit tool access` };
+      }
+    } catch (error) {
+      console.error(`❌ DIRECT TOOL ERROR: ${toolName}:`, error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Tool execution failed' 
+      };
     }
   }
 
