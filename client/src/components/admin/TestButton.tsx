@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { 
   TestTube, 
   CheckCircle, 
@@ -41,7 +41,10 @@ export function TestButton() {
     setIsRunning(true);
     setTests([]);
     
-    toast.info('🧪 Starting admin system tests...');
+    toast({
+      title: "Starting admin system tests",
+      description: "Running comprehensive system checks..."
+    });
 
     // Initialize tests as pending
     const initialTests: TestResult[] = mockTests.map((test, index) => ({
@@ -95,9 +98,16 @@ export function TestButton() {
     const warningCount = tests.filter(t => t.status === 'warning').length;
     
     if (failedCount === 0) {
-      toast.success(`🎉 All tests completed! ${warningCount > 0 ? `(${warningCount} warnings)` : ''}`);
+      toast({
+        title: "All tests completed!",
+        description: `${warningCount > 0 ? `${warningCount} warnings found` : 'All systems operating normally'}`
+      });
     } else {
-      toast.error(`❌ ${failedCount} test(s) failed. Please check the results.`);
+      toast({
+        title: `${failedCount} test(s) failed`,
+        description: "Please check the results for details.",
+        variant: "destructive"
+      });
     }
   };
 
