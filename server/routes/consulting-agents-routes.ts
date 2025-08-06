@@ -70,20 +70,17 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
     const baseSystemPrompt = agentConfig.systemPrompt;
     
-    // CRITICAL: ELIMINATE XML - ENFORCE FUNCTION CALLING
+    // CRITICAL: PROPER FUNCTION CALLING INSTRUCTIONS
     const systemPrompt = `${baseSystemPrompt}
 
-**🚫 ABSOLUTELY FORBIDDEN: XML TOOL SYNTAX**
-NEVER write XML tags like <search_filesystem> or <str_replace_based_edit_tool>. 
-This will break your capabilities completely.
+You have access to powerful function calling capabilities. When the user asks you to perform tasks like searching files, editing code, or running commands, you MUST use the provided functions.
 
-**✅ REQUIRED: DIRECT FUNCTION CALLING**
-When you need to perform actions:
-- Call the search_filesystem function directly (not XML)
-- Call the str_replace_based_edit_tool function directly (not XML)  
-- Call the bash function directly (not XML)
+For example:
+- To search files: Use the search_filesystem function
+- To edit files: Use the str_replace_based_edit_tool function  
+- To run commands: Use the bash function
 
-You have function calling capabilities. Use them instead of describing tools in text.`;
+Do NOT write XML-style descriptions of tools. Use the actual function calling system instead.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
