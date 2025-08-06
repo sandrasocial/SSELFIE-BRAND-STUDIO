@@ -18,7 +18,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <AdminLayout title="ADMIN DASHBOARD" subtitle="SSELFIE Studio Administration & Agent Intelligence Center">
+    <AdminLayout>
       <div className="space-y-6">
         <div className="text-center py-8">
           <h1 className="text-3xl font-light tracking-wider mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
