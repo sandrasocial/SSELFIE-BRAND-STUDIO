@@ -119,79 +119,10 @@ export class ClaudeApiServiceRebuilt {
     res: any // Express response object for streaming
   ): Promise<void> {
     try {
-      // 🚀 CRITICAL TOKEN OPTIMIZATION: Try direct tool execution FIRST  
-      console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentName}`);
-      const directResult = await this.tryDirectToolExecution(message, conversationId, agentName);
-      
-      // ENHANCED: Also try bypass detection for file operations
-      if (!directResult) {
-        const bypassResult = await this.detectAndExecuteBypass(message, conversationId, agentName);
-        if (bypassResult) {
-          console.log(`⚡ BYPASS SUCCESS: Direct operation completed`);
-          
-          res.write(`data: ${JSON.stringify({
-            type: 'agent_start',
-            agentName: agentName.charAt(0).toUpperCase() + agentName.slice(1),
-            message: `${agentName.charAt(0).toUpperCase() + agentName.slice(1)} is executing...`
-          })}\n\n`);
-          
-          res.write(`data: ${JSON.stringify({
-            type: 'text_delta',
-            content: bypassResult
-          })}\n\n`);
-          
-          res.write(`data: ${JSON.stringify({
-            type: 'completion',
-            agentId: agentName,
-            conversationId,
-            consultingMode: true,
-            success: true
-          })}\n\n`);
-          
-          res.end();
-          return;
-        }
-      }
-      
-      if (directResult) {
-        // SUCCESS: Tool executed without Claude API tokens
-        console.log(`⚡ DIRECT SUCCESS: ${agentName} executed without Claude API tokens`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'agent_start',
-          agentName: agentName.charAt(0).toUpperCase() + agentName.slice(1),
-          message: `${agentName.charAt(0).toUpperCase() + agentName.slice(1)} is analyzing your request...`
-        })}\n\n`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'text_delta',
-          content: directResult
-        })}\n\n`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'content_complete',
-          message: 'Response complete'
-        })}\n\n`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'completion',
-          agentId: agentName,
-          conversationId,
-          consultingMode: true,
-          success: true
-        })}\n\n`);
-        
-        res.end();
-        return;
-      }
-      
-      // REMOVED: All loop prevention systems - agents have full autonomy
       console.log(`🚀 UNRESTRICTED: ${agentName} starting with full tool access`);
-      
-      // 📝 CONTENT GENERATION: Use Claude API for agent responses, strategy, creative work
       console.log(`🌊 CONTENT GENERATION: ${agentName} creating response via Claude API (legitimate use)`);
       
-      // Load conversation history WITH MEMORY RESTORATION
+      // Load conversation history
       const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
       
