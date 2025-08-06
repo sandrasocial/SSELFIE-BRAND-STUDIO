@@ -122,8 +122,12 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
   const contentLower = content.toLowerCase();
   const pathLower = filePath.toLowerCase();
   
-  // Check if query matches file path
-  if (pathLower.includes(queryLower)) {
+  // INTELLIGENT PATH MATCHING: Break query into keywords and check partial matches
+  const queryKeywords = queryLower.split(/\s+/).filter(word => word.length > 2);
+  const pathMatches = queryKeywords.some(keyword => pathLower.includes(keyword));
+  
+  // Check if query matches file path (exact or partial)
+  if (pathLower.includes(queryLower) || pathMatches) {
     return {
       relevant: true,
       relevantContent: content.substring(0, 2000),
@@ -170,8 +174,9 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
     }
   }
   
-  // Check for query description in content
-  if (contentLower.includes(queryLower)) {
+  // INTELLIGENT CONTENT MATCHING: Check for keyword matches in content
+  const contentMatches = queryKeywords.some(keyword => contentLower.includes(keyword));
+  if (contentLower.includes(queryLower) || contentMatches) {
     return {
       relevant: true,
       relevantContent: content.substring(0, 2000),
