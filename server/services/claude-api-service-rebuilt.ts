@@ -1439,14 +1439,18 @@ I have complete workspace access and can implement any changes you need. What wo
         }
       }
       
-      // Simple search
+      // Simple search with agent specialization
       if (/(?:search|find|locate|grep)\s+(?:for|files|file|in|containing|with)/i.test(message)) {
         const searchMatch = message.match(/(?:search|find|locate|grep)\s+(?:for|files|file|in|containing|with)\s+(.+)/i);
         if (searchMatch) {
           const query = searchMatch[1].trim();
+          const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
+          const enhancedQuery = agentPersonality ? 
+            `${query} (specialized search for ${agentPersonality.role})` : query;
+          
           const result = await this.handleToolCall({
             name: 'search_filesystem',
-            input: { query_description: query }
+            input: { query_description: enhancedQuery }
           }, conversationId, agentId);
           return `Search Results for "${query}":\n\n${result}`;
         }
@@ -1500,38 +1504,52 @@ I have complete workspace access and can implement any changes you need. What wo
       
       switch (toolCall.name) {
         case 'str_replace_based_edit_tool':
-          console.log('💰 TOOL BYPASS: Executing str_replace_based_edit_tool with ZERO Claude API tokens');
+          console.log('💰 TOOL BYPASS: Executing REAL str_replace_based_edit_tool with ZERO Claude API tokens');
           const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
+          
+          // AGENT SPECIALIZATION: Enhanced file operations for agent specialties
+          const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
+          
           // CRITICAL FIX: Validate tool input before calling
           if (!toolCall.input || typeof toolCall.input !== 'object') {
             throw new Error('Invalid tool input for str_replace_based_edit_tool');
           }
+          
+          console.log(`🎯 AGENT FILE ACCESS: ${agentId} (${agentPersonality?.role || 'Agent'}) accessing file: ${toolCall.input.path}`);
           const result = await str_replace_based_edit_tool(toolCall.input);
-          console.log('⚡ BYPASS EXECUTION: str_replace_based_edit_tool - No API cost');
+          console.log('⚡ BYPASS EXECUTION: REAL str_replace_based_edit_tool - No API cost');
+          
           // TOKEN OPTIMIZATION: Smart summary instead of full JSON dump
           return this.createSmartToolSummary('file_operation', result, toolCall.input);
           
         case 'search_filesystem':
-          // UNRESTRICTED FILESYSTEM SEARCH - Full access restored
+          // FULL REPOSITORY ACCESS - Connect to real filesystem search
           try {
-            console.log('💰 TOOL BYPASS: Executing search_filesystem with ZERO Claude API tokens');
-            const { search_filesystem } = await import('../tools/search_filesystem');
+            console.log('💰 TOOL BYPASS: Executing REAL search_filesystem with ZERO Claude API tokens');
+            const { search_filesystem } = await import('../tools/tool-exports');
             
-            // Handle empty parameters gracefully - use intelligent defaults
+            // AGENT SPECIALIZATION: Use agent personality for intelligent search
+            const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
             const searchParams = toolCall.input || {};
+            
+            // INTELLIGENT DEFAULTS: Based on agent specialization
             if (!searchParams.query_description && !searchParams.code && !searchParams.class_names && !searchParams.function_names) {
-              // Provide intelligent default search based on context
-              searchParams.query_description = "Find relevant files in the project";
+              if (agentPersonality) {
+                searchParams.query_description = `Find files relevant to ${agentPersonality.role}: ${agentPersonality.specialization}`;
+              } else {
+                searchParams.query_description = "Find relevant files in the project";
+              }
             }
             
+            console.log(`🎯 AGENT SEARCH: ${agentId} using specialized search for ${agentPersonality?.role || 'general analysis'}`);
             const searchResult = await search_filesystem(searchParams);
-            console.log('⚡ BYPASS EXECUTION: search_filesystem - No API cost');
+            console.log('⚡ BYPASS EXECUTION: REAL search_filesystem - No API cost');
             
-            // ENHANCED: Search results available for agent intelligence
-            try {
-              console.log(`🔍 ENHANCED SEARCH: Results available for ${agentId} intelligence enhancement`);
-            } catch (cacheError) {
-              console.warn('Search enhancement failed, continuing:', cacheError);
+            // ENHANCED: Full search results for agent intelligence
+            if (searchResult.results && searchResult.results.length > 0) {
+              console.log(`🔍 REPOSITORY ACCESS: Found ${searchResult.results.length} files for ${agentId} analysis`);
+            } else {
+              console.log(`⚠️ SEARCH ISSUE: No files found for ${agentId} - check search parameters`);
             }
             
             // TOKEN OPTIMIZATION: Smart summary instead of massive JSON dump
@@ -1543,8 +1561,11 @@ I have complete workspace access and can implement any changes you need. What wo
 
         case 'bash':
           try {
-            console.log('💰 TOOL BYPASS: Executing bash with ZERO Claude API tokens');
+            console.log('💰 TOOL BYPASS: Executing REAL bash with ZERO Claude API tokens');
             const { bash } = await import('../tools/bash');
+            
+            // AGENT SPECIALIZATION: Enhanced bash access for agent specialties
+            const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
             
             // Handle bash parameters gracefully
             const bashParams = toolCall.input || {};
@@ -1553,6 +1574,7 @@ I have complete workspace access and can implement any changes you need. What wo
               bashParams.command = "echo 'No command specified'";
             }
             
+            console.log(`🎯 AGENT BASH ACCESS: ${agentId} (${agentPersonality?.role || 'Agent'}) executing: ${bashParams.command}`);
             const bashResult = await bash(bashParams);
             console.log('⚡ BYPASS EXECUTION: bash - No API cost');
             // TOKEN OPTIMIZATION: Smart summary instead of full command output
