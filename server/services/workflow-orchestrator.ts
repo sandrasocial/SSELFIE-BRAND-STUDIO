@@ -3,7 +3,7 @@
  * Implements enterprise-grade coordination patterns from 2025 best practices
  */
 
-import { ClaudeApiServiceClean } from './claude-api-service-clean';
+import { ClaudeApiServiceRebuilt } from './claude-api-service-rebuilt';
 
 export interface WorkflowTask {
   id: string;
@@ -37,13 +37,13 @@ export interface WorkflowResult {
 }
 
 export class WorkflowOrchestrator {
-  private claudeService: ClaudeApiServiceClean;
+  private claudeService: ClaudeApiServiceRebuilt;
   private activeWorkflows: Map<string, WorkflowPlan> = new Map();
   private taskQueues: Map<string, WorkflowTask[]> = new Map();
   private executionResults: Map<string, any> = new Map();
 
   constructor() {
-    this.claudeService = new ClaudeApiServiceClean();
+    this.claudeService = new ClaudeApiServiceRebuilt();
   }
 
   /**
