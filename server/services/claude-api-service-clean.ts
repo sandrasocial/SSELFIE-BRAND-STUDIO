@@ -11,6 +11,7 @@ import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { HybridAgentOrchestrator } from './hybrid-intelligence/hybrid-agent-orchestrator';
 import { AgentToolOrchestrator } from './agent-tool-orchestrator';
+import { toolFirstOptimizer } from './hybrid-intelligence/tool-first-optimizer';
 
 // Use comprehensive agent personalities from consulting system
 const agentPersonalities = CONSULTING_AGENT_PERSONALITIES;
@@ -185,6 +186,19 @@ export class ClaudeApiServiceClean {
     
     console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} processing with optimal routing`);
     
+    // TOOL-FIRST OPTIMIZATION: Check if this is a pure tool request
+    const toolFirstResult = await toolFirstOptimizer.executeToolDirectly(message, agentId);
+    if (toolFirstResult?.success) {
+      console.log(`⚡ TOOL-FIRST SUCCESS: Saved ${toolFirstResult.tokensSaved} tokens`);
+      console.log(`📊 TOKEN USAGE: 0 Claude tokens (tool-first execution)`);
+      
+      // Save the interaction without Claude API
+      await this.saveMessageToDatabase(conversationId, 'user', message);
+      await this.saveMessageToDatabase(conversationId, 'assistant', toolFirstResult.result);
+      
+      return toolFirstResult.result;
+    }
+    
     // CLAUDE API FOR CONVERSATIONS WITH HYBRID TOOL INTEGRATION
     // Authentic conversations while enabling tool execution through hybrid system
     console.log(`🚀 CLAUDE + HYBRID: ${agentId} conversation with tool integration capability`);
@@ -228,8 +242,8 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
     // Ensure conversation exists before processing
     await this.createConversationIfNotExists(conversationId, userId, agentId);
     
-    // Load conversation history for context
-    const conversationHistory = await this.loadConversationHistory(conversationId, userId, 10);
+    // Load conversation history for context - OPTIMIZED: Reduced from 10 to 3 messages
+    const conversationHistory = await this.loadConversationHistory(conversationId, userId, 3);
     
     // Process directly through Claude API with full context and tools
     try {
@@ -844,8 +858,8 @@ How can I help you further?`;
     console.log(`🤖 DIRECT CLAUDE: ${agentId} processing authentic conversation`);
     
     try {
-      // Load conversation history for context
-      const conversationHistory = await this.loadConversationHistory(conversationId, userId, 10);
+      // Load conversation history for context - OPTIMIZED: Reduced from 10 to 3 messages
+      const conversationHistory = await this.loadConversationHistory(conversationId, userId, 3);
       
       // Prepare messages for Claude with full conversation context
       const messages: Anthropic.MessageParam[] = [
@@ -1296,9 +1310,9 @@ How can I help you further?`;
         message: `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} is analyzing your request...`
       })}\n\n`);
 
-      // Load conversation history
-      const conversationHistory = await this.loadConversationHistory(conversationId, userId, 10);
-      console.log(`💭 CONTEXT: Loaded ${conversationHistory.length} previous messages for ${agentId}`);
+      // Load conversation history - OPTIMIZED: Reduced from 10 to 3 messages to save 7000+ tokens
+      const conversationHistory = await this.loadConversationHistory(conversationId, userId, 3);
+      console.log(`💭 CONTEXT: Loaded ${conversationHistory.length} previous messages for ${agentId} (optimized for token savings)`);
 
       // Initialize memory and context systems with fallback
       console.log(`🧠 MEMORY: Loading context for ${agentId}`);
