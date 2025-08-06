@@ -487,20 +487,47 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
       let assistantResponse = '';
       let toolResults = '';
 
+      // Track files modified for verification
+      const filesModified: string[] = [];
+      
       // Process Claude's response
       for (const content of response.content) {
         if (content.type === 'text') {
           assistantResponse += content.text;
         } else if (content.type === 'tool_use') {
-          // REAL TOOL EXECUTION: Let Claude API handle tools directly
-          console.log(`🔧 REAL TOOL: ${agentId} executing ${content.name} via Claude API (no interception)`);
+          // REAL TOOL EXECUTION with verification
+          console.log(`🔧 REAL TOOL: ${agentId} executing ${content.name} with parameters:`, content.input);
           
-          // CRITICAL FIX: Do not intercept or handle tool calls
-          // Claude API will execute tools naturally if we don't interfere
-          // This allows real file creation, searches, etc.
+          // Execute the tool through our real tools system
+          const toolResult = await this.executeRealToolDirectly(content.name, content.input);
           
-          toolResults += `[Real Tool: ${content.name} executed by Claude API directly]\n`;
-          console.log(`✅ REAL TOOL SUCCESS: ${content.name} executed without interception`);
+          // Track modified files for verification
+          if (content.name === 'str_replace_based_edit_tool' && content.input?.path) {
+            filesModified.push(content.input.path);
+          }
+          
+          toolResults += `[${content.name} Result]\n${JSON.stringify(toolResult, null, 2)}\n`;
+          console.log(`✅ REAL TOOL SUCCESS: ${content.name} executed with actual results`);
+        }
+      }
+      
+      // VERIFY AGENT WORK
+      if (filesModified.length > 0) {
+        const { AgentVerificationLoop } = await import('./hybrid-intelligence/agent-verification-loop');
+        const verifier = AgentVerificationLoop.getInstance();
+        const verification = await verifier.verifyAgentWork(agentId, filesModified, assistantResponse);
+        
+        if (!verification.success) {
+          console.log(`⚠️ VERIFICATION: ${agentId} work has issues:`, verification.errors);
+          assistantResponse += `\n\n⚠️ **Verification Results:**\n`;
+          if (verification.errors.length > 0) {
+            assistantResponse += `Errors: ${verification.errors.join(', ')}\n`;
+          }
+          if (verification.nextSteps.length > 0) {
+            assistantResponse += `Next steps: ${verification.nextSteps.join(', ')}\n`;
+          }
+        } else {
+          console.log(`✅ VERIFICATION: ${agentId} work passed all checks`);
         }
       }
 
@@ -2169,6 +2196,39 @@ export const example = () => {
       });
     } catch (error) {
       console.error('Failed to save message to database:', error);
+    }
+  }
+
+  /**
+   * EXECUTE REAL TOOL DIRECTLY
+   * Executes actual Replit tools with real results
+   */
+  private async executeRealToolDirectly(toolName: string, parameters: any): Promise<any> {
+    try {
+      const { replitTools } = await import('./replit-tools-direct');
+      
+      switch (toolName) {
+        case 'str_replace_based_edit_tool':
+          return await replitTools.strReplaceBasedEditTool(parameters);
+        case 'search_filesystem':
+          return await replitTools.searchFilesystem(parameters);
+        case 'bash':
+          return await replitTools.bash(parameters);
+        case 'get_latest_lsp_diagnostics':
+          return await replitTools.getLatestLspDiagnostics(parameters);
+        case 'execute_sql_tool':
+          return await replitTools.executeSqlTool(parameters);
+        case 'web_search':
+          return await replitTools.webSearch(parameters);
+        case 'packager_tool':
+          return await replitTools.packagerTool(parameters);
+        default:
+          console.log(`Tool ${toolName} not yet integrated`);
+          return { success: false, error: `Tool ${toolName} not integrated` };
+      }
+    } catch (error) {
+      console.error(`Tool execution error for ${toolName}:`, error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 

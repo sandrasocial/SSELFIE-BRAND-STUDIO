@@ -452,7 +452,16 @@ You have complete access to all Replit-level tools for comprehensive implementat
     const forceStreaming = req.body.forceStreaming || req.headers['x-force-streaming'] === 'true';
     console.log(`🌊 FORCE STREAMING CHECK: ${forceStreaming} || admin interface always streams`);
 
-    if (classification.forceClaudeAPI || forceStreaming || true) { // Always stream for admin interface
+    // ENHANCED: Inject project awareness before any agent processing
+    const { AgentContextEnhancer } = await import('../services/hybrid-intelligence/agent-context-enhancer');
+    const contextEnhancer = AgentContextEnhancer.getInstance();
+    const enhancement = await contextEnhancer.enhanceAgentRequest(message, agentId, conversationId);
+    
+    // Update message with project awareness
+    const enhancedMessage = enhancement.enhancedMessage;
+    console.log(`🧠 CONTEXT ENHANCED: Added ${enhancement.suggestedFiles.length} relevant files, ${enhancement.existingRelatedCode.length} code snippets`);
+    
+    if (classification.forceClaudeAPI || forceStreaming) { // Removed hardcoded true - now respects routing
       // 🧠 AGENT CONVERSATION: Always use streaming for better UX
       console.log(`🧠 AGENT CONVERSATION: ${agentId} - Forcing streaming for authentic agent response`);
       
@@ -515,7 +524,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
           userId,
           agentId,
           conversationId,
-          message,
+          enhancedMessage, // Use enhanced message with project awareness
           specializedSystemPrompt,
           enterpriseTools,
           res
