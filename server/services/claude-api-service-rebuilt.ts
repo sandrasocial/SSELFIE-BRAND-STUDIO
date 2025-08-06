@@ -1111,8 +1111,11 @@ I have complete workspace access and can implement any changes you need. What wo
             
             return this.summarizeSearchResults(searchResult, toolCall.input);
           } catch (error) {
-            console.error('Search filesystem error:', error);
-            return `[Search Error]\n${error instanceof Error ? error.message : 'Search failed'}`;
+            console.error('❌ SEARCH FILESYSTEM ERROR:', error);
+            // CRITICAL: Preserve search error details for agent awareness
+            const errorMsg = error instanceof Error ? error.message : 'Search failed';
+            console.log(`🚨 ZARA DEBUG: Search failed with error: ${errorMsg}`);
+            return `[Search Error - File Search Failed]\nError: ${errorMsg}\n\nTroubleshooting: Try using different search parameters or check if files exist with bash commands.`;
           }
 
         case 'bash':
@@ -1202,47 +1205,12 @@ I have complete workspace access and can implement any changes you need. What wo
             return `[Feedback Error]\n${error instanceof Error ? error.message : 'Feedback failed'}`;
           }
 
-        // ADVANCED IMPLEMENTATION TOOLKIT
+        // REMOVED: Legacy tool references that were causing import errors
         case 'agent_implementation_toolkit':
-          try {
-            console.log('🚀 ACTIVATING: Agent Implementation Toolkit for complex workflows');
-            const { AgentImplementationToolkit } = await import('../tools/agent_implementation_toolkit');
-            const toolkit = new AgentImplementationToolkit();
-            const implementationResult = await toolkit.executeAgentImplementation(toolCall.input);
-            return `Enterprise implementation executed successfully.`;
-          } catch (error) {
-            console.error('Implementation toolkit error:', error);
-            return `[Implementation Error]\n${error instanceof Error ? error.message : 'Implementation failed'}`;
-          }
-
-        // COMPREHENSIVE AGENT TOOLKIT
         case 'comprehensive_agent_toolkit':
-          try {
-            console.log('🤝 ACTIVATING: Comprehensive Agent Toolkit for multi-agent coordination');
-            const { comprehensive_agent_toolkit } = await import('../tools/comprehensive_agent_toolkit');
-            const coordinationResult = await comprehensive_agent_toolkit(toolCall.input.toolkit_operation, toolCall.input);
-            return `Agent coordination completed successfully.`;
-          } catch (error) {
-            console.error('Comprehensive toolkit error:', error);
-            return `[Coordination Error]\n${error instanceof Error ? error.message : 'Multi-agent coordination failed'}`;
-          }
-
-        // ADVANCED AGENT CAPABILITIES
         case 'advanced_agent_capabilities':
-          try {
-            console.log('🧠 ACTIVATING: Advanced Agent Capabilities for autonomous operations');
-            const { advancedAgentCapabilities } = await import('../tools/advanced_agent_capabilities');
-            const capabilityResult = await advancedAgentCapabilities.buildEnterpriseSystem({
-              name: toolCall.input.capability_type || 'enterprise-system',
-              type: 'full-stack-feature',
-              requirements: ['enterprise-capabilities'],
-              designPattern: 'luxury-editorial'
-            });
-            return `Advanced capabilities activated successfully.`;
-          } catch (error) {
-            console.error('Advanced capabilities error:', error);
-            return `[Capability Error]\n${error instanceof Error ? error.message : 'Advanced operation failed'}`;
-          }
+          console.log(`⚠️ LEGACY TOOL: ${toolCall.name} is not currently implemented`);
+          return `[Tool Not Available]\nThe ${toolCall.name} tool is not currently implemented. Use basic tools like search_filesystem, str_replace_based_edit_tool, and bash instead.`;
 
         // REPLIT-LEVEL TOOLS INTEGRATION
         case 'packager_tool':
@@ -1387,8 +1355,10 @@ I have complete workspace access and can implement any changes you need. What wo
       return 'Completed file operations successfully - details available in execution logs.';
     }
     
-    if (content.includes('Search completed:')) {
-      return 'Completed filesystem search successfully - results processed.';
+    if (content.includes('Search completed:') || content.includes('[Search Results]') || content.includes('Found the following relevant files')) {
+      // Preserve essential search info for agent decision making
+      const searchSummary = content.match(/Found \d+ files|No results found|Search failed|Error:/i);
+      return searchSummary ? `Search completed: ${searchSummary[0]}` : 'Search operation completed - check execution logs for results.';
     }
     
     if (content.includes('Command executed:')) {

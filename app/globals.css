@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* SSELFIE Custom Styles */
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-slate-50 to-slate-100;
+  }
+}
+
+@layer components {
+  .luxury-gradient {
+    @apply bg-gradient-to-r from-purple-600 to-pink-600;
+  }
+  
+  .luxury-card {
+    @apply bg-white rounded-2xl shadow-xl p-6;
+  }
+  
+  .luxury-text-gradient {
+    @apply bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent;
+  }
+}
