@@ -350,52 +350,93 @@ How can I help you further?`;
   }
 
   /**
-   * TRY DIRECT TOOL EXECUTION - Zero-cost bypass system
+   * TRY DIRECT TOOL EXECUTION - Zero-cost bypass system WITH REAL EXECUTION
    */
   async tryDirectToolExecution(message: string, conversationId: string, agentId: string): Promise<string | null> {
     console.log(`💰 BYPASS: Attempting direct tool execution for ${agentId}`);
     
-    // Check if message contains tool-like patterns
-    const toolPatterns = [
-      /search.*file/i,
-      /view.*file/i,
-      /edit.*file/i,
-      /create.*file/i,
-      /run.*command/i,
-      /execute.*bash/i
-    ];
-    
-    const isToolRequest = toolPatterns.some(pattern => pattern.test(message));
-    
-    if (isToolRequest) {
-      console.log(`⚡ BYPASS: Tool request detected - routing to zero-cost execution`);
-      return `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} is processing your request through the intelligent orchestration system...`;
+    try {
+      // FILE SEARCH OPERATIONS
+      if (/search.*file|find.*file|look.*for/i.test(message)) {
+        console.log(`🔍 BYPASS: File search detected - executing directly`);
+        const searchResult = await this.executeDirectFileSearch(message, agentId);
+        return searchResult;
+      }
+      
+      // FILE VIEW OPERATIONS
+      if (/view.*file|show.*file|read.*file|open.*file/i.test(message)) {
+        console.log(`📁 BYPASS: File view detected - executing directly`);
+        const viewResult = await this.executeDirectFileView(message, agentId);
+        return viewResult;
+      }
+      
+      // FILE EDIT OPERATIONS
+      if (/edit.*file|modify.*file|update.*file|change.*file/i.test(message)) {
+        console.log(`✏️ BYPASS: File edit detected - executing directly`);
+        const editResult = await this.executeDirectFileEdit(message, agentId);
+        return editResult;
+      }
+      
+      // COMMAND EXECUTION
+      if (/run.*command|execute.*bash|npm.*run|build|test/i.test(message)) {
+        console.log(`⚡ BYPASS: Command execution detected - executing directly`);
+        const commandResult = await this.executeDirectCommand(message, agentId);
+        return commandResult;
+      }
+      
+      // SYSTEM STATUS CHECKS
+      if (/check.*status|analyze.*system|verify.*database|audit/i.test(message)) {
+        console.log(`🔍 BYPASS: System check detected - executing directly`);
+        const statusResult = await this.executeDirectSystemCheck(message, agentId);
+        return statusResult;
+      }
+      
+    } catch (error) {
+      console.error(`❌ BYPASS EXECUTION ERROR:`, error);
+      return `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} encountered an issue with direct execution. Routing to AI for assistance.`;
     }
     
     return null;
   }
 
   /**
-   * TRY DIRECT BYPASS - Enhanced bypass detection
+   * TRY DIRECT BYPASS - Enhanced bypass detection WITH REAL EXECUTION
    */
   async tryDirectBypass(message: string, conversationId: string, agentId: string): Promise<string | null> {
     console.log(`🔄 ENHANCED BYPASS: Checking for direct operations for ${agentId}`);
     
-    // Enhanced bypass patterns for admin operations
-    const bypassPatterns = [
-      /analyze.*system/i,
-      /check.*status/i,
-      /verify.*database/i,
-      /audit.*code/i,
-      /review.*files/i,
-      /fix.*error/i
-    ];
-    
-    const isBypassRequest = bypassPatterns.some(pattern => pattern.test(message));
-    
-    if (isBypassRequest) {
-      console.log(`⚡ ADMIN BYPASS: Direct operation detected - executing without Claude API`);
-      return `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} has completed the analysis using the zero-cost admin bypass system. All systems are operational and ready for your next request.`;
+    try {
+      // SYSTEM ANALYSIS OPERATIONS
+      if (/analyze.*system|review.*architecture|examine.*code/i.test(message)) {
+        console.log(`🔍 ADMIN BYPASS: System analysis detected - executing directly`);
+        const analysisResult = await this.executeDirectSystemAnalysis(message, agentId);
+        return analysisResult;
+      }
+      
+      // STATUS VERIFICATION
+      if (/check.*status|verify.*system|health.*check/i.test(message)) {
+        console.log(`✅ ADMIN BYPASS: Status check detected - executing directly`);
+        const statusResult = await this.executeDirectStatusCheck(message, agentId);
+        return statusResult;
+      }
+      
+      // DATABASE OPERATIONS
+      if (/verify.*database|check.*db|database.*status/i.test(message)) {
+        console.log(`🗄️ ADMIN BYPASS: Database check detected - executing directly`);
+        const dbResult = await this.executeDirectDatabaseCheck(message, agentId);
+        return dbResult;
+      }
+      
+      // ERROR FIXING
+      if (/fix.*error|resolve.*issue|debug.*problem/i.test(message)) {
+        console.log(`🛠️ ADMIN BYPASS: Error fix detected - executing directly`);
+        const fixResult = await this.executeDirectErrorFix(message, agentId);
+        return fixResult;
+      }
+      
+    } catch (error) {
+      console.error(`❌ ADMIN BYPASS ERROR:`, error);
+      return null; // Fall back to Claude API for complex requests
     }
     
     return null;
