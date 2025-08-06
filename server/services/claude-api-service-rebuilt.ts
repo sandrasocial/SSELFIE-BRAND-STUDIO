@@ -415,6 +415,12 @@ export class ClaudeApiServiceRebuilt {
                 message: `${agentName} is processing results and continuing...`
               })}\n\n`);
               
+              // Add reminder to use function calls for any additional tools
+              currentMessages.push({
+                role: 'user',
+                content: 'Continue with your response. If you need to use more tools, call them as functions (not text descriptions).'
+              });
+              
               // Tools have been executed and results added to conversation
               // Claude will naturally continue or complete based on the context
               
