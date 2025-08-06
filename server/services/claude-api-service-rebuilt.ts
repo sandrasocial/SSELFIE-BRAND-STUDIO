@@ -106,8 +106,8 @@ export class ClaudeApiServiceRebuilt {
   }
 
   /**
-   * STREAMING MESSAGE HANDLER WITH TOOL CONTINUATION
-   * Real-time streaming with proper tool execution and conversation continuation
+   * NON-STREAMING MESSAGE HANDLER FOR TOOL EXECUTION
+   * Direct Claude API call with proper tool execution
    */
   async sendStreamingMessage(
     userId: string,
@@ -174,165 +174,140 @@ export class ClaudeApiServiceRebuilt {
         console.log(`✅ TOKEN CHECK: ${estimatedTokens} tokens - within limits, proceeding with Claude API`);
         
         
-        // 💰 TOKEN OPTIMIZATION: Use Claude 4 for best streaming + bypass system for tools
-        const stream = await anthropic.messages.create({
+        // 💰 TOKEN OPTIMIZATION: Use Claude 4 with non-streaming for tool execution compatibility
+        const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
           max_tokens: 8000,
           messages: currentMessages as any,
           system: enhancedSystemPrompt, // Optimized system prompt (no truncation needed)
           tools: tools,
-          stream: true
+          tool_choice: { type: "auto" }, // CRITICAL FIX: Force Claude to use function calling mode
+          stream: false // CRITICAL FIX: Non-streaming required for proper tool execution
         });
 
-        let currentResponseText = '';
-        let toolCalls: any[] = [];
-        let hasContent = false;
+        // Send initial message start event
+        res.write(`data: ${JSON.stringify({
+          type: 'message_start',
+          agentName,
+          message: `${agentName} is thinking...`
+        })}\n\n`);
         
-        // Process the stream
-        for await (const chunk of stream) {
-          if (chunk.type === 'message_start') {
-            if (!hasContent) {
-              res.write(`data: ${JSON.stringify({
-                type: 'message_start',
-                agentName,
-                message: `${agentName} is thinking...`
-              })}\n\n`);
-            }
+        console.log(`🔍 CLAUDE RESPONSE:`, JSON.stringify({
+          role: response.role,
+          contentBlocks: response.content?.length || 0,
+          model: response.model,
+          usage: response.usage
+        }, null, 2));
+        
+        // Process the non-streaming response for tools and content
+        let toolCalls: any[] = [];
+        let textContent = '';
+        
+        // Extract all content blocks
+        for (const contentBlock of response.content) {
+          if (contentBlock.type === 'text') {
+            textContent += contentBlock.text;
+            fullResponse += contentBlock.text;
+            
+            // Send text content to frontend
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: contentBlock.text
+            })}\n\n`);
+            
+          } else if (contentBlock.type === 'tool_use') {
+            // Tool call detected
+            console.log(`🔧 TOOL DETECTED: ${contentBlock.name}`, contentBlock.input);
+            
+            res.write(`data: ${JSON.stringify({
+              type: 'tool_start',
+              toolName: contentBlock.name,
+              message: `${agentName} is using ${contentBlock.name}...`
+            })}\n\n`);
+            
+            toolCalls.push({
+              name: contentBlock.name,
+              id: contentBlock.id,
+              input: contentBlock.input
+            });
+          }
+        }
+        
+        // Check if we have tool calls to execute
+        if (toolCalls.length > 0) {
+          res.write(`data: ${JSON.stringify({
+            type: 'tools_executing',
+            message: `${agentName} is executing ${toolCalls.length} tool(s)...`
+          })}\n\n`);
+          
+          // Build assistant message with current response and tool calls
+          const assistantMessage: any = {
+            role: 'assistant',
+            content: []
+          };
+          
+          if (textContent.trim()) {
+            assistantMessage.content.push({
+              type: 'text',
+              text: textContent
+            });
           }
           
-          if (chunk.type === 'content_block_start') {
-            if (chunk.content_block.type === 'tool_use') {
-              // Tool execution started
-              res.write(`data: ${JSON.stringify({
-                type: 'tool_start',
-                toolName: chunk.content_block.name,
-                message: `${agentName} is using ${chunk.content_block.name}...`
-              })}\n\n`);
+          // Add tool use content blocks
+          for (const toolCall of toolCalls) {
+            assistantMessage.content.push({
+              type: 'tool_use',
+              id: toolCall.id,
+              name: toolCall.name,
+              input: toolCall.input || {}
+            });
+          }
+          
+          // Add assistant message to conversation
+          currentMessages.push(assistantMessage);
+          
+          // 🚀 CRITICAL TOKEN OPTIMIZATION: Execute tools via BYPASS system with RESILIENCE
+          console.log(`💰 TOOL BYPASS: Executing ${toolCalls.length} tools with ZERO Claude API tokens`);
+          
+          let toolExecutionSuccessful = false;
+          for (const toolCall of toolCalls) {
+            try {
+              console.log(`⚡ BYPASS EXECUTION: ${toolCall.name} - No API cost`);
               
-              // CRITICAL FIX: Ensure tool parameters are properly captured
-              console.log(`🔍 RAW TOOL BLOCK:`, JSON.stringify(chunk.content_block, null, 2));
-              toolCalls.push({
-                id: chunk.content_block.id,
-                name: chunk.content_block.name,
-                input: chunk.content_block.input || {}, // Prevent undefined inputs
-                inputBuffer: '' // Buffer for streaming parameter collection
+              // CRITICAL PARAMETER FIX: Comprehensive parameter restoration
+              console.log(`🔍 PARAMETER DEBUG: Tool ${toolCall.name} before processing:`, {
+                hasInput: !!toolCall.input,
+                inputKeys: toolCall.input ? Object.keys(toolCall.input) : [],
+                hasInputBuffer: !!toolCall.inputBuffer,
+                bufferContent: toolCall.inputBuffer || 'none'
               });
-            }
-          }
-          
-          if (chunk.type === 'content_block_delta') {
-            if (chunk.delta.type === 'text_delta') {
-              // Stream text content
-              const textDelta = chunk.delta.text;
-              currentResponseText += textDelta;
-              fullResponse += textDelta;
-              hasContent = true;
               
-              res.write(`data: ${JSON.stringify({
-                type: 'text_delta',
-                content: textDelta
-              })}\n\n`);
-            } else if (chunk.delta.type === 'input_json_delta') {
-              // CRITICAL FIX: Capture tool parameters from streaming deltas with proper indexing
-              console.log(`🔍 RAW CHUNK:`, JSON.stringify(chunk, null, 2));
-              
-              // CRITICAL FIX: Claude API index bug - use the LAST tool call when index is out of bounds
-              const contentBlockIndex = typeof chunk.index === 'number' ? chunk.index : 0;
-              let contentBlock = toolCalls[contentBlockIndex];
-              
-              // STREAMING BUG FIX: If index is out of bounds, use the last tool call
-              if (!contentBlock && toolCalls.length > 0) {
-                console.log(`🔧 INDEX FIX: Claude sent index ${contentBlockIndex} but only ${toolCalls.length} tools exist, using last tool`);
-                contentBlock = toolCalls[toolCalls.length - 1];
-              }
-              
-              if (contentBlock) {
-                if (!contentBlock.inputBuffer) contentBlock.inputBuffer = '';
-                contentBlock.inputBuffer += chunk.delta.partial_json;
-                console.log(`✅ PARAMETER CAPTURE: ${contentBlock.name} buffer: "${contentBlock.inputBuffer}"`);
-              } else {
-                console.error(`❌ PARAMETER CAPTURE FAILED: No tool call found at index ${contentBlockIndex}`);
-                console.error(`Available tool calls:`, toolCalls.map(tc => ({ id: tc.id, name: tc.name })));
-              }
-            }
-          }
-          
-          if (chunk.type === 'message_stop') {
-            // Check if we have tool calls to execute
-            if (toolCalls.length > 0) {
-              res.write(`data: ${JSON.stringify({
-                type: 'tools_executing',
-                message: `${agentName} is executing ${toolCalls.length} tool(s)...`
-              })}\n\n`);
-              
-              // Build assistant message with current response and tool calls
-              const assistantMessage: any = {
-                role: 'assistant',
-                content: []
-              };
-              
-              if (currentResponseText.trim()) {
-                assistantMessage.content.push({
-                  type: 'text',
-                  text: currentResponseText
-                });
-              }
-              
-              // Add tool use content blocks - ensure complete tool structure
-              for (const toolCall of toolCalls) {
-                assistantMessage.content.push({
-                  type: 'tool_use',
-                  id: toolCall.id,
-                  name: toolCall.name,
-                  input: toolCall.input || {} // Ensure input is never undefined
-                });
-              }
-              
-              // Add assistant message to conversation
-              currentMessages.push(assistantMessage);
-              
-              // 🚀 CRITICAL TOKEN OPTIMIZATION: Execute tools via BYPASS system with RESILIENCE
-              console.log(`💰 TOOL BYPASS: Executing ${toolCalls.length} tools with ZERO Claude API tokens`);
-              
-              let toolExecutionSuccessful = false;
-              for (const toolCall of toolCalls) {
+              // Try multiple parameter recovery methods
+              if (toolCall.inputBuffer && toolCall.inputBuffer.trim()) {
                 try {
-                  console.log(`⚡ BYPASS EXECUTION: ${toolCall.name} - No API cost`);
+                  const parsedInput = JSON.parse(toolCall.inputBuffer);
+                  toolCall.input = { ...toolCall.input, ...parsedInput }; // Merge to preserve existing
+                  console.log(`✅ BUFFER PARAMETERS RESTORED:`, toolCall.input);
+                } catch (parseError) {
+                  console.log(`⚠️ BUFFER PARSE FAILED:`, toolCall.inputBuffer);
+                }
+              }
+              
+              // 🔥 SMART PARAMETER RECOVERY: Handle Claude streaming parameter bugs
+              if (!toolCall.input || Object.keys(toolCall.input).length === 0) {
+                console.log(`🔧 PARAMETER RECOVERY: Attempting smart parameter reconstruction for ${toolCall.name}`);
+                
+                // Try to reconstruct parameters based on the conversation context and tool name
+                const recoveredParameters = await this.reconstructToolParameters(toolCall, message, conversationId);
+                
+                if (recoveredParameters && Object.keys(recoveredParameters).length > 0) {
+                  toolCall.input = recoveredParameters;
+                  console.log(`✅ PARAMETER RECOVERY SUCCESS: ${toolCall.name}`, recoveredParameters);
+                } else {
+                  console.log(`⚠️ Parameter recovery failed for ${toolCall.name}, using intelligent bypass`);
                   
-                  // CRITICAL PARAMETER FIX: Comprehensive parameter restoration
-                  console.log(`🔍 PARAMETER DEBUG: Tool ${toolCall.name} before processing:`, {
-                    hasInput: !!toolCall.input,
-                    inputKeys: toolCall.input ? Object.keys(toolCall.input) : [],
-                    hasInputBuffer: !!toolCall.inputBuffer,
-                    bufferContent: toolCall.inputBuffer || 'none'
-                  });
-                  
-                  // Try multiple parameter recovery methods
-                  if (toolCall.inputBuffer && toolCall.inputBuffer.trim()) {
-                    try {
-                      const parsedInput = JSON.parse(toolCall.inputBuffer);
-                      toolCall.input = { ...toolCall.input, ...parsedInput }; // Merge to preserve existing
-                      console.log(`✅ BUFFER PARAMETERS RESTORED:`, toolCall.input);
-                    } catch (parseError) {
-                      console.log(`⚠️ BUFFER PARSE FAILED:`, toolCall.inputBuffer);
-                    }
-                  }
-                  
-                  // 🔥 SMART PARAMETER RECOVERY: Handle Claude streaming parameter bugs
-                  if (!toolCall.input || Object.keys(toolCall.input).length === 0) {
-                    console.log(`🔧 PARAMETER RECOVERY: Attempting smart parameter reconstruction for ${toolCall.name}`);
-                    
-                    // Try to reconstruct parameters based on the conversation context and tool name
-                    const recoveredParameters = await this.reconstructToolParameters(toolCall, message, conversationId);
-                    
-                    if (recoveredParameters && Object.keys(recoveredParameters).length > 0) {
-                      toolCall.input = recoveredParameters;
-                      console.log(`✅ PARAMETER RECOVERY SUCCESS: ${toolCall.name}`, recoveredParameters);
-                    } else {
-                      console.log(`⚠️ Parameter recovery failed for ${toolCall.name}, using intelligent bypass`);
-                      
-                      // INTELLIGENT BYPASS: Execute tool with smart defaults based on context
-                      const bypassResult = await this.useDirectToolAccess(toolCall, message, conversationId, agentName);
+                  // INTELLIGENT BYPASS: Execute tool with smart defaults based on context
+                  const bypassResult = await this.useDirectToolAccess(toolCall, message, conversationId, agentName);
                       
                       if (bypassResult) {
                         console.log(`⚡ CONTEXT BYPASS SUCCESS: ${toolCall.name} executed with context intelligence`);
