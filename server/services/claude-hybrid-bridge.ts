@@ -168,31 +168,44 @@ export class ClaudeHybridBridge {
   }
 
   /**
-   * EXECUTE REAL NODE.JS TOOLS
-   * Actually execute tools in the Node.js environment (not fake responses)
+   * EXECUTE REAL REPLIT TOOLS - Direct integration with actual Replit environment
+   * These are the ACTUAL tools that modify files, run commands, and make real changes
    */
   private async executeRealReplitTool(request: ToolExecutionRequest): Promise<{ success: boolean; result: any }> {
-    console.log(`🔧 REAL NODE TOOL: ${request.toolName} - executing actual file operations`);
+    console.log(`🔧 REAL REPLIT TOOL: ${request.toolName} - executing ACTUAL Replit tools`);
 
     try {
+      // Import the REAL Replit tools integration
+      const { replitTools } = await import('./replit-tools-direct');
+      
+      // Route to the ACTUAL tool implementations
       switch (request.toolName) {
         case 'str_replace_based_edit_tool':
-          return await this.executeStrReplaceEdit(request.parameters);
+          return await replitTools.strReplaceBasedEditTool(request.parameters);
           
         case 'search_filesystem':
-          return await this.executeFilesystemSearch(request.parameters);
+          return await replitTools.searchFilesystem(request.parameters);
           
         case 'bash':
-          return await this.executeBashCommand(request.parameters);
+          return await replitTools.bash(request.parameters);
           
         case 'get_latest_lsp_diagnostics':
-          return await this.executeLspDiagnostics(request.parameters);
+          return await replitTools.getLatestLspDiagnostics(request.parameters);
+          
+        case 'web_search':
+          return await replitTools.webSearch(request.parameters);
+          
+        case 'execute_sql_tool':
+          return await replitTools.executeSqlTool(request.parameters);
+          
+        case 'packager_tool':
+          return await replitTools.packagerTool(request.parameters);
           
         default:
-          console.log(`⚠️ UNSUPPORTED TOOL: ${request.toolName}`);
+          console.log(`⚠️ TOOL NOT INTEGRATED: ${request.toolName} - needs real implementation`);
           return {
             success: false,
-            result: { error: `Tool ${request.toolName} not yet implemented in Node.js environment` }
+            result: { error: `Tool ${request.toolName} needs real Replit integration` }
           };
       }
     } catch (error) {
@@ -233,7 +246,7 @@ export class ClaudeHybridBridge {
             
             const numberedLines = lines.map((line, idx) => `${idx + 1}\t${line}`).join('\n');
             return { success: true, result: { content: numberedLines, path: filePath } };
-          } catch (error) {
+          } catch (error: any) {
             return { success: false, result: { error: `Failed to read file: ${error.message}` }};
           }
 
@@ -244,7 +257,7 @@ export class ClaudeHybridBridge {
           try {
             await fs.writeFile(filePath, file_text, 'utf8');
             return { success: true, result: { message: `File created successfully at ${filePath}` } };
-          } catch (error) {
+          } catch (error: any) {
             return { success: false, result: { error: `Failed to create file: ${error.message}` }};
           }
 
@@ -260,7 +273,7 @@ export class ClaudeHybridBridge {
             const newContent = content.replace(old_str, new_str || '');
             await fs.writeFile(filePath, newContent, 'utf8');
             return { success: true, result: { message: `File updated successfully: ${filePath}` } };
-          } catch (error) {
+          } catch (error: any) {
             return { success: false, result: { error: `Failed to update file: ${error.message}` }};
           }
 
@@ -307,11 +320,11 @@ export class ClaudeHybridBridge {
                     matches = true;
                   }
 
-                  if (function_names?.some(fn => content.includes(fn))) {
+                  if (function_names?.some((fn: string) => content.includes(fn))) {
                     matches = true;
                   }
 
-                  if (class_names?.some(cn => content.includes(cn))) {
+                  if (class_names?.some((cn: string) => content.includes(cn))) {
                     matches = true;
                   }
 
