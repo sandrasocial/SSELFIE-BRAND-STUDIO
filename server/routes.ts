@@ -1347,9 +1347,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
-  // CONSOLIDATED: All admin agent interactions under unified /api/admin/agents/* pattern
-  app.use('/api/admin/agents', consultingAgentsRouter);
-  console.log('✅ CONSOLIDATED: Admin agent system active at /api/admin/agents/*');
+  // FIXED: Register consulting agents at correct path to match frontend calls
+  app.use('/api/consulting-agents', consultingAgentsRouter);
+  console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   app.use('/api/workflow', workflowOrchestrationRouter);
