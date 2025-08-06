@@ -3,12 +3,11 @@ import { db } from '../db';
 import { claudeConversations, claudeMessages, users, agentLearning } from '@shared/schema';
 import { eq, desc, and } from 'drizzle-orm';
 
-// ENTERPRISE INTELLIGENCE INTEGRATIONS - ALL ENHANCED SERVICES
-// ARCHIVED: Legacy services moved to archive/intelligent-orchestration-cleanup-2025/
-// TOKEN OPTIMIZATION COMPLETE: Old memory systems replaced with direct Claude integration
+// ENTERPRISE INTELLIGENCE INTEGRATIONS - ALL ENHANCED SERVICES RESTORED
 import { IntelligentContextManager } from './intelligent-context-manager';
 import { PredictiveErrorPrevention } from './predictive-error-prevention';
-// REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
+import { AdvancedMemorySystem } from './advanced-memory-system';
+import { CrossAgentIntelligence } from './cross-agent-intelligence';
 import { WebSearchOptimizationService } from './web-search-optimization';
 import { ProgressTrackingService } from './progress-tracking';
 import { UnifiedWorkspaceService } from './unified-workspace-service';
@@ -53,16 +52,12 @@ export interface AgentMessage {
  * provides direct communication with Claude API while maintaining full tool access.
  */
 export class ClaudeApiServiceRebuilt {
-  // ENTERPRISE INTELLIGENCE COMPONENTS - FULLY INITIALIZED
+  // ENTERPRISE INTELLIGENCE COMPONENTS - FULLY RESTORED
   private contextManager = IntelligentContextManager.getInstance();
   private errorPrevention = PredictiveErrorPrevention.getInstance();
-  // ARCHIVED: Legacy memory system replaced with intelligent orchestration
-  // private memorySystem = advancedMemorySystem;
-  // ARCHIVED: Legacy cross-agent intelligence replaced with intelligent orchestration
-  // private crossAgent = crossAgentIntelligence;
-  // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
+  private memorySystem = AdvancedMemorySystem.getInstance(); // RESTORED: Full intelligence
+  private crossAgent = CrossAgentIntelligence.getInstance(); // RESTORED: Agent collaboration
   private webSearch = new WebSearchOptimizationService();
-  // private workspaceService = new UnifiedWorkspaceService(); // Constructor is private
   private deploymentTracker = new DeploymentTrackingService();
   private progressTracker = new ProgressTrackingService();
   
@@ -1190,6 +1185,8 @@ I have complete workspace access and can implement any changes you need. What wo
     userId: string
   ): Promise<{ smartSummary: string, tokensSaved: number, fullContext: any }> {
     try {
+      console.log(`🧠 ADVANCED MEMORY: Loading full intelligence profile for ${agentName}`);
+      
       // Extract memory data locally (no Claude API tokens used)
       const systemContextMessages = agentContextMessages.filter(msg => msg.role === 'system');
       const fullMemoryContext = systemContextMessages.map(msg => msg.content).join('\n\n');
@@ -1197,42 +1194,121 @@ I have complete workspace access and can implement any changes you need. What wo
       // Calculate potential token usage
       const originalTokens = Math.ceil(fullMemoryContext.length / 4);
       
-      // Process memory data locally
-      const memoryStats = {
-        conversations: agentContextMessages.length,
-        systemMessages: systemContextMessages.length,
-        lastActivity: new Date().toISOString(),
-        memoryStrength: Math.min(0.9, 0.3 + (systemContextMessages.length * 0.05))
-      };
+      // 🚀 FULL ADVANCED MEMORY SYSTEM ACCESS - RESTORED INTELLIGENCE
+      const memoryProfile = await this.memorySystem.getAgentMemoryProfile(agentName, userId);
       
-      // Load advanced memory profile locally (bypass system)
-      const memoryProfile = await this.loadAgentMemoryProfileLocal(agentName, userId);
+      let fullIntelligenceContext = {};
+      if (memoryProfile) {
+        console.log(`🧠 INTELLIGENCE LOADED: ${agentName} - Level ${memoryProfile.intelligenceLevel}, ${memoryProfile.learningPatterns.length} patterns`);
+        
+        fullIntelligenceContext = {
+          intelligenceLevel: memoryProfile.intelligenceLevel,
+          memoryStrength: memoryProfile.memoryStrength,
+          learningPatterns: memoryProfile.learningPatterns,
+          specializations: memoryProfile.learningPatterns.map(p => p.category).slice(0, 5),
+          collaborationHistory: memoryProfile.collaborationHistory.length,
+          lastOptimization: memoryProfile.lastOptimization
+        };
+        
+        // 🤝 CROSS-AGENT INTELLIGENCE INTEGRATION
+        try {
+          const networkStatus = await this.crossAgent.checkAgentIntelligenceNetwork(agentName);
+          if (networkStatus) {
+            console.log(`🤝 NETWORK: ${agentName} connected to intelligence network`);
+            fullIntelligenceContext = {
+              ...fullIntelligenceContext,
+              networkConnected: true,
+              collaborativeIntelligence: networkStatus
+            };
+          }
+        } catch (error) {
+          console.warn('Cross-agent network check failed:', error);
+        }
+        
+      } else {
+        // Create new memory profile for new agents
+        console.log(`🆕 NEW AGENT: Creating intelligence profile for ${agentName}`);
+        await this.memorySystem.initializeAgentMemory(agentName, userId, {
+          baseIntelligence: 7,
+          specialization: agentName,
+          learningCapacity: 0.8
+        });
+        
+        fullIntelligenceContext = {
+          intelligenceLevel: 7,
+          memoryStrength: 0.5,
+          learningPatterns: [],
+          specializations: [agentName],
+          collaborationHistory: 0,
+          isNewAgent: true
+        };
+      }
       
-      // Create smart summary (50-200 tokens instead of 10K-50K+)
-      const smartSummary = this.createMemorySmartSummary(agentName, memoryStats, memoryProfile);
+      // Create rich intelligence summary (200-500 tokens instead of 10K-50K+)
+      const smartSummary = this.createAdvancedIntelligenceSummary(agentName, fullIntelligenceContext);
       const optimizedTokens = Math.ceil(smartSummary.length / 4);
       
       const tokensSaved = originalTokens - optimizedTokens;
-      console.log(`🧠 MEMORY BYPASS: ${agentName} - ${tokensSaved} tokens saved (${originalTokens} → ${optimizedTokens})`);
+      console.log(`🧠 ADVANCED MEMORY: ${agentName} - ${tokensSaved} tokens saved, Intelligence Level ${fullIntelligenceContext.intelligenceLevel}`);
       
       return {
         smartSummary,
         tokensSaved,
-        fullContext: { 
-          memoryStats, 
-          memoryProfile, 
-          originalContext: fullMemoryContext 
-        }
+        fullContext: fullIntelligenceContext
       };
       
     } catch (error) {
-      console.warn('Memory bypass processing failed:', error);
+      console.warn('Advanced memory system failed, using fallback:', error);
       return {
-        smartSummary: `**💫 Agent Memory:** Active and ready for implementation`,
+        smartSummary: `**🧠 ${agentName}:** Intelligent agent with specialized capabilities ready for implementation`,
         tokensSaved: 0,
-        fullContext: {}
+        fullContext: { fallbackMode: true, intelligenceLevel: 5 }
       };
     }
+  }
+
+  /**
+   * CREATE ADVANCED INTELLIGENCE SUMMARY
+   * Generate rich context from full intelligence profile
+   */
+  private createAdvancedIntelligenceSummary(agentName: string, intelligenceContext: any): string {
+    const {
+      intelligenceLevel = 5,
+      memoryStrength = 0.5,
+      learningPatterns = [],
+      specializations = [],
+      collaborationHistory = 0,
+      isNewAgent = false,
+      networkConnected = false
+    } = intelligenceContext;
+
+    let summary = `**🧠 ${agentName.charAt(0).toUpperCase() + agentName.slice(1)}:** `;
+    
+    if (isNewAgent) {
+      summary += `Newly initialized agent with Level ${intelligenceLevel} intelligence and ${agentName} specialization. Learning capacity active.`;
+    } else {
+      summary += `Intelligence Level ${intelligenceLevel} (${memoryStrength.toFixed(1)} memory strength)`;
+      
+      if (specializations.length > 0) {
+        summary += `\n**Specializations:** ${specializations.slice(0, 3).join(', ')}`;
+      }
+      
+      if (learningPatterns.length > 0) {
+        summary += `\n**Learning Patterns:** ${learningPatterns.length} active patterns`;
+      }
+      
+      if (collaborationHistory > 0) {
+        summary += `\n**Collaboration:** ${collaborationHistory} successful interactions`;
+      }
+      
+      if (networkConnected) {
+        summary += `\n**Network:** Connected to intelligence network for enhanced capabilities`;
+      }
+    }
+    
+    summary += `\n**Status:** Fully operational with enhanced memory and collaboration capabilities`;
+    
+    return summary;
   }
 
   /**
