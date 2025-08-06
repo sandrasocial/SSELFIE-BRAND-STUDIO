@@ -1602,25 +1602,6 @@ How can I help you further?`;
   private inferFileOperationParameters(message: string): any {
     const lowerMessage = message.toLowerCase();
     
-    console.log(`🛑 SMART FILE ROUTING: MUST check existing files before creating!`);
-    
-    // CRITICAL: Always check existing files first before creating anything
-    if (lowerMessage.includes('button') && (lowerMessage.includes('test') || lowerMessage.includes('create'))) {
-      console.log(`🔍 SMART ROUTING: Must examine existing admin-consulting-agents.tsx first`);
-      return {
-        command: 'view',
-        path: 'client/src/pages/admin-consulting-agents.tsx'
-      };
-    }
-    
-    if (lowerMessage.includes('consulting-agents') && lowerMessage.includes('create')) {
-      console.log(`🔍 SMART ROUTING: admin-consulting-agents.tsx already exists, viewing it`);
-      return {
-        command: 'view',
-        path: 'client/src/pages/admin-consulting-agents.tsx'
-      };
-    }
-    
     // Extract file operation intent
     if (lowerMessage.includes('create') && lowerMessage.includes('file')) {
       // Extract filename
@@ -1704,44 +1685,19 @@ export const example = () => {
   private inferSearchParameters(message: string): any {
     const lowerMessage = message.toLowerCase();
     
-    console.log(`🔍 SMART SEARCH INFERENCE: Analyzing message for existing files`);
-    
-    // SMART ROUTING: Look for existing files first
-    if (lowerMessage.includes('consulting-agents') || (lowerMessage.includes('admin') && lowerMessage.includes('agent'))) {
-      console.log(`🎯 SMART SEARCH: Targeting existing admin consulting agents page`);
-      return {
-        code: ['admin-consulting-agents', 'AdminConsultingAgents', 'consulting-agents']
-      };
-    }
-    
-    if (lowerMessage.includes('button') && (lowerMessage.includes('test') || lowerMessage.includes('create'))) {
-      console.log(`🎯 SMART SEARCH: Looking for existing button components first`);
-      return {
-        code: ['TestButton', 'Button', 'button', 'admin-consulting-agents']
-      };
-    }
-    
-    if (lowerMessage.includes('component') || lowerMessage.includes('tsx') || lowerMessage.includes('react')) {
-      console.log(`🎯 SMART SEARCH: Component search in existing structure`);
-      return {
-        code: ['Component', 'tsx', 'React']
-      };
-    }
-    
     // Extract search intent
     if (lowerMessage.includes('find') || lowerMessage.includes('search')) {
       const searchMatch = message.match(/(?:find|search)\s+(?:for\s+)?([a-zA-Z0-9._\s-]+)/i);
       if (searchMatch) {
         return {
-          code: [searchMatch[1].trim()]
+          query_description: searchMatch[1].trim()
         };
       }
     }
     
-    // Default to code search instead of general query
-    console.log(`🔍 SMART SEARCH: Using code search for better file discovery`);
+    // Default to general search
     return {
-      code: ['admin', 'component', 'page']
+      query_description: message
     };
   }
 
