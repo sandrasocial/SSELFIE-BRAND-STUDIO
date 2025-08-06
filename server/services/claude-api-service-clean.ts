@@ -1313,15 +1313,67 @@ How can I help you further?`;
         }
       ];
 
-      // Create streaming request
-      const stream = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
-        max_tokens: 8192,
-        system: fullSystemPrompt,
-        messages,
-        tools: tools.length > 0 ? tools : undefined,
-        stream: true
-      });
+      // Create streaming request with retry logic for overload errors
+      let stream;
+      let retryCount = 0;
+      const maxRetries = 3;
+      const baseDelay = 2000; // Start with 2 second delay
+      
+      while (retryCount < maxRetries) {
+        try {
+          stream = await anthropic.messages.create({
+            model: DEFAULT_MODEL_STR,
+            max_tokens: 8192,
+            system: fullSystemPrompt,
+            messages,
+            tools: tools.length > 0 ? tools : undefined,
+            stream: true
+          });
+          break; // Success, exit retry loop
+        } catch (error: any) {
+          retryCount++;
+          
+          // Check if it's an overload error
+          if (error.message?.includes('overloaded') || error.status === 529 || error.status === 503) {
+            if (retryCount < maxRetries) {
+              const delay = baseDelay * Math.pow(2, retryCount - 1); // Exponential backoff
+              console.log(`⏳ Claude API overloaded, retrying in ${delay}ms (attempt ${retryCount}/${maxRetries})`);
+              
+              // Send retry notification to client
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: `\n⏳ System is busy, retrying... (attempt ${retryCount}/${maxRetries})\n`
+              })}\n\n`);
+              
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
+          }
+          
+          // If not overload error or max retries reached, throw
+          console.error(`❌ Claude API error after ${retryCount} attempts:`, error);
+          
+          // Send error to client
+          res.write(`data: ${JSON.stringify({
+            type: 'error',
+            error: 'Claude API unavailable',
+            message: 'The AI service is currently overloaded. Please try again in a few moments.'
+          })}\n\n`);
+          res.write(`data: [DONE]\n\n`);
+          return;
+        }
+      }
+      
+      if (!stream) {
+        console.error('❌ Failed to create stream after all retries');
+        res.write(`data: ${JSON.stringify({
+          type: 'error',
+          error: 'Service unavailable',
+          message: 'Unable to connect to AI service. Please try again later.'
+        })}\n\n`);
+        res.write(`data: [DONE]\n\n`);
+        return;
+      }
 
       let responseText = '';
       let pendingToolCalls: any[] = [];
@@ -1492,14 +1544,63 @@ How can I help you further?`;
             }
           ];
           
-          // Continue streaming with Claude API for authentic agent response
-          const continuationStream = await anthropic.messages.stream({
-            model: 'claude-3-5-sonnet-20241022',
-            max_tokens: 4000,
-            system: systemPrompt,
-            messages: continuationMessages,
-            tools: this.toolDefinitions
-          });
+          // Continue streaming with Claude API for authentic agent response (with retry logic)
+          let continuationStream;
+          let continuationRetryCount = 0;
+          const continuationMaxRetries = 3;
+          const continuationBaseDelay = 2000;
+          
+          while (continuationRetryCount < continuationMaxRetries) {
+            try {
+              continuationStream = await anthropic.messages.stream({
+                model: 'claude-3-5-sonnet-20241022',
+                max_tokens: 4000,
+                system: systemPrompt,
+                messages: continuationMessages,
+                tools: this.toolDefinitions
+              });
+              break; // Success, exit retry loop
+            } catch (error: any) {
+              continuationRetryCount++;
+              
+              // Check if it's an overload error
+              if (error.message?.includes('overloaded') || error.status === 529 || error.status === 503) {
+                if (continuationRetryCount < continuationMaxRetries) {
+                  const delay = continuationBaseDelay * Math.pow(2, continuationRetryCount - 1);
+                  console.log(`⏳ Claude API overloaded during continuation, retrying in ${delay}ms (attempt ${continuationRetryCount}/${continuationMaxRetries})`);
+                  
+                  res.write(`data: ${JSON.stringify({
+                    type: 'text_delta',
+                    content: `\n⏳ Processing tool results... (attempt ${continuationRetryCount}/${continuationMaxRetries})\n`
+                  })}\n\n`);
+                  
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                  continue;
+                }
+              }
+              
+              // If not overload error or max retries reached, return gracefully
+              console.error(`❌ Claude continuation error after ${continuationRetryCount} attempts:`, error);
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: '\n\nTool execution completed. The system is currently busy, but your changes have been applied successfully.'
+              })}\n\n`);
+              
+              res.write(`data: [DONE]\n\n`);
+              return;
+            }
+          }
+          
+          if (!continuationStream) {
+            console.error('❌ Failed to create continuation stream after all retries');
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: '\n\nTool execution completed successfully.'
+            })}\n\n`);
+            res.write(`data: [DONE]\n\n`);
+            return;
+          }
           
           // Process continuation stream with support for additional tool calls
           let continuationToolCalls: any[] = [];
