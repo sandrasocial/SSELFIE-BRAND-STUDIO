@@ -1593,12 +1593,9 @@ How can I help you further?`;
           console.log(`🌊 CONTINUING CLAUDE CONVERSATION: ${agentId} with tool results for authentic response`);
           
           // Continue the conversation with tool results through Claude API
+          // FIXED: Remove duplicate message, include proper context
           const continuationMessages = [
-            ...messages,
-            {
-              role: "user" as const,
-              content: message
-            },
+            ...messages, // Already includes the original user message
             {
               role: "assistant" as const,
               content: [
@@ -1616,11 +1613,17 @@ How can I help you further?`;
             },
             {
               role: "user" as const,
-              content: toolResults.map(result => ({
-                type: "tool_result",
-                tool_use_id: result.tool_use_id,
-                content: result.content
-              }))
+              content: [
+                ...toolResults.map(result => ({
+                  type: "tool_result",
+                  tool_use_id: result.tool_use_id,
+                  content: result.content
+                })),
+                {
+                  type: "text",
+                  text: `Remember the original task: "${message}". Please continue working on this specific request and provide your findings.`
+                }
+              ]
             }
           ];
           
@@ -1828,11 +1831,17 @@ How can I help you further?`;
               },
               {
                 role: "user" as const,
-                content: continuationResults.map(result => ({
-                  type: "tool_result",
-                  tool_use_id: result.tool_use_id,
-                  content: result.content
-                }))
+                content: [
+                  ...continuationResults.map(result => ({
+                    type: "tool_result",
+                    tool_use_id: result.tool_use_id,
+                    content: result.content
+                  })),
+                  {
+                    type: "text",
+                    text: `Continue with the original task: "${message}". Focus on completing this specific request.`
+                  }
+                ]
               }
             ];
             
