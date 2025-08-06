@@ -9,6 +9,7 @@ import { advancedMemorySystem } from './advanced-memory-system';
 import { crossAgentIntelligence } from './cross-agent-intelligence';
 import { IntelligentContextManager } from './intelligent-context-manager';
 import { PredictiveErrorPrevention } from './predictive-error-prevention';
+import { agentIntelligenceBridge } from './agent-intelligence-bridge';
 // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
 import { WebSearchOptimizationService } from './web-search-optimization';
 import { ProgressTrackingService } from './progress-tracking';
