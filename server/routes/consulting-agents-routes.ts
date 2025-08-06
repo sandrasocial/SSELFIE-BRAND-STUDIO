@@ -58,7 +58,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', isAuthenticated, async (re
     try {
       const claudeService = getClaudeService();
       
-      // RESTORE TOOL ACCESS: Agents need tools to function
+      // COMPLETE TOOL ACCESS: All agent tools restored
       const tools = [
         {
           name: "str_replace_based_edit_tool",
@@ -101,6 +101,179 @@ consultingAgentsRouter.post('/admin/consulting-chat', isAuthenticated, async (re
               command: { type: "string" },
               restart: { type: "boolean" }
             }
+          }
+        },
+        {
+          name: "get_latest_lsp_diagnostics",
+          description: "Check for code errors and issues",
+          input_schema: {
+            type: "object",
+            properties: {
+              file_path: { type: "string" }
+            }
+          }
+        },
+        {
+          name: "packager_tool",
+          description: "Install or uninstall packages",
+          input_schema: {
+            type: "object",
+            properties: {
+              install_or_uninstall: { type: "string", enum: ["install", "uninstall"] },
+              language_or_system: { type: "string" },
+              dependency_list: { type: "array", items: { type: "string" } }
+            },
+            required: ["install_or_uninstall", "language_or_system"]
+          }
+        },
+        {
+          name: "programming_language_install_tool",
+          description: "Install programming languages",
+          input_schema: {
+            type: "object",
+            properties: {
+              programming_languages: { type: "array", items: { type: "string" } }
+            },
+            required: ["programming_languages"]
+          }
+        },
+        {
+          name: "execute_sql_tool",
+          description: "Execute SQL queries on the database",
+          input_schema: {
+            type: "object",
+            properties: {
+              sql_query: { type: "string" },
+              environment: { type: "string", enum: ["development"], default: "development" }
+            },
+            required: ["sql_query"]
+          }
+        },
+        {
+          name: "create_postgresql_database_tool",
+          description: "Create a PostgreSQL database",
+          input_schema: {
+            type: "object",
+            properties: {}
+          }
+        },
+        {
+          name: "check_database_status",
+          description: "Check database connectivity",
+          input_schema: {
+            type: "object",
+            properties: {}
+          }
+        },
+        {
+          name: "web_search",
+          description: "Search the internet for information",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: { type: "string" }
+            },
+            required: ["query"]
+          }
+        },
+        {
+          name: "web_fetch",
+          description: "Fetch content from web pages",
+          input_schema: {
+            type: "object",
+            properties: {
+              url: { type: "string" }
+            },
+            required: ["url"]
+          }
+        },
+        {
+          name: "restart_workflow",
+          description: "Restart or start a workflow",
+          input_schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              workflow_timeout: { type: "integer", default: 30 }
+            },
+            required: ["name"]
+          }
+        },
+        {
+          name: "suggest_deploy",
+          description: "Suggest deployment when project is ready",
+          input_schema: {
+            type: "object",
+            properties: {}
+          }
+        },
+        {
+          name: "ask_secrets",
+          description: "Request API keys from user",
+          input_schema: {
+            type: "object",
+            properties: {
+              secret_keys: { type: "array", items: { type: "string" } },
+              user_message: { type: "string" }
+            },
+            required: ["secret_keys", "user_message"]
+          }
+        },
+        {
+          name: "check_secrets",
+          description: "Check if secrets exist in environment",
+          input_schema: {
+            type: "object",
+            properties: {
+              secret_keys: { type: "array", items: { type: "string" } }
+            },
+            required: ["secret_keys"]
+          }
+        },
+        {
+          name: "report_progress",
+          description: "Report task completion progress",
+          input_schema: {
+            type: "object",
+            properties: {
+              summary: { type: "string" }
+            },
+            required: ["summary"]
+          }
+        },
+        {
+          name: "mark_completed_and_get_feedback",
+          description: "Mark task complete and get user feedback",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: { type: "string" },
+              workflow_name: { type: "string" },
+              website_route: { type: "string" }
+            },
+            required: ["query", "workflow_name"]
+          }
+        },
+        {
+          name: "suggest_rollback",
+          description: "Suggest rollback options to user",
+          input_schema: {
+            type: "object",
+            properties: {
+              suggest_rollback_reason: { type: "string" }
+            },
+            required: ["suggest_rollback_reason"]
+          }
+        },
+        {
+          name: "search_replit_docs",
+          description: "Search Replit documentation",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: { type: "string" }
+            },
+            required: ["query"]
           }
         }
       ];
