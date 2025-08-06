@@ -5,6 +5,7 @@
  */
 
 import { EventEmitter } from 'events';
+import { ConversationManager } from '../agents/ConversationManager';
 
 interface ToolExecutionRequest {
   agentId: string;
@@ -80,58 +81,25 @@ export class AgentToolOrchestrator extends EventEmitter {
     try {
       let result: any;
       
-      // Import REAL Replit tools instead of mock tools
-      const { replitTools } = await import('./replit-tools-direct');
-      
       switch (request.toolName) {
         case 'search_filesystem':
-          result = await replitTools.searchFilesystem(request.parameters);
+          const { search_filesystem } = await import('../tools/search_filesystem');
+          result = await search_filesystem(request.parameters);
           break;
           
         case 'str_replace_based_edit_tool':
-          result = await replitTools.strReplaceBasedEditTool(request.parameters);
+          const { str_replace_based_edit_tool } = await import('../tools/str_replace_based_edit_tool');
+          result = await str_replace_based_edit_tool(request.parameters, true); // Bypass mode
           break;
           
         case 'bash':
-          result = await replitTools.bash(request.parameters);
+          const { bash } = await import('../tools/bash');
+          result = await bash(request.parameters, true); // Bypass mode
           break;
           
         case 'get_latest_lsp_diagnostics':
-          result = await replitTools.getLatestLspDiagnostics(request.parameters);
-          break;
-
-        case 'packager_tool':
-          result = await replitTools.packagerTool(request.parameters);
-          break;
-          
-        case 'programming_language_install_tool':
-          result = await this.executeProgrammingLanguageBypass(request.parameters);
-          break;
-          
-        case 'ask_secrets':
-          result = await this.executeAskSecretsbypass(request.parameters);
-          break;
-          
-        case 'check_secrets':
-          result = await this.executeCheckSecretsbypass(request.parameters);
-          break;
-          
-        case 'execute_sql_tool':
-          result = await replitTools.executeSqlTool(request.parameters);
-          break;
-          
-        case 'web_search':
-          result = await replitTools.webSearch(request.parameters);
-          break;
-          
-        case 'mark_completed_and_get_feedback':
-          // Direct implementation for feedback
-          result = { message: 'Task marked complete', query: request.parameters.query };
-          break;
-          
-        case 'report_progress':
-          // Direct implementation for progress
-          result = { message: 'Progress reported', summary: request.parameters.summary };
+          const { get_latest_lsp_diagnostics } = await import('../tools/get_latest_lsp_diagnostics');
+          result = await get_latest_lsp_diagnostics(request.parameters, true); // Bypass mode
           break;
           
         default:
@@ -198,8 +166,12 @@ ${findings.filter(f => !f.success).map(f => `• Error in ${f.toolUsed}: ${f.err
 `;
 
     // Store findings in agent memory for context-aware response
-    // TODO: Connect to conversation manager when needed
-    console.log(`📝 AGENT MEMORY: ${signal.agentId} context stored for future reference`);
+    await ConversationManager.saveAgentMemory(signal.agentId, userId, {
+      currentContext: findingsContext,
+      keyTasks: [`Review tool findings`, `Provide summary to user`],
+      recentDecisions: [`Executed ${signal.toolResults.length} tools successfully`],
+      workflowStage: 'tool-review-complete'
+    });
 
     return findingsContext;
   }
@@ -279,63 +251,6 @@ ${findings.filter(f => !f.success).map(f => `• Error in ${f.toolUsed}: ${f.err
   clearAgentBuffer(agentId: string): void {
     this.resultBuffer.delete(agentId);
     this.toolQueue.delete(agentId);
-  }
-
-  /**
-   * ENTERPRISE TOOL BYPASS IMPLEMENTATIONS
-   * Zero-cost execution methods for enterprise tools
-   */
-  private async executePackagerBypass(params: any): Promise<any> {
-    console.log(`📦 PACKAGER BYPASS: ${params.install_or_uninstall} ${params.language_or_system}`);
-    return {
-      success: true,
-      operation: params.install_or_uninstall,
-      language: params.language_or_system,
-      packages: params.dependency_list || [],
-      cost: 0
-    };
-  }
-
-  private async executeProgrammingLanguageBypass(params: any): Promise<any> {
-    console.log(`🔧 LANGUAGE INSTALL BYPASS: ${params.programming_languages?.join(', ')}`);
-    return {
-      success: true,
-      languages: params.programming_languages,
-      cost: 0
-    };
-  }
-
-  private async executeAskSecretsbypass(params: any): Promise<any> {
-    console.log(`🔐 SECRETS REQUEST BYPASS: ${params.secret_keys?.join(', ')}`);
-    return {
-      success: true,
-      secrets_requested: params.secret_keys,
-      message: params.user_message,
-      cost: 0
-    };
-  }
-
-  private async executeCheckSecretsbypass(params: any): Promise<any> {
-    console.log(`🔍 SECRETS CHECK BYPASS: ${params.secret_keys?.join(', ')}`);
-    const results: any = {};
-    for (const key of params.secret_keys || []) {
-      results[key] = !!process.env[key];
-    }
-    return {
-      success: true,
-      secrets_status: results,
-      cost: 0
-    };
-  }
-
-  /**
-   * Clear agent tool queue (cleanup after workflow)
-   */
-  clearAgentQueue(agentId: string): void {
-    console.log(`🧹 ORCHESTRATOR: Clearing ${agentId} tool queue`);
-    this.toolQueue.delete(agentId);
-    this.resultBuffer.delete(agentId);
-    this.activeAgents.delete(agentId);
   }
 }
 

@@ -4,23 +4,14 @@ import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
 import { ClaudeApiServiceClean } from '../services/claude-api-service-clean';
-import { HybridAgentOrchestrator } from '../services/hybrid-intelligence/hybrid-agent-orchestrator';
 
-// SINGLETON SERVICES: Prevent performance issues from repeated instantiation
+// SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
 let claudeServiceInstance: ClaudeApiServiceClean | null = null;
-let hybridOrchestratorInstance: HybridAgentOrchestrator | null = null;
 function getClaudeService(): ClaudeApiServiceClean {
   if (!claudeServiceInstance) {
-    claudeServiceInstance = ClaudeApiServiceClean.getInstance();
+    claudeServiceInstance = new ClaudeApiServiceClean();
   }
   return claudeServiceInstance;
-}
-
-function getHybridOrchestrator(): HybridAgentOrchestrator {
-  if (!hybridOrchestratorInstance) {
-    hybridOrchestratorInstance = HybridAgentOrchestrator.getInstance();
-  }
-  return hybridOrchestratorInstance;
 }
 
 const router = Router();
@@ -33,7 +24,7 @@ router.get('/conversation-history/:agentId', async (req, res) => {
   try {
     const { agentId } = req.params;
     const user = req.user as any;
-    const userId = user?.claims?.sub || '42585527'; // Sandra's actual user ID
+    const userId = user?.claims?.sub || '42585527';
     
     console.log(`📚 Loading conversation history for agent: ${agentId}, user: ${userId}`);
     
@@ -102,10 +93,6 @@ router.post('/consulting-chat', async (req, res) => {
     const adminToken = req.body.adminToken || req.headers['x-admin-token'];
     const isTokenAuthenticated = adminToken === 'sandra-admin-2025';
     
-    // Additional fallback for local development
-    const isDevelopmentMode = process.env.NODE_ENV === 'development';
-    const isLocalAdmin = isDevelopmentMode && (req.body.userId === 'admin-sandra' || req.ip === '127.0.0.1');
-    
     console.log('🔐 Auth Debug:', { 
       hasUser: !!user,
       hasReqUser: !!req.user,
@@ -116,17 +103,11 @@ router.post('/consulting-chat', async (req, res) => {
       userData: user ? { id: user.claims?.sub, email: user.claims?.email } : null
     });
     
-    if (!isSessionAuthenticated && !isTokenAuthenticated && !isLocalAdmin) {
+    if (!isSessionAuthenticated && !isTokenAuthenticated) {
       console.log('❌ Admin access denied');
       return res.status(401).json({
         success: false,
-        message: 'Admin access required. Please authenticate as Sandra.',
-        debug: {
-          sessionAuth: isSessionAuthenticated,
-          tokenAuth: isTokenAuthenticated,
-          localAdmin: isLocalAdmin,
-          developmentMode: isDevelopmentMode
-        }
+        message: 'Admin access required. Please authenticate as Sandra.'
       });
     }
     
@@ -165,7 +146,7 @@ router.post('/consulting-chat', async (req, res) => {
       });
     }
     
-    const userId = req.user ? (req.user as any).claims.sub : '42585527'; // Sandra's actual user ID
+    const userId = req.user ? (req.user as any).claims.sub : '42585527';
     const conversationId = req.body.conversationId || `admin_${agentId}_${Date.now()}`;
     
     // SPECIALIZED AGENT SYSTEM PROMPT: Full personality with role-specific capabilities
@@ -185,44 +166,18 @@ You have complete access to all Replit-level tools for comprehensive implementat
       // CORE DEVELOPMENT TOOLS
       {
         name: 'str_replace_based_edit_tool',
-        description: 'Create, view, edit files with precision. ALWAYS provide required parameters: command and path. Example: {"command": "create", "path": "client/src/components/TestComponent.tsx", "file_text": "component code"}',
+        description: 'Create, view, edit files with precision. Use for all file operations including code generation, content creation, and modifications.',
         input_schema: {
           type: 'object',
           properties: {
-            command: { 
-              type: 'string', 
-              enum: ['view', 'create', 'str_replace', 'insert'],
-              description: 'The file operation to perform. REQUIRED.'
-            },
-            path: { 
-              type: 'string',
-              description: 'The file path. REQUIRED. Example: client/src/components/MyComponent.tsx'
-            },
-            file_text: { 
-              type: 'string',
-              description: 'Full file content for create command'
-            },
-            old_str: { 
-              type: 'string',
-              description: 'Exact text to replace for str_replace command'
-            },
-            new_str: { 
-              type: 'string',
-              description: 'New text for str_replace command'
-            },
-            insert_line: { 
-              type: 'integer',
-              description: 'Line number for insert command'
-            },
-            insert_text: { 
-              type: 'string',
-              description: 'Text to insert for insert command'
-            },
-            view_range: { 
-              type: 'array', 
-              items: { type: 'integer' },
-              description: 'Line range for view command [start, end]'
-            }
+            command: { type: 'string', enum: ['view', 'create', 'str_replace', 'insert'] },
+            path: { type: 'string' },
+            file_text: { type: 'string' },
+            old_str: { type: 'string' },
+            new_str: { type: 'string' },
+            insert_line: { type: 'integer' },
+            insert_text: { type: 'string' },
+            view_range: { type: 'array', items: { type: 'integer' } }
           },
           required: ['command', 'path']
         }
@@ -238,8 +193,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
             class_names: { type: 'array', items: { type: 'string' } },
             function_names: { type: 'array', items: { type: 'string' } },
             search_paths: { type: 'array', items: { type: 'string' } }
-          },
-          required: []
+          }
         }
       },
       {
@@ -250,8 +204,7 @@ You have complete access to all Replit-level tools for comprehensive implementat
           properties: {
             command: { type: 'string' },
             restart: { type: 'boolean' }
-          },
-          required: ['command']
+          }
         }
       },
       {
@@ -440,65 +393,79 @@ You have complete access to all Replit-level tools for comprehensive implementat
     
     // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
+    const claudeService = getClaudeService();
     
-    // PHASE 2 CLEANUP: UNIFIED INTELLIGENCE - NO COMPETING SYSTEMS
-    // All agents use Claude API with full tool access - no forced routing
-    console.log(`🎯 UNIFIED INTELLIGENCE: ${agentId} using integrated system without competing layers`);
-
-    // DISABLED: AgentContextEnhancer - Was causing 15,000-25,000 token drain per request
-    // const { AgentContextEnhancer } = await import('../services/hybrid-intelligence/agent-context-enhancer');
-    // const contextEnhancer = AgentContextEnhancer.getInstance();
-    // const enhancement = await contextEnhancer.enhanceAgentRequest(message, agentId, conversationId);
+    // 💰 SMART TOKEN OPTIMIZATION: Try bypass first, then allow Claude API for content generation
+    console.log(`💰 TOKEN OPTIMIZATION: ${agentId} attempting cost-efficient execution`);
     
-    // Use original message without massive context injection
-    const enhancedMessage = message;
-    console.log(`💰 TOKEN OPTIMIZATION: AgentContextEnhancer DISABLED - Saving 15,000-25,000 tokens per request`);
+    const directResult = await claudeService.tryDirectToolExecution?.(message, conversationId, agentId);
+    if (directResult) {
+      console.log(`⚡ BYPASS SUCCESS: ${agentId} executed without Claude API tokens`);
+      return res.status(200).json({
+        success: true,
+        response: directResult,
+        agentId,
+        conversationId,
+        tokenOptimized: true,
+        executionType: 'bypass-execution'
+      });
+    }
     
-    // UNIFIED APPROACH: All requests go through Claude API with tools
-    // No message classification, no forced routing, no competing systems
-    console.log(`🌊 UNIFIED STREAMING: ${agentId} using full intelligence with natural tool decisions`);
-    
-    // PHASE 4 CLEANUP: UNIFIED STREAMING - All agents use streaming with full intelligence
-    console.log(`🌊 UNIFIED STREAMING: ${agentId} - All agents use streaming for consistent experience`);
+    // 🎯 CONTENT GENERATION: Allow Claude API for strategic responses, code generation, etc.
+    console.log(`🧠 CONTENT GENERATION: ${agentId} needs Claude API for intelligent response`);
     
     // Set response headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
 
     try {
-      // UNIFIED SYSTEM: All agents stream through Claude API with full capabilities
-      console.log(`🌊 CLAUDE STREAMING: ${agentId} with authentic personality and full tool access`);
+      // ENHANCED BYPASS DETECTION: Try direct bypass BEFORE Claude API
+      const bypassResult = await claudeService.tryDirectBypass?.(message, conversationId, agentId);
+      if (bypassResult) {
+        console.log(`⚡ ADMIN BYPASS SUCCESS: Direct operation completed without Claude API`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'agent_start',
+          agentName: agentId.charAt(0).toUpperCase() + agentId.slice(1),
+          message: `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} is executing...`
+        })}\n\n`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'text_delta',
+          content: bypassResult
+        })}\n\n`);
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'completion',
+          agentId: agentId,
+          conversationId,
+          consultingMode: true,
+          success: true
+        })}\n\n`);
+        
+        res.end();
+        return;
+      }
       
-      const claudeService = getClaudeService();
-      
-      // CRITICAL FIX: Ensure conversation exists before streaming to prevent foreign key errors
-      console.log(`📝 Creating conversation ${conversationId} for user ${userId} if not exists`);
-      await claudeService.createConversationIfNotExists(conversationId, userId, agentId);
-      
-      // Use the actual Claude service that has agent personalities
+      // CONTENT GENERATION: Use Claude API for intelligent responses
       await claudeService.sendStreamingMessage(
         userId,
         agentId,
-          conversationId,
-          enhancedMessage, // Use enhanced message with project awareness
-          specializedSystemPrompt,
-          enterpriseTools,
-          res
-        );
-        
-        console.log(`✅ STREAMING SUCCESS: ${agentId} authentic streaming complete`);
-        return; // Response already sent via streaming
+        conversationId,
+        message,
+        specializedSystemPrompt,
+        enterpriseTools,
+        res
+      );
     } catch (error: any) {
-      console.error(`❌ STREAMING ERROR: ${agentId}:`, error);
+      console.error(`❌ CLAUDE API ERROR: ${agentId}:`, error);
       res.write(`data: ${JSON.stringify({
         type: 'error',
         error: 'Streaming failed',
         message: error.message
       })}\n\n`);
-      res.write(`data: [DONE]\n\n`);
       res.end();
     }
 
@@ -511,179 +478,6 @@ You have complete access to all Replit-level tools for comprehensive implementat
     });
   }
 });
-
-/**
- * DIRECT CLAUDE STREAMING
- * Bypasses hybrid system for authentic agent conversations
- */
-async function streamDirectClaudeResponse(
-  res: any,
-  message: string,
-  systemPrompt: string,
-  agentId: string,
-  conversationId: string,
-  userId: string
-) {
-  try {
-    const anthropic = new (await import('@anthropic-ai/sdk')).default({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
-
-    console.log(`🧠 DIRECT CLAUDE: ${agentId} with full tool access and context`);
-
-    // Load conversation history for context
-    const { ClaudeApiServiceClean } = await import('../services/claude-api-service-clean');
-    const claudeService = ClaudeApiServiceClean.getInstance();
-    const conversationHistory = await claudeService.loadConversationHistory(conversationId, userId, 10);
-
-    // Enhanced system prompt with tool access for authentic agent experience
-    const enhancedSystemPrompt = `${systemPrompt}
-
-CONVERSATION CONTEXT: Maintain context from previous messages in this conversation.
-
-TOOL ACCESS: You have full access to enterprise development tools. Use them actively to analyze, create, and modify code:
-- search_filesystem: Find files and code in the repository
-- str_replace_based_edit_tool: Create, view, and edit files
-- bash: Execute system commands
-- get_latest_lsp_diagnostics: Check for errors
-
-HYBRID OPTIMIZATION: Tool executions are optimized for efficiency while preserving your full capabilities.`;
-
-    const stream = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 8000,
-      system: enhancedSystemPrompt,
-      messages: [
-        ...conversationHistory,
-        { role: "user", content: message }
-      ],
-      tools: [
-        {
-          name: 'search_filesystem',
-          description: 'Search for files and code in the repository',
-          input_schema: {
-            type: 'object',
-            properties: {
-              query_description: { type: 'string' },
-              search_paths: { type: 'array', items: { type: 'string' } },
-              code: { type: 'array', items: { type: 'string' } },
-              function_names: { type: 'array', items: { type: 'string' } },
-              class_names: { type: 'array', items: { type: 'string' } }
-            }
-          }
-        },
-        {
-          name: 'str_replace_based_edit_tool',
-          description: 'View, create, and edit files',
-          input_schema: {
-            type: 'object',
-            properties: {
-              command: { type: 'string', enum: ['view', 'create', 'str_replace', 'insert'] },
-              path: { type: 'string' },
-              file_text: { type: 'string' },
-              old_str: { type: 'string' },
-              new_str: { type: 'string' },
-              insert_line: { type: 'integer' },
-              insert_text: { type: 'string' },
-              view_range: { type: 'array', items: { type: 'integer' } }
-            },
-            required: ['command', 'path']
-          }
-        },
-        {
-          name: 'bash',
-          description: 'Execute bash commands',
-          input_schema: {
-            type: 'object',
-            properties: {
-              command: { type: 'string' }
-            },
-            required: ['command']
-          }
-        },
-        {
-          name: 'get_latest_lsp_diagnostics',
-          description: 'Check for code errors and diagnostics',
-          input_schema: {
-            type: 'object',
-            properties: {
-              file_path: { type: 'string' }
-            }
-          }
-        }
-      ],
-      stream: true,
-    });
-
-    let fullResponse = '';
-    
-    for await (const chunk of stream) {
-      if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-        const textChunk = chunk.delta.text;
-        fullResponse += textChunk;
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'content',
-          content: textChunk
-        })}\n\n`);
-      } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
-        // Handle tool execution during streaming
-        const toolUse = chunk.content_block;
-        console.log(`🔧 TOOL EXECUTION DURING STREAMING: ${toolUse.name}`);
-        
-        try {
-          const { claudeHybridBridge } = await import('../services/claude-hybrid-bridge');
-          const toolResult = await claudeHybridBridge.executeToolViaHybrid({
-            toolName: toolUse.name,
-            parameters: toolUse.input,
-            agentId,
-            userId,
-            conversationId,
-            context: { streaming: true }
-          });
-
-          // Stream tool execution result
-          res.write(`data: ${JSON.stringify({
-            type: 'tool_execution',
-            toolName: toolUse.name,
-            result: toolResult.result,
-            tokensUsed: toolResult.tokensUsed,
-            tokensSaved: toolResult.tokensSaved
-          })}\n\n`);
-
-          fullResponse += `\n[Tool executed: ${toolUse.name}]\n`;
-        } catch (error) {
-          console.error(`❌ Tool execution error:`, error);
-          const errorMessage = error instanceof Error ? error.message : 'Unknown tool execution error';
-          res.write(`data: ${JSON.stringify({
-            type: 'tool_error',
-            toolName: toolUse.name,
-            error: errorMessage
-          })}\n\n`);
-        }
-      }
-    }
-
-    // Send completion signal
-    res.write(`data: ${JSON.stringify({
-      type: 'completion',
-      agentId,
-      conversationId,
-      fullResponse,
-      success: true
-    })}\n\n`);
-    
-    res.write(`data: [DONE]\n\n`);
-  } catch (error) {
-    console.error('Direct Claude streaming error:', error);
-    res.write(`data: ${JSON.stringify({
-      type: 'error',
-      error: 'Streaming failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    })}\n\n`);
-    res.write(`data: [DONE]\n\n`);
-  }
-}
 
 /**
  * UNIFIED ADMIN CONVERSATION HISTORY ENDPOINTS
@@ -816,58 +610,6 @@ router.post('/agent-conversation-clear/:agentId', async (req, res) => {
   } catch (error) {
     console.error("Failed to clear conversation history:", error);
     res.status(500).json({ error: "Failed to clear conversation history" });
-  }
-});
-
-/**
- * DIRECT REPLIT TOOLS TESTING ENDPOINT
- * Bypasses hybrid system to test real tool execution
- */
-router.post('/direct-replit-test', async (req, res) => {
-  try {
-    console.log('🎯 DIRECT REPLIT TEST: Testing real tool execution');
-
-    const { agentId, message, adminToken } = req.body;
-    
-    // Admin authentication
-    if (adminToken !== 'sandra-admin-2025') {
-      return res.status(401).json({
-        success: false,
-        message: 'Admin access required'
-      });
-    }
-
-    if (!agentId || !message?.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Agent ID and message are required'
-      });
-    }
-
-    // Import the direct Replit service
-    const { claudeDirectReplit } = await import('../services/claude-direct-replit');
-    
-    // Execute with real Replit tools (no hybrid system)
-    const response = await claudeDirectReplit.executeWithRealTools(
-      agentId,
-      message,
-      `direct-test-${Date.now()}`
-    );
-
-    res.json({
-      success: true,
-      agentId,
-      response,
-      mode: 'direct-replit',
-      toolsUsed: 'real-replit-environment'
-    });
-
-  } catch (error) {
-    console.error('❌ DIRECT REPLIT TEST ERROR:', error);
-    res.status(500).json({
-      success: false,
-      message: error instanceof Error ? error.message : 'Direct tool execution failed'
-    });
   }
 });
 

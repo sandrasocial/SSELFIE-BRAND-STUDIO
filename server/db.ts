@@ -1,11 +1,10 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
-import * as schema from "../shared/schema";
+import * as schema from "@shared/schema-simplified";
 
 // Configure WebSocket for serverless environment with error handling
 neonConfig.webSocketConstructor = ws;
-neonConfig.poolQueryViaFetch = true;
 
 // Add resilient WebSocket error handling to prevent crashes
 // WebSocket proxy disabled to fix connection issues

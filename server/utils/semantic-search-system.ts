@@ -1,5 +1,4 @@
-// Search functionality now handled through hybrid intelligence system
-import { ClaudeHybridBridge } from '../services/claude-hybrid-bridge';
+import { search_filesystem } from '../tools/search_filesystem';
 import fs from 'fs';
 import path from 'path';
 
@@ -39,20 +38,12 @@ class SemanticSearchSystem {
       console.log('🔍 Query:', query);
       console.log('🎯 Options:', options);
       
-      // Use hybrid intelligence for search
-      const hybridBridge = ClaudeHybridBridge.getInstance();
-      const searchResult = await hybridBridge.executeToolViaHybrid({
-        toolName: 'search_filesystem',
-        parameters: {
-          query_description: query,
-          class_names: options.contextHints || [],
-          function_names: []
-        },
-        agentId: 'semantic-search',
-        userId: 'system',
-        conversationId: 'semantic-search'
+      // First get basic search results
+      const basicResults = await search_filesystem({
+        query_description: query,
+        class_names: options.contextHints || [],
+        function_names: []
       });
-      const basicResults = searchResult.success ? searchResult.result : { results: [] };
       
       if (!basicResults?.results) {
         console.warn('⚠️ No basic search results found');
@@ -192,19 +183,11 @@ class SemanticSearchSystem {
       const dirName = path.dirname(filePath);
       
       // Look for related files with similar names
-      const hybridBridge = ClaudeHybridBridge.getInstance();
-      const searchResult = await hybridBridge.executeToolViaHybrid({
-        toolName: 'search_filesystem',
-        parameters: {
-          query_description: `Files related to ${baseName}`,
-          function_names: [],
-          class_names: []
-        },
-        agentId: 'semantic-search',
-        userId: 'system',
-        conversationId: 'semantic-search'
+      const relatedSearch = await search_filesystem({
+        query_description: `Files related to ${baseName}`,
+        function_names: [],
+        class_names: []
       });
-      const relatedSearch = searchResult.success ? searchResult.result : { results: [] };
       
       if (relatedSearch?.results) {
         for (const result of relatedSearch.results) {
@@ -254,22 +237,14 @@ class SemanticSearchSystem {
       ];
       
       for (const searchConfig of searches) {
-        const hybridBridge = ClaudeHybridBridge.getInstance();
-        const searchResult = await hybridBridge.executeToolViaHybrid({
-          toolName: 'search_filesystem',
-          parameters: {
-            query_description: searchConfig.query,
-            function_names: [],
-            class_names: []
-          },
-          agentId: 'semantic-search',
-          userId: 'system',
-          conversationId: 'semantic-search'
+        const results = await search_filesystem({
+          query_description: searchConfig.query,
+          function_names: [],
+          class_names: []
         });
-        const results = searchResult.success ? searchResult.result : { results: [] };
         
         if (results?.results) {
-          const filePaths = results.results.map((r: any) => r.filePath || r.path || '');
+          const filePaths = results.results.map(r => r.filePath || r.path || '');
           (structure as any)[searchConfig.type] = filePaths;
           console.log(`📁 Found ${filePaths.length} ${searchConfig.type} files`);
         }

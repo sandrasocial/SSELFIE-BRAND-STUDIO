@@ -1,29 +1,11 @@
-// import { Database } from '@/lib/database'
-// import { LaunchMetrics } from '@/shared/types/launch-metrics'
-
-interface LaunchMetrics {
-  systemStatus: 'optimal' | 'good' | 'warning' | 'critical';
-  performanceScore: number;
-  securityStatus: 'verified' | 'pending' | 'warning';
-  lastChecked: string;
-  criticalChecks: {
-    database: boolean;
-    api: boolean;
-    security: boolean;
-    performance: boolean;
-  };
-}
+import { Database } from '@/lib/database'
+import { LaunchMetrics } from '@/shared/types/launch-metrics'
 
 export class LaunchExcellenceProtocol {
-  private static instance: LaunchExcellenceProtocol;
+  private db: Database
   
-  private constructor() {}
-
-  public static getInstance(): LaunchExcellenceProtocol {
-    if (!LaunchExcellenceProtocol.instance) {
-      LaunchExcellenceProtocol.instance = new LaunchExcellenceProtocol();
-    }
-    return LaunchExcellenceProtocol.instance;
+  constructor() {
+    this.db = new Database()
   }
 
   /**
@@ -51,8 +33,8 @@ export class LaunchExcellenceProtocol {
    */
   private async validateDatabase(): Promise<boolean> {
     try {
-      // Simple database validation
-      return process.env.DATABASE_URL !== undefined;
+      await this.db.ping()
+      return true
     } catch (error) {
       console.error('Database validation failed:', error)
       return false

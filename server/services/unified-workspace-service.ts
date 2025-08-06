@@ -1,5 +1,5 @@
-// Tools now handled through hybrid intelligence system
-import { ClaudeHybridBridge } from './claude-hybrid-bridge';
+import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_tool.js';
+import { search_filesystem } from '../tools/search_filesystem.js';
 import fs from 'fs/promises';
 import path from 'path';
 
