@@ -70,17 +70,16 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
     const baseSystemPrompt = agentConfig.systemPrompt;
     
-    // CRITICAL: PROPER FUNCTION CALLING INSTRUCTIONS
-    const systemPrompt = `${baseSystemPrompt}
+    // MEMORY-INFORMED SYSTEM PROMPT: Preserve personality while enabling function calling
+    const systemPrompt = baseSystemPrompt + `
 
-You have access to powerful function calling capabilities. When the user asks you to perform tasks like searching files, editing code, or running commands, you MUST use the provided functions.
+FUNCTION CALLING CAPABILITIES:
+You have access to powerful function calling capabilities. When Sandra asks you to perform tasks, use the provided functions directly:
+- search_filesystem: Find files and code
+- str_replace_based_edit_tool: Edit files  
+- bash: Run commands
 
-For example:
-- To search files: Use the search_filesystem function
-- To edit files: Use the str_replace_based_edit_tool function  
-- To run commands: Use the bash function
-
-Do NOT write XML-style descriptions of tools. Use the actual function calling system instead.`;
+CRITICAL: Maintain your unique personality, voice, and specialized expertise while using these tools. Your memory and learning patterns inform how you approach each task.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
