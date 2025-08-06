@@ -59,14 +59,14 @@ consultingAgentsRouter.post('/admin/consulting-chat', isAuthenticated, async (re
       const claudeService = getClaudeService();
       
       // DIRECT CLAUDE API: No hardcoded tool schemas, no parameter forcing
-      const response = await claudeService.streamConsultingAgentResponse(
-        message,
+      await claudeService.sendStreamingMessage(
+        userId,
         conversationId,
         agentId,
+        message,
         systemPrompt,
-        undefined, // NO HARDCODED TOOLS - let Claude use native tools
-        res,
-        userId
+        [], // NO HARDCODED TOOLS - let Claude use native tools
+        res
       );
 
       console.log(`✅ UNRESTRICTED SUCCESS: Agent ${agentId} completed with natural intelligence`);
