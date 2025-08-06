@@ -32,8 +32,14 @@ export interface SearchResult {
 
 export class DirectWorkspaceAccess {
   private projectRoot: string;
-  private allowedExtensions = ['.ts', '.tsx', '.js', '.jsx', '.json', '.md', '.css', '.html'];
-  private forbiddenPaths = ['node_modules', '.git', 'dist', 'build', '.next'];
+  // UNRESTRICTED ACCESS RESTORED - All file types allowed for complete repository access
+  private allowedExtensions = [
+    '.ts', '.tsx', '.js', '.jsx', '.json', '.md', '.css', '.html', '.txt', '.csv', 
+    '.png', '.jpg', '.jpeg', '.zip', '.scss', '.yaml', '.yml', '.env', '.gitignore',
+    '.py', '.rb', '.php', '.cpp', '.c', '.h', '.hpp', '.java', '.go', '.rs', '.swift'
+  ];
+  // MINIMAL RESTRICTIONS - Only exclude system directories that cause performance issues
+  private forbiddenPaths = ['node_modules', '.git'];
 
   constructor() {
     // Get project root directory
@@ -52,18 +58,18 @@ export class DirectWorkspaceAccess {
   }
 
   /**
-   * Check if path is allowed for access
+   * Check if path is allowed for access - COMPLETE UNRESTRICTED ACCESS
    */
   private isPathAllowed(fullPath: string): boolean {
-    // Must be within project root
+    // Must be within project root for security
     if (!fullPath.startsWith(this.projectRoot)) {
       return false;
     }
 
-    // Check forbidden paths
+    // MINIMAL RESTRICTIONS: Only performance-impacting directories blocked
     const relativePath = path.relative(this.projectRoot, fullPath);
     return !this.forbiddenPaths.some(forbidden => 
-      relativePath.includes(forbidden)
+      relativePath.startsWith(forbidden + path.sep) || relativePath === forbidden
     );
   }
 
