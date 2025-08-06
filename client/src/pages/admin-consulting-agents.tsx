@@ -995,6 +995,24 @@ export default function AdminConsultingAgents() {
                       >
                         Send
                       </button>
+                      
+                      {/* Test Agent Capabilities Button */}
+                      {selectedAgent?.id === 'zara' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMessage("Zara, please create a new component called TestAgentCapability.tsx in the components folder with a simple button that says 'Agent Test Complete'");
+                            // Auto-send the message
+                            setTimeout(() => {
+                              const sendBtn = document.querySelector('button[onClick*="sendMessage"]') as HTMLButtonElement;
+                              if (sendBtn) sendBtn.click();
+                            }, 100);
+                          }}
+                          className="px-6 py-3 bg-purple-600 text-white font-light uppercase tracking-wide hover:bg-purple-700 transition-colors shadow-sm"
+                        >
+                          Test Agent
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
