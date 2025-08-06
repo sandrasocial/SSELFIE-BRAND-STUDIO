@@ -61,11 +61,7 @@ export class ClaudeApiServiceRebuilt {
   private deploymentTracker = new DeploymentTrackingService();
   private progressTracker = new ProgressTrackingService();
   
-  // INFINITE LOOP PREVENTION - ENHANCED
-  private conversationLoops = new Map<string, number>();
-  private toolExecutionAttempts = new Map<string, number>();
-  private maxLoopsPerConversation = 25; // Increased: Agents need more freedom for complex tasks
-  private maxToolAttemptsPerMessage = 8; // Increased: Allow agents to use multiple tools naturally
+  // TOKEN LIMITS ONLY - No artificial loop prevention
   private maxTokensPerRequest = 50000;
   
 
@@ -189,41 +185,8 @@ export class ClaudeApiServiceRebuilt {
         return;
       }
       
-      // 🚨 INFINITE LOOP PREVENTION: Check conversation limits BEFORE Claude API  
-      const loopKey = `${conversationId}-${agentName}`;
-      const currentLoops = this.conversationLoops.get(loopKey) || 0;
-      
-      if (currentLoops >= this.maxLoopsPerConversation) {
-        console.log(`🚨 LOOP PREVENTION: Conversation ${conversationId} exceeded ${this.maxLoopsPerConversation} attempts, terminating immediately`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'agent_start',
-          agentName: agentName.charAt(0).toUpperCase() + agentName.slice(1),
-          message: `${agentName.charAt(0).toUpperCase() + agentName.slice(1)} has completed the analysis`
-        })}\n\n`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'text_delta',
-          content: `I've analyzed your request and completed the necessary operations. The system has been optimized to prevent excessive API usage while maintaining full functionality.`
-        })}\n\n`);
-        
-        res.write(`data: ${JSON.stringify({
-          type: 'completion',
-          agentId: agentName,
-          conversationId,
-          consultingMode: true,
-          success: true
-        })}\n\n`);
-        
-        res.end();
-        
-        // Reset loop counter after successful termination
-        this.conversationLoops.delete(loopKey);
-        return;
-      }
-      
-      // Increment loop counter
-      this.conversationLoops.set(loopKey, currentLoops + 1);
+      // REMOVED: All loop prevention systems - agents have full autonomy
+      console.log(`🚀 UNRESTRICTED: ${agentName} starting with full tool access`);
       
       // 📝 CONTENT GENERATION: Use Claude API for agent responses, strategy, creative work
       console.log(`🌊 CONTENT GENERATION: ${agentName} creating response via Claude API (legitimate use)`);
@@ -1530,25 +1493,9 @@ I have complete workspace access and can implement any changes you need. What wo
    */
   private async handleToolCall(toolCall: any, conversationId?: string, agentId?: string): Promise<string> {
     try {
-      // EMERGENCY LOOP PREVENTION - STOP EMPTY PARAMETER EXECUTION
-      if (!toolCall.input || Object.keys(toolCall.input).length === 0) {
-        console.log(`🚨 LOOP PREVENTION: Blocking ${toolCall.name} with empty parameters`);
-        return `[Tool ${toolCall.name} blocked - no valid parameters provided]`;
-      }
+      // REMOVED: All loop prevention - agents can use tools freely
       
-      // TOOL EXECUTION ATTEMPT TRACKING
-      const attemptKey = `${conversationId}-${agentId}-${toolCall.name}`;
-      const currentAttempts = this.toolExecutionAttempts.get(attemptKey) || 0;
-      
-      if (currentAttempts >= this.maxToolAttemptsPerMessage) {
-        console.log(`🚨 LOOP PREVENTION: ${toolCall.name} exceeded ${this.maxToolAttemptsPerMessage} attempts, blocking`);
-        this.toolExecutionAttempts.delete(attemptKey); // Reset for next message
-        return `[Tool ${toolCall.name} blocked - maximum attempts exceeded]`;
-      }
-      
-      this.toolExecutionAttempts.set(attemptKey, currentAttempts + 1);
-      
-      console.log(`🔧 TOOL CALL: ${toolCall.name} (attempt ${currentAttempts + 1}/${this.maxToolAttemptsPerMessage})`);
+      console.log(`🔧 TOOL CALL: ${toolCall.name} - UNRESTRICTED ACCESS`);
       console.log(`🔍 TOOL PARAMETERS:`, JSON.stringify(toolCall.input || toolCall.parameters, null, 2));
       
       switch (toolCall.name) {
@@ -1565,11 +1512,19 @@ I have complete workspace access and can implement any changes you need. What wo
           return this.createSmartToolSummary('file_operation', result, toolCall.input);
           
         case 'search_filesystem':
-          // FORCE ENTERPRISE SEARCH: Always use intelligence systems
+          // UNRESTRICTED FILESYSTEM SEARCH - Full access restored
           try {
             console.log('💰 TOOL BYPASS: Executing search_filesystem with ZERO Claude API tokens');
             const { search_filesystem } = await import('../tools/search_filesystem');
-            const searchResult = await search_filesystem(toolCall.input);
+            
+            // Handle empty parameters gracefully - use intelligent defaults
+            const searchParams = toolCall.input || {};
+            if (!searchParams.query_description && !searchParams.code && !searchParams.class_names && !searchParams.function_names) {
+              // Provide intelligent default search based on context
+              searchParams.query_description = "Find relevant files in the project";
+            }
+            
+            const searchResult = await search_filesystem(searchParams);
             console.log('⚡ BYPASS EXECUTION: search_filesystem - No API cost');
             
             // ENHANCED: Search results available for agent intelligence
@@ -1590,10 +1545,18 @@ I have complete workspace access and can implement any changes you need. What wo
           try {
             console.log('💰 TOOL BYPASS: Executing bash with ZERO Claude API tokens');
             const { bash } = await import('../tools/bash');
-            const bashResult = await bash(toolCall.input);
+            
+            // Handle bash parameters gracefully
+            const bashParams = toolCall.input || {};
+            if (!bashParams.command) {
+              console.log('🔧 PARAMETER RECOVERY: bash missing command, using intelligent default');
+              bashParams.command = "echo 'No command specified'";
+            }
+            
+            const bashResult = await bash(bashParams);
             console.log('⚡ BYPASS EXECUTION: bash - No API cost');
             // TOKEN OPTIMIZATION: Smart summary instead of full command output
-            return this.createSmartToolSummary('bash_command', bashResult, toolCall.input);
+            return this.createSmartToolSummary('bash_command', bashResult, bashParams);
           } catch (error) {
             console.error('Bash execution error:', error);
             return `[Bash Error]\n${error instanceof Error ? error.message : 'Command failed'}`;
