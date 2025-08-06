@@ -66,96 +66,12 @@ export class ClaudeApiServiceRebuilt {
   private deploymentTracker = new DeploymentTrackingService();
   private progressTracker = new ProgressTrackingService();
   
-  /**
-   * CRITICAL TOKEN OPTIMIZATION: Summarize tool results to prevent massive token costs
-   */
-  private summarizeToolResult(toolName: string, result: string): string {
-    const maxLength = 500; // Maximum 500 characters per tool result
-    
-    if (result.length <= maxLength) return result;
-    
-    switch (toolName) {
-      case 'str_replace_based_edit_tool':
-        if (result.includes('File created successfully')) {
-          return `File created successfully: ${result.split(' ').slice(-1)[0]}`;
-        }
-        if (result.includes('has been edited')) {
-          return `File edited successfully. Changes applied to ${result.split(' ')[1]}.`;
-        }
-        if (result.includes('cat -n')) {
-          const lines = result.split('\n').length - 1;
-          return `File viewed: ${lines} lines of code/content.`;
-        }
-        return 'File operation completed successfully.';
-        
-      case 'execute_sql_tool':
-        if (result.includes('rows')) {
-          const rowCount = result.match(/(\d+) rows?/)?.[1] || 'multiple';
-          return `SQL query executed: ${rowCount} rows affected/returned.`;
-        }
-        return 'Database query executed successfully.';
-        
-      case 'bash':
-        return `Command executed: ${result.split('\n')[0].substring(0, 100)}${result.length > 100 ? '...' : ''}`;
-        
-      case 'search_filesystem':
-        if (result.includes('Found the following')) {
-          const fileCount = (result.match(/File Name:/g) || []).length;
-          return `Found ${fileCount} relevant files in codebase.`;
-        }
-        return 'Code search completed.';
-        
-      case 'web_search':
-        return `Web search completed: ${result.substring(0, 200)}...`;
-        
-      default:
-        return result.substring(0, maxLength) + (result.length > maxLength ? '...' : '');
-    }
-  }
-  
   constructor() {
     // UNLIMITED AGENT MODE: Activate complete agent liberation (silent mode)
     if (UNLIMITED_AGENT_MODE) {
       // Silent activation to prevent spam logs
       console.log('🎯 Unlimited agent mode active');
     }
-  }
-
-  /**
-   * CRITICAL TOKEN SAVER: Direct tool execution without Claude API
-   * Bypasses Claude entirely for simple file/system operations
-   */
-  private async directToolExecution(message: string): Promise<{executed: boolean, result?: string}> {
-    const lowerMessage = message.toLowerCase();
-    
-    // File creation patterns
-    if (lowerMessage.includes('create') && lowerMessage.includes('file')) {
-      const filename = message.match(/create.*?file.*?([a-zA-Z0-9\-_.]+\.[a-z]+)/i)?.[1];
-      if (filename) {
-        return {
-          executed: true,
-          result: `I understand you want to create ${filename}. I can help with that using my file tools.`
-        };
-      }
-    }
-    
-    // Simple status/info requests  
-    if (lowerMessage.includes('status') || lowerMessage.includes('check')) {
-      return {
-        executed: true,
-        result: `I can check the current system status and provide you with the information you need.`
-      };
-    }
-    
-    // Greeting patterns - no need for expensive Claude calls
-    if (lowerMessage.match(/^(hi|hello|hey|good morning|good afternoon)/)) {
-      return {
-        executed: true,
-        result: `Hello! I'm ready to help you with any technical tasks, file operations, or system management. What can I do for you?`
-      };
-    }
-    
-    return {executed: false};
   }
   
   /**
@@ -172,8 +88,6 @@ export class ClaudeApiServiceRebuilt {
     res: any // Express response object for streaming
   ): Promise<void> {
     try {
-
-      
       // Load conversation history
       const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
@@ -186,18 +100,6 @@ export class ClaudeApiServiceRebuilt {
         })),
         { role: 'user', content: message }
       ];
-      
-      // DEBUG: Log actual content being sent to identify token bloat
-      const totalContentLength = JSON.stringify(claudeMessages).length;
-      console.log(`🔍 CLAUDE REQUEST SIZE: ${totalContentLength} characters for ${agentName}`);
-      if (totalContentLength > 50000) {
-        console.log(`⚠️  MASSIVE REQUEST DETECTED: ${totalContentLength} characters - investigating tool results...`);
-        claudeMessages.forEach((msg, index) => {
-          if (msg.content && msg.content.length > 5000) {
-            console.log(`   Message ${index} (${msg.role}): ${msg.content.length} chars - ${msg.content.substring(0, 100)}...`);
-          }
-        });
-      }
 
       console.log(`🌊 STREAMING: Starting Claude API stream for ${agentName}`);
       
@@ -350,13 +252,7 @@ export class ClaudeApiServiceRebuilt {
                 try {
                   const toolResult = await this.handleToolCall(toolCall, conversationId, agentName);
                   
-                  // DEBUG: Log tool result size to identify token bloat source
-                  console.log(`🔧 TOOL RESULT SIZE: ${toolCall.name} returned ${toolResult.length} characters`);
-                  if (toolResult.length > 10000) {
-                    console.log(`⚠️  MASSIVE TOOL RESULT: ${toolCall.name} - ${toolResult.substring(0, 200)}...`);
-                  }
-                  
-                  // Add tool result to conversation (keeping full result for now to debug)
+                  // Add tool result to conversation
                   currentMessages.push({
                     role: 'user',
                     content: [{
@@ -416,7 +312,7 @@ export class ClaudeApiServiceRebuilt {
         }
       }
       
-      // Save conversation to database  
+      // Save conversation to database
       await this.saveMessage(conversationId, 'user', message);
       await this.saveMessage(conversationId, 'assistant', fullResponse);
       
@@ -789,37 +685,22 @@ export class ClaudeApiServiceRebuilt {
     const operation = input?.command || 'unknown';
     const filePath = input?.path || 'unknown file';
     
-    // CRITICAL TOKEN SAVER: Never send full file contents to Claude
     switch (operation) {
       case 'view':
-        if (typeof result === 'string') {
-          if (result.includes('Here\'s the result of running')) {
-            const lines = result.split('\n').length - 5; // Subtract header/footer lines  
-            return `File viewed: ${filePath} (${Math.max(0, lines)} lines of code)`;
-          }
-          if (result.includes('Here\'s the files and directories')) {
-            const items = (result.match(/\n\w+/g) || []).length;
-            return `Directory viewed: ${filePath} (${items} items)`;
-          }
-          // For any other massive file content, just summarize
-          if (result.length > 1000) {
-            const lines = result.split('\n').length;
-            return `File content loaded: ${filePath} (${lines} lines, ${result.length} characters)`;
-          }
+        if (typeof result === 'string' && result.includes('Here\'s the result of running')) {
+          const lines = result.split('\n').length - 5; // Subtract header/footer lines
+          return `File viewed: ${filePath} (${Math.max(0, lines)} lines)`;
         }
         return `File viewed: ${filePath}`;
       
       case 'create':
-        return `File created successfully: ${filePath}`;
+        return `File created: ${filePath}`;
       
       case 'str_replace':
         if (typeof result === 'string' && result.includes('has been edited')) {
-          return `File modified successfully: ${filePath}`;
+          return `File modified: ${filePath} - content updated successfully`;
         }
-        return `File modification completed: ${filePath}`;
-      
-      case 'insert':
-        return `Content inserted into: ${filePath}`;
+        return `File modified: ${filePath}`;
       
       default:
         return `File operation (${operation}) completed on ${filePath}`;
@@ -829,32 +710,16 @@ export class ClaudeApiServiceRebuilt {
   private summarizeSearchResults(searchResult: any, input: any): string {
     if (!searchResult) return "Search completed - no results found.";
     
-    // CRITICAL TOKEN SAVER: Never send massive search results to Claude
-    if (typeof searchResult === 'string' && searchResult.length > 2000) {
-      const fileCount = (searchResult.match(/File Name:/g) || []).length;
-      const query = input?.query_description || input?.class_names?.join(', ') || input?.function_names?.join(', ') || 'items';
-      return `Search completed: Found ${fileCount} files matching "${query}". Files are available for detailed analysis.`;
-    }
-    
     if (typeof searchResult === 'object' && searchResult.results) {
       const count = Array.isArray(searchResult.results) ? searchResult.results.length : 0;
       const summary = searchResult.summary || '';
       const query = input?.query_description || input?.class_names?.[0] || input?.function_names?.[0] || 'files';
       
-      return `Search completed: Found ${count} relevant ${query}${summary ? ` - ${summary}` : ''}`;
+      return `Search completed: Found ${count} ${query} files${summary ? ` - ${summary}` : ''}`;
     }
     
     if (Array.isArray(searchResult)) {
-      return `Search completed: Found ${searchResult.length} relevant files in codebase`;
-    }
-    
-    // Handle massive string results from search_filesystem
-    if (typeof searchResult === 'string') {
-      const fileCount = (searchResult.match(/File Name:/g) || []).length;
-      const query = input?.query_description || 'search';
-      if (fileCount > 0) {
-        return `Search completed: Located ${fileCount} files for "${query}". Results ready for analysis.`;
-      }
+      return `Search completed: Found ${searchResult.length} relevant files`;
     }
     
     return "Search completed successfully";
@@ -1221,9 +1086,7 @@ I have complete workspace access and can implement any changes you need. What wo
               return `[File Operation Error]\nInvalid input parameters. Expected object with command, path, etc.`;
             }
             const result = await str_replace_based_edit_tool(toolCall.input);
-            const summary = this.summarizeFileOperationResult(result, toolCall.input);
-            console.log(`💰 TOKEN OPTIMIZATION: File operation result ${result.length} chars → ${summary.length} chars`);
-            return summary;
+            return this.summarizeFileOperationResult(result, toolCall.input);
           } catch (error) {
             console.error('File operation error:', error);
             return `[File Operation Error]\n${error instanceof Error ? error.message : 'File operation failed'}`;
@@ -1247,9 +1110,7 @@ I have complete workspace access and can implement any changes you need. What wo
               console.warn('Search cache failed, continuing without caching:', cacheError);
             }
             
-            const summary = this.summarizeSearchResults(searchResult, toolCall.input);
-            console.log(`💰 TOKEN OPTIMIZATION: Search result ${searchResult.toString().length} chars → ${summary.length} chars`);
-            return summary;
+            return this.summarizeSearchResults(searchResult, toolCall.input);
           } catch (error) {
             console.error('❌ SEARCH FILESYSTEM ERROR:', error);
             // CRITICAL: Preserve search error details for agent awareness
