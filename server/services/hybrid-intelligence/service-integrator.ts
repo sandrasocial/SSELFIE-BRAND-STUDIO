@@ -34,6 +34,14 @@ export class ServiceIntegrator {
       console.error('Failed to initialize orchestrator:', error);
     }
   }
+  
+  /**
+   * GET INTEGRATION STATUS
+   * Returns current status of all integrated services
+   */
+  public getIntegrationStatus(): Map<string, ServiceIntegrationResult> {
+    return this.integratedServices;
+  }
 
   public static getInstance(): ServiceIntegrator {
     if (!ServiceIntegrator.instance) {
