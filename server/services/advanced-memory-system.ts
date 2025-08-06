@@ -132,6 +132,60 @@ export class AdvancedMemorySystem {
   }
 
   /**
+   * Initialize new agent memory with base intelligence
+   */
+  async initializeAgentMemory(agentName: string, userId: string, config: any): Promise<AgentMemoryProfile> {
+    try {
+      const profile: AgentMemoryProfile = {
+        agentName,
+        userId,
+        memoryStrength: 0.5,
+        learningPatterns: [],
+        collaborationHistory: [],
+        intelligenceLevel: config.baseIntelligence || 7,
+        lastOptimization: new Date()
+      };
+
+      // Add initial specialization pattern
+      if (config.specialization) {
+        const specializationPattern: LearningPattern = {
+          category: config.specialization,
+          pattern: 'specialization_initialized',
+          confidence: 0.8,
+          frequency: 1,
+          effectiveness: 0.9,
+          contexts: ['initialization', 'specialization']
+        };
+        
+        profile.learningPatterns.push(specializationPattern);
+        
+        // Save to database
+        await db.insert(agentLearning).values({
+          agentName,
+          userId,
+          learningType: 'specialization_initialized',
+          category: config.specialization,
+          data: { initialized: true, config },
+          confidence: '0.8',
+          frequency: 1,
+          lastSeen: new Date()
+        });
+      }
+
+      // Cache the profile
+      const cacheKey = `${agentName}-${userId}`;
+      this.memoryCache.set(cacheKey, profile);
+      
+      console.log(`🧠 INITIALIZED: ${agentName} with intelligence level ${profile.intelligenceLevel} and specialization ${config.specialization}`);
+      return profile;
+      
+    } catch (error) {
+      console.error('Failed to initialize agent memory:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Record learning pattern for agent
    */
   async recordLearningPattern(agentName: string, userId: string, pattern: LearningPattern): Promise<void> {
