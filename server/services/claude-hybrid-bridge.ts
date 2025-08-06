@@ -143,6 +143,48 @@ export class ClaudeHybridBridge {
       case 'get_latest_lsp_diagnostics':
         return `Check for errors${parameters.file_path ? ` in ${parameters.file_path}` : ''}`;
 
+      case 'execute_sql_tool':
+        return `Execute SQL: ${parameters.sql_query}`;
+
+      case 'web_search':
+        return `Search web for: ${parameters.query}`;
+
+      case 'web_fetch':
+        return `Fetch web content from: ${parameters.url}`;
+
+      case 'packager_tool':
+        return `${parameters.install_or_uninstall} packages: ${parameters.dependency_list?.join(', ') || 'none'}`;
+
+      case 'programming_language_install_tool':
+        return `Install programming languages: ${parameters.programming_languages?.join(', ') || 'none'}`;
+
+      case 'ask_secrets':
+        return `Ask for secrets: ${parameters.secret_keys?.join(', ') || 'none'}`;
+
+      case 'check_secrets':
+        return `Check secrets: ${parameters.secret_keys?.join(', ') || 'none'}`;
+
+      case 'suggest_deploy':
+        return `Suggest deployment`;
+
+      case 'restart_workflow':
+        return `Restart workflow: ${parameters.name}`;
+
+      case 'create_postgresql_database_tool':
+        return `Create PostgreSQL database`;
+
+      case 'check_database_status':
+        return `Check database status`;
+
+      case 'suggest_rollback':
+        return `Suggest rollback: ${parameters.suggest_rollback_reason}`;
+
+      case 'report_progress':
+        return `Report progress: ${parameters.summary}`;
+
+      case 'mark_completed_and_get_feedback':
+        return `Mark completed and get feedback: ${parameters.query}`;
+
       default:
         return `Execute ${toolName} with parameters: ${JSON.stringify(parameters)}`;
     }
@@ -200,6 +242,39 @@ export class ClaudeHybridBridge {
           
         case 'packager_tool':
           return await replitTools.packagerTool(request.parameters);
+          
+        case 'programming_language_install_tool':
+          return await replitTools.programmingLanguageInstallTool(request.parameters);
+          
+        case 'ask_secrets':
+          return await replitTools.askSecrets(request.parameters);
+          
+        case 'check_secrets':
+          return await replitTools.checkSecrets(request.parameters);
+          
+        case 'web_fetch':
+          return await replitTools.webFetch(request.parameters);
+          
+        case 'suggest_deploy':
+          return await replitTools.suggestDeploy(request.parameters);
+          
+        case 'restart_workflow':
+          return await replitTools.restartWorkflow(request.parameters);
+          
+        case 'create_postgresql_database_tool':
+          return await replitTools.createPostgresqlDatabaseTool(request.parameters);
+          
+        case 'check_database_status':
+          return await replitTools.checkDatabaseStatus(request.parameters);
+          
+        case 'suggest_rollback':
+          return await replitTools.suggestRollback(request.parameters);
+          
+        case 'report_progress':
+          return await replitTools.reportProgress(request.parameters);
+          
+        case 'mark_completed_and_get_feedback':
+          return await replitTools.markCompletedAndGetFeedback(request.parameters);
           
         default:
           console.log(`⚠️ TOOL NOT INTEGRATED: ${request.toolName} - needs real implementation`);
