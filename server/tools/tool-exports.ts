@@ -48,15 +48,31 @@ export async function search_filesystem(params: SearchParams) {
             await searchInDirectory(fullPath, relativePath);
           } else if (entry.isFile() && shouldAnalyzeFile(entry.name)) {
             try {
-              const content = await fs.readFile(fullPath, 'utf-8');
-              const analysis = analyzeFileRelevance(content, params, relativePath);
+              // Handle binary files (images, zips) differently from text files
+              const isBinaryFile = /\.(png|jpg|jpeg|zip)$/i.test(entry.name);
               
-              if (analysis.relevant) {
-                results.push({
-                  fileName: relativePath,
-                  content: analysis.relevantContent,
-                  reason: analysis.reason
-                });
+              if (isBinaryFile) {
+                // For binary files, just include file info without reading content
+                const analysis = analyzeBinaryFileRelevance(params, relativePath);
+                if (analysis.relevant) {
+                  results.push({
+                    fileName: relativePath,
+                    content: analysis.relevantContent,
+                    reason: analysis.reason
+                  });
+                }
+              } else {
+                // For text files, read and analyze content
+                const content = await fs.readFile(fullPath, 'utf-8');
+                const analysis = analyzeFileRelevance(content, params, relativePath);
+                
+                if (analysis.relevant) {
+                  results.push({
+                    fileName: relativePath,
+                    content: analysis.relevantContent,
+                    reason: analysis.reason
+                  });
+                }
               }
             } catch (readError) {
               // Skip files that can't be read
@@ -86,7 +102,10 @@ export async function search_filesystem(params: SearchParams) {
 }
 
 function shouldAnalyzeFile(fileName: string): boolean {
-  const allowedExtensions = ['.ts', '.tsx', '.js', '.jsx', '.md', '.json'];
+  const allowedExtensions = [
+    '.ts', '.tsx', '.js', '.jsx', '.md', '.json',
+    '.css', '.scss', '.html', '.txt', '.csv', '.png', '.jpg', '.jpeg', '.zip'
+  ];
   return allowedExtensions.some(ext => fileName.endsWith(ext));
 }
 
@@ -153,6 +172,35 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
       relevant: true,
       relevantContent: content.substring(0, 2000),
       reason: `Content matches query: ${params.query_description}`
+    };
+  }
+  
+  return {
+    relevant: false,
+    relevantContent: '',
+    reason: ''
+  };
+}
+
+function analyzeBinaryFileRelevance(params: SearchParams, filePath: string): {
+  relevant: boolean;
+  relevantContent: string;
+  reason: string;
+} {
+  const queryLower = params.query_description.toLowerCase();
+  const pathLower = filePath.toLowerCase();
+  
+  // Check if query matches file path or type
+  if (pathLower.includes(queryLower) || 
+      queryLower.includes('image') && /\.(png|jpg|jpeg)$/i.test(filePath) ||
+      queryLower.includes('archive') && /\.zip$/i.test(filePath) ||
+      queryLower.includes('asset') && /attached_assets/.test(filePath)) {
+    
+    const fileType = filePath.split('.').pop()?.toUpperCase() || 'FILE';
+    return {
+      relevant: true,
+      relevantContent: `[${fileType} FILE] ${filePath}\nBinary file - use str_replace_based_edit_tool with 'view' command to access`,
+      reason: `Binary file matches search criteria: ${params.query_description}`
     };
   }
   
