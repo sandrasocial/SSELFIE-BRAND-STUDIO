@@ -93,26 +93,92 @@ export class ClaudeApiServiceRebuiltClean {
       
       // Execute tools if present
       if (toolCalls.length > 0) {
-        for (const toolCall of toolCalls) {
-          try {
-            const toolResult = await this.handleToolCall(toolCall, conversationId, agentName);
-            
-            res.write(`data: ${JSON.stringify({
-              type: 'tool_complete',
-              toolName: toolCall.name,
-              result: toolResult.substring(0, 200) + (toolResult.length > 200 ? '...' : ''),
-              message: `${agentName} completed ${toolCall.name}`
-            })}\n\n`);
-            
-          } catch (error) {
-            console.error(`Tool execution failed: ${toolCall.name}`, error);
-            res.write(`data: ${JSON.stringify({
-              type: 'tool_error',
-              toolName: toolCall.name,
-              message: `${agentName} encountered an error with ${toolCall.name}`
-            })}\n\n`);
+          for (const toolCall of toolCalls) {
+            try {
+              const toolResult = await this.handleToolCall(toolCall, conversationId, agentName);
+              
+              // Add tool result to conversation history
+              currentMessages.push({
+                role: 'user',
+                content: [{
+                  type: 'tool_result',
+                  tool_use_id: toolCall.id,
+                  content: toolResult
+                }]
+              } as any);
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_complete',
+                toolName: toolCall.name,
+                result: toolResult.substring(0, 200) + (toolResult.length > 200 ? '...' : ''),
+                message: `${agentName} completed ${toolCall.name}`
+              })}\n\n`);
+              
+            } catch (error) {
+              console.error(`Tool execution failed: ${toolCall.name}`, error);
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_error',
+                toolName: toolCall.name,
+                message: `${agentName} encountered an error with ${toolCall.name}`
+              })}\n\n`);
+            }
           }
-        }
+          
+          // Continue conversation after tool execution
+          res.write(`data: ${JSON.stringify({
+            type: 'continue_thinking',
+            message: `${agentName} is continuing with the task...`
+          })}\n\n`);
+          
+          // Make another Claude API call to continue the conversation
+          const continueResponse = await anthropic.messages.create({
+            model: DEFAULT_MODEL_STR,
+            max_tokens: 8000,
+            messages: currentMessages as any,
+            system: systemPrompt,
+            tools: tools,
+            tool_choice: { type: "auto" },
+            stream: false
+          });
+          
+          // Process the continuation response
+          fullResponse = '';
+          toolCalls = [];
+          
+          for (const contentBlock of continueResponse.content) {
+            if (contentBlock.type === 'text') {
+              fullResponse += contentBlock.text;
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: contentBlock.text
+              })}\n\n`);
+            } else if (contentBlock.type === 'tool_use') {
+              console.log(`🔧 CONTINUATION TOOL: ${contentBlock.name}`, contentBlock.input);
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'tool_start',
+                toolName: contentBlock.name,
+                message: `${agentName} is using ${contentBlock.name}...`
+              })}\n\n`);
+              
+              toolCalls.push({
+                name: contentBlock.name,
+                id: contentBlock.id,
+                input: contentBlock.input
+              });
+            }
+          }
+          
+          // Add assistant response to conversation
+          currentMessages.push({
+            role: 'assistant',
+            content: fullResponse
+          });
+          
+          // Check if conversation is complete (no more tool calls)
+          if (toolCalls.length === 0) {
+            conversationComplete = true;
+          }
       }
       
       // Save conversation

@@ -65,7 +65,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     }
     
     const userId = req.user ? (req.user as any).claims.sub : '42585527';
-    const conversationId = req.body.conversationId || `admin_${agentId}_${Date.now()}`;
+    const conversationId = req.body.conversationId || agentId;
     
     // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
     const baseSystemPrompt = agentConfig.systemPrompt;
