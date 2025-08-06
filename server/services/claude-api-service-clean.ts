@@ -184,24 +184,12 @@ export class ClaudeApiServiceClean {
     enableTools: boolean = true
   ): Promise<string> {
     
-    console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} processing with optimal routing`);
+    console.log(`🚀 HYBRID INTELLIGENCE: ${agentId} processing with FULL Claude intelligence`);
     
-    // TOOL-FIRST OPTIMIZATION: Check if this is a pure tool request
-    const toolFirstResult = await toolFirstOptimizer.executeToolDirectly(message, agentId);
-    if (toolFirstResult?.success) {
-      console.log(`⚡ TOOL-FIRST SUCCESS: Saved ${toolFirstResult.tokensSaved} tokens`);
-      console.log(`📊 TOKEN USAGE: 0 Claude tokens (tool-first execution)`);
-      
-      // Save the interaction without Claude API
-      await this.saveMessageToDatabase(conversationId, 'user', message);
-      await this.saveMessageToDatabase(conversationId, 'assistant', toolFirstResult.result);
-      
-      return toolFirstResult.result;
-    }
-    
-    // CLAUDE API FOR CONVERSATIONS WITH HYBRID TOOL INTEGRATION
-    // Authentic conversations while enabling tool execution through hybrid system
-    console.log(`🚀 CLAUDE + HYBRID: ${agentId} conversation with tool integration capability`);
+    // ALWAYS USE CLAUDE API WITH HYBRID TOOLS
+    // Agents have full intelligence for ALL operations, enhanced by hybrid system
+    console.log(`🧠 FULL INTELLIGENCE: ${agentId} using Claude API with direct tool access`);
+    console.log(`🔧 HYBRID TOOLS: Real file operations through direct Replit integration`);
     
     // Get agent personality directly
     const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
