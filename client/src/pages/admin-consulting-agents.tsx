@@ -220,7 +220,6 @@ export default function AdminConsultingAgents() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [fileEditMode, setFileEditMode] = useState(true);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
-  const [streamingTimeout, setStreamingTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -427,26 +426,6 @@ export default function AdminConsultingAgents() {
       const controller = new AbortController();
       setAbortController(controller);
       
-      // Safety timeout: Auto-stop streaming after 5 minutes to prevent infinite loading
-      const timeout = setTimeout(() => {
-        console.log('⏰ SAFETY TIMEOUT: Auto-stopping stream after 5 minutes');
-        controller.abort();
-        setMessages(prev => prev.map(msg => 
-          msg.streaming 
-            ? { 
-                ...msg, 
-                content: msg.content + '\n\n⏰ **Stream auto-stopped after 5 minutes for safety**',
-                streaming: false 
-              }
-            : msg
-        ));
-        setIsLoading(false);
-        setAbortController(null);
-        setStreamingTimeout(null);
-      }, 5 * 60 * 1000); // 5 minutes
-      
-      setStreamingTimeout(timeout);
-      
       // Start Server-Sent Events stream - FIXED: Using optimized endpoint with abort control
       const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
         method: 'POST',
@@ -539,18 +518,12 @@ export default function AdminConsultingAgents() {
                     break;
                     
                   case 'completion':
-                    console.log('✅ COMPLETION: Agent finished successfully');
                     setMessages(prev => prev.map(msg => 
                       msg.id === agentMessageId 
                         ? { ...msg, streaming: false }
                         : msg
                     ));
                     setIsLoading(false);
-                    // Clear safety timeout since we got proper completion
-                    if (streamingTimeout) {
-                      clearTimeout(streamingTimeout);
-                      setStreamingTimeout(null);
-                    }
                     break;
                     
                   case 'error':
