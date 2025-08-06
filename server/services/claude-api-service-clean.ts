@@ -1376,9 +1376,10 @@ How can I help you further?`;
         message: `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} is analyzing your request...`
       })}\n\n`);
 
-      // Load conversation history - OPTIMIZED: Reduced from 10 to 3 messages to save 7000+ tokens
-      const conversationHistory = await this.loadConversationHistory(conversationId, userId, 3);
-      console.log(`💭 CONTEXT: Loaded ${conversationHistory.length} previous messages for ${agentId} (optimized for token savings)`);
+      // PHASE 3 CLEANUP: FULL CONTEXT RESTORED - Agents need complete history
+      // No artificial limitations on memory - agents decide naturally what to use
+      const conversationHistory = await this.loadConversationHistory(conversationId, userId, 50); // Full context
+      console.log(`💭 FULL CONTEXT: Loaded ${conversationHistory.length} messages for ${agentId} (unrestricted memory)`);
 
       // Initialize memory and context systems with fallback
       console.log(`🧠 MEMORY: Loading context for ${agentId}`);
@@ -1514,10 +1515,10 @@ How can I help you further?`;
                 currentToolCall.input = JSON.parse(currentToolInput);
                 console.log(`🔧 TOOL INPUT ASSEMBLED: ${currentToolCall.name}`, JSON.stringify(currentToolCall.input, null, 2));
               } else {
-                // Use smart parameter inference when Claude provides empty tool calls
-                console.log(`🧠 TOOL INPUT EMPTY: ${currentToolCall.name} - inferring parameters from user message`);
-                currentToolCall.input = this.inferToolParameters(currentToolCall.name, message, agentId);
-                console.log(`✅ PARAMETERS INFERRED: ${currentToolCall.name}`, JSON.stringify(currentToolCall.input, null, 2));
+                // PHASE 4 CLEANUP: Let Claude naturally provide parameters
+                // No forced inference - if Claude doesn't provide params, it's intentional
+                console.log(`🎯 NATURAL TOOL USE: ${currentToolCall.name} - Claude decides parameters`);
+                currentToolCall.input = {};
               }
               
               pendingToolCalls.push(currentToolCall);
@@ -1761,8 +1762,8 @@ How can I help you further?`;
                   if (currentContinuationInput.trim()) {
                     currentContinuationTool.input = JSON.parse(currentContinuationInput);
                   } else {
-                    // Use parameter inference for empty continuation tools too
-                    currentContinuationTool.input = this.inferToolParameters(currentContinuationTool.name, message, agentId);
+                    // PHASE 4 CLEANUP: Natural tool usage for continuation too
+                    currentContinuationTool.input = {};
                   }
                   continuationToolCalls.push(currentContinuationTool);
                   currentContinuationTool = null;
