@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
-import { ClaudeApiServiceRebuilt } from '../services/claude-api-service-rebuilt';
+import { ClaudeApiServiceRebuiltClean } from '../services/claude-api-service-rebuilt-clean';
 
 // SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
-let claudeServiceInstance: ClaudeApiServiceRebuilt | null = null;
-function getClaudeService(): ClaudeApiServiceRebuilt {
+let claudeServiceInstance: ClaudeApiServiceRebuiltClean | null = null;
+function getClaudeService(): ClaudeApiServiceRebuiltClean {
   if (!claudeServiceInstance) {
-    claudeServiceInstance = new ClaudeApiServiceRebuilt();
+    claudeServiceInstance = new ClaudeApiServiceRebuiltClean();
   }
   return claudeServiceInstance;
 }
@@ -317,8 +317,8 @@ Use function calls, not text descriptions of tools.`;
       
       await claudeService.sendStreamingMessage(
         userId,
-        conversationId,
-        agentId,
+        agentId,          // This is agentName
+        conversationId,   // This is conversationId  
         message,
         systemPrompt,
         tools, // RESTORED: Tools now available for agent execution
