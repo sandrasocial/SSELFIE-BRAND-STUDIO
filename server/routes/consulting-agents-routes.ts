@@ -58,14 +58,60 @@ consultingAgentsRouter.post('/admin/consulting-chat', isAuthenticated, async (re
     try {
       const claudeService = getClaudeService();
       
-      // DIRECT CLAUDE API: No hardcoded tool schemas, no parameter forcing
+      // RESTORE TOOL ACCESS: Agents need tools to function
+      const tools = [
+        {
+          name: "str_replace_based_edit_tool",
+          description: "View, create and edit files",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
+              path: { type: "string" },
+              file_text: { type: "string" },
+              old_str: { type: "string" },
+              new_str: { type: "string" },
+              insert_line: { type: "integer" },
+              insert_text: { type: "string" },
+              view_range: { type: "array", items: { type: "integer" } }
+            },
+            required: ["command", "path"]
+          }
+        },
+        {
+          name: "search_filesystem",
+          description: "Search for files and code in the codebase",
+          input_schema: {
+            type: "object",
+            properties: {
+              query_description: { type: "string" },
+              code: { type: "array", items: { type: "string" } },
+              class_names: { type: "array", items: { type: "string" } },
+              function_names: { type: "array", items: { type: "string" } },
+              search_paths: { type: "array", items: { type: "string" } }
+            }
+          }
+        },
+        {
+          name: "bash",
+          description: "Run bash commands",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { type: "string" },
+              restart: { type: "boolean" }
+            }
+          }
+        }
+      ];
+      
       await claudeService.sendStreamingMessage(
         userId,
         conversationId,
         agentId,
         message,
         systemPrompt,
-        [], // NO HARDCODED TOOLS - let Claude use native tools
+        tools, // RESTORED: Tools now available for agent execution
         res
       );
 
