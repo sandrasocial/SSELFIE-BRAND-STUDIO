@@ -26,12 +26,16 @@ export class ClaudeApiServiceSimple {
       await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
       
-      // Prepare Claude API request
-      const claudeMessages = [
-        ...messages.map((msg: any) => ({
+      // Prepare Claude API request with validation
+      const validMessages = messages
+        .filter((msg: any) => msg.content && msg.content.trim())
+        .map((msg: any) => ({
           role: msg.role === 'agent' ? 'assistant' : msg.role,
           content: msg.content
-        })),
+        }));
+        
+      const claudeMessages = [
+        ...validMessages,
         { role: 'user', content: message }
       ];
       
@@ -54,6 +58,9 @@ export class ClaudeApiServiceSimple {
         console.log(`🔄 ${agentName}: Conversation iteration ${iterationCount}`);
         
         // Call Claude API
+        console.log(`🔧 ${agentName}: Calling Claude API with ${tools.length} tools available`);
+        console.log(`🔧 TOOLS:`, tools.map(t => t.name));
+        
         const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
           max_tokens: 8000,
@@ -68,10 +75,20 @@ export class ClaudeApiServiceSimple {
         let toolCalls: any[] = [];
         
         // Process response content
+        console.log(`🔍 ${agentName}: Response has ${response.content.length} content blocks`);
+        
         for (const contentBlock of response.content) {
+          console.log(`🔍 ${agentName}: Processing content block type: ${contentBlock.type}`);
+          
           if (contentBlock.type === 'text') {
             responseText += contentBlock.text;
             fullResponse += contentBlock.text;
+            
+            // Check for XML patterns in text (this should NOT happen)
+            if (contentBlock.text.includes('<search_filesystem>') || 
+                contentBlock.text.includes('<str_replace_based_edit_tool>')) {
+              console.log(`⚠️ ${agentName}: DETECTED XML IN TEXT - Function calling not working properly!`);
+            }
             
             res.write(`data: ${JSON.stringify({
               type: 'text_delta',
@@ -79,7 +96,7 @@ export class ClaudeApiServiceSimple {
             })}\n\n`);
             
           } else if (contentBlock.type === 'tool_use') {
-            console.log(`🔧 ${agentName}: Using ${contentBlock.name}`);
+            console.log(`🔧 ${agentName}: FUNCTION CALL DETECTED: ${contentBlock.name}`, contentBlock.input);
             
             res.write(`data: ${JSON.stringify({
               type: 'tool_start',
@@ -107,13 +124,18 @@ export class ClaudeApiServiceSimple {
             try {
               const toolResult = await this.executeToolCall(toolCall);
               
+              // Summarize large tool results to prevent token overflow
+              const summarizedResult = toolResult.length > 3000 
+                ? `${toolResult.substring(0, 2000)}\n\n[Result truncated - ${toolResult.length} total characters. Search found relevant files successfully.]`
+                : toolResult;
+              
               // Add tool result to conversation
               currentMessages.push({
                 role: 'user',
                 content: [{
                   type: 'tool_result',
                   tool_use_id: toolCall.id,
-                  content: toolResult
+                  content: summarizedResult
                 }]
               } as any);
               
@@ -150,6 +172,12 @@ export class ClaudeApiServiceSimple {
             type: 'continue_thinking',
             message: `${agentName} is processing results...`
           })}\n\n`);
+          
+          // Add instruction to continue with concise response
+          currentMessages.push({
+            role: 'user', 
+            content: `Continue with your task. Be concise and focus on the next necessary action.`
+          });
           
         } else {
           // No tools used, conversation complete

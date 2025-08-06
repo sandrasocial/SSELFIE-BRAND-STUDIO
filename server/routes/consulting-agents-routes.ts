@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
-import { ClaudeApiServiceRebuiltClean } from '../services/claude-api-service-rebuilt-clean';
+import { ClaudeApiServiceSimple } from '../services/claude-api-service-simple';
 
 // SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
-let claudeServiceInstance: ClaudeApiServiceRebuiltClean | null = null;
-function getClaudeService(): ClaudeApiServiceRebuiltClean {
+let claudeServiceInstance: ClaudeApiServiceSimple | null = null;
+function getClaudeService(): ClaudeApiServiceSimple {
   if (!claudeServiceInstance) {
-    claudeServiceInstance = new ClaudeApiServiceRebuiltClean();
+    claudeServiceInstance = new ClaudeApiServiceSimple();
   }
   return claudeServiceInstance;
 }
@@ -70,19 +70,20 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
     const baseSystemPrompt = agentConfig.systemPrompt;
     
-    // CRITICAL FIX: Add explicit tool usage instructions so Claude USES tools instead of describing them
+    // CRITICAL: ELIMINATE XML - ENFORCE FUNCTION CALLING
     const systemPrompt = `${baseSystemPrompt}
 
-**🚀 CRITICAL: FUNCTION CALLING MODE:**
-You have access to function calling capabilities. When you need to perform actions, you must use function calls, not text descriptions.
+**🚫 ABSOLUTELY FORBIDDEN: XML TOOL SYNTAX**
+NEVER write XML tags like <search_filesystem> or <str_replace_based_edit_tool>. 
+This will break your capabilities completely.
 
-NEVER write tool syntax like <search_filesystem> in your response. Instead, use the actual function calling mechanism.
+**✅ REQUIRED: DIRECT FUNCTION CALLING**
+When you need to perform actions:
+- Call the search_filesystem function directly (not XML)
+- Call the str_replace_based_edit_tool function directly (not XML)  
+- Call the bash function directly (not XML)
 
-When user asks to search, call the search_filesystem function directly.
-When user asks to edit files, call the str_replace_based_edit_tool function directly.
-When user asks to run commands, call the bash function directly.
-
-Use function calls, not text descriptions of tools.`;
+You have function calling capabilities. Use them instead of describing tools in text.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
