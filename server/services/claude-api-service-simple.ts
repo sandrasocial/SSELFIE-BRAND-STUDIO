@@ -7,7 +7,7 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-const DEFAULT_MODEL_STR = 'claude-sonnet-4-20250514';
+const DEFAULT_MODEL_STR = 'claude-3-5-sonnet-20241022';
 
 export class ClaudeApiServiceSimple {
   async sendStreamingMessage(
@@ -60,6 +60,12 @@ export class ClaudeApiServiceSimple {
         // Call Claude API
         console.log(`🔧 ${agentName}: Calling Claude API with ${tools.length} tools available`);
         console.log(`🔧 TOOLS:`, tools.map(t => t.name));
+        console.log(`🔧 MODEL:`, DEFAULT_MODEL_STR);
+        console.log(`🔧 SYSTEM PROMPT LENGTH:`, systemPrompt.length);
+        
+        // CRITICAL DEBUG: Log tool schemas to verify format
+        console.log(`🔧 FULL TOOL SCHEMAS:`, JSON.stringify(tools, null, 2));
+        console.log(`🔧 MESSAGES:`, JSON.stringify(currentMessages, null, 2));
         
         const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
