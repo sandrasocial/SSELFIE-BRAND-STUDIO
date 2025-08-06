@@ -71,6 +71,8 @@ export class ClaudeApiServiceRebuilt {
   private maxLoopsPerConversation = 5;
   private maxTokensPerRequest = 50000;
   
+
+
   /**
    * USE EXISTING DIRECT TOOL ACCESS TOOLKIT
    * Connect to the Complete Direct Tool Access system already implemented

@@ -83,7 +83,7 @@ router.get('/conversation-history/:agentId', async (req, res) => {
  * UNIFIED ADMIN CONSULTING CHAT ENDPOINT
  * Direct agent communication for admin interface
  */
-router.post('/consulting-chat', async (req, res) => {
+router.post('/admin/consulting-chat', async (req, res) => {
   try {
     console.log('🔄 PHASE 3.1 REDIRECT: Consulting agent -> Implementation-aware routing');
 
