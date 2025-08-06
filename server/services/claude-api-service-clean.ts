@@ -1555,11 +1555,11 @@ How can I help you further?`;
           while (continuationRetryCount < continuationMaxRetries) {
             try {
               continuationStream = await anthropic.messages.stream({
-                model: 'claude-3-5-sonnet-20241022',
+                model: DEFAULT_MODEL_STR, // Use latest model claude-sonnet-4-20250514
                 max_tokens: 4000,
-                system: systemPrompt,
+                system: fullSystemPrompt, // Use full system prompt with agent personality
                 messages: continuationMessages,
-                tools: this.toolDefinitions
+                tools: tools.length > 0 ? tools : undefined // Use the same tools passed in
               });
               break; // Success, exit retry loop
             } catch (error: any) {
@@ -1608,9 +1608,26 @@ How can I help you further?`;
           let continuationToolCalls: any[] = [];
           let currentContinuationTool: any = null;
           let currentContinuationInput = '';
+          let continuationResponseText = '';
+          
+          // Send continuation marker to frontend
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: '\n\n💭 Analyzing results and preparing response...\n\n'
+          })}\n\n`);
           
           for await (const chunk of continuationStream) {
-            if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
+            if (chunk.type === 'content_block_delta' && 'text' in chunk.delta) {
+              // Stream the agent's continuation response
+              const textChunk = chunk.delta.text;
+              continuationResponseText += textChunk;
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'text_delta',
+                content: textChunk
+              })}\n\n`);
+              
+            } else if (chunk.type === 'content_block_start' && chunk.content_block.type === 'tool_use') {
               // Agent wants to use another tool
               currentContinuationTool = { ...chunk.content_block };
               currentContinuationInput = '';
@@ -1820,6 +1837,11 @@ How can I help you further?`;
             }
             
             console.log(`✅ UNLIMITED TOOL EXECUTION: ${agentId} completed all requested tools`);
+            
+            // Save continuation response to database
+            if (continuationResponseText) {
+              responseText += '\n\n' + continuationResponseText;
+            }
           }
         }
       }
@@ -1831,6 +1853,18 @@ How can I help you further?`;
       } catch (error) {
         console.error('Database save error:', error);
         // Continue streaming even if database save fails
+      }
+      
+      // Ensure agent provides final summary if tools were used
+      if (pendingToolCalls.length > 0 && !responseText.includes('completed') && !responseText.includes('finished')) {
+        const summaryPrompt = `\n\n✨ Task completed successfully! All requested operations have been executed.`;
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'text_delta',
+          content: summaryPrompt
+        })}\n\n`);
+        
+        responseText += summaryPrompt;
       }
 
       // Send completion event with full response

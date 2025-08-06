@@ -801,6 +801,17 @@ export default function AdminConsultingAgents() {
 
                     {/* Chat Management Controls */}
                     <div className="flex items-center gap-3">
+                      {/* ZARA TEST BUTTON - Verify agent capabilities */}
+                      {selectedAgent?.id === 'zara' && (
+                        <button
+                          onClick={() => alert('Hello darling! Zara is working perfectly! 💅')}
+                          className="px-4 py-2 text-xs font-bold text-white bg-pink-500 hover:bg-pink-600 rounded-full transition-colors uppercase tracking-wider shadow-md"
+                          title="Test Zara's capabilities"
+                        >
+                          Test Button ✨
+                        </button>
+                      )}
+                      
                       {/* STOP AGENT: Show during loading */}
                       {isLoading && (
                         <button
