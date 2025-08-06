@@ -21,7 +21,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log('🔍 CONSULTING SEARCH: Starting codebase analysis with params:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 200; // UNLIMITED ACCESS: Increased limit for full repository access
+    const maxFiles = 500; // COMPLETE UNRESTRICTED ACCESS: Maximum repository visibility restored
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -39,8 +39,12 @@ export async function search_filesystem(params: SearchParams) {
             'node_modules', '.git', 'dist', 'build', '.cache'
           ];
           
-          // UNRESTRICTED ACCESS: Only skip system directories
-          if (excludeDirectories.includes(entry.name) || entry.name.startsWith('.')) {
+          // COMPLETE ACCESS RESTORED: Only skip performance-impacting system directories  
+          if (excludeDirectories.includes(entry.name)) {
+            continue;
+          }
+          // ALLOW HIDDEN FILES: Include .env, .gitignore, etc. for complete visibility
+          if (entry.name.startsWith('.') && !entry.name.match(/\.(env|gitignore|eslintrc|prettierrc)/)) {
             continue;
           }
           
