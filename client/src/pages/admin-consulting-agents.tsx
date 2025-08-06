@@ -501,6 +501,7 @@ export default function AdminConsultingAgents() {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let accumulatedContent = '';
+        let buffer = ''; // Buffer for incomplete lines
         
         if (reader) {
           try {
@@ -508,12 +509,16 @@ export default function AdminConsultingAgents() {
               const { done, value } = await reader.read();
               if (done) break;
               
-              const chunk = decoder.decode(value);
-              const lines = chunk.split('\n');
+              const chunk = decoder.decode(value, { stream: true });
+              buffer += chunk;
+              const lines = buffer.split('\n');
+              
+              // Keep the last line in buffer if it's incomplete
+              buffer = lines.pop() || '';
               
               for (const line of lines) {
                 if (line.startsWith('data: ')) {
-                  const data = line.slice(6);
+                  const data = line.slice(6).trim();
                   
                   if (data === '[DONE]') {
                     // Mark streaming as complete
@@ -525,6 +530,8 @@ export default function AdminConsultingAgents() {
                     console.log('✅ Agent streaming completed successfully');
                     break;
                   }
+                  
+                  if (!data) continue; // Skip empty data lines
                   
                   try {
                     const parsed = JSON.parse(data);
@@ -580,7 +587,12 @@ export default function AdminConsultingAgents() {
                       ));
                     }
                   } catch (parseError) {
-                    console.error('Failed to parse streaming data:', parseError);
+                    // Log but don't crash on parse errors
+                    console.warn('Failed to parse streaming data:', data);
+                    // Only log actual errors, not partial JSON
+                    if (!data.includes('{') && !data.includes('[')) {
+                      console.error('Non-JSON data received:', parseError);
+                    }
                   }
                 }
               }
