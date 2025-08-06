@@ -99,135 +99,19 @@ export class ClaudeApiServiceRebuilt {
   }
 
   /**
-   * FALLBACK: Reconstruct parameters if direct access fails
+   * REMOVED: Hardcoded parameter reconstruction - let agents decide their own parameters
    */
   private async reconstructToolParameters(toolCall: any, userMessage: string, conversationId: string): Promise<any> {
-    try {
-      // SMART ROUTING: Intelligent parameter reconstruction with precise file targeting
-      switch (toolCall.name) {
-        case 'search_filesystem':
-          if (userMessage.includes('search') || userMessage.includes('find') || userMessage.includes('look')) {
-            // SMART PATH ROUTING: Direct agents to correct locations
-            let searchPaths: string[] = [];
-            let queryDescription = '';
-            
-            if (userMessage.includes('consulting') || userMessage.includes('agent')) {
-              searchPaths = ['/server/routes', '/server/services', '/client/src/pages'];
-              queryDescription = 'Find consulting agent system files and admin interfaces';
-            } else if (userMessage.includes('server') || userMessage.includes('backend')) {
-              searchPaths = ['/server'];
-              queryDescription = 'Find server-side architecture and services';
-            } else if (userMessage.includes('admin')) {
-              searchPaths = ['/server/routes', '/client/src/pages/admin'];
-              queryDescription = 'Find admin system files and interfaces';
-            } else if (userMessage.includes('client') || userMessage.includes('frontend')) {
-              searchPaths = ['/client/src'];
-              queryDescription = 'Find frontend components and pages';
-            } else if (userMessage.includes('database') || userMessage.includes('schema')) {
-              searchPaths = ['/shared', '/server/storage.ts'];
-              queryDescription = 'Find database schema and storage files';
-            } else {
-              // Default comprehensive search
-              searchPaths = ['/server', '/client/src', '/shared'];
-              queryDescription = 'Find relevant files based on user request';
-            }
-            
-            return {
-              query_description: queryDescription,
-              search_paths: searchPaths
-            };
-          }
-          break;
-          
-        case 'str_replace_based_edit_tool':
-          if (userMessage.includes('view') || userMessage.includes('look') || userMessage.includes('show')) {
-            // Extract potential file path from message
-            const pathMatch = userMessage.match(/([a-zA-Z0-9\/\-_\.]+\.(ts|js|tsx|jsx|json|md))/);
-            if (pathMatch) {
-              return {
-                command: 'view',
-                path: pathMatch[1]
-              };
-            }
-          }
-          break;
-          
-        case 'get_latest_lsp_diagnostics':
-          return {}; // This tool doesn't need parameters
-          
-        case 'bash':
-          if (userMessage.includes('status') || userMessage.includes('check')) {
-            return {
-              command: 'ps aux | grep node || echo "No node processes"'
-            };
-          }
-          break;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Parameter reconstruction failed:', error);
-      return null;
-    }
+    // NO HARDCODED FORCING: Return null to let agents use their intelligence
+    return null;
   }
 
   /**
-   * CONTEXT-AWARE TOOL EXECUTION
-   * Executes tools with intelligent context when parameters fail
+   * REMOVED: Context forcing - let agents make their own intelligent tool decisions
    */
   private async executeToolWithContext(toolCall: any, userMessage: string, conversationId: string, agentName: string): Promise<string | null> {
-    try {
-      console.log(`🔧 CONTEXT EXECUTION: ${toolCall.name} with message: "${userMessage}"`);
-      
-      // SMART ROUTING: Context-aware tool execution with intelligent path selection
-      switch (toolCall.name) {
-        case 'search_filesystem':
-          // INTELLIGENT CONTEXT ROUTING: Determine search strategy based on message content
-          let smartPaths: string[] = [];
-          let smartQuery = '';
-          
-          if (userMessage.toLowerCase().includes('consulting') || userMessage.toLowerCase().includes('agent')) {
-            smartPaths = ['/server/routes', '/server/services', '/client/src/pages/admin'];
-            smartQuery = 'Find consulting agent system files, routes, and admin interfaces';
-          } else if (userMessage.toLowerCase().includes('admin')) {
-            smartPaths = ['/server/routes', '/client/src/pages/admin', '/server/middleware'];
-            smartQuery = 'Find admin system files, routes, and middleware';
-          } else if (userMessage.toLowerCase().includes('database') || userMessage.toLowerCase().includes('schema')) {
-            smartPaths = ['/shared', '/server/storage.ts', '/server/services'];
-            smartQuery = 'Find database schema, storage, and data services';
-          } else if (userMessage.toLowerCase().includes('frontend') || userMessage.toLowerCase().includes('client')) {
-            smartPaths = ['/client/src'];
-            smartQuery = 'Find frontend components, pages, and client-side code';
-          } else if (userMessage.toLowerCase().includes('server') || userMessage.toLowerCase().includes('backend')) {
-            smartPaths = ['/server'];
-            smartQuery = 'Find server-side architecture, services, and backend code';
-          } else {
-            // Default comprehensive search with priority areas
-            smartPaths = ['/server/routes', '/server/services', '/client/src/pages'];
-            smartQuery = 'Find relevant system files with focus on core functionality';
-          }
-          
-          return await this.handleToolCall({
-            name: 'search_filesystem',
-            input: {
-              query_description: smartQuery,
-              search_paths: smartPaths
-            }
-          }, conversationId, agentName);
-          break;
-          
-        case 'get_latest_lsp_diagnostics':
-          return await this.handleToolCall({
-            name: 'get_latest_lsp_diagnostics',
-            input: {}
-          }, conversationId, agentName);
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Context execution failed:', error);
-      return null;
-    }
+    // NO CONTEXT FORCING: Let agents use their own intelligence for tool execution
+    return null;
   }
 
   /**
