@@ -219,7 +219,6 @@ export default function AdminConsultingAgents() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [fileEditMode, setFileEditMode] = useState(true);
-  const [abortController, setAbortController] = useState<AbortController | null>(null);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -422,19 +421,14 @@ export default function AdminConsultingAgents() {
     setMessages(prev => [...prev, streamingAgentMessage]);
 
     try {
-      // Create abort controller for this request
-      const controller = new AbortController();
-      setAbortController(controller);
-      
-      // Start Server-Sent Events stream - FIXED: Using optimized endpoint with abort control
-      const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
+      // Start Server-Sent Events stream
+      const response = await fetch('/api/admin/agents/consulting-chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'text/event-stream'
         },
         credentials: 'include',
-        signal: controller.signal, // Add abort signal
         body: JSON.stringify({
           agentId: selectedAgent.id,
           message: userMessage.content,
@@ -489,7 +483,7 @@ export default function AdminConsultingAgents() {
                         ? { 
                             ...msg, 
                             content: msg.content + `\n\n🔧 **Using ${data.toolName}...**\n`,
-                            toolsUsed: [...(msg.toolsUsed || []), data.toolName]
+                            toolsUsed: [...(msg.toolsUsed || []), { name: data.toolName, status: 'executing' }]
                           }
                         : msg
                     ));
@@ -511,7 +505,12 @@ export default function AdminConsultingAgents() {
                       msg.id === agentMessageId 
                         ? { 
                             ...msg, 
-                            content: msg.content + `✅ **${data.toolName} completed**\n\n`
+                            content: msg.content + `✅ **${data.toolName} completed**\n\n`,
+                            toolsUsed: msg.toolsUsed?.map(tool => 
+                              tool.name === data.toolName 
+                                ? { ...tool, status: 'completed', result: data.result }
+                                : tool
+                            ) || []
                           }
                         : msg
                     ));
@@ -551,33 +550,20 @@ export default function AdminConsultingAgents() {
       console.log(`✅ Agent ${selectedAgent.name} streaming completed`);
 
     } catch (error) {
-      // Handle abort differently from other errors
-      if (error.name === 'AbortError') {
-        console.log('🛑 Request aborted by user');
-        setMessages(prev => prev.map(msg => 
-          msg.id === agentMessageId 
-            ? { 
-                ...msg, 
-                content: msg.content + '\n\n⚠️ **Agent stopped by user**',
-                streaming: false 
-              }
-            : msg
-        ));
-      } else {
-        console.error('Agent communication error:', error);
-        setMessages(prev => prev.map(msg => 
-          msg.id === agentMessageId 
-            ? { 
-                ...msg, 
-                content: msg.content + `\n\n❌ **Communication Error:** ${error instanceof Error ? error.message : 'Unknown error'}`,
-                streaming: false 
-              }
-            : msg
-        ));
-      }
+      console.error('Agent communication error:', error);
+      
+      // Update the streaming message with error
+      setMessages(prev => prev.map(msg => 
+        msg.id === agentMessageId 
+          ? { 
+              ...msg, 
+              content: `Communication error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              streaming: false 
+            }
+          : msg
+      ));
     } finally {
       setIsLoading(false);
-      setAbortController(null); // Clean up controller
     }
   };
 
@@ -617,29 +603,7 @@ export default function AdminConsultingAgents() {
 
   // Simple loading state management
   const stopAgent = () => {
-    console.log('🛑 STOP AGENT: User requested stop');
-    
-    // Abort the current streaming request
-    if (abortController) {
-      abortController.abort();
-      setAbortController(null);
-      console.log('✅ STOP AGENT: Request aborted');
-    }
-    
-    // Update any streaming message to show it was stopped
-    setMessages(prev => prev.map(msg => 
-      msg.streaming 
-        ? { 
-            ...msg, 
-            content: msg.content + '\n\n⚠️ **Agent stopped by user**',
-            streaming: false 
-          }
-        : msg
-    ));
-    
-    // Clean up loading state
     setIsLoading(false);
-    console.log('✅ STOP AGENT: Cleanup complete');
   };
 
   return (
@@ -700,8 +664,6 @@ export default function AdminConsultingAgents() {
               </p>
             </div>
           </div>
-
-
         </div>
       </section>
 

@@ -108,22 +108,20 @@ ARTIFACTS YOU CAN CREATE:
 
 Always respond as the real Sandra who genuinely cares about helping users build authentic, profitable personal brands and achieve their life goals.`;
 
-      // FIXED: Use optimized Claude API service with token optimization and memory bypass
-      const { ClaudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
-      const claudeService = new ClaudeApiServiceRebuilt();
-      
-      console.log('💰 TOKEN OPTIMIZATION: Sandra using optimized service with memory bypass');
-      
-      const conversationId = `sandra-branding-${userId}-${Date.now()}`;
-      const sandraResponse = await claudeService.sendMessage(
-        userId,
-        'sandra-branding',
-        conversationId,
-        message,
-        systemPrompt,
-        [], // No tools needed for basic conversation
-        false // Not file edit mode
-      );
+      // Make request to Claude API with full capabilities
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: message }
+        ],
+        headers: {
+          "anthropic-beta": "prompt-caching-2024-07-31" // COST OPTIMIZATION: 90% savings on repeated content
+        }
+      });
+
+      const sandraResponse = response.content[0].text;
 
       // Analyze the conversation to extract user insights and potential artifacts
       const analysisResult = await this.analyzeConversationForInsights(userId, message, sandraResponse);
@@ -243,22 +241,15 @@ Return JSON format:
 
 Only include items that are clearly mentioned or strongly implied. Return empty arrays/objects if nothing relevant found.`;
 
-      // FIXED: Use optimized Claude API service for analysis to prevent token bypass
-      const { ClaudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
-      const claudeService = new ClaudeApiServiceRebuilt();
-      
-      const analysisConversationId = `sandra-analysis-${userId}-${Date.now()}`;
-      const analysisResponse = await claudeService.sendMessage(
-        userId,
-        'sandra-analysis',
-        analysisConversationId,
-        analysisPrompt,
-        "You are an expert conversation analyzer. Return only valid JSON responses.",
-        [], // No tools needed for analysis
-        false // Not file edit mode
-      );
+      const analysisResponse = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
+        messages: [
+          { role: 'user', content: analysisPrompt }
+        ],
+      });
 
-      const analysis = JSON.parse(analysisResponse);
+      const analysis = JSON.parse(analysisResponse.content[0].text);
       return analysis;
 
     } catch (error) {
