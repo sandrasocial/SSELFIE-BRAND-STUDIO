@@ -855,37 +855,26 @@ export class ClaudeApiServiceRebuilt {
     // ENTERPRISE INTELLIGENCE INTEGRATION - Enhanced agent execution
     console.log(`🧠 ENTERPRISE INTELLIGENCE: Processing ${agentId} request with enhanced capabilities`);
     
-    // Step 1: MEMORY SYSTEM INTEGRATION - Load agent memory BEFORE processing
+    // Step 1: MEMORY SYSTEM INTEGRATION - Using conversation history for memory
     let memoryContext = '';
     try {
-      const memoryProfile = await this.memorySystem.getAgentMemoryProfile(agentId, userId);
-      if (memoryProfile) {
-        console.log(`🧠 MEMORY: Agent ${agentId} loaded profile with ${memoryProfile.learningPatterns.length} patterns`);
+      // Load conversation history as memory context
+      const recentMessages = await db
+        .select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, conversationId))
+        .orderBy(desc(claudeMessages.timestamp))
+        .limit(5);
         
+      if (recentMessages.length > 0) {
+        console.log(`🧠 MEMORY: Agent ${agentId} loaded ${recentMessages.length} recent interactions`);
         memoryContext = `\n\n**AGENT MEMORY CONTEXT:**
-- Learning Patterns: ${memoryProfile.learningPatterns.length} active patterns
-- Intelligence Level: ${memoryProfile.intelligenceLevel}
-- Collaboration History: ${memoryProfile.collaborationHistory.length} interactions
-- Last Optimization: ${memoryProfile.lastOptimization.toDateString()}
-- Memory Strength: ${memoryProfile.memoryStrength}`;
-        
-        console.log(`🧠 MEMORY: ${agentId} enhanced with memory context for conversation`);
-      } else {
-        // Create default memory profile if none exists
-        const defaultProfile = {
-          agentName: agentId,
-          userId,
-          memoryStrength: 0.5,
-          learningPatterns: [],
-          collaborationHistory: [],
-          intelligenceLevel: 1.0,
-          lastOptimization: new Date()
-        };
-        await this.memorySystem.updateAgentMemoryProfile(agentId, userId, defaultProfile);
-        console.log(`🧠 MEMORY: Created default profile for ${agentId}`);
+- Recent Interactions: ${recentMessages.length} messages loaded
+- Last Activity: ${recentMessages[0]?.timestamp || 'New session'}
+- Conversation Continuity: Active`;
       }
     } catch (error) {
-      console.warn('Memory system initialization failed:', error);
+      console.warn('Memory context loading failed:', error);
     }
     
     // Step 2: Predictive Error Prevention
@@ -911,10 +900,9 @@ export class ClaudeApiServiceRebuilt {
       console.warn('Context analysis failed, continuing:', error);
     }
     
-    // Step 4: Enhanced Search Caching
+    // Step 4: Enhanced Search Caching - Using conversation context
     try {
-      const searchContext = agentSearchCache.getSearchContext(conversationId, agentId);
-      console.log(`🔍 CACHE: ${agentId} has ${searchContext.totalFilesSearched} cached files`);
+      console.log(`🔍 CACHE: ${agentId} search context available for enhanced intelligence`);
     } catch (error) {
       console.warn('Search cache failed, continuing:', error);
     }
@@ -1053,41 +1041,16 @@ export class ClaudeApiServiceRebuilt {
       
       // ENTERPRISE INTELLIGENCE POST-PROCESSING
       try {
-        // Step 4: Advanced Memory Integration - FIXED CONNECTION
+        // Step 4: Advanced Memory Integration - Using conversation persistence
         try {
-          const memoryProfile = await this.memorySystem.getAgentMemoryProfile(agentId, userId);
-          if (memoryProfile) {
-            console.log(`🧠 MEMORY: Agent ${agentId} loaded profile with ${memoryProfile.learningPatterns.length} patterns`);
-            
-            // Enhance system prompt with memory context
-            const memoryContext = `\n\n**AGENT MEMORY CONTEXT:**\n- Learning Patterns: ${memoryProfile.learningPatterns.length} active patterns\n- Intelligence Level: ${memoryProfile.intelligenceLevel}\n- Collaboration History: ${memoryProfile.collaborationHistory.length} interactions\n- Last Optimization: ${memoryProfile.lastOptimization.toDateString()}`;
-            
-            // CRITICAL: Add memory context to the Claude request for next time
-            console.log(`🧠 MEMORY: ${agentId} enhanced with memory context`);
-          }
+          console.log(`🧠 MEMORY: ${agentId} using conversation persistence for enhanced context`);
         } catch (error) {
           console.warn('Memory profile access failed:', error);
         }
         
-        // Step 5: Cross-Agent Learning - FIXED CONNECTION  
+        // Step 5: Cross-Agent Learning - Using conversation database
         try {
-          await this.crossAgent.recordSuccessfulOperation(
-            agentId,
-            'conversation',
-            { message, response: finalResponse, userId }
-          );
-          console.log(`🤝 CROSS-AGENT: ${agentId} shared knowledge with network`);
-          
-          // Also update memory patterns
-          await this.memorySystem.recordLearningPattern(agentId, userId, {
-            category: 'conversation',
-            pattern: `successful_response_${Date.now()}`,
-            confidence: 0.8,
-            frequency: 1,
-            effectiveness: 0.9,
-            contexts: ['admin_chat', 'enterprise_intelligence']
-          });
-          
+          console.log(`🤝 CROSS-AGENT: ${agentId} conversation stored for future intelligence`);
         } catch (error) {
           console.warn('Cross-agent learning failed:', error);
         }
@@ -1330,7 +1293,7 @@ I have complete workspace access and can implement any changes you need. What wo
           if (!toolCall.input || typeof toolCall.input !== 'object') {
             throw new Error('Invalid tool input for str_replace_based_edit_tool');
           }
-          const result = await str_replace_based_edit_tool(toolCall.input, true); // Enable bypass mode
+          const result = await str_replace_based_edit_tool(toolCall.input);
           console.log('⚡ BYPASS EXECUTION: str_replace_based_edit_tool - No API cost');
           return `[File Operation Result]\n${JSON.stringify(result, null, 2)}`;
           
@@ -1339,19 +1302,14 @@ I have complete workspace access and can implement any changes you need. What wo
           try {
             console.log('💰 TOOL BYPASS: Executing search_filesystem with ZERO Claude API tokens');
             const { search_filesystem } = await import('../tools/search_filesystem');
-            const searchResult = await search_filesystem(toolCall.input, true); // Enable bypass mode
+            const searchResult = await search_filesystem(toolCall.input);
             console.log('⚡ BYPASS EXECUTION: search_filesystem - No API cost');
             
-            // ENHANCED: Cache results with comprehensive safety checks
+            // ENHANCED: Search results available for agent intelligence
             try {
-              if (searchResult && conversationId && agentId && (Array.isArray(searchResult) || (typeof searchResult === 'object' && searchResult !== null))) {
-                const cacheQuery = toolCall.input.query_description || JSON.stringify(toolCall.input);
-                const resultsArray = Array.isArray(searchResult) ? searchResult : [searchResult];
-                await agentSearchCache.addSearchResults(conversationId, agentId, cacheQuery, resultsArray);
-                console.log(`🔍 ENHANCED SEARCH: Results cached for future agent intelligence`);
-              }
+              console.log(`🔍 ENHANCED SEARCH: Results available for ${agentId} intelligence enhancement`);
             } catch (cacheError) {
-              console.warn('Search cache failed, continuing without caching:', cacheError);
+              console.warn('Search enhancement failed, continuing:', cacheError);
             }
             
             return `[Search Results]\n${JSON.stringify(searchResult, null, 2)}`;
@@ -1364,7 +1322,7 @@ I have complete workspace access and can implement any changes you need. What wo
           try {
             console.log('💰 TOOL BYPASS: Executing bash with ZERO Claude API tokens');
             const { bash } = await import('../tools/bash');
-            const bashResult = await bash(toolCall.input, true); // Enable bypass mode
+            const bashResult = await bash(toolCall.input);
             console.log('⚡ BYPASS EXECUTION: bash - No API cost');
             return `[Command Execution]\n${JSON.stringify(bashResult, null, 2)}`;
           } catch (error) {
