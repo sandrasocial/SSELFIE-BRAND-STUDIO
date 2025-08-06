@@ -43,7 +43,12 @@ export class ReplitToolsDirect {
     
     const results: any[] = [];
     const searchPaths = params.search_paths || ['.'];
-    const maxResults = 50;
+    
+    // Increase max results for structure queries
+    const isStructureQuery = params.query_description?.toLowerCase().includes('all') ||
+                            params.query_description?.toLowerCase().includes('structure') ||
+                            params.query_description?.toLowerCase().includes('list');
+    const maxResults = isStructureQuery ? 200 : 50;
 
     try {
       for (const searchPath of searchPaths) {
@@ -51,6 +56,17 @@ export class ReplitToolsDirect {
         if (results.length >= maxResults) break;
       }
 
+      // For structure queries, organize results by directory
+      if (isStructureQuery && results.length > 0) {
+        const organized = this.organizeFilesByDirectory(results);
+        return {
+          success: true,
+          files: results,
+          organized: organized,
+          summary: `Found ${results.length} files across ${Object.keys(organized).length} directories in the repository`
+        };
+      }
+      
       return {
         success: true,
         files: results,
@@ -63,6 +79,20 @@ export class ReplitToolsDirect {
         error: error.message
       };
     }
+  }
+
+  private organizeFilesByDirectory(files: any[]): Record<string, string[]> {
+    const organized: Record<string, string[]> = {};
+    
+    for (const file of files) {
+      const dir = path.dirname(file.path);
+      if (!organized[dir]) {
+        organized[dir] = [];
+      }
+      organized[dir].push(path.basename(file.path));
+    }
+    
+    return organized;
   }
 
   private async searchDirectory(
@@ -87,6 +117,15 @@ export class ReplitToolsDirect {
         const fullPath = path.join(dir, entry.name);
 
         if (entry.isDirectory()) {
+          // For structure queries, also add directories to results
+          if (params.query_description?.toLowerCase().includes('structure') ||
+              params.query_description?.toLowerCase().includes('all')) {
+            results.push({
+              path: fullPath,
+              type: 'directory',
+              matches: 'Directory'
+            });
+          }
           await this.searchDirectory(fullPath, params, results, maxResults, depth + 1, maxDepth);
         } else if (entry.isFile()) {
           // Check if file matches search criteria
@@ -107,10 +146,26 @@ export class ReplitToolsDirect {
 
   private async fileMatchesSearch(filePath: string, params: any): Promise<any> {
     try {
+      // Special handling for showing all files when asking about access
+      if (params.query_description) {
+        const query = params.query_description.toLowerCase();
+        
+        // If asking about file access, structure, or wanting to see all files
+        if (query.includes('all project files') || 
+            query.includes('all files') || 
+            query.includes('directory structure') ||
+            query.includes('repository structure') ||
+            query.includes('list all')) {
+          // Return this file as part of the structure listing
+          return { reason: 'Part of project structure' };
+        }
+      }
+      
       const content = await fs.readFile(filePath, 'utf8');
       const reasons: string[] = [];
 
-      if (params.query_description) {
+      if (params.query_description && 
+          !params.query_description.toLowerCase().includes('all files')) {
         if (content.toLowerCase().includes(params.query_description.toLowerCase())) {
           reasons.push(`Contains: "${params.query_description}"`);
         }

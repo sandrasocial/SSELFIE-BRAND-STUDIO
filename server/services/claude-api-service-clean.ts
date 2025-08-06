@@ -1855,9 +1855,24 @@ export const example = () => {
       }
     }
     
-    // Default to general search
+    // Check if user is asking about file access/visibility
+    if (lowerMessage.includes('see') && (lowerMessage.includes('file') || lowerMessage.includes('access'))) {
+      // Return a comprehensive search to show all project files
+      return {
+        query_description: 'Show all project files and directory structure'
+      };
+    }
+    
+    // Check for repository or project queries
+    if (lowerMessage.includes('repo') || lowerMessage.includes('project') || lowerMessage.includes('codebase')) {
+      return {
+        query_description: 'Show complete repository structure and key files'
+      };
+    }
+    
+    // Default to showing project structure for general queries
     return {
-      query_description: message
+      query_description: 'List all files and folders in the project'
     };
   }
 
