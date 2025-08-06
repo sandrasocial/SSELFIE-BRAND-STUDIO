@@ -1671,18 +1671,18 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Use existing admin user ID 
       const userId = '42585527';
       
-      // INTELLIGENT ORCHESTRATION: Route to clean Claude API service
-      const { ClaudeApiServiceClean } = await import('./services/claude-api-service-clean');
-      const claudeService = new ClaudeApiServiceClean();
+      // DIRECT AGENT ACCESS: Route directly to Claude API with workspace tools
+      const { ClaudeApiService } = await import('./services/claude-api-service');
+      const claudeService = new ClaudeApiService();
       
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
       
       const response = await claudeService.sendMessage(
         userId,
         agentName,
-        conversationId || `conv_${Date.now()}`,
+        conversationId,
         message,
-        '', // systemPrompt
+        undefined, // systemPrompt
         fileEditMode
       );
       
@@ -2038,7 +2038,7 @@ ${agentConfig.systemPrompt}
         ];
 
         // STREAMLINED AGENT ACCESS: Route to rebuilt Claude API service (300 lines vs 2,214 lines)
-        const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-clean');
+        const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
         
         console.log('🎯 STREAMLINED AGENT ACCESS: Using rebuilt Claude API service with complete tool suite');
         
@@ -2125,7 +2125,7 @@ ${agentConfig.systemPrompt}
       // Generate new conversation ID
       const conversationId = `conv_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
       
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-clean');
+      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
       const conversationDbId = await claudeApiServiceRebuilt.createConversationIfNotExists(
         userId,
         agentName,
@@ -2158,7 +2158,7 @@ ${agentConfig.systemPrompt}
         });
       }
       
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-clean');
+      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
       const messages = await claudeApiServiceRebuilt.getConversationHistory(conversationId);
       
       res.json({ 
@@ -2225,7 +2225,7 @@ ${agentConfig.systemPrompt}
       }
 
       // STREAMLINED SERVICE: Use rebuilt Claude API service
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-clean');
+      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
       const response = await claudeApiServiceRebuilt.sendMessage(
         userId,
         agentName,

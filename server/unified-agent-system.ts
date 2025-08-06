@@ -14,9 +14,11 @@ import { db } from './db';
 import { storage } from './storage';
 import { ConversationManager } from './agents/ConversationManager';
 import { AgentLearningSystem } from './agents/agent-learning-system';
-// Advanced intelligence systems archived - using intelligent orchestration
-// import { unifiedSessionManager } from './services/unified-session-manager';
-// import { IntelligentContextManager } from './services/intelligent-context-manager';
+import { AdvancedMemorySystem } from './services/advanced-memory-system';
+import { unifiedSessionManager } from './services/unified-session-manager';
+import { IntelligentContextManager } from './services/intelligent-context-manager';
+import { agentSearchCache } from './services/agent-search-cache';
+import { crossAgentIntelligence } from './services/cross-agent-intelligence';
 // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
 import { DeploymentTrackingService } from './services/deployment-tracking-service';
 // CONSOLIDATED: Removed competing agentIntegrationSystem import - all routing through unified system
@@ -44,7 +46,8 @@ export class UnifiedAgentSystem {
   private wss: WebSocketServer | null = null;
   private activeSessions = new Map<string, any>();
   
-  // Using intelligent orchestration system instead of archived services
+  // ENTERPRISE INTELLIGENCE INTEGRATION
+  private contextManager = IntelligentContextManager.getInstance();
   // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
   private deploymentTracker = new DeploymentTrackingService();
 
@@ -261,7 +264,7 @@ When asked to create files, you MUST use the str_replace_based_edit_tool with:
       ];
 
       // STREAMLINED SERVICE: Use rebuilt Claude API service
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-clean');
+      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
       
       // Execute through the streamlined Claude API with complete capabilities
       const response = await claudeApiServiceRebuilt.sendMessage(

@@ -1,10 +1,10 @@
 import { storage } from '../storage';
 import { AgentLearningSystem } from './agent-learning-system';
-// Advanced memory system archived - using intelligent orchestration
+import { AdvancedMemorySystem } from '../services/advanced-memory-system';
 
 // CONSOLIDATED MEMORY SYSTEM INTEGRATION
 const learningSystem = new AgentLearningSystem();
-// Using intelligent orchestration instead of archived memory system
+const memorySystem = AdvancedMemorySystem.getInstance();
 
 export interface ConversationSummary {
   agentId: string;
@@ -53,8 +53,8 @@ export class ConversationManager {
       metadata: { keyTasks: summary.keyTasks, workflowStage: summary.workflowStage }
     });
     
-    // Memory consolidation handled by intelligent orchestration system
-    console.log(`🧠 ORCHESTRATION: Memory consolidated for ${agentId}`);
+    // Connect with advanced memory system
+    await memorySystem.consolidateAgentMemory(agentId, userId);
     
     // Keep only the last 5 messages for context
     const recentMessages = currentHistory.slice(-5);
@@ -280,8 +280,8 @@ export class ConversationManager {
       // Get learning patterns from AgentLearningSystem
       const agentKnowledge = await learningSystem.getAgentKnowledge(agentId);
       
-      // Memory profile managed by intelligent orchestration
-      const memoryProfile = null; // Using orchestration system instead
+      // Get advanced memory profile
+      const memoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
       
       const contextMessages: any[] = [];
       

@@ -16,7 +16,9 @@ import adminToolsRouter from './routes/admin-tools.js';
 import { webSearchOptimization } from "./services/web-search-optimization";
 import { taskDependencyMapping } from "./services/task-dependency-mapping";
 import { progressTracking } from "./services/progress-tracking";
+import { advancedMemorySystem } from "./services/advanced-memory-system";
 // Removed unused service imports to fix LSP errors
+import { crossAgentIntelligence } from "./services/cross-agent-intelligence";
 
 const app = express();
 
