@@ -172,42 +172,32 @@ export class ClaudeApiServiceRebuilt {
     res: any // Express response object for streaming
   ): Promise<void> {
     try {
-      // CRITICAL TOKEN OPTIMIZATION: Try direct execution first
-      const directResult = await this.directToolExecution(message);
-      if (directResult.executed) {
-        console.log(`💰 TOKEN SAVED: Direct execution bypassed Claude API for: ${message.substring(0, 50)}`);
-        res.write(`data: ${JSON.stringify({
-          type: 'content',
-          content: directResult.result
-        })}\n\n`);
-        res.write(`data: ${JSON.stringify({
-          type: 'content_complete',
-          message: 'Response complete (bypassed API)'
-        })}\n\n`);
-        res.end();
-        
-        // Log token savings
-        await this.logTokenConsumption(agentName, message.length, directResult.result!.length, 0, true);
-        return;
-      }
+
       
       // Load conversation history
       const conversation = await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
       
-      // Prepare Claude API request with streaming enabled - LIMIT HISTORY FOR TOKEN OPTIMIZATION
-      const recentMessages = messages.slice(-3); // Only keep last 3 messages to reduce token cost
+      // Prepare Claude API request with streaming enabled
       const claudeMessages = [
-        ...recentMessages.map((msg: any) => ({
+        ...messages.map((msg: any) => ({
           role: msg.role === 'agent' ? 'assistant' : msg.role,
-          content: msg.content.length > 1000 ? msg.content.substring(0, 1000) + '...' : msg.content
+          content: msg.content
         })),
         { role: 'user', content: message }
       ];
       
-      // Estimate tokens before API call
-      const estimatedTokens = JSON.stringify(claudeMessages).length / 4; // Rough estimate
-      console.log(`💰 ESTIMATED TOKENS: ${estimatedTokens} for ${agentName}`);
+      // DEBUG: Log actual content being sent to identify token bloat
+      const totalContentLength = JSON.stringify(claudeMessages).length;
+      console.log(`🔍 CLAUDE REQUEST SIZE: ${totalContentLength} characters for ${agentName}`);
+      if (totalContentLength > 50000) {
+        console.log(`⚠️  MASSIVE REQUEST DETECTED: ${totalContentLength} characters - investigating tool results...`);
+        claudeMessages.forEach((msg, index) => {
+          if (msg.content && msg.content.length > 5000) {
+            console.log(`   Message ${index} (${msg.role}): ${msg.content.length} chars - ${msg.content.substring(0, 100)}...`);
+          }
+        });
+      }
 
       console.log(`🌊 STREAMING: Starting Claude API stream for ${agentName}`);
       
@@ -360,23 +350,26 @@ export class ClaudeApiServiceRebuilt {
                 try {
                   const toolResult = await this.handleToolCall(toolCall, conversationId, agentName);
                   
-                  // CRITICAL TOKEN OPTIMIZATION: Summarize tool results instead of full content
-                  const summarizedResult = this.summarizeToolResult(toolCall.name, toolResult);
+                  // DEBUG: Log tool result size to identify token bloat source
+                  console.log(`🔧 TOOL RESULT SIZE: ${toolCall.name} returned ${toolResult.length} characters`);
+                  if (toolResult.length > 10000) {
+                    console.log(`⚠️  MASSIVE TOOL RESULT: ${toolCall.name} - ${toolResult.substring(0, 200)}...`);
+                  }
                   
-                  // Add summarized tool result to conversation
+                  // Add tool result to conversation (keeping full result for now to debug)
                   currentMessages.push({
                     role: 'user',
                     content: [{
                       type: 'tool_result',
                       tool_use_id: toolCall.id,
-                      content: summarizedResult
+                      content: toolResult
                     }]
                   });
                   
                   res.write(`data: ${JSON.stringify({
                     type: 'tool_complete',
                     toolName: toolCall.name,
-                    result: summarizedResult.substring(0, 100) + '...',
+                    result: toolResult.substring(0, 200) + '...',
                     message: `${agentName} completed ${toolCall.name}`
                   })}\n\n`);
                   
@@ -423,9 +416,9 @@ export class ClaudeApiServiceRebuilt {
         }
       }
       
-      // Save conversation to database with token optimization
-      await this.saveMessage(conversationId, 'user', message.length > 1000 ? message.substring(0, 1000) + '...' : message);
-      await this.saveMessage(conversationId, 'assistant', fullResponse.length > 2000 ? fullResponse.substring(0, 2000) + '...' : fullResponse);
+      // Save conversation to database  
+      await this.saveMessage(conversationId, 'user', message);
+      await this.saveMessage(conversationId, 'assistant', fullResponse);
       
       console.log(`✅ STREAMING: Completed for ${agentName} (${fullResponse.length} chars)`);
       
@@ -796,22 +789,37 @@ export class ClaudeApiServiceRebuilt {
     const operation = input?.command || 'unknown';
     const filePath = input?.path || 'unknown file';
     
+    // CRITICAL TOKEN SAVER: Never send full file contents to Claude
     switch (operation) {
       case 'view':
-        if (typeof result === 'string' && result.includes('Here\'s the result of running')) {
-          const lines = result.split('\n').length - 5; // Subtract header/footer lines
-          return `File viewed: ${filePath} (${Math.max(0, lines)} lines)`;
+        if (typeof result === 'string') {
+          if (result.includes('Here\'s the result of running')) {
+            const lines = result.split('\n').length - 5; // Subtract header/footer lines  
+            return `File viewed: ${filePath} (${Math.max(0, lines)} lines of code)`;
+          }
+          if (result.includes('Here\'s the files and directories')) {
+            const items = (result.match(/\n\w+/g) || []).length;
+            return `Directory viewed: ${filePath} (${items} items)`;
+          }
+          // For any other massive file content, just summarize
+          if (result.length > 1000) {
+            const lines = result.split('\n').length;
+            return `File content loaded: ${filePath} (${lines} lines, ${result.length} characters)`;
+          }
         }
         return `File viewed: ${filePath}`;
       
       case 'create':
-        return `File created: ${filePath}`;
+        return `File created successfully: ${filePath}`;
       
       case 'str_replace':
         if (typeof result === 'string' && result.includes('has been edited')) {
-          return `File modified: ${filePath} - content updated successfully`;
+          return `File modified successfully: ${filePath}`;
         }
-        return `File modified: ${filePath}`;
+        return `File modification completed: ${filePath}`;
+      
+      case 'insert':
+        return `Content inserted into: ${filePath}`;
       
       default:
         return `File operation (${operation}) completed on ${filePath}`;
@@ -821,16 +829,32 @@ export class ClaudeApiServiceRebuilt {
   private summarizeSearchResults(searchResult: any, input: any): string {
     if (!searchResult) return "Search completed - no results found.";
     
+    // CRITICAL TOKEN SAVER: Never send massive search results to Claude
+    if (typeof searchResult === 'string' && searchResult.length > 2000) {
+      const fileCount = (searchResult.match(/File Name:/g) || []).length;
+      const query = input?.query_description || input?.class_names?.join(', ') || input?.function_names?.join(', ') || 'items';
+      return `Search completed: Found ${fileCount} files matching "${query}". Files are available for detailed analysis.`;
+    }
+    
     if (typeof searchResult === 'object' && searchResult.results) {
       const count = Array.isArray(searchResult.results) ? searchResult.results.length : 0;
       const summary = searchResult.summary || '';
       const query = input?.query_description || input?.class_names?.[0] || input?.function_names?.[0] || 'files';
       
-      return `Search completed: Found ${count} ${query} files${summary ? ` - ${summary}` : ''}`;
+      return `Search completed: Found ${count} relevant ${query}${summary ? ` - ${summary}` : ''}`;
     }
     
     if (Array.isArray(searchResult)) {
-      return `Search completed: Found ${searchResult.length} relevant files`;
+      return `Search completed: Found ${searchResult.length} relevant files in codebase`;
+    }
+    
+    // Handle massive string results from search_filesystem
+    if (typeof searchResult === 'string') {
+      const fileCount = (searchResult.match(/File Name:/g) || []).length;
+      const query = input?.query_description || 'search';
+      if (fileCount > 0) {
+        return `Search completed: Located ${fileCount} files for "${query}". Results ready for analysis.`;
+      }
     }
     
     return "Search completed successfully";
@@ -1197,7 +1221,9 @@ I have complete workspace access and can implement any changes you need. What wo
               return `[File Operation Error]\nInvalid input parameters. Expected object with command, path, etc.`;
             }
             const result = await str_replace_based_edit_tool(toolCall.input);
-            return this.summarizeFileOperationResult(result, toolCall.input);
+            const summary = this.summarizeFileOperationResult(result, toolCall.input);
+            console.log(`💰 TOKEN OPTIMIZATION: File operation result ${result.length} chars → ${summary.length} chars`);
+            return summary;
           } catch (error) {
             console.error('File operation error:', error);
             return `[File Operation Error]\n${error instanceof Error ? error.message : 'File operation failed'}`;
@@ -1221,7 +1247,9 @@ I have complete workspace access and can implement any changes you need. What wo
               console.warn('Search cache failed, continuing without caching:', cacheError);
             }
             
-            return this.summarizeSearchResults(searchResult, toolCall.input);
+            const summary = this.summarizeSearchResults(searchResult, toolCall.input);
+            console.log(`💰 TOKEN OPTIMIZATION: Search result ${searchResult.toString().length} chars → ${summary.length} chars`);
+            return summary;
           } catch (error) {
             console.error('❌ SEARCH FILESYSTEM ERROR:', error);
             // CRITICAL: Preserve search error details for agent awareness
