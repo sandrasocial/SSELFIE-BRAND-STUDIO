@@ -68,7 +68,21 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     const conversationId = req.body.conversationId || `admin_${agentId}_${Date.now()}`;
     
     // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
-    const systemPrompt = agentConfig.systemPrompt;
+    const baseSystemPrompt = agentConfig.systemPrompt;
+    
+    // CRITICAL FIX: Add explicit tool usage instructions so Claude USES tools instead of describing them
+    const systemPrompt = `${baseSystemPrompt}
+
+**🚀 CRITICAL: FUNCTION CALLING MODE:**
+You have access to function calling capabilities. When you need to perform actions, you must use function calls, not text descriptions.
+
+NEVER write tool syntax like <search_filesystem> in your response. Instead, use the actual function calling mechanism.
+
+When user asks to search, call the search_filesystem function directly.
+When user asks to edit files, call the str_replace_based_edit_tool function directly.
+When user asks to run commands, call the bash function directly.
+
+Use function calls, not text descriptions of tools.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
