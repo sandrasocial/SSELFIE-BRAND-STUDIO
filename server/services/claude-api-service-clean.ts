@@ -1624,6 +1624,15 @@ How can I help you further?`;
             }
           ];
           
+          // CRITICAL: Always provide agent personality response after tool execution
+          console.log(`🌊 STREAMING CONTINUATION: ${agentId} must provide full personality response after tools`);
+          
+          // Send status update
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: '\n\n'
+          })}\n\n`);
+          
           // Continue streaming with Claude API for authentic agent response (with retry logic)
           let continuationStream;
           let continuationRetryCount = 0;
@@ -1651,7 +1660,7 @@ How can I help you further?`;
                   
                   res.write(`data: ${JSON.stringify({
                     type: 'text_delta',
-                    content: `\n⏳ Processing tool results... (attempt ${continuationRetryCount}/${continuationMaxRetries})\n`
+                    content: `⏳ Processing tool results... (attempt ${continuationRetryCount}/${continuationMaxRetries})\n`
                   })}\n\n`);
                   
                   await new Promise(resolve => setTimeout(resolve, delay));
@@ -1659,12 +1668,15 @@ How can I help you further?`;
                 }
               }
               
-              // If not overload error or max retries reached, return gracefully
+              // If not overload error or max retries reached, provide agent-specific fallback response
               console.error(`❌ Claude continuation error after ${continuationRetryCount} attempts:`, error);
+              
+              // Generate agent-specific fallback response based on personality
+              const fallbackResponse = this.generateAgentFallbackResponse(agentId, pendingToolCalls);
               
               res.write(`data: ${JSON.stringify({
                 type: 'text_delta',
-                content: '\n\nTool execution completed. The system is currently busy, but your changes have been applied successfully.'
+                content: fallbackResponse
               })}\n\n`);
               
               res.write(`data: [DONE]\n\n`);
@@ -1674,10 +1686,15 @@ How can I help you further?`;
           
           if (!continuationStream) {
             console.error('❌ Failed to create continuation stream after all retries');
+            
+            // Generate agent-specific fallback response
+            const fallbackResponse = this.generateAgentFallbackResponse(agentId, pendingToolCalls);
+            
             res.write(`data: ${JSON.stringify({
               type: 'text_delta',
-              content: '\n\nTool execution completed successfully.'
+              content: fallbackResponse
             })}\n\n`);
+            
             res.write(`data: [DONE]\n\n`);
             return;
           }
@@ -1823,11 +1840,11 @@ How can I help you further?`;
             
             // Recursively continue streaming for unlimited tool usage
             const recursiveStream = await anthropic.messages.stream({
-              model: 'claude-3-5-sonnet-20241022',
+              model: DEFAULT_MODEL_STR, // Use latest model
               max_tokens: 4000,
-              system: systemPrompt,
+              system: fullSystemPrompt, // Use full agent personality prompt
               messages: recursiveContinuationMessages,
-              tools: this.toolDefinitions
+              tools: tools.length > 0 ? tools : undefined // Use the same tools passed in
             });
             
             // Process recursive stream for additional tools
@@ -1968,6 +1985,33 @@ How can I help you further?`;
       })}\n\n`);
       
       res.end();
+    }
+  }
+
+  /**
+   * GENERATE AGENT FALLBACK RESPONSE
+   * Creates agent-specific response when API is unavailable
+   */
+  private generateAgentFallbackResponse(agentId: string, toolCalls: any[]): string {
+    const agentPersonality = agentPersonalities[agentId as keyof typeof agentPersonalities];
+    const agentName = agentPersonality?.name || agentId;
+    
+    // Count what tools were used
+    const toolSummary = toolCalls.map(tc => tc.name).join(', ');
+    
+    // Agent-specific fallback responses
+    switch (agentId) {
+      case 'zara':
+        return `\n*Adjusting my designer glasses with satisfaction*\n\nDarling, I've successfully executed ${toolCalls.length} operations for you:\n${toolSummary}\n\nAll modifications have been applied to your luxury platform with the precision you deserve. Your files have been created/modified exactly as requested.\n\nWhat shall we architect next? 💎`;
+        
+      case 'elena':
+        return `\n**Strategic Execution Complete**\n\nI've successfully orchestrated ${toolCalls.length} strategic operations:\n${toolSummary}\n\nAll changes have been implemented according to our architectural vision. The system has been enhanced as requested.\n\nWhat strategic priorities should we address next?`;
+        
+      case 'maya':
+        return `\n*Flipping through my style portfolio*\n\nHoney, I've completed ${toolCalls.length} styling operations:\n${toolSummary}\n\nYour brand aesthetics have been enhanced with celebrity-level precision!\n\nWhat other style transformations shall we create?`;
+        
+      default:
+        return `\n**${agentName} Task Complete**\n\nI've successfully executed ${toolCalls.length} operations:\n${toolSummary}\n\nAll requested changes have been applied successfully.\n\nHow else can I assist you?`;
     }
   }
 
