@@ -15,6 +15,8 @@ The server is built on Express.js with TypeScript, implementing a RESTful API ar
 ## Agent System Architecture
 A unique multi-agent system coordinates AI assistants through a unified communication layer. Each agent has specialized capabilities (e.g., Maya for photography, Victoria for websites) and communicates via consolidated endpoints at `/api/consulting-agents/`. The system uses singleton Claude service instances for performance and maintains consistent data storage in `claudeConversations`/`claudeMessages` tables. Agents have full enterprise tool access, including file operations and code generation.
 
+**AGENT PERSONALITY CONTEXT RESTORATION (August 6, 2025):** Fixed critical context loss causing generic agent responses. Integrated AdvancedMemorySystem and IntelligentContextManager into Claude API service to restore agent personalities, specialized voices, and learning continuity while maintaining function calling capabilities.
+
 ## Data Storage Solutions
 PostgreSQL serves as the primary database with schemas for users, conversations, training data, and agent interactions. AWS S3 is used for storing training images and generated content. Local file storage is used for flatlay collections and brand assets, with efficient caching.
 

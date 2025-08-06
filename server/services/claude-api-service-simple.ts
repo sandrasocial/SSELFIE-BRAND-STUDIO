@@ -2,6 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { db } from '../db.js';
 import { claudeConversations, claudeMessages } from '../../shared/schema.js';
 import { eq } from 'drizzle-orm';
+import { AdvancedMemorySystem } from './advanced-memory-system.js';
+import { IntelligentContextManager } from './intelligent-context-manager.js';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -21,6 +23,16 @@ export class ClaudeApiServiceSimple {
   ): Promise<void> {
     try {
       console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
+      
+      // CRITICAL: Load memory profile and context BEFORE conversation
+      const memorySystem = AdvancedMemorySystem.getInstance();
+      const contextManager = IntelligentContextManager.getInstance();
+      
+      // Load agent memory profile for personality consistency
+      const memoryProfile = await memorySystem.getAgentMemoryProfile(agentName, userId);
+      const workspaceContext = await contextManager.prepareAgentWorkspace(message, agentName);
+      
+      console.log(`🧠 MEMORY LOADED: ${agentName} intelligence level ${memoryProfile?.intelligenceLevel || 'new agent'}`);
       
       // Load conversation history
       await this.createConversationIfNotExists(userId, agentName, conversationId);
