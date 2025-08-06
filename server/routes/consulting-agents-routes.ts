@@ -445,14 +445,14 @@ You have complete access to all Replit-level tools for comprehensive implementat
     // All agents use Claude API with full tool access - no forced routing
     console.log(`🎯 UNIFIED INTELLIGENCE: ${agentId} using integrated system without competing layers`);
 
-    // ENHANCED: Inject project awareness before any agent processing
-    const { AgentContextEnhancer } = await import('../services/hybrid-intelligence/agent-context-enhancer');
-    const contextEnhancer = AgentContextEnhancer.getInstance();
-    const enhancement = await contextEnhancer.enhanceAgentRequest(message, agentId, conversationId);
+    // DISABLED: AgentContextEnhancer - Was causing 15,000-25,000 token drain per request
+    // const { AgentContextEnhancer } = await import('../services/hybrid-intelligence/agent-context-enhancer');
+    // const contextEnhancer = AgentContextEnhancer.getInstance();
+    // const enhancement = await contextEnhancer.enhanceAgentRequest(message, agentId, conversationId);
     
-    // Update message with project awareness
-    const enhancedMessage = enhancement.enhancedMessage;
-    console.log(`🧠 CONTEXT ENHANCED: Added ${enhancement.suggestedFiles.length} relevant files, ${enhancement.existingRelatedCode.length} code snippets`);
+    // Use original message without massive context injection
+    const enhancedMessage = message;
+    console.log(`💰 TOKEN OPTIMIZATION: AgentContextEnhancer DISABLED - Saving 15,000-25,000 tokens per request`);
     
     // UNIFIED APPROACH: All requests go through Claude API with tools
     // No message classification, no forced routing, no competing systems
