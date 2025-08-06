@@ -323,6 +323,84 @@ INSTRUCTIONS: ${systemPrompt || 'Respond naturally using your specialized expert
   }
 
   /**
+   * INFER SQL PARAMETERS from user message
+   */
+  private inferSqlParameters(userMessage: string): any {
+    // Look for SQL query patterns
+    const sqlMatch = userMessage.match(/(?:select|insert|update|delete|create|drop|alter)\s+.+/i);
+    if (sqlMatch) {
+      return { sql_query: sqlMatch[0], environment: 'development' };
+    }
+    
+    // Default query for checking
+    if (userMessage.toLowerCase().includes('check') && userMessage.toLowerCase().includes('database')) {
+      return { sql_query: 'SELECT table_name FROM information_schema.tables WHERE table_schema = \'public\'', environment: 'development' };
+    }
+    
+    return { sql_query: 'SELECT 1', environment: 'development' };
+  }
+
+  /**
+   * INFER PACKAGE PARAMETERS from user message
+   */
+  private inferPackageParameters(userMessage: string): any {
+    const isUninstall = userMessage.toLowerCase().includes('uninstall') || userMessage.toLowerCase().includes('remove');
+    const packages = userMessage.match(/(?:install|uninstall|add|remove)\s+([a-z0-9-@/]+)/gi);
+    
+    if (packages && packages.length > 0) {
+      const packageList = packages.map(p => p.replace(/^(install|uninstall|add|remove)\s+/i, ''));
+      return {
+        install_or_uninstall: isUninstall ? 'uninstall' : 'install',
+        language_or_system: 'nodejs',
+        dependency_list: packageList
+      };
+    }
+    
+    return {
+      install_or_uninstall: 'install',
+      language_or_system: 'nodejs',
+      dependency_list: []
+    };
+  }
+
+  /**
+   * INFER WEB FETCH PARAMETERS from user message
+   */
+  private inferWebFetchParameters(userMessage: string): any {
+    const urlMatch = userMessage.match(/https?:\/\/[^\s]+/);
+    if (urlMatch) {
+      return { url: urlMatch[0] };
+    }
+    return { url: '' };
+  }
+
+  /**
+   * INFER SECRETS PARAMETERS from user message
+   */
+  private inferSecretsParameters(userMessage: string): any {
+    const secretPatterns = [
+      /OPENAI_API_KEY/i,
+      /ANTHROPIC_API_KEY/i,
+      /STRIPE_SECRET_KEY/i,
+      /DATABASE_URL/i,
+      /AWS_[A-Z_]+/i
+    ];
+    
+    const foundSecrets: string[] = [];
+    for (const pattern of secretPatterns) {
+      const match = userMessage.match(pattern);
+      if (match) {
+        foundSecrets.push(match[0].toUpperCase());
+      }
+    }
+    
+    return {
+      secret_keys: foundSecrets.length > 0 ? foundSecrets : ['API_KEY'],
+      user_message: 'I need these API keys to proceed with the implementation.'
+    };
+  }
+
+  /**
    * LEGACY METHOD PLACEHOLDER - NOW USING DIRECT CLAUDE API
    */
   private async legacyClaudeProcessing(message: string, conversationId: string, agentId: string, enableTools: boolean): Promise<string> {
@@ -1916,6 +1994,34 @@ How can I help you further?`;
       
       case 'web_search':
         return this.inferWebSearchParameters(userMessage);
+      
+      case 'execute_sql_tool':
+        return this.inferSqlParameters(userMessage);
+      
+      case 'packager_tool':
+        return this.inferPackageParameters(userMessage);
+      
+      case 'web_fetch':
+        return this.inferWebFetchParameters(userMessage);
+      
+      case 'ask_secrets':
+        return this.inferSecretsParameters(userMessage);
+      
+      case 'mark_completed_and_get_feedback':
+        return { 
+          query: 'Task completed. How does it look?',
+          workflow_name: 'Start application'
+        };
+      
+      case 'report_progress':
+        return { 
+          summary: 'Progress update on current task implementation'
+        };
+      
+      case 'get_latest_lsp_diagnostics':
+        // Extract file path from message if mentioned
+        const fileMatch = userMessage.match(/(?:check|verify|diagnose|errors? in)\s+([^\s]+\.(?:ts|tsx|js|jsx))/i);
+        return { file_path: fileMatch ? fileMatch[1] : undefined };
       
       default:
         console.log(`⚠️ UNKNOWN TOOL: ${toolName} - using empty parameters`);
