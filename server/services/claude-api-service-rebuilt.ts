@@ -64,8 +64,8 @@ export class ClaudeApiServiceRebuilt {
   // INFINITE LOOP PREVENTION - ENHANCED
   private conversationLoops = new Map<string, number>();
   private toolExecutionAttempts = new Map<string, number>();
-  private maxLoopsPerConversation = 3; // Reduced from 5 to 3
-  private maxToolAttemptsPerMessage = 2; // New limit for tool attempts
+  private maxLoopsPerConversation = 25; // Increased: Agents need more freedom for complex tasks
+  private maxToolAttemptsPerMessage = 8; // Increased: Allow agents to use multiple tools naturally
   private maxTokensPerRequest = 50000;
   
 
