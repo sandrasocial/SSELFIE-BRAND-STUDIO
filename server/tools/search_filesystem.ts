@@ -1,15 +1,6 @@
 /**
- * FILESYSTEM SEARCH TOOL
- * Direct file system operations for agent orchestration
+ * REDIRECTED TO REAL FILESYSTEM SEARCH TOOL
+ * This file now redirects to the full implementation in tool-exports.ts
  */
 
-export async function search_filesystem(parameters: any): Promise<any> {
-  console.log('🔍 SEARCH FILESYSTEM:', parameters);
-  
-  // Mock implementation for tool orchestration testing
-  return {
-    results: ['Found relevant files based on search criteria'],
-    count: 1,
-    searchTerm: parameters.query_description || parameters.query || 'general search'
-  };
-}
+export { search_filesystem } from './tool-exports';
