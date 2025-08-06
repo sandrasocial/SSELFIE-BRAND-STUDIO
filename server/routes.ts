@@ -19,13 +19,10 @@ import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
-// UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface
-import { registerStreamingAdminRoutes } from './routes/streaming-admin-routes';
+// UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
-// STEP 3: Advanced Multi-Agent Workflow Orchestration
-import workflowOrchestrationRouter from './routes/workflow-orchestration-routes';
-import intelligentOrchestrationRoutes from './routes/intelligent-orchestration-routes';
+// REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 // Generate Victoria website HTML content
@@ -1340,7 +1337,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
   
   // STREAMING ADMIN ROUTES - Fixed WebSocket communication
-  registerStreamingAdminRoutes(app, server);
+  // ELIMINATED: registerStreamingAdminRoutes - was intercepting tools before reaching bypass system
   
   // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
   // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
@@ -1352,11 +1349,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
-  app.use('/api/workflow', workflowOrchestrationRouter);
+  // ELIMINATED: workflowOrchestrationRouter - competing system
   
   // INTELLIGENT AGENT-TOOL ORCHESTRATION: Sandra's vision implemented
-  app.use('/api/orchestration', intelligentOrchestrationRoutes);
-  console.log('🎯 WORKFLOW ORCHESTRATION: Advanced multi-agent coordination active at /api/workflow/*');
+  // ELIMINATED: intelligentOrchestrationRoutes - was forcing tool simulations
+  // COMPETING SYSTEMS ELIMINATED: Only consulting-agents-routes.ts active for direct tool bypass
   
   // Register flatlay library routes for Victoria
   const flatlayLibraryRoutes = await import('./routes/flatlay-library');
@@ -1682,7 +1679,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         agentName,
         conversationId,
         message,
-        undefined, // systemPrompt
+        "You are a helpful AI assistant.", // systemPrompt
+        [], // tools
         fileEditMode
       );
       
