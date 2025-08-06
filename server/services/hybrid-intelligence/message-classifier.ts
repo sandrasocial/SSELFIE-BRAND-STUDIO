@@ -31,17 +31,15 @@ export class MessageClassifier {
     const trimmedMessage = message.trim().toLowerCase();
 
     // TOOL OPERATION PATTERNS - These should use hybrid intelligence
+    // ENHANCED: Better patterns that don't catch normal development requests
     const toolPatterns = [
-      /^(search|find|locate).*files?$/i,
-      /^(view|show|display).*file.*content$/i,
-      /^(run|execute).*command$/i,
-      /^(check|verify).*status$/i,
-      /^(create|add).*file.*path.*$/i,
-      /^(update|edit).*specific.*line$/i,
-      /^(delete|remove).*file$/i,
-      /^(install|uninstall).*package$/i,
-      /^(test|debug).*system$/i,
-      /^(backup|restore).*database$/i
+      /^(search|find|locate)\s+files?\s+named/i,
+      /^view\s+file\s+at\s+path/i,
+      /^run\s+command:\s*/i,
+      /^execute:\s*/i,
+      /^check\s+system\s+status$/i,
+      /^install\s+package:\s*/i,
+      /^uninstall\s+package:\s*/i
     ];
 
     // Check for explicit tool operations
@@ -54,24 +52,33 @@ export class MessageClassifier {
       };
     }
 
-    // CONVERSATION PATTERNS - These MUST use Claude API
+    // CONVERSATION PATTERNS - These MUST use Claude API with full intelligence
+    // ENHANCED: All development requests should use Claude for intelligent implementation
     const conversationPatterns = [
       /^(hey|hi|hello|good morning|good afternoon)/i,
       /how are you/i,
       /what.*think/i,
       /can you.*help/i,
-      /i need.*to create/i,
-      /build.*component/i,
-      /write.*code/i,
-      /create.*system/i,
-      /implement.*feature/i,
-      /design.*architecture/i,
-      /analyze.*requirements/i,
-      /provide.*solution/i,
-      /generate.*report/i,
-      /explain.*concept/i,
-      /recommend.*approach/i,
-      /review.*code/i
+      /create.*button/i,
+      /create.*component/i,
+      /create.*page/i,
+      /add.*feature/i,
+      /build.*system/i,
+      /implement/i,
+      /fix.*error/i,
+      /debug/i,
+      /modify/i,
+      /update/i,
+      /change/i,
+      /improve/i,
+      /optimize/i,
+      /refactor/i,
+      /integrate/i,
+      /design/i,
+      /analyze/i,
+      /review/i,
+      /test/i,
+      /verify/i
     ];
 
     // Check for conversation patterns
