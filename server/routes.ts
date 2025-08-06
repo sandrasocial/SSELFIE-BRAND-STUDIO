@@ -1671,9 +1671,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Use existing admin user ID 
       const userId = '42585527';
       
-      // DIRECT AGENT ACCESS: Route directly to Claude API with workspace tools
-      const { ClaudeApiService } = await import('./services/claude-api-service');
-      const claudeService = new ClaudeApiService();
+      // DIRECT AGENT ACCESS: Route directly to OPTIMIZED Claude API with workspace tools
+      const { ClaudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+      const claudeService = new ClaudeApiServiceRebuilt();
       
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
       

@@ -421,8 +421,8 @@ export default function AdminConsultingAgents() {
     setMessages(prev => [...prev, streamingAgentMessage]);
 
     try {
-      // Start Server-Sent Events stream
-      const response = await fetch('/api/admin/agents/consulting-chat', {
+      // Start Server-Sent Events stream - FIXED: Using optimized endpoint
+      const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
