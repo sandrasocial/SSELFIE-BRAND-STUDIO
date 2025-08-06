@@ -249,7 +249,7 @@ export class ConversationManager {
       
       // Find the most recent memory entry
       const memoryEntry = conversations
-        .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
+        .filter(conv => conv.content === '**CONVERSATION_MEMORY**')
         .sort((a, b) => {
           const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
           const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
@@ -257,7 +257,7 @@ export class ConversationManager {
         })[0];
       
       if (memoryEntry) {
-        return JSON.parse(memoryEntry.agentResponse);
+        return JSON.parse(memoryEntry.content);
       }
       
       return null;
@@ -326,7 +326,7 @@ export class ConversationManager {
     try {
       const conversations = await storage.getAgentConversations(agentId, userId);
       const memoryEntries = conversations
-        .filter(conv => conv.userMessage === '**CONVERSATION_MEMORY**')
+        .filter(conv => conv.content === '**CONVERSATION_MEMORY**')
         .sort((a, b) => {
           const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
           const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;

@@ -1062,7 +1062,10 @@ export class DatabaseStorage implements IStorage {
         // Find the corresponding assistant response
         const memoryResponse = conversations.find(msg => 
           msg.role === 'assistant' && 
-          Math.abs(new Date(msg.timestamp).getTime() - new Date(memoryEntry.timestamp).getTime()) < 1000
+          Math.abs(
+            (msg.timestamp ? new Date(msg.timestamp).getTime() : 0) - 
+            (memoryEntry.timestamp ? new Date(memoryEntry.timestamp).getTime() : 0)
+          ) < 1000
         );
         
         if (memoryResponse && memoryResponse.content) {
