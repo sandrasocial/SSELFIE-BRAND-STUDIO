@@ -1,7 +1,6 @@
 import { db } from '../db';
-import { agentLearning, claudeConversations, claudeMessages, agentCapabilities } from '../../shared/schema';
+import { agentLearning, claudeConversations, claudeMessages, agentCapabilities } from '@shared/schema';
 import { eq, desc, and, gte, sql } from 'drizzle-orm';
-import { DatabaseCompatibilityHelper } from './database-compatibility-fix';
 
 /**
  * ADVANCED MEMORY SYSTEM
@@ -87,7 +86,7 @@ export class AdvancedMemorySystem {
       const learningPatterns: LearningPattern[] = existingLearning.map(learning => ({
         category: learning.category || 'general',
         pattern: learning.learningType || 'conversation',
-        confidence: parseFloat((learning.confidence || '0.7').toString()),
+        confidence: learning.confidence || 0.7,
         frequency: learning.frequency || 1,
         effectiveness: 0.8,
         contexts: ['conversation', 'implementation']
@@ -139,12 +138,12 @@ export class AdvancedMemorySystem {
     try {
       // Save to database
       await db.insert(agentLearning).values({
-        agentName: agentName,
+        agentName,
         userId,
         learningType: pattern.pattern,
         category: pattern.category,
         data: { pattern },
-        confidence: pattern.confidence.toString(),
+        confidence: pattern.confidence,
         frequency: pattern.frequency,
         lastSeen: new Date(),
         context: pattern.contexts.join(',')
