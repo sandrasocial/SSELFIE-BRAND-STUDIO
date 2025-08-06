@@ -66,9 +66,11 @@ export class ClaudeApiServiceRebuilt {
   private deploymentTracker = new DeploymentTrackingService();
   private progressTracker = new ProgressTrackingService();
   
-  // INFINITE LOOP PREVENTION
+  // INFINITE LOOP PREVENTION - ENHANCED
   private conversationLoops = new Map<string, number>();
-  private maxLoopsPerConversation = 5;
+  private toolExecutionAttempts = new Map<string, number>();
+  private maxLoopsPerConversation = 3; // Reduced from 5 to 3
+  private maxToolAttemptsPerMessage = 2; // New limit for tool attempts
   private maxTokensPerRequest = 50000;
   
 
@@ -308,12 +310,12 @@ export class ClaudeApiServiceRebuilt {
         return;
       }
       
-      // 🚨 INFINITE LOOP PREVENTION: Check conversation limits BEFORE Claude API
+      // 🚨 INFINITE LOOP PREVENTION: Check conversation limits BEFORE Claude API  
       const loopKey = `${conversationId}-${agentName}`;
       const currentLoops = this.conversationLoops.get(loopKey) || 0;
       
-      if (currentLoops >= 5) {
-        console.log(`🚨 LOOP PREVENTION: Conversation ${conversationId} exceeded 5 attempts, blocking Claude API`);
+      if (currentLoops >= this.maxLoopsPerConversation) {
+        console.log(`🚨 LOOP PREVENTION: Conversation ${conversationId} exceeded ${this.maxLoopsPerConversation} attempts, terminating immediately`);
         
         res.write(`data: ${JSON.stringify({
           type: 'agent_start',
@@ -1556,7 +1558,25 @@ I have complete workspace access and can implement any changes you need. What wo
    */
   private async handleToolCall(toolCall: any, conversationId?: string, agentId?: string): Promise<string> {
     try {
-      console.log(`🔧 TOOL CALL: ${toolCall.name}`);
+      // EMERGENCY LOOP PREVENTION - STOP EMPTY PARAMETER EXECUTION
+      if (!toolCall.input || Object.keys(toolCall.input).length === 0) {
+        console.log(`🚨 LOOP PREVENTION: Blocking ${toolCall.name} with empty parameters`);
+        return `[Tool ${toolCall.name} blocked - no valid parameters provided]`;
+      }
+      
+      // TOOL EXECUTION ATTEMPT TRACKING
+      const attemptKey = `${conversationId}-${agentId}-${toolCall.name}`;
+      const currentAttempts = this.toolExecutionAttempts.get(attemptKey) || 0;
+      
+      if (currentAttempts >= this.maxToolAttemptsPerMessage) {
+        console.log(`🚨 LOOP PREVENTION: ${toolCall.name} exceeded ${this.maxToolAttemptsPerMessage} attempts, blocking`);
+        this.toolExecutionAttempts.delete(attemptKey); // Reset for next message
+        return `[Tool ${toolCall.name} blocked - maximum attempts exceeded]`;
+      }
+      
+      this.toolExecutionAttempts.set(attemptKey, currentAttempts + 1);
+      
+      console.log(`🔧 TOOL CALL: ${toolCall.name} (attempt ${currentAttempts + 1}/${this.maxToolAttemptsPerMessage})`);
       console.log(`🔍 TOOL PARAMETERS:`, JSON.stringify(toolCall.input || toolCall.parameters, null, 2));
       
       switch (toolCall.name) {
