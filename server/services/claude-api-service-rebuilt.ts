@@ -552,6 +552,18 @@ export class ClaudeApiServiceRebuilt {
       
       console.log(`✅ STREAMING: Completed for ${agentName} (${fullResponse.length} chars)`);
       
+      // CRITICAL FIX: Send completion event to frontend to end streaming
+      res.write(`data: ${JSON.stringify({
+        type: 'completion',
+        agentId: agentName,
+        conversationId,
+        consultingMode: true,
+        success: true,
+        message: 'Agent completed successfully'
+      })}\n\n`);
+      
+      res.end();
+      
     } catch (error) {
       console.error('🚨 STREAMING ERROR:', error);
       
