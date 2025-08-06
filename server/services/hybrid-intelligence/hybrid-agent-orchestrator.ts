@@ -343,7 +343,7 @@ export class HybridAgentOrchestrator {
    * Actually perform file operations and system commands using Node.js APIs
    */
   private async executeRealNodeTools(request: LocalStreamingRequest): Promise<any> {
-    console.log(`🔧 REAL NODE TOOLS: Executing for ${request.agentId}`);
+    console.log(`🔧 REAL NODE TOOLS: Executing ACTUAL Replit tools for ${request.agentId}`);
     
     try {
       // Extract tool information from the request context or message
@@ -356,22 +356,61 @@ export class HybridAgentOrchestrator {
         };
       }
 
+      // Import REAL Replit tools instead of using simplified implementations
+      const { replitTools } = await import('../replit-tools-direct');
+      let result: any;
+
       switch (toolInfo.toolName) {
         case 'str_replace_based_edit_tool':
-          return await this.executeFileOperation(toolInfo.parameters);
+          result = await replitTools.strReplaceBasedEditTool(toolInfo.parameters);
+          break;
           
         case 'search_filesystem':
-          return await this.executeFilesystemSearch(toolInfo.parameters);
+          result = await replitTools.searchFilesystem(toolInfo.parameters);
+          break;
           
         case 'bash':
-          return await this.executeBashCommand(toolInfo.parameters);
+          result = await replitTools.bash(toolInfo.parameters);
+          break;
+          
+        case 'get_latest_lsp_diagnostics':
+          result = await replitTools.getLatestLspDiagnostics(toolInfo.parameters);
+          break;
+          
+        case 'execute_sql_tool':
+          result = await replitTools.executeSqlTool(toolInfo.parameters);
+          break;
+          
+        case 'web_search':
+          result = await replitTools.webSearch(toolInfo.parameters);
+          break;
+          
+        case 'packager_tool':
+          result = await replitTools.packagerTool(toolInfo.parameters);
+          break;
           
         default:
           return {
             success: true,
-            content: `Tool ${toolInfo.toolName} recognized but not yet implemented in real Node.js environment`
+            content: `Tool ${toolInfo.toolName} recognized but not yet integrated with real tools`
           };
       }
+
+      // Format the result for the agent response
+      if (result.success) {
+        console.log(`✅ REAL TOOL SUCCESS: ${toolInfo.toolName} executed with actual results`);
+        return {
+          success: true,
+          content: JSON.stringify(result, null, 2)
+        };
+      } else {
+        console.log(`❌ REAL TOOL FAILED: ${toolInfo.toolName} - ${result.error}`);
+        return {
+          success: false,
+          content: `Tool execution failed: ${result.error || 'Unknown error'}`
+        };
+      }
+      
     } catch (error) {
       console.error(`❌ REAL NODE TOOLS ERROR:`, error);
       return {
