@@ -251,7 +251,13 @@ export class ReplitToolsDirect {
 
   private async viewFile(filePath: string, viewRange?: number[]): Promise<any> {
     try {
-      const content = await fs.readFile(filePath, 'utf8');
+      // Fix path: Remove leading slash for relative paths
+      let normalizedPath = filePath;
+      if (filePath.startsWith('/') && !filePath.startsWith('/home')) {
+        normalizedPath = filePath.substring(1);
+      }
+      
+      const content = await fs.readFile(normalizedPath, 'utf8');
       const lines = content.split('\n');
       
       if (viewRange && viewRange.length === 2) {
@@ -274,30 +280,43 @@ export class ReplitToolsDirect {
 
   private async createFile(filePath: string, content: string): Promise<any> {
     try {
+      // Fix path: Remove leading slash and ensure it's relative to project root
+      let normalizedPath = filePath;
+      if (filePath.startsWith('/')) {
+        normalizedPath = filePath.substring(1); // Remove leading slash
+      }
+      
       // Ensure directory exists
-      const dir = path.dirname(filePath);
+      const dir = path.dirname(normalizedPath);
       await fs.mkdir(dir, { recursive: true });
       
-      await fs.writeFile(filePath, content, 'utf8');
-      console.log(`✅ REAL FILE CREATED: ${filePath}`);
-      return { success: true, message: `File created: ${filePath}` };
+      await fs.writeFile(normalizedPath, content, 'utf8');
+      console.log(`✅ REAL FILE CREATED: ${normalizedPath}`);
+      return { success: true, message: `File created: ${normalizedPath}` };
     } catch (error: any) {
+      console.error(`❌ REAL TOOL FAILED: create file - ${error.message}`);
       return { success: false, error: `Failed to create file: ${error.message}` };
     }
   }
 
   private async replaceInFile(filePath: string, oldStr: string, newStr: string): Promise<any> {
     try {
-      const content = await fs.readFile(filePath, 'utf8');
+      // Fix path: Remove leading slash for relative paths
+      let normalizedPath = filePath;
+      if (filePath.startsWith('/') && !filePath.startsWith('/home')) {
+        normalizedPath = filePath.substring(1);
+      }
+      
+      const content = await fs.readFile(normalizedPath, 'utf8');
       
       if (!content.includes(oldStr)) {
         return { success: false, error: `String not found in file: "${oldStr.substring(0, 50)}..."` };
       }
       
       const newContent = content.replace(oldStr, newStr);
-      await fs.writeFile(filePath, newContent, 'utf8');
-      console.log(`✅ REAL FILE MODIFIED: ${filePath}`);
-      return { success: true, message: `File updated: ${filePath}` };
+      await fs.writeFile(normalizedPath, newContent, 'utf8');
+      console.log(`✅ REAL FILE MODIFIED: ${normalizedPath}`);
+      return { success: true, message: `File updated: ${normalizedPath}` };
     } catch (error: any) {
       return { success: false, error: `Failed to update file: ${error.message}` };
     }
@@ -305,7 +324,13 @@ export class ReplitToolsDirect {
 
   private async insertInFile(filePath: string, lineNumber: number, text: string): Promise<any> {
     try {
-      const content = await fs.readFile(filePath, 'utf8');
+      // Fix path: Remove leading slash for relative paths
+      let normalizedPath = filePath;
+      if (filePath.startsWith('/') && !filePath.startsWith('/home')) {
+        normalizedPath = filePath.substring(1);
+      }
+      
+      const content = await fs.readFile(normalizedPath, 'utf8');
       const lines = content.split('\n');
       
       if (lineNumber === 0) {
@@ -316,8 +341,8 @@ export class ReplitToolsDirect {
         lines.push(text.replace(/\n$/, ''));
       }
       
-      await fs.writeFile(filePath, lines.join('\n'), 'utf8');
-      console.log(`✅ REAL FILE INSERTED: ${filePath} at line ${lineNumber}`);
+      await fs.writeFile(normalizedPath, lines.join('\n'), 'utf8');
+      console.log(`✅ REAL FILE INSERTED: ${normalizedPath} at line ${lineNumber}`);
       return { success: true, message: `Text inserted at line ${lineNumber}` };
     } catch (error: any) {
       return { success: false, error: `Failed to insert text: ${error.message}` };
