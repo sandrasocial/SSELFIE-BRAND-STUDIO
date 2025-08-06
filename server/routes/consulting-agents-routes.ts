@@ -441,16 +441,9 @@ You have complete access to all Replit-level tools for comprehensive implementat
     // TOKEN-EFFICIENT ROUTING: Check for direct tool execution first
     console.log(`💰 TOKEN OPTIMIZATION: Attempting direct execution for ${agentId}`);
     
-    // 🎯 MESSAGE CLASSIFICATION: Separate conversations from tool operations
-    const { MessageClassifier } = await import('../services/hybrid-intelligence/message-classifier');
-    const messageClassifier = MessageClassifier.getInstance();
-    const classification = messageClassifier.classifyMessage(message, agentId);
-    
-    console.log(`🔍 MESSAGE TYPE: ${classification.type} (${classification.confidence} confidence) - ${classification.reason}`);
-    
-    // CRITICAL FIX: Always force streaming for admin interface to get authentic agent personalities
-    const forceStreaming = req.body.forceStreaming || req.headers['x-force-streaming'] === 'true';
-    console.log(`🌊 FORCE STREAMING CHECK: ${forceStreaming} || admin interface always streams`);
+    // PHASE 2 CLEANUP: UNIFIED INTELLIGENCE - NO COMPETING SYSTEMS
+    // All agents use Claude API with full tool access - no forced routing
+    console.log(`🎯 UNIFIED INTELLIGENCE: ${agentId} using integrated system without competing layers`);
 
     // ENHANCED: Inject project awareness before any agent processing
     const { AgentContextEnhancer } = await import('../services/hybrid-intelligence/agent-context-enhancer');
@@ -461,45 +454,12 @@ You have complete access to all Replit-level tools for comprehensive implementat
     const enhancedMessage = enhancement.enhancedMessage;
     console.log(`🧠 CONTEXT ENHANCED: Added ${enhancement.suggestedFiles.length} relevant files, ${enhancement.existingRelatedCode.length} code snippets`);
     
-    if (classification.forceClaudeAPI || forceStreaming) { // Removed hardcoded true - now respects routing
-      // 🧠 AGENT CONVERSATION: Always use streaming for better UX
-      console.log(`🧠 AGENT CONVERSATION: ${agentId} - Forcing streaming for authentic agent response`);
-      
-      // Skip JSON response and force streaming mode
-      console.log(`🌊 FORCING STREAMING: ${agentId} will use streaming for authentic personality delivery`);
-      
-      // Continue to streaming section below
-    } else {
-      // 🔧 TOOL OPERATION: Use hybrid intelligence for zero-cost operations
-      console.log(`🔧 TOOL OPERATION: ${agentId} using hybrid intelligence for tool execution`);
-      
-      const hybridOrchestrator = getHybridOrchestrator();
-      const hybridRequest = {
-        agentId,
-        userId,
-        message,
-        conversationId,
-        context: { specializedSystemPrompt }
-      };
-
-      const hybridResult = await hybridOrchestrator.processHybridRequest(hybridRequest);
-      if (hybridResult.success) {
-        console.log(`✅ HYBRID SUCCESS: ${hybridResult.processingType} - ${hybridResult.tokensUsed} tokens used, ${hybridResult.tokensSaved} saved`);
-        return res.status(200).json({
-          success: true,
-          response: hybridResult.content,
-          agentId,
-          conversationId,
-          processingType: hybridResult.processingType,
-          tokensUsed: hybridResult.tokensUsed,
-          tokensSaved: hybridResult.tokensSaved,
-          processingTime: hybridResult.processingTime
-        });
-      }
-    }
+    // UNIFIED APPROACH: All requests go through Claude API with tools
+    // No message classification, no forced routing, no competing systems
+    console.log(`🌊 UNIFIED STREAMING: ${agentId} using full intelligence with natural tool decisions`);
     
-    // 🌊 FORCE STREAMING: All agent responses should use streaming for better UX
-    console.log(`🌊 STREAMING MODE: ${agentId} - Forcing streaming for better user experience`);
+    // PHASE 4 CLEANUP: UNIFIED STREAMING - All agents use streaming with full intelligence
+    console.log(`🌊 UNIFIED STREAMING: ${agentId} - All agents use streaming for consistent experience`);
     
     // Set response headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
@@ -509,20 +469,19 @@ You have complete access to all Replit-level tools for comprehensive implementat
     res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
 
     try {
-      if (classification.forceClaudeAPI) {
-        // 🧠 CLAUDE STREAMING: Full agent intelligence via proper service
-        console.log(`🌊 CLAUDE STREAMING: ${agentId} with authentic personality and full tool access`);
-        
-        const claudeService = getClaudeService();
-        
-        // CRITICAL FIX: Ensure conversation exists before streaming to prevent foreign key errors
-        console.log(`📝 Creating conversation ${conversationId} for user ${userId} if not exists`);
-        await claudeService.createConversationIfNotExists(conversationId, userId, agentId);
-        
-        // Use the actual Claude service that has agent personalities
-        await claudeService.sendStreamingMessage(
-          userId,
-          agentId,
+      // UNIFIED SYSTEM: All agents stream through Claude API with full capabilities
+      console.log(`🌊 CLAUDE STREAMING: ${agentId} with authentic personality and full tool access`);
+      
+      const claudeService = getClaudeService();
+      
+      // CRITICAL FIX: Ensure conversation exists before streaming to prevent foreign key errors
+      console.log(`📝 Creating conversation ${conversationId} for user ${userId} if not exists`);
+      await claudeService.createConversationIfNotExists(conversationId, userId, agentId);
+      
+      // Use the actual Claude service that has agent personalities
+      await claudeService.sendStreamingMessage(
+        userId,
+        agentId,
           conversationId,
           enhancedMessage, // Use enhanced message with project awareness
           specializedSystemPrompt,
@@ -532,22 +491,6 @@ You have complete access to all Replit-level tools for comprehensive implementat
         
         console.log(`✅ STREAMING SUCCESS: ${agentId} authentic streaming complete`);
         return; // Response already sent via streaming
-      } else {
-        // 🔧 HYBRID STREAMING: Tool operations only
-        console.log(`🔧 HYBRID STREAMING: ${agentId} with tool optimization`);
-        
-        const hybridOrchestrator = getHybridOrchestrator();
-        const streamRequest = {
-          agentId,
-          userId,
-          message,
-          conversationId,
-          context: { specializedSystemPrompt }
-        };
-
-        await hybridOrchestrator.processHybridStreaming(streamRequest, res);
-      }
-      res.end();
     } catch (error: any) {
       console.error(`❌ STREAMING ERROR: ${agentId}:`, error);
       res.write(`data: ${JSON.stringify({
