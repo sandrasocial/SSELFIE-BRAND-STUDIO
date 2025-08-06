@@ -177,25 +177,21 @@ Please respond in this JSON format:
   ]
 }`;
 
-    // FIXED: Use optimized Claude API service with token optimization and memory bypass
+    // Try Anthropic first
     try {
-      const { ClaudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
-      const claudeService = new ClaudeApiServiceRebuilt();
-      
-      console.log('💰 TOKEN OPTIMIZATION: Sandra AI using optimized service with memory bypass');
-      
-      const conversationId = `sandra-ai-${userId}-${Date.now()}`;
-      const systemPrompt = "You are Sandra, an expert AI photographer and style consultant. Always respond in valid JSON format.";
-      
-      const responseText = await claudeService.sendMessage(
-        userId,
-        'sandra-ai',
-        conversationId,
-        fullPrompt,
-        systemPrompt,
-        [], // No tools needed for style generation
-        false // Not file edit mode
-      );
+      const response = await anthropic.messages.create({
+        model: CLAUDE_MODEL_STR,
+        max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
+        system: "You are Sandra, an expert AI photographer and style consultant. Always respond in valid JSON format.",
+        messages: [
+          { role: 'user', content: fullPrompt }
+        ],
+        headers: {
+          "anthropic-beta": "prompt-caching-2024-07-31" // COST OPTIMIZATION: 90% savings on repeated content
+        }
+      });
+
+      const responseText = response.content[0].text;
       const parsedResponse = JSON.parse(responseText);
 
       // Generate proper style buttons with IDs

@@ -19,10 +19,12 @@ import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
-// UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
+// UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface
+// REMOVED: streaming-admin-routes - consolidated into unified agent system
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
-// REMOVED: All competing streaming and orchestration systems that were intercepting tools
+// STEP 3: Advanced Multi-Agent Workflow Orchestration
+import workflowOrchestrationRouter from './routes/workflow-orchestration-routes';
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 // Generate Victoria website HTML content
@@ -1337,23 +1339,20 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
   
   // STREAMING ADMIN ROUTES - Fixed WebSocket communication
-  // ELIMINATED: registerStreamingAdminRoutes - was intercepting tools before reaching bypass system
+  // REMOVED: registerStreamingAdminRoutes - consolidated into unified agent system
   
   // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
   // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
   
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
-  // FIXED: Register consulting agents at correct path to match frontend calls
-  app.use('/api/consulting-agents', consultingAgentsRouter);
-  console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
+  // CONSOLIDATED: All admin agent interactions under unified /api/admin/agents/* pattern
+  app.use('/api/admin/agents', consultingAgentsRouter);
+  console.log('✅ CONSOLIDATED: Admin agent system active at /api/admin/agents/*');
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
-  // ELIMINATED: workflowOrchestrationRouter - competing system
-  
-  // INTELLIGENT AGENT-TOOL ORCHESTRATION: Sandra's vision implemented
-  // ELIMINATED: intelligentOrchestrationRoutes - was forcing tool simulations
-  // COMPETING SYSTEMS ELIMINATED: Only consulting-agents-routes.ts active for direct tool bypass
+  app.use('/api/workflow', workflowOrchestrationRouter);
+  console.log('🎯 WORKFLOW ORCHESTRATION: Advanced multi-agent coordination active at /api/workflow/*');
   
   // Register flatlay library routes for Victoria
   const flatlayLibraryRoutes = await import('./routes/flatlay-library');
@@ -1668,7 +1667,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Use existing admin user ID 
       const userId = '42585527';
       
-      // DIRECT AGENT ACCESS: Route directly to OPTIMIZED Claude API with workspace tools
+      // DIRECT AGENT ACCESS: Route directly to Claude API with workspace tools
       const { ClaudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
       const claudeService = new ClaudeApiServiceRebuilt();
       
@@ -1679,8 +1678,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         agentName,
         conversationId,
         message,
-        "You are a helpful AI assistant.", // systemPrompt
-        [], // tools
+        undefined, // systemPrompt
         fileEditMode
       );
       

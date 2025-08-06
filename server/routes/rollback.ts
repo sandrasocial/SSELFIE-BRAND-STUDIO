@@ -6,10 +6,9 @@ export function setupRollbackRoutes(app: Express) {
   // Rollback a file to its backup version
   app.post('/api/admin/rollback-file', async (req, res) => {
     try {
-      const { filePath } = req.body;
+      const { filePath, adminToken } = req.body;
       
-      // Verify admin token (unified pattern - header or body)
-      const adminToken = req.headers['x-admin-token'] || req.body.adminToken;
+      // Verify admin token
       if (adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ error: 'Unauthorized' });
       }

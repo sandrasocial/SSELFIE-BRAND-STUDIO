@@ -423,22 +423,6 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  // ADMIN BYPASS: Allow admin token for agent operations
-  const adminToken = req.headers.authorization || req.body.adminToken || req.query.adminToken;
-  if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
-    console.log('🔐 ADMIN BYPASS: Using admin token for agent operations');
-    // Create mock user for admin operations
-    (req as any).user = {
-      claims: {
-        sub: '42585527', // Sandra's user ID
-        email: 'ssa@ssasocial.com',
-        first_name: 'Sandra',
-        last_name: 'Sigurjonsdottir'
-      }
-    };
-    return next();
-  }
-
   if (!req.isAuthenticated || !req.isAuthenticated() || !user) {
     return res.status(401).json({ message: "Unauthorized" });
   }

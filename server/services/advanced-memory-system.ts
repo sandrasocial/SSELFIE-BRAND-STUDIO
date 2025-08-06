@@ -1,6 +1,6 @@
 import { db } from '../db';
 import { agentLearning, claudeConversations, claudeMessages, agentCapabilities } from '@shared/schema';
-import { eq, desc, and, gte, sql } from 'drizzle-orm';
+import { eq, desc, and, gte, sql, isNull, or } from 'drizzle-orm';
 
 /**
  * ADVANCED MEMORY SYSTEM
@@ -71,22 +71,26 @@ export class AdvancedMemorySystem {
         return this.memoryCache.get(cacheKey)!;
       }
       
-      // Load from database first
+      // Load from database first - FIXED: Use correct column names
       const existingLearning = await db
         .select()
         .from(agentLearning)
         .where(and(
           eq(agentLearning.agentName, agentName),
-          eq(agentLearning.userId, userId)
+          or(
+            eq(agentLearning.userId, userId), 
+            eq(agentLearning.userId, ''),
+            isNull(agentLearning.userId)
+          )
         ))
-        .orderBy(desc(agentLearning.lastSeen))
+        .orderBy(desc(agentLearning.createdAt))
         .limit(50);
       
       // Create profile with existing learning patterns
       const learningPatterns: LearningPattern[] = existingLearning.map(learning => ({
         category: learning.category || 'general',
         pattern: learning.learningType || 'conversation',
-        confidence: Number(learning.confidence) || 0.7,
+        confidence: learning.confidence || 0.7,
         frequency: learning.frequency || 1,
         effectiveness: 0.8,
         contexts: ['conversation', 'implementation']
@@ -132,60 +136,6 @@ export class AdvancedMemorySystem {
   }
 
   /**
-   * Initialize new agent memory with base intelligence
-   */
-  async initializeAgentMemory(agentName: string, userId: string, config: any): Promise<AgentMemoryProfile> {
-    try {
-      const profile: AgentMemoryProfile = {
-        agentName,
-        userId,
-        memoryStrength: 0.5,
-        learningPatterns: [],
-        collaborationHistory: [],
-        intelligenceLevel: config.baseIntelligence || 7,
-        lastOptimization: new Date()
-      };
-
-      // Add initial specialization pattern
-      if (config.specialization) {
-        const specializationPattern: LearningPattern = {
-          category: config.specialization,
-          pattern: 'specialization_initialized',
-          confidence: 0.8,
-          frequency: 1,
-          effectiveness: 0.9,
-          contexts: ['initialization', 'specialization']
-        };
-        
-        profile.learningPatterns.push(specializationPattern);
-        
-        // Save to database
-        await db.insert(agentLearning).values({
-          agentName,
-          userId,
-          learningType: 'specialization_initialized',
-          category: config.specialization,
-          data: { initialized: true, config },
-          confidence: '0.8',
-          frequency: 1,
-          lastSeen: new Date()
-        });
-      }
-
-      // Cache the profile
-      const cacheKey = `${agentName}-${userId}`;
-      this.memoryCache.set(cacheKey, profile);
-      
-      console.log(`🧠 INITIALIZED: ${agentName} with intelligence level ${profile.intelligenceLevel} and specialization ${config.specialization}`);
-      return profile;
-      
-    } catch (error) {
-      console.error('Failed to initialize agent memory:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Record learning pattern for agent
    */
   async recordLearningPattern(agentName: string, userId: string, pattern: LearningPattern): Promise<void> {
@@ -196,10 +146,9 @@ export class AdvancedMemorySystem {
         userId,
         learningType: pattern.pattern,
         category: pattern.category,
-        data: { pattern },
+        data: { pattern, effectiveness: pattern.effectiveness },
         confidence: pattern.confidence.toString(),
-        frequency: pattern.frequency,
-        lastSeen: new Date()
+        frequency: pattern.frequency
       });
 
       // Update cache

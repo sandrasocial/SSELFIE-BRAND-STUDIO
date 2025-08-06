@@ -1,4 +1,4 @@
-import { AdvancedMemorySystem, CrossAgentInteraction } from './advanced-memory-system';
+import { advancedMemorySystem, CrossAgentInteraction } from './advanced-memory-system';
 import { db } from '../db';
 import { agentLearning, agentCapabilities } from '@shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
@@ -60,34 +60,6 @@ export class CrossAgentIntelligence {
       CrossAgentIntelligence.instance = new CrossAgentIntelligence();
     }
     return CrossAgentIntelligence.instance;
-  }
-
-  /**
-   * Check agent intelligence network status
-   */
-  async checkAgentIntelligenceNetwork(agentName: string): Promise<any> {
-    try {
-      // Check if agent is part of intelligence network
-      const networkConnections = await db
-        .select()
-        .from(agentLearning)
-        .where(eq(agentLearning.agentName, agentName))
-        .limit(5);
-        
-      if (networkConnections.length > 2) {
-        return {
-          connected: true,
-          connections: networkConnections.length,
-          networkStrength: Math.min(1.0, networkConnections.length * 0.2),
-          lastActivity: new Date()
-        };
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Failed to check agent network:', error);
-      return null;
-    }
   }
 
   /**
