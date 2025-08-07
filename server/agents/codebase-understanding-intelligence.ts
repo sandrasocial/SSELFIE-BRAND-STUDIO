@@ -63,12 +63,9 @@ export class CodebaseUnderstandingIntelligence {
   static async analyzeCodebase(): Promise<CodebaseInsight> {
     console.log('🧠 CODEBASE INTELLIGENCE: Starting comprehensive analysis...');
     
-    // Check cache first
+    // CACHE DISABLED - Always do fresh analysis for direct file access
     const now = Date.now();
-    if (this.cache.data && (now - this.cache.timestamp) < this.cacheExpiry) {
-      console.log('🧠 CODEBASE INTELLIGENCE: Using cached analysis');
-      return this.cache.data;
-    }
+    console.log('🧠 CODEBASE INTELLIGENCE: Cache disabled - performing fresh analysis for direct access');
     
     try {
       // Get all relevant files
@@ -107,8 +104,8 @@ export class CodebaseUnderstandingIntelligence {
         businessLogic: this.analyzeBusinessLogic(fileAnalyses)
       };
       
-      // Cache results
-      this.cache = { data: insights, timestamp: now };
+      // CACHE DISABLED - No caching for direct file access mode
+      this.cache = { data: null, timestamp: 0 };
       
       console.log('🧠 CODEBASE INTELLIGENCE: Analysis complete');
       return insights;
