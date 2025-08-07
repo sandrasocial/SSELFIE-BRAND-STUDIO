@@ -50,6 +50,7 @@ export class ClaudeApiServiceSimple {
       let conversationContinues = true;
       let iterationCount = 0;
       const maxIterations = 5; // Prevent infinite loops
+      let allToolCalls: any[] = [];
       
       // Continue conversation until task is complete
       while (conversationContinues && iterationCount < maxIterations) {
@@ -110,11 +111,13 @@ export class ClaudeApiServiceSimple {
               message: `${agentName} is using ${contentBlock.name}...`
             })}\n\n`);
             
-            toolCalls.push({
+            const toolCallData = {
               name: contentBlock.name,
               id: contentBlock.id,
               input: contentBlock.input
-            });
+            };
+            toolCalls.push(toolCallData);
+            allToolCalls.push(toolCallData);
           }
         }
         
@@ -191,9 +194,18 @@ export class ClaudeApiServiceSimple {
         }
       }
       
-      // Save conversation
+      // Save conversation with tool execution data
       await this.saveMessage(conversationId, 'user', message);
-      await this.saveMessage(conversationId, 'assistant', fullResponse);
+      
+      // Collect tool execution data for assistant message
+      const assistantToolCalls = allToolCalls.length > 0 ? allToolCalls : null;
+      const assistantToolResults = allToolCalls.length > 0 ? allToolCalls.map(tc => ({
+        tool_name: tc.name,
+        input: tc.input,
+        result: 'executed'
+      })) : null;
+      
+      await this.saveMessage(conversationId, 'assistant', fullResponse, assistantToolCalls, assistantToolResults);
       
       // Send completion
       res.write(`data: ${JSON.stringify({
@@ -257,6 +269,9 @@ export class ClaudeApiServiceSimple {
         conversationId: conversationId,
         userId: userId,
         agentName: agentName,
+        status: 'active',
+        messageCount: 0,
+        context: {},
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -271,13 +286,37 @@ export class ClaudeApiServiceSimple {
       .orderBy(claudeMessages.createdAt);
   }
 
-  private async saveMessage(conversationId: string, role: string, content: string) {
+  private async saveMessage(conversationId: string, role: string, content: string, toolCalls?: any, toolResults?: any) {
+    // Save message with tool data
     await db.insert(claudeMessages).values({
       conversationId,
       role,
       content,
+      toolCalls,
+      toolResults,
       createdAt: new Date(),
     });
+
+    // Update conversation metadata and message count
+    const [conversation] = await db
+      .select()
+      .from(claudeConversations)
+      .where(eq(claudeConversations.conversationId, conversationId))
+      .limit(1);
+
+    if (conversation) {
+      await db
+        .update(claudeConversations)
+        .set({
+          messageCount: (conversation.messageCount || 0) + 1,
+          lastMessageAt: new Date(),
+          updatedAt: new Date(),
+          status: 'active'
+        })
+        .where(eq(claudeConversations.conversationId, conversationId));
+
+      console.log(`✅ Updated conversation ${conversationId}: messageCount=${(conversation.messageCount || 0) + 1}`);
+    }
   }
 }
 
