@@ -1,4 +1,4 @@
-import { ClaudeApiServiceRebuilt } from '../services/claude-api-service-rebuilt';
+import { ClaudeApiServiceSimple } from '../services/claude-api-service-simple';
 
 export interface TaskDependency {
   taskId: string;
