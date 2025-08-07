@@ -5,7 +5,7 @@ export { direct_file_access } from './direct_file_access.ts';
 export { enhanced_search_bypass, analyzeSearchQuery } from './enhanced_search_bypass.ts';
 import fs from 'fs/promises';
 import path from 'path';
-import { agentSearchCache } from '../services/agent-search-cache';
+// Cache system completely disabled for direct filesystem access
 
 export interface SearchParams {
   query_description?: string; // FIXED: Make optional to support all search types

@@ -140,31 +140,12 @@ ${context.totalFilesSearched > 20 ? `\n...and ${context.totalFilesSearched - 20}
     reason: string;
     suggestedFiles?: any[];
   } {
-    const context = this.getSearchContext(conversationId, agentName);
-    
-    // Check for similar recent searches
-    if (this.hasSimilarSearch(context, query)) {
-      const relevantFiles = this.findRelevantCachedFiles(context, query);
-      return {
-        shouldSkip: true,
-        reason: "Similar search already performed in this conversation",
-        suggestedFiles: relevantFiles.slice(0, 10)
-      };
-    }
-    
-    // Check if agent has comprehensive file visibility
-    if (context.totalFilesSearched > 100) {
-      const relevantFiles = this.findRelevantCachedFiles(context, query);
-      if (relevantFiles.length > 0) {
-        return {
-          shouldSkip: true,
-          reason: "Comprehensive file visibility already achieved",
-          suggestedFiles: relevantFiles.slice(0, 15)
-        };
-      }
-    }
-    
-    return { shouldSkip: false, reason: "New search recommended" };
+    // CACHE SYSTEM DISABLED: Always allow agents to search actual project files
+    console.log(`🚀 SEARCH ALLOWED: Agent ${agentName} performing direct filesystem search for: "${query}"`);
+    return { 
+      shouldSkip: false, 
+      reason: "Direct filesystem search enabled - cache blocking disabled" 
+    };
   }
   
   /**
