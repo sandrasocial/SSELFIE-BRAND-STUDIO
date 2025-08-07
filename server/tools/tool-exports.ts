@@ -1,5 +1,6 @@
 // Tool exports for Claude API service
 export { str_replace_based_edit_tool } from './str_replace_based_edit_tool.js';
+export { bash } from './bash.js';
 import fs from 'fs/promises';
 import path from 'path';
 
