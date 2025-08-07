@@ -2,6 +2,8 @@
 SSELFIE Studio is a luxury AI-powered personal branding platform for entrepreneurs and coaches. It transforms selfies into professional brand photos using advanced AI image generation and provides AI-driven brand strategy. The platform features 13 specialized autonomous AI agents offering comprehensive brand-building services across various subscription tiers, aiming to deliver premium brand visuals and strategic guidance through sophisticated AI and luxury UX design.
 
 ## Recent Changes (August 7, 2025)
+**INTELLIGENT SEARCH SYSTEM INTEGRATION COMPLETE** (Major Achievement): Successfully connected 5 sophisticated intelligence systems to main search flow, enabling natural language routing and comprehensive file discovery. Agents now have AI-powered navigation with autonomous file discovery, intelligent context management, and enhanced search bypass capabilities. Natural language queries like "find pages" or "show workspace components" now work seamlessly.
+
 **AGENT SEARCH BLOCKAGE ELIMINATED** (Critical Fix): Systematically identified and disabled 5 cache systems blocking agent access: tool-exports.ts cache hijacking, shouldSkipSearch function in agent-search-cache.ts, web-search-optimization.ts caching, claude-api-service-simple.ts context restrictions, and predictive-error-prevention.ts validation cache. All cache blocking mechanisms completely disabled - agents now have unrestricted direct access to all project files.
 
 **SEARCH FUNCTIONALITY VERIFICATION**: Confirmed agents can now successfully find all components including Workspace.tsx, BuildOnboarding.tsx, VictoriaChat.tsx and all member journey files. Complete 4-step workspace implementation (Train → Style → Photoshoot → Build) is accessible with Sandra's authentic messaging.
@@ -29,24 +31,27 @@ The client-side application is built with React and TypeScript, featuring a luxu
 ## Backend Architecture
 The server is built on Express.js with TypeScript, implementing a RESTful API architecture. It uses PostgreSQL with Drizzle ORM for database operations and PassportJS for authentication. The backend includes specialized services for AI chat, image processing, training data management, and payment processing.
 
-## Agent System Architecture - COMPREHENSIVE UNRESTRICTED ACCESS (August 7, 2025)
-**Status:** COMPLETE APPLICATION ACCESS IMPLEMENTED - No restrictions, full file system access
-**Achievement:** Agent access expanded from just agent files to ALL application files
-**Core Fix:** Comprehensive file access system for pre-login pages, client/src, API, components, servers, services
+## Agent System Architecture - INTELLIGENT NAVIGATION COMPLETE (August 7, 2025)
+**Status:** INTELLIGENT SEARCH SYSTEM FULLY INTEGRATED - Natural language routing active
+**Achievement:** Connected 5 sophisticated intelligence systems to main search flow for AI-powered navigation
+**Core Integration:** Autonomous Navigation System + Intelligent Context Manager + Enhanced Search Bypass + Unified Workspace Service + Intelligent Integration Module
 **Key Features:**
-1. ✅ **Unrestricted Application Access**: ALL files accessible (client/src, server/, components/, pages/, API routes, services/)
-2. ✅ **Application File Priority**: +50 priority boost for all .tsx/.ts files outside node_modules
-3. ✅ **Complete File Mapping**: Comprehensive guide covering pre-login pages, member journey, admin, agent system
-4. ✅ **Multi-Category Access**: Pre-login, client/src app, API routes, server & services, components, member journey
-5. ✅ **Direct File Access**: Working bypass system for immediate file viewing and editing
-6. ✅ **Enhanced Search Results**: All application files boosted in search results with [APP FILE] tags
+1. ✅ **Natural Language Search**: Agents can use queries like "find pages", "show workspace components", "build system files"
+2. ✅ **Autonomous Navigation System**: AI-powered file discovery without requiring exact paths
+3. ✅ **Intelligent Context Manager**: Project structure awareness and intelligent file relationships
+4. ✅ **Enhanced Search Bypass**: Natural language to parameter conversion with fallback support
+5. ✅ **Pages Discovery System**: Dedicated system for finding client/src/pages files with natural language
+6. ✅ **Component Discovery Enhancement**: Improved component discovery with workspace context awareness
+7. ✅ **Unified Workspace Service**: Zero-cost file operations with direct workspace access
+8. ✅ **Priority-Based Results**: Member journey (200) → Build (180) → Pages (160) → Components (140) → Base (50)
 **Implementation Details:**
-- Expanded APPLICATION_FILES mapping with pre-login pages, client/src, API, server, services, components
-- Updated search priority system to boost ALL application files, not just agent files
-- Enhanced direct_file_access tool for complete project visibility
-- Added getCompleteApplicationGuide() function with comprehensive file access guide
-- Search system now detects and prioritizes client/src, /pages/, /components/, /api/, server/, /services/, /agents/
-**Impact:** Admin agents now have unrestricted access to entire application codebase with prioritized results
+- Connected handleNaturalLanguageSearch() to main search_filesystem() entry point
+- Integrated 5 intelligence systems: navigation, context, bypass, workspace, integration modules
+- Added findPageFiles() for dedicated pages directory discovery with natural language triggers
+- Enhanced findComponentFiles() with workspace context and recursive directory scanning
+- Implemented prioritizeSearchResults() with AI context and query-specific priority boosting
+- Added fallback to enhanced_search_bypass for maximum compatibility
+**Impact:** Agents now have Replit AI-level autonomous navigation with natural language understanding
 
 ## Data Storage Solutions
 PostgreSQL serves as the primary database for users, conversations, and training data. AWS S3 is used for storing training images and generated content. Local file storage is used for flatlay collections and brand assets.

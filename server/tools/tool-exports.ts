@@ -5,6 +5,8 @@ export { direct_file_access } from './direct_file_access.ts';
 export { enhanced_search_bypass, analyzeSearchQuery } from './enhanced_search_bypass.ts';
 import fs from 'fs/promises';
 import path from 'path';
+import { AutonomousNavigationSystem } from '../services/autonomous-navigation-system.js';
+import { IntelligentContextManager } from '../services/intelligent-context-manager.js';
 // Cache system completely disabled for direct filesystem access
 
 export interface SearchParams {
@@ -28,10 +30,16 @@ export interface SearchResult {
 
 export async function search_filesystem(params: SearchParams) {
   try {
-    console.log('🔍 UNRESTRICTED SEARCH SYSTEM ACTIVE:', params);
+    console.log('🔍 INTELLIGENT SEARCH SYSTEM ACTIVE:', params);
     
-    // CRITICAL FIX: Remove artificial restrictions on query_description
-    if (!params.query_description && !params.class_names && !params.function_names && !params.code) {
+    // INTELLIGENT ROUTING: Connect to sophisticated search systems
+    if (params.query_description) {
+      console.log('🧠 NATURAL LANGUAGE QUERY DETECTED - Routing to intelligent search system');
+      return await handleNaturalLanguageSearch(params);
+    }
+    
+    // Standard parameter-based search
+    if (!params.class_names && !params.function_names && !params.code) {
       throw new Error('Please provide either query_description, class_names, function_names, or code parameters');
     }
     
@@ -207,6 +215,224 @@ export async function search_filesystem(params: SearchParams) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     throw new Error(`Codebase search failed: ${errorMessage}`);
   }
+}
+
+/**
+ * INTELLIGENT NATURAL LANGUAGE SEARCH HANDLER
+ * Connects all intelligence systems for comprehensive search
+ */
+async function handleNaturalLanguageSearch(params: SearchParams) {
+  const query = params.query_description!;
+  const agentName = params.agentName || 'unknown';
+  const conversationId = params.conversationId || 'default';
+  
+  console.log(`🧠 INTELLIGENT SEARCH: Processing natural language query "${query}" for agent ${agentName}`);
+  
+  try {
+    // Initialize intelligence systems
+    const navigationSystem = AutonomousNavigationSystem.getInstance();
+    const contextManager = IntelligentContextManager.getInstance();
+    
+    // STEP 1: Use Autonomous Navigation System for intelligent file discovery
+    const navigationResult = await navigationSystem.navigateToRelevantFiles({
+      goal: query,
+      agentType: agentName,
+      currentContext: conversationId
+    });
+    
+    // STEP 2: Get intelligent context for the request
+    const workContext = await contextManager.prepareAgentWorkspace(query, agentName);
+    
+    // STEP 3: Enhanced search bypass for parameter conversion
+    const { analyzeSearchQuery } = await import('./enhanced_search_bypass.js');
+    const queryAnalysis = analyzeSearchQuery(query);
+    
+    // STEP 4: Combine all intelligence sources
+    const allRelevantFiles = [
+      ...navigationResult.discoveredFiles,
+      ...workContext.relevantFiles,
+      ...await findPageFiles(query), // Special pages discovery
+      ...await findComponentFiles(query) // Enhanced component discovery
+    ];
+    
+    // STEP 5: Deduplicate and prioritize results
+    const uniqueFiles = [...new Set(allRelevantFiles)];
+    const prioritizedResults = await prioritizeSearchResults(uniqueFiles, query, {
+      navigationHints: navigationResult.suggestedActions,
+      contextualHelp: workContext.suggestedActions,
+      queryAnalysis
+    });
+    
+    return {
+      summary: `INTELLIGENT SEARCH: Found ${prioritizedResults.length} relevant files using AI navigation and context analysis`,
+      results: prioritizedResults,
+      instructions: 'Use str_replace_based_edit_tool with the fullPath to view or modify these files',
+      accessMode: 'INTELLIGENT_NAVIGATION',
+      searchType: 'NATURAL_LANGUAGE_SEARCH',
+      intelligence: {
+        navigationSuggestions: navigationResult.suggestedActions,
+        contextualHelp: navigationResult.contextualHelp,
+        errorPrevention: navigationResult.errorPrevention,
+        workspaceContext: workContext.projectAwareness
+      }
+    };
+    
+  } catch (error) {
+    console.error('❌ INTELLIGENT SEARCH ERROR:', error);
+    // Fallback to enhanced search bypass
+    const { enhanced_search_bypass } = await import('./enhanced_search_bypass.js');
+    return await enhanced_search_bypass({
+      naturalLanguageQuery: query,
+      agentName,
+      conversationId
+    });
+  }
+}
+
+/**
+ * ENHANCED PAGE FILES DISCOVERY
+ * Specifically finds pages when agents search for pages
+ */
+async function findPageFiles(query: string): Promise<string[]> {
+  const queryLower = query.toLowerCase();
+  const pageKeywords = ['page', 'pages', 'route', 'routes', 'screen', 'view'];
+  
+  if (!pageKeywords.some(keyword => queryLower.includes(keyword))) {
+    return [];
+  }
+  
+  console.log('📄 PAGES DISCOVERY: Searching for page files');
+  
+  const pageFiles: string[] = [];
+  const pagesDir = path.join(process.cwd(), 'client/src/pages');
+  
+  try {
+    const entries = await fs.readdir(pagesDir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith('.tsx')) {
+        pageFiles.push(`client/src/pages/${entry.name}`);
+      } else if (entry.isDirectory()) {
+        const subDir = path.join(pagesDir, entry.name);
+        const subEntries = await fs.readdir(subDir, { withFileTypes: true });
+        
+        for (const subEntry of subEntries) {
+          if (subEntry.isFile() && subEntry.name.endsWith('.tsx')) {
+            pageFiles.push(`client/src/pages/${entry.name}/${subEntry.name}`);
+          }
+        }
+      }
+    }
+    
+    console.log(`📄 PAGES DISCOVERY: Found ${pageFiles.length} page files`);
+    return pageFiles;
+    
+  } catch (error) {
+    console.error('❌ PAGES DISCOVERY ERROR:', error);
+    return [];
+  }
+}
+
+/**
+ * ENHANCED COMPONENT FILES DISCOVERY
+ * Improved component discovery with workspace context
+ */
+async function findComponentFiles(query: string): Promise<string[]> {
+  const queryLower = query.toLowerCase();
+  const componentKeywords = ['component', 'components', 'workspace', 'build', 'victoria', 'maya'];
+  
+  if (!componentKeywords.some(keyword => queryLower.includes(keyword))) {
+    return [];
+  }
+  
+  console.log('🧩 COMPONENTS DISCOVERY: Searching for component files');
+  
+  const componentFiles: string[] = [];
+  const componentsDir = path.join(process.cwd(), 'client/src/components');
+  
+  try {
+    const scanDirectory = async (dirPath: string, basePath: string) => {
+      const entries = await fs.readdir(dirPath, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        const fullPath = path.join(dirPath, entry.name);
+        const relativePath = path.join(basePath, entry.name);
+        
+        if (entry.isFile() && entry.name.endsWith('.tsx')) {
+          componentFiles.push(`client/src/components/${relativePath}`);
+        } else if (entry.isDirectory()) {
+          await scanDirectory(fullPath, relativePath);
+        }
+      }
+    };
+    
+    await scanDirectory(componentsDir, '');
+    
+    console.log(`🧩 COMPONENTS DISCOVERY: Found ${componentFiles.length} component files`);
+    return componentFiles;
+    
+  } catch (error) {
+    console.error('❌ COMPONENTS DISCOVERY ERROR:', error);
+    return [];
+  }
+}
+
+/**
+ * INTELLIGENT RESULTS PRIORITIZATION
+ * Uses AI context to prioritize search results
+ */
+async function prioritizeSearchResults(files: string[], query: string, intelligence: any) {
+  const prioritizedFiles = files.map(file => {
+    let priority = 50; // Base priority
+    let reason = 'File found via intelligent search';
+    
+    // MEMBER JOURNEY PRIORITY (highest)
+    if (file.includes('Workspace.tsx') || file.includes('workspace')) {
+      priority = 200;
+      reason = 'Member workspace journey file';
+    }
+    
+    // BUILD SYSTEM PRIORITY
+    if (file.includes('build/') || file.includes('Build')) {
+      priority = 180;
+      reason = 'Build system component';
+    }
+    
+    // PAGES PRIORITY
+    if (file.includes('pages/')) {
+      priority = 160;
+      reason = 'Application page file';
+    }
+    
+    // COMPONENTS PRIORITY
+    if (file.includes('components/')) {
+      priority = 140;
+      reason = 'React component file';
+    }
+    
+    // QUERY-SPECIFIC PRIORITY BOOST
+    const queryLower = query.toLowerCase();
+    if (queryLower.includes('victoria') && file.toLowerCase().includes('victoria')) {
+      priority += 50;
+      reason += ' (Victoria-related)';
+    }
+    if (queryLower.includes('maya') && file.toLowerCase().includes('maya')) {
+      priority += 50;
+      reason += ' (Maya-related)';
+    }
+    
+    return {
+      file,
+      fullPath: file.startsWith('./') ? file : `./${file}`,
+      reason,
+      priority,
+      type: file.endsWith('.tsx') ? 'React Component' : 
+            file.endsWith('.ts') ? 'TypeScript File' : 'File'
+    };
+  });
+  
+  // Sort by priority (highest first)
+  return prioritizedFiles.sort((a, b) => b.priority - a.priority);
 }
 
 function shouldAnalyzeFile(fileName: string): boolean {
