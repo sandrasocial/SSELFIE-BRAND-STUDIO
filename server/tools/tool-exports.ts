@@ -218,309 +218,67 @@ export async function search_filesystem(params: SearchParams) {
 }
 
 /**
- * INTELLIGENT NATURAL LANGUAGE SEARCH HANDLER
- * Connects all intelligence systems for comprehensive search
+ * PURE NATURAL LANGUAGE SEARCH HANDLER
+ * Simple, unrestricted search that trusts agent intelligence
  */
 async function handleNaturalLanguageSearch(params: SearchParams) {
   const query = params.query_description!;
   const agentName = params.agentName || 'unknown';
-  const conversationId = params.conversationId || 'default';
   
-  console.log(`🧠 INTELLIGENT SEARCH: Processing natural language query "${query}" for agent ${agentName}`);
+  console.log(`🧠 UNRESTRICTED SEARCH: "${query}" for agent ${agentName}`);
   
   try {
-    // Initialize intelligence systems
+    // Let intelligence systems work naturally without forcing them into specific patterns
     const navigationSystem = AutonomousNavigationSystem.getInstance();
     const contextManager = IntelligentContextManager.getInstance();
     
-    // STEP 1: Use Autonomous Navigation System for intelligent file discovery
-    const navigationResult = await navigationSystem.navigateToRelevantFiles({
-      goal: query,
-      agentType: agentName,
-      currentContext: conversationId
-    });
+    // Get intelligent suggestions but don't force specific discovery patterns
+    const [navigationResult, workContext] = await Promise.all([
+      navigationSystem.navigateToRelevantFiles({
+        goal: query,
+        agentType: agentName
+      }),
+      contextManager.prepareAgentWorkspace(query, agentName)
+    ]);
     
-    // STEP 2: Get intelligent context for the request
-    const workContext = await contextManager.prepareAgentWorkspace(query, agentName);
-    
-    // STEP 3: Enhanced search bypass for parameter conversion
-    const { analyzeSearchQuery } = await import('./enhanced_search_bypass.js');
-    const queryAnalysis = analyzeSearchQuery(query);
-    
-    // STEP 4: Combine all intelligence sources + comprehensive backup discovery
-    const allRelevantFiles = [
+    // Combine intelligence results without restrictions
+    const allFiles = [
       ...navigationResult.discoveredFiles,
-      ...workContext.relevantFiles,
-      ...await findPageFiles(query), // Always include pages
-      ...await findComponentFiles(query), // Always include components
-      ...await findAllRelevantFiles(query) // Comprehensive backup search
+      ...workContext.relevantFiles
     ];
     
-    // STEP 5: Deduplicate and prioritize results
-    const uniqueFiles = [...new Set(allRelevantFiles)];
-    const prioritizedResults = await prioritizeSearchResults(uniqueFiles, query, {
-      navigationHints: navigationResult.suggestedActions,
-      contextualHelp: workContext.suggestedActions,
-      queryAnalysis
-    });
+    // Simple deduplication, no artificial prioritization
+    const uniqueFiles = [...new Set(allFiles)];
+    
+    // Convert to simple results format
+    const results = uniqueFiles.map(file => ({
+      file,
+      fullPath: file.startsWith('./') ? file : `./${file}`,
+      reason: 'Found via intelligent search',
+      type: file.endsWith('.tsx') ? 'React Component' : 
+            file.endsWith('.ts') ? 'TypeScript File' : 'File'
+    }));
     
     return {
-      summary: `INTELLIGENT SEARCH: Found ${prioritizedResults.length} relevant files using AI navigation and context analysis`,
-      results: prioritizedResults,
+      summary: `UNRESTRICTED SEARCH: Found ${results.length} files via intelligent navigation`,
+      results,
       instructions: 'Use str_replace_based_edit_tool with the fullPath to view or modify these files',
-      accessMode: 'INTELLIGENT_NAVIGATION',
-      searchType: 'NATURAL_LANGUAGE_SEARCH',
-      intelligence: {
-        navigationSuggestions: navigationResult.suggestedActions,
-        contextualHelp: navigationResult.contextualHelp,
-        errorPrevention: navigationResult.errorPrevention,
-        workspaceContext: workContext.projectAwareness
-      }
+      accessMode: 'UNRESTRICTED_INTELLIGENCE',
+      searchType: 'NATURAL_LANGUAGE_SEARCH'
     };
     
   } catch (error) {
-    console.error('❌ INTELLIGENT SEARCH ERROR:', error);
-    // Fallback to enhanced search bypass
+    console.error('❌ SEARCH ERROR:', error);
+    // Simple fallback to enhanced search bypass
     const { enhanced_search_bypass } = await import('./enhanced_search_bypass.js');
     return await enhanced_search_bypass({
       naturalLanguageQuery: query,
-      agentName,
-      conversationId
+      agentName
     });
   }
 }
 
-/**
- * ENHANCED PAGE FILES DISCOVERY
- * Specifically finds pages when agents search for pages
- */
-async function findPageFiles(query: string): Promise<string[]> {
-  const queryLower = query.toLowerCase();
-  
-  // COMPREHENSIVE PAGE DISCOVERY: Always include pages for complete coverage
-  // Agents need access to all pages regardless of query keywords
-  
-  console.log('📄 PAGES DISCOVERY: Searching for page files');
-  
-  const pageFiles: string[] = [];
-  const pagesDir = path.join(process.cwd(), 'client/src/pages');
-  
-  try {
-    const entries = await fs.readdir(pagesDir, { withFileTypes: true });
-    
-    for (const entry of entries) {
-      if (entry.isFile() && entry.name.endsWith('.tsx')) {
-        pageFiles.push(`client/src/pages/${entry.name}`);
-      } else if (entry.isDirectory()) {
-        const subDir = path.join(pagesDir, entry.name);
-        const subEntries = await fs.readdir(subDir, { withFileTypes: true });
-        
-        for (const subEntry of subEntries) {
-          if (subEntry.isFile() && subEntry.name.endsWith('.tsx')) {
-            pageFiles.push(`client/src/pages/${entry.name}/${subEntry.name}`);
-          }
-        }
-      }
-    }
-    
-    console.log(`📄 PAGES DISCOVERY: Found ${pageFiles.length} page files`);
-    return pageFiles;
-    
-  } catch (error) {
-    console.error('❌ PAGES DISCOVERY ERROR:', error);
-    return [];
-  }
-}
-
-/**
- * ENHANCED COMPONENT FILES DISCOVERY
- * Improved component discovery with workspace context
- */
-async function findComponentFiles(query: string): Promise<string[]> {
-  const queryLower = query.toLowerCase();
-  
-  // EXPANDED DISCOVERY: Always scan components for comprehensive results
-  // Remove restrictive keyword filtering that was blocking component discovery
-  
-  console.log('🧩 COMPONENTS DISCOVERY: Searching for component files');
-  
-  const componentFiles: string[] = [];
-  const componentsDir = path.join(process.cwd(), 'client/src/components');
-  
-  try {
-    const scanDirectory = async (dirPath: string, basePath: string) => {
-      const entries = await fs.readdir(dirPath, { withFileTypes: true });
-      
-      for (const entry of entries) {
-        const fullPath = path.join(dirPath, entry.name);
-        const relativePath = path.join(basePath, entry.name);
-        
-        if (entry.isFile() && entry.name.endsWith('.tsx')) {
-          componentFiles.push(`client/src/components/${relativePath}`);
-        } else if (entry.isDirectory()) {
-          await scanDirectory(fullPath, relativePath);
-        }
-      }
-    };
-    
-    await scanDirectory(componentsDir, '');
-    
-    console.log(`🧩 COMPONENTS DISCOVERY: Found ${componentFiles.length} component files`);
-    return componentFiles;
-    
-  } catch (error) {
-    console.error('❌ COMPONENTS DISCOVERY ERROR:', error);
-    return [];
-  }
-}
-
-/**
- * INTELLIGENT RESULTS PRIORITIZATION
- * Uses AI context to prioritize search results
- */
-async function prioritizeSearchResults(files: string[], query: string, intelligence: any) {
-  const prioritizedFiles = files.map(file => {
-    let priority = 50; // Base priority
-    let reason = 'File found via intelligent search';
-    
-    // MEMBER JOURNEY PRIORITY (highest)
-    if (file.includes('Workspace.tsx') || file.includes('workspace')) {
-      priority = 200;
-      reason = 'Member workspace journey file';
-    }
-    
-    // BUILD SYSTEM PRIORITY (Enhanced Detection)
-    if (file.includes('build/') || file.includes('Build') || 
-        file.toLowerCase().includes('build') || file.includes('Visual') ||
-        file.includes('Onboarding') || file.includes('Studio')) {
-      priority = 180;
-      reason = 'Build system component';
-    }
-    
-    // PAGES PRIORITY
-    if (file.includes('pages/')) {
-      priority = 160;
-      reason = 'Application page file';
-    }
-    
-    // COMPONENTS PRIORITY
-    if (file.includes('components/')) {
-      priority = 140;
-      reason = 'React component file';
-    }
-    
-    // QUERY-SPECIFIC PRIORITY BOOST
-    const queryLower = query.toLowerCase();
-    if (queryLower.includes('victoria') && file.toLowerCase().includes('victoria')) {
-      priority += 50;
-      reason += ' (Victoria-related)';
-    }
-    if (queryLower.includes('maya') && file.toLowerCase().includes('maya')) {
-      priority += 50;
-      reason += ' (Maya-related)';
-    }
-    
-    return {
-      file,
-      fullPath: file.startsWith('./') ? file : `./${file}`,
-      reason,
-      priority,
-      type: file.endsWith('.tsx') ? 'React Component' : 
-            file.endsWith('.ts') ? 'TypeScript File' : 'File'
-    };
-  });
-  
-  // Sort by priority (highest first)
-  return prioritizedFiles.sort((a, b) => b.priority - a.priority);
-}
-
-/**
- * COMPREHENSIVE BACKUP FILE DISCOVERY
- * Ensures agents never miss key files due to intelligence system failures
- */
-async function findAllRelevantFiles(query: string): Promise<string[]> {
-  console.log('🔍 COMPREHENSIVE BACKUP: Scanning all relevant directories');
-  
-  const relevantFiles: string[] = [];
-  const queryLower = query.toLowerCase();
-  
-  // Key directories to always scan
-  const keyDirectories = [
-    'client/src/components',
-    'client/src/pages',
-    'client/src/hooks',
-    'server/services',
-    'server/routes',
-    'shared'
-  ];
-  
-  try {
-    for (const dir of keyDirectories) {
-      const dirPath = path.join(process.cwd(), dir);
-      
-      try {
-        const scanDeep = async (currentPath: string, relativePath: string, depth = 0) => {
-          if (depth > 3) return; // Prevent infinite recursion
-          
-          const entries = await fs.readdir(currentPath, { withFileTypes: true });
-          
-          for (const entry of entries) {
-            const fullPath = path.join(currentPath, entry.name);
-            const relativeFilePath = path.join(relativePath, entry.name);
-            
-            if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts'))) {
-              // Include file if it matches query or is a key component
-              if (isRelevantToQuery(entry.name, relativeFilePath, queryLower)) {
-                relevantFiles.push(relativeFilePath);
-              }
-            } else if (entry.isDirectory() && !entry.name.startsWith('.') && 
-                      !['node_modules', 'dist', 'build'].includes(entry.name)) {
-              await scanDeep(fullPath, relativeFilePath, depth + 1);
-            }
-          }
-        };
-        
-        await scanDeep(dirPath, dir);
-        
-      } catch (dirError) {
-        // Skip directories that don't exist or can't be accessed
-      }
-    }
-    
-    console.log(`🔍 COMPREHENSIVE BACKUP: Found ${relevantFiles.length} additional relevant files`);
-    return relevantFiles;
-    
-  } catch (error) {
-    console.error('❌ COMPREHENSIVE BACKUP ERROR:', error);
-    return [];
-  }
-}
-
-/**
- * INTELLIGENT RELEVANCE DETECTION
- * Determines if a file is relevant to the search query
- */
-function isRelevantToQuery(fileName: string, filePath: string, queryLower: string): boolean {
-  const fileNameLower = fileName.toLowerCase();
-  const filePathLower = filePath.toLowerCase();
-  
-  // Always include key system files
-  const keyFiles = [
-    'workspace', 'build', 'victoria', 'maya', 'onboarding', 
-    'visual', 'studio', 'editor', 'chat', 'builder'
-  ];
-  
-  // Check if file matches key patterns
-  if (keyFiles.some(key => fileNameLower.includes(key) || filePathLower.includes(key))) {
-    return true;
-  }
-  
-  // Check if file matches query terms
-  const queryTerms = queryLower.split(/\s+/);
-  return queryTerms.some(term => 
-    term.length > 2 && (fileNameLower.includes(term) || filePathLower.includes(term))
-  );
-}
+// All hardcoded discovery functions removed - let intelligence systems work naturally
 
 function shouldAnalyzeFile(fileName: string): boolean {
   const allowedExtensions = [
