@@ -162,21 +162,52 @@ const createClaudeConversation = async (agentName: string) => {
   };
 };
 
-const loadConversationHistory = async (conversationId: string) => {
-  // Simplified: New agent sessions start fresh
-  // Enterprise memory system handles context in backend
-  return {
-    success: true,
-    messages: [],
-    conversationId
-  };
+const loadConversationHistory = async (agentName: string) => {
+  try {
+    console.log(`📜 Loading conversation history for: ${agentName}`);
+    
+    const response = await fetch(`/api/consulting-agents/admin/agents/conversation-history/${agentName}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'sandra-admin-2025'
+      },
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to load conversation history: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    console.log(`📜 Loaded ${data.messages?.length || 0} messages from conversation history`);
+    
+    return {
+      success: true,
+      messages: data.messages || [],
+      conversations: data.conversations || [],
+      currentConversationId: data.currentConversationId,
+      agentName
+    };
+  } catch (error) {
+    console.error('📜 Error loading conversation history:', error);
+    return {
+      success: false,
+      messages: [],
+      conversations: [],
+      currentConversationId: null,
+      agentName
+    };
+  }
 };
 
 const listAgentConversations = async (agentName: string, limit = 10) => {
-  // Simplified: Each session starts fresh with enterprise memory
+  // Use same endpoint as loadConversationHistory for consistency
+  const result = await loadConversationHistory(agentName);
   return {
-    success: true,
-    conversations: [],
+    success: result.success,
+    conversations: result.conversations || [],
     agentName
   };
 };
@@ -426,6 +457,14 @@ export default function AdminConsultingAgents() {
       const controller = new AbortController();
       setAbortController(controller);
       
+      // Use existing conversation ID or create new one if none exists
+      const finalConversationId = conversationId || `admin_${selectedAgent.id}_${Date.now()}`;
+      
+      // Update conversation ID if it was newly created
+      if (!conversationId) {
+        setConversationId(finalConversationId);
+      }
+      
       // Start Server-Sent Events stream - FIXED: Using optimized endpoint with abort control
       const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
         method: 'POST',
@@ -438,7 +477,7 @@ export default function AdminConsultingAgents() {
         body: JSON.stringify({
           agentId: selectedAgent.id,
           message: userMessage.content,
-          conversationId: conversationId || `admin_${selectedAgent.id}_${Date.now()}`,
+          conversationId: finalConversationId,
           fileEditMode: fileEditMode,
           adminToken: 'sandra-admin-2025'
         }),
@@ -725,7 +764,29 @@ export default function AdminConsultingAgents() {
               {consultingAgents.map((agent) => (
                 <div
                   key={agent.id}
-                  onClick={() => setSelectedAgent(agent)}
+                  onClick={async () => {
+                    setSelectedAgent(agent);
+                    
+                    // Load conversation history when agent is selected
+                    try {
+                      console.log(`📜 Loading conversation history for ${agent.name}`);
+                      const historyResult = await loadConversationHistory(agent.id);
+                      
+                      if (historyResult.success && historyResult.messages.length > 0) {
+                        console.log(`📜 Loaded ${historyResult.messages.length} previous messages`);
+                        setMessages(historyResult.messages);
+                        setConversationId(historyResult.currentConversationId);
+                      } else {
+                        console.log(`📜 No previous conversation found, starting fresh`);
+                        setMessages([]);
+                        setConversationId(null);
+                      }
+                    } catch (error) {
+                      console.error('Failed to load conversation history:', error);
+                      setMessages([]);
+                      setConversationId(null);
+                    }
+                  }}
                   className={`relative group cursor-pointer transition-all duration-300 aspect-square overflow-hidden ${
                     selectedAgent?.id === agent.id 
                       ? 'ring-2 ring-black' 
