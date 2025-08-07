@@ -53,12 +53,8 @@ export class PredictiveErrorPrevention {
   async validateOperation(validation: OperationValidation): Promise<ValidationResult> {
     console.log('🛡️ ERROR PREVENTION: Validating operation');
 
-    const cacheKey = this.generateCacheKey(validation);
-    const cached = this.validationCache.get(cacheKey);
-    if (cached) {
-      console.log('📋 ERROR PREVENTION: Using cached validation');
-      return cached;
-    }
+    // VALIDATION CACHE DISABLED: Always perform fresh validation for agents
+    console.log('🚀 ERROR PREVENTION: Cache disabled - performing fresh validation');
 
     const predictions: ErrorPrediction[] = [];
     let correctedOperation = { ...validation.operation };
@@ -100,8 +96,7 @@ export class PredictiveErrorPrevention {
       suggestions: [...new Set(suggestions)]
     };
 
-    // Cache result
-    this.validationCache.set(cacheKey, result);
+    // CACHE DISABLED: No caching for agent operations
 
     return result;
   }

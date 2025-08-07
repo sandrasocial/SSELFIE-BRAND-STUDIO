@@ -54,12 +54,8 @@ export class ClaudeApiServiceSimple {
         return;
       }
       
-      // Check agent's recent context to provide context awareness
-      const { agentSearchCache } = await import('./agent-search-cache');
-      const searchContext = agentSearchCache.getSearchContext(conversationId, agentName);
-      if (searchContext && searchContext.searchHistory.length > 0) {
-        console.log(`🧠 ${agentName}: Found ${searchContext.searchHistory.length} recent searches, ${searchContext.totalFilesSearched} files discovered`);
-      }
+      // CACHE SYSTEM DISABLED: No search context restrictions for agents
+      console.log(`🚀 ${agentName}: Cache context disabled - direct filesystem access enabled`);
       
       // Prepare Claude API request with validation
       const validMessages = messages

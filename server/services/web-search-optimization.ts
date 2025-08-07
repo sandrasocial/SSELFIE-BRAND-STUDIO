@@ -70,14 +70,8 @@ export class WebSearchOptimizationService {
 
     const queryKey = this.generateQueryKey(query, category);
 
-    // Check cache first (unless real-time requested)
-    if (useCache && !realTime) {
-      const cachedResult = this.searchCache.get(queryKey);
-      if (cachedResult && this.isCacheValid(cachedResult.timestamp)) {
-        console.log('🎯 WEB SEARCH: Cache hit for query:', query);
-        return cachedResult;
-      }
-    }
+    // CACHE DISABLED FOR AGENTS: Always perform live search for agent requests
+    console.log('🚀 WEB SEARCH: Cache disabled - performing direct search for:', query);
 
     // Perform live search
     const searchResult = await this.performLiveSearch(query, category, maxResults);
