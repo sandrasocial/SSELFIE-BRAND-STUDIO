@@ -2,6 +2,26 @@
 import fs from 'fs/promises';
 import path from 'path';
 
+// BYPASS SYSTEM: Enhanced pattern matching for agent file access
+function checkPatternMatch(filePath: string, pattern: string): boolean {
+  // Convert glob pattern to regex - CORRECTED ORDER for proper wildcard matching
+  let regex = pattern.toLowerCase();
+  
+  // Replace in correct order to avoid conflicts
+  regex = regex.replace(/\*\*/g, '@@DOUBLESTAR@@');  // Temporarily replace **
+  regex = regex.replace(/\*/g, '[^/]*');             // Replace single * first
+  regex = regex.replace(/@@DOUBLESTAR@@/g, '.*');     // Replace ** with .*
+  regex = regex.replace(/\./g, '\\.');               // Escape dots last
+  
+  const regexPattern = new RegExp(`^${regex}$`);
+  const testPath = filePath.toLowerCase();
+  
+  // DEBUG: Log pattern matching for troubleshooting
+  console.log(`🔍 PATTERN MATCH: "${testPath}" vs pattern "${pattern}" (regex: "${regex}") = ${regexPattern.test(testPath)}`);
+  
+  return regexPattern.test(testPath);
+}
+
 export interface DirectFileAccessParams {
   action: 'view' | 'list' | 'exists' | 'search_path';
   path: string;
@@ -220,9 +240,11 @@ async function searchByPath(searchPath: string, recursive: boolean, maxDepth: nu
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // Check if this path matches our search
-          if (relativePath.toLowerCase().includes(searchPath.toLowerCase()) ||
-              entry.name.toLowerCase().includes(searchPath.toLowerCase())) {
+          // ENHANCED PATTERN MATCHING: Support glob patterns and wildcards
+          const matchesPattern = checkPatternMatch(relativePath, searchPath) ||
+                                checkPatternMatch(entry.name, searchPath);
+          
+          if (matchesPattern) {
             
             const stats = await fs.stat(fullPath);
             results.push({
@@ -231,7 +253,7 @@ async function searchByPath(searchPath: string, recursive: boolean, maxDepth: nu
               type: entry.isDirectory() ? 'directory' : 'file',
               size: entry.isFile() ? stats.size : undefined,
               modified: stats.mtime.toISOString(),
-              matchReason: relativePath.toLowerCase().includes(searchPath.toLowerCase()) ? 'path' : 'filename'
+              matchReason: checkPatternMatch(relativePath, searchPath) ? 'path' : 'filename'
             });
           }
           

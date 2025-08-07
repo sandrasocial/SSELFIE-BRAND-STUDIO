@@ -23,10 +23,10 @@ export interface SearchResult {
 
 export async function search_filesystem(params: SearchParams) {
   try {
-    console.log('🔍 INTELLIGENT SEARCH: Simplified for agent understanding:', params);
+    console.log('🔍 BYPASS SEARCH: Full unrestricted agent access:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 20; // FOCUSED SEARCH: Return most relevant files only
+    const maxFiles = 50; // BYPASS SYSTEM: Increased file limit for comprehensive access
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
