@@ -357,7 +357,7 @@ export default function AdminConsultingAgents() {
     }
   ];
 
-  // Auto-select agent from URL parameter and load conversation history
+  // Auto-select agent from URL parameter or localStorage and load conversation history
   useEffect(() => {
     const urlParams = new URLSearchParams(location.split('?')[1] || '');
     const agentParam = urlParams.get('agent');
@@ -366,39 +366,41 @@ export default function AdminConsultingAgents() {
       const targetAgent = consultingAgents.find(agent => agent.id === agentParam);
       if (targetAgent) {
         setSelectedAgent(targetAgent);
+        localStorage.setItem('selectedAgentId', targetAgent.id);
+      }
+    } else if (!selectedAgent && !agentParam) {
+      // Restore selected agent from localStorage on page refresh
+      const savedAgentId = localStorage.getItem('selectedAgentId');
+      if (savedAgentId) {
+        const targetAgent = consultingAgents.find(agent => agent.id === savedAgentId);
+        if (targetAgent) {
+          console.log(`📜 RESTORING: Selected agent ${targetAgent.name} from localStorage`);
+          setSelectedAgent(targetAgent);
+        }
       }
     }
   }, [location, selectedAgent, consultingAgents]);
 
-  // Simple conversation loading - no heavy operations
+  // Unified conversation loading - uses same endpoint as manual selection
   useEffect(() => {
     if (!selectedAgent) return;
     
     const loadHistory = async () => {
       try {
-        const response = await fetch(`/api/admin/agents/conversation-history/${selectedAgent.id}`, {
-          credentials: 'include'
-        });
+        console.log(`📜 PAGE REFRESH: Loading conversation history for ${selectedAgent.name}`);
+        const historyResult = await loadConversationHistory(selectedAgent.id);
         
-        const result = await response.json();
-        
-        if (result.success && result.messages) {
-          const formattedMessages: ChatMessage[] = result.messages.map((msg: any, index: number) => ({
-            id: `${index}`,
-            type: msg.role === 'user' ? 'user' : 'agent',
-            content: msg.content,
-            timestamp: msg.timestamp,
-            agentName: selectedAgent.name,
-            streaming: false
-          }));
-          
-          setMessages(formattedMessages);
-          setConversationId(result.conversationId);
+        if (historyResult.success && historyResult.messages.length > 0) {
+          console.log(`📜 PAGE REFRESH: Loaded ${historyResult.messages.length} previous messages`);
+          setMessages(historyResult.messages);
+          setConversationId(historyResult.currentConversationId);
         } else {
+          console.log(`📜 PAGE REFRESH: No previous conversation found, starting fresh`);
           setMessages([]);
           setConversationId(null);
         }
       } catch (error) {
+        console.error('PAGE REFRESH: Failed to load conversation history:', error);
         setMessages([]);
         setConversationId(null);
       }
@@ -767,23 +769,25 @@ export default function AdminConsultingAgents() {
                   key={agent.id}
                   onClick={async () => {
                     setSelectedAgent(agent);
+                    // Save selected agent to localStorage for persistence
+                    localStorage.setItem('selectedAgentId', agent.id);
                     
                     // Load conversation history when agent is selected
                     try {
-                      console.log(`📜 Loading conversation history for ${agent.name}`);
+                      console.log(`📜 MANUAL SELECTION: Loading conversation history for ${agent.name}`);
                       const historyResult = await loadConversationHistory(agent.id);
                       
                       if (historyResult.success && historyResult.messages.length > 0) {
-                        console.log(`📜 Loaded ${historyResult.messages.length} previous messages`);
+                        console.log(`📜 MANUAL SELECTION: Loaded ${historyResult.messages.length} previous messages`);
                         setMessages(historyResult.messages);
                         setConversationId(historyResult.currentConversationId);
                       } else {
-                        console.log(`📜 No previous conversation found, starting fresh`);
+                        console.log(`📜 MANUAL SELECTION: No previous conversation found, starting fresh`);
                         setMessages([]);
                         setConversationId(null);
                       }
                     } catch (error) {
-                      console.error('Failed to load conversation history:', error);
+                      console.error('MANUAL SELECTION: Failed to load conversation history:', error);
                       setMessages([]);
                       setConversationId(null);
                     }
