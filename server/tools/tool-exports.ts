@@ -100,10 +100,19 @@ export async function search_filesystem(params: SearchParams) {
     // PRIORITY-BASED SORTING: Sort results by priority (highest first)
     const sortedResults = results.sort((a, b) => (b.priority || 0) - (a.priority || 0));
     
-    // FILTER OUT LOWEST PRIORITY DOCS if we have enough app files
-    const highPriorityResults = sortedResults.filter(r => (r.priority || 0) >= 15);
-    const useFilteredResults = highPriorityResults.length >= 20; // If we have enough app files, filter docs
-    const finalSortedResults = useFilteredResults ? highPriorityResults : sortedResults;
+    // INTELLIGENT FILTERING: Only filter analysis docs, keep ALL application files
+    const analysisDocPattern = /AGENT|ADMIN|ANALYSIS|REPORT|STATUS|FIX|SUCCESS|COMPLETE|AUDIT|SYSTEM|INTEGRATION|CRITICAL/;
+    const isAnalysisDoc = (result: any) => 
+      result.fileName?.endsWith('.md') && analysisDocPattern.test(result.fileName);
+    
+    // Filter analysis docs ONLY when we have 15+ non-analysis results
+    const nonAnalysisResults = sortedResults.filter(r => !isAnalysisDoc(r));
+    const analysisResults = sortedResults.filter(r => isAnalysisDoc(r));
+    
+    // If we have plenty of application files, deprioritize (but don't eliminate) analysis docs
+    const finalSortedResults = nonAnalysisResults.length >= 15 
+      ? [...nonAnalysisResults.slice(0, 20), ...analysisResults.slice(0, 5)]
+      : sortedResults;
     
     // RELATED FILE DISCOVERY: Add related files for top results  
     const enhancedResults = finalSortedResults.slice(0, Math.min(15, finalSortedResults.length)).map(result => {
@@ -313,8 +322,7 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
       relevant: true,
       relevantContent: content.substring(0, 3000), // Maximum content for member files
       reason: `CORE MEMBER JOURNEY: ${fileName} (Path: ${fullPath})`,
-      priority: 200, // ABSOLUTE HIGHEST PRIORITY - Always show member journey files first
-      filePath: fullPath // Explicit path for agent reference
+      priority: 200 // ABSOLUTE HIGHEST PRIORITY - Always show member journey files first
     };
   }
   

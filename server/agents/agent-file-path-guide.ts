@@ -113,10 +113,11 @@ export const MEMBER_JOURNEY_FILE_MAP: FilePathReference[] = [
 
 export class AgentFilePathGuide {
   /**
-   * Get correct file path for a member journey step
+   * Get correct file path for common file references (not just member journey)
    */
-  static getMemberJourneyPath(step: string): string | null {
-    const stepMap: Record<string, string> = {
+  static getCommonPath(reference: string): string | null {
+    const pathMap: Record<string, string> = {
+      // Member journey files
       'workspace': 'client/src/pages/workspace.tsx',
       'train': 'client/src/pages/simple-training.tsx', 
       'training': 'client/src/pages/simple-training.tsx',
@@ -128,10 +129,22 @@ export class AgentFilePathGuide {
       'flatlay': 'client/src/pages/flatlay-library.tsx',
       'landing': 'client/src/pages/editorial-landing.tsx',
       'pricing': 'client/src/pages/pricing.tsx',
-      'checkout': 'client/src/pages/checkout.tsx'
+      'checkout': 'client/src/pages/checkout.tsx',
+      
+      // Admin files
+      'admin': 'client/src/pages/admin/',
+      'admin-dashboard': 'client/src/pages/admin-dashboard.tsx',
+      'admin-consulting': 'client/src/pages/admin-consulting-agents.tsx',
+      'admin-business': 'client/src/pages/admin-business-overview.tsx',
+      
+      // Agent system files
+      'agents': 'server/agents/',
+      'agent-system': 'server/agents/',
+      'tools': 'server/tools/',
+      'routes': 'server/routes/'
     };
     
-    return stepMap[step.toLowerCase()] || null;
+    return pathMap[reference.toLowerCase()] || null;
   }
   
   /**
@@ -158,7 +171,31 @@ export class AgentFilePathGuide {
   }
   
   /**
-   * Get all member journey files for comprehensive access
+   * Get all important files (not just member journey) for comprehensive access
+   */
+  static getAllImportantFiles(): string[] {
+    const memberFiles = MEMBER_JOURNEY_FILE_MAP
+      .flatMap(category => category.files)
+      .filter(file => file.priority === 'critical' || file.priority === 'high') 
+      .map(file => file.path);
+      
+    const adminFiles = [
+      'client/src/pages/admin-dashboard.tsx',
+      'client/src/pages/admin-consulting-agents.tsx',
+      'client/src/pages/admin-business-overview.tsx'
+    ];
+    
+    const agentFiles = [
+      'server/agents/',
+      'server/tools/',
+      'server/routes/'
+    ];
+    
+    return [...memberFiles, ...adminFiles, ...agentFiles];
+  }
+  
+  /**
+   * Get only member journey files (for backwards compatibility)
    */
   static getAllMemberJourneyFiles(): string[] {
     return MEMBER_JOURNEY_FILE_MAP
