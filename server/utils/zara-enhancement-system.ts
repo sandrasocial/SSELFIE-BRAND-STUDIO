@@ -211,7 +211,7 @@ class ZaraEnhancementSystem {
       const importMappings = new Map([
         ['ContentDetector', "import ContentDetector from './content-detection';"],
         ['claudeApiService', "import { claudeApiService } from '../services/claude-api-service';"],
-        ['semanticSearchSystem', "import { semanticSearchSystem } from './semantic-search-system';"],
+        ['search_filesystem', "import { search_filesystem } from '../tools/search_filesystem';"],
         ['elenaDelegationSystem', "import { elenaDelegationSystem } from './elena-delegation-system';"]
       ]);
       
