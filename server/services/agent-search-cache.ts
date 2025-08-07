@@ -133,17 +133,18 @@ ${context.totalFilesSearched > 20 ? `\n...and ${context.totalFilesSearched - 20}
   }
   
   /**
-   * COMPLETELY DISABLED: Always allow unrestricted agent search
+   * Suggest whether agent should search or use cached results
    */
   shouldSkipSearch(conversationId: string, agentName: string, query: string): {
     shouldSkip: boolean;
     reason: string;
     suggestedFiles?: any[];
   } {
-    // CACHE BLOCKING ELIMINATED: No search restrictions whatsoever
+    // CACHE SYSTEM DISABLED: Always allow agents to search actual project files
+    console.log(`🚀 SEARCH ALLOWED: Agent ${agentName} performing direct filesystem search for: "${query}"`);
     return { 
       shouldSkip: false, 
-      reason: "UNRESTRICTED_ACCESS" 
+      reason: "Direct filesystem search enabled - cache blocking disabled" 
     };
   }
   

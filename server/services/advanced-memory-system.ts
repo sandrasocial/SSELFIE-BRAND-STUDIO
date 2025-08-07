@@ -46,7 +46,8 @@ export interface MemoryOptimization {
 
 export class AdvancedMemorySystem {
   private static instance: AdvancedMemorySystem;
-  // CACHE BYPASS: No memory caching to prevent conflicts with direct agent access
+  private memoryCache = new Map<string, AgentMemoryProfile>();
+  private learningBuffer = new Map<string, LearningPattern[]>();
   private optimizationQueue: MemoryOptimization[] = [];
 
   private constructor() {}
@@ -65,7 +66,10 @@ export class AdvancedMemorySystem {
     try {
       const cacheKey = `${agentName}-${userId}`;
       
-      // DIRECT DATABASE ACCESS: Skip cache for fresh data
+      // Check cache first
+      if (this.memoryCache.has(cacheKey)) {
+        return this.memoryCache.get(cacheKey)!;
+      }
       
       // Load from database first
       const existingLearning = await db
@@ -98,7 +102,8 @@ export class AdvancedMemorySystem {
         lastOptimization: new Date()
       };
       
-      // Direct database access - no caching
+      // Cache and return
+      this.memoryCache.set(cacheKey, profile);
       console.log(`🧠 MEMORY LOADED: ${agentName} has ${learningPatterns.length} patterns, intelligence level ${profile.intelligenceLevel}`);
       return profile;
       
@@ -113,8 +118,14 @@ export class AdvancedMemorySystem {
    */
   async updateAgentMemoryProfile(agentName: string, userId: string, profile: Partial<AgentMemoryProfile>): Promise<void> {
     try {
-      // Direct database update - no cache management
-      console.log(`🧠 MEMORY UPDATED: ${agentName} profile enhanced`);
+      const cacheKey = `${agentName}-${userId}`;
+      const existing = this.memoryCache.get(cacheKey);
+      
+      if (existing) {
+        const updated = { ...existing, ...profile };
+        this.memoryCache.set(cacheKey, updated);
+        console.log(`🧠 MEMORY UPDATED: ${agentName} profile enhanced`);
+      }
     } catch (error) {
       console.error('Failed to update agent memory profile:', error);
     }
@@ -161,7 +172,9 @@ export class AdvancedMemorySystem {
         });
       }
 
-      // Direct database persistence - no caching
+      // Cache the profile
+      const cacheKey = `${agentName}-${userId}`;
+      this.memoryCache.set(cacheKey, profile);
       
       console.log(`🧠 INITIALIZED: ${agentName} with intelligence level ${profile.intelligenceLevel} and specialization ${config.specialization}`);
       return profile;
@@ -189,7 +202,14 @@ export class AdvancedMemorySystem {
         lastSeen: new Date()
       });
 
-      // Direct database persistence - no cache updates
+      // Update cache
+      const cacheKey = `${agentName}-${userId}`;
+      const profile = this.memoryCache.get(cacheKey);
+      if (profile) {
+        profile.learningPatterns.push(pattern);
+        profile.intelligenceLevel = Math.min(10, profile.intelligenceLevel + 0.1);
+        this.memoryCache.set(cacheKey, profile);
+      }
 
       console.log(`🧠 LEARNING: ${agentName} recorded new pattern: ${pattern.category}`);
     } catch (error) {

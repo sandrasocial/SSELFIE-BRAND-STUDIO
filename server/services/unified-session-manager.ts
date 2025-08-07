@@ -51,8 +51,12 @@ export class UnifiedSessionManager {
     console.log(`🔄 RESTORING SESSION: User ${userId}, Replit session: ${replitSessionId ? 'active' : 'none'}`);
 
     try {
-      // CACHE BYPASS: Skip session cache for direct access
+      // Check cache first
       const cacheKey = `${userId}-${replitSessionId || 'no-replit'}`;
+      if (this.sessionCache.has(cacheKey)) {
+        console.log('✅ SESSION CACHE: Using cached session data');
+        return this.sessionCache.get(cacheKey)!;
+      }
 
       // Validate Replit session
       const replitSessionValid = await this.validateReplitSession(replitSessionId);
@@ -73,7 +77,8 @@ export class UnifiedSessionManager {
         lastActivity
       };
 
-      // CACHE BYPASS: Skip storing session data to prevent stale access permissions
+      // Cache the session data
+      this.sessionCache.set(cacheKey, sessionData);
 
       console.log(`✅ SESSION RESTORED: ${agentContexts.length} agent contexts, Replit: ${replitSessionValid ? 'valid' : 'invalid'}`);
       return sessionData;

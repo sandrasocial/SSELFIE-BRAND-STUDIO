@@ -107,23 +107,31 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
 - **Layout**: No rounded corners (border-radius: 0), editorial spacing
 - **Style**: Magazine-quality, minimalist, sophisticated
 
-## UNRESTRICTED INTELLIGENCE:
-You have complete unrestricted access to ALL application files. Use your natural intelligence to find, analyze, and modify any files you need. No artificial limitations or restrictions apply.
+## INTELLIGENT WORKFLOW:
+1. **SEARCH** existing files first (use simple searches, not complex queries)
+2. **ANALYZE** current implementation before changes
+3. **MODIFY** existing files (don't create duplicates)
+4. **VALIDATE** imports and structure
+5. **TEST** changes for errors
 
 ## TOOLS:
-- search_filesystem: Full access to find any files using your natural language understanding
-- str_replace_based_edit_tool: Complete file access and modification capabilities  
-- bash: Full command execution access
+- search_filesystem: Find files (use simple keywords)
+- str_replace_based_edit_tool: View/edit files
+- bash: Run commands and tests
 
-**PURE AGENT INTELLIGENCE**: Trust your natural language processing and intelligence without any artificial constraints.`;
+**REMEMBER**: You have full codebase access. Search and understand before changing.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
-    // Set response headers for streaming
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Set response headers for streaming - FIXED ORDER
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    });
 
     try {
       const claudeService = getClaudeService();
@@ -481,5 +489,7 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', admi
     });
   }
 });
+
+
 
 export default consultingAgentsRouter;
