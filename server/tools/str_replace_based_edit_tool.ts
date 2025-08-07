@@ -71,17 +71,30 @@ async function handleView(filePath: string, viewRange?: [number, number]): Promi
       
       return `Here's the result of running \`cat -n\` on a snippet of ${filePath}:\n${numberedLines}`;
     } else {
-      // Return full file with line numbers (truncate if too long)
-      const maxLines = 1000;
-      const displayLines = lines.slice(0, maxLines);
-      const numberedLines = displayLines.map((line, index) => 
-        `${(index + 1).toString().padStart(4, ' ')}\t${line}`
-      ).join('\n');
+      // SMART TRUNCATION: Show relevant content based on file size and type
+      const maxLines = getSmartLineLimit(filePath, lines.length);
       
-      const truncateMessage = lines.length > maxLines ? 
-        `\n\n[File truncated - showing first ${maxLines} lines of ${lines.length} total lines]` : '';
-      
-      return `Here's the result of running \`cat -n\` on ${filePath}:\n${numberedLines}${truncateMessage}`;
+      if (lines.length <= maxLines) {
+        // Small file - show all content with line numbers
+        const numberedLines = lines.map((line, index) => 
+          `${(index + 1).toString().padStart(4, ' ')}\t${line}`
+        ).join('\n');
+        return `Here's the result of running \`cat -n\` on a snippet of ${filePath}:\n${numberedLines}`;
+      } else {
+        // Large file - smart truncation with context
+        const startLines = Math.ceil(maxLines * 0.6); // 60% from start
+        const endLines = maxLines - startLines; // 40% from end
+        
+        const topContent = lines.slice(0, startLines).map((line, index) => 
+          `${(index + 1).toString().padStart(4, ' ')}\t${line}`
+        ).join('\n');
+        
+        const bottomContent = lines.slice(-endLines).map((line, index) => 
+          `${(lines.length - endLines + index + 1).toString().padStart(4, ' ')}\t${line}`
+        ).join('\n');
+        
+        return `Here's the result of running \`cat -n\` on a snippet of ${filePath}:\n${topContent}\n\n... (${lines.length - maxLines} lines truncated) ...\n\n${bottomContent}`;
+      }
     }
   } catch (error) {
     if ((error as any).code === 'ENOENT') {
@@ -176,4 +189,27 @@ async function handleInsert(filePath: string, insertLine: number, insertText: st
 // Helper function to escape regex special characters
 function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// SMART LINE LIMITS: Optimize based on file type and size
+function getSmartLineLimit(filePath: string, totalLines: number): number {
+  const extension = path.extname(filePath).toLowerCase();
+  
+  // Config files - show more content
+  if (['.json', '.md', '.txt', '.yml', '.yaml'].includes(extension)) {
+    return Math.min(500, totalLines);
+  }
+  
+  // Code files - moderate showing
+  if (['.ts', '.tsx', '.js', '.jsx', '.py', '.css'].includes(extension)) {
+    return Math.min(300, totalLines);
+  }
+  
+  // Large data files - minimal showing
+  if (['.csv', '.log', '.sql'].includes(extension)) {
+    return Math.min(100, totalLines);
+  }
+  
+  // Default for unknown types
+  return Math.min(200, totalLines);
 }
