@@ -332,7 +332,9 @@ export class AutonomousNavigationSystem {
     // Limit storage to prevent memory bloat
     if (this.successPatterns.size > 100) {
       const oldestKey = this.successPatterns.keys().next().value;
-      this.successPatterns.delete(oldestKey);
+      if (oldestKey) {
+        this.successPatterns.delete(oldestKey);
+      }
     }
   }
 
