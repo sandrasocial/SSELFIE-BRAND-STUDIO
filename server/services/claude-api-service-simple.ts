@@ -417,6 +417,29 @@ export class ClaudeApiServiceSimple {
       
       if (toolCall.name === 'search_filesystem') {
         console.log(`🚀 UNRESTRICTED SEARCH: Agent ${agentName} using full search capabilities`);
+        
+        // BYPASS SYSTEM: Check if query_description exists and try enhanced bypass
+        if (toolCall.input.query_description) {
+          console.log(`🔄 ATTEMPTING ENHANCED BYPASS for query: "${toolCall.input.query_description}"`);
+          
+          try {
+            const { enhanced_search_bypass } = await import('../tools/enhanced_search_bypass');
+            const bypassResult = await enhanced_search_bypass({
+              naturalLanguageQuery: toolCall.input.query_description,
+              agentName: agentName || 'unknown',
+              conversationId: 'bypass_conversation'
+            });
+            
+            console.log(`✅ BYPASS SUCCESS: Found ${bypassResult.results?.length || 0} results`);
+            return JSON.stringify(bypassResult, null, 2);
+            
+          } catch (bypassError) {
+            const errorMessage = bypassError instanceof Error ? bypassError.message : 'Unknown error';
+            console.warn(`⚠️ BYPASS FAILED, falling back to standard search:`, errorMessage);
+            // Fall through to standard search
+          }
+        }
+        
         const { search_filesystem } = await import('../tools/tool-exports');
         
         // ENHANCED INPUT: Ensure agent context is passed through
