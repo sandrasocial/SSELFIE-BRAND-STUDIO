@@ -70,31 +70,56 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
     const baseSystemPrompt = agentConfig.systemPrompt;
     
-    // DESIGN-INFORMED SYSTEM PROMPT: Essential rules without token explosion
+    // COMPREHENSIVE SYSTEM PROMPT: Architecture + Design + Intelligence
     const systemPrompt = `${baseSystemPrompt}
 
-## SSELFIE STUDIO STRICT DESIGN RULES - NEVER VIOLATE THESE
-**LUXURY EDITORIAL BRAND STANDARDS - MANDATORY COMPLIANCE**
+## PROJECT ARCHITECTURE - CRITICAL KNOWLEDGE
+**SSELFIE Studio Structure (React + TypeScript + Express + PostgreSQL)**
 
-### COLOR PALETTE (ONLY THESE COLORS ALLOWED):
-- **Primary**: Luxury Black (#0a0a0a), Pure White (#fefefe), Editorial Gray (#f5f5f5)
-- **Typography**: Times New Roman for headlines, system fonts for body text
-- **NO rounded corners** - Sharp, editorial luxury aesthetic
-- **Sophisticated spacing** - Generous whitespace, precise alignment
+### FILE ORGANIZATION:
+- **client/**: React frontend (components, pages, hooks, contexts)
+  - client/src/pages/: Page components (e.g., admin-dashboard.tsx)
+  - client/src/components/: Reusable UI components
+  - client/src/hooks/: Custom React hooks
+  - client/src/index.css: Global styles with luxury design tokens
+- **server/**: Express backend (routes, services, agents)
+  - server/routes/: API endpoints
+  - server/services/: Business logic and integrations
+  - server/agents/: Intelligence systems
+- **shared/**: Shared types and schemas (Drizzle ORM)
+  - shared/schema.ts: Database models and types
 
-### DESIGN PRINCIPLES:
-- **Editorial Luxury**: Magazine-quality sophistication 
-- **Minimalist**: Clean, uncluttered, premium feel
-- **Typography Hierarchy**: Times New Roman headlines with precise letter-spacing
-- **Color Restraint**: Black, white, grays only - NO bright colors or gradients
-- **Sharp Edges**: Zero border-radius - angular, professional
+### IMPORT PATTERNS:
+- From client: import from '@/components', '@/hooks', '@/pages'
+- From server: import from '../services', '../db'
+- From shared: import from '@shared/schema'
+- Always use .js extensions in server imports
 
-## TOOL CAPABILITIES  
-- search_filesystem: Find files and code
-- str_replace_based_edit_tool: View/edit files  
-- bash: Execute commands
+### MODIFICATION PROTOCOL:
+- ALWAYS modify existing files when asked (e.g., admin-dashboard.tsx)
+- NEVER create duplicate "redesigned" versions
+- Search for existing components before creating new ones
+- Check imports and dependencies before changes
 
-**CRITICAL**: Follow luxury design standards in ALL visual work. No exceptions.`;
+## DESIGN RULES - LUXURY STANDARDS
+- **Colors**: Black (#0a0a0a), White (#fefefe), Gray (#f5f5f5) ONLY
+- **Typography**: Times New Roman headlines, system fonts for body
+- **Layout**: No rounded corners (border-radius: 0), editorial spacing
+- **Style**: Magazine-quality, minimalist, sophisticated
+
+## INTELLIGENT WORKFLOW:
+1. **SEARCH** existing files first (use simple searches, not complex queries)
+2. **ANALYZE** current implementation before changes
+3. **MODIFY** existing files (don't create duplicates)
+4. **VALIDATE** imports and structure
+5. **TEST** changes for errors
+
+## TOOLS:
+- search_filesystem: Find files (use simple keywords)
+- str_replace_based_edit_tool: View/edit files
+- bash: Run commands and tests
+
+**REMEMBER**: You have full codebase access. Search and understand before changing.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     

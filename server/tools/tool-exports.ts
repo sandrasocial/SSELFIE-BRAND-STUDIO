@@ -23,10 +23,10 @@ export interface SearchResult {
 
 export async function search_filesystem(params: SearchParams) {
   try {
-    console.log('🔍 CONSULTING SEARCH: Starting codebase analysis with params:', params);
+    console.log('🔍 INTELLIGENT SEARCH: Simplified for agent understanding:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 500; // COMPLETE UNRESTRICTED ACCESS: Maximum repository visibility restored
+    const maxFiles = 20; // FOCUSED SEARCH: Return most relevant files only
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -130,13 +130,19 @@ export async function search_filesystem(params: SearchParams) {
       ...sortedResults.slice(enhancedResults.length)
     ].slice(0, maxFiles);
     
-    console.log(`🎯 INTELLIGENT SEARCH SUCCESS: Found ${results.length} files, ranked by priority (${sortedResults.filter(r => r.priority && r.priority > 80).length} high-priority matches)`);
+    console.log(`✅ SEARCH COMPLETE: Found ${results.length} relevant files`);
+    
+    // SIMPLIFIED RESULTS FOR AGENTS: Clear, actionable format
+    const simplifiedResults = finalResults.map(r => ({
+      file: r.fileName,
+      reason: r.reason.replace(/[🎯📄🔍]/g, '').trim(),
+      snippet: r.content.substring(0, 200) + '...'
+    }));
     
     return { 
-      summary: `🎯 SMART SEARCH: Found ${results.length} files with intelligent priority ranking (${sortedResults.filter(r => r.priority && r.priority > 80).length} high-priority matches)`,
-      results: finalResults,
-      totalFiles: results.length,
-      searchStrategy: 'priority-based with related file discovery'
+      summary: `Found ${results.length} files matching your search`,
+      results: simplifiedResults,
+      instructions: 'Use str_replace_based_edit_tool to view or modify these files'
     };
     
   } catch (error) {
