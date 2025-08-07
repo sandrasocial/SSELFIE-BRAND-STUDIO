@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Play, User, CheckCircle, Clock, Workflow } from 'lucide-react';
+import { Loader2, Play, User, CheckCircle, Clock } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -32,8 +32,7 @@ export function UnifiedAgentInterface() {
   const [task, setTask] = useState<string>('');
   const [context, setContext] = useState<string>('{}');
   const [executionResults, setExecutionResults] = useState<ExecutionResult[]>([]);
-  const [elenaTestResult, setElenaTestResult] = useState<string>('');
-  const [elenaTestLoading, setElenaTestLoading] = useState<boolean>(false);
+
   const queryClient = useQueryClient();
 
   // Fetch available agents (consolidated to admin pattern)
@@ -73,66 +72,7 @@ export function UnifiedAgentInterface() {
     });
   };
 
-  const testElenaWorkflow = async () => {
-    setElenaTestLoading(true);
-    setElenaTestResult('Testing Elena workflow execution...');
-    
-    try {
-      const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer sandra-admin-2025',
-        },
-        body: JSON.stringify({
-          agentId: 'elena',
-          message: 'Execute restart_workflow with name: workflow_1753660762258. Coordinate Aria, Zara, Rachel, and Quinn to complete their assigned tasks with actual file modifications. I need to verify that agents are completing tasks and saving changes to the file tree.',
-          conversationId: 'elena-workflow-execution-test'
-        })
-      });
 
-      if (response.ok) {
-        const reader = response.body?.getReader();
-        let streamResult = '';
-        
-        if (reader) {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            const chunk = new TextDecoder().decode(value);
-            streamResult += chunk;
-            
-            // Parse streaming data if it's SSE format
-            if (chunk.includes('data: ')) {
-              const lines = chunk.split('\n');
-              lines.forEach(line => {
-                if (line.startsWith('data: ')) {
-                  try {
-                    const jsonData = JSON.parse(line.substring(6));
-                    if (jsonData.content) {
-                      streamResult = jsonData.content;
-                    }
-                  } catch (e) {
-                    // Raw text data
-                    streamResult = line.substring(6);
-                  }
-                }
-              });
-            }
-            
-            setElenaTestResult(streamResult);
-          }
-        }
-      } else {
-        setElenaTestResult(`Error: ${response.status} - ${response.statusText}`);
-      }
-    } catch (error: any) {
-      setElenaTestResult(`Error: ${error?.message || 'Unknown error'}`);
-    }
-    
-    setElenaTestLoading(false);
-  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -171,62 +111,6 @@ export function UnifiedAgentInterface() {
 
   return (
     <div className="space-y-6">
-      {/* Elena Workflow Test - Special Admin Section */}
-      <Card className="border-2 border-blue-200 bg-blue-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Workflow className="h-5 w-5 text-blue-600" />
-            Elena Workflow Execution Test
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <p className="text-sm text-gray-700">
-              Test Elena's ability to execute workflows through the MultiAgentCoordinator system. 
-              This will verify that Elena can coordinate Aria, Zara, Rachel, and Quinn to complete 
-              assigned tasks with actual file modifications.
-            </p>
-            
-            <Button
-              onClick={testElenaWorkflow}
-              disabled={elenaTestLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
-              {elenaTestLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Testing Elena Workflow...
-                </>
-              ) : (
-                <>
-                  <Workflow className="h-4 w-4 mr-2" />
-                  Test Elena Workflow Execution
-                </>
-              )}
-            </Button>
-            
-            {elenaTestResult && (
-              <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
-                <h4 className="font-bold mb-2 text-sm">Elena Response:</h4>
-                <pre className="text-xs whitespace-pre-wrap overflow-auto max-h-64 font-mono">
-                  {elenaTestResult}
-                </pre>
-              </div>
-            )}
-            
-            <div className="mt-3 text-xs text-gray-600 bg-white p-3 rounded border">
-              <p><strong>Expected Behavior:</strong></p>
-              <ul className="list-disc list-inside ml-2 mt-1 space-y-1">
-                <li>Elena executes restart_workflow tool</li>
-                <li>MultiAgentCoordinator loads workflow_1753660762258</li>
-                <li>Coordinates 4 agents: Aria, Zara, Rachel, Quinn</li>
-                <li>Each agent completes assigned tasks with file modifications</li>
-                <li>Results tracked and file changes visible in project tree</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Agent Selection and Task Input */}
