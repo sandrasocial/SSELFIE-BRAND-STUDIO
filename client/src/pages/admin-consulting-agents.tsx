@@ -7,6 +7,7 @@ import { GlobalFooter } from '@/components/global-footer';
 // Removed Bridge System - Using only main consulting chat
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Button } from '@/components/ui/button';
 
 // Agent images - same as admin dashboard
 import AgentElena from '@assets/out-0 (33)_1753426218039.png';
