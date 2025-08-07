@@ -23,10 +23,10 @@ export interface SearchResult {
 
 export async function search_filesystem(params: SearchParams) {
   try {
-    console.log('🔍 BYPASS SEARCH: Full unrestricted agent access:', params);
+    console.log('🔍 TRUE BYPASS: Full unrestricted agent access:', params);
     
     const results: SearchResult[] = [];
-    const maxFiles = 50; // BYPASS SYSTEM: Increased file limit for comprehensive access
+    const maxFiles = 100; // TRUE BYPASS: Maximum file access for comprehensive coverage
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -39,12 +39,12 @@ export async function search_filesystem(params: SearchParams) {
           const fullPath = path.join(dirPath, entry.name);
           const relativePath = path.join(basePath, entry.name);
           
-          // UNRESTRICTED ACCESS: Allow access to ALL directories except system ones
+          // TRUE BYPASS: Only exclude performance-critical system directories
           const excludeDirectories = [
-            'node_modules', '.git', 'dist', 'build', '.cache'
+            'node_modules', '.git', 'dist', 'build'
           ];
           
-          // COMPLETE ACCESS RESTORED: Only skip performance-impacting system directories  
+          // MINIMAL EXCLUSIONS: Allow access to almost everything including cache, archives  
           if (excludeDirectories.includes(entry.name)) {
             continue;
           }
@@ -71,32 +71,18 @@ export async function search_filesystem(params: SearchParams) {
                   });
                 }
               } else {
-                // SMART ROUTING: Check path relevance first to avoid unnecessary file reads
-                const pathAnalysis = analyzePathRelevance(params, relativePath);
+                // TRUE BYPASS: Read all files without pre-filtering
+                const content = await fs.readFile(fullPath, 'utf-8');
+                const analysis = analyzeFileRelevance(content, params, relativePath);
                 
-                if (pathAnalysis.relevant) {
-                  // Only read file content if path indicates relevance
-                  const content = await fs.readFile(fullPath, 'utf-8');
-                  const analysis = analyzeFileRelevance(content, params, relativePath);
-                  
-                  if (analysis.relevant) {
-                    results.push({
-                      fileName: relativePath,
-                      content: analysis.relevantContent,
-                      reason: analysis.reason,
-                      priority: analysis.priority
-                    });
-                  }
-                } else {
-                  // Quick path-only check for obvious matches
-                  const quickCheck = quickPathMatch(params, relativePath);
-                  if (quickCheck.relevant) {
-                    results.push({
-                      fileName: relativePath,
-                      content: `[File found by path matching - use direct_file_access tool to view content]`,
-                      reason: quickCheck.reason
-                    });
-                  }
+                // UNRESTRICTED ACCESS: Always include relevant files with full content
+                if (analysis.relevant) {
+                  results.push({
+                    fileName: relativePath,
+                    content: analysis.relevantContent,
+                    reason: analysis.reason,
+                    priority: analysis.priority
+                  });
                 }
               }
             } catch (readError) {
@@ -261,6 +247,19 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
       priority: 20
     };
   }
+
+  // TRUE BYPASS: If nothing specific matches, include files based on path relevance
+  // This ensures agents can find workspace, member, and core user journey files
+  if (pathLower.includes('workspace') || pathLower.includes('member') || 
+      pathLower.includes('dashboard') || pathLower.includes('pages/') ||
+      pathLower.includes('components/')) {
+    return {
+      relevant: true,
+      relevantContent: content.substring(0, 2000),
+      reason: `Core application file: ${fileName}`,
+      priority: 15
+    };
+  }
   
   return {
     relevant: false,
@@ -272,35 +271,19 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
 
 // ================== INTELLIGENT SEARCH SYSTEM FUNCTIONS ==================
 
-// SMART QUERY PROCESSING: Handle complex multi-word queries
+// SIMPLIFIED: No query preprocessing in TRUE BYPASS system
 function processSmartQuery(query: string): { 
   primary: string[], 
   secondary: string[], 
   context: string[] 
 } {
+  // BYPASS: Return original query terms without categorization
   const terms = query.toLowerCase().split(/\s+/).filter(word => word.length > 2);
-  
-  // INTELLIGENT CATEGORIZATION
-  const primary: string[] = [];
-  const secondary: string[] = [];  
-  const context: string[] = [];
-  
-  for (const term of terms) {
-    // Primary terms (most important)
-    if (['admin', 'consulting', 'agent', 'dashboard', 'page', 'component'].includes(term)) {
-      primary.push(term);
-    }
-    // Secondary terms (modifiers)
-    else if (['interface', 'system', 'tool', 'service', 'api', 'route'].includes(term)) {
-      secondary.push(term);
-    }
-    // Context terms
-    else {
-      context.push(term);
-    }
-  }
-  
-  return { primary, secondary, context };
+  return { 
+    primary: terms, 
+    secondary: [], 
+    context: [] 
+  };
 }
 
 // MAIN APPLICATION FILE DETECTION
@@ -543,64 +526,6 @@ export async function viewFileContent(params: EditToolParams): Promise<string> {
   }
 }
 
-// SMART ROUTING: Path-only relevance check to avoid unnecessary file reads
-function analyzePathRelevance(params: SearchParams, filePath: string): {
-  relevant: boolean;
-  reason: string;
-} {
-  const queryLower = params.query_description.toLowerCase();
-  const pathLower = filePath.toLowerCase();
-  
-  // High-priority path matches
-  const fileName = path.basename(pathLower);
-  if (fileName === queryLower || fileName.includes(queryLower)) {
-    return {
-      relevant: true,
-      reason: 'Exact filename match - high priority'
-    };
-  }
-  
-  if (pathLower.includes(queryLower)) {
-    return {
-      relevant: true,
-      reason: 'Path contains query - medium priority'
-    };
-  }
-  
-  // Check for related terms
-  const queryKeywords = queryLower.split(/\s+/).filter(word => word.length > 2);
-  const pathMatches = queryKeywords.some(keyword => pathLower.includes(keyword));
-  if (pathMatches) {
-    return {
-      relevant: true,
-      reason: 'Path contains related keywords'
-    };
-  }
-  
-  return {
-    relevant: false,
-    reason: 'Path not relevant'
-  };
-}
+// REMOVED: analyzePathRelevance function eliminated as part of TRUE BYPASS system
 
-// QUICK PATH MATCHING: Ultra-fast matching for obvious cases
-function quickPathMatch(params: SearchParams, filePath: string): {
-  relevant: boolean;
-  reason: string;
-} {
-  const queryLower = params.query_description.toLowerCase();
-  const pathLower = filePath.toLowerCase();
-  
-  // Only return exact matches to avoid false positives
-  if (pathLower.includes(queryLower)) {
-    return {
-      relevant: true,
-      reason: `Quick path match: ${filePath} (use direct_file_access to view)`
-    };
-  }
-  
-  return {
-    relevant: false,
-    reason: ''
-  };
-}
+// REMOVED: quickPathMatch function eliminated as part of TRUE BYPASS system
