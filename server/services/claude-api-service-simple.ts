@@ -55,7 +55,7 @@ export class ClaudeApiServiceSimple {
       }
       
       // Check agent's recent context to provide context awareness
-      const { searchCache } = await import('./agent-search-cache.ts');
+      const { searchCache } = await import('./agent-search-cache.js');
       const agentContext = searchCache.getAgentContext(agentName, userId);
       if (agentContext && agentContext.recentSearches.length > 0) {
         console.log(`🧠 ${agentName}: Found ${agentContext.recentSearches.length} recent searches, ${agentContext.fileAccess.length} recent file accesses`);

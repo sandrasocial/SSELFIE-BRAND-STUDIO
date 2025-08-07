@@ -17,7 +17,7 @@ import { AgentLearningSystem } from './agents/agent-learning-system';
 import { AdvancedMemorySystem } from './services/advanced-memory-system';
 import { unifiedSessionManager } from './services/unified-session-manager';
 import { IntelligentContextManager } from './services/intelligent-context-manager';
-import { agentSearchCache } from './services/agent-search-cache';
+import { agentSearchCache } from './services/agent-search-cache.js';
 import { crossAgentIntelligence } from './services/cross-agent-intelligence';
 // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
 import { DeploymentTrackingService } from './services/deployment-tracking-service';
