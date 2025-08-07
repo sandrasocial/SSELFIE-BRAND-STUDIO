@@ -242,9 +242,16 @@ export class ClaudeApiServiceSimple {
       
       await this.saveMessage(conversationId, 'assistant', fullResponse, assistantToolCalls, assistantToolResults);
       
-      // CRITICAL FIX: Integrate learning and knowledge systems
+      // ENHANCED LEARNING INTEGRATION with pattern analysis
       await this.updateAgentLearning(userId, agentName, message, fullResponse);
-      await this.updateSessionContext(userId, agentName, conversationId, { message, response: fullResponse, toolsUsed: allToolCalls });
+      await this.updateSessionContext(userId, agentName, conversationId, { 
+        message, 
+        response: fullResponse, 
+        toolsUsed: allToolCalls,
+        taskType: this.identifyTaskType(message),
+        intent: this.extractIntent(message),
+        responseType: this.extractResponseType(fullResponse)
+      });
       
       // Send completion
       res.write(`data: ${JSON.stringify({
@@ -614,35 +621,206 @@ export class ClaudeApiServiceSimple {
     }
   }
 
-  // CRITICAL FIX: Add pattern extraction logic
+  // ENHANCED PATTERN EXTRACTION: Advanced learning from conversations
   private extractPatterns(userMessage: string, assistantMessage: string): Array<{type: string, category: string, data: any}> {
     const patterns = [];
+    const userLower = userMessage.toLowerCase();
+    const assistantLower = assistantMessage.toLowerCase();
 
-    // Extract conversation patterns
+    // 1. CONVERSATION PATTERN ANALYSIS
     patterns.push({
       type: 'pattern',
       category: 'conversation',
       data: {
-        userId: 'current_user',
-        message: userMessage.substring(0, 100),
-        response: assistantMessage.substring(0, 100)
+        userIntent: this.extractIntent(userMessage),
+        responseType: this.extractResponseType(assistantMessage),
+        interactionLength: userMessage.length + assistantMessage.length,
+        timestamp: new Date().toISOString()
       }
     });
 
-    // Extract successful response patterns
-    if (assistantMessage.length > 50) {
+    // 2. TASK COMPLETION PATTERNS
+    if (assistantMessage.includes('✅') || assistantMessage.includes('completed') || assistantMessage.includes('success')) {
+      patterns.push({
+        type: 'task_completion',
+        category: 'workflow',
+        data: {
+          taskType: this.identifyTaskType(userMessage),
+          completionIndicators: ['success', 'completed', 'finished'].filter(indicator => 
+            assistantLower.includes(indicator)
+          ),
+          responseLength: assistantMessage.length
+        }
+      });
+    }
+
+    // 3. TOOL USAGE PATTERNS
+    if (assistantMessage.includes('search_filesystem') || assistantMessage.includes('str_replace_based_edit_tool')) {
+      patterns.push({
+        type: 'tool_usage',
+        category: 'technical',
+        data: {
+          toolsUsed: this.extractToolsUsed(assistantMessage),
+          taskContext: userMessage.substring(0, 150),
+          success: assistantMessage.includes('✅') || assistantMessage.includes('successfully')
+        }
+      });
+    }
+
+    // 4. COMMUNICATION PREFERENCES
+    if (userLower.includes('please') || userLower.includes('can you') || userLower.includes('help')) {
+      patterns.push({
+        type: 'communication_style',
+        category: 'preference',
+        data: {
+          politenessLevel: userLower.includes('please') ? 'polite' : 'direct',
+          requestType: userLower.includes('help') ? 'assistance' : 'action',
+          urgencyLevel: userLower.includes('urgent') || userLower.includes('quickly') ? 'high' : 'normal'
+        }
+      });
+    }
+
+    // 5. DESIGN PATTERN RECOGNITION
+    if (userLower.includes('design') || userLower.includes('ui') || userLower.includes('component')) {
+      patterns.push({
+        type: 'design_request',
+        category: 'creative',
+        data: {
+          designType: this.identifyDesignType(userMessage),
+          luxuryElements: userLower.includes('luxury') || userLower.includes('sophisticated'),
+          colorPreferences: this.extractColorPreferences(userMessage)
+        }
+      });
+    }
+
+    // 6. SUCCESSFUL RESPONSE TRACKING
+    if (assistantMessage.length > 100) {
       patterns.push({
         type: `successful_response_${Date.now()}`,
         category: 'conversation',
         data: {
           messageLength: userMessage.length,
           responseLength: assistantMessage.length,
+          hasCodeExamples: assistantMessage.includes('```') || assistantMessage.includes('tsx') || assistantMessage.includes('typescript'),
+          hasToolUsage: assistantMessage.includes('🔧') || assistantMessage.includes('search_filesystem'),
           timestamp: new Date().toISOString()
         }
       });
     }
 
     return patterns;
+  }
+
+  // HELPER METHODS FOR PATTERN ANALYSIS
+  private extractIntent(message: string): string {
+    const lower = message.toLowerCase();
+    if (lower.includes('create') || lower.includes('build') || lower.includes('make')) return 'create';
+    if (lower.includes('fix') || lower.includes('repair') || lower.includes('debug')) return 'fix';
+    if (lower.includes('analyze') || lower.includes('check') || lower.includes('review')) return 'analyze';
+    if (lower.includes('explain') || lower.includes('help') || lower.includes('how')) return 'explain';
+    if (lower.includes('update') || lower.includes('modify') || lower.includes('change')) return 'update';
+    return 'general';
+  }
+
+  private extractResponseType(response: string): string {
+    if (response.includes('```') || response.includes('tsx') || response.includes('typescript')) return 'code';
+    if (response.includes('✅') || response.includes('🔧') || response.includes('🎯')) return 'actionable';
+    if (response.includes('analysis') || response.includes('found') || response.includes('discovered')) return 'analytical';
+    if (response.length > 1000) return 'comprehensive';
+    return 'standard';
+  }
+
+  private identifyTaskType(message: string): string {
+    const lower = message.toLowerCase();
+    if (lower.includes('component') || lower.includes('tsx') || lower.includes('react')) return 'component_development';
+    if (lower.includes('database') || lower.includes('schema') || lower.includes('sql')) return 'database';
+    if (lower.includes('api') || lower.includes('endpoint') || lower.includes('route')) return 'api_development';
+    if (lower.includes('design') || lower.includes('ui') || lower.includes('styling')) return 'design';
+    if (lower.includes('agent') || lower.includes('ai') || lower.includes('claude')) return 'agent_system';
+    return 'general_development';
+  }
+
+  private extractToolsUsed(response: string): string[] {
+    const tools = [];
+    if (response.includes('search_filesystem')) tools.push('search_filesystem');
+    if (response.includes('str_replace_based_edit_tool')) tools.push('str_replace_based_edit_tool');
+    if (response.includes('bash')) tools.push('bash');
+    if (response.includes('execute_sql_tool')) tools.push('execute_sql_tool');
+    return tools;
+  }
+
+  private identifyDesignType(message: string): string {
+    const lower = message.toLowerCase();
+    if (lower.includes('dashboard') || lower.includes('admin')) return 'dashboard';
+    if (lower.includes('landing') || lower.includes('homepage')) return 'landing_page';
+    if (lower.includes('form') || lower.includes('input')) return 'form';
+    if (lower.includes('nav') || lower.includes('menu')) return 'navigation';
+    if (lower.includes('card') || lower.includes('component')) return 'component';
+    return 'general_ui';
+  }
+
+  private extractColorPreferences(message: string): string[] {
+    const colors = [];
+    const lower = message.toLowerCase();
+    if (lower.includes('black') || lower.includes('dark')) colors.push('black');
+    if (lower.includes('white') || lower.includes('light')) colors.push('white');
+    if (lower.includes('gray') || lower.includes('grey')) colors.push('gray');
+    if (lower.includes('luxury') || lower.includes('sophisticated')) colors.push('monochrome');
+    return colors;
+  }
+
+  // ENHANCED LEARNING RETRIEVAL METHODS
+  async getAgentLearningInsights(agentName: string, userId: string): Promise<any> {
+    try {
+      const normalizedAgentName = agentName.toLowerCase();
+      
+      // Get learning patterns grouped by category
+      const learningData = await db
+        .select()
+        .from(agentLearning)
+        .where(and(
+          eq(agentLearning.agentName, normalizedAgentName),
+          eq(agentLearning.userId, userId)
+        ))
+        .orderBy(desc(agentLearning.lastSeen))
+        .limit(100);
+
+      // Analyze patterns by category
+      const insights = {
+        totalPatterns: learningData.length,
+        categories: {} as Record<string, any>,
+        recentActivity: learningData.slice(0, 10),
+        confidenceAverage: 0,
+        topPatterns: []
+      };
+
+      // Group by category and calculate insights
+      for (const pattern of learningData) {
+        const category = pattern.category || 'general';
+        if (!insights.categories[category]) {
+          insights.categories[category] = {
+            count: 0,
+            avgConfidence: 0,
+            patterns: []
+          };
+        }
+        
+        insights.categories[category].count++;
+        insights.categories[category].patterns.push(pattern);
+        insights.categories[category].avgConfidence = 
+          insights.categories[category].patterns.reduce((sum: number, p: any) => 
+            sum + parseFloat(p.confidence?.toString() || '0'), 0) / insights.categories[category].patterns.length;
+      }
+
+      // Calculate overall confidence average
+      insights.confidenceAverage = learningData.reduce((sum, p) => 
+        sum + parseFloat(p.confidence?.toString() || '0'), 0) / learningData.length;
+
+      return insights;
+    } catch (error) {
+      console.error('Failed to get agent learning insights:', error);
+      return null;
+    }
   }
 }
 
