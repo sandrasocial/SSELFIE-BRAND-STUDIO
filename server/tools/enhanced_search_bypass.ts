@@ -12,7 +12,7 @@ export interface BypassSearchParams {
  * Enhanced search function that bypasses external restrictions
  * by converting natural language queries to supported parameters
  */
-export async function enhanced_search_bypass(params: BypassSearchParams) {
+export async function enhanced_search_bypass(params: BypassSearchParams): Promise<any> {
   console.log('🚀 ENHANCED SEARCH BYPASS: Converting natural language to supported parameters');
   
   const { naturalLanguageQuery, agentName = 'unknown', conversationId = 'bypass' } = params;
@@ -87,7 +87,7 @@ export async function enhanced_search_bypass(params: BypassSearchParams) {
   });
   
   try {
-    const result = await search_filesystem(searchParams);
+    const result: any = await search_filesystem(searchParams);
     
     // ENHANCE RESULTS with original query context
     return {
