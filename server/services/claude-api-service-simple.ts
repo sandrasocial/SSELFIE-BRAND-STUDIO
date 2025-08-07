@@ -484,12 +484,24 @@ export class ClaudeApiServiceSimple {
       }
     }
     
+    // For direct_file_access, preserve results completely - agents need full file listings
+    if (toolName === 'direct_file_access') {
+      return toolResult; // NEVER truncate file access results - agents need complete information
+    }
+    
     // For other tools, use smart truncation
     if (toolName === 'str_replace_based_edit_tool') {
       // Preserve file editing results completely (they're usually small)
       return toolResult.length <= 8000 
         ? toolResult 
         : `${toolResult.substring(0, 4000)}\n\n[File content truncated - ${toolResult.length} total characters. Edit operation details preserved.]`;
+    }
+    
+    // For bash and other tools, preserve reasonable results
+    if (toolName === 'bash' || toolName === 'execute_sql_tool') {
+      return toolResult.length <= 5000 
+        ? toolResult 
+        : `${toolResult.substring(0, 2500)}\n\n[Output truncated - ${toolResult.length} total characters]`;
     }
     
     // SIMPLIFIED DEFAULT: Clear, actionable results for agents
