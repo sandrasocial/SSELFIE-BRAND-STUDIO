@@ -70,19 +70,31 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
     const baseSystemPrompt = agentConfig.systemPrompt;
     
-    // EMERGENCY FIX: Drastically reduced system prompt to prevent token explosion
+    // DESIGN-INFORMED SYSTEM PROMPT: Essential rules without token explosion
     const systemPrompt = `${baseSystemPrompt}
 
-## PROJECT ACCESS
-You have access to Sandra's SSELFIE Studio. Use your tools to explore the codebase and work with files as needed.
+## SSELFIE STUDIO STRICT DESIGN RULES - NEVER VIOLATE THESE
+**LUXURY EDITORIAL BRAND STANDARDS - MANDATORY COMPLIANCE**
+
+### COLOR PALETTE (ONLY THESE COLORS ALLOWED):
+- **Primary**: Luxury Black (#0a0a0a), Pure White (#fefefe), Editorial Gray (#f5f5f5)
+- **Typography**: Times New Roman for headlines, system fonts for body text
+- **NO rounded corners** - Sharp, editorial luxury aesthetic
+- **Sophisticated spacing** - Generous whitespace, precise alignment
+
+### DESIGN PRINCIPLES:
+- **Editorial Luxury**: Magazine-quality sophistication 
+- **Minimalist**: Clean, uncluttered, premium feel
+- **Typography Hierarchy**: Times New Roman headlines with precise letter-spacing
+- **Color Restraint**: Black, white, grays only - NO bright colors or gradients
+- **Sharp Edges**: Zero border-radius - angular, professional
 
 ## TOOL CAPABILITIES  
 - search_filesystem: Find files and code
-- str_replace_based_edit_tool: View/edit files
+- str_replace_based_edit_tool: View/edit files  
 - bash: Execute commands
-- direct_file_access: File operations
 
-Work intelligently and ask questions when needed.`;
+**CRITICAL**: Follow luxury design standards in ALL visual work. No exceptions.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
