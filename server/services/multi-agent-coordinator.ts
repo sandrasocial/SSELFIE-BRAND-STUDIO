@@ -5,11 +5,11 @@
  */
 
 import { ClaudeApiServiceSimple } from './claude-api-service-simple';
-
-const claudeApiService = new ClaudeApiServiceSimple();
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
+
+const claudeApiService = new ClaudeApiServiceSimple();
 
 export interface AgentCapability {
   agentId: string;
