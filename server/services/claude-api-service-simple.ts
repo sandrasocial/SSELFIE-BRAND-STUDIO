@@ -138,7 +138,7 @@ export class ClaudeApiServiceSimple {
         if (toolCalls.length > 0) {
           for (const toolCall of toolCalls) {
             try {
-              const toolResult = await this.executeToolCall(toolCall);
+              const toolResult = await this.executeToolCall(toolCall, agentName, userId);
               
               // Summarize large tool results to prevent token overflow
               const summarizedResult = toolResult.length > 3000 
@@ -245,44 +245,16 @@ export class ClaudeApiServiceSimple {
     }
   }
 
-  private async executeToolCall(toolCall: any): Promise<string> {
+  private async executeToolCall(toolCall: any, agentName?: string, userId?: string): Promise<string> {
     console.log(`🔧 EXECUTING: ${toolCall.name}`, toolCall.input);
     
     try {
       if (toolCall.name === 'search_filesystem') {
-        // Import search cache system
-        const { searchCache } = await import('./agent-search-cache.ts');
-        
-        // Check if we should skip this search
-        const queryDesc = toolCall.input.query_description || '';
-        const codeSearch = (toolCall.input.code || []).join(' ');
-        const searchQuery = queryDesc + ' ' + codeSearch;
-        
-        if (searchQuery.trim()) {
-          const { skip, cachedResult } = searchCache.shouldSkipSearch(agentName, userId, searchQuery);
-          if (skip && cachedResult) {
-            console.log(`🔄 ${agentName}: Using cached search results for: ${searchQuery.substring(0, 50)}...`);
-            return JSON.stringify(cachedResult, null, 2);
-          }
-        }
-        
         const { search_filesystem } = await import('../tools/tool-exports.ts');
         const result = await search_filesystem(toolCall.input);
-        
-        // Cache the result for future use
-        if (searchQuery.trim()) {
-          searchCache.cacheSearchResult(agentName, userId, searchQuery, result);
-        }
-        
         return JSON.stringify(result, null, 2);
         
       } else if (toolCall.name === 'str_replace_based_edit_tool') {
-        // Track file access to prevent redundant operations  
-        const { searchCache } = await import('./agent-search-cache.ts');
-        if (toolCall.input.path) {
-          searchCache.trackFileAccess(agentName, userId, toolCall.input.path);
-        }
-        
         const { str_replace_based_edit_tool } = await import('../tools/tool-exports.ts');
         const result = await str_replace_based_edit_tool(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
