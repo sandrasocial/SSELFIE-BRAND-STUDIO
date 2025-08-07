@@ -12,6 +12,152 @@ export interface FilePathReference {
 }
 
 // COMPLETE AGENT SYSTEM FILES - All existing agent files for admin access
+// COMPLETE APPLICATION FILES - ALL critical files for admin access
+export const APPLICATION_FILES: FilePathReference[] = [
+  {
+    category: "Pre-Login Pages (Critical Access)",
+    files: [
+      {
+        name: "editorial-landing.tsx",
+        path: "client/src/pages/editorial-landing.tsx",
+        size: "26,195 bytes",
+        description: "Main editorial landing page - first user touchpoint",
+        priority: "critical"
+      },
+      {
+        name: "pricing.tsx", 
+        path: "client/src/pages/pricing.tsx",
+        size: "21,427 bytes",
+        description: "Pricing and subscription plans",
+        priority: "critical"
+      },
+      {
+        name: "about.tsx",
+        path: "client/src/pages/about.tsx", 
+        size: "13,159 bytes",
+        description: "About page and brand story",
+        priority: "high"
+      },
+      {
+        name: "checkout.tsx",
+        path: "client/src/pages/checkout.tsx",
+        size: "9,417 bytes", 
+        description: "Payment and checkout flow",
+        priority: "critical"
+      }
+    ]
+  },
+  {
+    category: "Client/Src App Core",
+    files: [
+      {
+        name: "App.tsx",
+        path: "client/src/App.tsx",
+        size: "Unknown",
+        description: "Main React app component and routing",
+        priority: "critical"
+      },
+      {
+        name: "main.tsx", 
+        path: "client/src/main.tsx",
+        size: "Unknown",
+        description: "React app entry point",
+        priority: "high"
+      }
+    ]
+  },
+  {
+    category: "API Routes", 
+    files: [
+      {
+        name: "server routes",
+        path: "server/routes/",
+        size: "Multiple files",
+        description: "All API endpoint definitions",
+        priority: "critical"
+      },
+      {
+        name: "main routes file",
+        path: "server/routes.ts", 
+        size: "Unknown",
+        description: "Main server routes configuration",
+        priority: "critical"
+      }
+    ]
+  },
+  {
+    category: "Server & Services",
+    files: [
+      {
+        name: "server directory",
+        path: "server/",
+        size: "Multiple files",
+        description: "All server-side code and services", 
+        priority: "critical"
+      },
+      {
+        name: "services directory",
+        path: "server/services/",
+        size: "Multiple files",
+        description: "Business logic and service layer",
+        priority: "critical"
+      }
+    ]
+  },
+  {
+    category: "Components System",
+    files: [
+      {
+        name: "components directory",
+        path: "client/src/components/",
+        size: "Multiple files", 
+        description: "All React components and UI elements",
+        priority: "critical"
+      },
+      {
+        name: "ui components",
+        path: "client/src/components/ui/",
+        size: "Multiple files",
+        description: "Shared UI component library",
+        priority: "high"
+      }
+    ]
+  },
+  {
+    category: "Member Journey Pages",
+    files: [
+      {
+        name: "workspace.tsx",
+        path: "client/src/pages/workspace.tsx",
+        size: "23,220 bytes",
+        description: "Main member workspace interface",
+        priority: "critical"
+      },
+      {
+        name: "simple-training.tsx",
+        path: "client/src/pages/simple-training.tsx", 
+        size: "58,438 bytes",
+        description: "Member training flow (TRAIN step)",
+        priority: "critical"
+      },
+      {
+        name: "ai-photoshoot.tsx",
+        path: "client/src/pages/ai-photoshoot.tsx",
+        size: "96,558 bytes",
+        description: "AI photoshoot interface (SHOOT step)", 
+        priority: "critical"
+      },
+      {
+        name: "build.tsx",
+        path: "client/src/pages/build.tsx",
+        size: "240 bytes",
+        description: "Build interface (BUILD step)",
+        priority: "critical"
+      }
+    ]
+  }
+];
+
 export const AGENT_SYSTEM_FILES: FilePathReference[] = [
   {
     category: "Core Agent Intelligence (Server-side)",
@@ -312,7 +458,61 @@ export class AgentFilePathGuide {
   }
   
   /**
-   * Get agent system files guide for admin access - CRITICAL FOR AGENT ACCESS
+   * Get complete application files guide for admin access - UNRESTRICTED ACCESS
+   */
+  static getCompleteApplicationGuide(): string {
+    let guide = `
+# 🚀 COMPLETE APPLICATION FILE ACCESS GUIDE
+## ALL critical application files with correct paths:
+
+`;
+
+    APPLICATION_FILES.forEach(category => {
+      guide += `### ${category.category}\n`;
+      category.files.forEach(file => {
+        guide += `- **${file.name}** (${file.priority})\n`;
+        guide += `  Path: \`${file.path}\`\n`;
+        guide += `  Size: ${file.size}\n`; 
+        guide += `  ${file.description}\n\n`;
+      });
+    });
+
+    guide += `
+## 🤖 AGENT SYSTEM FILES:
+
+`;
+
+    AGENT_SYSTEM_FILES.forEach(category => {
+      guide += `### ${category.category}\n`;
+      category.files.forEach(file => {
+        guide += `- **${file.name}** (${file.priority})\n`;
+        guide += `  Path: \`${file.path}\`\n`;
+        guide += `  Size: ${file.size}\n`; 
+        guide += `  ${file.description}\n\n`;
+      });
+    });
+
+    guide += `
+## 🚀 QUICK ACCESS COMMANDS FOR ALL FILES:
+- Pre-login: str_replace_based_edit_tool view client/src/pages/editorial-landing.tsx
+- API: str_replace_based_edit_tool view server/routes.ts
+- Components: direct_file_access action:list path:client/src/components recursive:true
+- Services: direct_file_access action:list path:server/services recursive:true
+- Pages: direct_file_access action:list path:client/src/pages recursive:true
+
+## 🔍 COMPREHENSIVE SEARCH OPTIONS: 
+- All pages: search_filesystem query_description:"client src pages"
+- All API: search_filesystem query_description:"server routes api"
+- All components: search_filesystem query_description:"client components"
+- All services: search_filesystem query_description:"server services"
+- All agents: search_filesystem query_description:"agent system files"
+`;
+
+    return guide;
+  }
+  
+  /**
+   * Get agent system files guide for admin access - AGENT-SPECIFIC ACCESS
    */
   static getAgentSystemGuide(): string {
     let guide = `

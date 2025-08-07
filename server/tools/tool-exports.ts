@@ -69,13 +69,20 @@ export async function search_filesystem(params: SearchParams) {
             'node_modules', '.git', 'dist', 'build'
           ];
           
-          // AGENT FILE PRIORITY: Boost agent-related files in search results
-          const isAgentFile = relativePath.includes('agent') || 
-                             relativePath.includes('Agent') ||
-                             relativePath.includes('/agents/');
+          // APPLICATION FILE PRIORITY: Boost ALL critical application files
+          const isApplicationFile = relativePath.includes('client/src') || 
+                                   relativePath.includes('/pages/') ||
+                                   relativePath.includes('/components/') ||
+                                   relativePath.includes('/api/') ||
+                                   relativePath.includes('server/') ||
+                                   relativePath.includes('/services/') ||
+                                   relativePath.includes('/agents/') ||
+                                   relativePath.includes('/routes/') ||
+                                   relativePath.endsWith('.tsx') ||
+                                   relativePath.endsWith('.ts') && !relativePath.includes('node_modules');
           
-          if (isAgentFile) {
-            console.log(`🤖 AGENT FILE DETECTED: ${relativePath} - boosting priority`);
+          if (isApplicationFile) {
+            console.log(`🚀 APPLICATION FILE DETECTED: ${relativePath} - boosting priority`);
           }
           
           // MINIMAL EXCLUSIONS: Allow access to almost everything including cache, archives  
@@ -111,11 +118,17 @@ export async function search_filesystem(params: SearchParams) {
                 
                 // UNRESTRICTED ACCESS: Always include relevant files with full content
                 if (analysis.relevant) {
+                  let priority = analysis.priority;
+                  // APPLICATION FILE BOOST: Give ALL application files higher priority
+                  if (isApplicationFile) {
+                    priority += 50; // Significant boost for all application files
+                  }
+                  
                   results.push({
                     fileName: relativePath,
                     content: analysis.relevantContent,
-                    reason: analysis.reason,
-                    priority: analysis.priority
+                    reason: analysis.reason + (isApplicationFile ? ' [APP FILE]' : ''),
+                    priority
                   });
                 }
               }
