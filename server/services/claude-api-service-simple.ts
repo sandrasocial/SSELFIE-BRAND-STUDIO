@@ -189,12 +189,6 @@ export class ClaudeApiServiceSimple {
             message: `${agentName} is continuing after tool execution...`
           })}\n\n`);
           
-          // Add instruction to continue - streamlined for better completion
-          currentMessages.push({
-            role: 'user', 
-            content: `Continue with your task. Provide a brief summary of what you completed and confirm the task is done, or continue to the next step if needed.`
-          });
-          
           // CRITICAL FIX: Allow conversation to continue after tool execution
           conversationContinues = true;
           
