@@ -1,7 +1,7 @@
 // Tool exports for Claude API service
-export { str_replace_based_edit_tool } from './str_replace_based_edit_tool.js';
-export { bash } from './bash.js';
-export { direct_file_access } from './direct_file_access.js';
+export { str_replace_based_edit_tool } from './str_replace_based_edit_tool.ts';
+export { bash } from './bash.ts';
+export { direct_file_access } from './direct_file_access.ts';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -69,16 +69,31 @@ export async function search_filesystem(params: SearchParams) {
                   });
                 }
               } else {
-                // For text files, read and analyze content
-                const content = await fs.readFile(fullPath, 'utf-8');
-                const analysis = analyzeFileRelevance(content, params, relativePath);
+                // SMART ROUTING: Check path relevance first to avoid unnecessary file reads
+                const pathAnalysis = analyzePathRelevance(params, relativePath);
                 
-                if (analysis.relevant) {
-                  results.push({
-                    fileName: relativePath,
-                    content: analysis.relevantContent,
-                    reason: analysis.reason
-                  });
+                if (pathAnalysis.relevant) {
+                  // Only read file content if path indicates relevance
+                  const content = await fs.readFile(fullPath, 'utf-8');
+                  const analysis = analyzeFileRelevance(content, params, relativePath);
+                  
+                  if (analysis.relevant) {
+                    results.push({
+                      fileName: relativePath,
+                      content: analysis.relevantContent,
+                      reason: analysis.reason
+                    });
+                  }
+                } else {
+                  // Quick path-only check for obvious matches
+                  const quickCheck = quickPathMatch(params, relativePath);
+                  if (quickCheck.relevant) {
+                    results.push({
+                      fileName: relativePath,
+                      content: `[File found by path matching - use direct_file_access tool to view content]`,
+                      reason: quickCheck.reason
+                    });
+                  }
                 }
               }
             } catch (readError) {
@@ -287,4 +302,66 @@ export async function viewFileContent(params: EditToolParams): Promise<string> {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     throw new Error(`File operation failed: ${errorMessage}`);
   }
+}
+
+// SMART ROUTING: Path-only relevance check to avoid unnecessary file reads
+function analyzePathRelevance(params: SearchParams, filePath: string): {
+  relevant: boolean;
+  reason: string;
+} {
+  const queryLower = params.query_description.toLowerCase();
+  const pathLower = filePath.toLowerCase();
+  
+  // High-priority path matches
+  const fileName = path.basename(pathLower);
+  if (fileName === queryLower || fileName.includes(queryLower)) {
+    return {
+      relevant: true,
+      reason: 'Exact filename match - high priority'
+    };
+  }
+  
+  if (pathLower.includes(queryLower)) {
+    return {
+      relevant: true,
+      reason: 'Path contains query - medium priority'
+    };
+  }
+  
+  // Check for related terms
+  const queryKeywords = queryLower.split(/\s+/).filter(word => word.length > 2);
+  const pathMatches = queryKeywords.some(keyword => pathLower.includes(keyword));
+  if (pathMatches) {
+    return {
+      relevant: true,
+      reason: 'Path contains related keywords'
+    };
+  }
+  
+  return {
+    relevant: false,
+    reason: 'Path not relevant'
+  };
+}
+
+// QUICK PATH MATCHING: Ultra-fast matching for obvious cases
+function quickPathMatch(params: SearchParams, filePath: string): {
+  relevant: boolean;
+  reason: string;
+} {
+  const queryLower = params.query_description.toLowerCase();
+  const pathLower = filePath.toLowerCase();
+  
+  // Only return exact matches to avoid false positives
+  if (pathLower.includes(queryLower)) {
+    return {
+      relevant: true,
+      reason: `Quick path match: ${filePath} (use direct_file_access to view)`
+    };
+  }
+  
+  return {
+    relevant: false,
+    reason: ''
+  };
 }
