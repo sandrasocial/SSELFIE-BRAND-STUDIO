@@ -51,7 +51,7 @@ export async function search_filesystem(params: SearchParams) {
     }
     
     const results: SearchResult[] = [];
-    const maxFiles = 100; // TRUE BYPASS: Maximum file access for comprehensive coverage
+    const maxFiles = 25; // OPTIMIZED: Limit results to prevent content overload
     
     // Search through project files
     const searchInDirectory = async (dirPath: string, basePath = '') => {
@@ -126,7 +126,7 @@ export async function search_filesystem(params: SearchParams) {
                   
                   results.push({
                     fileName: relativePath,
-                    content: analysis.relevantContent,
+                    content: analysis.relevantContent.substring(0, 300) + (analysis.relevantContent.length > 300 ? '...' : ''),
                     reason: analysis.reason + (isApplicationFile ? ' [APP FILE]' : ''),
                     priority
                   });
@@ -189,16 +189,17 @@ export async function search_filesystem(params: SearchParams) {
     // ADD RESULTS TO RESTORED CACHE SYSTEM
     agentSearchCache.addSearchResults(conversationId, agentName, params.query_description, finalResults);
     
-    // DIRECT ACCESS RESULTS: Show full paths and real content
+    // OPTIMIZED RESULTS: Minimal data to prevent content overload
     const directAccessResults = finalResults.map(r => ({
       file: r.fileName,
       fullPath: r.fileName.startsWith('./') ? r.fileName : `./${r.fileName}`,
       reason: r.reason.replace(/[🎯📄🔍]/g, '').trim(),
-      snippet: r.content.substring(0, 200) + '...',
+      snippet: r.content.substring(0, 150) + (r.content.length > 150 ? '...' : ''),
       type: r.fileName.endsWith('.tsx') ? 'React Component' : 
             r.fileName.endsWith('.ts') ? 'TypeScript File' :
             r.fileName.endsWith('.js') ? 'JavaScript File' :
-            r.fileName.endsWith('.md') ? 'Documentation' : 'File'
+            r.fileName.endsWith('.md') ? 'Documentation' : 'File',
+      priority: r.priority || 0
     }));
     
     return { 
