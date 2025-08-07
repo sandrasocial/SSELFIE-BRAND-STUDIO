@@ -16,8 +16,8 @@ function checkPatternMatch(filePath: string, pattern: string): boolean {
   const regexPattern = new RegExp(`^${regex}$`);
   const testPath = filePath.toLowerCase();
   
-  // DEBUG: Log pattern matching for troubleshooting
-  console.log(`🔍 PATTERN MATCH: "${testPath}" vs pattern "${pattern}" (regex: "${regex}") = ${regexPattern.test(testPath)}`);
+  // DIRECT ACCESS: No pattern caching or debugging overhead
+  // Pattern matching simplified for direct filesystem access
   
   return regexPattern.test(testPath);
 }
