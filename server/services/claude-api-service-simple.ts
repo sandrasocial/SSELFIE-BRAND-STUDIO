@@ -260,6 +260,11 @@ export class ClaudeApiServiceSimple {
         const result = await bash(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
+      } else if (toolCall.name === 'direct_file_access') {
+        const { direct_file_access } = await import('../tools/tool-exports.ts');
+        const result = await direct_file_access(toolCall.input);
+        return JSON.stringify(result, null, 2);
+        
       } else {
         return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;
       }

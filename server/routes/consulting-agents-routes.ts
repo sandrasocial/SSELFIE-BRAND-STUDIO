@@ -346,6 +346,35 @@ Use your automatic error detection and self-healing capabilities. When errors oc
             },
             required: ["query"]
           }
+        },
+        {
+          name: "direct_file_access",
+          description: "Direct file access without filtering - view, list, check existence, or search by path",
+          input_schema: {
+            type: "object",
+            properties: {
+              action: { 
+                type: "string", 
+                enum: ["view", "list", "exists", "search_path"],
+                description: "Action to perform: view file content, list directory, check if exists, or search by path pattern"
+              },
+              path: { 
+                type: "string",
+                description: "File or directory path relative to project root"
+              },
+              recursive: { 
+                type: "boolean", 
+                default: false,
+                description: "For list/search actions, whether to search subdirectories"
+              },
+              max_depth: { 
+                type: "integer", 
+                default: 3,
+                description: "Maximum depth for recursive operations"
+              }
+            },
+            required: ["action", "path"]
+          }
         }
       ];
       
