@@ -3,6 +3,7 @@ export { str_replace_based_edit_tool } from './str_replace_based_edit_tool.ts';
 export { bash } from './bash.ts';
 export { direct_file_access } from './direct_file_access.ts';
 export { enhanced_search_bypass, analyzeSearchQuery } from './enhanced_search_bypass.ts';
+export { restart_workflow } from './restart-workflow.ts';
 import fs from 'fs/promises';
 import path from 'path';
 import { AutonomousNavigationSystem } from '../services/autonomous-navigation-system.js';
@@ -302,18 +303,43 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
   const queryTerms = processSmartQuery(queryLower);
   const fileName = path.basename(pathLower);
   
-  // SIMPLE RELEVANCE CHECK - Trust agent intelligence
+  // PRIORITY-BASED SCORING SYSTEM
+  let priority = 0;
   let relevantContent = '';
   let reason = '';
   
-  // Basic matching without artificial constraints
-  const hasQueryMatch = queryTerms.primary.some(term => 
-    contentLower.includes(term) || pathLower.includes(term) || fileName.toLowerCase().includes(term)
-  );
+  // PRIORITY 1 (100): EXACT MAIN FILE MATCHES
+  if (isMainApplicationFile(filePath)) {
+    const mainFileScore = calculateMainFileScore(queryTerms, pathLower, contentLower, fileName);
+    if (mainFileScore > 15) {  // LOWERED: From 50 to 15 for better component access
+      priority = 100 + mainFileScore;
+      relevantContent = extractRelevantContent(content, queryTerms);
+      reason = `🎯 MAIN APP FILE: ${fileName} (${mainFileScore}% match)`;
+      return { relevant: true, relevantContent, reason, priority };
+    }
+  }
   
-  // Removed complex priority algorithms - let agents use natural intelligence
+  // PRIORITY 2 (80): COMPONENT/PAGE MATCHES  
+  if (isComponentOrPage(filePath)) {
+    const componentScore = calculateComponentScore(queryTerms, pathLower, contentLower, fileName);
+    if (componentScore > 10) {  // LOWERED: From 40 to 10 for comprehensive component access
+      priority = 80 + componentScore;
+      relevantContent = extractRelevantContent(content, queryTerms);
+      reason = `📄 COMPONENT/PAGE: ${fileName} (${componentScore}% match)`;
+      return { relevant: true, relevantContent, reason, priority };
+    }
+  }
   
-  // Simple parameter matching without priority constraints
+  // PRIORITY 3 (60): SEMANTIC KEYWORD MATCHING
+  const semanticScore = calculateSemanticMatch(queryTerms, pathLower, contentLower);
+  if (semanticScore > 8) {  // LOWERED: From 30 to 8 for broader semantic matching
+    priority = 60 + semanticScore;
+    relevantContent = extractRelevantContent(content, queryTerms);
+    reason = `🔍 SEMANTIC MATCH: ${fileName} (${semanticScore}% relevance)`;
+    return { relevant: true, relevantContent, reason, priority };
+  }
+  
+  // PRIORITY 4 (40): CLASS/FUNCTION SPECIFIC MATCHES
   if (params.class_names?.length) {
     for (const className of params.class_names) {
       if (content.includes(className)) {
@@ -321,7 +347,7 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
           relevant: true,
           relevantContent: content.substring(0, 2000),
           reason: `Contains class: ${className}`,
-          priority: 1
+          priority: 40
         };
       }
     }
@@ -334,7 +360,7 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
           relevant: true,
           relevantContent: content.substring(0, 2000),
           reason: `Contains function: ${funcName}`,
-          priority: 1
+          priority: 38
         };
       }
     }
@@ -347,26 +373,132 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
           relevant: true,
           relevantContent: content.substring(0, 2000),
           reason: `Contains code: ${codeSnippet}`,
-          priority: 1
+          priority: 35
         };
       }
     }
   }
   
-  // Simple natural language query matching
-  if (hasQueryMatch || (queryLower && contentLower.includes(queryLower))) {
+  // PRIORITY 5 (20): GENERAL CONTENT MATCHING
+  const queryKeywords = queryLower.split(/\s+/).filter(word => word.length > 2);
+  const contentMatches = queryKeywords.some(keyword => contentLower.includes(keyword));
+  if (contentLower.includes(queryLower) || contentMatches) {
     return {
       relevant: true,
       relevantContent: content.substring(0, 2000),
-      reason: `Matches query: ${fileName}`,
-      priority: 1
+      reason: `Content matches query: ${params.query_description}`,
+      priority: 20
     };
   }
 
-  // No artificial priority constraints - all files equal
+  // LOW PRIORITY FOR DOCUMENTATION AND CONFIG FILES (still included but deprioritized)
+  const lowPriorityPatterns = [
+    // Documentation files
+    '.md', '.txt', '.csv', 
+    // Configuration files
+    '.json', '.config.', '.eslint', '.prettier', 'package-lock.json',
+    // Build/deployment files
+    'dockerfile', 'docker-compose', '.yml', '.yaml',
+    // Log and temporary files
+    '.log', '.cache', '.tmp', 'temp',
+    // Asset files (unless specifically searched)
+    '.png', '.jpg', '.jpeg', '.gif', '.svg'
+  ];
 
-  // Removed hardcoded member journey file list - let agents discover naturally
+  const isDocumentationFile = fileName.endsWith('.md') && 
+    (fileName.includes('AGENT') || fileName.includes('ADMIN') || fileName.includes('ANALYSIS') || 
+     fileName.includes('REPORT') || fileName.includes('STATUS') || fileName.includes('FIX') ||
+     fileName.includes('SUCCESS') || fileName.includes('COMPLETE') || fileName.includes('AUDIT') ||
+     fileName.includes('SYSTEM') || fileName.includes('INTEGRATION') || fileName.includes('CRITICAL'));
 
+  const isLowPriorityFile = lowPriorityPatterns.some(pattern => 
+    fileName.includes(pattern) || pathLower.includes(pattern)
+  );
+
+  // Documentation files get very low priority unless specifically requested  
+  if (isDocumentationFile && !queryLower.includes('analysis') && !queryLower.includes('report')) {
+    return {
+      relevant: true,
+      relevantContent: content.substring(0, 500), // Limited content for docs
+      reason: `Documentation file: ${fileName} (low priority)`,
+      priority: 5 // Very low priority
+    };
+  }
+
+  // Other low priority files get low priority but still included
+  if (isLowPriorityFile && !queryLower.includes('config') && !queryLower.includes('asset')) {
+    return {
+      relevant: true,
+      relevantContent: content.substring(0, 1000),
+      reason: `Configuration/asset file: ${fileName} (low priority)`,
+      priority: 10 // Low priority but still visible
+    };
+  }
+
+  // MEMBER JOURNEY DIRECT FILE MAPPING: Exact file matches get absolute highest priority
+  const memberJourneyFiles = [
+    'workspace.tsx', 'editorial-landing.tsx', 'pricing.tsx', 'checkout.tsx', 'login.tsx',
+    'simple-training.tsx', 'ai-photoshoot.tsx', 'build.tsx', 'victoria-builder.tsx',
+    'sselfie-gallery.tsx', 'flatlay-library.tsx', 'about.tsx', 'how-it-works.tsx',
+    'landing.tsx', 'new-landing.tsx', 'member-navigation.tsx', 'workspace-interface.tsx',
+    'editorial-story.tsx', 'editorial-spread.tsx', 'editorial-testimonials.tsx'
+  ];
+  
+  if (memberJourneyFiles.includes(fileName)) {
+    // Add helpful path information for agents
+    const fullPath = `client/src/pages/${fileName}`;
+    return {
+      relevant: true,
+      relevantContent: content.substring(0, 3000), // Maximum content for member files
+      reason: `CORE MEMBER JOURNEY: ${fileName} (Path: ${fullPath})`,
+      priority: 200 // ABSOLUTE HIGHEST PRIORITY - Always show member journey files first
+    };
+  }
+  
+  // HIGH PRIORITY: ALL CORE APPLICATION FILES - No restrictions or limitations
+  const applicationFilePaths = [
+    // MEMBER JOURNEY & UI
+    'pages/', 'components/', 'hooks/', 'lib/', 'src/',
+    // SERVER INFRASTRUCTURE  
+    'routes/', 'services/', 'agents/', 'tools/', 'server/', 'shared/',
+    // DATABASE & STORAGE
+    'schema', 'database', 'storage', 'db',
+    // MEMBER EXPERIENCE FILES
+    'editorial', 'workspace', 'training', 'photoshoot', 'gallery', 'flatlay',
+    'pricing', 'checkout', 'login', 'about', 'landing', 'build'
+  ];
+  
+  const isApplicationFile = applicationFilePaths.some(appPath => pathLower.includes(appPath));
+  
+  if (isApplicationFile) {
+    // DETERMINE PRIORITY LEVEL
+    let appPriority = 50; // Good base priority for all app files
+    
+    // BOOST for member journey files
+    if (pathLower.includes('editorial') || pathLower.includes('workspace') || 
+        pathLower.includes('training') || pathLower.includes('photoshoot') || 
+        pathLower.includes('gallery') || pathLower.includes('flatlay')) {
+      appPriority = 80;
+    }
+    
+    // BOOST for core infrastructure
+    if (pathLower.includes('routes/') || pathLower.includes('services/') || 
+        pathLower.includes('schema') || pathLower.includes('database')) {
+      appPriority = 70;
+    }
+    
+    // BOOST for pages and components
+    if (pathLower.includes('pages/') || pathLower.includes('components/')) {
+      appPriority = 60;
+    }
+    
+    return {
+      relevant: true,
+      relevantContent: content.substring(0, 2500), // More content for app files
+      reason: `Core application file: ${fileName}`,
+      priority: appPriority
+    };
+  }
   
   return {
     relevant: false,
@@ -393,19 +525,182 @@ function processSmartQuery(query: string): {
   };
 }
 
-// Removed hardcoded file detection - let agent intelligence work naturally
+// MAIN APPLICATION FILE DETECTION
+function isMainApplicationFile(filePath: string): boolean {
+  const path = filePath.toLowerCase();
+  
+  // HIGHEST PRIORITY: Core application files that agents need
+  const coreApplicationPaths = [
+    // MEMBER-FACING FILES (highest priority)
+    'client/src/pages/',
+    'client/src/components/',
+    'server/routes/',
+    'server/services/',
+    'shared/',
+    
+    // SUPPORTING APPLICATION FILES
+    'client/src/hooks/',
+    'client/src/lib/',
+    'server/agents/',
+    'server/tools/',
+    'server/db',
+    'server/storage',
+    'client/src/app.tsx'
+  ];
+  
+  // Check if it's a core application file
+  const isCoreFile = coreApplicationPaths.some(corePath => path.includes(corePath));
+  
+  // Exclude non-application files
+  const excludePatterns = ['node_modules', 'dist', 'build', '.git', '.cache'];
+  const isExcluded = excludePatterns.some(pattern => path.includes(pattern));
+  
+  return isCoreFile && !isExcluded;
+}
 
-// Removed hardcoded component detection - trust agent intelligence
+// COMPONENT/PAGE FILE DETECTION
+function isComponentOrPage(filePath: string): boolean {
+  const path = filePath.toLowerCase();
+  return (path.includes('/pages/') || path.includes('/components/')) &&
+         (path.endsWith('.tsx') || path.endsWith('.ts')) &&
+         !path.includes('archive');
+}
 
-// Removed hardcoded scoring algorithm - trust pure agent intelligence
+// MAIN FILE SCORING ALGORITHM
+function calculateMainFileScore(queryTerms: any, pathLower: string, contentLower: string, fileName: string): number {
+  let score = 0;
+  
+  // Filename exact matches (highest weight)
+  if (queryTerms.primary.some((term: string) => fileName.includes(term))) score += 50;
+  
+  // Path matches
+  if (queryTerms.primary.some((term: string) => pathLower.includes(term))) score += 30;
+  
+  // Content relevance
+  const contentMatches = queryTerms.primary.filter((term: string) => contentLower.includes(term)).length;
+  score += Math.min(contentMatches * 10, 40);
+  
+  // Boost for multi-term matches
+  if (queryTerms.primary.length > 1) {
+    const multiMatch = queryTerms.primary.filter((term: string) => 
+      pathLower.includes(term) || contentLower.includes(term)
+    ).length;
+    if (multiMatch >= 2) score += 30;
+  }
+  
+  return Math.min(score, 100);
+}
 
-// Removed hardcoded component scoring - let agents use natural intelligence
+// COMPONENT SCORING ALGORITHM  
+function calculateComponentScore(queryTerms: any, pathLower: string, contentLower: string, fileName: string): number {
+  let score = 0;
+  
+  // Similar to main file scoring but slightly lower weights
+  if (queryTerms.primary.some((term: string) => fileName.includes(term))) score += 40;
+  if (queryTerms.primary.some((term: string) => pathLower.includes(term))) score += 25;
+  
+  const contentMatches = queryTerms.primary.filter((term: string) => contentLower.includes(term)).length;
+  score += Math.min(contentMatches * 8, 35);
+  
+  return Math.min(score, 100);
+}
 
-// Removed hardcoded semantic matching - trust agent natural language understanding
+// SEMANTIC MATCHING ALGORITHM
+function calculateSemanticMatch(queryTerms: any, pathLower: string, contentLower: string): number {
+  let score = 0;
+  
+  // Check all term types with different weights
+  const allTerms = [...queryTerms.primary, ...queryTerms.secondary, ...queryTerms.context];
+  
+  for (const term of allTerms) {
+    if (pathLower.includes(term)) score += 15;
+    if (contentLower.includes(term)) score += 10;
+  }
+  
+  // Synonym matching for MEMBER journey terms (prioritized over admin)
+  const synonyms: Record<string, string[]> = {
+    'member': ['user', 'customer', 'client', 'workspace', 'journey'],
+    'editorial': ['landing', 'story', 'testimonial', 'spread'],
+    'train': ['training', 'simple-training', 'model', 'upload'],
+    'shoot': ['photoshoot', 'ai-photoshoot', 'photography', 'photos'],
+    'style': ['styling', 'design', 'brand', 'aesthetic'], 
+    'build': ['builder', 'victoria-builder', 'create', 'generate'],
+    'gallery': ['sselfie-gallery', 'photos', 'collection'],
+    'flatlay': ['library', 'flatlay-library', 'assets'],
+    'workspace': ['member-workspace', 'dashboard', 'interface'],
+    'checkout': ['payment', 'pricing', 'subscription', 'billing'],
+    'agent': ['bot', 'assistant', 'ai', 'chat'],
+    'page': ['view', 'screen', 'interface', 'ui']
+  };
+  
+  for (const [key, syns] of Object.entries(synonyms)) {
+    if (queryTerms.primary.includes(key)) {
+      for (const syn of syns) {
+        if (pathLower.includes(syn) || contentLower.includes(syn)) {
+          score += 12;
+        }
+      }
+    }
+  }
+  
+  return Math.min(score, 100);
+}
 
-// Removed hardcoded content extraction - let agents determine relevant content naturally
+// EXTRACT MOST RELEVANT CONTENT
+function extractRelevantContent(content: string, queryTerms: any): string {
+  const lines = content.split('\n');
+  const relevantLines: string[] = [];
+  const allTerms = [...queryTerms.primary, ...queryTerms.secondary, ...queryTerms.context];
+  
+  // Find lines containing query terms
+  for (let i = 0; i < lines.length && relevantLines.length < 50; i++) {
+    const line = lines[i].toLowerCase();
+    if (allTerms.some(term => line.includes(term))) {
+      // Include context lines (1 before, current, 1 after)
+      const start = Math.max(0, i - 1);
+      const end = Math.min(lines.length, i + 2);
+      relevantLines.push(...lines.slice(start, end));
+    }
+  }
+  
+  // If no specific matches, return the beginning
+  if (relevantLines.length === 0) {
+    return content.substring(0, 1500);
+  }
+  
+  const relevantText = relevantLines.join('\n');
+  return relevantText.length > 2000 ? relevantText.substring(0, 2000) + '...' : relevantText;
+}
 
-// Removed hardcoded related file discovery - trust agent intelligence to find related files naturally
+// RELATED FILE DISCOVERY SYSTEM
+function findRelatedFiles(filePath: string, allFiles: string[]): string[] {
+  const related: string[] = [];
+  const fileName = path.basename(filePath, path.extname(filePath)).toLowerCase();
+  const dirPath = path.dirname(filePath);
+  
+  // Find files in same directory
+  const sameDir = allFiles.filter(f => path.dirname(f) === dirPath && f !== filePath);
+  related.push(...sameDir.slice(0, 3)); // Limit to 3 files per category
+  
+  // Find files with similar names
+  const similarNames = allFiles.filter(f => {
+    const otherFileName = path.basename(f, path.extname(f)).toLowerCase();
+    return otherFileName.includes(fileName) || fileName.includes(otherFileName);
+  });
+  related.push(...similarNames.slice(0, 2));
+  
+  // Find component/page pairs (e.g., admin-dashboard.tsx and AdminDashboard component)
+  const componentMatch = fileName.replace(/-/g, '').replace(/_/g, '');
+  const componentPairs = allFiles.filter(f => {
+    const otherBase = path.basename(f, path.extname(f)).toLowerCase();
+    const otherClean = otherBase.replace(/-/g, '').replace(/_/g, '');
+    return otherClean.includes(componentMatch) || componentMatch.includes(otherClean);
+  });
+  related.push(...componentPairs.slice(0, 2));
+  
+  // Remove duplicates and original file
+  return [...new Set(related)].filter(f => f !== filePath).slice(0, 5);
+}
 
 function analyzeBinaryFileRelevance(params: SearchParams, filePath: string): {
   relevant: boolean;

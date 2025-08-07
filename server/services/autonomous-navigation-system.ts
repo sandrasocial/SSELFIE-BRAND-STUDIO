@@ -1,5 +1,5 @@
 import { unifiedWorkspace, IntentBasedQuery } from './unified-workspace-service';
-// CIRCULAR DEPENDENCY FIX: Removed intelligentContext import to break circular calls
+import { intelligentContext, AgentWorkContext } from './intelligent-context-manager';
 
 /**
  * AUTONOMOUS NAVIGATION SYSTEM
@@ -51,22 +51,25 @@ export class AutonomousNavigationSystem {
         return similarPattern;
       }
 
-      // CIRCULAR DEPENDENCY FIX: Independent navigation without cross-calling intelligence systems
+      // Multi-strategy approach
       const [
         contextualFiles,
         intentBasedFiles,
-        smartResolution
+        smartResolution,
+        workContext
       ] = await Promise.all([
         this.discoverContextualFiles(intent),
         this.performIntentBasedSearch(intent),
-        this.smartPathResolution(intent.goal)
+        this.smartPathResolution(intent.goal),
+        intelligentContext.prepareAgentWorkspace(intent.goal, intent.agentType || 'unknown')
       ]);
 
-      // Combine and deduplicate results without intelligence system cross-calls
+      // Combine and deduplicate results
       const allFiles = this.combineAndRankResults([
         ...contextualFiles,
         ...intentBasedFiles,
-        ...smartResolution
+        ...smartResolution,
+        ...workContext.relevantFiles
       ], intent);
 
       const result: NavigationResult = {

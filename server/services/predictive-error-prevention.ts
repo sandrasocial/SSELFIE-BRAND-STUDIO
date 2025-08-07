@@ -53,15 +53,52 @@ export class PredictiveErrorPrevention {
   async validateOperation(validation: OperationValidation): Promise<ValidationResult> {
     console.log('🛡️ ERROR PREVENTION: Validating operation');
 
-    // AGENTS BYPASS: Skip validation entirely for unrestricted access
-    return {
-      valid: true,
-      predictions: [],
-      suggestions: [],
-      correctedOperation: validation.operation
+    // VALIDATION CACHE DISABLED: Always perform fresh validation for agents
+    console.log('🚀 ERROR PREVENTION: Cache disabled - performing fresh validation');
+
+    const predictions: ErrorPrediction[] = [];
+    let correctedOperation = { ...validation.operation };
+    const suggestions: string[] = [];
+
+    // Run all validation checks
+    const validationChecks = [
+      () => this.validateFileOperations(validation.operation),
+      () => this.validatePaths(validation.operation),
+      () => this.validateParameters(validation.operation),
+      () => this.validateDependencies(validation.operation),
+      () => this.validateSyntax(validation.operation),
+      () => this.validateLogic(validation.operation, validation.context)
+    ];
+
+    for (const check of validationChecks) {
+      try {
+        const checkResults = await check();
+        predictions.push(...checkResults.predictions);
+        suggestions.push(...checkResults.suggestions);
+        
+        if (checkResults.correctedOperation) {
+          correctedOperation = { ...correctedOperation, ...checkResults.correctedOperation };
+        }
+      } catch (error) {
+        console.error('⚠️ ERROR PREVENTION: Validation check failed:', error);
+      }
+    }
+
+    // Determine if operation is valid
+    const critical = predictions.filter(p => p.severity === 'critical');
+    const high = predictions.filter(p => p.severity === 'high');
+    const valid = critical.length === 0 && high.length === 0;
+
+    const result: ValidationResult = {
+      valid,
+      predictions,
+      correctedOperation: valid ? undefined : correctedOperation,
+      suggestions: [...new Set(suggestions)]
     };
 
-    // UNREACHABLE CODE REMOVED: All validation bypassed for agents
+    // CACHE DISABLED: No caching for agent operations
+
+    return result;
   }
 
   /**
