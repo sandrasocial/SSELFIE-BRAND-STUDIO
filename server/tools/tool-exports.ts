@@ -23,7 +23,7 @@ export interface SearchResult {
 
 export async function search_filesystem(params: SearchParams) {
   try {
-    console.log('🔍 TRUE BYPASS: Full unrestricted agent access:', params);
+    console.log('🔍 MEMBER JOURNEY BYPASS: Full unrestricted access to member experience:', params);
     
     const results: SearchResult[] = [];
     const maxFiles = 100; // TRUE BYPASS: Maximum file access for comprehensive coverage
@@ -248,19 +248,31 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
     };
   }
 
-  // TRUE BYPASS: Include ALL core application files to ensure agent visibility
-  // This ensures agents can find workspace, components, routes, services, databases
-  if (pathLower.includes('workspace') || pathLower.includes('member') || 
-      pathLower.includes('dashboard') || pathLower.includes('pages/') ||
-      pathLower.includes('components/') || pathLower.includes('server/routes/') ||
-      pathLower.includes('server/services/') || pathLower.includes('shared/') ||
-      pathLower.includes('hooks/') || pathLower.includes('lib/') ||
+  // TRUE BYPASS: Include ALL core MEMBER journey files with highest priority
+  // MEMBER JOURNEY PRIORITY: editorial → about → pricing → checkout → login → workspace → train → shoot → style → build → gallery → flatlay
+  if (pathLower.includes('editorial') || pathLower.includes('landing') || pathLower.includes('about') ||
+      pathLower.includes('pricing') || pathLower.includes('checkout') || pathLower.includes('login') ||
+      pathLower.includes('workspace') || pathLower.includes('member') || 
+      pathLower.includes('training') || pathLower.includes('photoshoot') || pathLower.includes('ai-photoshoot') ||
+      pathLower.includes('build') || pathLower.includes('gallery') || pathLower.includes('flatlay') ||
+      pathLower.includes('pages/') || pathLower.includes('components/') || 
+      pathLower.includes('server/routes/') || pathLower.includes('server/services/') || 
+      pathLower.includes('shared/') || pathLower.includes('hooks/') || pathLower.includes('lib/') ||
       pathLower.includes('schema') || pathLower.includes('database')) {
+    
+    // BOOST PRIORITY for MEMBER journey files
+    let memberPriority = 25;
+    if (pathLower.includes('editorial') || pathLower.includes('workspace') || 
+        pathLower.includes('training') || pathLower.includes('photoshoot') || 
+        pathLower.includes('gallery') || pathLower.includes('flatlay')) {
+      memberPriority = 35; // HIGHEST PRIORITY for core member journey
+    }
+    
     return {
       relevant: true,
       relevantContent: content.substring(0, 2000),
-      reason: `Core application file: ${fileName}`,
-      priority: 25  // INCREASED: Higher priority for core files
+      reason: `Core MEMBER journey file: ${fileName}`,
+      priority: memberPriority
     };
   }
   
@@ -292,22 +304,35 @@ function processSmartQuery(query: string): {
 // MAIN APPLICATION FILE DETECTION
 function isMainApplicationFile(filePath: string): boolean {
   const path = filePath.toLowerCase();
-  const importantPaths = [
+  
+  // MEMBER JOURNEY FILES GET HIGHEST PRIORITY
+  const memberJourneyPaths = [
     'client/src/pages/',
-    'client/src/components/',
+    'client/src/components/editorial',
+    'client/src/components/workspace', 
+    'client/src/components/ui/editorial',
     'server/routes/',
     'server/services/',
-    'server/agents/',
-    'server/tools/', 
     'shared/',
-    'client/src/app.tsx',
     'client/src/hooks/',
     'client/src/lib/'
   ];
   
-  return importantPaths.some(important => path.includes(important)) &&
+  // SECONDARY: Agent and tool files (important but not member-facing)
+  const systemPaths = [
+    'server/agents/',
+    'server/tools/', 
+    'client/src/app.tsx'
+  ];
+  
+  const isMemberFile = memberJourneyPaths.some(important => path.includes(important));
+  const isSystemFile = systemPaths.some(important => path.includes(important));
+  
+  return (isMemberFile || isSystemFile) &&
          !path.includes('node_modules') &&
-         !path.includes('backup');  // REMOVED: cache and archive restrictions for fuller access
+         !path.includes('backup') &&
+         !path.includes('admin') ||  // DEPRIORITIZE admin files unless specifically searched
+         path.includes('admin') && path.includes('member'); // EXCEPT admin-member bridge files
 }
 
 // COMPONENT/PAGE FILE DETECTION
@@ -369,11 +394,19 @@ function calculateSemanticMatch(queryTerms: any, pathLower: string, contentLower
     if (contentLower.includes(term)) score += 10;
   }
   
-  // Synonym matching for common terms
+  // Synonym matching for MEMBER journey terms (prioritized over admin)
   const synonyms: Record<string, string[]> = {
-    'admin': ['administration', 'administrator', 'manage', 'management'],
+    'member': ['user', 'customer', 'client', 'workspace', 'journey'],
+    'editorial': ['landing', 'story', 'testimonial', 'spread'],
+    'train': ['training', 'simple-training', 'model', 'upload'],
+    'shoot': ['photoshoot', 'ai-photoshoot', 'photography', 'photos'],
+    'style': ['styling', 'design', 'brand', 'aesthetic'], 
+    'build': ['builder', 'victoria-builder', 'create', 'generate'],
+    'gallery': ['sselfie-gallery', 'photos', 'collection'],
+    'flatlay': ['library', 'flatlay-library', 'assets'],
+    'workspace': ['member-workspace', 'dashboard', 'interface'],
+    'checkout': ['payment', 'pricing', 'subscription', 'billing'],
     'agent': ['bot', 'assistant', 'ai', 'chat'],
-    'consulting': ['consultant', 'advice', 'advisory', 'guidance'],
     'page': ['view', 'screen', 'interface', 'ui']
   };
   
