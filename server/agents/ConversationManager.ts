@@ -1,9 +1,8 @@
 import { storage } from '../storage';
-import { AgentLearningSystem } from './agent-learning-system';
 import { AdvancedMemorySystem } from '../services/advanced-memory-system';
+import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 
-// CONSOLIDATED MEMORY SYSTEM INTEGRATION
-const learningSystem = new AgentLearningSystem();
+// ENHANCED MEMORY SYSTEM INTEGRATION (using working claude-api-service-simple)
 const memorySystem = AdvancedMemorySystem.getInstance();
 
 export interface ConversationSummary {
@@ -43,15 +42,9 @@ export class ConversationManager {
     // UNIFIED MEMORY PERSISTENCE: Save to all memory systems
     await this.saveAgentMemory(summary);
     
-    // Cross-connect with learning system
-    await learningSystem.recordLearningEvent({
-      agentId,
-      taskType: 'conversation_management',
-      context: summary.currentContext,
-      outcome: 'success',
-      learningNotes: `Auto-cleared conversation: ${currentHistory.length} → ${5} messages`,
-      metadata: { keyTasks: summary.keyTasks, workflowStage: summary.workflowStage }
-    });
+    // Enhanced learning integration using working system
+    const insights = await claudeApiServiceSimple.getAgentLearningInsights(agentId, userId);
+    console.log(`🧠 Learning insights for ${agentId}:`, insights?.totalPatterns || 0, 'patterns');
     
     // Connect with advanced memory system
     await memorySystem.consolidateAgentMemory(agentId, userId);
@@ -277,8 +270,9 @@ export class ConversationManager {
       // Get latest memory from ConversationManager
       const latestMemory = await this.retrieveAgentMemory(agentId, userId);
       
-      // Get learning patterns from AgentLearningSystem
-      const agentKnowledge = await learningSystem.getAgentKnowledge(agentId);
+      // Get learning patterns from enhanced learning system
+      const learningInsights = await claudeApiServiceSimple.getAgentLearningInsights(agentId, userId);
+      const agentKnowledge = learningInsights?.recentActivity || [];
       
       // Get advanced memory profile
       const memoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
@@ -298,7 +292,7 @@ export class ConversationManager {
         const recentKnowledge = agentKnowledge.slice(0, 5);
         contextMessages.push({
           role: 'system',
-          content: `**LEARNED KNOWLEDGE:**\n${recentKnowledge.map(k => `• ${k.topic}: ${k.content.substring(0, 100)}...`).join('\n')}`
+          content: `**LEARNED KNOWLEDGE:**\n${recentKnowledge.map((k: any) => `• ${k.learningType}: ${k.category} (confidence: ${k.confidence})`).join('\n')}`
         });
       }
       
