@@ -55,10 +55,10 @@ export class ClaudeApiServiceSimple {
       }
       
       // Check agent's recent context to provide context awareness
-      const { searchCache } = await import('./agent-search-cache.ts');
-      const agentContext = searchCache.getAgentContext(agentName, userId);
-      if (agentContext && agentContext.recentSearches.length > 0) {
-        console.log(`🧠 ${agentName}: Found ${agentContext.recentSearches.length} recent searches, ${agentContext.fileAccess.length} recent file accesses`);
+      const { agentSearchCache } = await import('./agent-search-cache');
+      const searchContext = agentSearchCache.getSearchContext(conversationId, agentName);
+      if (searchContext && searchContext.searchHistory.length > 0) {
+        console.log(`🧠 ${agentName}: Found ${searchContext.searchHistory.length} recent searches, ${searchContext.totalFilesSearched} files discovered`);
       }
       
       // Prepare Claude API request with validation
