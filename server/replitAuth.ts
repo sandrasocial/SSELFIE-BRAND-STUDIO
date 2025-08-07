@@ -365,9 +365,7 @@ export async function setupAuth(app: Express) {
       const currentUrl = new URL(`https://${hostname}/api/callback?code=${code}`);
       
       // FIX: Use current openid-client v5+ API with proper parameters
-      const tokenSet = await client.authorizationCodeGrant(config, currentUrl, {
-        redirect_uri: `https://${hostname}/api/callback`
-      });
+      const tokenSet = await client.authorizationCodeGrant(config, currentUrl);
       
       console.log('✅ Manual token exchange successful');
       

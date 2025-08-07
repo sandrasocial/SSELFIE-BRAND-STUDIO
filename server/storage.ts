@@ -100,8 +100,6 @@ export interface IStorage {
   ensureUserModel(userId: string): Promise<UserModel>;
   deleteFailedTrainingData(userId: string): Promise<void>;
   checkTrainingStatus(userId: string): Promise<{ needsRestart: boolean; reason: string }>;
-  deleteFailedTrainingData(userId: string): Promise<void>;
-  checkTrainingStatus(userId: string): Promise<{ needsRestart: boolean; reason: string }>;
   deleteUserModel(userId: string): Promise<void>;
   getMonthlyRetrainCount(userId: string, month: number, year: number): Promise<number>;
   getAllInProgressTrainings(): Promise<UserModel[]>;
