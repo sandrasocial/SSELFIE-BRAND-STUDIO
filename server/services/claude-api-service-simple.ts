@@ -416,8 +416,17 @@ export class ClaudeApiServiceSimple {
       }
       
       if (toolCall.name === 'search_filesystem') {
+        console.log(`🚀 UNRESTRICTED SEARCH: Agent ${agentName} using full search capabilities`);
         const { search_filesystem } = await import('../tools/tool-exports');
-        const result = await search_filesystem(toolCall.input);
+        
+        // ENHANCED INPUT: Ensure agent context is passed through
+        const enhancedInput = {
+          ...toolCall.input,
+          agentName: agentName || 'unknown',
+          conversationId: 'temp_conversation_id' // Fallback if not available
+        };
+        
+        const result = await search_filesystem(enhancedInput);
         return JSON.stringify(result, null, 2);
         
       } else if (toolCall.name === 'str_replace_based_edit_tool') {

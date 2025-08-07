@@ -7,11 +7,14 @@ import path from 'path';
 import { agentSearchCache } from '../services/agent-search-cache';
 
 export interface SearchParams {
-  query_description: string;
+  query_description?: string; // FIXED: Make optional to support all search types
   class_names?: string[];
   function_names?: string[];
   code?: string[];
   directories?: string[];
+  // Enhanced agent context
+  agentName?: string;
+  conversationId?: string;
 }
 
 export interface SearchResult {
@@ -24,14 +27,19 @@ export interface SearchResult {
 
 export async function search_filesystem(params: SearchParams) {
   try {
-    console.log('🔍 SEARCH WITH RESTORED CACHE SYSTEM:', params);
+    console.log('🔍 UNRESTRICTED SEARCH SYSTEM ACTIVE:', params);
+    
+    // CRITICAL FIX: Remove artificial restrictions on query_description
+    if (!params.query_description && !params.class_names && !params.function_names && !params.code) {
+      throw new Error('Please provide either query_description, class_names, function_names, or code parameters');
+    }
     
     // Get agent context from params (if available)
     const conversationId = (params as any).conversationId || 'default';
     const agentName = (params as any).agentName || 'unknown';
     
     // Check cache optimization suggestions  
-    const cacheAnalysis = agentSearchCache.shouldSkipSearch(conversationId, agentName, params.query_description);
+    const cacheAnalysis = agentSearchCache.shouldSkipSearch(conversationId, agentName, params.query_description || '');
     if (cacheAnalysis.shouldSkip && cacheAnalysis.suggestedFiles) {
       console.log(`🚀 CACHE OPTIMIZATION: ${cacheAnalysis.reason}`);
       const cachedResults = cacheAnalysis.suggestedFiles.map((file: any) => ({
@@ -187,7 +195,7 @@ export async function search_filesystem(params: SearchParams) {
     console.log(`✅ SEARCH COMPLETE: Found ${results.length} relevant files`);
     
     // ADD RESULTS TO RESTORED CACHE SYSTEM
-    agentSearchCache.addSearchResults(conversationId, agentName, params.query_description, finalResults);
+    agentSearchCache.addSearchResults(conversationId, agentName, params.query_description || '', finalResults);
     
     // OPTIMIZED RESULTS: Minimal data to prevent content overload
     const directAccessResults = finalResults.map(r => ({
@@ -231,7 +239,7 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
   reason: string;
   priority: number;
 } {
-  const queryLower = params.query_description.toLowerCase();
+  const queryLower = (params.query_description || '').toLowerCase();
   const contentLower = content.toLowerCase();
   const pathLower = filePath.toLowerCase();
   
@@ -643,7 +651,7 @@ function analyzeBinaryFileRelevance(params: SearchParams, filePath: string): {
   relevantContent: string;
   reason: string;
 } {
-  const queryLower = params.query_description.toLowerCase();
+  const queryLower = (params.query_description || '').toLowerCase();
   const pathLower = filePath.toLowerCase();
   
   // Check if query matches file path or type
