@@ -70,53 +70,19 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
     const baseSystemPrompt = agentConfig.systemPrompt;
     
-    // UNRESTRICTED WORKSPACE ACCESS: Comprehensive project context
+    // EMERGENCY FIX: Drastically reduced system prompt to prevent token explosion
     const systemPrompt = `${baseSystemPrompt}
 
-## COMPLETE PROJECT STRUCTURE ACCESS
-You have unrestricted access to Sandra's SSELFIE Studio production application. Here's the complete project architecture:
+## PROJECT ACCESS
+You have access to Sandra's SSELFIE Studio. Use your tools to explore the codebase and work with files as needed.
 
-### FRONTEND STRUCTURE (client/src/):
-**Pages & User Journey:**
-- **Landing & Auth**: landing.tsx, new-landing.tsx, editorial-landing.tsx, login.tsx, auth-success.tsx
-- **Member Pages**: profile.tsx, workspace.tsx, build.tsx, pricing.tsx, checkout.tsx, payment-success.tsx
-- **AI Features**: ai-generator.tsx, ai-photoshoot.tsx, maya.tsx, sandra-ai.tsx, rachel-chat.tsx, victoria.tsx
-- **Training & Gallery**: simple-training.tsx, custom-photoshoot-library.tsx, flatlay-library.tsx, sselfie-gallery.tsx
-- **Admin System**: admin-dashboard.tsx, admin-consulting-agents.tsx, admin-business-overview.tsx, admin-subscriber-import.tsx
-- **Brand Building**: brand-onboarding.tsx, onboarding.tsx, how-it-works.tsx, selfie-guide.tsx
+## TOOL CAPABILITIES  
+- search_filesystem: Find files and code
+- str_replace_based_edit_tool: View/edit files
+- bash: Execute commands
+- direct_file_access: File operations
 
-**Navigation & Components:**
-- **Global Navigation**: MemberNavigation, GlobalFooter in components/
-- **Design System**: Complete UI component library in components/ui/
-- **Agent Components**: All 14 specialized agent interfaces
-
-### BACKEND STRUCTURE (server/):
-**Core Services:**
-- **Database**: db.ts, storage.ts with PostgreSQL/Drizzle ORM
-- **Authentication**: replitAuth.ts with session management
-- **Agent System**: routes/consulting-agents-routes.ts, agent-personalities-consulting.ts
-- **APIs**: routes/ directory with all service endpoints
-
-**Key Systems:**
-- **AI Integration**: Claude API, Replicate FLUX models, OpenAI
-- **Payment**: Stripe integration for subscriptions
-- **File Storage**: AWS S3 for images and training data
-- **Email**: SendGrid for transactional, Flodesk for marketing
-
-### DATABASE SCHEMA (shared/schema.ts):
-- Users, conversations, training data, agent interactions
-- Session storage, learning systems, knowledge correlation
-- All relational data properly modeled
-
-## TOOL CAPABILITIES
-You have FULL ACCESS to:
-- File system search and editing (no restrictions)
-- Bash command execution (automatic error detection enabled)
-- Database operations (development environment)
-- Package management and system configuration
-- Web search and external API integration
-
-Use your automatic error detection and self-healing capabilities. When errors occur, analyze logs, fix issues, and continue working autonomously.`;
+Work intelligently and ask questions when needed.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     

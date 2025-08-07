@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { db } from '../db.js';
 import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -22,9 +22,27 @@ export class ClaudeApiServiceSimple {
     try {
       console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
       
+      // EMERGENCY TOKEN MONITORING: Check system health before proceeding
+      console.log(`🔍 TOKEN CHECK: Starting conversation for ${agentName}`);
+      
       // Load conversation history and check for existing context
       await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
+      
+      // EMERGENCY: Estimate token usage to prevent explosion
+      const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(messages));
+      console.log(`📊 ESTIMATED TOKENS: ${estimatedTokens} (limit: 150,000)`);
+      
+      if (estimatedTokens > 150000) {
+        console.warn(`⚠️ TOKEN LIMIT EXCEEDED: ${estimatedTokens} > 150,000 - Emergency abort to prevent system failure`);
+        res.write(`data: ${JSON.stringify({
+          type: 'streaming_failure',
+          error: 'Token limit exceeded - conversation too large',
+          message: `${agentName} stopped to prevent system overload. Please start a new conversation.`
+        })}\n\n`);
+        res.end();
+        return;
+      }
       
       // Check agent's recent context to provide context awareness
       const { searchCache } = await import('./agent-search-cache.ts');
@@ -239,6 +257,16 @@ export class ClaudeApiServiceSimple {
     }
   }
 
+  // ================== EMERGENCY TOKEN MONITORING ==================
+  
+  /**
+   * Estimate token count to prevent explosion (rough approximation)
+   */
+  private estimateTokens(text: string): number {
+    // Rough approximation: 4 characters = 1 token (conservative estimate)
+    return Math.ceil(text.length / 4);
+  }
+
   // ================== INTELLIGENT RESULT PROCESSING ==================
   
   /**
@@ -304,8 +332,8 @@ export class ClaudeApiServiceSimple {
         
       } catch (error) {
         console.error('Error in intelligent search summary:', error);
-        // Fallback: Return beginning with clear indication of truncation
-        return `${toolResult.substring(0, 3000)}\n\n[Result partially truncated - ${toolResult.length} total characters. Search found relevant files successfully.]`;
+        // EMERGENCY FALLBACK: Strict character limit to prevent token explosion
+        return `${toolResult.substring(0, 2000)}\n\n[Result truncated for performance - ${toolResult.length} total characters. Search found relevant files successfully.]`;
       }
     }
     
@@ -317,8 +345,8 @@ export class ClaudeApiServiceSimple {
         : `${toolResult.substring(0, 4000)}\n\n[File content truncated - ${toolResult.length} total characters. Edit operation details preserved.]`;
     }
     
-    // Default: Smart truncation that preserves structure
-    return `${toolResult.substring(0, 3000)}\n\n[Result truncated - ${toolResult.length} total characters. Operation completed successfully.]`;
+    // EMERGENCY DEFAULT: Strict truncation to prevent token explosion
+    return `${toolResult.substring(0, 1500)}\n\n[Result truncated for performance - ${toolResult.length} total characters. Operation completed successfully.]`;
   }
 
   private async executeToolCall(toolCall: any, agentName?: string, userId?: string): Promise<string> {
@@ -380,11 +408,14 @@ export class ClaudeApiServiceSimple {
   }
 
   private async loadConversationMessages(conversationId: string) {
+    // EMERGENCY FIX: Limit conversation history to prevent token explosion
+    // Only load last 8 messages (4 user + 4 assistant pairs) to stay under token limits
     return await db
       .select()
       .from(claudeMessages)
       .where(eq(claudeMessages.conversationId, conversationId))
-      .orderBy(claudeMessages.createdAt);
+      .orderBy(desc(claudeMessages.createdAt))
+      .limit(8);
   }
 
   private async saveMessage(conversationId: string, role: string, content: string, toolCalls?: any, toolResults?: any) {
