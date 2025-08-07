@@ -127,8 +127,8 @@ export function UnifiedAgentInterface() {
       } else {
         setElenaTestResult(`Error: ${response.status} - ${response.statusText}`);
       }
-    } catch (error) {
-      setElenaTestResult(`Error: ${error.message}`);
+    } catch (error: any) {
+      setElenaTestResult(`Error: ${error?.message || 'Unknown error'}`);
     }
     
     setElenaTestLoading(false);
