@@ -287,8 +287,8 @@ export class ClaudeApiServiceSimple {
    * instead of arbitrary truncation that breaks agent functionality
    */
   private async intelligentResultSummary(toolResult: string, toolName: string): Promise<string> {
-    // If result is small enough, return as-is
-    if (toolResult.length <= 4000) {
+    // OPTIMIZED: Limit all results to prevent content overload
+    if (toolResult.length <= 2000) {
       return toolResult;
     }
     
@@ -392,7 +392,7 @@ export class ClaudeApiServiceSimple {
       // INTELLIGENT VALIDATION: Prevent errors before they happen
       if (toolCall.name === 'str_replace_based_edit_tool' && toolCall.input.command === 'str_replace') {
         // Pre-validate file modifications
-        const { ErrorPreventionSystem } = await import('../agents/error-prevention-system.js');
+        const { ErrorPreventionSystem } = await import('../agents/error-prevention-system');
         if (toolCall.input.new_str) {
           const validation = await ErrorPreventionSystem.validateCode(
             toolCall.input.new_str,
@@ -409,22 +409,22 @@ export class ClaudeApiServiceSimple {
       }
       
       if (toolCall.name === 'search_filesystem') {
-        const { search_filesystem } = await import('../tools/tool-exports.js');
+        const { search_filesystem } = await import('../tools/tool-exports');
         const result = await search_filesystem(toolCall.input);
         return JSON.stringify(result, null, 2);
         
       } else if (toolCall.name === 'str_replace_based_edit_tool') {
-        const { str_replace_based_edit_tool } = await import('../tools/tool-exports.js');
+        const { str_replace_based_edit_tool } = await import('../tools/tool-exports');
         const result = await str_replace_based_edit_tool(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'bash') {
-        const { bash } = await import('../tools/tool-exports.js');
+        const { bash } = await import('../tools/tool-exports');
         const result = await bash(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'direct_file_access') {
-        const { direct_file_access } = await import('../tools/tool-exports.js');
+        const { direct_file_access } = await import('../tools/tool-exports');
         const result = await direct_file_access(toolCall.input);
         return JSON.stringify(result, null, 2);
         
@@ -433,7 +433,7 @@ export class ClaudeApiServiceSimple {
       }
     } catch (error) {
       // INTELLIGENT ERROR HANDLING: Provide helpful context
-      const { ErrorPreventionSystem } = await import('../agents/error-prevention-system.js');
+      const { ErrorPreventionSystem } = await import('../agents/error-prevention-system');
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       const suggestions = ErrorPreventionSystem.generateFixSuggestions(errorMsg);
       
