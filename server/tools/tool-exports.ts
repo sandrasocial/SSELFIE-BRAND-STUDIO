@@ -307,11 +307,14 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
   ];
   
   if (memberJourneyFiles.includes(fileName)) {
+    // Add helpful path information for agents
+    const fullPath = `client/src/pages/${fileName}`;
     return {
       relevant: true,
       relevantContent: content.substring(0, 3000), // Maximum content for member files
-      reason: `CORE MEMBER JOURNEY: ${fileName} (direct match)`,
-      priority: 200 // ABSOLUTE HIGHEST PRIORITY - Always show member journey files first
+      reason: `CORE MEMBER JOURNEY: ${fileName} (Path: ${fullPath})`,
+      priority: 200, // ABSOLUTE HIGHEST PRIORITY - Always show member journey files first
+      filePath: fullPath // Explicit path for agent reference
     };
   }
   

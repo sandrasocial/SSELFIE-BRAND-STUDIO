@@ -60,9 +60,25 @@ export async function direct_file_access(params: DirectFileAccessParams) {
     
   } catch (error) {
     console.error('❌ DIRECT FILE ACCESS ERROR:', error);
+    
+    // Provide helpful path suggestions for common agent mistakes
+    let helpfulError = error instanceof Error ? error.message : 'Unknown error';
+    
+    if (helpfulError.includes('ENOENT') || helpfulError.includes('Directory not found')) {
+      const { AgentFilePathGuide } = await import('../agents/agent-file-path-guide.js');
+      const suggestion = AgentFilePathGuide.suggestCorrectPath(filePath);
+      helpfulError += `\n\n💡 Path Suggestion: ${suggestion}`;
+      
+      // Show available member journey files if looking for member paths
+      if (filePath.includes('member') || filePath.includes('workspace') || filePath.includes('training')) {
+        const memberFiles = AgentFilePathGuide.getAllMemberJourneyFiles();
+        helpfulError += `\n\n📁 Available Member Journey Files:\n${memberFiles.slice(0, 5).join('\n')}`;
+      }
+    }
+    
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: helpfulError,
       path: params.path
     };
   }

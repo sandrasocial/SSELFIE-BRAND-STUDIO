@@ -13,21 +13,23 @@ The client-side application is built with React and TypeScript, featuring a luxu
 The server is built on Express.js with TypeScript, implementing a RESTful API architecture. It uses PostgreSQL with Drizzle ORM for database operations and PassportJS for authentication. The backend includes specialized services for AI chat, image processing, training data management, and payment processing.
 
 ## Agent System Architecture - ENHANCED (August 7, 2025)
-**Status:** SYSTEMATIC FIX IMPLEMENTED - Agents now have architectural knowledge
-**Achievement:** Resolved "architectural blindness" causing 80% of agent failures
-**Core Fix:** Added comprehensive project structure knowledge to agent system prompts
+**Status:** COMPREHENSIVE FIX IMPLEMENTED - Path confusion eliminated, full file access restored
+**Achievement:** Resolved agent file access confusion with comprehensive guidance system
+**Core Fix:** Implemented agent file path education system with intelligent error recovery
 **Key Improvements:**
-1. ✅ **Architectural Knowledge Integration**: Agents now understand React/Express/PostgreSQL structure
-2. ✅ **Simplified Search System**: Reduced from 500 to 20 max results with clear formatting
-3. ✅ **Error Prevention System**: Pre-validates code changes before execution
-4. ✅ **Context Preservation**: Agents maintain memory across conversations
-5. ✅ **Intelligent Tool Usage**: Validation and suggestions for common errors
+1. ✅ **File Path Guide System**: Complete member journey file mapping with exact paths
+2. ✅ **Intelligent Error Messages**: Path suggestions and corrections for common mistakes
+3. ✅ **Step-to-Path Translation**: Natural language ("train", "workspace") maps to actual files
+4. ✅ **Enhanced Search Results**: Show explicit file paths in search results
+5. ✅ **Path Validation System**: Real-time validation with helpful corrections
+6. ✅ **Priority-Based File Access**: Critical member journey files clearly identified
 **Implementation Details:**
-- Added PROJECT ARCHITECTURE section to all agent prompts (file organization, import patterns, modification protocols)
-- Created architectural-knowledge-base.ts and error-prevention-system.ts modules
-- Integrated context-preservation-system.ts for cross-conversation learning
-- Simplified search results to actionable file lists instead of complex metadata
-**Impact:** Agents now modify correct files, maintain proper imports, and avoid breaking changes
+- Created agent-file-path-guide.ts with comprehensive file reference system
+- Enhanced direct_file_access tool with helpful error messages and path suggestions
+- Updated search system to show explicit file paths (e.g., "client/src/pages/workspace.tsx")
+- Added step-to-path translation for natural language file requests
+- Implemented common mistake corrections (directories vs files confusion)
+**Impact:** Agents now access member journey files confidently with clear path guidance
 
 ## Data Storage Solutions
 PostgreSQL serves as the primary database for users, conversations, and training data. AWS S3 is used for storing training images and generated content. Local file storage is used for flatlay collections and brand assets.
