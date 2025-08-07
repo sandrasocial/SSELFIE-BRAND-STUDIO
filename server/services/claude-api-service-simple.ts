@@ -22,9 +22,16 @@ export class ClaudeApiServiceSimple {
     try {
       console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
       
-      // Load conversation history
+      // Load conversation history and check for existing context
       await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
+      
+      // Check agent's recent context to provide context awareness
+      const { searchCache } = await import('./agent-search-cache.ts');
+      const agentContext = searchCache.getAgentContext(agentName, userId);
+      if (agentContext && agentContext.recentSearches.length > 0) {
+        console.log(`🧠 ${agentName}: Found ${agentContext.recentSearches.length} recent searches, ${agentContext.fileAccess.length} recent file accesses`);
+      }
       
       // Prepare Claude API request with validation
       const validMessages = messages
@@ -243,11 +250,39 @@ export class ClaudeApiServiceSimple {
     
     try {
       if (toolCall.name === 'search_filesystem') {
+        // Import search cache system
+        const { searchCache } = await import('./agent-search-cache.ts');
+        
+        // Check if we should skip this search
+        const queryDesc = toolCall.input.query_description || '';
+        const codeSearch = (toolCall.input.code || []).join(' ');
+        const searchQuery = queryDesc + ' ' + codeSearch;
+        
+        if (searchQuery.trim()) {
+          const { skip, cachedResult } = searchCache.shouldSkipSearch(agentName, userId, searchQuery);
+          if (skip && cachedResult) {
+            console.log(`🔄 ${agentName}: Using cached search results for: ${searchQuery.substring(0, 50)}...`);
+            return JSON.stringify(cachedResult, null, 2);
+          }
+        }
+        
         const { search_filesystem } = await import('../tools/tool-exports.ts');
         const result = await search_filesystem(toolCall.input);
+        
+        // Cache the result for future use
+        if (searchQuery.trim()) {
+          searchCache.cacheSearchResult(agentName, userId, searchQuery, result);
+        }
+        
         return JSON.stringify(result, null, 2);
         
       } else if (toolCall.name === 'str_replace_based_edit_tool') {
+        // Track file access to prevent redundant operations  
+        const { searchCache } = await import('./agent-search-cache.ts');
+        if (toolCall.input.path) {
+          searchCache.trackFileAccess(agentName, userId, toolCall.input.path);
+        }
+        
         const { str_replace_based_edit_tool } = await import('../tools/tool-exports.ts');
         const result = await str_replace_based_edit_tool(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
