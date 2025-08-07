@@ -123,15 +123,11 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
-    // Set response headers for streaming - FIXED ORDER
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS'
-    });
+    // Set response headers for streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
     try {
       const claudeService = getClaudeService();
@@ -489,7 +485,5 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', admi
     });
   }
 });
-
-
 
 export default consultingAgentsRouter;

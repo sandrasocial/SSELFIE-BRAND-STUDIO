@@ -197,10 +197,10 @@ export class AgentCoordinationSystem {
     return {
       workflowId,
       conversations: conversations.map(c => ({
-        agent: c.claude_conversations.agentName,
-        stage: c.claude_messages.metadata?.workflowStage,
-        data: JSON.parse(c.claude_messages.content || '{}'),
-        timestamp: c.claude_messages.timestamp
+        agent: c.claudeConversations.agentName,
+        stage: c.claudeMessages.metadata?.workflowStage,
+        data: JSON.parse(c.claudeMessages.content || '{}'),
+        timestamp: c.claudeMessages.timestamp
       }))
     };
   }
@@ -216,7 +216,7 @@ export class AgentCoordinationSystem {
       .limit(100);
 
     const agentStats = recentConversations.reduce((stats, conv) => {
-      const agent = conv.claude_conversations.agentName;
+      const agent = conv.claudeConversations.agentName;
       if (!stats[agent]) {
         stats[agent] = {
           totalConversations: 0,
@@ -230,7 +230,7 @@ export class AgentCoordinationSystem {
       
       stats[agent].totalConversations++;
       stats[agent].totalMessages += 1;
-      const workflowStage = conv.claude_messages.metadata?.workflowStage;
+      const workflowStage = conv.claudeMessages.metadata?.workflowStage;
       if (workflowStage) stats[agent].stages.push(workflowStage);
       
       return stats;
