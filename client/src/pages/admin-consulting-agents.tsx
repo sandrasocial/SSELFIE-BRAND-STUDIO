@@ -8,7 +8,6 @@ import { GlobalFooter } from '@/components/global-footer';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '@/components/ui/button';
-import { Workflow, Loader2 } from 'lucide-react';
 
 // Agent images - same as admin dashboard
 import AgentElena from '@assets/out-0 (33)_1753426218039.png';
@@ -253,8 +252,6 @@ export default function AdminConsultingAgents() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [fileEditMode, setFileEditMode] = useState(true);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
-  const [elenaTestResult, setElenaTestResult] = useState<string>('');
-  const [elenaTestLoading, setElenaTestLoading] = useState<boolean>(false);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -763,119 +760,6 @@ export default function AdminConsultingAgents() {
               <p className="text-lg text-gray-600 font-light leading-relaxed">
                 Choose your strategic advisor for comprehensive codebase analysis and actionable recommendations.
               </p>
-            </div>
-
-            {/* Elena Workflow Test - Special Admin Section */}
-            <div className="mb-8 p-6 border-2 border-blue-200 bg-blue-50 rounded-lg">
-              <div className="flex items-center gap-2 mb-4">
-                <Workflow className="h-5 w-5 text-blue-600" />
-                <h3 className="text-lg font-semibold text-blue-800" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  Elena Workflow Execution Test
-                </h3>
-              </div>
-              
-              <p className="text-sm text-gray-700 mb-4">
-                Test Elena's ability to execute workflows through the MultiAgentCoordinator system. 
-                This will verify that Elena can coordinate Aria, Zara, Rachel, and Quinn to complete 
-                assigned tasks with actual file modifications.
-              </p>
-              
-              <Button
-                onClick={async () => {
-                  setElenaTestLoading(true);
-                  setElenaTestResult('Testing Elena workflow execution...');
-                  
-                  try {
-                    const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer sandra-admin-2025',
-                      },
-                      body: JSON.stringify({
-                        agentId: 'elena',
-                        message: 'Execute restart_workflow with name: workflow_1753660762258. Coordinate Aria, Zara, Rachel, and Quinn to complete their assigned tasks with actual file modifications. I need to verify that agents are completing tasks and saving changes to the file tree.',
-                        conversationId: 'elena-workflow-execution-test'
-                      })
-                    });
-
-                    if (response.ok) {
-                      const reader = response.body?.getReader();
-                      let streamResult = '';
-                      
-                      if (reader) {
-                        while (true) {
-                          const { done, value } = await reader.read();
-                          if (done) break;
-                          
-                          const chunk = new TextDecoder().decode(value);
-                          streamResult += chunk;
-                          
-                          // Parse streaming data if it's SSE format
-                          if (chunk.includes('data: ')) {
-                            const lines = chunk.split('\n');
-                            lines.forEach(line => {
-                              if (line.startsWith('data: ')) {
-                                try {
-                                  const jsonData = JSON.parse(line.substring(6));
-                                  if (jsonData.content) {
-                                    streamResult = jsonData.content;
-                                  }
-                                } catch (e) {
-                                  // Raw text data
-                                  streamResult = line.substring(6);
-                                }
-                              }
-                            });
-                          }
-                          
-                          setElenaTestResult(streamResult);
-                        }
-                      }
-                    } else {
-                      setElenaTestResult(`Error: ${response.status} - ${response.statusText}`);
-                    }
-                  } catch (error: any) {
-                    setElenaTestResult(`Error: ${error?.message || 'Unknown error'}`);
-                  }
-                  
-                  setElenaTestLoading(false);
-                }}
-                disabled={elenaTestLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                {elenaTestLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Testing Elena Workflow...
-                  </>
-                ) : (
-                  <>
-                    <Workflow className="h-4 w-4 mr-2" />
-                    Test Elena Workflow Execution
-                  </>
-                )}
-              </Button>
-              
-              {elenaTestResult && (
-                <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
-                  <h4 className="font-bold mb-2 text-sm">Elena Response:</h4>
-                  <pre className="text-xs whitespace-pre-wrap overflow-auto max-h-32 font-mono">
-                    {elenaTestResult}
-                  </pre>
-                </div>
-              )}
-              
-              <div className="mt-3 text-xs text-gray-600 bg-white p-3 rounded border">
-                <p><strong>Expected Behavior:</strong></p>
-                <ul className="list-disc list-inside ml-2 mt-1 space-y-1">
-                  <li>Elena executes restart_workflow tool</li>
-                  <li>MultiAgentCoordinator loads workflow_1753660762258</li>
-                  <li>Coordinates 4 agents: Aria, Zara, Rachel, Quinn</li>
-                  <li>Each agent completes assigned tasks with file modifications</li>
-                  <li>Results tracked and file changes visible in project tree</li>
-                </ul>
-              </div>
             </div>
 
             {/* Agent Cards Grid */}
