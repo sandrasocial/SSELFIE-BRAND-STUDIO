@@ -101,8 +101,11 @@ async function handleCreate(filePath: string, content: string): Promise<string> 
     // Write file
     await fs.writeFile(filePath, content, 'utf-8');
     
+    // Show relative path instead of absolute path for cleaner response
+    const relativePath = path.relative(process.cwd(), filePath);
+    
     console.log(`✅ FILE CREATED: ${filePath}`);
-    return `File created successfully at: ${filePath}`;
+    return `File created successfully at: ${relativePath || filePath}`;
   } catch (error) {
     throw new Error(`Failed to create file: ${(error as Error).message}`);
   }
