@@ -246,6 +246,21 @@ export default function AdminConsultingAgents() {
   const { user } = useAuth();
   const [location] = useLocation();
   const [selectedAgent, setSelectedAgent] = useState<ConsultingAgent | null>(null);
+  
+  // Test button functionality
+  const handleTestClick = () => {
+    console.log('Test button clicked!');
+  };
+
+  // Add test button at the top
+  const TestButton = () => (
+    <Button
+      onClick={handleTestClick}
+      className="mb-4 bg-black text-white hover:bg-gray-800 transition-colors"
+    >
+      Test Button
+    </Button>
+  );
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -684,8 +699,15 @@ export default function AdminConsultingAgents() {
     console.log('✅ STOP AGENT: Cleanup complete');
   };
 
+
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Test Button */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <TestButton />
+      </div>
+      
       <MemberNavigation />
       
       {/* Hero Section */}
