@@ -25,7 +25,7 @@ export class ClaudeApiServiceSimple {
     try {
       // Load agent configuration
       const personalities = await import('../agent-personalities-consulting.js');
-      const agentConfig = personalities.CONSULTING_AGENT_PERSONALITIES[agentName];
+      const agentConfig = personalities.CONSULTING_AGENT_PERSONALITIES[agentName as keyof typeof personalities.CONSULTING_AGENT_PERSONALITIES];
       
       if (!agentConfig) {
         throw new Error(`Agent ${agentName} not found`);
