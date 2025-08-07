@@ -22,9 +22,15 @@ export class ClaudeApiServiceSimple {
     try {
       console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
       
-      // CONTEXT PRESERVATION: Load previous knowledge
-      const { ContextPreservationSystem } = await import('../agents/context-preservation-system.js');
-      const previousContext = await ContextPreservationSystem.getContextSummary(agentName, userId);
+      // CONTEXT PRESERVATION: Load previous knowledge safely
+      let previousContext = '';
+      try {
+        const { ContextPreservationSystem } = await import('../agents/context-preservation-system.js');
+        previousContext = await ContextPreservationSystem.getContextSummary(agentName, userId);
+      } catch (error) {
+        console.error(`Failed to load context for ${agentName}:`, error);
+        previousContext = ''; // Continue without context if loading fails
+      }
       
       // EMERGENCY TOKEN MONITORING: Check system health before proceeding
       console.log(`🔍 TOKEN CHECK: Starting conversation for ${agentName}`);
