@@ -35,23 +35,23 @@ PostgreSQL serves as the primary database for users, conversations, and training
 ## Authentication and Authorization
 The system implements multi-tier authentication supporting local accounts, Google OAuth, and session-based security. It includes role-based access with admin/user permissions, secure session management using a PostgreSQL session store, and comprehensive user profile management with subscription tier validation.
 
-## Intelligent Search System - August 7, 2025
-**Status:** MEMBER JOURNEY PRIORITY SYSTEM IMPLEMENTED - Agent focus aligned with business
-**Achievement:** 95% Replit AI-level search intelligence prioritizing member experience over admin
-**Core Innovation:** Member-first priority system ensuring agents understand actual user journey
-**Architecture:** Unified search system with member journey bias elimination  
+## Intelligent Search System - August 7, 2025 (FINAL COMPREHENSIVE FIX)
+**Status:** COMPLETE PRIORITY SYSTEM IMPLEMENTED - Documentation properly deprioritized
+**Achievement:** Application files prioritized, documentation files moved to bottom of results  
+**Core Innovation:** Smart priority-based filtering ensuring agents see functional code first
+**Architecture:** Comprehensive priority system with intelligent documentation filtering
 **Key Features:**
-1. ✅ **Member Journey Priority**: Editorial, workspace, training, gallery files get highest priority (35)
-2. ✅ **Member-Focused Synonyms**: Train/shoot/style/build, editorial, workspace, checkout terms
-3. ✅ **Admin Bias Elimination**: Admin files deprioritized unless specifically searched
-4. ✅ **Complete User Flow Visibility**: Landing → pricing → workspace → train → shoot → build → gallery
-5. ✅ **Member Component Access**: Editorial, workspace, UI components prioritized over admin
-6. ✅ **Revenue Journey Focus**: Agents understand member experience that drives business
-**Performance Impact:** Agents now find member journey files first, admin files only when needed
-**Business Alignment:** All 13 agents focus on member experience optimization instead of admin tools
-**Member Journey Coverage:** Editorial landing, workspace (516 lines), training, photoshoot, build, gallery, flatlay library
-**Search Examples:** "user journey" shows member flow, not admin dashboard; "workspace" shows member interface, not admin tools
-**Critical Fix:** Eliminated restrictive scoring thresholds (50%→15%, 40%→10%, 30%→8%) for comprehensive file access
+1. ✅ **Member Journey Files (Priority 200)**: Direct filename matching for absolute highest priority
+2. ✅ **Application Files (Priority 50-80)**: All pages, components, routes, services without restrictions  
+3. ✅ **Documentation Deprioritization (Priority 5-10)**: Analysis docs, configs, assets at bottom
+4. ✅ **Intelligent Filtering**: Auto-filter docs when 20+ app files found
+5. ✅ **No Hardcoded Limitations**: Complete access to all functional application code
+6. ✅ **Business-First Results**: Member experience files shown before administrative tools
+**Performance Impact:** Agents see workspace.tsx, routes, components first; docs only when needed
+**Business Alignment:** Revenue-driving member experience prioritized over internal documentation
+**Application File Coverage:** Complete access to pages/, components/, routes/, services/, shared/, agents/, tools/
+**Priority Distribution:** 200 (member journey) → 80 (member files) → 70 (infrastructure) → 60 (pages/components) → 50 (support) → 10 (config) → 5 (docs)
+**Smart Filtering:** Documentation automatically filtered when sufficient application files available
 
 # External Dependencies
 
