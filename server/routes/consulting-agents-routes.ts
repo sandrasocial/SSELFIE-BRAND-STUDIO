@@ -123,11 +123,15 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
-    // Set response headers for streaming
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Set response headers for streaming - FIXED ORDER
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    });
 
     try {
       const claudeService = getClaudeService();
@@ -482,6 +486,167 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', admi
       error: 'Failed to load conversation history',
       conversations: [],
       messages: []
+    });
+  }
+});
+
+// INDIVIDUAL AGENT CHAT ENDPOINT - Elena, Zara, etc.
+consultingAgentsRouter.post('/:agentId/chat', adminAuth, async (req: any, res: any) => {
+  try {
+    const { agentId } = req.params;
+    const { message, conversationId } = req.body;
+    
+    console.log(`🎯 AGENT EXECUTION: ${agentId} starting with full tool access`);
+
+    if (!message?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Message is required'
+      });
+    }
+
+    // Get agent configuration
+    const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+    
+    if (!agentConfig) {
+      return res.status(404).json({
+        success: false,
+        message: `Agent ${agentId} not found`
+      });
+    }
+    
+    const userId = req.user ? (req.user as any).claims.sub : '42585527';
+    const finalConversationId = conversationId || `${agentId}_${Date.now()}`;
+    
+    // COMPREHENSIVE SYSTEM PROMPT with full architecture knowledge
+    const systemPrompt = `${agentConfig.systemPrompt}
+
+## PROJECT ARCHITECTURE - CRITICAL KNOWLEDGE
+**SSELFIE Studio Structure (React + TypeScript + Express + PostgreSQL)**
+
+### FILE ORGANIZATION:
+- **client/**: React frontend (components, pages, hooks, contexts)
+  - client/src/pages/: Page components (e.g., admin-dashboard.tsx)
+  - client/src/components/: Reusable UI components
+  - client/src/hooks/: Custom React hooks
+  - client/src/index.css: Global styles with luxury design tokens
+- **server/**: Express backend (routes, services, agents)
+  - server/routes/: API endpoints
+  - server/services/: Business logic and integrations
+  - server/agents/: Intelligence systems
+- **shared/**: Shared types and schemas (Drizzle ORM)
+  - shared/schema.ts: Database models and types
+
+### DESIGN RULES - LUXURY STANDARDS
+- **Colors**: Black (#0a0a0a), White (#fefefe), Gray (#f5f5f5) ONLY
+- **Typography**: Times New Roman headlines, system fonts for body
+- **Layout**: No rounded corners (border-radius: 0), editorial spacing
+- **Style**: Magazine-quality, minimalist, sophisticated
+
+**REMEMBER**: You have complete unrestricted access to all files and tools.`;
+    
+    console.log(`🚀 AGENT INTELLIGENCE: ${agentId} with comprehensive tool access`);
+    
+    // Set response headers for streaming - CRITICAL FIX
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    });
+
+    try {
+      const claudeService = getClaudeService();
+      
+      // COMPLETE TOOL ACCESS: All agent tools
+      const tools = [
+        {
+          name: "str_replace_based_edit_tool",
+          description: "View, create and edit files",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { type: "string", enum: ["view", "create", "str_replace", "insert"] },
+              path: { type: "string" },
+              file_text: { type: "string" },
+              old_str: { type: "string" },
+              new_str: { type: "string" },
+              insert_line: { type: "integer" },
+              insert_text: { type: "string" },
+              view_range: { type: "array", items: { type: "integer" } }
+            },
+            required: ["command", "path"]
+          }
+        },
+        {
+          name: "search_filesystem",
+          description: "Search for files and code in the codebase",
+          input_schema: {
+            type: "object",
+            properties: {
+              query_description: { type: "string" },
+              code: { type: "array", items: { type: "string" } },
+              class_names: { type: "array", items: { type: "string" } },
+              function_names: { type: "array", items: { type: "string" } },
+              search_paths: { type: "array", items: { type: "string" } }
+            }
+          }
+        },
+        {
+          name: "restart_workflow",
+          description: "Restart or start a workflow",
+          input_schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              workflow_timeout: { type: "integer", default: 30 }
+            },
+            required: ["name"]
+          }
+        },
+        {
+          name: "bash",
+          description: "Run bash commands",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { type: "string" },
+              restart: { type: "boolean" }
+            }
+          }
+        }
+      ];
+      
+      await claudeService.sendStreamingMessage(
+        userId,
+        agentId,
+        finalConversationId,
+        message,
+        systemPrompt,
+        tools,
+        res
+      );
+
+      console.log(`✅ AGENT SUCCESS: ${agentId} completed execution`);
+
+    } catch (error) {
+      console.error(`❌ AGENT ERROR: ${agentId}:`, error);
+      
+      res.write(`data: ${JSON.stringify({
+        type: 'error',
+        message: `Agent ${agentId} encountered an error: ${error}`
+      })}\n\n`);
+      
+      res.end();
+    }
+
+  } catch (error) {
+    console.error('❌ INDIVIDUAL AGENT ERROR:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
     });
   }
 });
