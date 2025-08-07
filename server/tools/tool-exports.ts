@@ -168,7 +168,7 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
   // PRIORITY 1 (100): EXACT MAIN FILE MATCHES
   if (isMainApplicationFile(filePath)) {
     const mainFileScore = calculateMainFileScore(queryTerms, pathLower, contentLower, fileName);
-    if (mainFileScore > 50) {
+    if (mainFileScore > 15) {  // LOWERED: From 50 to 15 for better component access
       priority = 100 + mainFileScore;
       relevantContent = extractRelevantContent(content, queryTerms);
       reason = `🎯 MAIN APP FILE: ${fileName} (${mainFileScore}% match)`;
@@ -179,7 +179,7 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
   // PRIORITY 2 (80): COMPONENT/PAGE MATCHES  
   if (isComponentOrPage(filePath)) {
     const componentScore = calculateComponentScore(queryTerms, pathLower, contentLower, fileName);
-    if (componentScore > 40) {
+    if (componentScore > 10) {  // LOWERED: From 40 to 10 for comprehensive component access
       priority = 80 + componentScore;
       relevantContent = extractRelevantContent(content, queryTerms);
       reason = `📄 COMPONENT/PAGE: ${fileName} (${componentScore}% match)`;
@@ -189,7 +189,7 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
   
   // PRIORITY 3 (60): SEMANTIC KEYWORD MATCHING
   const semanticScore = calculateSemanticMatch(queryTerms, pathLower, contentLower);
-  if (semanticScore > 30) {
+  if (semanticScore > 8) {  // LOWERED: From 30 to 8 for broader semantic matching
     priority = 60 + semanticScore;
     relevantContent = extractRelevantContent(content, queryTerms);
     reason = `🔍 SEMANTIC MATCH: ${fileName} (${semanticScore}% relevance)`;
@@ -248,16 +248,19 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
     };
   }
 
-  // TRUE BYPASS: If nothing specific matches, include files based on path relevance
-  // This ensures agents can find workspace, member, and core user journey files
+  // TRUE BYPASS: Include ALL core application files to ensure agent visibility
+  // This ensures agents can find workspace, components, routes, services, databases
   if (pathLower.includes('workspace') || pathLower.includes('member') || 
       pathLower.includes('dashboard') || pathLower.includes('pages/') ||
-      pathLower.includes('components/')) {
+      pathLower.includes('components/') || pathLower.includes('server/routes/') ||
+      pathLower.includes('server/services/') || pathLower.includes('shared/') ||
+      pathLower.includes('hooks/') || pathLower.includes('lib/') ||
+      pathLower.includes('schema') || pathLower.includes('database')) {
     return {
       relevant: true,
       relevantContent: content.substring(0, 2000),
       reason: `Core application file: ${fileName}`,
-      priority: 15
+      priority: 25  // INCREASED: Higher priority for core files
     };
   }
   
@@ -294,15 +297,17 @@ function isMainApplicationFile(filePath: string): boolean {
     'client/src/components/',
     'server/routes/',
     'server/services/',
+    'server/agents/',
+    'server/tools/', 
     'shared/',
-    'client/src/app.tsx'
+    'client/src/app.tsx',
+    'client/src/hooks/',
+    'client/src/lib/'
   ];
   
   return importantPaths.some(important => path.includes(important)) &&
          !path.includes('node_modules') &&
-         !path.includes('.cache') &&
-         !path.includes('archive') &&
-         !path.includes('backup');
+         !path.includes('backup');  // REMOVED: cache and archive restrictions for fuller access
 }
 
 // COMPONENT/PAGE FILE DETECTION
