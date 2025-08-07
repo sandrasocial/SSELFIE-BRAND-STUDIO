@@ -381,4 +381,77 @@ Use your automatic error detection and self-healing capabilities. When errors oc
   }
 });
 
+// CONVERSATION HISTORY ENDPOINT - Uses existing backend system with bypass for efficiency
+consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', adminAuth, async (req: any, res: any) => {
+  try {
+    const { agentName } = req.params;
+    const userId = req.user ? (req.user as any).claims.sub : '42585527';
+    
+    console.log(`📜 BYPASS CONVERSATION LOAD: ${agentName} for user ${userId}`);
+    
+    // Use existing database access (no duplicate Claude service creation)
+    const { db } = await import('../db.js');
+    const { claudeConversations, claudeMessages } = await import('../../shared/schema.js');
+    const { eq, and, desc } = await import('drizzle-orm');
+    
+    // Get conversation list for this agent/user
+    const conversations = await db
+      .select()
+      .from(claudeConversations)
+      .where(
+        and(
+          eq(claudeConversations.userId, userId),
+          eq(claudeConversations.agentName, agentName.toLowerCase())
+        )
+      )
+      .orderBy(desc(claudeConversations.lastMessageAt))
+      .limit(10);
+    
+    // Get most recent conversation messages if available
+    let messages: any[] = [];
+    if (conversations.length > 0) {
+      const latestConversationId = conversations[0].conversationId;
+      messages = await db
+        .select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, latestConversationId))
+        .orderBy(claudeMessages.createdAt);
+      
+      console.log(`📜 BYPASS LOADED: ${messages.length} messages from conversation ${latestConversationId}`);
+    }
+    
+    // Format messages for frontend
+    const formattedMessages = messages.map(msg => ({
+      id: msg.id.toString(),
+      type: msg.role === 'assistant' ? 'agent' : msg.role,
+      content: msg.content,
+      timestamp: msg.createdAt.toISOString(),
+      agentName: msg.role === 'assistant' ? agentName : undefined
+    }));
+    
+    res.json({
+      success: true,
+      conversations: conversations.map(conv => ({
+        id: conv.id,
+        conversationId: conv.conversationId,
+        agentName: conv.agentName,
+        messageCount: conv.messageCount,
+        createdAt: conv.createdAt.toISOString(),
+        updatedAt: conv.updatedAt.toISOString()
+      })),
+      messages: formattedMessages,
+      currentConversationId: conversations[0]?.conversationId || null
+    });
+    
+  } catch (error) {
+    console.error('📜 CONVERSATION HISTORY ERROR:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load conversation history',
+      conversations: [],
+      messages: []
+    });
+  }
+});
+
 export default consultingAgentsRouter;
