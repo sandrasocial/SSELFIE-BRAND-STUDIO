@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { db } from '../db.js';
-import { claudeConversations, claudeMessages, agentLearning } from '../../shared/schema.js';
+import { claudeConversations, claudeMessages, agentLearning, agentSessionContexts } from '../../shared/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 
 const anthropic = new Anthropic({

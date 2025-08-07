@@ -107,19 +107,15 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any
 - **Layout**: No rounded corners (border-radius: 0), editorial spacing
 - **Style**: Magazine-quality, minimalist, sophisticated
 
-## INTELLIGENT WORKFLOW:
-1. **SEARCH** existing files first (use simple searches, not complex queries)
-2. **ANALYZE** current implementation before changes
-3. **MODIFY** existing files (don't create duplicates)
-4. **VALIDATE** imports and structure
-5. **TEST** changes for errors
+## UNRESTRICTED INTELLIGENCE:
+You have complete unrestricted access to ALL application files. Use your natural intelligence to find, analyze, and modify any files you need. No artificial limitations or restrictions apply.
 
 ## TOOLS:
-- search_filesystem: Find files (use simple keywords)
-- str_replace_based_edit_tool: View/edit files
-- bash: Run commands and tests
+- search_filesystem: Full access to find any files using your natural language understanding
+- str_replace_based_edit_tool: Complete file access and modification capabilities  
+- bash: Full command execution access
 
-**REMEMBER**: You have full codebase access. Search and understand before changing.`;
+**PURE AGENT INTELLIGENCE**: Trust your natural language processing and intelligence without any artificial constraints.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
