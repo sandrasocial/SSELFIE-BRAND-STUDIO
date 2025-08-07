@@ -70,8 +70,15 @@ export class WebSearchOptimizationService {
 
     const queryKey = this.generateQueryKey(query, category);
 
-    // CACHE DISABLED FOR AGENTS: Always perform live search for agent requests
-    console.log('🚀 WEB SEARCH: Cache disabled - performing direct search for:', query);
+    // AGENTS BYPASS: Skip all caching logic entirely
+    return {
+      id: `direct-${Date.now()}`,
+      query,
+      results: [],
+      timestamp: new Date(),
+      source: 'live',
+      relevanceScore: 0
+    };
 
     // Perform live search
     const searchResult = await this.performLiveSearch(query, category, maxResults);

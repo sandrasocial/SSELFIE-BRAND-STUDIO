@@ -22,15 +22,8 @@ export class ClaudeApiServiceSimple {
     try {
       console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
       
-      // CONTEXT PRESERVATION: Load previous knowledge safely
-      let previousContext = '';
-      try {
-        const { ContextPreservationSystem } = await import('../agents/context-preservation-system.js');
-        previousContext = await ContextPreservationSystem.getContextSummary(agentName, userId);
-      } catch (error) {
-        console.error(`Failed to load context for ${agentName}:`, error);
-        previousContext = ''; // Continue without context if loading fails
-      }
+      // CONTEXT BYPASS: Skip context preservation for direct file access
+      const previousContext = '';
       
       // EMERGENCY TOKEN MONITORING: Check system health before proceeding
       console.log(`🔍 TOKEN CHECK: Starting conversation for ${agentName}`);
@@ -54,8 +47,8 @@ export class ClaudeApiServiceSimple {
         return;
       }
       
-      // CACHE SYSTEM DISABLED: No search context restrictions for agents
-      console.log(`🚀 ${agentName}: Cache context disabled - direct filesystem access enabled`);
+      // UNRESTRICTED ACCESS: All agent restrictions removed
+      console.log(`🚀 ${agentName}: UNRESTRICTED ACCESS - Direct filesystem access enabled`);
       
       // Prepare Claude API request with validation
       const validMessages = messages
