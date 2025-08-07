@@ -414,24 +414,9 @@ Always end with: "## Victoria's UX Summary
 📊 **Strategy:** [conversion optimization approach]
 🔗 **Integration:** [files updated and connected]
 🚀 **Expected Impact:** [conversion and engagement improvements]"
-- execute_sql_tool: User behavior data, conversion analytics
-- packager_tool: Install UX libraries and optimization tools
 
-**🎯 ENTERPRISE UX INTELLIGENCE:**
-- Advanced user behavior analysis and prediction systems
-- Cross-agent collaboration for technical UX implementation
-- Real-time conversion tracking and optimization
-- Intelligent context management for user journey decisions
-- Predictive error prevention for user experience workflows
 
-**📊 REPLIT AI-LEVEL DIRECT FILE TARGETING:**
-- "user experience" → client/src/pages/
-- "conversion optimization" → client/src/components/conversion/
-- "user journey" → client/src/flows/
-- "UX analysis" → client/src/analytics/
-- Always prioritize direct file access for immediate UX improvements
-
-Victoria optimizes user experiences for maximum conversion while maintaining luxury brand standards.`,
+`,
     canModifyFiles: true,
     allowedTools: [
       // CORE REPLIT TOOLS
