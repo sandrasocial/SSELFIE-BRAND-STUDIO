@@ -248,8 +248,40 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
     };
   }
 
-  // TRUE BYPASS: Include ALL core MEMBER journey files with highest priority
-  // MEMBER JOURNEY PRIORITY: editorial → about → pricing → checkout → login → workspace → train → shoot → style → build → gallery → flatlay
+  // EARLY ANALYSIS DOCUMENT FILTERING: Exclude analysis documents unless specifically searched
+  if (fileName.endsWith('.md') && 
+      (fileName.includes('AGENT') || fileName.includes('ADMIN') || fileName.includes('ANALYSIS') || 
+       fileName.includes('REPORT') || fileName.includes('STATUS') || fileName.includes('FIX') ||
+       fileName.includes('SUCCESS') || fileName.includes('COMPLETE') || fileName.includes('AUDIT') ||
+       fileName.includes('SYSTEM') || fileName.includes('INTEGRATION') || fileName.includes('CRITICAL')) &&
+      !queryLower.includes('analysis') && !queryLower.includes('report') && !queryLower.includes('status')) {
+    return {
+      relevant: false,
+      relevantContent: '',
+      reason: 'Analysis document filtered (not specifically requested)',
+      priority: 0
+    };
+  }
+
+  // MEMBER JOURNEY DIRECT FILE MAPPING: Exact file matches get absolute highest priority
+  const memberJourneyFiles = [
+    'workspace.tsx', 'editorial-landing.tsx', 'pricing.tsx', 'checkout.tsx', 'login.tsx',
+    'simple-training.tsx', 'ai-photoshoot.tsx', 'build.tsx', 'victoria-builder.tsx',
+    'sselfie-gallery.tsx', 'flatlay-library.tsx', 'about.tsx', 'how-it-works.tsx',
+    'landing.tsx', 'new-landing.tsx', 'member-navigation.tsx', 'workspace-interface.tsx',
+    'editorial-story.tsx', 'editorial-spread.tsx', 'editorial-testimonials.tsx'
+  ];
+  
+  if (memberJourneyFiles.includes(fileName)) {
+    return {
+      relevant: true,
+      relevantContent: content.substring(0, 3000), // Maximum content for member files
+      reason: `CORE MEMBER JOURNEY: ${fileName} (direct match)`,
+      priority: 200 // ABSOLUTE HIGHEST PRIORITY - Always show member journey files first
+    };
+  }
+  
+  // TRUE BYPASS: Include ALL core application files with member focus
   if (pathLower.includes('editorial') || pathLower.includes('landing') || pathLower.includes('about') ||
       pathLower.includes('pricing') || pathLower.includes('checkout') || pathLower.includes('login') ||
       pathLower.includes('workspace') || pathLower.includes('member') || 
@@ -260,12 +292,12 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
       pathLower.includes('shared/') || pathLower.includes('hooks/') || pathLower.includes('lib/') ||
       pathLower.includes('schema') || pathLower.includes('database')) {
     
-    // BOOST PRIORITY for MEMBER journey files
+    // BOOST PRIORITY for member-related files
     let memberPriority = 25;
     if (pathLower.includes('editorial') || pathLower.includes('workspace') || 
         pathLower.includes('training') || pathLower.includes('photoshoot') || 
         pathLower.includes('gallery') || pathLower.includes('flatlay')) {
-      memberPriority = 35; // HIGHEST PRIORITY for core member journey
+      memberPriority = 35; 
     }
     
     return {
