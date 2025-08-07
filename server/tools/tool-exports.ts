@@ -100,18 +100,25 @@ export async function search_filesystem(params: SearchParams) {
     // PRIORITY-BASED SORTING: Sort results by priority (highest first)
     const sortedResults = results.sort((a, b) => (b.priority || 0) - (a.priority || 0));
     
-    // INTELLIGENT FILTERING: Only filter analysis docs, keep ALL application files
-    const analysisDocPattern = /AGENT|ADMIN|ANALYSIS|REPORT|STATUS|FIX|SUCCESS|COMPLETE|AUDIT|SYSTEM|INTEGRATION|CRITICAL/;
-    const isAnalysisDoc = (result: any) => 
-      result.fileName?.endsWith('.md') && analysisDocPattern.test(result.fileName);
+    // DIRECT ACCESS MODE: No filtering, show actual project files
+    console.log('✅ DIRECT ACCESS MODE - No template redirects, no doc filtering');
     
-    // Filter analysis docs ONLY when we have 15+ non-analysis results
-    const nonAnalysisResults = sortedResults.filter(r => !isAnalysisDoc(r));
-    const analysisResults = sortedResults.filter(r => isAnalysisDoc(r));
+    // Filter out ONLY template/archive files that were hijacking searches
+    const isTemplateOverride = (result: any) => 
+      result.fileName?.includes('admin-created-maya-components') ||
+      result.fileName?.includes('template-override') ||
+      result.fileName?.includes('archive/') ||
+      result.fileName?.startsWith('AGENT_') ||
+      result.fileName?.startsWith('ADMIN_') ||
+      result.fileName?.startsWith('SYSTEM_');
     
-    // If we have plenty of application files, deprioritize (but don't eliminate) analysis docs
-    const finalSortedResults = nonAnalysisResults.length >= 15 
-      ? [...nonAnalysisResults.slice(0, 20), ...analysisResults.slice(0, 5)]
+    // Keep ALL real application files, filter ONLY template overrides
+    const realProjectFiles = sortedResults.filter(r => !isTemplateOverride(r));
+    const templateFiles = sortedResults.filter(r => isTemplateOverride(r));
+    
+    // Prioritize real project files, keep some templates for reference only
+    const finalSortedResults = realProjectFiles.length > 0 
+      ? [...realProjectFiles, ...templateFiles.slice(0, 2)]
       : sortedResults;
     
     // RELATED FILE DISCOVERY: Add related files for top results  
@@ -132,17 +139,23 @@ export async function search_filesystem(params: SearchParams) {
     
     console.log(`✅ SEARCH COMPLETE: Found ${results.length} relevant files`);
     
-    // SIMPLIFIED RESULTS FOR AGENTS: Clear, actionable format
-    const simplifiedResults = finalResults.map(r => ({
+    // DIRECT ACCESS RESULTS: Show full paths and real content
+    const directAccessResults = finalResults.map(r => ({
       file: r.fileName,
+      fullPath: r.fileName.startsWith('./') ? r.fileName : `./${r.fileName}`,
       reason: r.reason.replace(/[🎯📄🔍]/g, '').trim(),
-      snippet: r.content.substring(0, 200) + '...'
+      snippet: r.content.substring(0, 200) + '...',
+      type: r.fileName.endsWith('.tsx') ? 'React Component' : 
+            r.fileName.endsWith('.ts') ? 'TypeScript File' :
+            r.fileName.endsWith('.js') ? 'JavaScript File' :
+            r.fileName.endsWith('.md') ? 'Documentation' : 'File'
     }));
     
     return { 
-      summary: `Found ${results.length} files matching your search`,
-      results: simplifiedResults,
-      instructions: 'Use str_replace_based_edit_tool to view or modify these files'
+      summary: `DIRECT ACCESS: Found ${results.length} actual project files (template overrides removed)`,
+      results: directAccessResults,
+      instructions: 'Use str_replace_based_edit_tool with the fullPath to view or modify these files',
+      accessMode: 'DIRECT_FILESYSTEM_ACCESS'
     };
     
   } catch (error) {

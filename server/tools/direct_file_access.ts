@@ -27,13 +27,31 @@ export interface DirectFileAccessParams {
   path: string;
   recursive?: boolean;
   max_depth?: number;
+  // Direct access configuration
+  template_mode?: boolean;
+  bypass_training?: boolean;
+  raw_file_access?: boolean;
 }
 
 export async function direct_file_access(params: DirectFileAccessParams) {
   try {
-    console.log('🎯 DIRECT FILE ACCESS:', params);
+    console.log('🎯 DIRECT FILE ACCESS (RAW MODE):', params);
     
-    const { action, path: filePath, recursive = false, max_depth = 3 } = params;
+    const { 
+      action, 
+      path: filePath, 
+      recursive = false, 
+      max_depth = 3,
+      template_mode = false,
+      bypass_training = true,
+      raw_file_access = true
+    } = params;
+    
+    // RAW FILE ACCESS: Bypass all template systems
+    if (raw_file_access) {
+      console.log('✅ RAW FILE ACCESS ENABLED - Direct filesystem access');
+    }
+    
     const fullPath = path.resolve(process.cwd(), filePath);
     
     // Security check - ensure path is within project
@@ -69,14 +87,15 @@ export async function direct_file_access(params: DirectFileAccessParams) {
       const suggestion = AgentFilePathGuide.suggestCorrectPath(params.path);
       helpfulError += `\n\n💡 Path Suggestion: ${suggestion}`;
       
-      // Show available files if looking for specific paths (but don't restrict to just member files)
-      if (params.path.includes('member') || params.path.includes('workspace') || params.path.includes('training')) {
-        const memberFiles = AgentFilePathGuide.getAllMemberJourneyFiles();
-        helpfulError += `\n\n📁 Available Member Journey Files:\n${memberFiles.slice(0, 5).join('\n')}`;
+      // Show available actual files (no template redirects)
+      if (params.path.includes('workspace')) {
+        helpfulError += `\n\n📁 Direct Path: client/src/pages/workspace.tsx`;
       } else if (params.path.includes('admin')) {
-        helpfulError += `\n\n📁 Try: client/src/pages/admin/ for admin files`;
+        helpfulError += `\n\n📁 Direct Paths:\n- client/src/pages/admin-dashboard.tsx\n- client/src/pages/admin-consulting-agents.tsx`;
       } else if (params.path.includes('agent')) {
-        helpfulError += `\n\n📁 Try: server/agents/ for agent files`;
+        helpfulError += `\n\n📁 Direct Paths:\n- server/agents/\n- server/tools/\n- server/routes/`;
+      } else if (params.path.includes('pages')) {
+        helpfulError += `\n\n📁 Direct Path: client/src/pages/ (individual .tsx files)`;
       }
     }
     
