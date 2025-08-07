@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { db } from '../db.js';
-import { claudeConversations, claudeMessages } from '../../shared/schema.js';
-import { eq } from 'drizzle-orm';
+import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
+import { eq, and } from 'drizzle-orm';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -207,6 +207,10 @@ export class ClaudeApiServiceSimple {
       
       await this.saveMessage(conversationId, 'assistant', fullResponse, assistantToolCalls, assistantToolResults);
       
+      // CRITICAL FIX: Integrate learning and knowledge systems
+      await this.updateAgentLearning(userId, agentName, message, fullResponse);
+      await this.updateSessionContext(userId, agentName, conversationId, { message, response: fullResponse, toolsUsed: allToolCalls });
+      
       // Send completion
       res.write(`data: ${JSON.stringify({
         type: 'completion',
@@ -258,6 +262,9 @@ export class ClaudeApiServiceSimple {
   }
 
   private async createConversationIfNotExists(userId: string, agentName: string, conversationId: string) {
+    // CRITICAL FIX: Normalize agent name to lowercase to prevent case fragmentation
+    const normalizedAgentName = agentName.toLowerCase();
+    
     const [conversation] = await db
       .select()
       .from(claudeConversations)
@@ -268,13 +275,15 @@ export class ClaudeApiServiceSimple {
       await db.insert(claudeConversations).values({
         conversationId: conversationId,
         userId: userId,
-        agentName: agentName,
+        agentName: normalizedAgentName, // Use normalized name
         status: 'active',
         messageCount: 0,
         context: {},
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+      
+      console.log(`✅ Created conversation with normalized agent name: ${normalizedAgentName}`);
     }
   }
 
@@ -317,6 +326,135 @@ export class ClaudeApiServiceSimple {
 
       console.log(`✅ Updated conversation ${conversationId}: messageCount=${(conversation.messageCount || 0) + 1}`);
     }
+  }
+
+  // CRITICAL FIX: Add missing learning integration
+  private async updateAgentLearning(userId: string, agentName: string, userMessage: string, assistantMessage: string): Promise<void> {
+    try {
+      const normalizedAgentName = agentName.toLowerCase();
+      const patterns = this.extractPatterns(userMessage, assistantMessage);
+
+      for (const pattern of patterns) {
+        const existing = await db
+          .select()
+          .from(agentLearning)
+          .where(and(
+            eq(agentLearning.agentName, normalizedAgentName),
+            eq(agentLearning.userId, userId),
+            eq(agentLearning.learningType, pattern.type),
+            eq(agentLearning.category, pattern.category)
+          ))
+          .limit(1);
+
+        if (existing.length > 0) {
+          await db
+            .update(agentLearning)
+            .set({
+              frequency: (existing[0].frequency || 0) + 1,
+              confidence: Math.min(1.0, parseFloat(existing[0].confidence?.toString() || "0.5") + 0.1).toString(),
+              lastSeen: new Date(),
+              updatedAt: new Date(),
+            })
+            .where(eq(agentLearning.id, existing[0].id));
+        } else {
+          await db.insert(agentLearning).values({
+            agentName: normalizedAgentName,
+            userId: userId,
+            learningType: pattern.type,
+            category: pattern.category,
+            data: pattern.data,
+            confidence: "0.7",
+            frequency: 1,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+        }
+      }
+      
+      console.log(`🧠 Learning updated for ${normalizedAgentName}: ${patterns.length} patterns processed`);
+    } catch (error) {
+      console.error('Failed to update agent learning:', error);
+    }
+  }
+
+  // CRITICAL FIX: Add session context management
+  private async updateSessionContext(userId: string, agentName: string, conversationId: string, context: any): Promise<void> {
+    try {
+      const normalizedAgentName = agentName.toLowerCase();
+      const sessionId = `${userId}_${normalizedAgentName}_session`;
+
+      const existing = await db
+        .select()
+        .from(agentSessionContexts)
+        .where(and(
+          eq(agentSessionContexts.userId, userId),
+          eq(agentSessionContexts.agentId, normalizedAgentName)
+        ))
+        .limit(1);
+
+      const contextData = {
+        lastConversationId: conversationId,
+        recentInteractions: context,
+        timestamp: new Date().toISOString()
+      };
+
+      if (existing.length > 0) {
+        await db
+          .update(agentSessionContexts)
+          .set({
+            contextData: contextData,
+            lastInteraction: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(agentSessionContexts.id, existing[0].id));
+      } else {
+        await db.insert(agentSessionContexts).values({
+          userId: userId,
+          agentId: normalizedAgentName,
+          sessionId: sessionId,
+          contextData: contextData,
+          workflowState: 'active',
+          lastInteraction: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+      
+      console.log(`🔄 Session context updated for ${normalizedAgentName}`);
+    } catch (error) {
+      console.error('Failed to update session context:', error);
+    }
+  }
+
+  // CRITICAL FIX: Add pattern extraction logic
+  private extractPatterns(userMessage: string, assistantMessage: string): Array<{type: string, category: string, data: any}> {
+    const patterns = [];
+
+    // Extract conversation patterns
+    patterns.push({
+      type: 'pattern',
+      category: 'conversation',
+      data: {
+        userId: 'current_user',
+        message: userMessage.substring(0, 100),
+        response: assistantMessage.substring(0, 100)
+      }
+    });
+
+    // Extract successful response patterns
+    if (assistantMessage.length > 50) {
+      patterns.push({
+        type: `successful_response_${Date.now()}`,
+        category: 'conversation',
+        data: {
+          messageLength: userMessage.length,
+          responseLength: assistantMessage.length,
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+
+    return patterns;
   }
 }
 
