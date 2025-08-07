@@ -25,10 +25,20 @@ export default function SimpleTraining() {
 
   // Check user model status with proper authentication and typing
   const { data: userModel, refetch: refetchUserModel } = useQuery<{
-    id?: string;
+    id?: number;
+    userId?: string;
+    replicateModelId?: string;
     trainingStatus?: string;
     trainingProgress?: number;
     startedAt?: string;
+    modelName?: string;
+    replicateVersionId?: string;
+    triggerWord?: string;
+    isLuxury?: boolean;
+    modelType?: string;
+    estimatedCompletionTime?: string;
+    failureReason?: string;
+    completedAt?: string;
   }>({
     queryKey: ['/api/user-model'],
     retry: false,
@@ -623,7 +633,7 @@ export default function SimpleTraining() {
             opacity: 0.3
           }}>
             <img 
-              src={SandraImages.editorial.moodboardBlack}
+              src={SandraImages.editorial.thinking}
               alt=""
               style={{
                 width: '100%',

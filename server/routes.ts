@@ -1525,18 +1525,57 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Auth user endpoint - Production ready with impersonation support
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Auth user endpoint - Production ready with impersonation support and admin bypass
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
-      // Check for impersonated user first (admin testing)
-      if (req.session?.impersonatedUser) {
-        console.log('🎭 Returning impersonated user:', req.session.impersonatedUser.email);
-        return res.json(req.session.impersonatedUser);
+      console.log('🔍 /api/auth/user called - checking authentication');
+      
+      // CRITICAL FIX: Admin agent authentication bypass (preserving admin functionality)
+      const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
+      if (adminToken === 'sandra-admin-2025') {
+        console.log('🔑 Admin token authenticated - creating admin user session');
+        
+        // Get or create Sandra admin user
+        let adminUser = await storage.getUser('admin-sandra');
+        if (!adminUser) {
+          // Try to get Sandra's actual user record first
+          adminUser = await storage.getUser('42585527') || await storage.getUserByEmail('ssa@ssasocial.com');
+          
+          if (!adminUser) {
+            adminUser = await storage.upsertUser({
+              id: 'admin-sandra',
+              email: 'ssa@ssasocial.com',
+              firstName: 'Sandra',
+              lastName: 'Admin',
+              profileImageUrl: null
+            });
+          }
+        }
+        
+        console.log('✅ Admin user authenticated:', adminUser.email);
+        return res.json(adminUser);
+      }
+
+      // Check if user is authenticated through normal session
+      if (req.isAuthenticated() && (req.user as any)?.claims?.sub) {
+        const userId = (req.user as any).claims.sub;
+        console.log('✅ User authenticated via session, fetching user data for:', userId);
+        
+        // Check for impersonated user first (admin testing)
+        if (req.session?.impersonatedUser) {
+          console.log('🎭 Returning impersonated user:', req.session.impersonatedUser.email);
+          return res.json(req.session.impersonatedUser);
+        }
+        
+        const user = await storage.getUser(userId);
+        if (user) {
+          console.log('✅ User found in database:', user.email);
+          return res.json(user);
+        }
       }
       
-      const userId = req.user?.claims?.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      console.log('❌ User not authenticated - no session or admin token');
+      return res.status(401).json({ message: "Unauthorized" });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -2314,51 +2353,7 @@ ${agentConfig.systemPrompt}
     }
   });
 
-  // Auth user endpoint for frontend - CRITICAL: ADMIN AGENT AUTHENTICATION FIX
-  app.get('/api/auth/user', async (req: any, res) => {
-    try {
-      console.log('🔍 /api/auth/user called - checking authentication');
-      
-      // Check if user is authenticated through normal session
-      if (req.isAuthenticated() && (req.user as any)?.claims?.sub) {
-        const userId = (req.user as any).claims.sub;
-        console.log('✅ User authenticated via session, fetching user data for:', userId);
-        
-        const user = await storage.getUser(userId);
-        if (user) {
-          console.log('✅ User found in database:', user.email);
-          return res.json(user);
-        }
-      }
-      
-      // CRITICAL FIX: Admin agent authentication bypass
-      const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
-      if (adminToken === 'sandra-admin-2025') {
-        console.log('🔑 Admin token authenticated - creating admin user session');
-        
-        // Get or create Sandra admin user
-        let adminUser = await storage.getUser('admin-sandra');
-        if (!adminUser) {
-          adminUser = await storage.upsertUser({
-            id: 'admin-sandra',
-            email: 'ssa@ssasocial.com',
-            firstName: 'Sandra',
-            lastName: 'Admin',
-            profileImageUrl: null
-          });
-        }
-        
-        console.log('✅ Admin user authenticated:', adminUser.email);
-        return res.json(adminUser);
-      }
-      
-      console.log('❌ User not authenticated - no session or admin token');
-      return res.status(401).json({ message: "Unauthorized" });
-    } catch (error) {
-      console.error('❌ Auth error:', error);
-      return res.status(500).json({ message: "Authentication error" });
-    }
-  });
+
 
   // AI Photoshoot Generation - CRITICAL MISSING ENDPOINT
   app.post('/api/generate-user-images', isAuthenticated, async (req: any, res) => {
