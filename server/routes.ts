@@ -1669,8 +1669,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const userId = '42585527';
       
       // DIRECT AGENT ACCESS: Route directly to OPTIMIZED Claude API with workspace tools
-      const { ClaudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
-      const claudeService = new ClaudeApiServiceRebuilt();
+      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      const claudeService = new ClaudeApiServiceSimple();
       
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
       
@@ -2035,8 +2035,9 @@ ${agentConfig.systemPrompt}
           }
         ];
 
-        // STREAMLINED AGENT ACCESS: Route to rebuilt Claude API service (300 lines vs 2,214 lines)
-        const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+        // STREAMLINED AGENT ACCESS: Route to working Claude API service
+        const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+        const claudeApiServiceRebuilt = new ClaudeApiServiceSimple();
         
         console.log('🎯 STREAMLINED AGENT ACCESS: Using rebuilt Claude API service with complete tool suite');
         
@@ -2123,7 +2124,8 @@ ${agentConfig.systemPrompt}
       // Generate new conversation ID
       const conversationId = `conv_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
       
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      const claudeApiServiceRebuilt = new ClaudeApiServiceSimple();
       const conversationDbId = await claudeApiServiceRebuilt.createConversationIfNotExists(
         userId,
         agentName,
@@ -2156,7 +2158,8 @@ ${agentConfig.systemPrompt}
         });
       }
       
-      const { claudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
+      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      const claudeApiServiceRebuilt = new ClaudeApiServiceSimple();
       const messages = await claudeApiServiceRebuilt.getConversationHistory(conversationId);
       
       res.json({ 

@@ -179,8 +179,8 @@ Please respond in this JSON format:
 
     // FIXED: Use optimized Claude API service with token optimization and memory bypass
     try {
-      const { ClaudeApiServiceRebuilt } = await import('./services/claude-api-service-rebuilt');
-      const claudeService = new ClaudeApiServiceRebuilt();
+      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      const claudeService = new ClaudeApiServiceSimple();
       
       console.log('💰 TOKEN OPTIMIZATION: Sandra AI using optimized service with memory bypass');
       
