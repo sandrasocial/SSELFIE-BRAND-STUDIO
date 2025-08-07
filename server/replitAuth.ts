@@ -257,10 +257,11 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Login requested - starting authentication flow with simplified OAuth`);
       console.log(`🔍 Using strategy: replitauth:${hostname} for domain: ${hostname}`);
       
-      // Use passport to authenticate - this will redirect to OAuth provider
+      // CRITICAL FIX: Simplified authentication options to prevent consent page hanging
       passport.authenticate(`replitauth:${hostname}`, {
-        prompt: "login consent",
         scope: ["openid", "email", "profile", "offline_access"],
+        // Remove prompt parameter that causes consent page to hang in some configurations
+        // access_type: 'offline' // Keep for refresh tokens
       })(req, res, next);
     }
     
