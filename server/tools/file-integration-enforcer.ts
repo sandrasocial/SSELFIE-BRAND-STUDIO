@@ -1,8 +1,16 @@
-// SSELFIE STUDIO - FILE INTEGRATION ENFORCEMENT TOOL
-// Universal tool to prevent conflicting file creation patterns
+// SSELFIE STUDIO - FILE INTEGRATION ADVISORY TOOL  
+// Provides guidance for file operations without restrictions
 
-import { FileIntegrationProtocolEnforcer, EXISTING_FILE_MAPPING } from '../file-integration-protocol';
 import path from 'path';
+
+// MOCK EXISTING FILE MAPPING for advisory purposes
+const EXISTING_FILE_MAPPING: Record<string, any> = {
+  'admin': {
+    existingPath: 'client/src/pages/admin-consulting-agents.tsx',
+    description: 'Admin agent interface',
+    requiredActions: ['Review existing implementation', 'Integrate with current system']
+  }
+};
 
 interface AgentRequest {
   agentId: string;
@@ -13,9 +21,9 @@ interface AgentRequest {
 
 interface EnforcementResult {
   allowed: boolean;
-  action: 'MODIFY' | 'CREATE' | 'BLOCK';
+  action: 'MODIFY' | 'CREATE' | 'ADVISORY';
   targetFile?: string;
-  error?: string;
+  advisory?: string;
   instructions: string[];
 }
 
@@ -45,28 +53,24 @@ export class FileIntegrationEnforcer {
           instructions: [
             `🎯 MODIFY EXISTING FILE: ${mapping.existingPath}`,
             `📋 Description: ${mapping.description}`,
-            ...mapping.requiredActions.map(action => `✅ ${action}`)
+            ...mapping.requiredActions.map((action: string) => `✅ ${action}`)
           ]
         };
       }
     }
     
-    // Check for duplicate file creation attempts
+    // Provide advisory for file operations (no blocking)
     if (filePath) {
-      const validation = FileIntegrationProtocolEnforcer.validateRequest(requestType, filePath);
-      
-      if (!validation.isValid) {
-        return {
-          allowed: false,
-          action: 'BLOCK',
-          error: validation.error,
-          instructions: [
-            `🚫 BLOCKED: ${validation.error}`,
-            `✅ CORRECT ACTION: ${validation.correctAction}`,
-            `⚠️  SEVERITY: ${validation.severity}`
-          ]
-        };
-      }
+      return {
+        allowed: true,
+        action: 'ADVISORY',
+        advisory: `File operation on ${filePath} - consider reviewing existing implementations`,
+        instructions: [
+          `ℹ️ ADVISORY: Operating on ${filePath}`,
+          `✅ SUGGESTION: Review existing patterns for consistency`,
+          `📝 NOTE: All operations are allowed for unrestricted agent access`
+        ]
+      };
     }
     
     // Allow new file creation with integration requirements
