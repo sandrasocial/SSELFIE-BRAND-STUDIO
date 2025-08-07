@@ -10,131 +10,6 @@ const anthropic = new Anthropic({
 const DEFAULT_MODEL_STR = 'claude-3-5-sonnet-20241022';
 
 export class ClaudeApiServiceSimple {
-  /**
-   * REAL AGENT-TO-AGENT COMMUNICATION METHOD
-   * Used by MultiAgentCoordinator for actual agent delegation
-   */
-  async sendMessage(
-    message: string,
-    conversationId: string,
-    agentName: string,
-    returnFullResponse = false
-  ): Promise<string> {
-    console.log(`🚀 AGENT COMMUNICATION: ${agentName} processing message`);
-    
-    try {
-      // Load agent configuration
-      const personalities = await import('../agent-personalities-consulting.js');
-      const agentConfig = personalities.CONSULTING_AGENT_PERSONALITIES[agentName];
-      
-      if (!agentConfig) {
-        throw new Error(`Agent ${agentName} not found`);
-      }
-      
-      // Create conversation if needed
-      await this.createConversationIfNotExists('multi-agent-system', agentName, conversationId);
-      
-      // Load conversation history
-      const messages = await this.loadConversationMessages(conversationId);
-      
-      // Prepare Claude API request
-      const validMessages = messages
-        .filter((msg: any) => msg.content && msg.content.trim())
-        .map((msg: any) => ({
-          role: msg.role === 'agent' ? 'assistant' : msg.role,
-          content: msg.content
-        }));
-        
-      const claudeMessages = [
-        ...validMessages,
-        { role: 'user', content: message }
-      ];
-      
-      // Execute Claude API call
-      const response = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
-        max_tokens: 4000,
-        temperature: 0.7,
-        system: agentConfig.systemPrompt,
-        messages: claudeMessages,
-        tools: agentConfig.tools || []
-      });
-      
-      let fullResponse = '';
-      let toolCalls: any[] = [];
-      
-      // Process response content
-      for (const contentBlock of response.content) {
-        if (contentBlock.type === 'text') {
-          fullResponse += contentBlock.text;
-        } else if (contentBlock.type === 'tool_use') {
-          console.log(`🔧 ${agentName}: TOOL CALL: ${contentBlock.name}`, contentBlock.input);
-          
-          const toolCallData = {
-            name: contentBlock.name,
-            id: contentBlock.id,
-            input: contentBlock.input
-          };
-          toolCalls.push(toolCallData);
-        }
-      }
-      
-      // Execute tools if present
-      if (toolCalls.length > 0) {
-        for (const toolCall of toolCalls) {
-          try {
-            const toolResult = await this.executeToolCall(toolCall, agentName, 'multi-agent-system');
-            console.log(`✅ ${agentName}: Tool ${toolCall.name} completed`);
-            
-            // Continue conversation with tool result
-            const toolResultMessage = {
-              role: 'user' as const,
-              content: [{
-                type: 'tool_result' as const,
-                tool_use_id: toolCall.id,
-                content: toolResult
-              }]
-            };
-            
-            // Get agent's response to tool result
-            const followUpResponse = await anthropic.messages.create({
-              model: DEFAULT_MODEL_STR,
-              max_tokens: 4000,
-              temperature: 0.7,
-              system: agentConfig.systemPrompt,
-              messages: [...claudeMessages, 
-                { role: 'assistant', content: response.content },
-                toolResultMessage
-              ]
-            });
-            
-            // Add follow-up response to full response
-            for (const block of followUpResponse.content) {
-              if (block.type === 'text') {
-                fullResponse += '\n\n' + block.text;
-              }
-            }
-            
-          } catch (error) {
-            console.error(`❌ ${agentName}: Tool ${toolCall.name} failed:`, error);
-            fullResponse += `\n\nTool ${toolCall.name} failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
-          }
-        }
-      }
-      
-      // Save conversation
-      await this.saveMessage(conversationId, 'user', message);
-      await this.saveMessage(conversationId, 'agent', fullResponse);
-      
-      console.log(`✅ ${agentName}: Agent communication completed`);
-      return fullResponse;
-      
-    } catch (error) {
-      console.error(`❌ ${agentName}: Agent communication failed:`, error);
-      throw error;
-    }
-  }
-
   async sendStreamingMessage(
     userId: string,
     agentName: string,
@@ -484,24 +359,12 @@ export class ClaudeApiServiceSimple {
       }
     }
     
-    // For direct_file_access, preserve results completely - agents need full file listings
-    if (toolName === 'direct_file_access') {
-      return toolResult; // NEVER truncate file access results - agents need complete information
-    }
-    
     // For other tools, use smart truncation
     if (toolName === 'str_replace_based_edit_tool') {
       // Preserve file editing results completely (they're usually small)
       return toolResult.length <= 8000 
         ? toolResult 
         : `${toolResult.substring(0, 4000)}\n\n[File content truncated - ${toolResult.length} total characters. Edit operation details preserved.]`;
-    }
-    
-    // For bash and other tools, preserve reasonable results
-    if (toolName === 'bash' || toolName === 'execute_sql_tool') {
-      return toolResult.length <= 5000 
-        ? toolResult 
-        : `${toolResult.substring(0, 2500)}\n\n[Output truncated - ${toolResult.length} total characters]`;
     }
     
     // SIMPLIFIED DEFAULT: Clear, actionable results for agents

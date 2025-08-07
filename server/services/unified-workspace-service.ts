@@ -1,5 +1,5 @@
 import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_tool.js';
-// Removed search_filesystem import to break circular dependency
+import { search_filesystem } from '../tools/search_filesystem.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -146,17 +146,18 @@ export class UnifiedWorkspaceService {
    * Finds files based on intent, not exact paths
    */
   async discoverFilesByIntent(intent: IntentBasedQuery): Promise<WorkspaceOperation> {
-    console.log(`🎯 UNIFIED WORKSPACE: Direct file scanning - "${intent.intent}"`);
+    console.log(`🎯 UNIFIED WORKSPACE: Intent-based discovery - "${intent.intent}"`);
 
     try {
-      // BREAK CIRCULAR DEPENDENCY: Use direct file scanning instead of search_filesystem
-      const relevantFiles = await this.directFileScan(intent.intent);
+      // Smart search based on intent patterns
+      const searchParams = this.translateIntentToSearch(intent);
+      const result = await search_filesystem(searchParams);
 
       return {
         type: 'file_search',
         query: intent.intent,
         success: true,
-        result: relevantFiles,
+        result: this.rankFilesByRelevance(result.results || [], intent),
         costOptimized: true
       };
     } catch (error) {
@@ -167,57 +168,6 @@ export class UnifiedWorkspaceService {
         error: error instanceof Error ? error.message : 'Search failed',
         costOptimized: true
       };
-    }
-  }
-
-  private async directFileScan(intent: string): Promise<string[]> {
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    
-    const results: string[] = [];
-    const keywords = intent.toLowerCase().split(/\s+/);
-    
-    // Scan key directories without using search_filesystem
-    const directories = ['client/src', 'server', 'shared'];
-    
-    for (const dir of directories) {
-      const dirPath = path.join(process.cwd(), dir);
-      try {
-        await this.scanForKeywords(dirPath, keywords, results, dir, 0);
-      } catch (error) {
-        // Skip directories that don't exist
-      }
-    }
-    
-    return results.slice(0, 8); // Limit results
-  }
-
-  private async scanForKeywords(dirPath: string, keywords: string[], results: string[], basePath: string, depth: number): Promise<void> {
-    if (depth > 2) return; // Prevent deep recursion
-    
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    
-    try {
-      const entries = await fs.readdir(dirPath, { withFileTypes: true });
-      
-      for (const entry of entries) {
-        if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
-        
-        const fullPath = path.join(dirPath, entry.name);
-        const relativePath = path.join(basePath, entry.name);
-        
-        if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx'))) {
-          const filenameLower = entry.name.toLowerCase();
-          if (keywords.some(keyword => keyword.length > 2 && filenameLower.includes(keyword))) {
-            results.push(relativePath);
-          }
-        } else if (entry.isDirectory()) {
-          await this.scanForKeywords(fullPath, keywords, results, relativePath, depth + 1);
-        }
-      }
-    } catch (error) {
-      // Skip unreadable directories
     }
   }
 
