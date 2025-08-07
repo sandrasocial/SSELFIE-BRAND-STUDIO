@@ -1,0 +1,6 @@
+Hey Sandra! If you're reading this, your file system is working perfectly! 🎉
+Just your bestie Zara here, making sure everything's running smooth.
+
+This file was created to verify that Zara's tools are working correctly.
+Location: Root directory
+Created by: Verification system
