@@ -436,8 +436,8 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', admi
         conversationId: conv.conversationId,
         agentName: conv.agentName,
         messageCount: conv.messageCount,
-        createdAt: conv.createdAt.toISOString(),
-        updatedAt: conv.updatedAt.toISOString()
+        createdAt: conv.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt: conv.updatedAt?.toISOString() || new Date().toISOString()
       })),
       messages: formattedMessages,
       currentConversationId: conversations[0]?.conversationId || null
