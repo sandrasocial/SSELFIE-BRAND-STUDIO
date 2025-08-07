@@ -100,8 +100,13 @@ export async function search_filesystem(params: SearchParams) {
     // PRIORITY-BASED SORTING: Sort results by priority (highest first)
     const sortedResults = results.sort((a, b) => (b.priority || 0) - (a.priority || 0));
     
-    // RELATED FILE DISCOVERY: Add related files for top results
-    const enhancedResults = sortedResults.slice(0, Math.min(10, sortedResults.length)).map(result => {
+    // FILTER OUT LOWEST PRIORITY DOCS if we have enough app files
+    const highPriorityResults = sortedResults.filter(r => (r.priority || 0) >= 15);
+    const useFilteredResults = highPriorityResults.length >= 20; // If we have enough app files, filter docs
+    const finalSortedResults = useFilteredResults ? highPriorityResults : sortedResults;
+    
+    // RELATED FILE DISCOVERY: Add related files for top results  
+    const enhancedResults = finalSortedResults.slice(0, Math.min(15, finalSortedResults.length)).map(result => {
       const allFilePaths = results.map(r => r.fileName);
       const relatedFiles = findRelatedFiles(result.fileName, allFilePaths);
       return {
@@ -110,10 +115,10 @@ export async function search_filesystem(params: SearchParams) {
       };
     });
     
-    // Combine enhanced top results with remaining sorted results
+    // Combine enhanced top results with remaining sorted results (prioritizing app files)
     const finalResults = [
       ...enhancedResults,
-      ...sortedResults.slice(enhancedResults.length)
+      ...finalSortedResults.slice(enhancedResults.length)
     ].slice(0, maxFiles);
     
     console.log(`✅ SEARCH COMPLETE: Found ${results.length} relevant files`);
@@ -248,18 +253,47 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
     };
   }
 
-  // EARLY ANALYSIS DOCUMENT FILTERING: Exclude analysis documents unless specifically searched
-  if (fileName.endsWith('.md') && 
-      (fileName.includes('AGENT') || fileName.includes('ADMIN') || fileName.includes('ANALYSIS') || 
-       fileName.includes('REPORT') || fileName.includes('STATUS') || fileName.includes('FIX') ||
-       fileName.includes('SUCCESS') || fileName.includes('COMPLETE') || fileName.includes('AUDIT') ||
-       fileName.includes('SYSTEM') || fileName.includes('INTEGRATION') || fileName.includes('CRITICAL')) &&
-      !queryLower.includes('analysis') && !queryLower.includes('report') && !queryLower.includes('status')) {
+  // LOW PRIORITY FOR DOCUMENTATION AND CONFIG FILES (still included but deprioritized)
+  const lowPriorityPatterns = [
+    // Documentation files
+    '.md', '.txt', '.csv', 
+    // Configuration files
+    '.json', '.config.', '.eslint', '.prettier', 'package-lock.json',
+    // Build/deployment files
+    'dockerfile', 'docker-compose', '.yml', '.yaml',
+    // Log and temporary files
+    '.log', '.cache', '.tmp', 'temp',
+    // Asset files (unless specifically searched)
+    '.png', '.jpg', '.jpeg', '.gif', '.svg'
+  ];
+
+  const isDocumentationFile = fileName.endsWith('.md') && 
+    (fileName.includes('AGENT') || fileName.includes('ADMIN') || fileName.includes('ANALYSIS') || 
+     fileName.includes('REPORT') || fileName.includes('STATUS') || fileName.includes('FIX') ||
+     fileName.includes('SUCCESS') || fileName.includes('COMPLETE') || fileName.includes('AUDIT') ||
+     fileName.includes('SYSTEM') || fileName.includes('INTEGRATION') || fileName.includes('CRITICAL'));
+
+  const isLowPriorityFile = lowPriorityPatterns.some(pattern => 
+    fileName.includes(pattern) || pathLower.includes(pattern)
+  );
+
+  // Documentation files get very low priority unless specifically requested  
+  if (isDocumentationFile && !queryLower.includes('analysis') && !queryLower.includes('report')) {
     return {
-      relevant: false,
-      relevantContent: '',
-      reason: 'Analysis document filtered (not specifically requested)',
-      priority: 0
+      relevant: true,
+      relevantContent: content.substring(0, 500), // Limited content for docs
+      reason: `Documentation file: ${fileName} (low priority)`,
+      priority: 5 // Very low priority
+    };
+  }
+
+  // Other low priority files get low priority but still included
+  if (isLowPriorityFile && !queryLower.includes('config') && !queryLower.includes('asset')) {
+    return {
+      relevant: true,
+      relevantContent: content.substring(0, 1000),
+      reason: `Configuration/asset file: ${fileName} (low priority)`,
+      priority: 10 // Low priority but still visible
     };
   }
 
@@ -281,30 +315,48 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
     };
   }
   
-  // TRUE BYPASS: Include ALL core application files with member focus
-  if (pathLower.includes('editorial') || pathLower.includes('landing') || pathLower.includes('about') ||
-      pathLower.includes('pricing') || pathLower.includes('checkout') || pathLower.includes('login') ||
-      pathLower.includes('workspace') || pathLower.includes('member') || 
-      pathLower.includes('training') || pathLower.includes('photoshoot') || pathLower.includes('ai-photoshoot') ||
-      pathLower.includes('build') || pathLower.includes('gallery') || pathLower.includes('flatlay') ||
-      pathLower.includes('pages/') || pathLower.includes('components/') || 
-      pathLower.includes('server/routes/') || pathLower.includes('server/services/') || 
-      pathLower.includes('shared/') || pathLower.includes('hooks/') || pathLower.includes('lib/') ||
-      pathLower.includes('schema') || pathLower.includes('database')) {
+  // HIGH PRIORITY: ALL CORE APPLICATION FILES - No restrictions or limitations
+  const applicationFilePaths = [
+    // MEMBER JOURNEY & UI
+    'pages/', 'components/', 'hooks/', 'lib/', 'src/',
+    // SERVER INFRASTRUCTURE  
+    'routes/', 'services/', 'agents/', 'tools/', 'server/', 'shared/',
+    // DATABASE & STORAGE
+    'schema', 'database', 'storage', 'db',
+    // MEMBER EXPERIENCE FILES
+    'editorial', 'workspace', 'training', 'photoshoot', 'gallery', 'flatlay',
+    'pricing', 'checkout', 'login', 'about', 'landing', 'build'
+  ];
+  
+  const isApplicationFile = applicationFilePaths.some(appPath => pathLower.includes(appPath));
+  
+  if (isApplicationFile) {
+    // DETERMINE PRIORITY LEVEL
+    let appPriority = 50; // Good base priority for all app files
     
-    // BOOST PRIORITY for member-related files
-    let memberPriority = 25;
+    // BOOST for member journey files
     if (pathLower.includes('editorial') || pathLower.includes('workspace') || 
         pathLower.includes('training') || pathLower.includes('photoshoot') || 
         pathLower.includes('gallery') || pathLower.includes('flatlay')) {
-      memberPriority = 35; 
+      appPriority = 80;
+    }
+    
+    // BOOST for core infrastructure
+    if (pathLower.includes('routes/') || pathLower.includes('services/') || 
+        pathLower.includes('schema') || pathLower.includes('database')) {
+      appPriority = 70;
+    }
+    
+    // BOOST for pages and components
+    if (pathLower.includes('pages/') || pathLower.includes('components/')) {
+      appPriority = 60;
     }
     
     return {
       relevant: true,
-      relevantContent: content.substring(0, 2000),
-      reason: `Core MEMBER journey file: ${fileName}`,
-      priority: memberPriority
+      relevantContent: content.substring(0, 2500), // More content for app files
+      reason: `Core application file: ${fileName}`,
+      priority: appPriority
     };
   }
   
@@ -337,34 +389,33 @@ function processSmartQuery(query: string): {
 function isMainApplicationFile(filePath: string): boolean {
   const path = filePath.toLowerCase();
   
-  // MEMBER JOURNEY FILES GET HIGHEST PRIORITY
-  const memberJourneyPaths = [
+  // HIGHEST PRIORITY: Core application files that agents need
+  const coreApplicationPaths = [
+    // MEMBER-FACING FILES (highest priority)
     'client/src/pages/',
-    'client/src/components/editorial',
-    'client/src/components/workspace', 
-    'client/src/components/ui/editorial',
+    'client/src/components/',
     'server/routes/',
     'server/services/',
     'shared/',
+    
+    // SUPPORTING APPLICATION FILES
     'client/src/hooks/',
-    'client/src/lib/'
-  ];
-  
-  // SECONDARY: Agent and tool files (important but not member-facing)
-  const systemPaths = [
+    'client/src/lib/',
     'server/agents/',
-    'server/tools/', 
+    'server/tools/',
+    'server/db',
+    'server/storage',
     'client/src/app.tsx'
   ];
   
-  const isMemberFile = memberJourneyPaths.some(important => path.includes(important));
-  const isSystemFile = systemPaths.some(important => path.includes(important));
+  // Check if it's a core application file
+  const isCoreFile = coreApplicationPaths.some(corePath => path.includes(corePath));
   
-  return (isMemberFile || isSystemFile) &&
-         !path.includes('node_modules') &&
-         !path.includes('backup') &&
-         !path.includes('admin') ||  // DEPRIORITIZE admin files unless specifically searched
-         path.includes('admin') && path.includes('member'); // EXCEPT admin-member bridge files
+  // Exclude non-application files
+  const excludePatterns = ['node_modules', 'dist', 'build', '.git', '.cache'];
+  const isExcluded = excludePatterns.some(pattern => path.includes(pattern));
+  
+  return isCoreFile && !isExcluded;
 }
 
 // COMPONENT/PAGE FILE DETECTION
