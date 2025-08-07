@@ -12,24 +12,24 @@ The client-side application is built with React and TypeScript, featuring a luxu
 ## Backend Architecture
 The server is built on Express.js with TypeScript, implementing a RESTful API architecture. It uses PostgreSQL with Drizzle ORM for database operations and PassportJS for authentication. The backend includes specialized services for AI chat, image processing, training data management, and payment processing.
 
-## Agent System Architecture - ENHANCED (August 7, 2025)
-**Status:** COMPREHENSIVE FIX IMPLEMENTED - Path confusion eliminated, full file access restored
-**Achievement:** Resolved agent file access confusion with comprehensive guidance system
-**Core Fix:** Implemented agent file path education system with intelligent error recovery
-**Key Improvements:**
-1. ✅ **File Path Guide System**: Complete member journey file mapping with exact paths
-2. ✅ **Intelligent Error Messages**: Path suggestions and corrections for common mistakes
-3. ✅ **Step-to-Path Translation**: Natural language ("train", "workspace") maps to actual files
-4. ✅ **Enhanced Search Results**: Show explicit file paths in search results
-5. ✅ **Path Validation System**: Real-time validation with helpful corrections
-6. ✅ **Priority-Based File Access**: Critical member journey files clearly identified
+## Agent System Architecture - COMPREHENSIVE UNRESTRICTED ACCESS (August 7, 2025)
+**Status:** COMPLETE APPLICATION ACCESS IMPLEMENTED - No restrictions, full file system access
+**Achievement:** Agent access expanded from just agent files to ALL application files
+**Core Fix:** Comprehensive file access system for pre-login pages, client/src, API, components, servers, services
+**Key Features:**
+1. ✅ **Unrestricted Application Access**: ALL files accessible (client/src, server/, components/, pages/, API routes, services/)
+2. ✅ **Application File Priority**: +50 priority boost for all .tsx/.ts files outside node_modules
+3. ✅ **Complete File Mapping**: Comprehensive guide covering pre-login pages, member journey, admin, agent system
+4. ✅ **Multi-Category Access**: Pre-login, client/src app, API routes, server & services, components, member journey
+5. ✅ **Direct File Access**: Working bypass system for immediate file viewing and editing
+6. ✅ **Enhanced Search Results**: All application files boosted in search results with [APP FILE] tags
 **Implementation Details:**
-- Created agent-file-path-guide.ts with comprehensive file reference system
-- Enhanced direct_file_access tool with helpful error messages and path suggestions
-- Updated search system to show explicit file paths (e.g., "client/src/pages/workspace.tsx")
-- Added step-to-path translation for natural language file requests
-- Implemented common mistake corrections (directories vs files confusion)
-**Impact:** Agents now access member journey files confidently with clear path guidance
+- Expanded APPLICATION_FILES mapping with pre-login pages, client/src, API, server, services, components
+- Updated search priority system to boost ALL application files, not just agent files
+- Enhanced direct_file_access tool for complete project visibility
+- Added getCompleteApplicationGuide() function with comprehensive file access guide
+- Search system now detects and prioritizes client/src, /pages/, /components/, /api/, server/, /services/, /agents/
+**Impact:** Admin agents now have unrestricted access to entire application codebase with prioritized results
 
 ## Data Storage Solutions
 PostgreSQL serves as the primary database for users, conversations, and training data. AWS S3 is used for storing training images and generated content. Local file storage is used for flatlay collections and brand assets.
