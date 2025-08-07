@@ -39,25 +39,8 @@ export async function search_filesystem(params: SearchParams) {
     const conversationId = (params as any).conversationId || 'default';
     const agentName = (params as any).agentName || 'unknown';
     
-    // Check cache optimization suggestions  
-    const cacheAnalysis = agentSearchCache.shouldSkipSearch(conversationId, agentName, params.query_description || '');
-    if (cacheAnalysis.shouldSkip && cacheAnalysis.suggestedFiles) {
-      console.log(`🚀 CACHE OPTIMIZATION: ${cacheAnalysis.reason}`);
-      const cachedResults = cacheAnalysis.suggestedFiles.map((file: any) => ({
-        file: file.path,
-        fullPath: file.path.startsWith('./') ? file.path : `./${file.path}`,
-        reason: `CACHED: ${file.path}`,
-        snippet: file.content?.substring(0, 200) + '...' || '',
-        type: 'Cached File'
-      }));
-      
-      return {
-        summary: `Found ${cachedResults.length} cached files (Cache: ${cacheAnalysis.reason})`,
-        results: cachedResults,
-        instructions: 'Use str_replace_based_edit_tool to view these cached files',
-        accessMode: 'CACHE_OPTIMIZATION'
-      };
-    }
+    // CACHE SYSTEM DISABLED: Agents must search actual project files
+    console.log(`🚀 CACHE SYSTEM BYPASSED: Agent ${agentName} performing direct filesystem search`);
     
     const results: SearchResult[] = [];
     const maxFiles = 25; // OPTIMIZED: Limit results to prevent content overload
@@ -195,8 +178,8 @@ export async function search_filesystem(params: SearchParams) {
     
     console.log(`✅ SEARCH COMPLETE: Found ${results.length} relevant files`);
     
-    // ADD RESULTS TO RESTORED CACHE SYSTEM
-    agentSearchCache.addSearchResults(conversationId, agentName, params.query_description || '', finalResults);
+    // CACHE DISABLED: No longer storing results to prevent search hijacking
+    console.log(`✅ DIRECT SEARCH COMPLETE: ${finalResults.length} files found via actual filesystem search`);
     
     // OPTIMIZED RESULTS: Minimal data to prevent content overload
     const directAccessResults = finalResults.map(r => ({
@@ -216,7 +199,7 @@ export async function search_filesystem(params: SearchParams) {
       results: directAccessResults,
       instructions: 'Use str_replace_based_edit_tool with the fullPath to view or modify these files',
       accessMode: 'DIRECT_FILESYSTEM_ACCESS',
-      cacheStats: agentSearchCache.getCacheStats()
+      searchType: 'DIRECT_FILESYSTEM_SEARCH'
     };
     
   } catch (error) {
