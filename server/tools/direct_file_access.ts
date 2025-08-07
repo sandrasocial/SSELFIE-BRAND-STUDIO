@@ -66,13 +66,17 @@ export async function direct_file_access(params: DirectFileAccessParams) {
     
     if (helpfulError.includes('ENOENT') || helpfulError.includes('Directory not found')) {
       const { AgentFilePathGuide } = await import('../agents/agent-file-path-guide.js');
-      const suggestion = AgentFilePathGuide.suggestCorrectPath(filePath);
+      const suggestion = AgentFilePathGuide.suggestCorrectPath(params.path);
       helpfulError += `\n\n💡 Path Suggestion: ${suggestion}`;
       
-      // Show available member journey files if looking for member paths
-      if (filePath.includes('member') || filePath.includes('workspace') || filePath.includes('training')) {
+      // Show available files if looking for specific paths (but don't restrict to just member files)
+      if (params.path.includes('member') || params.path.includes('workspace') || params.path.includes('training')) {
         const memberFiles = AgentFilePathGuide.getAllMemberJourneyFiles();
         helpfulError += `\n\n📁 Available Member Journey Files:\n${memberFiles.slice(0, 5).join('\n')}`;
+      } else if (params.path.includes('admin')) {
+        helpfulError += `\n\n📁 Try: client/src/pages/admin/ for admin files`;
+      } else if (params.path.includes('agent')) {
+        helpfulError += `\n\n📁 Try: server/agents/ for agent files`;
       }
     }
     
