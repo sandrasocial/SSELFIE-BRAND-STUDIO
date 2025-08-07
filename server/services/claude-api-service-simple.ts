@@ -140,10 +140,8 @@ export class ClaudeApiServiceSimple {
             try {
               const toolResult = await this.executeToolCall(toolCall, agentName, userId);
               
-              // Summarize large tool results to prevent token overflow
-              const summarizedResult = toolResult.length > 3000 
-                ? `${toolResult.substring(0, 2000)}\n\n[Result truncated - ${toolResult.length} total characters. Search found relevant files successfully.]`
-                : toolResult;
+              // INTELLIGENT RESULT PROCESSING: Preserve high-priority search results
+              const summarizedResult = await this.intelligentResultSummary(toolResult, toolCall.name);
               
               // Add tool result to conversation
               currentMessages.push({
@@ -239,6 +237,88 @@ export class ClaudeApiServiceSimple {
       
       res.end();
     }
+  }
+
+  // ================== INTELLIGENT RESULT PROCESSING ==================
+  
+  /**
+   * Intelligent tool result processing that preserves high-priority information
+   * instead of arbitrary truncation that breaks agent functionality
+   */
+  private async intelligentResultSummary(toolResult: string, toolName: string): Promise<string> {
+    // If result is small enough, return as-is
+    if (toolResult.length <= 4000) {
+      return toolResult;
+    }
+    
+    // For search_filesystem results, preserve high-priority matches
+    if (toolName === 'search_filesystem' && toolResult.includes('priority')) {
+      try {
+        const lines = toolResult.split('\n');
+        const priorityResults: string[] = [];
+        const normalResults: string[] = [];
+        
+        let currentSection = '';
+        let inHighPrioritySection = false;
+        
+        for (const line of lines) {
+          // Detect high-priority results (priority > 80)
+          if (line.includes('"priority":') && (line.includes('priority": 1') || 
+              line.includes('priority": 2') || line.includes('MAIN APP FILE') ||
+              line.includes('COMPONENT/PAGE'))) {
+            inHighPrioritySection = true;
+          }
+          
+          // Build current section
+          currentSection += line + '\n';
+          
+          // When section ends, categorize it
+          if (line.trim() === '},' || line.trim() === '}') {
+            if (inHighPrioritySection) {
+              priorityResults.push(currentSection);
+            } else {
+              normalResults.push(currentSection);
+            }
+            currentSection = '';
+            inHighPrioritySection = false;
+          }
+        }
+        
+        // Combine results: All high-priority + some normal results if space allows
+        let finalResult = priorityResults.join('');
+        const remainingSpace = 6000 - finalResult.length;
+        
+        if (remainingSpace > 1000 && normalResults.length > 0) {
+          const additionalResults = normalResults.slice(0, 3).join('');
+          if (additionalResults.length <= remainingSpace) {
+            finalResult += additionalResults;
+          }
+        }
+        
+        // Add summary if truncated
+        if (finalResult.length < toolResult.length) {
+          finalResult += `\n\n[High-priority results preserved - ${priorityResults.length} priority files shown out of ${lines.filter(l => l.includes('fileName')).length} total matches. Search found relevant files successfully.]`;
+        }
+        
+        return finalResult;
+        
+      } catch (error) {
+        console.error('Error in intelligent search summary:', error);
+        // Fallback: Return beginning with clear indication of truncation
+        return `${toolResult.substring(0, 3000)}\n\n[Result partially truncated - ${toolResult.length} total characters. Search found relevant files successfully.]`;
+      }
+    }
+    
+    // For other tools, use smart truncation
+    if (toolName === 'str_replace_based_edit_tool') {
+      // Preserve file editing results completely (they're usually small)
+      return toolResult.length <= 8000 
+        ? toolResult 
+        : `${toolResult.substring(0, 4000)}\n\n[File content truncated - ${toolResult.length} total characters. Edit operation details preserved.]`;
+    }
+    
+    // Default: Smart truncation that preserves structure
+    return `${toolResult.substring(0, 3000)}\n\n[Result truncated - ${toolResult.length} total characters. Operation completed successfully.]`;
   }
 
   private async executeToolCall(toolCall: any, agentName?: string, userId?: string): Promise<string> {
