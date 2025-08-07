@@ -6,7 +6,7 @@ import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { db } from "./db";
-import { claudeConversations, claudeMessages } from "@shared/schema";
+import { claudeConversations, claudeMessages, agentSessionContexts } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
@@ -1714,6 +1714,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
       
       // Direct Claude API call for admin agent operations
+      let response;
       try {
         const anthropic = await import('@anthropic-ai/sdk').then(m => m.default);
         const client = new anthropic({
@@ -1727,9 +1728,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           system: `You are ${agentName}, a helpful AI assistant.`
         });
         
-        const response = result.content[0].type === 'text' ? result.content[0].text : 'Ready to help!';
+        response = result.content[0].type === 'text' ? result.content[0].text : 'Ready to help!';
       } catch (error) {
-        const response = `Hello! I'm ${agentName}, ready to help with your request.`;
+        response = `Hello! I'm ${agentName}, ready to help with your request.`;
       }
       
       res.json({ success: true, response });
