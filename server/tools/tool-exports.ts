@@ -3,6 +3,7 @@ export { str_replace_based_edit_tool } from './str_replace_based_edit_tool.ts';
 export { bash } from './bash.ts';
 export { direct_file_access } from './direct_file_access.ts';
 export { enhanced_search_bypass, analyzeSearchQuery } from './enhanced_search_bypass.ts';
+export { restart_workflow } from './restart-workflow.ts';
 import fs from 'fs/promises';
 import path from 'path';
 import { AutonomousNavigationSystem } from '../services/autonomous-navigation-system.js';
