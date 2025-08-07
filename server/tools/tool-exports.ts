@@ -1,6 +1,7 @@
 // Tool exports for Claude API service
 export { str_replace_based_edit_tool } from './str_replace_based_edit_tool.js';
 export { bash } from './bash.js';
+export { direct_file_access } from './direct_file_access.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -128,7 +129,17 @@ function analyzeFileRelevance(content: string, params: SearchParams, filePath: s
   const queryKeywords = queryLower.split(/\s+/).filter(word => word.length > 2);
   const pathMatches = queryKeywords.some(keyword => pathLower.includes(keyword));
   
-  // Check if query matches file path (exact or partial)
+  // PRIORITY 1: Exact filename match (highest priority)
+  const fileName = path.basename(pathLower);
+  if (fileName === queryLower || fileName.includes(queryLower)) {
+    return {
+      relevant: true,
+      relevantContent: content.substring(0, 2000),
+      reason: `Exact filename match: ${path.basename(filePath)}`
+    };
+  }
+  
+  // PRIORITY 2: Full path match
   if (pathLower.includes(queryLower) || pathMatches) {
     return {
       relevant: true,
