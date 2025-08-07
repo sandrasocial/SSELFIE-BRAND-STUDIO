@@ -69,6 +69,15 @@ export async function search_filesystem(params: SearchParams) {
             'node_modules', '.git', 'dist', 'build'
           ];
           
+          // AGENT FILE PRIORITY: Boost agent-related files in search results
+          const isAgentFile = relativePath.includes('agent') || 
+                             relativePath.includes('Agent') ||
+                             relativePath.includes('/agents/');
+          
+          if (isAgentFile) {
+            console.log(`🤖 AGENT FILE DETECTED: ${relativePath} - boosting priority`);
+          }
+          
           // MINIMAL EXCLUSIONS: Allow access to almost everything including cache, archives  
           if (excludeDirectories.includes(entry.name)) {
             continue;

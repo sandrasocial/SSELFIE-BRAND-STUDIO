@@ -11,6 +11,95 @@ export interface FilePathReference {
   }>;
 }
 
+// COMPLETE AGENT SYSTEM FILES - All existing agent files for admin access
+export const AGENT_SYSTEM_FILES: FilePathReference[] = [
+  {
+    category: "Core Agent Intelligence (Server-side)",
+    files: [
+      {
+        name: "codebase-understanding-intelligence.ts",
+        path: "server/agents/codebase-understanding-intelligence.ts",
+        size: "19,563 bytes",
+        description: "Main agent intelligence system for codebase understanding",
+        priority: "critical"
+      },
+      {
+        name: "agent-codebase-integration.ts",
+        path: "server/agents/agent-codebase-integration.ts", 
+        size: "26,779 bytes",
+        description: "Agent codebase integration and analysis system",
+        priority: "critical"
+      },
+      {
+        name: "agent-learning-system.ts",
+        path: "server/agents/agent-learning-system.ts",
+        size: "7,947 bytes", 
+        description: "Agent learning and adaptation system",
+        priority: "high"
+      },
+      {
+        name: "predictive-intelligence-system.ts",
+        path: "server/agents/predictive-intelligence-system.ts",
+        size: "16,381 bytes",
+        description: "Predictive intelligence for agent decision making",
+        priority: "high"
+      }
+    ]
+  },
+  {
+    category: "Agent Tools and Capabilities",
+    files: [
+      {
+        name: "agent-tool-usage-intelligence.ts", 
+        path: "server/agents/agent-tool-usage-intelligence.ts",
+        size: "7,872 bytes",
+        description: "Tool usage intelligence and optimization",
+        priority: "high"
+      },
+      {
+        name: "agent-safety-protocols.ts",
+        path: "server/agents/agent-safety-protocols.ts", 
+        size: "2,158 bytes",
+        description: "Agent safety and validation protocols",
+        priority: "high"
+      },
+      {
+        name: "agent-file-path-guide.ts",
+        path: "server/agents/agent-file-path-guide.ts",
+        size: "7,037 bytes",
+        description: "This file - agent file path reference system", 
+        priority: "medium"
+      }
+    ]
+  },
+  {
+    category: "Context and Memory Management",
+    files: [
+      {
+        name: "context-preservation-system.ts",
+        path: "server/agents/context-preservation-system.ts",
+        size: "9,760 bytes",
+        description: "Agent context preservation and memory management",
+        priority: "high"
+      },
+      {
+        name: "ConversationManager.ts",
+        path: "server/agents/ConversationManager.ts",
+        size: "14,508 bytes", 
+        description: "Conversation management and state tracking",
+        priority: "high"
+      },
+      {
+        name: "architectural-knowledge-base.ts",
+        path: "server/agents/architectural-knowledge-base.ts",
+        size: "5,394 bytes",
+        description: "Architectural knowledge and patterns database",
+        priority: "medium"
+      }
+    ]
+  }
+];
+
 export const MEMBER_JOURNEY_FILE_MAP: FilePathReference[] = [
   {
     category: "Member Interface (Core Revenue Driver)",
@@ -220,5 +309,43 @@ export class AgentFilePathGuide {
       valid: false,
       suggestion: this.suggestCorrectPath(path)
     };
+  }
+  
+  /**
+   * Get agent system files guide for admin access - CRITICAL FOR AGENT ACCESS
+   */
+  static getAgentSystemGuide(): string {
+    let guide = `
+# 🤖 AGENT SYSTEM FILE ACCESS GUIDE
+## All existing agent files with correct paths:
+
+`;
+
+    AGENT_SYSTEM_FILES.forEach(category => {
+      guide += `### ${category.category}\n`;
+      category.files.forEach(file => {
+        guide += `- **${file.name}** (${file.priority})\n`;
+        guide += `  Path: \`${file.path}\`\n`;
+        guide += `  Size: ${file.size}\n`; 
+        guide += `  ${file.description}\n\n`;
+      });
+    });
+
+    guide += `
+## 🚀 QUICK ACCESS COMMANDS:
+- Use str_replace_based_edit_tool with exact paths above
+- Example: str_replace_based_edit_tool view server/agents/codebase-understanding-intelligence.ts
+- All paths start from project root (no leading ./)
+
+## 🔍 SEARCH TIP: 
+- Search for "agent" to find all agent-related files
+- Use direct_file_access with path "server/agents" to list all agent files
+
+## ⚠️ IMPORTANT: 
+- File "admin-agent.ts" does NOT exist
+- Use existing files listed above instead
+`;
+
+    return guide;
   }
 }
