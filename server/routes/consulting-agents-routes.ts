@@ -560,7 +560,7 @@ consultingAgentsRouter.post('/:agentId/chat', adminAuth, async (req: any, res: a
     try {
       const claudeService = getClaudeService();
       
-      // COMPLETE TOOL ACCESS: All agent tools
+      // COMPLETE TOOL ACCESS: Copy exact tool set from working /admin/consulting-chat route
       const tools = [
         {
           name: "str_replace_based_edit_tool",
@@ -595,6 +595,61 @@ consultingAgentsRouter.post('/:agentId/chat', adminAuth, async (req: any, res: a
           }
         },
         {
+          name: "bash",
+          description: "Run bash commands",
+          input_schema: {
+            type: "object",
+            properties: {
+              command: { type: "string" },
+              restart: { type: "boolean" }
+            }
+          }
+        },
+        {
+          name: "get_latest_lsp_diagnostics",
+          description: "Get LSP diagnostics for code errors",
+          input_schema: {
+            type: "object",
+            properties: {
+              file_path: { type: "string" }
+            }
+          }
+        },
+        {
+          name: "execute_sql_tool",
+          description: "Execute SQL queries on development database",
+          input_schema: {
+            type: "object",
+            properties: {
+              sql_query: { type: "string" },
+              environment: { type: "string", enum: ["development"], default: "development" }
+            },
+            required: ["sql_query"]
+          }
+        },
+        {
+          name: "web_search",
+          description: "Search the web for current information",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: { type: "string" }
+            },
+            required: ["query"]
+          }
+        },
+        {
+          name: "web_fetch",
+          description: "Fetch content from a URL",
+          input_schema: {
+            type: "object",
+            properties: {
+              url: { type: "string" }
+            },
+            required: ["url"]
+          }
+        },
+        {
           name: "restart_workflow",
           description: "Restart or start a workflow",
           input_schema: {
@@ -607,14 +662,109 @@ consultingAgentsRouter.post('/:agentId/chat', adminAuth, async (req: any, res: a
           }
         },
         {
-          name: "bash",
-          description: "Run bash commands",
+          name: "suggest_deploy",
+          description: "Suggest deployment when project is ready",
+          input_schema: {
+            type: "object",
+            properties: {}
+          }
+        },
+        {
+          name: "ask_secrets",
+          description: "Request API keys from user",
           input_schema: {
             type: "object",
             properties: {
-              command: { type: "string" },
-              restart: { type: "boolean" }
-            }
+              secret_keys: { type: "array", items: { type: "string" } },
+              user_message: { type: "string" }
+            },
+            required: ["secret_keys", "user_message"]
+          }
+        },
+        {
+          name: "check_secrets",
+          description: "Check if secrets exist in environment",
+          input_schema: {
+            type: "object",
+            properties: {
+              secret_keys: { type: "array", items: { type: "string" } }
+            },
+            required: ["secret_keys"]
+          }
+        },
+        {
+          name: "report_progress",
+          description: "Report task completion progress",
+          input_schema: {
+            type: "object",
+            properties: {
+              summary: { type: "string" }
+            },
+            required: ["summary"]
+          }
+        },
+        {
+          name: "mark_completed_and_get_feedback",
+          description: "Mark task complete and get user feedback",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: { type: "string" },
+              workflow_name: { type: "string" },
+              website_route: { type: "string" }
+            },
+            required: ["query", "workflow_name"]
+          }
+        },
+        {
+          name: "suggest_rollback",
+          description: "Suggest rollback options to user",
+          input_schema: {
+            type: "object",
+            properties: {
+              suggest_rollback_reason: { type: "string" }
+            },
+            required: ["suggest_rollback_reason"]
+          }
+        },
+        {
+          name: "search_replit_docs",
+          description: "Search Replit documentation",
+          input_schema: {
+            type: "object",
+            properties: {
+              query: { type: "string" }
+            },
+            required: ["query"]
+          }
+        },
+        {
+          name: "direct_file_access",
+          description: "Direct file access without filtering - view, list, check existence, or search by path",
+          input_schema: {
+            type: "object",
+            properties: {
+              action: { 
+                type: "string", 
+                enum: ["view", "list", "exists", "search_path"],
+                description: "Action to perform: view file content, list directory, check if exists, or search by path pattern"
+              },
+              path: { 
+                type: "string",
+                description: "File or directory path relative to project root"
+              },
+              recursive: { 
+                type: "boolean", 
+                default: false,
+                description: "For list/search actions, whether to search subdirectories"
+              },
+              max_depth: { 
+                type: "integer", 
+                default: 3,
+                description: "Maximum depth for recursive operations"
+              }
+            },
+            required: ["action", "path"]
           }
         }
       ];
