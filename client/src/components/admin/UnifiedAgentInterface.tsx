@@ -32,7 +32,6 @@ export function UnifiedAgentInterface() {
   const [task, setTask] = useState<string>('');
   const [context, setContext] = useState<string>('{}');
   const [executionResults, setExecutionResults] = useState<ExecutionResult[]>([]);
-
   const queryClient = useQueryClient();
 
   // Fetch available agents (consolidated to admin pattern)
@@ -72,8 +71,6 @@ export function UnifiedAgentInterface() {
     });
   };
 
-
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
@@ -111,7 +108,6 @@ export function UnifiedAgentInterface() {
 
   return (
     <div className="space-y-6">
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Agent Selection and Task Input */}
         <Card>
