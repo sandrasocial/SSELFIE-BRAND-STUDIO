@@ -4,6 +4,12 @@ SSELFIE Studio is a luxury AI-powered personal branding platform for entrepreneu
 ## Recent Changes (August 7, 2025)
 **AUTHENTICATION SYSTEM FULLY RESTORED**: Successfully resolved authentication crisis that was preventing new users from training/generating images. System restored to July 31, 2025 working state when Sandra and Shannon completed model training. Fixed duplicate route conflicts, preserved admin agent functionality, and resolved OIDC consent page loading issues.
 
+**DUPLICATE ACCOUNT RESOLUTION**: Identified and merged Shannon's two separate accounts (shannon@soulresets.com and Apple private relay email) to restore access to her completed trained model and 23 AI images.
+
+**OIDC CONSENT FIX IMPLEMENTED**: Eliminated infinite loading at consent page by removing "login consent" prompt parameter from authentication flow.
+
+**DATABASE ACCOUNT MERGER**: Successfully updated Shannon's Apple ID account (44991795) to inherit full-access plan, user data, and trained model access from original account (shannon-1753945376880).
+
 # User Preferences
 Preferred communication style: Simple, everyday language.
 
