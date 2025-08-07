@@ -247,12 +247,13 @@ async function handleNaturalLanguageSearch(params: SearchParams) {
     const { analyzeSearchQuery } = await import('./enhanced_search_bypass.js');
     const queryAnalysis = analyzeSearchQuery(query);
     
-    // STEP 4: Combine all intelligence sources
+    // STEP 4: Combine all intelligence sources + comprehensive backup discovery
     const allRelevantFiles = [
       ...navigationResult.discoveredFiles,
       ...workContext.relevantFiles,
-      ...await findPageFiles(query), // Special pages discovery
-      ...await findComponentFiles(query) // Enhanced component discovery
+      ...await findPageFiles(query), // Always include pages
+      ...await findComponentFiles(query), // Always include components
+      ...await findAllRelevantFiles(query) // Comprehensive backup search
     ];
     
     // STEP 5: Deduplicate and prioritize results
@@ -295,11 +296,9 @@ async function handleNaturalLanguageSearch(params: SearchParams) {
  */
 async function findPageFiles(query: string): Promise<string[]> {
   const queryLower = query.toLowerCase();
-  const pageKeywords = ['page', 'pages', 'route', 'routes', 'screen', 'view'];
   
-  if (!pageKeywords.some(keyword => queryLower.includes(keyword))) {
-    return [];
-  }
+  // COMPREHENSIVE PAGE DISCOVERY: Always include pages for complete coverage
+  // Agents need access to all pages regardless of query keywords
   
   console.log('📄 PAGES DISCOVERY: Searching for page files');
   
@@ -339,11 +338,9 @@ async function findPageFiles(query: string): Promise<string[]> {
  */
 async function findComponentFiles(query: string): Promise<string[]> {
   const queryLower = query.toLowerCase();
-  const componentKeywords = ['component', 'components', 'workspace', 'build', 'victoria', 'maya'];
   
-  if (!componentKeywords.some(keyword => queryLower.includes(keyword))) {
-    return [];
-  }
+  // EXPANDED DISCOVERY: Always scan components for comprehensive results
+  // Remove restrictive keyword filtering that was blocking component discovery
   
   console.log('🧩 COMPONENTS DISCOVERY: Searching for component files');
   
@@ -392,8 +389,10 @@ async function prioritizeSearchResults(files: string[], query: string, intellige
       reason = 'Member workspace journey file';
     }
     
-    // BUILD SYSTEM PRIORITY
-    if (file.includes('build/') || file.includes('Build')) {
+    // BUILD SYSTEM PRIORITY (Enhanced Detection)
+    if (file.includes('build/') || file.includes('Build') || 
+        file.toLowerCase().includes('build') || file.includes('Visual') ||
+        file.includes('Onboarding') || file.includes('Studio')) {
       priority = 180;
       reason = 'Build system component';
     }
@@ -433,6 +432,94 @@ async function prioritizeSearchResults(files: string[], query: string, intellige
   
   // Sort by priority (highest first)
   return prioritizedFiles.sort((a, b) => b.priority - a.priority);
+}
+
+/**
+ * COMPREHENSIVE BACKUP FILE DISCOVERY
+ * Ensures agents never miss key files due to intelligence system failures
+ */
+async function findAllRelevantFiles(query: string): Promise<string[]> {
+  console.log('🔍 COMPREHENSIVE BACKUP: Scanning all relevant directories');
+  
+  const relevantFiles: string[] = [];
+  const queryLower = query.toLowerCase();
+  
+  // Key directories to always scan
+  const keyDirectories = [
+    'client/src/components',
+    'client/src/pages',
+    'client/src/hooks',
+    'server/services',
+    'server/routes',
+    'shared'
+  ];
+  
+  try {
+    for (const dir of keyDirectories) {
+      const dirPath = path.join(process.cwd(), dir);
+      
+      try {
+        const scanDeep = async (currentPath: string, relativePath: string, depth = 0) => {
+          if (depth > 3) return; // Prevent infinite recursion
+          
+          const entries = await fs.readdir(currentPath, { withFileTypes: true });
+          
+          for (const entry of entries) {
+            const fullPath = path.join(currentPath, entry.name);
+            const relativeFilePath = path.join(relativePath, entry.name);
+            
+            if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts'))) {
+              // Include file if it matches query or is a key component
+              if (isRelevantToQuery(entry.name, relativeFilePath, queryLower)) {
+                relevantFiles.push(relativeFilePath);
+              }
+            } else if (entry.isDirectory() && !entry.name.startsWith('.') && 
+                      !['node_modules', 'dist', 'build'].includes(entry.name)) {
+              await scanDeep(fullPath, relativeFilePath, depth + 1);
+            }
+          }
+        };
+        
+        await scanDeep(dirPath, dir);
+        
+      } catch (dirError) {
+        // Skip directories that don't exist or can't be accessed
+      }
+    }
+    
+    console.log(`🔍 COMPREHENSIVE BACKUP: Found ${relevantFiles.length} additional relevant files`);
+    return relevantFiles;
+    
+  } catch (error) {
+    console.error('❌ COMPREHENSIVE BACKUP ERROR:', error);
+    return [];
+  }
+}
+
+/**
+ * INTELLIGENT RELEVANCE DETECTION
+ * Determines if a file is relevant to the search query
+ */
+function isRelevantToQuery(fileName: string, filePath: string, queryLower: string): boolean {
+  const fileNameLower = fileName.toLowerCase();
+  const filePathLower = filePath.toLowerCase();
+  
+  // Always include key system files
+  const keyFiles = [
+    'workspace', 'build', 'victoria', 'maya', 'onboarding', 
+    'visual', 'studio', 'editor', 'chat', 'builder'
+  ];
+  
+  // Check if file matches key patterns
+  if (keyFiles.some(key => fileNameLower.includes(key) || filePathLower.includes(key))) {
+    return true;
+  }
+  
+  // Check if file matches query terms
+  const queryTerms = queryLower.split(/\s+/);
+  return queryTerms.some(term => 
+    term.length > 2 && (fileNameLower.includes(term) || filePathLower.includes(term))
+  );
 }
 
 function shouldAnalyzeFile(fileName: string): boolean {

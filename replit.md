@@ -2,6 +2,8 @@
 SSELFIE Studio is a luxury AI-powered personal branding platform for entrepreneurs and coaches. It transforms selfies into professional brand photos using advanced AI image generation and provides AI-driven brand strategy. The platform features 13 specialized autonomous AI agents offering comprehensive brand-building services across various subscription tiers, aiming to deliver premium brand visuals and strategic guidance through sophisticated AI and luxury UX design.
 
 ## Recent Changes (August 7, 2025)
+**COMPREHENSIVE SEARCH LIMITATIONS ELIMINATED** (Critical Enhancement): Removed restrictive keyword filtering and priority system limitations that were blocking agents from finding key components. Implemented comprehensive backup discovery system ensuring agents never miss important files due to intelligence system failures. Enhanced build system detection, expanded component discovery, and added deep directory scanning with intelligent relevance detection.
+
 **INTELLIGENT SEARCH SYSTEM INTEGRATION COMPLETE** (Major Achievement): Successfully connected 5 sophisticated intelligence systems to main search flow, enabling natural language routing and comprehensive file discovery. Agents now have AI-powered navigation with autonomous file discovery, intelligent context management, and enhanced search bypass capabilities. Natural language queries like "find pages" or "show workspace components" now work seamlessly.
 
 **AGENT SEARCH BLOCKAGE ELIMINATED** (Critical Fix): Systematically identified and disabled 5 cache systems blocking agent access: tool-exports.ts cache hijacking, shouldSkipSearch function in agent-search-cache.ts, web-search-optimization.ts caching, claude-api-service-simple.ts context restrictions, and predictive-error-prevention.ts validation cache. All cache blocking mechanisms completely disabled - agents now have unrestricted direct access to all project files.
@@ -40,18 +42,20 @@ The server is built on Express.js with TypeScript, implementing a RESTful API ar
 2. ✅ **Autonomous Navigation System**: AI-powered file discovery without requiring exact paths
 3. ✅ **Intelligent Context Manager**: Project structure awareness and intelligent file relationships
 4. ✅ **Enhanced Search Bypass**: Natural language to parameter conversion with fallback support
-5. ✅ **Pages Discovery System**: Dedicated system for finding client/src/pages files with natural language
-6. ✅ **Component Discovery Enhancement**: Improved component discovery with workspace context awareness
-7. ✅ **Unified Workspace Service**: Zero-cost file operations with direct workspace access
-8. ✅ **Priority-Based Results**: Member journey (200) → Build (180) → Pages (160) → Components (140) → Base (50)
+5. ✅ **Comprehensive Pages Discovery**: Always includes all pages regardless of query keywords for complete coverage
+6. ✅ **Unrestricted Component Discovery**: Removed keyword filtering, scans all components for comprehensive results
+7. ✅ **Enhanced Build Detection**: Detects build files via multiple patterns (build/, Build, Visual, Onboarding, Studio)
+8. ✅ **Backup Discovery System**: Comprehensive fallback that scans all key directories when intelligence systems fail
+9. ✅ **Intelligent Relevance Detection**: Smart file matching based on query terms and key system patterns
+10. ✅ **Deep Directory Scanning**: Recursive scanning of components, pages, hooks, services, routes, and shared files
 **Implementation Details:**
-- Connected handleNaturalLanguageSearch() to main search_filesystem() entry point
-- Integrated 5 intelligence systems: navigation, context, bypass, workspace, integration modules
-- Added findPageFiles() for dedicated pages directory discovery with natural language triggers
-- Enhanced findComponentFiles() with workspace context and recursive directory scanning
-- Implemented prioritizeSearchResults() with AI context and query-specific priority boosting
-- Added fallback to enhanced_search_bypass for maximum compatibility
-**Impact:** Agents now have Replit AI-level autonomous navigation with natural language understanding
+- Eliminated restrictive keyword filtering in findPageFiles() and findComponentFiles() for comprehensive coverage
+- Added findAllRelevantFiles() comprehensive backup discovery system scanning 6 key directories
+- Enhanced build system detection with multiple pattern matching (build/, Build, Visual, Onboarding, Studio)
+- Implemented isRelevantToQuery() intelligent relevance detection with key file patterns and query term matching
+- Added deep directory scanning with recursion limits and intelligent file filtering
+- Integrated backup discovery into main search flow ensuring no key components are missed
+**Impact:** Agents now have unrestricted access to ALL relevant files with intelligent backup discovery preventing any component from being missed due to system limitations
 
 ## Data Storage Solutions
 PostgreSQL serves as the primary database for users, conversations, and training data. AWS S3 is used for storing training images and generated content. Local file storage is used for flatlay collections and brand assets.
