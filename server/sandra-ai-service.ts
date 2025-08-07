@@ -1,3 +1,8 @@
+// DISABLED: Legacy Sandra AI service with memory bypass conflicts
+// This service has been replaced by the unified consulting agents system
+// See server/services/claude-api-service-simple.ts for current implementation
+
+/*
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import { storage } from './storage';
@@ -834,3 +839,6 @@ Only include elements specifically mentioned or strongly implied. Return empty a
     return shuffled.slice(0, 3);
   }
 }
+*/
+
+// This service has been completely disabled to prevent conflicts with the unified consulting agents system

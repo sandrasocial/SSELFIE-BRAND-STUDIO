@@ -1,3 +1,8 @@
+// DISABLED: Legacy Personal Branding Sandra service with memory bypass conflicts
+// This service has been replaced by the unified consulting agents system  
+// See server/services/claude-api-service-simple.ts for current implementation
+
+/*
 import Anthropic from '@anthropic-ai/sdk';
 import { storage } from './storage';
 
@@ -337,3 +342,6 @@ Return as JSON with the artifact structure appropriate for the type requested.`;
     return [];
   }
 }
+*/
+
+// This service has been completely disabled to prevent conflicts with the unified consulting agents system

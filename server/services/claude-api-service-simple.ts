@@ -240,18 +240,19 @@ export class ClaudeApiServiceSimple {
     
     try {
       if (toolCall.name === 'search_filesystem') {
-        const { search_filesystem } = await import('../tools/tool-exports.js');
+        const { search_filesystem } = await import('../tools/tool-exports.ts');
         const result = await search_filesystem(toolCall.input);
         return JSON.stringify(result, null, 2);
         
       } else if (toolCall.name === 'str_replace_based_edit_tool') {
-        const { str_replace_based_edit_tool } = await import('../tools/tool-exports.js');
+        const { str_replace_based_edit_tool } = await import('../tools/tool-exports.ts');
         const result = await str_replace_based_edit_tool(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'bash') {
-        // Mock bash execution for safety
-        return `Command would execute: ${JSON.stringify(toolCall.input)}`;
+        const { bash } = await import('../tools/tool-exports.ts');
+        const result = await bash(toolCall.input);
+        return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else {
         return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;

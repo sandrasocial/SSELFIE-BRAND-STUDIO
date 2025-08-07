@@ -552,7 +552,7 @@ export default function AdminConsultingAgents() {
 
     } catch (error) {
       // Handle abort differently from other errors
-      if (error.name === 'AbortError') {
+      if ((error as Error).name === 'AbortError') {
         console.log('🛑 Request aborted by user');
         setMessages(prev => prev.map(msg => 
           msg.id === agentMessageId 
