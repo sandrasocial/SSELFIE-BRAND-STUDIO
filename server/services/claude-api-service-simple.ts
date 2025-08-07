@@ -52,11 +52,11 @@ export class ClaudeApiServiceSimple {
       const maxIterations = 5; // Prevent infinite loops
       let allToolCalls: any[] = [];
       
-      // Continue conversation until task is complete
+      // Continue conversation until task is complete - EXTENDED for tool execution
       while (conversationContinues && iterationCount < maxIterations) {
         iterationCount++;
         
-        console.log(`🔄 ${agentName}: Conversation iteration ${iterationCount}`);
+        console.log(`🔄 ${agentName}: Conversation iteration ${iterationCount}/${maxIterations} - Tools allowed: ${tools.length}`);
         
         // Call Claude API
         console.log(`🔧 ${agentName}: Calling Claude API with ${tools.length} tools available`);
@@ -176,17 +176,20 @@ export class ClaudeApiServiceSimple {
             }
           }
           
-          // Continue after tool execution
+          // Continue after tool execution - FIXED: Allow agents to respond after tool completion
           res.write(`data: ${JSON.stringify({
-            type: 'continue_thinking',
-            message: `${agentName} is processing results...`
+            type: 'continuing',
+            message: `${agentName} is continuing after tool execution...`
           })}\n\n`);
           
-          // Add instruction to continue with concise response
+          // Add instruction to continue - streamlined for better completion
           currentMessages.push({
             role: 'user', 
-            content: `Continue with your task. Be concise and focus on the next necessary action.`
+            content: `Continue with your task. Provide a brief summary of what you completed and confirm the task is done, or continue to the next step if needed.`
           });
+          
+          // CRITICAL FIX: Allow conversation to continue after tool execution
+          conversationContinues = true;
           
         } else {
           // No tools used, conversation complete
