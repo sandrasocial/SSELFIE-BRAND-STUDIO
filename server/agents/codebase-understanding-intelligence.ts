@@ -54,7 +54,7 @@ export interface CodebaseInsight {
 }
 
 export class CodebaseUnderstandingIntelligence {
-  private static cacheExpiry = 5 * 60 * 1000; // 5 minutes - Reduced for direct access
+  private static cacheExpiry = 30 * 60 * 1000; // 30 minutes - Optimized for performance
   private static cache: { data: CodebaseInsight | null; timestamp: number } = { data: null, timestamp: 0 };
   
   /**
@@ -63,14 +63,12 @@ export class CodebaseUnderstandingIntelligence {
   static async analyzeCodebase(): Promise<CodebaseInsight> {
     console.log('🧠 CODEBASE INTELLIGENCE: Starting comprehensive analysis...');
     
-    // CACHE CLEARED - Shorter expiry for direct access
+    // Check cache first
     const now = Date.now();
     if (this.cache.data && (now - this.cache.timestamp) < this.cacheExpiry) {
-      console.log('🧠 CODEBASE INTELLIGENCE: Using recent analysis (5min cache)');
+      console.log('🧠 CODEBASE INTELLIGENCE: Using cached analysis');
       return this.cache.data;
     }
-    
-    console.log('🧠 CODEBASE INTELLIGENCE: Cache expired - performing fresh analysis');
     
     try {
       // Get all relevant files
@@ -109,7 +107,7 @@ export class CodebaseUnderstandingIntelligence {
         businessLogic: this.analyzeBusinessLogic(fileAnalyses)
       };
       
-      // CACHE CLEARED - Store results but with shorter expiry for direct access
+      // Cache results
       this.cache = { data: insights, timestamp: now };
       
       console.log('🧠 CODEBASE INTELLIGENCE: Analysis complete');
