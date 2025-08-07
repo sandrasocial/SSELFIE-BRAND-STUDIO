@@ -1,0 +1,22 @@
+{
+  "search_filesystem": {
+    "use_templates": false,
+    "direct_access": true,
+    "bypass_docs": true,
+    "show_full_paths": true,
+    "template_mode": false
+  },
+  "direct_file_access": {
+    "show_full_paths": true,
+    "enable_raw_search": true,
+    "template_mode": false,
+    "bypass_training": true,
+    "raw_file_access": true
+  },
+  "agent_settings": {
+    "cache_search_patterns": false,
+    "documentation_redirects": false,
+    "enable_direct_queries": true,
+    "template_override_disabled": true
+  }
+}
