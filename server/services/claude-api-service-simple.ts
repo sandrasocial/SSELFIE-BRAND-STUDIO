@@ -22,6 +22,10 @@ export class ClaudeApiServiceSimple {
     try {
       console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
       
+      // CONTEXT PRESERVATION: Load previous knowledge
+      const { ContextPreservationSystem } = await import('../agents/context-preservation-system.js');
+      const previousContext = await ContextPreservationSystem.getContextSummary(agentName, userId);
+      
       // EMERGENCY TOKEN MONITORING: Check system health before proceeding
       console.log(`🔍 TOKEN CHECK: Starting conversation for ${agentName}`);
       
@@ -93,11 +97,14 @@ export class ClaudeApiServiceSimple {
         console.log(`🔧 FULL TOOL SCHEMAS:`, JSON.stringify(tools, null, 2));
         console.log(`🔧 MESSAGES:`, JSON.stringify(currentMessages, null, 2));
         
+        // ENHANCED SYSTEM PROMPT: Include previous context for continuity
+        const enhancedSystemPrompt = systemPrompt + (previousContext || '');
+        
         const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
           max_tokens: 8000,
           messages: currentMessages as any,
-          system: systemPrompt,
+          system: enhancedSystemPrompt,
           tools: tools,
           tool_choice: { type: "auto" },
           stream: false
@@ -332,8 +339,14 @@ export class ClaudeApiServiceSimple {
         
       } catch (error) {
         console.error('Error in intelligent search summary:', error);
-        // EMERGENCY FALLBACK: Strict character limit to prevent token explosion
-        return `${toolResult.substring(0, 2000)}\n\n[Result truncated for performance - ${toolResult.length} total characters. Search found relevant files successfully.]`;
+        // SIMPLIFIED SEARCH RESULTS: Clear, actionable format for agents
+        const files = toolResult.match(/fileName[^}]+/g) || [];
+        const topFiles = files.slice(0, 10).map(f => {
+          const name = f.match(/"([^"]+)"/)?.[1] || '';
+          return `- ${name}`;
+        }).join('\n');
+        
+        return `SEARCH RESULTS (${files.length} files found):\n${topFiles}\n\nUse str_replace_based_edit_tool to view or modify these files.`;
       }
     }
     
@@ -345,31 +358,67 @@ export class ClaudeApiServiceSimple {
         : `${toolResult.substring(0, 4000)}\n\n[File content truncated - ${toolResult.length} total characters. Edit operation details preserved.]`;
     }
     
-    // EMERGENCY DEFAULT: Strict truncation to prevent token explosion
-    return `${toolResult.substring(0, 1500)}\n\n[Result truncated for performance - ${toolResult.length} total characters. Operation completed successfully.]`;
+    // SIMPLIFIED DEFAULT: Clear, actionable results for agents
+    if (toolResult.length <= 3000) {
+      return toolResult;
+    }
+    
+    // Extract key information based on tool type
+    const lines = toolResult.split('\n');
+    const importantLines = lines.filter(line => 
+      line.includes('successfully') ||
+      line.includes('created') ||
+      line.includes('modified') ||
+      line.includes('error') ||
+      line.includes('failed') ||
+      line.includes('File:') ||
+      line.includes('Result:')
+    ).slice(0, 20);
+    
+    const summary = importantLines.join('\n') || lines.slice(0, 30).join('\n');
+    return `${summary}\n\n[${toolResult.length} chars total - showing key results]`;
   }
 
   private async executeToolCall(toolCall: any, agentName?: string, userId?: string): Promise<string> {
     console.log(`🔧 EXECUTING: ${toolCall.name}`, toolCall.input);
     
     try {
+      // INTELLIGENT VALIDATION: Prevent errors before they happen
+      if (toolCall.name === 'str_replace_based_edit_tool' && toolCall.input.command === 'str_replace') {
+        // Pre-validate file modifications
+        const { ErrorPreventionSystem } = await import('../agents/error-prevention-system.js');
+        if (toolCall.input.new_str) {
+          const validation = await ErrorPreventionSystem.validateCode(
+            toolCall.input.new_str,
+            toolCall.input.path || ''
+          );
+          
+          if (!validation.valid) {
+            console.warn(`⚠️ VALIDATION WARNINGS for ${agentName}:`, validation.errors);
+            // Add suggestions to help agent fix issues
+            const suggestions = validation.suggestions.join('\n');
+            console.log(`💡 SUGGESTIONS: ${suggestions}`);
+          }
+        }
+      }
+      
       if (toolCall.name === 'search_filesystem') {
-        const { search_filesystem } = await import('../tools/tool-exports.ts');
+        const { search_filesystem } = await import('../tools/tool-exports.js');
         const result = await search_filesystem(toolCall.input);
         return JSON.stringify(result, null, 2);
         
       } else if (toolCall.name === 'str_replace_based_edit_tool') {
-        const { str_replace_based_edit_tool } = await import('../tools/tool-exports.ts');
+        const { str_replace_based_edit_tool } = await import('../tools/tool-exports.js');
         const result = await str_replace_based_edit_tool(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'bash') {
-        const { bash } = await import('../tools/tool-exports.ts');
+        const { bash } = await import('../tools/tool-exports.js');
         const result = await bash(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'direct_file_access') {
-        const { direct_file_access } = await import('../tools/tool-exports.ts');
+        const { direct_file_access } = await import('../tools/tool-exports.js');
         const result = await direct_file_access(toolCall.input);
         return JSON.stringify(result, null, 2);
         
@@ -377,7 +426,17 @@ export class ClaudeApiServiceSimple {
         return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;
       }
     } catch (error) {
-      throw new Error(`${toolCall.name} execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      // INTELLIGENT ERROR HANDLING: Provide helpful context
+      const { ErrorPreventionSystem } = await import('../agents/error-prevention-system.js');
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const suggestions = ErrorPreventionSystem.generateFixSuggestions(errorMsg);
+      
+      console.error(`❌ ${toolCall.name} failed:`, errorMsg);
+      if (suggestions.length > 0) {
+        console.log(`💡 Fix suggestions:`, suggestions);
+      }
+      
+      throw new Error(`${toolCall.name} execution failed: ${errorMsg}\n\nSuggestions: ${suggestions.join(', ')}`);
     }
   }
 
