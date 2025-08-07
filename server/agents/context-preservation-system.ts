@@ -113,10 +113,25 @@ export class ContextPreservationSystem {
       
       if (result.rows && result.rows.length > 0) {
         const row = result.rows[0] as any;
-        const loaded = row.context_data as AgentContext;
-        this.contextCache.set(key, loaded);
-        console.log(`📚 Loaded context for ${agentName}: ${loaded.currentTask}`);
-        return loaded;
+        let loaded = row.context_data as AgentContext;
+        
+        // ENSURE PROPER STRUCTURE: Make sure all required properties exist
+        if (loaded && typeof loaded === 'object') {
+          loaded = {
+            agentName: loaded.agentName || agentName,
+            userId: loaded.userId || userId,
+            currentTask: loaded.currentTask || '',
+            filesModified: Array.isArray(loaded.filesModified) ? loaded.filesModified : [],
+            successfulPatterns: Array.isArray(loaded.successfulPatterns) ? loaded.successfulPatterns : [],
+            failedAttempts: Array.isArray(loaded.failedAttempts) ? loaded.failedAttempts : [],
+            lastWorkingState: loaded.lastWorkingState || {},
+            projectContext: loaded.projectContext || {}
+          };
+          
+          this.contextCache.set(key, loaded);
+          console.log(`📚 Loaded context for ${agentName}: ${loaded.currentTask}`);
+          return loaded;
+        }
       }
     } catch (error) {
       console.error('Failed to load context:', error);
@@ -288,32 +303,39 @@ export class ContextPreservationSystem {
     agentName: string,
     userId: string
   ): Promise<string> {
-    const context = await this.loadContext(agentName, userId);
-    
-    if (!context) {
-      return '';
+    try {
+      const context = await this.loadContext(agentName, userId);
+      
+      if (!context) {
+        return '';
+      }
+      
+      const patterns = await this.getLearnedPatterns(agentName);
+      
+      let summary = '\n## PREVIOUS CONTEXT:\n';
+      
+      if (context.currentTask) {
+        summary += `Last task: ${context.currentTask}\n`;
+      }
+      
+      // SAFE ACCESS: Check if filesModified exists and is an array
+      if (context.filesModified && Array.isArray(context.filesModified) && context.filesModified.length > 0) {
+        summary += `Files worked on: ${context.filesModified.slice(-5).join(', ')}\n`;
+      }
+      
+      // SAFE ACCESS: Check if patterns exist and are arrays
+      if (patterns && patterns.successful && Array.isArray(patterns.successful) && patterns.successful.length > 0) {
+        summary += `Successful patterns: ${patterns.successful.slice(0, 3).map(p => p.pattern || 'Unknown pattern').join(', ')}\n`;
+      }
+      
+      if (patterns && patterns.failed && Array.isArray(patterns.failed) && patterns.failed.length > 0) {
+        summary += `Avoid: ${patterns.failed.slice(0, 2).map(p => p.attempt || 'Unknown attempt').join(', ')}\n`;
+      }
+      
+      return summary;
+    } catch (error) {
+      console.error(`Error getting context summary for ${agentName}:`, error);
+      return ''; // Return empty string if any error occurs
     }
-    
-    const patterns = await this.getLearnedPatterns(agentName);
-    
-    let summary = '\n## PREVIOUS CONTEXT:\n';
-    
-    if (context.currentTask) {
-      summary += `Last task: ${context.currentTask}\n`;
-    }
-    
-    if (context.filesModified.length > 0) {
-      summary += `Files worked on: ${context.filesModified.slice(-5).join(', ')}\n`;
-    }
-    
-    if (patterns.successful.length > 0) {
-      summary += `Successful patterns: ${patterns.successful.slice(0, 3).map(p => p.pattern).join(', ')}\n`;
-    }
-    
-    if (patterns.failed.length > 0) {
-      summary += `Avoid: ${patterns.failed.slice(0, 2).map(p => p.attempt).join(', ')}\n`;
-    }
-    
-    return summary;
   }
 }
