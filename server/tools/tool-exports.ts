@@ -4,6 +4,7 @@ export { bash } from './bash.ts';
 export { direct_file_access } from './direct_file_access.ts';
 import fs from 'fs/promises';
 import path from 'path';
+import { agentSearchCache } from '../services/agent-search-cache';
 
 export interface SearchParams {
   query_description: string;
@@ -23,7 +24,31 @@ export interface SearchResult {
 
 export async function search_filesystem(params: SearchParams) {
   try {
-    console.log('🔍 MEMBER JOURNEY BYPASS: Full unrestricted access to member experience:', params);
+    console.log('🔍 SEARCH WITH RESTORED CACHE SYSTEM:', params);
+    
+    // Get agent context from params (if available)
+    const conversationId = (params as any).conversationId || 'default';
+    const agentName = (params as any).agentName || 'unknown';
+    
+    // Check cache optimization suggestions  
+    const cacheAnalysis = agentSearchCache.shouldSkipSearch(conversationId, agentName, params.query_description);
+    if (cacheAnalysis.shouldSkip && cacheAnalysis.suggestedFiles) {
+      console.log(`🚀 CACHE OPTIMIZATION: ${cacheAnalysis.reason}`);
+      const cachedResults = cacheAnalysis.suggestedFiles.map((file: any) => ({
+        file: file.path,
+        fullPath: file.path.startsWith('./') ? file.path : `./${file.path}`,
+        reason: `CACHED: ${file.path}`,
+        snippet: file.content?.substring(0, 200) + '...' || '',
+        type: 'Cached File'
+      }));
+      
+      return {
+        summary: `Found ${cachedResults.length} cached files (Cache: ${cacheAnalysis.reason})`,
+        results: cachedResults,
+        instructions: 'Use str_replace_based_edit_tool to view these cached files',
+        accessMode: 'CACHE_OPTIMIZATION'
+      };
+    }
     
     const results: SearchResult[] = [];
     const maxFiles = 100; // TRUE BYPASS: Maximum file access for comprehensive coverage
@@ -139,6 +164,9 @@ export async function search_filesystem(params: SearchParams) {
     
     console.log(`✅ SEARCH COMPLETE: Found ${results.length} relevant files`);
     
+    // ADD RESULTS TO RESTORED CACHE SYSTEM
+    agentSearchCache.addSearchResults(conversationId, agentName, params.query_description, finalResults);
+    
     // DIRECT ACCESS RESULTS: Show full paths and real content
     const directAccessResults = finalResults.map(r => ({
       file: r.fileName,
@@ -155,7 +183,8 @@ export async function search_filesystem(params: SearchParams) {
       summary: `DIRECT ACCESS: Found ${results.length} actual project files (template overrides removed)`,
       results: directAccessResults,
       instructions: 'Use str_replace_based_edit_tool with the fullPath to view or modify these files',
-      accessMode: 'DIRECT_FILESYSTEM_ACCESS'
+      accessMode: 'DIRECT_FILESYSTEM_ACCESS',
+      cacheStats: agentSearchCache.getCacheStats()
     };
     
   } catch (error) {
