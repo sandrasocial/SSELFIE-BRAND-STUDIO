@@ -4,8 +4,8 @@
  */
 
 import { db } from '../db.js';
-import { agentKnowledgeBase, agentSessionContexts } from '@shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
 export interface AgentContext {
   agentName: string;
@@ -46,30 +46,39 @@ export class ContextPreservationSystem {
     const updated = { ...existing, ...context };
     this.contextCache.set(key, updated);
     
-    // Persist to database
+    // Persist to database with correct column names
     try {
-      await db.insert(agentSessionContexts).values({
-        agentName: agentName.toLowerCase(),
-        userId,
-        sessionId: `${agentName}-${userId}-${Date.now()}`,
-        context: updated,
-        metadata: {
-          timestamp: new Date().toISOString(),
-          filesModified: updated.filesModified,
-          task: updated.currentTask
-        },
-        createdAt: new Date()
-      }).onConflictDoUpdate({
-        target: [agentSessionContexts.agentName, agentSessionContexts.userId],
-        set: {
-          context: updated,
-          metadata: {
+      await db.execute(sql`
+        INSERT INTO agent_session_contexts (
+          user_id,
+          agent_id,
+          session_id,
+          context_data,
+          memory_snapshot,
+          last_interaction,
+          created_at,
+          updated_at
+        ) VALUES (
+          ${userId},
+          ${agentName.toLowerCase()},
+          ${`${agentName}-${userId}-${Date.now()}`},
+          ${JSON.stringify(updated)},
+          ${JSON.stringify({
             timestamp: new Date().toISOString(),
             filesModified: updated.filesModified,
             task: updated.currentTask
-          }
-        }
-      });
+          })},
+          NOW(),
+          NOW(),
+          NOW()
+        )
+        ON CONFLICT (user_id, agent_id, session_id) 
+        DO UPDATE SET
+          context_data = EXCLUDED.context_data,
+          memory_snapshot = EXCLUDED.memory_snapshot,
+          last_interaction = NOW(),
+          updated_at = NOW()
+      `);
       
       console.log(`💾 Context saved for ${agentName}: ${updated.currentTask}`);
     } catch (error) {
@@ -91,22 +100,20 @@ export class ContextPreservationSystem {
       return this.contextCache.get(key)!;
     }
     
-    // Load from database
+    // Load from database with correct column names
     try {
-      const [context] = await db
-        .select()
-        .from(agentSessionContexts)
-        .where(
-          and(
-            eq(agentSessionContexts.agentName, agentName.toLowerCase()),
-            eq(agentSessionContexts.userId, userId)
-          )
-        )
-        .orderBy(desc(agentSessionContexts.createdAt))
-        .limit(1);
+      const result = await db.execute(sql`
+        SELECT context_data, memory_snapshot
+        FROM agent_session_contexts
+        WHERE agent_id = ${agentName.toLowerCase()}
+          AND user_id = ${userId}
+        ORDER BY updated_at DESC
+        LIMIT 1
+      `);
       
-      if (context && context.context) {
-        const loaded = context.context as AgentContext;
+      if (result.rows && result.rows.length > 0) {
+        const row = result.rows[0] as any;
+        const loaded = row.context_data as AgentContext;
         this.contextCache.set(key, loaded);
         console.log(`📚 Loaded context for ${agentName}: ${loaded.currentTask}`);
         return loaded;
@@ -143,21 +150,29 @@ export class ContextPreservationSystem {
     
     await this.saveContext(agentName, userId, context);
     
-    // Save to knowledge base for permanent learning
+    // Save to knowledge base with correct column names
     try {
-      await db.insert(agentKnowledgeBase).values({
-        agentName: agentName.toLowerCase(),
-        category: 'success_pattern',
-        knowledge: {
-          pattern,
-          details,
-          timestamp: new Date().toISOString()
-        },
-        confidence: 0.9,
-        usageCount: 1,
-        lastUsed: new Date(),
-        createdAt: new Date()
-      });
+      await db.execute(sql`
+        INSERT INTO agent_knowledge_base (
+          agent_id,
+          topic,
+          content,
+          source,
+          confidence,
+          last_updated
+        ) VALUES (
+          ${agentName.toLowerCase()},
+          ${'success_pattern'},
+          ${JSON.stringify({
+            pattern,
+            details,
+            timestamp: new Date().toISOString()
+          })},
+          ${'experience'},
+          ${0.9},
+          NOW()
+        )
+      `);
     } catch (error) {
       console.error('Failed to save to knowledge base:', error);
     }
@@ -187,21 +202,29 @@ export class ContextPreservationSystem {
     
     await this.saveContext(agentName, userId, context);
     
-    // Save to knowledge base for learning what not to do
+    // Save to knowledge base with correct column names
     try {
-      await db.insert(agentKnowledgeBase).values({
-        agentName: agentName.toLowerCase(),
-        category: 'failed_pattern',
-        knowledge: {
-          attempt,
-          error,
-          timestamp: new Date().toISOString()
-        },
-        confidence: 0.8,
-        usageCount: 1,
-        lastUsed: new Date(),
-        createdAt: new Date()
-      });
+      await db.execute(sql`
+        INSERT INTO agent_knowledge_base (
+          agent_id,
+          topic,
+          content,
+          source,
+          confidence,
+          last_updated
+        ) VALUES (
+          ${agentName.toLowerCase()},
+          ${'failed_pattern'},
+          ${JSON.stringify({
+            attempt,
+            error,
+            timestamp: new Date().toISOString()
+          })},
+          ${'experience'},
+          ${0.8},
+          NOW()
+        )
+      `);
     } catch (error) {
       console.error('Failed to save failure pattern:', error);
     }
@@ -215,20 +238,23 @@ export class ContextPreservationSystem {
     failed: any[]
   }> {
     try {
-      const patterns = await db
-        .select()
-        .from(agentKnowledgeBase)
-        .where(eq(agentKnowledgeBase.agentName, agentName.toLowerCase()))
-        .orderBy(desc(agentKnowledgeBase.lastUsed))
-        .limit(20);
+      const result = await db.execute(sql`
+        SELECT topic, content
+        FROM agent_knowledge_base
+        WHERE agent_id = ${agentName.toLowerCase()}
+        ORDER BY last_updated DESC
+        LIMIT 20
+      `);
+      
+      const patterns = result.rows as any[];
       
       const successful = patterns
-        .filter(p => p.category === 'success_pattern')
-        .map(p => p.knowledge);
+        .filter(p => p.topic === 'success_pattern')
+        .map(p => typeof p.content === 'string' ? JSON.parse(p.content) : p.content);
       
       const failed = patterns
-        .filter(p => p.category === 'failed_pattern')
-        .map(p => p.knowledge);
+        .filter(p => p.topic === 'failed_pattern')
+        .map(p => typeof p.content === 'string' ? JSON.parse(p.content) : p.content);
       
       return { successful, failed };
     } catch (error) {
