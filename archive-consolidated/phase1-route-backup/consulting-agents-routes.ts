@@ -510,62 +510,6 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', admi
   }
 });
 
-// MERGED: Implementation Monitoring Capabilities (from agent-implementation-routes.ts)
-// These endpoints provide monitoring and health checking for agent operations
 
-// Get implementation health check
-consultingAgentsRouter.get('/admin/implementation/health', adminAuth, async (req: AdminRequest, res: any) => {
-  try {
-    res.json({
-      success: true,
-      system: 'Unified Agent System',
-      status: 'operational',
-      endpoints: {
-        'consulting-chat': 'Active',
-        'conversation-history': 'Active',
-        'agent-personalities': 'Active'
-      },
-      agentCount: Object.keys(CONSULTING_AGENT_PERSONALITIES).length,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-// Get system configuration 
-consultingAgentsRouter.get('/admin/implementation/config', adminAuth, async (req: AdminRequest, res: any) => {
-  try {
-    res.json({
-      success: true,
-      config: {
-        version: '2.0.0',
-        system: 'Unified Consulting Agents',
-        features: {
-          directFileAccess: true,
-          toolExecution: true,
-          contextPreservation: true,
-          tokenOptimization: true,
-          adminBypass: true
-        },
-        agents: Object.keys(CONSULTING_AGENT_PERSONALITIES),
-        routes: [
-          '/api/consulting-agents/admin/consulting-chat',
-          '/api/consulting-agents/admin/agents/conversation-history/:agentName',
-          '/api/consulting-agents/admin/implementation/health',
-          '/api/consulting-agents/admin/implementation/config'
-        ]
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
 
 export default consultingAgentsRouter;
