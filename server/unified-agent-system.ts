@@ -16,7 +16,7 @@ import { ConversationManager } from './agents/ConversationManager';
 import { AdvancedMemorySystem } from './services/advanced-memory-system';
 import { claudeApiServiceSimple } from './services/claude-api-service-simple';
 import { unifiedSessionManager } from './services/unified-session-manager';
-import { IntelligentContextManager } from './services/intelligent-context-manager';
+import { ContextPreservationSystem } from './agents/context-preservation-system';
 import { agentSearchCache } from './services/agent-search-cache';
 import { crossAgentIntelligence } from './services/cross-agent-intelligence';
 // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
@@ -47,7 +47,7 @@ export class UnifiedAgentSystem {
   private activeSessions = new Map<string, any>();
   
   // ENTERPRISE INTELLIGENCE INTEGRATION
-  private contextManager = IntelligentContextManager.getInstance();
+  // Using unified ContextPreservationSystem - no instance needed (static methods)
   // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
   private deploymentTracker = new DeploymentTrackingService();
 

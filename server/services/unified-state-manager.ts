@@ -1,5 +1,4 @@
-import { unifiedWorkspace, WorkspaceOperation } from './unified-workspace-service';
-import { intelligentContext, AgentWorkContext } from './intelligent-context-manager';
+import { ContextPreservationSystem, WorkspacePreparation, AgentContext } from '../agents/context-preservation-system';
 import { autonomousNavigation, NavigationResult } from './autonomous-navigation-system';
 import { errorPrevention, ValidationResult } from './predictive-error-prevention';
 
@@ -84,7 +83,8 @@ export class UnifiedStateManager {
   async registerAgent(agentId: string, currentTask: string): Promise<AgentState> {
     console.log(`👥 STATE MANAGER: Registering agent ${agentId}`);
 
-    const workContext = await intelligentContext.prepareAgentWorkspace(currentTask, agentId);
+    const agentContext = await ContextPreservationSystem.prepareAgentWorkspace(agentId, 'unified-admin', currentTask, true);
+    const workContext = agentContext.workspacePreparation;
     
     const agentState: AgentState = {
       agentId,
@@ -285,7 +285,7 @@ export class UnifiedStateManager {
     console.log('🔄 STATE MANAGER: Synchronizing workspace state');
 
     // Update project context for all agents
-    const projectContext = await unifiedWorkspace.buildProjectContext();
+    const projectContext = await ContextPreservationSystem.buildProjectContext();
     this.workspaceState.globalContext.projectContext = projectContext;
 
     // Update shared files list
