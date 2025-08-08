@@ -169,7 +169,12 @@ export class ClaudeApiServiceSimple {
       const { TokenOptimizationEngine } = await import('./token-optimization-engine');
       
       let optimizedMessages = messages;
-      let optimizationMetadata = { compressionRatio: 0, fullContextAvailable: true };
+      let optimizationMetadata = { 
+        originalTokens: 0, 
+        optimizedTokens: 0, 
+        compressionRatio: 0, 
+        fullContextAvailable: true 
+      };
       
       // ADMIN BYPASS: Apply aggressive optimization for admin agents only
       if (isAdminAgent && messages.length > 10) {

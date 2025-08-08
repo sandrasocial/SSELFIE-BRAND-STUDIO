@@ -76,18 +76,29 @@ export class TokenOptimizationEngine {
       
       console.log(`🚀 TOKEN OPTIMIZATION: Reduced ${messages.length} messages (${this.estimateTokens(JSON.stringify(messages))} tokens) to ${optimizedMessages.length} messages (${this.estimateTokens(JSON.stringify(optimizedMessages))} tokens)`);
       
+      const originalTokens = this.estimateTokens(JSON.stringify(messages));
+      const optimizedTokens = this.estimateTokens(JSON.stringify(optimizedMessages));
+      
       return {
         optimizedMessages,
         metadata: {
-          originalTokens: this.estimateTokens(JSON.stringify(messages)),
-          optimizedTokens: this.estimateTokens(JSON.stringify(optimizedMessages)),
+          originalTokens,
+          optimizedTokens,
           compressionRatio: (1 - (optimizedMessages.length / messages.length)) * 100,
           fullContextAvailable: true // Agent still has full access via local cache
         }
       };
     }
     
-    return { optimizedMessages: messages, metadata: { compressionRatio: 0, fullContextAvailable: true } };
+    return { 
+      optimizedMessages: messages, 
+      metadata: { 
+        originalTokens: this.estimateTokens(JSON.stringify(messages)),
+        optimizedTokens: this.estimateTokens(JSON.stringify(messages)),
+        compressionRatio: 0, 
+        fullContextAvailable: true 
+      } 
+    };
   }
 
   /**
