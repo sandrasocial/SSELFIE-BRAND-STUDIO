@@ -25,7 +25,7 @@ export interface ZaraContextMap {
  * Enhanced system for Zara's auto-error fixing and context awareness
  */
 class ZaraEnhancementSystem {
-  private contextCache = new Map<string, ZaraContextMap>();
+  private zaraContextCache = new Map<string, ZaraContextMap>(); // Renamed to avoid conflicts with ContextPreservationSystem
   private errorPatterns = new Map<string, ZaraErrorAnalysis>();
   
   constructor() {
@@ -139,7 +139,7 @@ class ZaraEnhancementSystem {
       }
       
       // Cache the context
-      this.contextCache.set(filePath, context);
+      this.zaraContextCache.set(filePath, context);
       
       console.log(`📊 ZARA CONTEXT: Built context map for ${filePath}`);
       console.log(`   - Imports: ${context.importedModules.length}`);
@@ -343,8 +343,8 @@ class ZaraEnhancementSystem {
       dependencies.push('server/services/');
     }
     
-    if (filePath && this.contextCache.has(filePath)) {
-      const context = this.contextCache.get(filePath)!;
+    if (filePath && this.zaraContextCache.has(filePath)) {
+      const context = this.zaraContextCache.get(filePath)!;
       dependencies.push(...context.dependencies);
     }
     
