@@ -583,10 +583,9 @@ export const emailCaptures = pgTable('email_captures', {
   email: varchar('email', { length: 255 }).notNull(),
   plan: varchar('plan', { length: 50 }).notNull().default('free'),
   source: varchar('source', { length: 100 }).notNull().default('landing_page'),
-  captured: timestamp('captured').notNull().defaultNow(),
-  converted: boolean('converted').notNull().default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow()
+  captured: timestamp('captured').defaultNow(),
+  converted: boolean('converted').default(false),
+  userId: varchar('user_id').references(() => users.id), // Added missing field from database
 });
 
 export type EmailCapture = typeof emailCaptures.$inferSelect;
@@ -917,5 +916,5 @@ export type SavedPrompt = typeof savedPrompts.$inferSelect;
 export type InsertSavedPrompt = z.infer<typeof insertSavedPromptSchema>;
 
 // Note: Website type already defined above at line 502
-
-// Note: Type exports are handled individually above to avoid conflicts
+// Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts
+// Note: agentTasks, emailCaptures, and userWebsiteOnboarding are already defined earlier in this file
