@@ -1727,12 +1727,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           system: `You are ${agentName}, a helpful AI assistant.`
         });
         
-        const response = result.content[0].type === 'text' ? result.content[0].text : 'Ready to help!';
+        const responseText = result.content[0].type === 'text' ? result.content[0].text : 'Ready to help!';
+        res.json({ success: true, response: responseText });
       } catch (error) {
-        const response = `Hello! I'm ${agentName}, ready to help with your request.`;
+        const responseText = `Hello! I'm ${agentName}, ready to help with your request.`;
+        res.json({ success: true, response: responseText });
       }
-      
-      res.json({ success: true, response });
     } catch (error) {
       console.error('Claude API error:', error);
       res.status(500).json({ 
