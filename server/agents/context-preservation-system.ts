@@ -65,20 +65,13 @@ export class ContextPreservationSystem {
   private static contextCache = new Map<string, AgentContext>();
   
   /**
-   * Clear cached context data for fresh agent starts
+   * DISABLED: Context cache clearing removed to preserve agent memory
+   * Admin bypass system maintains unlimited context preservation
    */
   static clearContextCache(userId?: string): void {
-    if (userId) {
-      // Clear specific user's agent contexts
-      const keysToDelete = Array.from(this.contextCache.keys()).filter(key => key.endsWith(`-${userId}`));
-      keysToDelete.forEach(key => this.contextCache.delete(key));
-      console.log(`🧹 Context cache cleared for user ${userId}: ${keysToDelete.length} contexts removed`);
-    } else {
-      // Clear all cached contexts
-      const count = this.contextCache.size;
-      this.contextCache.clear();
-      console.log(`🧹 All context cache cleared: ${count} contexts removed`);
-    }
+    // DISABLED: No longer clearing context cache to preserve agent memory
+    console.log(`🔒 CONTEXT PRESERVATION: Cache clearing disabled for unlimited agent memory`);
+    return;
   }
   
   /**
@@ -108,10 +101,11 @@ export class ContextPreservationSystem {
         activeFiles: [],
         dependencies: {},
         architecture: 'Unknown'
-      }
+      },
+      adminBypass: adminBypass
     };
     
-    const updated = { ...existing, ...context };
+    const updated = { ...existing, ...context, adminBypass };
     
     // ADMIN BYPASS: Enhanced memory privileges for admin agents
     if (adminBypass) {
@@ -119,6 +113,7 @@ export class ContextPreservationSystem {
       updated.successfulPatterns = updated.successfulPatterns || [];
       updated.lastWorkingState = updated.lastWorkingState || {};
       // Admin agents get enhanced memory retention (no limits)
+      updated.adminBypass = true;
     }
     
     this.contextCache.set(key, updated);

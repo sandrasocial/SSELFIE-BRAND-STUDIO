@@ -101,7 +101,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     
     console.log(`🧠 MEMORY INTEGRATION: Admin bypass ${isAdminBypass ? 'ENABLED' : 'disabled'} for ${agentId}`);
     
-    // ENHANCED MEMORY SYSTEM INTEGRATION
+    // ENHANCED MEMORY SYSTEM INTEGRATION with ADMIN BYPASS
     const memorySystem = AdvancedMemorySystem.getInstance();
     let agentMemoryProfile = null;
     let contextualMemories = '';
@@ -125,9 +125,18 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
         `\n## RELEVANT LEARNED PATTERNS:\n${relevantMemories.map(m => `- ${m.category}: ${m.pattern} (confidence: ${m.confidence})`).join('\n')}\n` : '';
       
       // Load/prepare agent context with admin bypass
-      agentContext = await ContextPreservationSystem.prepareAgentWorkspace(agentId, userId, message, true);
+      agentContext = await ContextPreservationSystem.prepareAgentWorkspace(agentId, userId, message, isAdminBypass);
       
-      console.log(`🧠 MEMORY LOADED: Intelligence level ${agentMemoryProfile.intelligenceLevel}, ${relevantMemories.length} relevant patterns${isAdminBypass ? ' [ADMIN BYPASS]' : ''}`);
+      // ADMIN BYPASS: Save unlimited context for admin agents
+      if (isAdminBypass) {
+        await ContextPreservationSystem.saveContext(agentId, userId, {
+          currentTask: message,
+          adminBypass: true
+        }, true);
+        console.log(`🔓 ADMIN MEMORY BYPASS: Unlimited context preservation enabled for ${agentId}`);
+      }
+      
+      console.log(`🧠 MEMORY LOADED: Intelligence level ${agentMemoryProfile.intelligenceLevel}, ${relevantMemories.length} relevant patterns${isAdminBypass ? ' [ADMIN BYPASS - UNLIMITED CONTEXT]' : ''}`);
       
     } catch (memoryError) {
       console.error('🧠 MEMORY ERROR:', memoryError);
