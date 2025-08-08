@@ -161,7 +161,9 @@ export class ClaudeApiServiceSimple {
       
       // Load conversation history and check for existing context
       await this.createConversationIfNotExists(userId, agentName, conversationId);
-      const messages = await this.loadConversationMessages(conversationId);
+      // ADMIN BYPASS: Check if this is an admin agent for unlimited context
+      const isAdminAgent = userId === 'sandra-admin' || userId === 'admin' || userId === '42585527' || conversationId.includes('admin_');
+      const messages = await this.loadConversationMessages(conversationId, isAdminAgent);
       
       // UNRESTRICTED: Token monitoring removed to allow full autonomous workflows
       const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(messages));
@@ -610,15 +612,17 @@ export class ClaudeApiServiceSimple {
     }
   }
 
-  private async loadConversationMessages(conversationId: string) {
-    // EMERGENCY FIX: Limit conversation history to prevent token explosion
-    // Only load last 8 messages (4 user + 4 assistant pairs) to stay under token limits
+  private async loadConversationMessages(conversationId: string, adminBypass = false) {
+    // ADMIN BYPASS: Unlimited conversation history for admin agents
+    // Regular agents get reasonable limits to prevent token explosion
+    const messageLimit = adminBypass ? 1000 : 50; // Admin bypass = unlimited context
+    
     return await db
       .select()
       .from(claudeMessages)
       .where(eq(claudeMessages.conversationId, conversationId))
       .orderBy(desc(claudeMessages.createdAt))
-      .limit(8);
+      .limit(messageLimit);
   }
 
   private async saveMessage(conversationId: string, role: string, content: string, toolCalls?: any, toolResults?: any) {
