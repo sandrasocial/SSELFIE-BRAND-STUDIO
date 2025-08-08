@@ -1,4 +1,4 @@
-import { ContextPreservationSystem, AgentContext } from '../agents/context-preservation-system';
+import { ContextPreservationSystem, type AgentContext } from '../agents/context-preservation-system';
 
 /**
  * AUTONOMOUS NAVIGATION SYSTEM
@@ -19,6 +19,12 @@ export interface NavigationIntent {
   currentContext?: string;
   agentType?: string;
   previousAttempts?: string[];
+}
+
+export interface IntentBasedQuery {
+  intent: string;
+  context: string;
+  expectedResults: string[];
 }
 
 export class AutonomousNavigationSystem {
@@ -68,14 +74,14 @@ export class AutonomousNavigationSystem {
         ...contextualFiles,
         ...intentBasedFiles,
         ...smartResolution,
-        ...workContext.relevantFiles
+        ...workContext.filesModified
       ], intent);
 
       const result: NavigationResult = {
         success: allFiles.length > 0,
         discoveredFiles: allFiles.slice(0, 8), // Limit to prevent overwhelming
         suggestedActions: this.generateNavigationSuggestions(allFiles, intent),
-        contextualHelp: this.generateContextualHelp(workContext, intent),
+        contextualHelp: this.generateContextualHelp(intent, workContext),
         errorPrevention: this.generateErrorPrevention(intent, allFiles)
       };
 
@@ -191,9 +197,7 @@ export class AutonomousNavigationSystem {
     const projectContext = await ContextPreservationSystem.buildProjectContext();
     const result = await ContextPreservationSystem.findRelevantFiles(contextQuery.intent, projectContext);
     
-    if (result.success && Array.isArray(result.result)) {
-      return result.result.map(f => typeof f === 'string' ? f : f.path || '').filter(Boolean);
-    }
+    return Array.isArray(result) ? result : [];
     
     return [];
   }
@@ -276,14 +280,14 @@ export class AutonomousNavigationSystem {
     return suggestions;
   }
 
-  private generateContextualHelp(workContext: AgentWorkContext, intent: NavigationIntent): string[] {
+  private generateContextualHelp(intent: NavigationIntent, workContext?: AgentContext): string[] {
     const help: string[] = [];
 
-    if (workContext.relevantFiles.length > 0) {
-      help.push(`Found ${workContext.relevantFiles.length} files related to your request`);
+    if (workContext?.filesModified.length > 0) {
+      help.push(`Found ${workContext.filesModified.length} files related to your request`);
     }
 
-    if (workContext.suggestedActions.length > 0) {
+    if (workContext?.lastWorkingState.suggestedActions.length > 0) {
       help.push('Multiple action paths available - choose based on your specific needs');
     }
 
@@ -350,8 +354,8 @@ export class AutonomousNavigationSystem {
         const projectContext = await ContextPreservationSystem.buildProjectContext();
         const searchResult = await ContextPreservationSystem.findRelevantFiles(`files related to ${baseName}`, projectContext);
         
-        if (searchResult.success && Array.isArray(searchResult.result)) {
-          related.push(...searchResult.result.map(f => typeof f === 'string' ? f : f.path || '').filter(Boolean));
+        if (Array.isArray(searchResult)) {
+          related.push(...searchResult.filter(Boolean));
         }
       }
     }
@@ -400,11 +404,7 @@ export class AutonomousNavigationSystem {
     const projectContext = await ContextPreservationSystem.buildProjectContext();
     const result = await ContextPreservationSystem.findRelevantFiles(query.intent, projectContext);
     
-    if (result.success && Array.isArray(result.result)) {
-      return result.result.map(f => typeof f === 'string' ? f : f.path || '').filter(Boolean);
-    }
-    
-    return [];
+    return Array.isArray(result) ? result : [];
   }
 
   private async contextualPathMatch(reference: string, context?: string): Promise<string[]> {

@@ -1,6 +1,6 @@
-import { ContextPreservationSystem, WorkspacePreparation, AgentContext } from '../agents/context-preservation-system';
-import { autonomousNavigation, NavigationResult } from './autonomous-navigation-system';
-import { errorPrevention, ValidationResult } from './predictive-error-prevention';
+import { ContextPreservationSystem, type WorkspacePreparation, type AgentContext } from '../agents/context-preservation-system';
+import { autonomousNavigation, type NavigationResult } from './autonomous-navigation-system';
+import { errorPrevention, type ValidationResult } from './predictive-error-prevention';
 
 /**
  * UNIFIED STATE MANAGER
@@ -8,12 +8,18 @@ import { errorPrevention, ValidationResult } from './predictive-error-prevention
  * Provides centralized coordination for multi-agent workflows
  */
 
+export interface WorkspaceOperation {
+  type: 'create' | 'edit' | 'delete' | 'move';
+  path: string;
+  timestamp: Date;
+}
+
 export interface AgentState {
   agentId: string;
   currentTask: string;
   activeFiles: string[];
   recentOperations: WorkspaceOperation[];
-  workContext: AgentWorkContext;
+  workContext: AgentContext;
   lastActivity: Date;
   status: 'idle' | 'working' | 'waiting' | 'error';
 }
@@ -84,14 +90,13 @@ export class UnifiedStateManager {
     console.log(`👥 STATE MANAGER: Registering agent ${agentId}`);
 
     const agentContext = await ContextPreservationSystem.prepareAgentWorkspace(agentId, 'unified-admin', currentTask, true);
-    const workContext = agentContext.workspacePreparation;
     
     const agentState: AgentState = {
       agentId,
       currentTask,
       activeFiles: [],
       recentOperations: [],
-      workContext,
+      workContext: agentContext,
       lastActivity: new Date(),
       status: 'working'
     };
@@ -99,7 +104,7 @@ export class UnifiedStateManager {
     this.workspaceState.activeAgents.set(agentId, agentState);
     
     // Check for potential conflicts
-    await this.checkForConflicts(agentId, workContext);
+    await this.checkForConflicts(agentId, agentContext);
     
     return agentState;
   }
@@ -236,8 +241,8 @@ export class UnifiedStateManager {
     for (const [otherId, otherState] of this.workspaceState.activeAgents) {
       if (otherId !== agentId && otherState.status === 'working') {
         // Update their work context with shared information
-        otherState.workContext = {
-          ...otherState.workContext,
+        otherState.workContext.lastWorkingState = {
+          ...otherState.workContext.lastWorkingState,
           sharedContext: this.workspaceState.globalContext
         };
       }
@@ -339,7 +344,7 @@ export class UnifiedStateManager {
       }
 
       // Context optimization
-      if (agentState.workContext.relevantFiles.length > 15) {
+      if (agentState.workContext.filesModified.length > 15) {
         optimizations.push('Optimized context scope');
         recommendations.push('Focus on most relevant files first');
       }
@@ -398,13 +403,13 @@ export class UnifiedStateManager {
     });
   }
 
-  private async checkForConflicts(agentId: string, workContext: AgentWorkContext): Promise<void> {
+  private async checkForConflicts(agentId: string, workContext: AgentContext): Promise<void> {
     const conflicts: ConflictResolution[] = [];
 
     // Check for file conflicts
     for (const [otherId, otherState] of this.workspaceState.activeAgents) {
       if (otherId !== agentId && otherState.status === 'working') {
-        const fileOverlap = workContext.relevantFiles.filter(file => 
+        const fileOverlap = workContext.filesModified.filter((file: string) => 
           otherState.activeFiles.includes(file)
         );
 
