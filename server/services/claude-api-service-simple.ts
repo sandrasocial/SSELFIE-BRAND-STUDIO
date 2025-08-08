@@ -53,7 +53,7 @@ export class ClaudeApiServiceSimple {
       // Execute Claude API call (without tools - handled at route level)
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
-        max_tokens: 4000,
+        max_tokens: 8192, // UNRESTRICTED: Increased from 4000 to allow full autonomous workflows
         temperature: 0.7,
         system: agentConfig.systemPrompt,
         messages: claudeMessages
@@ -98,7 +98,7 @@ export class ClaudeApiServiceSimple {
             // Get agent's response to tool result
             const followUpResponse = await anthropic.messages.create({
               model: DEFAULT_MODEL_STR,
-              max_tokens: 4000,
+              max_tokens: 8192, // UNRESTRICTED: Increased for full workflow completion
               temperature: 0.7,
               system: agentConfig.systemPrompt,
               messages: [...claudeMessages, 
@@ -163,20 +163,9 @@ export class ClaudeApiServiceSimple {
       await this.createConversationIfNotExists(userId, agentName, conversationId);
       const messages = await this.loadConversationMessages(conversationId);
       
-      // EMERGENCY: Estimate token usage to prevent explosion
+      // UNRESTRICTED: Token monitoring removed to allow full autonomous workflows
       const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(messages));
-      console.log(`📊 ESTIMATED TOKENS: ${estimatedTokens} (limit: 150,000)`);
-      
-      if (estimatedTokens > 150000) {
-        console.warn(`⚠️ TOKEN LIMIT EXCEEDED: ${estimatedTokens} > 150,000 - Emergency abort to prevent system failure`);
-        res.write(`data: ${JSON.stringify({
-          type: 'streaming_failure',
-          error: 'Token limit exceeded - conversation too large',
-          message: `${agentName} stopped to prevent system overload. Please start a new conversation.`
-        })}\n\n`);
-        res.end();
-        return;
-      }
+      console.log(`📊 TOKEN TRACKING: ${estimatedTokens} tokens (unrestricted for autonomous workflows)`);
       
       // CACHE SYSTEM DISABLED: No search context restrictions for agents
       console.log(`🚀 ${agentName}: Cache context disabled - direct filesystem access enabled`);
@@ -204,10 +193,10 @@ export class ClaudeApiServiceSimple {
       let fullResponse = '';
       let conversationContinues = true;
       let iterationCount = 0;
-      const maxIterations = 20; // Increased for complex tool operations
+      const maxIterations = 50; // UNRESTRICTED: Increased from 20 to allow full workflow completion
       let allToolCalls: any[] = [];
       
-      // Continue conversation until task is complete - EXTENDED for tool execution
+      // Continue conversation until task is complete - UNRESTRICTED for autonomous workflow completion
       while (conversationContinues && iterationCount < maxIterations) {
         iterationCount++;
         
