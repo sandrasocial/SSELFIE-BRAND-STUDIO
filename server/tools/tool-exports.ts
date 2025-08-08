@@ -5,4 +5,4 @@ export { direct_file_access } from './direct_file_access.ts';
 export { restart_workflow } from './restart-workflow.ts';
 
 // Import the working search implementation
-export { search_filesystem } from './search_filesystem';
+export { search_filesystem } from './search_filesystem.js';

@@ -1,10 +1,14 @@
 /**
- * FILESYSTEM SEARCH TOOL - UNIFIED BYPASS SYSTEM
- * Direct file operations matching working tools pattern
+ * FILESYSTEM SEARCH TOOL - DIRECT IMPLEMENTATION
+ * Restored direct search capabilities for agents
  */
 
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import fs from 'fs/promises';
+import path from 'path';
+import { DirectWorkspaceAccess } from '../services/direct-workspace-access';
+
+// BYPASS SYSTEM: Initialize direct access for complete repository visibility
+const directAccess = new DirectWorkspaceAccess();
 
 export interface SearchParams {
   query_description?: string;
@@ -39,16 +43,16 @@ export async function search_filesystem(params: SearchParams) {
 }
 
 async function handleNaturalLanguageSearch(params: SearchParams) {
-  console.log('🧠 UNIFIED BYPASS NATURAL LANGUAGE SEARCH:', params.query_description);
+  console.log('🧠 BYPASS NATURAL LANGUAGE SEARCH:', params.query_description);
   
-  // UNIFIED BYPASS SYSTEM: Direct file system search like working tools
-  const searchResults = await searchCodebaseDirectly(params.query_description || '');
+  // USE DIRECT ACCESS SYSTEM: Search entire repository without limitations
+  const searchResults = await directAccess.searchCodebase(params.query_description || '');
   
-  // Get project structure using direct fs operations  
-  const fileTree = await getFileTreeDirectly(4);
+  // Get project structure for context
+  const fileTree = await directAccess.getFileTree(4);
   
   // Convert to expected format
-  const results: SearchResult[] = searchResults.slice(0, 50).map((result: any, index: number) => ({
+  const results: SearchResult[] = searchResults.slice(0, 50).map((result, index) => ({
     file: path.basename(result.file),
     fullPath: result.file,
     reason: `Contains: ${result.match}`,
@@ -70,28 +74,26 @@ async function handleNaturalLanguageSearch(params: SearchParams) {
     ];
     
     for (const coreFile of coreFiles) {
-      try {
-        const content = await fs.readFile(coreFile, 'utf-8');
+      const fileResult = await directAccess.readFile(coreFile);
+      if (fileResult.success) {
         results.unshift({
           file: path.basename(coreFile),
           fullPath: coreFile,
           reason: `Core ${query} file`,
-          snippet: content.substring(0, 200) + '...',
+          snippet: (fileResult.content || '').substring(0, 200) + '...',
           type: 'Core File',
           priority: 150
         });
-      } catch {
-        // File doesn't exist, skip
       }
     }
   }
   
   return {
-    summary: `UNIFIED SEARCH: Found ${results.length} files with matching parameters (Query: "${params.query_description}")`,
+    summary: `ENHANCED SEARCH: Found ${results.length} files with matching parameters (Query: "${params.query_description}")`,
     results: results,
     fileTree: fileTree,
     instructions: 'Use str_replace_based_edit_tool with command "view" and path set to fullPath to examine these files',
-    searchType: 'UNIFIED_BYPASS_SEARCH'
+    searchType: 'BYPASS_NATURAL_LANGUAGE_SEARCH'
   };
 }
 
@@ -249,102 +251,4 @@ function getFileType(filePath: string): string {
   if (filePath.includes('tools/')) return 'Tool';
   if (filePath.endsWith('.md')) return 'Documentation';
   return 'File';
-}
-
-// UNIFIED BYPASS HELPER FUNCTIONS - Direct fs operations like working tools
-
-async function searchCodebaseDirectly(query: string): Promise<any[]> {
-  console.log('🔍 DIRECT CODEBASE SEARCH:', query);
-  const results: any[] = [];
-  const maxResults = 50;
-  
-  // Search through project directories using direct fs operations
-  const searchPaths = ['client/src', 'server', 'shared', 'components', 'hooks', 'pages'];
-  
-  for (const searchPath of searchPaths) {
-    if (results.length >= maxResults) break;
-    await searchDirectoryForQuery(searchPath, query, results, maxResults);
-  }
-  
-  return results;
-}
-
-async function searchDirectoryForQuery(dirPath: string, query: string, results: any[], maxResults: number) {
-  if (results.length >= maxResults) return;
-  
-  try {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
-    
-    for (const entry of entries) {
-      if (results.length >= maxResults) break;
-      
-      const fullPath = path.join(dirPath, entry.name);
-      
-      // Skip system directories - match archive exclusion pattern
-      if (['node_modules', '.git', 'dist', 'build', 'archive-consolidated', 'attached_assets'].includes(entry.name)) {
-        continue;
-      }
-      
-      if (entry.isDirectory()) {
-        await searchDirectoryForQuery(fullPath, query, results, maxResults);
-      } else if (entry.isFile() && shouldAnalyzeFile(entry.name)) {
-        try {
-          const content = await fs.readFile(fullPath, 'utf-8');
-          const queryLower = query.toLowerCase();
-          const contentLower = content.toLowerCase();
-          const pathLower = fullPath.toLowerCase();
-          
-          if (pathLower.includes(queryLower) || contentLower.includes(queryLower)) {
-            results.push({
-              file: fullPath,
-              match: query,
-              content: content
-            });
-          }
-        } catch {
-          // Skip files that can't be read
-        }
-      }
-    }
-  } catch {
-    // Skip directories that can't be accessed
-  }
-}
-
-async function getFileTreeDirectly(maxDepth: number = 4): Promise<any> {
-  console.log('🌳 DIRECT FILE TREE GENERATION:', { maxDepth });
-  
-  const tree = await buildDirectoryTree('.', 0, maxDepth);
-  return tree;
-}
-
-async function buildDirectoryTree(dirPath: string, currentDepth: number, maxDepth: number): Promise<any> {
-  if (currentDepth >= maxDepth) return null;
-  
-  try {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
-    const tree: any = {};
-    
-    for (const entry of entries) {
-      // Skip system directories - match archive exclusion pattern
-      if (['node_modules', '.git', 'dist', 'build', 'archive-consolidated', 'attached_assets'].includes(entry.name)) {
-        continue;
-      }
-      
-      const fullPath = path.join(dirPath, entry.name);
-      
-      if (entry.isDirectory()) {
-        const subtree = await buildDirectoryTree(fullPath, currentDepth + 1, maxDepth);
-        if (subtree) {
-          tree[entry.name] = subtree;
-        }
-      } else {
-        tree[entry.name] = 'file';
-      }
-    }
-    
-    return tree;
-  } catch {
-    return null;
-  }
 }
