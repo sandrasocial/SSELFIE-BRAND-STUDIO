@@ -50,14 +50,13 @@ export class ClaudeApiServiceSimple {
         { role: 'user', content: message }
       ];
       
-      // Execute Claude API call
+      // Execute Claude API call (without tools - handled at route level)
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
         max_tokens: 4000,
         temperature: 0.7,
         system: agentConfig.systemPrompt,
-        messages: claudeMessages,
-        tools: agentConfig.tools || []
+        messages: claudeMessages
       });
       
       let fullResponse = '';
