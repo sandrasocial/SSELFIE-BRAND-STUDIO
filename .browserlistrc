@@ -1,0 +1,14 @@
+# Modern browsers for sselfie.ai compatibility
+> 0.5%
+last 2 versions
+not dead
+not ie 11
+not op_mini all
+# Support for luxury brand websites - modern browsers only
+Chrome >= 90
+Firefox >= 88
+Safari >= 14
+Edge >= 90
+# Mobile optimization for all devices
+iOS >= 14
+Android >= 90
