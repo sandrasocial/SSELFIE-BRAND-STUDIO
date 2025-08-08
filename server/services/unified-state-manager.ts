@@ -81,6 +81,26 @@ export class UnifiedStateManager {
     }
     return UnifiedStateManager.instance;
   }
+  
+  /**
+   * Clear agent workspace state for fresh coordination
+   */
+  clearWorkspaceState(): void {
+    const agentCount = this.workspaceState.activeAgents.size;
+    const queueCount = this.workspaceState.coordinationQueue.length;
+    
+    this.workspaceState = {
+      activeAgents: new Map(),
+      globalContext: {},
+      sharedFiles: [],
+      conflictResolution: [],
+      coordinationQueue: []
+    };
+    
+    this.stateHistory = [];
+    
+    console.log(`🧹 Workspace state cleared: ${agentCount} agents, ${queueCount} queue items removed`);
+  }
 
   /**
    * AGENT REGISTRATION AND COORDINATION

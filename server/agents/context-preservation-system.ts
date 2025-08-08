@@ -64,6 +64,23 @@ export class ContextPreservationSystem {
   private static contextCache = new Map<string, AgentContext>();
   
   /**
+   * Clear cached context data for fresh agent starts
+   */
+  static clearContextCache(userId?: string): void {
+    if (userId) {
+      // Clear specific user's agent contexts
+      const keysToDelete = Array.from(this.contextCache.keys()).filter(key => key.endsWith(`-${userId}`));
+      keysToDelete.forEach(key => this.contextCache.delete(key));
+      console.log(`🧹 Context cache cleared for user ${userId}: ${keysToDelete.length} contexts removed`);
+    } else {
+      // Clear all cached contexts
+      const count = this.contextCache.size;
+      this.contextCache.clear();
+      console.log(`🧹 All context cache cleared: ${count} contexts removed`);
+    }
+  }
+  
+  /**
    * Save agent context for future conversations
    */
   static async saveContext(
