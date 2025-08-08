@@ -2,7 +2,7 @@
 
 ## Recent Changes (August 8, 2025)
 
-**SEARCH TOOL CRITICAL FIX COMPLETED** (Agent Navigation Breakthrough): Resolved critical search tool breakdown preventing agents from accessing core codebase files. Integrated DirectWorkspaceAccess bypass system with search_filesystem tool, created direct_file_access tool for complete repository visibility, and cleared stale agent cache. Eliminated competing bypass systems to create single robust file access pathway. Agents now have full unrestricted access to client/, server/, shared/ directories and all core components, pages, authentication systems, and services through unified direct access mechanisms.
+**SEARCH TOOL CRITICAL FIX COMPLETED** (Agent Navigation Breakthrough): Resolved critical search tool breakdown preventing agents from accessing core codebase files. Root cause: agents were seeing archived/broken files instead of current working files due to DirectWorkspaceAccess searching entire workspace including archive-consolidated/ and attached_assets/ directories. Fixed by excluding archive directories from search scope. Agents now correctly see client/src/components/, client/src/pages/, server/ services, and shared/ schemas - the actual working codebase instead of outdated archived content.
 
 **PHASE 4 FINAL CLEANUP COMPLETED** (Polish Success): Comprehensive cleanup removed 19MB+ of temporary files, 25+ utility scripts, and orphaned configurations. Root directory organized from 184 to 62 files (66% reduction). Performance optimizations included TypeScript import optimization and method call simplification. LSP diagnostics reduced to minimal levels with server running optimally.
 

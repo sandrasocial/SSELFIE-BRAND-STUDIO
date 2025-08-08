@@ -38,8 +38,14 @@ export class DirectWorkspaceAccess {
     '.png', '.jpg', '.jpeg', '.zip', '.scss', '.yaml', '.yml', '.env', '.gitignore',
     '.py', '.rb', '.php', '.cpp', '.c', '.h', '.hpp', '.java', '.go', '.rs', '.swift'
   ];
-  // MINIMAL RESTRICTIONS - Only exclude system directories that cause performance issues
-  private forbiddenPaths = ['node_modules', '.git'];
+  // FOCUSED SEARCH - Exclude archives and attachments to show current working files
+  private forbiddenPaths = [
+    'node_modules', '.git', 
+    'archive-consolidated',  // Archived/broken components and files
+    'attached_assets',       // User attachments and documents  
+    '.cache',               // Cache files
+    'logs'                  // Log files
+  ];
 
   constructor() {
     // Get project root directory
