@@ -1,331 +1,103 @@
-// Direct File Access Tool - Provides Replit AI-level file access without filtering
-import fs from 'fs/promises';
-import path from 'path';
+/**
+ * DIRECT FILE ACCESS TOOL
+ * Bypass system for agents to access files without API overhead
+ * Provides complete repository access for admin agents
+ */
 
-// BYPASS SYSTEM: Enhanced pattern matching for agent file access
-function checkPatternMatch(filePath: string, pattern: string): boolean {
-  // Convert glob pattern to regex - CORRECTED ORDER for proper wildcard matching
-  let regex = pattern.toLowerCase();
-  
-  // Replace in correct order to avoid conflicts
-  regex = regex.replace(/\*\*/g, '@@DOUBLESTAR@@');  // Temporarily replace **
-  regex = regex.replace(/\*/g, '[^/]*');             // Replace single * first
-  regex = regex.replace(/@@DOUBLESTAR@@/g, '.*');     // Replace ** with .*
-  regex = regex.replace(/\./g, '\\.');               // Escape dots last
-  
-  const regexPattern = new RegExp(`^${regex}$`);
-  const testPath = filePath.toLowerCase();
-  
-  // DEBUG: Log pattern matching for troubleshooting
-  console.log(`🔍 PATTERN MATCH: "${testPath}" vs pattern "${pattern}" (regex: "${regex}") = ${regexPattern.test(testPath)}`);
-  
-  return regexPattern.test(testPath);
-}
+import { DirectWorkspaceAccess } from '../services/direct-workspace-access';
+
+// Initialize direct access system
+const directAccess = new DirectWorkspaceAccess();
 
 export interface DirectFileAccessParams {
   action: 'view' | 'list' | 'exists' | 'search_path';
   path: string;
   recursive?: boolean;
   max_depth?: number;
-  // Direct access configuration
-  template_mode?: boolean;
-  bypass_training?: boolean;
-  raw_file_access?: boolean;
 }
 
-export async function direct_file_access(params: DirectFileAccessParams) {
+export async function direct_file_access(params: DirectFileAccessParams): Promise<any> {
+  console.log(`🔍 DIRECT FILE ACCESS: ${params.action} "${params.path}" - BYPASS SYSTEM ACTIVE`);
+  
   try {
-    console.log('🎯 DIRECT FILE ACCESS (RAW MODE):', params);
-    
-    const { 
-      action, 
-      path: filePath, 
-      recursive = false, 
-      max_depth = 3,
-      template_mode = false,
-      bypass_training = true,
-      raw_file_access = true
-    } = params;
-    
-    // RAW FILE ACCESS: Bypass all template systems
-    if (raw_file_access) {
-      console.log('✅ RAW FILE ACCESS ENABLED - Direct filesystem access');
-    }
-    
-    const fullPath = path.resolve(process.cwd(), filePath);
-    
-    // Security check - ensure path is within project
-    if (!fullPath.startsWith(process.cwd())) {
-      throw new Error('Access denied: Path outside project directory');
-    }
-    
-    switch (action) {
-      case 'exists':
-        return await checkFileExists(fullPath, filePath);
-        
+    switch (params.action) {
       case 'view':
-        return await viewFile(fullPath, filePath);
-        
-      case 'list':
-        return await listDirectory(fullPath, filePath, recursive, max_depth);
-        
-      case 'search_path':
-        return await searchByPath(filePath, recursive, max_depth);
-        
-      default:
-        throw new Error(`Unknown action: ${action}`);
-    }
-    
-  } catch (error) {
-    console.error('❌ DIRECT FILE ACCESS ERROR:', error);
-    
-    // Provide helpful path suggestions for common agent mistakes
-    let helpfulError = error instanceof Error ? error.message : 'Unknown error';
-    
-    if (helpfulError.includes('ENOENT') || helpfulError.includes('Directory not found')) {
-      const { AgentFilePathGuide } = await import('../agents/agent-file-path-guide.js');
-      const suggestion = AgentFilePathGuide.suggestCorrectPath(params.path);
-      helpfulError += `\n\n💡 Path Suggestion: ${suggestion}`;
-      
-      // Show available actual files (no template redirects)
-      if (params.path.includes('workspace')) {
-        helpfulError += `\n\n📁 Direct Path: client/src/pages/workspace.tsx`;
-      } else if (params.path.includes('admin')) {
-        helpfulError += `\n\n📁 Direct Paths:\n- client/src/pages/admin-dashboard.tsx\n- client/src/pages/admin-consulting-agents.tsx`;
-      } else if (params.path.includes('agent')) {
-        helpfulError += `\n\n📁 Direct Paths:\n- server/agents/\n- server/tools/\n- server/routes/`;
-      } else if (params.path.includes('pages')) {
-        helpfulError += `\n\n📁 Direct Path: client/src/pages/ (individual .tsx files)`;
-      }
-    }
-    
-    return {
-      success: false,
-      error: helpfulError,
-      path: params.path
-    };
-  }
-}
-
-async function checkFileExists(fullPath: string, originalPath: string) {
-  try {
-    const stats = await fs.stat(fullPath);
-    return {
-      success: true,
-      exists: true,
-      path: originalPath,
-      type: stats.isDirectory() ? 'directory' : 'file',
-      size: stats.isFile() ? stats.size : undefined,
-      modified: stats.mtime.toISOString()
-    };
-  } catch (error) {
-    if ((error as any).code === 'ENOENT') {
-      return {
-        success: true,
-        exists: false,
-        path: originalPath
-      };
-    }
-    throw error;
-  }
-}
-
-async function viewFile(fullPath: string, originalPath: string) {
-  try {
-    const stats = await fs.stat(fullPath);
-    
-    if (stats.isDirectory()) {
-      return {
-        success: false,
-        error: 'Path is a directory, use action: "list" instead',
-        path: originalPath
-      };
-    }
-    
-    // Check if file is too large (>1MB)
-    if (stats.size > 1024 * 1024) {
-      const content = await fs.readFile(fullPath, 'utf-8');
-      return {
-        success: true,
-        path: originalPath,
-        size: stats.size,
-        content: content.substring(0, 5000) + `\n\n[File truncated - ${stats.size} total bytes]`,
-        truncated: true
-      };
-    }
-    
-    const content = await fs.readFile(fullPath, 'utf-8');
-    return {
-      success: true,
-      path: originalPath,
-      size: stats.size,
-      content: content,
-      truncated: false
-    };
-    
-  } catch (error) {
-    if ((error as any).code === 'ENOENT') {
-      return {
-        success: false,
-        error: 'File not found',
-        path: originalPath
-      };
-    }
-    throw error;
-  }
-}
-
-async function listDirectory(fullPath: string, originalPath: string, recursive: boolean, maxDepth: number, currentDepth = 0) {
-  try {
-    const stats = await fs.stat(fullPath);
-    
-    if (!stats.isDirectory()) {
-      return {
-        success: false,
-        error: 'Path is not a directory',
-        path: originalPath
-      };
-    }
-    
-    const entries = await fs.readdir(fullPath, { withFileTypes: true });
-    const items: any[] = [];
-    
-    for (const entry of entries) {
-      // Skip common directories that clutter results
-      if (entry.name.startsWith('.') && !entry.name.match(/\.(env|gitignore|eslintrc|prettierrc)/)) {
-        continue;
-      }
-      if (['node_modules', 'dist', 'build', '.git'].includes(entry.name)) {
-        continue;
-      }
-      
-      const itemPath = path.join(originalPath, entry.name);
-      const fullItemPath = path.join(fullPath, entry.name);
-      
-      if (entry.isDirectory()) {
-        const item: any = {
-          name: entry.name,
-          type: 'directory',
-          path: itemPath
+        // Read file content directly
+        const result = await directAccess.readFile(params.path);
+        return {
+          success: result.success,
+          content: result.content,
+          error: result.error,
+          path: params.path,
+          type: 'file_content'
         };
         
-        // Recursively list subdirectories if requested and within depth limit
-        if (recursive && currentDepth < maxDepth) {
-          try {
-            const subResult = await listDirectory(fullItemPath, itemPath, recursive, maxDepth, currentDepth + 1);
-            if (subResult.success) {
-              item.children = subResult.items;
-            }
-          } catch (subError) {
-            // Skip directories that can't be accessed
-            item.error = 'Access denied';
-          }
+      case 'list':
+        // Get directory listing or full file tree
+        if (params.path === '.' || params.path === '' || params.path === '/') {
+          const tree = await directAccess.getFileTree(params.max_depth || 4);
+          return {
+            success: true,
+            tree,
+            type: 'directory_tree',
+            path: params.path
+          };
+        } else {
+          // List specific directory
+          const tree = await directAccess.getFileTree(params.max_depth || 3);
+          return {
+            success: true,
+            tree,
+            type: 'directory_listing',
+            path: params.path
+          };
         }
         
-        items.push(item);
-      } else {
-        const itemStats = await fs.stat(fullItemPath);
-        items.push({
-          name: entry.name,
-          type: 'file',
-          path: itemPath,
-          size: itemStats.size,
-          modified: itemStats.mtime.toISOString()
-        });
-      }
-    }
-    
-    return {
-      success: true,
-      path: originalPath,
-      items: items.sort((a, b) => {
-        // Directories first, then files, both alphabetically
-        if (a.type !== b.type) {
-          return a.type === 'directory' ? -1 : 1;
+      case 'exists':
+        // Check if file/directory exists
+        try {
+          const result = await directAccess.readFile(params.path);
+          return { 
+            success: true, 
+            exists: result.success, 
+            path: params.path,
+            type: 'existence_check'
+          };
+        } catch {
+          return { 
+            success: true, 
+            exists: false, 
+            path: params.path,
+            type: 'existence_check'
+          };
         }
-        return a.name.localeCompare(b.name);
-      }),
-      total: items.length
-    };
-    
-  } catch (error) {
-    if ((error as any).code === 'ENOENT') {
-      return {
-        success: false,
-        error: 'Directory not found',
-        path: originalPath
-      };
-    }
-    throw error;
-  }
-}
-
-async function searchByPath(searchPath: string, recursive: boolean, maxDepth: number) {
-  try {
-    const results: any[] = [];
-    
-    // Search for files matching the path pattern
-    const searchInDirectory = async (dirPath: string, basePath = '', currentDepth = 0) => {
-      if (currentDepth > maxDepth) return;
-      
-      try {
-        const entries = await fs.readdir(dirPath, { withFileTypes: true });
         
-        for (const entry of entries) {
-          if (['node_modules', 'dist', 'build', '.git'].includes(entry.name)) {
-            continue;
-          }
-          
-          const fullPath = path.join(dirPath, entry.name);
-          const relativePath = path.join(basePath, entry.name);
-          
-          // ENHANCED PATTERN MATCHING: Support glob patterns and wildcards
-          const matchesPattern = checkPatternMatch(relativePath, searchPath) ||
-                                checkPatternMatch(entry.name, searchPath);
-          
-          if (matchesPattern) {
-            
-            const stats = await fs.stat(fullPath);
-            results.push({
-              name: entry.name,
-              path: relativePath,
-              type: entry.isDirectory() ? 'directory' : 'file',
-              size: entry.isFile() ? stats.size : undefined,
-              modified: stats.mtime.toISOString(),
-              matchReason: checkPatternMatch(relativePath, searchPath) ? 'path' : 'filename'
-            });
-          }
-          
-          // Recursively search subdirectories
-          if (entry.isDirectory() && recursive && currentDepth < maxDepth) {
-            await searchInDirectory(fullPath, relativePath, currentDepth + 1);
-          }
-        }
-      } catch (dirError) {
-        // Skip directories that can't be accessed
-      }
-    };
-    
-    await searchInDirectory(process.cwd());
-    
-    return {
-      success: true,
-      searchPath: searchPath,
-      results: results.sort((a, b) => {
-        // Exact filename matches first, then path matches
-        if (a.matchReason !== b.matchReason) {
-          return a.matchReason === 'filename' ? -1 : 1;
-        }
-        return a.path.localeCompare(b.path);
-      }),
-      total: results.length
-    };
-    
+      case 'search_path':
+        // Search for files matching path pattern or content
+        const searchResults = await directAccess.searchCodebase(params.path);
+        return {
+          success: true,
+          results: searchResults.slice(0, 50), // Limit to prevent overwhelming
+          total_found: searchResults.length,
+          query: params.path,
+          type: 'search_results'
+        };
+        
+      default:
+        return { 
+          success: false, 
+          error: `Unknown action: ${params.action}`,
+          type: 'error'
+        };
+    }
   } catch (error) {
+    console.error(`❌ DIRECT FILE ACCESS ERROR [${params.action}]:`, error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Search failed',
-      searchPath: searchPath
+      error: error instanceof Error ? error.message : 'Unknown error',
+      path: params.path,
+      action: params.action,
+      type: 'error'
     };
   }
 }

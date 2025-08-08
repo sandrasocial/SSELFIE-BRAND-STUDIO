@@ -5,6 +5,10 @@
 
 import fs from 'fs/promises';
 import path from 'path';
+import { DirectWorkspaceAccess } from '../services/direct-workspace-access';
+
+// BYPASS SYSTEM: Initialize direct access for complete repository visibility
+const directAccess = new DirectWorkspaceAccess();
 
 export interface SearchParams {
   query_description?: string;
@@ -39,24 +43,57 @@ export async function search_filesystem(params: SearchParams) {
 }
 
 async function handleNaturalLanguageSearch(params: SearchParams) {
-  console.log('🧠 Natural language search:', params.query_description);
+  console.log('🧠 BYPASS NATURAL LANGUAGE SEARCH:', params.query_description);
   
-  const results: SearchResult[] = [];
-  const maxFiles = 25;
-  const searchPaths = params.search_paths || ['.'];
+  // USE DIRECT ACCESS SYSTEM: Search entire repository without limitations
+  const searchResults = await directAccess.searchCodebase(params.query_description || '');
   
-  for (const searchPath of searchPaths) {
-    await searchInDirectory(searchPath, '', results, maxFiles, params.query_description || '');
+  // Get project structure for context
+  const fileTree = await directAccess.getFileTree(4);
+  
+  // Convert to expected format
+  const results: SearchResult[] = searchResults.slice(0, 50).map((result, index) => ({
+    file: path.basename(result.file),
+    fullPath: result.file,
+    reason: `Contains: ${result.match}`,
+    snippet: result.content.substring(0, 200) + '...',
+    type: 'File',
+    priority: 100 - index
+  }));
+  
+  // Add core files for context if search is about components, pages, etc.
+  const query = params.query_description?.toLowerCase() || '';
+  if (query.includes('component') || query.includes('page') || query.includes('auth') || query.includes('service')) {
+    const coreFiles = [
+      'client/src/App.tsx',
+      'client/src/pages',
+      'client/src/components',
+      'server/routes.ts',
+      'server/services',
+      'shared/schema.ts'
+    ];
+    
+    for (const coreFile of coreFiles) {
+      const fileResult = await directAccess.readFile(coreFile);
+      if (fileResult.success) {
+        results.unshift({
+          file: path.basename(coreFile),
+          fullPath: coreFile,
+          reason: `Core ${query} file`,
+          snippet: (fileResult.content || '').substring(0, 200) + '...',
+          type: 'Core File',
+          priority: 150
+        });
+      }
+    }
   }
   
-  // Sort by priority and limit results
-  results.sort((a, b) => b.priority - a.priority);
-  
   return {
-    summary: `Found ${results.length} files matching query`,
-    results: results.slice(0, maxFiles),
-    instructions: 'Use str_replace_based_edit_tool with the fullPath to view or modify these files',
-    searchType: 'NATURAL_LANGUAGE_SEARCH'
+    summary: `ENHANCED SEARCH: Found ${results.length} files with matching parameters (Query: "${params.query_description}")`,
+    results: results,
+    fileTree: fileTree,
+    instructions: 'Use str_replace_based_edit_tool with command "view" and path set to fullPath to examine these files',
+    searchType: 'BYPASS_NATURAL_LANGUAGE_SEARCH'
   };
 }
 

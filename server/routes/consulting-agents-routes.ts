@@ -25,9 +25,20 @@ interface ConsultingChatBody {
 
 // UNIFIED SERVICE: Use singleton from claude-api-service-simple.ts (eliminates service multiplication)
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
+import { DirectWorkspaceAccess } from '../services/direct-workspace-access';
+import { autonomousNavigation } from '../services/autonomous-navigation-system';
+import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
+import { ContextPreservationSystem } from '../agents/context-preservation-system';
+import { db } from '../db';
+import { claudeConversations, claudeMessages } from '@shared/schema';
+import { eq, desc } from 'drizzle-orm';
+
 function getClaudeService() {
   return claudeApiServiceSimple;
 }
+
+// INITIALIZE DIRECT ACCESS SYSTEM: Core bypass mechanism for agent file operations
+const directAccess = new DirectWorkspaceAccess();
 
 const consultingAgentsRouter = Router();
 
