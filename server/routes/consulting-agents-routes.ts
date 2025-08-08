@@ -25,7 +25,7 @@ interface ConsultingChatBody {
 
 // UNIFIED SERVICE: Use singleton from claude-api-service-simple.ts (eliminates service multiplication)
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
-import { directWorkspaceAccess } from '../services/direct-workspace-access';
+import { DirectWorkspaceAccess } from '../services/direct-workspace-access';
 import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
 import { ContextPreservationSystem } from '../agents/context-preservation-system';
@@ -37,8 +37,8 @@ function getClaudeService() {
   return claudeApiServiceSimple;
 }
 
-// USE SINGLETON: No more multiple instances - unified bypass system
-const directAccess = directWorkspaceAccess;
+// INITIALIZE DIRECT ACCESS SYSTEM: Core bypass mechanism for agent file operations
+const directAccess = new DirectWorkspaceAccess();
 
 const consultingAgentsRouter = Router();
 
