@@ -787,6 +787,135 @@ export { userStyleguides, styleguideTemplates } from "./styleguide-schema";
 export type { UserStyleguide, StyleguideTemplate, InsertUserStyleguide, InsertStyleguideTemplate } from "./styleguide-schema";
 
 // Website management schema types
+// MISSING TABLE DEFINITIONS - Adding to resolve database schema mismatches
+
+// Architecture audit tracking table
+export const architectureAuditLog = pgTable("architecture_audit_log", {
+  id: serial("id").primaryKey(),
+  auditDate: timestamp("audit_date").defaultNow(),
+  totalUsers: integer("total_users"),
+  compliantUsers: integer("compliant_users"),
+  violationsFound: text("violations_found").array(),
+  violationsFixed: text("violations_fixed").array(),
+  auditStatus: varchar("audit_status"),
+});
+
+// Brand identity management table
+export const brandbooks = pgTable("brandbooks", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  businessName: varchar("business_name").notNull(),
+  tagline: varchar("tagline"),
+  story: text("story"),
+  primaryFont: varchar("primary_font").default("Times New Roman"),
+  secondaryFont: varchar("secondary_font").default("Inter"),
+  primaryColor: varchar("primary_color").default("#0a0a0a"),
+  secondaryColor: varchar("secondary_color").default("#ffffff"),
+  accentColor: varchar("accent_color").default("#f5f5f5"),
+  logoType: varchar("logo_type").notNull(),
+  logoUrl: varchar("logo_url"),
+  logoPrompt: text("logo_prompt"),
+  moodboardStyle: varchar("moodboard_style").notNull(),
+  voiceTone: text("voice_tone"),
+  voicePersonality: text("voice_personality"),
+  keyPhrases: text("key_phrases"),
+  isPublished: boolean("is_published").default(false),
+  brandbookUrl: varchar("brandbook_url"),
+  templateType: varchar("template_type").default("minimal-executive"),
+  customDomain: varchar("custom_domain"),
+  isLive: boolean("is_live").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User dashboard configurations table
+export const dashboards = pgTable("dashboards", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  config: jsonb("config").notNull(),
+  onboardingData: jsonb("onboarding_data"),
+  templateType: varchar("template_type").notNull(),
+  quickLinks: jsonb("quick_links"),
+  customUrl: varchar("custom_url"),
+  isPublished: boolean("is_published").default(false),
+  backgroundColor: varchar("background_color").default("#ffffff"),
+  accentColor: varchar("accent_color").default("#0a0a0a"),
+  isLive: boolean("is_live").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User photo inspiration table
+export const inspirationPhotos = pgTable("inspiration_photos", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  imageUrl: varchar("image_url").notNull(),
+  description: text("description"),
+  tags: jsonb("tags"),
+  source: varchar("source").default("upload"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// AI model recovery tracking table
+export const modelRecoveryLog = pgTable("model_recovery_log", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  oldModelId: varchar("old_model_id"),
+  newModelId: varchar("new_model_id"),
+  recoveryStatus: varchar("recovery_status"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Sandra admin chat history table
+export const sandraConversations = pgTable("sandra_conversations", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  message: text("message").notNull(),
+  response: text("response").notNull(),
+  userStylePreferences: jsonb("user_style_preferences"),
+  suggestedPrompt: text("suggested_prompt"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User saved prompts table  
+export const savedPrompts = pgTable("saved_prompts", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  prompt: text("prompt").notNull(),
+  camera: varchar("camera"),
+  texture: varchar("texture"),
+  collection: varchar("collection"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas for missing tables
+export const insertArchitectureAuditLogSchema = createInsertSchema(architectureAuditLog).omit({ id: true, auditDate: true });
+export const insertBrandbookSchema = createInsertSchema(brandbooks).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertDashboardSchema = createInsertSchema(dashboards).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertInspirationPhotoSchema = createInsertSchema(inspirationPhotos).omit({ id: true, createdAt: true });
+export const insertModelRecoveryLogSchema = createInsertSchema(modelRecoveryLog).omit({ id: true, createdAt: true });
+export const insertSandraConversationSchema = createInsertSchema(sandraConversations).omit({ id: true, createdAt: true });
+export const insertSavedPromptSchema = createInsertSchema(savedPrompts).omit({ id: true, createdAt: true });
+
+// Type exports for missing tables
+export type ArchitectureAuditLog = typeof architectureAuditLog.$inferSelect;
+export type InsertArchitectureAuditLog = z.infer<typeof insertArchitectureAuditLogSchema>;
+export type Brandbook = typeof brandbooks.$inferSelect;
+export type InsertBrandbook = z.infer<typeof insertBrandbookSchema>;
+export type Dashboard = typeof dashboards.$inferSelect;
+export type InsertDashboard = z.infer<typeof insertDashboardSchema>;
+export type InspirationPhoto = typeof inspirationPhotos.$inferSelect;
+export type InsertInspirationPhoto = z.infer<typeof insertInspirationPhotoSchema>;
+export type ModelRecoveryLog = typeof modelRecoveryLog.$inferSelect;
+export type InsertModelRecoveryLog = z.infer<typeof insertModelRecoveryLogSchema>;
+export type SandraConversation = typeof sandraConversations.$inferSelect;
+export type InsertSandraConversation = z.infer<typeof insertSandraConversationSchema>;
+export type SavedPrompt = typeof savedPrompts.$inferSelect;
+export type InsertSavedPrompt = z.infer<typeof insertSavedPromptSchema>;
+
 // Note: Website type already defined above at line 502
 
 // Note: Type exports are handled individually above to avoid conflicts
