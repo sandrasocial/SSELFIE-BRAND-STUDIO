@@ -4,13 +4,12 @@
  * Restored and adapted for current architecture
  */
 
-import { claudeApiServiceSimple } from './claude-api-service-simple';
+import { ClaudeApiServiceSimple } from './claude-api-service-simple';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
 
-// UNIFIED SERVICE: Use singleton to eliminate service multiplication
-const claudeApiService = claudeApiServiceSimple;
+const claudeApiService = new ClaudeApiServiceSimple();
 
 export interface AgentCapability {
   agentId: string;
