@@ -43,7 +43,12 @@ export function UnifiedAgentInterface() {
   // Execute agent task mutation (consolidated to admin pattern)
   const executeTaskMutation = useMutation({
     mutationFn: async (params: { agentName: string; task: string; context: any; priority?: string }) => {
-      return apiRequest('/api/admin/agents/execute', 'POST', params);
+      return apiRequest('/api/admin/consulting-chat', 'POST', {
+        agentId: params.agentName,
+        message: params.task,
+        context: params.context,
+        priority: params.priority
+      });
     },
     onSuccess: (data) => {
       setExecutionResults(prev => [data, ...prev]);

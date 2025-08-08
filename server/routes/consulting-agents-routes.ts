@@ -1,7 +1,27 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
 import { ClaudeApiServiceSimple } from '../services/claude-api-service-simple';
+
+// Type definitions for admin requests
+interface AdminRequest extends Request {
+  user?: {
+    claims: {
+      sub: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+    }
+  }
+}
+
+// Type definition for consulting chat request body
+interface ConsultingChatBody {
+  agentId: string;
+  message: string;
+  conversationId?: string;
+  adminToken?: string;
+}
 
 // SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
 let claudeServiceInstance: ClaudeApiServiceSimple | null = null;
@@ -19,7 +39,7 @@ const consultingAgentsRouter = Router();
  * Removed all hardcoded forcing to let agents use natural intelligence
  */
 // Admin authentication middleware for consulting agents
-const adminAuth = (req: any, res: any, next: any) => {
+const adminAuth = (req: AdminRequest, res: any, next: any) => {
   // Check for admin token in multiple places
   const adminToken = req.headers.authorization || req.body.adminToken || req.query.adminToken;
   
@@ -41,7 +61,7 @@ const adminAuth = (req: any, res: any, next: any) => {
   return isAuthenticated(req, res, next);
 };
 
-consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: any, res: any) => {
+consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: AdminRequest, res: any) => {
   try {
     console.log(`🎯 ADMIN CONSULTING: Starting unrestricted agent system`);
 

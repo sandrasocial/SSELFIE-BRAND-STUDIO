@@ -3,6 +3,12 @@ import React, { useState } from 'react';
 interface AdminAgentMetricsProps {
   title?: string;
   onAction?: () => void;
+  agentMetrics?: {
+    agentName: string;
+    status: 'active' | 'inactive' | 'error';
+    lastAccess: Date;
+    toolAccess: boolean;
+  }[];
 }
 
 const AdminAgentMetrics: React.FC<AdminAgentMetricsProps> = ({ 
