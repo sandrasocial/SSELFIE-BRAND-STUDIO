@@ -1,48 +1,6 @@
 # Overview
 SSELFIE Studio is a luxury AI-powered personal branding platform for entrepreneurs and coaches. It transforms selfies into professional brand photos using advanced AI image generation and provides AI-driven brand strategy. The platform features 13 specialized autonomous AI agents offering comprehensive brand-building services across various subscription tiers, aiming to deliver premium brand visuals and strategic guidance through sophisticated AI and luxury UX design.
 
-## Recent Changes (August 8, 2025)
-**CRITICAL SYSTEM CLEANUP COMPLETED** (Major Breakthrough): Systematically resolved the 5 major conflicts that were making agents confused and "all over the place". Eliminated search system blockage, authentication chaos, backup file confusion, route conflicts, and memory system disruption. All agents now have restored capabilities with clean, unobstructed access to tools and files.
-
-**SEARCH SYSTEM COMPLETELY RESTORED** (Critical Fix): Replaced broken redirect-based search with direct filesystem implementation. Agents no longer get "codebase too large" errors and can now successfully locate files, components, and code they need to work with. Search capabilities fully operational for all 14 agents.
-
-**AUTHENTICATION CHAOS ELIMINATED** (Critical Consolidation): Removed competing auth systems that were randomly blocking agents. Eliminated duplicate middleware and conflicting token validation. Streamlined to single Replit OAuth system with admin bypass. Agent access now consistent and reliable.
-
-**SYSTEM FILE CLEANUP COMPLETED** (Major Organization): Removed backup files and test systems that were creating confusion. Eliminated `agent-personalities-consulting-BACKUP-20250807.ts` and competing auth middleware. Agents now work with current files only, no more modification conflicts.
-
-**LSP COMPILATION ERRORS RESOLVED** (Technical Fix): Fixed all TypeScript compilation errors that were blocking proper system operation. Routes.ts variable scoping and Claude API service tool parameter issues completely resolved. Clean compilation ensures stable agent execution.
-
-## Previous Changes (August 7, 2025)
-**EXECUTION ENGINE SYSTEMATICALLY FIXED** (Critical Breakthrough): Completely resolved broken execution engine through systematic diagnosis and fixes. Elena and all agents now have full tool execution capabilities including restart_workflow, str_replace_based_edit_tool, search_filesystem, and bash tools. Fixed missing /:agentId/chat route, content-type streaming issues, and authentication problems. Confirmed real tool execution with database integration and learning system operational.
-
-**AGENT FILE ACCESS FULLY RESTORED** (Critical Fix): Fixed tool result truncation that was removing filenames from direct_file_access results. Agents now receive complete, untruncated file listings and directory contents. Eliminated aggressive result processing that was breaking agent file operations. All file access tools now return full data to agents.
-
-**ELENA MULTI-AGENT COORDINATION SYSTEM IMPLEMENTED** (Critical Achievement): Successfully implemented real agent-to-agent communication through sendMessage() method in ClaudeApiServiceSimple. Fixed all 7 LSP compilation errors in MultiAgentCoordinator system. Elena can now delegate tasks to other agents with full tool access through the bypass system. Added test capabilities in restart_workflow tool to verify agent coordination functionality.
-
-**MULTI-AGENT COORDINATION SYSTEM OPERATIONAL**: Implemented advanced coordination patterns including collaborative (agents work together), competitive (best result selection), consensus (agreement building), and hierarchical (strategic→tactical→execution). System supports real workflow execution with tool integration, conversation tracking, and performance metrics.
-
-**ELENA CIRCULAR DEPENDENCY CRISIS RESOLVED** (Critical Fix): Fixed infinite recursion loop that was completely blocking Elena's search system. Unified workspace service was calling search_filesystem which triggered intelligence systems in circular loop. Replaced with direct file scanning to break dependency chain and restore Elena's functionality.
-
-**SEARCH SYSTEM SIMPLIFIED FOR PURE AGENT INTELLIGENCE** (Critical Enhancement): Removed all hardcoded priorities, patterns, and restrictive filtering. Eliminated artificial limitations and complex backup systems that were constraining agent intelligence. Search now trusts agent natural language processing and intelligence systems to find what they need without interference.
-
-**INTELLIGENT SEARCH SYSTEM INTEGRATION COMPLETE** (Major Achievement): Successfully connected 5 sophisticated intelligence systems to main search flow, enabling natural language routing and comprehensive file discovery. Agents now have AI-powered navigation with autonomous file discovery, intelligent context management, and enhanced search bypass capabilities. Natural language queries like "find pages" or "show workspace components" now work seamlessly.
-
-**AGENT SEARCH BLOCKAGE ELIMINATED** (Critical Fix): Systematically identified and disabled 5 cache systems blocking agent access: tool-exports.ts cache hijacking, shouldSkipSearch function in agent-search-cache.ts, web-search-optimization.ts caching, claude-api-service-simple.ts context restrictions, and predictive-error-prevention.ts validation cache. All cache blocking mechanisms completely disabled - agents now have unrestricted direct access to all project files.
-
-**SEARCH FUNCTIONALITY VERIFICATION**: Confirmed agents can now successfully find all components including Workspace.tsx, BuildOnboarding.tsx, VictoriaChat.tsx and all member journey files. Complete 4-step workspace implementation (Train → Style → Photoshoot → Build) is accessible with Sandra's authentic messaging.
-
-**MEMORY SYSTEM CONSOLIDATION COMPLETED**: Successfully removed broken `agent-learning-system.ts` that referenced non-existent database tables (agentKnowledgeBase, agentPerformanceMetrics). Enhanced working learning system in `claude-api-service-simple.ts` with advanced pattern extraction and analysis capabilities. All LSP errors resolved - 20 diagnostics eliminated.
-
-**ENHANCED LEARNING INTELLIGENCE**: Implemented sophisticated pattern recognition including intent analysis, task completion tracking, tool usage patterns, communication preferences, and design pattern recognition. Learning system now extracts 6 types of patterns with confidence scoring 0.7-0.9 across 634 conversations.
-
-**WORKING MEMORY VERIFICATION**: Confirmed 20 agents actively learning with Elena (102 conversations, 43 patterns) and Zara (333 conversations, 69 patterns) showing highest engagement. Learning data properly stored in `agent_learning` table with confidence scores and frequency tracking.
-
-**AUTHENTICATION SYSTEM FULLY RESTORED**: Successfully resolved authentication crisis that was preventing new users from training/generating images. System restored to July 31, 2025 working state when Sandra and Shannon completed model training. Fixed duplicate route conflicts, preserved admin agent functionality, and resolved OIDC consent page loading issues.
-
-**DUPLICATE ACCOUNT RESOLUTION**: Identified and merged Shannon's two separate accounts (shannon@soulresets.com and Apple private relay email) to restore access to her completed trained model and 23 AI images.
-
-**ADMIN AGENT AUTHENTICATION RESTORED**: Fixed critical authentication issues preventing Sandra's admin agents from accessing files through the direct bypass system. Resolved LSP errors, restored admin token authentication, and eliminated TypeScript compilation failures blocking agent functionality.
-
 # User Preferences
 Preferred communication style: Simple, everyday language.
 
@@ -54,50 +12,14 @@ The client-side application is built with React and TypeScript, featuring a luxu
 ## Backend Architecture
 The server is built on Express.js with TypeScript, implementing a RESTful API architecture. It uses PostgreSQL with Drizzle ORM for database operations and PassportJS for authentication. The backend includes specialized services for AI chat, image processing, training data management, and payment processing.
 
-## Agent System Architecture - INTELLIGENT NAVIGATION COMPLETE (August 7, 2025)
-**Status:** INTELLIGENT SEARCH SYSTEM FULLY INTEGRATED - Natural language routing active
-**Achievement:** Connected 5 sophisticated intelligence systems to main search flow for AI-powered navigation
-**Core Integration:** Autonomous Navigation System + Intelligent Context Manager + Enhanced Search Bypass + Unified Workspace Service + Intelligent Integration Module
-**Key Features:**
-1. ✅ **Natural Language Search**: Agents can use queries like "find pages", "show workspace components", "build system files"
-2. ✅ **Autonomous Navigation System**: AI-powered file discovery without requiring exact paths
-3. ✅ **Intelligent Context Manager**: Project structure awareness and intelligent file relationships
-4. ✅ **Enhanced Search Bypass**: Natural language to parameter conversion with fallback support
-5. ✅ **Pure Intelligence Search**: No hardcoded patterns or priorities - agents use natural intelligence to find what they need
-6. ✅ **Unrestricted Discovery**: Removed all artificial limitations and complex backup systems
-7. ✅ **Simple Deduplication**: Basic file deduplication without forced prioritization
-8. ✅ **Trust Agent Intelligence**: System trusts agent natural language processing and context understanding
-**Implementation Details:**
-- Removed all hardcoded priorities, patterns, and discovery functions that were constraining agent intelligence
-- Simplified handleNaturalLanguageSearch() to trust intelligence systems without forcing specific patterns
-- Eliminated complex backup systems and artificial relevance detection
-- Let Autonomous Navigation System and Intelligent Context Manager work naturally without interference
-- Simple deduplication and basic result formatting without forced prioritization
-**Impact:** Agents now have pure, unrestricted search intelligence without artificial limitations or hardcoded constraints
+## Agent System Architecture
+The platform incorporates an intelligent agent system with AI-powered navigation and search capabilities. Agents use natural language queries for file discovery and context management. The system prioritizes functional application code over documentation, ensuring agents focus on core functionalities. It supports multi-agent coordination through collaborative, competitive, consensus, and hierarchical patterns.
 
 ## Data Storage Solutions
 PostgreSQL serves as the primary database for users, conversations, and training data. AWS S3 is used for storing training images and generated content. Local file storage is used for flatlay collections and brand assets.
 
 ## Authentication and Authorization
 The system implements multi-tier authentication supporting local accounts, Google OAuth, and session-based security. It includes role-based access with admin/user permissions, secure session management using a PostgreSQL session store, and comprehensive user profile management with subscription tier validation.
-
-## Intelligent Search System - August 7, 2025 (FINAL COMPREHENSIVE FIX)
-**Status:** COMPLETE PRIORITY SYSTEM IMPLEMENTED - Documentation properly deprioritized
-**Achievement:** Application files prioritized, documentation files moved to bottom of results  
-**Core Innovation:** Smart priority-based filtering ensuring agents see functional code first
-**Architecture:** Comprehensive priority system with intelligent documentation filtering
-**Key Features:**
-1. ✅ **Member Journey Files (Priority 200)**: Direct filename matching for absolute highest priority
-2. ✅ **Application Files (Priority 50-80)**: All pages, components, routes, services without restrictions  
-3. ✅ **Documentation Deprioritization (Priority 5-10)**: Analysis docs, configs, assets at bottom
-4. ✅ **Intelligent Filtering**: Auto-filter docs when 20+ app files found
-5. ✅ **No Hardcoded Limitations**: Complete access to all functional application code
-6. ✅ **Business-First Results**: Member experience files shown before administrative tools
-**Performance Impact:** Agents see workspace.tsx, routes, components first; docs only when needed
-**Business Alignment:** Revenue-driving member experience prioritized over internal documentation
-**Application File Coverage:** Complete access to pages/, components/, routes/, services/, shared/, agents/, tools/
-**Priority Distribution:** 200 (member journey) → 80 (member files) → 70 (infrastructure) → 60 (pages/components) → 50 (support) → 10 (config) → 5 (docs)
-**Smart Filtering:** Documentation automatically filtered when sufficient application files available
 
 # External Dependencies
 
