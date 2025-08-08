@@ -22,6 +22,7 @@ import { ModelRetrainService } from './retrain-model';
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
+import adminCacheRouter from './routes/admin-cache-management';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
@@ -1344,6 +1345,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
+  app.use('/api/admin/cache', adminCacheRouter);
   // FIXED: Register consulting agents at correct path to match frontend calls
   app.use('/api/consulting-agents', consultingAgentsRouter);
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');

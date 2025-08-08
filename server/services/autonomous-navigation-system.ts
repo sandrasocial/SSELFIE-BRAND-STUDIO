@@ -31,6 +31,19 @@ export class AutonomousNavigationSystem {
   private static instance: AutonomousNavigationSystem;
   private navigationHistory = new Map<string, string[]>();
   private successPatterns = new Map<string, NavigationResult>();
+  
+  /**
+   * Clear navigation learning data for fresh exploration
+   */
+  clearNavigationData(): void {
+    const historyCount = this.navigationHistory.size;
+    const patternCount = this.successPatterns.size;
+    
+    this.navigationHistory.clear();
+    this.successPatterns.clear();
+    
+    console.log(`🧹 Navigation data cleared: ${historyCount} history entries, ${patternCount} patterns removed`);
+  }
 
   private constructor() {}
 
@@ -283,11 +296,11 @@ export class AutonomousNavigationSystem {
   private generateContextualHelp(intent: NavigationIntent, workContext?: AgentContext): string[] {
     const help: string[] = [];
 
-    if (workContext?.filesModified.length > 0) {
+    if (workContext?.filesModified && workContext.filesModified.length > 0) {
       help.push(`Found ${workContext.filesModified.length} files related to your request`);
     }
 
-    if (workContext?.lastWorkingState.suggestedActions.length > 0) {
+    if (workContext?.lastWorkingState?.suggestedActions && workContext.lastWorkingState.suggestedActions.length > 0) {
       help.push('Multiple action paths available - choose based on your specific needs');
     }
 
