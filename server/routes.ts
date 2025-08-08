@@ -1707,9 +1707,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Use existing admin user ID 
       const userId = '42585527';
       
-      // DIRECT AGENT ACCESS: Route directly to OPTIMIZED Claude API with workspace tools
-      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
-      const claudeService = new ClaudeApiServiceSimple();
+      // UNIFIED SERVICE: Use singleton to eliminate service multiplication
+      const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      const claudeService = claudeApiServiceSimple;
       
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
       
@@ -1877,8 +1877,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Generate new conversation ID
       const conversationId = `conv_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
       
-      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
-      const claudeApiServiceRebuilt = new ClaudeApiServiceSimple();
+      // UNIFIED SERVICE: Use singleton to eliminate service multiplication
+      const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
       
       // Create conversation using available public method
       const conversationDbId = conversationId;
@@ -1983,9 +1983,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         userId = (req.user as any).claims.sub;
       }
 
-      // STREAMLINED SERVICE: Use working Claude API service
-      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
-      const claudeService = new ClaudeApiServiceSimple();
+      // UNIFIED SERVICE: Use singleton to eliminate service multiplication
+      const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      const claudeService = claudeApiServiceSimple;
       // Simple response generation for basic messaging
       const response = `Hello! I'm ${agentName}, ready to help you with your request: "${message}"`;
 

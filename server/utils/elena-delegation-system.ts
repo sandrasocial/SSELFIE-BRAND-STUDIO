@@ -1,4 +1,4 @@
-import { ClaudeApiServiceSimple } from '../services/claude-api-service-simple';
+import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 
 export interface TaskDependency {
   taskId: string;

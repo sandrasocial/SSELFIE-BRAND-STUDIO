@@ -1,5 +1,5 @@
 import { zaraEnhancementSystem } from './zara-enhancement-system';
-import { ClaudeApiServiceSimple } from '../services/claude-api-service-simple';
+import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 
 /**
  * Integration hooks for Zara's enhanced capabilities

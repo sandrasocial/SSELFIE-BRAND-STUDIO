@@ -1,7 +1,7 @@
 import { Router, Request } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
-// REMOVED: ClaudeApiServiceSimple import - using singleton instead
+import { ClaudeApiServiceSimple } from '../services/claude-api-service-simple';
 
 // Type definitions for admin requests
 interface AdminRequest extends Request {
@@ -23,10 +23,13 @@ interface ConsultingChatBody {
   adminToken?: string;
 }
 
-// UNIFIED SERVICE: Use singleton from claude-api-service-simple.ts (eliminates service multiplication)
-import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
-function getClaudeService() {
-  return claudeApiServiceSimple;
+// SINGLETON CLAUDE SERVICE: Prevent performance issues from repeated instantiation
+let claudeServiceInstance: ClaudeApiServiceSimple | null = null;
+function getClaudeService(): ClaudeApiServiceSimple {
+  if (!claudeServiceInstance) {
+    claudeServiceInstance = new ClaudeApiServiceSimple();
+  }
+  return claudeServiceInstance;
 }
 
 const consultingAgentsRouter = Router();
