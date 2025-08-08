@@ -1,4 +1,4 @@
-import { unifiedWorkspace } from './unified-workspace-service';
+import { ContextPreservationSystem } from '../agents/context-preservation-system';
 import fs from 'fs/promises';
 import path from 'path';
 
