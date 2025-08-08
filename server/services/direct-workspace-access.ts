@@ -6,6 +6,8 @@
 
 import fs from 'fs/promises';
 import path from 'path';
+import { IntelligentIntegrationModule } from '../agents/intelligent-integration-module';
+import { AutonomousNavigationSystem } from './autonomous-navigation-system';
 import { fileURLToPath } from 'url';
 
 export interface FileOperation {
@@ -151,24 +153,41 @@ export class DirectWorkspaceAccess {
   }
 
   /**
-   * Search codebase directly without API calls
-   * Lightning-fast local search
+   * Search codebase using intelligent search system
+   * Natural language understanding with keyword extraction
    */
   async searchCodebase(query: string, extensions?: string[]): Promise<SearchResult[]> {
-    const results: SearchResult[] = [];
     const searchExtensions = extensions || this.allowedExtensions;
     
-    console.log(`🔍 DIRECT SEARCH: "${query}" in ${searchExtensions.join(', ')} files - NO API COST`);
+    console.log(`🧠 INTELLIGENT SEARCH: "${query}" using natural language processing - NO API COST`);
 
     try {
+      // Use existing intelligent search parameter processing
+      const smartParams = IntelligentIntegrationModule.getSmartSearchParams(query);
+      const keywords = smartParams.query_description.split(' ');
+      
+      console.log(`🔍 EXTRACTED KEYWORDS: [${keywords.join(', ')}]`);
+
+      const results: SearchResult[] = [];
+      
+      // Search with intelligent keyword extraction
+      for (const keyword of keywords) {
+        await this.searchDirectory(this.projectRoot, keyword, searchExtensions, results);
+      }
+      
+      // Also search for the full query for exact matches
       await this.searchDirectory(this.projectRoot, query, searchExtensions, results);
       
-      console.log(`✅ DIRECT SEARCH COMPLETE: Found ${results.length} matches`);
+      // Remove duplicates and prioritize results
+      const uniqueResults = this.deduplicateResults(results);
+      const prioritizedResults = this.prioritizeResults(uniqueResults, keywords);
       
-      return results.slice(0, 50); // Limit results to prevent overwhelming
+      console.log(`✅ INTELLIGENT SEARCH COMPLETE: Found ${prioritizedResults.length} matches from keywords: ${keywords.join(', ')}`);
+      
+      return prioritizedResults.slice(0, 50);
 
     } catch (error) {
-      console.error('❌ DIRECT SEARCH ERROR:', error);
+      console.error('❌ INTELLIGENT SEARCH ERROR:', error);
       return [];
     }
   }
@@ -419,6 +438,52 @@ export class DirectWorkspaceAccess {
     } catch (error) {
       return { error: 'Failed to get workspace stats' };
     }
+  }
+
+  /**
+   * Remove duplicate search results
+   */
+  private deduplicateResults(results: SearchResult[]): SearchResult[] {
+    const seen = new Set<string>();
+    return results.filter(result => {
+      const key = `${result.file}:${result.line}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  /**
+   * Prioritize results based on keyword relevance and file type
+   */
+  private prioritizeResults(results: SearchResult[], keywords: string[]): SearchResult[] {
+    return results.sort((a, b) => {
+      // Score based on keyword matches
+      const aKeywordScore = keywords.reduce((score, keyword) => {
+        return score + (a.content.toLowerCase().includes(keyword.toLowerCase()) ? 1 : 0);
+      }, 0);
+      
+      const bKeywordScore = keywords.reduce((score, keyword) => {
+        return score + (b.content.toLowerCase().includes(keyword.toLowerCase()) ? 1 : 0);
+      }, 0);
+      
+      if (aKeywordScore !== bKeywordScore) {
+        return bKeywordScore - aKeywordScore; // Higher keyword score first
+      }
+      
+      // Prioritize important file types
+      const getFileTypeScore = (filePath: string): number => {
+        if (filePath.includes('/components/')) return 10;
+        if (filePath.includes('/pages/')) return 9;
+        if (filePath.includes('/services/')) return 8;
+        if (filePath.includes('/hooks/')) return 7;
+        if (filePath.includes('/utils/')) return 6;
+        if (filePath.endsWith('.tsx') || filePath.endsWith('.ts')) return 5;
+        return 1;
+      };
+      
+      return getFileTypeScore(b.file) - getFileTypeScore(a.file);
+    });
   }
 }
 
