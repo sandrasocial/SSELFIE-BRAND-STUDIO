@@ -16,6 +16,7 @@ export interface AgentMemoryProfile {
   collaborationHistory: CrossAgentInteraction[];
   intelligenceLevel: number;
   lastOptimization: Date;
+  adminBypass?: boolean; // Enhanced memory capabilities for admin agents
 }
 
 export interface LearningPattern {
@@ -61,8 +62,9 @@ export class AdvancedMemorySystem {
 
   /**
    * Get or create agent memory profile
+   * Enhanced for admin bypass with unlimited memory capabilities
    */
-  async getAgentMemoryProfile(agentName: string, userId: string): Promise<AgentMemoryProfile | null> {
+  async getAgentMemoryProfile(agentName: string, userId: string, adminBypass = false): Promise<AgentMemoryProfile | null> {
     try {
       const cacheKey = `${agentName}-${userId}`;
       
@@ -95,16 +97,17 @@ export class AdvancedMemorySystem {
       const profile: AgentMemoryProfile = {
         agentName,
         userId,
-        memoryStrength: Math.min(0.9, 0.5 + (learningPatterns.length * 0.1)), // Grow with experience
+        memoryStrength: adminBypass ? 1.0 : Math.min(0.9, 0.5 + (learningPatterns.length * 0.1)), // Admin bypass = max strength
         learningPatterns,
         collaborationHistory: [], // Will be populated by cross-agent system
-        intelligenceLevel: Math.min(10, 5 + learningPatterns.length), // Intelligence grows with learning
-        lastOptimization: new Date()
+        intelligenceLevel: adminBypass ? 10 : Math.min(10, 5 + learningPatterns.length), // Admin bypass = max intelligence
+        lastOptimization: new Date(),
+        adminBypass
       };
       
       // Cache and return
       this.memoryCache.set(cacheKey, profile);
-      console.log(`🧠 MEMORY LOADED: ${agentName} has ${learningPatterns.length} patterns, intelligence level ${profile.intelligenceLevel}`);
+      console.log(`🧠 MEMORY LOADED: ${agentName} has ${learningPatterns.length} patterns, intelligence level ${profile.intelligenceLevel}${adminBypass ? ' [ADMIN BYPASS - UNLIMITED]' : ''}`);
       return profile;
       
     } catch (error) {

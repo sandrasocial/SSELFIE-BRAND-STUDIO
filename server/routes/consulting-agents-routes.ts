@@ -12,7 +12,8 @@ interface AdminRequest extends Request {
       first_name: string;
       last_name: string;
     }
-  }
+  };
+  isAdminBypass?: boolean; // Enhanced memory bypass flag
 }
 
 // Type definition for consulting chat request body
@@ -29,6 +30,7 @@ import { DirectWorkspaceAccess } from '../services/direct-workspace-access';
 import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
 import { ContextPreservationSystem } from '../agents/context-preservation-system';
+import { AdvancedMemorySystem } from '../services/advanced-memory-system';
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '@shared/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -52,7 +54,7 @@ const adminAuth = (req: AdminRequest, res: any, next: any) => {
   const adminToken = req.headers.authorization || req.body.adminToken || req.query.adminToken;
   
   if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
-    console.log('🔐 ADMIN BYPASS: Using admin token for agent operations');
+    console.log('🔓 ADMIN MEMORY BYPASS: Enhanced memory privileges activated');
     // Create mock user for admin operations
     req.user = {
       claims: {
@@ -62,6 +64,7 @@ const adminAuth = (req: AdminRequest, res: any, next: any) => {
         last_name: 'Sigurjonsdottir'
       }
     };
+    req.isAdminBypass = true; // CRITICAL: Enable enhanced memory access
     return next();
   }
   
@@ -94,12 +97,50 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     
     const userId = req.user ? (req.user as any).claims.sub : '42585527';
     const conversationId = req.body.conversationId || agentId;
+    const isAdminBypass = (req as AdminRequest).isAdminBypass || false;
+    
+    console.log(`🧠 MEMORY INTEGRATION: Admin bypass ${isAdminBypass ? 'ENABLED' : 'disabled'} for ${agentId}`);
+    
+    // ENHANCED MEMORY SYSTEM INTEGRATION
+    const memorySystem = AdvancedMemorySystem.getInstance();
+    let agentMemoryProfile = null;
+    let contextualMemories = '';
+    let agentContext = null;
+    
+    try {
+      // Load/create agent memory profile with admin bypass
+      agentMemoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId, isAdminBypass);
+      
+      if (!agentMemoryProfile) {
+        console.log(`🧠 INITIALIZING: Creating new memory profile for ${agentId}${isAdminBypass ? ' [ADMIN]' : ''}`);
+        agentMemoryProfile = await memorySystem.initializeAgentMemory(agentId, userId, {
+          baseIntelligence: isAdminBypass ? 10 : 7, // Admin agents get max intelligence
+          specialization: agentConfig.specialization || agentId
+        });
+      }
+      
+      // Get contextual memories for this specific request
+      const relevantMemories = await memorySystem.getContextualMemories(agentId, userId, message, 'agent_conversation');
+      contextualMemories = relevantMemories.length > 0 ? 
+        `\n## RELEVANT LEARNED PATTERNS:\n${relevantMemories.map(m => `- ${m.category}: ${m.pattern} (confidence: ${m.confidence})`).join('\n')}\n` : '';
+      
+      // Load/prepare agent context with admin bypass
+      agentContext = await ContextPreservationSystem.prepareAgentWorkspace(agentId, userId, message, true);
+      
+      console.log(`🧠 MEMORY LOADED: Intelligence level ${agentMemoryProfile.intelligenceLevel}, ${relevantMemories.length} relevant patterns${isAdminBypass ? ' [ADMIN BYPASS]' : ''}`);
+      
+    } catch (memoryError) {
+      console.error('🧠 MEMORY ERROR:', memoryError);
+      // Continue without memory enhancement if there's an error
+    }
     
     // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
     const baseSystemPrompt = agentConfig.systemPrompt;
     
-    // COMPREHENSIVE SYSTEM PROMPT: Architecture + Design + Intelligence
+    // COMPREHENSIVE SYSTEM PROMPT: Architecture + Design + Intelligence + Memory
     const systemPrompt = `${baseSystemPrompt}
+${contextualMemories}
+${agentContext ? await ContextPreservationSystem.getContextSummary(agentId, userId) : ''}
 
 ## PROJECT ARCHITECTURE - CRITICAL KNOWLEDGE
 **SSELFIE Studio Structure (React + TypeScript + Express + PostgreSQL)**
@@ -423,10 +464,51 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
         res
       );
 
-      console.log(`✅ UNRESTRICTED SUCCESS: Agent ${agentId} completed with natural intelligence`);
+      console.log(`✅ UNRESTRICTED SUCCESS: Agent ${agentId} completed with natural intelligence${isAdminBypass ? ' [ADMIN MEMORY BYPASS]' : ''}`);
+      
+      // MEMORY LEARNING: Record successful interaction
+      if (agentMemoryProfile && memorySystem) {
+        try {
+          await memorySystem.recordLearningPattern(agentId, userId, {
+            category: 'successful_conversation',
+            pattern: `Completed: ${message.substring(0, 50)}...`,
+            confidence: 0.8,
+            frequency: 1,
+            effectiveness: 0.9,
+            contexts: ['agent_conversation', 'successful_completion']
+          });
+          
+          // Save updated context
+          if (agentContext) {
+            await ContextPreservationSystem.saveContext(agentId, userId, {
+              currentTask: message,
+              successfulPatterns: [...(agentContext.successfulPatterns || []), 'conversation_completed'],
+              lastWorkingState: { completedAt: new Date().toISOString() }
+            }, isAdminBypass);
+          }
+        } catch (memoryError) {
+          console.error('🧠 MEMORY LEARNING ERROR:', memoryError);
+        }
+      }
 
     } catch (error) {
       console.error(`❌ UNRESTRICTED ERROR: Agent ${agentId}:`, error);
+      
+      // MEMORY LEARNING: Record failure for learning
+      if (agentMemoryProfile && memorySystem) {
+        try {
+          await memorySystem.recordLearningPattern(agentId, userId, {
+            category: 'failed_conversation',
+            pattern: `Failed: ${message.substring(0, 50)}...`,
+            confidence: 0.6,
+            frequency: 1,
+            effectiveness: 0.1,
+            contexts: ['agent_conversation', 'error_handling']
+          });
+        } catch (memoryError) {
+          console.error('🧠 MEMORY ERROR RECORDING:', memoryError);
+        }
+      }
       
       res.write(`data: ${JSON.stringify({
         type: 'error',
