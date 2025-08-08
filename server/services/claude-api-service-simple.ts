@@ -165,15 +165,34 @@ export class ClaudeApiServiceSimple {
       const isAdminAgent = userId === 'sandra-admin' || userId === 'admin' || userId === '42585527' || conversationId.includes('admin_');
       const messages = await this.loadConversationMessages(conversationId, isAdminAgent);
       
-      // UNRESTRICTED: Token monitoring removed to allow full autonomous workflows
-      const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(messages));
-      console.log(`📊 TOKEN TRACKING: ${estimatedTokens} tokens (unrestricted for autonomous workflows)`);
+      // SMART TOKEN OPTIMIZATION: Use cloud server for local processing
+      const { TokenOptimizationEngine } = await import('./token-optimization-engine');
+      
+      let optimizedMessages = messages;
+      let optimizationMetadata = { compressionRatio: 0, fullContextAvailable: true };
+      
+      // ADMIN BYPASS: Apply aggressive optimization for admin agents only
+      if (isAdminAgent && messages.length > 10) {
+        const optimization = await TokenOptimizationEngine.optimizeContextForAdmin(
+          conversationId, 
+          agentName, 
+          messages,
+          message
+        );
+        optimizedMessages = optimization.optimizedMessages;
+        optimizationMetadata = optimization.metadata;
+        
+        console.log(`🚀 ADMIN OPTIMIZATION: ${optimizationMetadata.compressionRatio.toFixed(1)}% token reduction (${optimizationMetadata.originalTokens} → ${optimizationMetadata.optimizedTokens} tokens)`);
+      }
+      
+      const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(optimizedMessages));
+      console.log(`📊 TOKEN TRACKING: ${estimatedTokens} tokens (${isAdminAgent ? 'optimized admin' : 'standard'} mode)`);
       
       // CACHE SYSTEM DISABLED: No search context restrictions for agents
       console.log(`🚀 ${agentName}: Cache context disabled - direct filesystem access enabled`);
       
-      // Prepare Claude API request with validation
-      const validMessages = messages
+      // Prepare Claude API request with validation and optimization
+      const validMessages = optimizedMessages
         .filter((msg: any) => msg.content && msg.content.trim())
         .map((msg: any) => ({
           role: msg.role === 'agent' ? 'assistant' : msg.role,
@@ -217,9 +236,14 @@ export class ClaudeApiServiceSimple {
         // ENHANCED SYSTEM PROMPT: Include previous context for continuity
         const enhancedSystemPrompt = systemPrompt + (previousContext || '');
         
+        // SMART TOKEN BUDGETING: Dynamic limits based on admin status and task complexity
+        const { TokenOptimizationEngine } = await import('./token-optimization-engine');
+        const taskComplexity = isAdminAgent ? 'unlimited' : 'moderate';
+        const tokenBudget = TokenOptimizationEngine.calculateTokenBudget(taskComplexity);
+        
         const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
-          max_tokens: 8000,
+          max_tokens: tokenBudget.maxPerCall,
           messages: currentMessages as any,
           system: enhancedSystemPrompt,
           tools: tools,
@@ -280,7 +304,20 @@ export class ClaudeApiServiceSimple {
         if (toolCalls.length > 0) {
           for (const toolCall of toolCalls) {
             try {
-              const toolResult = await this.executeToolCall(toolCall, agentName, userId);
+              // TOOL RESULT CACHING: Check cache first to avoid expensive re-execution
+              const { TokenOptimizationEngine } = await import('./token-optimization-engine');
+              const cachedResult = TokenOptimizationEngine.getCachedToolResult(toolCall.name, toolCall.input);
+              
+              let toolResult: string;
+              if (cachedResult && !toolCall.input?.path?.includes('edit')) {
+                // Use cached result for non-editing operations
+                toolResult = cachedResult;
+                console.log(`⚡ CACHE HIT: Skipped ${toolCall.name} execution`);
+              } else {
+                // Execute tool and cache result
+                toolResult = await this.executeToolCall(toolCall, agentName, userId);
+                TokenOptimizationEngine.cacheToolResult(toolCall.name, toolCall.input, toolResult);
+              }
               
               // INTELLIGENT RESULT PROCESSING: Preserve high-priority search results
               const summarizedResult = await this.intelligentResultSummary(toolResult, toolCall.name);
@@ -613,9 +650,9 @@ export class ClaudeApiServiceSimple {
   }
 
   private async loadConversationMessages(conversationId: string, adminBypass = false) {
-    // ADMIN BYPASS: Unlimited conversation history for admin agents
-    // Regular agents get reasonable limits to prevent token explosion
-    const messageLimit = adminBypass ? 1000 : 50; // Admin bypass = unlimited context
+    // SMART LOADING: Progressive context loading based on admin status
+    // Admin agents get local optimization + selective loading to minimize API tokens
+    const messageLimit = adminBypass ? 100 : 50; // Reduced from 1000 - optimization handles large context locally
     
     return await db
       .select()
