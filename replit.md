@@ -2,6 +2,8 @@
 
 ## Recent Changes (August 8, 2025)
 
+**HISTORICAL DOCS ARCHIVED** (Organization Success): Moved 200+ outdated troubleshooting documents from docs/ folder to archive-consolidated/historical-docs/. Included old agent system fixes, streaming reports, test components, and organization analysis from debugging periods. Root directory now cleaner with current project documented in replit.md.
+
 **INTELLIGENT SEARCH SYSTEM ACTIVATED** (Agent Navigation Breakthrough): Resolved critical search tool breakdown and connected existing intelligent search system to DirectWorkspaceAccess. Root cause: agents were seeing archived/broken files and using primitive string matching instead of intelligent keyword extraction. Fixed by: (1) excluding archive directories from search scope, (2) connecting IntelligentIntegrationModule.getSmartSearchParams() for natural language processing, (3) implementing keyword extraction, deduplication, and priority-based result ranking. Agents now have proper natural language search capabilities with semantic understanding of queries like "find authentication components".
 
 **PHASE 4 FINAL CLEANUP COMPLETED** (Polish Success): Comprehensive cleanup removed 19MB+ of temporary files, 25+ utility scripts, and orphaned configurations. Root directory organized from 184 to 62 files (66% reduction). Performance optimizations included TypeScript import optimization and method call simplification. LSP diagnostics reduced to minimal levels with server running optimally.
