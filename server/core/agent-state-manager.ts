@@ -65,19 +65,9 @@ class AgentStateManager extends EventEmitter {
         this.emit('agentDisabled', { agentId, reason: 'Too many errors' });
       }
     } else {
-      // CRITICAL FIX: Maintain task context for a grace period
       state.status = 'idle';
+      state.currentTask = undefined;
       state.errorCount = 0;
-      
-      // Keep task context for 5 minutes after completion
-      setTimeout(() => {
-        const currentState = this.agentStates.get(agentId);
-        if (currentState && currentState.currentTask === taskId) {
-          currentState.currentTask = undefined;
-          this.emit('contextCleared', { agentId, taskId });
-        }
-      }, 300000); // 5 minute grace period
-      
       this.emit('taskCompleted', { agentId, taskId });
     }
 

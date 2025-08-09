@@ -10,22 +10,10 @@ import { storage } from '../storage';
 
 const router = Router();
 
-// FIXED: Define allowed admin emails consistently - REAL EMAIL ONLY
-const ALLOWED_ADMIN_EMAILS = [
-  'ssa@ssasocial.com'
-];
-
-// Admin-only middleware for subscriber imports - FIXED
+// Admin-only middleware for subscriber imports
 const isAdmin = async (req: any, res: any, next: any) => {
-  // Admin bypass token check first (for agents)
-  const adminToken = req.headers.authorization || req.headers['x-admin-token'] || req.query.admin_token;
-  if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
-    console.log('🔐 ADMIN BYPASS: Using admin token for subscriber import');
-    return next();
-  }
-
   const user = req.user;
-  if (!user || (user.role !== 'admin' && !ALLOWED_ADMIN_EMAILS.includes(user.claims?.email))) {
+  if (!user || user.claims.email !== 'ssa@ssasocial.com') {
     return res.status(403).json({ error: 'Admin access required' });
   }
   next();

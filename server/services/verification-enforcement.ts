@@ -70,15 +70,29 @@ export class VerificationEnforcement {
 
     const verificationEnforcement = `
 
-## 📋 IMPLEMENTATION VERIFICATION REMINDER
+## 🔴 MANDATORY VERIFICATION-FIRST PROTOCOL ENFORCEMENT
 
-**For major implementation tasks**: Use tools to verify current state before making claims about completion status.
+**CRITICAL**: Before claiming ANY task is complete, working, or implemented, you MUST:
 
-- Check existing files when building new features
-- Provide evidence when claiming task completion  
-- Report actual findings when investigating issues
+1. **USE TOOLS TO VERIFY** - Never claim completion without tool-based evidence
+   - Use \`bash\` to search and explore actual files
+   - Use \`str_replace_based_edit_tool\` to view actual file contents
+   - Use \`get_latest_lsp_diagnostics\` to check for errors
 
-This applies specifically to major implementation work, not general conversations or discussions.
+2. **NO COMPLETION WITHOUT PROOF** - If you use words like "completed", "finished", "working", "implemented", "✅", etc., you MUST have tool evidence
+
+3. **HONEST GAP REPORTING** - If verification reveals issues:
+   - Say "NEEDS IMPLEMENTATION" not "VERIFIED" 
+   - Report specific gaps found during verification
+   - Provide evidence-based next steps
+
+4. **FABRICATION PROHIBITION** - Never assume anything works without checking:
+   ❌ "I've implemented the dashboard" (without viewing actual files)
+   ✅ "I checked the dashboard files and found..." (after using tools)
+
+**VIOLATION CONSEQUENCES**: Responses claiming completion without verification tools will be rejected and flagged as fabrication.
+
+## VERIFICATION ENFORCEMENT ACTIVE ⚡
 `;
 
     return systemPrompt + verificationEnforcement;
@@ -88,12 +102,13 @@ This applies specifically to major implementation work, not general conversation
    * Detects if message appears to be a work task requiring verification
    */
   private static isWorkTask(message: string): boolean {
-    const majorImplementationIndicators = [
-      'implement entire', 'build complete', 'deploy full', 'create comprehensive',
-      'build entire system', 'complete implementation'
+    const workIndicators = [
+      'implement', 'create', 'build', 'fix', 'add', 'update', 'deploy', 
+      'test', 'check', 'verify', 'analyze', 'audit', 'review', 'setup',
+      'configure', 'install', 'debug', 'troubleshoot', 'optimize'
     ];
 
-    return majorImplementationIndicators.some(indicator => 
+    return workIndicators.some(indicator => 
       message.toLowerCase().includes(indicator.toLowerCase())
     );
   }
