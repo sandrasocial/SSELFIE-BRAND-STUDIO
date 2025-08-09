@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 // Global error handler
 app.use(errorHandler);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
   logger.info(`Server is running on port ${port}`);
   metrics.activeUsers.set(0); // Initialize active users metric
