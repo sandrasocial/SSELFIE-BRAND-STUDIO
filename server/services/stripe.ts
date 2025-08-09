@@ -1,12 +1,12 @@
 import Stripe from 'stripe';
-import { logger } from '../config/logger';
+import { logger } from '../utils/logger';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2023-10-16'
 });
 
-export const stripeService = {
-  // Create a subscription
+export class StripeService {
+  // Handle subscription creation
   async createSubscription(customerId: string, priceId: string) {
     try {
       const subscription = await stripe.subscriptions.create({
@@ -17,62 +17,57 @@ export const stripeService = {
       });
       return subscription;
     } catch (error) {
-      logger.error('Error creating subscription:', error);
+      logger.error('Stripe subscription creation failed:', error);
       throw error;
     }
-  },
+  }
 
   // Handle webhook events
   async handleWebhookEvent(event: Stripe.Event) {
     try {
       switch (event.type) {
-        case 'customer.subscription.created':
-          // Handle subscription creation
-          break;
-        case 'customer.subscription.updated':
-          // Handle subscription updates
+        case 'invoice.paid':
+          await this.handleInvoicePaid(event.data.object);
           break;
         case 'customer.subscription.deleted':
-          // Handle subscription deletion
+          await this.handleSubscriptionCanceled(event.data.object);
           break;
-        case 'invoice.paid':
-          // Handle successful payments
-          break;
-        case 'invoice.payment_failed':
-          // Handle failed payments
+        case 'customer.subscription.updated':
+          await this.handleSubscriptionUpdated(event.data.object);
           break;
       }
     } catch (error) {
-      logger.error('Error handling webhook event:', error);
+      logger.error('Webhook handling failed:', error);
       throw error;
     }
-  },
+  }
 
-  // Create a customer
-  async createCustomer(email: string, name: string) {
+  // Generate invoice
+  async generateInvoice(customerId: string) {
     try {
-      const customer = await stripe.customers.create({
-        email,
-        name,
+      const invoice = await stripe.invoices.create({
+        customer: customerId,
+        auto_advance: true,
       });
-      return customer;
+      return invoice;
     } catch (error) {
-      logger.error('Error creating customer:', error);
+      logger.error('Invoice generation failed:', error);
       throw error;
     }
-  },
+  }
 
-  // Create a payment intent
-  async createPaymentIntent(amount: number, currency: string = 'usd') {
-    try {
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount,
-        currency,
-      });
-      return paymentIntent;
-    } catch (error) {
-      logger.error('Error creating payment intent:', error);
-      throw error;
-    }
-  },
-};
+  private async handleInvoicePaid(invoice: any) {
+    // Implementation for paid invoice
+    logger.info('Invoice paid:', invoice.id);
+  }
+
+  private async handleSubscriptionCanceled(subscription: any) {
+    // Implementation for canceled subscription
+    logger.info('Subscription canceled:', subscription.id);
+  }
+
+  private async handleSubscriptionUpdated(subscription: any) {
+    // Implementation for updated subscription
+    logger.info('Subscription updated:', subscription.id);
+  }
+}

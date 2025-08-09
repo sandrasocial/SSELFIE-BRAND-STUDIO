@@ -1,6 +1,6 @@
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import csrf from 'csrf';
+import csrf from 'csurf';
 import cors from 'cors';
 import { Express } from 'express';
 
@@ -10,7 +10,7 @@ export const configureSecurityMiddleware = (app: Express) => {
 
   // CORS configuration
   app.use(cors({
-    origin: process.env.FRONTEND_URL,
+    origin: process.env.CORS_ORIGIN || 'https://sselfie.studio',
     credentials: true
   }));
 
@@ -22,21 +22,11 @@ export const configureSecurityMiddleware = (app: Express) => {
   app.use(limiter);
 
   // CSRF protection
-  const csrfProtection = new csrf();
-  app.use((req, res, next) => {
-    if (req.method === 'GET') return next();
-    if (csrfProtection.verify(process.env.CSRF_SECRET, req.body._csrf)) {
-      next();
-    } else {
-      res.status(403).json({ error: 'Invalid CSRF token' });
-    }
-  });
+  app.use(csrf({ cookie: true }));
 
-  // Security headers
-  app.use((req, res, next) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    next();
+  // Error handler for CSRF token errors
+  app.use((err: any, req: any, res: any, next: any) => {
+    if (err.code !== 'EBADCSRFTOKEN') return next(err);
+    res.status(403).json({ error: 'Invalid CSRF token' });
   });
 };
