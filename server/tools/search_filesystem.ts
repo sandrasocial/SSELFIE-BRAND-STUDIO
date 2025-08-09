@@ -51,8 +51,8 @@ async function handleNaturalLanguageSearch(params: SearchParams) {
   // Get project structure for context
   const fileTree = await directAccess.getFileTree(4);
   
-  // Convert to expected format
-  const results: SearchResult[] = searchResults.slice(0, 50).map((result, index) => ({
+  // Convert to expected format - REMOVE ARTIFICIAL LIMITS
+  const results: SearchResult[] = searchResults.slice(0, 100).map((result, index) => ({
     file: path.basename(result.file),
     fullPath: result.file,
     reason: `Contains: ${result.match}`,
@@ -105,7 +105,7 @@ async function handleParameterSearch(params: SearchParams) {
   });
   
   const results: SearchResult[] = [];
-  const maxFiles = 25;
+  const maxFiles = 200; // DRAMATICALLY INCREASED for full project visibility
   const searchPaths = params.search_paths || ['.'];
   
   for (const searchPath of searchPaths) {

@@ -6,8 +6,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-// ELIMINATED: IntelligentIntegrationModule - part of competing systems elimination
-import { AutonomousNavigationSystem } from './autonomous-navigation-system';
+// DIRECT ACCESS: Pure filesystem operations without API overhead
 import { fileURLToPath } from 'url';
 
 export interface FileOperation {
