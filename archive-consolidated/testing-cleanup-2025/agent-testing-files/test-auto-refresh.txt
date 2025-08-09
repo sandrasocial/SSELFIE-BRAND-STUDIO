@@ -1,6 +1,0 @@
-Auto-refresh test file created at: 2025-01-24 17:05:40
-
-This file is created to test the Visual Editor auto-refresh system.
-When agents make changes, the Visual Editor should automatically detect and refresh.
-
-Test timestamp: 1753376740

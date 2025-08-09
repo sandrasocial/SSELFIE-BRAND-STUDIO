@@ -1,4 +1,4 @@
-import { ContextPreservationSystem, type AgentContext } from '../agents/context-preservation-system';
+// ELIMINATED: ContextPreservationSystem - replaced with simple-memory-service
 
 /**
  * AUTONOMOUS NAVIGATION SYSTEM

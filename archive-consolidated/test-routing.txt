@@ -1,3 +1,0 @@
-This is a test routing file.
-
-You can add your routing configurations, tests, or notes here.

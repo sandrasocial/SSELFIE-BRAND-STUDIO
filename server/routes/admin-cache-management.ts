@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { ContextPreservationSystem } from '../agents/context-preservation-system';
+// ELIMINATED: ContextPreservationSystem - replaced with simple-memory-service
+import { simpleMemoryService } from '../services/simple-memory-service';
 import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { UnifiedStateManager } from '../services/unified-state-manager';
 import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
@@ -16,8 +17,8 @@ adminCacheRouter.post('/clear-agent-cache', async (req, res) => {
     
     console.log('🧹 ADMIN CACHE CLEAN: Starting cache cleanup...');
     
-    // Clear context preservation cache
-    ContextPreservationSystem.clearContextCache(clearAll ? undefined : userId);
+    // Clear simplified memory cache
+    simpleMemoryService.clearAgentMemory('*', userId || '42585527');
     
     // Clear navigation learning data
     autonomousNavigation.clearNavigationData();

@@ -1,6 +1,6 @@
-import { ContextPreservationSystem, type WorkspacePreparation, type AgentContext } from '../agents/context-preservation-system';
+// ELIMINATED: ContextPreservationSystem - replaced with simple-memory-service
 import { autonomousNavigation, type NavigationResult } from './autonomous-navigation-system';
-import { errorPrevention, type ValidationResult } from './predictive-error-prevention';
+// ELIMINATED: predictive-error-prevention - part of competing systems elimination
 
 /**
  * UNIFIED STATE MANAGER

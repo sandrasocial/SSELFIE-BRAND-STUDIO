@@ -1,3 +1,0 @@
-Agent Test File Created: 2025-07-16T20:43:59.998Z
-This file was created by the AgentCodebaseIntegration system.
-If you can see this file in Replit, the system is working!

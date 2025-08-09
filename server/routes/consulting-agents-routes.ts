@@ -27,11 +27,10 @@ interface ConsultingChatBody {
 // UNIFIED SERVICE: Use singleton from claude-api-service-simple.ts (eliminates service multiplication)
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 import { DirectWorkspaceAccess } from '../services/direct-workspace-access';
-import { autonomousNavigation } from '../services/autonomous-navigation-system';
+// ELIMINATED: autonomousNavigation - part of competing memory systems
 import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
-import { ContextPreservationSystem } from '../agents/context-preservation-system';
-import { AdvancedMemorySystem } from '../services/advanced-memory-system';
-import { ConversationContextDetector } from '../services/conversation-context-detector';
+// SIMPLIFIED MEMORY SYSTEM: Replaced 4 competing systems with one clean interface
+import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '@shared/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -102,12 +101,11 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     
     console.log(`🧠 MEMORY INTEGRATION: Admin bypass ${isAdminBypass ? 'ENABLED' : 'disabled'} for ${agentId}`);
     
-    // SMART CONTEXT DETECTION: Analyze if this needs full context or just conversation
-    const contextRequirement = ConversationContextDetector.analyzeMessage(message);
-    ConversationContextDetector.debugAnalysis(message);
+    // SIMPLIFIED CONTEXT DETECTION: Analyze if this needs full context or just conversation
+    const contextRequirement = simpleMemoryService.analyzeMessage(message);
+    console.log(`🧠 CONTEXT ANALYSIS: ${contextRequirement.contextLevel} (work: ${contextRequirement.isWorkTask}, continuation: ${contextRequirement.isContinuation})`);
     
-    // ENHANCED MEMORY SYSTEM INTEGRATION with SMART CONTEXT LOADING
-    const memorySystem = AdvancedMemorySystem.getInstance();
+    // SIMPLIFIED MEMORY SYSTEM INTEGRATION 
     let agentMemoryProfile = null;
     let contextualMemories = '';
     let agentContext = null;
@@ -115,41 +113,29 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     
     try {
       // Always load/create agent memory profile
-      agentMemoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId, isAdminBypass);
+      agentMemoryProfile = await simpleMemoryService.getAgentMemoryProfile(agentId, userId, isAdminBypass);
       
-      if (!agentMemoryProfile) {
-        console.log(`🧠 INITIALIZING: Creating new memory profile for ${agentId}${isAdminBypass ? ' [ADMIN]' : ''}`);
-        agentMemoryProfile = await memorySystem.initializeAgentMemory(agentId, userId, {
-          baseIntelligence: isAdminBypass ? 10 : 7,
-          specialization: agentConfig.specialization || agentId
-        });
-      }
+      // Memory profile is always created by simpleMemoryService.getAgentMemoryProfile
+      console.log(`🧠 MEMORY PROFILE: Using simplified memory for ${agentId}${isAdminBypass ? ' [ADMIN]' : ''}`);
       
-      // CONDITIONAL CONTEXT LOADING: Only load heavy context for work tasks
-      if (contextRequirement.needsMemoryPatterns) {
-        const relevantMemories = await memorySystem.getContextualMemories(agentId, userId, message, 'agent_conversation');
-        contextualMemories = relevantMemories.length > 0 ? 
-          `\n## RELEVANT LEARNED PATTERNS:\n${relevantMemories.map(m => `- ${m.category}: ${m.pattern} (confidence: ${m.confidence})`).join('\n')}\n` : '';
-        console.log(`🧠 WORK CONTEXT: Loaded ${relevantMemories.length} memory patterns for work task`);
+      // SIMPLIFIED: No complex memory patterns needed
+      console.log(`💬 SIMPLIFIED MEMORY: Using streamlined context for ${contextRequirement.isWorkTask ? 'work' : 'conversation'}`);
+      
+      // SIMPLIFIED WORKSPACE PREPARATION: Only for work tasks
+      if (contextRequirement.isWorkTask) {
+        agentContext = await simpleMemoryService.prepareAgentWorkspace(agentId, userId, message, isAdminBypass);
+        contextSummary = `Agent ${agentId} ready for: ${message.substring(0, 100)}...`;
+        console.log(`🏗️ WORKSPACE: Prepared for work task`);
       } else {
-        console.log(`💬 CONVERSATION MODE: Skipping memory patterns for casual conversation`);
-      }
-      
-      // CONDITIONAL WORKSPACE LOADING: Only for work tasks
-      if (contextRequirement.needsWorkspaceContext) {
-        agentContext = await ContextPreservationSystem.prepareAgentWorkspace(agentId, userId, message, isAdminBypass);
-        contextSummary = await ContextPreservationSystem.getContextSummary(agentId, userId);
-        console.log(`🏗️ WORKSPACE CONTEXT: Loaded for work task`);
-      } else {
-        console.log(`💬 CONVERSATION MODE: Skipping workspace context for casual conversation`);
+        console.log(`💬 CONVERSATION MODE: No workspace preparation needed`);
       }
       
       // ADMIN BYPASS: Save context for admin agents (but only if it's a work task)
-      if (isAdminBypass && contextRequirement.isWorkTask) {
-        await ContextPreservationSystem.saveContext(agentId, userId, {
+      if (isAdminBypass && contextRequirement.isWorkTask && agentContext) {
+        await simpleMemoryService.saveAgentMemory(agentContext, {
           currentTask: message,
           adminBypass: true
-        }, true);
+        });
         console.log(`🔓 ADMIN MEMORY BYPASS: Context saved for work task`);
       }
       
@@ -160,17 +146,13 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       // Continue without memory enhancement if there's an error
     }
     
-    // SMART SYSTEM PROMPT: Context-aware prompt generation
+    // SIMPLIFIED SYSTEM PROMPT: Clean prompt generation
     const baseSystemPrompt = agentConfig.systemPrompt;
     
-    // GENERATE APPROPRIATE PROMPT based on conversation context
-    const systemPrompt = ConversationContextDetector.generateContextPrompt(
-      baseSystemPrompt,
-      contextRequirement,
-      contextSummary,
-      contextualMemories,
-      agentContext
-    );
+    // GENERATE CLEAN PROMPT without competing system pollution
+    const systemPrompt = contextRequirement.isWorkTask && contextSummary ? 
+      `${baseSystemPrompt}\n\n## CURRENT CONTEXT:\n${contextSummary}` : 
+      baseSystemPrompt;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
@@ -448,26 +430,15 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
 
       console.log(`✅ UNRESTRICTED SUCCESS: Agent ${agentId} completed with natural intelligence${isAdminBypass ? ' [ADMIN MEMORY BYPASS]' : ''}`);
       
-      // MEMORY LEARNING: Record successful interaction
-      if (agentMemoryProfile && memorySystem) {
+      // SIMPLIFIED MEMORY LEARNING: Record successful interaction
+      if (agentMemoryProfile && agentContext) {
         try {
-          await memorySystem.recordLearningPattern(agentId, userId, {
+          await simpleMemoryService.saveAgentMemory(agentContext, {
             category: 'successful_conversation',
             pattern: `Completed: ${message.substring(0, 50)}...`,
-            confidence: 0.8,
-            frequency: 1,
-            effectiveness: 0.9,
-            contexts: ['agent_conversation', 'successful_completion']
+            completedAt: new Date().toISOString()
           });
-          
-          // Save updated context
-          if (agentContext) {
-            await ContextPreservationSystem.saveContext(agentId, userId, {
-              currentTask: message,
-              successfulPatterns: [...(agentContext.successfulPatterns || []), 'conversation_completed'],
-              lastWorkingState: { completedAt: new Date().toISOString() }
-            }, isAdminBypass);
-          }
+          console.log(`🧠 MEMORY: Saved successful interaction for ${agentId}`);
         } catch (memoryError) {
           console.error('🧠 MEMORY LEARNING ERROR:', memoryError);
         }
@@ -476,17 +447,15 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     } catch (error) {
       console.error(`❌ UNRESTRICTED ERROR: Agent ${agentId}:`, error);
       
-      // MEMORY LEARNING: Record failure for learning
-      if (agentMemoryProfile && memorySystem) {
+      // SIMPLIFIED MEMORY LEARNING: Record failure for learning  
+      if (agentMemoryProfile && agentContext) {
         try {
-          await memorySystem.recordLearningPattern(agentId, userId, {
+          await simpleMemoryService.saveAgentMemory(agentContext, {
             category: 'failed_conversation',
             pattern: `Failed: ${message.substring(0, 50)}...`,
-            confidence: 0.6,
-            frequency: 1,
-            effectiveness: 0.1,
-            contexts: ['agent_conversation', 'error_handling']
+            errorAt: new Date().toISOString()
           });
+          console.log(`🧠 MEMORY: Saved error for learning ${agentId}`);
         } catch (memoryError) {
           console.error('🧠 MEMORY ERROR RECORDING:', memoryError);
         }
