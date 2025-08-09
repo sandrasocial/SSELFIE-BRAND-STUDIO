@@ -121,7 +121,7 @@ export class UnifiedMemoryController {
       // 2. ADVANCED MEMORY: Save learning patterns
       if (data.learningData) {
         const memorySystem = AdvancedMemorySystem.getInstance();
-        await memorySystem.recordAgentLearning(agentName, userId, data.learningData);
+        await memorySystem.recordLearningPattern(agentName, userId, data.learningData);
       }
       
       console.log(`💾 UNIFIED MEMORY SAVED: ${agentName}${isAdminBypass ? ' [ADMIN]' : ''}`);

@@ -146,14 +146,22 @@ export class ClaudeApiServiceSimple {
     try {
       console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
       
-      // CONTEXT PRESERVATION: Load previous knowledge safely
+      // SMART CONTEXT LOADING: Only load heavy context for work tasks  
+      const contextRequirement = (await import('./conversation-context-detector.js')).ConversationContextDetector.analyzeMessage(message);
+      console.log(`🔍 CONTEXT ANALYSIS: ${contextRequirement.contextLevel.toUpperCase()} level context for "${message.substring(0, 30)}..."`);
+      
       let previousContext = '';
-      try {
-        const { ContextPreservationSystem } = await import('../agents/context-preservation-system.js');
-        previousContext = await ContextPreservationSystem.getContextSummary(agentName, userId);
-      } catch (error) {
-        console.error(`Failed to load context for ${agentName}:`, error);
-        previousContext = ''; // Continue without context if loading fails
+      if (contextRequirement.needsWorkspaceContext) {
+        try {
+          const { ContextPreservationSystem } = await import('../agents/context-preservation-system.js');
+          previousContext = await ContextPreservationSystem.getContextSummary(agentName, userId);
+          console.log(`🏗️ WORKSPACE CONTEXT: Loaded for work task`);
+        } catch (error) {
+          console.error(`Failed to load context for ${agentName}:`, error);
+          previousContext = ''; // Continue without context if loading fails
+        }
+      } else {
+        console.log(`💬 CONVERSATION MODE: Skipping workspace context for casual conversation`);
       }
       
       // EMERGENCY TOKEN MONITORING: Check system health before proceeding
