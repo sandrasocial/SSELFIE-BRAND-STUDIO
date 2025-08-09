@@ -104,7 +104,7 @@ export class SimpleMemoryService {
   private isCacheValid(context: AgentContext): boolean {
     const now = new Date();
     const age = now.getTime() - context.timestamp.getTime();
-    const maxAge = 5 * 60 * 1000; // 5 minutes
+    const maxAge = 30 * 60 * 1000; // FIXED: Increased to 30 minutes for better context retention
     return age < maxAge;
   }
 
@@ -120,13 +120,16 @@ export class SimpleMemoryService {
   // Replaces AdvancedMemorySystem.getAgentMemoryProfile  
   async getAgentMemoryProfile(agentName: string, userId: string, adminBypass: boolean = false) {
     const context = await this.prepareAgentContext({ agentName, userId, isAdminBypass: adminBypass });
+    // FIXED: Return actual context data instead of empty profile
     return {
       agentName,
       userId,
       memoryStrength: 1.0,
-      learningPatterns: [],
+      learningPatterns: context.memories.slice(-5), // Include recent memories
       intelligenceLevel: adminBypass ? 10 : 7,
-      adminBypass
+      adminBypass,
+      context: context, // CRITICAL: Include actual context for use
+      memoryCount: context.memories.length
     };
   }
 
@@ -134,12 +137,13 @@ export class SimpleMemoryService {
   analyzeMessage(message: string) {
     const isGreeting = /^(hey|hi|hello)/i.test(message.trim());
     const isContinuation = /^(yes|ok|perfect|continue|proceed|great|excellent)/i.test(message.trim());
-    const isWorkTask = !isGreeting && (message.length > 50 || /create|build|fix|update|analyze/.test(message));
+    // FIXED: More liberal work task detection - agents need context for most interactions
+    const isWorkTask = !isGreeting && (message.length > 20 || /create|build|fix|update|analyze|show|check|find|test|help|can you|please|look/.test(message.toLowerCase()));
 
     return {
       isContinuation,
-      isWorkTask,
-      contextLevel: isWorkTask ? 'full' : isContinuation ? 'minimal' : 'none'
+      isWorkTask: isWorkTask || isContinuation, // CRITICAL: Continuations also need context
+      contextLevel: (isWorkTask || isContinuation) ? 'full' : isGreeting ? 'minimal' : 'none'
     };
   }
 }
