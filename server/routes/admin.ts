@@ -7,11 +7,9 @@ import { storage } from '../storage';
 
 const router = Router();
 
-// FIXED: Define allowed admin emails
+// FIXED: Define allowed admin emails - REAL EMAIL ONLY
 const ALLOWED_ADMIN_EMAILS = [
-  'ssa@ssasocial.com',
-  'sandra@sselfie.studio',
-  'sandra.sigurjonsdottir@gmail.com'
+  'ssa@ssasocial.com'
 ];
 
 // Admin-only middleware - FIXED
