@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const ModelTraining: React.FC = () => {
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -18,11 +28,30 @@ const ModelTraining: React.FC = () => {
     }
     
     setIsUploading(true);
-    // TODO: Implement actual training logic
-    setTimeout(() => {
+    try {
+      const formData = new FormData();
+      uploadedFiles.forEach((file) => {
+        formData.append('trainingFiles', file);
+      });
+
+      const response = await fetch('/api/model/train', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Training failed to start');
+      }
+
+      const data = await response.json();
       setIsUploading(false);
-      alert('Training started successfully!');
-    }, 2000);
+      alert('Training started successfully! You will be notified when it completes.');
+    } catch (error) {
+      setIsUploading(false);
+      alert('Failed to start training. Please try again.');
   };
 
   return (
