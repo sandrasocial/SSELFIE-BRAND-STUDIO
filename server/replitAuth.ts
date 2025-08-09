@@ -73,26 +73,42 @@ export function getSession() {
     sessionTtl: '7 days'
   });
   
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
-  
-  return session({
-    secret: process.env.SESSION_SECRET!,
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: useSecureCookies, // FIX: Use secure cookies in production
-      sameSite: useSecureCookies ? 'lax' : 'none', // FIX: Use 'lax' for production, 'none' for development
-      maxAge: sessionTtl,
-    },
-  });
+  // Fallback to memory store if database session fails
+  try {
+    const pgStore = connectPg(session);
+    const sessionStore = new pgStore({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: true, // Allow table creation
+      ttl: sessionTtl,
+      tableName: "sessions",
+    });
+    
+    return session({
+      secret: process.env.SESSION_SECRET!,
+      store: sessionStore,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: false, // Disable for development
+        sameSite: 'lax',
+        maxAge: sessionTtl,
+      },
+    });
+  } catch (error) {
+    console.error('⚠️ Database session failed, using memory store:', error);
+    return session({
+      secret: process.env.SESSION_SECRET!,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: sessionTtl,
+      },
+    });
+  }
 }
 
 function updateUserSession(
