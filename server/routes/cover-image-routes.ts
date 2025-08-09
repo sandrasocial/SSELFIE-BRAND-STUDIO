@@ -3,6 +3,7 @@ import { Express } from 'express';
 import { storage } from '../storage';
 import { S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
+import { checkAdminAccess } from '../middleware/admin-middleware';
 
 // Configure AWS S3
 const s3 = new S3Client({
@@ -16,7 +17,7 @@ const s3 = new S3Client({
 export function registerCoverImageRoutes(app: Express) {
   // Save approved cover image to permanent storage
   app.post('/api/save-cover-image', async (req, res) => {
-    if (!req.isAuthenticated() || (req.user?.claims?.sub !== 'ssa@ssasocial.com' && req.user?.role !== 'admin')) {
+    if (!checkAdminAccess(req)) {
       return res.status(403).json({ error: 'Admin access required' });
     }
 

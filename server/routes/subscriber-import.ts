@@ -7,20 +7,12 @@ import FlodeskImportService from '../services/flodesk-import';
 import { ManyChatImportService } from '../services/manychat-import';
 import { randomUUID } from 'crypto';
 import { storage } from '../storage';
+import { requireAdmin } from '../middleware/admin-middleware';
 
 const router = Router();
 
-// Admin-only middleware for subscriber imports
-const isAdmin = async (req: any, res: any, next: any) => {
-  const user = req.user;
-  if (!user || user.claims.email !== 'ssa@ssasocial.com') {
-    return res.status(403).json({ error: 'Admin access required' });
-  }
-  next();
-};
-
 // Import subscribers from Flodesk
-router.post('/flodesk/import', isAuthenticated, isAdmin, async (req, res) => {
+router.post('/flodesk/import', requireAdmin, async (req, res) => {
   try {
     console.log('🚀 Starting Flodesk subscriber import...');
     
@@ -82,7 +74,7 @@ router.post('/flodesk/import', isAuthenticated, isAdmin, async (req, res) => {
 });
 
 // Import subscribers from ManyChat (Direct API not supported - Use manual export)
-router.post('/manychat/import', isAuthenticated, isAdmin, async (req, res) => {
+router.post('/manychat/import', requireAdmin, async (req, res) => {
   try {
     console.log('🚀 ManyChat API limitation check...');
     
@@ -132,7 +124,7 @@ router.post('/manychat/import', isAuthenticated, isAdmin, async (req, res) => {
 });
 
 // Import from both platforms
-router.post('/import-all', isAuthenticated, isAdmin, async (req, res) => {
+router.post('/import-all', requireAdmin, async (req, res) => {
   try {
     console.log('🚀 Starting complete subscriber import from all platforms...');
     
@@ -221,7 +213,7 @@ router.post('/import-all', isAuthenticated, isAdmin, async (req, res) => {
 });
 
 // Get import status and statistics
-router.get('/status', isAuthenticated, isAdmin, async (req, res) => {
+router.get('/status', requireAdmin, async (req, res) => {
   try {
     const { db } = await import('../db');
     const { importedSubscribers } = await import('../../shared/schema');
