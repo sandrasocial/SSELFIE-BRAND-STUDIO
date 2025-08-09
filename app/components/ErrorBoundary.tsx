@@ -6,12 +6,13 @@ interface Props {
 
 interface State {
   hasError: boolean;
-  error?: Error;
+  error: Error | null;
 }
 
-class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
+    error: null,
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -19,17 +20,22 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error('Uncaught error:', error, errorInfo);
   }
 
   public render() {
     if (this.state.hasError) {
       return (
         <div className="error-boundary">
-          <h2>Oops, something went wrong!</h2>
-          <p>We're sorry for the inconvenience. Please try refreshing the page.</p>
-          <button onClick={() => window.location.reload()}>
-            Refresh Page
+          <h2>Oops, something went wrong! 🔧</h2>
+          <p>We're already working on fixing it.</p>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false });
+              window.location.reload();
+            }}
+          >
+            Try again
           </button>
         </div>
       );
@@ -38,5 +44,3 @@ class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
-export default ErrorBoundary;
