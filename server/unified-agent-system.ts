@@ -281,36 +281,28 @@ When asked to create files, you MUST use the str_replace_based_edit_tool with:
           }
         };
         
-        claudeApiServiceSimple.streamMessage(
-          mockRes as any,
-          '42585527', // userId
-          request.agentId,
-          request.conversationId,
+        claudeApiServiceSimple.sendMessage(
           request.message,
-          systemPrompt,
-          tools,
+          request.conversationId,
+          request.agentId,
           true
-        ).catch(reject);
+        ).then((response) => {
+          resolve({
+            success: true,
+            response: response,
+            toolsUsed: []
+          });
+        }).catch(reject);
       });
 
-      // CONDITIONAL HOOK: Only trigger implementation for actual implementation tasks
-      if (this.shouldTriggerImplementation(request, response)) {
-        await this.postExecutionImplementationHook(request, response);
-      }
-
-      // Broadcast to WebSocket clients
+      // Note: Response handling now done in the Promise above
+      // Broadcast to WebSocket clients after successful execution
       this.broadcastToClients({
         type: 'agent_execution_complete',
         agentId: request.agentId,
         success: true,
         timestamp: new Date().toISOString()
       });
-
-      return {
-        success: true,
-        response: typeof response === 'string' ? response : (response as any)?.content || response,
-        toolsUsed: typeof response === 'object' && (response as any)?.toolsUsed ? (response as any).toolsUsed : [],
-      };
 
     } catch (error) {
       console.error(`❌ Agent ${request.agentId} execution failed:`, error);
