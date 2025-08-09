@@ -120,22 +120,30 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       // SIMPLIFIED: No complex memory patterns needed
       console.log(`💬 SIMPLIFIED MEMORY: Using streamlined context for ${contextRequirement.isWorkTask ? 'work' : 'conversation'}`);
       
-      // SIMPLIFIED WORKSPACE PREPARATION: Only for work tasks
-      if (contextRequirement.isWorkTask) {
-        agentContext = await simpleMemoryService.prepareAgentWorkspace(agentId, userId, message, isAdminBypass);
-        contextSummary = `Agent ${agentId} ready for: ${message.substring(0, 100)}...`;
-        console.log(`🏗️ WORKSPACE: Prepared for work task`);
+      // FIXED: Always prepare context (not just work tasks)
+      agentContext = await simpleMemoryService.prepareAgentWorkspace(agentId, userId, message, isAdminBypass);
+      
+      // ENHANCED: Build better context summary with memory
+      if (agentMemoryProfile && agentMemoryProfile.context && agentMemoryProfile.context.memories.length > 0) {
+        const recentMemories = agentMemoryProfile.context.memories.slice(-3)
+          .map((mem: any) => `- ${mem.data?.pattern || mem.data?.currentTask || 'Previous interaction'}`)
+          .join('\n');
+        contextSummary = `RECENT CONTEXT:\n${recentMemories}\n\nCURRENT TASK: ${message.substring(0, 100)}...`;
+        console.log(`🧠 ENHANCED CONTEXT: Loaded ${agentMemoryProfile.context.memories.length} memories for ${agentId}`);
       } else {
-        console.log(`💬 CONVERSATION MODE: No workspace preparation needed`);
+        contextSummary = `Agent ${agentId} ready for: ${message.substring(0, 100)}...`;
+        console.log(`🏗️ WORKSPACE: Prepared context for ${agentId}`);
       }
       
-      // ADMIN BYPASS: Save context for admin agents (but only if it's a work task)
-      if (isAdminBypass && contextRequirement.isWorkTask && agentContext) {
+      // FIXED: Always save context for meaningful interactions (not just admin bypass)
+      if (agentContext && (contextRequirement.isWorkTask || contextRequirement.isContinuation)) {
         await simpleMemoryService.saveAgentMemory(agentContext, {
           currentTask: message,
-          adminBypass: true
+          adminBypass: isAdminBypass,
+          userMessage: message.substring(0, 200),
+          timestamp: new Date().toISOString()
         });
-        console.log(`🔓 ADMIN MEMORY BYPASS: Context saved for work task`);
+        console.log(`🧠 CONTEXT SAVED: Memory updated for ${agentId}${isAdminBypass ? ' [ADMIN]' : ''}`);
       }
       
       console.log(`🧠 CONTEXT LOADED: Level ${contextRequirement.contextLevel.toUpperCase()}, Intelligence ${agentMemoryProfile.intelligenceLevel}${isAdminBypass ? ' [ADMIN BYPASS]' : ''}`);
