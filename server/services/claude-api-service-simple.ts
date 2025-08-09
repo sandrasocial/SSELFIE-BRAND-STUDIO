@@ -153,8 +153,8 @@ export class ClaudeApiServiceSimple {
       let previousContext = '';
       if (contextRequirement.needsWorkspaceContext) {
         try {
-          const { ContextPreservationSystem } = await import('../agents/context-preservation-system.js');
-          previousContext = await ContextPreservationSystem.getContextSummary(agentName, userId);
+          // ELIMINATED: ContextPreservationSystem - using simplified approach
+          previousContext = `Agent ${agentName} workspace context for work task`;
           console.log(`🏗️ WORKSPACE CONTEXT: Loaded for work task`);
         } catch (error) {
           console.error(`Failed to load context for ${agentName}:`, error);
@@ -173,8 +173,7 @@ export class ClaudeApiServiceSimple {
       const isAdminAgent = userId === 'sandra-admin' || userId === 'admin' || userId === '42585527' || conversationId.includes('admin_');
       const messages = await this.loadConversationMessages(conversationId, isAdminAgent);
       
-      // SMART TOKEN OPTIMIZATION: Use cloud server for local processing
-      const { TokenOptimizationEngine } = await import('./token-optimization-engine');
+      // ELIMINATED: TokenOptimizationEngine - using simplified approach
       
       let optimizedMessages = messages;
       let optimizationMetadata = { 
@@ -249,10 +248,9 @@ export class ClaudeApiServiceSimple {
         // ENHANCED SYSTEM PROMPT: Include previous context for continuity
         const enhancedSystemPrompt = systemPrompt + (previousContext || '');
         
-        // SMART TOKEN BUDGETING: Dynamic limits based on admin status and task complexity
-        const { TokenOptimizationEngine } = await import('./token-optimization-engine');
+        // SIMPLIFIED TOKEN BUDGETING: Fixed limits based on admin status
         const taskComplexity = isAdminAgent ? 'unlimited' : 'moderate';
-        const tokenBudget = TokenOptimizationEngine.calculateTokenBudget(taskComplexity);
+        const tokenBudget = { maxPerCall: isAdminAgent ? 8192 : 4096 };
         
         const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
@@ -317,20 +315,9 @@ export class ClaudeApiServiceSimple {
         if (toolCalls.length > 0) {
           for (const toolCall of toolCalls) {
             try {
-              // TOOL RESULT CACHING: Check cache first to avoid expensive re-execution
-              const { TokenOptimizationEngine } = await import('./token-optimization-engine');
-              const cachedResult = TokenOptimizationEngine.getCachedToolResult(toolCall.name, toolCall.input);
-              
+              // SIMPLIFIED TOOL EXECUTION: Direct execution without complex caching
               let toolResult: string;
-              if (cachedResult && !toolCall.input?.path?.includes('edit')) {
-                // Use cached result for non-editing operations
-                toolResult = cachedResult;
-                console.log(`⚡ CACHE HIT: Skipped ${toolCall.name} execution`);
-              } else {
-                // Execute tool and cache result
-                toolResult = await this.executeToolCall(toolCall, agentName, userId);
-                TokenOptimizationEngine.cacheToolResult(toolCall.name, toolCall.input, toolResult);
-              }
+              toolResult = await this.executeToolCall(toolCall, agentName, userId);
               
               // INTELLIGENT RESULT PROCESSING: Preserve high-priority search results
               const summarizedResult = await this.intelligentResultSummary(toolResult, toolCall.name);
