@@ -102,16 +102,20 @@ export class SimpleMemoryService {
     // Update cache (keep for speed)
     this.contextCache.set(cacheKey, context);
     
-    // OLGA'S FIX: Add database persistence for reliability
+    // OLGA'S FIX: Enhanced database persistence for reliability  
     try {
       await storage.saveAgentMemory(context.agentName, context.userId, {
         context: context,
         latestMemory: memoryItem,
-        totalMemories: context.memories.length
+        totalMemories: context.memories.length,
+        timestamp: new Date().toISOString(),
+        agentType: 'admin',
+        sessionId: `${context.agentName}_${Date.now()}`
       });
-      console.log(`💾 PERSISTENCE: Admin memory saved to database for ${context.agentName}`);
+      console.log(`💾 PERSISTENCE: Admin memory saved to database for ${context.agentName} (${context.memories.length} total)`);
     } catch (error) {
       console.error(`❌ Database persistence failed for ${context.agentName}:`, error);
+      // Continue without throwing - don't break agent functionality due to persistence issues
     }
     
     console.log(`🧠 MEMORY: Saved memory for ${context.agentName} (${context.memories.length} total)`);
