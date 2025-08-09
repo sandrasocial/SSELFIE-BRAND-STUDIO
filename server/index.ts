@@ -62,13 +62,15 @@ const port = process.env.PORT || 5000;
 // Use the server returned from registerRoutes
 const server = httpServer;
 
-// Setup Vite development server for frontend AFTER all API routes are registered
-setupVite(app, server).then(() => {
-  server.listen(port, () => {
-    logger.info(`Server is running on port ${port}`);
-    metrics.activeUsers.set(0); // Initialize active users metric
-  });
-}).catch(err => {
-  console.error('Failed to setup Vite:', err);
-  process.exit(1);
+// EMERGENCY FIX: Start server immediately without waiting for Vite
+server.listen(port, () => {
+  logger.info(`Server is running on port ${port}`);
+  metrics.activeUsers.set(0); // Initialize active users metric
+  console.log('🚨 EMERGENCY MODE: Admin agents accessible at /api/consulting-agents/admin/consulting-chat');
+});
+
+// Setup Vite development server for frontend AFTER server is running  
+setupVite(app, server).catch(err => {
+  console.error('Vite setup failed, but server continues running for admin agents:', err);
+  // Don't exit - keep server running for admin agents
 });
