@@ -31,6 +31,7 @@ import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
 import { ContextPreservationSystem } from '../agents/context-preservation-system';
 import { AdvancedMemorySystem } from '../services/advanced-memory-system';
+import { ConversationContextDetector } from '../services/conversation-context-detector';
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '@shared/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -101,103 +102,75 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     
     console.log(`🧠 MEMORY INTEGRATION: Admin bypass ${isAdminBypass ? 'ENABLED' : 'disabled'} for ${agentId}`);
     
-    // ENHANCED MEMORY SYSTEM INTEGRATION with ADMIN BYPASS
+    // SMART CONTEXT DETECTION: Analyze if this needs full context or just conversation
+    const contextRequirement = ConversationContextDetector.analyzeMessage(message);
+    ConversationContextDetector.debugAnalysis(message);
+    
+    // ENHANCED MEMORY SYSTEM INTEGRATION with SMART CONTEXT LOADING
     const memorySystem = AdvancedMemorySystem.getInstance();
     let agentMemoryProfile = null;
     let contextualMemories = '';
     let agentContext = null;
+    let contextSummary = '';
     
     try {
-      // Load/create agent memory profile with admin bypass
+      // Always load/create agent memory profile
       agentMemoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId, isAdminBypass);
       
       if (!agentMemoryProfile) {
         console.log(`🧠 INITIALIZING: Creating new memory profile for ${agentId}${isAdminBypass ? ' [ADMIN]' : ''}`);
         agentMemoryProfile = await memorySystem.initializeAgentMemory(agentId, userId, {
-          baseIntelligence: isAdminBypass ? 10 : 7, // Admin agents get max intelligence
+          baseIntelligence: isAdminBypass ? 10 : 7,
           specialization: agentConfig.specialization || agentId
         });
       }
       
-      // Get contextual memories for this specific request
-      const relevantMemories = await memorySystem.getContextualMemories(agentId, userId, message, 'agent_conversation');
-      contextualMemories = relevantMemories.length > 0 ? 
-        `\n## RELEVANT LEARNED PATTERNS:\n${relevantMemories.map(m => `- ${m.category}: ${m.pattern} (confidence: ${m.confidence})`).join('\n')}\n` : '';
+      // CONDITIONAL CONTEXT LOADING: Only load heavy context for work tasks
+      if (contextRequirement.needsMemoryPatterns) {
+        const relevantMemories = await memorySystem.getContextualMemories(agentId, userId, message, 'agent_conversation');
+        contextualMemories = relevantMemories.length > 0 ? 
+          `\n## RELEVANT LEARNED PATTERNS:\n${relevantMemories.map(m => `- ${m.category}: ${m.pattern} (confidence: ${m.confidence})`).join('\n')}\n` : '';
+        console.log(`🧠 WORK CONTEXT: Loaded ${relevantMemories.length} memory patterns for work task`);
+      } else {
+        console.log(`💬 CONVERSATION MODE: Skipping memory patterns for casual conversation`);
+      }
       
-      // Load/prepare agent context with admin bypass
-      agentContext = await ContextPreservationSystem.prepareAgentWorkspace(agentId, userId, message, isAdminBypass);
+      // CONDITIONAL WORKSPACE LOADING: Only for work tasks
+      if (contextRequirement.needsWorkspaceContext) {
+        agentContext = await ContextPreservationSystem.prepareAgentWorkspace(agentId, userId, message, isAdminBypass);
+        contextSummary = await ContextPreservationSystem.getContextSummary(agentId, userId);
+        console.log(`🏗️ WORKSPACE CONTEXT: Loaded for work task`);
+      } else {
+        console.log(`💬 CONVERSATION MODE: Skipping workspace context for casual conversation`);
+      }
       
-      // ADMIN BYPASS: Save unlimited context for admin agents
-      if (isAdminBypass) {
+      // ADMIN BYPASS: Save context for admin agents (but only if it's a work task)
+      if (isAdminBypass && contextRequirement.isWorkTask) {
         await ContextPreservationSystem.saveContext(agentId, userId, {
           currentTask: message,
           adminBypass: true
         }, true);
-        console.log(`🔓 ADMIN MEMORY BYPASS: Unlimited context preservation enabled for ${agentId}`);
+        console.log(`🔓 ADMIN MEMORY BYPASS: Context saved for work task`);
       }
       
-      console.log(`🧠 MEMORY LOADED: Intelligence level ${agentMemoryProfile.intelligenceLevel}, ${relevantMemories.length} relevant patterns${isAdminBypass ? ' [ADMIN BYPASS - UNLIMITED CONTEXT]' : ''}`);
+      console.log(`🧠 CONTEXT LOADED: Level ${contextRequirement.contextLevel.toUpperCase()}, Intelligence ${agentMemoryProfile.intelligenceLevel}${isAdminBypass ? ' [ADMIN BYPASS]' : ''}`);
       
     } catch (memoryError) {
       console.error('🧠 MEMORY ERROR:', memoryError);
       // Continue without memory enhancement if there's an error
     }
     
-    // UNRESTRICTED INTELLIGENCE: Only use base personality, no forcing
+    // SMART SYSTEM PROMPT: Context-aware prompt generation
     const baseSystemPrompt = agentConfig.systemPrompt;
     
-    // COMPREHENSIVE SYSTEM PROMPT: Architecture + Design + Intelligence + Memory
-    const systemPrompt = `${baseSystemPrompt}
-${contextualMemories}
-${agentContext ? await ContextPreservationSystem.getContextSummary(agentId, userId) : ''}
-
-## PROJECT ARCHITECTURE - CRITICAL KNOWLEDGE
-**SSELFIE Studio Structure (React + TypeScript + Express + PostgreSQL)**
-
-### FILE ORGANIZATION:
-- **client/**: React frontend (components, pages, hooks, contexts)
-  - client/src/pages/: Page components (e.g., admin-dashboard.tsx)
-  - client/src/components/: Reusable UI components
-  - client/src/hooks/: Custom React hooks
-  - client/src/index.css: Global styles with luxury design tokens
-- **server/**: Express backend (routes, services, agents)
-  - server/routes/: API endpoints
-  - server/services/: Business logic and integrations
-  - server/agents/: Intelligence systems
-- **shared/**: Shared types and schemas (Drizzle ORM)
-  - shared/schema.ts: Database models and types
-
-### IMPORT PATTERNS:
-- From client: import from '@/components', '@/hooks', '@/pages'
-- From server: import from '../services', '../db'
-- From shared: import from '@shared/schema'
-- Always use .js extensions in server imports
-
-### MODIFICATION PROTOCOL:
-- ALWAYS modify existing files when asked (e.g., admin-dashboard.tsx)
-- NEVER create duplicate "redesigned" versions
-- Search for existing components before creating new ones
-- Check imports and dependencies before changes
-
-## DESIGN RULES - LUXURY STANDARDS
-- **Colors**: Black (#0a0a0a), White (#fefefe), Gray (#f5f5f5) ONLY
-- **Typography**: Times New Roman headlines, system fonts for body
-- **Layout**: No rounded corners (border-radius: 0), editorial spacing
-- **Style**: Magazine-quality, minimalist, sophisticated
-
-## INTELLIGENT WORKFLOW:
-1. **SEARCH** existing files first (use simple searches, not complex queries)
-2. **ANALYZE** current implementation before changes
-3. **MODIFY** existing files (don't create duplicates)
-4. **VALIDATE** imports and structure
-5. **TEST** changes for errors
-
-## TOOLS:
-- search_filesystem: Find files (use simple keywords)
-- str_replace_based_edit_tool: View/edit files
-- bash: Run commands and tests
-
-**REMEMBER**: You have full codebase access. Search and understand before changing.`;
+    // GENERATE APPROPRIATE PROMPT based on conversation context
+    const systemPrompt = ConversationContextDetector.generateContextPrompt(
+      baseSystemPrompt,
+      contextRequirement,
+      contextSummary,
+      contextualMemories,
+      agentContext
+    );
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
