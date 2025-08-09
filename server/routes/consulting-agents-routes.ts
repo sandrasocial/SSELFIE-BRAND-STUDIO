@@ -168,7 +168,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     try {
       const claudeService = getClaudeService();
       
-      // COMPLETE TOOL ACCESS: All agent tools restored
+      // UNIFIED NATIVE TOOLS: Only available tools sent to Claude
       const tools = [
         {
           name: "str_replace_based_edit_tool",
@@ -188,20 +188,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
             required: ["command", "path"]
           }
         },
-        {
-          name: "search_filesystem",
-          description: "Search for files and code in the codebase",
-          input_schema: {
-            type: "object",
-            properties: {
-              query_description: { type: "string" },
-              code: { type: "array", items: { type: "string" } },
-              class_names: { type: "array", items: { type: "string" } },
-              function_names: { type: "array", items: { type: "string" } },
-              search_paths: { type: "array", items: { type: "string" } }
-            }
-          }
-        },
+
         {
           name: "bash",
           description: "Run bash commands",
@@ -386,35 +373,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
             required: ["query"]
           }
         },
-        {
-          name: "direct_file_access",
-          description: "Direct file access without filtering - view, list, check existence, or search by path",
-          input_schema: {
-            type: "object",
-            properties: {
-              action: { 
-                type: "string", 
-                enum: ["view", "list", "exists", "search_path"],
-                description: "Action to perform: view file content, list directory, check if exists, or search by path pattern"
-              },
-              path: { 
-                type: "string",
-                description: "File or directory path relative to project root"
-              },
-              recursive: { 
-                type: "boolean", 
-                default: false,
-                description: "For list/search actions, whether to search subdirectories"
-              },
-              max_depth: { 
-                type: "integer", 
-                default: 3,
-                description: "Maximum depth for recursive operations"
-              }
-            },
-            required: ["action", "path"]
-          }
-        }
+
       ];
       
       await claudeService.sendStreamingMessage(
