@@ -161,15 +161,14 @@ export class DirectWorkspaceAccess {
     console.log(`🧠 INTELLIGENT SEARCH: "${query}" using natural language processing - NO API COST`);
 
     try {
-      // Use existing intelligent search parameter processing
-      const smartParams = IntelligentIntegrationModule.getSmartSearchParams(query);
-      const keywords = smartParams.query_description.split(' ');
+      // Direct keyword search without external dependencies
+      const keywords = query.toLowerCase().split(' ').filter(k => k.length > 2);
       
       console.log(`🔍 EXTRACTED KEYWORDS: [${keywords.join(', ')}]`);
 
       const results: SearchResult[] = [];
       
-      // Search with intelligent keyword extraction
+      // Search with keyword extraction
       for (const keyword of keywords) {
         await this.searchDirectory(this.projectRoot, keyword, searchExtensions, results);
       }
@@ -181,9 +180,9 @@ export class DirectWorkspaceAccess {
       const uniqueResults = this.deduplicateResults(results);
       const prioritizedResults = this.prioritizeResults(uniqueResults, keywords);
       
-      console.log(`✅ INTELLIGENT SEARCH COMPLETE: Found ${prioritizedResults.length} matches from keywords: ${keywords.join(', ')}`);
+      console.log(`✅ SEARCH COMPLETE: Found ${prioritizedResults.length} matches from keywords: ${keywords.join(', ')}`);
       
-      return prioritizedResults.slice(0, 50);
+      return prioritizedResults.slice(0, 100);
 
     } catch (error) {
       console.error('❌ INTELLIGENT SEARCH ERROR:', error);
