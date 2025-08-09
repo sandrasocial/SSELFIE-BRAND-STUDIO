@@ -52,38 +52,45 @@ consultingAgentsRouter.use(express.urlencoded({ extended: true, limit: '50mb' })
  * ADMIN CONSULTING AGENTS - UNRESTRICTED INTELLIGENCE SYSTEM
  * Removed all hardcoded forcing to let agents use natural intelligence
  */
-// Admin authentication middleware for consulting agents
-const adminAuth = (req: AdminRequest, res: any, next: any) => {
-  // Authentication bypass successful - debug logging no longer needed
-  
-  // Direct admin bypass without session middleware
-  const adminToken = req.headers.authorization || 
-                    (req.body && req.body.adminToken) || 
-                    req.query.adminToken;
-  
-  if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
-    req.user = {
-      claims: {
-        sub: '42585527',
-        email: 'ssa@ssasocial.com',
-        first_name: 'Sandra',
-        last_name: 'Sigurjonsdottir'
-      }
-    };
-    req.isAdminBypass = true;
-    return next();
-  }
-  
-  // For non-admin requests, bypass session auth temporarily
-  req.user = {
-    claims: {
-      sub: 'guest',
-      email: 'guest@system.local',
-      first_name: 'Guest',
-      last_name: 'User'
+// Admin authentication middleware - connects to real Sandra session
+const adminAuth = async (req: AdminRequest, res: any, next: any) => {
+  try {
+    // Use real authentication middleware to get Sandra's actual session
+    await new Promise<void>((resolve, reject) => {
+      isAuthenticated(req, res, (err?: any) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    
+    // Verify this is Sandra's account
+    const userEmail = req.user?.claims?.email;
+    if (!req.user || !userEmail) {
+      console.log('🚫 ADMIN AUTH: No user data after authentication');
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Authentication failed - no user data' 
+      });
     }
-  };
-  return next();
+    
+    if (userEmail === 'ssa@ssasocial.com') {
+      req.isAdminBypass = true;
+      console.log(`✅ ADMIN AUTH: Sandra authenticated with real session ID: ${req.user.claims.sub}`);
+      return next();
+    } else {
+      console.log(`🚫 ADMIN AUTH: Unauthorized user: ${userEmail}`);
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Admin access restricted to Sandra only' 
+      });
+    }
+  } catch (error) {
+    console.error('🚫 ADMIN AUTH: Authentication failed:', error);
+    return res.status(401).json({ 
+      success: false, 
+      message: 'Authentication required for admin agents' 
+    });
+  }
 };
 
 consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: AdminRequest, res: any) => {
@@ -109,9 +116,11 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       });
     }
     
-    const userId = req.user ? (req.user as any).claims.sub : '42585527';
+    const userId = req.user!.claims.sub; // Use Sandra's real authenticated user ID
     const conversationId = req.body.conversationId || agentId;
     const isAdminBypass = (req as AdminRequest).isAdminBypass || false;
+    
+    console.log(`🔐 REAL AUTH: Using Sandra's authenticated session ID: ${userId} for agent ${agentId}`);
     
     console.log(`🧠 MEMORY INTEGRATION: Admin bypass ${isAdminBypass ? 'ENABLED' : 'disabled'} for ${agentId}`);
     
