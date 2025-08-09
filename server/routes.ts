@@ -5,7 +5,7 @@ import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-// BYPASS AUTH: Import consulting agents early to register before session middleware
+// REAL AUTH: Import consulting agents to use proper authentication
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "@shared/schema";
@@ -22,7 +22,6 @@ import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
-import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
@@ -214,13 +213,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Basic middleware and authentication setup
   const server = createServer(app);
   
-  // 🚨 CRITICAL FIX: Register consulting agents BEFORE authentication to bypass auth middleware
-  console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
-  app.use('/api/consulting-agents', consultingAgentsRouter);
-  console.log('✅ BYPASS: Consulting agents registered before auth middleware');
-  
-  // Setup authentication
+  // Setup authentication FIRST - agents now use real auth
   await setupAuth(app);
+  
+  // 🔐 REGISTER ADMIN AGENTS: Now using real Sandra authentication  
+  console.log('🤖 REGISTERING AUTHENTICATED AGENT ROUTES: Connected to Sandra session');
+  app.use('/api/consulting-agents', consultingAgentsRouter);
+  console.log('✅ REAL AUTH: Consulting agents now use Sandra authentication');
   
   // CRITICAL: Serve training ZIP files with correct content type
   app.get("/training-zip/:filename", (req, res) => {
