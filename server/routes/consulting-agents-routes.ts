@@ -49,28 +49,47 @@ const consultingAgentsRouter = Router();
  */
 // Admin authentication middleware for consulting agents
 const adminAuth = (req: AdminRequest, res: any, next: any) => {
-  // Check for admin token in multiple places (safely handle undefined req.body)
-  const adminToken = req.headers.authorization || 
-                    (req.body && req.body.adminToken) || 
-                    req.query.adminToken;
-  
-  if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
-    console.log('🔓 ADMIN MEMORY BYPASS: Enhanced memory privileges activated');
-    // Create mock user for admin operations
-    req.user = {
-      claims: {
-        sub: '42585527', // Sandra's user ID
-        email: 'ssa@ssasocial.com',
-        first_name: 'Sandra',
-        last_name: 'Sigurjonsdottir'
-      }
-    };
-    req.isAdminBypass = true; // CRITICAL: Enable enhanced memory access
-    return next();
+  try {
+    console.log('🔍 ADMIN AUTH CHECK: Starting authentication...');
+    
+    // Check for admin token in multiple places (safely handle undefined req.body)
+    const adminToken = req.headers.authorization || 
+                      (req.body && req.body.adminToken) || 
+                      req.query.adminToken;
+    
+    console.log('🔍 ADMIN AUTH: Token check:', { 
+      hasAuth: !!req.headers.authorization, 
+      hasBodyToken: !!(req.body && req.body.adminToken),
+      hasQueryToken: !!req.query.adminToken 
+    });
+    
+    if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
+      console.log('🔓 ADMIN MEMORY BYPASS: Enhanced memory privileges activated');
+      // Create mock user for admin operations
+      req.user = {
+        claims: {
+          sub: '42585527', // Sandra's user ID
+          email: 'ssa@ssasocial.com',
+          first_name: 'Sandra',
+          last_name: 'Sigurjonsdottir'
+        }
+      };
+      req.isAdminBypass = true; // CRITICAL: Enable enhanced memory access
+      return next();
+    }
+    
+    console.log('🔍 ADMIN AUTH: Admin token not found, trying regular auth...');
+    
+    // Fall back to regular authentication
+    return isAuthenticated(req, res, next);
+  } catch (error) {
+    console.error('❌ ADMIN AUTH ERROR:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Authentication error',
+      details: error instanceof Error ? error.message : 'Unknown auth error'
+    });
   }
-  
-  // Fall back to regular authentication
-  return isAuthenticated(req, res, next);
 };
 
 consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: AdminRequest, res: any) => {
@@ -464,10 +483,16 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     }
 
   } catch (error) {
-    console.error('❌ CONSULTING AGENT ERROR:', error);
+    console.error('❌ CONSULTING AGENT ERROR DETAILS:', {
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      agentId: req.body?.agentId,
+      userId: req.user?.claims?.sub
+    });
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
