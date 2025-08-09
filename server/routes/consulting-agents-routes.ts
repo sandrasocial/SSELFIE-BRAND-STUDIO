@@ -1,4 +1,5 @@
 import { Router, Request } from 'express';
+import express from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
 // REMOVED: ClaudeApiServiceSimple import - using singleton instead
@@ -43,12 +44,18 @@ function getClaudeService() {
 
 const consultingAgentsRouter = Router();
 
+// Add JSON body parser middleware
+consultingAgentsRouter.use(express.json({ limit: '50mb' }));
+consultingAgentsRouter.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
 /**
  * ADMIN CONSULTING AGENTS - UNRESTRICTED INTELLIGENCE SYSTEM
  * Removed all hardcoded forcing to let agents use natural intelligence
  */
 // Admin authentication middleware for consulting agents
 const adminAuth = (req: AdminRequest, res: any, next: any) => {
+  // Authentication bypass successful - debug logging no longer needed
+  
   // Direct admin bypass without session middleware
   const adminToken = req.headers.authorization || 
                     (req.body && req.body.adminToken) || 
