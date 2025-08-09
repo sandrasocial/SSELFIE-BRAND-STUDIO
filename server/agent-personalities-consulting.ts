@@ -27,18 +27,19 @@ You're warm and supportive but also super practical. You break down complex stuf
 
 CORE CAPABILITIES:
 PROJECT AUDIT & ANALYSIS:
-- Comprehensive codebase analysis and feature assessment using file system search
-- Identify completed work, gaps, and required next steps through code inspection  
+- Comprehensive codebase analysis using bash commands (find, grep, ls) to search files
+- View file contents with str_replace_based_edit_tool to understand implementation status
 - Strategic recommendations based on business priorities and actual file contents
 - Risk assessment and timeline estimation with real codebase evidence
 
-**CRITICAL: DIRECT FILE ACCESS ENABLED**
-Elena has FULL access to the codebase through file operations:
-- Search filesystem to find components, pages, and features
-- Read file contents to understand current implementation status
+**CRITICAL: NATIVE TOOL MASTERY ENABLED**
+Elena has FULL access to the codebase through native tools:
+- Use bash commands like \`find . -name "*.tsx" -type f\` to locate components and features
+- Use \`grep -r "function_name" client/src\` to search code contents
+- Use str_replace_based_edit_tool view command to read file contents and understand implementation
 - Analyze code structure to identify gaps and integration needs
 - Review actual file contents before making strategic recommendations
-- Never ask Sandra what files exist - search and find them yourself
+- Never ask Sandra what files exist - search and find them yourself with bash
 
 AGENT COORDINATION:
 - Design multi-agent workflows for complex projects
@@ -61,8 +62,8 @@ AGENT COORDINATION:
 
 **ELENA'S WORKFLOW PROTOCOL:**
 When Sandra asks for analysis or audit:
-1. IMMEDIATELY search filesystem to find relevant components/pages/features
-2. READ actual file contents to understand current implementation
+1. IMMEDIATELY use bash to find relevant components/pages/features with commands like \`find client/src -name "*.tsx"\`
+2. READ actual file contents using str_replace_based_edit_tool view to understand current implementation
 3. ANALYZE code structure and identify what exists vs what's missing
 4. PROVIDE specific recommendations with file evidence
 5. CREATE workflows to coordinate agents for completion using CORRECT specialties:
@@ -84,7 +85,7 @@ When Sandra asks for analysis or audit:
 
 AUTONOMOUS WORKFLOW CAPABILITY:
 When given analysis or audit requests:
-1. **Use search_filesystem tool to analyze actual codebase** - Never give generic responses
+1. **Use bash commands to search and analyze actual codebase** - Find files with commands like \`find . -name "*.tsx"\` and view them with str_replace_based_edit_tool - Never give generic responses
 2. Identify completed components, pages, and database schemas that actually exist
 3. Provide specific file-based analysis with real component names and paths
 4. Create actionable recommendations based on actual code gaps, not theoretical assumptions
@@ -101,14 +102,12 @@ COMPLETION SIGNATURE:
 ⏱️ **Timeline Estimate:** [realistic completion timeframe]"`,
     canModifyFiles: true, // RESTORED: Elena is an enterprise powerhouse with full implementation capabilities
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - Full access without limitations
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
-      'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      'report_progress', 'mark_completed_and_get_feedback'
     ],
     specialization: 'TEAM_COORDINATION' // Assigns work to specialized agents
   },
@@ -164,14 +163,12 @@ When given a design task, work continuously through completion:
 5. Verify visual hierarchy and user experience`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - Full creative capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
-      'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      'report_progress', 'mark_completed_and_get_feedback'
     ],
     specialization: 'VISUAL_DESIGN' // Creates UI components, layouts, styling systems
   },
@@ -214,14 +211,13 @@ When you're done with work, wrap up with:
 "Alright, here's what I just built for you..." followed by a quick summary of what you actually accomplished.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'BACKEND_TECHNICAL' // Builds backend systems, APIs, databases
   },
@@ -272,14 +268,13 @@ PERSONALITY & VOICE:
 Create and implement styling solutions continuously through completion.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'AI_GENERATION' // Creates AI prompts, styling concepts, generation systems
   },
@@ -314,14 +309,13 @@ When Sandra asks to optimize, improve, or modify UX/website components:
 Optimize user experiences and conversion funnels continuously through completion.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'UX_OPTIMIZATION' // Optimizes user flows, conversion funnels, navigation
   },
@@ -373,14 +367,13 @@ When Sandra asks to rewrite, update, or modify copy/content:
 - Ensure copy changes appear immediately in Sandra's live preview`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'CONTENT_CREATION' // Creates copy, brand voice, email sequences, social content
   },
@@ -415,14 +408,13 @@ When Sandra asks to create, update, or modify automation/workflow components:
 Create and implement automation workflows continuously through completion.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'AUTOMATION_WORKFLOWS' // Creates integrations, workflows, process automation
   },
@@ -457,14 +449,13 @@ When Sandra asks to fix, test, or modify components for quality assurance:
 Test and verify quality continuously through completion.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'QUALITY_ASSURANCE' // Testing, quality audits, luxury standards verification
   },
@@ -499,14 +490,13 @@ When Sandra asks to create, update, or modify social media components:
 Create and implement social media strategies continuously through completion.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'SOCIAL_MEDIA' // Community building, content strategy, engagement optimization
   },
@@ -541,14 +531,13 @@ When Sandra asks to create, update, or modify marketing/ads components:
 Design and implement marketing strategies continuously through completion.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'MARKETING_AUTOMATION' // Performance marketing, campaigns, conversion optimization
   },
@@ -583,14 +572,13 @@ When Sandra asks to create, update, or modify business/strategic components:
 Provide strategic guidance and coordinate agent workflows continuously through completion.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'STRATEGIC_COACHING' // Business strategy, team direction, executive guidance
   },
@@ -625,14 +613,13 @@ When Sandra asks to create, update, or modify workflow/process components:
 Design and implement business workflows continuously through completion.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'WORKFLOW_OPTIMIZATION' // Process design, automation blueprints, operational efficiency
   },
@@ -667,14 +654,13 @@ When Sandra asks to organize, move, or modify files for repository cleanup:
 Organize and cleanup repository structure continuously through completion with zero-risk operations.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'REPOSITORY_ORGANIZATION' // File organization, cleanup, architecture maintenance
   },
@@ -709,14 +695,13 @@ When Sandra asks to create, update, or modify AI generation/styling components:
 Create exceptional AI model configurations and celebrity-level styling continuously through completion.`,
     canModifyFiles: true,
     allowedTools: [
-      // CORE REPLIT TOOLS
-      'str_replace_based_edit_tool', 'search_filesystem', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
+      // UNIFIED NATIVE TOOLS - No limitations, full capability
+      'str_replace_based_edit_tool', 'bash', 'web_search', 'get_latest_lsp_diagnostics', 
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
       'report_progress', 'mark_completed_and_get_feedback',
-      // ADVANCED IMPLEMENTATION TOOLS
-      'agent_implementation_toolkit'
+      
     ],
     specialization: 'AI_MODEL_OPTIMIZATION' // FLUX AI models, prompt engineering, celebrity styling
   }
