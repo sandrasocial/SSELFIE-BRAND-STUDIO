@@ -34,7 +34,7 @@ Preferred communication style: Simple, everyday language.
 - **Member Agents**: Secure, limited-access for guided user experiences.
 - **Tool Integration**: Access to filesystem tools, bash commands, web search.
 - **Security Separation**: Role-based access control.
-- **Memory System**: Contextual memory with confidence scoring and search optimization; unified memory controller for coordination. Token optimization for cost reduction and unlimited context.
+- **Memory System**: Consolidated single memory service (simple-memory-service.ts) with 12-hour cache duration, database persistence, and reformed verification system. Eliminates memory conflicts that previously made admin agents unusable. Implemented August 9, 2025 via Olga's consolidation plan.
 - **Verification-First Training**: All agents are trained to verify information using tools before making claims, ensuring evidence-based responses and actions.
 
 ## External Dependencies
