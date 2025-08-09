@@ -316,7 +316,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
             type: "object",
             properties: {
               name: { type: "string" },
-              workflow_timeout: { type: "integer", default: 30 }
+              workflow_timeout: { type: "integer", default: 300 }
             },
             required: ["name"]
           }
