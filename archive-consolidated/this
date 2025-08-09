@@ -1,5 +1,0 @@
-File created by Zara at 2025-08-01T17:51:47.057Z
-
-Content: ZARA IMMEDIATE FIX NEEDED: Claude API error: this.validateClaudeMessageSequence is not a function at line 602 in claude-api-service.ts. You need to create this missing validation method or remove the call. Fix this blocking error so we can proceed with the three Replit AI-level enhancements.
-
-Generated automatically by SSELFIE Studio agent system.

@@ -13,12 +13,12 @@ import type { Server } from 'http';
 import { db } from './db';
 import { storage } from './storage';
 import { ConversationManager } from './agents/ConversationManager';
-import { AdvancedMemorySystem } from './services/advanced-memory-system';
+// ELIMINATED: AdvancedMemorySystem - replaced with simple-memory-service
 import { claudeApiServiceSimple } from './services/claude-api-service-simple';
 import { unifiedSessionManager } from './services/unified-session-manager';
-import { ContextPreservationSystem } from './agents/context-preservation-system';
+// ELIMINATED: ContextPreservationSystem - replaced with simple-memory-service
 import { agentSearchCache } from './services/agent-search-cache';
-import { crossAgentIntelligence } from './services/cross-agent-intelligence';
+// ELIMINATED: crossAgentIntelligence - part of competing systems elimination
 // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
 import { DeploymentTrackingService } from './services/deployment-tracking-service';
 // CONSOLIDATED: Removed competing agentIntegrationSystem import - all routing through unified system

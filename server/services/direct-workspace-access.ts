@@ -6,7 +6,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { IntelligentIntegrationModule } from '../agents/intelligent-integration-module';
+// ELIMINATED: IntelligentIntegrationModule - part of competing systems elimination
 import { AutonomousNavigationSystem } from './autonomous-navigation-system';
 import { fileURLToPath } from 'url';
 

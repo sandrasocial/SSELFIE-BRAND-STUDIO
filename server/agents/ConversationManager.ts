@@ -1,9 +1,10 @@
 import { storage } from '../storage';
-import { AdvancedMemorySystem } from '../services/advanced-memory-system';
+// ELIMINATED: AdvancedMemorySystem - replaced with simple-memory-service
+import { simpleMemoryService } from '../services/simple-memory-service';
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 
-// ENHANCED MEMORY SYSTEM INTEGRATION (using working claude-api-service-simple)
-const memorySystem = AdvancedMemorySystem.getInstance();
+// SIMPLIFIED MEMORY SYSTEM INTEGRATION
+const memoryService = simpleMemoryService;
 
 export interface ConversationSummary {
   agentId: string;
