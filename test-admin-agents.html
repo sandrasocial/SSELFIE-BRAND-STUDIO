@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSELFIE Admin Agents - EMERGENCY ACCESS</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #000; color: #fff; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .agent-box { background: #222; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        textarea { width: 100%; height: 100px; background: #333; color: #fff; border: 1px solid #555; padding: 10px; }
+        .response { background: #111; padding: 15px; border-left: 4px solid #007bff; margin: 10px 0; white-space: pre-wrap; }
+        .error { border-left-color: #dc3545; }
+        .success { border-left-color: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 SSELFIE ADMIN AGENTS - EMERGENCY ACCESS</h1>
+        <p><strong>Status:</strong> API routing FIXED - Admin agents now accessible!</p>
+        
+        <div class="agent-box">
+            <h3>🔧 ZARA - Development Agent</h3>
+            <textarea id="zaraMessage" placeholder="Message for Zara (Development Expert)">URGENT: Admin agents testing - system cleanup completed. Logging spam stopped, database conflicts resolved. Please confirm you can access your tools and provide system status.</textarea>
+            <button onclick="sendToAgent('zara')">Send to Zara</button>
+        </div>
+
+        <div class="agent-box">
+            <h3>🏗️ OLGA - Infrastructure Agent</h3>
+            <textarea id="olgaMessage" placeholder="Message for OLGA (Infrastructure Expert)">Infrastructure status check: Database cleaned, memory system unified, server stability restored. Please verify all systems operational.</textarea>
+            <button onclick="sendToAgent('olga')">Send to OLGA</button>
+        </div>
+
+        <div class="agent-box">
+            <h3>🎨 MAYA - Design Agent</h3>
+            <textarea id="mayaMessage" placeholder="Message for Maya (AI Photographer)">Maya, Shannon's training workflow is documented with precise FLUX parameters. Please review the TRAIN → STYLE → SHOOT workflow architecture.</textarea>
+            <button onclick="sendToAgent('maya')">Send to Maya</button>
+        </div>
+
+        <div class="agent-box">
+            <h3>📊 VICTORIA - Strategy Agent</h3>
+            <textarea id="victoriaMessage" placeholder="Message for Victoria (AI Strategist)">Victoria, the platform is stable and ready for production. Please analyze the member workspace architecture and business readiness.</textarea>
+            <button onclick="sendToAgent('victoria')">Send to Victoria</button>
+        </div>
+
+        <div id="responses"></div>
+    </div>
+
+    <script>
+        async function sendToAgent(agentId) {
+            const messageElement = document.getElementById(agentId + 'Message');
+            const message = messageElement.value.trim();
+            
+            if (!message) {
+                addResponse('Please enter a message', 'error');
+                return;
+            }
+
+            addResponse(`Sending to ${agentId.toUpperCase()}...`, 'info');
+
+            try {
+                const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        agentId: agentId,
+                        message: message,
+                        conversationId: `emergency-${agentId}-${Date.now()}`
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    addResponse(`❌ Error from ${agentId}: ${response.status} - ${errorText}`, 'error');
+                    return;
+                }
+
+                // Handle streaming response
+                const reader = response.body.getReader();
+                let responseText = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = new TextDecoder().decode(value);
+                    responseText += chunk;
+                }
+
+                addResponse(`✅ ${agentId.toUpperCase()} Response:\n${responseText}`, 'success');
+                
+            } catch (error) {
+                addResponse(`❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        function addResponse(text, type) {
+            const responsesDiv = document.getElementById('responses');
+            const responseDiv = document.createElement('div');
+            responseDiv.className = `response ${type}`;
+            responseDiv.textContent = text;
+            responsesDiv.appendChild(responseDiv);
+            responsesDiv.scrollTop = responsesDiv.scrollHeight;
+        }
+
+        // Test authentication status
+        fetch('/api/auth/user', { credentials: 'include' })
+            .then(response => response.json())
+            .then(user => {
+                if (user && user.email) {
+                    addResponse(`✅ Authenticated as: ${user.email}`, 'success');
+                    if (user.email === 'ssa@ssasocial.com') {
+                        addResponse('✅ ADMIN ACCESS CONFIRMED - All agents available', 'success');
+                    } else {
+                        addResponse('⚠️ Admin access restricted to Sandra only', 'error');
+                    }
+                } else {
+                    addResponse('❌ Not authenticated - Please log in first', 'error');
+                }
+            })
+            .catch(error => {
+                addResponse('❌ Authentication check failed', 'error');
+            });
+    </script>
+</body>
+</html>

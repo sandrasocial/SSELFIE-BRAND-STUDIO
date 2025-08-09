@@ -41,6 +41,13 @@ import { registerRoutes } from './routes';
 // This ensures API routes are processed before Vite wildcard catches them
 const httpServer = await registerRoutes(app);
 
+// EMERGENCY FIX: Add explicit API route protection before Vite middleware
+app.use('/api/*', (req, res, next) => {
+  // If we get here, the API route wasn't handled by registerRoutes
+  // This means the route doesn't exist
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
 // Sentry error handler must be before any other error middleware
 // app.use(Sentry.Handlers.errorHandler()); // Temporarily disabled
 
