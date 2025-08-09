@@ -183,9 +183,19 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       // Continue without memory enhancement if there's an error
     }
     
-    // VERIFICATION-FIRST ENFORCEMENT: Inject mandatory verification protocols
-    const { VerificationEnforcement } = await import('../services/verification-enforcement.js');
-    const baseSystemPrompt = VerificationEnforcement.enforceVerificationFirst(agentConfig.systemPrompt, message);
+    // MEMORY-FIRST FOR ADMIN CONVERSATIONS: Skip verification enforcement for conversational continuity
+    // Verification enforcement overrides memory context and prevents conversation flow
+    let baseSystemPrompt = agentConfig.systemPrompt;
+    
+    // Only apply verification enforcement for major implementation tasks, not conversations
+    const isMajorImplementationTask = message.toLowerCase().includes('implement') || 
+                                     message.toLowerCase().includes('deploy') ||
+                                     message.toLowerCase().includes('build entire');
+    
+    if (isMajorImplementationTask) {
+      const { VerificationEnforcement } = await import('../services/verification-enforcement.js');
+      baseSystemPrompt = VerificationEnforcement.enforceVerificationFirst(agentConfig.systemPrompt, message);
+    }
     
     // GENERATE CLEAN PROMPT without competing system pollution
     const systemPrompt = contextRequirement.isWorkTask && contextSummary ? 
