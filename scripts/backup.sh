@@ -2,20 +2,20 @@
 
 # Database backup script
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-BACKUP_DIR="/backups"
-DB_NAME="your_database_name"
+BACKUP_DIR="./backups"
+BACKUP_FILE="$BACKUP_DIR/backup_$TIMESTAMP.sql"
 
 # Create backup directory if it doesn't exist
 mkdir -p $BACKUP_DIR
 
-# Create the backup
-pg_dump $DB_NAME > "$BACKUP_DIR/backup_$TIMESTAMP.sql"
+# Perform database backup
+pg_dump $DATABASE_URL > $BACKUP_FILE
 
-# Compress the backup
-gzip "$BACKUP_DIR/backup_$TIMESTAMP.sql"
+# Compress backup
+gzip $BACKUP_FILE
 
 # Keep only last 7 days of backups
-find $BACKUP_DIR -name "backup_*.sql.gz" -mtime +7 -delete
+find $BACKUP_DIR -type f -mtime +7 -name '*.sql.gz' -delete
 
-# Log the backup
-echo "Backup completed: backup_$TIMESTAMP.sql.gz" >> "$BACKUP_DIR/backup.log"
+# Log backup completion
+echo "Backup completed: $BACKUP_FILE.gz"

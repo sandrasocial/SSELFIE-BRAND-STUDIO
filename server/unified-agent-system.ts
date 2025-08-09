@@ -18,6 +18,7 @@ import { claudeApiServiceSimple } from './services/claude-api-service-simple';
 import { unifiedSessionManager } from './services/unified-session-manager';
 // ELIMINATED: ContextPreservationSystem - replaced with simple-memory-service
 import { agentSearchCache } from './services/agent-search-cache';
+import { agentPerformanceMonitor } from './services/agent-performance-monitor';
 // ELIMINATED: crossAgentIntelligence - part of competing systems elimination
 // REMOVED: Old TaskOrchestrationSystem - replaced with advanced workflow orchestration
 import { DeploymentTrackingService } from './services/deployment-tracking-service';

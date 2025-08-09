@@ -4,6 +4,7 @@ import { simpleMemoryService } from '../services/simple-memory-service';
 import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { UnifiedStateManager } from '../services/unified-state-manager';
 import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
+import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 
 const adminCacheRouter = Router();
 
@@ -47,6 +48,38 @@ adminCacheRouter.post('/clear-agent-cache', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to clear cache',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET AGENT PERFORMANCE METRICS
+ * Returns performance metrics for all agents
+ */
+adminCacheRouter.get('/agent-performance', async (req, res) => {
+  try {
+    const systemOverview = agentPerformanceMonitor.getSystemOverview();
+    const performanceIssues = agentPerformanceMonitor.checkPerformanceIssues();
+    
+    // Get individual agent reports
+    const agentReports: Record<string, any> = {};
+    ['victoria', 'maya', 'rachel', 'sophia', 'ava', 'quinn', 'martha', 'diana', 'wilma'].forEach(agentId => {
+      agentReports[agentId] = agentPerformanceMonitor.getAgentPerformanceReport(agentId);
+    });
+
+    res.json({
+      success: true,
+      systemOverview,
+      performanceIssues,
+      agentReports
+    });
+
+  } catch (error) {
+    console.error('❌ ADMIN PERFORMANCE CHECK: Failed:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get performance metrics',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }

@@ -19,6 +19,16 @@ interface AgentHandoff {
   completedTasks: string[];
   nextActions: string[];
   timestamp: Date;
+  performanceMetrics?: {
+    responseTime: number;
+    memoryUsage: number;
+    successRate: number;
+  };
+  errorState?: {
+    hasError: boolean;
+    errorMessage?: string;
+    recoveryAttempts: number;
+  };
 }
 
 export class AgentCoordinationSystem {

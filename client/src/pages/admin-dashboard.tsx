@@ -1,4 +1,5 @@
 import React from 'react';
+import { MonitoringDashboard } from '../components/admin/MonitoringDashboard';
 import { useAuth } from '@/hooks/use-auth';
 import { UnifiedAgentInterface } from '@/components/admin/UnifiedAgentInterface';
 
@@ -26,7 +27,10 @@ export default function AdminDashboardPage() {
           <h1 className="text-3xl font-serif font-bold text-black mb-2">Admin Dashboard</h1>
           <p className="text-gray-600">Unified agent coordination system</p>
         </div>
-        <UnifiedAgentInterface />
+        <MonitoringDashboard />
+        <div className="mt-8">
+          <UnifiedAgentInterface />
+        </div>
       </div>
     </div>
   );
