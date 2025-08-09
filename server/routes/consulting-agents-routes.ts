@@ -26,7 +26,7 @@ interface ConsultingChatBody {
 
 // UNIFIED SERVICE: Use singleton from claude-api-service-simple.ts (eliminates service multiplication)
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
-import { DirectWorkspaceAccess } from '../services/direct-workspace-access';
+// REMOVED: DirectWorkspaceAccess - unified native tool architecture
 // ELIMINATED: autonomousNavigation - part of competing memory systems
 import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
 // SIMPLIFIED MEMORY SYSTEM: Replaced 4 competing systems with one clean interface
@@ -39,8 +39,7 @@ function getClaudeService() {
   return claudeApiServiceSimple;
 }
 
-// INITIALIZE DIRECT ACCESS SYSTEM: Core bypass mechanism for agent file operations
-const directAccess = new DirectWorkspaceAccess();
+// REMOVED: DirectWorkspaceAccess - agents now use native bash + str_replace tools
 
 const consultingAgentsRouter = Router();
 

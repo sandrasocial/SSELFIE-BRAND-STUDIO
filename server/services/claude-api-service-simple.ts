@@ -276,8 +276,8 @@ export class ClaudeApiServiceSimple {
             fullResponse += contentBlock.text;
             
             // Check for XML patterns in text (this should NOT happen)
-            if (contentBlock.text.includes('<search_filesystem>') || 
-                contentBlock.text.includes('<str_replace_based_edit_tool>')) {
+            if (contentBlock.text.includes('<str_replace_based_edit_tool>') ||
+                contentBlock.text.includes('<bash>')) {
               console.log(`⚠️ ${agentName}: DETECTED XML IN TEXT - Function calling not working properly!`);
             }
             
@@ -447,8 +447,8 @@ export class ClaudeApiServiceSimple {
       return toolResult;
     }
     
-    // For search_filesystem results, preserve high-priority matches
-    if (toolName === 'search_filesystem' && toolResult.includes('priority')) {
+    // REMOVED: search_filesystem - agents now use bash + str_replace combinations
+    if (false) {
       try {
         const lines = toolResult.split('\n');
         const priorityResults: string[] = [];
@@ -511,10 +511,7 @@ export class ClaudeApiServiceSimple {
       }
     }
     
-    // For direct_file_access, preserve results completely - agents need full file listings
-    if (toolName === 'direct_file_access') {
-      return toolResult; // NEVER truncate file access results - agents need complete information
-    }
+    // REMOVED: direct_file_access - agents now use str_replace_based_edit_tool view
     
     // For other tools, use smart truncation
     if (toolName === 'str_replace_based_edit_tool') {
@@ -575,22 +572,7 @@ export class ClaudeApiServiceSimple {
         }
       }
       
-      if (toolCall.name === 'search_filesystem') {
-        console.log(`🚀 DIRECT SEARCH: Agent ${agentName} using filesystem search capabilities`);
-        
-        const { search_filesystem } = await import('../tools/tool-exports');
-        
-        // ENHANCED INPUT: Ensure agent context is passed through
-        const enhancedInput = {
-          ...toolCall.input,
-          agentName: agentName || 'unknown',
-          conversationId: 'temp_conversation_id' // Fallback if not available
-        };
-        
-        const result = await search_filesystem(enhancedInput);
-        return JSON.stringify(result, null, 2);
-        
-      } else if (toolCall.name === 'str_replace_based_edit_tool') {
+      if (toolCall.name === 'str_replace_based_edit_tool') {
         const { str_replace_based_edit_tool } = await import('../tools/tool-exports');
         const result = await str_replace_based_edit_tool(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
@@ -599,11 +581,6 @@ export class ClaudeApiServiceSimple {
         const { bash } = await import('../tools/tool-exports');
         const result = await bash(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
-        
-      } else if (toolCall.name === 'direct_file_access') {
-        const { direct_file_access } = await import('../tools/tool-exports');
-        const result = await direct_file_access(toolCall.input);
-        return JSON.stringify(result, null, 2);
         
       } else {
         return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;
@@ -827,7 +804,7 @@ export class ClaudeApiServiceSimple {
     }
 
     // 3. TOOL USAGE PATTERNS
-    if (assistantMessage.includes('search_filesystem') || assistantMessage.includes('str_replace_based_edit_tool')) {
+    if (assistantMessage.includes('str_replace_based_edit_tool') || assistantMessage.includes('bash')) {
       patterns.push({
         type: 'tool_usage',
         category: 'technical',
@@ -874,7 +851,7 @@ export class ClaudeApiServiceSimple {
           messageLength: userMessage.length,
           responseLength: assistantMessage.length,
           hasCodeExamples: assistantMessage.includes('```') || assistantMessage.includes('tsx') || assistantMessage.includes('typescript'),
-          hasToolUsage: assistantMessage.includes('🔧') || assistantMessage.includes('search_filesystem'),
+          hasToolUsage: assistantMessage.includes('🔧') || assistantMessage.includes('str_replace_based_edit_tool'),
           timestamp: new Date().toISOString()
         }
       });
@@ -914,7 +891,6 @@ export class ClaudeApiServiceSimple {
 
   private extractToolsUsed(response: string): string[] {
     const tools = [];
-    if (response.includes('search_filesystem')) tools.push('search_filesystem');
     if (response.includes('str_replace_based_edit_tool')) tools.push('str_replace_based_edit_tool');
     if (response.includes('bash')) tools.push('bash');
     if (response.includes('execute_sql_tool')) tools.push('execute_sql_tool');
