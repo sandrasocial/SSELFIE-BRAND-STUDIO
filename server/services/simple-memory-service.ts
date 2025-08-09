@@ -182,13 +182,28 @@ export class SimpleMemoryService {
       const { db } = await import('../db');
       const { claudeConversations, claudeMessages } = await import('@shared/schema');
       
-      // Store in existing conversation tables with admin markers
-      const conversationId = `admin_${agentName}_${userId}_${Date.now()}`;
+      // Create consistent conversation ID for this admin session
+      const conversationId = `admin_${agentName}_${userId}`;
       
-      // Generate proper UUID for admin messages
-      const { nanoid } = await import('nanoid');
-      const messageId = `admin_${nanoid()}_${Date.now()}`;
+      // First ensure conversation record exists
+      try {
+        await db.insert(claudeConversations).values({
+          conversationId: conversationId,
+          userId: userId,
+          agentName: agentName,
+          title: `Admin Session - ${agentName}`,
+          status: 'active',
+          context: {
+            sessionType: 'admin_memory',
+            isAdminBypass: true,
+            agentName: agentName
+          }
+        }).onConflictDoNothing();
+      } catch (convError) {
+        // Conversation might already exist, continue
+      }
       
+      // Now insert the message
       await db.insert(claudeMessages).values({
         conversationId: conversationId,
         role: 'user',
@@ -218,17 +233,20 @@ export class SimpleMemoryService {
       const { claudeMessages } = await import('@shared/schema');
       const { eq, and, desc } = await import('drizzle-orm');
       
-      // Fix metadata query - use proper JSON path querying
-      const { sql } = await import('drizzle-orm');
+      // Use consistent conversation ID for this admin session
+      const conversationId = `admin_${agentName}_${userId}`;
+      
       const messages = await db
         .select()
         .from(claudeMessages)
         .where(and(
-          sql`${claudeMessages.metadata}->>'agentName' = ${agentName}`,
+          eq(claudeMessages.conversationId, conversationId),
           eq(claudeMessages.role, 'user')
         ))
         .orderBy(desc(claudeMessages.createdAt))
         .limit(10);
+        
+      console.log(`🧠 MEMORY: Loaded ${messages.length} persisted memories for ${agentName}`);
         
       return messages.map(msg => ({
         data: {
