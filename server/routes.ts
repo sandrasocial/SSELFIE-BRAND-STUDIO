@@ -1,7 +1,8 @@
-// REMOVED: Heavy enhancement services that were causing crashes
+import { setupEnhancementRoutes } from './services/backend-enhancement-services';
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
+import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 // REAL AUTH: Import consulting agents to use proper authentication
@@ -10,12 +11,21 @@ import { db } from "./db";
 import { claudeConversations, claudeMessages } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation';
+import victoriaWebsiteRouter from "./routes/victoria-website";
+import { registerVictoriaService } from "./routes/victoria-service";
+import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
 import subscriberImportRouter from './routes/subscriber-import';
+// REMOVED: Conflicting admin routers - consolidated into single adminRouter
 import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
+import { ModelRetrainService } from './retrain-model';
 
-// REMOVED: Heavy admin systems that were causing restart loops
+// UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
+import adminRouter from './routes/admin';
+import adminCacheRouter from './routes/admin-cache-management';
+// REMOVED: All competing streaming and orchestration systems that were intercepting tools
+// REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML(websiteData: any, onboardingData: any) {
@@ -195,7 +205,8 @@ function generateWebsiteHTML(websiteData: any, onboardingData: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // REMOVED: Heavy enhancement routes that were causing crashes
+  // Agent-generated enhancement routes
+  setupEnhancementRoutes(app);
 
   console.log('🚀 Starting route registration...');
   
@@ -227,7 +238,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(filePath);
   });
   
-  // REMOVED: Heavy service layers that were causing memory issues
+  // Setup rollback routes
+  setupRollbackRoutes(app);
+  
+  // Register Victoria AI service layer
+  registerVictoriaService(app);
+  
+  // Register Victoria website generator
+  registerVictoriaWebsiteGenerator(app);
   
   // CRITICAL: System health check for user models
   app.get('/api/admin/validate-all-models', isAuthenticated, async (req: any, res) => {
