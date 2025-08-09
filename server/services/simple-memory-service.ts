@@ -38,7 +38,7 @@ export class SimpleMemoryService {
   }
 
   /**
-   * ESSENTIAL: Prepare agent context for conversation
+   * EMERGENCY FIX: Enhanced agent context preparation with persistence loading
    * Replaces all the complex memory loading from 4 systems
    */
   async prepareAgentContext(options: AgentMemoryOptions): Promise<AgentContext> {
@@ -48,44 +48,68 @@ export class SimpleMemoryService {
     // Check cache first (simple, single cache)
     const cached = this.contextCache.get(cacheKey);
     if (cached && this.isCacheValid(cached)) {
-      console.log(`🧠 MEMORY: Using cached context for ${agentName}`);
+      // Update task and timestamp for current interaction
+      cached.currentTask = task;
+      cached.timestamp = new Date();
+      console.log(`🧠 MEMORY: Using cached context for ${agentName} (${cached.memories.length} memories)`);
       return cached;
     }
 
-    // Build essential context (no competing systems)
+    // EMERGENCY FIX: Load persisted memories for better continuity
+    const persistedMemories = await this.loadPersistedMemories(agentName, userId);
+
+    // Build enhanced context with persisted memories
     const context: AgentContext = {
       agentName,
       userId,
       currentTask: task,
       adminPrivileges: isAdminBypass,
-      memories: [], // Simple array, no complex patterns
+      memories: persistedMemories, // Load from persistence
       timestamp: new Date()
     };
 
     // Cache for reuse (single cache, no conflicts)
     this.contextCache.set(cacheKey, context);
-    console.log(`🧠 MEMORY: Prepared context for ${agentName}${isAdminBypass ? ' [ADMIN]' : ''}`);
+    console.log(`🧠 MEMORY: Enhanced context prepared for ${agentName}${isAdminBypass ? ' [ADMIN]' : ''} with ${persistedMemories.length} persisted memories`);
 
     return context;
   }
 
   /**
-   * ESSENTIAL: Save agent memory (simplified)
-   * Replaces complex memory persistence from competing systems
+   * EMERGENCY FIX: Enhanced memory saving with persistence
+   * Saves both to cache and attempts database persistence
    */
   async saveAgentMemory(context: AgentContext, data: any): Promise<void> {
     const cacheKey = `${context.agentName}-${context.userId}`;
     
-    // Update context with new data
-    context.memories.push({
+    // Update context with enhanced data
+    const memoryEntry = {
       data,
       timestamp: new Date(),
-      task: context.currentTask
-    });
+      task: context.currentTask,
+      conversationId: data.conversationId || 'admin-session',
+      messageText: data.userMessage || data.currentTask || '',
+      sessionType: data.sessionType || 'admin'
+    };
+    
+    context.memories.push(memoryEntry);
+    
+    // Keep only last 20 memories to prevent memory bloat
+    if (context.memories.length > 20) {
+      context.memories = context.memories.slice(-20);
+    }
 
     // Update cache (single source of truth)
     this.contextCache.set(cacheKey, context);
-    console.log(`🧠 MEMORY: Saved memory for ${context.agentName}`);
+    
+    // ENHANCED: Try to persist to database for better persistence
+    try {
+      await this.persistMemoryToDatabase(context.agentName, context.userId, memoryEntry);
+    } catch (error) {
+      console.warn(`🧠 MEMORY: Database persistence failed for ${context.agentName}, using cache only`);
+    }
+    
+    console.log(`🧠 MEMORY: Enhanced memory saved for ${context.agentName} (${context.memories.length} total memories)`);
   }
 
   /**
@@ -104,7 +128,7 @@ export class SimpleMemoryService {
   private isCacheValid(context: AgentContext): boolean {
     const now = new Date();
     const age = now.getTime() - context.timestamp.getTime();
-    const maxAge = 2 * 60 * 60 * 1000; // WORKFLOW FIX: Extended to 2 hours for long workflows
+    const maxAge = 12 * 60 * 60 * 1000; // EMERGENCY FIX: Extended to 12 hours for long admin sessions
     return age < maxAge;
   }
 
@@ -133,18 +157,110 @@ export class SimpleMemoryService {
     };
   }
 
-  // Replaces ConversationContextDetector.analyzeMessage (simplified)
+  // EMERGENCY FIX: Liberal message analysis - treat ALL non-greetings as work tasks
   analyzeMessage(message: string) {
-    const isGreeting = /^(hey|hi|hello)/i.test(message.trim());
-    const isContinuation = /^(yes|ok|perfect|continue|proceed|great|excellent)/i.test(message.trim());
-    // FIXED: More liberal work task detection - agents need context for most interactions
-    const isWorkTask = !isGreeting && (message.length > 20 || /create|build|fix|update|analyze|show|check|find|test|help|can you|please|look/.test(message.toLowerCase()));
-
+    const isGreeting = /^(hey|hi|hello)$/i.test(message.trim());
+    const isContinuation = /^(yes|ok|perfect|continue|proceed|great|excellent)$/i.test(message.trim());
+    
+    // EMERGENCY FIX: Treat ALL admin messages as work tasks to ensure memory saving
+    const isWorkTask = !isGreeting || message.length > 5; // Almost everything is a work task
+    
     return {
       isContinuation,
-      isWorkTask: isWorkTask || isContinuation, // CRITICAL: Continuations also need context
-      contextLevel: (isWorkTask || isContinuation) ? 'full' : isGreeting ? 'minimal' : 'none'
+      isWorkTask: true, // FORCE all admin interactions to be saved
+      contextLevel: 'full' // Always use full context for admin agents
     };
+  }
+
+  /**
+   * EMERGENCY FIX: Enhanced persistence layer
+   * Attempts to persist admin agent memories to database
+   */
+  private async persistMemoryToDatabase(agentName: string, userId: string, memoryEntry: any): Promise<void> {
+    try {
+      // Import database dynamically to avoid circular dependencies
+      const { db } = await import('../db');
+      const { claudeConversations, claudeMessages } = await import('@shared/schema');
+      
+      // Create consistent conversation ID for this admin session
+      const conversationId = `admin_${agentName}_${userId}`;
+      
+      // First ensure conversation record exists
+      try {
+        await db.insert(claudeConversations).values({
+          conversationId: conversationId,
+          userId: userId,
+          agentName: agentName,
+          title: `Admin Session - ${agentName}`,
+          status: 'active',
+          context: {
+            sessionType: 'admin_memory',
+            isAdminBypass: true,
+            agentName: agentName
+          }
+        }).onConflictDoNothing();
+      } catch (convError) {
+        // Conversation might already exist, continue
+      }
+      
+      // Now insert the message
+      await db.insert(claudeMessages).values({
+        conversationId: conversationId,
+        role: 'user',
+        content: memoryEntry.messageText || memoryEntry.data?.currentTask || 'Admin interaction',
+        metadata: {
+          agentName,
+          sessionType: 'admin_memory',
+          isAdminBypass: true,
+          memoryData: memoryEntry.data
+        }
+      });
+      
+      console.log(`💾 PERSISTENCE: Admin memory saved to database for ${agentName}`);
+    } catch (error) {
+      // Fail silently - cache will still work
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn(`💾 PERSISTENCE: Database save failed for ${agentName}:`, errorMessage);
+    }
+  }
+
+  /**
+   * EMERGENCY FIX: Load persisted memories on startup
+   */
+  async loadPersistedMemories(agentName: string, userId: string): Promise<any[]> {
+    try {
+      const { db } = await import('../db');
+      const { claudeMessages } = await import('@shared/schema');
+      const { eq, and, desc } = await import('drizzle-orm');
+      
+      // Use consistent conversation ID for this admin session
+      const conversationId = `admin_${agentName}_${userId}`;
+      
+      const messages = await db
+        .select()
+        .from(claudeMessages)
+        .where(and(
+          eq(claudeMessages.conversationId, conversationId),
+          eq(claudeMessages.role, 'user')
+        ))
+        .orderBy(desc(claudeMessages.createdAt))
+        .limit(10);
+        
+      console.log(`🧠 MEMORY: Loaded ${messages.length} persisted memories for ${agentName}`);
+        
+      return messages.map(msg => ({
+        data: {
+          currentTask: msg.content,
+          userMessage: msg.content,
+          timestamp: msg.createdAt
+        },
+        timestamp: msg.createdAt,
+        task: msg.content
+      }));
+    } catch (error) {
+      console.warn(`💾 PERSISTENCE: Could not load persisted memories for ${agentName}`);
+      return [];
+    }
   }
 }
 

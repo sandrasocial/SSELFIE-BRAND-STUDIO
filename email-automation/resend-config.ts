@@ -7,8 +7,68 @@ import { Resend } from 'resend';
 // Initialize Resend with API key from environment
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+interface BrandColors {
+  primary: string;
+  secondary: string;
+  accent: string;
+  text: string;
+  background: string;
+}
+
+interface BaseTemplate {
+  font: string;
+  maxWidth: string;
+  padding: string;
+  backgroundColor: string;
+}
+
+interface EmailConfig {
+  from: string;
+  replyTo: string;
+  brandColors: BrandColors;
+  baseTemplate: BaseTemplate;
+}
+
+interface SubscriptionTier {
+  price: number;
+  currency: string;
+  generationLimit: number;
+  features: string[];
+}
+
+interface SubscriptionTiers {
+  BASIC: SubscriptionTier;
+  FULL_ACCESS: SubscriptionTier;
+}
+
+interface WelcomeSequence {
+  email1: number;
+  email2: number;
+  email3: number;
+  email4: number;
+  email5: number;
+}
+
+interface LimitAlerts {
+  warning75: number;
+  warning90: number;
+  reached100: number;
+}
+
+interface Reengagement {
+  inactive7: number;
+  inactive14: number;
+  inactive30: number;
+}
+
+interface SequenceTiming {
+  WELCOME_SEQUENCE: WelcomeSequence;
+  LIMIT_ALERTS: LimitAlerts;
+  REENGAGEMENT: Reengagement;
+}
+
 // 🎯 LUXURY BRAND CONFIGURATION
-export const SSELFIE_EMAIL_CONFIG = {
+export const SSELFIE_EMAIL_CONFIG: EmailConfig = {
   from: 'SSELFIE Studio <studio@sselfie.app>',
   replyTo: 'support@sselfie.app',
   
@@ -31,7 +91,7 @@ export const SSELFIE_EMAIL_CONFIG = {
 };
 
 // 🏆 SUBSCRIPTION TIER CONFIGURATION
-export const SUBSCRIPTION_TIERS = {
+export const SUBSCRIPTION_TIERS: SubscriptionTiers = {
   BASIC: {
     price: 29,
     currency: 'EUR',
@@ -47,7 +107,7 @@ export const SUBSCRIPTION_TIERS = {
 };
 
 // 🎪 EMAIL SEQUENCE TIMING CONFIGURATION
-export const SEQUENCE_TIMING = {
+export const SEQUENCE_TIMING: SequenceTiming = {
   WELCOME_SEQUENCE: {
     email1: 0,        // Immediate
     email2: 1440,     // 24 hours (Day 1)
