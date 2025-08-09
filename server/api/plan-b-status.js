@@ -2,47 +2,11 @@
  * Plan B Status API - Monitor backup execution system
  */
 
-import { Request, Response } from 'express';
-import { planBExecutor } from '../agent-tool-execution-fix';
+import { planBExecutor } from '../agent-tool-execution-fix.js';
 
-interface PlanBOperation {
-  agentId: string;
-  operation: string;
-  filePath: string;
-  status: string;
-  timestamp: Date;
-  result?: any;
-  error?: string;
-}
-
-interface PlanBStatus {
-  isProcessing: boolean;
-  queueLength: number;
-  recentOperations: PlanBOperation[];
-}
-
-interface PlanBResponse {
-  success: boolean;
-  planB?: {
-    active: boolean;
-    queueLength: number;
-    recentOperations: PlanBOperation[];
-  };
-  message?: string;
-  error?: string;
-  queueLength?: number;
-}
-
-interface ForcePlanBRequest {
-  agentId: string;
-  operation: string;
-  filePath: string;
-  content?: string;
-}
-
-export async function getPlanBStatus(req: Request, res: Response<PlanBResponse>): Promise<void> {
+export async function getPlanBStatus(req, res) {
   try {
-    const status: PlanBStatus = planBExecutor.getStatus();
+    const status = planBExecutor.getStatus();
     
     res.json({
       success: true,
@@ -66,7 +30,7 @@ export async function getPlanBStatus(req: Request, res: Response<PlanBResponse>)
           : 'Plan B system ready'
     });
     
-  } catch (error: any) {
+  } catch (error) {
     console.error('Plan B status error:', error);
     res.status(500).json({
       success: false,
@@ -75,16 +39,15 @@ export async function getPlanBStatus(req: Request, res: Response<PlanBResponse>)
   }
 }
 
-export async function forcePlanBExecution(req: Request<{}, {}, ForcePlanBRequest>, res: Response<PlanBResponse>): Promise<void> {
+export async function forcePlanBExecution(req, res) {
   try {
     const { agentId, operation, filePath, content } = req.body;
     
     if (!agentId || !operation || !filePath) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         error: 'Missing required parameters: agentId, operation, filePath'
       });
-      return;
     }
     
     await planBExecutor.queueOperation(agentId, operation, filePath, content);
@@ -95,7 +58,7 @@ export async function forcePlanBExecution(req: Request<{}, {}, ForcePlanBRequest
       queueLength: planBExecutor.getStatus().queueLength
     });
     
-  } catch (error: any) {
+  } catch (error) {
     console.error('Force Plan B execution error:', error);
     res.status(500).json({
       success: false,

@@ -95,30 +95,17 @@ export class ConversationContextDetector {
     let needsMemoryPatterns = true;
     let needsWorkspaceContext = true;
 
-    // CRITICAL FIX: More nuanced context preservation
     if (isGreeting && !isContinuation && !isWorkTask) {
       contextLevel = 'minimal';
       needsFullContext = false;
-      needsMemoryPatterns = true; // Keep memory patterns for better continuity
+      needsMemoryPatterns = false;
       needsWorkspaceContext = false;
     } else if (isCasualConversation && !isContinuation) {
       contextLevel = 'moderate';
-      needsFullContext = true;  // Maintain full context even in casual conversation
-      needsWorkspaceContext = true; // Keep workspace context for better task awareness
+      needsFullContext = false;
+      needsWorkspaceContext = false;
     } else {
       contextLevel = 'full';
-    }
-    
-    // Force full context for certain scenarios
-    if (message.includes('previous') || 
-        message.includes('before') || 
-        message.includes('earlier') ||
-        message.includes('last time') ||
-        message.includes('remember')) {
-      contextLevel = 'full';
-      needsFullContext = true;
-      needsMemoryPatterns = true;
-      needsWorkspaceContext = true;
     }
 
     return {
