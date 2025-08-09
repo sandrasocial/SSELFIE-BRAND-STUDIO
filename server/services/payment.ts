@@ -48,14 +48,12 @@ export class PaymentService {
 
   private async handleInvoicePaid(invoice: any) {
     // Implement invoice paid logic
-    // Temporarily disabled to fix console spam
-    // logger.info('Invoice paid', { invoiceId: invoice.id });
+    logger.info('Invoice paid', { invoiceId: invoice.id });
   }
 
   private async handleSubscriptionCanceled(subscription: any) {
     // Implement subscription cancellation logic
-    // Temporarily disabled to fix console spam
-    // logger.info('Subscription canceled', { subscriptionId: subscription.id });
+    logger.info('Subscription canceled', { subscriptionId: subscription.id });
   }
 
   async generateInvoice(customerId: string, amount: number) {
