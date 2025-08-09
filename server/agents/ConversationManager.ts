@@ -1,7 +1,7 @@
 import { storage } from '../storage';
+// ELIMINATED: AdvancedMemorySystem - replaced with simple-memory-service
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
-import { agentCoordinator } from '../../utils/agentCoordinator';
 
 // SIMPLIFIED MEMORY SYSTEM INTEGRATION
 const memoryService = simpleMemoryService;
