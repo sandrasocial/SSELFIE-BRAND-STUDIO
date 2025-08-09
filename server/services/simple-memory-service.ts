@@ -185,8 +185,12 @@ export class SimpleMemoryService {
       // Store in existing conversation tables with admin markers
       const conversationId = `admin_${agentName}_${userId}_${Date.now()}`;
       
+      // Generate proper UUID for admin messages
+      const { nanoid } = await import('nanoid');
+      const messageId = `admin_${nanoid()}_${Date.now()}`;
+      
       await db.insert(claudeMessages).values({
-        id: `admin_msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: messageId,
         conversationId: conversationId,
         role: 'user',
         content: memoryEntry.messageText || memoryEntry.data?.currentTask || 'Admin interaction',
@@ -215,11 +219,13 @@ export class SimpleMemoryService {
       const { claudeMessages } = await import('@shared/schema');
       const { eq, and, desc } = await import('drizzle-orm');
       
+      // Fix metadata query - use proper JSON path querying
+      const { sql } = await import('drizzle-orm');
       const messages = await db
         .select()
         .from(claudeMessages)
         .where(and(
-          eq(claudeMessages.metadata, { agentName }),
+          sql`${claudeMessages.metadata}->>'agentName' = ${agentName}`,
           eq(claudeMessages.role, 'user')
         ))
         .orderBy(desc(claudeMessages.createdAt))

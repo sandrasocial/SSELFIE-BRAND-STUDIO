@@ -1,32 +1,38 @@
-// Database configuration for SSELFIE Studio - Production Optimized
-const { Pool } = require('pg');
+import { Pool, PoolConfig } from 'pg';
 
-const pool = new Pool({
+interface DatabaseHealth {
+  status: 'healthy' | 'unhealthy';
+  response_time?: string;
+  server_time?: Date;
+  version?: string;
+  connections?: {
+    total: number;
+    idle: number;
+    waiting: number;
+  };
+  error?: string;
+  timestamp?: string;
+}
+
+const poolConfig: PoolConfig = {
   user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost', 
+  host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'sselfie_studio',
   password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432,
+  port: Number(process.env.DB_PORT) || 5432,
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   
   // PRODUCTION PERFORMANCE OPTIMIZATION
-  max: 20, // Maximum connections in pool
-  min: 5,  // Minimum connections to maintain
-  idle: 10000, // 10s idle timeout
-  acquire: 60000, // 60s acquire timeout
-  evict: 1000, // Evict idle connections every 1s
+  max: 20,
+  min: 5,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 60000,
   
   // CONNECTION OPTIMIZATION
-  connectionTimeoutMillis: 2000, // 2s connection timeout
-  idleTimeoutMillis: 30000, // 30s idle timeout
-  query_timeout: 10000, // 10s query timeout
-  
-  // STATEMENT OPTIMIZATION
-  statement_timeout: 30000, // 30s statement timeout
-  
-  // PERFORMANCE TUNING
   application_name: 'SSELFIE_STUDIO_PROD'
-});
+};
+
+const pool = new Pool(poolConfig);
 
 // ENHANCED CONNECTION MONITORING
 pool.on('connect', (client) => {
@@ -49,18 +55,18 @@ pool.on('error', (err, client) => {
   });
 });
 
-pool.on('acquire', (client) => {
+pool.on('acquire', () => {
   console.log(`🔄 DB ACQUIRE: Connection acquired - Active: ${pool.totalCount - pool.idleCount}`);
 });
 
-pool.on('release', (err, client) => {
+pool.on('release', (err) => {
   if (err) {
     console.error('❌ DB RELEASE ERROR:', err.message);
   }
 });
 
 // HEALTH CHECK FUNCTION
-const healthCheck = async () => {
+const healthCheck = async (): Promise<DatabaseHealth> => {
   try {
     const start = Date.now();
     const result = await pool.query('SELECT NOW() as server_time, version() as version');
@@ -80,7 +86,7 @@ const healthCheck = async () => {
   } catch (error) {
     return {
       status: 'unhealthy',
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     };
   }
@@ -94,4 +100,4 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-module.exports = { pool, healthCheck };
+export { pool, healthCheck, type DatabaseHealth };
