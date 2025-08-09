@@ -1,54 +1,49 @@
-import { DataSourceOptions } from "typeorm";
 import { Pool, PoolConfig } from 'pg';
 
-// Unified configuration that works for both TypeORM and node-postgres
-const baseConfig = {
+// Database configuration for Drizzle ORM with PostgreSQL
+interface DatabaseConfig {
+    host: string;
+    port: number;
+    user: string;
+    password: string | undefined;
+    database: string;
+    ssl?: any;
+}
+
+interface PgError extends Error {
+    code?: string;
+    severity?: string;
+    detail?: string;
+}
+
+const baseConfig: DatabaseConfig = {
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432"),
-    username: process.env.DB_USER,
+    user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    database: process.env.DB_NAME || "sselfie_studio",
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 };
 
-// TypeORM specific configuration
-export const typeormConfig: DataSourceOptions = {
-    type: "postgres",
-    ...baseConfig,
-    synchronize: false,
-    logging: process.env.NODE_ENV === "development",
-    entities: ["database/entities/**/*.ts"],
-    migrations: ["database/migrations/**/*.ts"],
-    subscribers: ["database/subscribers/**/*.ts"],
-    migrationsRun: true,
-    // Production optimizations
-    extra: {
-        max: 20,
-        min: 5,
-        idleTimeoutMillis: 10000,
-        connectionTimeoutMillis: 60000,
-    }
-};
-
-// Pool configuration for direct pg access when needed
+// Pool configuration optimized for production
 const poolConfig: PoolConfig = {
     ...baseConfig,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     max: 20,
     min: 5,
     idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 60000,
-    application_name: 'SSELFIE_STUDIO_PROD'
+    application_name: 'SSELFIE_STUDIO'
 };
 
-// Create pool instance
+// Create single pool instance
 const pool = new Pool(poolConfig);
 
-// Enhanced monitoring
+// Enhanced monitoring with proper error typing
 pool.on('connect', (client) => {
     console.log(`✅ DB CONNECTED: ${new Date().toISOString()} - Total: ${pool.totalCount}, Idle: ${pool.idleCount}, Waiting: ${pool.waitingCount}`);
 });
 
-pool.on('error', (err, client) => {
+pool.on('error', (err: PgError, client) => {
     console.error(`❌ DB ERROR: ${new Date().toISOString()}`, {
         message: err.message,
         code: err.code,
@@ -57,6 +52,28 @@ pool.on('error', (err, client) => {
     });
 });
 
+// Health check function
+export const healthCheck = async () => {
+    try {
+        const result = await pool.query('SELECT NOW() as server_time');
+        return {
+            status: 'healthy',
+            server_time: result.rows[0].server_time,
+            connections: {
+                total: pool.totalCount,
+                idle: pool.idleCount,
+                active: pool.totalCount - pool.idleCount,
+                waiting: pool.waitingCount
+            }
+        };
+    } catch (error) {
+        return {
+            status: 'unhealthy',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        };
+    }
+};
+
 // Graceful shutdown
 process.on('SIGINT', async () => {
     await pool.end();
@@ -64,4 +81,4 @@ process.on('SIGINT', async () => {
     process.exit(0);
 });
 
-export { pool, typeormConfig as default };
+export { pool, baseConfig };
