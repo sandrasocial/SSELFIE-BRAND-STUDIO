@@ -217,6 +217,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post('/api/consulting-agents/admin/consulting-chat', async (req: any, res: any) => {
     try {
+      // Parse body if needed
+      if (!req.body && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => {
+          body += chunk.toString();
+        });
+        req.on('end', () => {
+          try {
+            req.body = JSON.parse(body);
+          } catch (e) {
+            req.body = {};
+          }
+        });
+      }
+
       const adminToken = req.headers.authorization || 
                         (req.body && req.body.adminToken) || 
                         req.query.adminToken;
@@ -231,6 +246,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         };
         req.isAdminBypass = true;
+      }
+      
+      // Ensure body exists
+      if (!req.body) {
+        req.body = {};
       }
       
       // Import and handle via consulting agents router
