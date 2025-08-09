@@ -36,8 +36,9 @@ app.use((req, res, next) => {
 // Import and register all routes
 import { registerRoutes } from './routes';
 
-// Register all application routes
-registerRoutes(app);
+// CRITICAL FIX: Register all application routes BEFORE Vite
+// This ensures API routes are processed before Vite wildcard catches them
+const httpServer = await registerRoutes(app);
 
 // Sentry error handler must be before any other error middleware
 // app.use(Sentry.Handlers.errorHandler()); // Temporarily disabled
@@ -46,13 +47,14 @@ registerRoutes(app);
 app.use(errorHandler);
 
 // Setup server and Vite
-import { createServer } from 'http';
 import { setupVite } from './vite';
 
 const port = process.env.PORT || 5000;
-const server = createServer(app);
 
-// Setup Vite development server for frontend
+// Use the server returned from registerRoutes
+const server = httpServer;
+
+// Setup Vite development server for frontend AFTER all API routes are registered
 setupVite(app, server).then(() => {
   server.listen(port, () => {
     logger.info(`Server is running on port ${port}`);
