@@ -16,7 +16,11 @@ const s3 = new S3Client({
 export function registerCoverImageRoutes(app: Express) {
   // Save approved cover image to permanent storage
   app.post('/api/save-cover-image', async (req, res) => {
-    if (!req.isAuthenticated() || (req.user?.claims?.sub !== 'ssa@ssasocial.com' && req.user?.role !== 'admin')) {
+    // FIXED: Use consistent admin emails instead of hardcoded - REAL EMAIL ONLY
+    const ALLOWED_ADMIN_EMAILS = ['ssa@ssasocial.com'];
+    const isAdmin = req.user?.role === 'admin' || ALLOWED_ADMIN_EMAILS.includes(req.user?.claims?.email);
+    
+    if (!req.isAuthenticated() || !isAdmin) {
       return res.status(403).json({ error: 'Admin access required' });
     }
 
