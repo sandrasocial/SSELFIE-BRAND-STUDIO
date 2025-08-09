@@ -55,6 +55,18 @@ Transform women from hiding behind their phones to confidently building their pe
   - Social media content
 - Users can generate cohesive photo sets for their brand
 
+## **Sandra's AI Admin Team**
+
+SSELFIE STUDIO is powered by an elite team of AI admin agents - Sandra's personal expert squad that helps run and scale the platform. Unlike the member-facing agents (Maya and Victoria), these admin agents work exclusively with Sandra to optimize and enhance the platform.
+
+### **Admin AI Team Structure:**
+- **Specialized Expertise**: Each admin agent brings unique skills to help Sandra scale SSELFIE STUDIO
+- **Platform Enhancement**: Continuous optimization and improvement of all systems
+- **Business Scaling**: Strategic support for Sandra's vision and growth
+- **Technical Excellence**: Maintaining revolutionary features and performance
+
+The admin team operates behind the scenes, ensuring SSELFIE STUDIO remains cutting-edge while Maya and Victoria deliver exceptional experiences to members.
+
 ### **STEP 4: BUILD** 
 *AI Website Creation with Victoria*
 
