@@ -49,7 +49,7 @@ app.use(errorHandler);
 // Setup server and Vite
 import { setupVite } from './vite';
 
-const port = parseInt(process.env.PORT || '5000', 10);
+const port = process.env.PORT || 5000;
 
 // Use the server returned from registerRoutes
 const server = httpServer;

@@ -61,14 +61,11 @@ export class ProgressTrackingService {
     this.isTracking = true;
     // console.log('📊 PROGRESS TRACKING: Real-time monitoring started');
 
-    // DISABLED: Progress tracking interval was causing server instability
-    // Create snapshot every 5 minutes - DISABLED FOR STABILITY
-    // this.trackingInterval = setInterval(() => {
-    //   this.createProgressSnapshot();
-    //   this.cleanupOldData();
-    // }, 5 * 60 * 1000);
-    //   this.cleanupOldData();
-    // }, 5 * 60 * 1000);
+    // Create snapshot every 5 minutes
+    this.trackingInterval = setInterval(() => {
+      this.createProgressSnapshot();
+      this.cleanupOldData();
+    }, 5 * 60 * 1000);
 
     // Record initial snapshot
     this.createProgressSnapshot();

@@ -70,10 +70,9 @@ const metrics = {
   })
 };
 
-// DISABLED: Memory usage monitoring interval was causing server restarts
-// Update memory usage every 30 seconds - DISABLED FOR STABILITY
-// setInterval(() => {
-//   metrics.memoryUsage.set(process.memoryUsage().heapUsed);
-// }, 30000);
+// Update memory usage every 30 seconds
+setInterval(() => {
+  metrics.memoryUsage.set(process.memoryUsage().heapUsed);
+}, 30000);
 
 export { logger, metrics, Sentry };
