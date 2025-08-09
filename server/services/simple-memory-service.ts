@@ -146,6 +146,43 @@ export class SimpleMemoryService {
       contextLevel: (isWorkTask || isContinuation) ? 'full' : isGreeting ? 'minimal' : 'none'
     };
   }
+
+  /**
+   * CACHE CLEARING FOR FRESH START - REMOVES CONFUSION
+   */
+  clearCache(agentName?: string): void {
+    if (agentName) {
+      // Clear specific agent cache
+      for (const [key, value] of this.contextCache.entries()) {
+        if (value.agentName === agentName) {
+          this.contextCache.delete(key);
+        }
+      }
+      console.log(`🧠 MEMORY: Cleared cache for ${agentName}`);
+    } else {
+      // Clear all cache
+      this.contextCache.clear();
+      console.log('🧠 MEMORY: Cleared all cache');
+    }
+  }
+
+  /**
+   * CLEAR DEMONSTRATION CONTEXT THAT BLOCKS NEW WORK
+   */
+  clearDemonstrationContext(): void {
+    // Clear all cached contexts to remove demonstration blocking
+    this.contextCache.clear();
+    console.log('🧠 MEMORY: Cleared demonstration context for fresh work start');
+  }
+
+  /**
+   * FORCE FRESH CONTEXT FOR AGENT
+   */
+  forceFreshContext(agentName: string, userId: string): void {
+    const cacheKey = `${agentName}-${userId}`;
+    this.contextCache.delete(cacheKey);
+    console.log(`🧠 MEMORY: Forced fresh context for ${agentName}`);
+  }
 }
 
 // Export singleton instance
