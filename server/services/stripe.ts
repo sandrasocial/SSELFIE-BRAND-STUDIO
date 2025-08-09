@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { AppError } from '../middleware/errorHandler';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16'
+  apiVersion: '2025-07-30.basil'
 });
 
 export class StripeService {

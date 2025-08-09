@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
-import { client as PrometheusClient } from 'prom-client';
+import * as PrometheusClient from 'prom-client';
 
 // Initialize Sentry
 Sentry.init({
