@@ -190,8 +190,23 @@ export async function setupAuth(app: Express) {
     console.log(`✅ Registered auth strategy for: ${domain}`);
   }
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+  passport.serializeUser((user: Express.User, cb) => {
+    try {
+      cb(null, user);
+    } catch (error) {
+      console.error('Passport serialize error:', error);
+      cb(error);
+    }
+  });
+  
+  passport.deserializeUser((user: Express.User, cb) => {
+    try {
+      cb(null, user);
+    } catch (error) {
+      console.error('Passport deserialize error:', error);
+      cb(null, false); // Continue without user instead of throwing
+    }
+  });
 
   app.get("/api/login", (req, res, next) => {
     // Check if this is a forced account selection (for switching)
