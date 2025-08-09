@@ -14,33 +14,33 @@ export default function Landing() {
     <div className="bg-white text-[#0a0a0a]">
       <PreLoginNavigationUnified />
       
-      {/* Hero Section - Full Bleed */}
+      {/* Enhanced Hero Section with Editorial Animations */}
       <section className="relative min-h-screen flex items-end justify-center bg-[#0a0a0a] overflow-hidden">
         <div className="absolute inset-0">
           <img 
             src={SandraImages.hero.ai}
             alt="Sandra's AI transformation"
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover opacity-40 scale-105 hover:scale-100 transition-transform duration-[2s]"
           />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0a]/60 to-[#0a0a0a]"></div>
         </div>
         <div className="relative z-10 text-center text-white px-6 md:px-12 pb-20 md:pb-32">
-          <p className="text-[11px] tracking-[0.4em] uppercase mb-8 opacity-70 font-light">
+          <p className="eyebrow-text mb-8 opacity-0 animate-[fadeInUp_1s_ease-out_forwards]">
             Hey gorgeous, it's Sandra
           </p>
-          <div className="mb-12">
+          <div className="mb-12 overflow-hidden">
             <h1 
-              className="text-[5rem] md:text-[8rem] lg:text-[10rem] font-light mb-4 tracking-[0.5em] leading-[1]"
-              style={{ fontFamily: 'Times New Roman, serif' }}
+              className="hero-title opacity-0 animate-[fadeInUp_1.2s_ease-out_0.3s_forwards]"
             >
               SSELFIE
             </h1>
-            <p className="text-[12px] tracking-[0.5em] uppercase text-white/80 font-light">
+            <p className="text-[12px] tracking-[0.5em] uppercase text-white/80 font-light mt-4 opacity-0 animate-[fadeInUp_1s_ease-out_0.6s_forwards]">
               AI BRAND PHOTOSHOOT
             </p>
           </div>
           <button 
             onClick={handleGetStarted}
-            className="bg-transparent border border-white text-white px-8 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-white hover:text-[#0a0a0a] transition-all duration-300"
+            className="relative bg-transparent border border-white text-white px-12 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-white hover:text-[#0a0a0a] transition-all duration-500 opacity-0 animate-[fadeInUp_1s_ease-out_0.9s_forwards] before:content-[''] before:absolute before:inset-0 before:bg-white/20 before:transform before:scale-x-0 before:origin-left hover:before:scale-x-100 before:transition-transform before:duration-500"
           >
             Transform My Selfies - €67
           </button>
