@@ -90,9 +90,54 @@ export class ConversationContextDetector {
                        isContinuation; // Continuations are work tasks
     
     // DETERMINE CONTEXT REQUIREMENTS
-    let contextLevel: 'minimal' | 'moderate' | 'full' = 'full';
+    let contextLevel: 'minimal' | 'moderate' | 'full';
     let needsFullContext = true;
     let needsMemoryPatterns = true;
+    let needsWorkspaceContext = true;
+
+    if (isGreeting && !isContinuation && !isWorkTask) {
+      contextLevel = 'minimal';
+      needsFullContext = false;
+      needsMemoryPatterns = false;
+      needsWorkspaceContext = false;
+    } else if (isCasualConversation && !isContinuation) {
+      contextLevel = 'moderate';
+      needsFullContext = false;
+      needsWorkspaceContext = false;
+    } else {
+      contextLevel = 'full';
+    }
+
+    return {
+      isWorkTask,
+      isGreeting,
+      isCasualConversation,
+      isContinuation,
+      needsFullContext,
+      needsMemoryPatterns,
+      needsWorkspaceContext,
+      contextLevel
+    };
+  }
+
+  /**
+   * Check if message contains work-related keywords
+   */
+  private static containsWorkKeywords(message: string): boolean {
+    const workKeywords = [
+      'code', 'project', 'system', 'platform', 'application',
+      'server', 'client', 'api', 'database', 'feature',
+      'component', 'function', 'module', 'service', 'integration',
+      'deploy', 'production', 'development', 'staging', 'testing',
+      'performance', 'security', 'monitoring', 'backup', 'restore',
+      'configuration', 'settings', 'environment', 'infrastructure'
+    ];
+
+    return workKeywords.some(keyword => 
+      message.toLowerCase().includes(keyword.toLowerCase())
+    );
+  }
+}eedsMemoryPatterns = true;
     let needsWorkspaceContext = true;
     
     // PRIORITY: Continuation commands always get full context

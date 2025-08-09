@@ -1,38 +1,39 @@
+import csrf from 'csurf';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { Express } from 'express';
 
 export const configureSecurityMiddleware = (app: Express) => {
-  // Basic security headers
-  app.use(helmet());
+  // CSRF Protection
+  app.use(csrf({ cookie: true }));
   
-  // Rate limiting
+  // Security Headers with Helmet
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "https://api.stripe.com"],
+        frameSrc: ["'self'", "https://js.stripe.com"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  }));
+
+  // Rate Limiting
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100 // limit each IP to 100 requests per windowMs
   });
   app.use(limiter);
   
-  // CORS configuration
+  // Additional Security Headers
   app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:3000');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
     next();
   });
-  
-  // Content Security Policy
-  app.use(helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.stripe.com"],
-      frameSrc: ["'self'", "https://js.stripe.com"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
-    },
-  }));
-};
+}
