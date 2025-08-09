@@ -123,13 +123,30 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       // FIXED: Always prepare context (not just work tasks)
       agentContext = await simpleMemoryService.prepareAgentWorkspace(agentId, userId, message, isAdminBypass);
       
-      // ENHANCED: Build better context summary with memory
+      // ENHANCED: Build better context summary with memory (FILTERED)
       if (agentMemoryProfile && agentMemoryProfile.context && agentMemoryProfile.context.memories.length > 0) {
-        const recentMemories = agentMemoryProfile.context.memories.slice(-3)
-          .map((mem: any) => `- ${mem.data?.pattern || mem.data?.currentTask || 'Previous interaction'}`)
-          .join('\n');
-        contextSummary = `RECENT CONTEXT:\n${recentMemories}\n\nCURRENT TASK: ${message.substring(0, 100)}...`;
-        console.log(`🧠 ENHANCED CONTEXT: Loaded ${agentMemoryProfile.context.memories.length} memories for ${agentId}`);
+        // CRITICAL FIX: Filter out demonstration/test requests from context
+        const filteredMemories = agentMemoryProfile.context.memories
+          .filter((mem: any) => {
+            const memText = (mem.data?.pattern || mem.data?.currentTask || '').toLowerCase();
+            return !memText.includes('demonstrate') && 
+                   !memText.includes('show') && 
+                   !memText.includes('test') && 
+                   !memText.includes('capabilities') &&
+                   !memText.includes('arsenal');
+          })
+          .slice(-3);
+          
+        if (filteredMemories.length > 0) {
+          const recentMemories = filteredMemories
+            .map((mem: any) => `- ${mem.data?.pattern || mem.data?.currentTask || 'Previous interaction'}`)
+            .join('\n');
+          contextSummary = `RECENT CONTEXT:\n${recentMemories}\n\nCURRENT TASK: ${message.substring(0, 100)}...`;
+          console.log(`🧠 FILTERED CONTEXT: Loaded ${filteredMemories.length} relevant memories for ${agentId}`);
+        } else {
+          contextSummary = `Agent ${agentId} ready for: ${message.substring(0, 100)}...`;
+          console.log(`🧠 CLEAN CONTEXT: No relevant memories, fresh start for ${agentId}`);
+        }
       } else {
         contextSummary = `Agent ${agentId} ready for: ${message.substring(0, 100)}...`;
         console.log(`🏗️ WORKSPACE: Prepared context for ${agentId}`);

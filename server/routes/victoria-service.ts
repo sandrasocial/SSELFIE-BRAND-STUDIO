@@ -32,6 +32,14 @@ export function registerVictoriaService(app: Express) {
     try {
       const { brandData, selectedImages, selectedFlatlays } = req.body;
       
+      if (!brandData) {
+        return res.status(400).json({ error: 'Brand data is required' });
+      }
+      
+      if (!Array.isArray(selectedImages) || !Array.isArray(selectedFlatlays)) {
+        return res.status(400).json({ error: 'Selected images and flatlays must be arrays' });
+      }
+      
       const websiteStructure = generateWebsiteStructure({
         brandData,
         selectedImages: selectedImages || [],
@@ -88,7 +96,14 @@ export function registerVictoriaService(app: Express) {
 }
 
 // Goal Analysis Algorithm
-function analyzeBusinessGoals(brandData: any) {
+interface BrandData {
+  businessType?: string;
+  targetAudience?: string;
+  brandVoice?: string;
+  goals?: string[];
+}
+
+function analyzeBusinessGoals(brandData: BrandData) {
   const businessType = brandData.businessType?.toLowerCase() || '';
   const targetAudience = brandData.targetAudience?.toLowerCase() || '';
   

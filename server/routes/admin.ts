@@ -10,9 +10,17 @@ const router = Router();
 // Admin-only middleware  
 const isAdmin = (req: any, res: any, next: any) => {
   const user = req.user;
-  if (!user || (user.claims?.email !== 'ssa@ssasocial.com' && user.role !== 'admin')) {
+  // Check for user existence and proper admin role
+  if (!user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  
+  // Check for admin privileges
+  if (user.role !== 'admin' && !ALLOWED_ADMIN_EMAILS.includes(user.claims?.email)) {
+    console.warn(`Unauthorized admin access attempt by user: ${user.claims?.email}`);
     return res.status(403).json({ error: 'Admin access required' });
   }
+  
   next();
 };
 
