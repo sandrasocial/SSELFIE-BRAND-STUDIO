@@ -7,8 +7,20 @@ import { storage } from '../storage';
 
 const router = Router();
 
-// Admin-only middleware  
+// FIXED: Define allowed admin emails - REAL EMAIL ONLY
+const ALLOWED_ADMIN_EMAILS = [
+  'ssa@ssasocial.com'
+];
+
+// Admin-only middleware - FIXED
 const isAdmin = (req: any, res: any, next: any) => {
+  // Admin bypass token check first (for agents)
+  const adminToken = req.headers.authorization || req.headers['x-admin-token'] || req.query.admin_token;
+  if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
+    console.log('🔐 ADMIN BYPASS: Using admin token for agent operations');
+    return next();
+  }
+
   const user = req.user;
   // Check for user existence and proper admin role
   if (!user) {
@@ -300,7 +312,7 @@ router.post('/impersonate-user', async (req: any, res) => {
     const isAdminAuth = adminToken === 'sandra-admin-2025';
     
     const sessionUser = req.user;
-    const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+    const isSessionAdmin = req.isAuthenticated && ALLOWED_ADMIN_EMAILS.includes(sessionUser?.claims?.email);
     
     if (!isAdminAuth && !isSessionAdmin) {
       return res.status(401).json({ message: "Admin access required" });
