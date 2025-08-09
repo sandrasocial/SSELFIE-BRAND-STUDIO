@@ -4,25 +4,9 @@ import { users, subscriptions, sessions, importedSubscribers, aiImages, userMode
 import { eq, count, sum, desc, sql, gte } from 'drizzle-orm';
 import { isAuthenticated } from '../replitAuth';
 import { storage } from '../storage';
+import { requireAdmin, checkAdminAccess, getAdminUserData } from '../middleware/admin-middleware';
 
 const router = Router();
-
-// Admin-only middleware  
-const isAdmin = (req: any, res: any, next: any) => {
-  const user = req.user;
-  // Check for user existence and proper admin role
-  if (!user) {
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-  
-  // Check for admin privileges
-  if (user.role !== 'admin' && !ALLOWED_ADMIN_EMAILS.includes(user.claims?.email)) {
-    console.warn(`Unauthorized admin access attempt by user: ${user.claims?.email}`);
-    return res.status(403).json({ error: 'Admin access required' });
-  }
-  
-  next();
-};
 
 // Get dashboard stats
 router.get('/stats', async (req, res) => {
@@ -153,7 +137,7 @@ function formatTimestamp(date: Date | null): string {
 }
 
 // CONSOLIDATED: Business metrics endpoints (from admin-business-metrics.ts)
-router.get('/business-metrics', isAuthenticated, isAdmin, async (req, res) => {
+router.get('/business-metrics', requireAdmin, async (req, res) => {
   try {
     console.log('📊 Fetching comprehensive business metrics...');
 
@@ -226,7 +210,7 @@ router.get('/business-metrics', isAuthenticated, isAdmin, async (req, res) => {
 });
 
 // CONSOLIDATED: Subscriber stats endpoint
-router.get('/subscriber-stats', isAuthenticated, isAdmin, async (req, res) => {
+router.get('/subscriber-stats', requireAdmin, async (req, res) => {
   try {
     console.log('📊 Fetching subscriber statistics by source...');
     
@@ -252,7 +236,7 @@ router.get('/subscriber-stats', isAuthenticated, isAdmin, async (req, res) => {
 });
 
 // CONSOLIDATED: Recent activity endpoint (enhanced version)
-router.get('/recent-activity', isAuthenticated, isAdmin, async (req, res) => {
+router.get('/recent-activity', requireAdmin, async (req, res) => {
   try {
     console.log('📊 Fetching recent platform activity...');
     

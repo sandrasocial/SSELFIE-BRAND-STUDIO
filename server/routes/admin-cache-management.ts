@@ -5,6 +5,7 @@ import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { UnifiedStateManager } from '../services/unified-state-manager';
 import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
 import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
+import { requireAdmin, validateUserId, getAdminUserData } from '../middleware/admin-middleware';
 
 const adminCacheRouter = Router();
 
@@ -12,14 +13,25 @@ const adminCacheRouter = Router();
  * ADMIN CACHE CLEANING ENDPOINT
  * Cleans cached data for fresh agent starts
  */
-adminCacheRouter.post('/clear-agent-cache', async (req, res) => {
+adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req, res) => {
   try {
-    const { userId = '42585527', clearAll = false } = req.body;
+    const adminData = getAdminUserData();
+    const { userId = adminData.id, clearAll = false } = req.body;
+    
+    // Validate user ID format
+    const userIdValidation = validateUserId(userId);
+    if (!userIdValidation.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID format',
+        error: `User ID validation failed: ${userIdValidation.idType}`
+      });
+    }
     
     console.log('🧹 ADMIN CACHE CLEAN: Starting cache cleanup...');
     
     // Clear simplified memory cache
-    simpleMemoryService.clearAgentMemory('*', userId || '42585527');
+    simpleMemoryService.clearAgentMemory('*', userIdValidation.normalizedId!);
     
     // Clear navigation learning data
     autonomousNavigation.clearNavigationData();

@@ -175,11 +175,6 @@ export interface IStorage {
   setUserAsAdmin(email: string): Promise<User | null>;
   isUserAdmin(userId: string): Promise<boolean>;
   hasUnlimitedGenerations(userId: string): Promise<boolean>;
-  
-  // Agent memory storage operations
-  saveAgentMemory(agentId: string, userId: string, memoryData: any): Promise<void>;
-  getAgentMemory(agentId: string, userId: string): Promise<any | null>;
-  clearAgentMemory(agentId: string, userId: string): Promise<void>;
 
   // Admin dashboard count operations
   getUserCount(): Promise<number>;

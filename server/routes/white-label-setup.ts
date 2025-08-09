@@ -1,24 +1,15 @@
 import { Router } from "express";
 import { storage } from "../storage";
 import { isAuthenticated } from "../replitAuth";
+import { requireAdmin, checkAdminAccess } from "../middleware/admin-middleware";
 import type { Request, Response } from "express";
 
 const router = Router();
 
 // White-label client setup endpoint
-router.post("/api/white-label/create-client", async (req: any, res: Response) => {
+router.post("/api/white-label/create-client", requireAdmin, async (req: any, res: Response) => {
   try {
-    // Check for admin token
-    const adminToken = req.headers['x-admin-token'];
-    const isAdminAuth = adminToken === 'sandra-admin-2025';
-    
-    // Also check session-based admin auth
-    const sessionUser = req.user;
-    const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
-    
-    if (!isAdminAuth && !isSessionAdmin) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+    // Admin authorization already handled by middleware
 
     const {
       email,
