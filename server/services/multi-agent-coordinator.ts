@@ -209,17 +209,22 @@ export class MultiAgentCoordinator {
     // Create workflow plan
     const workflowPlan = await this.createCollaborativeWorkflowPlan(request, collaborativeAgents);
     
-    // Execute tasks in parallel
-    const results = await Promise.all(
+    // FIXED: Execute tasks with timeout and recovery
+    const results = await Promise.allSettled(
       collaborativeAgents.map(async (agentId) => {
         const conversationId = `collaborative_${request.id}_${agentId}`;
         try {
-          const result = await claudeApiService.sendMessage(
-            request.objective,
-            conversationId,
-            agentId,
-            true
-          );
+          const result = await Promise.race([
+            claudeApiService.sendMessage(
+              request.objective,
+              conversationId,
+              agentId,
+              true
+            ),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Agent timeout')), request.constraints.timeoutMs)
+            )
+          ]);
           return {
             agentId,
             result,
@@ -235,7 +240,9 @@ export class MultiAgentCoordinator {
           };
         }
       })
-    );
+    ).then(outcomes => outcomes.map(outcome => 
+      outcome.status === 'fulfilled' ? outcome.value : outcome.reason
+    ));
 
     // Synthesize collaborative results
     const successfulResults = results.filter(r => r.success);
@@ -274,17 +281,22 @@ export class MultiAgentCoordinator {
     const competingAgents = this.selectCompetitiveAgents(request, 3); // Top 3 agents
     console.log(`⚔️ COMPETITION: ${competingAgents.join(' vs ')} competing for best solution`);
 
-    // Execute same task with different agents in parallel
-    const competitionResults = await Promise.all(
+    // FIXED: Execute same task with different agents with timeout protection
+    const competitionResults = await Promise.allSettled(
       competingAgents.map(async (agentId) => {
         const conversationId = `competitive_${request.id}_${agentId}`;
         try {
-          const result = await claudeApiService.sendMessage(
-            request.objective,
-            conversationId,
-            agentId,
-            true
-          );
+          const result = await Promise.race([
+            claudeApiService.sendMessage(
+              request.objective,
+              conversationId,
+              agentId,
+              true
+            ),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Competition timeout')), request.constraints.timeoutMs)
+            )
+          ]);
           return {
             agentId,
             result,
@@ -301,7 +313,9 @@ export class MultiAgentCoordinator {
           };
         }
       })
-    );
+    ).then(outcomes => outcomes.map(outcome => 
+      outcome.status === 'fulfilled' ? outcome.value : outcome.reason
+    ));
 
     // Select best result based on quality metrics
     const winner = competitionResults
@@ -328,20 +342,24 @@ export class MultiAgentCoordinator {
   }
 
   /**
-   * WORKFLOW EXECUTION FOR SPECIFIC AGENT TASKS
+   * ENHANCED WORKFLOW EXECUTION WITH ELENA MONITORING
    */
-  async executeWorkflow(workflowName: string): Promise<boolean> {
-    console.log(`🚀 WORKFLOW EXECUTION: Starting ${workflowName}`);
+  async executeWorkflow(workflowName: string, timeoutSeconds: number = 300): Promise<boolean> {
+    console.log(`🚀 WORKFLOW EXECUTION: Starting ${workflowName} with ${timeoutSeconds}s timeout`);
     
     try {
-      // Load workflow from storage
-      const workflowPath = path.join(process.cwd(), 'workflow-storage.json');
-      const workflowData = JSON.parse(fs.readFileSync(workflowPath, 'utf8'));
-      
-      // Find the workflow
-      const workflow = Object.values(workflowData.workflows).find((w: any) => 
-        w.name.includes(workflowName) || w.id === workflowName
-      ) as any;
+      // FIXED: Create dynamic workflow if storage doesn't exist
+      let workflow: any;
+      try {
+        const workflowPath = path.join(process.cwd(), 'workflow-storage.json');
+        const workflowData = JSON.parse(fs.readFileSync(workflowPath, 'utf8'));
+        workflow = Object.values(workflowData.workflows).find((w: any) => 
+          w.name.includes(workflowName) || w.id === workflowName
+        ) as any;
+      } catch (error) {
+        // FIXED: Create dynamic workflow based on name
+        workflow = this.createDynamicWorkflow(workflowName);
+      }
       
       if (!workflow) {
         console.log(`❌ WORKFLOW NOT FOUND: ${workflowName}`);
@@ -351,38 +369,57 @@ export class MultiAgentCoordinator {
       console.log(`📋 WORKFLOW FOUND: ${workflow.name}`);
       console.log(`👥 AGENTS: ${workflow.steps.map((s: any) => s.agentName).join(', ')}`);
       
-      // Execute workflow steps
-      const results = await Promise.all(
-        workflow.steps.map(async (step: any) => {
-          const conversationId = `workflow_${workflowName}_${step.agentId}_${Date.now()}`;
-          try {
-            console.log(`🎯 EXECUTING: ${step.agentName} - ${step.taskDescription}`);
-            
-            const result = await claudeApiService.sendMessage(
+      // FIXED: Sequential execution with Elena monitoring instead of Promise.all
+      const results = [];
+      for (const step of workflow.steps) {
+        const conversationId = `workflow_${workflowName}_${step.agentId}_${Date.now()}`;
+        try {
+          console.log(`🎯 EXECUTING: ${step.agentName} - ${step.taskDescription}`);
+          
+          // ELENA MONITORING: Create shared conversation for Elena to monitor
+          const elenaConversationId = `elena_monitor_${workflowName}_${Date.now()}`;
+          
+          const result = await Promise.race([
+            claudeApiService.sendMessage(
               step.taskDescription,
               conversationId,
               step.agentId,
               true
-            );
-            
-            console.log(`✅ COMPLETED: ${step.agentName} task successful`);
-            return {
-              agentId: step.agentId,
-              agentName: step.agentName,
-              success: true,
-              result
-            };
-          } catch (error) {
-            console.error(`❌ FAILED: ${step.agentName} - ${error}`);
-            return {
-              agentId: step.agentId,
-              agentName: step.agentName,
-              success: false,
-              error: error instanceof Error ? error.message : 'Unknown error'
-            };
-          }
-        })
-      );
+            ),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Step timeout')), timeoutSeconds * 1000)
+            )
+          ]);
+          
+          console.log(`✅ COMPLETED: ${step.agentName} task successful`);
+          
+          // ELENA MONITORING: Report progress to Elena
+          await this.notifyElenaProgress(elenaConversationId, step.agentName, 'completed', result);
+          
+          results.push({
+            agentId: step.agentId,
+            agentName: step.agentName,
+            success: true,
+            result
+          });
+        } catch (error) {
+          console.error(`❌ FAILED: ${step.agentName} - ${error}`);
+          
+          // WORKFLOW RECOVERY: Try to continue with other agents
+          const elenaConversationId = `elena_monitor_${workflowName}_${Date.now()}`;
+          await this.notifyElenaProgress(elenaConversationId, step.agentName, 'failed', error);
+          
+          results.push({
+            agentId: step.agentId,
+            agentName: step.agentName,
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
+          
+          // Continue with next step instead of failing entire workflow
+          continue;
+        }
+      }
       
       const successCount = results.filter(r => r.success).length;
       console.log(`🎯 WORKFLOW COMPLETE: ${successCount}/${results.length} tasks successful`);
@@ -393,6 +430,49 @@ export class MultiAgentCoordinator {
       console.error(`❌ WORKFLOW EXECUTION FAILED: ${error}`);
       return false;
     }
+  }
+
+  /**
+   * ELENA MONITORING INTEGRATION
+   */
+  private async notifyElenaProgress(elenaConversationId: string, agentName: string, status: string, result: any): Promise<void> {
+    try {
+      const progressMessage = `Agent ${agentName} ${status}: ${JSON.stringify(result).substring(0, 200)}...`;
+      await claudeApiService.sendMessage(
+        progressMessage,
+        elenaConversationId,
+        'elena',
+        false
+      );
+    } catch (error) {
+      console.error(`Warning: Could not notify Elena of ${agentName} progress:`, error);
+    }
+  }
+
+  /**
+   * DYNAMIC WORKFLOW CREATION
+   */
+  private createDynamicWorkflow(workflowName: string): any {
+    // Create basic workflow based on name patterns
+    if (workflowName.includes('launch') || workflowName.includes('audit')) {
+      return {
+        id: `dynamic_${workflowName}`,
+        name: `Dynamic ${workflowName} Workflow`,
+        steps: [
+          { agentId: 'elena', agentName: 'Elena', taskDescription: `Coordinate ${workflowName} workflow` },
+          { agentId: 'zara', agentName: 'Zara', taskDescription: `Technical analysis for ${workflowName}` },
+          { agentId: 'aria', agentName: 'Aria', taskDescription: `Design review for ${workflowName}` }
+        ]
+      };
+    }
+    
+    return {
+      id: `dynamic_${workflowName}`,
+      name: `Dynamic ${workflowName} Workflow`,
+      steps: [
+        { agentId: 'elena', agentName: 'Elena', taskDescription: `Execute ${workflowName} workflow` }
+      ]
+    };
   }
 
   /**

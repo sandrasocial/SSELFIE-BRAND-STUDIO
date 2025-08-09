@@ -104,7 +104,7 @@ export class SimpleMemoryService {
   private isCacheValid(context: AgentContext): boolean {
     const now = new Date();
     const age = now.getTime() - context.timestamp.getTime();
-    const maxAge = 30 * 60 * 1000; // FIXED: Increased to 30 minutes for better context retention
+    const maxAge = 2 * 60 * 60 * 1000; // WORKFLOW FIX: Extended to 2 hours for long workflows
     return age < maxAge;
   }
 
