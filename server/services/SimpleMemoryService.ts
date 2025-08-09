@@ -24,7 +24,7 @@ export class SimpleMemoryService {
 
   private constructor() {
     this.contextCache = new Map();
-    // REMOVED: Cleanup interval was causing server restarts
+    this.startCleanupInterval();
   }
 
   public static getInstance(): SimpleMemoryService {
