@@ -127,14 +127,21 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       
       // ENHANCED: Build better context summary with memory (FILTERED)
       if (agentMemoryProfile && agentMemoryProfile.context && agentMemoryProfile.context.memories.length > 0) {
-        // CRITICAL FIX: Filter out demonstration/test requests from context
+        // VERIFICATION FIX: Don't filter out verification-related memories
+        // Only filter out obvious demonstration requests, but keep verification tasks
         const filteredMemories = agentMemoryProfile.context.memories
           .filter((mem: any) => {
             const memText = (mem.data?.pattern || mem.data?.currentTask || '').toLowerCase();
-            return !memText.includes('demonstrate') && 
-                   !memText.includes('show') && 
-                   !memText.includes('test') && 
-                   !memText.includes('capabilities') &&
+            // Keep verification, check, audit, fix, implement tasks
+            if (memText.includes('verify') || memText.includes('check') || 
+                memText.includes('audit') || memText.includes('fix') || 
+                memText.includes('implement') || memText.includes('analyze')) {
+              return true;
+            }
+            // Filter out only obvious demonstrations
+            return !memText.includes('demonstrate your') && 
+                   !memText.includes('show me your') && 
+                   !memText.includes('test your capabilities') &&
                    !memText.includes('arsenal');
           })
           .slice(-3);
@@ -155,6 +162,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       }
       
       // FIXED: Always save context for meaningful interactions (not just admin bypass)
+      // VERIFICATION FIX: Don't filter out verification and test requests  
       if (agentContext && (contextRequirement.isWorkTask || contextRequirement.isContinuation)) {
         await simpleMemoryService.saveAgentMemory(agentContext, {
           currentTask: message,
@@ -172,8 +180,9 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       // Continue without memory enhancement if there's an error
     }
     
-    // SIMPLIFIED SYSTEM PROMPT: Clean prompt generation
-    const baseSystemPrompt = agentConfig.systemPrompt;
+    // VERIFICATION-FIRST ENFORCEMENT: Inject mandatory verification protocols
+    const { VerificationEnforcement } = await import('../services/verification-enforcement.js');
+    const baseSystemPrompt = VerificationEnforcement.enforceVerificationFirst(agentConfig.systemPrompt, message);
     
     // GENERATE CLEAN PROMPT without competing system pollution
     const systemPrompt = contextRequirement.isWorkTask && contextSummary ? 

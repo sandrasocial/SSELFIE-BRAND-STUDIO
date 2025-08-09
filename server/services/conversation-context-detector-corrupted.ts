@@ -121,7 +121,7 @@ export class ConversationContextDetector {
   }
 
   /**
-   * Check if message contains work-related keywords (including verification keywords)
+   * Check if message contains work-related keywords
    */
   private static containsWorkKeywords(message: string): boolean {
     const workKeywords = [
@@ -143,5 +143,85 @@ export class ConversationContextDetector {
     return allWorkKeywords.some(keyword => 
       message.toLowerCase().includes(keyword.toLowerCase())
     );
+  }
+}
+  
+  /**
+   * Generate appropriate system prompt based on context requirements
+   */
+  static generateContextPrompt(
+    baseSystemPrompt: string,
+    requirement: ContextRequirement,
+    contextSummary?: string,
+    memoryPatterns?: string,
+    workspaceContext?: any
+  ): string {
+    let prompt = baseSystemPrompt;
+    
+    if (requirement.contextLevel === 'minimal') {
+      // For greetings and casual conversation - just personality, no work context
+      prompt += `\n\n## CONVERSATION MODE: CASUAL
+You are having a casual conversation. Respond naturally and authentically with your personality.
+No need to reference previous work tasks or technical context unless specifically asked.`;
+      
+    } else if (requirement.contextLevel === 'moderate') {
+      // Light context for simple questions
+      if (contextSummary) {
+        prompt += `\n\n## LIGHT CONTEXT:\n${contextSummary}`;
+      }
+      
+    } else {
+      // Full context for work tasks
+      if (requirement.isContinuation) {
+        prompt += `\n\n## WORKFLOW CONTINUATION MODE
+You are continuing an ongoing work session. The user has confirmed to proceed with the current workflow.
+Continue from where you left off in the previous conversation. Do NOT restart or re-analyze - execute next steps.`;
+      }
+      
+      if (memoryPatterns) {
+        prompt += memoryPatterns;
+      }
+      
+      if (contextSummary) {
+        prompt += `\n\n${contextSummary}`;
+      }
+      
+      // Add full project architecture info for work tasks
+      prompt += `\n\n## PROJECT ARCHITECTURE - CRITICAL KNOWLEDGE
+**SSELFIE Studio Structure (React + TypeScript + Express + PostgreSQL)**
+
+### FILE ORGANIZATION:
+- **client/**: React frontend (components, pages, hooks, contexts)
+- **server/**: Express backend (routes, services, agents)  
+- **shared/**: Shared types and schemas (Drizzle ORM)
+
+### DESIGN RULES - LUXURY STANDARDS
+- **Colors**: Black (#0a0a0a), White (#fefefe), Gray (#f5f5f5) ONLY
+- **Typography**: Times New Roman headlines, system fonts for body
+- **Layout**: No rounded corners (border-radius: 0), editorial spacing
+
+### TOOLS:
+- search_filesystem: Find files (use simple keywords)
+- str_replace_based_edit_tool: View/edit files  
+- bash: Run commands and tests
+
+**REMEMBER**: You have full codebase access. Search and understand before changing.`;
+    }
+    
+    return prompt;
+  }
+  
+  /**
+   * Debug message analysis
+   */
+  static debugAnalysis(message: string): void {
+    const analysis = this.analyzeMessage(message);
+    console.log(`🔍 CONTEXT ANALYSIS: "${message.substring(0, 50)}..."`);
+    console.log(`   Is Greeting: ${analysis.isGreeting}`);
+    console.log(`   Is Casual: ${analysis.isCasualConversation}`);
+    console.log(`   Is Continuation: ${analysis.isContinuation}`);
+    console.log(`   Is Work Task: ${analysis.isWorkTask}`);
+    console.log(`   Context Level: ${analysis.contextLevel.toUpperCase()}`);
+    console.log(`   Needs Full Context: ${analysis.needsFullContext}`);
   }
 }
