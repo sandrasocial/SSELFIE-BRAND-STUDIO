@@ -215,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
   console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
   
-  app.post('/api/consulting-agents/admin/consulting-chat', async (req: any, res: any) => {
+  app.post('/api/consulting-agents/admin/consulting-chat', express.json(), async (req: any, res: any) => {
     try {
       const adminToken = req.headers.authorization || 
                         (req.body && req.body.adminToken) || 
