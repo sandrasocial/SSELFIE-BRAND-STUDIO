@@ -5,8 +5,6 @@ import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-// BYPASS AUTH: Import consulting agents early to register before session middleware
-import consultingAgentsRouter from './routes/consulting-agents-routes';
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -214,10 +212,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Basic middleware and authentication setup
   const server = createServer(app);
   
-  // 🚨 CRITICAL FIX: Register consulting agents BEFORE authentication to bypass auth middleware
+  // 🚨 CRITICAL FIX: Register agent routes BEFORE authentication to bypass auth middleware
   console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
-  app.use('/api/consulting-agents', consultingAgentsRouter);
-  console.log('✅ BYPASS: Consulting agents registered before auth middleware');
+  
+  // Import and register fixed agent routes
+  // REMOVED: Using consulting-agents-routes.ts instead to prevent conflicts
+  // REMOVED: Conflicted with consulting-agents-routes.ts
   
   // Setup authentication
   await setupAuth(app);
@@ -1347,7 +1347,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.use('/api/admin', adminRouter);
   app.use('/api/admin/cache', adminCacheRouter);
   // FIXED: Register consulting agents at correct path to match frontend calls
-  // REMOVED: Duplicate registration - already registered before auth middleware
+  app.use('/api/consulting-agents', consultingAgentsRouter);
+  console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system

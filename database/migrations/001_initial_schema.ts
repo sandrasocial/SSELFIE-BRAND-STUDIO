@@ -1,50 +1,53 @@
-import { Pool } from 'pg';
-import fs from 'fs';
-import path from 'path';
+import { Knex } from 'knex';
 
-export async function up(pool: Pool) {
-  // Read our SQL files
-  const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-  const indexes = fs.readFileSync(path.join(__dirname, 'indexes.sql'), 'utf8');
+export async function up(knex: Knex): Promise<void> {
+  // Users table
+  await knex.schema.createTable('users', (table) => {
+    table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
+    table.string('email').unique().notNullable();
+    table.string('password_hash').notNullable();
+    table.string('full_name');
+    table.timestamp('created_at').defaultTo(knex.fn.now());
+    table.timestamp('updated_at').defaultTo(knex.fn.now());
+  });
 
-  // Start transaction
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-    
-    // Execute schema creation
-    await client.query(schema);
-    
-    // Execute index creation
-    await client.query(indexes);
-    
-    await client.query('COMMIT');
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
+  // Workspaces table
+  await knex.schema.createTable('workspaces', (table) => {
+    table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
+    table.uuid('user_id').references('id').inTable('users');
+    table.string('name').notNullable();
+    table.jsonb('settings').defaultTo('{}');
+    table.timestamp('created_at').defaultTo(knex.fn.now());
+    table.timestamp('updated_at').defaultTo(knex.fn.now());
+  });
+
+  // Image generations table
+  await knex.schema.createTable('image_generations', (table) => {
+    table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
+    table.uuid('user_id').references('id').inTable('users');
+    table.uuid('workspace_id').references('id').inTable('workspaces');
+    table.string('prompt').notNullable();
+    table.string('image_url');
+    table.jsonb('metadata').defaultTo('{}');
+    table.timestamp('created_at').defaultTo(knex.fn.now());
+  });
+
+  // Subscriptions table
+  await knex.schema.createTable('subscriptions', (table) => {
+    table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
+    table.uuid('user_id').references('id').inTable('users');
+    table.string('stripe_subscription_id');
+    table.string('plan_type');
+    table.timestamp('current_period_end');
+    table.boolean('active').defaultTo(true);
+    table.timestamp('created_at').defaultTo(knex.fn.now());
+    table.timestamp('updated_at').defaultTo(knex.fn.now());
+  });
 }
 
-export async function down(pool: Pool) {
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-    
-    // Drop tables in reverse order to handle dependencies
-    await client.query(`
-      DROP TABLE IF EXISTS payment_history;
-      DROP TABLE IF EXISTS subscriptions;
-      DROP TABLE IF EXISTS projects;
-      DROP TABLE IF EXISTS users;
-    `);
-    
-    await client.query('COMMIT');
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTableIfExists('subscriptions');
+  await knex.schema.dropTableIfExists('image_generations');
+  await knex.schema.dropTableIfExists('workspaces');
+  await knex.schema.dropTableIfExists('users');
 }

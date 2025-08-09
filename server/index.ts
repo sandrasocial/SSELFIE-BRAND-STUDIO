@@ -62,10 +62,5 @@ setupVite(app, server).then(() => {
   });
 }).catch(err => {
   console.error('Failed to setup Vite:', err);
-  logger.error('Vite setup failed, but server continuing without frontend dev server');
-  // Removed process.exit(1) - let server continue running for API routes
-  server.listen(port, () => {
-    logger.info(`Server is running on port ${port} (API only - Vite failed)`);
-    metrics.activeUsers.set(0);
-  });
+  process.exit(1);
 });
