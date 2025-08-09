@@ -1,8 +1,10 @@
 /**
- * SIMPLE MEMORY SERVICE
- * Consolidates essential memory functionality from 4 competing systems into one clean interface
- * Eliminates: UnifiedMemoryController, AdvancedMemorySystem, ContextPreservationSystem, TokenOptimizationEngine
+ * CONSOLIDATED MEMORY SERVICE - OLGA'S PLAN IMPLEMENTATION
+ * Single memory service with database persistence and 12-hour cache
+ * Replaces all competing memory systems with unified approach
  */
+
+import { storage } from '../storage';
 
 interface AgentMemoryOptions {
   agentName: string;
@@ -38,54 +40,81 @@ export class SimpleMemoryService {
   }
 
   /**
-   * ESSENTIAL: Prepare agent context for conversation
-   * Replaces all the complex memory loading from 4 systems
+   * OLGA'S FIX: Enhanced context preparation with database memory loading
+   * Restores persisted memories and eliminates memory loss between sessions
    */
   async prepareAgentContext(options: AgentMemoryOptions): Promise<AgentContext> {
     const { agentName, userId, task = '', isAdminBypass = false } = options;
     const cacheKey = `${agentName}-${userId}`;
 
-    // Check cache first (simple, single cache)
+    // Check cache first (fast path)
     const cached = this.contextCache.get(cacheKey);
     if (cached && this.isCacheValid(cached)) {
-      console.log(`🧠 MEMORY: Using cached context for ${agentName}`);
+      console.log(`🧠 MEMORY: Using cached context for ${agentName} (${cached.memories.length} memories)`);
       return cached;
     }
 
-    // Build essential context (no competing systems)
+    // OLGA'S FIX: Load persisted memories from database
+    let persistedMemories = [];
+    try {
+      const persistedData = await storage.getAgentMemory(agentName, userId);
+      if (persistedData && persistedData.context && persistedData.context.memories) {
+        persistedMemories = persistedData.context.memories;
+        console.log(`💾 LOADED: ${persistedMemories.length} persisted memories for ${agentName}`);
+      }
+    } catch (error) {
+      console.error(`⚠️ Failed to load persisted memories for ${agentName}:`, error);
+    }
+
+    // Build context with restored memories
     const context: AgentContext = {
       agentName,
       userId,
       currentTask: task,
       adminPrivileges: isAdminBypass,
-      memories: [], // Simple array, no complex patterns
+      memories: persistedMemories, // OLGA'S FIX: Start with persisted memories
       timestamp: new Date()
     };
 
     // Cache for reuse (single cache, no conflicts)
     this.contextCache.set(cacheKey, context);
-    console.log(`🧠 MEMORY: Prepared context for ${agentName}${isAdminBypass ? ' [ADMIN]' : ''}`);
+    console.log(`🧠 MEMORY: Prepared context for ${agentName}${isAdminBypass ? ' [ADMIN]' : ''} (${persistedMemories.length} restored)`);
 
     return context;
   }
 
   /**
-   * ESSENTIAL: Save agent memory (simplified)
-   * Replaces complex memory persistence from competing systems
+   * OLGA'S FIX: Save agent memory with database persistence
+   * Replaces in-memory only storage with reliable database backup
    */
   async saveAgentMemory(context: AgentContext, data: any): Promise<void> {
     const cacheKey = `${context.agentName}-${context.userId}`;
     
     // Update context with new data
-    context.memories.push({
+    const memoryItem = {
       data,
       timestamp: new Date(),
       task: context.currentTask
-    });
+    };
+    
+    context.memories.push(memoryItem);
 
-    // Update cache (single source of truth)
+    // Update cache (keep for speed)
     this.contextCache.set(cacheKey, context);
-    console.log(`🧠 MEMORY: Saved memory for ${context.agentName}`);
+    
+    // OLGA'S FIX: Add database persistence for reliability
+    try {
+      await storage.saveAgentMemory(context.agentName, context.userId, {
+        context: context,
+        latestMemory: memoryItem,
+        totalMemories: context.memories.length
+      });
+      console.log(`💾 PERSISTENCE: Admin memory saved to database for ${context.agentName}`);
+    } catch (error) {
+      console.error(`❌ Database persistence failed for ${context.agentName}:`, error);
+    }
+    
+    console.log(`🧠 MEMORY: Saved memory for ${context.agentName} (${context.memories.length} total)`);
   }
 
   /**
@@ -99,12 +128,13 @@ export class SimpleMemoryService {
   }
 
   /**
-   * Check if cached context is still valid (simple logic)
+   * OLGA'S FIX: Extended cache duration from 2 hours to 12 hours
+   * Prevents conversation losses during long development sessions
    */
   private isCacheValid(context: AgentContext): boolean {
     const now = new Date();
     const age = now.getTime() - context.timestamp.getTime();
-    const maxAge = 2 * 60 * 60 * 1000; // WORKFLOW FIX: Extended to 2 hours for long workflows
+    const maxAge = 12 * 60 * 60 * 1000; // OLGA'S FIX: 12-hour cache for admin sessions
     return age < maxAge;
   }
 
@@ -133,17 +163,27 @@ export class SimpleMemoryService {
     };
   }
 
-  // Replaces ConversationContextDetector.analyzeMessage (simplified)
+  // OLGA'S FIX: Enhanced message analysis for better context retention
   analyzeMessage(message: string) {
-    const isGreeting = /^(hey|hi|hello)/i.test(message.trim());
-    const isContinuation = /^(yes|ok|perfect|continue|proceed|great|excellent)/i.test(message.trim());
-    // FIXED: More liberal work task detection - agents need context for most interactions
-    const isWorkTask = !isGreeting && (message.length > 20 || /create|build|fix|update|analyze|show|check|find|test|help|can you|please|look/.test(message.toLowerCase()));
+    const isGreeting = /^(hey|hi|hello)\s*[,!]?\s*[a-z]*$/i.test(message.trim());
+    const isContinuation = /^(yes|ok|perfect|continue|proceed|great|excellent|sounds good)/i.test(message.trim());
+    
+    // OLGA'S FIX: Much more liberal work task detection - preserve context for most interactions
+    const workKeywords = ['create', 'build', 'fix', 'update', 'analyze', 'show', 'check', 'find', 'test', 
+                         'help', 'can you', 'please', 'look', 'status', 'ready', 'implement', 'plan', 
+                         'consolidation', 'memory', 'agent', 'system', 'issue', 'problem', 'error'];
+    
+    const hasWorkKeywords = workKeywords.some(keyword => 
+      message.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    // CRITICAL: Most interactions need context unless they're pure greetings
+    const isWorkTask = !isGreeting && (message.length > 15 || hasWorkKeywords);
 
     return {
       isContinuation,
       isWorkTask: isWorkTask || isContinuation, // CRITICAL: Continuations also need context
-      contextLevel: (isWorkTask || isContinuation) ? 'full' : isGreeting ? 'minimal' : 'none'
+      contextLevel: (isWorkTask || isContinuation) ? 'full' : isGreeting ? 'minimal' : 'basic'
     };
   }
 }
