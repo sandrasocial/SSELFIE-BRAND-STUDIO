@@ -37,45 +37,53 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#fefefe]">
       <PreLoginNavigationUnified />
       
       <HeroFullBleed
         backgroundImage={SandraImages.editorial.luxury1}
-        tagline="Sign In or Create Account"
-        title="JOIN SSELFIE"
-        ctaText="Access Your Studio"
+        tagline="Welcome to Your Studio"
+        title="SSELFIE ATELIER"
+        ctaText="Enter the Studio"
         onCtaClick={handleLogin}
         fullHeight={false}
       />
 
-      <main className="max-w-4xl mx-auto px-8 py-16">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-            Create Account or Sign In
+      <main className="max-w-4xl mx-auto px-8 py-24">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl mb-8" style={{ fontFamily: 'Times New Roman, serif' }}>
+            Your Creative Journey Begins
           </h2>
-          <p className="text-lg text-[#666666] max-w-2xl mx-auto font-light leading-relaxed">
-            Sign in to access your AI photography studio, brand strategy tools, and complete business-building platform. If you're new, you'll create your account during the secure login process.
+          <p className="text-lg text-[#0a0a0a] max-w-2xl mx-auto font-light leading-relaxed tracking-wide">
+            Access your private AI photography studio, brand strategy tools, and complete business platform. New members will create their atelier during the secure authentication process.
           </p>
         </div>
 
         <div className="max-w-md mx-auto">
-          <div className="bg-[#f5f5f5] p-12 text-center">
-            <h3 className="text-2xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-              Welcome to SSELFIE Studio
+          <div className="bg-[#f5f5f5] p-16 text-center border border-[#0a0a0a]/10">
+            <h3 className="text-2xl mb-8" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Access Your Atelier
             </h3>
             
-            <div className="flex justify-center mb-6">
-              <div className="bg-[#E8E8E8] inline-flex rounded-full p-1">
+            <div className="flex justify-center mb-10">
+              <div className="inline-flex border-b border-[#0a0a0a]/10">
                 <button 
                   onClick={() => setAuthMode('login')}
-                  className={`px-6 py-2 text-sm rounded-full transition-all ${authMode === 'login' ? 'bg-white shadow-sm' : ''}`}
+                  className={`px-8 py-3 text-sm transition-all border-b-2 ${
+                    authMode === 'login' 
+                      ? 'border-[#0a0a0a] text-[#0a0a0a]' 
+                      : 'border-transparent text-[#0a0a0a]/60 hover:text-[#0a0a0a]'
+                  }`}
                 >
                   Sign In
                 </button>
                 <button
                   onClick={() => setAuthMode('signup')} 
-                  className={`px-6 py-2 text-sm rounded-full transition-all ${authMode === 'signup' ? 'bg-white shadow-sm' : ''}`}
+                  className={`px-8 py-3 text-sm transition-all border-b-2 ${
+                    authMode === 'signup' 
+                      ? 'border-[#0a0a0a] text-[#0a0a0a]' 
+                      : 'border-transparent text-[#0a0a0a]/60 hover:text-[#0a0a0a]'
+                  }`}
                 >
                   Create Account
                 </button>
