@@ -190,11 +190,9 @@ export class SimpleMemoryService {
       const messageId = `admin_${nanoid()}_${Date.now()}`;
       
       await db.insert(claudeMessages).values({
-        id: messageId,
         conversationId: conversationId,
         role: 'user',
         content: memoryEntry.messageText || memoryEntry.data?.currentTask || 'Admin interaction',
-        createdAt: new Date(),
         metadata: {
           agentName,
           sessionType: 'admin_memory',
@@ -206,7 +204,8 @@ export class SimpleMemoryService {
       console.log(`💾 PERSISTENCE: Admin memory saved to database for ${agentName}`);
     } catch (error) {
       // Fail silently - cache will still work
-      console.warn(`💾 PERSISTENCE: Database save failed for ${agentName}:`, error.message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn(`💾 PERSISTENCE: Database save failed for ${agentName}:`, errorMessage);
     }
   }
 
