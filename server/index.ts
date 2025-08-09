@@ -23,12 +23,13 @@ app.use((req, res, next) => {
       .labels(req.method, req.route?.path || req.path, res.statusCode.toString())
       .observe(duration / 1000);
     
-    logger.info({
-      method: req.method,
-      url: req.url,
-      status: res.statusCode,
-      duration: `${duration}ms`
-    });
+    // Temporarily disable verbose logging to fix console spam
+    // logger.info({
+    //   method: req.method,
+    //   url: req.url,
+    //   status: res.statusCode,
+    //   duration: `${duration}ms`
+    // });
   });
   next();
 });

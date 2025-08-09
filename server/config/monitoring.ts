@@ -70,9 +70,9 @@ const metrics = {
   })
 };
 
-// Update memory usage every 30 seconds
-setInterval(() => {
-  metrics.memoryUsage.set(process.memoryUsage().heapUsed);
-}, 30000);
+// TEMPORARILY DISABLED to fix logging spam
+// setInterval(() => {
+//   metrics.memoryUsage.set(process.memoryUsage().heapUsed);
+// }, 30000);
 
 export { logger, metrics, Sentry };

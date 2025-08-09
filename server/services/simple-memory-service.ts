@@ -51,7 +51,8 @@ export class SimpleMemoryService {
       // Update task and timestamp for current interaction
       cached.currentTask = task;
       cached.timestamp = new Date();
-      console.log(`🧠 MEMORY: Using cached context for ${agentName} (${cached.memories.length} memories)`);
+      // Temporarily disabled to fix console spam
+      // console.log(`🧠 MEMORY: Using cached context for ${agentName} (${cached.memories.length} memories)`);
       return cached;
     }
 
@@ -70,7 +71,8 @@ export class SimpleMemoryService {
 
     // Cache for reuse (single cache, no conflicts)
     this.contextCache.set(cacheKey, context);
-    console.log(`🧠 MEMORY: Enhanced context prepared for ${agentName}${isAdminBypass ? ' [ADMIN]' : ''} with ${persistedMemories.length} persisted memories`);
+    // Temporarily disabled to fix console spam
+    // console.log(`🧠 MEMORY: Enhanced context prepared for ${agentName}${isAdminBypass ? ' [ADMIN]' : ''} with ${persistedMemories.length} persisted memories`);
 
     return context;
   }
@@ -109,7 +111,8 @@ export class SimpleMemoryService {
       console.warn(`🧠 MEMORY: Database persistence failed for ${context.agentName}, using cache only`);
     }
     
-    console.log(`🧠 MEMORY: Enhanced memory saved for ${context.agentName} (${context.memories.length} total memories)`);
+    // Temporarily disabled to fix console spam
+    // console.log(`🧠 MEMORY: Enhanced memory saved for ${context.agentName} (${context.memories.length} total memories)`);
   }
 
   /**
@@ -119,7 +122,8 @@ export class SimpleMemoryService {
   clearAgentMemory(agentName: string, userId: string): void {
     const cacheKey = `${agentName}-${userId}`;
     this.contextCache.delete(cacheKey);
-    console.log(`🧠 MEMORY: Cleared memory for ${agentName}`);
+    // Temporarily disabled to fix console spam
+    // console.log(`🧠 MEMORY: Cleared memory for ${agentName}`);
   }
 
   /**
