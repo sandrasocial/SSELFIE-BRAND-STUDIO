@@ -423,7 +423,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
   // ADMIN BYPASS: Allow admin token for agent operations
-  const adminToken = req.headers.authorization || req.body.adminToken || req.query.adminToken;
+  const adminToken = req.headers.authorization || (req.body && req.body.adminToken) || req.query.adminToken;
   if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
     console.log('🔐 ADMIN BYPASS: Using admin token for agent operations');
     // Create mock user for admin operations

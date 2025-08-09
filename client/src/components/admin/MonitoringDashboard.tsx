@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Grid } from '@mui/material';
+import { Card, CardContent, Typography, Box } from '@mui/material';
 import { SystemStats } from './monitoring/SystemStats';
 import { AgentPerformance } from './monitoring/AgentPerformance';
 import { ResourceUsage } from './monitoring/ResourceUsage';
@@ -7,32 +7,36 @@ import { AlertsPanel } from './monitoring/AlertsPanel';
 
 export const MonitoringDashboard: React.FC = () => {
   return (
-    <Grid container spacing={3}>
-      <Grid item xs={12}>
+    <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+      <Box sx={{ gridColumn: '1 / -1' }}>
         <Card>
-          <h2>System Performance Dashboard</h2>
+          <CardContent>
+            <Typography variant="h4" component="h2">
+              System Performance Dashboard
+            </Typography>
+          </CardContent>
         </Card>
-      </Grid>
+      </Box>
       
       {/* Real-time System Stats */}
-      <Grid item xs={12} md={6}>
+      <Box>
         <SystemStats />
-      </Grid>
+      </Box>
 
       {/* AI Agent Performance Metrics */}
-      <Grid item xs={12} md={6}>
+      <Box>
         <AgentPerformance />
-      </Grid>
+      </Box>
 
       {/* Resource Usage Graphs */}
-      <Grid item xs={12} md={8}>
+      <Box sx={{ gridColumn: { xs: '1', md: '1 / span 2' } }}>
         <ResourceUsage />
-      </Grid>
+      </Box>
 
       {/* Alerts and Notifications */}
-      <Grid item xs={12} md={4}>
+      <Box>
         <AlertsPanel />
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
