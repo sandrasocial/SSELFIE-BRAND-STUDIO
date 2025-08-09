@@ -49,8 +49,7 @@ export class ProgressTrackingService {
   private isTracking = false;
 
   constructor() {
-    // REMOVED: Auto-start tracking that was causing server restarts
-    // Manual initialization only
+    this.startTracking();
   }
 
   /**

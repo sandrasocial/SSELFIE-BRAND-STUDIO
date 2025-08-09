@@ -32,7 +32,7 @@ class AgentPerformanceMonitor extends EventEmitter {
   
   private constructor() {
     super();
-    // REMOVED: Cleanup interval was causing server restarts
+    this.setupCleanupInterval();
   }
 
   static getInstance(): AgentPerformanceMonitor {

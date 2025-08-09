@@ -9,7 +9,7 @@ class AgentPerformanceOptimizer extends EventEmitter {
 
   private constructor() {
     super();
-    // REMOVED: Optimization loop was causing server restarts
+    this.startOptimizationLoop();
   }
 
   static getInstance(): AgentPerformanceOptimizer {
