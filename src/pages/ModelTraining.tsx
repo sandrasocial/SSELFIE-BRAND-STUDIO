@@ -3,24 +3,70 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 const ModelTraining: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, validateSession } = useAuth();
   const navigate = useNavigate();
+  const [sessionValid, setSessionValid] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/');
-    }
-  }, [isAuthenticated, navigate]);
+    const checkSession = async () => {
+      if (!isAuthenticated) {
+        navigate('/');
+        return;
+      }
+      
+      try {
+        const isValid = await validateSession();
+        setSessionValid(isValid);
+        if (!isValid) {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Session validation failed:', error);
+        navigate('/login');
+      }
+    };
+
+    checkSession();
+  }, [isAuthenticated, navigate, validateSession]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const ALLOWED_TYPES = ['text/plain', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/json'];
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
-      setUploadedFiles(Array.from(files));
+    if (!files) return;
+
+    const fileArray = Array.from(files);
+    const validationErrors: string[] = [];
+
+    const validFiles = fileArray.filter(file => {
+      // Size validation
+      if (file.size > MAX_FILE_SIZE) {
+        validationErrors.push(`${file.name} is too large. Maximum size is 10MB`);
+        return false;
+      }
+
+      // Type validation
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        validationErrors.push(`${file.name} has invalid type. Allowed types are: txt, pdf, doc, docx, json`);
+        return false;
+      }
+
+      return true;
+    });
+
+    if (validationErrors.length > 0) {
+      alert(validationErrors.join('\n'));
     }
+
+    setUploadedFiles(validFiles);
   };
 
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [trainingStatus, setTrainingStatus] = useState('');
+  
   const handleStartTraining = async () => {
     if (uploadedFiles.length === 0) {
       alert('Please upload files first');
@@ -28,30 +74,61 @@ const ModelTraining: React.FC = () => {
     }
     
     setIsUploading(true);
+    setTrainingStatus('Preparing files...');
     try {
       const formData = new FormData();
       uploadedFiles.forEach((file) => {
         formData.append('trainingFiles', file);
       });
 
-      const response = await fetch('/api/model/train', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
+      // Create XMLHttpRequest for upload progress tracking
+      const xhr = new XMLHttpRequest();
+      const promise = new Promise((resolve, reject) => {
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const progress = (event.loaded / event.total) * 100;
+            setUploadProgress(Math.round(progress));
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(JSON.parse(xhr.responseText));
+          } else {
+            reject(new Error(`HTTP Error: ${xhr.status}`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error('Network Error'));
       });
 
-      if (!response.ok) {
-        throw new Error('Training failed to start');
-      }
+      xhr.open('POST', '/api/model/train');
+      xhr.setRequestHeader('Authorization', `Bearer ${user.token}`);
+      xhr.send(formData);
 
-      const data = await response.json();
+      setTrainingStatus('Uploading files...');
+      const data = await promise;
+
+      // Setup WebSocket connection for real-time training updates
+      const ws = new WebSocket(process.env.REACT_APP_WS_URL || 'ws://localhost:3001');
+      ws.onmessage = (event) => {
+        const update = JSON.parse(event.data);
+        setTrainingStatus(update.status);
+        if (update.status === 'completed') {
+          ws.close();
+          setIsUploading(false);
+          alert('Training completed successfully!');
+        }
+      };
+
       setIsUploading(false);
-      alert('Training started successfully! You will be notified when it completes.');
+      alert('Training started successfully! You can monitor the progress here.');
     } catch (error) {
+      console.error('Training error:', error);
       setIsUploading(false);
-      alert('Failed to start training. Please try again.');
+      setTrainingStatus('Failed');
+      alert(`Failed to start training: ${error.message}`);
+    }
   };
 
   return (
@@ -127,15 +204,45 @@ const ModelTraining: React.FC = () => {
           </button>
         </div>
 
-        {/* Status Information */}
+        {/* Enhanced Status Information */}
         <div className="mt-8 p-4 bg-gray-800 rounded border border-gray-600">
           <h4 className="text-white font-medium mb-2">Training Status:</h4>
-          <p className="text-gray-300">
+          
+          {/* File Status */}
+          <p className="text-gray-300 mb-2">
             {uploadedFiles.length === 0 
               ? 'Ready to upload training data' 
               : `${uploadedFiles.length} files ready for training`
             }
           </p>
+
+          {/* Upload Progress */}
+          {isUploading && (
+            <div className="mb-4">
+              <div className="w-full bg-gray-700 rounded-full h-2.5">
+                <div 
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-400 mt-1">{uploadProgress}% uploaded</p>
+            </div>
+          )}
+
+          {/* Training Status */}
+          {trainingStatus && (
+            <div className="mt-2">
+              <p className="text-sm font-medium text-gray-300">Current Status:</p>
+              <p className="text-blue-400">{trainingStatus}</p>
+            </div>
+          )}
+
+          {/* Session Status */}
+          {!sessionValid && (
+            <div className="mt-2 text-red-400 text-sm">
+              ⚠️ Session expired. Please log in again.
+            </div>
+          )}
         </div>
       </div>
     </div>
