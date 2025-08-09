@@ -204,6 +204,10 @@ function generateWebsiteHTML(websiteData: any, onboardingData: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Essential middleware setup
+  app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
+  app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
+  
   // Agent-generated enhancement routes
   setupEnhancementRoutes(app);
 
@@ -217,21 +221,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post('/api/consulting-agents/admin/consulting-chat', async (req: any, res: any) => {
     try {
-      // Parse body if needed
-      if (!req.body && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => {
-          body += chunk.toString();
-        });
-        req.on('end', () => {
-          try {
-            req.body = JSON.parse(body);
-          } catch (e) {
-            req.body = {};
-          }
-        });
-      }
-
+      console.log('🔍 Direct route handler - body received:', JSON.stringify(req.body, null, 2));
+      
       const adminToken = req.headers.authorization || 
                         (req.body && req.body.adminToken) || 
                         req.query.adminToken;
@@ -246,11 +237,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         };
         req.isAdminBypass = true;
-      }
-      
-      // Ensure body exists
-      if (!req.body) {
-        req.body = {};
       }
       
       // Import and handle via consulting agents router

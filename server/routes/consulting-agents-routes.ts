@@ -75,13 +75,18 @@ const adminAuth = (req: AdminRequest, res: any, next: any) => {
 export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
   try {
     console.log(`🎯 ADMIN CONSULTING: Starting unrestricted agent system`);
+    console.log(`🔍 Request body received:`, JSON.stringify(req.body, null, 2));
 
     const { agentId, message } = req.body;
+    
+    console.log(`🔍 Parsed values - agentId: "${agentId}", message: "${message}"`);
 
     if (!agentId || !message?.trim()) {
+      console.log(`❌ Validation failed - agentId: ${!!agentId}, message: ${!!message?.trim()}`);
       return res.status(400).json({
         success: false,
-        message: 'Agent ID and message are required'
+        message: 'Agent ID and message are required',
+        debug: { agentId: !!agentId, messageExists: !!message, messageTrimmed: !!message?.trim() }
       });
     }
 
