@@ -8,6 +8,7 @@ export interface ContextRequirement {
   isWorkTask: boolean;
   isGreeting: boolean;
   isCasualConversation: boolean;
+  isContinuation: boolean;
   needsFullContext: boolean;
   needsMemoryPatterns: boolean;
   needsWorkspaceContext: boolean;
@@ -36,12 +37,26 @@ export class ConversationContextDetector {
     
     const isGreeting = greetingPatterns.some(pattern => pattern.test(lowercaseMessage));
     
-    // CASUAL CONVERSATION PATTERNS
+    // WORKFLOW CONTINUATION PATTERNS (should get FULL context)
+    const continuationPatterns = [
+      /^(yes|yeah|yep|perfect|great|excellent).*(let'?s go|continue|proceed|next)/i,
+      /^(ok|okay|alright).*(let'?s|continue|go|proceed)/i,
+      /^perfect[.,!]?\s*(let'?s go|continue|proceed|next)/i,
+      /^(great|excellent|awesome)[.,!]?\s*(let'?s|continue|go|proceed|next)/i,
+      /^let'?s (go|continue|proceed|start)/i,
+      /^continue/i,
+      /^proceed/i,
+      /^next step/i
+    ];
+    
+    const isContinuation = continuationPatterns.some(pattern => pattern.test(lowercaseMessage));
+    
+    // CASUAL CONVERSATION PATTERNS (only apply if NOT continuation)
     const casualPatterns = [
       /^(thanks|thank you|thx)/,
-      /^(ok|okay|alright|got it|understood)/,
-      /^(yes|yeah|yep|no|nope)/,
-      /^(cool|nice|great|awesome)/,
+      /^(ok|okay|alright|got it|understood)$/,  // Only if standalone
+      /^(yes|yeah|yep|no|nope)$/,               // Only if standalone
+      /^(cool|nice|great|awesome)$/,            // Only if standalone
       /^(sorry|my bad|apologies)/,
       /what do you think/,
       /do you like/,
@@ -50,8 +65,10 @@ export class ConversationContextDetector {
       /^quick question$/
     ];
     
-    const isCasualConversation = casualPatterns.some(pattern => pattern.test(lowercaseMessage)) || 
-                                 (message.length < 20 && !this.containsWorkKeywords(message));
+    const isCasualConversation = !isContinuation && (
+      casualPatterns.some(pattern => pattern.test(lowercaseMessage)) || 
+      (message.length < 20 && !this.containsWorkKeywords(message))
+    );
     
     // WORK TASK PATTERNS
     const workPatterns = [
@@ -69,7 +86,8 @@ export class ConversationContextDetector {
     ];
     
     const isWorkTask = workPatterns.some(pattern => pattern.test(lowercaseMessage)) ||
-                       this.containsWorkKeywords(message);
+                       this.containsWorkKeywords(message) ||
+                       isContinuation; // Continuations are work tasks
     
     // DETERMINE CONTEXT REQUIREMENTS
     let contextLevel: 'minimal' | 'moderate' | 'full' = 'full';
@@ -77,17 +95,29 @@ export class ConversationContextDetector {
     let needsMemoryPatterns = true;
     let needsWorkspaceContext = true;
     
-    if (isGreeting && !isWorkTask) {
+    // PRIORITY: Continuation commands always get full context
+    if (isContinuation) {
+      contextLevel = 'full';
+      needsFullContext = true;
+      needsMemoryPatterns = true;
+      needsWorkspaceContext = true;
+    }
+    // GREETINGS: Minimal context unless it's a work task
+    else if (isGreeting && !isWorkTask) {
       contextLevel = 'minimal';
       needsFullContext = false;
       needsMemoryPatterns = false;
       needsWorkspaceContext = false;
-    } else if (isCasualConversation && !isWorkTask) {
+    } 
+    // CASUAL CONVERSATION: Minimal context unless it's work
+    else if (isCasualConversation && !isWorkTask) {
       contextLevel = 'minimal';
       needsFullContext = false;
       needsMemoryPatterns = false;
       needsWorkspaceContext = false;
-    } else if (message.length < 50 && !isWorkTask) {
+    } 
+    // SHORT MESSAGES: Moderate context unless it's work
+    else if (message.length < 50 && !isWorkTask && !isContinuation) {
       contextLevel = 'moderate';
       needsFullContext = false;
       needsMemoryPatterns = false;
@@ -98,6 +128,7 @@ export class ConversationContextDetector {
       isWorkTask,
       isGreeting,
       isCasualConversation,
+      isContinuation,
       needsFullContext,
       needsMemoryPatterns,
       needsWorkspaceContext,
@@ -149,6 +180,12 @@ No need to reference previous work tasks or technical context unless specificall
       
     } else {
       // Full context for work tasks
+      if (requirement.isContinuation) {
+        prompt += `\n\n## WORKFLOW CONTINUATION MODE
+You are continuing an ongoing work session. The user has confirmed to proceed with the current workflow.
+Continue from where you left off in the previous conversation. Do NOT restart or re-analyze - execute next steps.`;
+      }
+      
       if (memoryPatterns) {
         prompt += memoryPatterns;
       }
@@ -190,6 +227,7 @@ No need to reference previous work tasks or technical context unless specificall
     console.log(`🔍 CONTEXT ANALYSIS: "${message.substring(0, 50)}..."`);
     console.log(`   Is Greeting: ${analysis.isGreeting}`);
     console.log(`   Is Casual: ${analysis.isCasualConversation}`);
+    console.log(`   Is Continuation: ${analysis.isContinuation}`);
     console.log(`   Is Work Task: ${analysis.isWorkTask}`);
     console.log(`   Context Level: ${analysis.contextLevel.toUpperCase()}`);
     console.log(`   Needs Full Context: ${analysis.needsFullContext}`);
