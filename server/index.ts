@@ -33,8 +33,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Your existing routes go here
-// ...
+// Import and register all routes
+import { registerRoutes } from './routes';
+
+// Register all application routes
+registerRoutes(app);
 
 // Sentry error handler must be before any other error middleware
 // app.use(Sentry.Handlers.errorHandler()); // Temporarily disabled
@@ -42,8 +45,20 @@ app.use((req, res, next) => {
 // Global error handler
 app.use(errorHandler);
 
+// Setup server and Vite
+import { createServer } from 'http';
+import { setupVite } from './vite';
+
 const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  logger.info(`Server is running on port ${port}`);
-  metrics.activeUsers.set(0); // Initialize active users metric
+const server = createServer(app);
+
+// Setup Vite development server for frontend
+setupVite(app, server).then(() => {
+  server.listen(port, () => {
+    logger.info(`Server is running on port ${port}`);
+    metrics.activeUsers.set(0); // Initialize active users metric
+  });
+}).catch(err => {
+  console.error('Failed to setup Vite:', err);
+  process.exit(1);
 });

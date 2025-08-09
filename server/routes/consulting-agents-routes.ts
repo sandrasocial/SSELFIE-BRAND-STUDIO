@@ -49,8 +49,10 @@ const consultingAgentsRouter = Router();
  */
 // Admin authentication middleware for consulting agents
 const adminAuth = (req: AdminRequest, res: any, next: any) => {
-  // Check for admin token in multiple places
-  const adminToken = req.headers.authorization || req.body.adminToken || req.query.adminToken;
+  // Check for admin token in multiple places (safely handle undefined req.body)
+  const adminToken = req.headers.authorization || 
+                    (req.body && req.body.adminToken) || 
+                    req.query.adminToken;
   
   if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
     console.log('🔓 ADMIN MEMORY BYPASS: Enhanced memory privileges activated');
