@@ -6,6 +6,8 @@
 
 import fs from 'fs/promises';
 import path from 'path';
+// DIRECT ACCESS: Pure filesystem operations without API overhead
+import { fileURLToPath } from 'url';
 
 export interface FileOperation {
   type: 'read' | 'write' | 'create' | 'delete' | 'search';
@@ -114,7 +116,7 @@ export class DirectWorkspaceAccess {
 
   /**
    * Write file content directly to workspace
-   * No API overhead - instant write
+   * No API overhead - instant modification
    */
   async writeFile(filePath: string, content: string): Promise<FileOperationResult> {
     try {
@@ -199,6 +201,172 @@ export class DirectWorkspaceAccess {
       console.error('❌ DIRECT FILE TREE ERROR:', error);
       return { error: 'Failed to build file tree' };
     }
+  }
+
+  /**
+   * Batch file operations for efficiency
+   * Process multiple files in single operation
+   */
+  async batchOperations(operations: FileOperation[]): Promise<FileOperationResult[]> {
+    console.log(`🔄 BATCH OPERATIONS: Processing ${operations.length} file operations - NO API COST`);
+
+    const results: FileOperationResult[] = [];
+
+    for (const operation of operations) {
+      try {
+        let result: FileOperationResult;
+
+        switch (operation.type) {
+          case 'read':
+            result = await this.readFile(operation.path);
+            break;
+          case 'write':
+          case 'create':
+            result = await this.writeFile(operation.path, operation.content || '');
+            break;
+          case 'delete':
+            result = await this.deleteFile(operation.path);
+            break;
+          case 'search':
+            const searchResults = await this.searchCodebase(operation.content || '');
+            result = {
+              success: true,
+              content: JSON.stringify(searchResults.map(r => ({
+                file: r.file,
+                content: r.content,
+                line: r.line,
+                match: r.match || operation.content
+              }))),
+              operationType: 'search'
+            };
+            break;
+          default:
+            result = {
+              success: false,
+              error: `Unknown operation type: ${operation.type}`,
+              operationType: operation.type
+            };
+        }
+
+        results.push(result);
+
+      } catch (error) {
+        results.push({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          operationType: operation.type
+        });
+      }
+    }
+
+    console.log(`✅ BATCH OPERATIONS COMPLETE: ${results.filter(r => r.success).length}/${results.length} successful`);
+
+    return results;
+  }
+
+
+
+        // Skip forbidden paths
+        if (this.forbiddenPaths.some(forbidden => relativePath.includes(forbidden))) {
+          continue;
+        }
+
+        if (entry.isDirectory()) {
+          const subtree = await this.buildFileTree(fullPath, maxDepth, currentDepth + 1);
+          children.push(subtree);
+        } else {
+          children.push({
+            name: entry.name,
+            type: 'file',
+            path: relativePath
+          });
+        }
+      }
+
+      return {
+        name: path.basename(dirPath),
+        type: 'directory',
+        children: children.sort((a, b) => {
+          if (a.type !== b.type) {
+            return a.type === 'directory' ? -1 : 1;
+          }
+          return a.name.localeCompare(b.name);
+        })
+      };
+
+    } catch (error) {
+      return {
+        name: path.basename(dirPath),
+        type: 'directory',
+        error: 'Access denied'
+      };
+    }
+  }
+
+  /**
+   * Get workspace statistics
+   */
+  async getWorkspaceStats(): Promise<any> {
+    try {
+      const stats = {
+        projectRoot: this.projectRoot,
+        allowedExtensions: this.allowedExtensions,
+        forbiddenPaths: this.forbiddenPaths,
+        lastAccess: new Date().toISOString(),
+        operationsPerformed: 0 // TODO: Track this
+      };
+
+      return stats;
+
+    } catch (error) {
+      return { error: 'Failed to get workspace stats' };
+    }
+  }
+
+  /**
+   * Remove duplicate search results
+   */
+  private deduplicateResults(results: SearchResult[]): SearchResult[] {
+    const seen = new Set<string>();
+    return results.filter(result => {
+      const key = `${result.file}:${result.line}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  /**
+   * Prioritize results based on keyword relevance and file type
+   */
+  private prioritizeResults(results: SearchResult[], keywords: string[]): SearchResult[] {
+    return results.sort((a, b) => {
+      // Score based on keyword matches
+      const aKeywordScore = keywords.reduce((score, keyword) => {
+        return score + (a.content.toLowerCase().includes(keyword.toLowerCase()) ? 1 : 0);
+      }, 0);
+      
+      const bKeywordScore = keywords.reduce((score, keyword) => {
+        return score + (b.content.toLowerCase().includes(keyword.toLowerCase()) ? 1 : 0);
+      }, 0);
+      
+      if (aKeywordScore !== bKeywordScore) {
+        return bKeywordScore - aKeywordScore; // Higher keyword score first
+      }
+      
+      // Prioritize important file types
+      const getFileTypeScore = (filePath: string): number => {
+        if (filePath.includes('/components/')) return 10;
+        if (filePath.includes('/pages/')) return 9;
+        if (filePath.includes('/services/')) return 8;
+        if (filePath.includes('/hooks/')) return 7;
+        if (filePath.includes('/utils/')) return 6;
+        if (filePath.endsWith('.tsx') || filePath.endsWith('.ts')) return 5;
+        return 1;
+      };
+      
+      return getFileTypeScore(b.file) - getFileTypeScore(a.file);
+    });
   }
 
   /**
@@ -307,6 +475,43 @@ export class DirectWorkspaceAccess {
       return result;
     } catch (error) {
       return { name: path.basename(dirPath), type: 'directory', error: 'Access denied' };
+    }
+  }
+
+  /**
+   * Delete file or directory
+   * Direct filesystem operation
+   */
+  private async deleteFile(filePath: string): Promise<FileOperationResult> {
+    try {
+      const fullPath = this.resolvePath(filePath);
+      
+      if (!this.isPathAllowed(fullPath)) {
+        throw new Error(`Access denied to path: ${filePath}`);
+      }
+
+      const stats = await fs.stat(fullPath);
+      if (stats.isDirectory()) {
+        await fs.rmdir(fullPath, { recursive: true });
+      } else {
+        await fs.unlink(fullPath);
+      }
+      
+      console.log(`🗑️ DIRECT DELETE: ${filePath} - NO API COST`);
+      
+      return {
+        success: true,
+        operationType: 'delete'
+      };
+
+    } catch (error) {
+      console.error(`❌ DIRECT DELETE ERROR: ${filePath}:`, error);
+      
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        operationType: 'delete'
+      };
     }
   }
 }
