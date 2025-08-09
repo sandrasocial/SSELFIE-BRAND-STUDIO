@@ -35,6 +35,7 @@ Preferred communication style: Simple, everyday language.
 - **Tool Integration**: Agents utilize native Replit tools, primarily `bash` and `str_replace_based_edit_tool`, for file system operations and code modification.
 - **Security Separation**: Role-based access control; agents have unrestricted access to all environment secrets for maximum autonomy.
 - **Verification-First Protocol**: All agents are trained with mandatory verification enforcement at the execution level. They must use tools to check actual files/systems and provide evidence before making any claims, ensuring zero fabrication and evidence-based responses. System prompts are enhanced with mandatory verification protocols requiring tool usage.
+- **CRITICAL FIX (Aug 2025)**: Resolved admin agent memory crisis - database persistence failures were causing agents to lose context and repeat tasks. Fixed UUID generation and JSON metadata querying to ensure proper memory retention.
 
 ## External Dependencies
 

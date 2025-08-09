@@ -1,13 +1,37 @@
-import express from 'express';
-import { adminBypass } from '../middleware/admin-bypass.js';
+import express, { Request, Response } from 'express';
+import { adminBypass } from '../middleware/admin-bypass';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+
+interface AdminBypassRequest extends Request {
+  isAdminBypass?: boolean;
+}
+
+interface FileOperationResponse {
+  success: boolean;
+  message?: string;
+  content?: string;
+  filePath?: string;
+  output?: string;
+  command?: string;
+  files?: string[];
+  query?: string;
+  bypassUsed: boolean;
+  apiCost: number;
+  error?: string;
+}
+
 const router = express.Router();
 
 // DIRECT FILE OPERATIONS - NO API COSTS
-router.post('/direct-file-create', adminBypass, async (req, res) => {
-  if (!req.isAdminBypass) return res.status(403).json({ error: 'Admin access required' });
+router.post('/direct-file-create', adminBypass, async (req: AdminBypassRequest, res: Response<FileOperationResponse>) => {
+  if (!req.isAdminBypass) return res.status(403).json({ 
+    success: false,
+    error: 'Admin access required',
+    bypassUsed: false,
+    apiCost: 0
+  });
   
   try {
     const { filePath, content } = req.body;
@@ -25,8 +49,9 @@ router.post('/direct-file-create', adminBypass, async (req, res) => {
       bypassUsed: true,
       apiCost: 0
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ 
+      success: false,
       error: error.message,
       bypassUsed: true,
       apiCost: 0
@@ -34,8 +59,13 @@ router.post('/direct-file-create', adminBypass, async (req, res) => {
   }
 });
 
-router.post('/direct-file-edit', adminBypass, async (req, res) => {
-  if (!req.isAdminBypass) return res.status(403).json({ error: 'Admin access required' });
+router.post('/direct-file-edit', adminBypass, async (req: AdminBypassRequest, res: Response<FileOperationResponse>) => {
+  if (!req.isAdminBypass) return res.status(403).json({ 
+    success: false,
+    error: 'Admin access required',
+    bypassUsed: false,
+    apiCost: 0
+  });
   
   try {
     const { filePath, oldStr, newStr } = req.body;
@@ -55,8 +85,9 @@ router.post('/direct-file-edit', adminBypass, async (req, res) => {
       bypassUsed: true,
       apiCost: 0
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ 
+      success: false,
       error: error.message,
       bypassUsed: true,
       apiCost: 0
@@ -64,8 +95,13 @@ router.post('/direct-file-edit', adminBypass, async (req, res) => {
   }
 });
 
-router.post('/direct-file-view', adminBypass, async (req, res) => {
-  if (!req.isAdminBypass) return res.status(403).json({ error: 'Admin access required' });
+router.post('/direct-file-view', adminBypass, async (req: AdminBypassRequest, res: Response<FileOperationResponse>) => {
+  if (!req.isAdminBypass) return res.status(403).json({ 
+    success: false,
+    error: 'Admin access required',
+    bypassUsed: false,
+    apiCost: 0
+  });
   
   try {
     const { filePath } = req.body;
@@ -80,8 +116,9 @@ router.post('/direct-file-view', adminBypass, async (req, res) => {
       bypassUsed: true,
       apiCost: 0
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ 
+      success: false,
       error: error.message,
       bypassUsed: true,
       apiCost: 0
@@ -89,8 +126,13 @@ router.post('/direct-file-view', adminBypass, async (req, res) => {
   }
 });
 
-router.post('/direct-bash', adminBypass, async (req, res) => {
-  if (!req.isAdminBypass) return res.status(403).json({ error: 'Admin access required' });
+router.post('/direct-bash', adminBypass, async (req: AdminBypassRequest, res: Response<FileOperationResponse>) => {
+  if (!req.isAdminBypass) return res.status(403).json({ 
+    success: false,
+    error: 'Admin access required',
+    bypassUsed: false,
+    apiCost: 0
+  });
   
   try {
     const { command } = req.body;
@@ -108,8 +150,9 @@ router.post('/direct-bash', adminBypass, async (req, res) => {
       bypassUsed: true,
       apiCost: 0
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ 
+      success: false,
       error: error.message,
       bypassUsed: true,
       apiCost: 0
@@ -117,8 +160,13 @@ router.post('/direct-bash', adminBypass, async (req, res) => {
   }
 });
 
-router.get('/direct-search', adminBypass, async (req, res) => {
-  if (!req.isAdminBypass) return res.status(403).json({ error: 'Admin access required' });
+router.get('/direct-search', adminBypass, async (req: AdminBypassRequest, res: Response<FileOperationResponse>) => {
+  if (!req.isAdminBypass) return res.status(403).json({ 
+    success: false,
+    error: 'Admin access required',
+    bypassUsed: false,
+    apiCost: 0
+  });
   
   try {
     const { query } = req.query;
@@ -130,12 +178,13 @@ router.get('/direct-search', adminBypass, async (req, res) => {
     res.json({ 
       success: true, 
       files,
-      query,
+      query: query as string,
       bypassUsed: true,
       apiCost: 0
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ 
+      success: false,
       error: error.message,
       bypassUsed: true,
       apiCost: 0
