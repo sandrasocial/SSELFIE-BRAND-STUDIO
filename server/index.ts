@@ -49,11 +49,6 @@ app.use(errorHandler);
 // Setup server and Vite
 import { setupVite } from './vite';
 
-// Disable HMR to fix websocket connection loop in development
-if (process.env.NODE_ENV === 'development') {
-  process.env.VITE_HMR = 'false';
-}
-
 const port = process.env.PORT || 5000;
 
 // Use the server returned from registerRoutes
