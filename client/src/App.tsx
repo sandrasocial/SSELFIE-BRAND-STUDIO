@@ -1,6 +1,5 @@
 import React, { useEffect, lazy, Suspense } from "react";
-import { Switch, Route } from "wouter";
-import Routes from './routes';
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -36,6 +35,7 @@ import SSELFIEGallery from "@/pages/sselfie-gallery";
 import AIGenerator from "@/pages/ai-generator";
 import AIPhotoshoot from "@/pages/ai-photoshoot";
 import SimpleTraining from "@/pages/simple-training";
+
 
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminBusinessOverview from "@/pages/admin-business-overview";
