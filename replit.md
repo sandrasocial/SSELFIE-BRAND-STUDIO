@@ -46,7 +46,6 @@ Preferred communication style: Simple, everyday language.
 - Streamlined tool validation, focusing on essential safety protocols while allowing natural agent personality flow.
 - Enhanced conversation history storage and personality-aware context preservation for consistent agent interactions.
 - Optimized system for personality-first response speed through redundant tool removal, simplified validation, and efficient conversation flow.
-- **RESOLVED (Aug 10, 2025):** Fixed critical Claude API streaming failures caused by Anthropic SDK v0.37.0 bug by implementing non-streaming bypass with simulated streaming responses. All agents now respond with real-time streaming preserved.
 
 ## External Dependencies
 

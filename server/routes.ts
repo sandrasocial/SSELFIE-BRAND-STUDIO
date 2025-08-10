@@ -20,7 +20,7 @@ import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
-import { consultingAgentsRouter } from './routes/consulting-agents-routes';
+import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
 import quinnTestingRouter from './routes/quinn-testing';
