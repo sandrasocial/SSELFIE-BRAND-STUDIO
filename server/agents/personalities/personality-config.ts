@@ -5,11 +5,19 @@
 
 import { MAYA_PERSONALITY } from './maya-personality';
 import { ELENA_PERSONALITY } from './elena-personality';
+import { OLGA_PERSONALITY } from './olga-personality';
+import { ZARA_PERSONALITY } from './zara-personality';
+import { VICTORIA_PERSONALITY } from './victoria-personality';
+import { ARIA_PERSONALITY } from './aria-personality';
 
 // Pure personality definitions without technical constraints
 export const PURE_PERSONALITIES = {
   maya: MAYA_PERSONALITY,
-  elena: ELENA_PERSONALITY
+  elena: ELENA_PERSONALITY,
+  olga: OLGA_PERSONALITY,
+  zara: ZARA_PERSONALITY,
+  victoria: VICTORIA_PERSONALITY,
+  aria: ARIA_PERSONALITY
 };
 
 // Personality enhancement utilities
