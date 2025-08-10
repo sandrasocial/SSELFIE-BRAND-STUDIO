@@ -179,14 +179,14 @@ export class UnifiedAgentSystem {
     console.log(`🤖 EXECUTING: ${request.agentId} through unified system`);
 
     try {
-      // Get agent personality for enhanced execution
-      const { CONSULTING_AGENT_PERSONALITIES } = await import('./agent-personalities-consulting');
+      // Get agent personality from the authentic personality system
+      const { PersonalityManager, PURE_PERSONALITIES } = await import('./agents/personalities/personality-config');
       // Normalize agent ID to lowercase for lookup
       const normalizedAgentId = request.agentId.toLowerCase();
-      const agentConfig = CONSULTING_AGENT_PERSONALITIES[normalizedAgentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+      const personality = PURE_PERSONALITIES[normalizedAgentId as keyof typeof PURE_PERSONALITIES];
       
-      if (!agentConfig) {
-        throw new Error(`Agent ${request.agentId} (normalized: ${normalizedAgentId}) not found in consulting system. Available agents: ${Object.keys(CONSULTING_AGENT_PERSONALITIES).join(', ')}`);
+      if (!personality) {
+        throw new Error(`Agent ${request.agentId} (normalized: ${normalizedAgentId}) not found in authentic personality system. Available agents: ${Object.keys(PURE_PERSONALITIES).join(', ')}`);
       }
 
       // UNIFIED SESSION AND MEMORY SYSTEM: Restore complete agent context
@@ -207,10 +207,8 @@ export class UnifiedAgentSystem {
         workflowState: 'active'
       });
       
-      // Build comprehensive system prompt with memory restoration
-      let systemPrompt = `You are ${agentConfig.name}, ${agentConfig.role}.
-
-${agentConfig.systemPrompt}
+      // Build comprehensive system prompt with authentic personality
+      let systemPrompt = PersonalityManager.getNaturalPrompt(request.agentId) + `
 
 UNIFIED SYSTEM AUTONOMOUS OPERATION:
 - Generate complete, functional code when creating files

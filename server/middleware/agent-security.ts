@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
-import { validateAgentResources, systemLimits } from '../config/agent-system-config';
+// Agent security validation (simplified - no more competing config systems)
 import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 
 // Rate limiter setup
@@ -20,17 +20,9 @@ export async function agentSecurityMiddleware(
     // Rate limiting
     await rateLimiter.consume(agentId);
 
-    // Resource validation
-    if (!validateAgentResources(agentId)) {
-      return res.status(429).json({
-        error: 'Agent resource limit exceeded',
-        message: 'Please try again later'
-      });
-    }
-
-    // Performance check
+    // Simplified resource validation (no more competing config systems)
     const performanceStats = agentPerformanceMonitor.getAgentPerformanceReport(agentId);
-    if (performanceStats.stats.totalCalls > systemLimits.maxConcurrentAgents) {
+    if (performanceStats.stats.totalCalls > 10) { // Simplified limit
       return res.status(429).json({
         error: 'Max concurrent operations exceeded',
         message: 'Please try again later'

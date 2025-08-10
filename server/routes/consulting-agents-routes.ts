@@ -1,6 +1,6 @@
 import { Router, Request } from 'express';
 import { isAuthenticated } from '../replitAuth';
-import { CONSULTING_AGENT_PERSONALITIES } from '../agent-personalities-consulting';
+import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/personality-config';
 // REMOVED: ClaudeApiServiceSimple import - using singleton instead
 
 // Type definitions for admin requests
@@ -88,14 +88,14 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       });
     }
 
-    // Get agent configuration
-    const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+    // Get agent configuration from authentic personality system
+    const agentConfig = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
     
     if (!agentConfig) {
       return res.status(404).json({
         success: false,
         message: `Agent "${agentId}" not found`,
-        availableAgents: Object.keys(CONSULTING_AGENT_PERSONALITIES)
+        availableAgents: Object.keys(PURE_PERSONALITIES)
       });
     }
 
@@ -186,8 +186,8 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
       });
     }
 
-    // Get agent configuration - NO HARDCODED TEMPLATES
-    const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
+    // Get agent configuration from authentic personality system
+    const agentConfig = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
     
     if (!agentConfig) {
       return res.status(404).json({
@@ -721,7 +721,7 @@ consultingAgentsRouter.get('/admin/implementation/health', adminAuth, async (req
         'conversation-history': 'Active',
         'agent-personalities': 'Active'
       },
-      agentCount: Object.keys(CONSULTING_AGENT_PERSONALITIES).length,
+      agentCount: Object.keys(PURE_PERSONALITIES).length,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -747,7 +747,7 @@ consultingAgentsRouter.get('/admin/implementation/config', adminAuth, async (req
           tokenOptimization: true,
           adminBypass: true
         },
-        agents: Object.keys(CONSULTING_AGENT_PERSONALITIES),
+        agents: Object.keys(PURE_PERSONALITIES),
         routes: [
           '/api/consulting-agents/admin/consulting-chat',
           '/api/consulting-agents/admin/agents/conversation-history/:agentName',

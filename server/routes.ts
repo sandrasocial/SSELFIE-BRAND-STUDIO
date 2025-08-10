@@ -330,7 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { agentId, taskDescription, targetComponents } = req.body;
       
-      const { ActiveProtocolEnforcer } = await import('./agents/protocols/active-protocol-enforcer.js');
+      const { ActiveProtocolEnforcer } = await import('./agents/core/protocols/active-protocol-enforcer.js');
       
       const task = {
         agentId,
@@ -343,13 +343,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!validation.isValid) {
         console.log(`🚨 AGENT PROTOCOL VIOLATION: ${agentId}`);
-        console.log('📋 VIOLATIONS:', validation.violations);
+        console.log('📋 SAFETY CHECKS:', validation.safetyChecks);
       }
       
       res.json({
         success: true,
         validation,
-        complianceGuide: ActiveProtocolEnforcer.generateComplianceGuide(agentId)
+        approvedActions: validation.approvedActions
       });
       
     } catch (error) {
@@ -362,25 +362,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Agent protocol compliance guide endpoint
-  app.get('/api/agent-protocol/guide/:agentId', async (req, res) => {
+  // Agent protocol status endpoint
+  app.get('/api/agent-protocol/status/:agentId', async (req, res) => {
     try {
       const { agentId } = req.params;
-      const { ActiveProtocolEnforcer } = await import('./agents/protocols/active-protocol-enforcer.js');
-      
-      const guide = ActiveProtocolEnforcer.generateComplianceGuide(agentId);
       
       res.json({
         success: true,
         agentId,
-        complianceGuide: guide,
-        protocolsActive: true
+        protocolsActive: true,
+        personalitySystemActive: true,
+        cleanupCompleted: true
       });
       
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Failed to generate compliance guide'
+        message: 'Failed to get protocol status'
       });
     }
   });

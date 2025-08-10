@@ -24,9 +24,9 @@ export class ClaudeApiServiceSimple {
     console.log(`🚀 AGENT COMMUNICATION: ${agentName} processing message`);
     
     try {
-      // Load agent configuration
-      const personalities = await import('../agent-personalities-consulting.js');
-      const agentConfig = personalities.CONSULTING_AGENT_PERSONALITIES[agentName as keyof typeof personalities.CONSULTING_AGENT_PERSONALITIES];
+      // Load agent configuration from authentic personality system
+      const { PersonalityManager, PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
+      const agentConfig = PURE_PERSONALITIES[agentName as keyof typeof PURE_PERSONALITIES];
       
       if (!agentConfig) {
         throw new Error(`Agent ${agentName} not found`);

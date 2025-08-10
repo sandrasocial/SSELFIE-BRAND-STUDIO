@@ -1,6 +1,6 @@
 import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 import { agentStateManager } from './agent-state-manager';
-import { agentConfigs, systemLimits } from '../config/agent-system-config';
+// Performance optimization (simplified - no more competing config systems)
 import { EventEmitter } from 'events';
 
 class AgentPerformanceOptimizer extends EventEmitter {
@@ -29,13 +29,14 @@ class AgentPerformanceOptimizer extends EventEmitter {
   private async optimizeAgentPerformance(): Promise<void> {
     const systemStatus = agentStateManager.getSystemStatus();
     
-    // Check each agent's performance
-    Object.keys(agentConfigs).forEach(agentId => {
+    // Simplified performance monitoring (no more competing config systems)
+    const activeAgents = ['maya', 'elena', 'olga', 'zara', 'victoria', 'aria', 'rachel', 'diana', 'quinn', 'wilma', 'sophia', 'martha', 'ava', 'flux'];
+    
+    activeAgents.forEach(agentId => {
       const performance = agentPerformanceMonitor.getAgentPerformanceReport(agentId);
-      const config = agentConfigs[agentId];
       
-      // Check response time
-      if (performance.stats.averageResponseTime > config.maxResponseTime) {
+      // Check response time (simplified)
+      if (performance.stats.averageResponseTime > 8000) {
         this.emit('performance-warning', {
           agentId,
           issue: 'high-response-time',
@@ -43,8 +44,8 @@ class AgentPerformanceOptimizer extends EventEmitter {
         });
       }
 
-      // Check memory usage
-      if (performance.stats.peakMemoryUsage > config.maxMemoryUsage) {
+      // Check memory usage (simplified)
+      if (performance.stats.peakMemoryUsage > 1024 * 1024 * 1024) {
         this.emit('performance-warning', {
           agentId,
           issue: 'high-memory-usage',
@@ -53,14 +54,14 @@ class AgentPerformanceOptimizer extends EventEmitter {
       }
     });
 
-    // System-wide optimizations
+    // System-wide optimizations (simplified)
     const systemMetrics = agentPerformanceMonitor.getSystemOverview();
     
-    if (systemMetrics.totalMemoryUsage > systemLimits.totalMemoryLimit) {
+    if (systemMetrics.totalMemoryUsage > 4 * 1024 * 1024 * 1024) { // 4GB limit
       this.triggerMemoryCleanup();
     }
 
-    if (systemMetrics.totalAgents > systemLimits.maxConcurrentAgents) {
+    if (systemMetrics.totalAgents > 10) { // Simplified limit
       this.balanceAgentLoad();
     }
   }
