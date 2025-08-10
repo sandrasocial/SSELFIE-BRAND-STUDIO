@@ -39,13 +39,12 @@ Generated with your personal AI model using Sandra's proven settings
    */
   static async heartImageToGallery(userId: string, imageUrl: string, prompt: string, category: string = 'Maya AI') {
     try {
-      // Create permanent gallery entry when user hearts the image
+      // Create permanent gallery entry when user hearts the image  
       const galleryImage = await storage.saveAIImage({
         userId,
         imageUrl,
         prompt,
-        category,
-        status: 'completed',
+        style: category, // Use 'style' field instead of 'category'
         generationStatus: 'completed',
         predictionId: '', // Not needed for hearted images
         
