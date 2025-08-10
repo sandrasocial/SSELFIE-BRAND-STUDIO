@@ -38,7 +38,7 @@ export interface ImageSelection {
   flatlayLibrary: {
     luxuryBrands: string[];
     editorialLayouts: string[];
-    businessAssets: string[];
+    personalAssets: string[];
   };
   selectedImages: string[];
 }
@@ -55,9 +55,9 @@ export const ImageSelector: React.FC<ImageSelectorProps> = ({
   return (
     <div className="space-y-12 p-6 bg-pure-white">
       <div>
-        <h2 className="editorial-headline mb-2">Select Your Images</h2>
+        <h2 className="editorial-headline mb-2">Show Your True Self</h2>
         <p className="system-text text-soft-gray mb-8">
-          Choose the images that best represent your brand
+          Pick photos that capture the real you - your style, personality, and what makes you unique
         </p>
       </div>
 
