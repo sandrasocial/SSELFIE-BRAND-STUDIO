@@ -28,7 +28,7 @@ interface ConsultingChatBody {
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 // REMOVED: DirectWorkspaceAccess - unified native tool architecture
 // ELIMINATED: autonomousNavigation - part of competing memory systems
-import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/capabilities/intelligence/architectural-knowledge-base';
+// REMOVED: architectural-knowledge-base - part of old complex system
 // SIMPLIFIED MEMORY SYSTEM: Replaced 4 competing systems with one clean interface
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
@@ -143,7 +143,8 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       TOOL_SCHEMAS.execute_sql_tool,
       TOOL_SCHEMAS.web_search,
       TOOL_SCHEMAS.restart_workflow,
-      TOOL_SCHEMAS.search_filesystem
+      TOOL_SCHEMAS.search_filesystem,
+      TOOL_SCHEMAS.coordinate_agent  // ELENA'S COORDINATION TOOL
     ];
 
     // REAL STREAMING: Use actual streaming method to show agent work in real-time  
@@ -152,7 +153,7 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       normalizedAgentId,
       baseConversationId,
       message,
-      agentConfig.systemPrompt,
+      PersonalityManager.getNaturalPrompt(normalizedAgentId),
       availableTools,
       res // Pass the response object for real streaming
     );
