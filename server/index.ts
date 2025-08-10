@@ -61,10 +61,14 @@ const httpServer = await registerRoutes(app);
 // Sentry error handler must be before any other error middleware
 // app.use(Sentry.Handlers.errorHandler()); // Disabled until Sentry is properly configured
 
-// Import and use safe error handling
+// Import and use safe error handling and production safety
 import { safeErrorPreventionMiddleware, safeGlobalErrorHandler } from './middleware/safe-error-prevention';
+import { productionSafetyMiddleware, userDataProtectionMiddleware, systemHealthCheck } from './middleware/production-safety';
 
-// Apply safe error prevention
+// Apply safety middleware in order
+app.use(systemHealthCheck);
+app.use(productionSafetyMiddleware);
+app.use(userDataProtectionMiddleware);
 app.use(safeErrorPreventionMiddleware);
 
 // Global error handler

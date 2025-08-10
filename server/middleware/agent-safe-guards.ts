@@ -63,8 +63,33 @@ export const checkDependencies = (filePath: string): { safe: boolean; missing: s
   }
 };
 
-// Agent file modification tracker
+// Agent file modification tracker with production safety
 export const trackAgentModification = (filePath: string, agentName: string) => {
+  // Check if file is in protected list
+  const protectedFiles = [
+    'package.json',
+    'shared/schema.ts', 
+    'server/index.ts',
+    'drizzle.config.ts',
+    '.env',
+    'vite.config.ts',
+    'tsconfig.json',
+    'tailwind.config.ts'
+  ];
+
+  const isProtected = protectedFiles.some(file => 
+    filePath.includes(file) || filePath.endsWith(file)
+  );
+
+  if (isProtected) {
+    console.error(`🚨 CRITICAL: ${agentName} attempted to modify protected file: ${filePath}`);
+    return { 
+      safe: false, 
+      issues: [`Protected file: ${filePath} - modifications blocked for system safety`],
+      blocked: true 
+    };
+  }
+
   agentModifiedFiles.add(filePath);
   console.log(`🤖 ${agentName} modified: ${filePath}`);
   
