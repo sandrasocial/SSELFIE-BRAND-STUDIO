@@ -25,6 +25,7 @@ import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
 import quinnTestingRouter from './routes/quinn-testing';
 import memberProtectionRouter from './routes/member-protection';
+import systemValidationRouter from './routes/system-validation';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
@@ -1388,6 +1389,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   
   // Member Protection Routes - Revenue Feature Safety
   app.use('/api/protection', memberProtectionRouter);
+  
+  // System Validation Routes - Phase Testing
+  app.use('/api/system', systemValidationRouter);
   // FIXED: Register consulting agents at correct path to match frontend calls
   // Regular consulting agents routes (non-admin)
   app.use('/api/consulting-agents', consultingAgentsRouter);
