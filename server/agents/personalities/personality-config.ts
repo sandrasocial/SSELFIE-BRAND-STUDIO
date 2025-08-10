@@ -13,6 +13,8 @@ import { RACHEL_PERSONALITY } from './rachel-personality';
 import { DIANA_PERSONALITY } from './diana-personality';
 import { QUINN_PERSONALITY } from './quinn-personality';
 import { WILMA_PERSONALITY } from './wilma-personality';
+import { SOPHIA_PERSONALITY } from './sophia-personality';
+import { MARTHA_PERSONALITY } from './martha-personality';
 import { AVA_PERSONALITY } from './ava-personality';
 import { FLUX_PERSONALITY } from './flux-personality';
 
@@ -28,6 +30,8 @@ export const PURE_PERSONALITIES = {
   diana: DIANA_PERSONALITY,
   quinn: QUINN_PERSONALITY,
   wilma: WILMA_PERSONALITY,
+  sophia: SOPHIA_PERSONALITY,
+  martha: MARTHA_PERSONALITY,
   ava: AVA_PERSONALITY,
   flux: FLUX_PERSONALITY
 };
