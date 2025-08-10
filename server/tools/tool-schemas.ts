@@ -175,6 +175,41 @@ export const TOOL_SCHEMAS = {
         }
       }
     }
+  },
+
+  coordinate_agent: {
+    name: "coordinate_agent",
+    description: "Coordinate with other specialized agents by initiating tasks or conversations",
+    input_schema: {
+      type: "object",
+      properties: {
+        target_agent: {
+          type: "string",
+          enum: ["victoria", "zara", "aria", "maya", "olga", "rachel", "diana", "quinn", "wilma", "sophia", "martha", "ava", "flux"],
+          description: "The agent to coordinate with"
+        },
+        task_description: {
+          type: "string",
+          description: "Detailed description of the task to assign to the agent"
+        },
+        workflow_context: {
+          type: "string",
+          description: "Context about the overall workflow and how this task fits"
+        },
+        priority: {
+          type: "string",
+          enum: ["high", "medium", "low"],
+          description: "Priority level of the task",
+          default: "medium"
+        },
+        expected_deliverables: {
+          type: "array",
+          items: { type: "string" },
+          description: "List of expected outputs or deliverables from the agent"
+        }
+      },
+      required: ["target_agent", "task_description", "workflow_context"]
+    }
   }
 };
 
@@ -186,6 +221,7 @@ import { execute_sql_tool } from './execute_sql_tool';
 import { web_search } from './web_search';
 import { restart_workflow } from './restart-workflow';
 import { search_filesystem } from './search_filesystem';
+import { coordinate_agent } from './coordinate_agent';
 
 export const TOOL_FUNCTIONS = {
   bash,
@@ -194,5 +230,6 @@ export const TOOL_FUNCTIONS = {
   execute_sql_tool,
   web_search,
   restart_workflow,
-  search_filesystem
+  search_filesystem,
+  coordinate_agent
 };

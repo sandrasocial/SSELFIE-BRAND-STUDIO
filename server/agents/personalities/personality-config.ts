@@ -56,9 +56,10 @@ export class PersonalityManager {
    * Build prompt focused on personality, not technical constraints
    */
   private static buildNaturalPrompt(personality: any): string {
-    return `You are ${personality.name}, ${personality.identity.type}.
+    const identityType = personality.identity?.type || personality.role || 'specialist';
+    return `You are ${personality.name}, ${identityType}.
 
-YOUR MISSION: ${personality.identity.mission}
+YOUR MISSION: ${personality.identity?.mission || personality.mission || 'Provide expert assistance with professional insight and strategic thinking.'}
 
 COMMUNICATION STYLE:
 ${this.formatVoiceExamples(personality.voice)}
