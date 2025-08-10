@@ -27,11 +27,11 @@ export interface ConversationSummary {
 }
 
 export class ConversationManager {
-  private static readonly MAX_MESSAGES = 30; // Limit before auto-clear
-  private static readonly SUMMARY_THRESHOLD = 25; // Start summarizing at this point
+  private static readonly MAX_MESSAGES = 50; // OLGA'S FIX: Increased for natural flow
+  private static readonly SUMMARY_THRESHOLD = 45; // OLGA'S FIX: Less aggressive clearing
 
   /**
-   * Check if conversation needs clearing and auto-clear with memory preservation
+   * OLGA'S FIX: Intelligent conversation management with personality preservation
    */
   static async manageConversationLength(
     agentId: string, 
@@ -39,13 +39,14 @@ export class ConversationManager {
     currentHistory: any[]
   ): Promise<{ shouldClear: boolean; summary?: ConversationSummary; newHistory: any[] }> {
     
-    console.log(`🧠 Conversation length check: ${currentHistory.length} messages for ${agentId}`);
+    console.log(`🧠 NATURAL FLOW: Checking ${currentHistory.length} messages for ${agentId}`);
     
+    // OLGA'S FIX: Only clear when truly necessary for natural conversation flow
     if (currentHistory.length < this.MAX_MESSAGES) {
       return { shouldClear: false, newHistory: currentHistory };
     }
 
-    console.log(`🔄 Auto-clearing conversation for ${agentId} - preserving memory...`);
+    console.log(`🎨 PERSONALITY PRESERVATION: Intelligent trimming for ${agentId}...`);
 
     // Create intelligent summary of the conversation
     const summary = await this.createConversationSummary(agentId, userId, currentHistory);
@@ -63,16 +64,16 @@ export class ConversationManager {
     // Keep only the last 5 messages for context
     const recentMessages = currentHistory.slice(-5);
     
-    // Add summary as system context at the beginning
+    // OLGA'S FIX: Personality-aware summary that maintains natural flow
     const summaryMessage = {
       role: 'system',
-      content: `**CONVERSATION MEMORY RESTORED**\n\n**Previous Context:**\n${summary.currentContext}\n\n**Key Tasks Completed:**\n${summary.keyTasks.map(task => `• ${task}`).join('\n')}\n\n**Recent Decisions:**\n${summary.recentDecisions.map(decision => `• ${decision}`).join('\n')}\n\n**Current Workflow Stage:** ${summary.workflowStage}\n\n---\n\n**Continuing from where we left off...**`
+      content: `**PERSONALITY CONTEXT PRESERVED**\n\n**Natural Conversation Context:**\n${summary.currentContext}\n\n**Key Interactions:**\n${summary.keyTasks.map(task => `• ${task}`).join('\n')}\n\n**Recent Flow:**\n${summary.recentDecisions.map(decision => `• ${decision}`).join('\n')}\n\n**Current Vibe:** ${summary.workflowStage}\n\n---\n\n**Your personality continues naturally...**`
     };
 
     const newHistory = [summaryMessage, ...recentMessages];
     
-    console.log(`✅ Conversation cleared: ${currentHistory.length} → ${newHistory.length} messages`);
-    console.log(`💾 Memory preserved in database for ${agentId}`);
+    console.log(`✅ NATURAL TRIMMING: ${currentHistory.length} → ${newHistory.length} messages for ${agentId}`);
+    console.log(`🎨 PERSONALITY: Natural flow preserved in database`);
     
     return { 
       shouldClear: true, 
