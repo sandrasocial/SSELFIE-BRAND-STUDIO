@@ -7,6 +7,7 @@ import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MultiAgentWorkflowManager, WorkflowTemplate } from '../workflows/templates/multi-agent-workflow-template';
 import { WorkflowPersistence } from '../workflows/active/workflow-persistence';
+import { AutoTaskExecutor } from '../workflows/automation/auto-task-executor';
 // UUID generation for coordination IDs
 const generateId = () => `coord_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -108,9 +109,11 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<str
     // Get the target agent's personality
     const agentPersonality = PersonalityManager.getNaturalPrompt(target_agent);
     
-    // Prepare enhanced coordination message with workflow template
+    // Prepare enhanced coordination message with automatic execution trigger
     const coordinationMessage = `
 COORDINATION REQUEST FROM ELENA (Master Coordinator)
+
+**URGENT: IMMEDIATE TASK EXECUTION REQUIRED**
 
 **Workflow Context:** ${workflow_context}
 
@@ -133,13 +136,20 @@ ${workflowTemplate.successCriteria.map(criteria => `- ${criteria}`).join('\n')}
 **Expected Deliverables:**
 ${expected_deliverables.length > 0 ? expected_deliverables.map(d => `- ${d}`).join('\n') : '- Complete the assigned task systematically'}
 
-**Instructions:**
+**EXECUTION INSTRUCTIONS:**
 ${workflowTemplate ? 
-  `This is part of a structured workflow with defined success criteria. Please execute your part of the workflow systematically, ensuring all deliverables are provided as specified in the template.` :
-  `Please execute this task using your specialized expertise. ELENA is coordinating this as part of a larger workflow.`
+  `⚡ START WORKING IMMEDIATELY: This is part of a structured workflow with defined success criteria. Begin executing your part of the workflow NOW using your available tools. Do not wait for further instructions.` :
+  `⚡ START WORKING IMMEDIATELY: Execute this task using your specialized expertise NOW. ELENA is coordinating this as part of a larger workflow. Begin work immediately using your available tools.`
 }
 
-Use your available tools to complete this work thoroughly. Report back with your results, findings, and any issues encountered. If you need additional context or run into blockers, document them clearly in your response.
+**ACTION REQUIRED:**
+1. ✅ Acknowledge receipt of this task assignment
+2. ⚡ BEGIN EXECUTING IMMEDIATELY - Use your tools to start work
+3. 📊 Provide progress updates as you work
+4. 📋 Report results, findings, and any issues encountered
+
+**AUTOMATIC TASK EXECUTION:** 
+This message serves as your trigger to begin work immediately. Do not wait for additional messages or confirmations. Use all available tools to complete your assigned deliverables systematically.
 
 ${workflowTemplate ? `**Note:** This workflow has ${workflowTemplate.agents.length} total agents involved. Your task is part of a larger coordinated effort.` : ''}
 `;
@@ -157,6 +167,18 @@ ${workflowTemplate ? `**Note:** This workflow has ${workflowTemplate.agents.leng
 
     console.log(`✅ COORDINATION SUCCESS: ${target_agent} received task assignment`);
     console.log(`📄 Response preview: ${response.substring(0, 200)}...`);
+
+    // AUTOMATIC TASK EXECUTION: Trigger agent to start working immediately
+    console.log(`⚡ TRIGGERING AUTO-EXECUTION for ${target_agent}`);
+    setTimeout(async () => {
+      await AutoTaskExecutor.triggerAutoExecution({
+        agentId: target_agent,
+        conversationId: coordinationId,
+        taskDescription: task_description,
+        priority: priority as 'high' | 'medium' | 'low',
+        delayMs: 2000 // Small delay to ensure coordination message is processed
+      });
+    }, 2000);
 
     // Return enhanced coordination result
     let result = `✅ Successfully coordinated with ${target_agent.toUpperCase()}
