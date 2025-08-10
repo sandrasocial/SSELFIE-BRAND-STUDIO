@@ -142,7 +142,8 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       TOOL_SCHEMAS.get_latest_lsp_diagnostics,
       TOOL_SCHEMAS.execute_sql_tool,
       TOOL_SCHEMAS.web_search,
-      TOOL_SCHEMAS.restart_workflow
+      TOOL_SCHEMAS.restart_workflow,
+      TOOL_SCHEMAS.search_filesystem
     ];
 
     // REAL STREAMING: Use actual streaming method to show agent work in real-time  
