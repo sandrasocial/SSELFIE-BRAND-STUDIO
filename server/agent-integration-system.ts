@@ -58,7 +58,7 @@ export class AgentIntegrationSystem {
    * HOOK: Called when agent generates components
    */
   async onAgentComponentGeneration(agentId: string, sessionId: string, componentName: string, filePath: string): Promise<void> {
-    console.log(`🎨 INTEGRATION SYSTEM: Agent ${agentId} generated component ${componentName}`);
+    console.log(`INTEGRATION SYSTEM: Agent ${agentId} generated component ${componentName}`);
     
     const session = this.getOrCreateSession(agentId, sessionId);
     session.actions.push({

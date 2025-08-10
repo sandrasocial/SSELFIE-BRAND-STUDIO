@@ -44,7 +44,7 @@ export const SSELFIE_TECH_STANDARDS = `
 - shared/schema.ts - Database schema with Drizzle ORM
 - shared/ - Shared types and utilities
 
-🎨 SSELFIE STUDIO DESIGN SYSTEM:
+SSELFIE STUDIO DESIGN SYSTEM:
 - **Colors**: Black (#0a0a0a), White (#ffffff), Editorial Gray (#f5f5f5) ONLY
 - **Typography**: Times New Roman for headlines, system fonts for UI
 - **Headlines**: font-serif text-6xl uppercase tracking-wide

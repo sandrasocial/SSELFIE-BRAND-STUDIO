@@ -61,7 +61,7 @@ export class UnifiedGenerationService {
     
     const savedTracker = await storage.saveGenerationTracker(trackerData);
     
-    // 🔥 UNIVERSAL PROMPT STRUCTURE FOR ALL USERS
+    // UNIVERSAL PROMPT STRUCTURE FOR ALL USERS
     // Format: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [POETIC DESCRIPTION], [2025 FASHION], [NATURAL LIGHTING], [AUTHENTIC EMOTION]
     
     // Remove trigger word if already present anywhere in prompt
@@ -81,12 +81,12 @@ export class UnifiedGenerationService {
       .replace(/professional photography,?\s*/gi, '')
       .trim();
     
-    // 🎯 UNIVERSAL MAYA PROMPT STRUCTURE FOR ALL USERS WITH ANATOMY FIXES
+    // UNIVERSAL MAYA PROMPT STRUCTURE FOR ALL USERS WITH ANATOMY FIXES
     // Add anatomy-specific terms to prevent deformities
     const anatomyTerms = "detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy";
     const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}, ${anatomyTerms}`;
     
-    console.log(`🎯 UNIFIED FINAL PROMPT: "${finalPrompt}"`);
+    console.log(`UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
     // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use their validated trained models
     const modelVersion = `${modelId}:${versionId}`;
@@ -97,8 +97,8 @@ export class UnifiedGenerationService {
       input: {
         prompt: finalPrompt,
         lora_scale: 0.9, // Keep for facial accuracy
-        guidance_scale: 5.0, // 🔥 ANATOMY FIX: Increased from 3.0 to 5.0 for better anatomy adherence
-        num_inference_steps: 50, // 🔥 ANATOMY FIX: Increased from 40 to 50 for detailed extremities
+        guidance_scale: 5.0, // ANATOMY FIX: Increased from 3.0 to 5.0 for better anatomy adherence
+        num_inference_steps: 50, // ANATOMY FIX: Increased from 40 to 50 for detailed extremities
         num_outputs: 2,
         aspect_ratio: "3:4",
         output_format: "png",

@@ -216,7 +216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Agent-generated enhancement routes
   setupEnhancementRoutes(app);
 
-  console.log('🚀 Starting route registration...');
+  console.log('Starting route registration...');
   
   // Basic middleware and authentication setup
   const server = createServer(app);
@@ -394,7 +394,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(onboardingData.userId, userId))
         .limit(1);
 
-      console.log('🎯 Victoria Generation: Using saved onboarding data:', userOnboarding[0] ? 'Found' : 'Not found');
+      console.log('Victoria Generation: Using saved onboarding data:', userOnboarding[0] ? 'Found' : 'Not found');
       
       if (userOnboarding[0]) {
         console.log('📋 Saved onboarding includes:', {
@@ -433,7 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .returning();
 
       // Connect with Victoria Agent for website generation
-      console.log('🎯 Connecting with Victoria agent for website building...');
+      console.log('Connecting with Victoria agent for website building...');
       
       try {
         // Call Victoria agent with comprehensive data
@@ -1189,7 +1189,7 @@ Rules:
 
       } catch (error) {
         console.error('Maya Claude API error:', error);
-        response = "I'm having trouble connecting to my creative systems right now. Could you try again in a moment? I'm excited to help you create amazing photos! ✨";
+        response = "I'm having trouble connecting to my creative systems right now. Could you try again in a moment? I'm excited to help you create amazing photos!";
       }
 
       res.json({
@@ -1476,7 +1476,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         success: true,
         trackerId: savedTracker.id,
         predictionId: prediction.id,
-        message: "✨ Maya is creating your stunning editorial photos! Watch the magic happen...",
+        message: "Maya is creating your stunning editorial photos! Watch the magic happen...",
         status: 'processing'
       });
       
@@ -2488,7 +2488,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       
       res.json({
         success: true,
-        message: "✨ BULLETPROOF training started! Your personal AI model will be ready in 30-45 minutes.",
+        message: "BULLETPROOF training started! Your personal AI model will be ready in 30-45 minutes.",
         trainingId: result.trainingId,
         status: 'training',
         modelType: 'flux-bulletproof',
@@ -2557,7 +2557,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         return res.status(400).json({ error: 'Collections array required' });
       }
       
-      console.log(`🎨 MAYA COLLECTION UPDATE: Updating ${collections.length} collections for user ${userId}`);
+      console.log(`MAYA COLLECTION UPDATE: Updating ${collections.length} collections for user ${userId}`);
       
       const updatedCollections = [];
       

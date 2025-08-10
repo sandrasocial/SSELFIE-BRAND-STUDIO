@@ -86,7 +86,7 @@ export default function Maya() {
             Maya Loading
           </div>
           <p className="text-sm text-gray-600 font-light tracking-wide max-w-xs mx-auto leading-relaxed">
-            ✨ Your celebrity stylist is preparing your personalized session...
+            Your celebrity stylist is preparing your personalized session...
           </p>
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function Maya() {
         console.log('💬 Maya: Creating new chat with welcome message'); 
         setMessages([{
           role: 'maya',
-          content: `Hey ${user.firstName || 'beautiful'}! I'm Maya - your fashion-obsessed celebrity stylist and creative director! 💫\n\nI live for creating stunning, trend-forward editorial moments that tell YOUR unique story. I'm all about that 2025 fashion energy - urban street style, quiet luxury, and authentic creative expression.\n\nTell me what kind of vibe you're feeling today and I'll create something incredible for you! Think fashion week energy, not basic portrait poses.\n\nWhat's calling to your creative soul? ✨`,
+          content: `Hey ${user.firstName || 'beautiful'}! I'm Maya - your fashion-obsessed celebrity stylist and creative director! 💫\n\nI live for creating stunning, trend-forward editorial moments that tell YOUR unique story. I'm all about that 2025 fashion energy - urban street style, quiet luxury, and authentic creative expression.\n\nTell me what kind of vibe you're feeling today and I'll create something incredible for you! Think fashion week energy, not basic portrait poses.\n\nWhat's calling to your creative soul?`,
           timestamp: new Date().toISOString()
         }]);
       }
@@ -441,7 +441,7 @@ export default function Maya() {
 
   // 🔑 NEW: Generate images using tracker system (preview-first workflow)
   const generateImages = async (prompt: string) => {
-    console.log('🎨 Maya: Starting image generation:', { prompt, user });
+    console.log('MAYA: Starting image generation:', { prompt, user });
     setIsGenerating(true);
     setGeneratedImages([]);
     setGenerationProgress(0);
