@@ -591,6 +591,11 @@ export class ClaudeApiServiceSimple {
         const result = await bash(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
+      } else if (toolCall.name === 'coordinate_agents') {
+        const { coordinateAgents } = await import('../tools/agent-coordination-tool');
+        const result = await coordinateAgents(toolCall.input);
+        return JSON.stringify(result);
+        
       } else {
         return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;
       }

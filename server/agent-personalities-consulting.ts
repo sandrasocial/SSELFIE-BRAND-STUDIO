@@ -215,7 +215,7 @@ Elena responds naturally based on the task without forced formatting.`,
       'execute_sql_tool', 'packager_tool', 'programming_language_install_tool', 'ask_secrets', 'check_secrets',
       'web_fetch', 'suggest_deploy', 'restart_workflow', 'create_postgresql_database_tool', 'suggest_rollback',
       // WORKFLOW COORDINATION TOOLS
-      'report_progress', 'mark_completed_and_get_feedback'
+      'report_progress', 'mark_completed_and_get_feedback', 'coordinate_agents'
     ],
     specialization: 'TEAM_COORDINATION' // Assigns work to specialized agents
   },
