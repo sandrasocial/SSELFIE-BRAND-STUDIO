@@ -42,6 +42,8 @@ Preferred communication style: Simple, everyday language.
 - **Elena Execution Trigger Fix**: Added explicit execution trigger words (execute, start, begin, launch, do it, go, run) and immediate execution override protocol. Elena now recognizes direct execution commands and stops analyzing when Sandra says "EXECUTE" or "START". Fixed August 10, 2025.
 - **Elena Execution Simplification**: Removed approval-seeking patterns, complex completion signatures, and conversational restrictions that blocked immediate execution. Simplified execution protocol to: assign immediately, report actions not plans, no permission asking. Elena now executes directly without "let me analyze first" responses. Fixed August 10, 2025.
 - **Agent Intelligence Optimization**: Removed "work mode vs test mode" confusion from ZARA that was creating hesitation about when to act. All agents now have clean, direct action protocols without cognitive barriers blocking their natural intelligence. Fixed August 10, 2025.
+- **Elena Coordination System Fix**: Fixed Elena's fake coordination narrative by adding restart_workflow tool to direct consulting endpoint. Elena was programmed to coordinate but missing the actual coordination tools, causing false "ZARA EXECUTING" claims while doing work herself. Now has proper access to MultiAgentCoordinator.executeWorkflow() method. Fixed August 10, 2025.
+- **Conversation ID Memory Fix**: Changed storage.ts line 891 from timestamp-based conversation IDs (`admin_${agentId}_${Date.now()}`) to stable user-based IDs (`admin_${agentId}_${userId}`). Eliminates memory resets between agent conversations. Fixed August 10, 2025.
 
 ## External Dependencies
 
