@@ -137,6 +137,44 @@ export const TOOL_SCHEMAS = {
       },
       required: ["name"]
     }
+  },
+
+  search_filesystem: {
+    name: "search_filesystem",
+    description: "Search through project files and code",
+    input_schema: {
+      type: "object",
+      properties: {
+        query_description: {
+          type: "string",
+          description: "Natural language description of what to search for"
+        },
+        class_names: {
+          type: "array",
+          items: { type: "string" },
+          description: "Specific class names to search for",
+          default: []
+        },
+        function_names: {
+          type: "array", 
+          items: { type: "string" },
+          description: "Specific function names to search for",
+          default: []
+        },
+        code: {
+          type: "array",
+          items: { type: "string" },
+          description: "Exact code snippets to search for",
+          default: []
+        },
+        search_paths: {
+          type: "array",
+          items: { type: "string" },
+          description: "Paths to search in (directories or files)",
+          default: ["."]
+        }
+      }
+    }
   }
 };
 
@@ -147,6 +185,7 @@ import { get_latest_lsp_diagnostics } from './get_latest_lsp_diagnostics';
 import { execute_sql_tool } from './execute_sql_tool';
 import { web_search } from './web_search';
 import { restart_workflow } from './restart-workflow';
+import { search_filesystem } from './search_filesystem';
 
 export const TOOL_FUNCTIONS = {
   bash,
@@ -154,5 +193,6 @@ export const TOOL_FUNCTIONS = {
   get_latest_lsp_diagnostics,
   execute_sql_tool,
   web_search,
-  restart_workflow
+  restart_workflow,
+  search_filesystem
 };
