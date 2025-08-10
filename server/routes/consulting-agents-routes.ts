@@ -34,8 +34,6 @@ import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '@shared/schema';
 import { eq, desc } from 'drizzle-orm';
-// AGENT COORDINATION BRIDGE: Connects Elena to existing coordination systems
-import { coordinateAgents } from '../tools/agent-coordination-tool';
 
 function getClaudeService() {
   return claudeApiServiceSimple;
@@ -517,48 +515,6 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
               query: { type: "string" }
             },
             required: ["query"]
-          }
-        },
-        {
-          name: "coordinate_agents",
-          description: "Coordinate with other agents for workflow execution",
-          input_schema: {
-            type: "object",
-            properties: {
-              action: { 
-                type: "string", 
-                enum: ["assign_task", "coordinate_workflow", "send_message", "distribute_tasks"],
-                description: "Type of coordination action to perform"
-              },
-              agents: { 
-                type: "array", 
-                items: { type: "string" },
-                description: "List of agent names to coordinate with"
-              },
-              task: { 
-                type: "string",
-                description: "Task description or workflow objective"
-              },
-              message: { 
-                type: "string",
-                description: "Message to send to specific agent"
-              },
-              targetAgent: { 
-                type: "string",
-                description: "Specific agent to send message or assign task to"
-              },
-              workflowType: { 
-                type: "string",
-                description: "Type of workflow (e.g., 'authentication', 'database', 'frontend')"
-              },
-              priority: { 
-                type: "string", 
-                enum: ["low", "medium", "high", "critical"],
-                default: "medium",
-                description: "Priority level for the coordination request"
-              }
-            },
-            required: ["action"]
           }
         },
 

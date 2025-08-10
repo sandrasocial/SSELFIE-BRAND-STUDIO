@@ -591,13 +591,6 @@ export class ClaudeApiServiceSimple {
         const result = await bash(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
-      } else if (toolCall.name === 'coordinate_agents') {
-        const { MultiAgentCoordinator } = await import('../services/multi-agent-coordinator');
-        const { intelligentTaskDistributor } = await import('../services/intelligent-task-distributor');
-        const coordinator = new MultiAgentCoordinator();
-        const result = await coordinator.executeCoordination(toolCall.input);
-        return JSON.stringify(result);
-        
       } else {
         return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;
       }
