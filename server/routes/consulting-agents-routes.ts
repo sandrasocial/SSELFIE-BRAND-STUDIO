@@ -54,55 +54,48 @@ const consultingAgentsRouter = Router();
  * ADMIN CONSULTING AGENTS - UNRESTRICTED INTELLIGENCE SYSTEM
  * Removed all hardcoded forcing to let agents use natural intelligence
  */
-// Admin authentication middleware for consulting agents
-const adminAuth = (req: AdminRequest, res: any, next: any) => {
-  const adminToken = req.headers.authorization || 
-                    (req.body && req.body.adminToken) || 
-                    req.query.adminToken;
-  
-  if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
-    req.user = {
-      claims: {
-        sub: '42585527',
-        email: 'ssa@ssasocial.com',
-        first_name: 'Sandra',
-        last_name: 'Sigurjonsdottir'
-      }
-    };
-    req.isAdminBypass = true;
-    return next();
-  }
-  
-  // Fall back to regular authentication for non-admin requests
-  return isAuthenticated(req, res, next);
-};
+// STREAMLINED: Use centralized admin middleware instead of duplicate code
+import { requireAdmin } from '../middleware/admin-middleware';
 
 
-// Export handler function for direct use
+// STREAMLINED: Import streamlined conversation handler
+import { StreamlinedConversationHandler } from '../agents/core/conversation/streamlined-conversation-handler';
+
+// Export streamlined handler function
 export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
   try {
-    console.log(`🎯 ADMIN CONSULTING: Starting unrestricted agent system`);
-    console.log(`🔍 Request body received:`, JSON.stringify(req.body, null, 2));
+    console.log(`🚀 STREAMLINED CONSULTING: Fast personality-first response`);
 
-    const { agentId, message } = req.body;
-    
-    console.log(`🔍 Parsed values - agentId: "${agentId}", message: "${message}"`);
+    const { agentId, message, conversationId } = req.body;
+    const userId = req.user?.claims?.sub || 'sandra-admin-test';
 
-    if (!agentId || !message?.trim()) {
-      console.log(`❌ Validation failed - agentId: ${!!agentId}, message: ${!!message?.trim()}`);
+    // STREAMLINED: Process conversation with minimal overhead
+    const result = await StreamlinedConversationHandler.processConversation({
+      agentId,
+      message,
+      userId,
+      conversationId
+    });
+
+    if (!result.success) {
       return res.status(400).json({
         success: false,
-        message: 'Agent ID and message are required',
-        debug: { agentId: !!agentId, messageExists: !!message, messageTrimmed: !!message?.trim() }
+        message: result.error || 'Processing failed'
       });
     }
 
-    // Get agent configuration
-    const agentConfig = CONSULTING_AGENT_PERSONALITIES[agentId as keyof typeof CONSULTING_AGENT_PERSONALITIES];
-    
-    if (!agentConfig) {
-      return res.status(404).json({
-        success: false,
+    // FAST RESPONSE: Return immediately with personality response
+    return res.json({
+      success: true,
+      response: result.response,
+      conversationId: result.conversationId,
+      processingTime: result.processingTime
+    });
+
+  } catch (error) {
+    console.error(`❌ STREAMLINED ERROR:`, error);
+    return res.status(500).json({
+      success: false,
         message: `Agent ${agentId} not found in consulting system`
       });
     }
