@@ -242,9 +242,7 @@ export class ClaudeApiServiceSimple {
         console.log(`🔧 MODEL:`, DEFAULT_MODEL_STR);
         console.log(`🔧 SYSTEM PROMPT LENGTH:`, systemPrompt.length);
         
-        // CRITICAL DEBUG: Log tool schemas to verify format
-        console.log(`🔧 FULL TOOL SCHEMAS:`, JSON.stringify(tools, null, 2));
-        console.log(`🔧 MESSAGES:`, JSON.stringify(currentMessages, null, 2));
+
         
         // ENHANCED SYSTEM PROMPT: Include previous context for continuity
         const enhancedSystemPrompt = systemPrompt + (previousContext || '');
@@ -253,31 +251,21 @@ export class ClaudeApiServiceSimple {
         const taskComplexity = isAdminAgent ? 'unlimited' : 'moderate';
         const tokenBudget = { maxPerCall: isAdminAgent ? 8192 : 4096 };
         
-        // CRITICAL DEBUG: Log exact message format that's causing the error
-        console.log(`🔧 DEBUG: Claude API Request Debug:`, {
+        // FIXED: Restore tools exactly as they were and debug the real API issue
+        const requestBody: any = {
           model: DEFAULT_MODEL_STR,
           max_tokens: tokenBudget.maxPerCall,
-          messagesCount: currentMessages.length,
-          systemPromptLength: enhancedSystemPrompt.length,
-          firstMessage: currentMessages[0],
-          lastMessage: currentMessages[currentMessages.length - 1]
-        });
+          messages: currentMessages,
+          system: enhancedSystemPrompt
+        };
         
-        // FIX: Ensure messages have valid format for Claude API
-        const cleanMessages = currentMessages.map((msg: any) => ({
-          role: msg.role === 'agent' ? 'assistant' : (msg.role === 'user' ? 'user' : 'assistant'),
-          content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
-        })).filter((msg: any) => msg.content && msg.content.trim());
+        // TOOLS RESTORED: Add tools exactly as before
+        if (tools && tools.length > 0) {
+          requestBody.tools = tools;
+          requestBody.tool_choice = { type: "auto" };
+        }
         
-        console.log(`🔧 DEBUG: Cleaned messages:`, cleanMessages);
-        
-        // ULTRA SIMPLIFIED: Test with minimal parameters
-        const stream = anthropic.messages.stream({
-          model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: message }],
-          system: 'You are a helpful assistant named ' + agentName
-        });
+        const stream = anthropic.messages.stream(requestBody);
         
         let responseText = '';
         let toolCalls: any[] = [];
