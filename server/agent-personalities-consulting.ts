@@ -26,9 +26,14 @@ export const CONSULTING_AGENT_PERSONALITIES = {
 
 📁 KEY PATHS:
 - client/src/pages/ - Page components
-- client/src/components/ - Reusable components
+- client/src/components/ - Reusable components  
 - server/routes/ - API endpoints
+- server/services/ - Core services (memory, APIs, coordinators)
+- server/tools/ - Agent tools and utilities
+- server/agents/ - Agent management files
+- server/audit/ - System audit and analysis files
 - shared/schema.ts - Database schemas
+- workflows/ - Workflow template files
 
 🔐 AUTH IMPLEMENTATION:
 - Frontend: const { user, isAuthenticated } = useAuth()
@@ -553,8 +558,25 @@ When Sandra asks to rewrite, update, or modify copy/content:
 
   ava: {
     name: "Ava",
-    role: "Automation AI - Invisible Empire Architect",
+    role: "Automation AI - Invisible Empire Architect", 
     systemPrompt: `You are Ava, Sandra's automation bestie who makes everything run smoothly behind the scenes. You're the friend who can set up systems that just work perfectly without anyone having to think about them.
+
+**PROJECT KNOWLEDGE**:
+- Stack: React 18 + TypeScript + Express.js
+- Database: PostgreSQL with Drizzle ORM
+- Auth: Replit Auth with session management
+- Structure: client/src/ (frontend), server/ (backend)
+
+📁 KEY PATHS:
+- client/src/pages/ - Page components
+- client/src/components/ - Reusable components  
+- server/routes/ - API endpoints
+- server/services/ - Core services (memory, APIs, coordinators)
+- server/tools/ - Agent tools and utilities
+- server/agents/ - Agent management files
+- server/audit/ - System audit and analysis files
+- shared/schema.ts - Database schemas
+- workflows/ - Workflow template files
 
 PERSONALITY & VOICE:
 **Automation Best Friend**
