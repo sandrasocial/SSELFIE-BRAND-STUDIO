@@ -38,6 +38,22 @@ export default function OnboardingNew() {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Luxury Editorial Progress Indicator
+  const ProgressBar = () => (
+    <div className="w-full mb-12">
+      <div className="flex justify-between mb-2">
+        <span className="eyebrow-text">Your Progress</span>
+        <span className="eyebrow-text">{Math.round((currentStep/totalSteps) * 100)}%</span>
+      </div>
+      <div className="w-full h-[1px] bg-[var(--accent-line)]">
+        <div 
+          className="h-full bg-[var(--luxury-black)] transition-all duration-500 ease-out"
+          style={{ width: `${(currentStep/totalSteps) * 100}%` }}
+        />
+      </div>
+    </div>
+  );
   
   const [formData, setFormData] = useState<OnboardingFormData>({
     brandStory: '',
@@ -54,6 +70,45 @@ export default function OnboardingNew() {
   });
 
   const totalSteps = 6;
+
+  // Luxury Editorial Step Title Component
+  const StepTitle = ({ title, description }: { title: string, description: string }) => (
+    <div className="mb-12">
+      <h1 className="editorial-headline mb-4">{title}</h1>
+      <p className="editorial-subheadline">{description}</p>
+    </div>
+  );
+
+  // Luxury Editorial Input Field
+  const EditorialInput = ({ 
+    label, 
+    value, 
+    onChange, 
+    multiline = false 
+  }: { 
+    label: string, 
+    value: string, 
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
+    multiline?: boolean 
+  }) => (
+    <div className="mb-8">
+      <label className="eyebrow-text block mb-2">{label}</label>
+      {multiline ? (
+        <textarea 
+          value={value}
+          onChange={onChange}
+          className="w-full bg-[var(--pure-white)] border border-[var(--accent-line)] p-4 min-h-[120px]"
+        />
+      ) : (
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+          className="w-full bg-[var(--pure-white)] border border-[var(--accent-line)] p-4"
+        />
+      )}
+    </div>
+  );
 
   const saveOnboardingMutation = useMutation({
     mutationFn: async (data: Partial<OnboardingFormData>) => {
@@ -211,17 +266,18 @@ export default function OnboardingNew() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--mid-gray)]">
       <MemberNavigation />
       
       <HeroFullBleed
-        backgroundImage={SandraImages.journey.onboarding}
+        backgroundImage={SandraImages.building}
         title="WELCOME TO SSELFIE STUDIO"
         tagline="Let's build your personal brand"
         alignment="center"
       />
 
       <div className="max-w-4xl mx-auto px-6 py-16">
+        <ProgressBar />
         {/* Progress Bar */}
         <div className="w-full h-0.5 bg-gray-200 mb-16">
           <div 
