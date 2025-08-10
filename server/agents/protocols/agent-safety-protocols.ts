@@ -1,5 +1,15 @@
-// Agent Safety Protocols - Prevent app crashes from broken imports
+import { AgentProtocolValidator } from './agent-protocol-validator';
+import { AgentProtocolEnforcer } from './agent-protocol-enforcer';
+
+// Re-export the enforcement system
+export { AgentProtocolValidator, AgentProtocolEnforcer };
+
+// Documentation of safety protocols
 export const AGENT_SAFETY_PROTOCOLS = `
+🔒 AUTOMATED SAFETY PROTOCOL SYSTEM - Updated August 9, 2025
+
+This system is now automatically enforced through AgentProtocolEnforcer.
+All file operations are validated before execution.
 🚨 CRITICAL: IMPORT VALIDATION REQUIREMENTS FOR ALL AGENTS
 
 Before creating ANY files, ALL agents must follow these safety protocols to prevent app crashes:
