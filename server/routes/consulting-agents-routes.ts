@@ -120,7 +120,7 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
     }
     
     const userId = req.user.claims.sub;
-    const conversationId = req.body.conversationId || agentId;
+    const conversationId = req.body.conversationId || `admin_${agentId}_${userId}`;
     const isAdminBypass = req.isAdminBypass || false;
     
     // Set response headers for streaming
@@ -227,7 +227,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     }
     
     const userId = req.user ? (req.user as any).claims.sub : '42585527';
-    const conversationId = req.body.conversationId || agentId;
+    const conversationId = req.body.conversationId || `admin_${agentId}_${userId}`;
     const isAdminBypass = (req as AdminRequest).isAdminBypass || false;
     
     console.log(`🧠 MEMORY INTEGRATION: Admin bypass ${isAdminBypass ? 'ENABLED' : 'disabled'} for ${agentId}`);

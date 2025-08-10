@@ -1912,7 +1912,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const userId = '42585527';
       
       // Generate new conversation ID
-      const conversationId = `conv_${agentName}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      const conversationId = `conv_${agentName}_${userId || 'anonymous'}`;
       
       // UNIFIED SERVICE: Use singleton to eliminate service multiplication
       const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
@@ -2029,7 +2029,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       res.json({
         success: true,
         response: (response as any).content || response,
-        conversationId: (response as any).conversationId || `conv_${agentName}_${Date.now()}`
+        conversationId: (response as any).conversationId || `conv_${agentName}_${userId || 'anonymous'}`
       });
 
     } catch (error) {
