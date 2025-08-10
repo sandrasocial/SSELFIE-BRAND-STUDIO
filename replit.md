@@ -37,6 +37,7 @@ Preferred communication style: Simple, everyday language.
 - **Memory System**: Consolidated single memory service (simple-memory-service.ts) with 12-hour cache duration, database persistence, and reformed verification system. Eliminates memory conflicts that previously made admin agents unusable. Implemented August 9, 2025 via Olga's consolidation plan.
 - **Verification-First Training**: All agents are trained to verify information using tools before making claims, ensuring evidence-based responses and actions.
 - **Elena Workflow Execution Fix**: Added execution protocols alongside analysis capabilities. Elena now has three distinct modes: Analysis Protocol (audits/analysis), Execution Protocol (build/implement requests), and Coordination Protocol (multi-agent workflows). Resolves issue where Elena defaulted to analysis instead of executing workflows. Fixed August 10, 2025.
+- **Elena Agent System Understanding Fix**: Clarified separation between Member Agents (Maya/Victoria - limited capabilities for user experience) vs Admin Agents (14 consulting agents with full capabilities for business management). Prevents Elena from confusing or attempting to modify protected member agent personalities. Fixed August 10, 2025.
 
 ## External Dependencies
 
