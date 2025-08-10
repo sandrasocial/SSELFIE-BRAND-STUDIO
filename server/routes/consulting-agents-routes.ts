@@ -175,30 +175,7 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
           required: ["name"]
         }
       },
-      {
-        name: "coordinate_agents",
-        description: "Coordinate multiple agents to work on tasks in parallel or sequentially",
-        input_schema: {
-          type: "object",
-          properties: {
-            tasks: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  agentId: { type: "string" },
-                  task: { type: "string" },
-                  priority: { type: "string", enum: ["high", "medium", "low"] }
-                },
-                required: ["agentId", "task"]
-              }
-            },
-            coordinationType: { type: "string", enum: ["parallel", "sequential"] },
-            userId: { type: "string" }
-          },
-          required: ["tasks", "coordinationType", "userId"]
-        }
-      }
+
     ];
       
     await claudeService.sendStreamingMessage(
