@@ -1563,6 +1563,88 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Auth user endpoint - Production ready with impersonation support and admin bypass
+  // ========================================
+  // CRITICAL MEMBER WORKSPACE APIs
+  // ========================================
+  
+  // Subscription API - Required for workspace functionality
+  app.get('/api/subscription', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      // For now, return basic subscription data
+      // TODO: Integrate with Stripe for real subscription data
+      const subscription = {
+        plan: 'full-access',
+        status: 'active',
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        customerId: userId
+      };
+      
+      res.json(subscription);
+    } catch (error) {
+      console.error('Subscription API error:', error);
+      res.status(500).json({ error: 'Failed to get subscription' });
+    }
+  });
+
+  // Usage API - Required for workspace functionality
+  app.get('/api/usage/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      // For now, return basic usage data
+      // TODO: Integrate with real usage tracking
+      const usage = {
+        plan: 'full-access',
+        monthlyUsed: 5,
+        monthlyLimit: 100,
+        isAdmin: userId === '42585527'
+      };
+      
+      res.json(usage);
+    } catch (error) {
+      console.error('Usage API error:', error);
+      res.status(500).json({ error: 'Failed to get usage' });
+    }
+  });
+
+  // User Model API - Required for AI training status
+  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      // For now, return basic model data
+      // TODO: Integrate with Replicate for real training status
+      const userModel = {
+        trainingStatus: 'completed',
+        replicateModelId: `sselfie-${userId}`,
+        lastTrainingDate: new Date().toISOString()
+      };
+      
+      res.json(userModel);
+    } catch (error) {
+      console.error('User model API error:', error);
+      res.status(500).json({ error: 'Failed to get user model' });
+    }
+  });
+
+  // AI Images API - Required for user gallery
+  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      // For now, return empty array
+      // TODO: Integrate with S3 for real user images
+      const images: any[] = [];
+      
+      res.json(images);
+    } catch (error) {
+      console.error('AI images API error:', error);
+      res.status(500).json({ error: 'Failed to get AI images' });
+    }
+  });
+
   app.get('/api/auth/user', async (req: any, res) => {
     try {
       console.log('🔍 /api/auth/user called - checking authentication');
