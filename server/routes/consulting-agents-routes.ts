@@ -34,6 +34,11 @@ import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '@shared/schema';
 import { eq, desc } from 'drizzle-orm';
+// COORDINATION TOOLS: Import actual tool functions
+import { restart_workflow } from '../tools/restart-workflow';
+import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_tool';
+import { bash } from '../tools/bash';
+import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
 
 function getClaudeService() {
   return claudeApiServiceSimple;
