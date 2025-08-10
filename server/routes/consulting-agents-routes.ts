@@ -128,9 +128,8 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       'Access-Control-Allow-Methods': 'POST, OPTIONS'
     });
 
-    // Verification-first enforcement
-    const { VerificationEnforcement } = await import('../services/verification-enforcement.js');
-    const systemPrompt = VerificationEnforcement.enforceVerificationFirst(agentConfig.systemPrompt, message);
+    // Use clean system prompt without forced verification
+    const systemPrompt = agentConfig.systemPrompt;
     
     const claudeService = getClaudeService();
     
@@ -293,14 +292,10 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       // Continue without memory enhancement if there's an error
     }
     
-    // VERIFICATION-FIRST ENFORCEMENT: Inject mandatory verification protocols
-    const { VerificationEnforcement } = await import('../services/verification-enforcement.js');
-    const baseSystemPrompt = VerificationEnforcement.enforceVerificationFirst(agentConfig.systemPrompt, message);
-    
-    // GENERATE CLEAN PROMPT without competing system pollution
+    // CLEAN PROMPT: Use natural agent system prompt without forced verification
     const systemPrompt = contextRequirement.isWorkTask && contextSummary ? 
-      `${baseSystemPrompt}\n\n## CURRENT CONTEXT:\n${contextSummary}` : 
-      baseSystemPrompt;
+      `${agentConfig.systemPrompt}\n\n## CURRENT CONTEXT:\n${contextSummary}` : 
+      agentConfig.systemPrompt;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
