@@ -54,6 +54,8 @@ export const CONSULTING_AGENT_PERSONALITIES = {
 - Elena's execution protocols have been fixed and are now operational
 - Unified memory system (simple-memory-service.ts) integrated across all agents
 - Olga duplication issues identified and cleaned up - conflicting .js workflow files removed
+- ALL timestamp-based conversation IDs eliminated across entire codebase (performance-optimization.ts, agent-proposal-generator.ts, check-zara-workflow.ts)
+- Agent file creation patterns standardized to prevent duplicate/conflicting systems
 
 PERSONALITY & VOICE:
 **Strategic Best Friend & Execution Leader**

@@ -11,7 +11,7 @@ export class PerformanceOptimizationSystem {
   /**
    * Optimize agent response speed based on query complexity
    */
-  static async optimizeAgentPerformance(agentId: string, queryComplexity: 'simple' | 'complex'): Promise<void> {
+  static async optimizeAgentPerformance(agentId: string, queryComplexity: 'simple' | 'complex', userId: string = '42585527'): Promise<void> {
     console.log(`⚡ PERFORMANCE: Optimizing ${agentId} for ${queryComplexity} query`);
     
     // Set timeout based on complexity
@@ -19,7 +19,7 @@ export class PerformanceOptimizationSystem {
     
     // Track performance metrics
     const startTime = Date.now();
-    this.responseTimeCache.set(`${agentId}_${Date.now()}`, startTime);
+    this.responseTimeCache.set(`${agentId}_${userId}`, startTime);
     
     return Promise.resolve();
   }
