@@ -36,8 +36,60 @@ export default function OnboardingNew() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('desktop');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Luxury Editorial Image Selection
+  const ImageSelector = () => (
+    <div className="mb-16">
+      <div className="flex justify-between items-end mb-8">
+        <div>
+          <h2 className="editorial-headline mb-2">Select Your Images</h2>
+          <p className="editorial-subheadline">Choose the visuals that tell your story</p>
+        </div>
+        <button 
+          onClick={() => setPreviewMode(previewMode === 'desktop' ? 'mobile' : 'desktop')}
+          className="eyebrow-text hover:text-[var(--soft-gray)] transition-colors"
+        >
+          {previewMode === 'desktop' ? 'View Mobile' : 'View Desktop'}
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {SandraImages.map((image, index) => (
+          <div 
+            key={index}
+            className="aspect-[3/4] relative group cursor-pointer"
+            onClick={() => {
+              if (selectedImages.includes(image)) {
+                setSelectedImages(prev => prev.filter(img => img !== image));
+              } else {
+                setSelectedImages(prev => [...prev, image]);
+              }
+            }}
+          >
+            <img 
+              src={image} 
+              alt={`Editorial image ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
+            <div className={`absolute inset-0 bg-[var(--luxury-black)] transition-opacity duration-200 ${
+              selectedImages.includes(image) ? 'opacity-20' : 'opacity-0 group-hover:opacity-10'
+            }`} />
+            {selectedImages.includes(image) && (
+              <div className="absolute top-4 right-4">
+                <div className="w-6 h-6 border-2 border-[var(--pure-white)] bg-[var(--luxury-black)] flex items-center justify-center">
+                  <span className="text-[var(--pure-white)] text-xs">✓</span>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   // Luxury Editorial Progress Indicator
   const ProgressBar = () => (
@@ -70,6 +122,83 @@ export default function OnboardingNew() {
   });
 
   const totalSteps = 6;
+
+  // Luxury Editorial Brand Customizer
+  const BrandCustomizer = () => {
+    const [brandStyle, setBrandStyle] = useState({
+      palette: 'editorial',
+      font: 'Times New Roman',
+      vibe: 'editorial'
+    });
+
+    return (
+      <div className="mb-16">
+        <h2 className="editorial-headline mb-2">Brand Style</h2>
+        <p className="editorial-subheadline mb-12">Define your visual identity</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div>
+            <label className="eyebrow-text block mb-4">Color Palette</label>
+            <div className="grid grid-cols-2 gap-4">
+              {['editorial', 'luxury', 'minimalist', 'bold'].map(palette => (
+                <button
+                  key={palette}
+                  onClick={() => setBrandStyle(prev => ({ ...prev, palette }))}
+                  className={`p-6 border ${
+                    brandStyle.palette === palette 
+                      ? 'border-[var(--luxury-black)]' 
+                      : 'border-[var(--accent-line)]'
+                  } hover:border-[var(--luxury-black)] transition-colors`}
+                >
+                  <span className="editorial-subheadline capitalize">{palette}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <label className="eyebrow-text block mb-4">Typography</label>
+            <div className="space-y-4">
+              {['Times New Roman', 'Georgia', 'Playfair'].map(font => (
+                <button
+                  key={font}
+                  onClick={() => setBrandStyle(prev => ({ ...prev, font }))}
+                  className={`w-full p-6 border ${
+                    brandStyle.font === font 
+                      ? 'border-[var(--luxury-black)]' 
+                      : 'border-[var(--accent-line)]'
+                  } hover:border-[var(--luxury-black)] transition-colors text-left`}
+                >
+                  <span style={{ fontFamily: font }} className="text-xl">
+                    {font}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-12">
+          <label className="eyebrow-text block mb-4">Brand Vibe</label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {['editorial', 'luxury', 'minimalist', 'modern', 'bold'].map(vibe => (
+              <button
+                key={vibe}
+                onClick={() => setBrandStyle(prev => ({ ...prev, vibe }))}
+                className={`p-6 border ${
+                  brandStyle.vibe === vibe 
+                    ? 'border-[var(--luxury-black)]' 
+                    : 'border-[var(--accent-line)]'
+                } hover:border-[var(--luxury-black)] transition-colors`}
+              >
+                <span className="editorial-subheadline capitalize">{vibe}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Luxury Editorial Step Title Component
   const StepTitle = ({ title, description }: { title: string, description: string }) => (

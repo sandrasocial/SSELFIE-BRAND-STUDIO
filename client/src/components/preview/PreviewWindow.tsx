@@ -1,54 +1,53 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card } from '../ui/card';
-import { Button } from '../ui/button';
+import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
+import { Laptop, Smartphone } from 'lucide-react';
 
 interface PreviewWindowProps {
-  children: React.ReactNode;
+  previewUrl: string;
+  isLoading?: boolean;
 }
 
-export const PreviewWindow: React.FC<PreviewWindowProps> = ({ children }) => {
-  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+export const PreviewWindow: React.FC<PreviewWindowProps> = ({
+  previewUrl,
+  isLoading = false
+}) => {
+  const [viewMode, setViewMode] = React.useState<'desktop' | 'mobile'>('desktop');
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="editorial-subheadline">Preview</h3>
-        <div className="flex space-x-2">
-          <Button
-            variant={viewMode === 'desktop' ? 'default' : 'outline'}
-            onClick={() => setViewMode('desktop')}
-            className="eyebrow-text"
-          >
-            Desktop
-          </Button>
-          <Button
-            variant={viewMode === 'mobile' ? 'default' : 'outline'}
-            onClick={() => setViewMode('mobile')}
-            className="eyebrow-text"
-          >
-            Mobile
-          </Button>
-        </div>
+        <ToggleGroup 
+          type="single" 
+          value={viewMode}
+          onValueChange={(value) => setViewMode(value as 'desktop' | 'mobile')}
+          className="border border-accent-line"
+        >
+          <ToggleGroupItem value="desktop" aria-label="Desktop view">
+            <Laptop className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="mobile" aria-label="Mobile view">
+            <Smartphone className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
-      <Card className="bg-pure-white border border-accent-line overflow-hidden">
-        <div className="p-4 border-b border-accent-line bg-editorial-gray">
-          <div className="flex space-x-2">
-            <div className="w-3 h-3 rounded-full bg-soft-gray" />
-            <div className="w-3 h-3 rounded-full bg-soft-gray" />
-            <div className="w-3 h-3 rounded-full bg-soft-gray" />
-          </div>
-        </div>
-        
-        <div className={`transition-all duration-300 ${
-          viewMode === 'mobile' ? 'max-w-[375px]' : 'w-full'
-        } mx-auto`}>
-          <div className="relative" style={{
-            height: '800px',
-            overflow: 'auto'
-          }}>
-            {children}
-          </div>
+      <Card className="overflow-hidden bg-white">
+        <div 
+          className={`transition-all duration-300 ${
+            viewMode === 'mobile' ? 'max-w-[375px]' : 'w-full'
+          } mx-auto`}
+        >
+          {isLoading ? (
+            <div className="animate-luxuryFade w-full aspect-[16/9] bg-editorial-gray" />
+          ) : (
+            <iframe
+              src={previewUrl}
+              className="w-full aspect-[16/9] border-0"
+              title="Website Preview"
+            />
+          )}
         </div>
       </Card>
     </div>
