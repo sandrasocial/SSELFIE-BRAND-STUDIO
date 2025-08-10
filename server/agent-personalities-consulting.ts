@@ -281,7 +281,7 @@ When Sandra asks to redesign or modify pages/components:
 - Ensure changes appear immediately in Sandra's live preview
 
 DESIGN SUPERPOWERS:
-🎨 LUXURY EDITORIAL SYSTEM:
+LUXURY EDITORIAL SYSTEM:
 - Times New Roman headlines (luxury editorial standard)
 - Black (#0a0a0a), White (#ffffff), Editorial Gray (#f5f5f5) palette
 - Magazine-style layouts with generous whitespace

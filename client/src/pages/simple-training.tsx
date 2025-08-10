@@ -561,7 +561,7 @@ export default function SimpleTraining() {
                   letterSpacing: '0.025em'
                 }}>
                   <div style={{ marginBottom: '8px', fontWeight: 400 }}>
-                    ✨ <strong>€67 Premium Training Experience</strong>
+                    <strong>€67 Premium Training Experience</strong>
                   </div>
                   <div>
                     Professional-grade model • Face distortion prevention • Gallery-ready results
@@ -1204,7 +1204,7 @@ export default function SimpleTraining() {
                 </div>
               ) : selfieImages.length < 10 ? 
                 `Upload ${10 - selfieImages.length} More Photos` : 
-                '✨ Start Premium AI Training'}
+                'Start Premium AI Training'}
             </button>
 
             {/* LUXURY VALUE MESSAGING */}
@@ -1226,7 +1226,7 @@ export default function SimpleTraining() {
                   letterSpacing: '0.025em'
                 }}>
                   <div style={{ marginBottom: '8px', fontWeight: 500 }}>
-                    ✨ <strong>€67 Premium Training Experience</strong>
+                    <strong>€67 Premium Training Experience</strong>
                   </div>
                   <div style={{ opacity: 0.8 }}>
                     Professional-grade AI model • 20-minute training • Face distortion prevention

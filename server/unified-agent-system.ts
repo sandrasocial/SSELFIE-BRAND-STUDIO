@@ -405,7 +405,7 @@ When asked to create files, you MUST use the str_replace_based_edit_tool with:
         }
 
         if (hasUIComponent) {
-          console.log(`🎨 UNIFIED SYSTEM: UI component created - ${this.extractComponentName(responseContent)}`);
+          console.log(`UNIFIED SYSTEM: UI component created - ${this.extractComponentName(responseContent)}`);
         }
 
         // Log all file operations through unified system

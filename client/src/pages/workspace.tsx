@@ -111,7 +111,7 @@ export default function Workspace() {
             Loading Studio
           </div>
           <p className="text-xs text-gray-600 font-light tracking-wide">
-            ✨ Preparing your luxury workspace...
+            Preparing your luxury workspace...
           </p>
         </div>
       </div>

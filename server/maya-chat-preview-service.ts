@@ -19,7 +19,7 @@ export class MayaChatPreviewService {
 
 Here are your stunning photos! Click the heart ♡ on any image you love to save it to your gallery.
 
-✨ Generated with your personal AI model using Sandra's proven settings
+Generated with your personal AI model using Sandra's proven settings
 📸 ${imageUrls.length} professional-quality images created`,
         imagePreview: JSON.stringify(imageUrls), // Store URLs as JSON
         generatedPrompt: prompt

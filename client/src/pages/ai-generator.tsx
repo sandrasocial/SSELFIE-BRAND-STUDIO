@@ -586,7 +586,7 @@ function SelectionStep({
             </>
           ) : (
             <>
-              ✨ Create New Collection with Flux AI
+              Create New Collection with Flux AI
             </>
           )}
         </button>
@@ -994,7 +994,7 @@ function SandraAIHelper({
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.length === 0 && (
               <div className="text-center text-[#666] py-8">
-                <p className="mb-2">Hey! I'm Sandra 👋</p>
+                <p className="mb-2">Hey! I'm Sandra</p>
                 <p className="text-sm">Describe your vision and I'll create the perfect prompt for your photoshoot</p>
               </div>
             )}
