@@ -51,10 +51,10 @@ export const BrandCustomizer: React.FC<BrandCustomizerProps> = ({
   onChange
 }) => {
   return (
-    <div className="space-y-12 p-6 bg-pure-white">
-      <div>
-        <h2 className="editorial-headline mb-2">Express Your Personal Style</h2>
-        <p className="system-text text-soft-gray mb-8">
+    <div className="space-y-16 p-8 md:p-12 bg-pure-white">
+      <div className="max-w-2xl">
+        <h2 className="editorial-headline mb-4">Express Your Personal Style</h2>
+        <p className="system-text text-soft-gray text-lg leading-relaxed">
           Make your website reflect who you are. Choose colors, fonts, and vibes that feel authentically you.
         </p>
       </div>
@@ -81,10 +81,10 @@ export const BrandCustomizer: React.FC<BrandCustomizerProps> = ({
             {(Object.keys(PALETTES) as Array<keyof typeof PALETTES>).map((palette) => (
               <Card
                 key={palette}
-                className={`p-4 cursor-pointer transition-all duration-300 ${
+                className={`p-6 cursor-pointer group transition-all duration-500 ${
                   customization.colors.palette === palette
-                    ? 'border-luxury-black'
-                    : 'border-accent-line'
+                    ? 'border-luxury-black bg-editorial-gray'
+                    : 'border-accent-line hover:border-luxury-black/50'
                 }`}
                 onClick={() => onChange({
                   colors: {
@@ -94,13 +94,13 @@ export const BrandCustomizer: React.FC<BrandCustomizerProps> = ({
                   }
                 })}
               >
-                <div className="space-y-2">
-                  <div className="flex space-x-2">
-                    <div className="w-6 h-6 rounded-full" style={{ backgroundColor: PALETTES[palette].primary }} />
-                    <div className="w-6 h-6 rounded-full" style={{ backgroundColor: PALETTES[palette].secondary }} />
-                    <div className="w-6 h-6 rounded-full" style={{ backgroundColor: PALETTES[palette].accent }} />
+                <div className="space-y-4">
+                  <div className="flex space-x-3">
+                    <div className="w-8 h-8 transform group-hover:scale-110 transition-transform duration-500" style={{ backgroundColor: PALETTES[palette].primary }} />
+                    <div className="w-8 h-8 transform group-hover:scale-110 transition-transform duration-500 delay-75" style={{ backgroundColor: PALETTES[palette].secondary }} />
+                    <div className="w-8 h-8 transform group-hover:scale-110 transition-transform duration-500 delay-150" style={{ backgroundColor: PALETTES[palette].accent }} />
                   </div>
-                  <p className="system-text capitalize">{palette}</p>
+                  <p className="system-text capitalize text-lg tracking-wide">{palette}</p>
                 </div>
               </Card>
             ))}
@@ -121,11 +121,12 @@ export const BrandCustomizer: React.FC<BrandCustomizerProps> = ({
                     primary: e.target.value as BrandCustomization['fonts']['primary']
                   }
                 })}
-                className="w-full p-2 border border-accent-line"
+                className="w-full p-3 border border-accent-line bg-editorial-gray hover:border-luxury-black/50 transition-colors duration-300 text-lg"
+                style={{ fontFamily: customization.fonts.primary }}
               >
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Playfair">Playfair</option>
+                <option value="Times New Roman" style={{ fontFamily: 'Times New Roman' }}>Times New Roman</option>
+                <option value="Georgia" style={{ fontFamily: 'Georgia' }}>Georgia</option>
+                <option value="Playfair" style={{ fontFamily: 'Playfair Display' }}>Playfair</option>
               </select>
             </div>
             <div>

@@ -11,17 +11,18 @@ interface ImageSectionProps {
 const ImageSection: React.FC<ImageSectionProps> = ({ title, images, onSelect }) => (
   <div className="space-y-4">
     <h3 className="editorial-subheadline">{title}</h3>
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
       {images.map((image, i) => (
         <Card 
           key={i}
-          className="aspect-[3/4] cursor-pointer hover:border-luxury-black transition-all duration-300"
+          className="aspect-[3/4] cursor-pointer group relative overflow-hidden"
           onClick={() => onSelect(image)}
         >
+          <div className="absolute inset-0 bg-luxury-black opacity-0 group-hover:opacity-10 transition-opacity duration-500 z-10" />
           <img 
             src={image} 
             alt={`Selection ${i}`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transform group-hover:scale-[1.02] transition-transform duration-700"
           />
         </Card>
       ))}
@@ -53,10 +54,10 @@ export const ImageSelector: React.FC<ImageSelectorProps> = ({
   onImageSelect
 }) => {
   return (
-    <div className="space-y-12 p-6 bg-pure-white">
-      <div>
-        <h2 className="editorial-headline mb-2">Show Your True Self</h2>
-        <p className="system-text text-soft-gray mb-8">
+    <div className="space-y-16 p-8 md:p-12 bg-pure-white">
+      <div className="max-w-2xl">
+        <h2 className="editorial-headline mb-4">Show Your True Self</h2>
+        <p className="system-text text-soft-gray text-lg leading-relaxed">
           Pick photos that capture the real you - your style, personality, and what makes you unique
         </p>
       </div>
