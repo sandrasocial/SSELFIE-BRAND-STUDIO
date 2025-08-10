@@ -183,7 +183,13 @@ export const AGENT_SYSTEM_FILES: FilePathReference[] = [
         description: "Agent learning and adaptation system",
         priority: "high"
       },
-
+      {
+        name: "predictive-intelligence-system.ts",
+        path: "server/agents/predictive-intelligence-system.ts",
+        size: "16,381 bytes",
+        description: "Predictive intelligence for agent decision making",
+        priority: "high"
+      }
     ]
   },
   {
