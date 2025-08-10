@@ -179,7 +179,7 @@ export const TOOL_SCHEMAS = {
 
   coordinate_agent: {
     name: "coordinate_agent",
-    description: "Coordinate with other specialized agents by initiating tasks or conversations",
+    description: "Coordinate with other specialized agents by creating workflow templates and initiating tasks with structured coordination",
     input_schema: {
       type: "object",
       properties: {
@@ -206,6 +206,16 @@ export const TOOL_SCHEMAS = {
           type: "array",
           items: { type: "string" },
           description: "List of expected outputs or deliverables from the agent"
+        },
+        workflow_type: {
+          type: "string",
+          enum: ["auth_audit", "database_optimization", "system_health", "custom"],
+          description: "Type of predefined workflow template to create for structured coordination"
+        },
+        create_workflow_template: {
+          type: "boolean",
+          description: "Whether to create a workflow template for this coordination",
+          default: false
         }
       },
       required: ["target_agent", "task_description", "workflow_context"]

@@ -5,6 +5,7 @@
 
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 import { PersonalityManager } from '../agents/personalities/personality-config';
+import { MultiAgentWorkflowManager, WorkflowTemplate } from '../workflows/templates/multi-agent-workflow-template';
 // UUID generation for coordination IDs
 const generateId = () => `coord_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -14,11 +15,21 @@ interface CoordinateAgentInput {
   workflow_context: string;
   priority?: string;
   expected_deliverables?: string[];
+  workflow_type?: 'auth_audit' | 'database_optimization' | 'system_health' | 'custom';
+  create_workflow_template?: boolean;
 }
 
 export async function coordinate_agent(input: CoordinateAgentInput): Promise<string> {
   try {
-    const { target_agent, task_description, workflow_context, priority = 'medium', expected_deliverables = [] } = input;
+    const { 
+      target_agent, 
+      task_description, 
+      workflow_context, 
+      priority = 'medium', 
+      expected_deliverables = [],
+      workflow_type,
+      create_workflow_template = false
+    } = input;
     
     console.log(`🔄 ELENA COORDINATION: Delegating to ${target_agent.toUpperCase()}`);
     console.log(`📋 Task: ${task_description.substring(0, 100)}...`);
@@ -30,17 +41,62 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<str
       throw new Error(`Invalid target agent: ${target_agent}. Available agents: ${availableAgents.join(', ')}`);
     }
 
+    let workflowTemplate: WorkflowTemplate | null = null;
+    
+    // Create workflow template if requested or workflow_type is specified
+    if (create_workflow_template || workflow_type) {
+      console.log(`🏗️ CREATING WORKFLOW TEMPLATE: ${workflow_type || 'custom'}`);
+      
+      switch (workflow_type) {
+        case 'auth_audit':
+          workflowTemplate = MultiAgentWorkflowManager.createAuthAuditWorkflow();
+          break;
+        case 'database_optimization':
+          workflowTemplate = MultiAgentWorkflowManager.createDatabaseOptimizationWorkflow();
+          break;
+        case 'system_health':
+          workflowTemplate = MultiAgentWorkflowManager.createSystemHealthCheckWorkflow();
+          break;
+        default:
+          // Create custom workflow template
+          workflowTemplate = MultiAgentWorkflowManager.createWorkflowTemplate(
+            `Custom Workflow - ${target_agent}`,
+            workflow_context,
+            [{
+              agentId: target_agent,
+              taskDescription: task_description,
+              expectedDeliverables: expected_deliverables,
+              priority: priority as 'high' | 'medium' | 'low'
+            }]
+          );
+      }
+      
+      console.log(`✅ WORKFLOW TEMPLATE CREATED: ${workflowTemplate.name} (ID: ${workflowTemplate.id})`);
+    }
+
     // Create conversation ID for the coordinated agent
     const coordinationId = `coordination_${target_agent}_${Date.now()}`;
     
     // Get the target agent's personality
     const agentPersonality = PersonalityManager.getNaturalPrompt(target_agent);
     
-    // Prepare coordination message with context from ELENA
+    // Prepare enhanced coordination message with workflow template
     const coordinationMessage = `
 COORDINATION REQUEST FROM ELENA (Master Coordinator)
 
 **Workflow Context:** ${workflow_context}
+
+${workflowTemplate ? `
+**WORKFLOW TEMPLATE:** ${workflowTemplate.name}
+**Workflow ID:** ${workflowTemplate.id}
+**Description:** ${workflowTemplate.description}
+
+**COORDINATION STEPS:**
+${workflowTemplate.coordinationSteps.map(step => `${step}`).join('\n')}
+
+**SUCCESS CRITERIA:**
+${workflowTemplate.successCriteria.map(criteria => `- ${criteria}`).join('\n')}
+` : ''}
 
 **Your Assigned Task:** ${task_description}
 
@@ -50,9 +106,14 @@ COORDINATION REQUEST FROM ELENA (Master Coordinator)
 ${expected_deliverables.length > 0 ? expected_deliverables.map(d => `- ${d}`).join('\n') : '- Complete the assigned task systematically'}
 
 **Instructions:**
-Please execute this task using your specialized expertise. ELENA is coordinating this as part of a larger workflow. Report back with your results, findings, and any issues encountered.
+${workflowTemplate ? 
+  `This is part of a structured workflow with defined success criteria. Please execute your part of the workflow systematically, ensuring all deliverables are provided as specified in the template.` :
+  `Please execute this task using your specialized expertise. ELENA is coordinating this as part of a larger workflow.`
+}
 
-Use your available tools to complete this work thoroughly. If you need additional context or run into blockers, document them clearly in your response.
+Use your available tools to complete this work thoroughly. Report back with your results, findings, and any issues encountered. If you need additional context or run into blockers, document them clearly in your response.
+
+${workflowTemplate ? `**Note:** This workflow has ${workflowTemplate.agents.length} total agents involved. Your task is part of a larger coordinated effort.` : ''}
 `;
 
     // Initiate conversation with the target agent
@@ -71,19 +132,34 @@ Use your available tools to complete this work thoroughly. If you need additiona
     console.log(`✅ COORDINATION SUCCESS: ${target_agent} received task assignment`);
     console.log(`📄 Response preview: ${response.substring(0, 200)}...`);
 
-    // Return coordination result
-    return `✅ Successfully coordinated with ${target_agent.toUpperCase()}
+    // Return enhanced coordination result
+    let result = `✅ Successfully coordinated with ${target_agent.toUpperCase()}
 
 **Task Assigned:** ${task_description}
 **Priority:** ${priority}
-**Conversation ID:** ${coordinationId}
+**Conversation ID:** ${coordinationId}`;
+
+    if (workflowTemplate) {
+      result += `
+
+**WORKFLOW TEMPLATE CREATED:**
+- **Name:** ${workflowTemplate.name}
+- **ID:** ${workflowTemplate.id}
+- **Total Agents:** ${workflowTemplate.agents.length}
+- **Coordination Steps:** ${workflowTemplate.coordinationSteps.length}
+- **Success Criteria:** ${workflowTemplate.successCriteria.length}`;
+    }
+
+    result += `
 
 **Agent Response Preview:**
 ${response.substring(0, 300)}...
 
-**Status:** Task delegation complete. ${target_agent} is now working on the assigned task with full context from the workflow.
+**Status:** Task delegation complete. ${target_agent} is now working on the assigned task${workflowTemplate ? ' within the structured workflow framework' : ''}.
 
-**Next Steps:** Monitor ${target_agent}'s progress and results. The agent will use their specialized tools and expertise to complete the task systematically.`;
+**Next Steps:** Monitor ${target_agent}'s progress and results. ${workflowTemplate ? 'The agent will follow the workflow template and provide deliverables according to the defined success criteria.' : 'The agent will use their specialized tools and expertise to complete the task systematically.'}`;
+
+    return result;
 
   } catch (error) {
     console.error('❌ COORDINATION FAILED:', error);
