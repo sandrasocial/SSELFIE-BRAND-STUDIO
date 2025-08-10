@@ -6,7 +6,7 @@ import * as prometheus from 'prom-client';
 const app = express();
 
 // Sentry request handler must be the first middleware
-// app.use(Sentry.Handlers.requestHandler()); // Temporarily disabled
+app.use(Sentry.Handlers.requestHandler());
 
 // Prometheus metrics endpoint
 app.get('/metrics', async (req, res) => {
@@ -41,7 +41,7 @@ import { registerRoutes } from './routes';
 const httpServer = await registerRoutes(app);
 
 // Sentry error handler must be before any other error middleware
-// app.use(Sentry.Handlers.errorHandler()); // Temporarily disabled
+app.use(Sentry.Handlers.errorHandler());
 
 // Global error handler
 app.use(errorHandler);

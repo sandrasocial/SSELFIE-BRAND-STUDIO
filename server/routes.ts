@@ -31,8 +31,7 @@ import phase2CoordinationRouter from './routes/phase2-coordination';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
-// Generate Victoria website HTML content
-function generateWebsiteHTML(websiteData: any, onboardingData: any) {
+import { generateWebsiteHTML } from './services/website-generator';
   const businessName = websiteData.businessName || 'Your Business';
   const businessDescription = websiteData.businessDescription || onboardingData?.brandStory || 'Professional services';
   const targetAudience = websiteData.targetAudience || onboardingData?.targetAudience || 'Our valued clients';
