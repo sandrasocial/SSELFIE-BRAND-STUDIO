@@ -1,7 +1,7 @@
-import { storage } from '../../storage';
+import { storage } from '../../../storage';
 // ELIMINATED: AdvancedMemorySystem - replaced with simple-memory-service
-import { simpleMemoryService } from '../../services/simple-memory-service';
-import { claudeApiServiceSimple } from '../../services/claude-api-service-simple';
+import { simpleMemoryService } from '../../../services/simple-memory-service';
+import { claudeApiServiceSimple } from '../../../services/claude-api-service-simple';
 
 // CONSOLIDATED WORKFLOW STATE INTERFACE (from WorkflowStateManager)
 export interface WorkflowState {
