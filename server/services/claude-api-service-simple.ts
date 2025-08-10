@@ -184,18 +184,18 @@ export class ClaudeApiServiceSimple {
         fullContextAvailable: true 
       };
       
-      // SIMPLIFIED: Direct message processing for admin agents
-      if (isAdminAgent && messages.length > 10) {
-        // Keep recent messages for context
-        optimizedMessages = messages.slice(-5);
+      // CONTEXT PRESERVATION FIX: Keep FULL context for admin agents to prevent memory loss
+      if (isAdminAgent) {
+        // KEEP ALL MESSAGES for proper context preservation
+        optimizedMessages = messages;
         optimizationMetadata = { 
           originalTokens: messages.length * 100, 
-          optimizedTokens: optimizedMessages.length * 100, 
-          compressionRatio: ((1 - optimizedMessages.length / messages.length) * 100), 
+          optimizedTokens: messages.length * 100, 
+          compressionRatio: 0, // No compression for admin agents
           fullContextAvailable: true 
         };
         
-        console.log(`🚀 SIMPLIFIED OPTIMIZATION: ${optimizationMetadata.compressionRatio.toFixed(1)}% token reduction (${optimizationMetadata.originalTokens} → ${optimizationMetadata.optimizedTokens} tokens)`);
+        console.log(`🧠 FULL CONTEXT PRESERVED: ${messages.length} messages retained for ${agentName} (no compression)`);
       }
       
       const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(optimizedMessages));
@@ -643,16 +643,18 @@ export class ClaudeApiServiceSimple {
   }
 
   private async loadConversationMessages(conversationId: string, adminBypass = false) {
-    // SMART LOADING: Progressive context loading based on admin status
-    // Admin agents get local optimization + selective loading to minimize API tokens
-    const messageLimit = adminBypass ? 100 : 50; // Reduced from 1000 - optimization handles large context locally
+    // CONTEXT PRESERVATION FIX: Load ALL messages for admin agents to prevent context loss
+    const messageLimit = adminBypass ? 500 : 50; // Increased limit for admin agents
     
-    return await db
+    const messages = await db
       .select()
       .from(claudeMessages)
       .where(eq(claudeMessages.conversationId, conversationId))
-      .orderBy(desc(claudeMessages.createdAt))
+      .orderBy(claudeMessages.createdAt) // FIXED: Use ascending order for proper chronology
       .limit(messageLimit);
+    
+    console.log(`📜 CONVERSATION LOADED: ${messages.length} messages for ${conversationId} (admin: ${adminBypass})`);
+    return messages;
   }
 
   private async saveMessage(conversationId: string, role: string, content: string, toolCalls?: any, toolResults?: any) {
