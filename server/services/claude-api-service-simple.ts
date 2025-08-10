@@ -566,7 +566,7 @@ export class ClaudeApiServiceSimple {
       // INTELLIGENT VALIDATION: Prevent errors before they happen
       if (toolCall.name === 'str_replace_based_edit_tool' && toolCall.input.command === 'str_replace') {
         // Pre-validate file modifications
-        const { ErrorPreventionSystem } = await import('../agents/core/error-prevention-system');
+        const { ErrorPreventionSystem } = await import('../agents/core/protocols/error-prevention-system');
         if (toolCall.input.new_str) {
           const validation = await ErrorPreventionSystem.validateCode(
             toolCall.input.new_str,
@@ -602,7 +602,7 @@ export class ClaudeApiServiceSimple {
       }
     } catch (error) {
       // INTELLIGENT ERROR HANDLING: Provide helpful context
-      const { ErrorPreventionSystem } = await import('../agents/core/error-prevention-system');
+      const { ErrorPreventionSystem } = await import('../agents/core/protocols/error-prevention-system');
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       const suggestions = ErrorPreventionSystem.generateFixSuggestions(errorMsg);
       
