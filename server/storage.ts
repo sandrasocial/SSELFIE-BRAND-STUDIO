@@ -89,6 +89,7 @@ export interface IStorage {
   getGenerationTracker(id: number): Promise<GenerationTracker | undefined>;
   getUserGenerationTrackers(userId: string): Promise<GenerationTracker[]>;
   getCompletedGenerationTrackersForUser(userId: string, hoursBack: number): Promise<GenerationTracker[]>;
+  getProcessingGenerationTrackers(): Promise<GenerationTracker[]>; // CRITICAL FIX: Missing interface method
   updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage>;
 
   // User Model operations
@@ -136,6 +137,7 @@ export interface IStorage {
   getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]>;
   // REMOVED: getAllMayaChatMessages to prevent session mixing
   createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
+  saveMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>; // CRITICAL FIX: Missing method
   updateMayaChatMessage(messageId: number, updates: Partial<{ imagePreview: string; generatedPrompt: string }>): Promise<void>;
 
   // Photo selections operations
@@ -1198,6 +1200,11 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return message;
+  }
+
+  // CRITICAL FIX: Missing saveMayaChatMessage method causing GenerationCompletionMonitor failure
+  async saveMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
+    return this.createMayaChatMessage(data);
   }
 
 

@@ -49,7 +49,7 @@ export async function agentSecurityMiddleware(
     });
 
     next();
-  } catch (error) {
+  } catch (error: any) {
     if (error.name === 'RateLimiterRes') {
       return res.status(429).json({
         error: 'Too many requests',
