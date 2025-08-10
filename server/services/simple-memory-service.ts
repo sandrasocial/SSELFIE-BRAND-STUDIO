@@ -134,23 +134,6 @@ export class SimpleMemoryService {
     // Save consolidated memories
     await storage.saveAgentMemory(agentId, userId, { context });
     console.log(`🧠 CONSOLIDATED: Memory optimized for ${agentId} (${context.memories.length} entries)`);
-  }liability  
-    try {
-      await storage.saveAgentMemory(context.agentName, context.userId, {
-        context: context,
-        latestMemory: memoryItem,
-        totalMemories: context.memories.length,
-        timestamp: new Date().toISOString(),
-        agentType: 'admin',
-        sessionId: `${context.agentName}_${Date.now()}`
-      });
-      console.log(`💾 PERSISTENCE: Admin memory saved to database for ${context.agentName} (${context.memories.length} total)`);
-    } catch (error) {
-      console.error(`❌ Database persistence failed for ${context.agentName}:`, error);
-      // Continue without throwing - don't break agent functionality due to persistence issues
-    }
-    
-    console.log(`🧠 MEMORY: Saved memory for ${context.agentName} (${context.memories.length} total)`);
   }
 
   /**
