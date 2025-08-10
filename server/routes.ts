@@ -27,6 +27,7 @@ import quinnTestingRouter from './routes/quinn-testing';
 import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
 import memberJourneyTestRouter from './routes/member-journey-test';
+import phase2CoordinationRouter from './routes/phase2-coordination';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
@@ -1396,6 +1397,13 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   
   // Member Journey Testing - Real User Experience
   app.use('/api/member-test', memberJourneyTestRouter);
+  
+  // Phase 2 Coordination - Agent Workflow Execution
+  app.use('/api/phase2', phase2CoordinationRouter);
+  
+  // Phase 2 Fixes - Training and Generation Fixes
+  const phase2FixesRouter = await import('./routes/phase2-fixes');
+  app.use(phase2FixesRouter.default);
   // FIXED: Register consulting agents at correct path to match frontend calls
   // Regular consulting agents routes (non-admin)
   app.use('/api/consulting-agents', consultingAgentsRouter);
