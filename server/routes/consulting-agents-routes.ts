@@ -317,34 +317,34 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
     try {
       const workflowId = `admin_agent_${agentId}_${userId}`;
       
-      // Try to get existing workflow state
-      let workflowState = await ConversationManager.getWorkflowContext(workflowId);
+      // SIMPLIFIED WORKFLOW CONTEXT - Using memory service directly
+      let workflowState = await simpleMemoryService.getWorkflowState(workflowId);
       
       if (!workflowState) {
-        // Initialize new workflow if none exists
-        workflowState = await ConversationManager.initializeWorkflow(workflowId, {
+        // Initialize new workflow state in memory service
+        workflowState = {
           agentId,
           userId,
           originalTask: message,
           startTime: new Date(),
-          conversationHistory: []
-        });
+          currentStage: 'coordination',
+          contextData: { latestTask: message },
+          agentAssignments: [{ agentId, task: message, status: 'active' }]
+        };
+        await simpleMemoryService.saveWorkflowState(workflowId, workflowState);
         console.log(`🚀 WORKFLOW: Initialized new workflow ${workflowId} for ${agentId}`);
       } else {
-        // Update existing workflow with current task
-        await ConversationManager.updateWorkflowState(workflowId, {
+        // Update existing workflow state
+        workflowState = {
+          ...workflowState,
+          latestTask: message,
+          lastUpdate: new Date(),
           currentStage: 'coordination',
-          contextData: {
-            ...workflowState.contextData,
-            latestTask: message,
-            lastUpdate: new Date()
-          }
-        });
+          contextData: { ...workflowState.contextData, latestTask: message }
+        };
+        await simpleMemoryService.saveWorkflowState(workflowId, workflowState);
         console.log(`🔄 WORKFLOW: Updated existing workflow ${workflowId} for ${agentId}`);
       }
-
-      // Assign task to agent and build workflow context
-      await ConversationManager.assignAgentTask(workflowId, agentId, message);
       
       // Build workflow context summary
       const state = await simpleMemoryService.getWorkflowState(workflowId);

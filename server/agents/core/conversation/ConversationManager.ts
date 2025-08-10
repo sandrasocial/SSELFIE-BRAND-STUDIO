@@ -3,18 +3,14 @@ import { storage } from '../../../storage';
 import { simpleMemoryService } from '../../../services/simple-memory-service';
 import { claudeApiServiceSimple } from '../../../services/claude-api-service-simple';
 
-// CONSOLIDATED WORKFLOW STATE INTERFACE (from WorkflowStateManager)
-export interface WorkflowState {
-  workflowId: string;
-  currentStage: string;
-  previousStages: string[];
-  contextData: any;
-  lastUpdateTime: Date;
-  agentAssignments: {
-    agentId: string;
-    task: string;
-    status: 'active' | 'completed' | 'pending';
-  }[];
+// CONVERSATION-FOCUSED INTERFACE ONLY
+export interface ConversationState {
+  conversationId: string;
+  agentId: string;
+  userId: string;
+  messageCount: number;
+  lastActivity: Date;
+  isActive: boolean;
 }
 
 // SIMPLIFIED MEMORY SYSTEM INTEGRATION
@@ -355,69 +351,7 @@ export class ConversationManager {
     }
   }
 
-  // =============================================================================
-  // CONSOLIDATED WORKFLOW STATE MANAGEMENT (from WorkflowStateManager)
-  // =============================================================================
-
-  static async initializeWorkflow(workflowId: string, initialContext: any): Promise<WorkflowState> {
-    const newState: WorkflowState = {
-      workflowId,
-      currentStage: 'initialized',
-      previousStages: [],
-      contextData: initialContext,
-      lastUpdateTime: new Date(),
-      agentAssignments: []
-    };
-
-    await memoryService.saveWorkflowState(workflowId, newState);
-    return newState;
-  }
-
-  static async updateWorkflowState(
-    workflowId: string,
-    updates: Partial<WorkflowState>
-  ): Promise<WorkflowState> {
-    const currentState = await memoryService.getWorkflowState(workflowId);
-    
-    if (!currentState) {
-      throw new Error(`No active workflow found for ID: ${workflowId}`);
-    }
-
-    if (updates.currentStage && updates.currentStage !== currentState.currentStage) {
-      updates.previousStages = [...currentState.previousStages, currentState.currentStage];
-    }
-
-    const updatedState: WorkflowState = {
-      ...currentState,
-      ...updates,
-      lastUpdateTime: new Date()
-    };
-
-    await memoryService.saveWorkflowState(workflowId, updatedState);
-    return updatedState;
-  }
-
-  static async getWorkflowContext(workflowId: string): Promise<any> {
-    const state = await memoryService.getWorkflowState(workflowId);
-    return state?.contextData || null;
-  }
-
-  static async assignAgentTask(workflowId: string, agentId: string, task: string): Promise<void> {
-    const state = await memoryService.getWorkflowState(workflowId);
-    
-    if (!state) {
-      throw new Error(`No active workflow found for ID: ${workflowId}`);
-    }
-
-    const assignment = {
-      agentId,
-      task,
-      status: 'active' as const
-    };
-
-    state.agentAssignments = state.agentAssignments.filter((a: any) => a.agentId !== agentId);
-    state.agentAssignments.push(assignment);
-
-    await memoryService.saveWorkflowState(workflowId, state);
-  }
+  // CONVERSATION MANAGER - WORKFLOW MANAGEMENT REMOVED
+  // ConversationManager now focuses ONLY on conversation state and memory
+  // Workflow management is handled separately to prevent context conflicts
 }
