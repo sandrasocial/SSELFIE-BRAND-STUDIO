@@ -1,24 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
-import { createClient } from 'redis';
+// TEMPORARILY DISABLED - Redis dependencies not installed
+// import { createClient } from 'redis';
 import session from 'express-session';
-import RedisStore from 'connect-redis';
+// import RedisStore from 'connect-redis';
 import rateLimit from 'express-rate-limit';
 
+// TEMPORARILY DISABLED - Redis dependencies not installed
 // Redis client for session storage
-const redisClient = createClient({
-  url: process.env.REDIS_URL
-});
+// const redisClient = createClient({
+//   url: process.env.REDIS_URL
+// });
 
-redisClient.on('error', (err) => console.log('Redis Client Error', err));
+// redisClient.on('error', (err) => console.log('Redis Client Error', err));
 
-// Session configuration
+// Session configuration (using memory store temporarily)
 export const sessionConfig = {
-  store: new RedisStore({ 
-    client: redisClient,
-    prefix: "sselfie:",
-    ttl: 86400 // 24 hours
-  }),
-  secret: process.env.SESSION_SECRET!,
+  // store: new RedisStore({ 
+  //   client: redisClient,
+  //   prefix: "sselfie:",
+  //   ttl: 86400 // 24 hours
+  // }),
+  secret: process.env.SESSION_SECRET || 'temp-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
