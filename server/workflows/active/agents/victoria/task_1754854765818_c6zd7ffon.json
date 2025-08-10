@@ -1,0 +1,93 @@
+{
+  "taskId": "task_1754854765818_c6zd7ffon",
+  "assignedAgent": "victoria",
+  "coordinatorAgent": "elena",
+  "taskDescription": "Conduct comprehensive authentication system audit:\n1. Test complete user journey (Signup → Login → Workspace)\n2. Verify all auth redirects and success flows\n3. Test session persistence across member pages\n4. Validate protected route functionality\n5. Verify logout/login cycle for session handling",
+  "workflowContext": "This is part of a critical auth and database fix workflow. Your auth audit findings will inform database schema validation tasks.",
+  "expectedDeliverables": [
+    "Auth flow audit report",
+    "List of identified auth issues",
+    "Session management assessment",
+    "Protected routes validation status"
+  ],
+  "priority": "high",
+  "status": "assigned",
+  "assignedAt": "2025-08-10T19:39:25.818Z",
+  "workflowType": "auth_audit",
+  "workflowTemplate": {
+    "id": "workflow_1754854765817_oynf7xuh3",
+    "name": "Authentication System Comprehensive Audit",
+    "description": "Multi-agent collaborative audit of the complete authentication system including security, performance, and user experience validation",
+    "agents": [
+      {
+        "agentId": "victoria",
+        "taskDescription": "Conduct comprehensive authentication system audit including login flows, session management, and security validation",
+        "expectedDeliverables": [
+          "Authentication flow test results",
+          "Session management validation report",
+          "Security vulnerabilities assessment",
+          "User experience evaluation"
+        ],
+        "priority": "high",
+        "estimatedDuration": "30-45 minutes"
+      },
+      {
+        "agentId": "zara",
+        "taskDescription": "Database validation and optimization for authentication-related tables and queries",
+        "expectedDeliverables": [
+          "Database performance analysis",
+          "User authentication table validation",
+          "Query optimization recommendations",
+          "Data integrity verification"
+        ],
+        "dependencies": [
+          "victoria"
+        ],
+        "priority": "high",
+        "estimatedDuration": "20-30 minutes"
+      },
+      {
+        "agentId": "aria",
+        "taskDescription": "UI/UX validation of authentication interfaces and user experience flows",
+        "expectedDeliverables": [
+          "Authentication UI component analysis",
+          "User journey validation",
+          "Responsive design assessment",
+          "Accessibility evaluation"
+        ],
+        "dependencies": [
+          "victoria"
+        ],
+        "priority": "medium",
+        "estimatedDuration": "25-35 minutes"
+      }
+    ],
+    "coordinationSteps": [
+      "1. Initialize workflow and assign tasks to agents",
+      "2. Monitor agent progress and task completion",
+      "3. Coordinate dependencies between agents",
+      "4. Collect deliverables from all agents",
+      "5. Validate success criteria and compile results",
+      "- Wait for victoria to complete before starting zara task",
+      "- Wait for victoria to complete before starting aria task"
+    ],
+    "successCriteria": [
+      "All assigned agents respond and acknowledge their tasks",
+      "All expected deliverables are provided by agents",
+      "No blocking errors or failures in task execution",
+      "victoria provides: Authentication flow test results",
+      "victoria provides: Session management validation report",
+      "victoria provides: Security vulnerabilities assessment",
+      "victoria provides: User experience evaluation",
+      "zara provides: Database performance analysis",
+      "zara provides: User authentication table validation",
+      "zara provides: Query optimization recommendations",
+      "zara provides: Data integrity verification",
+      "aria provides: Authentication UI component analysis",
+      "aria provides: User journey validation",
+      "aria provides: Responsive design assessment",
+      "aria provides: Accessibility evaluation"
+    ],
+    "created": "2025-08-10T19:39:25.818Z"
+  }
+}
