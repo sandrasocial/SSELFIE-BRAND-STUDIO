@@ -16,7 +16,7 @@ async function checkZaraWorkflow() {
     const messages = await db
       .select()
       .from(claudeMessages)
-      .where(eq(claudeMessages.conversationId, 'admin_zara_1754716825334'))
+      .where(eq(claudeMessages.conversationId, 'admin_zara_42585527'))
       .orderBy(desc(claudeMessages.createdAt))
       .limit(15);
       
@@ -52,7 +52,7 @@ async function checkZaraWorkflow() {
       console.log(`${msg.content.substring(0, 150)}...`);
       
       // Check for tool usage
-      if (msg.toolCalls && msg.toolCalls.length > 0) {
+      if (msg.toolCalls && Array.isArray(msg.toolCalls) && msg.toolCalls.length > 0) {
         toolUsageCount++;
         actualWorkDone = true;
         console.log(`🔧 TOOLS USED: ${msg.toolCalls.length} tools`);

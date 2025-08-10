@@ -75,3 +75,6 @@ Preferred communication style: Simple, everyday language.
 - **Aria**: UI/UX specialist for interface verification and design consistency
 - **Olga**: System cleanup and organization expert
 - **Additional agents**: Specialized roles for content generation, optimization, and user experience
+
+## Recent System Fixes (August 10, 2025)
+- **Agent Duplication Prevention System**: Eliminated ALL remaining timestamp-based conversation IDs across codebase (performance-optimization.ts, agent-proposal-generator.ts, check-zara-workflow.ts). Standardized file creation patterns to prevent agents from creating conflicting formats (.js vs .json workflows). Implemented duplication prevention rules to stop agents from creating duplicate directories and competing systems. Fixed August 10, 2025.

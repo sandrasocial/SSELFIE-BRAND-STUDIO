@@ -1,4 +1,4 @@
-import { AgentSystem } from './agent-system';
+// Agent proposal generator for SSELFIE Studio workflow automation
 
 export interface AgentProposalRequest {
   agentId: string;
@@ -14,8 +14,9 @@ export class AgentProposalGenerator {
    * Creates complete email sequences with previews before execution
    */
   static async generateEmailCampaignProposal(context: any): Promise<any> {
+    const userId = context.userId || '42585527';
     const proposal = {
-      id: `rachel-email-${Date.now()}`,
+      id: `rachel-email-${userId}`,
       agentId: 'rachel',
       agentName: 'Rachel',
       type: 'email-campaign',
