@@ -133,7 +133,7 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
     
     const claudeService = getClaudeService();
     
-    // Complete tools array
+    // Complete tools array - INCLUDING COORDINATION TOOLS
     const tools = [
       {
         name: "str_replace_based_edit_tool",
@@ -161,6 +161,42 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
             command: { type: "string" }
           },
           required: ["command"]
+        }
+      },
+      {
+        name: "restart_workflow",
+        description: "Restart or start a workflow to coordinate agents",
+        input_schema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            workflow_timeout: { type: "integer", default: 300 }
+          },
+          required: ["name"]
+        }
+      },
+      {
+        name: "coordinate_agents",
+        description: "Coordinate multiple agents to work on tasks in parallel or sequentially",
+        input_schema: {
+          type: "object",
+          properties: {
+            tasks: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  agentId: { type: "string" },
+                  task: { type: "string" },
+                  priority: { type: "string", enum: ["high", "medium", "low"] }
+                },
+                required: ["agentId", "task"]
+              }
+            },
+            coordinationType: { type: "string", enum: ["parallel", "sequential"] },
+            userId: { type: "string" }
+          },
+          required: ["tasks", "coordinationType", "userId"]
         }
       }
     ];
