@@ -38,6 +38,7 @@ Preferred communication style: Simple, everyday language.
 - **Verification-First Training**: All agents are trained to verify information using tools before making claims, ensuring evidence-based responses and actions.
 - **Elena Workflow Execution Fix**: Added execution protocols alongside analysis capabilities. Elena now has three distinct modes: Analysis Protocol (audits/analysis), Execution Protocol (build/implement requests), and Coordination Protocol (multi-agent workflows). Resolves issue where Elena defaulted to analysis instead of executing workflows. Fixed August 10, 2025.
 - **Elena Agent System Understanding Fix**: Clarified separation between Member Agents (Maya/Victoria - limited capabilities for user experience) vs Admin Agents (14 consulting agents with full capabilities for business management). Prevents Elena from confusing or attempting to modify protected member agent personalities. Fixed August 10, 2025.
+- **Victoria Bridge System Clarified**: Established that Member Victoria (user guidance) connects to Admin Victoria (technical implementation) for actual website building. Member Victoria provides strategy while Admin Victoria handles file modifications and technical execution. Fixed August 10, 2025.
 
 ## External Dependencies
 
