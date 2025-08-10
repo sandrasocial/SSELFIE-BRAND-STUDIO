@@ -51,26 +51,39 @@ const consultingAgentsRouter = Router();
  * ADMIN CONSULTING AGENTS - UNRESTRICTED INTELLIGENCE SYSTEM
  * Removed all hardcoded forcing to let agents use natural intelligence
  */
-// STREAMLINED: Simple admin auth for consulting agents
-const adminAuth = (req: AdminRequest, res: any, next: any) => {
-  const adminToken = req.headers.authorization || 
-                    (req.body && req.body.adminToken) || 
-                    req.query.adminToken;
-  
-  if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
-    req.user = {
-      claims: {
-        sub: '42585527',
-        email: 'ssa@ssasocial.com',
-        first_name: 'Sandra',
-        last_name: 'Sigurjonsdottir'
-      }
-    };
-    req.isAdminBypass = true;
+// REAL ADMIN AUTH: Use actual authenticated user from database
+const adminAuth = async (req: AdminRequest, res: any, next: any) => {
+  try {
+    // First try normal authentication
+    await new Promise((resolve, reject) => {
+      isAuthenticated(req, res, (err: any) => {
+        if (err) reject(err);
+        else resolve(null);
+      });
+    });
+    
+    // Verify user is admin in database
+    const userId = req.user?.claims?.sub;
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    // Check if user exists and is admin
+    const user = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.id, userId)
+    });
+    
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+    
+    console.log(`✅ REAL ADMIN AUTH: ${user.email} (ID: ${user.id})`);
     return next();
+    
+  } catch (error) {
+    console.error('❌ ADMIN AUTH FAILED:', error);
+    return res.status(401).json({ message: "Authentication failed" });
   }
-  
-  return isAuthenticated(req, res, next);
 };
 
 // STREAMLINED: Fast personality-first handler
@@ -99,7 +112,14 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       });
     }
 
-    const userId = req.user?.claims?.sub || '42585527';
+    const userId = req.user?.claims?.sub;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User authentication required'
+      });
+    }
     console.log(`🚀 ${agentConfig.name.toUpperCase()}: Streamlined processing`);
 
     // STREAMLINED: Simplified conversation management  
