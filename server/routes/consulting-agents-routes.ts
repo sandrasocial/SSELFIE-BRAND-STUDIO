@@ -34,11 +34,8 @@ import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '@shared/schema';
 import { eq, desc } from 'drizzle-orm';
-// COORDINATION TOOLS: Import actual tool functions
-import { restart_workflow } from '../tools/restart-workflow';
-import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_tool';
-import { bash } from '../tools/bash';
-import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
+// COORDINATION TOOLS: Import schemas and functions 
+import { TOOL_SCHEMAS, TOOL_FUNCTIONS } from '../tools/tool-schemas';
 // ZARA'S CONTEXT LOSS FIX: Import workflow state management
 import { ConversationManager } from '../agents/core/conversation/ConversationManager';
 
@@ -138,14 +135,17 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
 
     const claudeService = getClaudeService();
     
-    // STREAMLINED: Essential tools only
+    // PROPER TOOL SCHEMAS: Send schemas to Claude, keep functions for execution
     const availableTools = [
-      str_replace_based_edit_tool,
-      bash,
-      restart_workflow
+      TOOL_SCHEMAS.str_replace_based_edit_tool,
+      TOOL_SCHEMAS.bash,
+      TOOL_SCHEMAS.get_latest_lsp_diagnostics,
+      TOOL_SCHEMAS.execute_sql_tool,
+      TOOL_SCHEMAS.web_search,
+      TOOL_SCHEMAS.restart_workflow
     ];
 
-    // REAL STREAMING: Use actual streaming method to show agent work in real-time
+    // REAL STREAMING: Use actual streaming method to show agent work in real-time  
     await claudeService.sendStreamingMessage(
       userId,
       normalizedAgentId,

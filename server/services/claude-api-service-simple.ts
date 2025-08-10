@@ -253,7 +253,15 @@ export class ClaudeApiServiceSimple {
         const taskComplexity = isAdminAgent ? 'unlimited' : 'moderate';
         const tokenBudget = { maxPerCall: isAdminAgent ? 8192 : 4096 };
         
-        // RESTORED: Working Claude API call without stream (for debugging)
+        // ULTRA DEBUG: Log everything being sent to Claude API  
+        console.log(`🔧 DEBUG: Model: ${DEFAULT_MODEL_STR}`);
+        console.log(`🔧 DEBUG: Max tokens: ${tokenBudget.maxPerCall}`);
+        console.log(`🔧 DEBUG: Messages count: ${currentMessages.length}`);
+        console.log(`🔧 DEBUG: Tools count: ${tools.length}`);
+        console.log(`🔧 DEBUG: Tool schemas:`, JSON.stringify(tools.slice(0, 2), null, 2));
+        console.log(`🔧 DEBUG: System prompt length: ${enhancedSystemPrompt.length}`);
+        
+        // RESTORED: Full Claude API call with proper schemas
         const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,
           max_tokens: tokenBudget.maxPerCall,
