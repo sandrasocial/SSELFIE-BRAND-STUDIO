@@ -77,3 +77,4 @@ export function generateWebsiteHTML(websiteData: WebsiteData, onboardingData: On
     </div>
 </body>
 </html>`;
+}
