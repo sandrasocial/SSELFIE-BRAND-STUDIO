@@ -39,7 +39,10 @@ function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => 
 
   if (!chats || chats.length === 0) {
     return (
-      <div className="text-xs text-gray-400">No previous sessions</div>
+      <div className="p-4 text-center bg-gray-50 rounded-lg">
+        <div className="text-sm text-gray-500 font-light">Start your first style session</div>
+        <div className="text-xs text-gray-400 mt-1">Maya will guide you through creating your perfect images</div>
+      </div>
     );
   }
 
@@ -83,11 +86,16 @@ export default function Maya() {
           </div>
           
           <div className="font-serif text-xl font-light uppercase tracking-[0.3em] text-black mb-3">
-            Maya Loading
+            Preparing Your Style Session
           </div>
           <p className="text-sm text-gray-600 font-light tracking-wide max-w-xs mx-auto leading-relaxed">
-            Your celebrity stylist is preparing your personalized session...
+            Maya is curating your personalized collection and latest fashion trends...
           </p>
+          <div className="mt-4 flex justify-center space-x-2">
+            <span className="w-2 h-2 bg-black/20 rounded-full animate-pulse"></span>
+            <span className="w-2 h-2 bg-black/20 rounded-full animate-pulse delay-100"></span>
+            <span className="w-2 h-2 bg-black/20 rounded-full animate-pulse delay-200"></span>
+          </div>
         </div>
       </div>
     );
