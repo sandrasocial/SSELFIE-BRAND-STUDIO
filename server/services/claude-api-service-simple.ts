@@ -56,7 +56,7 @@ export class ClaudeApiServiceSimple {
         model: DEFAULT_MODEL_STR,
         max_tokens: 8192, // UNRESTRICTED: Increased from 4000 to allow full autonomous workflows
         temperature: 0.7,
-        system: agentConfig.systemPrompt,
+        system: PersonalityManager.getNaturalPrompt(agentName),
         messages: claudeMessages
       });
       
@@ -101,7 +101,7 @@ export class ClaudeApiServiceSimple {
               model: DEFAULT_MODEL_STR,
               max_tokens: 8192, // UNRESTRICTED: Increased for full workflow completion
               temperature: 0.7,
-              system: agentConfig.systemPrompt,
+              system: PersonalityManager.getNaturalPrompt(agentName),
               messages: [...claudeMessages, 
                 { role: 'assistant', content: response.content },
                 toolResultMessage
@@ -230,6 +230,9 @@ export class ClaudeApiServiceSimple {
       const maxIterations = 50; // UNRESTRICTED: Increased from 20 to allow full workflow completion
       let allToolCalls: any[] = [];
       
+      // ENHANCED SYSTEM PROMPT: Include previous context for continuity  
+      const enhancedSystemPrompt = systemPrompt + (previousContext || '');
+      
       // Continue conversation until task is complete - UNRESTRICTED for autonomous workflow completion
       while (conversationContinues && iterationCount < maxIterations) {
         iterationCount++;
@@ -237,15 +240,11 @@ export class ClaudeApiServiceSimple {
         console.log(`🔄 ${agentName}: Conversation iteration ${iterationCount}/${maxIterations} - Tools allowed: ${tools.length}`);
         
         // Call Claude API
+        
         console.log(`🔧 ${agentName}: Calling Claude API with ${tools.length} tools available`);
         console.log(`🔧 TOOLS:`, tools.map(t => t.name));
         console.log(`🔧 MODEL:`, DEFAULT_MODEL_STR);
-        console.log(`🔧 SYSTEM PROMPT LENGTH:`, systemPrompt.length);
-        
-        // Tools are working properly - debug logs removed
-        
-        // ENHANCED SYSTEM PROMPT: Include previous context for continuity
-        const enhancedSystemPrompt = systemPrompt + (previousContext || '');
+        console.log(`🔧 SYSTEM PROMPT LENGTH:`, enhancedSystemPrompt.length);
         
         // SIMPLIFIED TOKEN BUDGETING: Fixed limits based on admin status
         const taskComplexity = isAdminAgent ? 'unlimited' : 'moderate';
