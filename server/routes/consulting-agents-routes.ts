@@ -144,7 +144,8 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       TOOL_SCHEMAS.web_search,
       TOOL_SCHEMAS.restart_workflow,
       TOOL_SCHEMAS.search_filesystem,
-      TOOL_SCHEMAS.coordinate_agent  // ELENA'S COORDINATION TOOL
+      TOOL_SCHEMAS.coordinate_agent,  // ELENA'S COORDINATION TOOL
+      TOOL_SCHEMAS.get_assigned_tasks // WORKFLOW TASK RETRIEVAL TOOL
     ];
 
     // REAL STREAMING: Use actual streaming method to show agent work in real-time  

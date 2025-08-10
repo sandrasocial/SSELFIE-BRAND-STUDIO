@@ -185,7 +185,7 @@ export const TOOL_SCHEMAS = {
       properties: {
         target_agent: {
           type: "string",
-          enum: ["victoria", "zara", "aria", "maya", "olga", "rachel", "diana", "quinn", "wilma", "sophia", "martha", "ava", "flux"],
+          enum: ["elena", "victoria", "zara", "aria", "maya", "olga", "rachel", "diana", "quinn", "wilma", "sophia", "martha", "ava", "flux"],
           description: "The agent to coordinate with"
         },
         task_description: {
@@ -219,6 +219,21 @@ export const TOOL_SCHEMAS = {
         }
       },
       required: ["target_agent", "task_description", "workflow_context"]
+    }
+  },
+
+  get_assigned_tasks: {
+    name: "get_assigned_tasks",
+    description: "Retrieve active workflow tasks assigned to the current agent",
+    input_schema: {
+      type: "object",
+      properties: {
+        agent_name: {
+          type: "string",
+          description: "Name of the agent to get tasks for (usually the current agent)"
+        }
+      },
+      required: ["agent_name"]
     }
   }
 };

@@ -588,6 +588,16 @@ export class ClaudeApiServiceSimple {
         const result = await restart_workflow(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
+      } else if (toolCall.name === 'coordinate_agent') {
+        const { coordinate_agent } = await import('../tools/coordinate_agent');
+        const result = await coordinate_agent(toolCall.input);
+        return typeof result === 'string' ? result : JSON.stringify(result);
+        
+      } else if (toolCall.name === 'get_assigned_tasks') {
+        const { get_assigned_tasks } = await import('../tools/get_assigned_tasks');
+        const result = await get_assigned_tasks(toolCall.input);
+        return typeof result === 'string' ? result : JSON.stringify(result);
+        
       } else {
         return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;
       }

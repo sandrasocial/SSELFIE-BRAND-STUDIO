@@ -6,6 +6,7 @@
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MultiAgentWorkflowManager, WorkflowTemplate } from '../workflows/templates/multi-agent-workflow-template';
+import { WorkflowPersistence } from '../workflows/active/workflow-persistence';
 // UUID generation for coordination IDs
 const generateId = () => `coord_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -35,13 +36,14 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<str
     console.log(`📋 Task: ${task_description.substring(0, 100)}...`);
     console.log(`🎯 Priority: ${priority}`);
 
-    // Validate target agent exists
-    const availableAgents = ['victoria', 'zara', 'aria', 'maya', 'olga', 'rachel', 'diana', 'quinn', 'wilma', 'sophia', 'martha', 'ava', 'flux'];
+    // Validate target agent exists (include elena as coordinator)
+    const availableAgents = ['elena', 'victoria', 'zara', 'aria', 'maya', 'olga', 'rachel', 'diana', 'quinn', 'wilma', 'sophia', 'martha', 'ava', 'flux'];
     if (!availableAgents.includes(target_agent)) {
       throw new Error(`Invalid target agent: ${target_agent}. Available agents: ${availableAgents.join(', ')}`);
     }
 
     let workflowTemplate: WorkflowTemplate | null = null;
+    let workflowSession = null;
     
     // Create workflow template if requested or workflow_type is specified
     if (create_workflow_template || workflow_type) {
@@ -72,6 +74,32 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<str
       }
       
       console.log(`✅ WORKFLOW TEMPLATE CREATED: ${workflowTemplate.name} (ID: ${workflowTemplate.id})`);
+      
+      // Create persistent workflow session
+      workflowSession = WorkflowPersistence.createWorkflowSession(
+        workflowTemplate.name,
+        workflowTemplate.description,
+        'elena' // ELENA is the coordinator
+      );
+      
+      console.log(`📋 WORKFLOW SESSION CREATED: ${workflowSession.sessionId}`);
+    }
+    
+    // Save task to persistence system for agent to access
+    if (workflowSession) {
+      const savedTask = WorkflowPersistence.addTaskToWorkflow(
+        workflowSession.sessionId,
+        target_agent,
+        'elena',
+        task_description,
+        workflow_context,
+        expected_deliverables,
+        priority as 'high' | 'medium' | 'low',
+        workflow_type,
+        workflowTemplate
+      );
+      
+      console.log(`💾 TASK SAVED: ${savedTask.taskId} for ${target_agent}`);
     }
 
     // Create conversation ID for the coordinated agent
