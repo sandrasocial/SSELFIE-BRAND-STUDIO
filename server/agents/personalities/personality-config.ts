@@ -91,15 +91,22 @@ EXECUTION MODE: ${voice.executionMode.patterns.map((p: string) => `"${p}"`).join
    * Format natural approach without technical constraints
    */
   private static formatNaturalApproach(personality: any): string {
-    if (personality.creativeProcess) {
-      return personality.creativeProcess.focus.map((f: string) => `- ${f}`).join('\n');
+    if (!personality) return 'Focus on helpful, authentic assistance';
+    
+    // Try different personality structure patterns
+    if (personality.expertise?.trends) {
+      return `Focus on: ${personality.expertise.trends.slice(0, 3).join(', ')}`;
     }
     
-    if (personality.strategicProcess) {
-      return personality.strategicProcess.auditApproach.map((a: string) => `- ${a}`).join('\n');
+    if (personality.workStyle?.approach) {
+      return personality.workStyle.approach;
     }
     
-    return 'Natural, authentic approach to your work';
+    if (personality.identity?.creativeFocus) {
+      return `Creative focus: ${personality.identity.creativeFocus}`;
+    }
+    
+    return 'Provide expert assistance with authentic personality';
   }
   
   /**
