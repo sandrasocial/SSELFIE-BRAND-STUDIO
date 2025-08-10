@@ -295,7 +295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { agentId, taskDescription, targetComponents } = req.body;
       
-      const { ActiveProtocolEnforcer } = await import('./agents/active-protocol-enforcer.js');
+      const { ActiveProtocolEnforcer } = await import('./agents/protocols/active-protocol-enforcer.js');
       
       const task = {
         agentId,
@@ -331,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/agent-protocol/guide/:agentId', async (req, res) => {
     try {
       const { agentId } = req.params;
-      const { ActiveProtocolEnforcer } = await import('./agents/active-protocol-enforcer.js');
+      const { ActiveProtocolEnforcer } = await import('./agents/protocols/active-protocol-enforcer.js');
       
       const guide = ActiveProtocolEnforcer.generateComplianceGuide(agentId);
       

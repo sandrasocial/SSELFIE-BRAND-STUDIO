@@ -28,7 +28,7 @@ interface ConsultingChatBody {
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 // REMOVED: DirectWorkspaceAccess - unified native tool architecture
 // ELIMINATED: autonomousNavigation - part of competing memory systems
-import { CodebaseUnderstandingIntelligence } from '../agents/intelligence/codebase-understanding-intelligence';
+import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/intelligence/architectural-knowledge-base';
 // SIMPLIFIED MEMORY SYSTEM: Replaced 4 competing systems with one clean interface
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
@@ -40,7 +40,7 @@ import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_too
 import { bash } from '../tools/bash';
 import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
 // ZARA'S CONTEXT LOSS FIX: Import workflow state management
-import { WorkflowStateManager } from '../agents/core/WorkflowStateManager';
+import { ConversationManager } from '../agents/core/ConversationManager';
 
 function getClaudeService() {
   return claudeApiServiceSimple;
@@ -318,11 +318,11 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       const workflowId = `admin_agent_${agentId}_${userId}`;
       
       // Try to get existing workflow state
-      let workflowState = await WorkflowStateManager.getWorkflowContext(workflowId);
+      let workflowState = await ConversationManager.getWorkflowContext(workflowId);
       
       if (!workflowState) {
         // Initialize new workflow if none exists
-        workflowState = await WorkflowStateManager.initializeWorkflow(workflowId, {
+        workflowState = await ConversationManager.initializeWorkflow(workflowId, {
           agentId,
           userId,
           originalTask: message,
@@ -332,7 +332,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
         console.log(`🚀 WORKFLOW: Initialized new workflow ${workflowId} for ${agentId}`);
       } else {
         // Update existing workflow with current task
-        await WorkflowStateManager.updateWorkflowState(workflowId, {
+        await ConversationManager.updateWorkflowState(workflowId, {
           currentStage: 'coordination',
           contextData: {
             ...workflowState.contextData,
@@ -344,7 +344,7 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       }
 
       // Assign task to agent and build workflow context
-      await WorkflowStateManager.assignAgentTask(workflowId, agentId, message);
+      await ConversationManager.assignAgentTask(workflowId, agentId, message);
       
       // Build workflow context summary
       const state = await simpleMemoryService.getWorkflowState(workflowId);

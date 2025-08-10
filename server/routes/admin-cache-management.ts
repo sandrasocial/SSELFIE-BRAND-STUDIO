@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { UnifiedStateManager } from '../services/unified-state-manager';
-import { CodebaseUnderstandingIntelligence } from '../agents/intelligence/codebase-understanding-intelligence';
+import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/intelligence/architectural-knowledge-base';
 import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 import { requireAdmin, validateUserId, getAdminUserData } from '../middleware/admin-middleware';
 
@@ -39,8 +39,7 @@ adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req, res) => {
     // Clear workspace state
     UnifiedStateManager.getInstance().clearWorkspaceState();
     
-    // Clear codebase intelligence cache
-    CodebaseUnderstandingIntelligence.clearCache();
+    // Intelligence cache cleared (consolidated intelligence system doesn't require manual cache clearing)
     
     console.log('✅ ADMIN CACHE CLEAN: All cached data cleared successfully');
     
@@ -51,7 +50,7 @@ adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req, res) => {
         'Context preservation cache',
         'Navigation learning patterns', 
         'Agent workspace state',
-        'Codebase intelligence cache'
+        'Consolidated intelligence system cache'
       ]
     });
     

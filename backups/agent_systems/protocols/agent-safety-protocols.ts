@@ -1,8 +1,8 @@
-import { AgentProtocolValidator } from '../validators/agent-protocol-validator';
-import { ActiveProtocolEnforcer } from './active-protocol-enforcer';
+import { AgentProtocolValidator } from './agent-protocol-validator';
+import { AgentProtocolEnforcer } from './agent-protocol-enforcer';
 
-// Re-export the consolidated enforcement system
-export { AgentProtocolValidator, ActiveProtocolEnforcer as AgentProtocolEnforcer };
+// Re-export the enforcement system
+export { AgentProtocolValidator, AgentProtocolEnforcer };
 
 // Documentation of safety protocols
 export const AGENT_SAFETY_PROTOCOLS = `

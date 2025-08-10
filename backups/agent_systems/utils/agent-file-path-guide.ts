@@ -230,7 +230,7 @@ export const AGENT_SYSTEM_FILES: FilePathReference[] = [
       },
       {
         name: "ConversationManager.ts",
-        path: "server/agents/core/ConversationManager.ts",
+        path: "server/agents/ConversationManager.ts",
         size: "14,508 bytes", 
         description: "Conversation management and state tracking",
         priority: "high"

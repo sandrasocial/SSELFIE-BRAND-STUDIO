@@ -1,13 +1,11 @@
 /**
- * CONSOLIDATED AGENT PROTOCOL ENFORCEMENT SYSTEM
+ * ACTIVE AGENT PROTOCOL ENFORCEMENT SYSTEM
  * Ensures all agents follow established protocols during execution
  * Created: August 10, 2025 - Response to agent protocol violations
- * Updated: August 10, 2025 - Consolidated with agent-protocol-enforcer for file validation
  */
 
 import { FileIntegrationAnalyzer, INTEGRATION_RULES } from './mandatory-file-integration-protocol';
 import { AGENT_SAFETY_PROTOCOLS } from './agent-safety-protocols';
-import { AgentProtocolValidator } from '../validators/agent-protocol-validator';
 
 export interface AgentTask {
   agentId: string;
@@ -207,66 +205,6 @@ export class ActiveProtocolEnforcer {
     }
     
     return null;
-  }
-  
-  /**
-   * CONSOLIDATED FILE VALIDATION (from agent-protocol-enforcer)
-   * Validates file creation and modification for protocol compliance
-   */
-  static async validateFileCreation(
-    fileContent: string,
-    filePath: string
-  ): Promise<{ canProceed: boolean; errors?: string[]; fixedContent?: string }> {
-    const isComponent = filePath.includes('/components/') || filePath.endsWith('.tsx');
-    const validation = isComponent 
-      ? AgentProtocolValidator.validateComponent(fileContent)
-      : AgentProtocolValidator.validateSourceCode(fileContent);
-
-    if (!validation.isValid) {
-      const fixedContent = AgentProtocolValidator.autoFixImports(fileContent);
-      const revalidation = isComponent
-        ? AgentProtocolValidator.validateComponent(fixedContent)
-        : AgentProtocolValidator.validateSourceCode(fixedContent);
-
-      if (revalidation.isValid) {
-        return { canProceed: true, fixedContent };
-      }
-      return { canProceed: false, errors: validation.errors };
-    }
-    return { canProceed: true };
-  }
-
-  /**
-   * CONSOLIDATED PROTOCOL ENFORCEMENT (from agent-protocol-enforcer)
-   */
-  static async enforceProtocols(
-    agentId: string,
-    action: 'create' | 'modify',
-    filePath: string,
-    content: string
-  ): Promise<{ success: boolean; message: string; fixedContent?: string; }> {
-    try {
-      const validation = await this.validateFileCreation(content, filePath);
-      if (!validation.canProceed) {
-        return {
-          success: false,
-          message: `Protocol violation by agent ${agentId}:\n${validation.errors?.join('\n')}`,
-        };
-      }
-      if (validation.fixedContent) {
-        return {
-          success: true,
-          message: 'Content auto-fixed to meet protocols',
-          fixedContent: validation.fixedContent
-        };
-      }
-      return { success: true, message: 'Content meets all safety protocols' };
-    } catch (error) {
-      return {
-        success: false,
-        message: `Protocol enforcement error: ${error instanceof Error ? error.message : 'Unknown error'}`
-      };
-    }
   }
   
   /**
