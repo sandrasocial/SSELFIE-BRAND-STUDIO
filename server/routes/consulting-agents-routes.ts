@@ -145,16 +145,13 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       restart_workflow
     ];
 
-    // FAST PROCESSING: Direct to personality response
-    const response = await claudeService.processAgentWithTools({
-      agentName: normalizedAgentId,
-      systemPrompt: agentConfig.systemPrompt,
-      userMessage: message,
-      tools: availableTools,
-      conversationHistory: conversationHistory,
-      maxIterations: 50,
-      userId: userId
-    });
+    // FAST PROCESSING: Use simple message method for reliable response
+    const response = await claudeService.sendMessage(
+      message,
+      baseConversationId,
+      normalizedAgentId,
+      true // returnFullResponse = true
+    );
     
     // ASYNC SAVE: Don't block personality response
     setImmediate(async () => {
@@ -182,13 +179,15 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
           timestamp: new Date()
         });
         
-        // Save assistant response
-        await db.insert(claudeMessages).values({
-          conversationId: baseConversationId,
-          role: 'assistant',
-          content: response,
-          timestamp: new Date()
-        });
+        // Save assistant response (only if not empty)
+        if (response && response.trim()) {
+          await db.insert(claudeMessages).values({
+            conversationId: baseConversationId,
+            role: 'assistant',
+            content: response.trim(),
+            timestamp: new Date()
+          });
+        }
       } catch (saveError) {
         console.error(`Async save error:`, saveError);
       }
@@ -197,7 +196,7 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
     // FAST RESPONSE: Immediate return with personality
     res.json({
       success: true,
-      response: response,
+      response: response || "Agent is processing your request...",
       conversationId: baseConversationId,
       agentName: agentConfig.name
     });
