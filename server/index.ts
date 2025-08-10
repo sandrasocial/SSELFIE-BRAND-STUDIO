@@ -33,22 +33,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// Import error prevention middleware
-import { errorPreventionMiddleware } from '../middleware/error-prevention';
-
-// Apply error prevention middleware
-app.use(errorPreventionMiddleware);
-
-// Import auth components
-import session from 'express-session';
-import { sessionConfig } from './auth/auth.service';
-import authRoutes from './auth/auth.routes';
-
-// Setup session middleware
-app.use(session(sessionConfig));
-
-// Register auth routes
-app.use('/api/auth', authRoutes);
+// TEMPORARILY DISABLED - Zara's auth files have missing dependencies and TypeScript errors
+// // Import error prevention middleware
+// import { errorPreventionMiddleware } from '../middleware/error-prevention';
+// 
+// // Apply error prevention middleware
+// app.use(errorPreventionMiddleware);
+// 
+// // Import auth components
+// import session from 'express-session';
+// import { sessionConfig } from './auth/auth.service';
+// import authRoutes from './auth/auth.routes';
+// 
+// // Setup session middleware
+// app.use(session(sessionConfig));
+// 
+// // Register auth routes
+// app.use('/api/auth', authRoutes);
 
 // Import and register all routes
 import { registerRoutes } from './routes';
@@ -60,8 +61,14 @@ const httpServer = await registerRoutes(app);
 // Sentry error handler must be before any other error middleware
 // app.use(Sentry.Handlers.errorHandler()); // Disabled until Sentry is properly configured
 
+// Import and use safe error handling
+import { safeErrorPreventionMiddleware, safeGlobalErrorHandler } from './middleware/safe-error-prevention';
+
+// Apply safe error prevention
+app.use(safeErrorPreventionMiddleware);
+
 // Global error handler
-app.use(errorHandler);
+app.use(safeGlobalErrorHandler);
 
 // Setup server and Vite
 import { setupVite } from './vite';
