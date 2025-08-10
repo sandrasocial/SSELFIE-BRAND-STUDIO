@@ -46,7 +46,6 @@ export class MayaCollectionUpdater {
    * Get sample collections for testing Maya's updates
    */
   static getSampleCollections() {
-    // Enhanced collections with visual indicators and style tags
     return [
       {
         id: 'executive-power',
