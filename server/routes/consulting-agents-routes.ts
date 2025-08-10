@@ -145,93 +145,16 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       restart_workflow
     ];
 
-    // STREAMING RESPONSE: Set up streaming headers
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Cache-Control'
-    });
-
-    // Send agent start event
-    res.write(`data: ${JSON.stringify({
-      type: 'agent_start',
-      message: `${agentConfig.name} is processing your request...`
-    })}\n\n`);
-
-    try {
-      // Use simple non-streaming method but format for streaming frontend
-      const response = await claudeService.sendMessage(
-        message,
-        baseConversationId,
-        normalizedAgentId,
-        true // returnFullResponse = true
-      );
-
-      // Send the response as streaming text delta
-      if (response && response.trim()) {
-        res.write(`data: ${JSON.stringify({
-          type: 'text_delta',
-          content: response.trim()
-        })}\n\n`);
-      }
-
-      // Send completion event
-      res.write(`data: ${JSON.stringify({
-        type: 'completion'
-      })}\n\n`);
-
-      // ASYNC SAVE: Don't block response
-      setImmediate(async () => {
-        try {
-          const existingConversation = await db
-            .select()
-            .from(claudeConversations)
-            .where(eq(claudeConversations.conversationId, baseConversationId))
-            .limit(1);
-          
-          if (existingConversation.length === 0) {
-            await db.insert(claudeConversations).values({
-              conversationId: baseConversationId,
-              agentId: normalizedAgentId,
-              userId: userId,
-              metadata: { adminConsulting: true }
-            });
-          }
-          
-          // Save user message
-          await db.insert(claudeMessages).values({
-            conversationId: baseConversationId,
-            role: 'user',
-            content: message,
-            timestamp: new Date()
-          });
-          
-          // Save assistant response (only if not empty)
-          if (response && response.trim()) {
-            await db.insert(claudeMessages).values({
-              conversationId: baseConversationId,
-              role: 'assistant',
-              content: response.trim(),
-              timestamp: new Date()
-            });
-          }
-        } catch (saveError) {
-          console.error(`Async save error:`, saveError);
-        }
-      });
-
-    } catch (streamError) {
-      // Send error event
-      res.write(`data: ${JSON.stringify({
-        type: 'error',
-        message: streamError instanceof Error ? streamError.message : 'Agent communication failed'
-      })}\n\n`);
-    }
-
-    // Close the stream
-    res.end();
+    // REAL STREAMING: Use actual streaming method to show agent work in real-time
+    await claudeService.sendStreamingMessage(
+      userId,
+      normalizedAgentId,
+      baseConversationId,
+      message,
+      agentConfig.systemPrompt,
+      availableTools,
+      res // Pass the response object for real streaming
+    );
 
   } catch (error) {
     console.error(`❌ Consulting error:`, error);
