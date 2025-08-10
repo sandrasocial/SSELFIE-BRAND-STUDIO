@@ -253,64 +253,89 @@ export class ClaudeApiServiceSimple {
         const taskComplexity = isAdminAgent ? 'unlimited' : 'moderate';
         const tokenBudget = { maxPerCall: isAdminAgent ? 8192 : 4096 };
         
-        const response = await anthropic.messages.create({
+        // CRITICAL DEBUG: Log exact message format that's causing the error
+        console.log(`🔧 DEBUG: Claude API Request Debug:`, {
           model: DEFAULT_MODEL_STR,
           max_tokens: tokenBudget.maxPerCall,
-          messages: currentMessages as any,
-          system: enhancedSystemPrompt,
-          tools: tools,
-          tool_choice: { type: "auto" },
-          stream: false
+          messagesCount: currentMessages.length,
+          systemPromptLength: enhancedSystemPrompt.length,
+          firstMessage: currentMessages[0],
+          lastMessage: currentMessages[currentMessages.length - 1]
+        });
+        
+        // FIX: Ensure messages have valid format for Claude API
+        const cleanMessages = currentMessages.map((msg: any) => ({
+          role: msg.role === 'agent' ? 'assistant' : (msg.role === 'user' ? 'user' : 'assistant'),
+          content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+        })).filter((msg: any) => msg.content && msg.content.trim());
+        
+        console.log(`🔧 DEBUG: Cleaned messages:`, cleanMessages);
+        
+        // ULTRA SIMPLIFIED: Test with minimal parameters
+        const stream = anthropic.messages.stream({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: message }],
+          system: 'You are a helpful assistant named ' + agentName
         });
         
         let responseText = '';
         let toolCalls: any[] = [];
+        let finalMessage: any;
         
-        // Process response content
-        console.log(`🔍 ${agentName}: Response has ${response.content.length} content blocks`);
-        
-        for (const contentBlock of response.content) {
-          console.log(`🔍 ${agentName}: Processing content block type: ${contentBlock.type}`);
-          
-          if (contentBlock.type === 'text') {
-            responseText += contentBlock.text;
-            fullResponse += contentBlock.text;
-            
-            // Check for XML patterns in text (this should NOT happen)
-            if (contentBlock.text.includes('<str_replace_based_edit_tool>') ||
-                contentBlock.text.includes('<bash>')) {
-              console.log(`⚠️ ${agentName}: DETECTED XML IN TEXT - Function calling not working properly!`);
-            }
+        // Process streaming response
+        await new Promise<void>((resolve, reject) => {
+          stream.on('text', (text: string) => {
+            responseText += text;
+            fullResponse += text;
             
             res.write(`data: ${JSON.stringify({
               type: 'text_delta',
-              content: contentBlock.text
+              content: text
             })}\n\n`);
-            
-          } else if (contentBlock.type === 'tool_use') {
-            console.log(`🔧 ${agentName}: FUNCTION CALL DETECTED: ${contentBlock.name}`, contentBlock.input);
+          });
+          
+          stream.on('inputJson', (data: any) => {
+            console.log(`🔧 ${agentName}: TOOL INPUT:`, data);
+          });
+          
+          stream.on('tool', (tool: any) => {
+            console.log(`🔧 ${agentName}: FUNCTION CALL DETECTED: ${tool.name}`, tool.input);
             
             res.write(`data: ${JSON.stringify({
               type: 'tool_start',
-              toolName: contentBlock.name,
-              message: `${agentName} is using ${contentBlock.name}...`
+              toolName: tool.name,
+              message: `${agentName} is using ${tool.name}...`
             })}\n\n`);
             
             const toolCallData = {
-              name: contentBlock.name,
-              id: contentBlock.id,
-              input: contentBlock.input
+              name: tool.name,
+              id: tool.id,
+              input: tool.input
             };
             toolCalls.push(toolCallData);
             allToolCalls.push(toolCallData);
-          }
-        }
+          });
+          
+          stream.on('finalMessage', (message: any) => {
+            console.log(`✅ ${agentName}: Received final message`);
+            finalMessage = message;
+            resolve();
+          });
+          
+          stream.on('error', (error: any) => {
+            console.error(`❌ ${agentName}: Stream error:`, error);
+            reject(error);
+          });
+        });
         
         // Add assistant response to conversation
-        currentMessages.push({
-          role: 'assistant',
-          content: response.content
-        } as any);
+        if (finalMessage) {
+          currentMessages.push({
+            role: 'assistant',
+            content: finalMessage.content
+          } as any);
+        }
         
         // Execute tools if present
         if (toolCalls.length > 0) {
