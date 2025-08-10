@@ -635,13 +635,13 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
   }
 });
 
-// CONVERSATION HISTORY ENDPOINT - Uses existing backend system with bypass for efficiency
+// CONVERSATION HISTORY ENDPOINT - Full conversation loading for proper context preservation
 consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', adminAuth, async (req: any, res: any) => {
   try {
     const { agentName } = req.params;
     const userId = req.user ? (req.user as any).claims.sub : '42585527';
     
-    console.log(`📜 BYPASS CONVERSATION LOAD: ${agentName} for user ${userId}`);
+    console.log(`📜 CONVERSATION LOAD: ${agentName} for user ${userId}`);
     
     // Use existing database access (no duplicate Claude service creation)
     const { db } = await import('../db.js');
@@ -671,7 +671,7 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', admi
         .where(eq(claudeMessages.conversationId, latestConversationId))
         .orderBy(claudeMessages.createdAt);
       
-      console.log(`📜 BYPASS LOADED: ${messages.length} messages from conversation ${latestConversationId}`);
+      console.log(`📜 CONVERSATION LOADED: ${messages.length} messages from conversation ${latestConversationId}`);
     }
     
     // Format messages for frontend
