@@ -442,6 +442,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(generationTrackers.createdAt));
   }
 
+  async getProcessingGenerationTrackers(): Promise<GenerationTracker[]> {
+    return await db
+      .select()
+      .from(generationTrackers)
+      .where(eq(generationTrackers.status, 'processing'))
+      .orderBy(desc(generationTrackers.createdAt));
+  }
+
   // User Model operations
   async getUserModel(userId: string): Promise<UserModel | undefined> {
     const [model] = await db

@@ -2651,6 +2651,19 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
       });
     }
   });
+
+  // CRITICAL FIX: Start background monitoring services
+  console.log('🚀 MONITORING: Starting background completion monitors...');
+  
+  // Start Training Completion Monitor
+  const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
+  TrainingCompletionMonitor.getInstance().startMonitoring();
+  console.log('✅ MONITORING: Training completion monitor started');
+  
+  // Start Generation Completion Monitor (CRITICAL: This was missing!)
+  const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
+  GenerationCompletionMonitor.getInstance().startMonitoring();
+  console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
   
   return server;
 }
