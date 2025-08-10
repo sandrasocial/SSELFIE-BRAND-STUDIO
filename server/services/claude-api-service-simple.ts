@@ -242,9 +242,7 @@ export class ClaudeApiServiceSimple {
         console.log(`🔧 MODEL:`, DEFAULT_MODEL_STR);
         console.log(`🔧 SYSTEM PROMPT LENGTH:`, systemPrompt.length);
         
-        // CRITICAL DEBUG: Log tool schemas to verify format
-        console.log(`🔧 FULL TOOL SCHEMAS:`, JSON.stringify(tools, null, 2));
-        console.log(`🔧 MESSAGES:`, JSON.stringify(currentMessages, null, 2));
+        // Tools are working properly - debug logs removed
         
         // ENHANCED SYSTEM PROMPT: Include previous context for continuity
         const enhancedSystemPrompt = systemPrompt + (previousContext || '');
@@ -253,13 +251,7 @@ export class ClaudeApiServiceSimple {
         const taskComplexity = isAdminAgent ? 'unlimited' : 'moderate';
         const tokenBudget = { maxPerCall: isAdminAgent ? 8192 : 4096 };
         
-        // ULTRA DEBUG: Log everything being sent to Claude API  
-        console.log(`🔧 DEBUG: Model: ${DEFAULT_MODEL_STR}`);
-        console.log(`🔧 DEBUG: Max tokens: ${tokenBudget.maxPerCall}`);
-        console.log(`🔧 DEBUG: Messages count: ${currentMessages.length}`);
-        console.log(`🔧 DEBUG: Tools count: ${tools.length}`);
-        console.log(`🔧 DEBUG: Tool schemas:`, JSON.stringify(tools.slice(0, 2), null, 2));
-        console.log(`🔧 DEBUG: System prompt length: ${enhancedSystemPrompt.length}`);
+        // Clean execution with proper tool handling
         
         // RESTORED: Full Claude API call with proper schemas
         const response = await anthropic.messages.create({
@@ -274,11 +266,8 @@ export class ClaudeApiServiceSimple {
         let responseText = '';
         let toolCalls: any[] = [];
         
-        // Process response content (RESTORED: Working format)
-        console.log(`🔍 ${agentName}: Response has ${response.content.length} content blocks`);
-        
+        // Process response content - streaming to user
         for (const contentBlock of response.content) {
-          console.log(`🔍 ${agentName}: Processing content block type: ${contentBlock.type}`);
           
           if (contentBlock.type === 'text') {
             responseText += contentBlock.text;
@@ -291,7 +280,7 @@ export class ClaudeApiServiceSimple {
             })}\n\n`);
             
           } else if (contentBlock.type === 'tool_use') {
-            console.log(`🔧 ${agentName}: FUNCTION CALL DETECTED: ${contentBlock.name}`, contentBlock.input);
+            // Agent is using a tool - show user the action
             
             res.write(`data: ${JSON.stringify({
               type: 'tool_start',
