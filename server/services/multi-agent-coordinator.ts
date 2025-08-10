@@ -372,12 +372,12 @@ export class MultiAgentCoordinator {
       // FIXED: Sequential execution with Elena monitoring instead of Promise.all
       const results = [];
       for (const step of workflow.steps) {
-        const conversationId = `workflow_${workflowName}_${step.agentId}_${Date.now()}`;
+        const conversationId = `workflow_${workflowName}_${step.agentId}`;
         try {
           console.log(`🎯 EXECUTING: ${step.agentName} - ${step.taskDescription}`);
           
           // ELENA MONITORING: Create shared conversation for Elena to monitor
-          const elenaConversationId = `elena_monitor_${workflowName}_${Date.now()}`;
+          const elenaConversationId = `elena_monitor_${workflowName}`;
           
           const result = await Promise.race([
             claudeApiService.sendMessage(
@@ -406,7 +406,7 @@ export class MultiAgentCoordinator {
           console.error(`❌ FAILED: ${step.agentName} - ${error}`);
           
           // WORKFLOW RECOVERY: Try to continue with other agents
-          const elenaConversationId = `elena_monitor_${workflowName}_${Date.now()}`;
+          const elenaConversationId = `elena_monitor_${workflowName}`;
           await this.notifyElenaProgress(elenaConversationId, step.agentName, 'failed', error);
           
           results.push({
