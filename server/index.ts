@@ -33,6 +33,23 @@ app.use((req, res, next) => {
   next();
 });
 
+// Import error prevention middleware
+import { errorPreventionMiddleware } from '../middleware/error-prevention';
+
+// Apply error prevention middleware
+app.use(errorPreventionMiddleware);
+
+// Import auth components
+import session from 'express-session';
+import { sessionConfig } from './auth/auth.service';
+import authRoutes from './auth/auth.routes';
+
+// Setup session middleware
+app.use(session(sessionConfig));
+
+// Register auth routes
+app.use('/api/auth', authRoutes);
+
 // Import and register all routes
 import { registerRoutes } from './routes';
 
