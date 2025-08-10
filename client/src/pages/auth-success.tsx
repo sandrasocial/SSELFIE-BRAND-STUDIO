@@ -41,10 +41,8 @@ export default function AuthSuccess() {
             description: "Your account has been set up successfully.",
           });
 
-          // Redirect to workspace after successful setup
-          setTimeout(() => {
-            setLocation('/workspace');
-          }, 1000);
+          // Immediate redirect with proper auth state
+          setLocation('/workspace');
         } else {
           throw new Error('Failed to setup plan');
         }
