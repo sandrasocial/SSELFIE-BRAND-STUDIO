@@ -47,8 +47,8 @@ export class ConversationManager {
     const insights = await claudeApiServiceSimple.getAgentLearningInsights(agentId, userId);
     console.log(`🧠 Learning insights for ${agentId}:`, insights?.totalPatterns || 0, 'patterns');
     
-    // Connect with advanced memory system
-    await memorySystem.consolidateAgentMemory(agentId, userId);
+    // Use unified simple memory service
+    await memoryService.consolidateMemory(agentId, userId);
     
     // Keep only the last 5 messages for context
     const recentMessages = currentHistory.slice(-5);
