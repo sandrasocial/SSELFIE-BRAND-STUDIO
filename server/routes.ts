@@ -513,6 +513,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Save brand assessment from new personal brand flow
+  app.post('/api/save-brand-assessment', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const assessmentData = req.body;
+      
+      const { db } = await import('./db');
+      const { brandOnboarding } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      // Transform personal brand assessment to compatible format
+      const brandData = {
+        userId,
+        businessName: assessmentData.personalStory ? 'Personal Brand' : '',
+        tagline: assessmentData.uniqueValue || '',
+        personalStory: assessmentData.personalStory || '',
+        targetClient: assessmentData.targetAudience || '',
+        uniqueApproach: assessmentData.uniqueValue || '',
+        primaryOffer: assessmentData.expertise?.join(', ') || '',
+        brandPersonality: assessmentData.personality || '',
+        brandValues: assessmentData.personalGoals?.join(', ') || '',
+        selectedImages: JSON.stringify(assessmentData.selectedImages || {}),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      // Check if user already has brand onboarding data
+      const existingData = await db
+        .select()
+        .from(brandOnboarding)
+        .where(eq(brandOnboarding.userId, userId));
+        
+      if (existingData.length > 0) {
+        // Update existing
+        const [updated] = await db
+          .update(brandOnboarding)
+          .set({ ...brandData, updatedAt: new Date() })
+          .where(eq(brandOnboarding.userId, userId))
+          .returning();
+        res.json({ success: true, data: updated });
+      } else {
+        // Create new
+        const [created] = await db
+          .insert(brandOnboarding)
+          .values(brandData)
+          .returning();
+        res.json({ success: true, data: created });
+      }
+    } catch (error) {
+      console.error('Error saving brand assessment:', error);
+      res.status(500).json({ error: 'Failed to save brand assessment' });
+    }
+  });
+
   // REMOVED ALL DUPLICATE BUILD ONBOARDING ENDPOINTS
   // Users should use the admin-built brand-onboarding system instead
 
