@@ -220,10 +220,24 @@ ${context.totalFilesSearched > 20 ? `\n...and ${context.totalFilesSearched - 20}
   /**
    * Clear cache for a specific conversation (THIS IS WHAT YOU ORIGINALLY WANTED)
    */
-  clearConversationCache(conversationId: string, agentName: string): void {
+  /**
+   * OLGA'S FIX: Gentle cache refresh instead of aggressive clearing
+   */
+  refreshConversationCache(conversationId: string, agentName: string, preserveContext: boolean = true): void {
     const key = `${conversationId}_${agentName}`;
+    
+    if (preserveContext) {
+      const existing = this.cache.get(key);
+      if (existing) {
+        existing.timestamp = Date.now();
+        console.log(`🔄 CACHE REFRESHED for ${agentName} in conversation ${conversationId} (context preserved)`);
+        return;
+      }
+    }
+    
+    // HARD CLEAR: Only when explicitly needed
     this.cache.delete(key);
-    console.log(`🧹 CACHE CLEARED for ${agentName} in conversation ${conversationId}`);
+    console.log(`⚠️ CACHE CLEARED for ${agentName} in conversation ${conversationId} (context lost)`);
   }
   
   /**

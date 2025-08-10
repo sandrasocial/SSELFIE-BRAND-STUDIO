@@ -140,10 +140,26 @@ export class SimpleMemoryService {
    * ESSENTIAL: Clear memory when needed
    * Replaces complex cache invalidation from multiple systems
    */
-  clearAgentMemory(agentName: string, userId: string): void {
+  /**
+   * OLGA'S FIX: Gentle memory refresh instead of aggressive clearing
+   * Only clears when absolutely necessary to prevent context loss
+   */
+  refreshAgentMemory(agentName: string, userId: string, preserveContext: boolean = true): void {
     const cacheKey = `${agentName}-${userId}`;
+    
+    if (preserveContext) {
+      // SOFT REFRESH: Keep the context but mark as refreshed
+      const existing = this.contextCache.get(cacheKey);
+      if (existing) {
+        existing.timestamp = new Date();
+        console.log(`🔄 MEMORY: Refreshed timestamp for ${agentName} (context preserved)`);
+        return;
+      }
+    }
+    
+    // HARD CLEAR: Only when explicitly requested
     this.contextCache.delete(cacheKey);
-    console.log(`🧠 MEMORY: Cleared memory for ${agentName}`);
+    console.log(`⚠️ MEMORY: Hard cleared memory for ${agentName} (context lost)`);
   }
 
   /**
