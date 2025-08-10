@@ -1,17 +1,49 @@
 import { Pool, PoolConfig } from 'pg';
 import { DataSourceOptions } from 'typeorm';
 import { config as dotenvConfig } from 'dotenv';
+import * as fs from 'fs';
+import * as path from 'path';
 
+// Load environment variables
 dotenvConfig();
 
-// Shared database configuration
+// Constants for configuration
+const SLOW_QUERY_THRESHOLD = parseInt(process.env.SLOW_QUERY_THRESHOLD || '1000', 10);
+const SLOW_QUERY_LOG_LIMIT = parseInt(process.env.SLOW_QUERY_LOG_LIMIT || '100', 10);
+
+// Validate essential environment variables
+const requiredEnvVars = ['DB_PASSWORD'];
+const missingVars = requiredEnvVars.filter(v => !process.env[v]);
+if (missingVars.length) {
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+}
+
+// Environment-specific SSL configuration
+const getSslConfig = () => {
+  if (process.env.DB_SSL_CERT_PATH && fs.existsSync(process.env.DB_SSL_CERT_PATH)) {
+    return {
+      ca: fs.readFileSync(process.env.DB_SSL_CERT_PATH).toString(),
+      rejectUnauthorized: process.env.NODE_ENV === 'production'
+    };
+  }
+  return process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false;
+};
+
+// Enhanced shared database configuration
 const sharedConfig = {
   username: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
   database: process.env.DB_NAME || 'sselfie_studio',
   password: process.env.DB_PASSWORD,
   port: parseInt(process.env.DB_PORT || '5432', 10),
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  ssl: getSslConfig(),
+  
+  // Application metadata
+  application_name: `${process.env.APP_NAME || 'SSELFIE_STUDIO'}_${process.env.NODE_ENV || 'development'}_${process.env.INSTANCE_ID || 'main'}`,
+  
+  // Connection timeouts
+  connectTimeoutMS: parseInt(process.env.DB_CONNECT_TIMEOUT || '2000', 10),
+  queryTimeoutMS: parseInt(process.env.DB_QUERY_TIMEOUT || '10000', 10)
 };
 
 // Direct PostgreSQL pool configuration
@@ -55,17 +87,63 @@ export const typeormConfig: DataSourceOptions = {
 };
 
 // Create PostgreSQL Pool
-// Performance metrics
+// Enhanced Performance Metrics
 const queryStats = {
   totalQueries: 0,
   totalDuration: 0,
-  slowQueries: [] as {sql: string, duration: number, timestamp: Date}[]
+  slowQueries: [] as {sql: string, duration: number, timestamp: Date, stack?: string}[],
+  errorQueries: [] as {sql: string, error: string, timestamp: Date, stack?: string}[],
+  queryTypes: {
+    select: 0,
+    insert: 0,
+    update: 0,
+    delete: 0,
+    other: 0
+  },
+  lastReset: new Date()
 };
 
-export const getQueryStats = () => ({
-  ...queryStats,
-  averageQueryTime: queryStats.totalQueries ? queryStats.totalDuration / queryStats.totalQueries : 0
-});
+// Query type analysis
+const getQueryType = (sql: string): 'select' | 'insert' | 'update' | 'delete' | 'other' => {
+  const normalized = sql.trim().toLowerCase();
+  if (normalized.startsWith('select')) return 'select';
+  if (normalized.startsWith('insert')) return 'insert';
+  if (normalized.startsWith('update')) return 'update';
+  if (normalized.startsWith('delete')) return 'delete';
+  return 'other';
+};
+
+// Enhanced query stats with analysis
+export const getQueryStats = () => {
+  const now = new Date();
+  const uptimeMs = now.getTime() - queryStats.lastReset.getTime();
+  
+  return {
+    ...queryStats,
+    averageQueryTime: queryStats.totalQueries ? queryStats.totalDuration / queryStats.totalQueries : 0,
+    queriesPerSecond: queryStats.totalQueries / (uptimeMs / 1000),
+    queryTypeDistribution: {
+      ...queryStats.queryTypes,
+      percentages: Object.entries(queryStats.queryTypes).reduce((acc, [key, value]) => ({
+        ...acc,
+        [key]: (value / queryStats.totalQueries * 100).toFixed(2) + '%'
+      }), {})
+    },
+    slowQueryAnalysis: {
+      count: queryStats.slowQueries.length,
+      averageDuration: queryStats.slowQueries.reduce((acc, q) => acc + q.duration, 0) / (queryStats.slowQueries.length || 1),
+      mostRecentSlowQueries: queryStats.slowQueries.slice(-5)
+    },
+    errorAnalysis: {
+      count: queryStats.errorQueries.length,
+      recentErrors: queryStats.errorQueries.slice(-5)
+    },
+    uptime: {
+      ms: uptimeMs,
+      readable: `${Math.floor(uptimeMs / 1000 / 60)} minutes ${Math.floor((uptimeMs / 1000) % 60)} seconds`
+    }
+  };
+};
 
 export const pool = new Pool({
   ...poolConfig,
@@ -97,7 +175,14 @@ export const pool = new Pool({
   }]
 });
 
-// Enhanced Connection Monitoring
+// Connection state tracking
+const connectionState = {
+  lastReconnectAttempt: new Date(0),
+  consecutiveFailures: 0,
+  healthHistory: [] as {timestamp: Date, status: 'healthy' | 'unhealthy', responseTime?: number}[]
+};
+
+// Enhanced Connection Monitoring with auto-recovery
 pool.on('connect', async (client) => {
   console.log(`✅ DB CONNECTED: ${new Date().toISOString()} - Total: ${pool.totalCount}, Idle: ${pool.idleCount}, Waiting: ${pool.waitingCount}`);
   
