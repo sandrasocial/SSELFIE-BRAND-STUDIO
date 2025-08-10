@@ -107,7 +107,7 @@ START WORKING NOW. Use your specialized tools and expertise to execute your task
   ): AutoExecutionConfig[] {
     return workflowTemplate.agents.map((agent: any, index: number) => ({
       agentId: agent.agentId,
-      conversationId: `admin_${agent.agentId}_sandra-admin-test`,
+      conversationId: `admin_${agent.agentId}_42585527`,
       taskDescription: agent.taskDescription,
       priority: agent.priority,
       delayMs: agent.dependencies?.length ? 5000 * index : 0 // Stagger dependent tasks

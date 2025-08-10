@@ -99,7 +99,7 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       });
     }
 
-    const userId = req.user?.claims?.sub || 'sandra-admin-test';
+    const userId = req.user?.claims?.sub || '42585527';
     console.log(`🚀 ${agentConfig.name.toUpperCase()}: Streamlined processing`);
 
     // STREAMLINED: Simplified conversation management  

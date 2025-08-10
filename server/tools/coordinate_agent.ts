@@ -103,8 +103,8 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<str
       console.log(`💾 TASK SAVED: ${savedTask.taskId} for ${target_agent}`);
     }
 
-    // Use standard admin conversation ID format for target agent
-    const coordinationId = `admin_${target_agent}_sandra-admin-test`;
+    // FIXED: Use proper user ID from admin auth system
+    const coordinationId = `admin_${target_agent}_42585527`;
     
     // Get the target agent's personality
     const agentPersonality = PersonalityManager.getNaturalPrompt(target_agent);
