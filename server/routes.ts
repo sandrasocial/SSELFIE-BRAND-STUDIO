@@ -1401,9 +1401,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Phase 2 Coordination - Agent Workflow Execution
   app.use('/api/phase2', phase2CoordinationRouter);
   
-  // Phase 2 Fixes - Training and Generation Fixes
-  const phase2FixesRouter = await import('./routes/phase2-fixes');
-  app.use(phase2FixesRouter.default);
+  // Phase 2 fixes handled by specialized agents
   // FIXED: Register consulting agents at correct path to match frontend calls
   // Regular consulting agents routes (non-admin)
   app.use('/api/consulting-agents', consultingAgentsRouter);
