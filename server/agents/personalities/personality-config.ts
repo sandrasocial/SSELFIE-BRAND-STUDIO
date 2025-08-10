@@ -9,6 +9,11 @@ import { OLGA_PERSONALITY } from './olga-personality';
 import { ZARA_PERSONALITY } from './zara-personality';
 import { VICTORIA_PERSONALITY } from './victoria-personality';
 import { ARIA_PERSONALITY } from './aria-personality';
+import { RACHEL_PERSONALITY } from './rachel-personality';
+import { DIANA_PERSONALITY } from './diana-personality';
+import { WILMA_PERSONALITY } from './wilma-personality';
+import { AVA_PERSONALITY } from './ava-personality';
+import { FLUX_PERSONALITY } from './flux-personality';
 
 // Pure personality definitions without technical constraints
 export const PURE_PERSONALITIES = {
