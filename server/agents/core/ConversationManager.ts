@@ -1,7 +1,8 @@
-import { storage } from '../storage';
+import { storage } from '../../storage';
 // ELIMINATED: AdvancedMemorySystem - replaced with simple-memory-service
-import { simpleMemoryService } from '../services/simple-memory-service';
-import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
+import { simpleMemoryService } from '../../services/simple-memory-service';
+import { claudeApiServiceSimple } from '../../services/claude-api-service-simple';
+import { WorkflowStateManager, WorkflowState } from './WorkflowStateManager';
 
 // SIMPLIFIED MEMORY SYSTEM INTEGRATION
 const memoryService = simpleMemoryService;
@@ -275,8 +276,8 @@ export class ConversationManager {
       const learningInsights = await claudeApiServiceSimple.getAgentLearningInsights(agentId, userId);
       const agentKnowledge = learningInsights?.recentActivity || [];
       
-      // Get advanced memory profile
-      const memoryProfile = await memorySystem.getAgentMemoryProfile(agentId, userId);
+      // Get advanced memory profile from simple memory service
+      const memoryProfile = await memoryService.getAgentMemoryProfile(agentId, userId);
       
       const contextMessages: any[] = [];
       
