@@ -80,7 +80,7 @@ export class MultiAgentCoordinator {
   private readonly ENTERPRISE_AGENTS = {
     'elena': {
       specialization: 'STRATEGIC_PLANNING',
-      capabilities: ['strategic_analysis', 'project_planning', 'resource_allocation'],
+      capabilities: ['strategic_analysis', 'project_planning', 'resource_allocation', 'coordinate_agents'],
       tools: ['comprehensive_agent_toolkit', 'agent_implementation_toolkit']
     },
     'aria': {
