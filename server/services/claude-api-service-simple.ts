@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { db } from '../db.js';
 import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
+import { simpleMemoryService } from './simple-memory-service.js';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -147,11 +148,11 @@ export class ClaudeApiServiceSimple {
       console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
       
       // SMART CONTEXT LOADING: Only load heavy context for work tasks  
-      const contextRequirement = (await import('./conversation-context-detector.js')).ConversationContextDetector.analyzeMessage(message);
+      const contextRequirement = simpleMemoryService.analyzeMessage(message);
       console.log(`🔍 CONTEXT ANALYSIS: ${contextRequirement.contextLevel.toUpperCase()} level context for "${message.substring(0, 30)}..."`);
       
       let previousContext = '';
-      if (contextRequirement.needsWorkspaceContext) {
+      if (contextRequirement.isWorkTask) {
         try {
           // ELIMINATED: ContextPreservationSystem - using simplified approach
           previousContext = `Agent ${agentName} workspace context for work task`;
