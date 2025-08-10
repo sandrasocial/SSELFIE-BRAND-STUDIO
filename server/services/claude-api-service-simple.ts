@@ -33,7 +33,7 @@ export class ClaudeApiServiceSimple {
       }
       
       // Create conversation if needed
-      await this.createConversationIfNotExists('multi-agent-system', agentName, conversationId);
+      await this.createConversationIfNotExists('sandra-admin-test', agentName, conversationId);
       
       // Load conversation history
       const messages = await this.loadConversationMessages(conversationId);
@@ -83,7 +83,7 @@ export class ClaudeApiServiceSimple {
       if (toolCalls.length > 0) {
         for (const toolCall of toolCalls) {
           try {
-            const toolResult = await this.executeToolCall(toolCall, agentName, 'multi-agent-system');
+            const toolResult = await this.executeToolCall(toolCall, agentName, 'sandra-admin-test');
             console.log(`✅ ${agentName}: Tool ${toolCall.name} completed`);
             
             // Continue conversation with tool result
