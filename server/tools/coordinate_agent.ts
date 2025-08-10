@@ -102,8 +102,8 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<str
       console.log(`💾 TASK SAVED: ${savedTask.taskId} for ${target_agent}`);
     }
 
-    // Create conversation ID for the coordinated agent
-    const coordinationId = `coordination_${target_agent}_${Date.now()}`;
+    // Use standard admin conversation ID format for target agent
+    const coordinationId = `admin_${target_agent}_sandra-admin-test`;
     
     // Get the target agent's personality
     const agentPersonality = PersonalityManager.getNaturalPrompt(target_agent);
@@ -149,12 +149,10 @@ ${workflowTemplate ? `**Note:** This workflow has ${workflowTemplate.agents.leng
     
     // Use the claude service to start a conversation with the target agent
     const response = await claudeApiServiceSimple.sendMessage(
-      'sandra-admin-coordination', // Use admin coordination user ID
-      target_agent,
-      coordinationId,
       coordinationMessage,
-      agentPersonality,
-      [] // No special tools for now - agents use their standard toolset
+      coordinationId,
+      target_agent,
+      false // Return basic response
     );
 
     console.log(`✅ COORDINATION SUCCESS: ${target_agent} received task assignment`);
