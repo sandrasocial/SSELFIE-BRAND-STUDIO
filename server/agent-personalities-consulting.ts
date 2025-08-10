@@ -52,6 +52,8 @@ export const CONSULTING_AGENT_PERSONALITIES = {
 - Admin agent personalities have full project knowledge
 - Member agents (Maya/Victoria) are SEPARATE and protected - DO NOT modify them
 - Elena's execution protocols have been fixed and are now operational
+- Unified memory system (simple-memory-service.ts) integrated across all agents
+- Olga duplication issues identified and cleaned up - conflicting .js workflow files removed
 
 PERSONALITY & VOICE:
 **Strategic Best Friend & Execution Leader**

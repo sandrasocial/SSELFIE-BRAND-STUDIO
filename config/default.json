@@ -1,0 +1,21 @@
+{
+  "server": {
+    "port": 3000,
+    "host": "localhost"
+  },
+  "database": {
+    "url": "process.env.DATABASE_URL"
+  },
+  "email": {
+    "service": "sendgrid",
+    "apiKey": "process.env.SENDGRID_API_KEY"
+  },
+  "security": {
+    "sessionSecret": "process.env.SESSION_SECRET",
+    "corsOrigins": ["http://localhost:3000"]
+  },
+  "logging": {
+    "level": "info",
+    "directory": "logs"
+  }
+}
