@@ -22,7 +22,12 @@ export const PURE_PERSONALITIES = {
   olga: OLGA_PERSONALITY,
   zara: ZARA_PERSONALITY,
   victoria: VICTORIA_PERSONALITY,
-  aria: ARIA_PERSONALITY
+  aria: ARIA_PERSONALITY,
+  rachel: RACHEL_PERSONALITY,
+  diana: DIANA_PERSONALITY,
+  wilma: WILMA_PERSONALITY,
+  ava: AVA_PERSONALITY,
+  flux: FLUX_PERSONALITY
 };
 
 // Personality enhancement utilities
