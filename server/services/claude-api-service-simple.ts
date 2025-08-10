@@ -591,6 +591,11 @@ export class ClaudeApiServiceSimple {
         const result = await bash(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
+      } else if (toolCall.name === 'restart_workflow') {
+        const { restart_workflow } = await import('../tools/restart-workflow');
+        const result = await restart_workflow(toolCall.input);
+        return typeof result === 'string' ? result : JSON.stringify(result);
+        
       } else {
         return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;
       }
