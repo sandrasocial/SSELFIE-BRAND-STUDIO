@@ -355,8 +355,8 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
       // Continue without workflow enhancement if there's an error
     }
     
-    // ENHANCED PROMPT: Include workflow context to prevent context loss
-    let systemPrompt = agentConfig.systemPrompt;
+    // ENHANCED PROMPT: Include workflow context to prevent context loss  
+    let systemPrompt = PersonalityManager.getNaturalPrompt(normalizedAgentId);
     
     if (contextRequirement.isWorkTask && contextSummary) {
       systemPrompt += `\n\n## CURRENT CONTEXT:\n${contextSummary}`;

@@ -32,8 +32,9 @@ export class ClaudeApiServiceSimple {
         throw new Error(`Agent ${agentName} not found`);
       }
       
-      // Create conversation if needed
-      await this.createConversationIfNotExists('42585527', agentName, conversationId);
+      // Create conversation if needed - use actual authenticated user
+      const userId = '42585527'; // Your existing admin account
+      await this.createConversationIfNotExists(userId, agentName, conversationId);
       
       // Load conversation history
       const messages = await this.loadConversationMessages(conversationId);
@@ -83,7 +84,7 @@ export class ClaudeApiServiceSimple {
       if (toolCalls.length > 0) {
         for (const toolCall of toolCalls) {
           try {
-            const toolResult = await this.executeToolCall(toolCall, agentName, '42585527');
+            const toolResult = await this.executeToolCall(toolCall, agentName, '42585527'); // Your existing admin account
             console.log(`✅ ${agentName}: Tool ${toolCall.name} completed`);
             
             // Continue conversation with tool result
