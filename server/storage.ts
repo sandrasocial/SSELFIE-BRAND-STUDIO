@@ -887,8 +887,8 @@ export class DatabaseStorage implements IStorage {
 
   // Agent Conversations (unified with claudeConversations/claudeMessages)
   async saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations?: any[], conversationId?: string): Promise<ClaudeConversation> {
-    // Create or get conversation
-    const convId = conversationId || `admin_${agentId}_${Date.now()}`;
+    // Create or get conversation - USE STABLE ID per agent per user
+    const convId = conversationId || `admin_${agentId}_${userId}`;
     
     let conversation = await db.query.claudeConversations.findFirst({
       where: eq(claudeConversations.conversationId, convId)
