@@ -1,5 +1,22 @@
 import { EventEmitter } from 'events';
-import { agentConfigs, AgentConfig, errorHandling } from '../config/agent-system-config';
+// Agent state management (simplified - no more competing config systems)
+interface AgentConfig {
+  id: string;
+  name: string;
+  role: string;
+  capabilities: string[];
+}
+
+const errorHandling = {
+  maxRetries: 3,
+  retryDelay: 1000,
+  errorTypes: {
+    MEMORY_EXCEEDED: 'MEMORY_EXCEEDED',
+    TIMEOUT: 'TIMEOUT',
+    API_ERROR: 'API_ERROR',
+    VALIDATION_ERROR: 'VALIDATION_ERROR'
+  }
+};
 import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 
 interface AgentState {

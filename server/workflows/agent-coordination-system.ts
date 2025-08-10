@@ -287,16 +287,22 @@ export class AgentCoordinationSystem {
   }
 
   static getAgentSpecialties(): Record<string, string[]> {
+    // Updated with authentic personality specializations from personality-config.ts
     return {
-      victoria: ['UI/UX Design', 'Visual Identity', 'Brand Design', 'Component Creation'],
-      maya: ['Full-Stack Development', 'Architecture', 'Database Design', 'API Integration'],
+      maya: ['AI Photography', 'Celebrity Styling', 'Brand Aesthetics', 'Creative Direction'],
+      elena: ['Strategic Coordination', 'Multi-Agent Workflows', 'Project Management', 'System Orchestration'],
+      olga: ['System Organization', 'File Management', 'Process Cleanup', 'Documentation'],
+      zara: ['Technical Architecture', 'Code Optimization', 'System Performance', 'Database Design'],
+      victoria: ['UX Strategy', 'Business Consulting', 'User Research', 'Product Strategy'],
+      aria: ['UI/UX Design', 'Creative Direction', 'Visual Design', 'Interface Design'],
       rachel: ['Content Strategy', 'Voice & Tone', 'Copy Writing', 'Brand Messaging'],
-      ava: ['Process Automation', 'Workflow Design', 'Integration Setup', 'Email Marketing'],
-      quinn: ['Quality Assurance', 'Testing', 'Performance Optimization', 'Brand Compliance'],
-      sophia: ['Social Media Strategy', 'Community Building', 'Content Calendar', 'Engagement'],
-      martha: ['Performance Marketing', 'Revenue Optimization', 'Campaign Strategy', 'Analytics'],
       diana: ['Strategic Planning', 'Business Development', 'Team Coordination', 'Decision Making'],
-      wilma: ['Process Optimization', 'System Architecture', 'Efficiency Analysis', 'Scaling Strategy']
+      quinn: ['Quality Assurance', 'Luxury Brand Compliance', 'Quality Control', 'Brand Standards'],
+      wilma: ['Workflow Optimization', 'Process Design', 'System Integration', 'Automation'],
+      sophia: ['Social Media Strategy', 'Elite Social Management', 'Community Building', 'Engagement'],
+      martha: ['Marketing & Advertising', 'Campaign Strategy', 'Revenue Optimization', 'Analytics'],
+      ava: ['Automation Systems', 'Workflow Design', 'Integration Setup', 'Process Automation'],
+      flux: ['AI Image Generation', 'Model Training', 'Creative AI', 'Visual Content']
     };
   }
 }
