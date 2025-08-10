@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { UnifiedStateManager } from '../services/unified-state-manager';
-import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
+import { CodebaseUnderstandingIntelligence } from '../agents/intelligence/codebase-understanding-intelligence';
 import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 import { requireAdmin, validateUserId, getAdminUserData } from '../middleware/admin-middleware';
 

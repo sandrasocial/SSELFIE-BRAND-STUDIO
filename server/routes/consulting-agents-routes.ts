@@ -28,7 +28,7 @@ interface ConsultingChatBody {
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 // REMOVED: DirectWorkspaceAccess - unified native tool architecture
 // ELIMINATED: autonomousNavigation - part of competing memory systems
-import { CodebaseUnderstandingIntelligence } from '../agents/codebase-understanding-intelligence';
+import { CodebaseUnderstandingIntelligence } from '../agents/intelligence/codebase-understanding-intelligence';
 // SIMPLIFIED MEMORY SYSTEM: Replaced 4 competing systems with one clean interface
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
