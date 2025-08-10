@@ -213,6 +213,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
   app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
   
+  // CRITICAL: Serve static files from public directory (flatlay images, etc.)
+  app.use(express.static('public'));
+  
   // Agent-generated enhancement routes
   setupEnhancementRoutes(app);
 

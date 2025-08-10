@@ -119,7 +119,7 @@ export const RealImageSelection: React.FC<RealImageSelectionProps> = ({
                     )}
                     {favorites.includes(photo.id) && (
                       <div className="absolute top-2 left-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-pure-white text-xs">♥</span>
+                        <span className="text-pure-white text-xs">★</span>
                       </div>
                     )}
                   </Card>
@@ -142,7 +142,7 @@ export const RealImageSelection: React.FC<RealImageSelectionProps> = ({
             
             <div className="text-center">
               <p className="eyebrow-text text-soft-gray">
-                Selected: {selectedAIPhotos.length} of 8 AI photos
+Selected: {selectedAIPhotos.length} of 8 AI photos
               </p>
             </div>
           </div>
@@ -173,8 +173,9 @@ export const RealImageSelection: React.FC<RealImageSelectionProps> = ({
                     alt={image.title || `Luxury asset ${image.id}`} 
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      // Hide broken images
-                      (e.target as HTMLElement).style.display = 'none';
+                      console.warn('Failed to load flatlay image:', image.url);
+                      (e.target as HTMLElement).style.opacity = '0.3';
+                      (e.target as HTMLElement).style.filter = 'grayscale(100%)';
                     }}
                   />
                   {selectedFlatlayImages.includes(image.url) && (
