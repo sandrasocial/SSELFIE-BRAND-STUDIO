@@ -283,7 +283,7 @@ export class ModelTrainingService {
         try {
           // Get the trained model's actual version ID from Replicate API
           const modelName = `${userId}-selfie-lora`;
-          const modelResponse = await fetch(`https://api.replicate.com/v1/models/sandrasocial/${modelName}`, {
+          const modelResponse = await fetch(`https://api.replicate.com/v1/models/${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`, {
             headers: {
               'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
               'Content-Type': 'application/json'
@@ -295,7 +295,7 @@ export class ModelTrainingService {
             // Use the latest version ID from the trained model
             if (modelData.latest_version?.id) {
               updateData.replicateVersionId = modelData.latest_version.id;
-              updateData.replicateModelId = `sandrasocial/${modelName}`; // Update to actual model name
+              updateData.replicateModelId = `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`; // Update to actual model name
             }
           }
         } catch (error) {
@@ -305,7 +305,7 @@ export class ModelTrainingService {
       }
       
       if (status === 'completed') {
-        updateData.trainedModelPath = `sandrasocial/${userModel.replicateModelId}`;
+        updateData.trainedModelPath = userModel.replicateModelId;
       }
       
       await storage.updateUserModel(userId, updateData);
