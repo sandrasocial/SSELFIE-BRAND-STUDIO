@@ -1,0 +1,102 @@
+{
+  "sessionId": "session_1754854118306_7efktwtq0",
+  "name": "Authentication System Comprehensive Audit",
+  "description": "Multi-agent collaborative audit of the complete authentication system including security, performance, and user experience validation",
+  "coordinatorAgent": "elena",
+  "assignedTasks": [
+    {
+      "taskId": "task_1754854118306_y6g4viwwz",
+      "assignedAgent": "ava",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create and implement auth_audit workflow template with following components:\n1. Authentication System Audit\n- Complete user journey testing (Signup → Login → Workspace)\n- Redirect flow validation\n- Session persistence verification\n- Protected routes verification\n- Logout/login cycle testing\n\n2. Database Schema Validation\n- Database operations testing\n- User model data validation\n- AI image generation history verification\n- Onboarding data persistence\n- Query validation and fixes",
+      "workflowContext": "Setting up comprehensive authentication and database audit workflow to identify and fix issues in auth flow and database operations",
+      "expectedDeliverables": [
+        "Auth audit workflow template",
+        "Database validation workflow template",
+        "Implementation plan"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-10T19:28:38.306Z",
+      "workflowType": "auth_audit",
+      "workflowTemplate": {
+        "id": "workflow_1754854118306_qtffbtptd",
+        "name": "Authentication System Comprehensive Audit",
+        "description": "Multi-agent collaborative audit of the complete authentication system including security, performance, and user experience validation",
+        "agents": [
+          {
+            "agentId": "victoria",
+            "taskDescription": "Conduct comprehensive authentication system audit including login flows, session management, and security validation",
+            "expectedDeliverables": [
+              "Authentication flow test results",
+              "Session management validation report",
+              "Security vulnerabilities assessment",
+              "User experience evaluation"
+            ],
+            "priority": "high",
+            "estimatedDuration": "30-45 minutes"
+          },
+          {
+            "agentId": "zara",
+            "taskDescription": "Database validation and optimization for authentication-related tables and queries",
+            "expectedDeliverables": [
+              "Database performance analysis",
+              "User authentication table validation",
+              "Query optimization recommendations",
+              "Data integrity verification"
+            ],
+            "dependencies": [
+              "victoria"
+            ],
+            "priority": "high",
+            "estimatedDuration": "20-30 minutes"
+          },
+          {
+            "agentId": "aria",
+            "taskDescription": "UI/UX validation of authentication interfaces and user experience flows",
+            "expectedDeliverables": [
+              "Authentication UI component analysis",
+              "User journey validation",
+              "Responsive design assessment",
+              "Accessibility evaluation"
+            ],
+            "dependencies": [
+              "victoria"
+            ],
+            "priority": "medium",
+            "estimatedDuration": "25-35 minutes"
+          }
+        ],
+        "coordinationSteps": [
+          "1. Initialize workflow and assign tasks to agents",
+          "2. Monitor agent progress and task completion",
+          "3. Coordinate dependencies between agents",
+          "4. Collect deliverables from all agents",
+          "5. Validate success criteria and compile results",
+          "- Wait for victoria to complete before starting zara task",
+          "- Wait for victoria to complete before starting aria task"
+        ],
+        "successCriteria": [
+          "All assigned agents respond and acknowledge their tasks",
+          "All expected deliverables are provided by agents",
+          "No blocking errors or failures in task execution",
+          "victoria provides: Authentication flow test results",
+          "victoria provides: Session management validation report",
+          "victoria provides: Security vulnerabilities assessment",
+          "victoria provides: User experience evaluation",
+          "zara provides: Database performance analysis",
+          "zara provides: User authentication table validation",
+          "zara provides: Query optimization recommendations",
+          "zara provides: Data integrity verification",
+          "aria provides: Authentication UI component analysis",
+          "aria provides: User journey validation",
+          "aria provides: Responsive design assessment",
+          "aria provides: Accessibility evaluation"
+        ],
+        "created": "2025-08-10T19:28:38.306Z"
+      }
+    }
+  ],
+  "created": "2025-08-10T19:28:38.306Z",
+  "status": "active"
+}
