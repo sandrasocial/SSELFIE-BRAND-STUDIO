@@ -23,6 +23,7 @@ import { ModelRetrainService } from './retrain-model';
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
+import quinnTestingRouter from './routes/quinn-testing';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
@@ -1380,6 +1381,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
   app.use('/api/admin/cache', adminCacheRouter);
+  
+  // Quinn Testing Routes for User Journey Validation
+  app.use('/api/quinn', quinnTestingRouter);
   // FIXED: Register consulting agents at correct path to match frontend calls
   // Regular consulting agents routes (non-admin)
   app.use('/api/consulting-agents', consultingAgentsRouter);
