@@ -226,7 +226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post('/api/consulting-agents/admin/consulting-chat', async (req: any, res: any) => {
     try {
-      console.log('🔍 Direct route handler - body received:', JSON.stringify(req.body, null, 2));
+      console.log('DIRECT ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
       
       const adminToken = req.headers.authorization || 
                         (req.body && req.body.adminToken) || 
