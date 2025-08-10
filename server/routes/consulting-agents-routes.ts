@@ -28,7 +28,7 @@ interface ConsultingChatBody {
 import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 // REMOVED: DirectWorkspaceAccess - unified native tool architecture
 // ELIMINATED: autonomousNavigation - part of competing memory systems
-import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/intelligence/architectural-knowledge-base';
+import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/capabilities/intelligence/architectural-knowledge-base';
 // SIMPLIFIED MEMORY SYSTEM: Replaced 4 competing systems with one clean interface
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
@@ -40,7 +40,7 @@ import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_too
 import { bash } from '../tools/bash';
 import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
 // ZARA'S CONTEXT LOSS FIX: Import workflow state management
-import { ConversationManager } from '../agents/core/ConversationManager';
+import { ConversationManager } from '../agents/core/conversation/ConversationManager';
 
 function getClaudeService() {
   return claudeApiServiceSimple;

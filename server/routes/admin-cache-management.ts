@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { UnifiedStateManager } from '../services/unified-state-manager';
-import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/intelligence/architectural-knowledge-base';
+import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/capabilities/intelligence/architectural-knowledge-base';
 import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 import { requireAdmin, validateUserId, getAdminUserData } from '../middleware/admin-middleware';
 
@@ -13,7 +13,7 @@ const adminCacheRouter = Router();
  * ADMIN CACHE CLEANING ENDPOINT
  * Cleans cached data for fresh agent starts
  */
-adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req, res) => {
+adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req: any, res: any) => {
   try {
     const adminData = getAdminUserData();
     const { userId = adminData.id, clearAll = false } = req.body;
