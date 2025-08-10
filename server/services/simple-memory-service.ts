@@ -178,7 +178,8 @@ export class SimpleMemoryService {
       intelligenceLevel: adminBypass ? 10 : 7,
       adminBypass,
       context: context, // CRITICAL: Include actual context for use
-      memoryCount: context.memories.length
+      memoryCount: context.memories.length,
+      lastOptimization: new Date() // Fix for ConversationManager compatibility
     };
   }
 
@@ -204,6 +205,34 @@ export class SimpleMemoryService {
       isWorkTask: isWorkTask || isContinuation, // CRITICAL: Continuations also need context
       contextLevel: (isWorkTask || isContinuation) ? 'full' : isGreeting ? 'minimal' : 'basic'
     };
+  }
+
+  /**
+   * ZARA'S WORKFLOW STATE TRACKING: Fix admin agent context loss between coordination calls
+   */
+  private workflowStates = new Map<string, any>();
+
+  async saveWorkflowState(workflowId: string, state: any): Promise<void> {
+    this.workflowStates.set(workflowId, {
+      ...state,
+      lastUpdateTime: new Date()
+    });
+    console.log(`💾 WORKFLOW: Saved state for workflow ${workflowId}`);
+  }
+
+  async getWorkflowState(workflowId: string): Promise<any> {
+    const state = this.workflowStates.get(workflowId);
+    if (!state) {
+      console.log(`❌ WORKFLOW: No state found for workflow ${workflowId}`);
+      return null;
+    }
+    console.log(`📖 WORKFLOW: Retrieved state for workflow ${workflowId}`);
+    return state;
+  }
+
+  clearWorkflowState(workflowId: string): void {
+    this.workflowStates.delete(workflowId);
+    console.log(`🗑️ WORKFLOW: Cleared state for workflow ${workflowId}`);
   }
 }
 

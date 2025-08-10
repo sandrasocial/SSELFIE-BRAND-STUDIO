@@ -39,6 +39,8 @@ import { restart_workflow } from '../tools/restart-workflow';
 import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_tool';
 import { bash } from '../tools/bash';
 import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
+// ZARA'S CONTEXT LOSS FIX: Import workflow state management
+import { WorkflowStateManager } from '../agents/core/WorkflowStateManager';
 
 function getClaudeService() {
   return claudeApiServiceSimple;
@@ -309,11 +311,70 @@ consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: Adm
       console.error('🧠 MEMORY ERROR:', memoryError);
       // Continue without memory enhancement if there's an error
     }
+
+    // ZARA'S CONTEXT LOSS FIX: Implement workflow state tracking to prevent context loss between coordination calls
+    let workflowContext = '';
+    try {
+      const workflowId = `admin_agent_${agentId}_${userId}`;
+      
+      // Try to get existing workflow state
+      let workflowState = await WorkflowStateManager.getWorkflowContext(workflowId);
+      
+      if (!workflowState) {
+        // Initialize new workflow if none exists
+        workflowState = await WorkflowStateManager.initializeWorkflow(workflowId, {
+          agentId,
+          userId,
+          originalTask: message,
+          startTime: new Date(),
+          conversationHistory: []
+        });
+        console.log(`🚀 WORKFLOW: Initialized new workflow ${workflowId} for ${agentId}`);
+      } else {
+        // Update existing workflow with current task
+        await WorkflowStateManager.updateWorkflowState(workflowId, {
+          currentStage: 'coordination',
+          contextData: {
+            ...workflowState.contextData,
+            latestTask: message,
+            lastUpdate: new Date()
+          }
+        });
+        console.log(`🔄 WORKFLOW: Updated existing workflow ${workflowId} for ${agentId}`);
+      }
+
+      // Assign task to agent and build workflow context
+      await WorkflowStateManager.assignAgentTask(workflowId, agentId, message);
+      
+      // Build workflow context summary
+      const state = await simpleMemoryService.getWorkflowState(workflowId);
+      if (state && state.contextData) {
+        const previousTasks = state.agentAssignments
+          .filter((a: any) => a.status === 'completed')
+          .map((a: any) => `✅ ${a.task.substring(0, 80)}...`);
+        
+        if (previousTasks.length > 0) {
+          workflowContext = `\n\n## WORKFLOW CONTEXT (Preventing Context Loss):\n**Previous Completed Tasks:**\n${previousTasks.slice(-3).join('\n')}\n**Current Task:** ${message}\n**Workflow Stage:** ${state.currentStage}`;
+        }
+      }
+      
+      console.log(`💾 WORKFLOW: Context preserved for ${agentId} - preventing context loss between coordination calls`);
+      
+    } catch (workflowError) {
+      console.error('🚨 WORKFLOW ERROR:', workflowError);
+      // Continue without workflow enhancement if there's an error
+    }
     
-    // CLEAN PROMPT: Use natural agent system prompt without forced verification
-    const systemPrompt = contextRequirement.isWorkTask && contextSummary ? 
-      `${agentConfig.systemPrompt}\n\n## CURRENT CONTEXT:\n${contextSummary}` : 
-      agentConfig.systemPrompt;
+    // ENHANCED PROMPT: Include workflow context to prevent context loss
+    let systemPrompt = agentConfig.systemPrompt;
+    
+    if (contextRequirement.isWorkTask && contextSummary) {
+      systemPrompt += `\n\n## CURRENT CONTEXT:\n${contextSummary}`;
+    }
+    
+    if (workflowContext) {
+      systemPrompt += workflowContext;
+    }
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     

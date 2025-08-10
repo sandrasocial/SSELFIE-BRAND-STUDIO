@@ -1,4 +1,4 @@
-import { simpleMemoryService } from '../services/simple-memory-service';
+import { simpleMemoryService } from '../../services/simple-memory-service';
 
 export interface WorkflowState {
   workflowId: string;
@@ -92,7 +92,7 @@ export class WorkflowStateManager {
       throw new Error(`No active workflow found for ID: ${workflowId}`);
     }
 
-    const updatedAssignments = state.agentAssignments.map(assignment => 
+    const updatedAssignments = state.agentAssignments.map((assignment: any) => 
       assignment.agentId === agentId
         ? { ...assignment, status: 'completed' as const }
         : assignment
