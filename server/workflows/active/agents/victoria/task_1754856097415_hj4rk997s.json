@@ -1,0 +1,71 @@
+{
+  "taskId": "task_1754856097415_hj4rk997s",
+  "assignedAgent": "victoria",
+  "coordinatorAgent": "elena",
+  "taskDescription": "Conduct database schema validation and connection testing:\n1. Audit all database operations for user management\n2. Test user model training data storage/retrieval\n3. Verify AI image generation history storage\n4. Validate onboarding data persistence\n5. Identify and document broken queries\n6. Provide comprehensive database health report",
+  "workflowContext": "Critical database validation workflow running parallel to auth audit. Focus on data integrity and query optimization.",
+  "expectedDeliverables": [
+    "Database health report",
+    "Query optimization recommendations",
+    "Data integrity validation results",
+    "Schema improvement suggestions"
+  ],
+  "priority": "high",
+  "status": "assigned",
+  "assignedAt": "2025-08-10T20:01:37.415Z",
+  "workflowType": "database_optimization",
+  "workflowTemplate": {
+    "id": "workflow_1754856097414_l4dq73en9",
+    "name": "Database Performance Optimization",
+    "description": "Collaborative database optimization focusing on performance, data integrity, and business logic validation",
+    "agents": [
+      {
+        "agentId": "zara",
+        "taskDescription": "Comprehensive database performance analysis and optimization",
+        "expectedDeliverables": [
+          "Database performance metrics",
+          "Query optimization recommendations",
+          "Schema validation report",
+          "Indexing strategy recommendations"
+        ],
+        "priority": "high",
+        "estimatedDuration": "40-60 minutes"
+      },
+      {
+        "agentId": "victoria",
+        "taskDescription": "Business logic validation and data flow analysis",
+        "expectedDeliverables": [
+          "Business logic validation",
+          "Data flow optimization recommendations",
+          "Integration point analysis"
+        ],
+        "dependencies": [
+          "zara"
+        ],
+        "priority": "medium",
+        "estimatedDuration": "20-30 minutes"
+      }
+    ],
+    "coordinationSteps": [
+      "1. Initialize workflow and assign tasks to agents",
+      "2. Monitor agent progress and task completion",
+      "3. Coordinate dependencies between agents",
+      "4. Collect deliverables from all agents",
+      "5. Validate success criteria and compile results",
+      "- Wait for zara to complete before starting victoria task"
+    ],
+    "successCriteria": [
+      "All assigned agents respond and acknowledge their tasks",
+      "All expected deliverables are provided by agents",
+      "No blocking errors or failures in task execution",
+      "zara provides: Database performance metrics",
+      "zara provides: Query optimization recommendations",
+      "zara provides: Schema validation report",
+      "zara provides: Indexing strategy recommendations",
+      "victoria provides: Business logic validation",
+      "victoria provides: Data flow optimization recommendations",
+      "victoria provides: Integration point analysis"
+    ],
+    "created": "2025-08-10T20:01:37.414Z"
+  }
+}
