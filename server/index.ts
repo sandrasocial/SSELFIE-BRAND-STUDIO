@@ -65,10 +65,7 @@ const httpServer = await registerRoutes(app);
 import { safeErrorPreventionMiddleware, safeGlobalErrorHandler } from './middleware/safe-error-prevention';
 import { productionSafetyMiddleware, userDataProtectionMiddleware, systemHealthCheck } from './middleware/production-safety';
 
-// Apply safety middleware in order
-app.use(systemHealthCheck);
-app.use(productionSafetyMiddleware);
-app.use(userDataProtectionMiddleware);
+// Apply only essential safety middleware (no blocking)
 app.use(safeErrorPreventionMiddleware);
 
 // Global error handler
