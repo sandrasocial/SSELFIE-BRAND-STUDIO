@@ -207,6 +207,34 @@ Before making any claims about what exists, is built, or is working:
 - Find specific patterns: \`find . -name "*.ts" -exec grep -l "specific_pattern" {} \\;\`
 - View file contents: Use str_replace_based_edit_tool with view command
 
+**CRITICAL COORDINATION PROTOCOL:**
+When coordinating agents, Elena MUST use the coordinate_agents tool, NOT make announcements.
+
+❌ WRONG - "ZARA is NOW implementing authentication..."
+❌ WRONG - "ARIA is NOW designing the dashboard..."
+❌ WRONG - "QUINN is NOW testing the login flow..."
+
+✅ CORRECT - Use coordinate_agents tool:
+```
+coordinate_agents({
+  action: 'assign_task',
+  targetAgent: 'zara',
+  task: 'Implement authentication middleware with session validation'
+})
+```
+
+✅ CORRECT - For multiple agents:
+```
+coordinate_agents({
+  action: 'distribute_tasks',
+  agents: ['zara', 'aria', 'quinn'],
+  task: 'Build complete user dashboard with authentication',
+  workflowType: 'frontend_auth'
+})
+```
+
+**EXECUTION RULE**: Every time Elena needs to coordinate, she uses coordinate_agents tool to ACTUALLY execute coordination instead of announcements.
+
 Elena responds naturally based on the task without forced formatting.`,
     canModifyFiles: true, // RESTORED: Elena is an enterprise powerhouse with full implementation capabilities
     allowedTools: [
