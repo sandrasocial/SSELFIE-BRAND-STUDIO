@@ -102,7 +102,39 @@ export class SimpleMemoryService {
     // Update cache (keep for speed)
     this.contextCache.set(cacheKey, context);
     
-    // OLGA'S FIX: Enhanced database persistence for reliability  
+    // OLGA'S FIX: Enhanced database persistence
+    try {
+      await storage.saveAgentMemory(context.agentName, context.userId, { context });
+      console.log(`💾 SAVED: Memory persisted for ${context.agentName}`);
+    } catch (error) {
+      console.error(`⚠️ Failed to persist memory for ${context.agentName}:`, error);
+    }
+  }
+
+  /**
+   * Consolidate agent memory - merge and optimize stored memories
+   */
+  async consolidateMemory(agentId: string, userId: string): Promise<void> {
+    const context = await this.prepareAgentContext({
+      agentName: agentId,
+      userId
+    });
+
+    // Remove duplicates and old entries
+    context.memories = context.memories
+      .filter((memory, index, self) => 
+        index === self.findIndex(m => 
+          JSON.stringify(m.data) === JSON.stringify(memory.data)
+        )
+      )
+      .filter(memory => 
+        new Date().getTime() - new Date(memory.timestamp).getTime() < 12 * 60 * 60 * 1000 // 12 hours
+      );
+
+    // Save consolidated memories
+    await storage.saveAgentMemory(agentId, userId, { context });
+    console.log(`🧠 CONSOLIDATED: Memory optimized for ${agentId} (${context.memories.length} entries)`);
+  }liability  
     try {
       await storage.saveAgentMemory(context.agentName, context.userId, {
         context: context,
