@@ -55,7 +55,47 @@ export const typeormConfig: DataSourceOptions = {
 };
 
 // Create PostgreSQL Pool
-export const pool = new Pool(poolConfig);
+// Performance metrics
+const queryStats = {
+  totalQueries: 0,
+  totalDuration: 0,
+  slowQueries: [] as {sql: string, duration: number, timestamp: Date}[]
+};
+
+export const getQueryStats = () => ({
+  ...queryStats,
+  averageQueryTime: queryStats.totalQueries ? queryStats.totalDuration / queryStats.totalQueries : 0
+});
+
+export const pool = new Pool({
+  ...poolConfig,
+  // Add query performance tracking
+  interceptors: [{
+    query: async (ctx, next) => {
+      const start = Date.now();
+      try {
+        return await next();
+      } finally {
+        const duration = Date.now() - start;
+        queryStats.totalQueries++;
+        queryStats.totalDuration += duration;
+        
+        // Track slow queries (over 1000ms)
+        if (duration > 1000) {
+          queryStats.slowQueries.push({
+            sql: ctx.query.text,
+            duration,
+            timestamp: new Date()
+          });
+          // Keep only last 100 slow queries
+          if (queryStats.slowQueries.length > 100) {
+            queryStats.slowQueries.shift();
+          }
+        }
+      }
+    }
+  }]
+});
 
 // Enhanced Connection Monitoring
 pool.on('connect', async (client) => {
