@@ -78,3 +78,5 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent System Fixes (August 10, 2025)
 - **Agent Duplication Prevention System**: Eliminated ALL remaining timestamp-based conversation IDs across codebase (performance-optimization.ts, agent-proposal-generator.ts, check-zara-workflow.ts). Standardized file creation patterns to prevent agents from creating conflicting formats (.js vs .json workflows). Implemented duplication prevention rules to stop agents from creating duplicate directories and competing systems. Fixed August 10, 2025.
+
+- **Revenue Protection Architecture**: Implemented comprehensive separation between member revenue features and admin operational improvements. Created protected member routes (/api/subscription, /api/usage/status, /api/user-model, /api/ai-images) that cannot be broken by admin agent optimization work. Added testing endpoints (/api/quinn/test/complete-journey, /api/protection/health/member-features) for validating member functionality before and after admin changes. This allows safe admin agent coordination improvements without risking revenue-generating features. Deployed August 10, 2025.
