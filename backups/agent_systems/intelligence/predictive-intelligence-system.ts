@@ -3,9 +3,9 @@
  * Makes SSELFIE Studio agents proactive like Replit AI by anticipating next steps
  */
 
-import { db } from '../../db';
+import { db } from '../db';
 import { eq, desc, and } from 'drizzle-orm';
-import { claudeConversations, claudeMessages } from '@shared/schema';
+import { claudeConversations, claudeMessages } from '../../shared/schema';
 
 interface UserPattern {
   userId: string;
@@ -64,7 +64,7 @@ export class PredictiveIntelligenceSystem {
       let recentContext = '';
 
       // Analyze agent preferences and task patterns
-      recentMessages.forEach((msg: any, index: number) => {
+      recentMessages.forEach((msg, index) => {
         const agentId = msg.claudeConversations.agentName;
         const message = msg.claudeMessages.content;
         const response = msg.claudeMessages.role === 'assistant' ? msg.claudeMessages.content : '';
