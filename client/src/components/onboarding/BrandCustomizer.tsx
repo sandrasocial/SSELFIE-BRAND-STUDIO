@@ -53,22 +53,25 @@ export const BrandCustomizer: React.FC<BrandCustomizerProps> = ({
   return (
     <div className="space-y-12 p-6 bg-pure-white">
       <div>
-        <h2 className="editorial-headline mb-2">Brand Your Site</h2>
+        <h2 className="editorial-headline mb-2">Express Your Personal Style</h2>
         <p className="system-text text-soft-gray mb-8">
-          Customize your site's look and feel
+          Make your website reflect who you are. Choose colors, fonts, and vibes that feel authentically you.
         </p>
       </div>
 
       <div className="space-y-8">
-        {/* Brand Name */}
+        {/* Personal Brand Name */}
         <div className="space-y-4">
-          <Label className="eyebrow-text">Brand Name</Label>
+          <Label className="eyebrow-text">What should we call you?</Label>
           <Input
             value={customization.brandName}
             onChange={(e) => onChange({ brandName: e.target.value })}
             className="text-2xl font-times"
-            placeholder="Your Brand Name"
+            placeholder="Your name or personal brand"
           />
+          <p className="system-text text-soft-gray text-sm">
+            This could be your real name, stage name, or how you want to be known professionally
+          </p>
         </div>
 
         {/* Color Palettes */}
@@ -145,11 +148,20 @@ export const BrandCustomizer: React.FC<BrandCustomizerProps> = ({
           </div>
         </div>
 
-        {/* Brand Vibe */}
+        {/* Personal Vibe */}
         <div className="space-y-4">
-          <Label className="eyebrow-text">Brand Vibe</Label>
+          <Label className="eyebrow-text">What's your vibe?</Label>
+          <p className="system-text text-soft-gray text-sm mb-4">
+            Choose the energy that best represents your personality
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {['editorial', 'luxury', 'minimalist', 'modern', 'bold'].map((vibe) => (
+            {[
+              { vibe: 'editorial', description: 'Sophisticated & Timeless' },
+              { vibe: 'luxury', description: 'Elegant & Premium' },
+              { vibe: 'minimalist', description: 'Clean & Simple' },
+              { vibe: 'modern', description: 'Fresh & Contemporary' },
+              { vibe: 'bold', description: 'Confident & Statement-Making' }
+            ].map(({ vibe, description }) => (
               <Card
                 key={vibe}
                 className={`p-4 cursor-pointer text-center transition-all duration-300 ${
@@ -159,7 +171,8 @@ export const BrandCustomizer: React.FC<BrandCustomizerProps> = ({
                 }`}
                 onClick={() => onChange({ vibe: vibe as BrandCustomization['vibe'] })}
               >
-                <p className="system-text capitalize">{vibe}</p>
+                <p className="system-text capitalize font-medium">{vibe}</p>
+                <p className="text-xs text-soft-gray mt-1">{description}</p>
               </Card>
             ))}
           </div>
