@@ -39,7 +39,7 @@ export default function AIGenerator() {
   });
 
   // Filter and only show images with URLs
-  const completedImages = generatedImages.filter((img: any) => img.imageUrls && img.imageUrls.length > 0);
+  const completedImages = (generatedImages as any[]).filter((img: any) => img.imageUrls && img.imageUrls.length > 0);
 
   // Flux Collection Creation Workflow
   const createFluxCollectionMutation = useMutation({
@@ -287,7 +287,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
       return;
     }
 
-    if (!userModel || userModel.trainingStatus !== 'completed') {
+    if (!userModel || (userModel as any)?.trainingStatus !== 'completed') {
       toast({
         title: "Model not ready",
         description: "Your personal AI model is still training. Please wait for completion.",
@@ -376,7 +376,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
       console.error('Custom generation error:', error);
       
       // Check if it's a model validation error
-      if (error.message.includes('AI model not found') || error.message.includes('Please train your model')) {
+      if ((error as Error)?.message?.includes('AI model not found') || (error as Error)?.message?.includes('Please train your model')) {
         toast({
           title: "AI Model Required",
           description: "Please complete your AI model training first.",
@@ -1087,7 +1087,7 @@ function FluxCollectionCreator({ onClose, onSubmit, isCreating }: FluxCollection
               className="text-[#666] hover:text-black transition-colors"
               disabled={isCreating}
             >
-              ✕
+              Close
             </button>
           </div>
 
