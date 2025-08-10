@@ -287,6 +287,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Victoria website generator
   registerVictoriaWebsiteGenerator(app);
   
+  // AGENT PROTOCOL ENFORCEMENT SYSTEM
+  app.post('/api/agent-protocol/validate', async (req, res) => {
+    try {
+      const { agentId, taskDescription, targetComponents } = req.body;
+      
+      const { ActiveProtocolEnforcer } = await import('./agents/active-protocol-enforcer.js');
+      
+      const task = {
+        agentId,
+        taskDescription,
+        targetComponents,
+        timestamp: Date.now()
+      };
+      
+      const validation = ActiveProtocolEnforcer.validateAgentTask(task);
+      
+      if (!validation.isValid) {
+        console.log(`🚨 AGENT PROTOCOL VIOLATION: ${agentId}`);
+        console.log('📋 VIOLATIONS:', validation.violations);
+      }
+      
+      res.json({
+        success: true,
+        validation,
+        complianceGuide: ActiveProtocolEnforcer.generateComplianceGuide(agentId)
+      });
+      
+    } catch (error) {
+      console.error('❌ Agent protocol validation error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Protocol validation failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  // Agent protocol compliance guide endpoint
+  app.get('/api/agent-protocol/guide/:agentId', async (req, res) => {
+    try {
+      const { agentId } = req.params;
+      const { ActiveProtocolEnforcer } = await import('./agents/active-protocol-enforcer.js');
+      
+      const guide = ActiveProtocolEnforcer.generateComplianceGuide(agentId);
+      
+      res.json({
+        success: true,
+        agentId,
+        complianceGuide: guide,
+        protocolsActive: true
+      });
+      
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to generate compliance guide'
+      });
+    }
+  });
+  
   // CRITICAL: System health check for user models
   app.get('/api/admin/validate-all-models', isAuthenticated, async (req: any, res) => {
     try {
