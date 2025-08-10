@@ -1,68 +1,77 @@
-# SSELFIE Studio
+# SSELFIE Studio - AI Personal Branding Platform
 
 ## Overview
-SSELFIE Studio is an AI-powered personal branding platform designed to transform selfies into professional brand photos. It features two primary AI personalities, Maya (AI photographer) and Victoria (AI strategist), supported by a sophisticated multi-agent AI system. The platform aims to provide users with professional-grade personal branding assets by integrating advanced AI services for image generation and conversational interactions, targeting the personal branding and professional imaging market.
+
+SSELFIE Studio is a premium AI-powered personal branding platform that transforms selfies into professional brand photography. The platform combines AI photography guidance (Maya), business strategy expertise (Victoria), and automated content generation to help users build compelling personal brands. Built with a luxury editorial aesthetic, the platform offers subscription-based AI model training, professional image generation, and comprehensive brand building tools.
 
 ## User Preferences
+
 Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: React 18 with TypeScript and Vite.
-- **Routing**: Wouter.
-- **State Management**: TanStack Query.
-- **UI Components**: Radix UI primitives, shadcn/ui components, Tailwind CSS.
-- **Design System**: Luxury editorial theme, Times New Roman typography, sophisticated color palette.
-- **Component Organization**: Feature-based structure.
+- **Framework**: React 18 with TypeScript and Vite build system
+- **Routing**: Wouter for lightweight client-side routing
+- **UI Framework**: Radix UI components with shadcn/ui design system
+- **Styling**: Tailwind CSS with luxury brand color palette (editorial blacks, signature golds, premium grays)
+- **Typography**: Times New Roman font family for luxury editorial feel
+- **State Management**: TanStack Query for server state, custom hooks for local state
+- **PWA Support**: Progressive Web App with manifest, service workers, and mobile optimization
 
 ### Backend Architecture
-- **Runtime**: Node.js with Express.
-- **Database**: PostgreSQL with Drizzle ORM.
-- **Authentication**: Passport.js (local and Google OAuth), session-based.
-- **Agent System**: Multi-agent architecture coordinating 13+ specialized AI agents. Hybrid routing for AI integration.
-- **File Operations**: Direct repository access for admin agents using specialized tools (`str_replace_based_edit_tool`, `bash`).
+- **Runtime**: Node.js with Express.js framework
+- **Language**: TypeScript with ES modules
+- **API Design**: RESTful endpoints with agent-specific routing
+- **Authentication**: Express sessions with role-based access control
+- **File Operations**: Direct tool access for admin agents via str_replace_based_edit_tool
+- **Agent System**: 14 specialized AI agents with autonomous capabilities and Claude API integration
 
-### Data Architecture
-- **Schema Management**: Drizzle ORM with TypeScript schema definitions.
-- **User Management**: Comprehensive user profiles, subscription tiers, onboarding data, brand preferences.
-- **Conversation System**: Claude conversations and messages with agent-specific routing and memory management.
-- **Image Storage**: AWS S3 for training images and generated content.
+### Data Storage Solutions
+- **Primary Database**: PostgreSQL with Drizzle ORM
+- **Database Provider**: Neon Database (serverless PostgreSQL)
+- **Schema Management**: Drizzle Kit for migrations and schema generation
+- **File Storage**: AWS S3 integration for training images and user uploads
+- **Session Storage**: Express session store for user authentication
 
-### Agent System Design
-- **Admin Agents**: Full repository access and file modification.
-- **Member Agents**: Secure, limited-access for guided user experiences.
-- **Tool Integration**: Access to filesystem tools, bash commands, web search.
-- **Security Separation**: Role-based access control.
-- **Memory System**: Consolidated single memory service (simple-memory-service.ts) with 12-hour cache duration, database persistence, and reformed verification system. Eliminates memory conflicts that previously made admin agents unusable. Implemented August 9, 2025 via Olga's consolidation plan.
-- **Verification-First Training**: All agents are trained to verify information using tools before making claims, ensuring evidence-based responses and actions.
-- **Elena Workflow Execution Fix**: Added execution protocols alongside analysis capabilities. Elena now has three distinct modes: Analysis Protocol (audits/analysis), Execution Protocol (build/implement requests), and Coordination Protocol (multi-agent workflows). Resolves issue where Elena defaulted to analysis instead of executing workflows. Fixed August 10, 2025.
-- **Elena Agent System Understanding Fix**: Clarified separation between Member Agents (Maya/Victoria - limited capabilities for user experience) vs Admin Agents (14 consulting agents with full capabilities for business management). Prevents Elena from confusing or attempting to modify protected member agent personalities. Fixed August 10, 2025.
-- **Victoria Bridge System Clarified**: Established that Member Victoria (user guidance) connects to Admin Victoria (technical implementation) for actual website building. Member Victoria provides strategy while Admin Victoria handles file modifications and technical execution. Fixed August 10, 2025.
-- **Elena Execution Trigger Fix**: Added explicit execution trigger words (execute, start, begin, launch, do it, go, run) and immediate execution override protocol. Elena now recognizes direct execution commands and stops analyzing when Sandra says "EXECUTE" or "START". Fixed August 10, 2025.
-- **Elena Execution Simplification**: Removed approval-seeking patterns, complex completion signatures, and conversational restrictions that blocked immediate execution. Simplified execution protocol to: assign immediately, report actions not plans, no permission asking. Elena now executes directly without "let me analyze first" responses. Fixed August 10, 2025.
-- **Agent Intelligence Optimization**: Removed "work mode vs test mode" confusion from ZARA that was creating hesitation about when to act. All agents now have clean, direct action protocols without cognitive barriers blocking their natural intelligence. Fixed August 10, 2025.
-- **Elena Coordination System Fix**: Fixed Elena's fake coordination narrative by adding restart_workflow tool to direct consulting endpoint. Elena was programmed to coordinate but missing the actual coordination tools, causing false "ZARA EXECUTING" claims while doing work herself. Now has proper access to MultiAgentCoordinator.executeWorkflow() method. Fixed August 10, 2025.
-- **Conversation ID Memory Fix**: Changed storage.ts line 891 from timestamp-based conversation IDs (`admin_${agentId}_${Date.now()}`) to stable user-based IDs (`admin_${agentId}_${userId}`). Eliminates memory resets between agent conversations. Fixed August 10, 2025.
-- **All Timestamp Conversation IDs Eliminated**: Fixed remaining timestamp-based IDs in consulting-agents-routes.ts (line 233), maya-ai-routes.ts, multi-agent-coordinator.ts, and routes.ts. All conversation IDs now use stable user-based format. Prevents memory fragmentation across the entire system. Fixed August 10, 2025.
-- **Elena Coordination System Integration Fixed**: Corrected Elena's execution protocol to use restart_workflow tool instead of non-existent coordinate_agents tool. Elena now properly connects to MultiAgentCoordinator.executeWorkflow() for real multi-agent coordination rather than fictional narratives. System verified with 14 agents (Elena, ZARA, ARIA, QUINN, etc.) all properly registered and functional. Fixed August 10, 2025.
-- **Critical Memory System Conflicts Eliminated**: Discovered and resolved ALL agents memory problems caused by 3 competing memory systems: simple-memory-service.ts, conversation-context-detector.ts, and conversation-context-detector-corrupted.ts (with 63 errors). Consolidated to single unified memory system. Removed corrupted/duplicate services and updated claude-api-service-simple.ts to use unified simpleMemoryService.analyzeMessage(). All agents now share consistent memory architecture. Elena and AVA memory tests confirm successful consolidation. Fixed August 10, 2025.
-- **Complete File Path Knowledge Added**: Updated all consulting agents with comprehensive file structure knowledge including server/services/, server/tools/, server/agents/, server/audit/, and workflows/ directories. Eliminates search limitations like AVA's inability to find memory service files. All agents now know complete project architecture for proper file navigation. Fixed August 10, 2025.
-- **Elena Intelligence Enhancement**: Upgraded Elena's workflow creation capabilities to design real business workflows with substance instead of empty placeholders. Added Workflow Intelligence Mode with unlimited scope for creating complex multi-agent coordination workflows for SSELFIE Studio's 5-step journey (TRAIN → STYLE → SHOOT → BUILD → MANAGE). Elena now creates and executes workflows immediately without permission-seeking. Fixed August 10, 2025.
+### Authentication and Authorization Mechanisms
+- **Session Management**: Express-session middleware for persistent authentication
+- **Role-Based Access**: Admin vs member agent separation with capability restrictions
+- **Agent Security**: Middleware enforcing tool access permissions based on user context
+- **API Protection**: Route-level authentication guards and admin token validation
 
-## External Dependencies
+### External Dependencies
 
-### AI Services
-- **Anthropic Claude API**: Core agent personalities and conversational AI.
-- **Replicate**: AI image generation (FLUX models).
-- **AWS S3**: Secure storage for images.
+#### AI and Image Generation Services
+- **Anthropic Claude API**: Primary AI conversation and reasoning engine
+- **Replicate API**: FLUX 1.1 Pro models for high-quality image generation
+- **Custom Training**: Individual AI model training per user subscription
 
-### Authentication & Payments
-- **Google OAuth**: Social authentication.
-- **Stripe**: Payment processing for subscription tiers.
-- **SendGrid**: Transactional email delivery.
+#### Cloud Infrastructure
+- **AWS S3**: Training image storage and user upload management
+- **Neon Database**: Serverless PostgreSQL hosting
+- **Vercel**: Production deployment and hosting platform
+- **Replit**: Development environment and staging deployment
 
-### Infrastructure
-- **PostgreSQL**: Primary database (Neon).
-- **AWS IAM**: User and bucket access management.
-- **Vercel/Replit**: Deployment platforms.
+#### Communication Services
+- **SendGrid**: Transactional email delivery and user communication
+- **Resend**: Alternative email service for enhanced deliverability
+
+#### Payment and Subscription
+- **Stripe**: Payment processing and subscription management
+- **Webhook Integration**: Real-time payment status updates and user tier management
+
+#### Development and Monitoring
+- **Sentry**: Error tracking and performance monitoring
+- **TypeScript**: End-to-end type safety across client and server
+- **ESBuild**: Fast production bundling for server code
+- **PostCSS**: CSS processing with Tailwind compilation
+
+#### Agent Personalities and Specializations
+- **Maya**: AI photographer and celebrity stylist for image generation guidance
+- **Victoria**: UX strategist and business consultant for brand building
+- **Elena**: Master coordinator for complex multi-agent workflows
+- **Zara**: Technical optimizer and system performance specialist
+- **Aria**: UI/UX specialist for interface verification and design consistency
+- **Olga**: System cleanup and organization expert
+- **Additional agents**: Specialized roles for content generation, optimization, and user experience
