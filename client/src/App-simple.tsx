@@ -54,16 +54,42 @@ function Router() {
 function App() {
   React.useEffect(() => {
     console.log('SSELFIE Studio: App initializing...');
+    console.log('SSELFIE Studio: QueryClient available:', !!queryClient);
     console.log('SSELFIE Studio: App rendering...');
     console.log('SSELFIE Studio: Domain access validated, app ready');
   }, []);
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-white">
-        <Router />
-      </div>
-    </QueryClientProvider>
+  // Test with absolute minimal React component first
+  return React.createElement('div', {
+    style: {
+      minHeight: '100vh',
+      backgroundColor: 'white',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontFamily: 'Arial, sans-serif'
+    }
+  }, 
+    React.createElement('div', {
+      style: { textAlign: 'center' }
+    },
+      React.createElement('h1', {
+        style: { fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem', color: 'black' }
+      }, '✅ SSELFIE Studio Working!'),
+      React.createElement('p', {
+        style: { color: '#666', marginBottom: '2rem' }
+      }, 'AI Personal Branding Platform - No CSS Dependencies'),
+      React.createElement('button', {
+        onClick: () => console.log('Button clicked!'),
+        style: {
+          backgroundColor: 'black',
+          color: 'white',
+          padding: '12px 24px',
+          border: 'none',
+          cursor: 'pointer'
+        }
+      }, 'Test Button')
+    )
   );
 }
 

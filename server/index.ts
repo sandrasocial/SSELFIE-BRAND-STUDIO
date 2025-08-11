@@ -57,55 +57,56 @@ wss.on('connection', (ws) => {
 
 const port = process.env.PORT || 5000;
 
-// API routes first
-app.use('/api', (req, res, next) => {
-  next(); // Let the imported routes handle API requests
-});
+// Import and set up the working Vite development server
+async function setupDevelopmentServer() {
+  try {
+    const { createServer } = await import('vite');
+    
+    // Create a minimal Vite config without the problematic top-level await
+    const vite = await createServer({
+      root: path.resolve(process.cwd(), 'client'),
+      server: { middlewareMode: true },
+      appType: 'custom'
+    });
+    
+    app.use(vite.middlewares);
+    
+    // Catch-all handler for the frontend
+    app.use('*', async (req, res, next) => {
+      const url = req.originalUrl;
+      
+      try {
+        const template = path.resolve(process.cwd(), 'client', 'index.html');
+        let html = await import('fs').then(fs => fs.readFileSync(template, 'utf-8'));
+        html = await vite.transformIndexHtml(url, html);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+      } catch (e) {
+        console.error('Vite SSR error:', e);
+        next(e);
+      }
+    });
+    
+    console.log('✅ Vite development server initialized');
+  } catch (error) {
+    console.error('❌ Vite setup failed:', error);
+    
+    // Fallback: serve static files
+    app.use('/assets', express.static(path.join(process.cwd(), 'attached_assets')));
+    app.use(express.static(path.join(process.cwd(), 'client/public')));
+    
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(process.cwd(), 'client/index.html'));
+    });
+    
+    console.log('⚠️ Using fallback static file serving');
+  }
+}
 
-// For development, proxy frontend requests to a separate Vite dev server
-// or serve a simple fallback
-app.get('/', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>SSELFIE Studio</title>
-        <style>
-          body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            margin: 0; 
-            padding: 40px; 
-            background: #000; 
-            color: #fff; 
-            text-align: center;
-          }
-          .container { max-width: 600px; margin: 0 auto; }
-          h1 { font-size: 2.5em; margin-bottom: 20px; }
-          p { font-size: 1.2em; line-height: 1.6; opacity: 0.8; }
-          .status { 
-            background: #1a1a1a; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin: 20px 0; 
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1>🚀 SSELFIE Studio</h1>
-          <div class="status">
-            <p><strong>Server Status:</strong> ✅ Running</p>
-            <p><strong>Backend API:</strong> ✅ Active</p>
-            <p><strong>Database:</strong> ✅ Connected</p>
-          </div>
-          <p>AI Personal Branding Platform</p>
-          <p>Transform selfies into professional business launches</p>
-        </div>
-      </body>
-    </html>
-  `);
-});
+// Initialize development server
+setupDevelopmentServer();
 
-server.listen(port, () => {
+server.listen(port, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${port}`);
+  console.log(`🌐 External access via port 80 (mapped from ${port})`);
+  console.log(`🔗 Local access: http://localhost:${port}`);
 });
