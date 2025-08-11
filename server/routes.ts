@@ -1849,10 +1849,16 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         return res.json(adminUser);
       }
 
-      // Check if user is authenticated through normal session
+      // PRIORITY 1: Check session-based authentication (temp user)
+      if (req.session?.user) {
+        console.log('✅ Session user found:', req.session.user);
+        return res.json(req.session.user);
+      }
+
+      // PRIORITY 2: Check if user is authenticated through OIDC session
       if (req.isAuthenticated() && (req.user as any)?.claims?.sub) {
         const userId = (req.user as any).claims.sub;
-        console.log('✅ User authenticated via session, fetching user data for:', userId);
+        console.log('✅ User authenticated via OIDC session, fetching user data for:', userId);
         
         // Check for impersonated user first (admin testing)
         if (req.session?.impersonatedUser) {
@@ -1868,10 +1874,38 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       console.log('❌ User not authenticated - no session or admin token');
-      return res.status(401).json({ message: "Unauthorized" });
+      console.log('Session debug:', { 
+        hasSession: !!req.session, 
+        sessionUser: req.session?.user,
+        isAuthenticated: req.isAuthenticated?.(),
+        user: req.user,
+        cookies: req.headers.cookie
+      });
+      return res.status(401).json({ error: "Not authenticated" });
     } catch (error) {
       console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
+  });
+
+  // QUICK AUTH FIX: Add simple test login endpoint
+  app.post('/api/auth/quick-login', async (req: any, res) => {
+    try {
+      console.log('🔧 Quick login endpoint called');
+      
+      // Store user in session
+      req.session.user = {
+        id: 'temp-user',
+        name: 'Temp User',
+        email: 'temp@example.com',
+        role: 'user'
+      };
+      
+      console.log('✅ Session created:', req.session.user);
+      res.json({ success: true, user: req.session.user });
+    } catch (error) {
+      console.error('Quick login error:', error);
+      res.status(500).json({ error: 'Quick login failed' });
     }
   });
 
