@@ -1,7 +1,7 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
-import * as schema from "../shared/schema.js";
+import * as schema from "@shared/schema";
 
 // Configure WebSocket for serverless environment with error handling
 neonConfig.webSocketConstructor = ws;
@@ -32,6 +32,3 @@ pool.on('error', (err) => {
 });
 
 export const db = drizzle({ client: pool, schema });
-
-// Re-export all schema items for direct import
-export * from "../shared/schema.js";

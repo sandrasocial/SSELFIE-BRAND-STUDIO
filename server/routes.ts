@@ -6,7 +6,7 @@ import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { db } from "./db";
-import { claudeConversations, claudeMessages } from "./db.js";
+import { claudeConversations, claudeMessages } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";

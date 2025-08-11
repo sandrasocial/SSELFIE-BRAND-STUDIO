@@ -11,9 +11,9 @@ export class WorkflowExecutor {
 
   constructor() {
     // Ensure backup directory exists
-    fs.access(this.backupPath).catch(() => {
+    if (!fs.exists(this.backupPath)) {
       fs.mkdir(this.backupPath, { recursive: true });
-    });
+    }
   }
 
   // Database Backup Logic
@@ -26,7 +26,7 @@ export class WorkflowExecutor {
       const tablesStr = tables.join(' -t ');
       await execAsync(`pg_dump -t ${tablesStr} > ${backupFile}`);
       return backupFile;
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(`Backup failed: ${error.message}`);
     }
   }
@@ -39,8 +39,10 @@ export class WorkflowExecutor {
       
       // Get current database schema
       for (const table of tables) {
-        // OLGA'S FIX: Use execute_sql_tool for database queries
-        const tableInfo = await this.getTableSchema(table);
+        const [tableInfo] = await db.query(
+          'SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ?',
+          [table]
+        );
         
         // Verify against schema definition
         if (!this.validateTableSchema(tableInfo, schemaContent, table)) {
@@ -49,7 +51,7 @@ export class WorkflowExecutor {
       }
       
       return true;
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(`Schema verification failed: ${error.message}`);
     }
   }
@@ -58,9 +60,17 @@ export class WorkflowExecutor {
   async executeFixes(operations: string[]): Promise<void> {
     try {
       // Start transaction
-      // OLGA'S FIX: Use proper database transaction
-      await this.executeTransaction(operations);
-    } catch (error: any) {
+      await db.query('BEGIN');
+
+      for (const operation of operations) {
+        await db.query(operation);
+      }
+
+      // Commit if all operations successful
+      await db.query('COMMIT');
+    } catch (error) {
+      // Rollback on error
+      await db.query('ROLLBACK');
       throw new Error(`Fix execution failed: ${error.message}`);
     }
   }
@@ -69,14 +79,13 @@ export class WorkflowExecutor {
   async verifyFixes(checks: string[]): Promise<boolean> {
     try {
       for (const check of checks) {
-        // OLGA'S FIX: Use simplified verification
-        const result = await this.executeCheck(check);
-        if (!result) {
+        const [result] = await db.query(check);
+        if (result.count > 0) {
           throw new Error(`Verification failed for check: ${check}`);
         }
       }
       return true;
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(`Fix verification failed: ${error.message}`);
     }
   }
@@ -85,7 +94,7 @@ export class WorkflowExecutor {
   async rollback(backupFile: string): Promise<void> {
     try {
       await execAsync(`psql < ${backupFile}`);
-    } catch (error: any) {
+    } catch (error) {
       throw new Error(`Rollback failed: ${error.message}`);
     }
   }
@@ -108,22 +117,5 @@ export class WorkflowExecutor {
     // Compare actual database schema with expected schema
     // Implement detailed comparison logic
     return true; // Placeholder - implement actual comparison
-  }
-
-  // OLGA'S FIX: Add missing methods for TypeScript compliance
-  private async getTableSchema(table: string): Promise<any> {
-    // Simple schema retrieval
-    return { table, columns: [] };
-  }
-
-  private async executeTransaction(operations: string[]): Promise<void> {
-    // Simple transaction execution
-    console.log(`Executing ${operations.length} operations`);
-  }
-
-  private async executeCheck(check: string): Promise<boolean> {
-    // Simple check execution
-    console.log(`Executing check: ${check}`);
-    return true;
   }
 }
