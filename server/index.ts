@@ -62,13 +62,22 @@ async function setupDevelopmentServer() {
   try {
     const { createServer } = await import('vite');
     
-    // Create a minimal Vite config with proper host allowlist
+    // Create a minimal Vite config with proper host allowlist for sselfie.ai
     const vite = await createServer({
       root: path.resolve(process.cwd(), 'client'),
       server: { 
         middlewareMode: true,
         host: '0.0.0.0',
-        allowedHosts: 'all'
+        allowedHosts: [
+          'localhost',
+          '127.0.0.1',
+          '0.0.0.0',
+          'sselfie.ai',
+          'www.sselfie.ai',
+          '.replit.dev',
+          '.replit.co',
+          '.replit.app'
+        ]
       },
       appType: 'custom'
     });

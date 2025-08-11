@@ -18,6 +18,7 @@ SSELFIE Studio is a premium AI-powered personal branding platform designed to tr
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
+Custom domain: sselfie.ai
 
 ## System Architecture
 
