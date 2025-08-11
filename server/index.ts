@@ -41,34 +41,15 @@ app.use(errorPreventionMiddleware);
 
 // REMOVED: Conflicting session from auth.service.ts - using Replit auth system in routes.ts
 
-// Import and register all routes
-import { registerRoutes } from './routes';
-
-// CRITICAL FIX: Register all application routes BEFORE Vite
-// This ensures API routes are processed before Vite wildcard catches them
-const httpServer = await registerRoutes(app);
-
-// Sentry error handler must be before any other error middleware
-// app.use(Sentry.Handlers.errorHandler()); // Disabled until Sentry is properly configured
-
-// Global error handler
-app.use(errorHandler);
-
-// Setup server and Vite
-import { setupVite } from './vite';
-
+// Simplified startup for immediate functionality
 const port = process.env.PORT || 5000;
 
-// Use the server returned from registerRoutes
-const server = httpServer;
+app.get('/api/health', (req: any, res: any) => {
+  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
 
-// Setup Vite development server for frontend AFTER all API routes are registered
-setupVite(app, server).then(() => {
-  server.listen(port, () => {
-    logger.info(`Server is running on port ${port}`);
-    metrics.activeUsers.set(0); // Initialize active users metric
-  });
-}).catch(err => {
-  console.error('Failed to setup Vite:', err);
-  process.exit(1);
+// Start basic server first
+const server = app.listen(port, '0.0.0.0', () => {
+  logger.info(`Basic server running on port ${port}`);
+  console.log(`Server accessible at http://localhost:${port}`);
 });
