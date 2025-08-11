@@ -44,7 +44,7 @@ export const LuxuryHero: React.FC<LuxuryHeroProps> = ({
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .luxury-hero {
           position: relative;
           min-height: 100vh;
