@@ -1,2 +1,2 @@
-// Simple redirect to the actual server file
-require('../server/index.js');
+// Restore working server with frontend integration
+require('../server/index-working.ts');
