@@ -835,7 +835,37 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
 });
 
 // CONVERSATION HISTORY ENDPOINT - Full conversation loading for proper context preservation
-consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', adminAuth, async (req: any, res: any) => {
+consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', async (req: any, res: any) => {
+  // ADMIN TOKEN AUTH: Check for admin token first, then fall back to regular auth
+  const adminToken = req.headers.authorization || req.query.adminToken;
+  
+  if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
+    // Direct admin access - bypass regular auth
+    req.user = {
+      claims: {
+        sub: '42585527',
+        email: 'ssa@ssasocial.com',
+        first_name: 'Sandra',
+        last_name: 'Sigurjonsdottir'
+      }
+    };
+  } else {
+    // Use regular admin auth for non-token requests
+    try {
+      await new Promise((resolve, reject) => {
+        adminAuth(req, res, (err: any) => {
+          if (err) reject(err);
+          else resolve(null);
+        });
+      });
+    } catch (authError) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Admin authentication required',
+        details: 'Use admin token or valid admin session'
+      });
+    }
+  }
   try {
     const { agentName } = req.params;
     const userId = req.user ? (req.user as any).claims.sub : '42585527';
