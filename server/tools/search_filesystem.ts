@@ -60,7 +60,7 @@ export async function search_filesystem(parameters: any): Promise<string> {
       }
       
       // Show current directory structure for navigation
-      const dirStructure = await getCurrentDirectoryStructure();
+      const dirStructure = await getBasicDirectoryListing();
       results += `\n=== CURRENT DIRECTORY STRUCTURE ===\n${dirStructure}`;
     }
 
@@ -135,6 +135,30 @@ IMPORTANT LOCATIONS:
 - Frontend Pages: ./src/pages/ and ./pages/
 
 Tech Stack: React 18 + TypeScript + Express + PostgreSQL + Drizzle + Tailwind CSS`;
+}
+
+// Get basic directory listing
+async function getBasicDirectoryListing(): Promise<string> {
+  const { spawn } = await import('child_process');
+  
+  return new Promise((resolve) => {
+    const cmd = spawn('ls', ['-la']);
+    
+    let output = '';
+    
+    cmd.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+    
+    cmd.on('close', () => {
+      resolve(output.substring(0, 1000) || 'Directory listing unavailable');
+    });
+    
+    setTimeout(() => {
+      cmd.kill();
+      resolve('Directory listing timed out');
+    }, 5000);
+  });
 }
 
 // Extract search terms from description
