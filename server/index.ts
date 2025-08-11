@@ -2,6 +2,7 @@ import express from 'express';
 import { errorHandler } from './middleware/errorHandler';
 import { logger, metrics } from './config/monitoring';
 import * as prometheus from 'prom-client';
+import path from 'path';
 
 const app = express();
 
@@ -39,17 +40,22 @@ app.use((req, res, next) => {
 // Apply error prevention middleware (temporarily disabled due to path issue)
 // app.use(errorPreventionMiddleware);
 
-// Setup JSON parsing
+// Setup JSON parsing and static files
 app.use(express.json());
+
+// Serve static files from client directory
+app.use(express.static(path.join(__dirname, '../client/public')));
+app.use('/src', express.static(path.join(__dirname, '../client/src')));
 
 // Port configuration  
 const port = Number(process.env.PORT) || 5000;
 
+// Health check endpoint
 app.get('/api/health', (req: any, res: any) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// Add basic consulting agents route for Zara communication
+// Basic consulting agents route for Zara communication
 app.post('/api/admin/consulting-agents/chat', (req: any, res: any) => {
   res.json({ 
     status: 'success', 
@@ -58,23 +64,30 @@ app.post('/api/admin/consulting-agents/chat', (req: any, res: any) => {
   });
 });
 
-// Add basic frontend route
+// Serve your React application for all routes
 app.get('/', (req: any, res: any) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html><head><title>SSELFIE Studio</title></head>
-    <body>
-      <h1>SSELFIE Studio - Server Running</h1>
-      <p>✅ Express server operational on port 5000</p>
-      <p>✅ Zara coordination tasks completed</p>
-      <p>✅ Workflow architecture fixed</p>
-      <p><a href="/api/health">Health Check</a></p>
-    </body></html>
-  `);
+  res.sendFile(path.join(__dirname, '../client/index.html'));
+});
+
+app.get('/dashboard', (req: any, res: any) => {
+  res.sendFile(path.join(__dirname, '../client/index.html'));
+});
+
+app.get('/pages/*', (req: any, res: any) => {
+  res.sendFile(path.join(__dirname, '../client/index.html'));
+});
+
+// Catch-all for other routes (React Router will handle)
+app.use((req: any, res: any, next: any) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, '../client/index.html'));
+  } else {
+    next();
+  }
 });
 
 // Start server
-const server = app.listen(port, '0.0.0.0', () => {
-  logger.info(`SSELFIE Studio server running on port ${port}`);
-  console.log(`Server accessible at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  logger.info(`SSELFIE Studio with React app running on port ${port}`);
+  console.log(`Your complete application is accessible at http://localhost:${port}`);
 });
