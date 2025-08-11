@@ -186,18 +186,19 @@ export class ClaudeApiServiceSimple {
         fullContextAvailable: true 
       };
       
-      // CONTEXT PRESERVATION FIX: Keep FULL context for admin agents to prevent memory loss
+      // TOKEN OPTIMIZATION: Even admin agents use optimized message loading
+      // Local system maintains full context, Claude only needs recent context
       if (isAdminAgent) {
-        // KEEP ALL MESSAGES for proper context preservation
-        optimizedMessages = messages;
+        // Still optimize for token usage - local system has full context
+        optimizedMessages = messages.slice(-5); // Only last 5 messages for admin
         optimizationMetadata = { 
           originalTokens: messages.length * 100, 
-          optimizedTokens: messages.length * 100, 
-          compressionRatio: 0, // No compression for admin agents
+          optimizedTokens: optimizedMessages.length * 100, 
+          compressionRatio: ((messages.length - optimizedMessages.length) / messages.length) * 100, 
           fullContextAvailable: true 
         };
         
-        console.log(`🧠 FULL CONTEXT PRESERVED: ${messages.length} messages retained for ${agentName} (no compression)`);
+        console.log(`🧠 OPTIMIZED CONTEXT: ${optimizedMessages.length}/${messages.length} messages sent to Claude for ${agentName} (${optimizationMetadata.compressionRatio.toFixed(1)}% token savings)`);
       }
       
       const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(optimizedMessages));
@@ -206,16 +207,18 @@ export class ClaudeApiServiceSimple {
       // ZARA'S OPTIMIZATION: Local cache system for direct filesystem access  
       console.log(`🚀 ${agentName}: Local cache system - direct filesystem access enabled`);
       
-      // Prepare Claude API request with validation and optimization
-      const validMessages = optimizedMessages
+      // TOKEN OPTIMIZATION: Only send essential recent context to Claude
+      // Local system maintains full conversation state
+      const recentMessages = optimizedMessages
         .filter((msg: any) => msg.content && msg.content.trim())
+        .slice(-3) // OPTIMIZED: Only last 3 messages for context
         .map((msg: any) => ({
           role: msg.role === 'agent' ? 'assistant' : msg.role,
-          content: msg.content
+          content: msg.content.length > 500 ? msg.content.substring(0, 500) + '...' : msg.content
         }));
         
       const claudeMessages = [
-        ...validMessages,
+        ...recentMessages,
         { role: 'user', content: message }
       ];
       
@@ -564,8 +567,9 @@ export class ClaudeApiServiceSimple {
   }
 
   private async loadConversationMessages(conversationId: string, adminBypass = false) {
-    // CONTEXT PRESERVATION FIX: Load ALL messages for admin agents to prevent context loss
-    const messageLimit = adminBypass ? 500 : 50; // Increased limit for admin agents
+    // TOKEN OPTIMIZATION: Drastically reduce message history sent to Claude API
+    // Local system has full context, Claude only needs recent essential context
+    const messageLimit = adminBypass ? 10 : 5; // OPTIMIZED: Only recent messages needed
     
     const messages = await db
       .select()
