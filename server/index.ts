@@ -39,12 +39,12 @@ async function startServer() {
   
   await loadRoutes();
 
-  // Serve static files from client
-  app.use('/assets', express.static(path.join(__dirname, '../client/public')));
-  app.use('/src', express.static(path.join(__dirname, '../client/src')));
+  // Serve built static files
+  app.use('/assets', express.static(path.join(__dirname, '../assets')));
+  app.use(express.static(path.join(__dirname, '../dist/public')));
 
   // Serve React app for all routes
-  const htmlPath = path.join(__dirname, '../client/index.html');
+  const htmlPath = path.join(__dirname, '../dist/public/index.html');
   
   app.get('*', (req, res) => {
     if (fs.existsSync(htmlPath)) {
