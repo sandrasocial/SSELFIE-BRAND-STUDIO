@@ -3,6 +3,7 @@ import { db } from '../db.js';
 import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 import { simpleMemoryService } from './simple-memory-service.js';
+import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine.js';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -391,15 +392,15 @@ export class ClaudeApiServiceSimple {
       
       await this.saveMessage(conversationId, 'assistant', fullResponse, assistantToolCalls, assistantToolResults);
       
-      // ENHANCED LEARNING INTEGRATION with pattern analysis
-      await this.updateAgentLearning(userId, agentName, message, fullResponse);
-      await this.updateSessionContext(userId, agentName, conversationId, { 
+      // ZARA'S TOKEN OPTIMIZATION: Use local processing for learning and context
+      await localProcessingEngine.updateAgentLearningLocally(userId, agentName, message, fullResponse);
+      await localProcessingEngine.updateSessionContextLocally(userId, agentName, conversationId, { 
         message, 
         response: fullResponse, 
         toolsUsed: allToolCalls,
-        taskType: this.identifyTaskType(message),
-        intent: this.extractIntent(message),
-        responseType: this.extractResponseType(fullResponse)
+        taskType: localProcessingEngine.identifyTaskTypeLocally(message),
+        intent: localProcessingEngine.extractIntentLocally(message),
+        responseType: localProcessingEngine.extractResponseTypeLocally(fullResponse)
       });
       
       // Send completion
@@ -440,136 +441,33 @@ export class ClaudeApiServiceSimple {
   // ================== INTELLIGENT RESULT PROCESSING ==================
   
   /**
-   * Intelligent tool result processing that preserves high-priority information
-   * instead of arbitrary truncation that breaks agent functionality
+   * ZARA'S TOKEN OPTIMIZATION: Local tool result processing
+   * Processes results locally without consuming Claude API tokens
    */
   private async intelligentResultSummary(toolResult: string, toolName: string): Promise<string> {
-    // OPTIMIZED: Limit all results to prevent content overload
-    if (toolResult.length <= 2000) {
-      return toolResult;
-    }
-    
-    // REMOVED: search_filesystem - agents now use bash + str_replace combinations
-    if (false) {
-      try {
-        const lines = toolResult.split('\n');
-        const priorityResults: string[] = [];
-        const normalResults: string[] = [];
-        
-        let currentSection = '';
-        let inHighPrioritySection = false;
-        
-        for (const line of lines) {
-          // Detect high-priority results (priority > 80)
-          if (line.includes('"priority":') && (line.includes('priority": 1') || 
-              line.includes('priority": 2') || line.includes('MAIN APP FILE') ||
-              line.includes('COMPONENT/PAGE'))) {
-            inHighPrioritySection = true;
-          }
-          
-          // Build current section
-          currentSection += line + '\n';
-          
-          // When section ends, categorize it
-          if (line.trim() === '},' || line.trim() === '}') {
-            if (inHighPrioritySection) {
-              priorityResults.push(currentSection);
-            } else {
-              normalResults.push(currentSection);
-            }
-            currentSection = '';
-            inHighPrioritySection = false;
-          }
-        }
-        
-        // Combine results: All high-priority + some normal results if space allows
-        let finalResult = priorityResults.join('');
-        const remainingSpace = 6000 - finalResult.length;
-        
-        if (remainingSpace > 1000 && normalResults.length > 0) {
-          const additionalResults = normalResults.slice(0, 3).join('');
-          if (additionalResults.length <= remainingSpace) {
-            finalResult += additionalResults;
-          }
-        }
-        
-        // Add summary if truncated
-        if (finalResult.length < toolResult.length) {
-          finalResult += `\n\n[High-priority results preserved - ${priorityResults.length} priority files shown out of ${lines.filter(l => l.includes('fileName')).length} total matches. Search found relevant files successfully.]`;
-        }
-        
-        return finalResult;
-        
-      } catch (error) {
-        console.error('Error in intelligent search summary:', error);
-        // SIMPLIFIED SEARCH RESULTS: Clear, actionable format for agents
-        const files = toolResult.match(/fileName[^}]+/g) || [];
-        const topFiles = files.slice(0, 10).map(f => {
-          const name = f.match(/"([^"]+)"/)?.[1] || '';
-          return `- ${name}`;
-        }).join('\n');
-        
-        return `SEARCH RESULTS (${files.length} files found):\n${topFiles}\n\nUse str_replace_based_edit_tool to view or modify these files.`;
-      }
-    }
-    
-    // REMOVED: direct_file_access - agents now use str_replace_based_edit_tool view
-    
-    // For other tools, use smart truncation
-    if (toolName === 'str_replace_based_edit_tool') {
-      // Preserve file editing results completely (they're usually small)
-      return toolResult.length <= 8000 
-        ? toolResult 
-        : `${toolResult.substring(0, 4000)}\n\n[File content truncated - ${toolResult.length} total characters. Edit operation details preserved.]`;
-    }
-    
-    // For bash and other tools, preserve reasonable results
-    if (toolName === 'bash' || toolName === 'execute_sql_tool') {
-      return toolResult.length <= 5000 
-        ? toolResult 
-        : `${toolResult.substring(0, 2500)}\n\n[Output truncated - ${toolResult.length} total characters]`;
-    }
-    
-    // SIMPLIFIED DEFAULT: Clear, actionable results for agents
-    if (toolResult.length <= 3000) {
-      return toolResult;
-    }
-    
-    // Extract key information based on tool type
-    const lines = toolResult.split('\n');
-    const importantLines = lines.filter(line => 
-      line.includes('successfully') ||
-      line.includes('created') ||
-      line.includes('modified') ||
-      line.includes('error') ||
-      line.includes('failed') ||
-      line.includes('File:') ||
-      line.includes('Result:')
-    ).slice(0, 20);
-    
-    const summary = importantLines.join('\n') || lines.slice(0, 30).join('\n');
-    return `${summary}\n\n[${toolResult.length} chars total - showing key results]`;
+    // Use local processing engine instead of Claude API
+    return localProcessingEngine.processToolResultLocally(toolResult, toolName);
+    // REMOVED: All token-heavy processing moved to local engine
   }
 
   private async executeToolCall(toolCall: any, agentName?: string, userId?: string): Promise<string> {
     console.log(`🔧 EXECUTING: ${toolCall.name}`, toolCall.input);
     
     try {
-      // INTELLIGENT VALIDATION: Prevent errors before they happen
+      // ZARA'S TOKEN OPTIMIZATION: Use local validation instead of Claude API
       if (toolCall.name === 'str_replace_based_edit_tool' && toolCall.input.command === 'str_replace') {
-        // Pre-validate file modifications
-        const { ErrorPreventionSystem } = await import('../agents/core/protocols/error-prevention-system');
+        // Pre-validate file modifications locally
         if (toolCall.input.new_str) {
-          const validation = await ErrorPreventionSystem.validateCode(
+          const validation = localProcessingEngine.validateCodeLocally(
             toolCall.input.new_str,
             toolCall.input.path || ''
           );
           
           if (!validation.valid) {
-            console.warn(`⚠️ VALIDATION WARNINGS for ${agentName}:`, validation.errors);
+            console.warn(`⚠️ LOCAL VALIDATION WARNINGS for ${agentName}:`, validation.errors);
             // Add suggestions to help agent fix issues
             const suggestions = validation.suggestions.join('\n');
-            console.log(`💡 SUGGESTIONS: ${suggestions}`);
+            console.log(`💡 LOCAL SUGGESTIONS: ${suggestions}`);
           }
         }
       }
@@ -603,14 +501,13 @@ export class ClaudeApiServiceSimple {
         return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;
       }
     } catch (error) {
-      // INTELLIGENT ERROR HANDLING: Provide helpful context
-      const { ErrorPreventionSystem } = await import('../agents/core/protocols/error-prevention-system');
+      // ZARA'S TOKEN OPTIMIZATION: Local error handling
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      const suggestions = ErrorPreventionSystem.generateFixSuggestions(errorMsg);
+      const suggestions = localProcessingEngine.generateFixSuggestionsLocally(errorMsg);
       
       console.error(`❌ ${toolCall.name} failed:`, errorMsg);
       if (suggestions.length > 0) {
-        console.log(`💡 Fix suggestions:`, suggestions);
+        console.log(`💡 LOCAL Fix suggestions:`, suggestions);
       }
       
       throw new Error(`${toolCall.name} execution failed: ${errorMsg}\n\nSuggestions: ${suggestions.join(', ')}`);
@@ -691,250 +588,7 @@ export class ClaudeApiServiceSimple {
     }
   }
 
-  // CRITICAL FIX: Add missing learning integration
-  private async updateAgentLearning(userId: string, agentName: string, userMessage: string, assistantMessage: string): Promise<void> {
-    try {
-      const normalizedAgentName = agentName.toLowerCase();
-      const patterns = this.extractPatterns(userMessage, assistantMessage);
-
-      for (const pattern of patterns) {
-        const existing = await db
-          .select()
-          .from(agentLearning)
-          .where(and(
-            eq(agentLearning.agentName, normalizedAgentName),
-            eq(agentLearning.userId, userId),
-            eq(agentLearning.learningType, pattern.type),
-            eq(agentLearning.category, pattern.category)
-          ))
-          .limit(1);
-
-        if (existing.length > 0) {
-          await db
-            .update(agentLearning)
-            .set({
-              frequency: (existing[0].frequency || 0) + 1,
-              confidence: Math.min(1.0, parseFloat(existing[0].confidence?.toString() || "0.5") + 0.1).toString(),
-              lastSeen: new Date(),
-              updatedAt: new Date(),
-            })
-            .where(eq(agentLearning.id, existing[0].id));
-        } else {
-          await db.insert(agentLearning).values({
-            agentName: normalizedAgentName,
-            userId: userId,
-            learningType: pattern.type,
-            category: pattern.category,
-            data: pattern.data,
-            confidence: "0.7",
-            frequency: 1,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          });
-        }
-      }
-      
-      console.log(`🧠 Learning updated for ${normalizedAgentName}: ${patterns.length} patterns processed`);
-    } catch (error) {
-      console.error('Failed to update agent learning:', error);
-    }
-  }
-
-  // CRITICAL FIX: Add session context management
-  private async updateSessionContext(userId: string, agentName: string, conversationId: string, context: any): Promise<void> {
-    try {
-      const normalizedAgentName = agentName.toLowerCase();
-      const sessionId = `${userId}_${normalizedAgentName}_session`;
-
-      const existing = await db
-        .select()
-        .from(agentSessionContexts)
-        .where(and(
-          eq(agentSessionContexts.userId, userId),
-          eq(agentSessionContexts.agentId, normalizedAgentName)
-        ))
-        .limit(1);
-
-      const contextData = {
-        lastConversationId: conversationId,
-        recentInteractions: context,
-        timestamp: new Date().toISOString()
-      };
-
-      if (existing.length > 0) {
-        await db
-          .update(agentSessionContexts)
-          .set({
-            contextData: contextData,
-            lastInteraction: new Date(),
-            updatedAt: new Date(),
-          })
-          .where(eq(agentSessionContexts.id, existing[0].id));
-      } else {
-        await db.insert(agentSessionContexts).values({
-          userId: userId,
-          agentId: normalizedAgentName,
-          sessionId: sessionId,
-          contextData: contextData,
-          workflowState: 'active',
-          lastInteraction: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
-      
-      console.log(`🔄 Session context updated for ${normalizedAgentName}`);
-    } catch (error) {
-      console.error('Failed to update session context:', error);
-    }
-  }
-
-  // ENHANCED PATTERN EXTRACTION: Advanced learning from conversations
-  private extractPatterns(userMessage: string, assistantMessage: string): Array<{type: string, category: string, data: any}> {
-    const patterns = [];
-    const userLower = userMessage.toLowerCase();
-    const assistantLower = assistantMessage.toLowerCase();
-
-    // 1. CONVERSATION PATTERN ANALYSIS
-    patterns.push({
-      type: 'pattern',
-      category: 'conversation',
-      data: {
-        userIntent: this.extractIntent(userMessage),
-        responseType: this.extractResponseType(assistantMessage),
-        interactionLength: userMessage.length + assistantMessage.length,
-        timestamp: new Date().toISOString()
-      }
-    });
-
-    // 2. TASK COMPLETION PATTERNS
-    if (assistantMessage.includes('✅') || assistantMessage.includes('completed') || assistantMessage.includes('success')) {
-      patterns.push({
-        type: 'task_completion',
-        category: 'workflow',
-        data: {
-          taskType: this.identifyTaskType(userMessage),
-          completionIndicators: ['success', 'completed', 'finished'].filter(indicator => 
-            assistantLower.includes(indicator)
-          ),
-          responseLength: assistantMessage.length
-        }
-      });
-    }
-
-    // 3. TOOL USAGE PATTERNS
-    if (assistantMessage.includes('str_replace_based_edit_tool') || assistantMessage.includes('bash')) {
-      patterns.push({
-        type: 'tool_usage',
-        category: 'technical',
-        data: {
-          toolsUsed: this.extractToolsUsed(assistantMessage),
-          taskContext: userMessage.substring(0, 150),
-          success: assistantMessage.includes('✅') || assistantMessage.includes('successfully')
-        }
-      });
-    }
-
-    // 4. COMMUNICATION PREFERENCES
-    if (userLower.includes('please') || userLower.includes('can you') || userLower.includes('help')) {
-      patterns.push({
-        type: 'communication_style',
-        category: 'preference',
-        data: {
-          politenessLevel: userLower.includes('please') ? 'polite' : 'direct',
-          requestType: userLower.includes('help') ? 'assistance' : 'action',
-          urgencyLevel: userLower.includes('urgent') || userLower.includes('quickly') ? 'high' : 'normal'
-        }
-      });
-    }
-
-    // 5. DESIGN PATTERN RECOGNITION
-    if (userLower.includes('design') || userLower.includes('ui') || userLower.includes('component')) {
-      patterns.push({
-        type: 'design_request',
-        category: 'creative',
-        data: {
-          designType: this.identifyDesignType(userMessage),
-          luxuryElements: userLower.includes('luxury') || userLower.includes('sophisticated'),
-          colorPreferences: this.extractColorPreferences(userMessage)
-        }
-      });
-    }
-
-    // 6. SUCCESSFUL RESPONSE TRACKING
-    if (assistantMessage.length > 100) {
-      patterns.push({
-        type: `successful_response_${Date.now()}`,
-        category: 'conversation',
-        data: {
-          messageLength: userMessage.length,
-          responseLength: assistantMessage.length,
-          hasCodeExamples: assistantMessage.includes('```') || assistantMessage.includes('tsx') || assistantMessage.includes('typescript'),
-          hasToolUsage: assistantMessage.includes('🔧') || assistantMessage.includes('str_replace_based_edit_tool'),
-          timestamp: new Date().toISOString()
-        }
-      });
-    }
-
-    return patterns;
-  }
-
-  // HELPER METHODS FOR PATTERN ANALYSIS
-  private extractIntent(message: string): string {
-    const lower = message.toLowerCase();
-    if (lower.includes('create') || lower.includes('build') || lower.includes('make')) return 'create';
-    if (lower.includes('fix') || lower.includes('repair') || lower.includes('debug')) return 'fix';
-    if (lower.includes('analyze') || lower.includes('check') || lower.includes('review')) return 'analyze';
-    if (lower.includes('explain') || lower.includes('help') || lower.includes('how')) return 'explain';
-    if (lower.includes('update') || lower.includes('modify') || lower.includes('change')) return 'update';
-    return 'general';
-  }
-
-  private extractResponseType(response: string): string {
-    if (response.includes('```') || response.includes('tsx') || response.includes('typescript')) return 'code';
-    if (response.includes('✅') || response.includes('🔧') || response.includes('🎯')) return 'actionable';
-    if (response.includes('analysis') || response.includes('found') || response.includes('discovered')) return 'analytical';
-    if (response.length > 1000) return 'comprehensive';
-    return 'standard';
-  }
-
-  private identifyTaskType(message: string): string {
-    const lower = message.toLowerCase();
-    if (lower.includes('component') || lower.includes('tsx') || lower.includes('react')) return 'component_development';
-    if (lower.includes('database') || lower.includes('schema') || lower.includes('sql')) return 'database';
-    if (lower.includes('api') || lower.includes('endpoint') || lower.includes('route')) return 'api_development';
-    if (lower.includes('design') || lower.includes('ui') || lower.includes('styling')) return 'design';
-    if (lower.includes('agent') || lower.includes('ai') || lower.includes('claude')) return 'agent_system';
-    return 'general_development';
-  }
-
-  private extractToolsUsed(response: string): string[] {
-    const tools = [];
-    if (response.includes('str_replace_based_edit_tool')) tools.push('str_replace_based_edit_tool');
-    if (response.includes('bash')) tools.push('bash');
-    if (response.includes('execute_sql_tool')) tools.push('execute_sql_tool');
-    return tools;
-  }
-
-  private identifyDesignType(message: string): string {
-    const lower = message.toLowerCase();
-    if (lower.includes('dashboard') || lower.includes('admin')) return 'dashboard';
-    if (lower.includes('landing') || lower.includes('homepage')) return 'landing_page';
-    if (lower.includes('form') || lower.includes('input')) return 'form';
-    if (lower.includes('nav') || lower.includes('menu')) return 'navigation';
-    if (lower.includes('card') || lower.includes('component')) return 'component';
-    return 'general_ui';
-  }
-
-  private extractColorPreferences(message: string): string[] {
-    const colors = [];
-    const lower = message.toLowerCase();
-    if (lower.includes('black') || lower.includes('dark')) colors.push('black');
-    if (lower.includes('white') || lower.includes('light')) colors.push('white');
-    if (lower.includes('gray') || lower.includes('grey')) colors.push('gray');
-    if (lower.includes('luxury') || lower.includes('sophisticated')) colors.push('monochrome');
-    return colors;
-  }
+  // REMOVED: All token-heavy processing methods moved to local processing engine for optimization
 
   // ENHANCED LEARNING RETRIEVAL METHODS
   async getAgentLearningInsights(agentName: string, userId: string): Promise<any> {
