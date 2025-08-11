@@ -28,21 +28,50 @@ app.post('/api/admin/consulting-agents/chat', (req, res) => {
   });
 });
 
-app.get('/api/auth/user', (req, res) => {
-  res.status(401).json({ error: 'Not authenticated' });
+// Authentication routes will be setup by setupAuth() function above
+app.get('/api/login', (req, res) => {
+  res.redirect('/api/auth/replit');
 });
 
-// Try to load your comprehensive routes
-try {
-  const { registerRoutes } = require('./routes.js');
-  registerRoutes(app).then(() => {
-    console.log('✅ All your comprehensive routes loaded successfully!');
-  }).catch(err => {
-    console.warn('⚠️ Routes loading error:', err.message);
-  });
-} catch (error) {
-  console.warn('⚠️ Could not load comprehensive routes:', error.message);
+// Fallback auth endpoint if comprehensive routes don't load
+app.get('/api/auth/user', (req, res) => {
+  if (req.user) {
+    res.json(req.user);
+  } else {
+    res.status(401).json({ error: 'Not authenticated' });
+  }
+});
+
+// Setup authentication and comprehensive routes
+async function setupAuth() {
+  try {
+    console.log('🔐 Setting up authentication system...');
+    
+    // Try to load comprehensive authentication from compiled dist
+    const { setupAuth, isAuthenticated } = require('../dist/replitAuth.js');
+    await setupAuth(app);
+    console.log('✅ Full authentication system initialized');
+    
+    // Try to load comprehensive routes
+    const { registerRoutes } = require('../dist/routes.js');
+    await registerRoutes(app);
+    console.log('✅ All comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin!');
+    
+    return true;
+  } catch (error) {
+    console.warn('⚠️ Could not load comprehensive auth/routes:', error.message);
+    console.warn('   Using simplified authentication bridge...');
+    
+    // Fallback to simple authentication
+    const { setupSimpleAuth } = require('./auth-bridge.js');
+    setupSimpleAuth(app);
+    
+    return false;
+  }
 }
+
+// Initialize auth and routes
+setupAuth();
 
 // Serve built assets with proper headers
 app.use('/assets', express.static(path.join(__dirname, '../assets'), {
