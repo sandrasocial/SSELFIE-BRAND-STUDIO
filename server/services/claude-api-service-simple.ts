@@ -563,8 +563,8 @@ export class ClaudeApiServiceSimple {
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'search_filesystem') {
-        // Import from specific tool file since it's not in tool-exports
-        const { search_filesystem } = await import('../tools/search_filesystem');
+        // Import from tool-exports (search_filesystem IS properly exported)
+        const { search_filesystem } = await import('../tools/tool-exports');
         console.log(`🔍 SEARCH_FILESYSTEM: Calling with input:`, toolCall.input);
         const result = await search_filesystem(toolCall.input);
         console.log(`🔍 SEARCH_FILESYSTEM: Result length:`, result.length);
