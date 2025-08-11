@@ -33,11 +33,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Import error prevention middleware
-import { errorPreventionMiddleware } from '../middleware/error-prevention';
+// Import error prevention middleware - disabled for now
+// import { errorPreventionMiddleware } from '../middleware/error-prevention';
 
-// Apply error prevention middleware
-app.use(errorPreventionMiddleware);
+// Apply error prevention middleware - disabled for now
+// app.use(errorPreventionMiddleware);
 
 // REMOVED: Conflicting session from auth.service.ts - using Replit auth system in routes.ts
 
