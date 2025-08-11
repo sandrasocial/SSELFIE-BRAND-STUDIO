@@ -565,7 +565,10 @@ export class ClaudeApiServiceSimple {
       } else if (toolCall.name === 'search_filesystem') {
         // Import from specific tool file since it's not in tool-exports
         const { search_filesystem } = await import('../tools/search_filesystem');
+        console.log(`🔍 SEARCH_FILESYSTEM: Calling with input:`, toolCall.input);
         const result = await search_filesystem(toolCall.input);
+        console.log(`🔍 SEARCH_FILESYSTEM: Result length:`, result.length);
+        console.log(`🔍 SEARCH_FILESYSTEM: First 200 chars:`, result.substring(0, 200));
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'get_latest_lsp_diagnostics') {
