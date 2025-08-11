@@ -969,7 +969,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/email', emailAutomation);
   
   // Subscriber import routes
-  const subscriberImport = await import('./routes/subscriber-import');
+  const subscriberImport = await import('./routes/subscriber-import.js');
   app.use('/api/subscribers', subscriberImport.default);
   // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
   
