@@ -51,6 +51,7 @@ Preferred communication style: Simple, everyday language.
 - Local processing engine for token optimization, handling pattern extraction, agent learning, session context updates, tool result processing, error validation, and intent classification locally.
 - Selective Claude API bypass system that preserves full agent conversations, streaming responses, and tool execution while optimizing token usage on JSON tool calls.
 - Simplified filesystem search tool with clear project navigation, removing complex search systems that were causing agent confusion.
+- **UNRESTRICTED MEMORY ACCESS:** Removed all artificial memory filtering and restrictions since local processing services are token-free, giving admin agents complete access to all historical context, conversations, and memories without limitations.
 
 ## External Dependencies
 
