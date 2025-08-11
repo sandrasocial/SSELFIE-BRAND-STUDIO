@@ -590,6 +590,20 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
           }
         },
         {
+          name: "search_filesystem",
+          description: "Search through project files and directories",
+          input_schema: {
+            type: "object",
+            properties: {
+              query_description: { type: "string" },
+              class_names: { type: "array", items: { type: "string" }, default: [] },
+              function_names: { type: "array", items: { type: "string" }, default: [] },
+              code: { type: "array", items: { type: "string" }, default: [] },
+              search_paths: { type: "array", items: { type: "string" }, default: ["."] }
+            }
+          }
+        },
+        {
           name: "get_latest_lsp_diagnostics",
           description: "Check for code errors and issues",
           input_schema: {
