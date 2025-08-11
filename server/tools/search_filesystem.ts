@@ -46,6 +46,16 @@ export async function search_filesystem(parameters: any): Promise<any> {
 
     // If query description provided, use intelligent search
     if (query_description) {
+      // ENHANCED: Directory structure search for common project folders
+      if (query_description.toLowerCase().includes('client') || 
+          query_description.toLowerCase().includes('src') || 
+          query_description.toLowerCase().includes('pages') || 
+          query_description.toLowerCase().includes('components')) {
+        
+        const dirStructure = await getDirectoryStructure();
+        results += `\n=== PROJECT STRUCTURE ===\n${dirStructure}`;
+      }
+      
       const searchTerms = extractSearchTerms(query_description);
       for (const term of searchTerms) {
         const grepResult = await executeGrep(term, search_paths);
@@ -92,6 +102,36 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
       cmd.kill();
       resolve('Search timed out');
     }, 10000);
+  });
+}
+
+// Get directory structure for project overview
+async function getDirectoryStructure(): Promise<string> {
+  const { spawn } = await import('child_process');
+  
+  return new Promise((resolve) => {
+    const cmd = spawn('find', ['.', '-type', 'd', '-name', 'node_modules', '-prune', '-o', '-type', 'd', '-print']);
+    let output = '';
+    
+    cmd.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+    
+    cmd.on('close', () => {
+      const lines = output.split('\n').filter(line => 
+        line && 
+        !line.includes('node_modules') && 
+        !line.includes('.git') &&
+        !line.includes('.cache')
+      ).slice(0, 50); // Limit output
+      
+      resolve(lines.join('\n'));
+    });
+    
+    setTimeout(() => {
+      cmd.kill();
+      resolve('Directory scan timed out');
+    }, 5000);
   });
 }
 
