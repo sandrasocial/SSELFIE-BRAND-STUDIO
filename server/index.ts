@@ -58,7 +58,12 @@ const port = process.env.PORT || 5000;
 // Initialize server with async setup
 async function startServer() {
   try {
-    // Setup Vite development server for frontend transpilation
+    // Register all the comprehensive routes FIRST
+    console.log('🔧 Registering comprehensive routes...');
+    await registerRoutes(app);
+    console.log('✅ All routes registered successfully');
+
+    // Setup Vite development server for frontend transpilation AFTER routes
     if (process.env.NODE_ENV !== 'production') {
       console.log('🔧 Setting up Vite development server...');
       try {
@@ -81,11 +86,6 @@ async function startServer() {
         });
       }
     }
-
-    // Register all the comprehensive routes
-    console.log('🔧 Registering comprehensive routes...');
-    await registerRoutes(app);
-    console.log('✅ All routes registered successfully');
     
     server.listen(port, () => {
       console.log(`🚀 Server running on port ${port}`);
