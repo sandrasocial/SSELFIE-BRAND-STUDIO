@@ -112,7 +112,7 @@ export class SimpleMemoryService {
   }
 
   /**
-   * ZARA'S OPTIMIZATION: Check if message should bypass Claude API for local execution
+   * ZARA'S TOKEN OPTIMIZATION: Enhanced bypass logic for local execution
    */
   shouldBypassClaude(message: string, agentId: string): boolean {
     // Simple tool requests that can be handled locally
@@ -127,6 +127,21 @@ export class SimpleMemoryService {
     
     // Simple debug/check commands
     if (message.length < 100 && (message.includes('check') || message.includes('debug') || message.includes('analyze'))) {
+      return true;
+    }
+    
+    // Pattern extraction and learning operations
+    if (message.includes('extract patterns') || message.includes('update learning') || message.includes('process result')) {
+      return true;
+    }
+    
+    // Error validation requests
+    if (message.includes('validate code') || message.includes('check syntax') || message.includes('fix suggestions')) {
+      return true;
+    }
+    
+    // Intent classification requests
+    if (message.includes('identify intent') || message.includes('classify task') || message.includes('extract type')) {
       return true;
     }
     
