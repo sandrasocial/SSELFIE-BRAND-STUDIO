@@ -509,7 +509,6 @@ export default function AdminConsultingAgents() {
                 
                 // Handle different stream events
                 switch (data.type) {
-                  case 'message_start':
                   case 'agent_start':
                     setMessages(prev => prev.map(msg => 
                       msg.id === agentMessageId 
