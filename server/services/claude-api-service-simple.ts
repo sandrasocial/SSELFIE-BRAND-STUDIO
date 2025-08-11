@@ -36,8 +36,8 @@ export class ClaudeApiServiceSimple {
       const userId = '42585527'; // Your existing admin account
       await this.createConversationIfNotExists(userId, agentName, conversationId);
       
-      // TOKEN OPTIMIZATION: Load minimal conversation history (saves tokens)
-      const messages = await this.loadConversationMessages(conversationId, false, 3);
+      // Load conversation history
+      const messages = await this.loadConversationMessages(conversationId);
       
       // Prepare Claude API request
       const validMessages = messages
@@ -173,8 +173,7 @@ export class ClaudeApiServiceSimple {
       await this.createConversationIfNotExists(userId, agentName, conversationId);
       // ADMIN BYPASS: Check if this is an admin agent for unlimited context
       const isAdminAgent = userId === 'sandra-admin' || userId === 'admin' || userId === '42585527' || conversationId.includes('admin_');
-      // TOKEN OPTIMIZATION: Reduce from 10 messages to 3 for 7,000 token savings per request
-      const messages = await this.loadConversationMessages(conversationId, isAdminAgent, 3);
+      const messages = await this.loadConversationMessages(conversationId, isAdminAgent);
       
       // ELIMINATED: TokenOptimizationEngine - using simplified approach
       
@@ -644,10 +643,9 @@ export class ClaudeApiServiceSimple {
     }
   }
 
-  private async loadConversationMessages(conversationId: string, adminBypass = false, maxMessages = 10) {
-    // TOKEN OPTIMIZATION: Default reduced from 10 to 3 messages (saves 7,000 tokens per request)
+  private async loadConversationMessages(conversationId: string, adminBypass = false) {
     // CONTEXT PRESERVATION FIX: Load ALL messages for admin agents to prevent context loss
-    const messageLimit = adminBypass ? maxMessages : Math.min(maxMessages, 3);
+    const messageLimit = adminBypass ? 500 : 50; // Increased limit for admin agents
     
     const messages = await db
       .select()
