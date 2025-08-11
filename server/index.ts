@@ -3,16 +3,15 @@ import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import session from 'express-session';
 import passport from 'passport';
+import path from 'path';
 import { db } from '../lib/db';
-import { authRouter } from './routes/auth';
-import { apiRouter } from './routes/api';
-import { agentRouter } from './routes/agents';
+import './routes'; // Import the main comprehensive routes file
 
 const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
-// Session configuration
+// Session configuration with database storage
 app.use(session({
   store: new (require('connect-pg-simple')(session))({
     pool: db.pool,
@@ -34,10 +33,8 @@ app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/auth', authRouter);
-app.use('/api', apiRouter);
-app.use('/agents', agentRouter);
+// The routes.ts file contains all the comprehensive routes and will be automatically loaded
+// This includes all API endpoints, auth routes, file serving, etc.
 
 // WebSocket handling
 wss.on('connection', (ws) => {

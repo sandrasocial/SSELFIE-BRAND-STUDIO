@@ -35,9 +35,12 @@ export default function WhiteLabelClientManager() {
   // Simple Shannon access mutation
   const accessShannonMutation = useMutation({
     mutationFn: () =>
-      apiRequest('/api/admin/impersonate-user', 'POST', { email: 'shannon@soulresets.com' }, {
-        'x-admin-token': 'sandra-admin-2025'
-      }),
+      apiRequest(
+        '/api/admin/impersonate-user',
+        'POST',
+        { email: 'shannon@soulresets.com' },
+        { 'x-admin-token': 'sandra-admin-2025' }
+      ),
     onSuccess: () => {
       toast({
         title: "Accessing Shannon's Account",
