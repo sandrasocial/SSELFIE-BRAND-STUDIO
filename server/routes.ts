@@ -968,9 +968,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email automation routes
   app.use('/api/email', emailAutomation);
   
-  // Subscriber import routes - TEMPORARILY DISABLED DUE TO COMPILATION ISSUES
-  // const subscriberImport = await import('./routes/subscriber-import.js');
-  // app.use('/api/subscribers', subscriberImport.default);
+  // Subscriber import routes
+  const subscriberImport = await import('./routes/subscriber-import');
+  app.use('/api/subscribers', subscriberImport.default);
   // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
   
   // Register white-label client setup endpoints

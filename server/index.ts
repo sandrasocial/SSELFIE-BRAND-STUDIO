@@ -39,28 +39,14 @@ async function startServer() {
   
   await loadRoutes();
 
-  // Serve compiled assets with proper headers
-  app.use('/assets', express.static(path.join(__dirname, '../assets'), {
-    setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (filePath.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-    }
-  }));
-  
-  // Serve static files from client public
-  app.use(express.static(path.join(__dirname, '../client/public')));
+  // Serve static files from client
+  app.use('/assets', express.static(path.join(__dirname, '../client/public')));
+  app.use('/src', express.static(path.join(__dirname, '../client/src')));
 
-  // Serve your HTML file for all non-API routes
+  // Serve React app for all routes
+  const htmlPath = path.join(__dirname, '../client/index.html');
+  
   app.get('*', (req, res) => {
-    // Skip API routes
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ error: 'API endpoint not found' });
-    }
-    
-    const htmlPath = path.join(__dirname, '../client/index.html');
     if (fs.existsSync(htmlPath)) {
       res.sendFile(htmlPath);
     } else {
