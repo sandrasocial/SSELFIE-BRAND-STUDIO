@@ -1,6 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../config/monitoring';
 
+// Extend Express Request type to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
+
 // Custom error class
 export class AppError extends Error {
   statusCode: number;
