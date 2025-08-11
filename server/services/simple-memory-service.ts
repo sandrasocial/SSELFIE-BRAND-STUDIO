@@ -112,30 +112,14 @@ export class SimpleMemoryService {
   }
 
   /**
-   * ZARA'S TOKEN OPTIMIZATION: STRICT bypass logic for tool operations only
+   * ZARA'S TOKEN OPTIMIZATION: MINIMAL bypass for exact JSON tool calls only
    */
   shouldBypassClaude(message: string, agentId: string): boolean {
-    // STRICT: Only bypass JSON tool calls and direct commands
+    // ULTRA STRICT: Only bypass exact JSON tool call format
+    const isExactJSONTool = message.trim().startsWith('{') && message.trim().endsWith('}') && 
+                           (message.includes('"command":') || message.includes('"query_description":') || message.includes('"sql_query":'));
     
-    // JSON tool calls (exact format)
-    if (message.startsWith('{') && (message.includes('"command"') || message.includes('"query_description"') || message.includes('"sql_query"'))) {
-      return true;
-    }
-    
-    // Direct command execution (starts with command)
-    if (/^(npm\s+run|node\s+|ls\s+|cat\s+|bash\s+)\s+/i.test(message.trim())) {
-      return true;
-    }
-    
-    // Pattern extraction operations (specific technical requests)
-    if (message.includes('extract patterns from') || message.includes('process tool result')) {
-      return true;
-    }
-    
-    // REMOVED: Generic debug/check - agents need conversation for these
-    // REMOVED: Length-based detection - preserve conversations
-    
-    return false;
+    return isExactJSONTool;
   }
 
   /**

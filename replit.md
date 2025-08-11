@@ -49,6 +49,7 @@ Preferred communication style: Simple, everyday language.
 - Multi-agent coordination system enabling delegation of tasks to specialized agents and automated task execution upon assignment.
 - Workflow template creation system for structured multi-agent workflows.
 - Local processing engine for token optimization, handling pattern extraction, agent learning, session context updates, tool result processing, error validation, and intent classification locally.
+- Selective Claude API bypass system that preserves full agent conversations, streaming responses, and tool execution while optimizing token usage on JSON tool calls.
 
 ## External Dependencies
 

@@ -335,29 +335,15 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
     // ADMIN INTELLIGENT MODE: Use Claude API for conversations, direct tools for specific requests
     const isAdminRequest = req.body.adminToken === 'sandra-admin-2025' || userId === '42585527';
     
-    // ZARA'S TOKEN OPTIMIZATION: Only bypass for actual tool operations, preserve conversations
-    const hasToolPattern = /\{[^}]*"(command|query_description|sql_query)"[^}]*\}/g.test(message);
-    const hasDirectCommand = /^(npm\s+run|node\s+|ls\s+|cat\s+)\s+/i.test(message.trim());
+    // ZARA'S TOKEN OPTIMIZATION: VERY SELECTIVE bypass for JSON tool calls ONLY
+    const isExactJSONToolCall = message.trim().startsWith('{') && message.trim().endsWith('}') && 
+                               (message.includes('"command":') || message.includes('"query_description":') || message.includes('"sql_query":'));
     
-    // Additional local processing detection (only for non-conversational requests)
-    const isPatternExtractionRequest = message.includes('extract patterns') || message.includes('analyze conversation');
-    const isValidationRequest = message.includes('validate code') || message.includes('check syntax');
-    const isIntentClassification = message.includes('identify intent') || message.includes('classify task');
-    
-    // STRICT: Only bypass for JSON tool calls and direct commands, NOT conversations
-    const isToolOnlyRequest = (message.startsWith('{') && message.includes('"command"')) ||
-                            (message.startsWith('{') && message.includes('"query_description"')) ||
-                            (message.startsWith('{') && message.includes('"sql_query"')) ||
-                            hasDirectCommand ||
-                            isPatternExtractionRequest || isValidationRequest || isIntentClassification;
+    // ALL OTHER MESSAGES (including conversations, questions, complex requests) go to Claude API
+    const isToolOnlyRequest = isExactJSONToolCall;
     
     if (isAdminRequest && isToolOnlyRequest) {
-      const reason = hasToolPattern ? 'JSON Tool Pattern' : 
-                    hasDirectCommand ? 'Direct Command' : 
-                    isPatternExtractionRequest ? 'Pattern Extraction' :
-                    isValidationRequest ? 'Code Validation' :
-                    isIntentClassification ? 'Intent Classification' : 'Tool Request';
-      console.log(`🔥 LOCAL EXECUTION: ${agentId.toUpperCase()} bypassing Claude API for tool operation (${reason})`);
+      console.log(`🔥 LOCAL EXECUTION: ${agentId.toUpperCase()} processing exact JSON tool call locally`);
       
       return await handleDirectAdminExecution(
         userId,
