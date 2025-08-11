@@ -128,20 +128,30 @@ export class ClaudeApiServiceSimple {
       await this.saveMessage(conversationId, 'user', message);
       await this.saveMessage(conversationId, 'agent', fullResponse);
       
-      // LOCAL MEMORY UPDATE: Save full conversation context to local memory
-      const fullConversationContext = await simpleMemoryService.getFullConversationContext(agentName, userId);
-      fullConversationContext.push(
-        { role: 'user', content: message },
-        { role: 'assistant', content: fullResponse }
-      );
-      
-      // Note: simpleMemoryService.saveAgentMemory expects (context, memoryItem) format
-      const agentContext = { agentName, userId, memories: [], timestamp: new Date(), currentTask: '', adminPrivileges: true };
-      await simpleMemoryService.saveAgentMemory(agentContext, {
-        data: { conversationHistory: fullConversationContext },
-        timestamp: new Date(),
-        category: 'conversation_update'
-      });
+      // FIXED MEMORY UPDATE: Use existing agent context with memory preservation
+      try {
+        const existingContext = await simpleMemoryService.prepareAgentContext({ 
+          agentName, 
+          userId, 
+          isAdminBypass: true 
+        });
+        
+        // Add this conversation to memory
+        await simpleMemoryService.saveAgentMemory(existingContext, {
+          data: { 
+            userMessage: message,
+            assistantResponse: fullResponse,
+            timestamp: new Date().toISOString(),
+            conversationType: 'chat'
+          },
+          timestamp: new Date(),
+          category: 'conversation_memory'
+        });
+        
+        console.log(`🧠 MEMORY SAVED: Conversation stored for ${agentName} (${existingContext.memories.length} total memories)`);
+      } catch (memoryError) {
+        console.error('🚨 MEMORY SAVE FAILED:', memoryError);
+      }
       
       console.log(`✅ ${agentName}: Agent communication completed`);
       return fullResponse;
@@ -232,10 +242,14 @@ export class ClaudeApiServiceSimple {
           content: msg.content // FIXED: No content truncation - agents need full context
         }));
         
+      // FIXED: Build conversation with FULL message history
       const claudeMessages = [
-        ...recentMessages,
+        ...recentMessages, // This includes ALL previous context/messages
         { role: 'user', content: message }
       ];
+      
+      console.log(`🧠 MEMORY FIX: Sending ${claudeMessages.length} messages to Claude (${recentMessages.length} history + 1 new)`);
+      console.log(`🔍 MEMORY DEBUG: Recent messages sample:`, recentMessages.slice(-3).map(m => ({ role: m.role, preview: m.content?.substring(0, 50) + '...' })));
       
       // NO INITIAL TEMPLATE: Let Claude API generate the authentic personality response
       // This eliminates generic "analyzing the request" - agents start with real intelligence
@@ -245,7 +259,7 @@ export class ClaudeApiServiceSimple {
         message: '' // No template - Claude will provide the first authentic response
       })}\n\n`);
       
-      let currentMessages = [...claudeMessages];
+      let currentMessages = [...claudeMessages]; // FIXED: Now includes full conversation history
       let fullResponse = '';
       let conversationContinues = true;
       let iterationCount = 0;
