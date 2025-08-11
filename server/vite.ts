@@ -46,10 +46,8 @@ export async function setupVite(app: Express, server: Server) {
 
     try {
       const clientTemplate = path.resolve(
-        import.meta.dirname,
-        "..",
-        "client",
-        "index.html",
+        import { fileURLToPath } from 'url';
+        const __dirname = path.dirname(fileURLToPath(import.meta.url));
       );
 
       // always reload the index.html file from disk incase it changes
