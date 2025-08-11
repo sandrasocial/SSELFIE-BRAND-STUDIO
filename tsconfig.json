@@ -17,9 +17,9 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@lib/*": ["src/lib/*"],
+      "@/*": ["client/src/*"],
+      "@components/*": ["client/src/components/*"],
+      "@lib/*": ["client/src/lib/*"],
       "@shared/*": ["shared/*"]
     }
   },
