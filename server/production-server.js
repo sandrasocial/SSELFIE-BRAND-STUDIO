@@ -42,30 +42,28 @@ app.get('/api/auth/user', (req, res) => {
   }
 });
 
-// Setup authentication and comprehensive routes
+// Load your working authentication and routes
 async function setupAuth() {
   try {
-    console.log('🔐 Setting up authentication system...');
+    console.log('🔐 Loading your working authentication system...');
     
-    // Try to load comprehensive authentication from compiled dist
-    const { setupAuth, isAuthenticated } = require('../dist/replitAuth.js');
-    await setupAuth(app);
-    console.log('✅ Full authentication system initialized');
+    // Load tsx/register to handle TypeScript compilation
+    require('tsx/cjs');
     
-    // Try to load comprehensive routes
-    const { registerRoutes } = require('../dist/routes.js');
+    // Load authentication directly from TypeScript source
+    const { setupAuth: realSetupAuth, isAuthenticated } = require('./replitAuth.ts');
+    await realSetupAuth(app);
+    console.log('✅ Real Replit OAuth authentication restored');
+    
+    // Load all your comprehensive routes from TypeScript source  
+    const { registerRoutes } = require('./routes.ts');
     await registerRoutes(app);
-    console.log('✅ All comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin!');
+    console.log('✅ All comprehensive routes restored: Maya, Victoria, Training, Payments, Admin!');
     
     return true;
   } catch (error) {
-    console.warn('⚠️ Could not load comprehensive auth/routes:', error.message);
-    console.warn('   Using simplified authentication bridge...');
-    
-    // Fallback to simple authentication
-    const { setupSimpleAuth } = require('./auth-bridge.js');
-    setupSimpleAuth(app);
-    
+    console.error('❌ Could not restore working auth system:', error.message);
+    console.log('   Your 3 users exist in database but auth loading failed');
     return false;
   }
 }
