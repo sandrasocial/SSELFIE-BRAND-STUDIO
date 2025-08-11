@@ -112,38 +112,28 @@ export class SimpleMemoryService {
   }
 
   /**
-   * ZARA'S TOKEN OPTIMIZATION: Enhanced bypass logic for local execution
+   * ZARA'S TOKEN OPTIMIZATION: STRICT bypass logic for tool operations only
    */
   shouldBypassClaude(message: string, agentId: string): boolean {
-    // Simple tool requests that can be handled locally
-    if (message.includes('npm run') || message.includes('cat ') || message.includes('ls ')) {
+    // STRICT: Only bypass JSON tool calls and direct commands
+    
+    // JSON tool calls (exact format)
+    if (message.startsWith('{') && (message.includes('"command"') || message.includes('"query_description"') || message.includes('"sql_query"'))) {
       return true;
     }
     
-    // JSON tool calls
-    if (message.startsWith('{') && (message.includes('"command"') || message.includes('"query_description"'))) {
+    // Direct command execution (starts with command)
+    if (/^(npm\s+run|node\s+|ls\s+|cat\s+|bash\s+)\s+/i.test(message.trim())) {
       return true;
     }
     
-    // Simple debug/check commands
-    if (message.length < 100 && (message.includes('check') || message.includes('debug') || message.includes('analyze'))) {
+    // Pattern extraction operations (specific technical requests)
+    if (message.includes('extract patterns from') || message.includes('process tool result')) {
       return true;
     }
     
-    // Pattern extraction and learning operations
-    if (message.includes('extract patterns') || message.includes('update learning') || message.includes('process result')) {
-      return true;
-    }
-    
-    // Error validation requests
-    if (message.includes('validate code') || message.includes('check syntax') || message.includes('fix suggestions')) {
-      return true;
-    }
-    
-    // Intent classification requests
-    if (message.includes('identify intent') || message.includes('classify task') || message.includes('extract type')) {
-      return true;
-    }
+    // REMOVED: Generic debug/check - agents need conversation for these
+    // REMOVED: Length-based detection - preserve conversations
     
     return false;
   }
