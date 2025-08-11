@@ -382,15 +382,10 @@ export class ClaudeApiServiceSimple {
                 }]
               } as any);
               
-              // FIXED: Don't truncate search_filesystem results - agents need to see full content
-              const displayResult = toolCall.name === 'search_filesystem' 
-                ? toolResult // Full content for search results
-                : toolResult.substring(0, 2000) + (toolResult.length > 2000 ? '...' : ''); // Much larger limit for other tools
-              
               res.write(`data: ${JSON.stringify({
                 type: 'tool_complete',
                 toolName: toolCall.name,
-                result: displayResult,
+                result: toolResult.substring(0, 100) + (toolResult.length > 100 ? '...' : ''),
                 message: `${agentName} completed ${toolCall.name}`
               })}\n\n`);
               
