@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "node server/working-server.js",
+    "dev": "tsx server/index.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

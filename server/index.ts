@@ -39,9 +39,19 @@ async function startServer() {
   
   await loadRoutes();
 
-  // Serve static files from client
-  app.use('/assets', express.static(path.join(__dirname, '../client/public')));
-  app.use('/src', express.static(path.join(__dirname, '../client/src')));
+  // Serve compiled assets with proper headers
+  app.use('/assets', express.static(path.join(__dirname, '../assets'), {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+    }
+  }));
+  
+  // Serve static files from client public
+  app.use(express.static(path.join(__dirname, '../client/public')));
 
   // Serve React app for all routes
   const htmlPath = path.join(__dirname, '../client/index.html');
