@@ -3,7 +3,7 @@ import { db } from '../db.js';
 import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 import { simpleMemoryService } from './simple-memory-service.js';
-import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine.js';
+import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
