@@ -190,15 +190,15 @@ export class ClaudeApiServiceSimple {
         console.error(`Failed to load personality for ${agentName}:`, error);
       }
       
-      // ADMIN CONTEXT: Admin agents get more context but still optimized
+      // MEMORY RESTORATION: Full context for admin agents, substantial context for regular agents
       let optimizedMessages = messages;
       if (isAdminAgent) {
-        // Admin agents get last 8 messages + personality context
-        optimizedMessages = messages.slice(-8);
+        // Admin agents get full conversation context for proper continuity
+        optimizedMessages = messages; // FIXED: No truncation for admin agents
         console.log(`🧠 ADMIN CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName} with personality restoration`);
       } else {
-        // Regular agents get last 3 messages
-        optimizedMessages = messages.slice(-3);
+        // Regular agents get last 20 messages for proper context
+        optimizedMessages = messages.slice(-20); // FIXED: Increased from 3 to 20
         console.log(`🧠 REGULAR CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName}`);
       }
       
@@ -208,14 +208,13 @@ export class ClaudeApiServiceSimple {
       // ZARA'S OPTIMIZATION: Local cache system for direct filesystem access  
       console.log(`🚀 ${agentName}: Local cache system - direct filesystem access enabled`);
       
-      // TOKEN OPTIMIZATION: Only send essential recent context to Claude
-      // Local system maintains full conversation state
+      // MEMORY RESTORATION: Send proper conversation context to Claude
+      // Full context is needed for agent continuity and memory
       const recentMessages = optimizedMessages
         .filter((msg: any) => msg.content && msg.content.trim())
-        .slice(-3) // OPTIMIZED: Only last 3 messages for context
         .map((msg: any) => ({
           role: msg.role === 'agent' ? 'assistant' : msg.role,
-          content: msg.content.length > 500 ? msg.content.substring(0, 500) + '...' : msg.content
+          content: msg.content // FIXED: No content truncation - agents need full context
         }));
         
       const claudeMessages = [
@@ -587,15 +586,15 @@ export class ClaudeApiServiceSimple {
   }
 
   private async loadConversationMessages(conversationId: string, adminBypass = false) {
-    // TOKEN OPTIMIZATION: Drastically reduce message history sent to Claude API
-    // Local system has full context, Claude only needs recent essential context
-    const messageLimit = adminBypass ? 10 : 5; // OPTIMIZED: Only recent messages needed
+    // MEMORY RESTORATION: Load full conversation history for agent continuity
+    // Admins and specialized agents need complete context to function properly
+    const messageLimit = adminBypass ? 100 : 50; // FIXED: Proper message limits for continuity
     
     const messages = await db
       .select()
       .from(claudeMessages)
       .where(eq(claudeMessages.conversationId, conversationId))
-      .orderBy(claudeMessages.createdAt) // FIXED: Use ascending order for proper chronology
+      .orderBy(claudeMessages.createdAt) // Proper chronological order
       .limit(messageLimit);
     
     console.log(`📜 CONVERSATION LOADED: ${messages.length} messages for ${conversationId} (admin: ${adminBypass})`);
