@@ -27,11 +27,20 @@ export default function AgentAccountabilityTracker() {
   });
 
   const agents = [
-    { id: 'aria', name: 'Aria', role: 'Design AI' },
-    { id: 'zara', name: 'Zara', role: 'Dev AI' },
-    { id: 'rachel', name: 'Rachel', role: 'Voice AI' },
-    { id: 'diana', name: 'Diana', role: 'Business Coach' },
-    { id: 'quinn', name: 'Quinn', role: 'QA AI' },
+    { id: 'aria', name: 'Aria', role: 'Visionary Designer & Creative Director' },
+    { id: 'zara', name: 'Zara', role: 'Technical Architect & UI/UX Expert' },
+    { id: 'rachel', name: 'Rachel', role: 'Copywriting Best Friend & Voice Twin' },
+    { id: 'diana', name: 'Diana', role: 'Project Coordinator & Page Assembly' },
+    { id: 'quinn', name: 'Quinn', role: 'QA Agent - Luxury Quality Guardian' },
+    { id: 'elena', name: 'Elena', role: 'Strategic Best Friend & Execution Leader' },
+    { id: 'maya', name: 'Maya', role: 'Celebrity Stylist & Creative Director' },
+    { id: 'ava', name: 'Ava', role: 'Automation AI - Luxury Workflow Architect' },
+    { id: 'sophia', name: 'Sophia', role: 'Social Media Manager - Community Growth' },
+    { id: 'martha', name: 'Martha', role: 'Marketing & Ads Expert' },
+    { id: 'victoria', name: 'Victoria', role: 'UX Strategist & Business Consultant' },
+    { id: 'wilma', name: 'Wilma', role: 'Workflow AI - Business Process Designer' },
+    { id: 'olga', name: 'Olga', role: 'Organization and Infrastructure Expert' },
+    { id: 'flux', name: 'Flux', role: 'Advanced Flux LoRA Prompt Specialist' },
   ];
 
   const getAccountabilityBadge = (score: number) => {

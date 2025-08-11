@@ -1,0 +1,90 @@
+Ah, you're absolutely right - I should use the actual agent specialties. Let me check the current agent capabilities:Let me create an accurate representation of all 14 admin agents:
+
+{
+  "elena": {
+    "role": "Database Architecture Expert",
+    "specialty": "Database optimization, schema design, query performance",
+    "authority_level": "high",
+    "can_delegate": true,
+    "can_make_decisions": true
+  },
+  "victoria": {
+    "role": "Business Process Automation Expert",
+    "specialty": "Workflow automation, business logic, process optimization",
+    "authority_level": "high",
+    "can_make_decisions": true
+  },
+  "zara": {
+    "role": "Technical Architect & UI/UX Expert",
+    "specialty": "System architecture, full-stack implementation, UI/UX",
+    "authority_level": "high",
+    "can_delegate": true,
+    "can_make_decisions": true
+  },
+  "aria": {
+    "role": "System Health & Performance Expert",
+    "specialty": "Performance monitoring, optimization, system health",
+    "authority_level": "high",
+    "can_make_decisions": true
+  },
+  "maya": {
+    "role": "AI Integration Specialist",
+    "specialty": "AI models, machine learning, intelligent features",
+    "authority_level": "high",
+    "can_make_decisions": true
+  },
+  "olga": {
+    "role": "Quality Assurance Expert",
+    "specialty": "Testing, validation, quality control",
+    "authority_level": "medium",
+    "can_execute": true
+  },
+  "rachel": {
+    "role": "Requirements Analysis Expert",
+    "specialty": "User stories, specifications, feature analysis",
+    "authority_level": "medium",
+    "can_execute": true
+  },
+  "diana": {
+    "role": "DevOps & Deployment Expert",
+    "specialty": "CI/CD, deployment, infrastructure",
+    "authority_level": "high",
+    "can_make_decisions": true
+  },
+  "quinn": {
+    "role": "Security & Compliance Expert",
+    "specialty": "Security audits, compliance, risk management",
+    "authority_level": "high",
+    "can_make_decisions": true
+  },
+  "wilma": {
+    "role": "Documentation & Knowledge Expert",
+    "specialty": "Technical writing, documentation, knowledge base",
+    "authority_level": "medium",
+    "can_execute": true
+  },
+  "sophia": {
+    "role": "Social Media & Content Expert",
+    "specialty": "Content strategy, social media, engagement",
+    "authority_level": "medium",
+    "can_execute": true
+  },
+  "martha": {
+    "role": "User Experience Research Expert",
+    "specialty": "User research, feedback analysis, UX optimization",
+    "authority_level": "medium",
+    "can_execute": true
+  },
+  "ava": {
+    "role": "Analytics & Insights Expert",
+    "specialty": "Data analysis, metrics, insights",
+    "authority_level": "medium",
+    "can_execute": true
+  },
+  "flux": {
+    "role": "Integration & API Expert",
+    "specialty": "API design, integrations, data flow",
+    "authority_level": "high",
+    "can_make_decisions": true
+  }
+}
