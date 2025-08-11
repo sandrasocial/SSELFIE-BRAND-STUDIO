@@ -55,24 +55,31 @@ wss.on('connection', (ws) => {
 
 const port = process.env.PORT || 5000;
 
-// Setup Vite development server for frontend transpilation
-if (process.env.NODE_ENV !== 'production') {
-  console.log('🔧 Setting up Vite development server...');
-  await setupVite(app, server);
-  console.log('✅ Vite development server ready');
+// Initialize server with async setup
+async function startServer() {
+  try {
+    // Setup Vite development server for frontend transpilation
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔧 Setting up Vite development server...');
+      await setupVite(app, server);
+      console.log('✅ Vite development server ready');
+    }
+
+    // Register all the comprehensive routes
+    console.log('🔧 Registering comprehensive routes...');
+    await registerRoutes(app);
+    console.log('✅ All routes registered successfully');
+    
+    server.listen(port, () => {
+      console.log(`🚀 Server running on port ${port}`);
+    });
+  } catch (err) {
+    console.error('❌ Server initialization failed:', err);
+    // Start basic server even if setup fails
+    server.listen(port, () => {
+      console.log(`🚀 Server running on port ${port} (with initialization errors)`);
+    });
+  }
 }
 
-// Register all the comprehensive routes from routes.ts and start server
-console.log('🔧 Registering comprehensive routes...');
-registerRoutes(app).then(() => {
-  console.log('✅ All routes registered successfully');
-  server.listen(port, () => {
-    console.log(`🚀 Server running on port ${port}`);
-  });
-}).catch(err => {
-  console.error('❌ Route registration failed:', err);
-  // Start basic server even if routes fail
-  server.listen(port, () => {
-    console.log(`🚀 Server running on port ${port} (with route registration errors)`);
-  });
-});
+startServer();
