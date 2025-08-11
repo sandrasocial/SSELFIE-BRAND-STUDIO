@@ -53,6 +53,7 @@ Preferred communication style: Simple, everyday language.
 - Simplified filesystem search tool with clear project navigation, removing complex search systems that were causing agent confusion.
 - **UNRESTRICTED MEMORY ACCESS:** Removed all artificial memory filtering and restrictions since local processing services are token-free, giving admin agents complete access to all historical context, conversations, and memories without limitations.
 - **HYBRID MEMORY SYSTEM RESTORED:** Critical memory flow bug fixed - agents now properly receive full conversation history (100+ messages) from local processing engine with database fallback, achieving 98% token savings while maintaining conversation continuity. Memory inconsistencies resolved by correcting message passing to Claude API.
+- **TRAINING DATA CLEANUP COMPLETED:** All user training models cleared except Shannon's (user ID: 44991795) to enable fresh training with updated parameters. Gallery images preserved. System ready for deployment with clean training environment.
 
 ## External Dependencies
 
