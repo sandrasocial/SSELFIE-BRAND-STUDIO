@@ -1,6 +1,16 @@
-// REVERT TO WORKING CONFIGURATION - DO NOT MODIFY
-// Using working-server.js as the actual server
-process.exit(0); // This file should not be used - package.json should point to working-server.js
+import express from 'express';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import session from 'express-session';
+import passport from 'passport';
+import { db } from '../lib/db';
+import { authRouter } from './routes/auth';
+import { apiRouter } from './routes/api';
+import { agentRouter } from './routes/agents';
+
+const app = express();
+const server = createServer(app);
+const wss = new WebSocketServer({ server });
 
 // Session configuration
 app.use(session({
