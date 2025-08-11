@@ -387,7 +387,9 @@ export class ClaudeApiServiceSimple {
                 toolName: toolCall.name,
                 result: toolCall.name === 'search_filesystem' 
                   ? toolResult.substring(0, 2000) + (toolResult.length > 2000 ? '...' : '')  // Search needs more space
-                  : toolResult.substring(0, 500) + (toolResult.length > 500 ? '...' : ''),   // Other tools get 500 chars
+                  : toolCall.name === 'execute_sql_tool'
+                    ? toolResult.substring(0, 1500) + (toolResult.length > 1500 ? '...' : '') // SQL needs space for table data
+                    : toolResult.substring(0, 500) + (toolResult.length > 500 ? '...' : ''),   // Other tools get 500 chars
                 message: `${agentName} completed ${toolCall.name}`
               })}\n\n`);
               
@@ -590,7 +592,9 @@ export class ClaudeApiServiceSimple {
         
       } else if (toolCall.name === 'execute_sql_tool') {
         const { execute_sql_tool } = await import('../tools/tool-exports');
+        console.log(`🗄️ SQL EXECUTION: ${toolCall.input.sql_query.substring(0, 100)}...`);
         const result = await execute_sql_tool(toolCall.input);
+        console.log(`🗄️ SQL RESULT: Length: ${result.length}, First 200 chars:`, result.substring(0, 200));
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'web_search') {
