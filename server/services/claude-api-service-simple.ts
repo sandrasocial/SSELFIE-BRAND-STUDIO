@@ -178,20 +178,6 @@ export class ClaudeApiServiceSimple {
       const contextRequirement = simpleMemoryService.analyzeMessage(message);
       console.log(`🔍 LOCAL CONTEXT ANALYSIS: ${contextRequirement.contextLevel.toUpperCase()} level context for "${message.substring(0, 30)}..."`);
       
-      let previousContext = '';
-      if (contextRequirement.isWorkTask) {
-        try {
-          // LOCAL PROCESSING: Use memory service directly instead of API calls
-          previousContext = await simpleMemoryService.getWorkspaceContext(agentName, userId);
-          console.log(`🏗️ LOCAL WORKSPACE CONTEXT: Loaded from local memory system`);
-        } catch (error) {
-          console.error(`Failed to load local context for ${agentName}:`, error);
-          previousContext = ''; // Continue without context if loading fails
-        }
-      } else {
-        console.log(`💬 LOCAL CONVERSATION MODE: Using local context management`);
-      }
-      
       // ZARA'S OPTIMIZATION: Local system health checks (no Claude API tokens)
       console.log(`🔍 LOCAL HEALTH CHECK: Starting conversation for ${agentName}`);
       
@@ -202,6 +188,32 @@ export class ClaudeApiServiceSimple {
       
       // LOCAL MEMORY: Get full conversation context from local memory systems
       const messages = await simpleMemoryService.getFullConversationContext(agentName, userId);
+      
+      // CRITICAL FIX: Generate conversation context summary for system prompt
+      let previousContext = '';
+      try {
+        // Get recent conversation context for system prompt
+        const recentContext = await simpleMemoryService.getWorkspaceContext(agentName, userId);
+        
+        // FIXED: Include conversation continuity in system prompt
+        if (messages && messages.length > 0) {
+          const recentMessages = messages.slice(-5); // Last 5 messages for context
+          const contextSummary = recentMessages
+            .filter(msg => msg.content && msg.content.trim())
+            .map(msg => `${msg.role}: ${msg.content.substring(0, 100)}...`)
+            .join('\n');
+          
+          previousContext = `\nRECENT CONVERSATION CONTEXT:\n${contextSummary}\n\n${recentContext}`;
+          console.log(`🧠 CONTEXT FIX: Added ${recentMessages.length} messages to system prompt context`);
+        } else {
+          previousContext = recentContext;
+        }
+        
+        console.log(`🏗️ ENHANCED CONTEXT: System prompt includes conversation history`);
+      } catch (error) {
+        console.error(`Failed to load context for ${agentName}:`, error);
+        previousContext = '';
+      }
       
       // PERSONALITY RESTORATION: Load agent's authentic personality and context
       let agentPersonalityContext = '';
@@ -250,6 +262,7 @@ export class ClaudeApiServiceSimple {
       
       console.log(`🧠 MEMORY FIX: Sending ${claudeMessages.length} messages to Claude (${recentMessages.length} history + 1 new)`);
       console.log(`🔍 MEMORY DEBUG: Recent messages sample:`, recentMessages.slice(-3).map(m => ({ role: m.role, preview: m.content?.substring(0, 50) + '...' })));
+      console.log(`🔍 SYSTEM PROMPT CONTEXT SAMPLE:`, previousContext?.substring(0, 200) + '...');
       
       // NO INITIAL TEMPLATE: Let Claude API generate the authentic personality response
       // This eliminates generic "analyzing the request" - agents start with real intelligence
@@ -267,7 +280,8 @@ export class ClaudeApiServiceSimple {
       let allToolCalls: any[] = [];
       
       // ENHANCED SYSTEM PROMPT: Include previous context AND personality restoration
-      const enhancedSystemPrompt = systemPrompt + (previousContext || '') + (agentPersonalityContext || '');
+      const memoryInstruction = `\n\nIMPORTANT: You have access to your full conversation history above. Reference previous interactions and maintain conversation continuity. Remember details shared by the user across messages.`;
+      const enhancedSystemPrompt = systemPrompt + (previousContext || '') + (agentPersonalityContext || '') + memoryInstruction;
       
       // Continue conversation until task is complete - UNRESTRICTED for autonomous workflow completion
       while (conversationContinues && iterationCount < maxIterations) {
