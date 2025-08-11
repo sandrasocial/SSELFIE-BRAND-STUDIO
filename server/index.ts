@@ -1,7 +1,7 @@
 // Use your working server.js configuration to bypass Vite config issues
-import express from 'express';
-import path from 'path';
-import fs from 'fs';
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
