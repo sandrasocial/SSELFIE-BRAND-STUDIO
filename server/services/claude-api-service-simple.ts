@@ -385,7 +385,9 @@ export class ClaudeApiServiceSimple {
               res.write(`data: ${JSON.stringify({
                 type: 'tool_complete',
                 toolName: toolCall.name,
-                result: toolResult.substring(0, 100) + (toolResult.length > 100 ? '...' : ''),
+                result: toolCall.name === 'search_filesystem' 
+                  ? toolResult.substring(0, 2000) + (toolResult.length > 2000 ? '...' : '')  // Search needs more space
+                  : toolResult.substring(0, 500) + (toolResult.length > 500 ? '...' : ''),   // Other tools get 500 chars
                 message: `${agentName} completed ${toolCall.name}`
               })}\n\n`);
               
@@ -576,7 +578,9 @@ export class ClaudeApiServiceSimple {
         console.log(`🔍 SEARCH_FILESYSTEM: Calling with input:`, toolCall.input);
         const result = await search_filesystem(toolCall.input);
         console.log(`🔍 SEARCH_FILESYSTEM: Result length:`, result.length);
-        console.log(`🔍 SEARCH_FILESYSTEM: First 200 chars:`, result.substring(0, 200));
+        console.log(`🔍 SEARCH_FILESYSTEM: First 500 chars:`, result.substring(0, 500));
+        console.log(`🔍 SEARCH_FILESYSTEM: Contains "total"?:`, result.includes('total'));
+        console.log(`🔍 SEARCH_FILESYSTEM: Contains "drwxr"?:`, result.includes('drwxr'));
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'get_latest_lsp_diagnostics') {
@@ -625,13 +629,10 @@ export class ClaudeApiServiceSimple {
 
     if (!conversation) {
       await db.insert(claudeConversations).values({
-        conversationId: conversationId,
         userId: userId,
         agentName: normalizedAgentName, // Use normalized name
-        status: 'active',
-        messageCount: 0,
+        conversationId: conversationId,
         context: {},
-        adminBypassEnabled: false, // Add missing field
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -662,10 +663,8 @@ export class ClaudeApiServiceSimple {
       conversationId,
       role,
       content,
-      metadata: null, // Add missing field
       toolCalls,
       toolResults,
-      timestamp: new Date(), // Use timestamp field that exists
       createdAt: new Date(),
     });
 
@@ -680,10 +679,7 @@ export class ClaudeApiServiceSimple {
       await db
         .update(claudeConversations)
         .set({
-          messageCount: (conversation.messageCount || 0) + 1,
-          lastMessageAt: new Date(),
           updatedAt: new Date(),
-          // Remove status from update as it's not needed
         })
         .where(eq(claudeConversations.conversationId, conversationId));
 
