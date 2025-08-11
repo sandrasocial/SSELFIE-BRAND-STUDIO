@@ -1888,27 +1888,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // QUICK AUTH FIX: Add simple test login endpoint
-  app.post('/api/auth/quick-login', async (req: any, res) => {
-    try {
-      console.log('🔧 Quick login endpoint called');
-      
-      // Store user in session
-      req.session.user = {
-        id: 'temp-user',
-        name: 'Temp User',
-        email: 'temp@example.com',
-        role: 'user'
-      };
-      
-      console.log('✅ Session created:', req.session.user);
-      res.json({ success: true, user: req.session.user });
-    } catch (error) {
-      console.error('Quick login error:', error);
-      res.status(500).json({ error: 'Quick login failed' });
-    }
-  });
-
   // REMOVED: Competing autonomous orchestrator - consolidated into /api/admin/agents/*
 
   // CONSOLIDATED: Legacy coordination metrics moved to /api/admin/agents/coordination-metrics

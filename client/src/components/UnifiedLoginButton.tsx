@@ -15,29 +15,9 @@ export default function UnifiedLoginButton({
 }: UnifiedLoginButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     setIsLoading(true);
-    try {
-      const response = await fetch('/api/auth/quick-login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({})
-      });
-      
-      if (response.ok) {
-        window.location.reload(); // Reload to update auth state
-      } else {
-        // Fallback to regular login
-        window.location.href = "/api/login";
-      }
-    } catch (error) {
-      console.error('Quick login failed:', error);
-      // Fallback to regular login
-      window.location.href = "/api/login";
-    }
+    window.location.href = "/api/login";
   };
 
   return (
