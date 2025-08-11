@@ -1,10 +1,9 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
-import { useGrafanaData } from '@/hooks/useGrafanaData';
-import type { AgentMetrics } from '@/types/monitoring';
+import { useGrafanaData } from '../../../hooks/useGrafanaData';
 
 export const AgentPerformance: React.FC = () => {
-  const { data, isLoading: loading, isError: error } = useGrafanaData('agent-metrics');
+  const { data, loading, error } = useGrafanaData('agent-metrics');
 
   if (loading) return <div>Loading agent performance...</div>;
   if (error) return <div>Error loading agent performance</div>;
