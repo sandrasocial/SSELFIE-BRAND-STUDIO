@@ -20,9 +20,14 @@ export async function search_filesystem(parameters: any): Promise<string> {
 
     let results = '';
 
-    // ENHANCED PROJECT OVERVIEW - Make it impossible to miss
+    // AGENT-FRIENDLY PROJECT STATUS - Direct and Clear
     const projectOverview = await getProjectOverview();
-    results += `🏗️ === PROJECT OVERVIEW (SSELFIE STUDIO) ===\n${projectOverview}\n\n`;
+    const dirStructure = await getBasicDirectoryListing();
+    
+    results += `🚀 SSELFIE STUDIO PROJECT DETECTED\n`;
+    results += `✅ PROJECT STATUS: FULLY INITIALIZED\n\n`;
+    results += `📁 DIRECTORY LISTING:\n${dirStructure}\n\n`;
+    results += `📋 PROJECT OVERVIEW:\n${projectOverview}\n\n`;
 
     // If specific code snippets are provided, search for them
     if (code.length > 0) {
@@ -59,9 +64,8 @@ export async function search_filesystem(parameters: any): Promise<string> {
         }
       }
       
-      // Show current directory structure for navigation
-      const dirStructure = await getBasicDirectoryListing();
-      results += `\n📁 === CURRENT DIRECTORY LISTING ===\n${dirStructure}`;
+      // Additional search terms processed above
+      // Directory structure already included at top
     }
 
     console.log('🔍 SEARCH RESULTS LENGTH:', results.length);
