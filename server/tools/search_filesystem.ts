@@ -1,13 +1,13 @@
 /**
- * ENHANCED FILESYSTEM SEARCH TOOL
- * Integrates semantic search, autonomous navigation, and intelligent file discovery
+ * SIMPLE FILESYSTEM SEARCH TOOL
+ * Clean project navigation and file discovery
  */
 
 import fs from 'fs/promises';
 import path from 'path';
 
-export async function search_filesystem(parameters: any): Promise<any> {
-  console.log('🔍 SMART SEARCH ACTIVATED:', parameters);
+export async function search_filesystem(parameters: any): Promise<string> {
+  console.log('🔍 PROJECT SEARCH:', parameters);
   
   try {
     const { 
@@ -44,39 +44,18 @@ export async function search_filesystem(parameters: any): Promise<any> {
       }
     }
 
-    // ENHANCED: Use intelligent search with multiple strategies
+    // Simple project navigation
     if (query_description) {
-      console.log('🧠 ACTIVATING: Comprehensive search intelligence');
+      const projectOverview = await getProjectOverview();
+      results += `\n=== PROJECT OVERVIEW ===\n${projectOverview}`;
       
-      // Strategy 1: Project structure discovery
-      if (query_description.toLowerCase().includes('client') || 
-          query_description.toLowerCase().includes('src') || 
-          query_description.toLowerCase().includes('pages') || 
-          query_description.toLowerCase().includes('components') ||
-          query_description.toLowerCase().includes('database')) {
-        
-        const dirStructure = await getDirectoryStructure();
-        results += `\n=== PROJECT STRUCTURE ===\n${dirStructure}`;
-        
-        // Strategy 2: Smart file content discovery
-        const projectFiles = await getProjectFilesList();
-        results += `\n=== KEY PROJECT FILES ===\n${projectFiles}`;
-      }
-      
-      // Strategy 3: Semantic search terms
+      // Basic content search for specific terms
       const searchTerms = extractSearchTerms(query_description);
       for (const term of searchTerms) {
         const grepResult = await executeGrep(term, search_paths);
         if (grepResult && grepResult !== 'No matches found') {
-          results += `\n=== Content Search: "${term}" ===\n${grepResult}`;
+          results += `\n=== Found: "${term}" ===\n${grepResult.substring(0, 1000)}`;
         }
-      }
-      
-      // Strategy 4: Database and schema discovery
-      if (query_description.toLowerCase().includes('database') || 
-          query_description.toLowerCase().includes('schema') ||
-          query_description.toLowerCase().includes('table')) {
-        results += `\n=== DATABASE INTEGRATION ===\nDatabase: PostgreSQL with Drizzle ORM\nSchema: ./shared/schema.ts\nMigrations: ./database/migrations/\nMain tables: users, agent_sessions, agent_knowledge_base`;
       }
     }
 
@@ -122,90 +101,33 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
   });
 }
 
-// Get directory structure for project overview
-async function getDirectoryStructure(): Promise<string> {
-  const { spawn } = await import('child_process');
-  
-  return new Promise((resolve) => {
-    const cmd = spawn('find', ['.', '-type', 'd', '-name', 'node_modules', '-prune', '-o', '-type', 'd', '-print']);
-    let output = '';
-    
-    cmd.stdout.on('data', (data) => {
-      output += data.toString();
-    });
-    
-    cmd.on('close', () => {
-      const lines = output.split('\n').filter(line => 
-        line && 
-        !line.includes('node_modules') && 
-        !line.includes('.git') &&
-        !line.includes('.cache')
-      ).slice(0, 50); // Limit output
-      
-      resolve(lines.join('\n'));
-    });
-    
-    setTimeout(() => {
-      cmd.kill();
-      resolve('Directory scan timed out');
-    }, 5000);
-  });
+// Simple project overview
+async function getProjectOverview(): Promise<string> {
+  return `SSELFIE Studio Project Structure:
+
+Main Directories:
+./src/ - Main source code (React components, pages)  
+./client/src/ - Client-side React app
+./server/ - Express.js backend and APIs
+./shared/ - Shared TypeScript schemas
+./components/ - UI component library
+./database/ - Database migrations
+
+Key Files:
+./package.json - Project dependencies
+./shared/schema.ts - Database schema (PostgreSQL + Drizzle)
+./server/routes.ts - API endpoints
+./src/components/ - React components
+./src/pages/ - Application pages
+
+Tech Stack: React + TypeScript + Express + PostgreSQL + Tailwind CSS`;
 }
 
-// Get key project files with intelligent categorization
-async function getProjectFilesList(): Promise<string> {
-  const { spawn } = await import('child_process');
-  
-  return new Promise((resolve) => {
-    const cmd = spawn('find', ['.', '-name', '*.ts', '-o', '-name', '*.tsx', '-o', '-name', '*.js', '-o', '-name', '*.jsx'], {
-      cwd: process.cwd()
-    });
-    let output = '';
-    
-    cmd.stdout.on('data', (data) => {
-      output += data.toString();
-    });
-    
-    cmd.on('close', () => {
-      const files = output.split('\n').filter(file => 
-        file && 
-        !file.includes('node_modules') && 
-        !file.includes('.cache') &&
-        (file.includes('/src/') || file.includes('/server/') || file.includes('/shared/') || file.includes('/client/'))
-      ).slice(0, 30);
-      
-      // Categorize files intelligently
-      const categorized = {
-        'Frontend Components': files.filter(f => f.includes('/components/')),
-        'Pages/Routes': files.filter(f => f.includes('/pages/')),
-        'Server/API': files.filter(f => f.includes('/server/')),
-        'Shared/Schema': files.filter(f => f.includes('/shared/')),
-        'Client Source': files.filter(f => f.includes('/client/src/'))
-      };
-      
-      let result = '';
-      for (const [category, fileList] of Object.entries(categorized)) {
-        if (fileList.length > 0) {
-          result += `\n${category}:\n${fileList.slice(0, 5).join('\n')}\n`;
-        }
-      }
-      
-      resolve(result || 'No categorized files found');
-    });
-    
-    setTimeout(() => {
-      cmd.kill();
-      resolve('File scan timed out');
-    }, 5000);
-  });
-}
-
-// Extract meaningful search terms from description
+// Extract search terms from description
 function extractSearchTerms(description: string): string[] {
-  // Simple term extraction - can be enhanced
   const words = description.toLowerCase().split(/\s+/);
   return words.filter(word => 
-    word.length > 3 && 
-    !['find', 'search', 'look', 'locate', 'get', 'show', 'display'].includes(word)
-  );
+    word.length > 2 && 
+    !['find', 'search', 'look', 'locate', 'get', 'show', 'display', 'any', 'all'].includes(word)
+  ).slice(0, 3); // Limit to 3 terms max
 }
