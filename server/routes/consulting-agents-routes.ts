@@ -295,7 +295,7 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
           .from(claudeMessages)
           .where(eq(claudeMessages.conversationId, baseConversationId))
           .orderBy(desc(claudeMessages.timestamp))
-          .limit(20); // Reduced for speed
+          .limit(100); // FIXED: Proper message limit for context continuity
         
         conversationHistory = messages.reverse().map(msg => ({
           role: msg.role,
