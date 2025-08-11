@@ -2,7 +2,18 @@ import { createServer as createViteServer } from "vite";
 import type { ViteDevServer } from "vite";
 import type { Express } from "express";
 import type { Server } from "http";
-import viteConfig from "../vite.config.js";
+// Inline vite config to avoid TypeScript path issues
+const viteConfig = {
+  resolve: {
+    alias: {
+      "@": path.resolve(process.cwd(), "client", "src"),
+      "@shared": path.resolve(process.cwd(), "shared"),
+      "@assets": path.resolve(process.cwd(), "attached_assets"),
+    },
+  },
+  root: path.resolve(process.cwd(), "client"),
+};
+import path from "path";
 import { nanoid } from "nanoid";
 
 export async function setupVite(app: Express, server: Server): Promise<ViteDevServer> {
