@@ -172,33 +172,34 @@ export class ClaudeApiServiceSimple {
       
       // Load conversation history and check for existing context
       await this.createConversationIfNotExists(userId, agentName, conversationId);
-      // ADMIN BYPASS: Check if this is an admin agent for unlimited context
-      const isAdminAgent = userId === 'sandra-admin' || userId === 'admin' || userId === '42585527' || conversationId.includes('admin_');
+      // ADMIN AUTHENTICATION: Proper admin agent detection and context loading
+      const isAdminAgent = userId === '42585527' || conversationId.includes('admin_') || conversationId.includes('sandra');
+      
+      // CRITICAL FIX: Load FULL personality context for admin agents
       const messages = await this.loadConversationMessages(conversationId, isAdminAgent);
       
-      // ELIMINATED: TokenOptimizationEngine - using simplified approach
+      // PERSONALITY RESTORATION: Load agent's authentic personality and context
+      let agentPersonalityContext = '';
+      try {
+        const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
+        const personality = PURE_PERSONALITIES[agentName.toLowerCase() as keyof typeof PURE_PERSONALITIES];
+        if (personality) {
+          agentPersonalityContext = `\n\nYOUR AUTHENTIC PERSONALITY: You are ${personality.name}. ${personality.voice?.samplePhrases?.[0] || personality.voice?.examples?.[0] || 'Use your authentic personality.'}`;
+        }
+      } catch (error) {
+        console.error(`Failed to load personality for ${agentName}:`, error);
+      }
       
+      // ADMIN CONTEXT: Admin agents get more context but still optimized
       let optimizedMessages = messages;
-      let optimizationMetadata = { 
-        originalTokens: 0, 
-        optimizedTokens: 0, 
-        compressionRatio: 0, 
-        fullContextAvailable: true 
-      };
-      
-      // TOKEN OPTIMIZATION: Even admin agents use optimized message loading
-      // Local system maintains full context, Claude only needs recent context
       if (isAdminAgent) {
-        // Still optimize for token usage - local system has full context
-        optimizedMessages = messages.slice(-5); // Only last 5 messages for admin
-        optimizationMetadata = { 
-          originalTokens: messages.length * 100, 
-          optimizedTokens: optimizedMessages.length * 100, 
-          compressionRatio: ((messages.length - optimizedMessages.length) / messages.length) * 100, 
-          fullContextAvailable: true 
-        };
-        
-        console.log(`🧠 OPTIMIZED CONTEXT: ${optimizedMessages.length}/${messages.length} messages sent to Claude for ${agentName} (${optimizationMetadata.compressionRatio.toFixed(1)}% token savings)`);
+        // Admin agents get last 8 messages + personality context
+        optimizedMessages = messages.slice(-8);
+        console.log(`🧠 ADMIN CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName} with personality restoration`);
+      } else {
+        // Regular agents get last 3 messages
+        optimizedMessages = messages.slice(-3);
+        console.log(`🧠 REGULAR CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName}`);
       }
       
       const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(optimizedMessages));
@@ -237,8 +238,8 @@ export class ClaudeApiServiceSimple {
       const maxIterations = 50; // UNRESTRICTED: Increased from 20 to allow full workflow completion
       let allToolCalls: any[] = [];
       
-      // ENHANCED SYSTEM PROMPT: Include previous context for continuity  
-      const enhancedSystemPrompt = systemPrompt + (previousContext || '');
+      // ENHANCED SYSTEM PROMPT: Include previous context AND personality restoration
+      const enhancedSystemPrompt = systemPrompt + (previousContext || '') + (agentPersonalityContext || '');
       
       // Continue conversation until task is complete - UNRESTRICTED for autonomous workflow completion
       while (conversationContinues && iterationCount < maxIterations) {
