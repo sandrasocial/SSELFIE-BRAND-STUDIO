@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { isAuthenticated } from '../replitAuth';
 import { db } from '../db';
-import { users, websites } from '@shared/schema';
+import { users, websites } from '../db';
 import { eq } from 'drizzle-orm';
 
 const router = Router();
@@ -31,7 +31,7 @@ const CustomizationSchema = z.object({
       headingFont: z.string().optional(),
       bodyFont: z.string().optional()
     }).optional(),
-    content: z.record(z.string()).optional()
+    content: z.record(z.string(), z.string()).optional()
   })
 });
 

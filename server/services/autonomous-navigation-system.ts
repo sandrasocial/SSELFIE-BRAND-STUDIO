@@ -79,7 +79,8 @@ export class AutonomousNavigationSystem {
         this.discoverContextualFiles(intent),
         this.performIntentBasedSearch(intent),
         this.smartPathResolution(intent.goal),
-        ContextPreservationSystem.prepareAgentWorkspace('navigation', 'autonomous', intent.goal, false)
+        // TODO: Replace with simple-memory-service implementation
+        Promise.resolve({ success: true, files: [], context: intent.goal })
       ]);
 
       // Combine and deduplicate results
@@ -87,14 +88,14 @@ export class AutonomousNavigationSystem {
         ...contextualFiles,
         ...intentBasedFiles,
         ...smartResolution,
-        ...workContext.filesModified
+        // TODO: Add files from simple-memory-service workspace context
       ], intent);
 
       const result: NavigationResult = {
         success: allFiles.length > 0,
         discoveredFiles: allFiles.slice(0, 8), // Limit to prevent overwhelming
         suggestedActions: this.generateNavigationSuggestions(allFiles, intent),
-        contextualHelp: this.generateContextualHelp(intent, workContext),
+        contextualHelp: this.generateContextualHelp(intent),
         errorPrevention: this.generateErrorPrevention(intent, allFiles)
       };
 
@@ -187,7 +188,8 @@ export class AutonomousNavigationSystem {
   }> {
     console.log('📊 AUTONOMOUS NAV: Analyzing workspace state');
 
-    const projectContext = await ContextPreservationSystem.buildProjectContext();
+    // TODO: Replace with simple-memory-service equivalent
+    const projectContext = { recentChanges: [], files: [] };
     
     return {
       recentFiles: projectContext.recentChanges || [],
@@ -206,9 +208,9 @@ export class AutonomousNavigationSystem {
       expectedResults: []
     };
 
-    // Use unified context system for file discovery
-    const projectContext = await ContextPreservationSystem.buildProjectContext();
-    const result = await ContextPreservationSystem.findRelevantFiles(contextQuery.intent, projectContext);
+    // TODO: Replace with simple-memory-service equivalent
+    const projectContext = { files: [], context: contextQuery.intent };
+    const result: string[] = [];
     
     return Array.isArray(result) ? result : [];
     
@@ -217,7 +219,8 @@ export class AutonomousNavigationSystem {
 
   private async performIntentBasedSearch(intent: NavigationIntent): Promise<string[]> {
     // Use intelligent context manager for semantic search
-    const files = await ContextPreservationSystem.findRelevantFiles(intent.goal, await ContextPreservationSystem.buildProjectContext());
+    // TODO: Replace with simple-memory-service equivalent
+    const files: string[] = [];
     return files;
   }
 
@@ -293,20 +296,15 @@ export class AutonomousNavigationSystem {
     return suggestions;
   }
 
-  private generateContextualHelp(intent: NavigationIntent, workContext?: AgentContext): string[] {
+  private generateContextualHelp(intent: NavigationIntent): string[] {
     const help: string[] = [];
-
-    if (workContext?.filesModified && workContext.filesModified.length > 0) {
-      help.push(`Found ${workContext.filesModified.length} files related to your request`);
-    }
-
-    if (workContext?.lastWorkingState?.suggestedActions && workContext.lastWorkingState.suggestedActions.length > 0) {
-      help.push('Multiple action paths available - choose based on your specific needs');
-    }
 
     if (intent.previousAttempts && intent.previousAttempts.length > 0) {
       help.push('Previous attempts detected - trying alternative approach');
     }
+
+    help.push('Use search functionality to explore the codebase');
+    help.push('Check file relationships and dependencies');
 
     return help;
   }

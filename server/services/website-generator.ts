@@ -1,4 +1,4 @@
-import { WebsiteData, OnboardingData, ColorScheme } from '../types';
+import { WebsiteData, OnboardingData, ColorScheme } from '../types.js';
 
 const colorScheme: ColorScheme = {
   professional: { primary: '#2c3e50', secondary: '#34495e', accent: '#3498db' },
