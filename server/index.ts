@@ -1,12 +1,6 @@
-import express from 'express';
-import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
-import session from 'express-session';
-import passport from 'passport';
-import { db } from '../lib/db';
-import { authRouter } from './routes/auth';
-import { apiRouter } from './routes/api';
-import { agentRouter } from './routes/agents';
+// CRITICAL FIX: Use working server configuration
+const { execSync } = require('child_process');
+execSync('node server/working-server.js', { stdio: 'inherit' });
 
 const app = express();
 const server = createServer(app);
