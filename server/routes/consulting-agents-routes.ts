@@ -400,9 +400,9 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
     
     console.log(`🧠 MEMORY INTEGRATION: Admin bypass ${isAdminBypass ? 'ENABLED' : 'disabled'} for ${agentId}`);
     
-    // SIMPLIFIED CONTEXT DETECTION: Analyze if this needs full context or just conversation
-    const contextRequirement = simpleMemoryService.analyzeMessage(message);
-    console.log(`🧠 CONTEXT ANALYSIS: ${contextRequirement.contextLevel} (work: ${contextRequirement.isWorkTask}, continuation: ${contextRequirement.isContinuation})`);
+    // UNRESTRICTED: All messages get full context since local processing is free
+    const contextRequirement = { contextLevel: 'full', isWorkTask: true, isContinuation: true };
+    console.log(`🧠 UNLIMITED ACCESS: Full context provided for all interactions`);
     
     // SIMPLIFIED MEMORY SYSTEM INTEGRATION 
     let agentMemoryProfile = null;
@@ -417,58 +417,42 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
       // Memory profile is always created by simpleMemoryService.getAgentMemoryProfile
       console.log(`🧠 MEMORY PROFILE: Using simplified memory for ${agentId}${isAdminBypass ? ' [ADMIN]' : ''}`);
       
-      // SIMPLIFIED: No complex memory patterns needed
-      console.log(`💬 SIMPLIFIED MEMORY: Using streamlined context for ${contextRequirement.isWorkTask ? 'work' : 'conversation'}`);
+      // UNRESTRICTED: Full memory context always available
+      console.log(`💬 UNLIMITED MEMORY: Full context access for all interactions`);
       
-      // FIXED: Always prepare context (not just work tasks)
+      // UNRESTRICTED: Always prepare complete context
       agentContext = await simpleMemoryService.prepareAgentWorkspace(agentId, userId, message, isAdminBypass);
       
-      // ENHANCED: Build better context summary with memory (FILTERED)
+      // UNRESTRICTED: Full memory access - no filtering since local processing doesn't cost tokens
       if (agentMemoryProfile && agentMemoryProfile.context && agentMemoryProfile.context.memories.length > 0) {
-        // VERIFICATION FIX: Don't filter out verification-related memories
-        // Only filter out obvious demonstration requests, but keep verification tasks
-        const filteredMemories = agentMemoryProfile.context.memories
-          .filter((mem: any) => {
-            const memText = (mem.data?.pattern || mem.data?.currentTask || '').toLowerCase();
-            // Keep verification, check, audit, fix, implement tasks
-            if (memText.includes('verify') || memText.includes('check') || 
-                memText.includes('audit') || memText.includes('fix') || 
-                memText.includes('implement') || memText.includes('analyze')) {
-              return true;
-            }
-            // Filter out only obvious demonstrations
-            return !memText.includes('demonstrate your') && 
-                   !memText.includes('show me your') && 
-                   !memText.includes('test your capabilities') &&
-                   !memText.includes('arsenal');
-          })
-          .slice(-3);
+        // FULL ACCESS: Give agent ALL memories without any filtering or limits
+        const allMemories = agentMemoryProfile.context.memories; // No filtering!
           
-        if (filteredMemories.length > 0) {
-          const recentMemories = filteredMemories
-            .map((mem: any) => `- ${mem.data?.pattern || mem.data?.currentTask || 'Previous interaction'}`)
+        if (allMemories.length > 0) {
+          const allRecentMemories = allMemories
+            .map((mem: any) => `- ${mem.data?.pattern || mem.data?.currentTask || mem.data?.userMessage || 'Previous interaction'}`)
             .join('\n');
-          contextSummary = `RECENT CONTEXT:\n${recentMemories}\n\nCURRENT TASK: ${message.substring(0, 100)}...`;
-          console.log(`🧠 FILTERED CONTEXT: Loaded ${filteredMemories.length} relevant memories for ${agentId}`);
+          contextSummary = `COMPLETE CONTEXT:\n${allRecentMemories}\n\nCURRENT TASK: ${message}`;
+          console.log(`🧠 FULL CONTEXT: Loaded ALL ${allMemories.length} memories for ${agentId} - no restrictions`);
         } else {
-          contextSummary = `Agent ${agentId} ready for: ${message.substring(0, 100)}...`;
-          console.log(`🧠 CLEAN CONTEXT: No relevant memories, fresh start for ${agentId}`);
+          contextSummary = `Agent ${agentId} ready for: ${message}`;
+          console.log(`🧠 FRESH START: No memories yet for ${agentId}`);
         }
       } else {
-        contextSummary = `Agent ${agentId} ready for: ${message.substring(0, 100)}...`;
-        console.log(`🏗️ WORKSPACE: Prepared context for ${agentId}`);
+        contextSummary = `Agent ${agentId} ready for: ${message}`;
+        console.log(`🏗️ WORKSPACE: New context for ${agentId}`);
       }
       
-      // FIXED: Always save context for meaningful interactions (not just admin bypass)
-      // VERIFICATION FIX: Don't filter out verification and test requests  
-      if (agentContext && (contextRequirement.isWorkTask || contextRequirement.isContinuation)) {
+      // UNRESTRICTED: Save ALL interactions to memory without filtering
+      if (agentContext) {
         await simpleMemoryService.saveAgentMemory(agentContext, {
           currentTask: message,
           adminBypass: isAdminBypass,
-          userMessage: message.substring(0, 200),
-          timestamp: new Date().toISOString()
+          userMessage: message, // Save full message, not truncated
+          timestamp: new Date().toISOString(),
+          interactionType: 'conversation' // Track all types
         });
-        console.log(`🧠 CONTEXT SAVED: Memory updated for ${agentId}${isAdminBypass ? ' [ADMIN]' : ''}`);
+        console.log(`🧠 FULL MEMORY: All interactions saved for ${agentId}${isAdminBypass ? ' [ADMIN]' : ''}`);
       }
       
       console.log(`🧠 CONTEXT LOADED: Level ${contextRequirement.contextLevel.toUpperCase()}, Intelligence ${agentMemoryProfile.intelligenceLevel}${isAdminBypass ? ' [ADMIN BYPASS]' : ''}`);

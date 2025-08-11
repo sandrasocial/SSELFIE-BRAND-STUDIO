@@ -144,7 +144,7 @@ export class SimpleMemoryService {
   }
 
   /**
-   * Consolidate agent memory - merge and optimize stored memories
+   * UNRESTRICTED: Keep ALL memories - no consolidation limits since local processing is free
    */
   async consolidateMemory(agentId: string, userId: string): Promise<void> {
     const context = await this.prepareAgentContext({
@@ -152,20 +152,20 @@ export class SimpleMemoryService {
       userId
     });
 
-    // Remove duplicates and old entries
-    context.memories = context.memories
-      .filter((memory, index, self) => 
-        index === self.findIndex(m => 
-          JSON.stringify(m.data) === JSON.stringify(memory.data)
-        )
+    // FULL RETENTION: Keep ALL memories without time limits or duplicate removal
+    // Only remove exact duplicates (same timestamp + same data)
+    const uniqueMemories = context.memories.filter((memory, index, self) => 
+      index === self.findIndex(m => 
+        m.timestamp.getTime() === memory.timestamp.getTime() &&
+        JSON.stringify(m.data) === JSON.stringify(memory.data)
       )
-      .filter(memory => 
-        new Date().getTime() - new Date(memory.timestamp).getTime() < 12 * 60 * 60 * 1000 // 12 hours
-      );
+    );
 
-    // Save consolidated memories
+    context.memories = uniqueMemories;
+
+    // Save all memories without restrictions
     await storage.saveAgentMemory(agentId, userId, { context });
-    console.log(`🧠 CONSOLIDATED: Memory optimized for ${agentId} (${context.memories.length} entries)`);
+    console.log(`🧠 UNLIMITED MEMORY: All ${context.memories.length} memories preserved for ${agentId}`);
   }
 
   /**
@@ -195,13 +195,13 @@ export class SimpleMemoryService {
   }
 
   /**
-   * OLGA'S FIX: Extended cache duration from 2 hours to 12 hours
-   * Prevents conversation losses during long development sessions
+   * UNRESTRICTED: Extended cache duration for unlimited memory retention
+   * Since local processing is free, keep context as long as needed
    */
   private isCacheValid(context: AgentContext): boolean {
     const now = new Date();
     const age = now.getTime() - context.timestamp.getTime();
-    const maxAge = 12 * 60 * 60 * 1000; // OLGA'S FIX: 12-hour cache for admin sessions
+    const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days cache - agents remember everything
     return age < maxAge;
   }
 
@@ -231,27 +231,13 @@ export class SimpleMemoryService {
     };
   }
 
-  // OLGA'S FIX: Enhanced message analysis for better context retention
+  // UNRESTRICTED: All messages get full context since local processing is free
   analyzeMessage(message: string) {
-    const isGreeting = /^(hey|hi|hello)\s*[,!]?\s*[a-z]*$/i.test(message.trim());
-    const isContinuation = /^(yes|ok|perfect|continue|proceed|great|excellent|sounds good)/i.test(message.trim());
-    
-    // OLGA'S FIX: Much more liberal work task detection - preserve context for most interactions
-    const workKeywords = ['create', 'build', 'fix', 'update', 'analyze', 'show', 'check', 'find', 'test', 
-                         'help', 'can you', 'please', 'look', 'status', 'ready', 'implement', 'plan', 
-                         'consolidation', 'memory', 'agent', 'system', 'issue', 'problem', 'error'];
-    
-    const hasWorkKeywords = workKeywords.some(keyword => 
-      message.toLowerCase().includes(keyword.toLowerCase())
-    );
-    
-    // CRITICAL: Most interactions need context unless they're pure greetings
-    const isWorkTask = !isGreeting && (message.length > 15 || hasWorkKeywords);
-
+    // UNLIMITED ACCESS: Every interaction gets full context and memory
     return {
-      isContinuation,
-      isWorkTask: isWorkTask || isContinuation, // CRITICAL: Continuations also need context
-      contextLevel: (isWorkTask || isContinuation) ? 'full' : isGreeting ? 'minimal' : 'basic'
+      isContinuation: true,
+      isWorkTask: true, // Always treat as work task
+      contextLevel: 'full' // Always full context
     };
   }
 
