@@ -20,6 +20,10 @@ export async function search_filesystem(parameters: any): Promise<string> {
 
     let results = '';
 
+    // Always show project overview first for navigation
+    const projectOverview = await getProjectOverview();
+    results += `=== PROJECT OVERVIEW ===\n${projectOverview}\n`;
+
     // If specific code snippets are provided, search for them
     if (code.length > 0) {
       for (const codeSnippet of code) {
@@ -44,11 +48,8 @@ export async function search_filesystem(parameters: any): Promise<string> {
       }
     }
 
-    // Simple project navigation
+    // Enhanced search for query descriptions
     if (query_description) {
-      const projectOverview = await getProjectOverview();
-      results += `\n=== PROJECT OVERVIEW ===\n${projectOverview}`;
-      
       // Basic content search for specific terms
       const searchTerms = extractSearchTerms(query_description);
       for (const term of searchTerms) {
@@ -57,8 +58,13 @@ export async function search_filesystem(parameters: any): Promise<string> {
           results += `\n=== Found: "${term}" ===\n${grepResult.substring(0, 1000)}`;
         }
       }
+      
+      // Show current directory structure for navigation
+      const dirStructure = await getCurrentDirectoryStructure();
+      results += `\n=== CURRENT DIRECTORY STRUCTURE ===\n${dirStructure}`;
     }
 
+    console.log('🔍 SEARCH RESULTS LENGTH:', results.length);
     return results || 'No results found for the search criteria.';
 
   } catch (error) {
