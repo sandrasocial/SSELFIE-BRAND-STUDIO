@@ -1,68 +1,67 @@
-// Use your working server.js configuration to bypass Vite config issues
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
+import express from 'express';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import session from 'express-session';
+import passport from 'passport';
+import { db } from '../lib/db';
+import { authRouter } from './routes/auth';
+import { apiRouter } from './routes/api';
+import { agentRouter } from './routes/agents';
 
 const app = express();
-const port = Number(process.env.PORT) || 5000;
+const server = createServer(app);
+const wss = new WebSocketServer({ server });
 
-// Essential middleware
+// Session configuration
+app.use(session({
+  store: new (require('connect-pg-simple')(session))({
+    pool: db.pool,
+  }),
+  secret: process.env.SESSION_SECRET || 'development_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  }
+}));
+
+// Passport initialization
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-async function loadRoutes() {
-  try {
-    // Import and setup your comprehensive routes with all features
-    const { registerRoutes } = await import('./routes.js');
-    await registerRoutes(app);
-    console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
-  } catch (error) {
-    console.warn('⚠️ Routes loading failed, using basic routes:', error.message);
-    
-    // Fallback basic routes
-    app.get('/api/health', (req, res) => {
-      res.json({ status: 'healthy', timestamp: new Date().toISOString() });
-    });
-    
-    app.post('/api/admin/consulting-agents/chat', (req, res) => {
-      res.json({ 
-        status: 'success', 
-        message: 'Agent system operational',
-        agent: req.body.agentId || 'unknown'
-      });
-    });
-  }
-}
+// Routes
+app.use('/auth', authRouter);
+app.use('/api', apiRouter);
+app.use('/agents', agentRouter);
 
-async function startServer() {
-  console.log('🚀 Starting SSELFIE Studio with all your 4 months of work...');
-  
-  await loadRoutes();
-
-  // Serve built static files
-  app.use('/assets', express.static(path.join(__dirname, '../assets')));
-  app.use(express.static(path.join(__dirname, '../dist/public')));
-
-  // Serve React app for all routes
-  const htmlPath = path.join(__dirname, '../dist/public/index.html');
-  
-  app.get('*', (req, res) => {
-    if (fs.existsSync(htmlPath)) {
-      res.sendFile(htmlPath);
-    } else {
-      res.status(404).send('Application not found');
+// WebSocket handling
+wss.on('connection', (ws) => {
+  ws.on('message', async (message) => {
+    try {
+      const data = JSON.parse(message.toString());
+      // Handle different message types
+      switch(data.type) {
+        case 'AGENT_MESSAGE':
+          // Handle agent messages
+          break;
+        case 'USER_MESSAGE':
+          // Handle user messages
+          break;
+        default:
+          console.warn('Unknown message type:', data.type);
+      }
+    } catch (error) {
+      console.error('WebSocket message handling error:', error);
     }
   });
+});
 
-  // Start server
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
-    console.log(`🌐 Your complete application: http://localhost:${port}`);
-    console.log(`📦 All your features are now active!`);
-  });
-}
-
-startServer().catch((err) => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
+const port = process.env.PORT || 5000;
+server.listen(port, () => {
+  console.log(`🚀 Server running on port ${port}`);
 });
