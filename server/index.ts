@@ -6,6 +6,7 @@ import passport from 'passport';
 import path from 'path';
 import { db } from './db';
 import { registerRoutes } from './routes';
+// import { setupVite } from './vite'; // Temporarily disabled due to config issues
 
 const app = express();
 const server = createServer(app);
@@ -53,6 +54,9 @@ wss.on('connection', (ws) => {
 });
 
 const port = process.env.PORT || 5000;
+
+// TODO: Setup Vite development server for frontend transpilation
+// Temporarily using static serving until Vite config is fixed
 
 // Register all the comprehensive routes from routes.ts and start server
 console.log('🔧 Registering comprehensive routes...');

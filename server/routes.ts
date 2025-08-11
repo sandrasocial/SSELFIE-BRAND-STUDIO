@@ -2757,7 +2757,15 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
   
   // SPA catch-all route - serve SSELFIE Studio app for all other routes (MUST BE LAST!)
+  // Serve index.html only for non-API routes and non-static files
   app.get('*', (req, res) => {
+    // Skip if it's an API route or static file request
+    if (req.path.startsWith('/api/') || 
+        req.path.startsWith('/src/') || 
+        req.path.startsWith('/client/') ||
+        req.path.includes('.')) {
+      return res.status(404).json({ error: 'Not found' });
+    }
     res.sendFile(path.join(__dirname, '../index.html'));
   });
   
