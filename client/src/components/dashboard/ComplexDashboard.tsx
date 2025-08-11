@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDashboardData } from '../../hooks/useDashboardData';
-// import { DashboardMetrics, DashboardSection } from '../../../shared/types/dashboard';
-type DashboardMetrics = any;
-type DashboardSection = any;
+import { DashboardMetrics, DashboardSection } from '../../../shared/types/dashboard';
 import styled from 'styled-components';
 
 const DashboardContainer = styled.div`
