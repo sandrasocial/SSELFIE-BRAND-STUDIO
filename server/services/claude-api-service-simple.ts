@@ -632,6 +632,8 @@ export class ClaudeApiServiceSimple {
         userId: userId,
         agentName: normalizedAgentName, // Use normalized name
         conversationId: conversationId,
+        status: "active",
+        messageCount: 0,
         context: {},
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -663,8 +665,10 @@ export class ClaudeApiServiceSimple {
       conversationId,
       role,
       content,
+      metadata: null,
       toolCalls,
       toolResults,
+      timestamp: new Date(),
       createdAt: new Date(),
     });
 
@@ -679,6 +683,8 @@ export class ClaudeApiServiceSimple {
       await db
         .update(claudeConversations)
         .set({
+          lastMessageAt: new Date(),
+          messageCount: (conversation.messageCount || 0) + 1,
           updatedAt: new Date(),
         })
         .where(eq(claudeConversations.conversationId, conversationId));
