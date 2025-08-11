@@ -370,9 +370,26 @@ export class ClaudeApiServiceSimple {
           console.log(`🔄 ${agentName}: FORCING CONTINUATION after tool execution - iteration ${iterationCount}/${maxIterations}`);
           
         } else {
-          // No tools used, conversation complete
-          console.log(`✅ ${agentName}: No tools used in iteration ${iterationCount}, completing conversation`);
-          conversationContinues = false;
+          // No tools used - agents might still need to continue autonomous workflow
+          // Check if this is just a greeting or if agent needs to continue working
+          const isSimpleGreeting = message.toLowerCase().includes('are you there') || 
+                                 message.toLowerCase().includes('hello') ||
+                                 message.toLowerCase().includes('hi ') ||
+                                 responseText.length < 100;
+          
+          if (isSimpleGreeting && iterationCount === 1) {
+            // Simple greeting exchange - conversation can complete
+            console.log(`✅ ${agentName}: Simple greeting exchange completed`);
+            conversationContinues = false;
+          } else if (responseText.includes('What can I') || responseText.includes('What would you like')) {
+            // Agent is waiting for instructions - conversation can complete
+            console.log(`✅ ${agentName}: Agent ready and waiting for instructions`);
+            conversationContinues = false;
+          } else {
+            // Agent might be working on something - allow continuation
+            console.log(`🔄 ${agentName}: Allowing agent to continue autonomous workflow (iteration ${iterationCount})`);
+            conversationContinues = iterationCount < 3; // Allow up to 3 iterations for autonomous work
+          }
         }
       }
       
