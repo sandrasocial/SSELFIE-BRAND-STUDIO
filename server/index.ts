@@ -4,18 +4,15 @@ import { WebSocketServer } from 'ws';
 import session from 'express-session';
 import passport from 'passport';
 import path from 'path';
-import { db } from '../lib/db';
-import './routes'; // Import the main comprehensive routes file
+import { db } from './db';
+import { registerRoutes } from './routes';
 
 const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
-// Session configuration with database storage
+// Session configuration - using memory store for now to avoid db.pool issue
 app.use(session({
-  store: new (require('connect-pg-simple')(session))({
-    pool: db.pool,
-  }),
   secret: process.env.SESSION_SECRET || 'development_secret',
   resave: false,
   saveUninitialized: false,
@@ -32,9 +29,6 @@ app.use(passport.session());
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// The routes.ts file contains all the comprehensive routes and will be automatically loaded
-// This includes all API endpoints, auth routes, file serving, etc.
 
 // WebSocket handling
 wss.on('connection', (ws) => {
@@ -59,6 +53,18 @@ wss.on('connection', (ws) => {
 });
 
 const port = process.env.PORT || 5000;
-server.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
+
+// Register all the comprehensive routes from routes.ts and start server
+console.log('🔧 Registering comprehensive routes...');
+registerRoutes(app).then(() => {
+  console.log('✅ All routes registered successfully');
+  server.listen(port, () => {
+    console.log(`🚀 Server running on port ${port}`);
+  });
+}).catch(err => {
+  console.error('❌ Route registration failed:', err);
+  // Start basic server even if routes fail
+  server.listen(port, () => {
+    console.log(`🚀 Server running on port ${port} (with route registration errors)`);
+  });
 });
