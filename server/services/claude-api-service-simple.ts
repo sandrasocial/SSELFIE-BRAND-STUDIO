@@ -227,14 +227,13 @@ export class ClaudeApiServiceSimple {
       const agentPersonality = PURE_PERSONALITIES[agentName.toLowerCase() as keyof typeof PURE_PERSONALITIES];
       
       let personalityMessage = `${agentName} is ready to help...`;
-      if (agentPersonality?.voice?.samplePhrases) {
-        // Use a random sample phrase to show personality immediately
-        const phrases = agentPersonality.voice.samplePhrases;
-        personalityMessage = phrases[Math.floor(Math.random() * phrases.length)];
-      } else if (agentPersonality?.voice?.examples) {
-        // Maya-style examples
-        const examples = agentPersonality.voice.examples;
-        personalityMessage = examples[Math.floor(Math.random() * examples.length)];
+      if (agentPersonality?.voice) {
+        const voice = agentPersonality.voice as any;
+        if (voice.samplePhrases) {
+          personalityMessage = voice.samplePhrases[Math.floor(Math.random() * voice.samplePhrases.length)];
+        } else if (voice.examples) {
+          personalityMessage = voice.examples[Math.floor(Math.random() * voice.examples.length)];
+        }
       }
       
       res.write(`data: ${JSON.stringify({

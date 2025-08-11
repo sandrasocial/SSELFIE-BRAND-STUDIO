@@ -48,7 +48,7 @@ function getClaudeService() {
   return claudeApiServiceSimple;
 }
 
-// ADMIN DIRECT EXECUTION: Bypass Claude API for admin agents
+// DISABLED: NEVER bypass Claude API - agents need full intelligence
 async function handleDirectAdminExecution(
   userId: string,
   agentId: string,
@@ -57,7 +57,7 @@ async function handleDirectAdminExecution(
   availableTools: any[],
   res: any
 ) {
-  console.log(`🔥 ADMIN DIRECT: ${agentId.toUpperCase()} executing without Claude API`);
+  console.log(`❌ DISABLED: Direct execution disabled - using full agent intelligence instead`);
   
   // Set up streaming response
   res.writeHead(200, {
@@ -143,20 +143,9 @@ async function handleDirectAdminExecution(
         }
       }
     } else {
-      // No tools detected - provide direct response
-      res.write(`💬 ${agentName}: Message received and processed locally\n`);
-      res.write(`🧠 ${agentName}: Using local knowledge and context\n`);
-      
-      // Provide agent-specific response based on personality
-      if (agentId === 'zara') {
-        res.write(`🔍 Zara: Analyzing system architecture and performance...\n`);
-        res.write(`⚡ Zara: All tools available for direct system optimization\n`);
-      } else if (agentId === 'elena') {
-        res.write(`🎯 Elena: Coordinating workflow execution...\n`);
-        res.write(`📋 Elena: Multi-agent task delegation ready\n`);
-      } else {
-        res.write(`✨ ${agentName}: Ready to assist with specialized expertise\n`);
-      }
+      // DISABLED: All responses must use full agent intelligence via Claude API
+      console.log(`❌ BYPASSED: Template responses disabled - redirecting to Claude API for full intelligence`);
+      return false; // Force to use Claude API instead
     }
     
     res.write(`\n🎯 ${agentName}: Direct execution complete - no Claude API tokens used\n`);
@@ -335,38 +324,19 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
     // ADMIN INTELLIGENT MODE: Use Claude API for conversations, direct tools for specific requests
     const isAdminRequest = req.body.adminToken === 'sandra-admin-2025' || userId === '42585527';
     
-    // ZARA'S TOKEN OPTIMIZATION: VERY SELECTIVE bypass for JSON tool calls ONLY
-    const isExactJSONToolCall = message.trim().startsWith('{') && message.trim().endsWith('}') && 
-                               (message.includes('"command":') || message.includes('"query_description":') || message.includes('"sql_query":'));
+    // FULL INTELLIGENCE MODE: ALL requests use Claude API for complete agent intelligence
+    // NO MORE LOCAL BYPASSES - agents need their full intelligence for every response
+    console.log(`🧠 FULL INTELLIGENCE: ${normalizedAgentId.toUpperCase()} using complete Claude API intelligence${isAdminRequest ? ' [ADMIN]' : ''}`);
     
-    // ALL OTHER MESSAGES (including conversations, questions, complex requests) go to Claude API
-    const isToolOnlyRequest = isExactJSONToolCall;
-    
-    if (isAdminRequest && isToolOnlyRequest) {
-      console.log(`🔥 LOCAL EXECUTION: ${agentId.toUpperCase()} processing exact JSON tool call locally`);
-      
-      return await handleDirectAdminExecution(
-        userId,
-        normalizedAgentId, 
-        baseConversationId,
-        message,
-        availableTools,
-        res
-      );
-    } else {
-      // USE CLAUDE API: For all conversations including admin (agents need their intelligence!)
-      console.log(`🤖 CLAUDE API: Using AI intelligence for ${normalizedAgentId}${isAdminRequest ? ' [ADMIN]' : ''}`);
-      
-      await claudeService.sendStreamingMessage(
-        userId,
-        normalizedAgentId,
-        baseConversationId,
-        message,
-        PersonalityManager.getNaturalPrompt(normalizedAgentId),
-        availableTools,
-        res // Pass the response object for real streaming
-      );
-    }
+    await claudeService.sendStreamingMessage(
+      userId,
+      normalizedAgentId,
+      baseConversationId,
+      message,
+      PersonalityManager.getNaturalPrompt(normalizedAgentId),
+      availableTools,
+      res // Pass the response object for real streaming
+    );
 
   } catch (error) {
     console.error(`❌ Consulting error:`, error);
