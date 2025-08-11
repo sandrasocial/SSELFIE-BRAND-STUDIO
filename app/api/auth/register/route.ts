@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import Database from '@replit/database';
+import { Database } from '@replit/database';
 import { v4 as uuidv4 } from 'uuid';
 
 const db = new Database();

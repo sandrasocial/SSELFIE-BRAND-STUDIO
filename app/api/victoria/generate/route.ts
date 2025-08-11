@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
-import { createWebsite } from '@/lib/models';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,15 +21,17 @@ export async function POST(request: NextRequest) {
     const websiteData = await generateWebsiteContent(prompt, type, style);
     
     // Save to database
-    const website = await createWebsite({
-      userId,
-      title: websiteData.title,
-      description: websiteData.description,
-      content: websiteData.content,
-      style,
-      type,
-      prompt,
-      status: 'generated'
+    const website = await db.website.create({
+      data: {
+        userId,
+        title: websiteData.title,
+        description: websiteData.description,
+        content: websiteData.content,
+        style,
+        type,
+        prompt,
+        status: 'generated',
+      }
     });
 
     return NextResponse.json({
