@@ -37,22 +37,18 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<str
     console.log(`📋 Task: ${task_description.substring(0, 100)}...`);
     console.log(`🎯 Priority: ${priority}`);
 
-    // Validate target agent exists and provide specialties
+    // Validate target agent exists and provide CORRECT specialties from personality files
     const agentSpecialties = {
-      'elena': 'Strategic planning, workflow coordination, multi-agent task management, execution leadership',
-      'zara': 'Technical architecture, backend systems, UI/UX implementation, performance optimization, code analysis',
-      'olga': 'Organization, file management, infrastructure cleanup, system maintenance, documentation',
-      'maya': 'AI photography, image generation, visual content creation, aesthetic guidance, brand photography',
-      'victoria': 'Business strategy, brand development, content strategy, market positioning, customer experience',
-      'aria': 'Creative direction, brand aesthetics, design systems, visual identity',
-      'rachel': 'Marketing automation, email systems, customer engagement, conversion optimization',
-      'diana': 'Data analysis, performance metrics, business intelligence, reporting systems',
-      'quinn': 'Security, authentication, access control, system hardening',
-      'wilma': 'Database management, data architecture, backup systems, migration planning',
-      'sophia': 'User experience, interface design, accessibility, usability testing',
-      'martha': 'Quality assurance, testing automation, bug tracking, validation protocols',
-      'ava': 'Automation systems, workflow optimization, process improvement',
-      'flux': 'AI model training, machine learning, model optimization, training data management'
+      'elena': 'Strategic best friend & execution leader, Workflow coordination, multi-agent task management, Complex project coordination and strategic decision making',
+      'zara': 'Complete backend system creation (APIs, databases, infrastructure), Full-stack component development and UI/UX implementation, Technical architecture review and performance optimization',
+      'olga': 'Organization bestie, file management, infrastructure cleanup, system maintenance, documentation and keeping everything neat and tidy',
+      'maya': 'Celebrity stylist & creative director, Fashion-obsessed creative genius with 2025 trends expertise, Editorial fashion moments with urban street style influence',
+      'victoria': 'UX strategist & business consultant, User experience strategy and design, Business process optimization, Product strategy and roadmapping',
+      'aria': 'Exclusive visionary designer & creative director for SSELFIE Studio, Editorial luxury design with Times New Roman typography, Ultra WOW factor digital experiences',
+      'rachel': 'Sandra\'s authentic voice twin, Copywriting and brand messaging, Transformation storytelling with vulnerability and strength, Email sequences and social media in Sandra\'s voice',
+      'quinn': 'Quality assurance perfectionist, Cross-browser luxury experience testing, Mobile-first responsive validation, Visual regression testing with Swiss watchmaker precision',
+      'ava': 'Operations automation expert, Email sequences that feel personal, User journey orchestration, API integrations and webhook workflows',
+      'flux': 'AI generation expert, High-quality Flux LoRA prompt creation, Professional realistic personal brand photography generation, Technical mastery with creative precision'
     };
     
     if (!agentSpecialties[target_agent]) {
@@ -237,6 +233,16 @@ ${response.substring(0, 300)}...
 **AGENT SPECIALTIES:**
 ${Object.entries(agentSpecialties).map(([agent, specialty]) => `- ${agent.toUpperCase()}: ${specialty}`).join('\n')}
 
-**Task Assignment Guidance:** Choose agents based on their specialties. For technical work, use ZARA. For organization, use OLGA. For strategy, use ELENA or VICTORIA. For visual work, use MAYA or ARIA.`;
+**Task Assignment Guidance:** Choose agents based on their ACTUAL specialties:
+- Technical/Backend: ZARA (APIs, databases, performance)
+- Organization/Cleanup: OLGA (file management, documentation) 
+- Strategy/Coordination: ELENA (execution leadership, workflow coordination)
+- UX/Business: VICTORIA (user experience, business strategy)
+- Fashion/Styling: MAYA (celebrity stylist, 2025 trends)
+- Luxury Design: ARIA (editorial luxury, SSELFIE Studio experiences)
+- Copywriting: RACHEL (Sandra's voice, brand messaging)
+- Quality Assurance: QUINN (testing, luxury experience validation)
+- Automation: AVA (email sequences, API integrations)
+- AI Generation: FLUX (prompt optimization, photography generation)`;
   }
 }
