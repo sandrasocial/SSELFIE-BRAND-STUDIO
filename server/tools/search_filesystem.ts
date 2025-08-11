@@ -101,26 +101,34 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
   });
 }
 
-// Simple project overview
+// Simple project overview - CORRECTED STRUCTURE  
 async function getProjectOverview(): Promise<string> {
-  return `SSELFIE Studio Project Structure:
+  return `SSELFIE Studio - ACTUAL Project Structure:
 
-Main Directories:
-./src/ - Main source code (React components, pages)  
-./client/src/ - Client-side React app
-./server/ - Express.js backend and APIs
-./shared/ - Shared TypeScript schemas
-./components/ - UI component library
-./database/ - Database migrations
+ROOT DIRECTORIES (what agents can access):
+./server/ - Express.js backend, API routes, agent tools, services
+./client/ - Frontend React application  
+./src/ - Main React source code (components, pages, hooks)
+./shared/ - TypeScript schemas (database models, types)
+./components/ - Additional UI component library
+./pages/ - Page components and routing
+./database/ - Database migrations and setup
 
-Key Files:
-./package.json - Project dependencies
-./shared/schema.ts - Database schema (PostgreSQL + Drizzle)
-./server/routes.ts - API endpoints
-./src/components/ - React components
-./src/pages/ - Application pages
+KEY FILES TO KNOW:
+./package.json - Dependencies (React, Express, PostgreSQL, Drizzle, etc.)
+./server/routes.ts - Main API endpoints
+./server/tools/ - Agent tools directory
+./shared/schema.ts - Database schema (PostgreSQL + Drizzle ORM)
+./replit.md - Project documentation and architecture
 
-Tech Stack: React + TypeScript + Express + PostgreSQL + Tailwind CSS`;
+IMPORTANT LOCATIONS:
+- React Components: ./src/components/ and ./components/
+- API Routes: ./server/routes/
+- Database: PostgreSQL with Drizzle ORM in ./shared/schema.ts
+- Agent Tools: ./server/tools/
+- Frontend Pages: ./src/pages/ and ./pages/
+
+Tech Stack: React 18 + TypeScript + Express + PostgreSQL + Drizzle + Tailwind CSS`;
 }
 
 // Extract search terms from description
