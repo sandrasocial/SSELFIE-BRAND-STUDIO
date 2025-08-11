@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
-import App from "./App";
-import "./index.css";
+import App from "./App-minimal";
+// import "./index.css"; // Temporarily disabled
 
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');
