@@ -125,6 +125,48 @@ export class SimpleMemoryService {
   /**
    * ZARA'S OPTIMIZATION: Get workspace context locally (no Claude API)
    */
+  /**
+   * FULL LOCAL MEMORY SYSTEM: Get complete conversation context locally
+   * Returns formatted conversation history without Claude API calls
+   */
+  async getFullConversationContext(agentName: string, userId: string): Promise<Array<{role: string, content: string}>> {
+    try {
+      const context = await this.prepareAgentContext({ agentName, userId, isAdminBypass: true });
+      
+      // LOAD FULL CONVERSATION FROM STORAGE (not just memories)
+      const storedData = await storage.getAgentMemory(agentName, userId);
+      if (storedData && storedData.conversationHistory) {
+        console.log(`🧠 LOCAL FULL CONTEXT: Loaded ${storedData.conversationHistory.length} messages for ${agentName}`);
+        return storedData.conversationHistory;
+      }
+      
+      // Fallback: Load from database if needed
+      const { db } = await import('../db.js');
+      const { claudeMessages } = await import('../../shared/schema.js');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      const conversationId = `admin_${agentName.toLowerCase()}_${userId}`;
+      const messages = await db
+        .select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, conversationId))
+        .orderBy(claudeMessages.createdAt)
+        .limit(100);
+      
+      const formattedMessages = messages.map(msg => ({
+        role: msg.role === 'agent' ? 'assistant' : msg.role,
+        content: msg.content
+      }));
+      
+      console.log(`🧠 LOCAL FALLBACK: Loaded ${formattedMessages.length} messages from database for ${agentName}`);
+      return formattedMessages;
+      
+    } catch (error) {
+      console.error(`Failed to get full context for ${agentName}:`, error);
+      return [];
+    }
+  }
+
   async getWorkspaceContext(agentName: string, userId: string): Promise<string> {
     try {
       const context = await this.prepareAgentContext({ agentName, userId, isAdminBypass: true });
