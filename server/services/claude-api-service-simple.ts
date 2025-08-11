@@ -218,10 +218,18 @@ export class ClaudeApiServiceSimple {
       // PERSONALITY RESTORATION: Load agent's authentic personality and context
       let agentPersonalityContext = '';
       try {
-        const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
+        const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.ts');
         const personality = PURE_PERSONALITIES[agentName.toLowerCase() as keyof typeof PURE_PERSONALITIES];
         if (personality) {
-          agentPersonalityContext = `\n\nYOUR AUTHENTIC PERSONALITY: You are ${personality.name}. ${personality.voice?.samplePhrases?.[0] || personality.voice?.examples?.[0] || 'Use your authentic personality.'}`;
+          // Fix property access based on actual personality structure
+          const personalityInfo = typeof personality === 'object' && personality !== null && 'name' in personality ? personality : null;
+          if (personalityInfo && 'name' in personalityInfo) {
+            const voiceExample = 'voice' in personalityInfo && personalityInfo.voice && 
+                                 typeof personalityInfo.voice === 'object' && 'examples' in personalityInfo.voice && 
+                                 Array.isArray(personalityInfo.voice.examples) && personalityInfo.voice.examples.length > 0
+                                 ? personalityInfo.voice.examples[0] : 'Use your authentic personality.';
+            agentPersonalityContext = `\n\nYOUR AUTHENTIC PERSONALITY: You are ${personalityInfo.name}. ${voiceExample}`;
+          }
         }
       } catch (error) {
         console.error(`Failed to load personality for ${agentName}:`, error);
@@ -623,6 +631,7 @@ export class ClaudeApiServiceSimple {
         status: 'active',
         messageCount: 0,
         context: {},
+        adminBypassEnabled: false, // Add missing field
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -653,8 +662,10 @@ export class ClaudeApiServiceSimple {
       conversationId,
       role,
       content,
+      metadata: null, // Add missing field
       toolCalls,
       toolResults,
+      timestamp: new Date(), // Use timestamp field that exists
       createdAt: new Date(),
     });
 
@@ -672,7 +683,7 @@ export class ClaudeApiServiceSimple {
           messageCount: (conversation.messageCount || 0) + 1,
           lastMessageAt: new Date(),
           updatedAt: new Date(),
-          status: 'active'
+          // Remove status from update as it's not needed
         })
         .where(eq(claudeConversations.conversationId, conversationId));
 
