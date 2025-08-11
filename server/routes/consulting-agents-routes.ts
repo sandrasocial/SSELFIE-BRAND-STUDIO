@@ -332,11 +332,17 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       TOOL_SCHEMAS.get_assigned_tasks // WORKFLOW TASK RETRIEVAL TOOL
     ];
 
-    // ADMIN BYPASS: Direct tool execution without Claude API for admin agents
-    if (req.body.adminToken === 'sandra-admin-2025' || userId === '42585527') {
-      console.log(`🚀 ADMIN DIRECT MODE: Bypassing Claude API for ${normalizedAgentId}`);
+    // ADMIN INTELLIGENT MODE: Use Claude API for conversations, direct tools for specific requests
+    const isAdminRequest = req.body.adminToken === 'sandra-admin-2025' || userId === '42585527';
+    
+    // Check if message is a pure tool request without conversation needed
+    const isToolOnlyRequest = (message.startsWith('{') && message.includes('"command"')) ||
+                            (message.includes('npm run') && message.length < 50) ||
+                            (message.includes('cat ') && message.length < 50);
+    
+    if (isAdminRequest && isToolOnlyRequest) {
+      console.log(`🔧 ADMIN TOOL ONLY: Direct execution for ${normalizedAgentId}`);
       
-      // DIRECT TOOL EXECUTION: Parse message for tool requests and execute directly
       await handleDirectAdminExecution(
         userId,
         normalizedAgentId, 
@@ -346,7 +352,9 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
         res
       );
     } else {
-      // REAL STREAMING: Use actual streaming method to show agent work in real-time  
+      // USE CLAUDE API: For all conversations including admin (agents need their intelligence!)
+      console.log(`🤖 CLAUDE API: Using AI intelligence for ${normalizedAgentId}${isAdminRequest ? ' [ADMIN]' : ''}`);
+      
       await claudeService.sendStreamingMessage(
         userId,
         normalizedAgentId,
