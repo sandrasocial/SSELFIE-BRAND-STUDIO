@@ -61,8 +61,25 @@ async function startServer() {
     // Setup Vite development server for frontend transpilation
     if (process.env.NODE_ENV !== 'production') {
       console.log('🔧 Setting up Vite development server...');
-      await setupVite(app, server);
-      console.log('✅ Vite development server ready');
+      try {
+        await setupVite(app, server);
+        console.log('✅ Vite development server ready');
+      } catch (error) {
+        console.log('⚠️ Vite setup failed, using static file serving:', error.message);
+        // Fallback to static serving
+        app.use(express.static('client/dist', { 
+          setHeaders: (res, path) => {
+            if (path.endsWith('.js')) {
+              res.setHeader('Content-Type', 'application/javascript');
+            }
+          }
+        }));
+        app.get('*', (req, res) => {
+          if (!req.path.startsWith('/api/')) {
+            res.sendFile(path.join(process.cwd(), 'index.html'));
+          }
+        });
+      }
     }
 
     // Register all the comprehensive routes
