@@ -295,12 +295,30 @@ export class SimpleMemoryService {
         return conversationData.context.memories;
       }
       
-      // Fallback to database conversation history
+      // Fallback to database conversation history using direct database query
       const conversationId = `admin_${agentName}_${userId}`;
-      const conversation = await storage.getConversationHistory(conversationId);
-      const messages = conversation?.messages || [];
-      console.log(`🧠 LOCAL FALLBACK: Loaded ${messages.length} messages from database for ${agentName}`);
-      return messages;
+      try {
+        const { db, claudeConversations, claudeMessages } = await import('../db/index.js');
+        const { eq, desc } = await import('drizzle-orm');
+        
+        const messages = await db
+          .select()
+          .from(claudeMessages)
+          .where(eq(claudeMessages.conversationId, conversationId))
+          .orderBy(desc(claudeMessages.timestamp))
+          .limit(50);
+          
+        const formattedMessages = messages.reverse().map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+        
+        console.log(`🧠 LOCAL FALLBACK: Loaded ${formattedMessages.length} messages from database for ${agentName}`);
+        return formattedMessages;
+      } catch (dbError) {
+        console.error(`Database fallback failed for ${agentName}:`, dbError);
+        return [];
+      }
     } catch (error) {
       console.error(`⚠️ LOCAL CONTEXT ERROR for ${agentName}:`, error);
       return [];
