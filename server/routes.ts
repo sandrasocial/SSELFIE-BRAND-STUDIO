@@ -250,16 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
   
-  // Serve src files directly for Vite development setup
-  app.use('/src', express.static('client/src', {
-    setHeaders: (res, path) => {
-      if (path.endsWith('.js') || path.endsWith('.mjs') || path.endsWith('.jsx') || path.endsWith('.ts') || path.endsWith('.tsx')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-    }
-  }));
+  // Vite handles all /src routes for transpilation - no static serving needed
   
   // Agent-generated enhancement routes
   setupEnhancementRoutes(app);
@@ -2756,18 +2747,7 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   GenerationCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
   
-  // SPA catch-all route - serve SSELFIE Studio app for all other routes (MUST BE LAST!)
-  // Serve index.html only for non-API routes and non-static files
-  app.get('*', (req, res) => {
-    // Skip if it's an API route or static file request
-    if (req.path.startsWith('/api/') || 
-        req.path.startsWith('/src/') || 
-        req.path.startsWith('/client/') ||
-        req.path.includes('.')) {
-      return res.status(404).json({ error: 'Not found' });
-    }
-    res.sendFile(path.join(__dirname, '../index.html'));
-  });
+  // Vite middleware handles SPA routing and HTML serving
   
   return server;
 }
