@@ -25,16 +25,7 @@ const logger = {
   }
 };
 
-// Mock Sentry for compatibility
-const Sentry = {
-  Handlers: {
-    requestHandler: () => (req: any, res: any, next: any) => next(),
-    errorHandler: () => (err: any, req: any, res: any, next: any) => next(err)
-  },
-  captureException: (error: any) => {
-    logger.error(`Sentry Mock - Exception: ${error.message || error}`);
-  }
-};
+// No external monitoring dependencies
 
 // Initialize Prometheus metrics
 const metrics = {
@@ -72,4 +63,4 @@ setInterval(() => {
   metrics.memoryUsage.set(process.memoryUsage().heapUsed);
 }, 30000);
 
-export { logger, metrics, Sentry };
+export { logger, metrics };
