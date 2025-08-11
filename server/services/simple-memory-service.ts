@@ -284,6 +284,30 @@ export class SimpleMemoryService {
   }
 
   /**
+   * LOCAL CONVERSATION CONTEXT: Get conversation history without external API calls
+   */
+  async getLocalConversationContext(agentName: string, userId: string): Promise<any[]> {
+    try {
+      // Use local storage to get conversation without API calls
+      const conversationData = await storage.getAgentMemory(agentName, userId);
+      if (conversationData && conversationData.context && conversationData.context.memories) {
+        console.log(`💾 LOCAL: Loaded ${conversationData.context.memories.length} local messages for ${agentName}`);
+        return conversationData.context.memories;
+      }
+      
+      // Fallback to database conversation history
+      const conversationId = `admin_${agentName}_${userId}`;
+      const conversation = await storage.getConversationHistory(conversationId);
+      const messages = conversation?.messages || [];
+      console.log(`🧠 LOCAL FALLBACK: Loaded ${messages.length} messages from database for ${agentName}`);
+      return messages;
+    } catch (error) {
+      console.error(`⚠️ LOCAL CONTEXT ERROR for ${agentName}:`, error);
+      return [];
+    }
+  }
+
+  /**
    * ZARA'S WORKFLOW STATE TRACKING: Fix admin agent context loss between coordination calls
    */
   private workflowStates = new Map<string, any>();
