@@ -335,15 +335,24 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
     // ADMIN INTELLIGENT MODE: Use Claude API for conversations, direct tools for specific requests
     const isAdminRequest = req.body.adminToken === 'sandra-admin-2025' || userId === '42585527';
     
+    // ZARA'S TOKEN OPTIMIZATION: Enhanced local execution detection
+    const hasToolPattern = /\{[^}]*"(command|query_description|sql_query)"[^}]*\}/g.test(message);
+    const hasSimpleCommand = /(npm\s+run|node\s+|ls\s+|cat\s+|search|analyze|check|debug)/i.test(message);
+    const isSimpleQuery = message.length < 200 && !message.includes('complex') && !message.includes('sophisticated');
+    const shouldUseLocalExecution = simpleMemoryService.shouldBypassClaude(message, agentId);
+    
     // Check if message is a pure tool request without conversation needed
     const isToolOnlyRequest = (message.startsWith('{') && message.includes('"command"')) ||
                             (message.includes('npm run') && message.length < 50) ||
-                            (message.includes('cat ') && message.length < 50);
+                            (message.includes('cat ') && message.length < 50) ||
+                            hasToolPattern || hasSimpleCommand || isSimpleQuery || shouldUseLocalExecution;
     
     if (isAdminRequest && isToolOnlyRequest) {
-      console.log(`🔧 ADMIN TOOL ONLY: Direct execution for ${normalizedAgentId}`);
+      const reason = hasToolPattern ? 'Tool Pattern' : hasSimpleCommand ? 'Simple Command' : 
+                    isSimpleQuery ? 'Simple Query' : shouldUseLocalExecution ? 'Memory Service Decision' : 'Direct Tool Request';
+      console.log(`🔥 LOCAL EXECUTION: ${agentId.toUpperCase()} bypassing Claude API to save tokens (${reason})`);
       
-      await handleDirectAdminExecution(
+      return await handleDirectAdminExecution(
         userId,
         normalizedAgentId, 
         baseConversationId,

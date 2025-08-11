@@ -112,6 +112,49 @@ export class SimpleMemoryService {
   }
 
   /**
+   * ZARA'S OPTIMIZATION: Check if message should bypass Claude API for local execution
+   */
+  shouldBypassClaude(message: string, agentId: string): boolean {
+    // Simple tool requests that can be handled locally
+    if (message.includes('npm run') || message.includes('cat ') || message.includes('ls ')) {
+      return true;
+    }
+    
+    // JSON tool calls
+    if (message.startsWith('{') && (message.includes('"command"') || message.includes('"query_description"'))) {
+      return true;
+    }
+    
+    // Simple debug/check commands
+    if (message.length < 100 && (message.includes('check') || message.includes('debug') || message.includes('analyze'))) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * ZARA'S OPTIMIZATION: Get workspace context locally (no Claude API)
+   */
+  async getWorkspaceContext(agentName: string, userId: string): Promise<string> {
+    try {
+      const context = await this.prepareAgentContext({ agentName, userId, isAdminBypass: true });
+      
+      if (context.memories.length > 0) {
+        const recentMemories = context.memories.slice(-3)
+          .map(mem => `- ${mem.data?.pattern || mem.data?.currentTask || 'Previous task'}`)
+          .join('\n');
+        return `Recent workspace context for ${agentName}:\n${recentMemories}`;
+      }
+      
+      return `Agent ${agentName} workspace ready for new tasks`;
+    } catch (error) {
+      console.error(`Failed to get workspace context for ${agentName}:`, error);
+      return `Agent ${agentName} workspace context unavailable`;
+    }
+  }
+
+  /**
    * Consolidate agent memory - merge and optimize stored memories
    */
   async consolidateMemory(agentId: string, userId: string): Promise<void> {
