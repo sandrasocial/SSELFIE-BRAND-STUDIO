@@ -23,6 +23,10 @@ export async function search_filesystem(parameters: any): Promise<string> {
     // ENHANCED PROJECT OVERVIEW - Make it impossible to miss
     const projectOverview = await getProjectOverview();
     results += `🏗️ === PROJECT OVERVIEW (SSELFIE STUDIO) ===\n${projectOverview}\n\n`;
+    
+    // ALWAYS show actual directory listing so agents can see files
+    const dirStructure = await getBasicDirectoryListing();
+    results += `📁 === ACTUAL PROJECT FILES (ls -la) ===\n${dirStructure}\n`;
 
     // If specific code snippets are provided, search for them
     if (code.length > 0) {
@@ -50,18 +54,34 @@ export async function search_filesystem(parameters: any): Promise<string> {
 
     // Enhanced search for query descriptions
     if (query_description) {
-      // Basic content search for specific terms
+      // ALWAYS show key files first
+      const keyFilesResult = await executeGrep('package\\.json\\|vite\\.config\\|tsconfig', search_paths);
+      if (keyFilesResult && keyFilesResult !== 'No matches found') {
+        results += `\n📋 === KEY PROJECT FILES ===\n${keyFilesResult.substring(0, 2000)}`;
+      }
+      
+      // Search for specific terms in the query
       const searchTerms = extractSearchTerms(query_description);
       for (const term of searchTerms) {
         const grepResult = await executeGrep(term, search_paths);
         if (grepResult && grepResult !== 'No matches found') {
-          results += `\n=== Found: "${term}" ===\n${grepResult.substring(0, 1000)}`;
+          results += `\n🔍 === Found: "${term}" ===\n${grepResult.substring(0, 1000)}`;
         }
       }
       
-      // Show current directory structure for navigation
-      const dirStructure = await getBasicDirectoryListing();
-      results += `\n📁 === CURRENT DIRECTORY LISTING ===\n${dirStructure}`;
+      // Show package.json content for context
+      try {
+        const fs = await import('fs/promises');
+        const packageContent = await fs.readFile('./package.json', 'utf8');
+        const packageJson = JSON.parse(packageContent);
+        results += `\n📦 === PACKAGE.JSON CONTENT ===\n`;
+        results += `Name: ${packageJson.name}\n`;
+        results += `Scripts: ${Object.keys(packageJson.scripts || {}).join(', ')}\n`;
+        results += `Dependencies: ${Object.keys(packageJson.dependencies || {}).length} packages\n`;
+        results += `Main technologies: ${Object.keys(packageJson.dependencies || {}).slice(0, 10).join(', ')}\n`;
+      } catch (err) {
+        results += `\n📦 === PACKAGE.JSON ===\nUnable to read package.json: ${err.message}\n`;
+      }
     }
 
     console.log('🔍 SEARCH RESULTS LENGTH:', results.length);
@@ -164,11 +184,35 @@ async function getBasicDirectoryListing(): Promise<string> {
   });
 }
 
-// Extract search terms from description
+// Extract search terms from description - IMPROVED
 function extractSearchTerms(description: string): string[] {
+  // Look for specific file patterns and important terms
+  const patterns = [
+    'package\\.json',
+    'tsconfig',
+    'vite\\.config',
+    'SSELFIE',
+    'React',
+    'Express',
+    'server',
+    'client',
+    'component',
+    'schema'
+  ];
+  
   const words = description.toLowerCase().split(/\s+/);
-  return words.filter(word => 
+  const foundTerms = words.filter(word => 
     word.length > 2 && 
-    !['find', 'search', 'look', 'locate', 'get', 'show', 'display', 'any', 'all'].includes(word)
-  ).slice(0, 3); // Limit to 3 terms max
+    !['find', 'search', 'look', 'locate', 'get', 'show', 'display', 'any', 'all', 'files', 'related', 'including'].includes(word)
+  );
+  
+  // Add pattern matches
+  const descLower = description.toLowerCase();
+  patterns.forEach(pattern => {
+    if (descLower.includes(pattern.replace(/\\./g, '.'))) {
+      foundTerms.push(pattern);
+    }
+  });
+  
+  return [...new Set(foundTerms)].slice(0, 5); // Remove duplicates, limit to 5 terms
 }
