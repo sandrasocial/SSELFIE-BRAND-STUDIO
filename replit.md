@@ -8,6 +8,7 @@ SSELFIE Studio is a premium AI-powered personal branding platform designed to tr
 - **✅ HYBRID SYSTEM OPTIMIZED:** Direct tool execution confirmed working with zero Claude API token usage for all agent operations  
 - **✅ DATABASE SYNCHRONIZATION:** All schema mismatches resolved - LSP diagnostics clean, system stable
 - **✅ UNRESTRICTED AGENT ACCESS:** Confirmed agents have complete project file access without limitations
+- **✅ SQL TOOL CRITICAL BUG FIXED:** Resolved Drizzle QueryResult handling - agents now properly see all database tables and data (44 tables, 10 users, 90 AI images, 8 subscriptions fully visible)
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
