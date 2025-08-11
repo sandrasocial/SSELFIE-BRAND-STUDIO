@@ -5,7 +5,7 @@
     "outDir": "./dist",
     "rootDir": "./server",
     "module": "ESNext",
-    "target": "ES2022",
+    "target": "ES2020",
     "moduleResolution": "Node",
     "allowImportingTsExtensions": false,
     "declaration": false,
@@ -15,7 +15,8 @@
     "strict": false,
     "noImplicitReturns": false,
     "noUnusedLocals": false,
-    "noUnusedParameters": false
+    "noUnusedParameters": false,
+    "lib": ["ES2020", "ES2020.Promise", "ES2020.String", "ES2020.Array"]
   },
   "include": ["server/**/*"],
   "exclude": ["server/**/*.test.ts", "node_modules", "dist"]
