@@ -1,106 +1,38 @@
-# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# dependencies
+node_modules
+.pnp
+.pnp.js
 
-# Production builds
+# testing
+coverage
+
+# next.js
+.next/
+out/
 dist/
-build/
-*.tsbuildinfo
 
-# Development cache
-.cache/
-.vite/
+# production
+build
 
-# Training data (keep in production)
-# temp_training/
-# attached_assets/
-
-# Environment variables
-.env
+# misc
+.DS_Store
+*.pem
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Database
-*.db
-*.sqlite
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Logs
-logs
-*.log
+# local env files
+.env*.local
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# vercel
+.vercel
 
-# Coverage directory used by tools like istanbul
-coverage/
-
-# nyc test coverage
-.nyc_output
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env
-
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# next.js build output
-.next
-
-# nuxt.js build output
-.nuxt
-
-# vuepress build output
-.vuepress/dist
-
-# Serverless directories
-.serverless
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
-
-# Replit specific
-.replit
-.upm
-
-# Development and workflow files
-workflow-storage.json
-enhanced-workflow-storage.json
-agent-audit-report.json
-debug_*.txt
-memory-restoration-debug-test.js
-test-navigation.json
-
-# Documentation files (keep README.md)
-*.md
-!README.md
-!replit.md
+# typescript
+*.tsbuildinfo
+next-env.d.ts

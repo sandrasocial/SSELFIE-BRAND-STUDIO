@@ -3,7 +3,7 @@ import { db } from '../db.js';
 import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 import { simpleMemoryService } from './simple-memory-service.js';
-import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine.js';
+import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -309,6 +309,11 @@ export class ClaudeApiServiceSimple {
         const tokenBudget = { maxPerCall: isAdminAgent ? 8192 : 4096 };
         
         // Clean execution with proper tool handling
+        
+        // RATE LIMIT PROTECTION: Add delay between rapid API calls
+        if (iterationCount > 1) {
+          await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay for subsequent calls
+        }
         
         // RESTORED: Full Claude API call with proper schemas
         const response = await anthropic.messages.create({

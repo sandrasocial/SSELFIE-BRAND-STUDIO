@@ -21,15 +21,14 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@shared/*": [
-        "shared/*"
-      ],
-      "@assets/*": [
-        "attached_assets/*"
-      ]
+      "@/*": ["./client/src/*"],
+      "@shared/*": ["./shared/*"],
+      "@assets/*": ["./client/src/assets/*"],
+      "@components/*": ["./client/src/components/*"],
+      "@hooks/*": ["./client/src/hooks/*"],
+      "@lib/*": ["./client/src/lib/*"],
+      "@pages/*": ["./client/src/pages/*"],
+      "@utils/*": ["./client/src/utils/*"]
     },
     "incremental": true,
     "plugins": [
