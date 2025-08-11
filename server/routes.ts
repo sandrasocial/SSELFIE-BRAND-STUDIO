@@ -218,26 +218,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CRITICAL: Serve static files from public directory (flatlay images, etc.)
   app.use(express.static('public'));
   
-  // Serve client source files with correct MIME types
-  app.use('/src', express.static(path.join(process.cwd(), 'client', 'src'), {
-    setHeaders: (res, path) => {
-      if (path.endsWith('.tsx') || path.endsWith('.ts')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (path.endsWith('.jsx') || path.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-    }
-  }));
-  
-  // Serve attached assets
-  app.use('/assets', express.static(path.join(process.cwd(), 'attached_assets')));
-  app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
-  
-  // Serve client public directory
-  app.use(express.static(path.join(process.cwd(), 'client', 'public')));
-  
   // Agent-generated enhancement routes
   setupEnhancementRoutes(app);
 
@@ -2732,70 +2712,6 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
   GenerationCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
-  
-  // Setup minimal Vite dev server for TypeScript/React support
-  console.log('🎨 FRONTEND: Setting up Vite dev server...');
-  try {
-    const { createServer: createViteServer } = await import('vite');
-    const react = await import('@vitejs/plugin-react');
-    
-    const vite = await createViteServer({
-      plugins: [react.default()],
-      resolve: {
-        alias: {
-          "@": path.resolve(process.cwd(), "client", "src"),
-          "@shared": path.resolve(process.cwd(), "shared"),
-          "@assets": path.resolve(process.cwd(), "attached_assets"),
-        },
-      },
-      root: path.resolve(process.cwd(), "client"),
-      configFile: false,
-      server: {
-        middlewareMode: true,
-        hmr: { server },
-      },
-      appType: "custom",
-    });
-
-    app.use(vite.middlewares);
-    
-    // Catch-all for SPA routing
-    app.use("*", async (req, res, next) => {
-      const url = req.originalUrl;
-      
-      // Skip API routes
-      if (url.startsWith('/api/')) {
-        return next();
-      }
-      
-      try {
-        const clientTemplate = path.resolve(process.cwd(), "client", "index.html");
-        const template = await fs.promises.readFile(clientTemplate, "utf-8");
-        const page = await vite.transformIndexHtml(url, template);
-        res.status(200).set({ "Content-Type": "text/html" }).end(page);
-      } catch (e) {
-        vite.ssrFixStacktrace(e as Error);
-        next(e);
-      }
-    });
-    
-    console.log('✅ FRONTEND: Vite dev server successfully integrated!');
-  } catch (error) {
-    console.error('❌ Vite setup failed, falling back to basic serving:', error);
-    
-    // Fallback to basic HTML serving if Vite fails
-    app.get('*', (req, res) => {
-      const indexPath = path.resolve(process.cwd(), 'client', 'index.html');
-      
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.status(404).send('Frontend not found');
-      }
-    });
-    
-    console.log('✅ FRONTEND: Basic fallback serving enabled');
-  }
   
   return server;
 }
