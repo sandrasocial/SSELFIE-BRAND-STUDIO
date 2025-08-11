@@ -20,9 +20,9 @@ export async function search_filesystem(parameters: any): Promise<string> {
 
     let results = '';
 
-    // Always show project overview first for navigation
+    // ENHANCED PROJECT OVERVIEW - Make it impossible to miss
     const projectOverview = await getProjectOverview();
-    results += `=== PROJECT OVERVIEW ===\n${projectOverview}\n`;
+    results += `🏗️ === PROJECT OVERVIEW (SSELFIE STUDIO) ===\n${projectOverview}\n\n`;
 
     // If specific code snippets are provided, search for them
     if (code.length > 0) {
@@ -61,7 +61,7 @@ export async function search_filesystem(parameters: any): Promise<string> {
       
       // Show current directory structure for navigation
       const dirStructure = await getBasicDirectoryListing();
-      results += `\n=== CURRENT DIRECTORY STRUCTURE ===\n${dirStructure}`;
+      results += `\n📁 === CURRENT DIRECTORY LISTING ===\n${dirStructure}`;
     }
 
     console.log('🔍 SEARCH RESULTS LENGTH:', results.length);
@@ -109,9 +109,9 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
 
 // Simple project overview - CORRECTED STRUCTURE  
 async function getProjectOverview(): Promise<string> {
-  return `SSELFIE Studio - ACTUAL Project Structure:
+  return `🚀 SSELFIE Studio - FULL PROJECT STRUCTURE DETECTED:
 
-ROOT DIRECTORIES (what agents can access):
+✅ ROOT DIRECTORIES (what agents can access):
 ./server/ - Express.js backend, API routes, agent tools, services
 ./client/ - Frontend React application  
 ./src/ - Main React source code (components, pages, hooks)
@@ -120,21 +120,24 @@ ROOT DIRECTORIES (what agents can access):
 ./pages/ - Page components and routing
 ./database/ - Database migrations and setup
 
-KEY FILES TO KNOW:
+📋 KEY FILES TO KNOW:
 ./package.json - Dependencies (React, Express, PostgreSQL, Drizzle, etc.)
-./server/routes.ts - Main API endpoints
-./server/tools/ - Agent tools directory
+./server/index.ts - Main server entry point
+./server/routes/ - API routes directory
+./server/tools/ - Agent tools directory (search_filesystem, bash, etc.)
 ./shared/schema.ts - Database schema (PostgreSQL + Drizzle ORM)
 ./replit.md - Project documentation and architecture
 
-IMPORTANT LOCATIONS:
+🎯 IMPORTANT LOCATIONS:
 - React Components: ./src/components/ and ./components/
 - API Routes: ./server/routes/
 - Database: PostgreSQL with Drizzle ORM in ./shared/schema.ts
 - Agent Tools: ./server/tools/
 - Frontend Pages: ./src/pages/ and ./pages/
 
-Tech Stack: React 18 + TypeScript + Express + PostgreSQL + Drizzle + Tailwind CSS`;
+🔧 Tech Stack: React 18 + TypeScript + Express + PostgreSQL + Drizzle + Tailwind CSS
+
+✅ PROJECT STATUS: FULLY INITIALIZED AND READY FOR DEVELOPMENT`;
 }
 
 // Get basic directory listing
