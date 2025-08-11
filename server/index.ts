@@ -102,11 +102,15 @@ async function setupDevelopmentServer() {
   }
 }
 
-// Initialize development server
-setupDevelopmentServer();
+// Initialize development server and start listening only after setup completes
+async function startServer() {
+  await setupDevelopmentServer();
+  
+  server.listen(port, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${port}`);
+    console.log(`🌐 External access via port 80 (mapped from ${port})`);
+    console.log(`🔗 Local access: http://localhost:${port}`);
+  });
+}
 
-server.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${port}`);
-  console.log(`🌐 External access via port 80 (mapped from ${port})`);
-  console.log(`🔗 Local access: http://localhost:${port}`);
-});
+startServer().catch(console.error);
