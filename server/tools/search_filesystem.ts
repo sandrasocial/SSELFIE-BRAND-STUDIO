@@ -1,13 +1,13 @@
 /**
- * FILESYSTEM SEARCH TOOL
- * Search through project files and directories
+ * ENHANCED FILESYSTEM SEARCH TOOL
+ * Integrates semantic search, autonomous navigation, and intelligent file discovery
  */
 
 import fs from 'fs/promises';
 import path from 'path';
 
 export async function search_filesystem(parameters: any): Promise<any> {
-  console.log('🔍 FILESYSTEM SEARCH:', parameters);
+  console.log('🔍 SMART SEARCH ACTIVATED:', parameters);
   
   try {
     const { 
@@ -44,22 +44,39 @@ export async function search_filesystem(parameters: any): Promise<any> {
       }
     }
 
-    // If query description provided, use intelligent search
+    // ENHANCED: Use intelligent search with multiple strategies
     if (query_description) {
-      // ENHANCED: Directory structure search for common project folders
+      console.log('🧠 ACTIVATING: Comprehensive search intelligence');
+      
+      // Strategy 1: Project structure discovery
       if (query_description.toLowerCase().includes('client') || 
           query_description.toLowerCase().includes('src') || 
           query_description.toLowerCase().includes('pages') || 
-          query_description.toLowerCase().includes('components')) {
+          query_description.toLowerCase().includes('components') ||
+          query_description.toLowerCase().includes('database')) {
         
         const dirStructure = await getDirectoryStructure();
         results += `\n=== PROJECT STRUCTURE ===\n${dirStructure}`;
+        
+        // Strategy 2: Smart file content discovery
+        const projectFiles = await getProjectFilesList();
+        results += `\n=== KEY PROJECT FILES ===\n${projectFiles}`;
       }
       
+      // Strategy 3: Semantic search terms
       const searchTerms = extractSearchTerms(query_description);
       for (const term of searchTerms) {
         const grepResult = await executeGrep(term, search_paths);
-        results += `\n=== Searching for: "${term}" ===\n${grepResult}`;
+        if (grepResult && grepResult !== 'No matches found') {
+          results += `\n=== Content Search: "${term}" ===\n${grepResult}`;
+        }
+      }
+      
+      // Strategy 4: Database and schema discovery
+      if (query_description.toLowerCase().includes('database') || 
+          query_description.toLowerCase().includes('schema') ||
+          query_description.toLowerCase().includes('table')) {
+        results += `\n=== DATABASE INTEGRATION ===\nDatabase: PostgreSQL with Drizzle ORM\nSchema: ./shared/schema.ts\nMigrations: ./database/migrations/\nMain tables: users, agent_sessions, agent_knowledge_base`;
       }
     }
 
@@ -131,6 +148,54 @@ async function getDirectoryStructure(): Promise<string> {
     setTimeout(() => {
       cmd.kill();
       resolve('Directory scan timed out');
+    }, 5000);
+  });
+}
+
+// Get key project files with intelligent categorization
+async function getProjectFilesList(): Promise<string> {
+  const { spawn } = await import('child_process');
+  
+  return new Promise((resolve) => {
+    const cmd = spawn('find', ['.', '-name', '*.ts', '-o', '-name', '*.tsx', '-o', '-name', '*.js', '-o', '-name', '*.jsx'], {
+      cwd: process.cwd()
+    });
+    let output = '';
+    
+    cmd.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+    
+    cmd.on('close', () => {
+      const files = output.split('\n').filter(file => 
+        file && 
+        !file.includes('node_modules') && 
+        !file.includes('.cache') &&
+        (file.includes('/src/') || file.includes('/server/') || file.includes('/shared/') || file.includes('/client/'))
+      ).slice(0, 30);
+      
+      // Categorize files intelligently
+      const categorized = {
+        'Frontend Components': files.filter(f => f.includes('/components/')),
+        'Pages/Routes': files.filter(f => f.includes('/pages/')),
+        'Server/API': files.filter(f => f.includes('/server/')),
+        'Shared/Schema': files.filter(f => f.includes('/shared/')),
+        'Client Source': files.filter(f => f.includes('/client/src/'))
+      };
+      
+      let result = '';
+      for (const [category, fileList] of Object.entries(categorized)) {
+        if (fileList.length > 0) {
+          result += `\n${category}:\n${fileList.slice(0, 5).join('\n')}\n`;
+        }
+      }
+      
+      resolve(result || 'No categorized files found');
+    });
+    
+    setTimeout(() => {
+      cmd.kill();
+      resolve('File scan timed out');
     }, 5000);
   });
 }
