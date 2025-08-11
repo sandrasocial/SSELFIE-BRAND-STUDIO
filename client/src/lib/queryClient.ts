@@ -16,7 +16,6 @@ export async function apiRequest(
   url: string,
   method: string = 'GET',
   data?: unknown | undefined,
-  headers?: Record<string, string>
 ): Promise<any> {
   const finalUrl = getApiUrl(url);
   
@@ -25,7 +24,6 @@ export async function apiRequest(
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
       'Cache-Control': 'no-cache',
-      ...headers
     },
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",

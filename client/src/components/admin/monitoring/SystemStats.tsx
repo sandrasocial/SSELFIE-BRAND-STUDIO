@@ -1,10 +1,9 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
-import { useGrafanaData } from '@/hooks/useGrafanaData';
-import type { SystemMetrics } from '@/types/monitoring';
+import { useGrafanaData } from '../../../hooks/useGrafanaData';
 
 export const SystemStats: React.FC = () => {
-  const { data, isLoading: loading, isError: error } = useGrafanaData('system-metrics');
+  const { data, loading, error } = useGrafanaData('system-metrics');
 
   if (loading) return <div>Loading system stats...</div>;
   if (error) return <div>Error loading system stats</div>;

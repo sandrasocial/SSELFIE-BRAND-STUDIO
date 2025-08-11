@@ -215,42 +215,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
   app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
   
-  // CRITICAL: Serve static files with proper MIME types
-  app.use(express.static('public', {
-    setHeaders: (res, path) => {
-      if (path.endsWith('.js') || path.endsWith('.mjs')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      } else if (path.endsWith('.svg')) {
-        res.setHeader('Content-Type', 'image/svg+xml');
-      }
-    }
-  }));
-  
-  // Serve frontend dist files with proper MIME types
-  app.use(express.static('dist', {
-    setHeaders: (res, path) => {
-      if (path.endsWith('.js') || path.endsWith('.mjs')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-    }
-  }));
-  
-  // Serve client src files for development with proper MIME types
-  app.use('/client', express.static('client', {
-    setHeaders: (res, path) => {
-      if (path.endsWith('.js') || path.endsWith('.mjs') || path.endsWith('.jsx') || path.endsWith('.ts') || path.endsWith('.tsx')) {
-        res.setHeader('Content-Type', 'application/javascript');
-      } else if (path.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css');
-      }
-    }
-  }));
-  
-  // Vite handles all /src routes for transpilation - no static serving needed
+  // CRITICAL: Serve static files from public directory (flatlay images, etc.)
+  app.use(express.static('public'));
   
   // Agent-generated enhancement routes
   setupEnhancementRoutes(app);
@@ -2746,8 +2712,6 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
   GenerationCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
-  
-  // Vite middleware handles SPA routing and HTML serving
   
   return server;
 }
