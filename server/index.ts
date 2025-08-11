@@ -1,6 +1,6 @@
 import express from 'express';
 import { errorHandler } from './middleware/errorHandler';
-import { logger, metrics, Sentry } from './config/monitoring';
+import { logger, metrics } from './config/monitoring';
 import * as prometheus from 'prom-client';
 
 const app = express();
