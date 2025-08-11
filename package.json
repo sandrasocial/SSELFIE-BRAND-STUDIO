@@ -79,5 +79,13 @@
     "wouter": "^3.7.1",
     "ws": "^8.18.3",
     "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/connect-pg-simple": "^7.0.3",
+    "@types/cors": "^2.8.19",
+    "@types/express-session": "^1.18.2",
+    "@types/memoizee": "^0.4.12",
+    "@types/passport": "^1.0.17",
+    "@types/ws": "^8.18.1"
   }
 }
