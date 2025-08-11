@@ -18,6 +18,16 @@ const app = express();
 app.use(express.json());
 app.use(express.static('public'));
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'SSELFIE Studio API', 
+    status: 'running',
+    version: '1.0.0',
+    agents: 'autonomous_mode_enabled'
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
