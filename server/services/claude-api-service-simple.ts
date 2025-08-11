@@ -497,8 +497,31 @@ export class ClaudeApiServiceSimple {
         const result = await get_assigned_tasks(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
+      } else if (toolCall.name === 'search_filesystem') {
+        // Import from specific tool file since it's not in tool-exports
+        const { search_filesystem } = await import('../tools/search_filesystem');
+        const result = await search_filesystem(toolCall.input);
+        return typeof result === 'string' ? result : JSON.stringify(result);
+        
+      } else if (toolCall.name === 'get_latest_lsp_diagnostics') {
+        const { get_latest_lsp_diagnostics } = await import('../tools/tool-exports');
+        const result = await get_latest_lsp_diagnostics(toolCall.input);
+        return typeof result === 'string' ? result : JSON.stringify(result);
+        
+      } else if (toolCall.name === 'execute_sql_tool') {
+        const { execute_sql_tool } = await import('../tools/tool-exports');
+        const result = await execute_sql_tool(toolCall.input);
+        return typeof result === 'string' ? result : JSON.stringify(result);
+        
+      } else if (toolCall.name === 'web_search') {
+        // Import from specific tool file since it's not in tool-exports
+        const { web_search } = await import('../tools/web_search');
+        const result = await web_search(toolCall.input);
+        return typeof result === 'string' ? result : JSON.stringify(result);
+        
       } else {
-        return `Tool ${toolCall.name} executed with: ${JSON.stringify(toolCall.input)}`;
+        console.warn(`❌ Unknown tool: ${toolCall.name}`);
+        return `Error: Tool ${toolCall.name} is not implemented in executeToolCall function`;
       }
     } catch (error) {
       // ZARA'S TOKEN OPTIMIZATION: Local error handling
