@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 });
 
 // Import error prevention middleware
-import { errorPreventionMiddleware } from '../middleware/error-prevention';
+import { errorPreventionMiddleware } from '../middleware/error-prevention.js';
 
 // Apply error prevention middleware
 app.use(errorPreventionMiddleware);
