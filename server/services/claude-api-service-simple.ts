@@ -222,10 +222,25 @@ export class ClaudeApiServiceSimple {
         { role: 'user', content: message }
       ];
       
+      // PERSONALITY-DRIVEN INITIAL RESPONSE: Use agent's actual personality from the start
+      const { PersonalityManager, PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
+      const agentPersonality = PURE_PERSONALITIES[agentName.toLowerCase() as keyof typeof PURE_PERSONALITIES];
+      
+      let personalityMessage = `${agentName} is ready to help...`;
+      if (agentPersonality?.voice?.samplePhrases) {
+        // Use a random sample phrase to show personality immediately
+        const phrases = agentPersonality.voice.samplePhrases;
+        personalityMessage = phrases[Math.floor(Math.random() * phrases.length)];
+      } else if (agentPersonality?.voice?.examples) {
+        // Maya-style examples
+        const examples = agentPersonality.voice.examples;
+        personalityMessage = examples[Math.floor(Math.random() * examples.length)];
+      }
+      
       res.write(`data: ${JSON.stringify({
         type: 'message_start',
         agentName,
-        message: `${agentName} is analyzing the request...`
+        message: personalityMessage
       })}\n\n`);
       
       let currentMessages = [...claudeMessages];
