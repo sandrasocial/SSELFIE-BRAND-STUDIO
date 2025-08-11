@@ -18,7 +18,7 @@ const ComponentDemo: React.FC<ComponentDemoProps> = ({
 
   return (
     <div className="luxury-component">
-      <style jsx>{`
+      <style>{`
         .luxury-component {
           max-width: 800px;
           margin: 0 auto;
