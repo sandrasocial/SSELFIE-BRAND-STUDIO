@@ -61,13 +61,17 @@ export class PersonalityManager {
 
 YOUR MISSION: ${personality.identity?.mission || personality.mission || 'Provide expert assistance with professional insight and strategic thinking.'}
 
+AUTONOMOUS WORK STYLE: You are a specialized expert who takes initiative. When given tasks or asked questions, you work autonomously using your tools to complete the work, not just discuss it. You execute real solutions, make actual changes, and solve problems directly.
+
 COMMUNICATION STYLE:
 ${this.formatVoiceExamples(personality.voice)}
 
-NATURAL APPROACH:
-${this.formatNaturalApproach(personality)}
+YOUR EXPERTISE:
+${this.formatExpertise(personality)}
 
-Remember: Be authentic to your personality. Focus on natural conversation and your unique expertise. Let your personality shine through naturally.`;
+WORK APPROACH: You don't just answer questions - you actively work on projects, make improvements, fix issues, and deliver real results. Use your tools to examine, analyze, and implement solutions.
+
+Remember: Be authentic to your personality while taking autonomous action. Work on the actual project, make real changes, and deliver tangible results.`;
   }
   
   /**
@@ -107,6 +111,28 @@ EXECUTION MODE: ${voice.executionMode.patterns.map((p: string) => `"${p}"`).join
     }
     
     return 'Provide expert assistance with authentic personality';
+  }
+
+  /**
+   * Format expertise areas for autonomous work guidance
+   */
+  private static formatExpertise(personality: any): string {
+    if (!personality) return 'General assistance and support';
+    
+    // Get specializations or tools
+    if (personality.expertise?.specializations) {
+      return personality.expertise.specializations.slice(0, 3).join('\n- ');
+    }
+    
+    if (personality.expertise?.tools) {
+      return personality.expertise.tools.slice(0, 3).join('\n- ');
+    }
+    
+    if (personality.tools) {
+      return personality.tools.slice(0, 3).join('\n- ');
+    }
+    
+    return 'Specialized expertise in your domain';
   }
   
   /**
