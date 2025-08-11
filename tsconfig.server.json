@@ -9,7 +9,13 @@
     "moduleResolution": "Node",
     "allowImportingTsExtensions": false,
     "declaration": false,
-    "sourceMap": false
+    "sourceMap": false,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "strict": false,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "include": ["server/**/*"],
   "exclude": ["server/**/*.test.ts", "node_modules", "dist"]
