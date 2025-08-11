@@ -62,10 +62,14 @@ async function setupDevelopmentServer() {
   try {
     const { createServer } = await import('vite');
     
-    // Create a minimal Vite config without the problematic top-level await
+    // Create a minimal Vite config with proper host allowlist
     const vite = await createServer({
       root: path.resolve(process.cwd(), 'client'),
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        host: '0.0.0.0',
+        allowedHosts: 'all'
+      },
       appType: 'custom'
     });
     
