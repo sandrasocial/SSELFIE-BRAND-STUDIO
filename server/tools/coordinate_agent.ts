@@ -37,10 +37,26 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<str
     console.log(`📋 Task: ${task_description.substring(0, 100)}...`);
     console.log(`🎯 Priority: ${priority}`);
 
-    // Validate target agent exists (include elena as coordinator)
-    const availableAgents = ['elena', 'victoria', 'zara', 'aria', 'maya', 'olga', 'rachel', 'diana', 'quinn', 'wilma', 'sophia', 'martha', 'ava', 'flux'];
-    if (!availableAgents.includes(target_agent)) {
-      throw new Error(`Invalid target agent: ${target_agent}. Available agents: ${availableAgents.join(', ')}`);
+    // Validate target agent exists and provide specialties
+    const agentSpecialties = {
+      'elena': 'Strategic planning, workflow coordination, multi-agent task management, execution leadership',
+      'zara': 'Technical architecture, backend systems, UI/UX implementation, performance optimization, code analysis',
+      'olga': 'Organization, file management, infrastructure cleanup, system maintenance, documentation',
+      'maya': 'AI photography, image generation, visual content creation, aesthetic guidance, brand photography',
+      'victoria': 'Business strategy, brand development, content strategy, market positioning, customer experience',
+      'aria': 'Creative direction, brand aesthetics, design systems, visual identity',
+      'rachel': 'Marketing automation, email systems, customer engagement, conversion optimization',
+      'diana': 'Data analysis, performance metrics, business intelligence, reporting systems',
+      'quinn': 'Security, authentication, access control, system hardening',
+      'wilma': 'Database management, data architecture, backup systems, migration planning',
+      'sophia': 'User experience, interface design, accessibility, usability testing',
+      'martha': 'Quality assurance, testing automation, bug tracking, validation protocols',
+      'ava': 'Automation systems, workflow optimization, process improvement',
+      'flux': 'AI model training, machine learning, model optimization, training data management'
+    };
+    
+    if (!agentSpecialties[target_agent]) {
+      throw new Error(`Invalid target agent: ${target_agent}. Available agents: ${Object.keys(agentSpecialties).join(', ')}`);
     }
 
     let workflowTemplate: WorkflowTemplate | null = null;
@@ -218,6 +234,9 @@ ${response.substring(0, 300)}...
 - Check if the agent coordination system is operational
 - Ensure the task description is clear and actionable
 
-**Available Agents:** victoria, zara, aria, maya, olga, rachel, diana, quinn, wilma, sophia, martha, ava, flux`;
+**AGENT SPECIALTIES:**
+${Object.entries(agentSpecialties).map(([agent, specialty]) => `- ${agent.toUpperCase()}: ${specialty}`).join('\n')}
+
+**Task Assignment Guidance:** Choose agents based on their specialties. For technical work, use ZARA. For organization, use OLGA. For strategy, use ELENA or VICTORIA. For visual work, use MAYA or ARIA.`;
   }
 }
