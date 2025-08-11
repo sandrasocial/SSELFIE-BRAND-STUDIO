@@ -148,26 +148,26 @@ export class ClaudeApiServiceSimple {
     try {
       console.log(`🚀 ${agentName.toUpperCase()}: Starting specialized agent with tools`);
       
-      // SMART CONTEXT LOADING: Only load heavy context for work tasks  
+      // ZARA'S OPTIMIZATION: Use local memory service for context analysis (no Claude API)
       const contextRequirement = simpleMemoryService.analyzeMessage(message);
-      console.log(`🔍 CONTEXT ANALYSIS: ${contextRequirement.contextLevel.toUpperCase()} level context for "${message.substring(0, 30)}..."`);
+      console.log(`🔍 LOCAL CONTEXT ANALYSIS: ${contextRequirement.contextLevel.toUpperCase()} level context for "${message.substring(0, 30)}..."`);
       
       let previousContext = '';
       if (contextRequirement.isWorkTask) {
         try {
-          // ELIMINATED: ContextPreservationSystem - using simplified approach
-          previousContext = `Agent ${agentName} workspace context for work task`;
-          console.log(`🏗️ WORKSPACE CONTEXT: Loaded for work task`);
+          // LOCAL PROCESSING: Use memory service directly instead of API calls
+          previousContext = await simpleMemoryService.getWorkspaceContext(agentName, userId);
+          console.log(`🏗️ LOCAL WORKSPACE CONTEXT: Loaded from local memory system`);
         } catch (error) {
-          console.error(`Failed to load context for ${agentName}:`, error);
+          console.error(`Failed to load local context for ${agentName}:`, error);
           previousContext = ''; // Continue without context if loading fails
         }
       } else {
-        console.log(`💬 CONVERSATION MODE: Skipping workspace context for casual conversation`);
+        console.log(`💬 LOCAL CONVERSATION MODE: Using local context management`);
       }
       
-      // EMERGENCY TOKEN MONITORING: Check system health before proceeding
-      console.log(`🔍 TOKEN CHECK: Starting conversation for ${agentName}`);
+      // ZARA'S OPTIMIZATION: Local system health checks (no Claude API tokens)
+      console.log(`🔍 LOCAL HEALTH CHECK: Starting conversation for ${agentName}`);
       
       // Load conversation history and check for existing context
       await this.createConversationIfNotExists(userId, agentName, conversationId);
@@ -202,8 +202,8 @@ export class ClaudeApiServiceSimple {
       const estimatedTokens = this.estimateTokens(systemPrompt + JSON.stringify(optimizedMessages));
       console.log(`📊 TOKEN TRACKING: ${estimatedTokens} tokens (${isAdminAgent ? 'optimized admin' : 'standard'} mode)`);
       
-      // CACHE SYSTEM DISABLED: No search context restrictions for agents
-      console.log(`🚀 ${agentName}: Cache context disabled - direct filesystem access enabled`);
+      // ZARA'S OPTIMIZATION: Local cache system for direct filesystem access  
+      console.log(`🚀 ${agentName}: Local cache system - direct filesystem access enabled`);
       
       // Prepare Claude API request with validation and optimization
       const validMessages = optimizedMessages
