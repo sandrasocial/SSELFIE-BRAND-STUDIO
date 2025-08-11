@@ -59,13 +59,14 @@ async function handleDirectAdminExecution(
 ) {
   console.log(`🔧 LOCAL TOOLS: ${agentId.toUpperCase()} executing tools locally (agent responses still use Claude API)`);
   
-  // Set up streaming response
+  // Set up Server-Sent Events streaming response
   res.writeHead(200, {
-    'Content-Type': 'text/plain; charset=utf-8',
+    'Content-Type': 'text/event-stream',
     'Transfer-Encoding': 'chunked',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Cache-Control': 'no-cache'
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive'
   });
   
   try {
@@ -73,8 +74,11 @@ async function handleDirectAdminExecution(
     const agentConfig = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
     const agentName = agentConfig?.name || agentId;
     
-    // Stream agent acknowledgment
-    res.write(`🚀 ${agentName}: Starting direct execution...\n`);
+    // Stream agent acknowledgment using SSE format
+    res.write(`data: ${JSON.stringify({
+      type: 'message_start',
+      message: `🚀 ${agentName}: Starting direct execution...`
+    })}\n\n`);
     
     // ADVANCED TOOL PARSING: Look for various tool request patterns
     const toolPatterns = [
@@ -110,7 +114,10 @@ async function handleDirectAdminExecution(
     }
     
     if (toolMatches.length > 0 || detectedTools.length > 0) {
-      res.write(`🔧 ${agentName}: Detected tool usage - executing directly...\n`);
+      res.write(`data: ${JSON.stringify({
+        type: 'text_delta',
+        content: `🔧 ${agentName}: Detected tool usage - executing directly...\n`
+      })}\n\n`);
       
       // Execute JSON tool calls
       for (const toolMatch of toolMatches) {
@@ -124,12 +131,18 @@ async function handleDirectAdminExecution(
             if (toolCall.query_description) toolName = 'search_filesystem';  
             if (toolCall.sql_query) toolName = 'execute_sql_tool';
             
-            res.write(`🔧 ${agentName}: Executing ${toolName}...\n`);
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: `🔧 ${agentName}: Executing ${toolName}...\n`
+            })}\n\n`);
             
             const result = await executeDirectTool(toolName, toolCall, agentName, res);
             
           } catch (parseError) {
-            res.write(`❌ ${agentName}: Failed to parse tool call: ${parseError}\n`);
+            res.write(`data: ${JSON.stringify({
+              type: 'text_delta',
+              content: `❌ ${agentName}: Failed to parse tool call: ${parseError}\n`
+            })}\n\n`);
           }
         }
       }
@@ -138,7 +151,10 @@ async function handleDirectAdminExecution(
       const bashCommands = message.match(/(npm\s+run\s+\w+|node\s+\w+\.js|ls\s+-la.*|cat\s+[\w\.\\/]+)/g);
       if (bashCommands) {
         for (const command of bashCommands) {
-          res.write(`🔧 ${agentName}: Executing bash command: ${command}\n`);
+          res.write(`data: ${JSON.stringify({
+            type: 'text_delta',
+            content: `🔧 ${agentName}: Executing bash command: ${command}\n`
+          })}\n\n`);
           await executeDirectTool('bash', { command }, agentName, res);
         }
       }
@@ -148,10 +164,16 @@ async function handleDirectAdminExecution(
       return true; // Tools executed, agent will respond via Claude API
     }
     
-    res.write(`\n🎯 ${agentName}: Direct execution complete - no Claude API tokens used\n`);
+    res.write(`data: ${JSON.stringify({
+      type: 'message_complete',
+      content: `\n🎯 ${agentName}: Direct execution complete - no Claude API tokens used\n`
+    })}\n\n`);
     
   } catch (error) {
-    res.write(`❌ ADMIN DIRECT ERROR: ${error}\n`);
+    res.write(`data: ${JSON.stringify({
+      type: 'stream_error',
+      content: `❌ ADMIN DIRECT ERROR: ${error}\n`
+    })}\n\n`);
   } finally {
     res.end();
   }
@@ -178,21 +200,33 @@ async function executeDirectTool(toolName: string, toolCall: any, agentName: str
         toolFunction = get_latest_lsp_diagnostics;
         break;
       default:
-        res.write(`❌ ${agentName}: Tool ${toolName} not available for direct execution\n`);
+        res.write(`data: ${JSON.stringify({
+          type: 'text_delta',
+          content: `❌ ${agentName}: Tool ${toolName} not available for direct execution\n`
+        })}\n\n`);
         return;
     }
     
     const result = await toolFunction(toolCall);
-    res.write(`✅ ${agentName}: ${toolName} completed successfully\n`);
+    res.write(`data: ${JSON.stringify({
+      type: 'text_delta',
+      content: `✅ ${agentName}: ${toolName} completed successfully\n`
+    })}\n\n`);
     
     if (result) {
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
       const truncated = resultText.length > 300 ? resultText.slice(0, 300) + '...' : resultText;
-      res.write(`📝 ${agentName}: ${truncated}\n`);
+      res.write(`data: ${JSON.stringify({
+        type: 'text_delta',
+        content: `📝 ${agentName}: ${truncated}\n`
+      })}\n\n`);
     }
     
   } catch (error) {
-    res.write(`❌ ${agentName}: ${toolName} failed - ${error}\n`);
+    res.write(`data: ${JSON.stringify({
+      type: 'stream_error',
+      content: `❌ ${agentName}: ${toolName} failed - ${error}\n`
+    })}\n\n`);
   }
 }
 
