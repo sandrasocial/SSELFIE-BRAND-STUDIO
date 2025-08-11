@@ -7,23 +7,12 @@ const app = express();
 const port = Number(process.env.PORT) || 5000;
 
 async function startServer() {
-  // Create Vite server in middleware mode
-  const vite = await createServer({
-    server: { middlewareMode: true },
-    appType: 'spa',
-    root: path.join(__dirname, '../client'),
-  });
-
-  // Use Vite's middleware for development
-  app.use(vite.ssrFixStacktrace);
-  app.use(vite.middlewares);
-
-  // API middleware
+  // API middleware first
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // API Routes
-  app.use('/api/health', (req, res) => {
+  // API Routes before Vite middleware
+  app.get('/api/health', (req, res) => {
     res.json({ 
       status: 'healthy', 
       timestamp: new Date().toISOString(),
@@ -31,7 +20,7 @@ async function startServer() {
     });
   });
 
-  app.use('/api/admin/consulting-agents/chat', (req, res) => {
+  app.post('/api/admin/consulting-agents/chat', (req, res) => {
     res.json({ 
       status: 'success', 
       message: 'Agent system operational',
@@ -39,9 +28,21 @@ async function startServer() {
     });
   });
 
-  app.use('/api/auth/user', (req, res) => {
+  app.get('/api/auth/user', (req, res) => {
     res.status(401).json({ error: 'Not authenticated' });
   });
+
+  // Create Vite server in middleware mode
+  const vite = await createServer({
+    server: { middlewareMode: true },
+    appType: 'spa',
+    root: path.join(__dirname, '../client'),
+    configFile: path.join(__dirname, '../vite.config.ts'),
+  });
+
+  // Use Vite's middleware for development (after API routes)
+  app.use(vite.ssrFixStacktrace);
+  app.use(vite.middlewares);
 
   // Start server
   app.listen(port, '0.0.0.0', () => {
