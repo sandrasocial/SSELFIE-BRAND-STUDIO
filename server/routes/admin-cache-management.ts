@@ -1,6 +1,6 @@
 import { Router } from 'express';
-// ELIMINATED: ContextPreservationSystem - replaced with simple-memory-service
-import { simpleMemoryService } from '../services/simple-memory-service';
+// OLGA'S FIX: ContextPreservationSystem replaced with simple-memory-service
+import { simpleMemoryService } from '../services/simple-memory-service.js';
 import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { UnifiedStateManager } from '../services/unified-state-manager';
 import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/capabilities/intelligence/architectural-knowledge-base';

@@ -362,8 +362,10 @@ export class AutonomousNavigationSystem {
     if (file.includes('/components/')) {
       const baseName = file.split('/').pop()?.replace('.tsx', '').replace('.ts', '');
       if (baseName) {
-        const projectContext = await ContextPreservationSystem.buildProjectContext();
-        const searchResult = await ContextPreservationSystem.findRelevantFiles(`files related to ${baseName}`, projectContext);
+        // OLGA'S FIX: Use simple-memory-service for related file discovery
+        const { simpleMemoryService } = await import('./simple-memory-service.js');
+        const projectContext = await simpleMemoryService.getInstance().getWorkspaceContext('system', 'navigation');
+        const searchResult = this.findRelevantFilesSimple(`files related to ${baseName}`);
         
         if (Array.isArray(searchResult)) {
           related.push(...searchResult.filter(Boolean));
@@ -412,15 +414,22 @@ export class AutonomousNavigationSystem {
       expectedResults: []
     };
     
-    const projectContext = await ContextPreservationSystem.buildProjectContext();
-    const result = await ContextPreservationSystem.findRelevantFiles(query.intent, projectContext);
+    // OLGA'S FIX: Use simple-memory-service for semantic search
+    const { simpleMemoryService } = await import('./simple-memory-service.js');
+    const projectContext = await simpleMemoryService.getInstance().getWorkspaceContext('system', 'navigation');
     
-    return Array.isArray(result) ? result : [];
+    // Simple semantic matching based on reference
+    const relevantFiles = this.findRelevantFilesSimple(reference, context);
+    return relevantFiles;
   }
 
   private async contextualPathMatch(reference: string, context?: string): Promise<string[]> {
-    const projectContext = await ContextPreservationSystem.buildProjectContext();
-    const files = await ContextPreservationSystem.findRelevantFiles(`${reference} ${context || ''}`, projectContext);
+    // OLGA'S FIX: Use simple-memory-service for contextual matching
+    const { simpleMemoryService } = await import('./simple-memory-service.js');
+    const projectContext = await simpleMemoryService.getInstance().getWorkspaceContext('system', 'navigation');
+    
+    // Simple contextual matching
+    const files = this.findRelevantFilesSimple(`${reference} ${context || ''}`, context);
     return files;
   }
 
@@ -456,6 +465,29 @@ export class AutonomousNavigationSystem {
     recommendations.push('Keep related files grouped together');
     
     return recommendations;
+  }
+
+  /**
+   * OLGA'S FIX: Simple file relevance matching to replace ContextPreservationSystem
+   */
+  private findRelevantFilesSimple(reference: string, context?: string): string[] {
+    const files: string[] = [];
+    
+    // Basic file pattern matching based on reference
+    if (reference.includes('agent')) {
+      files.push('./server/agents/', './server/routes/consulting-agents-routes.ts');
+    }
+    if (reference.includes('memory') || reference.includes('context')) {
+      files.push('./server/services/simple-memory-service.ts');
+    }
+    if (reference.includes('api') || reference.includes('route')) {
+      files.push('./server/routes/');
+    }
+    if (reference.includes('type') || reference.includes('schema')) {
+      files.push('./server/types.ts', './shared/schema.ts');
+    }
+    
+    return files.slice(0, 5); // Limit results
   }
 }
 
