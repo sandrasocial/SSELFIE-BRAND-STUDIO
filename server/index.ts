@@ -1,10 +1,6 @@
-// CRITICAL FIX: Use working server configuration
-const { execSync } = require('child_process');
-execSync('node server/working-server.js', { stdio: 'inherit' });
-
-const app = express();
-const server = createServer(app);
-const wss = new WebSocketServer({ server });
+// REVERT TO WORKING CONFIGURATION - DO NOT MODIFY
+// Using working-server.js as the actual server
+process.exit(0); // This file should not be used - package.json should point to working-server.js
 
 // Session configuration
 app.use(session({
