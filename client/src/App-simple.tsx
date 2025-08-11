@@ -60,7 +60,9 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
+      <div className="min-h-screen bg-white">
+        <Router />
+      </div>
     </QueryClientProvider>
   );
 }
