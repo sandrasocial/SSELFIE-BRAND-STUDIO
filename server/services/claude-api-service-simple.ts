@@ -124,9 +124,24 @@ export class ClaudeApiServiceSimple {
         }
       }
       
-      // Save conversation
+      // Save conversation AND update local memory system
       await this.saveMessage(conversationId, 'user', message);
       await this.saveMessage(conversationId, 'agent', fullResponse);
+      
+      // LOCAL MEMORY UPDATE: Save full conversation context to local memory
+      const fullConversationContext = await simpleMemoryService.getFullConversationContext(agentName, userId);
+      fullConversationContext.push(
+        { role: 'user', content: message },
+        { role: 'assistant', content: fullResponse }
+      );
+      
+      // Note: simpleMemoryService.saveAgentMemory expects (context, memoryItem) format
+      const agentContext = { agentName, userId, memories: [], timestamp: new Date(), currentTask: '', adminPrivileges: true };
+      await simpleMemoryService.saveAgentMemory(agentContext, {
+        data: { conversationHistory: fullConversationContext },
+        timestamp: new Date(),
+        category: 'conversation_update'
+      });
       
       console.log(`✅ ${agentName}: Agent communication completed`);
       return fullResponse;
@@ -170,13 +185,13 @@ export class ClaudeApiServiceSimple {
       // ZARA'S OPTIMIZATION: Local system health checks (no Claude API tokens)
       console.log(`🔍 LOCAL HEALTH CHECK: Starting conversation for ${agentName}`);
       
-      // Load conversation history and check for existing context
+      // FULL LOCAL MEMORY SYSTEM: Use local processing instead of database queries
       await this.createConversationIfNotExists(userId, agentName, conversationId);
       // ADMIN AUTHENTICATION: Proper admin agent detection and context loading
       const isAdminAgent = userId === '42585527' || conversationId.includes('admin_') || conversationId.includes('sandra');
       
-      // CRITICAL FIX: Load FULL personality context for admin agents
-      const messages = await this.loadConversationMessages(conversationId, isAdminAgent);
+      // LOCAL MEMORY: Get full conversation context from local memory systems
+      const messages = await simpleMemoryService.getFullConversationContext(agentName, userId);
       
       // PERSONALITY RESTORATION: Load agent's authentic personality and context
       let agentPersonalityContext = '';

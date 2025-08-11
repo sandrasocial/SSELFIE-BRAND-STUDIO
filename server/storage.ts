@@ -1033,15 +1033,22 @@ export class DatabaseStorage implements IStorage {
   // Agent memory operations - Complete implementation
   async saveAgentMemory(agentId: string, userId: string, memoryData: any): Promise<void> {
     try {
+      // ENHANCED: Include full conversation history in memory data
+      const enhancedMemoryData = {
+        ...memoryData,
+        conversationHistory: memoryData.conversationHistory || [],
+        lastSaved: new Date().toISOString()
+      };
+      
       // Save memory as special conversation entry
       await this.saveAgentConversation(
         agentId,
         userId,
         '**CONVERSATION_MEMORY**',
-        JSON.stringify(memoryData),
+        JSON.stringify(enhancedMemoryData),
         []
       );
-      console.log(`💾 Agent memory saved for ${agentId}`);
+      console.log(`💾 Agent memory saved for ${agentId} with ${enhancedMemoryData.conversationHistory?.length || 0} conversation messages`);
     } catch (error) {
       console.error('Failed to save agent memory:', error);
       throw error;
