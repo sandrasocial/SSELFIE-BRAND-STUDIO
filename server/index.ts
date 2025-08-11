@@ -5,15 +5,13 @@ import session from 'express-session';
 import passport from 'passport';
 import path from 'path';
 import { db } from '../lib/db';
-// import { authRouter } from './routes/auth'; // FIXED: Missing auth routes
-// import { apiRouter } from './routes/api'; // FIXED: Missing routes
-// import { agentRouter } from './routes/agents'; // FIXED: Missing routes
+import './routes'; // Import the main comprehensive routes file
 
 const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
-// Session configuration
+// Session configuration with database storage
 app.use(session({
   store: new (require('connect-pg-simple')(session))({
     pool: db.pool,
@@ -35,24 +33,8 @@ app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-// app.use('/auth', authRouter); // FIXED: Auth routes disabled for now
-// app.use('/api', apiRouter); // FIXED: Routes disabled for now
-// app.use('/agents', agentRouter); // FIXED: Routes disabled for now
-
-// Basic home route for now
-app.get('/', (req, res) => {
-  res.send(`
-    <html>
-      <head><title>SSELFIE Studio</title></head>
-      <body style="font-family: 'Times New Roman', serif; background: #fff; padding: 40px; text-align: center;">
-        <h1 style="color: #000; font-size: 48px; margin-bottom: 20px;">SSELFIE Studio</h1>
-        <p style="color: #666; font-size: 18px;">AI Personal Branding Platform</p>
-        <p style="color: #999; font-size: 14px;">Server running successfully on port 5000</p>
-      </body>
-    </html>
-  `);
-});
+// The routes.ts file contains all the comprehensive routes and will be automatically loaded
+// This includes all API endpoints, auth routes, file serving, etc.
 
 // WebSocket handling
 wss.on('connection', (ws) => {
