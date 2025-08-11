@@ -35,6 +35,8 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
   workflowState: varchar("workflow_state").default("ready"), // ready, active, paused, completed
   lastInteraction: timestamp("last_interaction").defaultNow(),
   memorySnapshot: jsonb("memory_snapshot"), // Consolidated memory for quick restoration
+  adminBypass: boolean("admin_bypass").default(false), // Admin bypass for enhanced context access
+  unlimitedContext: boolean("unlimited_context").default(false), // Unlimited memory access for admin agents
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => [
@@ -159,6 +161,7 @@ export const claudeConversations = pgTable("claude_conversations", {
   lastMessageAt: timestamp("last_message_at").defaultNow(),
   messageCount: integer("message_count").default(0),
   context: jsonb("context"), // conversation context and preferences
+  adminBypassEnabled: boolean("admin_bypass_enabled").default(false), // Admin token bypass for native tools
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
