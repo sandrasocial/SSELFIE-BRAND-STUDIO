@@ -48,7 +48,7 @@ function getClaudeService() {
   return claudeApiServiceSimple;
 }
 
-// DISABLED: NEVER bypass Claude API - agents need full intelligence
+// LOCAL TOOL EXECUTION: Execute tools locally while preserving agent intelligence for responses
 async function handleDirectAdminExecution(
   userId: string,
   agentId: string,
@@ -57,7 +57,7 @@ async function handleDirectAdminExecution(
   availableTools: any[],
   res: any
 ) {
-  console.log(`❌ DISABLED: Direct execution disabled - using full agent intelligence instead`);
+  console.log(`🔧 LOCAL TOOLS: ${agentId.toUpperCase()} executing tools locally (agent responses still use Claude API)`);
   
   // Set up streaming response
   res.writeHead(200, {
@@ -143,9 +143,9 @@ async function handleDirectAdminExecution(
         }
       }
     } else {
-      // DISABLED: All responses must use full agent intelligence via Claude API
-      console.log(`❌ BYPASSED: Template responses disabled - redirecting to Claude API for full intelligence`);
-      return false; // Force to use Claude API instead
+      // TOOL COMPLETED: Return to Claude API for natural agent response
+      console.log(`✅ TOOLS COMPLETE: Returning to Claude API for natural ${agentName} response`);
+      return true; // Tools executed, agent will respond via Claude API
     }
     
     res.write(`\n🎯 ${agentName}: Direct execution complete - no Claude API tokens used\n`);
@@ -324,19 +324,36 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
     // ADMIN INTELLIGENT MODE: Use Claude API for conversations, direct tools for specific requests
     const isAdminRequest = req.body.adminToken === 'sandra-admin-2025' || userId === '42585527';
     
-    // FULL INTELLIGENCE MODE: ALL requests use Claude API for complete agent intelligence
-    // NO MORE LOCAL BYPASSES - agents need their full intelligence for every response
-    console.log(`🧠 FULL INTELLIGENCE: ${normalizedAgentId.toUpperCase()} using complete Claude API intelligence${isAdminRequest ? ' [ADMIN]' : ''}`);
+    // TOKEN OPTIMIZED MODE: Local processing for tool operations, Claude API for agent intelligence
+    const isExactJSONToolCall = message.trim().startsWith('{') && message.trim().endsWith('}') && 
+                               (message.includes('"command":') || message.includes('"query_description":') || message.includes('"sql_query":'));
     
-    await claudeService.sendStreamingMessage(
-      userId,
-      normalizedAgentId,
-      baseConversationId,
-      message,
-      PersonalityManager.getNaturalPrompt(normalizedAgentId),
-      availableTools,
-      res // Pass the response object for real streaming
-    );
+    if (isAdminRequest && isExactJSONToolCall) {
+      // LOCAL TOOL EXECUTION: Direct tool processing without consuming Claude tokens
+      console.log(`🔧 LOCAL TOOLS: ${normalizedAgentId.toUpperCase()} executing tools locally (token optimization)`);
+      
+      return await handleDirectAdminExecution(
+        userId,
+        normalizedAgentId, 
+        baseConversationId,
+        message,
+        availableTools,
+        res
+      );
+    } else {
+      // CLAUDE INTELLIGENCE: All agent responses and conversations use full Claude API
+      console.log(`🧠 CLAUDE INTELLIGENCE: ${normalizedAgentId.toUpperCase()} using full AI intelligence${isAdminRequest ? ' [ADMIN]' : ''}`);
+      
+      await claudeService.sendStreamingMessage(
+        userId,
+        normalizedAgentId,
+        baseConversationId,
+        message,
+        PersonalityManager.getNaturalPrompt(normalizedAgentId),
+        availableTools,
+        res // Pass the response object for real streaming
+      );
+    }
 
   } catch (error) {
     console.error(`❌ Consulting error:`, error);

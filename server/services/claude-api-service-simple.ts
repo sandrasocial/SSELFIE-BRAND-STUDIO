@@ -222,24 +222,12 @@ export class ClaudeApiServiceSimple {
         { role: 'user', content: message }
       ];
       
-      // PERSONALITY-DRIVEN INITIAL RESPONSE: Use agent's actual personality from the start
-      const { PersonalityManager, PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
-      const agentPersonality = PURE_PERSONALITIES[agentName.toLowerCase() as keyof typeof PURE_PERSONALITIES];
-      
-      let personalityMessage = `${agentName} is ready to help...`;
-      if (agentPersonality?.voice) {
-        const voice = agentPersonality.voice as any;
-        if (voice.samplePhrases) {
-          personalityMessage = voice.samplePhrases[Math.floor(Math.random() * voice.samplePhrases.length)];
-        } else if (voice.examples) {
-          personalityMessage = voice.examples[Math.floor(Math.random() * voice.examples.length)];
-        }
-      }
-      
+      // NO INITIAL TEMPLATE: Let Claude API generate the authentic personality response
+      // This eliminates generic "analyzing the request" - agents start with real intelligence
       res.write(`data: ${JSON.stringify({
         type: 'message_start',
         agentName,
-        message: personalityMessage
+        message: '' // No template - Claude will provide the first authentic response
       })}\n\n`);
       
       let currentMessages = [...claudeMessages];
