@@ -32,7 +32,7 @@ import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 // SIMPLIFIED MEMORY SYSTEM: Replaced 4 competing systems with one clean interface
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
-import { claudeConversations, claudeMessages } from '../db';
+import { claudeConversations, claudeMessages } from '@shared/schema';
 import { eq, desc } from 'drizzle-orm';
 // COORDINATION TOOLS: Import schemas and direct tool functions
 import { TOOL_SCHEMAS } from '../tools/tool-schemas';

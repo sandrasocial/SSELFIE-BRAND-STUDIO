@@ -79,8 +79,7 @@ export class AutonomousNavigationSystem {
         this.discoverContextualFiles(intent),
         this.performIntentBasedSearch(intent),
         this.smartPathResolution(intent.goal),
-        // TODO: Replace with simple-memory-service implementation
-        Promise.resolve({ success: true, files: [], context: intent.goal })
+        ContextPreservationSystem.prepareAgentWorkspace('navigation', 'autonomous', intent.goal, false)
       ]);
 
       // Combine and deduplicate results
@@ -88,14 +87,14 @@ export class AutonomousNavigationSystem {
         ...contextualFiles,
         ...intentBasedFiles,
         ...smartResolution,
-        // TODO: Add files from simple-memory-service workspace context
+        ...workContext.filesModified
       ], intent);
 
       const result: NavigationResult = {
         success: allFiles.length > 0,
         discoveredFiles: allFiles.slice(0, 8), // Limit to prevent overwhelming
         suggestedActions: this.generateNavigationSuggestions(allFiles, intent),
-        contextualHelp: this.generateContextualHelp(intent),
+        contextualHelp: this.generateContextualHelp(intent, workContext),
         errorPrevention: this.generateErrorPrevention(intent, allFiles)
       };
 
@@ -188,8 +187,7 @@ export class AutonomousNavigationSystem {
   }> {
     console.log('📊 AUTONOMOUS NAV: Analyzing workspace state');
 
-    // TODO: Replace with simple-memory-service equivalent
-    const projectContext = { recentChanges: [], files: [] };
+    const projectContext = await ContextPreservationSystem.buildProjectContext();
     
     return {
       recentFiles: projectContext.recentChanges || [],
@@ -208,9 +206,9 @@ export class AutonomousNavigationSystem {
       expectedResults: []
     };
 
-    // TODO: Replace with simple-memory-service equivalent
-    const projectContext = { files: [], context: contextQuery.intent };
-    const result: string[] = [];
+    // Use unified context system for file discovery
+    const projectContext = await ContextPreservationSystem.buildProjectContext();
+    const result = await ContextPreservationSystem.findRelevantFiles(contextQuery.intent, projectContext);
     
     return Array.isArray(result) ? result : [];
     
@@ -219,8 +217,7 @@ export class AutonomousNavigationSystem {
 
   private async performIntentBasedSearch(intent: NavigationIntent): Promise<string[]> {
     // Use intelligent context manager for semantic search
-    // TODO: Replace with simple-memory-service equivalent
-    const files: string[] = [];
+    const files = await ContextPreservationSystem.findRelevantFiles(intent.goal, await ContextPreservationSystem.buildProjectContext());
     return files;
   }
 
@@ -296,15 +293,20 @@ export class AutonomousNavigationSystem {
     return suggestions;
   }
 
-  private generateContextualHelp(intent: NavigationIntent): string[] {
+  private generateContextualHelp(intent: NavigationIntent, workContext?: AgentContext): string[] {
     const help: string[] = [];
+
+    if (workContext?.filesModified && workContext.filesModified.length > 0) {
+      help.push(`Found ${workContext.filesModified.length} files related to your request`);
+    }
+
+    if (workContext?.lastWorkingState?.suggestedActions && workContext.lastWorkingState.suggestedActions.length > 0) {
+      help.push('Multiple action paths available - choose based on your specific needs');
+    }
 
     if (intent.previousAttempts && intent.previousAttempts.length > 0) {
       help.push('Previous attempts detected - trying alternative approach');
     }
-
-    help.push('Use search functionality to explore the codebase');
-    help.push('Check file relationships and dependencies');
 
     return help;
   }
@@ -362,10 +364,8 @@ export class AutonomousNavigationSystem {
     if (file.includes('/components/')) {
       const baseName = file.split('/').pop()?.replace('.tsx', '').replace('.ts', '');
       if (baseName) {
-        // OLGA'S FIX: Use simple-memory-service for related file discovery
-        const { simpleMemoryService } = await import('./simple-memory-service.js');
-        const projectContext = await simpleMemoryService.getInstance().getWorkspaceContext('system', 'navigation');
-        const searchResult = this.findRelevantFilesSimple(`files related to ${baseName}`);
+        const projectContext = await ContextPreservationSystem.buildProjectContext();
+        const searchResult = await ContextPreservationSystem.findRelevantFiles(`files related to ${baseName}`, projectContext);
         
         if (Array.isArray(searchResult)) {
           related.push(...searchResult.filter(Boolean));
@@ -414,22 +414,15 @@ export class AutonomousNavigationSystem {
       expectedResults: []
     };
     
-    // OLGA'S FIX: Use simple-memory-service for semantic search
-    const { simpleMemoryService } = await import('./simple-memory-service.js');
-    const projectContext = await simpleMemoryService.getInstance().getWorkspaceContext('system', 'navigation');
+    const projectContext = await ContextPreservationSystem.buildProjectContext();
+    const result = await ContextPreservationSystem.findRelevantFiles(query.intent, projectContext);
     
-    // Simple semantic matching based on reference
-    const relevantFiles = this.findRelevantFilesSimple(reference, context);
-    return relevantFiles;
+    return Array.isArray(result) ? result : [];
   }
 
   private async contextualPathMatch(reference: string, context?: string): Promise<string[]> {
-    // OLGA'S FIX: Use simple-memory-service for contextual matching
-    const { simpleMemoryService } = await import('./simple-memory-service.js');
-    const projectContext = await simpleMemoryService.getInstance().getWorkspaceContext('system', 'navigation');
-    
-    // Simple contextual matching
-    const files = this.findRelevantFilesSimple(`${reference} ${context || ''}`, context);
+    const projectContext = await ContextPreservationSystem.buildProjectContext();
+    const files = await ContextPreservationSystem.findRelevantFiles(`${reference} ${context || ''}`, projectContext);
     return files;
   }
 
@@ -465,29 +458,6 @@ export class AutonomousNavigationSystem {
     recommendations.push('Keep related files grouped together');
     
     return recommendations;
-  }
-
-  /**
-   * OLGA'S FIX: Simple file relevance matching to replace ContextPreservationSystem
-   */
-  private findRelevantFilesSimple(reference: string, context?: string): string[] {
-    const files: string[] = [];
-    
-    // Basic file pattern matching based on reference
-    if (reference.includes('agent')) {
-      files.push('./server/agents/', './server/routes/consulting-agents-routes.ts');
-    }
-    if (reference.includes('memory') || reference.includes('context')) {
-      files.push('./server/services/simple-memory-service.ts');
-    }
-    if (reference.includes('api') || reference.includes('route')) {
-      files.push('./server/routes/');
-    }
-    if (reference.includes('type') || reference.includes('schema')) {
-      files.push('./server/types.ts', './shared/schema.ts');
-    }
-    
-    return files.slice(0, 5); // Limit results
   }
 }
 

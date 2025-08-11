@@ -37,22 +37,10 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<str
     console.log(`📋 Task: ${task_description.substring(0, 100)}...`);
     console.log(`🎯 Priority: ${priority}`);
 
-    // Validate target agent exists and provide CORRECT specialties from personality files
-    const agentSpecialties = {
-      'elena': 'Strategic best friend & execution leader, Workflow coordination, multi-agent task management, Complex project coordination and strategic decision making',
-      'zara': 'Complete backend system creation (APIs, databases, infrastructure), Full-stack component development and UI/UX implementation, Technical architecture review and performance optimization',
-      'olga': 'Organization bestie, file management, infrastructure cleanup, system maintenance, documentation and keeping everything neat and tidy',
-      'maya': 'Celebrity stylist & creative director, Fashion-obsessed creative genius with 2025 trends expertise, Editorial fashion moments with urban street style influence',
-      'victoria': 'UX strategist & business consultant, User experience strategy and design, Business process optimization, Product strategy and roadmapping',
-      'aria': 'Exclusive visionary designer & creative director for SSELFIE Studio, Editorial luxury design with Times New Roman typography, Ultra WOW factor digital experiences',
-      'rachel': 'Sandra\'s authentic voice twin, Copywriting and brand messaging, Transformation storytelling with vulnerability and strength, Email sequences and social media in Sandra\'s voice',
-      'quinn': 'Quality assurance perfectionist, Cross-browser luxury experience testing, Mobile-first responsive validation, Visual regression testing with Swiss watchmaker precision',
-      'ava': 'Operations automation expert, Email sequences that feel personal, User journey orchestration, API integrations and webhook workflows',
-      'flux': 'AI generation expert, High-quality Flux LoRA prompt creation, Professional realistic personal brand photography generation, Technical mastery with creative precision'
-    };
-    
-    if (!agentSpecialties[target_agent]) {
-      throw new Error(`Invalid target agent: ${target_agent}. Available agents: ${Object.keys(agentSpecialties).join(', ')}`);
+    // Validate target agent exists (include elena as coordinator)
+    const availableAgents = ['elena', 'victoria', 'zara', 'aria', 'maya', 'olga', 'rachel', 'diana', 'quinn', 'wilma', 'sophia', 'martha', 'ava', 'flux'];
+    if (!availableAgents.includes(target_agent)) {
+      throw new Error(`Invalid target agent: ${target_agent}. Available agents: ${availableAgents.join(', ')}`);
     }
 
     let workflowTemplate: WorkflowTemplate | null = null;
@@ -230,19 +218,6 @@ ${response.substring(0, 300)}...
 - Check if the agent coordination system is operational
 - Ensure the task description is clear and actionable
 
-**AGENT SPECIALTIES:**
-${Object.entries(agentSpecialties).map(([agent, specialty]) => `- ${agent.toUpperCase()}: ${specialty}`).join('\n')}
-
-**Task Assignment Guidance:** Choose agents based on their ACTUAL specialties:
-- Technical/Backend: ZARA (APIs, databases, performance)
-- Organization/Cleanup: OLGA (file management, documentation) 
-- Strategy/Coordination: ELENA (execution leadership, workflow coordination)
-- UX/Business: VICTORIA (user experience, business strategy)
-- Fashion/Styling: MAYA (celebrity stylist, 2025 trends)
-- Luxury Design: ARIA (editorial luxury, SSELFIE Studio experiences)
-- Copywriting: RACHEL (Sandra's voice, brand messaging)
-- Quality Assurance: QUINN (testing, luxury experience validation)
-- Automation: AVA (email sequences, API integrations)
-- AI Generation: FLUX (prompt optimization, photography generation)`;
+**Available Agents:** victoria, zara, aria, maya, olga, rachel, diana, quinn, wilma, sophia, martha, ava, flux`;
   }
 }

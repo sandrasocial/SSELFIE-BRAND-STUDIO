@@ -284,48 +284,6 @@ export class SimpleMemoryService {
   }
 
   /**
-   * LOCAL CONVERSATION CONTEXT: Get conversation history without external API calls
-   */
-  async getLocalConversationContext(agentName: string, userId: string): Promise<any[]> {
-    try {
-      // Use local storage to get conversation without API calls
-      const conversationData = await storage.getAgentMemory(agentName, userId);
-      if (conversationData && conversationData.context && conversationData.context.memories) {
-        console.log(`💾 LOCAL: Loaded ${conversationData.context.memories.length} local messages for ${agentName}`);
-        return conversationData.context.memories;
-      }
-      
-      // Fallback to database conversation history using direct database query
-      const conversationId = `admin_${agentName}_${userId}`;
-      try {
-        const { db, claudeConversations, claudeMessages } = await import('../db/index.js');
-        const { eq, desc } = await import('drizzle-orm');
-        
-        const messages = await db
-          .select()
-          .from(claudeMessages)
-          .where(eq(claudeMessages.conversationId, conversationId))
-          .orderBy(desc(claudeMessages.timestamp))
-          .limit(50);
-          
-        const formattedMessages = messages.reverse().map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }));
-        
-        console.log(`🧠 LOCAL FALLBACK: Loaded ${formattedMessages.length} messages from database for ${agentName}`);
-        return formattedMessages;
-      } catch (dbError) {
-        console.error(`Database fallback failed for ${agentName}:`, dbError);
-        return [];
-      }
-    } catch (error) {
-      console.error(`⚠️ LOCAL CONTEXT ERROR for ${agentName}:`, error);
-      return [];
-    }
-  }
-
-  /**
    * ZARA'S WORKFLOW STATE TRACKING: Fix admin agent context loss between coordination calls
    */
   private workflowStates = new Map<string, any>();
