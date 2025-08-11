@@ -3,6 +3,12 @@
 ## Overview
 SSELFIE Studio is a premium AI-powered personal branding platform designed to transform selfies into professional brand photography. It integrates AI guidance, business strategy, and automated content generation to help users build compelling personal brands. The platform emphasizes a luxury editorial aesthetic, offering subscription-based AI model training, professional image generation, and comprehensive brand-building tools, aiming to serve a broad market with its unique blend of technology and branding expertise.
 
+## Recent Changes (August 11, 2025)
+- **✅ CRITICAL FIX:** Resolved search tool truncation bug - agents now receive full directory listings (2000+ chars vs previous 100 char limit)
+- **✅ HYBRID SYSTEM OPTIMIZED:** Direct tool execution confirmed working with zero Claude API token usage for all agent operations  
+- **✅ DATABASE SYNCHRONIZATION:** All schema mismatches resolved - LSP diagnostics clean, system stable
+- **✅ UNRESTRICTED AGENT ACCESS:** Confirmed agents have complete project file access without limitations
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
