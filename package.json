@@ -43,6 +43,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@replit/database": "^2.0.5",
     "@replit/vite-plugin-cartographer": "^0.2.8",
+    "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@stripe/react-stripe-js": "^3.9.0",
     "@stripe/stripe-js": "^7.8.0",
     "@tailwindcss/typography": "^0.5.16",

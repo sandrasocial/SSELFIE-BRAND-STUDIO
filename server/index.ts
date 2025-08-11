@@ -1,5 +1,5 @@
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import path from 'path';
 
 console.log('🧠 SSELFIE Studio - Development Mode with Vite');
 
@@ -55,7 +55,7 @@ async function startServer() {
   // Use Vite's connect instance as middleware for handling modules and assets
   app.use(vite.middlewares);
 
-  const port = process.env.PORT || 5000;
+  const port = Number(process.env.PORT) || 5000;
 
   app.listen(port, '0.0.0.0', () => {
     console.log('🚀 SSELFIE Studio RESTORED: http://localhost:5000');
