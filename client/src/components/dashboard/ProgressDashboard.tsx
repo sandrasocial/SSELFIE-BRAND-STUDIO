@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 /**
  * PROGRESS DASHBOARD COMPONENT
  * Real-time visualization of multi-agent work progress

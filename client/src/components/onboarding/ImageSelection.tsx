@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Card } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 

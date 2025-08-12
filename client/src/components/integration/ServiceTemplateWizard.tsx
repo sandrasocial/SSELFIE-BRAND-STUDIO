@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 /**
  * SERVICE TEMPLATE WIZARD COMPONENT
  * Luxury editorial interface for service integration

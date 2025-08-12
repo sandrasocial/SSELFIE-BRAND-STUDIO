@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 interface VisualDesignPreviewProps {
   designContent?: string;
   previewType?: 'component' | 'layout' | 'page' | 'email';
