@@ -11,7 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = Number(process.env.PORT) || 3000;
+// Development uses 5000, deployment uses 3000 via PORT env var
+const port = Number(process.env.PORT) || 5000;
 
 // Trust proxy for proper forwarding (required for deployment)
 app.set('trust proxy', true);
