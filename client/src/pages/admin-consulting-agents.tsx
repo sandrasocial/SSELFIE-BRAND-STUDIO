@@ -9,12 +9,12 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Agent images - Restored from original design using actual existing files
+// Agent images - Using unique images for each agent from available assets
 import AgentElena from '@assets/out-0 (33)_1753426218039.png';
-import AgentMaya from '@assets/out-0 (34)_1753426218040.png';
-import AgentVictoria from '@assets/out-0 (37)_1753426218041.png';
-import AgentAria from '@assets/out-0 (20)_1753426218042.png';
-import AgentZara from '@assets/out-0 (28)_1753426218042.png';
+import AgentAria from '@assets/out-0 (34)_1753426218040.png';
+import AgentZara from '@assets/out-0 (37)_1753426218041.png';
+import AgentMaya from '@assets/out-0 (20)_1753426218042.png';
+import AgentVictoria from '@assets/out-0 (28)_1753426218042.png';
 import AgentRachel from '@assets/out-0 (42)_1753426218042.png';
 import AgentAva from '@assets/out-1 (27)_1753426218043.png';
 import AgentQuinn from '@assets/out-0 (26)_1753426218043.png';
@@ -23,7 +23,7 @@ import AgentMartha from '@assets/out-0 (29)_1753426218044.png';
 import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
 import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
 import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
-import AgentFlux from '@assets/out-0 (33)_1753426218039.png';
+import AgentFlux from '@assets/out-0 (31).png';
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
@@ -258,104 +258,104 @@ export default function AdminConsultingAgents() {
   
   // Using only main consulting chat system - Bridge system removed
 
-  // Define agents with CORRECT specialties from personality files
+  // Define agents with CORRECT technical specialties - restored from backup
   const consultingAgents: ConsultingAgent[] = [
     {
       id: 'elena',
       name: 'Elena',
-      role: 'Strategic Best Friend & Execution Leader',
-      specialty: 'Strategic bestie who keeps everyone organized and on track with warm support and decisive action.',
+      role: 'Database Architecture Expert',
+      specialty: 'Database optimization, schema design, query performance',
       image: AgentElena
     },
     {
       id: 'aria',
       name: 'Aria',
-      role: 'Exclusive Visionary Designer & Creative Director',
-      specialty: 'Creates ultra-refined editorial luxury experiences that feel like walking through a high-fashion lookbook meets art gallery installation.',
+      role: 'System Health & Performance Expert',
+      specialty: 'Performance monitoring, optimization, system health',
       image: AgentAria
     },
     {
       id: 'zara',
       name: 'Zara',
-      role: 'Technical Architect & UI/UX Implementation Expert',
-      specialty: 'Backend system creator and component design specialist who builds complete technical solutions.',
+      role: 'Technical Architect & UI/UX Expert',
+      specialty: 'System architecture, full-stack implementation, UI/UX',
       image: AgentZara
     },
     {
       id: 'maya',
       name: 'Maya',
-      role: 'Celebrity Stylist & Creative Director',
-      specialty: 'Fashion-obsessed creative genius with celebrity styling expertise who creates trendy, editorial fashion moments.',
+      role: 'AI Integration Specialist',
+      specialty: 'AI models, machine learning, intelligent features',
       image: AgentMaya
     },
     {
       id: 'victoria',
       name: 'Victoria',
-      role: 'UX Strategist & Business Consultant',
-      specialty: 'Strategic business advisor who bridges user needs with technical solutions using design thinking.',
+      role: 'Business Process Automation Expert',
+      specialty: 'Workflow automation, business logic, process optimization',
       image: AgentVictoria
     },
     {
       id: 'rachel',
       name: 'Rachel',
-      role: 'Sandra\'s Copywriting Best Friend & Voice Twin',
-      specialty: 'Writes EXACTLY like Sandra talks - absorbed her entire way of speaking from her 120K follower journey.',
+      role: 'Requirements Analysis Expert',
+      specialty: 'User stories, specifications, feature analysis',
       image: AgentRachel
     },
     {
       id: 'ava',
       name: 'Ava',
-      role: 'Automation AI Agent - Luxury Workflow Architect',
-      specialty: 'The behind-the-scenes genius who makes SSELFIE run like a Swiss watch with elegant automation workflows.',
+      role: 'Analytics & Insights Expert',
+      specialty: 'Data analysis, metrics, insights',
       image: AgentAva
     },
     {
       id: 'quinn',
       name: 'Quinn',
-      role: 'QA AI Agent - Luxury Quality Guardian',
-      specialty: 'The perfectionist friend who notices every tiny detail and ensures SSELFIE feels like a luxury experience on every device.',
+      role: 'Security & Compliance Expert',
+      specialty: 'Security audits, compliance, risk management',
       image: AgentQuinn
     },
     {
       id: 'sophia',
       name: 'Sophia',
-      role: 'Elite Social Media Manager AI - Community Growth Architect',
-      specialty: 'Sandra\'s no-nonsense, warm-hearted social media sidekick helping grow from 81K to 1M followers through strategic, authentic content.',
+      role: 'Social Media & Content Expert',
+      specialty: 'Content strategy, social media, engagement',
       image: AgentSophia
     },
     {
       id: 'martha',
       name: 'Martha',
-      role: 'Marketing & Ads Expert - Strategic Campaign Architect',
-      specialty: 'Marketing dashboard integration specialist who designs strategic campaigns and optimizes advertising performance.',
+      role: 'User Experience Research Expert',
+      specialty: 'User research, feedback analysis, UX optimization',
       image: AgentMartha
     },
     {
       id: 'diana',
       name: 'Diana',
-      role: 'Project Coordinator & Page Assembly Specialist',
-      specialty: 'Organizes project tasks and page assembly with editorial precision, ensuring everything flows like Sandra intended.',
+      role: 'DevOps & Deployment Expert',
+      specialty: 'CI/CD, deployment, infrastructure',
       image: AgentDiana
     },
     {
       id: 'wilma',
       name: 'Wilma',
-      role: 'Workflow AI - Business Process & Agent Collaboration Designer',
-      specialty: 'Sandra\'s workflow architect who designs efficient business processes and coordinates agent collaboration.',
+      role: 'Documentation & Knowledge Expert',
+      specialty: 'Technical writing, documentation, knowledge base',
       image: AgentWilma
     },
     {
       id: 'olga',
       name: 'Olga',
-      role: 'Organization and Infrastructure Expert',
-      specialty: 'Sandra\'s organization bestie who keeps everything neat and tidy while maintaining a friendly and supportive demeanor.',
+      role: 'Quality Assurance Expert',
+      specialty: 'Testing, validation, quality control',
       image: AgentOlga
     },
     {
       id: 'flux',
       name: 'Flux',
-      role: 'Advanced Flux LoRA Prompt Specialist',
-      specialty: 'Creates exceptional prompts for Flux Dev LoRA models that generate professional, realistic personal brand photography.',
+      role: 'Integration & API Expert',
+      specialty: 'API design, integrations, data flow',
       image: AgentFlux
     }
   ];
