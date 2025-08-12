@@ -38,12 +38,14 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root health check only for deployment health checks (not browser requests)
-app.get('/', (req, res) => {
-  // Check if this is a health check (no Accept header for HTML) or deployment probe
-  const acceptsHtml = req.headers.accept?.includes('text/html');
+// Root endpoint - serve React app for browsers, health check for deployment probes
+app.get('/', (req, res, next) => {
+  // Check if this is a deployment health check probe
+  const isHealthCheck = !req.headers.accept?.includes('text/html') || 
+                       req.headers['user-agent']?.includes('GoogleHC') ||
+                       req.headers['user-agent']?.includes('kube-probe');
   
-  if (!acceptsHtml || req.headers['user-agent']?.includes('GoogleHC')) {
+  if (isHealthCheck) {
     // Health check or deployment probe
     return res.status(200).json({ 
       status: 'healthy',
@@ -53,9 +55,8 @@ app.get('/', (req, res) => {
     });
   }
   
-  // For browser requests, serve the React app (handled by static file fallback)
-  res.locals.skipHealthCheck = true;
-  return;  // Let it fall through to static file handling
+  // For browser requests, continue to static file handling
+  next();
 });
 
 // Initialize your complete SSELFIE Studio application
