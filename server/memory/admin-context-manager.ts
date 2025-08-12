@@ -1,7 +1,12 @@
 /**
- * ADMIN CONTEXT MANAGER - CLEAN IMPLEMENTATION
+ * ADMIN CONTEXT MANAGER - DATABASE CONNECTED
  * Eliminates broken generic systems, implements personality-first admin agents
+ * Connected to database for persistent agent memory and context
  */
+
+import { db } from '../db';
+import { agentConversations, agentSessionContexts } from '../../shared/schema';
+import { eq } from 'drizzle-orm';
 
 interface AdminAgentContext {
   agentId: string;
@@ -27,7 +32,7 @@ export class AdminContextManager {
   }
 
   /**
-   * ELIMINATE GENERIC ROUTING: Create personality-first agent context
+   * ELIMINATE GENERIC ROUTING: Create personality-first agent context with database connection
    */
   async createAdminAgentContext(
     agentId: string, 
@@ -35,20 +40,72 @@ export class AdminContextManager {
     conversationId: string, 
     personality: any
   ): Promise<AdminAgentContext> {
-    console.log(`🤖 ADMIN AGENT ACTIVATION: ${personality.name} with full personality integration`);
+    console.log(`🤖 ADMIN AGENT ACTIVATION: ${personality.name || agentId} with full personality integration`);
+    console.log(`📊 DATABASE: Connected to agent conversations and session contexts`);
     
+    // LOAD EXISTING CONTEXT: Check database for existing sessions
+    const existingSessions = await db.select()
+      .from(agentSessionContexts)
+      .where(eq(agentSessionContexts.agentId, agentId))
+      .limit(1);
+
+    const existingMemory = existingSessions.length > 0 ? 
+      JSON.parse(existingSessions[0].contextData || '{}') : {};
+
     const context: AdminAgentContext = {
       agentId,
       userId,
       conversationId,
       personality,
       adminPrivileges: true,
-      memoryContext: [],
+      memoryContext: existingMemory.recentInteractions?.message ? 
+        [existingMemory.recentInteractions.message] : [],
       lastActivity: new Date()
     };
 
+    // SAVE TO DATABASE: Persist agent context for continuity
+    await this.saveContextToDatabase(context);
+    
     this.activeContexts.set(`${agentId}-${userId}`, context);
+    console.log(`✅ ADMIN CONTEXT: ${personality.name || agentId} fully connected with database persistence`);
     return context;
+  }
+
+  /**
+   * SAVE CONTEXT TO DATABASE: Persist admin agent context
+   */
+  private async saveContextToDatabase(context: AdminAgentContext): Promise<void> {
+    try {
+      const contextData = {
+        timestamp: context.lastActivity.toISOString(),
+        lastConversationId: context.conversationId,
+        recentInteractions: {
+          agentId: context.agentId,
+          personality: context.personality?.name || context.agentId,
+          memoryContext: context.memoryContext
+        }
+      };
+
+      await db.insert(agentSessionContexts).values({
+        userId: context.userId,
+        agentId: context.agentId,
+        sessionId: `${context.userId}_${context.agentId}_session`,
+        contextData: JSON.stringify(contextData),
+        workflowState: 'active',
+        lastInteraction: context.lastActivity,
+        adminBypass: context.adminPrivileges,
+        unlimitedContext: true
+      }).onConflictDoUpdate({
+        target: [agentSessionContexts.userId, agentSessionContexts.agentId],
+        set: {
+          contextData: JSON.stringify(contextData),
+          lastInteraction: context.lastActivity,
+          updatedAt: new Date()
+        }
+      });
+    } catch (error) {
+      console.error('❌ DATABASE ERROR: Failed to save admin context:', error);
+    }
   }
 
   /**
