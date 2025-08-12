@@ -161,7 +161,7 @@ function Router() {
       )} />
       <Route path="/login-direct" component={() => {
         // Direct redirect to Replit Auth (for cases that need immediate redirect)
-        React.useEffect(() => {
+        useEffect(() => {
           window.location.href = '/api/login';
         }, []);
         
