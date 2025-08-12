@@ -1573,10 +1573,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Register flatlay library routes for Victoria
   try {
     const flatlayLibraryRoutes = await import('./routes/flatlay-library');
-    app.use(flatlayLibraryRoutes.default);
-    console.log('✅ FLATLAY: Library routes registered for Victoria');
-  } catch (error) {
-    console.log('⚠️ FLATLAY: Library routes failed to load, continuing without them:', error);
+    if (flatlayLibraryRoutes && flatlayLibraryRoutes.default) {
+      app.use(flatlayLibraryRoutes.default);
+      console.log('✅ FLATLAY: Library routes registered for Victoria');
+    } else {
+      console.log('⚠️ FLATLAY: No default export found');
+    }
+  } catch (error: any) {
+    console.log('⚠️ FLATLAY: Library routes failed to load, continuing without them:', error.message);
   }
   
   // Generation tracker polling endpoint for live progress
@@ -2716,11 +2720,15 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   
   // Start Training Completion Monitor
   try {
-    const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
-    TrainingCompletionMonitor.getInstance().startMonitoring();
-    console.log('✅ MONITORING: Training completion monitor started');
-  } catch (error) {
-    console.log('⚠️ MONITORING: Training completion monitor failed to start, continuing without it:', error);
+    const trainingMonitor = await import('./training-completion-monitor');
+    if (trainingMonitor && trainingMonitor.TrainingCompletionMonitor) {
+      trainingMonitor.TrainingCompletionMonitor.getInstance().startMonitoring();
+      console.log('✅ MONITORING: Training completion monitor started');
+    } else {
+      console.log('⚠️ MONITORING: TrainingCompletionMonitor class not found');
+    }
+  } catch (error: any) {
+    console.log('⚠️ MONITORING: Training completion monitor failed to start, continuing without it:', error.message);
   }
   
   return server;
