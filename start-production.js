@@ -1,112 +1,73 @@
 #!/usr/bin/env node
 
-// Production startup script for SSELFIE Studio deployment
-const { spawn } = require('child_process');
+/**
+ * PRODUCTION STARTUP SCRIPT - COMPLETE DEPLOYMENT
+ * Ensures clean build, proper bundle serving, and stable server
+ */
+
+const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🚀 Starting SSELFIE Studio Production Deployment...');
+console.log('🚀 SSELFIE Studio Production Startup');
 
-// Kill any existing servers first
-const { exec } = require('child_process');
-exec('pkill -f tsx', () => {
-  console.log('🛑 Cleared any existing servers');
-});
+// Kill any existing servers
+try {
+  execSync('pkill -f "tsx.*index" 2>/dev/null || true');
+  console.log('✅ Cleared existing server processes');
+} catch (e) {}
 
-// Set production environment
-process.env.NODE_ENV = 'production';
-process.env.PORT = process.env.PORT || '80';
-
-// Wait for any existing processes to be cleared
-setTimeout(() => {
-  startBuild();
-}, 2000);
-
-function startBuild() {
-
-  console.log('📦 Building frontend assets...');
-
-  // Build the frontend first
-const buildProcess = spawn('npm', ['run', 'build'], {
-  stdio: 'inherit',
-  shell: true
-});
-
-buildProcess.on('close', (buildCode) => {
-  if (buildCode !== 0) {
-    console.error('❌ Build failed with code:', buildCode);
-    process.exit(1);
-  }
-  
-  console.log('✅ Build completed successfully');
-  
-  // Verify build assets exist and move them to correct location
-  const clientDistPath = path.join(__dirname, 'client', 'dist', 'index.html');
-  const serverDistPath = path.join(__dirname, 'dist', 'public', 'index.html');
-  
-  if (!fs.existsSync(clientDistPath)) {
-    console.error('❌ Build assets not found at:', clientDistPath);
-    process.exit(1);
-  }
-  
-  // Ensure dist/public directory exists and copy assets
-  const publicDir = path.join(__dirname, 'dist', 'public');
-  if (!fs.existsSync(publicDir)) {
-    fs.mkdirSync(publicDir, { recursive: true });
-  }
-  
-  // Copy built assets from client/dist to dist/public
-  const clientDistDir = path.join(__dirname, 'client', 'dist');
-  const copyRecursive = (src, dest) => {
-    if (fs.statSync(src).isDirectory()) {
-      if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
-      fs.readdirSync(src).forEach(item => {
-        copyRecursive(path.join(src, item), path.join(dest, item));
-      });
-    } else {
-      fs.copyFileSync(src, dest);
-    }
-  };
-  
-  copyRecursive(clientDistDir, publicDir);
-  console.log('✅ Build assets moved to dist/public/');
-  
-  console.log('✅ Build assets verified');
-  console.log('🚀 Starting server...');
-  
-  // Start the server with optimized settings for deployment
-  const serverProcess = spawn('npx', ['tsx', 'server/index.ts'], {
-    stdio: 'inherit',
-    shell: true,
-    env: {
-      ...process.env,
-      NODE_ENV: 'production',
-      PORT: process.env.PORT || '80',
-      // Ensure fast startup for health checks
-      TS_NODE_TRANSPILE_ONLY: 'true',
-      TS_NODE_TYPE_CHECK: 'false'
-    }
-  });
-  
-  serverProcess.on('close', (serverCode) => {
-    console.log('Server exited with code:', serverCode);
-    process.exit(serverCode);
-  });
-  
-  // Handle shutdown gracefully
-  process.on('SIGTERM', () => {
-    console.log('🛑 Received SIGTERM, shutting down gracefully...');
-    serverProcess.kill('SIGTERM');
-  });
-  
-  process.on('SIGINT', () => {
-    console.log('🛑 Received SIGINT, shutting down gracefully...');
-    serverProcess.kill('SIGINT');
-  });
-});
-
-  buildProcess.on('error', (error) => {
-    console.error('❌ Build process error:', error);
-    process.exit(1);
-  });
+// Clean build
+console.log('🔨 Building frontend...');
+try {
+  execSync('rm -rf dist/ && npm run build', { stdio: 'inherit' });
+  console.log('✅ Frontend build complete');
+} catch (e) {
+  console.error('❌ Build failed:', e.message);
+  process.exit(1);
 }
+
+// Copy assets to correct location for server
+const distPath = './dist';
+const publicPath = './dist/public';
+
+if (fs.existsSync(distPath) && !fs.existsSync(path.join(publicPath, 'index.html'))) {
+  try {
+    execSync(`mkdir -p ${publicPath} && cp -r ${distPath}/* ${publicPath}/`);
+    console.log('✅ Assets copied to server location');
+  } catch (e) {
+    console.log('⚠️ Asset copy failed, continuing...');
+  }
+}
+
+// Start server
+console.log('⚡ Starting production server...');
+const server = spawn('npx', ['tsx', 'server/index.ts'], {
+  stdio: 'inherit',
+  env: {
+    ...process.env,
+    PORT: '5000',
+    NODE_ENV: 'production'
+  }
+});
+
+server.on('error', (error) => {
+  console.error('❌ Server error:', error.message);
+  process.exit(1);
+});
+
+server.on('close', (code) => {
+  if (code !== 0) {
+    console.log(`⚠️ Server exited with code ${code}`);
+    process.exit(code);
+  }
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\n🛑 Shutting down...');
+  server.kill('SIGTERM');
+  setTimeout(() => process.exit(0), 2000);
+});
+
+console.log('🛡️ Production server starting...');

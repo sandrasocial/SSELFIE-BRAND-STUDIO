@@ -1,4 +1,4 @@
-import * as React from "react"
+// React import handled by Vite JSX transform
 import * as TogglePrimitive from "@radix-ui/react-toggle"
 import { cva, type VariantProps } from "class-variance-authority"
 
