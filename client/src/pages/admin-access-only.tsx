@@ -1,6 +1,6 @@
 import React from 'react';
-import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
-import { GlobalFooter } from '@/components/global-footer';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
+import { GlobalFooter } from '../components/global-footer';
 
 export default function AdminAccessOnly() {
   return (

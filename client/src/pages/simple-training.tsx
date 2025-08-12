@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MemberNavigation } from '@/components/member-navigation';
-import { SandraImages } from '@/lib/sandra-images';
-import { useAuth } from '@/hooks/use-auth';
+import { MemberNavigation } from '../components/member-navigation';
+import { SandraImages } from '../lib/sandra-images';
+import { useAuth } from '../hooks/use-auth';
 import { Link } from 'wouter';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '../hooks/use-toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest } from '../lib/queryClient';
 
 export default function SimpleTraining() {
   // Always call hooks in the same order
