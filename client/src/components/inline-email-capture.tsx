@@ -53,7 +53,6 @@ export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
       toast({
         title: "Email Captured!",
         description: "Redirecting to authentication...",
-        variant: "default",
       });
       
       if (onEmailCaptured) {
