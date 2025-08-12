@@ -18,7 +18,7 @@ interface EnhancedHeroProps {
 }
 
 export function EnhancedHero({
-  backgroundImage = SandraImages.editorial.luxury1,
+  backgroundImage = SandraImages.hero.homepage,
   title,
   tagline,
   subtitle,
