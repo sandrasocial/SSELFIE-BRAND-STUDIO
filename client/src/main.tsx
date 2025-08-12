@@ -1,7 +1,12 @@
-// Removed React import - Vite JSX transform handles this automatically
+import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+
+// Force React global for forwardRef compatibility
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+}
 
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');
