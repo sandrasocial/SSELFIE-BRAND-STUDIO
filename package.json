@@ -581,7 +581,7 @@
   "scripts": {
     "dev": "cd server && npx tsx index.ts",
     "start": "cd server && npx tsx index.ts"
-  }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
