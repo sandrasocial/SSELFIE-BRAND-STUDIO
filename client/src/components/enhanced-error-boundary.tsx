@@ -37,7 +37,7 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
             tagline="Something went wrong"
             title="ERROR"
             ctaText="Try Again"
-            onCtaClick={() => window.location.reload()}
+
             fullHeight={false}
           />
 
