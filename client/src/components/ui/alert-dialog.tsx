@@ -1,6 +1,4 @@
-import { ComponentPropsWithoutRef, ElementRef, HTMLAttributes } from 'react';
-// React imported via individual functions
-import { forwardRef } from "react"
+import React, { ComponentPropsWithoutRef, ElementRef, HTMLAttributes, forwardRef } from 'react';
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 
 import { cn } from "../../lib/utils"

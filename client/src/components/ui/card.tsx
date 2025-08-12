@@ -1,6 +1,4 @@
-import { HTMLAttributes } from 'react';
-// React imported via individual functions
-import { forwardRef } from "react"
+import React, { HTMLAttributes, forwardRef } from 'react';
 
 import { cn } from "../../lib/utils"
 

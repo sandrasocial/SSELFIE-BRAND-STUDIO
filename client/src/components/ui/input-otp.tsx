@@ -1,6 +1,4 @@
-import { ComponentPropsWithoutRef, ElementRef } from 'react';
-// React imported via individual functions
-import { forwardRef, useContext } from "react"
+import React, { ComponentPropsWithoutRef, ElementRef, forwardRef, useContext } from 'react';
 import { OTPInput, OTPInputContext } from "input-otp"
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
 

@@ -1,5 +1,4 @@
-import { ComponentProps } from 'react';
-import { forwardRef } from "react"
+import React, { ComponentProps, forwardRef } from 'react';
 // React imported via individual functions
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 import { DayPicker } from "react-day-picker"

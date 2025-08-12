@@ -1,5 +1,4 @@
-import { ComponentPropsWithoutRef, ElementRef } from 'react';
-// React imported via individual functions
+import React, { ComponentPropsWithoutRef, ElementRef } from 'react';
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
 

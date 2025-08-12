@@ -1,5 +1,4 @@
-import { ComponentProps } from 'react';
-// React imported via individual functions
+import React, { ComponentProps, forwardRef } from 'react';
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
 import { cn } from "@/lib/utils"
