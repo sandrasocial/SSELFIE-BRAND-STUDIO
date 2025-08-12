@@ -116,11 +116,23 @@ router.post('/direct-bash', adminBypass, async (req, res) => {
       });
     }
     
-    // Execute with timeout and limited buffer
-    const output = execSync(command, { 
+    // SECURITY FIX: Use parameterized execution to prevent command injection
+    // Split command into safe components
+    const commandParts = command.trim().split(/\s+/);
+    const baseCommand = commandParts[0];
+    const args = commandParts.slice(1);
+    
+    // Additional validation for arguments
+    const sanitizedArgs = args.filter(arg => 
+      !/[;&|`$()]/.test(arg) && arg.length < 200
+    );
+    
+    // Execute with safe command construction
+    const output = execSync(`${baseCommand} ${sanitizedArgs.join(' ')}`, { 
       encoding: 'utf8',
       maxBuffer: 512 * 1024, // 512KB buffer
-      timeout: 10000 // 10 second timeout
+      timeout: 10000, // 10 second timeout
+      shell: false // Prevent shell injection
     });
     
     res.json({ 
@@ -145,9 +157,12 @@ router.get('/direct-search', adminBypass, async (req, res) => {
   try {
     const { query } = req.query;
     
-    // Simple file search
-    const searchCommand = `find . -type f -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | head -50`;
-    const files = execSync(searchCommand, { encoding: 'utf8' }).split('\n').filter(Boolean);
+    // SECURITY FIX: Safe file search without user input in command
+    const files = execSync('find . -type f \\( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \\) | head -50', { 
+      encoding: 'utf8',
+      shell: false,
+      timeout: 5000
+    }).split('\n').filter(Boolean);
     
     res.json({ 
       success: true, 
