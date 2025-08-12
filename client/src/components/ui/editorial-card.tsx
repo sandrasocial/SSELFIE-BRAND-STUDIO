@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, forwardRef } from 'react';
 
 interface EditorialCardProps {
   title: string;
@@ -14,7 +14,7 @@ export const EditorialCard = ({
   image,
   children,
   className = ''
-}) => {
+}: EditorialCardProps) => {
   return (
     <article className={`bg-white border border-gray-200 ${className}`}>
       {image && (

@@ -1,5 +1,4 @@
-import { FC } from 'react';
-import { FC } from 'react'
+import { FC, forwardRef } from 'react';
 import { cn } from '@/lib/utils'
 
 interface SectionHeadlineProps {

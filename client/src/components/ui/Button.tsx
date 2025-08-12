@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, ReactNode } from 'react';
+import { ButtonHTMLAttributes, ReactNode, forwardRef } from 'react';
 
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost' | 'editorial';
