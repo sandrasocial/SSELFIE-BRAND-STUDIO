@@ -33,30 +33,16 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint with IMMEDIATE health check response
+// CRITICAL: Root endpoint for Replit health checks - MUST respond immediately
 app.get('/', (req, res) => {
-  // DEPLOYMENT HEALTH CHECK - Immediate response for Replit
-  if (req.headers['user-agent']?.includes('Replit') || 
-      req.headers['user-agent']?.includes('HealthCheck') ||
-      req.query.health !== undefined ||
-      req.headers.host?.includes('internal') ||
-      req.headers.accept?.includes('application/json')) {
-    res.status(200).json({ 
-      status: 'healthy',
-      service: 'SSELFIE Studio',
-      timestamp: new Date().toISOString(),
-      port: port
-    });
-    return;
-  }
-  
-  // Serve the main app for regular requests
-  const htmlPath = path.join(__dirname, '../dist/index.html');
-  if (fs.existsSync(htmlPath)) {
-    res.sendFile(htmlPath);
-  } else {
-    res.status(404).send('Application not found');
-  }
+  // Always return 200 immediately for health checks
+  res.status(200).json({ 
+    status: 'healthy',
+    service: 'SSELFIE Studio',
+    timestamp: new Date().toISOString(),
+    port: port,
+    env: process.env.NODE_ENV || 'development'
+  });
 });
 
 async function loadAllRoutes() {
@@ -98,8 +84,23 @@ async function startServer() {
   app.use('/assets', express.static(path.join(__dirname, '../dist/assets')));
   app.use(express.static(path.join(__dirname, '../dist')));
   
-  // Serve React app for all remaining routes (AFTER API routes)
+  // Serve React app for specific app routes (AFTER API routes)
+  app.get('/app', (req, res) => {
+    const htmlPath = path.join(__dirname, '../dist/index.html');
+    if (fs.existsSync(htmlPath)) {
+      res.sendFile(htmlPath);
+    } else {
+      res.status(404).send('Application not found');
+    }
+  });
+  
+  // Catch-all for other routes - serve app
   app.get('*', (req, res) => {
+    // Skip health checks and API routes
+    if (req.path.startsWith('/api/') || req.path === '/health') {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    
     const htmlPath = path.join(__dirname, '../dist/index.html');
     if (fs.existsSync(htmlPath)) {
       res.sendFile(htmlPath);
