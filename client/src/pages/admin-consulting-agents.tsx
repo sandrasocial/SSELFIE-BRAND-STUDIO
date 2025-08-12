@@ -9,21 +9,21 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Agent images - Using default images from SandraImages
-const AgentElena = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentMaya = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentVictoria = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentAria = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentZara = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentRachel = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentAva = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentQuinn = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentSophia = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentMartha = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentDiana = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentWilma = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentOlga = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
-const AgentFlux = 'https://i.postimg.cc/76vVdbWY/out-0-7.png';
+// Agent images - Each agent has their own unique photo (restored from original design)
+import AgentElena from '@assets/out-0 (33)_1753426218039.png';
+import AgentMaya from '@assets/out-0 (34)_1753426218040.png';
+import AgentVictoria from '@assets/out-0 (37)_1753426218041.png';
+import AgentAria from '@assets/out-0 (20)_1753426218042.png';
+import AgentZara from '@assets/out-0 (28)_1753426218042.png';
+import AgentRachel from '@assets/out-0 (42)_1753426218042.png';
+import AgentAva from '@assets/out-1 (27)_1753426218043.png';
+import AgentQuinn from '@assets/out-0 (26)_1753426218043.png';
+import AgentSophia from '@assets/out-1 (18)_1753426218043.png';
+import AgentMartha from '@assets/out-0 (29)_1753426218044.png';
+import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
+import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
+import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
+import AgentFlux from '@assets/out-0 (33)_1753426218039.png';
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
