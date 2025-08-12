@@ -39,15 +39,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint - serve React app for browsers, health check for deployment probes
+// Root endpoint - serve React app for browsers, limited health check for specific probes only
 app.get('/', (req, res, next) => {
-  // Check if this is a deployment health check probe
-  const isHealthCheck = !req.headers.accept?.includes('text/html') || 
-                       req.headers['user-agent']?.includes('GoogleHC') ||
-                       req.headers['user-agent']?.includes('kube-probe');
+  // Only return JSON for very specific deployment health probes
+  const isDeploymentProbe = req.headers['user-agent']?.includes('GoogleHC') ||
+                           req.headers['user-agent']?.includes('kube-probe') ||
+                           req.headers['user-agent']?.includes('ELB-HealthChecker');
   
-  if (isHealthCheck) {
-    // Health check or deployment probe
+  if (isDeploymentProbe) {
+    // Health check for deployment probe only
     return res.status(200).json({ 
       status: 'healthy',
       service: 'SSELFIE Studio',
@@ -56,7 +56,7 @@ app.get('/', (req, res, next) => {
     });
   }
   
-  // For browser requests, continue to static file handling
+  // For all other requests (browsers, Replit preview, etc.), serve the React app
   next();
 });
 
