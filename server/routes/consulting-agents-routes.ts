@@ -5,6 +5,7 @@ import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/
 
 // Type definitions for admin requests
 interface AdminRequest extends Request {
+  body: any; // Add body property for request handling
   user?: {
     claims: {
       sub: string;
