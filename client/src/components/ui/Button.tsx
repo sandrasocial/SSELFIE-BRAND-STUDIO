@@ -18,7 +18,7 @@ export const Button = ({
   className = '',
   disabled = false,
   fullWidth = false,
-}) => {
+}: ButtonProps) => {
   const baseStyles = 'font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
@@ -35,7 +35,7 @@ export const Button = ({
     xl: 'px-8 py-4 text-xl'
   };
 
-  const editorialSize = variant === 'editorial' ? 'px-0 py-1 text-base' : sizes[size];
+  const editorialSize = variant === 'editorial' ? 'px-0 py-1 text-base' : sizes[size as keyof typeof sizes];
 
   return (
     <button
@@ -43,7 +43,7 @@ export const Button = ({
       disabled={disabled}
       className={`
         ${baseStyles}
-        ${variants[variant]}
+        ${variants[variant as keyof typeof variants]}
         ${editorialSize}
         ${fullWidth ? 'w-full' : ''}
         ${variant === 'editorial' ? 'font-serif' : ''}

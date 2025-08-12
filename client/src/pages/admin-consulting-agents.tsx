@@ -1,4 +1,4 @@
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, memo, useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
 // Switch component removed - creating simple alternative
@@ -720,12 +720,12 @@ export default function AdminConsultingAgents() {
               <span className="text-sm text-white/90 font-light tracking-wide" style={{ fontFamily: 'Times New Roman, serif' }}>
                 READ ONLY
               </span>
-              <Switch
-                id="edit-mode"
-                checked={fileEditMode}
-                onCheckedChange={setFileEditMode}
-                className="data-[state=checked]:bg-white data-[state=unchecked]:bg-white/30"
-              />
+              <button
+                onClick={() => setFileEditMode(!fileEditMode)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 ${fileEditMode ? 'bg-white' : 'bg-white/30'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-black transition ${fileEditMode ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
               <span className="text-sm text-white/90 font-light tracking-wide" style={{ fontFamily: 'Times New Roman, serif' }}>
                 FILE EDIT
               </span>
