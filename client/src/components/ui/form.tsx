@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ComponentPropsWithoutRef, ElementRef, HTMLAttributes, createContext, useContext, useId, forwardRef } from "react"
+import React, { ComponentPropsWithoutRef, ElementRef, HTMLAttributes, createContext, useContext, useId } from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
 import {
@@ -72,7 +72,7 @@ const FormItemContext = createContext<FormItemContextValue>(
   {} as FormItemContextValue
 )
 
-const FormItem = forwardRef<
+const FormItem = React.forwardRef<
   HTMLDivElement,
   HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
@@ -86,7 +86,7 @@ const FormItem = forwardRef<
 })
 FormItem.displayName = "FormItem"
 
-const FormLabel = forwardRef<
+const FormLabel = React.forwardRef<
   ElementRef<typeof LabelPrimitive.Root>,
   ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
@@ -103,7 +103,7 @@ const FormLabel = forwardRef<
 })
 FormLabel.displayName = "FormLabel"
 
-const FormControl = forwardRef<
+const FormControl = React.forwardRef<
   ElementRef<typeof Slot>,
   ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
@@ -125,7 +125,7 @@ const FormControl = forwardRef<
 })
 FormControl.displayName = "FormControl"
 
-const FormDescription = forwardRef<
+const FormDescription = React.forwardRef<
   HTMLParagraphElement,
   HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => {
@@ -142,7 +142,7 @@ const FormDescription = forwardRef<
 })
 FormDescription.displayName = "FormDescription"
 
-const FormMessage = forwardRef<
+const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
