@@ -12,13 +12,13 @@ import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
-// import subscriberImportRouter from './routes/subscriber-import'; // Temporarily disabled
+import subscriberImportRouter from './routes/subscriber-import';
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
 import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
-// import { startBackgroundMonitors } from './training-completion-monitor'; // Temporarily disabled
+// import { startBackgroundMonitors } from './training-completion-monitor'; // Function doesn't exist
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
@@ -974,9 +974,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email automation routes
   app.use('/api/email', emailAutomation);
   
-  // Subscriber import routes - TEMPORARILY DISABLED
-  // const subscriberImport = await import('./routes/subscriber-import');
-  // app.use('/api/subscribers', subscriberImport.default);
+  // Subscriber import routes - RESTORED
+  app.use('/api/subscribers', subscriberImportRouter);
   // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
   
   // Register white-label client setup endpoints
@@ -1572,8 +1571,13 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // COMPETING SYSTEMS ELIMINATED: Only consulting-agents-routes.ts active for direct tool bypass
   
   // Register flatlay library routes for Victoria
-  // const flatlayLibraryRoutes = await import('./routes/flatlay-library'); // Temporarily disabled
-  // app.use(flatlayLibraryRoutes.default); // Temporarily disabled
+  try {
+    const flatlayLibraryRoutes = await import('./routes/flatlay-library');
+    app.use(flatlayLibraryRoutes.default);
+    console.log('✅ FLATLAY: Library routes registered for Victoria');
+  } catch (error) {
+    console.log('⚠️ FLATLAY: Library routes failed to load, continuing without them:', error);
+  }
   
   // Generation tracker polling endpoint for live progress
   app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
@@ -2711,14 +2715,13 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   console.log('🚀 MONITORING: Starting background completion monitors...');
   
   // Start Training Completion Monitor
-  // const { TrainingCompletionMonitor } = await import('./training-completion-monitor'); // Temporarily disabled
-  // TrainingCompletionMonitor.getInstance().startMonitoring(); // Temporarily disabled
-  // console.log('✅ MONITORING: Training completion monitor started'); // Temporarily disabled
-  
-  // Start Generation Completion Monitor (CRITICAL: This was missing!)
-  // const { GenerationCompletionMonitor } = await import('./generation-completion-monitor'); // Temporarily disabled
-  // GenerationCompletionMonitor.getInstance().startMonitoring(); // Temporarily disabled
-  // console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!'); // Temporarily disabled
+  try {
+    const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
+    TrainingCompletionMonitor.getInstance().startMonitoring();
+    console.log('✅ MONITORING: Training completion monitor started');
+  } catch (error) {
+    console.log('⚠️ MONITORING: Training completion monitor failed to start, continuing without it:', error);
+  }
   
   return server;
 }
