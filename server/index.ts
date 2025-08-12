@@ -1,20 +1,17 @@
-// Import statements for TypeScript
+// SSELFIE STUDIO - COMPREHENSIVE SERVER WITH ALL FEATURES
+// This is your main application server with Maya, Victoria, Training, Payments, Admin systems
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import { registerRoutes } from './routes';
 
 const app = express();
-// FIXED: Use PORT from environment (Cloud Run assigns this dynamically)  
 const port = Number(process.env.PORT) || 5000;
 
 console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
 console.log(`🌐 Target Port: ${port}`);
 
-// Essential middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// PRIORITY: Health check endpoints FIRST for immediate deployment response
+// HEALTH CHECK ENDPOINTS - Required for Cloud Run deployment
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
@@ -33,83 +30,90 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// CRITICAL: Root endpoint for health checks - MUST respond in <1 second
+// Root endpoint for quick health checks
 app.get('/', (req, res) => {
-  res.status(200).send('OK');
+  res.status(200).json({
+    status: 'SSELFIE Studio Online',
+    service: 'Complete Application with Maya, Victoria, Training, Admin',
+    timestamp: new Date().toISOString()
+  });
 });
 
-async function loadAllRoutes() {
+// Initialize your complete SSELFIE Studio application
+async function startCompleteApp() {
   try {
-    // Import and setup your comprehensive routes with all features
-    const { registerRoutes } = await import('./routes');
-    await registerRoutes(app);
-    console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
-    return true;
-  } catch (error) {
-    console.warn('⚠️ Routes loading failed, using basic routes:', error.message);
+    console.log('📦 Loading comprehensive routes...');
     
-    // Essential fallback route for admin agents
-    app.post('/api/admin/consulting-agents/chat', (req, res) => {
-      res.json({ 
-        status: 'success', 
-        message: 'Agent system operational',
-        agent: req.body.agentId || 'unknown'
-      });
-    });
-    return false;
+    // Load your complete routing system with all features
+    const server = await registerRoutes(app);
+    
+    console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
+    console.log('✅ All your features loaded!');
+    
+    // Set up static file serving after routes are loaded
+    setupStaticFiles();
+    
+    return server;
+  } catch (error) {
+    console.error('❌ CRITICAL: Failed to load your main application:', error);
+    process.exit(1);
   }
 }
 
-// FIXED: Start server immediately, then load routes
-const server = app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
-  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+function setupStaticFiles() {
+  // Serve built frontend assets
+  const possibleDistPaths = [
+    path.join(__dirname, '../dist'),
+    path.join(__dirname, '../client/dist'), 
+    path.join(__dirname, '../dist/public')
+  ];
   
-  // Initialize routes AFTER server is listening
-  initializeApp();
-});
-
-async function initializeApp() {
-  console.log('📦 Loading comprehensive routes...');
-  
-  try {
-    const routesLoaded = await loadAllRoutes();
-    if (routesLoaded) {
-      console.log('✅ All your features loaded!');
-    } else {
-      console.log('⚠️ Using basic routes, main features may be limited');
+  for (const distPath of possibleDistPaths) {
+    if (fs.existsSync(distPath)) {
+      console.log(`📁 Serving static files from: ${distPath}`);
+      app.use(express.static(distPath));
+      app.use('/assets', express.static(path.join(distPath, 'assets')));
+      break;
     }
-  } catch (error) {
-    console.warn('Route loading error:', error.message);
   }
   
-  // AFTER routes are loaded, set up static files and HTML fallback
-  app.use('/assets', express.static(path.join(__dirname, '../dist/assets')));
-  app.use(express.static(path.join(__dirname, '../dist')));
-  
-  // Serve React app for non-API routes
+  // React app fallback for SPA routing
   app.get('*', (req, res) => {
-    // Skip API routes and health checks
     if (req.path.startsWith('/api/') || req.path === '/health' || req.path === '/') {
       return;
     }
     
-    const htmlPath = path.join(__dirname, '../dist/index.html');
-    if (fs.existsSync(htmlPath)) {
-      res.sendFile(htmlPath);
-    } else {
-      res.status(404).send('Application not found');
+    const possibleIndexPaths = [
+      path.join(__dirname, '../dist/index.html'),
+      path.join(__dirname, '../client/dist/index.html')
+    ];
+    
+    for (const indexPath of possibleIndexPaths) {
+      if (fs.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+      }
     }
+    
+    res.status(404).send('Application not found - please run npm run build');
   });
 }
 
-// Handle server startup errors
+// Start server with complete application
+const server = app.listen(port, '0.0.0.0', async () => {
+  console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
+  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Load your complete application after server starts
+  await startCompleteApp();
+});
+
+// Handle server errors
 server.on('error', (err: any) => {
   console.error('❌ Server startup error:', err);
   process.exit(1);
 });
 
-// Graceful shutdown
+// Graceful shutdown for Cloud Run
 process.on('SIGTERM', () => {
   console.log('🛑 SIGTERM received, shutting down gracefully...');
   server.close(() => {
