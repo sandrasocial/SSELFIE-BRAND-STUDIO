@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 async function loadRoutes() {
   try {
     // Import and setup your comprehensive routes with all features
-    const { registerRoutes } = await import('./routes.js');
+    const { registerRoutes } = await import('./routes');
     await registerRoutes(app);
     console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
   } catch (error) {
