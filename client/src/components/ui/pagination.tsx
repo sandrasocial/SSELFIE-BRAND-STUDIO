@@ -1,4 +1,4 @@
-import * as React from "react"
+// React imported via individual functions
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
 import { cn } from "@/lib/utils"
@@ -14,7 +14,7 @@ const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
 )
 Pagination.displayName = "Pagination"
 
-const PaginationContent = React.forwardRef<
+const PaginationContent = forwardRef<
   HTMLUListElement,
   React.ComponentProps<"ul">
 >(({ className, ...props }, ref) => (
@@ -26,7 +26,7 @@ const PaginationContent = React.forwardRef<
 ))
 PaginationContent.displayName = "PaginationContent"
 
-const PaginationItem = React.forwardRef<
+const PaginationItem = forwardRef<
   HTMLLIElement,
   React.ComponentProps<"li">
 >(({ className, ...props }, ref) => (
