@@ -1563,6 +1563,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.use('/api/consulting-agents', consultingAgentsRouter);
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
   
+  // RESTORED: Elena route mounting (frontend expects /api/elena/*)
+  app.use('/api/elena', consultingAgentsRouter);
+  console.log('✅ RESTORED: Elena workflow routes active at /api/elena/*');
+  
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
   
