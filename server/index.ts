@@ -153,6 +153,12 @@ async function startCompleteApp() {
     // Set up static file serving after routes are loaded
     setupStaticFiles();
     
+    // Add global error handling middleware (CRITICAL for deployment)
+    app.use((err: any, req: any, res: any, next: any) => {
+      console.error('Error:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    });
+    
     return server;
   } catch (error) {
     console.error('❌ Routes loading failed, using minimal fallback:', error.message);
@@ -169,6 +175,12 @@ async function startCompleteApp() {
         console.error('❌ Agent chat endpoint error:', err);
         res.status(500).json({ status: 'error', message: 'Agent chat failed' });
       }
+    });
+    
+    // Add global error handling middleware for fallback
+    app.use((err: any, req: any, res: any, next: any) => {
+      console.error('Error:', err);
+      res.status(500).json({ error: 'Internal server error' });
     });
     
     // Set up static file serving even if routes fail
