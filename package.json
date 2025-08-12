@@ -585,8 +585,8 @@
     "zwitch": "^2.0.4"
   },
   "scripts": {
-    "dev": "cd server && npx tsx index.ts",
-    "start": "cd server && npx tsx index.ts",
+    "dev": "cd server && node -r esbuild-register index.ts",
+    "start": "cd server && node -r esbuild-register index.ts", 
     "build": "vite build client"
   },
   "keywords": [],
