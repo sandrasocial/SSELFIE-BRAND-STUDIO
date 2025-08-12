@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ComponentPropsWithoutRef, ElementRef, HTMLAttributes } from 'react';
+import React, { ComponentPropsWithoutRef, ElementRef, HTMLAttributes, forwardRef } from 'react';
 
 // React imported via individual functions
 import * as SheetPrimitive from "@radix-ui/react-dialog"

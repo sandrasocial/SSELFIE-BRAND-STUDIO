@@ -2,12 +2,13 @@ import {
   ComponentProps,
   HTMLAttributes,
   KeyboardEvent,
-  useCallback,
-  useEffect,
-  useState
+  forwardRef, 
+  createContext, 
+  useContext, 
+  useEffect, 
+  useState, 
+  useCallback
 } from 'react';
-// React imported via individual functions
-import { forwardRef, createContext, useContext, useEffect, useState, useCallback } from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
