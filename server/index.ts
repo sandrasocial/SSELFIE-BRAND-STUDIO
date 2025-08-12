@@ -63,9 +63,9 @@ async function startCompleteApp() {
 function setupStaticFiles() {
   // Serve built frontend assets
   const possibleDistPaths = [
-    path.join(__dirname, '../dist'),
+    path.join(__dirname, '../dist/public'),
     path.join(__dirname, '../client/dist'), 
-    path.join(__dirname, '../dist/public')
+    path.join(__dirname, '../dist')
   ];
   
   for (const distPath of possibleDistPaths) {
@@ -84,8 +84,9 @@ function setupStaticFiles() {
     }
     
     const possibleIndexPaths = [
-      path.join(__dirname, '../dist/index.html'),
-      path.join(__dirname, '../client/dist/index.html')
+      path.join(__dirname, '../dist/public/index.html'),
+      path.join(__dirname, '../client/dist/index.html'),
+      path.join(__dirname, '../dist/index.html')
     ];
     
     for (const indexPath of possibleIndexPaths) {
