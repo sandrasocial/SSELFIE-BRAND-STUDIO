@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
-import { Switch } from '../components/ui/switch';
+// Switch component removed - creating simple alternative
 import { MemberNavigation } from '../components/member-navigation';
 import { GlobalFooter } from '../components/global-footer';
 // Removed Bridge System - Using only main consulting chat
