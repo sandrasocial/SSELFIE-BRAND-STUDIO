@@ -1506,8 +1506,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         predictionId: prediction.id,
         prompt: finalPrompt,
         style: 'Maya Editorial',
-        status: 'processing',
-        createdAt: new Date()
+        status: 'processing'
       };
       
       const savedTracker = await storage.saveGenerationTracker(trackerData);
@@ -1691,8 +1690,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           userId: dbUserId,
           imageUrl: imageUrl,
           prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-          generationStatus: 'completed',
+          style: 'editorial',
           predictionId: tracker.predictionId || '',
+          generationStatus: 'completed'
         });
         
         savedImages.push(galleryImage);
