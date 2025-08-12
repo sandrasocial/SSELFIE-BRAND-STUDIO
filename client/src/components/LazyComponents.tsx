@@ -1,17 +1,14 @@
 // ZARA'S FRONTEND OPTIMIZATION: Lazy loading components to reduce bundle size
 import { lazy } from 'react';
 
-// Large components that can be loaded on-demand
+// Large components that can be loaded on-demand (using existing pages)
 export const AdminConsultingAgents = lazy(() => import('../pages/admin-consulting-agents'));
-export const TrainingEditor = lazy(() => import('../pages/training-editor'));
-export const ImageGeneration = lazy(() => import('../pages/image-generation'));
-export const MemberWorkspace = lazy(() => import('../pages/member-workspace'));
-export const BusinessStrategist = lazy(() => import('../pages/business-strategist'));
+export const MayaPhotoshoot = lazy(() => import('../pages/maya'));
+export const VictoriaChat = lazy(() => import('../pages/victoria-chat'));
+export const MemberWorkspace = lazy(() => import('../pages/workspace'));
 
 // Heavy utility components
 export const ReactMarkdown = lazy(() => import('react-markdown'));
-export const CodeEditor = lazy(() => import('../components/code-editor'));
 
-// Marketing automation components
-export const EmailCampaigns = lazy(() => import('../pages/email-campaigns'));
+// Marketing automation components  
 export const MarketingAutomation = lazy(() => import('../pages/marketing-automation'));
