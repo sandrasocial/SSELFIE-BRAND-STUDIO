@@ -12,7 +12,7 @@ import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
-import subscriberImportRouter from './routes/subscriber-import';
+// import subscriberImportRouter from './routes/subscriber-import'; // Temporarily disabled due to import issues
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
 import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
