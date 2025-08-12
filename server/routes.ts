@@ -249,9 +249,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.isAdminBypass = true;
       }
       
-      // Import and handle via consulting agents router
-      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes.js');
-      await handleAdminConsultingChat(req, res);
+      // OLGA'S STABILITY FIX: Use stable consulting agents router
+      const { handleStableAdminConsultingChat } = await import('./routes/consulting-agents-stable.js');
+      await handleStableAdminConsultingChat(req, res);
       
     } catch (error) {
       console.error('❌ ADMIN CONSULTING ERROR:', error);
@@ -284,9 +284,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.isAdminBypass = true;
       }
       
-      // Import and handle via consulting agents router
-      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes.js');
-      await handleAdminConsultingChat(req, res);
+      // OLGA'S STABILITY FIX: Use stable consulting agents router
+      const { handleStableAdminConsultingChat } = await import('./routes/consulting-agents-stable.js');
+      await handleStableAdminConsultingChat(req, res);
       
     } catch (error) {
       console.error('❌ FRONTEND CONSULTING ERROR:', error);
