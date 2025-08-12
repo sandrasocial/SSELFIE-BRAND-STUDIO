@@ -4,8 +4,8 @@ import path from 'path';
 import fs from 'fs';
 
 const app = express();
-// Use environment PORT or default based on NODE_ENV
-const port = Number(process.env.PORT) || (process.env.NODE_ENV === 'production' ? 80 : 5000);
+// FIXED: Use PORT from environment (Cloud Run assigns this dynamically)
+const port = Number(process.env.PORT) || 5000;
 
 console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
 console.log(`🌐 Target Port: ${port}`);
@@ -33,16 +33,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// CRITICAL: Root endpoint for Replit health checks - MUST respond immediately
+// CRITICAL: Root endpoint for health checks - MUST respond in <1 second
 app.get('/', (req, res) => {
-  // Always return 200 immediately for health checks
-  res.status(200).json({ 
-    status: 'healthy',
-    service: 'SSELFIE Studio',
-    timestamp: new Date().toISOString(),
-    port: port,
-    env: process.env.NODE_ENV || 'development'
-  });
+  res.status(200).send('OK');
 });
 
 async function loadAllRoutes() {
@@ -67,38 +60,38 @@ async function loadAllRoutes() {
   }
 }
 
-// Start server with routes loaded FIRST to fix authentication 404
-async function startServer() {
-  console.log('🚀 Starting SSELFIE Studio with all your 4 months of work...');
+// FIXED: Start server immediately, then load routes
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
+  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
   
-  // CRITICAL: Load all routes FIRST before HTML fallback
+  // Initialize routes AFTER server is listening
+  initializeApp();
+});
+
+async function initializeApp() {
   console.log('📦 Loading comprehensive routes...');
-  const routesLoaded = await loadAllRoutes();
-  if (routesLoaded) {
-    console.log('✅ All your features loaded!');
-  } else {
-    console.log('⚠️ Using basic routes, main features may be limited');
+  
+  try {
+    const routesLoaded = await loadAllRoutes();
+    if (routesLoaded) {
+      console.log('✅ All your features loaded!');
+    } else {
+      console.log('⚠️ Using basic routes, main features may be limited');
+    }
+  } catch (error) {
+    console.warn('Route loading error:', error.message);
   }
   
   // AFTER routes are loaded, set up static files and HTML fallback
   app.use('/assets', express.static(path.join(__dirname, '../dist/assets')));
   app.use(express.static(path.join(__dirname, '../dist')));
   
-  // Serve React app for specific app routes (AFTER API routes)
-  app.get('/app', (req, res) => {
-    const htmlPath = path.join(__dirname, '../dist/index.html');
-    if (fs.existsSync(htmlPath)) {
-      res.sendFile(htmlPath);
-    } else {
-      res.status(404).send('Application not found');
-    }
-  });
-  
-  // Catch-all for other routes - serve app
+  // Serve React app for non-API routes
   app.get('*', (req, res) => {
-    // Skip health checks and API routes
-    if (req.path.startsWith('/api/') || req.path === '/health') {
-      return res.status(404).json({ error: 'Not found' });
+    // Skip API routes and health checks
+    if (req.path.startsWith('/api/') || req.path === '/health' || req.path === '/') {
+      return;
     }
     
     const htmlPath = path.join(__dirname, '../dist/index.html');
@@ -108,15 +101,22 @@ async function startServer() {
       res.status(404).send('Application not found');
     }
   });
-  
-  // Start server AFTER all routes are configured
-  const server = app.listen(port, '0.0.0.0', async () => {
-    console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
-    console.log(`🌐 Your complete application: http://localhost:${port}`);
-    console.log(`🏥 Health check ready at: / /health /api/health`);
-    console.log(`🔐 Authentication ready at: /api/login /api/callback /api/logout`);
-    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+}
+
+// Handle server startup errors
+server.on('error', (err: any) => {
+  console.error('❌ Server startup error:', err);
+  process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
   });
+});
 
   // Handle server startup errors
   server.on('error', (err: any) => {
