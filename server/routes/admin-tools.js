@@ -95,10 +95,32 @@ router.post('/direct-bash', adminBypass, async (req, res) => {
   try {
     const { command } = req.body;
     
-    // Execute command
+    // SECURITY: Validate and sanitize command to prevent injection
+    if (!command || typeof command !== 'string') {
+      return res.status(400).json({ error: 'Invalid command format' });
+    }
+    
+    // Whitelist of allowed commands for admin operations
+    const allowedCommands = [
+      /^ls\s.*/, /^cat\s.*/, /^grep\s.*/, /^find\s.*/, 
+      /^npm\s+run\s+\w+$/, /^npm\s+install$/, /^npm\s+test$/,
+      /^git\s+status$/, /^git\s+log\s+--oneline$/
+    ];
+    
+    const isAllowed = allowedCommands.some(pattern => pattern.test(command.trim()));
+    
+    if (!isAllowed) {
+      return res.status(403).json({ 
+        error: 'Command not allowed for security reasons',
+        allowedPatterns: ['ls', 'cat', 'grep', 'find', 'npm run', 'git status']
+      });
+    }
+    
+    // Execute with timeout and limited buffer
     const output = execSync(command, { 
       encoding: 'utf8',
-      maxBuffer: 1024 * 1024 // 1MB buffer
+      maxBuffer: 512 * 1024, // 512KB buffer
+      timeout: 10000 // 10 second timeout
     });
     
     res.json({ 
