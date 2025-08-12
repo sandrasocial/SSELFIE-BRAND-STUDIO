@@ -51,7 +51,7 @@ export default function AuthSuccess() {
         toast({
           title: "Setup Error",
           description: "There was an issue setting up your account. Please try again.",
-          variant: "destructive",
+          
         });
         
         // Still redirect to workspace, they can setup later

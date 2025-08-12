@@ -33,7 +33,7 @@ export class EnhancedErrorBoundary extends React.Component<Props, State> {
           <PreLoginNavigationUnified />
           
           <HeroFullBleed
-            backgroundImage={SandraImages.editorial.luxury1}
+            backgroundImage={SandraImages.editorial.laptop1}
             tagline="Something went wrong"
             title="ERROR"
             ctaText="Try Again"

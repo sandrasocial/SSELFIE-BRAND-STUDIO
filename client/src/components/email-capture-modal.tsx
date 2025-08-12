@@ -26,7 +26,7 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
       toast({
         title: "Email Required",
         description: "Please enter a valid email address",
-        variant: "destructive",
+        
       });
       return;
     }
@@ -57,7 +57,6 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
       toast({
         title: "Email Captured!",
         description: "Redirecting to authentication...",
-        variant: "default",
       });
       
       if (onEmailCaptured) {
@@ -75,7 +74,7 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
       toast({
         title: "Something went wrong",
         description: "Please try again or contact support",
-        variant: "destructive",
+        
       });
     } finally {
       setIsSubmitting(false);

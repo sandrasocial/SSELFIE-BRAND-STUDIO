@@ -23,8 +23,8 @@ const AdminAgentMetrics: React.FC<AdminAgentMetricsProps> = ({
   };
 
   return (
-    <div className="luxury-component">
-      <style jsx>{`
+    <div className="luxury-component admin-metrics-container">
+      <style>{`
         .luxury-component {
           max-width: 800px;
           margin: 0 auto;

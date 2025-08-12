@@ -38,7 +38,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
       toast({
         title: "Save Failed",
         description: "Failed to save your information. Please try again.",
-        variant: "destructive",
+        
       });
     },
   });
@@ -106,7 +106,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
         toast({
           title: "Generation Failed",
           description: "Failed to create your website. Please try again.",
-          variant: "destructive",
+          
         });
       }
     }

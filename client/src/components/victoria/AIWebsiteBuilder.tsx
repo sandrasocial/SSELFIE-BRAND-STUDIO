@@ -85,7 +85,7 @@ export function AIWebsiteBuilder() {
       toast({
         title: "Save Failed",
         description: "Failed to save your brand information. Please try again.",
-        variant: "destructive",
+        
       });
     },
   });

@@ -122,7 +122,7 @@ export default function BrandOnboarding() {
       toast({
         title: "Save Failed",
         description: "Failed to save brand information. Please try again.",
-        variant: "destructive",
+        
       });
     },
   });

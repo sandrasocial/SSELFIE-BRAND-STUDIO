@@ -78,7 +78,7 @@ export function WebsiteCard({ website, viewMode }: WebsiteCardProps) {
       toast({
         title: "Error",
         description: "Failed to delete website. Please try again.",
-        variant: "destructive",
+        
       });
     },
     onSettled: () => {
@@ -102,7 +102,7 @@ export function WebsiteCard({ website, viewMode }: WebsiteCardProps) {
       toast({
         title: "Error",
         description: "Failed to update screenshot.",
-        variant: "destructive",
+        
       });
     },
   });

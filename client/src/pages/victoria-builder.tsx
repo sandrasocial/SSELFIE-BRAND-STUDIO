@@ -454,7 +454,7 @@ export default function VictoriaBuilder() {
       toast({
         title: "Message failed",
         description: "Could not send message to Victoria",
-        variant: "destructive",
+        
       });
       setIsTyping(false);
     },

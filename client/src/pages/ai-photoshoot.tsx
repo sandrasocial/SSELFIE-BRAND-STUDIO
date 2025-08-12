@@ -707,7 +707,7 @@ export default function AIPhotoshootPage() {
       toast({
         title: "Save Failed",
         description: "No tracker ID available for saving",
-        variant: "destructive",
+        
       });
       return;
     }
@@ -759,7 +759,7 @@ export default function AIPhotoshootPage() {
       toast({
         title: "Save Failed",
         description: error instanceof Error ? error.message : "Could not save image to gallery",
-        variant: "destructive",
+        
       });
     }
   };
@@ -808,7 +808,7 @@ export default function AIPhotoshootPage() {
           toast({
             title: "Usage Limit Reached",
             description: "Upgrade to generate more images",
-            variant: "destructive",
+            
           });
           return;
         }
@@ -820,7 +820,7 @@ export default function AIPhotoshootPage() {
           toast({
             title: "AI Model Required",
             description: data.error || "Please complete your AI model training first.",
-            variant: "destructive",
+            
           });
           setTimeout(() => {
             window.location.href = data.redirectTo || '/simple-training';
@@ -855,7 +855,7 @@ export default function AIPhotoshootPage() {
       toast({
         title: "Generation Failed",
         description: (error as Error).message || "Something went wrong with image generation",
-        variant: "destructive",
+        
       });
     }
   }, [userModel, queryClient, toast]);
@@ -945,7 +945,7 @@ export default function AIPhotoshootPage() {
             toast({
               title: "Authentication Error", 
               description: "Session expired. Please refresh the page.",
-              variant: "destructive",
+              
             });
             return;
           }
@@ -986,7 +986,7 @@ export default function AIPhotoshootPage() {
           toast({
             title: "Generation Failed",
             description: "Something went wrong with image generation",
-            variant: "destructive",
+            
           });
           return;
         }
@@ -1023,7 +1023,7 @@ export default function AIPhotoshootPage() {
             toast({
               title: "Generation Timeout", 
               description: "Photos are taking longer than expected. Please try again.",
-              variant: "destructive",
+              
             });
           }
         }
@@ -1037,7 +1037,7 @@ export default function AIPhotoshootPage() {
           toast({
             title: "Connection Error",
             description: "Lost connection while generating. Please try again.",
-            variant: "destructive",
+            
           });
         }
       }
@@ -1260,7 +1260,7 @@ export default function AIPhotoshootPage() {
                         toast({
                           title: "Training Required",
                           description: "Please complete your AI model training first.",
-                          variant: "destructive",
+                          
                         });
                       }
                     }}

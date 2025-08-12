@@ -129,7 +129,7 @@ export default function ServiceIntegrationUI() {
       toast({
         title: "Refresh failed",
         description: "Could not check service connections",
-        variant: "destructive"
+        
       });
     } finally {
       setIsRefreshing(false);
@@ -160,7 +160,7 @@ export default function ServiceIntegrationUI() {
       toast({
         title: "Configuration failed",
         description: "Could not save service configuration",
-        variant: "destructive"
+        
       });
     }
   };

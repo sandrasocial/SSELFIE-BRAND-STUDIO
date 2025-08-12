@@ -24,7 +24,7 @@ export const PromptCard = memo<PromptCardProps>(({
       toast({
         title: "Training Required",
         description: "Please complete your AI model training first.",
-        variant: "destructive",
+        
       });
     }
   };
