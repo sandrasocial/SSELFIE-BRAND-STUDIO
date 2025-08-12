@@ -37,7 +37,7 @@ export default function Profile() {
       toast({
         title: "Update Failed", 
         description: error.message || "Failed to update profile.",
-        variant: "destructive"
+        
       });
     }
   });

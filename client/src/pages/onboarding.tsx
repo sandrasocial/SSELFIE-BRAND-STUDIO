@@ -252,7 +252,7 @@ export default function OnboardingNew() {
       // toast({
       //   title: "Save failed",
       //   description: "Failed to save your progress. Please try again.",
-      //   variant: "destructive",
+      //   
       // });
     }
   });
@@ -274,7 +274,7 @@ export default function OnboardingNew() {
         toast({
           title: "Training Validation Failed",
           description: `Please fix these issues: ${response.errors?.join(', ')}`,
-          variant: "destructive",
+          
         });
       }
     },
@@ -282,7 +282,7 @@ export default function OnboardingNew() {
       toast({
         title: "Training failed",
         description: "Training system error. Please restart upload process.",
-        variant: "destructive",
+        
       });
     }
   });
@@ -338,7 +338,7 @@ export default function OnboardingNew() {
       toast({
         title: "Invalid files",
         description: "Please upload only high-quality image files (10KB-10MB).",
-        variant: "destructive",
+        
       });
     }
 
@@ -354,7 +354,7 @@ export default function OnboardingNew() {
       toast({
         title: "Not enough photos",
         description: "Please upload at least 10 selfies for AI training.",
-        variant: "destructive",
+        
       });
       return;
     }

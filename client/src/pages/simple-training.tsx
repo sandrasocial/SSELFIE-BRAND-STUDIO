@@ -76,7 +76,7 @@ export default function SimpleTraining() {
       toast({
         title: "Reset Failed",
         description: "Unable to reset training. Please try again.",
-        variant: "destructive"
+        
       });
     }
   });
@@ -234,7 +234,7 @@ export default function SimpleTraining() {
         toast({
           title: "Training Validation Failed",
           description: `Please fix these issues: ${data.errors?.join(', ')}`,
-          variant: "destructive",
+          
         });
       }
     },
@@ -246,13 +246,13 @@ export default function SimpleTraining() {
         toast({
           title: "Training Failed",
           description: "Please restart upload process and try again.",
-          variant: "destructive",
+          
         });
       } else {
         toast({
           title: "Training Failed",
           description: error.message || "Training system error. Please try again.",
-          variant: "destructive",
+          
         });
       }
     }
@@ -273,7 +273,7 @@ export default function SimpleTraining() {
       toast({
         title: "Invalid files",
         description: "Please upload only high-quality image files (10KB-10MB).",
-        variant: "destructive",
+        
       });
     }
     
@@ -329,7 +329,7 @@ export default function SimpleTraining() {
       toast({
         title: "❌ CRITICAL: Need More Photos",
         description: `Only ${selfieImages.length} photos uploaded. MINIMUM 10 selfies required - no exceptions.`,
-        variant: "destructive",
+        
       });
       return;
     }
@@ -372,7 +372,7 @@ export default function SimpleTraining() {
       toast({
         title: "Upload Failed",
         description: "Failed to process images. Please try again with different photos.",
-        variant: "destructive",
+        
       });
       console.error('Image processing failed:', error);
     }

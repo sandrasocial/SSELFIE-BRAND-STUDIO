@@ -52,7 +52,7 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
         toast({
           title: "Upgrade Required",
           description: `This feature requires ${requiredPlan} subscription.`,
-          variant: "destructive",
+          
         });
         setLocation('/pricing');
         return;

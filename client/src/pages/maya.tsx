@@ -126,7 +126,7 @@ export default function Maya() {
       toast({
         title: "Authentication Required",
         description: "Please sign in to chat with Maya AI",
-        variant: "destructive",
+        
       });
       setLocation('/login');
       return;
@@ -326,7 +326,7 @@ export default function Maya() {
           toast({
             title: "Authentication Required",
             description: "Please refresh the page and try again.",
-            variant: "destructive",
+            
           });
           return;
         }
@@ -499,7 +499,7 @@ export default function Maya() {
           toast({
             title: "AI Model Required",
             description: data.error || "Please complete your AI model training first.",
-            variant: "destructive",
+            
           });
           setTimeout(() => {
             setLocation(data.redirectTo || '/simple-training');

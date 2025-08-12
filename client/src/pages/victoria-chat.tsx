@@ -82,7 +82,7 @@ export default function VictoriaChat() {
       toast({
         title: "Chat Error",
         description: "Failed to send message to Victoria. Please try again.",
-        variant: "destructive",
+        
       });
     } finally {
       setIsLoading(false);

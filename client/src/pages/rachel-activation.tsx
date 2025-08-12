@@ -22,7 +22,7 @@ export default function RachelActivation() {
       toast({
         title: "Task Failed",
         description: "There was an issue with your request",
-        variant: "destructive"
+        
       });
     }
   });

@@ -66,7 +66,7 @@ export default function CustomPhotoshootLibrary() {
       toast({
         title: "Save Failed",
         description: "Could not save image to gallery",
-        variant: "destructive",
+        
       });
     }
   }, [queryClient, toast]);
@@ -124,7 +124,7 @@ export default function CustomPhotoshootLibrary() {
       toast({
         title: "Generation Failed",
         description: "Something went wrong with image generation",
-        variant: "destructive",
+        
       });
     } finally {
       setTimeout(() => {

@@ -37,7 +37,7 @@ export function ManyChatPSIDUploader({ onPSIDListReady }: ManyChatPSIDUploaderPr
       toast({
         title: "Error processing file",
         description: "Please check your file format and try again",
-        variant: "destructive",
+        
       });
     } finally {
       setIsProcessing(false);
@@ -58,7 +58,7 @@ export function ManyChatPSIDUploader({ onPSIDListReady }: ManyChatPSIDUploaderPr
       toast({
         title: "Error processing text",
         description: "Please check your PSID format and try again",
-        variant: "destructive",
+        
       });
     } finally {
       setIsProcessing(false);

@@ -31,7 +31,7 @@ export default function SimpleCheckout() {
       toast({
         title: "Checkout Error",
         description: "Unable to start checkout process. Please try again.",
-        variant: "destructive",
+        
       });
       setIsProcessing(false);
     }

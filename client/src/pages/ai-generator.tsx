@@ -71,7 +71,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
       toast({
         title: "Collection Creation Failed",
         description: error.message,
-        variant: "destructive",
+        
       });
       setFluxCreating(false);
     }
@@ -131,7 +131,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
         toast({
           title: "Generation Error",
           description: "No prediction ID received from generation service",
-          variant: "destructive",
+          
         });
         setCurrentStep('selection');
       }
@@ -142,7 +142,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
         toast({
           title: "AI Model Required",
           description: "Please complete your AI model training first.",
-          variant: "destructive",
+          
         });
         setTimeout(() => {
           window.location.href = '/simple-training';
@@ -155,7 +155,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
         toast({
           title: "Usage Limit Reached",
           description: "You've reached your generation limit. Upgrade your plan to continue creating AI images.",
-          variant: "destructive",
+          
         });
         // Refresh usage data
         queryClient.invalidateQueries({ queryKey: ['/api/usage/status'] });
@@ -164,7 +164,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
         toast({
           title: "Generation failed",
           description: error.message,
-          variant: "destructive",
+          
         });
       }
       setCurrentStep('selection');
@@ -176,7 +176,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
       toast({
         title: "Generation Error",
         description: "No prediction ID received from generation service",
-        variant: "destructive",
+        
       });
       setCurrentStep('selection');
       return;
@@ -214,7 +214,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
           toast({
             title: "Generation Failed",
             description: "Image generation failed. Please try again with a different style.",
-            variant: "destructive",
+            
           });
           setCurrentStep('selection');
           return;
@@ -231,7 +231,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
             toast({
               title: "Generation Failed",
               description: replicateStatus.error || "Image generation failed. Please try again.",
-              variant: "destructive",
+              
             });
             setCurrentStep('selection');
             return;
@@ -261,7 +261,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
         toast({
           title: "Generation Taking Too Long",
           description: "Your images are still being created. Check back in a few minutes!",
-          variant: "destructive",
+          
         });
         setCurrentStep('selection');
       }
@@ -282,7 +282,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
       toast({
         title: "Please select a style",
         description: "Choose both a category and subcategory for your photoshoot.",
-        variant: "destructive",
+        
       });
       return;
     }
@@ -291,7 +291,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
       toast({
         title: "Model not ready",
         description: "Your personal AI model is still training. Please wait for completion.",
-        variant: "destructive",
+        
       });
       return;
     }
@@ -380,7 +380,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
         toast({
           title: "AI Model Required",
           description: "Please complete your AI model training first.",
-          variant: "destructive",
+          
         });
         setTimeout(() => {
           window.location.href = '/simple-training';
@@ -391,7 +391,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
       toast({
         title: "Generation Failed",
         description: "Try again or choose a different style",
-        variant: "destructive",
+        
       });
     } finally {
       setSandraGenerating(false);
@@ -745,7 +745,7 @@ function ResultsStep({ generatedImages, selectedImages, onImageSelection, onUseT
       toast({
         title: "Save Failed",
         description: "Could not save image to gallery. Please try again.",
-        variant: "destructive",
+        
       });
     } finally {
       setSavingImages(prev => {

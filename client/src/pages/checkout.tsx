@@ -65,7 +65,7 @@ const CheckoutForm = () => {
         toast({
           title: "Payment Failed",
           description: error.message,
-          variant: "destructive",
+          
         });
       }
     } catch (err) {
@@ -73,7 +73,7 @@ const CheckoutForm = () => {
       toast({
         title: "Payment Error",
         description: "Something went wrong. Please try again.",
-        variant: "destructive",
+        
       });
     } finally {
       setLoading(false);
