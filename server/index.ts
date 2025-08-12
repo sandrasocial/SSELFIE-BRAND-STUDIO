@@ -4,8 +4,11 @@ import path from 'path';
 import fs from 'fs';
 
 const app = express();
-// Use port 80 for deployment, 5000 for development
-const port = process.env.NODE_ENV === 'production' ? 80 : (Number(process.env.PORT) || 5000);
+// Use environment PORT or default based on NODE_ENV
+const port = Number(process.env.PORT) || (process.env.NODE_ENV === 'production' ? 80 : 5000);
+
+console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`🌐 Target Port: ${port}`);
 
 // Essential middleware
 app.use(express.json());
