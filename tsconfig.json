@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -14,19 +18,37 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["client/src/*"],
-      "@components/*": ["client/src/components/*"],
-      "@lib/*": ["client/src/lib/*"],
-      "@shared/*": ["shared/*"]
-    }
+      "@/*": [
+        "client/src/*"
+      ],
+      "@components/*": [
+        "client/src/components/*"
+      ],
+      "@lib/*": [
+        "client/src/lib/*"
+      ],
+      "@shared/*": [
+        "shared/*"
+      ]
+    },
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "client/src",
     "shared",
-    "server/**/*.ts"
+    "server/**/*.ts",
+    ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
