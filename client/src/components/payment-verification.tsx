@@ -47,7 +47,7 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
     // FIXED: Free users should get immediate access to workspace
     // Only block access if user needs specific premium features
     if (requiredPlan && requiredPlan !== 'free') {
-      const hasRequiredPlan = subscription?.plan === requiredPlan;
+      const hasRequiredPlan = subscription && typeof subscription === 'object' && subscription !== null && 'plan' in subscription ? (subscription as any).plan === requiredPlan : false;
       if (!hasRequiredPlan) {
         toast({
           title: "Upgrade Required",
