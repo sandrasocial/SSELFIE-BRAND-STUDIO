@@ -30,8 +30,10 @@ localPort = 3000
 externalPort = 3000
 
 [deployment]
-run = ["npm", "run", "dev"]
-deploymentTarget = "cloudrun"
+run = ["node", "api/index.js"]
+
+[deployment.env]
+NODE_ENV = "production"
 
 [env]
 NODE_ENV = "development"
