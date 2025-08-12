@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "npm install"
+    "build": "cd .. && npm install"
   },
   "dependencies": {
     "express": "^4.21.2",
