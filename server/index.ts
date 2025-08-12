@@ -33,14 +33,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint for quick health checks
-app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'SSELFIE Studio Online',
-    service: 'Complete Application with Maya, Victoria, Training, Admin',
-    timestamp: new Date().toISOString()
-  });
-});
+// Root endpoint will be handled by the static file serving after routes are loaded
 
 // Initialize your complete SSELFIE Studio application
 async function startCompleteApp() {
@@ -82,7 +75,7 @@ function setupStaticFiles() {
   
   // React app fallback for SPA routing
   app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/') || req.path === '/health' || req.path === '/') {
+    if (req.path.startsWith('/api/') || req.path === '/health') {
       return;
     }
     
