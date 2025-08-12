@@ -1,7 +1,6 @@
-import React from 'react';
-
+import { ReactNode } from 'react';
 interface TooltipProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function TooltipProvider({ children }: TooltipProviderProps) {

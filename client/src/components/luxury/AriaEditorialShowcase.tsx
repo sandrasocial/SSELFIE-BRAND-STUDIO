@@ -1,7 +1,7 @@
-import React from 'react';
+import { FC } from 'react';
 import { cn } from "@/lib/utils";
 
-const AriaEditorialShowcase: React.FC = () => {
+const AriaEditorialShowcase: FC = () => {
   return (
     <div className="bg-white py-16 px-8 max-w-6xl mx-auto">
       <h1 className="font-serif text-5xl font-normal text-black tracking-tight leading-tight mb-8">

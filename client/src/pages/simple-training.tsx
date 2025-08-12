@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { ChangeEvent } from 'react';
 import { MemberNavigation } from '../components/member-navigation';
 import { SandraImages } from '../lib/sandra-images';
 import { useAuth } from '../hooks/use-auth';
@@ -258,7 +258,7 @@ export default function SimpleTraining() {
     }
   });
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
     // 🛡️ BULLETPROOF VALIDATION: Strict requirements
@@ -981,7 +981,6 @@ export default function SimpleTraining() {
                   RETRAIN MY MODEL
                 </div>
               </div>
-
 
             </div>
           </section>

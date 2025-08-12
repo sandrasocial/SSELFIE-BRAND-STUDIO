@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { FC } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '../ui/card';
 // ScrollArea component removed
@@ -12,7 +12,7 @@ interface RealImageSelectionProps {
   }) => void;
 }
 
-export const RealImageSelection: React.FC<RealImageSelectionProps> = ({ 
+export const RealImageSelection: FC<RealImageSelectionProps> = ({ 
   onSelectionComplete 
 }) => {
   const [selectedAIPhotos, setSelectedAIPhotos] = useState<any[]>([]);

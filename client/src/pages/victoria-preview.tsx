@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 import { MemberNavigation } from '../components/member-navigation';
 import { HeroFullBleed } from '../components/HeroFullBleed';
 import { EditorialImageBreak } from '../components/editorial-image-break';
@@ -236,7 +236,7 @@ export default function VictoriaPreview() {
     return SINGLE_PAGE_TEMPLATE;
   };
 
-  const currentHtml = React.useMemo(() => {
+  const currentHtml = useMemo(() => {
     if (!brandData) {
       console.log('No brand data available for preview');
       return '<html><body style="padding: 40px; font-family: Times New Roman;"><h1>Loading brand data...</h1><p>Please wait while we load your information.</p></body></html>';

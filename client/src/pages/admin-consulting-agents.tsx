@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { KeyboardEvent } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
 // Switch component removed - creating simple alternative
@@ -87,7 +87,6 @@ const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
   );
 });
 
-
 interface ConsultingAgent {
   id: string;
   name: string;
@@ -147,10 +146,6 @@ interface ToolIndicator {
   active: boolean;
   fileName?: string;
 }
-
-
-
-
 
 const createClaudeConversation = async (agentName: string) => {
   // Generate unique conversation ID for agent
@@ -254,7 +249,7 @@ export default function AdminConsultingAgents() {
   const [fileEditMode, setFileEditMode] = useState(true);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -416,8 +411,6 @@ export default function AdminConsultingAgents() {
 
     loadHistory();
   }, [selectedAgent?.id]);
-
-
 
   // Check if user is Sandra (admin access required)
   if (!user || (user.email !== 'ssa@ssasocial.com' && user.role !== 'admin')) {
@@ -751,7 +744,6 @@ export default function AdminConsultingAgents() {
               </p>
             </div>
           </div>
-
 
         </div>
       </section>

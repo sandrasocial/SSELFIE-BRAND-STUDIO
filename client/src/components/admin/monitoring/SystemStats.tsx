@@ -1,6 +1,5 @@
-import React from 'react';
-
-export const SystemStats: React.FC = () => {
+import { FC } from 'react';
+export const SystemStats: FC = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
       <h3 className="text-lg font-medium mb-3">System Stats</h3>

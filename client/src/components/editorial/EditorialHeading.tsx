@@ -1,12 +1,11 @@
-import React from 'react';
-
+import { FC, ReactNode } from 'react';
 interface EditorialHeadingProps {
-  children: React.ReactNode;
+  children: ReactNode;
   level?: 1 | 2 | 3 | 4;
   className?: string;
 }
 
-export const EditorialHeading: React.FC<EditorialHeadingProps> = ({
+export const EditorialHeading: FC<EditorialHeadingProps> = ({
   children,
   level = 1,
   className = ''

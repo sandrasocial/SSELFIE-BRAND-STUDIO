@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { FormEvent } from 'react';
 import { useLocation } from "wouter";
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -44,7 +44,7 @@ const CheckoutForm = () => {
     return urlPlan || storedPlan || 'full-access';
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!stripe || !elements) {

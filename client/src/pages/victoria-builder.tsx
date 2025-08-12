@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { KeyboardEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { apiRequest } from '../lib/queryClient';
@@ -485,7 +485,7 @@ export default function VictoriaBuilder() {
     sendMessageMutation.mutate(currentMessage);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();

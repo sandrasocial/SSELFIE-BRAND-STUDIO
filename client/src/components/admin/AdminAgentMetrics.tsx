@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-
+import { FC } from 'react';
 interface AdminAgentMetricsProps {
   title?: string;
   onAction?: () => void;
@@ -11,7 +10,7 @@ interface AdminAgentMetricsProps {
   }[];
 }
 
-const AdminAgentMetrics: React.FC<AdminAgentMetricsProps> = ({ 
+const AdminAgentMetrics: FC<AdminAgentMetricsProps> = ({ 
   title = 'Backend Architecture & Database Management Component',
   onAction 
 }) => {

@@ -1,53 +1,117 @@
 #!/usr/bin/env node
 
 /**
- * SSELFIE Studio - Stable Server Launcher (CommonJS)
- * Prevents SIGTERM shutdowns and maintains server stability
+ * COMPREHENSIVE SERVER WITH PROPER MIME TYPES
+ * Fixes all MIME type issues including service worker and manifest
  */
 
-const { spawn } = require('child_process');
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
 
-let serverProcess = null;
-let restartCount = 0;
-const MAX_RESTARTS = 10;
+const app = express();
+const port = process.env.PORT || 5000;
 
-console.log('🚀 SSELFIE Studio - Stable Server Mode');
+// Define proper MIME types
+const mimeTypes = {
+  '.js': 'application/javascript',
+  '.mjs': 'application/javascript',
+  '.json': 'application/json',
+  '.css': 'text/css',
+  '.html': 'text/html',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon'
+};
 
-function startServer() {
-  console.log(`\n⚡ Starting server (attempt ${restartCount + 1})`);
-  
-  serverProcess = spawn('npx', ['tsx', 'server/index.ts'], {
-    stdio: 'inherit',
-    env: { 
-      ...process.env, 
-      PORT: '5000',
-      NODE_ENV: 'production'
-    },
-    cwd: process.cwd()
-  });
-  
-  serverProcess.on('close', (code, signal) => {
-    console.log(`\n⚠️ Server ended: code=${code}, signal=${signal}`);
+// Configure static file serving with comprehensive MIME types
+app.use(express.static('dist/public', {
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath).toLowerCase();
+    const mimeType = mimeTypes[ext];
     
-    if (restartCount < MAX_RESTARTS) {
-      console.log('🔄 Auto-restarting in 2 seconds...');
-      setTimeout(() => {
-        restartCount++;
-        startServer();
-      }, 2000);
-    } else {
-      console.log('❌ Max restarts reached');
-      process.exit(1);
+    if (mimeType) {
+      res.setHeader('Content-Type', `${mimeType}; charset=utf-8`);
     }
-  });
-}
+    
+    // Special handling for service worker
+    if (filePath.endsWith('sw.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      res.setHeader('Service-Worker-Allowed', '/');
+    }
+    
+    // Special handling for manifest
+    if (filePath.endsWith('manifest.json')) {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    }
+  }
+}));
 
-// Handle shutdown signals
-process.on('SIGINT', () => {
-  console.log('\n🛑 Shutdown requested');
-  if (serverProcess) serverProcess.kill('SIGINT');
-  process.exit(0);
+// Explicit asset handling with proper MIME types
+app.use('/assets', express.static('dist/public/assets', {
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath).toLowerCase();
+    if (ext === '.js') {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    } else if (ext === '.css') {
+      res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    }
+  }
+}));
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    service: 'SSELFIE Studio', 
+    timestamp: new Date().toISOString(),
+    port: port,
+    mimeTypes: 'configured'
+  });
 });
 
-startServer();
-console.log('🛡️ Server will auto-restart if terminated');
+// Create dummy manifest.json if missing to prevent errors
+const manifestPath = path.join(__dirname, 'dist/public/manifest.json');
+if (!fs.existsSync(manifestPath)) {
+  const manifest = {
+    "name": "SSELFIE Studio",
+    "short_name": "SSELFIE",
+    "description": "AI Personal Branding Platform",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#000000"
+  };
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  console.log('📄 Created manifest.json');
+}
+
+// SPA fallback
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/') || req.path === '/health') {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
+  const indexPath = path.join(__dirname, 'dist/public/index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  
+  res.status(404).send('Application not found');
+});
+
+// Start server
+app.listen(port, '0.0.0.0', () => {
+  console.log(`✅ SSELFIE Studio COMPLETE on port ${port}`);
+  console.log(`📂 Static files: ${path.join(__dirname, 'dist/public')}`);
+  console.log(`🔗 Access: http://localhost:${port}`);
+  
+  // Log bundle status
+  const distPath = path.join(__dirname, 'dist/public/assets');
+  if (fs.existsSync(distPath)) {
+    const bundles = fs.readdirSync(distPath).filter(f => f.startsWith('index-') && f.endsWith('.js'));
+    console.log(`📦 Active bundles: ${bundles.join(', ')}`);
+  }
+});

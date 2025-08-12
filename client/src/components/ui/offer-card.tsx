@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { FC } from 'react';
 import { cn } from "@/lib/utils";
 
 interface OfferCardProps {
@@ -15,7 +15,7 @@ interface OfferCardProps {
   className?: string;
 }
 
-const OfferCard: React.FC<OfferCardProps> = ({
+const OfferCard: FC<OfferCardProps> = ({
   number,
   title,
   price,

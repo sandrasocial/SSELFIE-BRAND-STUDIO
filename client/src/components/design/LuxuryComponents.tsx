@@ -1,12 +1,11 @@
-import React from 'react';
-
+import { FC, ReactNode } from 'react';
 interface LuxuryHeadingProps {
-  children: React.ReactNode;
+  children: ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }
 
-export const LuxuryHeading: React.FC<LuxuryHeadingProps> = ({ 
+export const LuxuryHeading: FC<LuxuryHeadingProps> = ({ 
   children, 
   size = 'md',
   className = ''
@@ -35,12 +34,12 @@ export const LuxuryHeading: React.FC<LuxuryHeadingProps> = ({
 };
 
 interface EditorialTextProps {
-  children: React.ReactNode;
+  children: ReactNode;
   variant?: 'body' | 'caption' | 'detail';
   className?: string; 
 }
 
-export const EditorialText: React.FC<EditorialTextProps> = ({
+export const EditorialText: FC<EditorialTextProps> = ({
   children,
   variant = 'body',
   className = ''
@@ -69,7 +68,7 @@ interface EditorialDividerProps {
   className?: string;
 }
 
-export const EditorialDivider: React.FC<EditorialDividerProps> = ({
+export const EditorialDivider: FC<EditorialDividerProps> = ({
   className = ''
 }) => {
   return (
@@ -85,11 +84,11 @@ export const EditorialDivider: React.FC<EditorialDividerProps> = ({
 };
 
 interface EditorialContainerProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
-export const EditorialContainer: React.FC<EditorialContainerProps> = ({
+export const EditorialContainer: FC<EditorialContainerProps> = ({
   children,
   className = ''
 }) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, lazy, Suspense } from "react";
+import { ComponentType, useEffect } from 'react';
 import { Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -36,7 +36,6 @@ import AIGenerator from "./pages/ai-generator";
 import AIPhotoshoot from "./pages/ai-photoshoot";
 import SimpleTraining from "./pages/simple-training";
 
-
 import AdminDashboard from "./pages/admin-dashboard";
 import AdminBusinessOverview from "./pages/admin-business-overview";
 import AdminConsultingAgents from "./pages/admin-consulting-agents";
@@ -46,10 +45,8 @@ import BridgeMonitor from "./pages/admin/bridge-monitor";
 import { UnifiedAgentInterface } from "./components/admin/UnifiedAgentInterface";
 import UnifiedLoginButton from "./components/UnifiedLoginButton";
 
-
 import AgentApproval from "./pages/agent-approval";
 import AgentCommandCenter from "./pages/agent-command-center";
-
 
 import CustomPhotoshootLibrary from "./pages/custom-photoshoot-library";
 import FlatlayLibrary from "./pages/flatlay-library";
@@ -73,8 +70,6 @@ import AdminAccessOnly from "./pages/admin-access-only";
 import Build from "./pages/build";
 
 // Removed duplicate photoshoot imports - using existing system
-
-
 
 // Smart Home component that routes based on onboarding status
 function SmartHome() {
@@ -104,7 +99,7 @@ function SmartHome() {
 }
 
 // Protected wrapper component that handles authentication
-function ProtectedRoute({ component: Component, ...props }: { component: React.ComponentType<any>, [key: string]: any }) {
+function ProtectedRoute({ component: Component, ...props }: { component: ComponentType<any>, [key: string]: any }) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
   
@@ -208,15 +203,15 @@ function Router() {
       <Route path="/auth-success" component={AuthSuccess} />
       <Route path="/switch-account" component={SwitchAccount} />
       <Route path="/auth" component={() => {
-        React.useEffect(() => { window.location.href = '/api/login'; }, []);
+        useEffect(() => { window.location.href = '/api/login'; }, []);
         return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
       }} />
       <Route path="/sign-in" component={() => {
-        React.useEffect(() => { window.location.href = '/api/login'; }, []);
+        useEffect(() => { window.location.href = '/api/login'; }, []);
         return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
       }} />
       <Route path="/auth-custom" component={() => {
-        React.useEffect(() => { window.location.href = '/api/login'; }, []);
+        useEffect(() => { window.location.href = '/api/login'; }, []);
         return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
       }} />
 
@@ -281,7 +276,6 @@ function Router() {
       <Route path="/admin/business-overview" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
       <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/subscriber-import" component={(props) => <ProtectedRoute component={AdminSubscriberImport} {...props} />} />
-
 
       <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
       <Route path="/admin/agent-activity" component={() => <div className="p-8">Agent Activity Dashboard - Coming Soon</div>} />

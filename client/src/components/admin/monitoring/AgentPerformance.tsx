@@ -1,6 +1,5 @@
-import React from 'react';
-
-export const AgentPerformance: React.FC = () => {
+import { FC } from 'react';
+export const AgentPerformance: FC = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
       <h3 className="text-lg font-medium mb-3">Agent Performance</h3>

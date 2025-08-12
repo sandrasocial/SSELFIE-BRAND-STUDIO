@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { FC } from 'react';
 import { useDashboardData } from '../../hooks/useDashboardData';
 // import { DashboardMetrics, DashboardSection } from '../../../shared/types/dashboard';
 import styled from 'styled-components';
@@ -55,7 +55,7 @@ const SectionContainer = styled.section`
   }
 `;
 
-export const ComplexDashboard: React.FC = () => {
+export const ComplexDashboard: FC = () => {
   const { metrics, sections, loading, error } = useDashboardData();
   
   if (loading) return <div>Loading...</div>;
