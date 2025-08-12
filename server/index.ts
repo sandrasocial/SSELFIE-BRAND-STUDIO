@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 
 const app = express();
-// FIXED: Use PORT from environment (Cloud Run assigns this dynamically)
+// FIXED: Use PORT from environment (Cloud Run assigns this dynamically)  
 const port = Number(process.env.PORT) || 5000;
 
 console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
