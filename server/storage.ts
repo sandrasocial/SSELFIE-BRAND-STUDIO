@@ -17,7 +17,7 @@ import {
   mayaChats,
   mayaChatMessages,
   type User,
-  type UpsertUser,
+  type InsertUser,
   type UserProfile,
   type InsertUserProfile,
   type OnboardingData,
@@ -66,7 +66,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  upsertUser(user: InsertUser): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
 
   // User Profile operations
