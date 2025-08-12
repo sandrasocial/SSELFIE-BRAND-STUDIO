@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
   }
 });
 
-async function loadRoutesInBackground() {
+async function loadAllRoutes() {
   try {
     // Import and setup your comprehensive routes with all features
     const { registerRoutes } = await import('./routes');
@@ -78,41 +78,40 @@ async function loadRoutesInBackground() {
   }
 }
 
-// Serve built static files
-app.use('/assets', express.static(path.join(__dirname, '../assets')));
-app.use(express.static(path.join(__dirname, '../dist/public')));
-
-// Serve React app for all remaining routes
-app.get('*', (req, res) => {
-  const htmlPath = path.join(__dirname, '../dist/public/index.html');
-  if (fs.existsSync(htmlPath)) {
-    res.sendFile(htmlPath);
-  } else {
-    res.status(404).send('Application not found');
-  }
-});
-
-// Start server IMMEDIATELY, load routes in background
+// Start server with routes loaded FIRST to fix authentication 404
 async function startServer() {
   console.log('🚀 Starting SSELFIE Studio with all your 4 months of work...');
   
-  // Start server FIRST for health checks
+  // CRITICAL: Load all routes FIRST before HTML fallback
+  console.log('📦 Loading comprehensive routes...');
+  const routesLoaded = await loadAllRoutes();
+  if (routesLoaded) {
+    console.log('✅ All your features loaded!');
+  } else {
+    console.log('⚠️ Using basic routes, main features may be limited');
+  }
+  
+  // AFTER routes are loaded, set up static files and HTML fallback
+  app.use('/assets', express.static(path.join(__dirname, '../assets')));
+  app.use(express.static(path.join(__dirname, '../dist/public')));
+  
+  // Serve React app for all remaining routes (AFTER API routes)
+  app.get('*', (req, res) => {
+    const htmlPath = path.join(__dirname, '../dist/public/index.html');
+    if (fs.existsSync(htmlPath)) {
+      res.sendFile(htmlPath);
+    } else {
+      res.status(404).send('Application not found');
+    }
+  });
+  
+  // Start server AFTER all routes are configured
   const server = app.listen(port, '0.0.0.0', async () => {
     console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
     console.log(`🌐 Your complete application: http://localhost:${port}`);
     console.log(`🏥 Health check ready at: / /health /api/health`);
-    
-    // Load comprehensive routes in background AFTER server responds to health checks
-    setTimeout(async () => {
-      console.log('📦 Loading comprehensive routes in background...');
-      const routesLoaded = await loadRoutesInBackground();
-      if (routesLoaded) {
-        console.log('✅ All your features are now active!');
-      } else {
-        console.log('⚠️ Using basic routes, main features may be limited');
-      }
-      console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
-    }, 100); // Small delay to ensure health check responsiveness
+    console.log(`🔐 Authentication ready at: /api/login /api/callback /api/logout`);
+    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 
   // Handle server startup errors
