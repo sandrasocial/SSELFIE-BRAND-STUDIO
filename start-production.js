@@ -37,14 +37,17 @@ buildProcess.on('close', (buildCode) => {
   console.log('✅ Build assets verified');
   console.log('🚀 Starting server...');
   
-  // Start the server
+  // Start the server with optimized settings for deployment
   const serverProcess = spawn('npx', ['tsx', 'server/index.ts'], {
     stdio: 'inherit',
     shell: true,
     env: {
       ...process.env,
       NODE_ENV: 'production',
-      PORT: process.env.PORT || '80'
+      PORT: process.env.PORT || '80',
+      // Ensure fast startup for health checks
+      TS_NODE_TRANSPILE_ONLY: 'true',
+      TS_NODE_TYPE_CHECK: 'false'
     }
   });
   
