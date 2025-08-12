@@ -1,4 +1,5 @@
 // React imported via individual functions
+import { forwardRef } from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
