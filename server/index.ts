@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
   }
   
   // Serve the main app for regular requests
-  const htmlPath = path.join(__dirname, '../dist/public/index.html');
+  const htmlPath = path.join(__dirname, '../dist/index.html');
   if (fs.existsSync(htmlPath)) {
     res.sendFile(htmlPath);
   } else {
@@ -92,12 +92,12 @@ async function startServer() {
   }
   
   // AFTER routes are loaded, set up static files and HTML fallback
-  app.use('/assets', express.static(path.join(__dirname, '../assets')));
-  app.use(express.static(path.join(__dirname, '../dist/public')));
+  app.use('/assets', express.static(path.join(__dirname, '../dist/assets')));
+  app.use(express.static(path.join(__dirname, '../dist')));
   
   // Serve React app for all remaining routes (AFTER API routes)
   app.get('*', (req, res) => {
-    const htmlPath = path.join(__dirname, '../dist/public/index.html');
+    const htmlPath = path.join(__dirname, '../dist/index.html');
     if (fs.existsSync(htmlPath)) {
       res.sendFile(htmlPath);
     } else {
