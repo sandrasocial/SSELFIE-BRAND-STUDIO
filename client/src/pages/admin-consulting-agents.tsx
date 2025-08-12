@@ -9,21 +9,21 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Agent images - Each agent has their own unique professional photo
-import AgentElena from '@assets/09858e4e-bdc3-4609-821a-454573775167_1753943438114.JPG';
-import AgentMaya from '@assets/30235492-1362-4605-9c5f-c1ee347993ad_1753943438113.JPG';
-import AgentVictoria from '@assets/381d0ae1-be94-401a-96be-f057b93e4b2a_1753943438114.JPG';
-import AgentAria from '@assets/497d752b-4849-4226-a851-63f50b87c090_1753943438114.JPG';
-import AgentZara from '@assets/65c64f27-9592-4b0f-86df-bbc9c4330e1d_1753943438113.JPG';
-import AgentRachel from '@assets/6a4232fd-a98d-4606-8a37-f2089249fa26_1753943438114.JPG';
-import AgentAva from '@assets/76139531-4e51-49b0-9097-8b0edd437f8b_1753943438113.JPG';
-import AgentQuinn from '@assets/b3bc8437-a0f0-48ca-9fe4-a0c129f47f28_1753943438113.JPG';
-import AgentSophia from '@assets/c181f637-abb1-4251-beae-199d7ec89891_1753943438112.JPG';
-import AgentMartha from '@assets/c70adccd-b4c6-4b6f-b53b-5f9b1268c97b_1753943438111.JPG';
-import AgentDiana from '@assets/cb43f0cc-d217-476e-a1a7-6c1ad3b8dffb_1753943438112.JPG';
-import AgentWilma from '@assets/76139531-4e51-49b0-9097-8b0edd437f8b 2_1753943438113.JPG';
-import AgentOlga from '@assets/Instagram Template _ Melanin Instagram _ Melanin Reels _ Melanin Boss_ (1)_1751959633154.jpeg';
-import AgentFlux from '@assets/sselfie-7 (1)_1752344342609.jpg';
+// Agent images - Restored from original design using actual existing files
+import AgentElena from '@assets/out-0 (33)_1753426218039.png';
+import AgentMaya from '@assets/out-0 (34)_1753426218040.png';
+import AgentVictoria from '@assets/out-0 (37)_1753426218041.png';
+import AgentAria from '@assets/out-0 (20)_1753426218042.png';
+import AgentZara from '@assets/out-0 (28)_1753426218042.png';
+import AgentRachel from '@assets/out-0 (42)_1753426218042.png';
+import AgentAva from '@assets/out-1 (27)_1753426218043.png';
+import AgentQuinn from '@assets/out-0 (26)_1753426218043.png';
+import AgentSophia from '@assets/out-1 (18)_1753426218043.png';
+import AgentMartha from '@assets/out-0 (29)_1753426218044.png';
+import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
+import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
+import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
+import AgentFlux from '@assets/out-0 (33)_1753426218039.png';
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
