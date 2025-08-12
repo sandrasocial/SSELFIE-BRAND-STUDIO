@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { KeyboardEvent } from 'react';
 import { useLocation } from "wouter";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader } from "../components/ui/card";
@@ -89,7 +89,7 @@ export default function VictoriaChat() {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();

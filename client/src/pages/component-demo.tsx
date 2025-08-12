@@ -1,7 +1,7 @@
-import React from 'react';
+import { FC } from 'react';
 import ComponentDemo from '../components/ComponentDemo';
 
-const ComponentDemoPage: React.FC = () => {
+const ComponentDemoPage: FC = () => {
   const handleComponentAction = () => {
     console.log('🚀 ELENA: Component demonstration activated!');
   };

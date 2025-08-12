@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { ChangeEvent } from 'react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
@@ -19,7 +19,7 @@ export function ManyChatPSIDUploader({ onPSIDListReady }: ManyChatPSIDUploaderPr
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 

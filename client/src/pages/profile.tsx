@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { FormEvent } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../hooks/use-toast';
@@ -68,7 +68,7 @@ export default function Profile() {
     }
   }, [profile]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     updateProfileMutation.mutate(formData);
   };

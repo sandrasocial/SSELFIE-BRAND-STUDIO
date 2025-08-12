@@ -1,7 +1,7 @@
-import React from "react";
+import { TextareaHTMLAttributes } from 'react';
 import { cn } from "../../lib/utils";
 
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   fullWidth?: boolean;

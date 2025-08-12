@@ -1,3 +1,4 @@
+import { HTMLAttributes } from 'react';
 // React imported via individual functions
 import { forwardRef } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -22,7 +23,7 @@ const alertVariants = cva(
 
 const Alert = forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
+  HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
 >(({ className, variant, ...props }, ref) => (
   <div
     ref={ref}
@@ -35,7 +36,7 @@ Alert.displayName = "Alert"
 
 const AlertTitle = forwardRef<
   HTMLParagraphElement,
-  React.HTMLAttributes<HTMLHeadingElement>
+  HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
   <h5
     ref={ref}
@@ -47,7 +48,7 @@ AlertTitle.displayName = "AlertTitle"
 
 const AlertDescription = forwardRef<
   HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
+  HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}

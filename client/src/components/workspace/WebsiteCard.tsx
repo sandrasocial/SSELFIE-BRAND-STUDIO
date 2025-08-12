@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { ReactNode } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { 
@@ -35,7 +35,7 @@ const formatDistanceToNow = (date: Date, options?: { addSuffix?: boolean }) => {
 };
 
 // Simple Badge component for status display
-const Badge = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+const Badge = ({ children, className }: { children: ReactNode; className?: string }) => (
   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
     {children}
   </span>

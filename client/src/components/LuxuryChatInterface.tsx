@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-
+import { FC, FormEvent } from 'react';
 interface Message {
   id: string;
   type: 'user' | 'agent';
@@ -16,7 +15,7 @@ interface LuxuryChatInterfaceProps {
   messages?: Message[];
 }
 
-const LuxuryChatInterface: React.FC<LuxuryChatInterfaceProps> = ({
+const LuxuryChatInterface: FC<LuxuryChatInterfaceProps> = ({
   agentName,
   agentRole,
   status,
@@ -25,7 +24,7 @@ const LuxuryChatInterface: React.FC<LuxuryChatInterfaceProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (inputValue.trim() && onSendMessage) {
       onSendMessage(inputValue.trim());
@@ -166,7 +165,7 @@ interface ChatQuickActionsProps {
   actions: QuickAction[];
 }
 
-export const ChatQuickActions: React.FC<ChatQuickActionsProps> = ({ 
+export const ChatQuickActions: FC<ChatQuickActionsProps> = ({ 
   agentName, 
   actions 
 }) => {
@@ -192,7 +191,7 @@ export const ChatQuickActions: React.FC<ChatQuickActionsProps> = ({
 };
 
 // Chat Layout Component combining interface and actions
-export const LuxuryChatLayout: React.FC<{
+export const LuxuryChatLayout: FC<{
   agentName: string;
   agentRole: string;
   status: 'active' | 'working' | 'thinking' | 'offline';

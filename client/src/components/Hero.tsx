@@ -1,6 +1,5 @@
-import React from 'react';
-
-const Hero: React.FC = () => {
+import { FC } from 'react';
+const Hero: FC = () => {
   return (
     <div className="bg-white">
       <div className="max-w-7xl mx-auto px-8 py-24">

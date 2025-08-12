@@ -1,3 +1,4 @@
+import { FC } from 'react';
 import { FC } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -7,7 +8,7 @@ interface SectionHeadlineProps {
   className?: string
 }
 
-export const SectionHeadline: React.FC<SectionHeadlineProps> = ({
+export const SectionHeadline: FC<SectionHeadlineProps> = ({
   tagline,
   headline,
   className

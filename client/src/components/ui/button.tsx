@@ -1,3 +1,4 @@
+import { ButtonHTMLAttributes } from 'react';
 // React imported via individual functions
 import { forwardRef } from "react"
 import { Slot } from "@radix-ui/react-slot"
@@ -35,7 +36,7 @@ const buttonVariants = cva(
 )
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }

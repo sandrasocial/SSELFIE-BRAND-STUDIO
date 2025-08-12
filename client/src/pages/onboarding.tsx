@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { ChangeEvent } from 'react';
 import { MemberNavigation } from '../components/member-navigation';
 import { useAuth } from '../hooks/use-auth';
 import { useMutation } from '@tanstack/react-query';
@@ -217,7 +217,7 @@ export default function OnboardingNew() {
   }: { 
     label: string, 
     value: string, 
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
+    onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
     multiline?: boolean 
   }) => (
     <div className="mb-8">
@@ -323,7 +323,7 @@ export default function OnboardingNew() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
     // 🛡️ BULLETPROOF VALIDATION: Strict requirements

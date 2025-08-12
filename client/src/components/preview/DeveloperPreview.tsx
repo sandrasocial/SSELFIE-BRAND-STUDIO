@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { FC } from 'react';
 import { ChatInterface } from './ChatInterface';
 
 interface DeveloperPreviewProps {
@@ -10,7 +10,7 @@ interface DeveloperPreviewProps {
   }) => void;
 }
 
-const DeveloperPreview: React.FC<DeveloperPreviewProps> = ({
+const DeveloperPreview: FC<DeveloperPreviewProps> = ({
   currentPage,
   onEdit
 }) => {

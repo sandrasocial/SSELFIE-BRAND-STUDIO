@@ -1,16 +1,16 @@
-import { ButtonHTMLAttributes } from 'react';
+import { ButtonHTMLAttributes, ReactNode } from 'react';
 
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost' | 'editorial';
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  children: React.ReactNode;
+  children: ReactNode;
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
   fullWidth?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button = ({
   variant = 'primary',
   size = 'md',
   children,

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { FormEvent } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../hooks/use-toast';
@@ -1063,7 +1063,7 @@ function FluxCollectionCreator({ onClose, onSubmit, isCreating }: FluxCollection
   const [targetAudience, setTargetAudience] = useState('');
   const [moodKeywords, setMoodKeywords] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!styleDescription || !targetAudience || !moodKeywords) return;
     

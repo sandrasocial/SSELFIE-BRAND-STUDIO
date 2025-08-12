@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import styled from 'styled-components';
 
 const LuxuryContainer = styled.div`
@@ -59,7 +59,7 @@ const MetricValue = styled.div`
   color: #0a0a0a;
 `;
 
-const LuxuryBrandAudit: React.FC = () => {
+const LuxuryBrandAudit: FC = () => {
   return (
     <LuxuryContainer>
       <LuxuryHeading>Luxury Brand Performance Audit</LuxuryHeading>

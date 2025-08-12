@@ -4,11 +4,11 @@ interface EditorialCardProps {
   title: string;
   subtitle?: string;
   image?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
-export const EditorialCard: React.FC<EditorialCardProps> = ({
+export const EditorialCard = ({
   title,
   subtitle,
   image,

@@ -1,10 +1,10 @@
-import React from 'react';
+import { FC } from 'react';
 import { BrandStory } from '../components/editorial/BrandStory';
 import { Credentials } from '../components/editorial/Credentials';
 import { BehindTheScenes } from '../components/editorial/BehindTheScenes';
 import { TrustElements } from '../components/editorial/TrustElements';
 
-const AboutPage: React.FC = () => {
+const AboutPage: FC = () => {
   return (
     <div className="about-page luxury-layout">
       <BrandStory extended={true} />

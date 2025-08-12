@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { KeyboardEvent } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useLocation } from 'wouter';
 import { useToast } from '../hooks/use-toast';
@@ -118,7 +118,6 @@ export default function Maya() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentTrackerId, setCurrentTrackerId] = useState<number | null>(null);
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
-
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -284,8 +283,6 @@ export default function Maya() {
       setIsTyping(false);
     }
   };
-
-
 
   // 🔑 FIXED: Poll tracker for image completion with robust authentication
   const pollForTrackerCompletion = async (trackerId: number) => {
@@ -687,7 +684,7 @@ export default function Maya() {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
