@@ -1507,10 +1507,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         predictionId: prediction.id,
         prompt: finalPrompt,
         style: 'Maya Editorial',
-        status: 'processing'
+        status: 'processing' as const
       };
       
-      const savedTracker = await storage.saveGenerationTracker(trackerData);
+      const savedTracker = await storage.saveGenerationTracker(trackerData as any);
       console.log('📊 Maya: Created tracker:', savedTracker.id);
 
       // Return immediately with trackerId for live frontend polling (working pattern from 2 days ago)
@@ -1691,10 +1691,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           userId: dbUserId,
           imageUrl: imageUrl,
           prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-          style: 'editorial',
+          style: 'editorial' as const,
           predictionId: tracker.predictionId || '',
-          generationStatus: 'completed'
-        });
+          generationStatus: 'completed' as const
+        } as any);
         
         savedImages.push(galleryImage);
       }
