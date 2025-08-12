@@ -1,4 +1,4 @@
-import React from 'react';
+import { ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost' | 'editorial';
