@@ -250,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Import and handle via consulting agents router
-      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes.js');
+      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes');
       await handleAdminConsultingChat(req, res);
       
     } catch (error) {
@@ -285,7 +285,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Import and handle via consulting agents router
-      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes.js');
+      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes');
       await handleAdminConsultingChat(req, res);
       
     } catch (error) {
