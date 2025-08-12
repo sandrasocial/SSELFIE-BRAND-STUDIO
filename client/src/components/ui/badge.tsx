@@ -1,4 +1,4 @@
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes, forwardRef } from 'react';
 // React imported via individual functions
 import { cva, type VariantProps } from "class-variance-authority"
 

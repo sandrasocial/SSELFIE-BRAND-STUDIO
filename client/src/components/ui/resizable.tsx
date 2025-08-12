@@ -1,6 +1,6 @@
 "use client"
 
-import { ComponentProps } from 'react';
+import { ComponentProps, forwardRef } from 'react';
 
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
 import * as ResizablePrimitive from "react-resizable-panels"
