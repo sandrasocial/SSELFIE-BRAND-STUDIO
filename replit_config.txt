@@ -30,8 +30,8 @@ localPort = 3000
 externalPort = 3000
 
 [deployment]
-run = ["node", "api/index.js"]
-build = ["npm", "install"]
+run = ["node", "server/index.js"]
+build = ["npm", "run", "build"]
 
 [deployment.env]
 NODE_ENV = "production"
