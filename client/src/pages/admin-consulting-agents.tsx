@@ -9,21 +9,21 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Agent images - Using unique images for each agent from available assets
-import AgentElena from '@assets/out-0 (33)_1753426218039.png';
-import AgentAria from '@assets/out-0 (34)_1753426218040.png';
-import AgentZara from '@assets/out-0 (37)_1753426218041.png';
-import AgentMaya from '@assets/out-0 (20)_1753426218042.png';
-import AgentVictoria from '@assets/out-0 (28)_1753426218042.png';
-import AgentRachel from '@assets/out-0 (42)_1753426218042.png';
-import AgentAva from '@assets/out-1 (27)_1753426218043.png';
-import AgentQuinn from '@assets/out-0 (26)_1753426218043.png';
-import AgentSophia from '@assets/out-1 (18)_1753426218043.png';
-import AgentMartha from '@assets/out-0 (29)_1753426218044.png';
-import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
-import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
-import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
-import AgentFlux from '@assets/out-0 (31).png';
+// Agent images - Using unique professional images for each agent
+const AgentElena = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_elena_1753426218039.png";
+const AgentAria = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_aria_1753426218040.png";
+const AgentZara = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_zara_1753426218041.png";
+const AgentMaya = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_maya_1753426218042.png";
+const AgentVictoria = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_victoria_1753426218042.png";
+const AgentRachel = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_rachel_1753426218042.png";
+const AgentAva = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_ava_1753426218043.png";
+const AgentQuinn = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_quinn_1753426218043.png";
+const AgentSophia = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_sophia_1753426218043.png";
+const AgentMartha = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_martha_1753426218044.png";
+const AgentDiana = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_diana_1753426218045.png";
+const AgentWilma = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_wilma_1753426218045.png";
+const AgentOlga = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_olga_1753426290403.png";
+const AgentFlux = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/agent_flux_1753426218031.png";
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
