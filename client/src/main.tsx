@@ -1,4 +1,4 @@
-import React from "react";
+// Removed React import - Vite JSX transform handles this automatically
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
