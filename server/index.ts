@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = Number(process.env.PORT) || 5000;
+const port = Number(process.env.PORT) || 8080;
 
 // Trust proxy for proper forwarding (required for deployment)
 app.set('trust proxy', true);
@@ -38,7 +38,25 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint will be handled by the static file serving after routes are loaded
+// Root health check only for deployment health checks (not browser requests)
+app.get('/', (req, res) => {
+  // Check if this is a health check (no Accept header for HTML) or deployment probe
+  const acceptsHtml = req.headers.accept?.includes('text/html');
+  
+  if (!acceptsHtml || req.headers['user-agent']?.includes('GoogleHC')) {
+    // Health check or deployment probe
+    return res.status(200).json({ 
+      status: 'healthy',
+      service: 'SSELFIE Studio',
+      timestamp: new Date().toISOString(),
+      port: port
+    });
+  }
+  
+  // For browser requests, serve the React app (handled by static file fallback)
+  res.locals.skipHealthCheck = true;
+  return;  // Let it fall through to static file handling
+});
 
 // Initialize your complete SSELFIE Studio application
 async function startCompleteApp() {
@@ -80,7 +98,7 @@ function setupStaticFiles() {
   
   // React app fallback for SPA routing
   app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/') || req.path === '/health') {
+    if (req.path.startsWith('/api/') || req.path === '/health' || res.headersSent) {
       return;
     }
     
