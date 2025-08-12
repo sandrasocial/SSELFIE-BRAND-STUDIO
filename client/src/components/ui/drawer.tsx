@@ -1,6 +1,7 @@
 "use client"
 
 // React import handled by Vite JSX transform
+import { forwardRef } from "react"
 import { Drawer as DrawerPrimitive } from "vaul"
 
 import { cn } from "@/lib/utils"
