@@ -2441,7 +2441,7 @@ Rules:
 - Natural authentic expressions (no fake smiles)
 - Professional photography techniques
 - Keep it sophisticated and editorial
-- Category context: ${category?.replace(/['"\\]/g, '')} - ${subcategory?.replace(/['"\\]/g, '')}
+- Category context: ${category ? category.replace(/['"\\]/g, '').substring(0, 50) : 'general'} - ${subcategory ? subcategory.replace(/['"\\]/g, '').substring(0, 50) : 'standard'}
 
 Example: "minimalist rooftop terrace overlooking city skyline at golden hour, wearing architectural cashmere blazer in camel with wide-leg trousers, natural confident expression while reviewing documents, shot on Hasselblad X2D with 35mm lens, dramatic directional lighting creating editorial shadows"`
             }]

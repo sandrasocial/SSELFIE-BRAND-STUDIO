@@ -27,13 +27,34 @@ export async function bash(parameters: any): Promise<any> {
       throw new Error('Invalid command format');
     }
     
-    // SECURITY: Sanitize command to prevent injection
-    const sanitizedCommand = command.replace(/[;&|`$()]/g, '').trim();
-    if (sanitizedCommand !== command.trim()) {
-      throw new Error('Command contains unsafe characters');
+    // SECURITY FIX: Enhanced command validation and safe execution
+    const dangerousPatterns = [/[;&|`$()]/g, /\brm\s+-rf\b/, /\bsudo\b/, /\bsu\b/, />/g];
+    const hasDangerousChars = dangerousPatterns.some(pattern => pattern.test(command));
+    
+    if (hasDangerousChars) {
+      throw new Error('Command contains unsafe characters or patterns');
     }
     
-    const child = spawn('bash', ['-c', sanitizedCommand], {
+    // Whitelist approach for allowed commands
+    const allowedCommands = [
+      /^ls\b/, /^cat\b/, /^grep\b/, /^find\b/, /^echo\b/, 
+      /^npm\s+/, /^node\b/, /^curl\s+/, /^ps\b/, /^pwd$/,
+      /^mkdir\b/, /^cp\b/, /^mv\b/, /^chmod\b/
+    ];
+    
+    const isCommandAllowed = allowedCommands.some(pattern => pattern.test(command.trim()));
+    if (!isCommandAllowed) {
+      throw new Error('Command not in allowed list for security');
+    }
+    
+    // Split command safely to prevent injection
+    const commandParts = command.trim().split(/\s+/);
+    const baseCommand = commandParts[0];
+    const args = commandParts.slice(1).filter(arg => 
+      arg.length < 200 && !/[;&|`$()]/.test(arg)
+    );
+    
+    const child = spawn(baseCommand, args, {
       stdio: ['pipe', 'pipe', 'pipe'],
       cwd: process.cwd(),
       env: { ...process.env, PATH: process.env.PATH } // Controlled environment
