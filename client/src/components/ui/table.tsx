@@ -1,5 +1,4 @@
-import { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react';
-import { forwardRef } from "react"
+import React, { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes, forwardRef } from 'react';
 import { cn } from "@/lib/utils"
 
 const Table = forwardRef<

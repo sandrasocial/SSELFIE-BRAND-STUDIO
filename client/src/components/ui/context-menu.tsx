@@ -1,6 +1,4 @@
-import { ComponentPropsWithoutRef, ElementRef, HTMLAttributes } from 'react';
-// React imported via individual functions
-import { forwardRef } from "react"
+import React, { ComponentPropsWithoutRef, ElementRef, HTMLAttributes, forwardRef } from 'react';
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu"
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 

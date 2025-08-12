@@ -1,5 +1,4 @@
-import { ComponentPropsWithoutRef, ElementRef, ReactElement } from 'react';
-// React imported via individual functions
+import React, { ComponentPropsWithoutRef, ElementRef, ReactElement } from 'react';
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 // Removed Lucide React icon import to comply with Sandra's no-icons styleguide

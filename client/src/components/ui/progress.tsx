@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, ElementRef } from 'react';
+import React, { ComponentPropsWithoutRef, ElementRef } from 'react';
 // React import handled by Vite JSX transform
 import * as ProgressPrimitive from "@radix-ui/react-progress"
 
