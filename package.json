@@ -589,7 +589,7 @@
     "start": "NODE_ENV=production cd server && node -r esbuild-register index.ts",
     "build": "vite build client && mkdir -p dist/public && cp -r client/dist/* dist/public/",
     "prod": "npm run build && npm start"
-  }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
