@@ -22,7 +22,6 @@ export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
       toast({
         title: "Email Required",
         description: "Please enter a valid email address",
-        
       });
       return;
     }
@@ -53,7 +52,6 @@ export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
       toast({
         title: "Email Captured!",
         description: "Redirecting to authentication...",
-        variant: "default",
       });
       
       if (onEmailCaptured) {
@@ -69,7 +67,6 @@ export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
       toast({
         title: "Something went wrong",
         description: "Please try again or contact support",
-        
       });
     } finally {
       setIsSubmitting(false);
