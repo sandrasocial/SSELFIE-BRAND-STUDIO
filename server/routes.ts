@@ -618,43 +618,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const assessmentData = req.body;
       
       const { db } = await import('./db');
-      const { brandOnboarding } = await import('../shared/schema');
+      const { onboardingData } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
       
-      // Transform personal brand assessment to compatible format
+      // Transform personal brand assessment to onboarding format
       const brandData = {
         userId,
-        businessName: assessmentData.personalStory ? 'Personal Brand' : '',
-        tagline: assessmentData.uniqueValue || '',
-        personalStory: assessmentData.personalStory || '',
-        targetClient: assessmentData.targetAudience || '',
-        uniqueApproach: assessmentData.uniqueValue || '',
-        primaryOffer: assessmentData.expertise?.join(', ') || '',
-        brandPersonality: assessmentData.personality || '',
-        brandValues: assessmentData.personalGoals?.join(', ') || '',
-        selectedImages: JSON.stringify(assessmentData.selectedImages || {}),
-        createdAt: new Date(),
-        updatedAt: new Date()
+        brandStory: assessmentData.personalStory || '',
+        personalMission: assessmentData.uniqueValue || '',
+        businessGoals: assessmentData.personalGoals?.join(', ') || '',
+        targetAudience: assessmentData.targetAudience || '',
+        businessType: 'Personal Brand',
+        brandVoice: assessmentData.personality || '',
+        stylePreferences: assessmentData.expertise?.join(', ') || '',
+        currentStep: 4,
+        completed: true,
+        completedAt: new Date()
       };
       
-      // Check if user already has brand onboarding data
+      // Check if user already has onboarding data
       const existingData = await db
         .select()
-        .from(brandOnboarding)
-        .where(eq(brandOnboarding.userId, userId));
+        .from(onboardingData)
+        .where(eq(onboardingData.userId, userId));
         
       if (existingData.length > 0) {
         // Update existing
         const [updated] = await db
-          .update(brandOnboarding)
+          .update(onboardingData)
           .set({ ...brandData, updatedAt: new Date() })
-          .where(eq(brandOnboarding.userId, userId))
+          .where(eq(onboardingData.userId, userId))
           .returning();
         res.json({ success: true, data: updated });
       } else {
         // Create new
         const [created] = await db
-          .insert(brandOnboarding)
+          .insert(onboardingData)
           .values(brandData)
           .returning();
         res.json({ success: true, data: created });
@@ -695,11 +694,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites, insertWebsiteSchema } = await import('../shared/schema');
       
-      const validatedData = insertWebsiteSchema.parse({ ...req.body, userId });
+      const websiteData = { 
+        ...req.body, 
+        userId,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
       
       const [newWebsite] = await db
         .insert(websites)
-        .values(validatedData)
+        .values(websiteData)
         .returning();
       
       res.json(newWebsite);
@@ -1496,14 +1500,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const prediction = await response.json();
       console.log('✅ Maya: Prediction started:', prediction.id);
 
-      // Create generation tracker for live progress monitoring (like working system from 2 days ago)
-      const { insertGenerationTrackerSchema } = await import('../shared/schema');
+      // Create generation tracker for live progress monitoring
       const trackerData = {
         userId,
         predictionId: prediction.id,
         prompt: finalPrompt,
         style: 'Maya Editorial',
-        status: 'processing'
+        status: 'processing',
+        createdAt: new Date()
       };
       
       const savedTracker = await storage.saveGenerationTracker(trackerData);
@@ -1856,7 +1860,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
 
       // PRIORITY 2: Check if user is authenticated through OIDC session
-      if (req.isAuthenticated() && (req.user as any)?.claims?.sub) {
+      if (req.user && (req.user as any)?.claims?.sub) {
         const userId = (req.user as any).claims.sub;
         console.log('✅ User authenticated via OIDC session, fetching user data for:', userId);
         
@@ -2285,7 +2289,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
       // Get user ID for authentication
       let userId = 'admin-sandra'; // Default admin user
-      if (req.isAuthenticated() && (req.user as any)?.claims?.sub) {
+      if (req.user && (req.user as any)?.claims?.sub) {
         userId = (req.user as any).claims.sub;
       }
 
@@ -2484,7 +2488,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
 
   // User info endpoint
   app.get('/api/user/info', (req, res) => {
-    if (req.isAuthenticated?.()) {
+    if (req.user) {
       res.json({
         user: req.user,
         isAuthenticated: true
