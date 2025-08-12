@@ -85,6 +85,7 @@
     "color-name": "^1.1.4",
     "comma-separated-tokens": "^2.0.3",
     "commander": "^4.1.1",
+    "compression": "^1.8.1",
     "concat-map": "^0.0.1",
     "connect-pg-simple": "^10.0.0",
     "content-disposition": "^0.5.4",
