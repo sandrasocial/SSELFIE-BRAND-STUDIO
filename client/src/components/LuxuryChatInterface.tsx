@@ -1,4 +1,4 @@
-import { FC, FormEvent } from 'react';
+import { FC, FormEvent, useState } from 'react';
 interface Message {
   id: string;
   type: 'user' | 'agent';
