@@ -18,10 +18,9 @@ import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
-// import { startBackgroundMonitors } from './training-completion-monitor'; // Function doesn't exist
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
-// Removed static import - using dynamic import instead
+import consultingAgentsRouter from './routes/consulting-agents-routes';
 import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
 import quinnTestingRouter from './routes/quinn-testing';
@@ -974,8 +973,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email automation routes
   app.use('/api/email', emailAutomation);
   
-  // Subscriber import routes - RESTORED
-  app.use('/api/subscribers', subscriberImportRouter);
+  // Subscriber import routes
+  const subscriberImport = await import('./routes/subscriber-import');
+  app.use('/api/subscribers', subscriberImport.default);
   // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
   
   // Register white-label client setup endpoints
@@ -1560,14 +1560,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Phase 2 fixes handled by specialized agents
   // FIXED: Register consulting agents at correct path to match frontend calls
   // Regular consulting agents routes (non-admin)
-  // Import and use consulting agents router dynamically to avoid module resolution issues
-  const { default: consultingAgentsRouterDynamic } = await import('./routes/consulting-agents-routes');
-  app.use('/api/consulting-agents', consultingAgentsRouterDynamic);
+  app.use('/api/consulting-agents', consultingAgentsRouter);
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
-  
-  // RESTORED: Elena route mounting (frontend expects /api/elena/*)
-  app.use('/api/elena', consultingAgentsRouter);
-  console.log('✅ RESTORED: Elena workflow routes active at /api/elena/*');
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
@@ -1577,17 +1571,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // COMPETING SYSTEMS ELIMINATED: Only consulting-agents-routes.ts active for direct tool bypass
   
   // Register flatlay library routes for Victoria
-  try {
-    const flatlayLibraryRoutes = await import('./routes/flatlay-library');
-    if (flatlayLibraryRoutes && flatlayLibraryRoutes.default) {
-      app.use(flatlayLibraryRoutes.default);
-      console.log('✅ FLATLAY: Library routes registered for Victoria');
-    } else {
-      console.log('⚠️ FLATLAY: No default export found');
-    }
-  } catch (error: any) {
-    console.log('⚠️ FLATLAY: Library routes failed to load, continuing without them:', error.message);
-  }
+  const flatlayLibraryRoutes = await import('./routes/flatlay-library');
+  app.use(flatlayLibraryRoutes.default);
   
   // Generation tracker polling endpoint for live progress
   app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
@@ -2725,17 +2710,14 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   console.log('🚀 MONITORING: Starting background completion monitors...');
   
   // Start Training Completion Monitor
-  try {
-    const trainingMonitor = await import('./training-completion-monitor');
-    if (trainingMonitor && trainingMonitor.TrainingCompletionMonitor) {
-      trainingMonitor.TrainingCompletionMonitor.getInstance().startMonitoring();
-      console.log('✅ MONITORING: Training completion monitor started');
-    } else {
-      console.log('⚠️ MONITORING: TrainingCompletionMonitor class not found');
-    }
-  } catch (error: any) {
-    console.log('⚠️ MONITORING: Training completion monitor failed to start, continuing without it:', error.message);
-  }
+  const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
+  TrainingCompletionMonitor.getInstance().startMonitoring();
+  console.log('✅ MONITORING: Training completion monitor started');
+  
+  // Start Generation Completion Monitor (CRITICAL: This was missing!)
+  const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
+  GenerationCompletionMonitor.getInstance().startMonitoring();
+  console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
   
   return server;
 }
