@@ -2,7 +2,7 @@
 require('child_process').spawn('npx', ['tsx', 'index.ts'], { 
   stdio: 'inherit',
   env: { ...process.env, PORT: process.env.PORT || '5000' },
-  cwd: 'server'
+  cwd: __dirname
 });
 
 return; // Exit early to avoid running old server
