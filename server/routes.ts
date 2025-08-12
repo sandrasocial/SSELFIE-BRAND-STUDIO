@@ -21,7 +21,7 @@ import { ModelRetrainService } from './retrain-model';
 // import { startBackgroundMonitors } from './training-completion-monitor'; // Function doesn't exist
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
-import consultingAgentsRouter from './routes/consulting-agents-routes';
+// Removed static import - using dynamic import instead
 import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
 import quinnTestingRouter from './routes/quinn-testing';
@@ -1560,7 +1560,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Phase 2 fixes handled by specialized agents
   // FIXED: Register consulting agents at correct path to match frontend calls
   // Regular consulting agents routes (non-admin)
-  app.use('/api/consulting-agents', consultingAgentsRouter);
+  // Import and use consulting agents router dynamically to avoid module resolution issues
+  const { default: consultingAgentsRouterDynamic } = await import('./routes/consulting-agents-routes');
+  app.use('/api/consulting-agents', consultingAgentsRouterDynamic);
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
   
   // RESTORED: Elena route mounting (frontend expects /api/elena/*)
