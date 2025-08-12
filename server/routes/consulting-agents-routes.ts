@@ -32,8 +32,9 @@ import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 // REMOVED: DirectWorkspaceAccess - unified native tool architecture
 // ELIMINATED: autonomousNavigation - part of competing memory systems
 // REMOVED: architectural-knowledge-base - part of old complex system
-// HYBRID INTELLIGENCE SYSTEM: Proper memory and local processing integration
-const ContextManager = require('../memory/context-manager.js');
+// ELIMINATE BROKEN SYSTEMS: Replace with personality-first admin agents
+import { AdminContextManager } from '../memory/admin-context-manager';
+import { PersonalityIntegrationService } from '../agents/personality-integration-service';
 import { LocalProcessingEngine } from '../services/hybrid-intelligence/local-processing-engine';
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
@@ -46,8 +47,9 @@ import { bash } from '../tools/bash';
 import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
 import { execute_sql_tool } from '../tools/execute_sql_tool';
 import { search_filesystem } from '../tools/search_filesystem';
-// ADMIN AGENT CORE: Initialize proper systems
-const contextManager = new ContextManager();
+// PERSONALITY-FIRST ADMIN AGENTS: Eliminate generic systems
+const adminContextManager = AdminContextManager.getInstance();
+const personalityService = PersonalityIntegrationService.getInstance();
 const localProcessingEngine = LocalProcessingEngine.getInstance();
 
 function getClaudeService() {
@@ -63,11 +65,13 @@ async function handleDirectAdminExecution(
   availableTools: any[],
   res: any
 ) {
-  console.log(`🤖 ADMIN AGENT ${agentId.toUpperCase()}: Full personality system with hybrid intelligence activated`);
-  
-  // Initialize agent with full personality
-  const agentPersonality = PersonalityManager.getNaturalPrompt(agentId);
-  console.log(`✅ ${agentId} personality loaded: ${PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES]?.name || agentId}`);
+  // ELIMINATE GENERIC ROUTING: Validate and load personality-first agent
+  if (!personalityService.validatePersonality(agentId)) {
+    throw new Error(`Agent ${agentId} personality not found - cannot execute`);
+  }
+
+  // CREATE PERSONALITY CONTEXT: Direct admin execution with full personality
+  const personalityContext = personalityService.createPersonalityContext(agentId, true);
   
   // Set up Server-Sent Events streaming response
   res.writeHead(200, {
@@ -385,17 +389,33 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
         res
       );
     } else {
-      // CLAUDE INTELLIGENCE: All agent responses and conversations use full Claude API
-      console.log(`🧠 CLAUDE INTELLIGENCE: ${normalizedAgentId.toUpperCase()} using full AI intelligence${isAdminRequest ? ' [ADMIN]' : ''}`);
+      // ELIMINATE GENERIC SYSTEMS: Use personality-first admin agent integration
+      if (!personalityService.validatePersonality(normalizedAgentId)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Agent ${normalizedAgentId} personality not found` 
+        });
+      }
+
+      // CREATE PERSONALITY CONTEXT: Full integration with admin bypass
+      const personalityContext = personalityService.createPersonalityContext(normalizedAgentId, isAdminRequest);
       
+      // CREATE ADMIN CONTEXT: Memory and personality preservation
+      await adminContextManager.createAdminAgentContext(
+        normalizedAgentId,
+        userId, 
+        baseConversationId,
+        personalityContext
+      );
+
       await claudeService.sendStreamingMessage(
         userId,
         normalizedAgentId,
         baseConversationId,
         message,
-        PersonalityManager.getNaturalPrompt(normalizedAgentId),
+        personalityContext.enhancedPrompt,
         availableTools,
-        res // Pass the response object for real streaming
+        res
       );
     }
 
