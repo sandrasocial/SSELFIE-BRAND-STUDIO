@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 // Essential middleware
 app.use(express.json({ limit: '50mb' }));
@@ -154,13 +154,9 @@ app.use(async (req, res, next) => {
 });
 
 // Global error handler
-app.use((error, req, res, next) => {
-  console.error('Unhandled error:', error);
-  res.status(500).json({
-    error: 'Internal server error',
-    message: 'An unexpected error occurred',
-    timestamp: new Date().toISOString()
-  });
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 // Handle uncaught exceptions
@@ -178,14 +174,9 @@ initializeServer().catch(error => {
   console.error('Failed to start server initialization:', error);
 });
 
-// Start the server
-if (require.main === module) {
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
-    console.log(`🌐 Server accessible at: http://0.0.0.0:${port}`);
-    console.log(`📦 Environment: ${process.env.NODE_ENV || 'production'}`);
-    console.log(`🕐 Started at: ${new Date().toISOString()}`);
-  });
-}
+// Start the server with proper host and port configuration
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 module.exports = app;
