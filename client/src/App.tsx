@@ -355,16 +355,19 @@ function App() {
     try {
       console.log('SSELFIE Studio: App initializing...');
       
-      // Force HTTPS redirect if needed
-      if (window.location.protocol === 'http:' && window.location.hostname === 'sselfie.ai') {
-        window.location.href = window.location.href.replace('http:', 'https:');
-        return;
-      }
-      
-      // Handle www subdomain redirect
-      if (window.location.hostname === 'www.sselfie.ai') {
-        window.location.href = window.location.href.replace('www.sselfie.ai', 'sselfie.ai');
-        return;
+      // Only apply redirects for production domain, not localhost
+      if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit')) {
+        // Force HTTPS redirect if needed
+        if (window.location.protocol === 'http:' && window.location.hostname === 'sselfie.ai') {
+          window.location.href = window.location.href.replace('http:', 'https:');
+          return;
+        }
+        
+        // Handle www subdomain redirect
+        if (window.location.hostname === 'www.sselfie.ai') {
+          window.location.href = window.location.href.replace('www.sselfie.ai', 'sselfie.ai');
+          return;
+        }
       }
       
       // Check for domain access issues
