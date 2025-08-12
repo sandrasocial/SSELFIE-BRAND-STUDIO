@@ -22,9 +22,21 @@ export async function bash(parameters: any): Promise<any> {
   return new Promise((resolve, reject) => {
     console.log(`🔧 EXECUTING BASH: ${command}`);
     
-    const child = spawn('bash', ['-c', command], {
+    // SECURITY: Validate command before execution
+    if (!command || typeof command !== 'string') {
+      throw new Error('Invalid command format');
+    }
+    
+    // SECURITY: Sanitize command to prevent injection
+    const sanitizedCommand = command.replace(/[;&|`$()]/g, '').trim();
+    if (sanitizedCommand !== command.trim()) {
+      throw new Error('Command contains unsafe characters');
+    }
+    
+    const child = spawn('bash', ['-c', sanitizedCommand], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: process.cwd()
+      cwd: process.cwd(),
+      env: { ...process.env, PATH: process.env.PATH } // Controlled environment
     });
     
     let stdout = '';

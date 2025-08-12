@@ -837,7 +837,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Allow admin access for impersonated users (Shannon testing)
       const isAdmin = authUserId === 'ssa@ssasocial.com';
-      const isImpersonatedShannon = authUserId === 'shannon-1753945376880' && userId === '42585527';
+      // SECURITY: Use environment variable for admin access
+      const isImpersonatedShannon = authUserId === process.env.ADMIN_USER_ID && userId === process.env.SHANNON_USER_ID;
       
       // Ensure user can only access their own training progress (or admin/impersonated access)
       if (!isAdmin && !isImpersonatedShannon && userId !== authUserId) {
@@ -2429,7 +2430,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
             max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
             messages: [{
               role: "user",
-              content: `You are Maya, the celebrity stylist expert. Create ONE sophisticated editorial photoshoot prompt for "${category} - ${subcategory}".
+              content: `You are Maya, the celebrity stylist expert. Create ONE sophisticated editorial photoshoot prompt for a photoshoot category.
 
 Format: [detailed scene/location], [luxury fashion description], [authentic expression/pose], [professional photography details]
 
@@ -2440,6 +2441,7 @@ Rules:
 - Natural authentic expressions (no fake smiles)
 - Professional photography techniques
 - Keep it sophisticated and editorial
+- Category context: ${category?.replace(/['"\\]/g, '')} - ${subcategory?.replace(/['"\\]/g, '')}
 
 Example: "minimalist rooftop terrace overlooking city skyline at golden hour, wearing architectural cashmere blazer in camel with wide-leg trousers, natural confident expression while reviewing documents, shot on Hasselblad X2D with 35mm lens, dramatic directional lighting creating editorial shadows"`
             }]
