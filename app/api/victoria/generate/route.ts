@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
+import { sql } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = getAuth(request);
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Temporary auth bypass for development
+    const userId = 'temp-user-id';
 
     const body = await request.json();
     const { prompt, type = 'landing-page', style = 'modern' } = body;
