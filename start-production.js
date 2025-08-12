@@ -5,9 +5,9 @@
  * Ensures clean build, proper bundle serving, and stable server
  */
 
-const { spawn, execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { spawn, execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 console.log('🚀 SSELFIE Studio Production Startup');
 
