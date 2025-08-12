@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { users, subscriptions, sessions, importedSubscribers, aiImages, userModels } from '@shared/schema';
+import { users, subscriptions, sessions, importedSubscribers, aiImages, userModels } from '../shared/schema';
 import { eq, count, sum, desc, sql, gte } from 'drizzle-orm';
 import { isAuthenticated } from '../replitAuth';
 import { storage } from '../storage';

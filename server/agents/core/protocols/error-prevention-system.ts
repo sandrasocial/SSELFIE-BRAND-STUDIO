@@ -131,8 +131,8 @@ export class ErrorPreventionSystem {
     }
     
     // Check for proper table imports
-    if (code.includes('from(') && !code.includes('@shared/schema')) {
-      warnings.push('Database tables should be imported from @shared/schema');
+    if (code.includes('from(') && !code.includes('../shared/schema')) {
+      warnings.push('Database tables should be imported from ../shared/schema');
     }
     
     // Check for SQL injection prevention
