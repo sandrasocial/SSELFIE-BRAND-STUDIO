@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, ElementRef, ComponentPropsWithoutRef, HTMLAttributes } from "react"
+import React, { forwardRef, ElementRef, ComponentPropsWithoutRef, HTMLAttributes } from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 // Removed Lucide React icon import to comply with Sandra's no-icons styleguide
 
