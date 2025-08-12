@@ -4,8 +4,8 @@
  * WITHOUT consuming Claude API tokens while preserving agent intelligence
  */
 
-import { db } from '../../db.js';
-import { agentLearning, agentSessionContexts } from '../../../shared/schema.js';
+import { db } from '../../db';
+import { agentLearning, agentSessionContexts } from '../../../shared/schema';
 import { eq, and } from 'drizzle-orm';
 
 export class LocalProcessingEngine {

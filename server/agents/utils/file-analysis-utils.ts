@@ -73,7 +73,7 @@ export class FileAnalyzer {
 
   private isAnalyzableFile(filePath: string): boolean {
     const ext = path.extname(filePath);
-    return ['.ts', '.tsx', '.js', '.jsx'].includes(ext);
+    return ['.ts', '.tsx', '', '.jsx'].includes(ext);
   }
 
   private async analyzeFile(filePath: string): Promise<void> {

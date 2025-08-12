@@ -2,7 +2,7 @@ import { setupEnhancementRoutes } from './services/backend-enhancement-services'
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
-import { setupRollbackRoutes } from './routes/rollback.js';
+import { setupRollbackRoutes } from './routes/rollback';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { db } from "./db";
@@ -332,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { agentId, taskDescription, targetComponents } = req.body;
       
-      const { ActiveProtocolEnforcer } = await import('./agents/core/protocols/active-protocol-enforcer.js');
+      const { ActiveProtocolEnforcer } = await import('./agents/core/protocols/active-protocol-enforcer');
       
       const task = {
         agentId,

@@ -85,7 +85,7 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
   
   return new Promise((resolve) => {
     const pathArgs = searchPaths.length > 0 ? searchPaths : ['.'];
-    const cmd = spawn('grep', ['-r', '-n', '-i', '--include=*.ts', '--include=*.js', '--include=*.tsx', '--include=*.jsx', searchTerm, ...pathArgs]);
+    const cmd = spawn('grep', ['-r', '-n', '-i', '--include=*.ts', '--include=*', '--include=*.tsx', '--include=*.jsx', searchTerm, ...pathArgs]);
     
     let output = '';
     let errorOutput = '';
