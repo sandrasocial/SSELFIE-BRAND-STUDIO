@@ -4,8 +4,7 @@
  * Replaces generic routing with personality-first admin agent architecture
  */
 
-import { PURE_PERSONALITIES } from './personalities/pure-personalities';
-import { PersonalityManager } from './personalities/personality-manager';
+import { PURE_PERSONALITIES, PersonalityManager } from './personalities/personality-config';
 
 interface PersonalityContext {
   agentId: string;
@@ -34,7 +33,7 @@ export class PersonalityIntegrationService {
   createPersonalityContext(agentId: string, isAdminRequest: boolean = false): PersonalityContext {
     const agentPersonality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
     const agentName = agentPersonality?.name || agentId;
-    const mission = agentPersonality?.identity?.mission || agentPersonality?.mission || 'Expert assistance';
+    const mission = (agentPersonality as any)?.identity?.mission || (agentPersonality as any)?.mission || (agentPersonality as any)?.description || 'Expert assistance';
 
     console.log(`🤖 PERSONALITY ACTIVATION: ${agentName.toUpperCase()}`);
     console.log(`🎯 Mission: ${mission}`);
