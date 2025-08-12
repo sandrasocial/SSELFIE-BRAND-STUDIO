@@ -3,9 +3,11 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// Force React global for forwardRef compatibility
+// Force React global for forwardRef compatibility - CRITICAL FIX
 if (typeof window !== 'undefined') {
   (window as any).React = React;
+  (window as any).forwardRef = React.forwardRef;
+  console.log('SSELFIE: React global and forwardRef injected', { React: !!window.React, forwardRef: !!window.forwardRef });
 }
 
 // Debug logging for troubleshooting
