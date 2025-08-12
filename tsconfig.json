@@ -39,10 +39,7 @@
       {
         "name": "next"
       }
-    ],
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": false
+    ]
   },
   "include": [
     "client/src",

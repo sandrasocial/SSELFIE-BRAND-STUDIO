@@ -201,7 +201,7 @@ function getSmartLineLimit(filePath: string, totalLines: number): number {
   }
   
   // Code files - moderate showing
-  if (['.ts', '.tsx', '', '.jsx', '.py', '.css'].includes(extension)) {
+  if (['.ts', '.tsx', '.js', '.jsx', '.py', '.css'].includes(extension)) {
     return Math.min(300, totalLines);
   }
   

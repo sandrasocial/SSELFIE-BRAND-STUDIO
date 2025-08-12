@@ -13,18 +13,9 @@ exec('pkill -f tsx', () => {
   console.log('🛑 Cleared any existing servers');
 });
 
-// Set production environment for deployment
+// Set production environment
 process.env.NODE_ENV = 'production';
-process.env.PORT = process.env.PORT || '8080';  // Cloud Run uses 8080 by default
-
-// Enhanced deployment environment setup
-process.env.TS_NODE_TRANSPILE_ONLY = 'true';
-process.env.TS_NODE_TYPE_CHECK = 'false';
-process.env.NODE_OPTIONS = '--max-old-space-size=512';
-
-console.log(`🔧 Production Environment: ${process.env.NODE_ENV}`);
-console.log(`🌐 Production Port: ${process.env.PORT}`);
-console.log(`⚡ Fast startup mode enabled`);
+process.env.PORT = process.env.PORT || '80';
 
 // Wait for any existing processes to be cleared
 setTimeout(() => {
@@ -90,31 +81,10 @@ buildProcess.on('close', (buildCode) => {
     env: {
       ...process.env,
       NODE_ENV: 'production',
-      PORT: process.env.PORT || '8080',
+      PORT: process.env.PORT || '80',
       // Ensure fast startup for health checks
       TS_NODE_TRANSPILE_ONLY: 'true',
-      TS_NODE_TYPE_CHECK: 'false',
-      // Prevent memory issues during deployment
-      NODE_OPTIONS: '--max-old-space-size=512'
-    }
-  });
-  
-  // Log server startup
-  console.log(`🚀 Starting server process with NODE_ENV=${process.env.NODE_ENV} on PORT=${process.env.PORT}`);
-  
-  // Add timeout for server startup (increased for deployment)
-  const startupTimeout = setTimeout(() => {
-    console.error('❌ Server startup timeout - killing process');
-    serverProcess.kill('SIGKILL');
-    process.exit(1);
-  }, 60000); // 60 second timeout for deployment
-  
-  // Clear timeout when server starts successfully
-  serverProcess.stdout?.on('data', (data) => {
-    const output = data.toString();
-    if (output.includes('SSELFIE Studio LIVE')) {
-      clearTimeout(startupTimeout);
-      console.log('✅ Server startup completed successfully');
+      TS_NODE_TYPE_CHECK: 'false'
     }
   });
   
