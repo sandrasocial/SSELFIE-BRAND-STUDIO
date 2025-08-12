@@ -814,11 +814,12 @@ export default function AdminConsultingAgents() {
                       <div className="text-xs tracking-[0.2em] uppercase opacity-70 mb-1">
                         {agent.role}
                       </div>
-                      <div className="font-serif text-lg font-light uppercase tracking-wide">
+                      <div className="font-serif text-lg font-light uppercase tracking-wide mb-2">
                         {agent.name}
                       </div>
-                      
-
+                      <div className="text-xs text-white/90 leading-tight">
+                        {agent.specialty}
+                      </div>
                     </div>
                   </div>
                   
