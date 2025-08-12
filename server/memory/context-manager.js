@@ -73,6 +73,10 @@ class ContextManager {
   generateMemoryKey(message) {
     return `${message.conversationId}-${Date.now()}`;
   }
+}
+
+// Export as both CommonJS and ES module
+module.exports = ContextManager;
 
   async extractContext(message) {
     // Will implement context extraction logic
