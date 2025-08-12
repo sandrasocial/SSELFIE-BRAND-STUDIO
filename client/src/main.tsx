@@ -7,7 +7,19 @@ import "./index.css";
 if (typeof window !== 'undefined') {
   (window as any).React = React;
   (window as any).forwardRef = React.forwardRef;
-  console.log('SSELFIE: React global and forwardRef injected', { React: !!window.React, forwardRef: !!window.forwardRef });
+  // Also inject createElement for complete compatibility
+  (window as any).createElement = React.createElement;
+  // Make sure globals are available before any component renders
+  Object.defineProperty(window, 'forwardRef', {
+    value: React.forwardRef,
+    writable: false,
+    configurable: false
+  });
+  console.log('SSELFIE: React globals injected', { 
+    React: typeof window.React, 
+    forwardRef: typeof window.forwardRef,
+    createElement: typeof window.createElement 
+  });
 }
 
 // Debug logging for troubleshooting
