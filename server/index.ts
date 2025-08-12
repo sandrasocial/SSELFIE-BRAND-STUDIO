@@ -55,20 +55,13 @@ try {
   // Don't exit, continue with basic setup
 }
 
-// CRITICAL: Root endpoint for health checks - MUST respond immediately
+// Root endpoint serves React app instead of health check
 app.get('/', (req, res) => {
-  try {
-    // Simple and fast response for deployment health checks
-    res.status(200).json({
-      status: 'healthy',
-      service: 'SSELFIE Studio',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      env: process.env.NODE_ENV || 'development'
-    });
-  } catch (error) {
-    console.error('❌ Root endpoint error:', error);
-    res.status(500).json({ status: 'error', message: 'Health check failed' });
+  const indexPath = path.join(__dirname, '../dist/public/index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('App not found - please run npm run build');
   }
 });
 
@@ -209,7 +202,7 @@ function setupStaticFiles() {
   
   // React app fallback for SPA routing
   app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/') || req.path === '/health' || req.path === '/') {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/health')) {
       return;
     }
     
