@@ -81,6 +81,7 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   const distPath = path.resolve(import.meta.dirname, "public");
+  const assetsPath = path.join(distPath, "assets");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -88,7 +89,27 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // Verify assets directory exists
+  if (!fs.existsSync(assetsPath)) {
+    throw new Error(
+      `Could not find the assets directory: ${assetsPath}, make sure the build process completed correctly`,
+    );
+  }
+
+  // Log available assets for debugging
+  const assets = fs.readdirSync(assetsPath);
+  log(`Available assets: ${assets.join(", ")}`, "static-server");
+
   app.use(express.static(distPath));
+  
+  // Add monitoring for 404s on asset requests
+  app.use("/assets/*", (req, res, next) => {
+    const assetPath = req.path;
+    if (!fs.existsSync(path.join(distPath, assetPath))) {
+      log(`404 Asset not found: ${assetPath}`, "static-server");
+    }
+    next();
+  });
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
