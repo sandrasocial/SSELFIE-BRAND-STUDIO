@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 
 interface LuxuryHeroProps {
   headline: string;
@@ -8,7 +8,7 @@ interface LuxuryHeroProps {
   onCtaClick: () => void;
 }
 
-export const LuxuryHero: React.FC<LuxuryHeroProps> = ({
+export const LuxuryHero: FC<LuxuryHeroProps> = ({
   headline,
   subheadline,
   ctaText,
