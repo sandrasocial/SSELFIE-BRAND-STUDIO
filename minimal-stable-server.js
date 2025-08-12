@@ -1,46 +1,66 @@
-const express = require('express');
-const { spawn } = require('child_process');
+#!/usr/bin/env node
 
-console.log('🔍 MINIMAL STABLE SERVER - Testing root cause of instability');
+/**
+ * MINIMAL STABLE SERVER - For Replit Preview
+ * Simple Express server that works without ES modules
+ */
+
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
-app.use(express.json());
+// CORS and JSON middleware
+app.use(cors());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Health endpoint
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
-    status: 'minimal-stable', 
-    message: 'Testing server stability without complex routes',
+    status: 'ok', 
+    message: 'SSELFIE Studio Development Server',
+    timestamp: new Date().toISOString(),
+    port: PORT
+  });
+});
+
+// Basic API endpoints  
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API Working!', server: 'minimal-stable' });
+});
+
+// Serve static files if available
+app.use(express.static('dist/public'));
+app.use(express.static('public'));
+
+// Fallback route
+app.get('*', (req, res) => {
+  res.json({ 
+    message: 'SSELFIE Studio API', 
+    path: req.path,
+    method: req.method,
     timestamp: new Date().toISOString()
   });
 });
 
-// Agent endpoint for Zara to diagnose
-app.post('/api/consulting-agents/admin/consulting-chat', (req, res) => {
-  console.log(`🤖 AGENT CONNECTION: ${req.body?.agentId || 'unknown'}`);
-  res.json({ 
-    success: true,
-    message: 'MINIMAL SERVER: Agent connection established. Ready for root cause analysis.',
-    agent: req.body?.agentId || 'unknown',
-    server_mode: 'diagnostic'
-  });
+// Error handling
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ error: 'Internal Server Error', timestamp: new Date().toISOString() });
 });
 
-// Keep server alive
-const server = app.listen(port, '0.0.0.0', () => {
-  console.log(`✅ MINIMAL SERVER LIVE on port ${port}`);
-  console.log(`🔍 Testing if basic server stays alive without complex routes...`);
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ MINIMAL SERVER RUNNING`);
+  console.log(`🌐 Preview: http://localhost:${PORT}`);
+  console.log(`🔗 Health: http://localhost:${PORT}/api/health`);
+  console.log(`📦 Ready for Replit Preview`);
 });
 
-// Prevent exit
-process.on('SIGTERM', () => console.log('Received SIGTERM, but staying alive for diagnosis'));
-process.on('SIGINT', () => console.log('Received SIGINT, but staying alive for diagnosis'));
-
-// Keep event loop active
-setInterval(() => {
-  console.log(`⏰ Server heartbeat: ${new Date().toISOString()}`);
-}, 30000);
-
-console.log('🔧 Minimal server should stay alive independently - testing...');
+process.on('SIGTERM', () => {
+  console.log('👋 Server shutting down gracefully');
+  process.exit(0);
+});
