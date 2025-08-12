@@ -57,7 +57,7 @@ try {
 
 // Root endpoint serves React app instead of health check
 app.get('/', (req, res) => {
-  const indexPath = path.join(__dirname, '../dist/public/index.html');
+  const indexPath = path.join(__dirname, '../client/dist/index.html');
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
