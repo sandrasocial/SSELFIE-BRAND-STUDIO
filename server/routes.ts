@@ -2,7 +2,7 @@ import { setupEnhancementRoutes } from './services/backend-enhancement-services'
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
-import { setupRollbackRoutes } from './routes/rollback';
+import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { db } from "./db";
@@ -12,7 +12,7 @@ import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
-// import subscriberImportRouter from './routes/subscriber-import'; // Temporarily disabled due to import issues
+import subscriberImportRouter from './routes/subscriber-import';
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
 import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
@@ -332,7 +332,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { agentId, taskDescription, targetComponents } = req.body;
       
-      const { ActiveProtocolEnforcer } = await import('./agents/core/protocols/active-protocol-enforcer');
+      const { ActiveProtocolEnforcer } = await import('./agents/core/protocols/active-protocol-enforcer.js');
       
       const task = {
         agentId,
@@ -1507,10 +1507,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         predictionId: prediction.id,
         prompt: finalPrompt,
         style: 'Maya Editorial',
-        status: 'processing' as const
+        status: 'processing'
       };
       
-      const savedTracker = await storage.saveGenerationTracker(trackerData as any);
+      const savedTracker = await storage.saveGenerationTracker(trackerData);
       console.log('📊 Maya: Created tracker:', savedTracker.id);
 
       // Return immediately with trackerId for live frontend polling (working pattern from 2 days ago)
@@ -1691,10 +1691,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           userId: dbUserId,
           imageUrl: imageUrl,
           prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-          style: 'editorial' as const,
+          style: 'editorial',
           predictionId: tracker.predictionId || '',
-          generationStatus: 'completed' as const
-        } as any);
+          generationStatus: 'completed'
+        });
         
         savedImages.push(galleryImage);
       }

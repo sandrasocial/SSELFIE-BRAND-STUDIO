@@ -7,7 +7,7 @@
 export const PROTECTED_DESIGN_FILES = [
   'client/src/index.css',
   'tailwind.config.ts', 
-  'tailwind.config',
+  'tailwind.config.js',
   'vite.config.ts',
   'package.json',
   'client/src/App.tsx'

@@ -2,36 +2,20 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV=production
-ENV PORT=8080
-
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --only=production
+RUN npm install
 
 # Copy application files
 COPY . .
 
-# Build the application for production
+# Build the application
 RUN npm run build
 
-# Create user for security
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+# Expose port
+EXPOSE 3000
 
-# Change ownership
-RUN chown -R nodejs:nodejs /app
-USER nodejs
-
-# Expose port (Cloud Run uses 8080 by default)
-EXPOSE 8080
-
-# Health check with improved configuration
-HEALTHCHECK --interval=15s --timeout=10s --start-period=30s --retries=5 \
-  CMD curl -f http://localhost:$PORT/health || curl -f http://localhost:$PORT/ || exit 1
-
-# Start the application with production script
-CMD ["node", "start-production.js"]
+# Start the application
+CMD ["npm", "start"]
