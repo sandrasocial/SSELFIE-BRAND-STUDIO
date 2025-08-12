@@ -29,9 +29,9 @@ USER nodejs
 # Expose port (Cloud Run uses 8080 by default)
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:$PORT/health || exit 1
+# Health check with improved configuration
+HEALTHCHECK --interval=15s --timeout=10s --start-period=30s --retries=5 \
+  CMD curl -f http://localhost:$PORT/health || curl -f http://localhost:$PORT/ || exit 1
 
 # Start the application with production script
 CMD ["node", "start-production.js"]

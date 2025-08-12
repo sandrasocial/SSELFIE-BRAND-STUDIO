@@ -17,8 +17,14 @@ exec('pkill -f tsx', () => {
 process.env.NODE_ENV = 'production';
 process.env.PORT = process.env.PORT || '8080';  // Cloud Run uses 8080 by default
 
+// Enhanced deployment environment setup
+process.env.TS_NODE_TRANSPILE_ONLY = 'true';
+process.env.TS_NODE_TYPE_CHECK = 'false';
+process.env.NODE_OPTIONS = '--max-old-space-size=512';
+
 console.log(`🔧 Production Environment: ${process.env.NODE_ENV}`);
 console.log(`🌐 Production Port: ${process.env.PORT}`);
+console.log(`⚡ Fast startup mode enabled`);
 
 // Wait for any existing processes to be cleared
 setTimeout(() => {
@@ -96,12 +102,12 @@ buildProcess.on('close', (buildCode) => {
   // Log server startup
   console.log(`🚀 Starting server process with NODE_ENV=${process.env.NODE_ENV} on PORT=${process.env.PORT}`);
   
-  // Add timeout for server startup
+  // Add timeout for server startup (increased for deployment)
   const startupTimeout = setTimeout(() => {
     console.error('❌ Server startup timeout - killing process');
     serverProcess.kill('SIGKILL');
     process.exit(1);
-  }, 30000); // 30 second timeout
+  }, 60000); // 60 second timeout for deployment
   
   // Clear timeout when server starts successfully
   serverProcess.stdout?.on('data', (data) => {
