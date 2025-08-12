@@ -579,8 +579,9 @@
     "zwitch": "^2.0.4"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "dev": "cd server && npx tsx index.ts",
+    "start": "cd server && npx tsx index.ts"
+  }
   "keywords": [],
   "author": "",
   "license": "ISC",
