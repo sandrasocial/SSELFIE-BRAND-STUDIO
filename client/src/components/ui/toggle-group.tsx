@@ -4,7 +4,8 @@ import React, {
   ComponentPropsWithoutRef,
   ElementRef,
   createContext,
-  useContext
+  useContext,
+  forwardRef
 } from 'react';
 
 // React import handled by Vite JSX transform

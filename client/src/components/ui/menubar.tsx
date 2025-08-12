@@ -4,7 +4,8 @@ import React, {
   ComponentProps,
   ComponentPropsWithoutRef,
   ElementRef,
-  HTMLAttributes
+  HTMLAttributes,
+  forwardRef
 } from 'react';
 import * as MenubarPrimitive from "@radix-ui/react-menubar"
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
