@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useWebsiteBuilder, type WebsiteGenerationRequest } from '../../hooks/useWebsiteBuilder';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+// Label component removed
 import { Textarea } from '../ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Checkbox } from '../ui/checkbox';
+// Select and Checkbox components removed
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/queryClient';
 import { useToast } from '../../hooks/use-toast';
