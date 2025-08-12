@@ -2,7 +2,7 @@
   "name": "workspace",
   "type": "module",
   "version": "1.0.0",
-  "main": "development-stable-server.js",
+  "main": "server/index.ts",
   "directories": {
     "doc": "docs",
     "lib": "lib"
