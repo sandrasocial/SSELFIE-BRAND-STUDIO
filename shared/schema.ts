@@ -483,6 +483,7 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
 
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
+export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAiImageSchema = createInsertSchema(aiImages).omit({ id: true, createdAt: true });
@@ -514,8 +515,8 @@ export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities)
 
 
 
-// Type exports
-export type UpsertUser = z.infer<typeof upsertUserSchema>;
+// Type exports  
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 // Website types
