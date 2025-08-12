@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { db } from '../db.js';
-import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
+import { db } from '../db';
+import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { simpleMemoryService } from './simple-memory-service.js';
-import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine.js';
+import { simpleMemoryService } from './simple-memory-service';
+import { localProcessingEngine } from './hybrid-intelligence/local-processing-engine';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -26,7 +26,7 @@ export class ClaudeApiServiceSimple {
     
     try {
       // Load agent configuration from authentic personality system
-      const { PersonalityManager, PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.js');
+      const { PersonalityManager, PURE_PERSONALITIES } = await import('../agents/personalities/personality-config');
       const agentConfig = PURE_PERSONALITIES[agentName as keyof typeof PURE_PERSONALITIES];
       
       if (!agentConfig) {

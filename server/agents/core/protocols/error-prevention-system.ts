@@ -25,7 +25,7 @@ export class ErrorPreventionSystem {
     if (filePath.includes('server/') && process.env.NODE_ENV === 'production') {
       const relativeImports = code.match(/from ['"]\.\.?\/[^'"]+['"]/g) || [];
       relativeImports.forEach(imp => {
-        if (!imp.includes('.js') && !imp.includes('schema') && !imp.includes('.ts')) {
+        if (!imp.includes('') && !imp.includes('schema') && !imp.includes('.ts')) {
           warnings.push(`Production build may need .js extension: ${imp}`);
           suggestions.push(`Consider adding .js extension to: ${imp}`);
         }
