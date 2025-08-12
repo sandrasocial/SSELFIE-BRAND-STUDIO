@@ -1,8 +1,8 @@
-import React from "react";
+import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export interface MinimalCardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   dark?: boolean;
   className?: string;
 }

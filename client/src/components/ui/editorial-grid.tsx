@@ -1,7 +1,7 @@
-import React from 'react';
+import { ReactNode } from 'react';
 
 interface EditorialGridProps {
-  children: React.ReactNode;
+  children: ReactNode;
   columns?: 2 | 3 | 4;
   className?: string;
 }
