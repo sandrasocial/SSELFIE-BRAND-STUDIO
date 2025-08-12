@@ -17,9 +17,16 @@ exec('pkill -f tsx', () => {
 process.env.NODE_ENV = 'production';
 process.env.PORT = process.env.PORT || '80';
 
-console.log('📦 Building frontend assets...');
+// Wait for any existing processes to be cleared
+setTimeout(() => {
+  startBuild();
+}, 2000);
 
-// Build the frontend first
+function startBuild() {
+
+  console.log('📦 Building frontend assets...');
+
+  // Build the frontend first
 const buildProcess = spawn('npm', ['run', 'build'], {
   stdio: 'inherit',
   shell: true
@@ -98,7 +105,8 @@ buildProcess.on('close', (buildCode) => {
   });
 });
 
-buildProcess.on('error', (error) => {
-  console.error('❌ Build process error:', error);
-  process.exit(1);
-});
+  buildProcess.on('error', (error) => {
+    console.error('❌ Build process error:', error);
+    process.exit(1);
+  });
+}

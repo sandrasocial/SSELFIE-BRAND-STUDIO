@@ -8,6 +8,9 @@ import { registerRoutes } from './routes';
 const app = express();
 const port = Number(process.env.PORT) || 5000;
 
+// Trust proxy for proper forwarding (required for deployment)
+app.set('trust proxy', true);
+
 console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
 console.log(`🌐 Target Port: ${port}`);
 
@@ -100,25 +103,40 @@ function setupStaticFiles() {
 }
 
 // Start server with complete application
-const server = app.listen(port, '0.0.0.0', async () => {
-  console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
-  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
-  
-  // Load your complete application after server starts
-  await startCompleteApp();
-});
+async function startServer() {
+  try {
+    // Load your complete application BEFORE starting server
+    await startCompleteApp();
+    
+    const server = app.listen(port, '0.0.0.0', () => {
+      console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
+      console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+    
+    // Handle server errors
+    server.on('error', (err: any) => {
+      console.error('❌ Server startup error:', err);
+      process.exit(1);
+    });
 
-// Handle server errors
-server.on('error', (err: any) => {
-  console.error('❌ Server startup error:', err);
+    // Graceful shutdown for Cloud Run
+    process.on('SIGTERM', () => {
+      console.log('🛑 SIGTERM received, shutting down gracefully...');
+      server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+      });
+    });
+    
+    return server;
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// Initialize server
+startServer().catch(error => {
+  console.error('❌ Failed to start server:', error);
   process.exit(1);
-});
-
-// Graceful shutdown for Cloud Run
-process.on('SIGTERM', () => {
-  console.log('🛑 SIGTERM received, shutting down gracefully...');
-  server.close(() => {
-    console.log('✅ Server closed');
-    process.exit(0);
-  });
 });
