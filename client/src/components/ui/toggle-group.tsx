@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+// React import handled by Vite JSX transform
 import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group"
 import { type VariantProps } from "class-variance-authority"
 

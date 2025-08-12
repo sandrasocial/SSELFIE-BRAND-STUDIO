@@ -1,4 +1,4 @@
-import * as React from "react"
+// React import handled by Vite JSX transform
 
 import { cn } from "@/lib/utils"
 
