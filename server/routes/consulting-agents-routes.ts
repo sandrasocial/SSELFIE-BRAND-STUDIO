@@ -32,7 +32,9 @@ import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 // REMOVED: DirectWorkspaceAccess - unified native tool architecture
 // ELIMINATED: autonomousNavigation - part of competing memory systems
 // REMOVED: architectural-knowledge-base - part of old complex system
-// SIMPLIFIED MEMORY SYSTEM: Replaced 4 competing systems with one clean interface
+// HYBRID INTELLIGENCE SYSTEM: Proper memory and local processing integration
+const ContextManager = require('../memory/context-manager.js');
+import { LocalProcessingEngine } from '../services/hybrid-intelligence/local-processing-engine';
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
@@ -44,14 +46,15 @@ import { bash } from '../tools/bash';
 import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
 import { execute_sql_tool } from '../tools/execute_sql_tool';
 import { search_filesystem } from '../tools/search_filesystem';
-// ZARA'S CONTEXT LOSS FIX: Import workflow state management
-import { ConversationManager } from '../agents/core/conversation/ConversationManager';
+// ADMIN AGENT CORE: Initialize proper systems
+const contextManager = new ContextManager();
+const localProcessingEngine = LocalProcessingEngine.getInstance();
 
 function getClaudeService() {
   return claudeApiServiceSimple;
 }
 
-// LOCAL TOOL EXECUTION: Execute tools locally while preserving agent intelligence for responses
+// ADMIN AGENT WITH PERSONALITY: Execute with full personality, memory, and hybrid intelligence
 async function handleDirectAdminExecution(
   userId: string,
   agentId: string,
@@ -60,7 +63,11 @@ async function handleDirectAdminExecution(
   availableTools: any[],
   res: any
 ) {
-  console.log(`🔧 LOCAL TOOLS: ${agentId.toUpperCase()} executing tools locally (agent responses still use Claude API)`);
+  console.log(`🤖 ADMIN AGENT ${agentId.toUpperCase()}: Full personality system with hybrid intelligence activated`);
+  
+  // Initialize agent with full personality
+  const agentPersonality = PersonalityManager.getNaturalPrompt(agentId);
+  console.log(`✅ ${agentId} personality loaded: ${PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES]?.name || agentId}`);
   
   // Set up Server-Sent Events streaming response
   res.writeHead(200, {
