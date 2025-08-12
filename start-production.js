@@ -38,7 +38,7 @@ buildProcess.on('close', (buildCode) => {
   console.log('🚀 Starting server...');
   
   // Start the server with optimized settings for deployment
-  const serverProcess = spawn('npx', ['tsx', 'server/index.ts'], {
+  const serverProcess = spawn('npx', ['tsx', 'server/index-deployment.ts'], {
     stdio: 'inherit',
     shell: true,
     env: {
