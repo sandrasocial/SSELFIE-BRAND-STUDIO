@@ -1835,49 +1835,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // DEVELOPMENT LOGIN: Simple authentication bypass for development
-  app.post('/api/auth/dev-login', async (req: any, res) => {
-    try {
-      const { email, name } = req.body;
-      
-      if (!email) {
-        return res.status(400).json({ error: 'Email required' });
-      }
-      
-      console.log('🔐 Development login requested for:', email);
-      
-      // Create or get user
-      let user = await storage.getUserByEmail(email);
-      if (!user) {
-        const userId = `dev-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        user = await storage.upsertUser({
-          id: userId,
-          email: email,
-          firstName: name?.split(' ')[0] || 'Developer',
-          lastName: name?.split(' ')[1] || 'User',
-          profileImageUrl: null
-        });
-        console.log('✅ Created new development user:', user.email);
-      }
-      
-      // Create session
-      req.session.user = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: email === 'ssa@ssasocial.com' ? 'admin' : 'member'
-      };
-      
-      console.log('✅ Development session created for:', user.email);
-      res.json({ success: true, user: req.session.user });
-      
-    } catch (error) {
-      console.error('Development login error:', error);
-      res.status(500).json({ error: 'Login failed' });
-    }
-  });
-
   app.get('/api/auth/user', async (req: any, res) => {
     try {
       console.log('🔍 /api/auth/user called - checking authentication');
