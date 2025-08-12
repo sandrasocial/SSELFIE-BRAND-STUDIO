@@ -1,4 +1,4 @@
-import { 
+import React, { 
   CSSProperties,
   ComponentProps,
   ElementRef,
@@ -10,7 +10,6 @@ import {
   useMemo,
   useState
 } from 'react';
-// React imported via individual functions
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
