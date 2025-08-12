@@ -15,27 +15,60 @@ if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'production';
 }
 
+// Force production mode for deployment
+if (process.env.PORT && !process.env.NODE_ENV.includes('development')) {
+  process.env.NODE_ENV = 'production';
+}
+
 // Trust proxy for proper forwarding (required for deployment)
 app.set('trust proxy', true);
 
 console.log(`🔧 Environment: ${process.env.NODE_ENV}`);
 console.log(`🌐 Target Port: ${port}`);
 
-// Essential middleware with error handling
+// Essential middleware with enhanced error handling
 try {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  
+  // Add request timeout for deployment health checks
+  app.use((req, res, next) => {
+    req.setTimeout(30000); // 30 second timeout
+    res.setTimeout(30000);
+    next();
+  });
+  
+  // Add basic CORS for deployment
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(200);
+    } else {
+      next();
+    }
+  });
+  
 } catch (error) {
   console.error('❌ Middleware setup failed:', error);
+  // Don't exit, continue with basic setup
 }
 
 // CRITICAL: Root endpoint for health checks - MUST respond immediately
 app.get('/', (req, res) => {
   try {
-    res.status(200).send('OK');
+    // Simple and fast response for deployment health checks
+    res.status(200).json({
+      status: 'healthy',
+      service: 'SSELFIE Studio',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      env: process.env.NODE_ENV || 'development'
+    });
   } catch (error) {
     console.error('❌ Root endpoint error:', error);
-    res.status(500).send('Error');
+    res.status(500).json({ status: 'error', message: 'Health check failed' });
   }
 });
 
@@ -85,6 +118,24 @@ app.get('/alive', (req, res) => {
   } catch (error) {
     console.error('❌ Alive endpoint error:', error);
     res.status(500).send('Dead');
+  }
+});
+
+// Additional deployment health check endpoint
+app.get('/status', (req, res) => {
+  try {
+    res.status(200).json({
+      status: 'operational',
+      service: 'SSELFIE Studio',
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      env: process.env.NODE_ENV
+    });
+  } catch (error) {
+    console.error('❌ Status endpoint error:', error);
+    res.status(500).json({ status: 'error', message: 'Status check failed' });
   }
 });
 
