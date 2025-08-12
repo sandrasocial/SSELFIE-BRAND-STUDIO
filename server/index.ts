@@ -117,26 +117,3 @@ process.on('SIGTERM', () => {
     process.exit(0);
   });
 });
-
-  // Handle server startup errors
-  server.on('error', (err: any) => {
-    if (err.code === 'EACCES') {
-      console.error(`❌ Permission denied for port ${port}. Trying alternative port...`);
-      // Fallback to port 3000 if 80 is not accessible
-      const fallbackPort = 3000;
-      app.listen(fallbackPort, '0.0.0.0', () => {
-        console.log(`🚀 SSELFIE Studio LIVE on fallback port ${fallbackPort}`);
-      });
-    } else {
-      console.error('❌ Server startup error:', err);
-      process.exit(1);
-    }
-  });
-
-  return server;
-}
-
-startServer().catch((err) => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
-});
