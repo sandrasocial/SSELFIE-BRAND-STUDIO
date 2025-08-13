@@ -58,6 +58,9 @@ Preferred communication style: Simple, everyday language.
 - **User Training Business Model Enforced** - Requires valid subscription for AI model training access
 - **Real API Integration** - Subscription, usage, and model endpoints now use actual database data vs fake responses
 - **Clean Authentication Flow** - Removed impersonation middleware conflicts affecting user sessions
+- **CONSULTING AGENTS STREAMLINED (August 2025)** - Massive 69% reduction from 1,082 to 332 lines
+- **Legacy System Elimination** - Removed unused handlers, complex hybrid systems, and over-engineered token optimization
+- **Performance Optimization** - Light database queries (20 vs 100 messages), static imports, simplified architecture
 - Multi-agent coordination system enabling task delegation and automated execution
 - Workflow template creation system for structured multi-agent workflows
 - Local processing engine for token optimization, handling pattern extraction, agent learning, session context updates, tool result processing, error validation, and intent classification
