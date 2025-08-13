@@ -42,7 +42,7 @@ import AdminConsultingAgents from "./pages/admin-consulting-agents";
 import AdminSubscriberImport from "./pages/admin-subscriber-import";
 
 import BridgeMonitor from "./pages/admin/bridge-monitor";
-import { UnifiedAgentInterface } from "./components/admin/UnifiedAgentInterface";
+
 import UnifiedLoginButton from "./components/UnifiedLoginButton";
 
 import AgentApproval from "./pages/agent-approval";
@@ -249,30 +249,7 @@ function Router() {
       {/* SANDRA'S ADMIN DASHBOARD - LUXURY EDITORIAL DESIGN */}
       <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
       <Route path="/admin" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
-      <Route path="/admin/unified-agents" component={(props) => <ProtectedRoute component={() => (
-        <div className="min-h-screen bg-gray-50">
-          <div className="bg-white border-b">
-            <div className="max-w-7xl mx-auto px-4 py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'Times New Roman, serif' }}>
-                    Unified Agent Architecture
-                  </h1>
-                  <p className="text-gray-600 mt-1">
-                    Real-time agent execution and monitoring system
-                  </p>
-                </div>
-                <div className="text-sm text-gray-500">
-                  SSELFIE Studio Admin
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="max-w-7xl mx-auto px-4 py-8">
-            <UnifiedAgentInterface />
-          </div>
-        </div>
-      )} {...props} />} />
+
       <Route path="/admin/business-overview" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
       <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/subscriber-import" component={(props) => <ProtectedRoute component={AdminSubscriberImport} {...props} />} />

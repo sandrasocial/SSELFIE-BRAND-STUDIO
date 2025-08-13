@@ -1,7 +1,5 @@
 import React from 'react';
-import { MonitoringDashboard } from '../components/admin/MonitoringDashboard';
 import { useAuth } from '../hooks/use-auth';
-import { UnifiedAgentInterface } from '../components/admin/UnifiedAgentInterface';
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
@@ -27,9 +25,15 @@ export default function AdminDashboardPage() {
           <h1 className="text-3xl font-serif font-bold text-black mb-2">Admin Dashboard</h1>
           <p className="text-gray-600">Unified agent coordination system</p>
         </div>
-        <MonitoringDashboard />
-        <div className="mt-8">
-          <UnifiedAgentInterface />
+        <div className="bg-white p-8 rounded-lg shadow-sm border text-center">
+          <h2 className="text-xl font-semibold mb-4">Admin Dashboard</h2>
+          <p className="text-gray-600 mb-6">Use the consulting agents system for full admin functionality.</p>
+          <a 
+            href="/admin/consulting-agents" 
+            className="inline-block bg-black text-white px-6 py-3 rounded hover:bg-gray-800 transition-colors"
+          >
+            Access Consulting Agents
+          </a>
         </div>
       </div>
     </div>
