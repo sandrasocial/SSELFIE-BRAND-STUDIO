@@ -1,5 +1,5 @@
 import { ComponentType, useEffect, lazy } from 'react';
-import { Route, useLocation, Redirect } from "wouter";
+import { Route, Switch, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
@@ -139,7 +139,7 @@ function ProtectedRoute({ component: Component, ...props }: { component: Compone
 
 function Router() {
   return (
-    <div>
+    <Switch>
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* LAUNCH COUNTDOWN */}
@@ -299,9 +299,7 @@ function Router() {
         );
       }} />
 
-
-
-    </div>
+    </Switch>
   );
 }
 
