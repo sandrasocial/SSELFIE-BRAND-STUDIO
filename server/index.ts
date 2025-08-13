@@ -86,16 +86,15 @@ async function startCompleteApp() {
     console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
     console.log('✅ All your features loaded!');
     
-    // Set up static file serving (production mode)
-    // Using built assets from client/dist to avoid Vite HMR WebSocket issues
-    console.log('🚀 Starting with built assets (production mode)...');
-    setupStaticFiles();
+    // Set up development mode with Vite for proper SPA routing
+    console.log('🔧 Starting development mode with Vite...');
+    await setupDevelopmentMode(server);
     
     return server;
   } catch (error) {
     console.error('❌ CRITICAL: Failed to load your main application:', error);
-    // Graceful error handling - try to continue with basic functionality
-    console.log('🔄 Attempting graceful recovery...');
+    // Graceful error handling - try to continue with static files
+    console.log('🔄 Attempting graceful recovery with static files...');
     setupStaticFiles();
     return server;
   }
