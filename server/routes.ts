@@ -1664,7 +1664,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         hasSession: !!req.session,
         isAuthenticated: req.isAuthenticated?.(),
         hasUser: !!req.user,
-        sessionId: req.sessionID
+        sessionId: req.sessionID,
+        passportSession: req.session?.passport,
+        sessionKeys: req.session ? Object.keys(req.session) : []
       });
       
       return res.status(401).json({ 
