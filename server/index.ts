@@ -72,6 +72,17 @@ async function startCompleteApp() {
     // Load your complete routing system with all features
     await registerRoutes(app);
     
+    // Serve attached_assets directory for agent images and uploads
+    const attachedAssetsPath = path.join(__dirname, '../attached_assets');
+    if (fs.existsSync(attachedAssetsPath)) {
+      app.use('/attached_assets', express.static(attachedAssetsPath, {
+        maxAge: '1h',
+        etag: true,
+        lastModified: true
+      }));
+      console.log(`📁 Serving attached_assets from: ${attachedAssetsPath}`);
+    }
+    
     console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
     console.log('✅ All your features loaded!');
     
