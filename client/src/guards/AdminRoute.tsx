@@ -15,14 +15,6 @@ export default function AdminRoute({ component: Component, ...props }: AdminRout
   const isAdmin = user?.email === 'ssa@ssasocial.com' ||
                   user?.adminBypass === true;
   
-  // Debug logging for admin access
-  console.log('🔐 AdminRoute debug:', { 
-    userEmail: user?.email, 
-    isAdmin, 
-    isAuthenticated, 
-    isLoading 
-  });
-  
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

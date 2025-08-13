@@ -1659,21 +1659,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         return res.json(req.session.user);
       }
       
-      // PRIORITY 3: Admin bypass for Sandra's access
-      const adminToken = req.headers['x-admin-token'] || req.query.adminToken;
-      if (adminToken === 'sandra-admin-2025') {
-        console.log('✅ Admin token bypass activated for Sandra');
-        const adminUser = {
-          id: '42585527',
-          email: 'ssa@ssasocial.com',
-          firstName: 'Sandra',
-          lastName: 'Sigurjonsdottir',
-          profileImageUrl: null,
-          adminBypass: true
-        };
-        return res.json(adminUser);
-      }
-      
       console.log('❌ User not authenticated - redirecting to login');
       console.log('Auth debug:', { 
         hasSession: !!req.session,
