@@ -4,7 +4,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, getSession } from "./auth-new";
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -305,6 +305,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add session middleware first
+  app.use(getSession());
+  
   // Setup authentication
   await setupAuth(app);
 
