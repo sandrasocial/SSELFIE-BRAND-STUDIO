@@ -291,8 +291,24 @@ const adminAuth = async (req: AdminRequest, res: any, next: any) => {
 export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
   try {
     console.log(`🚀 STREAMLINED CONSULTING: Fast personality-first response`);
+    console.log('Request body type:', typeof req.body);
+    console.log('Request body:', req.body);
 
-    const { agentId, message } = req.body;
+    // ENSURE BODY IS PARSED: Handle both string and object bodies
+    let parsedBody = req.body;
+    if (typeof req.body === 'string') {
+      try {
+        parsedBody = JSON.parse(req.body);
+      } catch (parseError) {
+        console.error('JSON Parse Error:', parseError);
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid JSON in request body'
+        });
+      }
+    }
+
+    const { agentId, message } = parsedBody;
     
     // MINIMAL VALIDATION: Essential checks only
     if (!agentId || !message?.trim()) {
