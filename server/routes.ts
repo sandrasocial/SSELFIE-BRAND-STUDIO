@@ -1501,13 +1501,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const user = await storage.getUser(userId);
       
       if (!user) {
-        console.log('⚠️ User not found - treating as trial user');
+        console.log('⚠️ User not found - new user needs account setup');
         return res.json({
-          plan: 'trial',
-          status: 'trial_active',
-          currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 day trial
+          plan: 'none',
+          status: 'no_subscription',
           customerId: userId,
-          canTrain: true // Trial users can train models
+          canTrain: false,
+          requiresSubscription: true,
+          message: 'Please set up your subscription to access training features'
         });
       }
       
@@ -1523,14 +1524,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           canTrain: true
         };
       } else {
-        // New user - grant trial access for training
+        // New user - requires subscription for training access
         subscription = {
-          plan: 'trial',
-          status: 'trial_active', 
-          currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+          plan: 'none',
+          status: 'no_subscription',
           customerId: userId,
-          canTrain: true,
-          message: 'Trial period - full training access'
+          canTrain: false,
+          requiresSubscription: true,
+          message: 'Subscription required for model training access'
         };
       }
       
@@ -1553,14 +1554,15 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const user = await storage.getUser(userId);
       
       if (!user) {
-        console.log('⚠️ User not found, creating new user with full access');
+        console.log('⚠️ User not found - requires subscription');
         return res.json({
-          plan: 'full-access', 
+          plan: 'none', 
           monthlyUsed: 0,
-          monthlyLimit: 100,
+          monthlyLimit: 0,
           isAdmin: false,
-          canTrain: true,
-          message: 'New user - full access granted'
+          canTrain: false,
+          requiresSubscription: true,
+          message: 'Subscription required for usage access'
         });
       }
       
@@ -1569,7 +1571,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         monthlyUsed: user.generationsUsedThisMonth || 0,
         monthlyLimit: user.monthlyGenerationLimit || 100,
         isAdmin: user.email === 'ssa@ssasocial.com',
-        canTrain: true, // Always allow training for legitimate users
+        canTrain: user.plan === 'full-access' || user.plan === 'basic', // Only paid subscribers can train
         canGenerate: (user.generationsUsedThisMonth || 0) < (user.monthlyGenerationLimit || 100)
       };
       
