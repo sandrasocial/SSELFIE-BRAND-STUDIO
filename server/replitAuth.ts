@@ -1,7 +1,7 @@
 import * as client from "openid-client";
 // Import OpenID Connect client and passport strategy with proper module resolution
 import * as oidc from "openid-client";
-const Strategy = oidc.passport.Strategy;
+import { Strategy as OAuth2Strategy } from "passport-oauth2";
 import type { VerifyFunction } from "passport";
 
 import passport from "passport";
@@ -114,14 +114,10 @@ export function getSession() {
   }
 }
 
-function updateUserSession(
-  user: any,
-  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
-) {
-  user.claims = tokens.claims();
+function updateUserSession(user: any, tokens: any) {
   user.access_token = tokens.access_token;
   user.refresh_token = tokens.refresh_token;
-  user.expires_at = user.claims?.exp;
+  user.expires_at = tokens.expires_at;
 }
 
 async function upsertUser(claims: any) {
@@ -142,15 +138,7 @@ export async function setupAuth(app: Express) {
 
   const config = await getOidcConfig();
 
-  const verify: VerifyFunction = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
-    verified: passport.AuthenticateCallback
-  ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
-  };
+  // This verify function is no longer needed since we're using OAuth2Strategy callback
 
   // Get domains from environment and add development domains
   const domains = process.env.REPLIT_DOMAINS!.split(",");
@@ -178,15 +166,41 @@ export async function setupAuth(app: Express) {
     console.log(`🔍 Registering strategy for domain: ${domain}`);
     console.log(`🔍 Callback URL: ${callbackURL}`);
       
-    const strategy = new Strategy(
+    const strategy = new OAuth2Strategy(
       {
-        name: `replitauth:${domain}`,
-        config,
-        scope: "openid email profile offline_access",
-        callbackURL
+        authorizationURL: config.metadata.authorization_endpoint!,
+        tokenURL: config.metadata.token_endpoint!,
+        clientID: process.env.REPL_ID!,
+        clientSecret: process.env.REPL_ID!, // Replit uses REPL_ID as both ID and secret
+        callbackURL,
+        scope: "openid email profile offline_access"
       },
-      verify,
+      async (accessToken: string, refreshToken: string, profile: any, done: any) => {
+        try {
+          // Get user info using the access token
+          const userResponse = await fetch(config.metadata.userinfo_endpoint!, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          const userInfo = await userResponse.json();
+          
+          const user = {
+            id: userInfo.sub,
+            username: userInfo.preferred_username,
+            email: userInfo.email,
+            accessToken,
+            refreshToken
+          };
+          
+          await upsertUser(userInfo);
+          updateUserSession(user, { access_token: accessToken, refresh_token: refreshToken });
+          done(null, user);
+        } catch (error) {
+          console.error('OAuth strategy error:', error);
+          done(error);
+        }
+      }
     );
+    strategy.name = `replitauth:${domain}`;
     passport.use(strategy);
     console.log(`✅ Registered auth strategy for: ${domain}`);
   }
