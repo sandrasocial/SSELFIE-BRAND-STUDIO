@@ -61,7 +61,7 @@ export class ExternalAPIService {
     for (const subscriber of subscribers) {
       try {
         // Add to SSELFIE email capture system
-        const response = await fetch('http://localhost:5000/api/email-capture', {
+        const response = await fetch('http://localhost:3000/api/email-capture', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -271,7 +271,7 @@ export class BulletproofUploadService {
       }
       
       // Serve ZIP from local server (avoiding S3 region issues)
-      const zipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${path.basename(zipPath)}`;
+      const zipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:3000'}/training-zip/${path.basename(zipPath)}`;
       
       console.log(`✅ ZIP CREATION: Created ${zipStats.size} bytes at ${zipUrl}`);
       

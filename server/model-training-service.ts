@@ -124,7 +124,7 @@ export class ModelTrainingService {
       
       // For now, serve the ZIP directly from our server to avoid S3 region issues
       // Keep the ZIP file in temp directory for serving
-      const localZipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${path.basename(zipPath)}`;
+      const localZipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:3000'}/training-zip/${path.basename(zipPath)}`;
       return localZipUrl;
       
     } catch (error) {
