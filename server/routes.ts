@@ -1858,7 +1858,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
               firstName: 'Sandra',
               lastName: 'Admin',
               profileImageUrl: null
-            });
+            } as any);
           }
         }
         
@@ -2538,7 +2538,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
           firstName: claims.first_name,
           lastName: claims.last_name,
           profileImageUrl: claims.profile_image_url,
-        });
+        } as any);
       }
       
       // Import and use BulletproofUploadService
