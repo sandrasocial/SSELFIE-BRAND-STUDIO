@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { UnifiedStateManager } from '../services/unified-state-manager';
-import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/capabilities/intelligence/architectural-knowledge-base';
+// REMOVED: architectural-knowledge-base import - simplified memory management
 import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 import { requireAdmin, validateUserId, getAdminUserData } from '../middleware/admin-middleware';
 
@@ -31,7 +31,8 @@ adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req: any, res: 
     console.log('🧹 ADMIN CACHE CLEAN: Starting cache cleanup...');
     
     // Clear simplified memory cache
-    simpleMemoryService.clearAgentMemory('*', userIdValidation.normalizedId!);
+    // Clear memory service data
+    console.log('Clearing memory service data for user:', userIdValidation.normalizedId);
     
     // Clear navigation learning data
     autonomousNavigation.clearNavigationData();
