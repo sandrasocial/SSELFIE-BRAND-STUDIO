@@ -541,7 +541,7 @@ export default function VictoriaBuilder() {
               return (
                 <iframe
                   ref={previewRef}
-                  src="http://localhost:5000"
+                  src="http://localhost:3000"
                   className="w-full h-full border-0"
                   title="Landing Page Preview"
                   sandbox="allow-same-origin"

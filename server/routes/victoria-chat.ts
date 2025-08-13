@@ -48,7 +48,7 @@ Maintain Victoria's personality: professional, warm, design-focused, and luxury-
 `;
 
     // Call Victoria member agent with enhanced prompt
-    const response = await fetch('http://localhost:5000/api/victoria-website-chat-internal', {
+    const response = await fetch('http://localhost:3000/api/victoria-website-chat-internal', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ Maintain Victoria's personality: professional, warm, design-focused, and luxury-
           const websiteData = JSON.parse(jsonMatch[1]);
           
           // Generate website using Victoria's website generation API
-          const websiteResponse = await fetch('http://localhost:5000/api/victoria/generate', {
+          const websiteResponse = await fetch('http://localhost:3000/api/victoria/generate', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
