@@ -2217,41 +2217,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Conversation history endpoint (kept here for compatibility)
-  app.get('/api/claude/conversation/:conversationId/history', async (req, res) => {
-    try {
-      const { conversationId } = req.params;
-      
-      if (!conversationId) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Conversation ID is required' 
-        });
-      }
-      
-      // Use database directly to get conversation history
-      const { db } = await import('./db');
-      const { claudeMessages } = await import('../shared/schema');
-      const { eq } = await import('drizzle-orm');
-      
-      const messages = await db
-        .select()
-        .from(claudeMessages)
-        .where(eq(claudeMessages.conversationId, conversationId))
-        .orderBy(claudeMessages.createdAt);
-      
-      res.json({ 
-        success: true, 
-        messages 
-      });
-    } catch (error) {
-      console.error('Conversation history error:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to load conversation history' 
-      });
-    }
-  });
+  // DUPLICATE REMOVED: This endpoint was duplicate of line 2146 - using single unified endpoint
 
   app.post('/api/claude/conversation/clear', async (req, res) => {
     try {
@@ -2278,51 +2244,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // CRITICAL FIX: Missing /api/claude/send-message endpoint for admin dashboard
-  app.post('/api/claude/send-message', async (req, res) => {
-    try {
-      console.log('🔍 Claude send-message called with:', {
-        agentName: req.body.agentName,
-        messageLength: req.body.message?.length,
-        conversationId: req.body.conversationId,
-        fileEditMode: req.body.fileEditMode
-      });
-
-      const { agentName, message, conversationId, fileEditMode = true } = req.body;
-      
-      if (!agentName || !message) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Agent name and message are required' 
-        });
-      }
-
-      // Get user ID for authentication
-      let userId = 'admin-sandra'; // Default admin user
-      if (req.user && (req.user as any)?.claims?.sub) {
-        userId = (req.user as any).claims.sub;
-      }
-
-      // UNIFIED SERVICE: Use singleton to eliminate service multiplication
-      const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
-      const claudeService = claudeApiServiceSimple;
-      // Simple response generation for basic messaging
-      const response = `Hello! I'm ${agentName}, ready to help you with your request: "${message}"`;
-
-      res.json({
-        success: true,
-        response: (response as any).content || response,
-        conversationId: (response as any).conversationId || `conv_${agentName}_${userId || 'anonymous'}`
-      });
-
-    } catch (error) {
-      console.error('Claude send-message error:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to send message to agent' 
-      });
-    }
-  });
+  // DUPLICATE REMOVED: This endpoint was duplicate of line 2001 - using single unified endpoint
   
   // AI Images route for workspace gallery - CRITICAL: Missing endpoint restored
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
@@ -2727,6 +2649,29 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
   GenerationCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
+
+  // CRITICAL FIX: Setup Vite middleware for development
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      console.log('🔧 DEVELOPMENT: Setting up Vite middleware...');
+      const { setupVite } = await import('./vite');
+      await setupVite(app, server);
+      console.log('✅ DEVELOPMENT: Vite middleware active - HMR and dev tools ready');
+    } catch (error) {
+      console.error('⚠️ DEVELOPMENT: Vite setup failed:', error);
+      // Continue without Vite in development mode
+    }
+  } else {
+    // Production: Serve static files
+    console.log('🚀 PRODUCTION: Setting up static file serving...');
+    const { serveStatic } = await import('./vite');
+    try {
+      serveStatic(app);
+      console.log('✅ PRODUCTION: Static files ready');
+    } catch (error) {
+      console.error('⚠️ PRODUCTION: Static file serving setup failed:', error);
+    }
+  }
   
   return server;
 }
