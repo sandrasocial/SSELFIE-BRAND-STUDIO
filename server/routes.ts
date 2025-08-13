@@ -270,68 +270,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ISOLATED TEST ROUTE - Bypass all middleware to identify the issue
-  app.post('/api/test-json', (req: any, res: any) => {
-    console.log('🧪 TEST: Raw req.body:', req.body);
-    console.log('🧪 TEST: Body type:', typeof req.body);
-    
-    res.json({
-      success: true,
-      received: req.body,
-      bodyType: typeof req.body,
-      timestamp: new Date().toISOString()
-    });
-  });
-
-  // FIXED ADMIN CONSULTING ROUTE
-  app.post('/api/admin/consulting-chat', (req: any, res: any) => {
+  // FRONTEND COMPATIBILITY: Add the route the frontend expects
+  app.post('/api/admin/consulting-chat', async (req: any, res: any) => {
     try {
-      console.log('🚀 ADMIN ROUTE: Raw body:', req.body);
-      console.log('🚀 ADMIN ROUTE: Body type:', typeof req.body);
+      console.log('FRONTEND ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
       
-      // Basic authentication check  
-      const adminToken = req.headers.authorization;
-      if (adminToken !== 'Bearer sandra-admin-2025') {
-        return res.status(401).json({ 
-          success: false, 
-          message: 'Admin authentication required' 
-        });
+      const adminToken = req.headers.authorization || 
+                        (req.body && req.body.adminToken) || 
+                        req.query.adminToken;
+      
+      if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
+        req.user = {
+          claims: {
+            sub: '42585527',
+            email: 'ssa@ssasocial.com',
+            first_name: 'Sandra',
+            last_name: 'Sigurjonsdottir'
+          }
+        };
+        req.isAdminBypass = true;
       }
       
-      // Handle request body properly
-      if (!req.body || typeof req.body !== 'object') {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid request body',
-          received: req.body,
-          type: typeof req.body
-        });
-      }
-      
-      const { agentId, message } = req.body;
-      
-      if (!agentId || !message) {
-        return res.status(400).json({
-          success: false,
-          message: 'Agent ID and message are required',
-          received: { agentId, message }
-        });
-      }
-      
-      // Success response
-      return res.json({
-        success: true,
-        message: `✅ PHASE 2 FIXED: ${agentId.toUpperCase()} admin route working`,
-        agentId,
-        receivedMessage: message,
-        timestamp: new Date().toISOString()
-      });
+      // Import and handle via consulting agents router
+      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes');
+      await handleAdminConsultingChat(req, res);
       
     } catch (error) {
-      console.error('❌ ADMIN ROUTE ERROR:', error);
-      return res.status(500).json({
+      console.error('❌ FRONTEND CONSULTING ERROR:', error);
+      res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
@@ -1597,9 +1566,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   
   // Phase 2 fixes handled by specialized agents
   // FIXED: Register consulting agents at correct path to match frontend calls
-  // TEMPORARILY DISABLE conflicting consulting agents router while fixing JSON parsing
-  // app.use('/api/consulting-agents', consultingAgentsRouter);
-  console.log('🔧 DEBUG: Consulting agents router temporarily disabled to fix JSON parsing');
+  // Regular consulting agents routes (non-admin)
+  app.use('/api/consulting-agents', consultingAgentsRouter);
+  console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
