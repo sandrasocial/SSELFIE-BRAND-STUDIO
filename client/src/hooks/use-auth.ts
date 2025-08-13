@@ -11,32 +11,12 @@ export function useAuth() {
     gcTime: 5 * 60 * 1000, // 5 minutes cache
     throwOnError: false,
     queryFn: async () => {
-      console.log('🔍 Auth check: Trying admin endpoint first');
+      console.log('🔍 Auth check: Making request to /api/auth/user');
       
       try {
-        // LAUNCH READINESS: Try admin endpoint first for immediate access
-        const adminResponse = await fetch('/api/admin/auth', {
-          credentials: 'include',
-          cache: 'no-cache'
-        });
-        
-        if (adminResponse.ok) {
-          const adminData = await adminResponse.json();
-          console.log('✅ Auth check: Admin access granted:', adminData.email);
-          return adminData;
-        }
-        
-        console.log('🔍 Auth check: Admin endpoint failed, trying regular auth');
-        
-        const headers: Record<string, string> = {
-          'Cache-Control': 'no-cache',
-          'X-Admin-Bypass': 'sandra-admin-2025'  // Admin bypass for session cookie issues
-        };
-        
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
-          cache: 'no-cache',
-          headers
+          cache: 'no-cache'
         });
         
         console.log('🔍 Auth check: Response status:', response.status);

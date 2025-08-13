@@ -1833,40 +1833,19 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // ADMIN BYPASS ENDPOINT: Direct admin access for launch readiness
-  app.get('/api/admin/auth', async (req: any, res) => {
-    try {
-      console.log('🔑 ADMIN AUTH: Direct admin authentication endpoint');
-      const adminUser = await storage.getUser('42585527');
-      if (adminUser) {
-        console.log('✅ ADMIN AUTH: Admin user found:', adminUser.email);
-        return res.json({ ...adminUser, isAdmin: true });
-      } else {
-        console.log('❌ ADMIN AUTH: Admin user not found');
-        return res.status(404).json({ error: 'Admin user not found' });
-      }
-    } catch (error) {
-      console.error('❌ ADMIN AUTH: Error:', error);
-      res.status(500).json({ error: 'Admin authentication failed' });
-    }
-  });
-
   app.get('/api/auth/user', async (req: any, res) => {
     try {
       console.log('🔍 /api/auth/user called - checking authentication');
-
-      // ADMIN BYPASS: For ssa@ssasocial.com when session cookie issues occur
-      const adminBypass = req.headers['x-admin-bypass'] === 'sandra-admin-2025';
-      console.log('🔍 Admin bypass check:', { header: req.headers['x-admin-bypass'], match: adminBypass });
-      
-      if (adminBypass) {
-        console.log('🔑 ADMIN BYPASS: Providing direct admin access');
-        const adminUser = await storage.getUser('42585527');
-        console.log('🔍 Admin user lookup result:', adminUser);
-        if (adminUser) {
-          return res.json(adminUser);
-        }
-      }
+      console.log('🔍 Session debug:', {
+        hasSession: !!req.session,
+        sessionID: req.sessionID,
+        sessionData: req.session ? Object.keys(req.session) : [],
+        hasPassport: !!req.session?.passport,
+        passportUser: req.session?.passport?.user,
+        isAuthenticated: req.isAuthenticated?.(),
+        hasUser: !!req.user,
+        userClaims: req.user?.claims
+      });
 
       // PRIORITY 1: Check if user is authenticated through OIDC session
       if (req.isAuthenticated && req.isAuthenticated() && req.user) {
@@ -1893,19 +1872,25 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         }
       }
 
-      // PRIORITY 2: Check session-based temporary authentication
+      // PRIORITY 2: Direct session passport check (for cases where req.isAuthenticated fails)
+      if (req.session?.passport?.user?.claims) {
+        const userId = req.session.passport.user.claims.sub;
+        console.log('✅ Found passport user in session, fetching user data for:', userId);
+        
+        const user = await storage.getUser(userId);
+        if (user) {
+          console.log('✅ User found via session passport:', user.email);
+          return res.json(user);
+        }
+      }
+
+      // PRIORITY 3: Check session-based temporary authentication
       if (req.session?.user) {
         console.log('✅ Session user found:', req.session.user.email);
         return res.json(req.session.user);
       }
 
       console.log('❌ User not authenticated - redirecting to login');
-      console.log('Auth debug:', { 
-        hasSession: !!req.session,
-        isAuthenticated: req.isAuthenticated?.(),
-        hasUser: !!req.user,
-        sessionId: req.sessionID
-      });
 
       return res.status(401).json({ 
         error: "Not authenticated",
