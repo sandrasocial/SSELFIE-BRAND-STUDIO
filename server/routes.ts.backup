@@ -9,10 +9,12 @@ import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation';
+import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
+import subscriberImportRouter from './routes/subscriber-import';
+// REMOVED: Conflicting admin routers - consolidated into single adminRouter
 import { whitelabelRoutes } from './routes/white-label-setup';
-// CLEANED: Removed unused victoriaWebsiteRouter and subscriberImportRouter imports
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
@@ -30,25 +32,187 @@ import phase2CoordinationRouter from './routes/phase2-coordination';
 
 import { generateWebsiteHTML } from './services/website-generator';
 
-// CLEANED: Legacy HTML generation moved to website-generator service
+// Generate Victoria website HTML content
+function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
+  const businessName = websiteData.businessName || 'Your Business';
+  const businessDescription = websiteData.businessDescription || onboardingData?.brandStory || 'Professional services';
+  const targetAudience = websiteData.targetAudience || onboardingData?.targetAudience || 'Our valued clients';
+  const keyFeatures = websiteData.keyFeatures || [];
+  const brandPersonality = websiteData.brandPersonality || onboardingData?.brandVoice || 'professional';
+  
+  const colorScheme = {
+    professional: { primary: '#2c3e50', secondary: '#34495e', accent: '#3498db' },
+    elegant: { primary: '#8b5a2b', secondary: '#a67c00', accent: '#d4af37' },
+    modern: { primary: '#1a1a1a', secondary: '#333333', accent: '#007bff' },
+    luxury: { primary: '#1a1a1a', secondary: '#8b6914', accent: '#daa520' },
+    approachable: { primary: '#2c5aa0', secondary: '#1e3a8a', accent: '#3b82f6' },
+    creative: { primary: '#8b5cf6', secondary: '#7c3aed', accent: '#a855f7' }
+  };
+  
+  const colors = colorScheme[brandPersonality as keyof typeof colorScheme] || colorScheme.professional;
+  
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${businessName}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Georgia', serif; 
+            line-height: 1.6; 
+            color: #333;
+            background: #fff;
+        }
+        .hero {
+            background: linear-gradient(135deg, ${colors.primary}, ${colors.secondary});
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .hero h1 {
+            font-family: 'Times New Roman', serif;
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            font-weight: normal;
+            letter-spacing: 2px;
+        }
+        .hero p {
+            font-size: 1.3em;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            opacity: 0.95;
+        }
+        .cta-button {
+            background: ${colors.accent};
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            font-size: 1.1em;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .cta-button:hover {
+            background: ${colors.primary};
+            transform: translateY(-2px);
+        }
+        .section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .about {
+            background: #f8f9fa;
+            text-align: center;
+        }
+        .about h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: ${colors.primary};
+        }
+        .about p {
+            font-size: 1.2em;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #555;
+        }
+        .features {
+            background: white;
+        }
+        .features h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 50px;
+            color: ${colors.primary};
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-left: 4px solid ${colors.accent};
+        }
+        .feature-card h3 {
+            color: ${colors.primary};
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .contact {
+            background: ${colors.primary};
+            color: white;
+            text-align: center;
+        }
+        .contact h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        .contact p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5em; }
+            .hero p { font-size: 1.1em; }
+            .section { padding: 50px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>${businessName}</h1>
+        <p>${businessDescription}</p>
+        <button class="cta-button">Get Started</button>
+    </section>
+    
+    <section class="section about">
+        <h2>About</h2>
+        <p>Welcome to ${businessName}. We specialize in providing exceptional ${websiteData.businessType === 'coaching' ? 'coaching services' : 'professional services'} designed specifically for ${targetAudience.length > 100 ? 'our ideal clients' : targetAudience}.</p>
+    </section>
+    
+    ${keyFeatures.length > 0 ? `
+    <section class="section features">
+        <h2>What We Offer</h2>
+        <div class="features-grid">
+            ${keyFeatures.map((feature: string) => `
+                <div class="feature-card">
+                    <h3>${feature}</h3>
+                    <p>Professional ${feature.toLowerCase()} tailored to your needs.</p>
+                </div>
+            `).join('')}
+        </div>
+    </section>
+    ` : ''}
+    
+    <section class="section contact">
+        <h2>Ready to Get Started?</h2>
+        <p>Let's work together to achieve your goals.</p>
+        <button class="cta-button">Contact Us</button>
+    </section>
+</body>
+</html>`;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Essential middleware setup - MUST be first
+  // Essential middleware setup
   app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
   app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
-  
-  // CRITICAL: Serve static files from public directory (flatlay images, etc.)
-  app.use(express.static('public'));
-  
-  console.log('Starting route registration...');
-  
-  // FIXED: Setup authentication BEFORE any protected routes
-  const server = createServer(app);
-  await setupAuth(app);
-  console.log('✅ Authentication middleware configured');
-  
-  // Agent-generated enhancement routes
-  setupEnhancementRoutes(app);
   
   // ZARA'S PERFORMANCE OPTIMIZATIONS: Server-side performance middleware
   try {
@@ -58,12 +222,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('⚠️ ZARA: Performance middleware pending');
   }
   
-  // FIXED: Admin consulting route AFTER authentication setup
-  console.log('🤖 REGISTERING UNIFIED ADMIN AGENT ROUTE: Single consultation endpoint');
+  // CRITICAL: Serve static files from public directory (flatlay images, etc.)
+  app.use(express.static('public'));
   
-  app.post('/api/admin/consulting-chat', async (req: any, res: any) => {
+  // Agent-generated enhancement routes
+  setupEnhancementRoutes(app);
+
+  console.log('Starting route registration...');
+  
+  // Basic middleware and authentication setup
+  const server = createServer(app);
+  
+  // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
+  console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
+  
+  app.post('/api/consulting-agents/admin/consulting-chat', async (req: any, res: any) => {
     try {
-      console.log('ADMIN ROUTE: Consulting request received for agent:', req.body?.agentId);
+      console.log('DIRECT ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
       
       const adminToken = req.headers.authorization || 
                         (req.body && req.body.adminToken) || 
@@ -94,6 +269,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // FRONTEND COMPATIBILITY: Add the route the frontend expects
+  app.post('/api/admin/consulting-chat', async (req: any, res: any) => {
+    try {
+      console.log('FRONTEND ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
+      
+      const adminToken = req.headers.authorization || 
+                        (req.body && req.body.adminToken) || 
+                        req.query.adminToken;
+      
+      if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
+        req.user = {
+          claims: {
+            sub: '42585527',
+            email: 'ssa@ssasocial.com',
+            first_name: 'Sandra',
+            last_name: 'Sigurjonsdottir'
+          }
+        };
+        req.isAdminBypass = true;
+      }
+      
+      // Import and handle via consulting agents router
+      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes');
+      await handleAdminConsultingChat(req, res);
+      
+    } catch (error) {
+      console.error('❌ FRONTEND CONSULTING ERROR:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  // Setup authentication
+  await setupAuth(app);
   
   // CRITICAL: Serve training ZIP files with correct content type
   app.get("/training-zip/:filename", (req, res) => {
@@ -767,9 +980,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email automation routes
   app.use('/api/email', emailAutomation);
   
-  // CLEANED: Dynamic subscriber import route
+  // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
   app.use('/api/subscribers', subscriberImport.default);
+  // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
   
   // Register white-label client setup endpoints
   app.use(whitelabelRoutes);
@@ -804,7 +1018,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // REMOVED: Duplicate user model endpoint - using main /api/user-model instead
+  // User Model endpoint - Production ready (DUPLICATE - REMOVE THIS ONE)
+  app.get('/api/user-model-old', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      console.log('🤖 OLD ENDPOINT - Fetching user model for user:', userId);
+      
+      const { db } = await import('./db');
+      const { userModels } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      const [userModel] = await db
+        .select()
+        .from(userModels)
+        .where(eq(userModels.userId, userId));
+      
+      if (userModel) {
+        console.log(`✅ Found trained model: ${userModel.modelName}`);
+        res.json(userModel);
+      } else {
+        console.log('⚠️ No trained model found for user');
+        res.json(null);
+      }
+      
+    } catch (error) {
+      console.error('❌ Error fetching user model:', error);
+      res.status(500).json({ 
+        message: "Failed to fetch user model", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 
   // Maya Chat endpoints - Production ready
   app.get('/api/maya-chats', isAuthenticated, async (req: any, res) => {
@@ -1297,21 +1541,41 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
   
-  // ========================================
-  // ADMIN AGENT SYSTEM: Unified Router Architecture  
-  // ========================================
-  console.log('🔧 MOUNTING ADMIN AGENT ROUTERS: Organized system architecture');
+  // STREAMING ADMIN ROUTES - Fixed WebSocket communication
+  // ELIMINATED: registerStreamingAdminRoutes - was intercepting tools before reaching bypass system
   
-  // Testing and validation routers
+  // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
+  // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
+  
+  // UNIFIED ADMIN SYSTEM: Single consulting-agents interface (competing routes removed)
+  
+  // Quinn Testing Routes for User Journey Validation
   app.use('/api/quinn', quinnTestingRouter);
+  
+  // Member Protection Routes - Revenue Feature Safety
   app.use('/api/protection', memberProtectionRouter);
+  
+  // System Validation Routes - Phase Testing
   app.use('/api/system', systemValidationRouter);
+  
+  // Member Journey Testing - Real User Experience
   app.use('/api/member-test', memberJourneyTestRouter);
+  
+  // Phase 2 Coordination - Agent Workflow Execution
   app.use('/api/phase2', phase2CoordinationRouter);
   
-  // Main consulting agents system (handles admin bypass)
+  // Phase 2 fixes handled by specialized agents
+  // FIXED: Register consulting agents at correct path to match frontend calls
+  // Regular consulting agents routes (non-admin)
   app.use('/api/consulting-agents', consultingAgentsRouter);
-  console.log('✅ ADMIN AGENTS: Consulting system active at /api/consulting-agents/*');
+  console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
+  
+  // STEP 3: Advanced Multi-Agent Workflow Orchestration
+  // ELIMINATED: workflowOrchestrationRouter - competing system
+  
+  // INTELLIGENT AGENT-TOOL ORCHESTRATION: Sandra's vision implemented
+  // ELIMINATED: intelligentOrchestrationRoutes - was forcing tool simulations
+  // COMPETING SYSTEMS ELIMINATED: Only consulting-agents-routes.ts active for direct tool bypass
   
   // Register flatlay library routes for Victoria
   const flatlayLibraryRoutes = await import('./routes/flatlay-library');
@@ -1553,7 +1817,21 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // DUPLICATE REMOVED: AI Images API already exists at line ~781 with proper database integration
+  // AI Images API - Required for user gallery
+  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      
+      // For now, return empty array
+      // TODO: Integrate with S3 for real user images
+      const images: any[] = [];
+      
+      res.json(images);
+    } catch (error) {
+      console.error('AI images API error:', error);
+      res.status(500).json({ error: 'Failed to get AI images' });
+    }
+  });
 
   app.get('/api/auth/user', async (req: any, res) => {
     try {
@@ -1952,9 +2230,67 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
   // DUPLICATE REMOVED: This endpoint was duplicate of line 2001 - using single unified endpoint
   
-  // DUPLICATE REMOVED: AI Images route already exists at line ~781 - using single unified endpoint
+  // AI Images route for workspace gallery - CRITICAL: Missing endpoint restored
+  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      console.log('🖼️ Fetching AI images for user:', userId);
+      
+      // Import database and schema
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      // Query user's AI images from database
+      const userImages = await db
+        .select()
+        .from(aiImages)
+        .where(eq(aiImages.userId, userId))
+        .orderBy(desc(aiImages.createdAt));
+      
+      console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
+      res.json(userImages);
+      
+    } catch (error) {
+      console.error('❌ Error fetching AI images:', error);
+      res.status(500).json({ message: "Failed to fetch AI images", error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
 
-  // DUPLICATE REMOVED: User model endpoint already exists at line ~1537 - using single unified endpoint
+  // User model endpoint for workspace model status  
+  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      console.log('🤖 DEBUG: Full user object:', JSON.stringify(req.user, null, 2));
+      console.log('🤖 DEBUG: Session impersonation:', req.session?.impersonatedUser?.id);
+      console.log('🤖 Fetching user model for:', userId);
+      
+      // Import database and schema
+      const { db } = await import('./db');
+      const { userModels } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+      
+      // Query user's latest model
+      const [userModel] = await db
+        .select()
+        .from(userModels)
+        .where(eq(userModels.userId, userId))
+        .orderBy(desc(userModels.createdAt))
+        .limit(1);
+      
+      if (userModel) {
+        console.log(`✅ Found user model: ${userModel.modelName} (${userModel.trainingStatus})`);
+        res.json(userModel);
+      } else {
+        console.log('⚠️ No user model found');
+        res.json(null);
+      }
+      
+    } catch (error) {
+      console.error('❌ Error fetching user model:', error);
+      res.status(500).json({ message: "Failed to fetch user model", error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
 
 
 
