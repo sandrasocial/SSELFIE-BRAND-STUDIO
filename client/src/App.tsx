@@ -36,7 +36,7 @@ import AIGenerator from "./pages/ai-generator";
 import AIPhotoshoot from "./pages/ai-photoshoot";
 import SimpleTraining from "./pages/simple-training";
 
-import AdminDashboard from "./pages/admin-dashboard";
+
 import AdminBusinessOverview from "./pages/admin-business-overview";
 import AdminConsultingAgents from "./pages/admin-consulting-agents";
 import AdminSubscriberImport from "./pages/admin-subscriber-import";
@@ -246,28 +246,16 @@ function Router() {
       <Route path="/build" component={(props) => <ProtectedRoute component={Build} {...props} />} />
 
       
-      {/* SANDRA'S ADMIN DASHBOARD - LUXURY EDITORIAL DESIGN */}
-      <Route path="/admin-dashboard" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
-      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
-
+      {/* SANDRA'S ADMIN SYSTEM - UNIFIED ROUTING */}
+      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/business-overview" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
       <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/subscriber-import" component={(props) => <ProtectedRoute component={AdminSubscriberImport} {...props} />} />
 
-      <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
-      <Route path="/admin/agent-activity" component={() => <div className="p-8">Agent Activity Dashboard - Coming Soon</div>} />
+
 
       <Route path="/admin-access-only" component={AdminAccessOnly} />
-      {/* Old admin routes archived - all functionality moved to main admin dashboard */}
-      <Route path="/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
-      <Route path="/admin/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
-      <Route path="/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
-      <Route path="/admin/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
-      <Route path="/agent-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
-      <Route path="/admin/agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
-      <Route path="/admin/progress" component={() => <div className="p-8">Admin Progress - Coming Soon</div>} />
-      <Route path="/admin/roadmap" component={() => <div className="p-8">Admin Roadmap - Coming Soon</div>} />
-      <Route path="/admin/ai-models" component={() => <div className="p-8">AI Models Management - Coming Soon</div>} />
+      {/* Legacy admin routes - archived */}
       <Route path="/rachel-chat" component={(props) => <ProtectedRoute component={RachelChat} {...props} />} />
       <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
       
