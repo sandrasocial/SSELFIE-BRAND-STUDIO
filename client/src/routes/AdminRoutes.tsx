@@ -29,9 +29,8 @@ export default function AdminRoutes() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Switch>
-        {/* SANDRA'S CONSULTING AGENTS SYSTEM */}
-        <Route path="/admin" component={(props) => <AdminRoute component={AdminConsultingAgents} {...props} />} />
-        <Route path="/admin/dashboard" component={(props) => <AdminRoute component={AdminDashboard} {...props} />} />
+        {/* SANDRA'S ADMIN DASHBOARD SYSTEM */}
+        <Route path="/admin" component={(props) => <AdminRoute component={AdminDashboard} {...props} />} />
         <Route path="/admin/consulting-agents" component={(props) => <AdminRoute component={AdminConsultingAgents} {...props} />} />
         <Route path="/admin/business-overview" component={(props) => <AdminRoute component={AdminBusinessOverview} {...props} />} />
         <Route path="/admin/subscriber-import" component={(props) => <AdminRoute component={AdminSubscriberImport} {...props} />} />
