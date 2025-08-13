@@ -12,10 +12,8 @@ export default function AdminRoute({ component: Component, ...props }: AdminRout
   const [, setLocation] = useLocation();
   
   // Admin bypass system - protect Sandra's consulting agents infrastructure
-  const isAdmin = user?.email === 'sandra@sselfie.ai' || 
-                  user?.email === 'ssa@ssasocial.com' ||
-                  user?.adminBypass === true ||
-                  user?.claims?.sub === 'sandra-admin';
+  const isAdmin = user?.email === 'ssa@ssasocial.com' ||
+                  user?.adminBypass === true;
   
   if (isLoading) {
     return (
