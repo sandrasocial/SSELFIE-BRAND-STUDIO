@@ -8,7 +8,7 @@ import { useAuth } from "./hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 // import { pwaManager } from "./utils/pwa";
-import NotFound from "./pages/not-found";
+
 import Landing from "./pages/landing";
 import EditorialLanding from "./pages/editorial-landing";
 import Pricing from "./pages/pricing";
@@ -334,7 +334,6 @@ function Router() {
         );
       }} />
 
-      <Route component={NotFound} />
     </div>
   );
 }
