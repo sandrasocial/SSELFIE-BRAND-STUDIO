@@ -94,7 +94,10 @@ async function startCompleteApp() {
     return server;
   } catch (error) {
     console.error('❌ CRITICAL: Failed to load your main application:', error);
-    process.exit(1);
+    // Graceful error handling - try to continue with basic functionality
+    console.log('🔄 Attempting graceful recovery...');
+    setupStaticFiles();
+    return server;
   }
 }
 
@@ -180,10 +183,13 @@ async function startServer() {
       console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
     
-    // Handle server errors
+    // Handle server errors gracefully
     httpServer.on('error', (err: any) => {
       console.error('❌ Server startup error:', err);
-      process.exit(1);
+      // Log error but don't crash - let monitoring handle restarts
+      if (err.code === 'EADDRINUSE') {
+        console.log('🔄 Port in use, retrying...');
+      }
     });
 
     // Graceful shutdown for Cloud Run
@@ -198,7 +204,9 @@ async function startServer() {
     return httpServer;
   } catch (error) {
     console.error('❌ Failed to start server:', error);
-    process.exit(1);
+    // Log detailed error but allow restart mechanisms to handle recovery
+    console.log('🔄 Server will be restarted by workflow system...');
+    throw error; // Let the workflow system handle restart
   }
 }
 

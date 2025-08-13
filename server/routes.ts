@@ -1862,7 +1862,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
             const claims = (req.user as any).claims;
             const newUser = await storage.upsertUser({
               id: userId,
-              email: claims.email,
+              email: claims.email || 'unknown@unknown.com',
               firstName: claims.first_name || 'User',
               lastName: claims.last_name || '',
               profileImageUrl: claims.profile_image_url || null
