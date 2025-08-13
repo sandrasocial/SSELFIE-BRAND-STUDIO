@@ -201,7 +201,7 @@ export class DatabaseStorage implements IStorage {
     return allUsers;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async upsertUser(userData: InsertUser): Promise<User> {
     console.log('🔄 Upserting user:', userData.id, userData.email);
 
     // Special admin setup for ssa@ssasocial.com
@@ -343,7 +343,7 @@ export class DatabaseStorage implements IStorage {
 
 
   async saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData> {
-    const [saved] = await db.insert(onboardingData).values(data).returning();
+    const [saved] = await db.insert(onboardingData).values(data as any).returning();
     return saved;
   }
 
@@ -385,7 +385,7 @@ export class DatabaseStorage implements IStorage {
   async createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data)
+      .values(data as any)
       .returning();
     return tracker;
   }
@@ -393,7 +393,7 @@ export class DatabaseStorage implements IStorage {
   async saveGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data)
+      .values(data as any)
       .returning();
     return tracker;
   }
