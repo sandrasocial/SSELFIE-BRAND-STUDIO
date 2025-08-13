@@ -1,5 +1,7 @@
 import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
+// TEMPORARY FIX: Use direct passport strategy import with proper module resolution
+const { Strategy } = require("openid-client").passport;
+import type { VerifyFunction } from "passport";
 
 import passport from "passport";
 import session from "express-session";
@@ -207,42 +209,23 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/login", (req, res, next) => {
-    // Check if this is a forced account selection (for switching)
-    const forceAccountSelection = req.query.prompt === 'select_account';
-    
-    // For account switching, always force logout and re-authentication
-    if (forceAccountSelection) {
-      console.log('🔍 Account switching requested - forcing logout and re-authentication');
-      if (req.isAuthenticated()) {
-        req.logout(() => {
-          req.session.destroy((err) => {
-            if (err) console.error('❌ Session destroy error:', err);
-            res.clearCookie('connect.sid');
-            console.log('✅ Session cleared for account switching');
-            // Continue with authentication flow after logout
-            authenticateUser();
-          });
-        });
-        return;
-      }
-    }
-    
+    console.log('🔍 Login endpoint called:', {
+      hostname: req.hostname,
+      query: req.query,
+      isAuthenticated: req.isAuthenticated?.(),
+      hasUser: !!req.user
+    });
+
     // CRITICAL: Break infinite loops - if we see repeated login attempts, stop
     if (req.query.error) {
       console.log('🔍 Login attempted with error parameter, showing error page');
       return res.redirect(`/?auth_error=${req.query.error}`);
     }
     
-    // Check if user is already authenticated (unless forcing account selection)
-    if (!forceAccountSelection && req.isAuthenticated() && req.user) {
-      const user = req.user as any;
-      if (user.expires_at) {
-        const now = Math.floor(Date.now() / 1000);
-        if (now <= user.expires_at) {
-          console.log('✅ User already authenticated, redirecting to workspace');
-          return res.redirect('/workspace');
-        }
-      }
+    // Check if user is already authenticated
+    if (req.isAuthenticated?.() && req.user) {
+      console.log('✅ User already authenticated, redirecting to workspace');
+      return res.redirect('/workspace');
     }
     
     function authenticateUser() {
@@ -303,16 +286,19 @@ export async function setupAuth(app: Express) {
       hostname: req.hostname,
       query: req.query,
       hasCode: !!req.query.code,
-      hasError: !!req.query.error
+      hasState: !!req.query.state,
+      error: req.query.error
     });
-    
+
+    // Handle OAuth errors
     if (req.query.error) {
-      console.error('❌ OAuth callback error:', req.query.error, req.query.error_description);
-      return res.redirect(`/?error=oauth_error&details=${encodeURIComponent(req.query.error as string)}`);
+      console.error('❌ OAuth error received:', req.query.error);
+      return res.redirect(`/?auth_error=${req.query.error}&description=${req.query.error_description || ''}`);
     }
-    
+
+    // Check for missing authorization code
     if (!req.query.code) {
-      console.error('❌ OAuth callback missing authorization code');
+      console.error('❌ Missing authorization code in callback');
       return res.redirect('/?error=missing_auth_code');
     }
     
