@@ -272,9 +272,9 @@ export async function setupAuth(app: Express) {
             return res.json({
               id: user.id,
               email: user.email,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              profileImageUrl: user.profileImageUrl
+              firstName: user.firstName || user.first_name,
+              lastName: user.lastName || user.last_name,
+              profileImageUrl: user.profileImageUrl || user.profile_image_url
             });
           }
         }
