@@ -1,9 +1,10 @@
 import { Router } from 'express';
 // ELIMINATED: ContextPreservationSystem - replaced with simple-memory-service
 import { simpleMemoryService } from '../services/simple-memory-service';
-// Autonomous navigation temporarily disabled during system restoration
-// State management systems temporarily disabled during restoration
-// Performance monitor temporarily disabled during restoration
+import { autonomousNavigation } from '../services/autonomous-navigation-system';
+import { UnifiedStateManager } from '../services/unified-state-manager';
+import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/capabilities/intelligence/architectural-knowledge-base';
+import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 import { requireAdmin, validateUserId, getAdminUserData } from '../middleware/admin-middleware';
 
 const adminCacheRouter = Router();
@@ -33,9 +34,10 @@ adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req: any, res: 
     simpleMemoryService.clearAgentMemory('*', userIdValidation.normalizedId!);
     
     // Clear navigation learning data
-    // Navigation system temporarily disabled
+    autonomousNavigation.clearNavigationData();
     
-    // State management temporarily disabled during restoration
+    // Clear workspace state
+    UnifiedStateManager.getInstance().clearWorkspaceState();
     
     // Intelligence cache cleared (consolidated intelligence system doesn't require manual cache clearing)
     
@@ -68,13 +70,13 @@ adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req: any, res: 
  */
 adminCacheRouter.get('/agent-performance', async (req, res) => {
   try {
-    const systemOverview = { status: 'operational', cleaned: true };
-    const performanceIssues = [];
+    const systemOverview = agentPerformanceMonitor.getSystemOverview();
+    const performanceIssues = agentPerformanceMonitor.checkPerformanceIssues();
     
     // Get individual agent reports
     const agentReports: Record<string, any> = {};
     ['victoria', 'maya', 'rachel', 'sophia', 'ava', 'quinn', 'martha', 'diana', 'wilma'].forEach(agentId => {
-      agentReports[agentId] = { status: 'cache_cleared', agent: agentId };
+      agentReports[agentId] = agentPerformanceMonitor.getAgentPerformanceReport(agentId);
     });
 
     res.json({

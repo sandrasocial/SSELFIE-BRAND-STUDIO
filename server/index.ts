@@ -11,8 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-// Force port 3000 for development, prevent production port conflicts
-const port = 3000;
+// Use PORT from .replit config (3000) which maps to external port 80
+const port = Number(process.env.PORT) || 3000;
 
 // Trust proxy for proper forwarding (required for deployment)
 app.set('trust proxy', true);

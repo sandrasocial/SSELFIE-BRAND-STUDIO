@@ -601,8 +601,8 @@
     "zwitch": "^2.0.4"
   },
   "scripts": {
-    "dev": "cd server && NODE_ENV=development PORT=3000 npx tsx index.ts",
-    "start": "cd server && NODE_ENV=production PORT=3000 npx tsx index.ts",
+    "dev": "cd server && npx tsx index.ts",
+    "start": "cd server && npx tsx index.ts",
     "build": "vite build client"
   },
   "keywords": [],
