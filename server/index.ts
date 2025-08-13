@@ -96,7 +96,7 @@ async function startCompleteApp() {
     // Graceful error handling - try to continue with static files
     console.log('🔄 Attempting graceful recovery with static files...');
     setupStaticFiles();
-    return server;
+    return createServer(app); // Return newly created server
   }
 }
 
