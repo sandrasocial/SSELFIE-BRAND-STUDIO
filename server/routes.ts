@@ -9,10 +9,12 @@ import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation';
+import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
+import subscriberImportRouter from './routes/subscriber-import';
+// REMOVED: Conflicting admin routers - consolidated into single adminRouter
 import { whitelabelRoutes } from './routes/white-label-setup';
-// CLEANED: Removed unused victoriaWebsiteRouter and subscriberImportRouter imports
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
@@ -30,26 +32,188 @@ import phase2CoordinationRouter from './routes/phase2-coordination';
 
 import { generateWebsiteHTML } from './services/website-generator';
 
-// CLEANED: Legacy HTML generation moved to website-generator service
+// Generate Victoria website HTML content
+function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
+  const businessName = websiteData.businessName || 'Your Business';
+  const businessDescription = websiteData.businessDescription || onboardingData?.brandStory || 'Professional services';
+  const targetAudience = websiteData.targetAudience || onboardingData?.targetAudience || 'Our valued clients';
+  const keyFeatures = websiteData.keyFeatures || [];
+  const brandPersonality = websiteData.brandPersonality || onboardingData?.brandVoice || 'professional';
+
+  const colorScheme = {
+    professional: { primary: '#2c3e50', secondary: '#34495e', accent: '#3498db' },
+    elegant: { primary: '#8b5a2b', secondary: '#a67c00', accent: '#d4af37' },
+    modern: { primary: '#1a1a1a', secondary: '#333333', accent: '#007bff' },
+    luxury: { primary: '#1a1a1a', secondary: '#8b6914', accent: '#daa520' },
+    approachable: { primary: '#2c5aa0', secondary: '#1e3a8a', accent: '#3b82f6' },
+    creative: { primary: '#8b5cf6', secondary: '#7c3aed', accent: '#a855f7' }
+  };
+
+  const colors = colorScheme[brandPersonality as keyof typeof colorScheme] || colorScheme.professional;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${businessName}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Georgia', serif; 
+            line-height: 1.6; 
+            color: #333;
+            background: #fff;
+        }
+        .hero {
+            background: linear-gradient(135deg, ${colors.primary}, ${colors.secondary});
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .hero h1 {
+            font-family: 'Times New Roman', serif;
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            font-weight: normal;
+            letter-spacing: 2px;
+        }
+        .hero p {
+            font-size: 1.3em;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            opacity: 0.95;
+        }
+        .cta-button {
+            background: ${colors.accent};
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            font-size: 1.1em;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .cta-button:hover {
+            background: ${colors.primary};
+            transform: translateY(-2px);
+        }
+        .section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .about {
+            background: #f8f9fa;
+            text-align: center;
+        }
+        .about h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: ${colors.primary};
+        }
+        .about p {
+            font-size: 1.2em;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #555;
+        }
+        .features {
+            background: white;
+        }
+        .features h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 50px;
+            color: ${colors.primary};
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-left: 4px solid ${colors.accent};
+        }
+        .feature-card h3 {
+            color: ${colors.primary};
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .contact {
+            background: ${colors.primary};
+            color: white;
+            text-align: center;
+        }
+        .contact h2 {
+            font-family: 'Times New Roman', serif;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        .contact p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5em; }
+            .hero p { font-size: 1.1em; }
+            .section { padding: 50px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>${businessName}</h1>
+        <p>${businessDescription}</p>
+        <button class="cta-button">Get Started</button>
+    </section>
+
+    <section class="section about">
+        <h2>About</h2>
+        <p>Welcome to ${businessName}. We specialize in providing exceptional ${websiteData.businessType === 'coaching' ? 'coaching services' : 'professional services'} designed specifically for ${targetAudience.length > 100 ? 'our ideal clients' : targetAudience}.</p>
+    </section>
+
+    ${keyFeatures.length > 0 ? `
+    <section class="section features">
+        <h2>What We Offer</h2>
+        <div class="features-grid">
+            ${keyFeatures.map((feature: string) => `
+                <div class="feature-card">
+                    <h3>${feature}</h3>
+                    <p>Professional ${feature.toLowerCase()} tailored to your needs.</p>
+                </div>
+            `).join('')}
+        </div>
+    </section>
+    ` : ''}
+
+    <section class="section contact">
+        <h2>Ready to Get Started?</h2>
+        <p>Let's work together to achieve your goals.</p>
+        <button class="cta-button">Contact Us</button>
+    </section>
+</body>
+</html>`;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Essential middleware setup - MUST be first
+  // Essential middleware setup
   app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
   app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
-  
-  // CRITICAL: Serve static files from public directory (flatlay images, etc.)
-  app.use(express.static('public'));
-  
-  console.log('Starting route registration...');
-  
-  // FIXED: Setup authentication BEFORE any protected routes
-  const server = createServer(app);
-  await setupAuth(app);
-  console.log('✅ Authentication middleware configured');
-  
-  // Agent-generated enhancement routes
-  setupEnhancementRoutes(app);
-  
+
   // ZARA'S PERFORMANCE OPTIMIZATIONS: Server-side performance middleware
   try {
     // Optional performance middleware - don't block server startup if missing
@@ -57,18 +221,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (err) {
     console.log('⚠️ ZARA: Performance middleware pending');
   }
-  
-  // FIXED: Admin consulting route AFTER authentication setup
-  console.log('🤖 REGISTERING UNIFIED ADMIN AGENT ROUTE: Single consultation endpoint');
-  
-  app.post('/api/admin/consulting-chat', async (req: any, res: any) => {
+
+  // CRITICAL: Serve static files from public directory (flatlay images, etc.)
+  app.use(express.static('public'));
+
+  // Agent-generated enhancement routes
+  setupEnhancementRoutes(app);
+
+  console.log('Starting route registration...');
+
+  // Basic middleware and authentication setup
+  const server = createServer(app);
+
+  // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
+  console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
+
+  app.post('/api/consulting-agents/admin/consulting-chat', async (req: any, res: any) => {
     try {
-      console.log('ADMIN ROUTE: Consulting request received for agent:', req.body?.agentId);
-      
+      console.log('DIRECT ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
+
       const adminToken = req.headers.authorization || 
                         (req.body && req.body.adminToken) || 
                         req.query.adminToken;
-      
+
       if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
         req.user = {
           claims: {
@@ -80,11 +255,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         req.isAdminBypass = true;
       }
-      
+
       // Import and handle via consulting agents router
       const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes');
       await handleAdminConsultingChat(req, res);
-      
+
     } catch (error) {
       console.error('❌ ADMIN CONSULTING ERROR:', error);
       res.status(500).json({
@@ -94,60 +269,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-  
+
+  // FRONTEND COMPATIBILITY: Add the route the frontend expects
+  app.post('/api/admin/consulting-chat', async (req: any, res: any) => {
+    try {
+      console.log('FRONTEND ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
+
+      const adminToken = req.headers.authorization || 
+                        (req.body && req.body.adminToken) || 
+                        req.query.adminToken;
+
+      if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
+        req.user = {
+          claims: {
+            sub: '42585527',
+            email: 'ssa@ssasocial.com',
+            first_name: 'Sandra',
+            last_name: 'Sigurjonsdottir'
+          }
+        };
+        req.isAdminBypass = true;
+      }
+
+      // Import and handle via consulting agents router
+      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes');
+      await handleAdminConsultingChat(req, res);
+
+    } catch (error) {
+      console.error('❌ FRONTEND CONSULTING ERROR:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Setup authentication
+  await setupAuth(app);
+
   // CRITICAL: Serve training ZIP files with correct content type
   app.get("/training-zip/:filename", (req, res) => {
     const filename = req.params.filename;
     const filePath = path.join(process.cwd(), 'temp_training', filename);
-    
+
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Training ZIP file not found' });
     }
-    
+
     // Set correct content type for ZIP files
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    
+
     console.log(`📦 Serving training ZIP: ${filename} (${fs.statSync(filePath).size} bytes)`);
     res.sendFile(filePath);
   });
-  
+
   // Setup rollback routes
   setupRollbackRoutes(app);
-  
+
   // Register Victoria AI service layer
   registerVictoriaService(app);
-  
+
   // Register Victoria website generator
   registerVictoriaWebsiteGenerator(app);
-  
+
   // AGENT PROTOCOL ENFORCEMENT SYSTEM
   app.post('/api/agent-protocol/validate', async (req, res) => {
     try {
       const { agentId, taskDescription, targetComponents } = req.body;
-      
+
       const { ActiveProtocolEnforcer } = await import('./agents/core/protocols/active-protocol-enforcer.js');
-      
+
       const task = {
         agentId,
         taskDescription,
         targetComponents,
         timestamp: Date.now()
       };
-      
+
       const validation = ActiveProtocolEnforcer.validateAgentTask(task);
-      
+
       if (!validation.isValid) {
         console.log(`🚨 AGENT PROTOCOL VIOLATION: ${agentId}`);
         console.log('📋 SAFETY CHECKS:', validation.safetyChecks);
       }
-      
+
       res.json({
         success: true,
         validation,
         approvedActions: validation.approvedActions
       });
-      
+
     } catch (error) {
       console.error('❌ Agent protocol validation error:', error);
       res.status(500).json({
@@ -157,12 +370,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-  
+
   // Agent protocol status endpoint
   app.get('/api/agent-protocol/status/:agentId', async (req, res) => {
     try {
       const { agentId } = req.params;
-      
+
       res.json({
         success: true,
         agentId,
@@ -170,7 +383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         personalitySystemActive: true,
         cleanupCompleted: true
       });
-      
+
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -178,27 +391,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-  
+
   // CRITICAL: System health check for user models
   app.get('/api/admin/validate-all-models', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const user = await storage.getUser(userId);
-      
+
       // Only admin can access this endpoint
       if (user?.role !== 'admin') {
         return res.status(403).json({ error: 'Admin access required' });
       }
-      
+
       const { ModelValidationService } = await import('./model-validation-service');
       const results = await ModelValidationService.validateAllCompletedModels();
-      
+
       res.json({
         success: true,
         results,
         message: `Validation complete: ${results.healthy} healthy, ${results.corrupted} corrupted, ${results.corrected} corrected`
       });
-      
+
     } catch (error) {
       console.error('❌ Model validation endpoint error:', error);
       res.status(500).json({ 
@@ -213,12 +426,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       const websiteData = req.body;
-      
+
       // Generate website using Victoria AI
       const { db } = await import('./db');
       const { websites, onboardingData } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       // Get user's saved onboarding data for enhanced generation
       const userOnboarding = await db
         .select()
@@ -227,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .limit(1);
 
       console.log('Victoria Generation: Using saved onboarding data:', userOnboarding[0] ? 'Found' : 'Not found');
-      
+
       if (userOnboarding[0]) {
         console.log('📋 Saved onboarding includes:', {
           brandStory: !!userOnboarding[0].brandStory,
@@ -236,14 +449,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           brandVoice: userOnboarding[0].brandVoice
         });
       }
-      
+
       // Combine form data with saved onboarding data for comprehensive website generation
       const enhancedWebsiteData = {
         ...websiteData,
         // Include saved onboarding context for better generation
         savedOnboarding: userOnboarding[0] || null
       };
-      
+
       const [newWebsite] = await db
         .insert(websites)
         .values({
@@ -266,7 +479,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Connect with Victoria Agent for website generation
       console.log('Connecting with Victoria agent for website building...');
-      
+
       try {
         // Call Victoria agent with comprehensive data
         const victoriaRequest = {
@@ -276,17 +489,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           requestType: 'website_generation',
           timestamp: new Date().toISOString()
         };
-        
+
         console.log('👑 Victoria: Generating website with user data and onboarding context');
-        
+
         // Generate HTML with Victoria's intelligence
         const htmlPreview = generateWebsiteHTML(websiteData, userOnboarding[0]);
-        
+
         // Call unified agent system for Victoria
         // Victoria integration disabled - using basic generation
-        
+
         console.log('✅ Victoria: Website generated successfully');
-        
+
         res.json({
           success: true,
           website: {
@@ -301,13 +514,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             generatedAt: new Date().toISOString()
           }
         });
-        
+
       } catch (victoriaError) {
         console.warn('⚠️ Victoria agent connection failed, using fallback generation:', victoriaError);
-        
+
         // Fallback to basic HTML generation
         const htmlPreview = generateWebsiteHTML(websiteData, userOnboarding[0]);
-        
+
         res.json({
           success: true,
           website: {
@@ -333,11 +546,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { siteId, modifications } = req.body;
       const userId = req.user?.claims?.sub;
-      
+
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
-      
+
       const [updatedWebsite] = await db
         .update(websites)
         .set({ 
@@ -346,7 +559,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .where(and(eq(websites.id, parseInt(siteId)), eq(websites.userId, userId)))
         .returning();
-      
+
       res.json({ success: true, website: updatedWebsite });
     } catch (error) {
       console.error('Victoria customization error:', error);
@@ -358,11 +571,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { siteId } = req.body;
       const userId = req.user?.claims?.sub;
-      
+
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
-      
+
       const [deployedWebsite] = await db
         .update(websites)
         .set({ 
@@ -373,7 +586,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .where(and(eq(websites.id, parseInt(siteId)), eq(websites.userId, userId)))
         .returning();
-      
+
       res.json({ 
         success: true, 
         deploymentUrl: deployedWebsite.url,
@@ -391,30 +604,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
-      
+
       const userWebsites = await db
         .select()
         .from(websites)
         .where(eq(websites.userId, userId))
         .orderBy(desc(websites.updatedAt));
-      
+
       res.json(userWebsites);
     } catch (error) {
       console.error('Error fetching Victoria websites:', error);
       res.status(500).json({ error: 'Failed to fetch websites' });
     }
   });
-  
+
   // Save brand assessment from new personal brand flow
   app.post('/api/save-brand-assessment', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const assessmentData = req.body;
-      
+
       const { db } = await import('./db');
       const { onboardingData } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
-      
+
       // Transform personal brand assessment to onboarding format
       const brandData = {
         userId,
@@ -429,13 +642,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         completed: true,
         completedAt: new Date()
       };
-      
+
       // Check if user already has onboarding data
       const existingData = await db
         .select()
         .from(onboardingData)
         .where(eq(onboardingData.userId, userId));
-        
+
       if (existingData.length > 0) {
         // Update existing
         const [updated] = await db
@@ -468,13 +681,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
-      
+
       const userWebsites = await db
         .select()
         .from(websites)
         .where(eq(websites.userId, userId))
         .orderBy(desc(websites.updatedAt));
-      
+
       res.json(userWebsites);
     } catch (error) {
       console.error("Error fetching websites:", error);
@@ -487,19 +700,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user?.claims?.sub;
       const { db } = await import('./db');
       const { websites, insertWebsiteSchema } = await import('../shared/schema');
-      
+
       const websiteData = { 
         ...req.body, 
         userId,
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      
+
       const [newWebsite] = await db
         .insert(websites)
         .values(websiteData)
         .returning();
-      
+
       res.json(newWebsite);
     } catch (error) {
       console.error("Error creating website:", error);
@@ -514,17 +727,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
-      
+
       const [updatedWebsite] = await db
         .update(websites)
         .set({ ...req.body, updatedAt: new Date() })
         .where(and(eq(websites.id, websiteId), eq(websites.userId, userId)))
         .returning();
-      
+
       if (!updatedWebsite) {
         return res.status(404).json({ message: "Website not found" });
       }
-      
+
       res.json(updatedWebsite);
     } catch (error) {
       console.error("Error updating website:", error);
@@ -539,16 +752,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
-      
+
       const [deletedWebsite] = await db
         .delete(websites)
         .where(and(eq(websites.id, websiteId), eq(websites.userId, userId)))
         .returning();
-      
+
       if (!deletedWebsite) {
         return res.status(404).json({ message: "Website not found" });
       }
-      
+
       res.json({ message: "Website deleted successfully" });
     } catch (error) {
       console.error("Error deleting website:", error);
@@ -568,15 +781,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to refresh screenshot" });
     }
   });
-  
 
-  
+
+
   // 🚨 Check training status and handle failures
   app.get('/api/training-status', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log(`🔍 Checking training status for user: ${userId}`);
-      
+
       const status = await storage.checkTrainingStatus(userId);
       res.json(status);
     } catch (error) {
@@ -593,9 +806,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       console.log(`🗑️ RESTART: User ${userId} requesting fresh training start`);
-      
+
       await storage.deleteFailedTrainingData(userId);
-      
+
       res.json({ 
         success: true, 
         message: 'Training data cleared - ready for fresh start' 
@@ -614,12 +827,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { requestId } = req.params;
       const authUserId = req.user.claims.sub;
-      
+
       console.log(`🔍 TRAINING PROGRESS: Request for ${requestId}, auth user: ${authUserId}`);
-      
+
       // Handle both user ID and model ID requests for compatibility
       let userId = requestId;
-      
+
       // If request ID looks like a model ID (number), try to find the corresponding user
       if (/^\d+$/.test(requestId)) {
         const modelFromDb = await storage.getUserModelById(parseInt(requestId));
@@ -628,23 +841,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`🔄 TRAINING PROGRESS: Converted model ID ${requestId} to user ID ${userId}`);
         }
       }
-      
+
       // Allow admin access for impersonated users (Shannon testing)
       const isAdmin = authUserId === 'ssa@ssasocial.com';
       // SECURITY: Use environment variable for admin access
       const isImpersonatedShannon = authUserId === process.env.ADMIN_USER_ID && userId === process.env.SHANNON_USER_ID;
-      
+
       // Ensure user can only access their own training progress (or admin/impersonated access)
       if (!isAdmin && !isImpersonatedShannon && userId !== authUserId) {
         console.log(`❌ TRAINING PROGRESS: Access denied for ${authUserId} requesting ${userId}`);
         return res.status(403).json({ error: 'Access denied' });
       }
-      
+
       console.log(`✅ TRAINING PROGRESS: Access granted for user ${userId}`);
-      
+
       // Get the user model (use the resolved userId)
       const userModel = await storage.getUserModelByUserId(userId);
-      
+
       if (!userModel) {
         console.log(`❌ TRAINING PROGRESS: No model found for user ${userId}`);
         return res.status(404).json({ error: 'No training found for this user' });
@@ -653,7 +866,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let progress = 0;
       let status = userModel.trainingStatus;
       let isRealTraining = false;
-      
+
       // Check real Replicate training status if we have a training ID
       if (userModel.replicateModelId) {
         try {
@@ -662,12 +875,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
             }
           });
-          
+
           if (response.ok) {
             const replicateData = await response.json();
             status = replicateData.status;
             isRealTraining = true;
-            
+
             // Calculate progress based on Replicate status
             if (status === 'succeeded') {
               progress = 100;
@@ -712,7 +925,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         replicateModelId: userModel.replicateModelId,
         modelName: userModel.modelName
       });
-      
+
     } catch (error) {
       console.error('Error getting training progress:', error);
       res.status(500).json({ error: 'Failed to get training progress' });
@@ -724,19 +937,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       const { images } = req.body;
-      
+
       console.log(`🎯 Training model for user: ${userId} with ${images?.length || 0} images`);
-      
+
       if (!images || !Array.isArray(images) || images.length < 5) {
         return res.status(400).json({
           success: false,
           message: 'At least 5 images are required for training'
         });
       }
-      
+
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.startModelTraining(userId, images);
-      
+
       res.json({
         success: true,
         message: 'Training started successfully',
@@ -744,7 +957,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         triggerWord: `${userId}_selfie`, // Simple trigger word
         status: result.status
       });
-      
+
     } catch (error) {
       console.error('❌ Training error:', error);
       res.status(500).json({
@@ -761,40 +974,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
-  
+
   // Removed: agent-search-cache-test moved to backup
-  
+
   // Email automation routes
   app.use('/api/email', emailAutomation);
-  
-  // CLEANED: Dynamic subscriber import route
+
+  // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
   app.use('/api/subscribers', subscriberImport.default);
-  
+  // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
+
   // Register white-label client setup endpoints
   app.use(whitelabelRoutes);
-  
+
   // RESTORED: Sandra's admin user management system active
-  
+
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('🖼️ Fetching AI images for user:', userId);
-      
+
       const { db } = await import('./db');
       const { aiImages } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
-      
+
       const userImages = await db
         .select()
         .from(aiImages)
         .where(eq(aiImages.userId, userId))
         .orderBy(desc(aiImages.createdAt));
-      
+
       console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
       res.json(userImages);
-      
+
     } catch (error) {
       console.error('❌ Error fetching AI images:', error);
       res.status(500).json({ 
@@ -804,17 +1018,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // REMOVED: Duplicate user model endpoint - using main /api/user-model instead
+  // User Model endpoint - Production ready (DUPLICATE - REMOVE THIS ONE)
+  app.get('/api/user-model-old', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      console.log('🤖 OLD ENDPOINT - Fetching user model for user:', userId);
+
+      const { db } = await import('./db');
+      const { userModels } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+
+      const [userModel] = await db
+        .select()
+        .from(userModels)
+        .where(eq(userModels.userId, userId));
+
+      if (userModel) {
+        console.log(`✅ Found trained model: ${userModel.modelName}`);
+        res.json(userModel);
+      } else {
+        console.log('⚠️ No trained model found for user');
+        res.json(null);
+      }
+
+    } catch (error) {
+      console.error('❌ Error fetching user model:', error);
+      res.status(500).json({ 
+        message: "Failed to fetch user model", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 
   // Maya Chat endpoints - Production ready
   app.get('/api/maya-chats', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('💬 Fetching Maya chats for user:', userId);
-      
+
       const userChats = await storage.getMayaChats(userId);
       res.json(userChats);
-      
+
     } catch (error) {
       console.error('❌ Error fetching Maya chats:', error);
       res.status(500).json({ 
@@ -828,15 +1072,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       const { chatTitle, chatSummary } = req.body;
-      
+
       console.log('💬 Creating Maya chat for user:', userId);
-      
+
       const chat = await storage.createMayaChat({
         userId,
         chatTitle: chatTitle || 'New Maya Photoshoot',
         chatSummary
       });
-      
+
       res.json(chat);
     } catch (error) {
       console.error('❌ Error creating Maya chat:', error);
@@ -852,7 +1096,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { message, chatHistory } = req.body;
       const userId = req.user?.claims?.sub;
-      
+
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
       }
@@ -865,14 +1109,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get user context for personalized responses
       const user = await storage.getUser(userId);
-      
+
       let onboardingData = null;
       try {
         onboardingData = await storage.getOnboardingData(userId);
       } catch (error) {
         onboardingData = null;
       }
-      
+
       // Enhanced member system prompt with user context
       const memberSystemPrompt = `${mayaPersonality.systemPrompt}
 
@@ -921,19 +1165,19 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
 
         const claudeData = await claudeResponse.json();
         response = claudeData.content[0].text;
-        
+
         // Check if Maya wants to generate images and extract the detailed prompt
         if (response.toLowerCase().includes('generate') || 
             response.toLowerCase().includes('create') ||
             response.toLowerCase().includes('photoshoot') ||
             response.toLowerCase().includes('ready to')) {
           canGenerate = true;
-          
+
           // Maya should include a hidden generation prompt in her response
           // Extract prompts that contain technical details like "raw photo, visible skin pores"
           const promptRegex = /```prompt\s*([\s\S]*?)\s*```/i;
           const promptMatch = response.match(promptRegex);
-          
+
           if (promptMatch) {
             generatedPrompt = promptMatch[1].trim();
             // Remove the prompt from the conversation response
@@ -942,10 +1186,10 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
             // INTELLIGENT PROMPT CONVERSION: Transform Maya's exact conversational vision into accurate generation prompts
             const userId = req.user?.claims?.sub;
             const triggerWord = `user${userId}`;
-            
+
             console.log('🎯 MAYA PROMPT CONVERSION: Converting conversation to generation prompt');
             console.log('🎬 MAYA DESCRIPTION TO CONVERT:', response.substring(0, 300));
-            
+
             try {
               // Use Claude to intelligently convert Maya's exact description to a generation prompt
               const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -984,7 +1228,7 @@ Rules:
               } else {
                 throw new Error('Claude conversion failed');
               }
-              
+
             } catch (error) {
               console.error('❌ Maya prompt conversion failed:', error);
               // Simple fallback that uses user's last message context instead of hardcoded content
@@ -1018,7 +1262,7 @@ Rules:
     try {
       const { message, onboardingData, conversationHistory } = req.body;
       const userId = req.user?.claims?.sub;
-      
+
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
       }
@@ -1031,7 +1275,7 @@ Rules:
 
       // Get user context for personalized responses
       const user = await storage.getUser(userId);
-      
+
       // Enhanced member system prompt with user context
       const memberSystemPrompt = `${victoriaPersonality.systemPrompt}
 
@@ -1122,9 +1366,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const { chatId } = req.params;
       const { role, content, imagePreview, generatedPrompt } = req.body;
-      
+
       console.log('💬 Saving Maya message to chat:', chatId);
-      
+
       const message = await storage.createMayaChatMessage({
         chatId: parseInt(chatId),
         role,
@@ -1132,7 +1376,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         imagePreview: imagePreview ? JSON.stringify(imagePreview) : null,
         generatedPrompt
       });
-      
+
       res.json(message);
     } catch (error) {
       console.error('❌ Error saving Maya chat message:', error);
@@ -1148,15 +1392,15 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const { chatId, messageId } = req.params;
       const { imagePreview, generatedPrompt } = req.body;
-      
+
       console.log(`🎬 Maya: Updating message ${messageId} with image preview`);
-      
+
       // Update the Maya message with image preview data
       await storage.updateMayaChatMessage(parseInt(messageId), {
         imagePreview,
         generatedPrompt
       });
-      
+
       res.json({ success: true, message: 'Preview updated successfully' });
     } catch (error) {
       console.error('❌ Error updating Maya message preview:', error);
@@ -1171,16 +1415,16 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
       console.log('🎬 Maya generation endpoint called');
-      
+
       const userId = req.user?.claims?.sub;
       const { prompt, customPrompt } = req.body;
       const actualPrompt = customPrompt || prompt;
-      
+
       console.log('🎬 Maya: Starting generation for user:', userId);
-      
+
       // CRITICAL: Validate and correct user model using new validation service
       const { ModelValidationService } = await import('./model-validation-service');
-      
+
       let modelValidation;
       try {
         modelValidation = await ModelValidationService.enforceUserModelRequirements(userId);
@@ -1190,27 +1434,27 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           message: error instanceof Error ? error.message : "Model validation failed"
         });
       }
-      
+
       const { modelId, versionId, triggerWord } = modelValidation;
-      
+
       // Build enhanced prompt with trigger word and quality settings
       let finalPrompt = actualPrompt;
       if (!finalPrompt.includes(triggerWord)) {
         finalPrompt = `${triggerWord} ${finalPrompt}`;
       }
-      
+
       // Add basic photography enhancements  
       if (!finalPrompt.includes('raw photo')) {
         finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, ${finalPrompt}, professional photography`;
       }
-      
+
       // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use their validated trained models
       const modelVersion = `${modelId}:${versionId}`;
       console.log(`🎬 Maya: Using model ${modelVersion}`);
-      
+
       // CRITICAL TEST: Check if model exists on Replicate before generation
       console.error(`🔍 PRE-GENERATION MODEL CHECK: Testing existence of ${modelId}`);
-      
+
       try {
         const modelCheckResponse = await fetch(`https://api.replicate.com/v1/models/${modelId}`, {
           headers: {
@@ -1218,7 +1462,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           }
         });
         console.error(`🔍 MODEL CHECK RESULT: ${modelCheckResponse.status} - ${modelCheckResponse.ok ? 'EXISTS' : 'NOT FOUND'}`);
-        
+
         if (!modelCheckResponse.ok) {
           const errorText = await modelCheckResponse.text();
           console.error(`🚨 SHANNON'S MODEL NOT FOUND: ${errorText}`);
@@ -1226,7 +1470,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       } catch (modelCheckError) {
         console.error(`🚨 MODEL CHECK FAILED:`, modelCheckError);
       }
-      
+
       const requestBody = {
         version: modelVersion,
         input: {
@@ -1274,7 +1518,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      
+
       const savedTracker = await storage.saveGenerationTracker(trackerData);
       console.log('📊 Maya: Created tracker:', savedTracker.id);
 
@@ -1286,7 +1530,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         message: "Maya is creating your stunning editorial photos! Watch the magic happen...",
         status: 'processing'
       });
-      
+
     } catch (error) {
       console.error('❌ Maya generation error:', error);
       res.status(500).json({ 
@@ -1296,54 +1540,74 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       });
     }
   });
-  
-  // ========================================
-  // ADMIN AGENT SYSTEM: Unified Router Architecture  
-  // ========================================
-  console.log('🔧 MOUNTING ADMIN AGENT ROUTERS: Organized system architecture');
-  
-  // Testing and validation routers
+
+  // STREAMING ADMIN ROUTES - Fixed WebSocket communication
+  // ELIMINATED: registerStreamingAdminRoutes - was intercepting tools before reaching bypass system
+
+  // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
+  // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
+
+  // UNIFIED ADMIN SYSTEM: Single consulting-agents interface (competing routes removed)
+
+  // Quinn Testing Routes for User Journey Validation
   app.use('/api/quinn', quinnTestingRouter);
+
+  // Member Protection Routes - Revenue Feature Safety
   app.use('/api/protection', memberProtectionRouter);
+
+  // System Validation Routes - Phase Testing
   app.use('/api/system', systemValidationRouter);
+
+  // Member Journey Testing - Real User Experience
   app.use('/api/member-test', memberJourneyTestRouter);
+
+  // Phase 2 Coordination - Agent Workflow Execution
   app.use('/api/phase2', phase2CoordinationRouter);
-  
-  // Main consulting agents system (handles admin bypass)
+
+  // Phase 2 fixes handled by specialized agents
+  // FIXED: Register consulting agents at correct path to match frontend calls
+  // Regular consulting agents routes (non-admin)
   app.use('/api/consulting-agents', consultingAgentsRouter);
-  console.log('✅ ADMIN AGENTS: Consulting system active at /api/consulting-agents/*');
-  
+  console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
+
+  // STEP 3: Advanced Multi-Agent Workflow Orchestration
+  // ELIMINATED: workflowOrchestrationRouter - competing system
+
+  // INTELLIGENT AGENT-TOOL ORCHESTRATION: Sandra's vision implemented
+  // ELIMINATED: intelligentOrchestrationRoutes - was forcing tool simulations
+  // COMPETING SYSTEMS ELIMINATED: Only consulting-agents-routes.ts active for direct tool bypass
+
   // Register flatlay library routes for Victoria
   const flatlayLibraryRoutes = await import('./routes/flatlay-library');
   app.use(flatlayLibraryRoutes.default);
-  
+
   // Generation tracker polling endpoint for live progress
   app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
     try {
       const { trackerId } = req.params;
       console.log(`🔍 TRACKER DEBUG: Looking for tracker ${trackerId}`);
-      
+
       const tracker = await storage.getGenerationTracker(parseInt(trackerId));
-      
+
       if (!tracker) {
         console.log(`❌ TRACKER DEBUG: Tracker ${trackerId} not found in database`);
         return res.status(404).json({ error: 'Generation tracker not found' });
       }
-      
+
       console.log(`✅ TRACKER DEBUG: Found tracker ${trackerId}, userId: ${tracker.userId}, status: ${tracker.status}`);
-      
+
       // Verify user owns this tracker - use auth ID directly for admin
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
-      
+
       console.log(`🔍 USER DEBUG: Auth user ID: ${authUserId}, Email: ${claims.email}`);
-      
+
       // Get the correct database user ID for verification
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
-      
+
       // Admin user 42585527 should have direct access
       if (authUserId === '42585527' || claims.email === 'ssa@ssasocial.com') {
         console.log(`🔑 ADMIN ACCESS: Granting admin access to tracker ${trackerId}`);
@@ -1352,18 +1616,18 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           console.log(`❌ USER DEBUG: User not found for auth ID ${authUserId}`);
           return res.status(404).json({ error: 'User not found' });
         }
-        
+
         // Check if tracker belongs to this user
         if (tracker.userId !== user.id) {
           console.log(`❌ AUTH DEBUG: User ${user.id} trying to access tracker owned by ${tracker.userId}`);
           return res.status(403).json({ error: 'Unauthorized access to tracker' });
         }
       }
-      
+
       // Parse URLs for preview
       let imageUrls = [];
       let errorMessage = null;
-      
+
       try {
         if (tracker.imageUrls) {
           const parsed = JSON.parse(tracker.imageUrls);
@@ -1377,9 +1641,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       } catch {
         imageUrls = [];
       }
-      
+
       console.log(`🎬 TRACKER ${trackerId}: Status=${tracker.status}, URLs=${imageUrls.length}, User=${user?.id || tracker.userId}`);
-      
+
       res.json({
         id: tracker.id,
         status: tracker.status,
@@ -1390,7 +1654,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         style: tracker.style,
         createdAt: tracker.createdAt
       });
-      
+
     } catch (error) {
       console.error('Error fetching generation tracker:', error);
       res.status(500).json({ error: 'Failed to fetch tracker status' });
@@ -1401,34 +1665,34 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/save-preview-to-gallery', isAuthenticated, async (req: any, res) => {
     try {
       const { trackerId, selectedImageUrls } = req.body;
-      
+
       if (!trackerId || !selectedImageUrls || !Array.isArray(selectedImageUrls)) {
         return res.status(400).json({ error: 'trackerId and selectedImageUrls array required' });
       }
-      
+
       // Get the correct database user ID
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
-      
+
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
-      
+
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
-      
+
       const dbUserId = user.id;
       const tracker = await storage.getGenerationTracker(trackerId);
-      
+
       if (!tracker || tracker.userId !== dbUserId) {
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
-      
+
       // Save each selected image to gallery with permanent S3 storage
       const savedImages = [];
-      
+
       for (const imageUrl of selectedImageUrls) {
         const galleryImage = await storage.saveAIImage({
           userId: dbUserId,
@@ -1440,16 +1704,16 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           createdAt: new Date(),
           updatedAt: new Date()
         } as any);
-        
+
         savedImages.push(galleryImage);
       }
-      
+
       res.json({
         success: true,
         message: `Successfully saved ${savedImages.length} image(s) to your gallery`,
         savedImages: savedImages.length
       });
-      
+
     } catch (error) {
       console.error('Error saving to gallery:', error);
       res.status(500).json({ 
@@ -1464,21 +1728,21 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
-      
+
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
-      
+
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
-      
+
       console.log(`🖼️ Fetching gallery images for user: ${user.id}`);
       const aiImages = await storage.getAIImages(user.id);
       console.log(`✅ Found ${aiImages.length} gallery images for user ${user.id}`);
-      
+
       res.json(aiImages);
     } catch (error) {
       console.error("Error fetching gallery images:", error);
@@ -1486,153 +1750,98 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Auth user endpoint - Production ready (impersonation system removed)
+  // Auth user endpoint - Production ready with impersonation support and admin bypass
   // ========================================
   // CRITICAL MEMBER WORKSPACE APIs
   // ========================================
-  
-  // Subscription API - REAL subscription integration (No fake active status)
+
+  // Subscription API - Required for workspace functionality
   app.get('/api/subscription', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      console.log('💳 Checking REAL subscription status for user:', userId);
-      
-      // Get actual user subscription from database
-      const user = await storage.getUser(userId);
-      
-      if (!user) {
-        console.log('⚠️ User not found - new user needs account setup');
-        return res.json({
-          plan: 'none',
-          status: 'no_subscription',
-          customerId: userId,
-          canTrain: false,
-          requiresSubscription: true,
-          message: 'Please set up your subscription to access training features'
-        });
-      }
-      
-      // Check if user has real Stripe subscription
-      let subscription;
-      if (user.stripeSubscriptionId) {
-        // TODO: Call Stripe API to get real subscription status
-        subscription = {
-          plan: user.plan || 'full-access',
-          status: 'active', // Will be replaced with Stripe API call
-          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          customerId: user.stripeCustomerId || userId,
-          canTrain: true
-        };
-      } else {
-        // New user - requires subscription for training access
-        subscription = {
-          plan: 'none',
-          status: 'no_subscription',
-          customerId: userId,
-          canTrain: false,
-          requiresSubscription: true,
-          message: 'Subscription required for model training access'
-        };
-      }
-      
-      console.log('✅ Real subscription data:', subscription);
+
+      // For now, return basic subscription data
+      // TODO: Integrate with Stripe for real subscription data
+      const subscription = {
+        plan: 'full-access',
+        status: 'active',
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        customerId: userId
+      };
+
       res.json(subscription);
-      
     } catch (error) {
-      console.error('❌ Subscription API error:', error);
+      console.error('Subscription API error:', error);
       res.status(500).json({ error: 'Failed to get subscription' });
     }
   });
 
-  // Usage API - REAL usage tracking (No fake limits blocking new users)  
+  // Usage API - Required for workspace functionality
   app.get('/api/usage/status', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      console.log('📊 Checking REAL usage status for user:', userId);
-      
-      // Get actual user data from database 
-      const user = await storage.getUser(userId);
-      
-      if (!user) {
-        console.log('⚠️ User not found - requires subscription');
-        return res.json({
-          plan: 'none', 
-          monthlyUsed: 0,
-          monthlyLimit: 0,
-          isAdmin: false,
-          canTrain: false,
-          requiresSubscription: true,
-          message: 'Subscription required for usage access'
-        });
-      }
-      
+
+      // For now, return basic usage data
+      // TODO: Integrate with real usage tracking
       const usage = {
-        plan: user.plan || 'full-access',
-        monthlyUsed: user.generationsUsedThisMonth || 0,
-        monthlyLimit: user.monthlyGenerationLimit || 100,
-        isAdmin: user.email === 'ssa@ssasocial.com',
-        canTrain: user.plan === 'full-access' || user.plan === 'basic', // Only paid subscribers can train
-        canGenerate: (user.generationsUsedThisMonth || 0) < (user.monthlyGenerationLimit || 100)
+        plan: 'full-access',
+        monthlyUsed: 5,
+        monthlyLimit: 100,
+        isAdmin: userId === '42585527'
       };
-      
-      console.log('✅ Real usage data:', usage);
+
       res.json(usage);
-      
     } catch (error) {
-      console.error('❌ Usage API error:', error);
+      console.error('Usage API error:', error);
       res.status(500).json({ error: 'Failed to get usage' });
     }
   });
 
-  // User Model API - REAL training status integration (No fake completed status)
+  // User Model API - Required for AI training status
   app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      console.log('🤖 Checking REAL model training status for user:', userId);
-      
-      // Get actual user model from database (not fake data)
-      const userModel = await storage.getUserModel(userId);
-      
-      if (!userModel) {
-        console.log('⚠️ No model found for user - new user can start training');
-        return res.json({
-          trainingStatus: 'not_started',
-          replicateModelId: null,
-          canTrain: true,
-          message: 'Ready to start training your personal AI model'
-        });
-      }
-      
-      console.log('✅ Real user model found:', {
-        status: userModel.trainingStatus,
-        modelId: userModel.replicateModelId
-      });
-      
-      res.json({
-        trainingStatus: userModel.trainingStatus,
-        replicateModelId: userModel.replicateModelId,
-        replicateTrainingId: userModel.replicateTrainingId,
-        lastTrainingDate: userModel.lastTrainingDate,
-        canTrain: userModel.trainingStatus === 'not_started' || userModel.trainingStatus === 'failed'
-      });
-      
+
+      // For now, return basic model data
+      // TODO: Integrate with Replicate for real training status
+      const userModel = {
+        trainingStatus: 'completed',
+        replicateModelId: `sselfie-${userId}`,
+        lastTrainingDate: new Date().toISOString()
+      };
+
+      res.json(userModel);
     } catch (error) {
-      console.error('❌ User model API error:', error);
+      console.error('User model API error:', error);
       res.status(500).json({ error: 'Failed to get user model' });
     }
   });
 
-  // DUPLICATE REMOVED: AI Images API already exists at line ~781 with proper database integration
+  // AI Images API - Required for user gallery
+  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+
+      // For now, return empty array
+      // TODO: Integrate with S3 for real user images
+      const images: any[] = [];
+
+      res.json(images);
+    } catch (error) {
+      console.error('AI images API error:', error);
+      res.status(500).json({ error: 'Failed to get AI images' });
+    }
+  });
 
   app.get('/api/auth/user', async (req: any, res) => {
     try {
       console.log('🔍 /api/auth/user called - checking authentication');
-      
+
       // PRIORITY 1: Check if user is authenticated through OIDC session
       if (req.isAuthenticated && req.isAuthenticated() && req.user) {
         const userId = (req.user as any).claims?.sub;
         console.log('✅ User authenticated via OIDC session, fetching user data for:', userId);
-        
+
         if (userId) {
           const user = await storage.getUser(userId);
           if (user) {
@@ -1643,7 +1852,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
             const claims = (req.user as any).claims;
             const newUser = await storage.upsertUser({
               id: userId,
-              email: claims.email || '',
+              email: claims.email,
               firstName: claims.first_name || 'User',
               lastName: claims.last_name || '',
               profileImageUrl: claims.profile_image_url || null
@@ -1652,23 +1861,21 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           }
         }
       }
-      
+
       // PRIORITY 2: Check session-based temporary authentication
       if (req.session?.user) {
         console.log('✅ Session user found:', req.session.user.email);
         return res.json(req.session.user);
       }
-      
+
       console.log('❌ User not authenticated - redirecting to login');
       console.log('Auth debug:', { 
         hasSession: !!req.session,
         isAuthenticated: req.isAuthenticated?.(),
         hasUser: !!req.user,
-        sessionId: req.sessionID,
-        passportSession: req.session?.passport,
-        sessionKeys: req.session ? Object.keys(req.session) : []
+        sessionId: req.sessionID
       });
-      
+
       return res.status(401).json({ 
         error: "Not authenticated",
         loginUrl: "/api/login"
@@ -1687,7 +1894,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
       const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
-      
+
       if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ error: 'Admin access required' });
       }
@@ -1733,7 +1940,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
       const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
-      
+
       if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ error: 'Admin access required' });
       }
@@ -1773,19 +1980,19 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // REMOVED: Smart routing test endpoint (smart routing layer removed for direct access)
-  
+
   // Claude API route for frontend compatibility (bypass auth for now)
   app.post('/api/claude/send-message', async (req, res) => {
     try {
       const { agentName, message, conversationId, fileEditMode } = req.body;
-      
+
       console.log('🔍 Claude send-message called with:', {
         agentName,
         messageLength: message?.length || 0,
         conversationId,
         fileEditMode
       });
-      
+
       // Validate required fields
       if (!agentName) {
         return res.status(400).json({ 
@@ -1793,37 +2000,37 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           error: 'Agent name is required' 
         });
       }
-      
+
       if (!message) {
         return res.status(400).json({ 
           success: false, 
           error: 'Message is required' 
         });
       }
-      
+
       // Use existing admin user ID 
       const userId = '42585527';
-      
+
       // UNIFIED SERVICE: Use singleton to eliminate service multiplication
       const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
       const claudeService = claudeApiServiceSimple;
-      
+
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
-      
+
       // Direct Claude API call for admin agent operations
       try {
         const anthropic = await import('@anthropic-ai/sdk').then(m => m.default);
         const client = new anthropic({
           apiKey: process.env.ANTHROPIC_API_KEY,
         });
-        
+
         const result = await client.messages.create({
           model: 'claude-3-5-sonnet-20241022',
           max_tokens: 4000,
           messages: [{ role: 'user', content: message }],
           system: `You are ${agentName}, a helpful AI assistant.`
         });
-        
+
         const responseText = result.content[0].type === 'text' ? result.content[0].text : 'Ready to help!';
         res.json({ success: true, response: responseText });
       } catch (error) {
@@ -1841,15 +2048,15 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
   // EFFORT-BASED AGENT SYSTEM - Integrated into existing admin consulting agents
   // Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
-  
+
   app.post('/api/admin/agents/execute', async (req: any, res) => {
     try {
       // Admin authentication bypass
       const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
       const isAdminRequest = adminToken === 'sandra-admin-2025';
-      
+
       console.log('🔐 AUTH DEBUG: adminToken =', adminToken, 'isAdminRequest =', isAdminRequest);
-      
+
       let userId;
       if (isAdminRequest) {
         userId = '42585527'; // Sandra's actual admin user ID
@@ -1887,9 +2094,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const { agentId } = req.params;
       const userId = '42585527'; // Sandra's admin user ID
-      
+
       console.log(`📋 API: Listing conversations for agent: ${agentId}`);
-      
+
       // Get recent conversations for this agent
       const conversations = await db
         .select()
@@ -1903,7 +2110,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         .limit(10);
 
       console.log(`📋 API: Found ${conversations.length} conversations for ${agentId}`);
-      
+
       return res.json({
         success: true,
         conversations,
@@ -1923,9 +2130,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/claude/conversation/:conversationId/history', async (req: any, res) => {
     try {
       const { conversationId } = req.params;
-      
+
       console.log(`📜 API: Loading history for conversation: ${conversationId}`);
-      
+
       // Get recent messages for this conversation (last 5 messages)
       const messages = await db
         .select()
@@ -1935,7 +2142,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         .limit(5);
 
       console.log(`📜 API: Found ${messages.length} messages for conversation ${conversationId}`);
-      
+
       return res.json({
         success: true,
         messages: messages.reverse(), // Return in chronological order
@@ -1960,26 +2167,26 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/claude/conversation/new', async (req, res) => {
     try {
       const { agentName } = req.body;
-      
+
       if (!agentName) {
         return res.status(400).json({ 
           success: false, 
           error: 'Agent name is required' 
         });
       }
-      
+
       // Use existing admin user ID 
       const userId = '42585527';
-      
+
       // Generate new conversation ID
       const conversationId = `conv_${agentName}_${userId || 'anonymous'}`;
-      
+
       // UNIFIED SERVICE: Use singleton to eliminate service multiplication
       const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
-      
+
       // Create conversation using available public method
       const conversationDbId = conversationId;
-      
+
       res.json({ 
         success: true, 
         conversationId,
@@ -1999,14 +2206,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/claude/conversation/clear', async (req, res) => {
     try {
       const { agentName } = req.body;
-      
+
       if (!agentName) {
         return res.status(400).json({ 
           success: false, 
           error: 'Agent name is required' 
         });
       }
-      
+
       // For now, just return success - conversation clearing can be implemented later
       res.json({ 
         success: true, 
@@ -2022,10 +2229,68 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // DUPLICATE REMOVED: This endpoint was duplicate of line 2001 - using single unified endpoint
-  
-  // DUPLICATE REMOVED: AI Images route already exists at line ~781 - using single unified endpoint
 
-  // DUPLICATE REMOVED: User model endpoint already exists at line ~1537 - using single unified endpoint
+  // AI Images route for workspace gallery - CRITICAL: Missing endpoint restored
+  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      console.log('🖼️ Fetching AI images for user:', userId);
+
+      // Import database and schema
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+
+      // Query user's AI images from database
+      const userImages = await db
+        .select()
+        .from(aiImages)
+        .where(eq(aiImages.userId, userId))
+        .orderBy(desc(aiImages.createdAt));
+
+      console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
+      res.json(userImages);
+
+    } catch (error) {
+      console.error('❌ Error fetching AI images:', error);
+      res.status(500).json({ message: "Failed to fetch AI images", error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
+  // User model endpoint for workspace model status  
+  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      console.log('🤖 DEBUG: Full user object:', JSON.stringify(req.user, null, 2));
+      console.log('🤖 DEBUG: Session impersonation:', req.session?.impersonatedUser?.id);
+      console.log('🤖 Fetching user model for:', userId);
+
+      // Import database and schema
+      const { db } = await import('./db');
+      const { userModels } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
+
+      // Query user's latest model
+      const [userModel] = await db
+        .select()
+        .from(userModels)
+        .where(eq(userModels.userId, userId))
+        .orderBy(desc(userModels.createdAt))
+        .limit(1);
+
+      if (userModel) {
+        console.log(`✅ Found user model: ${userModel.modelName} (${userModel.trainingStatus})`);
+        res.json(userModel);
+      } else {
+        console.log('⚠️ No user model found');
+        res.json(null);
+      }
+
+    } catch (error) {
+      console.error('❌ Error fetching user model:', error);
+      res.status(500).json({ message: "Failed to fetch user model", error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
 
 
 
@@ -2034,7 +2299,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const { category, subcategory } = req.body;
       const authUserId = req.user.claims.sub;
-      
+
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
       if (!user) {
@@ -2043,14 +2308,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           user = await storage.getUserByEmail(claims.email);
         }
       }
-      
+
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
-      
+
       // CRITICAL: Validate and correct user model using new validation service
       const { ModelValidationService } = await import('./model-validation-service');
-      
+
       let modelValidation;
       try {
         modelValidation = await ModelValidationService.enforceUserModelRequirements(user.id);
@@ -2060,12 +2325,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           message: 'Please train your model first'
         });
       }
-      
+
       console.log(`🎬 AI PHOTOSHOOT: Generating ${category}/${subcategory} for user ${user.id}`);
-      
+
       // MAYA'S INTELLIGENT PROMPT GENERATION FOR PHOTOSHOOT COLLECTIONS
       let generatedPrompt = '';
-      
+
       try {
         // Use Maya's expertise to create sophisticated collection prompts
         const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -2105,13 +2370,13 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         } else {
           throw new Error('Maya prompt generation failed');
         }
-        
+
       } catch (error) {
         console.error('❌ Maya collection prompt generation failed:', error);
         // Sophisticated fallback instead of generic
         generatedPrompt = `luxury ${category} editorial featuring ${subcategory} styling, sophisticated fashion photography, authentic editorial expression, professional lighting`;
       }
-      
+
       // Use UnifiedGenerationService with Maya's sophisticated prompt and correct parameters
       const { UnifiedGenerationService } = await import('./unified-generation-service');
       const result = await UnifiedGenerationService.generateImages({
@@ -2119,7 +2384,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         prompt: generatedPrompt,
         category: `${category} - ${subcategory}` 
       });
-      
+
       res.json({
         success: true,
         predictionId: result.predictionId,
@@ -2127,7 +2392,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         trackerId: result.id,
         message: "AI photoshoot generation started!"
       });
-      
+
     } catch (error) {
       console.error('❌ AI Photoshoot generation error:', error);
       res.status(500).json({ 
@@ -2159,15 +2424,15 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       const { selfieImages } = req.body;
-      
+
       console.log(`🚀 BULLETPROOF TRAINING: Starting for user ${authUserId} with ${selfieImages?.length || 0} images`);
-      
+
       // Get or create database user
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
-      
+
       if (!user) {
         // Create user from claims
         user = await storage.upsertUser({
@@ -2178,12 +2443,12 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
           profileImageUrl: claims.profile_image_url,
         } as any);
       }
-      
+
       // Import and use BulletproofUploadService
       const { BulletproofUploadService } = await import('./bulletproof-upload-service');
-      
+
       const result = await BulletproofUploadService.completeBulletproofUpload(user.id, selfieImages);
-      
+
       if (!result.success) {
         return res.status(400).json({
           success: false,
@@ -2192,7 +2457,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
           requiresRestart: result.requiresRestart
         });
       }
-      
+
       res.json({
         success: true,
         message: "BULLETPROOF training started! Your personal AI model will be ready in 30-45 minutes.",
@@ -2202,7 +2467,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         estimatedCompletionTime: "40 minutes",
         triggerWord: `user${user.id}`
       });
-      
+
     } catch (error) {
       console.error(`❌ Bulletproof training failed:`, error);
       res.status(500).json({ 
@@ -2219,19 +2484,19 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
       const isAdminAuth = adminToken === 'sandra-admin-2025';
-      
+
       const sessionUser = req.user;
       const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
-      
+
       if (!isAdminAuth && !isSessionAdmin) {
         return res.status(401).json({ message: "Admin access required" });
       }
-      
+
       const { userId } = req.params;
       console.log(`🔄 Admin requesting training restart for user: ${userId}`);
-      
+
       const result = await ModelRetrainService.restartTraining(userId);
-      
+
       if (result.success) {
         res.json({
           success: true,
@@ -2244,7 +2509,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
           error: result.message
         });
       }
-      
+
     } catch (error) {
       console.error('❌ Admin restart training error:', error);
       res.status(500).json({ 
@@ -2259,18 +2524,18 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
     try {
       const userId = req.user?.claims?.sub;
       const { collections } = req.body;
-      
+
       if (!collections || !Array.isArray(collections)) {
         return res.status(400).json({ error: 'Collections array required' });
       }
-      
+
       console.log(`MAYA COLLECTION UPDATE: Updating ${collections.length} collections for user ${userId}`);
-      
+
       const updatedCollections = [];
-      
+
       for (const collection of collections) {
         const updatedPrompts = [];
-        
+
         for (const oldPrompt of collection.prompts) {
           try {
             // Use Maya's expertise to upgrade each prompt
@@ -2308,34 +2573,34 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
             if (claudeResponse.ok) {
               const claudeData = await claudeResponse.json();
               const upgradedPrompt = claudeData.content[0].text.trim();
-              
+
               updatedPrompts.push({
                 ...oldPrompt,
                 prompt: upgradedPrompt,
                 lastUpdated: new Date().toISOString()
               });
-              
+
               console.log(`✅ MAYA UPGRADED: "${oldPrompt.name}" -> Enhanced with 2025 trends`);
             } else {
               // Keep original if upgrade fails
               updatedPrompts.push(oldPrompt);
               console.log(`⚠️ MAYA UPGRADE SKIPPED: "${oldPrompt.name}" - API error`);
             }
-            
+
           } catch (error) {
             console.error(`❌ Maya upgrade failed for "${oldPrompt.name}":`, error);
             // Keep original if upgrade fails
             updatedPrompts.push(oldPrompt);
           }
         }
-        
+
         updatedCollections.push({
           ...collection,
           prompts: updatedPrompts,
           lastUpdated: new Date().toISOString()
         });
       }
-      
+
       res.json({
         success: true,
         message: `Maya successfully updated ${updatedCollections.length} collections with latest 2025 trends and anatomy fixes`,
@@ -2346,7 +2611,7 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
           timestamp: new Date().toISOString()
         }
       });
-      
+
     } catch (error) {
       console.error('❌ Maya collection update error:', error);
       res.status(500).json({ 
@@ -2358,12 +2623,12 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
 
   // CRITICAL FIX: Start background monitoring services
   console.log('🚀 MONITORING: Starting background completion monitors...');
-  
+
   // Start Training Completion Monitor
   const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
   TrainingCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Training completion monitor started');
-  
+
   // Start Generation Completion Monitor (CRITICAL: This was missing!)
   const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
   GenerationCompletionMonitor.getInstance().startMonitoring();
@@ -2391,6 +2656,6 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
       console.error('⚠️ PRODUCTION: Static file serving setup failed:', error);
     }
   }
-  
+
   return server;
 }
