@@ -62,11 +62,11 @@ import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (required for Google OAuth)
+  // User operations (required for Google OAuth)  
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
-  upsertUser(user: InsertUser): Promise<User>;
+  upsertUser(user: Partial<InsertUser> & { id: string }): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
 
   // User Profile operations
