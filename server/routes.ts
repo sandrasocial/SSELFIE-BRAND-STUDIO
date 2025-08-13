@@ -1120,7 +1120,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Enhanced member system prompt with user context
-      const memberSystemPrompt = `${mayaPersonality.systemPrompt}
+      const memberSystemPrompt = `You are Maya, ${mayaPersonality.role}. ${mayaPersonality.identity.mission}
+
+Your personality: ${mayaPersonality.voice.style} with ${mayaPersonality.voice.energy}
 
 Current user context:
 - User ID: ${userId}
@@ -1279,7 +1281,9 @@ Rules:
       const user = await storage.getUser(userId);
       
       // Enhanced member system prompt with user context
-      const memberSystemPrompt = `${victoriaPersonality.systemPrompt}
+      const memberSystemPrompt = `You are Victoria, ${victoriaPersonality.role}. ${victoriaPersonality.description}
+
+Your approach: ${victoriaPersonality.traits.approach} with ${victoriaPersonality.voice.tone}
 
 Current user context:
 - User ID: ${userId}
