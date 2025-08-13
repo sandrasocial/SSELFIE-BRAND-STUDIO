@@ -34,9 +34,8 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
     return false;
   };
 
-  // Check if user is admin (Sandra) or if we're in impersonation mode
+  // Check if user is admin (Sandra) - removed impersonation system
   const isAdmin = user?.email === 'ssa@ssasocial.com';
-  const isImpersonating = user?.email === 'shannon@soulresets.com' && user?.role === 'user';
 
   // Member navigation items - CLEAN (no admin access)
   // MEMBER NAVIGATION - NO ADMIN ACCESS (Use footer Legal section)
@@ -92,29 +91,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
               </button>
             ))}
 
-            {isImpersonating && (
-              <button
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/admin/stop-impersonation', {
-                      method: 'POST',
-                      headers: { 
-                        'Content-Type': 'application/json',
-                        'x-admin-token': 'sandra-admin-2025'
-                      }
-                    });
-                    if (response.ok) {
-                      window.location.href = '/admin-dashboard';
-                    }
-                  } catch (error) {
-                    console.error('Failed to stop impersonation:', error);
-                  }
-                }}
-                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                Back to Admin
-              </button>
-            )}
+
 
             <button
               onClick={handleLogout}
@@ -155,30 +132,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
               </button>
             ))}
 
-            {isImpersonating && (
-              <button
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/admin/stop-impersonation', {
-                      method: 'POST',
-                      headers: { 
-                        'Content-Type': 'application/json',
-                        'x-admin-token': 'sandra-admin-2025'
-                      }
-                    });
-                    if (response.ok) {
-                      window.location.href = '/admin-dashboard';
-                    }
-                  } catch (error) {
-                    console.error('Failed to stop impersonation:', error);
-                  }
-                  setMobileMenuOpen(false);
-                }}
-                className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300 mt-8"
-              >
-                Back to Admin
-              </button>
-            )}
+
 
             <button
               onClick={() => {
