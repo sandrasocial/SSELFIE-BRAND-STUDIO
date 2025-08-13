@@ -9,14 +9,16 @@ if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
-// Replit authentication configuration - using environment-based approach
+// Replit authentication configuration - FORCE correct endpoints
 const REPLIT_AUTH_CONFIG = {
-  // Use environment variables or fallback for development
-  issuer: process.env.ISSUER_URL || 'https://id.replit.com',
-  authorizationURL: process.env.ISSUER_URL ? `${process.env.ISSUER_URL}/authorize` : 'https://id.replit.com/oauth2/auth',
-  tokenURL: process.env.ISSUER_URL ? `${process.env.ISSUER_URL}/token` : 'https://id.replit.com/oauth2/token',
-  userProfileURL: process.env.ISSUER_URL ? `${process.env.ISSUER_URL}/userinfo` : 'https://id.replit.com/oauth2/userinfo'
+  // Force correct Replit endpoints regardless of environment variables
+  issuer: 'https://id.replit.com',
+  authorizationURL: 'https://id.replit.com/oauth2/auth',
+  tokenURL: 'https://id.replit.com/oauth2/token',
+  userProfileURL: 'https://id.replit.com/oauth2/userinfo'
 };
+
+console.log('🔧 FORCED Replit Auth Config:', REPLIT_AUTH_CONFIG);
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
