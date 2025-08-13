@@ -1837,10 +1837,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       console.log('🔍 /api/auth/user called - checking authentication');
       
-      // Check if user is authenticated through session
+      // PRIORITY 1: Check if user is authenticated through OIDC session
       if (req.isAuthenticated && req.isAuthenticated() && req.user) {
         const userId = (req.user as any).claims?.sub;
-        console.log('✅ User authenticated via session, fetching user data for:', userId);
+        console.log('✅ User authenticated via OIDC session, fetching user data for:', userId);
         
         if (userId) {
           const user = await storage.getUser(userId);
@@ -1862,21 +1862,24 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         }
       }
       
-      // Check session-based temporary authentication
+      // PRIORITY 2: Check session-based temporary authentication
       if (req.session?.user) {
         console.log('✅ Session user found:', req.session.user.email);
         return res.json(req.session.user);
       }
       
-      console.log('❌ User not authenticated');
-      console.log('Debug info:', { 
+      console.log('❌ User not authenticated - redirecting to login');
+      console.log('Auth debug:', { 
         hasSession: !!req.session,
         isAuthenticated: req.isAuthenticated?.(),
         hasUser: !!req.user,
         sessionId: req.sessionID
       });
       
-      return res.status(401).json({ error: "Not authenticated" });
+      return res.status(401).json({ 
+        error: "Not authenticated",
+        loginUrl: "/api/login"
+      });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Failed to fetch user" });
