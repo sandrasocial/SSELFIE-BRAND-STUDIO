@@ -9,11 +9,13 @@ if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
-// Replit OAuth2 configuration - Correct endpoints based on Replit Auth system
-const REPLIT_OAUTH_CONFIG = {
-  authorizationURL: 'https://replit.com/oidc/authorize',
-  tokenURL: 'https://replit.com/oidc/token',
-  userProfileURL: 'https://replit.com/oidc/userinfo'
+// Replit authentication configuration - using environment-based approach
+const REPLIT_AUTH_CONFIG = {
+  // Use environment variables or fallback for development
+  issuer: process.env.ISSUER_URL || 'https://id.replit.com',
+  authorizationURL: process.env.ISSUER_URL ? `${process.env.ISSUER_URL}/authorize` : 'https://id.replit.com/oauth2/auth',
+  tokenURL: process.env.ISSUER_URL ? `${process.env.ISSUER_URL}/token` : 'https://id.replit.com/oauth2/token',
+  userProfileURL: process.env.ISSUER_URL ? `${process.env.ISSUER_URL}/userinfo` : 'https://id.replit.com/oauth2/userinfo'
 };
 
 export function getSession() {
@@ -96,19 +98,19 @@ export async function setupAuth(app: Express) {
       
     const strategy = new OAuth2Strategy(
       {
-        authorizationURL: REPLIT_OAUTH_CONFIG.authorizationURL,
-        tokenURL: REPLIT_OAUTH_CONFIG.tokenURL,
+        authorizationURL: REPLIT_AUTH_CONFIG.authorizationURL,
+        tokenURL: REPLIT_AUTH_CONFIG.tokenURL,
         clientID: process.env.REPL_ID!,
         clientSecret: process.env.REPL_ID!, // Replit uses REPL_ID for both
         callbackURL,
-        scope: ['identity']
+        scope: ['openid', 'profile', 'email']
       },
       async (accessToken: string, refreshToken: string, profile: any, done: any) => {
         try {
           console.log('🔍 OAuth2 verification - fetching user profile...');
           
-          // Fetch user profile from Replit API
-          const response = await fetch(REPLIT_OAUTH_CONFIG.userProfileURL, {
+          // Fetch user profile from Replit Auth API
+          const response = await fetch(REPLIT_AUTH_CONFIG.userProfileURL, {
             headers: {
               'Authorization': `Bearer ${accessToken}`
             }
@@ -200,7 +202,7 @@ export async function setupAuth(app: Express) {
 
     try {
       passport.authenticate(strategy, {
-        scope: ['identity'] // OAuth2 scope, not OpenID Connect
+        scope: ['openid', 'profile', 'email'] // Updated OAuth2 scopes
       })(req, res, (err) => {
         if (err) {
           console.error('❌ Passport authentication error:', err);
@@ -219,31 +221,54 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Callback endpoint
+  // Callback endpoint with proper hostname resolution
   app.get("/api/callback", (req, res, next) => {
     console.log('🔍 Callback endpoint called:', {
       hostname: req.hostname,
-      query: req.query
+      host: req.get('host'),
+      query: req.query,
+      code: req.query.code,
+      state: req.query.state,
+      error: req.query.error
     });
 
-    const strategy = `replitauth:${req.hostname}`;
+    // Check for OAuth errors in callback
+    if (req.query.error) {
+      console.error('❌ OAuth callback error:', req.query.error, req.query.error_description);
+      return res.redirect('/?error=oauth_failed');
+    }
+
+    // Find matching strategy (same logic as login)
+    let strategyDomain = req.hostname;
+    
+    if (req.hostname === 'localhost' || req.hostname.includes('127.0.0.1')) {
+      strategyDomain = app.locals.authDomains[0];
+      console.log(`🔍 Callback localhost detected, using fallback domain: ${strategyDomain}`);
+    }
+    
+    if (!app.locals.authDomains.includes(strategyDomain)) {
+      strategyDomain = app.locals.authDomains[0];
+      console.log(`🔍 Callback domain not found, using fallback: ${strategyDomain}`);
+    }
+
+    const strategy = `replitauth:${strategyDomain}`;
     console.log(`🔍 Using callback strategy: ${strategy}`);
 
     passport.authenticate(strategy, (err: any, user: any) => {
       if (err) {
         console.error('❌ Authentication error:', err);
-        return res.redirect('/');
+        return res.redirect('/?error=auth_failed');
       }
       
       if (!user) {
         console.error('❌ No user returned from authentication');
-        return res.redirect('/');
+        return res.redirect('/?error=no_user');
       }
 
       req.logIn(user, (err: any) => {
         if (err) {
           console.error('❌ Login error:', err);
-          return res.redirect('/');
+          return res.redirect('/?error=login_failed');
         }
         
         console.log('✅ User successfully authenticated and logged in');
