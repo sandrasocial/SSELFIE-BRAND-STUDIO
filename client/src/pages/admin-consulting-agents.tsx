@@ -188,7 +188,8 @@ const loadConversationHistory = async (agentName: string) => {
       agentName
     };
   } catch (error) {
-    console.error('📜 Error loading conversation history:', error);
+    // Graceful error handling - don't break the UI on network issues
+    console.warn('📜 Could not load conversation history (non-fatal):', error);
     return {
       success: false,
       messages: [],
