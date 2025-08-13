@@ -1837,64 +1837,45 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       console.log('🔍 /api/auth/user called - checking authentication');
       
-      // CRITICAL FIX: Admin agent authentication bypass (preserving admin functionality)
-      const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
-      if (adminToken === 'sandra-admin-2025') {
-        console.log('🔑 Admin token authenticated - creating admin user session');
+      // Check if user is authenticated through session
+      if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+        const userId = (req.user as any).claims?.sub;
+        console.log('✅ User authenticated via session, fetching user data for:', userId);
         
-        // Get or create Sandra admin user
-        let adminUser = await storage.getUser('admin-sandra');
-        if (!adminUser) {
-          // Try to get Sandra's actual user record first
-          adminUser = await storage.getUser('42585527') || await storage.getUserByEmail('ssa@ssasocial.com');
-          
-          if (!adminUser) {
-            adminUser = await storage.upsertUser({
-              id: 'admin-sandra',
-              email: 'ssa@ssasocial.com',
-              firstName: 'Sandra',
-              lastName: 'Admin',
-              profileImageUrl: null
-            } as any);
+        if (userId) {
+          const user = await storage.getUser(userId);
+          if (user) {
+            console.log('✅ User found in database:', user.email);
+            return res.json(user);
+          } else {
+            console.log('⚠️ User authenticated but not found in database, creating...');
+            const claims = (req.user as any).claims;
+            const newUser = await storage.upsertUser({
+              id: userId,
+              email: claims.email,
+              firstName: claims.first_name || 'User',
+              lastName: claims.last_name || '',
+              profileImageUrl: claims.profile_image_url || null
+            });
+            return res.json(newUser);
           }
-        }
-        
-        console.log('✅ Admin user authenticated:', adminUser.email);
-        return res.json(adminUser);
-      }
-
-      // PRIORITY 1: Check session-based authentication (temp user)
-      if (req.session?.user) {
-        console.log('✅ Session user found:', req.session.user);
-        return res.json(req.session.user);
-      }
-
-      // PRIORITY 2: Check if user is authenticated through OIDC session
-      if (req.user && (req.user as any)?.claims?.sub) {
-        const userId = (req.user as any).claims.sub;
-        console.log('✅ User authenticated via OIDC session, fetching user data for:', userId);
-        
-        // Check for impersonated user first (admin testing)
-        if (req.session?.impersonatedUser) {
-          console.log('🎭 Returning impersonated user:', req.session.impersonatedUser.email);
-          return res.json(req.session.impersonatedUser);
-        }
-        
-        const user = await storage.getUser(userId);
-        if (user) {
-          console.log('✅ User found in database:', user.email);
-          return res.json(user);
         }
       }
       
-      console.log('❌ User not authenticated - no session or admin token');
-      console.log('Session debug:', { 
-        hasSession: !!req.session, 
-        sessionUser: req.session?.user,
+      // Check session-based temporary authentication
+      if (req.session?.user) {
+        console.log('✅ Session user found:', req.session.user.email);
+        return res.json(req.session.user);
+      }
+      
+      console.log('❌ User not authenticated');
+      console.log('Debug info:', { 
+        hasSession: !!req.session,
         isAuthenticated: req.isAuthenticated?.(),
-        user: req.user,
-        cookies: req.headers.cookie
+        hasUser: !!req.user,
+        sessionId: req.sessionID
       });
+      
       return res.status(401).json({ error: "Not authenticated" });
     } catch (error) {
       console.error("Error fetching user:", error);
