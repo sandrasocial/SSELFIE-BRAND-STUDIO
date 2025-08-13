@@ -1,7 +1,7 @@
-import { LoginForm } from '../components/auth/LoginForm';
+import { RegisterForm } from '../components/auth/RegisterForm';
 import { GlobalFooter } from '../components/global-footer';
 
-export default function Login() {
+export default function Register() {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -14,14 +14,15 @@ export default function Login() {
             <div className="flex items-center space-x-4">
               <a href="/" className="text-gray-600 hover:text-black">Home</a>
               <a href="/pricing" className="text-gray-600 hover:text-black">Pricing</a>
+              <a href="/login" className="text-gray-600 hover:text-black">Sign In</a>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Login Form */}
+      {/* Registration Form */}
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)] py-12">
-        <LoginForm />
+        <RegisterForm />
       </div>
 
       <GlobalFooter />

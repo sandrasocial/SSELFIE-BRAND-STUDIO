@@ -60,6 +60,7 @@ import BrandOnboarding from "./pages/brand-onboarding";
 import Welcome from "./pages/welcome";
 import AuthSuccess from "./pages/auth-success";
 import Login from "./pages/login";
+import Register from "./pages/register";
 import LoginPrompt from "./components/LoginPrompt";
 import DomainHelp from "./pages/domain-help";
 import SwitchAccount from "./pages/switch-account";
@@ -188,6 +189,8 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route path="/domain-help" component={DomainHelp} />
 
       {/* PAYMENT FLOW */}
