@@ -1,4 +1,4 @@
-import { ComponentType, useEffect } from 'react';
+import { ComponentType, useEffect, lazy } from 'react';
 import { Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
