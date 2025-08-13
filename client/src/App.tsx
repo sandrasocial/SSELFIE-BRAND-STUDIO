@@ -190,13 +190,17 @@ function Router() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/login" component={() => {
-        useEffect(() => { window.location.href = '/api/login'; }, []);
-        return <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
-            <p>Connecting to Replit Auth...</p>
+        useEffect(() => { 
+          window.location.href = '/api/login'; 
+        }, []);
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
+              <p>Connecting to Replit Auth...</p>
+            </div>
           </div>
-        </div>;
+        );
       }} />
       <Route path="/domain-help" component={DomainHelp} />
 
