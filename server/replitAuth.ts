@@ -16,7 +16,7 @@ const getOidcConfig = memoize(
     try {
       console.log('🔍 OIDC Discovery starting...');
       
-      const issuerUrl = process.env.ISSUER_URL ?? "https://replit.com/oidc";
+      const issuerUrl = process.env.ISSUER_URL || "https://replit.com/oidc";
       console.log(`🔍 Using OIDC issuer: ${issuerUrl}`);
       
       const config = await client.discovery(
@@ -29,7 +29,7 @@ const getOidcConfig = memoize(
       console.error('❌ OIDC Discovery failed:', error.message);
       
       // Fallback manual configuration
-      const issuerUrl = process.env.ISSUER_URL ?? "https://replit.com/oidc";
+      const issuerUrl = process.env.ISSUER_URL || "https://replit.com/oidc";
       
       const manualConfig = {
         issuer: issuerUrl,
@@ -199,7 +199,7 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Login endpoint
+  // Login endpoint with timeout protection
   app.get("/api/login", (req, res, next) => {
     console.log('🔍 Login endpoint called:', {
       hostname: req.hostname,
@@ -207,12 +207,36 @@ export async function setupAuth(app: Express) {
       authDomains: app.locals.authDomains
     });
 
+    // Add request timeout to prevent hanging
+    const timeout = setTimeout(() => {
+      console.error('❌ OAuth login timeout - endpoint hanging');
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Authentication timeout' });
+      }
+    }, 5000);
+
     const strategy = `replitauth:${req.hostname}`;
     console.log(`🔍 Using strategy: ${strategy}`);
 
-    passport.authenticate(strategy, {
-      scope: "openid email profile offline_access"
-    })(req, res, next);
+    try {
+      passport.authenticate(strategy, {
+        scope: "openid email profile offline_access"
+      })(req, res, (err) => {
+        clearTimeout(timeout);
+        if (err) {
+          console.error('❌ Passport authentication error:', err);
+          if (!res.headersSent) {
+            res.status(500).json({ error: 'Authentication failed' });
+          }
+        }
+      });
+    } catch (error) {
+      clearTimeout(timeout);
+      console.error('❌ Strategy authentication error:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Strategy configuration error' });
+      }
+    }
   });
 
   // Callback endpoint
