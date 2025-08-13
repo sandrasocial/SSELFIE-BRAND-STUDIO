@@ -4,6 +4,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { createServer } from 'http';
 import { registerRoutes } from './routes';
 
 // ES module equivalent of __dirname
@@ -65,19 +66,46 @@ async function startCompleteApp() {
   try {
     console.log('📦 Loading comprehensive routes...');
     
+    // Create HTTP server for Vite integration
+    const server = createServer(app);
+    
     // Load your complete routing system with all features
-    const server = await registerRoutes(app);
+    await registerRoutes(app);
     
     console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
     console.log('✅ All your features loaded!');
     
-    // Set up static file serving after routes are loaded
-    setupStaticFiles();
+    // Set up development or production mode
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+    
+    if (isDevelopment) {
+      console.log('🔧 Starting development mode with Vite...');
+      await setupDevelopmentMode(server);
+    } else {
+      console.log('🚀 Starting production mode...');
+      setupStaticFiles();
+    }
     
     return server;
   } catch (error) {
     console.error('❌ CRITICAL: Failed to load your main application:', error);
     process.exit(1);
+  }
+}
+
+// Setup Vite development server
+async function setupDevelopmentMode(server: any) {
+  try {
+    console.log('🔧 Setting up Vite development server...');
+    
+    // Import setupVite function
+    const { setupVite } = await import('./vite.js');
+    await setupVite(app, server);
+    
+    console.log('✅ Vite development server configured successfully');
+  } catch (error) {
+    console.error('⚠️ Vite setup failed, falling back to production mode:', error);
+    setupStaticFiles();
   }
 }
 
@@ -124,15 +152,16 @@ function setupStaticFiles() {
 async function startServer() {
   try {
     // Load your complete application BEFORE starting server
-    await startCompleteApp();
+    const httpServer = await startCompleteApp();
     
-    const server = app.listen(port, '0.0.0.0', () => {
+    // Start the server
+    httpServer.listen(port, '0.0.0.0', () => {
       console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
       console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
     
     // Handle server errors
-    server.on('error', (err: any) => {
+    httpServer.on('error', (err: any) => {
       console.error('❌ Server startup error:', err);
       process.exit(1);
     });
@@ -140,13 +169,13 @@ async function startServer() {
     // Graceful shutdown for Cloud Run
     process.on('SIGTERM', () => {
       console.log('🛑 SIGTERM received, shutting down gracefully...');
-      server.close(() => {
+      httpServer.close(() => {
         console.log('✅ Server closed');
         process.exit(0);
       });
     });
     
-    return server;
+    return httpServer;
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
