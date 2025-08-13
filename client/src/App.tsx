@@ -299,23 +299,7 @@ function Router() {
         );
       }} />
 
-      {/* CATCH-ALL ROUTE: Redirect unmatched routes to home instead of showing 404 */}
-      <Route>
-        {() => {
-          const [, setLocation] = useLocation();
-          useEffect(() => {
-            // Redirect unknown routes to home page instead of showing 404
-            console.log('Unknown route accessed, redirecting to home...');
-            setLocation('/');
-          }, [setLocation]);
-          
-          return (
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-            </div>
-          );
-        }}
-      </Route>
+
 
     </div>
   );
