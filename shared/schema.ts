@@ -210,7 +210,34 @@ export const agentCapabilities = pgTable("agent_capabilities", {
 
 
 
-// REMOVED: Duplicate agentConversations - using claudeConversations for unified conversation management
+// Agent conversations table for chat persistence with threading support
+export const agentConversations = pgTable("agent_conversations", {
+  id: serial("id").primaryKey(),
+  agentId: varchar("agent_id").notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  userMessage: text("user_message").notNull(),
+  agentResponse: text("agent_response").notNull(),
+  devPreview: jsonb("dev_preview"),
+  timestamp: timestamp("timestamp").defaultNow(),
+  
+  // Enhanced conversation threading and management fields
+  conversationTitle: varchar("conversation_title"),
+  conversationData: jsonb("conversation_data"), // Store full conversation history
+  messageCount: integer("message_count").default(0),
+  lastAgentResponse: text("last_agent_response"),
+  isActive: boolean("is_active").default(true),
+  isStarred: boolean("is_starred").default(false),
+  isArchived: boolean("is_archived").default(false),
+  tags: jsonb("tags").default('[]'), // Array of string tags
+  
+  // Threading support
+  parentThreadId: integer("parent_thread_id"),
+  branchedFromMessageId: varchar("branched_from_message_id"),
+  
+  // Enhanced timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
 // User subscriptions table
 export const subscriptions = pgTable("subscriptions", {
@@ -455,6 +482,7 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
 
 
 // Schema exports
+export const upsertUserSchema = createInsertSchema(users);
 export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
@@ -474,7 +502,7 @@ export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).
 export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
 export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true });
-// REMOVED: agentConversations schema - using claudeConversations for unified system
+export const insertAgentConversationSchema = createInsertSchema(agentConversations).omit({ id: true, timestamp: true });
 export const insertWebsiteSchema = createInsertSchema(websites).omit({ id: true, createdAt: true, updatedAt: true });
 
 // Claude API schemas
@@ -542,7 +570,7 @@ export type LandingPage = typeof landingPages.$inferSelect;
 export type InsertUserLandingPage = z.infer<typeof insertUserLandingPageSchema>;
 export type UserLandingPage = typeof userLandingPages.$inferSelect;
 export type InsertAgentConversation = z.infer<typeof insertAgentConversationSchema>;
-// REMOVED: AgentConversation type - using ClaudeConversation for unified system
+export type AgentConversation = typeof agentConversations.$inferSelect;
 
 
 

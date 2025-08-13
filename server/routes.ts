@@ -340,8 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { agentId, taskDescription, targetComponents } = req.body;
       
-      // REMOVED: ActiveProtocolEnforcer - replaced by personality integration service
-      const { PersonalityIntegrationService } = await import('./agents/personality-integration-service');
+      const { ActiveProtocolEnforcer } = await import('./agents/core/protocols/active-protocol-enforcer.js');
       
       const task = {
         agentId,
@@ -350,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: Date.now()
       };
       
-      const validation = { isValid: true, approvedActions: ['all'], safetyChecks: ['passed'] };
+      const validation = ActiveProtocolEnforcer.validateAgentTask(task);
       
       if (!validation.isValid) {
         console.log(`🚨 AGENT PROTOCOL VIOLATION: ${agentId}`);
@@ -1106,8 +1105,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('💬 Maya MEMBER chat message received from user:', userId);
 
       // Import member agent personality (secure - no file modification)
-      const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality');
-      const mayaPersonality = MAYA_PERSONALITY;
+      const { MEMBER_AGENT_PERSONALITIES } = await import('./member-agent-personalities');
+      const mayaPersonality = MEMBER_AGENT_PERSONALITIES.maya;
 
       // Get user context for personalized responses
       const user = await storage.getUser(userId);
@@ -1120,9 +1119,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Enhanced member system prompt with user context
-      const memberSystemPrompt = `You are Maya, ${mayaPersonality.role}. ${mayaPersonality.identity.mission}
-
-Your personality: ${mayaPersonality.voice.style} with ${mayaPersonality.voice.energy}
+      const memberSystemPrompt = `${mayaPersonality.systemPrompt}
 
 Current user context:
 - User ID: ${userId}
@@ -1274,16 +1271,14 @@ Rules:
       console.log('💬 Victoria MEMBER website chat message received from user:', userId);
 
       // Import member agent personality (secure - no file modification)
-      const { VICTORIA_PERSONALITY } = await import('./agents/personalities/victoria-personality');
-      const victoriaPersonality = VICTORIA_PERSONALITY;
+      const { MEMBER_AGENT_PERSONALITIES } = await import('./member-agent-personalities');
+      const victoriaPersonality = MEMBER_AGENT_PERSONALITIES.victoria;
 
       // Get user context for personalized responses
       const user = await storage.getUser(userId);
       
       // Enhanced member system prompt with user context
-      const memberSystemPrompt = `You are Victoria, ${victoriaPersonality.role}. ${victoriaPersonality.description}
-
-Your approach: ${victoriaPersonality.traits.approach} with ${victoriaPersonality.voice.tone}
+      const memberSystemPrompt = `${victoriaPersonality.systemPrompt}
 
 Current user context:
 - User ID: ${userId}
