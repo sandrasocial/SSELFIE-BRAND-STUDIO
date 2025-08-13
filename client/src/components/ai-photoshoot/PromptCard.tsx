@@ -1,4 +1,4 @@
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, memo } from 'react';
 import { PhotoshootPrompt } from '@/types/photoshoot';
 import { useToast } from '@/hooks/use-toast';
 
