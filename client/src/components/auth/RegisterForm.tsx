@@ -68,69 +68,58 @@ export function RegisterForm({
         <p className="text-gray-600 mt-2">{subtitle}</p>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First Name</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Enter your first name"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+            First Name
+          </label>
+          <Input 
+            id="firstName"
+            placeholder="Enter your first name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
           />
+        </div>
 
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name (Optional)</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Enter your last name"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        <div>
+          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+            Last Name (Optional)
+          </label>
+          <Input 
+            id="lastName"
+            placeholder="Enter your last name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
           />
+        </div>
 
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Address</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="email" 
-                    placeholder="Enter your email"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            Email Address
+          </label>
+          <Input 
+            id="email"
+            type="email" 
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
+        </div>
 
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Creating Account...' : 'Create Account'}
-          </Button>
-        </form>
-      </Form>
+        {error && (
+          <div className="text-red-600 text-sm">{error}</div>
+        )}
+
+        <Button 
+          type="submit" 
+          className="w-full"
+          disabled={isLoading || !email || !firstName}
+        >
+          {isLoading ? 'Creating Account...' : 'Create Account'}
+        </Button>
+      </form>
 
       <div className="text-center text-sm text-gray-600">
         <p>
