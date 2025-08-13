@@ -41,7 +41,7 @@ import AdminConsultingAgents from "./pages/admin-consulting-agents";
 import AdminSubscriberImport from "./pages/admin-subscriber-import";
 
 import BridgeMonitor from "./pages/admin/bridge-monitor";
-import { UnifiedAgentInterface } from "./components/admin/UnifiedAgentInterface";
+// import { UnifiedAgentInterface } from "./components/admin/UnifiedAgentInterface";
 import UnifiedLoginButton from "./components/UnifiedLoginButton";
 
 import AgentApproval from "./pages/agent-approval";
@@ -258,7 +258,9 @@ function Router() {
             </div>
           </div>
           <div className="max-w-7xl mx-auto p-6">
-            <UnifiedAgentInterface />
+            <div className="text-center py-12">
+              <h2 className="text-xl text-gray-600">Agent interface loading...</h2>
+            </div>
           </div>
         </div>
       )} {...props} />} />
