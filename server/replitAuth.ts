@@ -1,6 +1,7 @@
 import * as client from "openid-client";
-// TEMPORARY FIX: Use direct passport strategy import with proper module resolution
-const { Strategy } = require("openid-client").passport;
+// Import OpenID Connect client and passport strategy with proper module resolution
+import * as oidc from "openid-client";
+const Strategy = oidc.passport.Strategy;
 import type { VerifyFunction } from "passport";
 
 import passport from "passport";
@@ -130,7 +131,7 @@ async function upsertUser(claims: any) {
     firstName: claims.first_name,
     lastName: claims.last_name,
     profileImageUrl: claims.profile_image_url,
-  });
+  } as any);
 }
 
 export async function setupAuth(app: Express) {
@@ -383,7 +384,7 @@ export async function setupAuth(app: Express) {
       // Create proper URL object for currentUrl parameter (required by openid-client v5+)
       const currentUrl = new URL(`https://${hostname}/api/callback?code=${code}`);
       
-      // FIX: Use current openid-client v5+ API with proper parameters
+      // Use correct openid-client authorizationCodeGrant 
       const tokenSet = await client.authorizationCodeGrant(config, currentUrl);
       
       console.log('✅ Manual token exchange successful');
