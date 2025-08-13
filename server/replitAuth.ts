@@ -1,9 +1,7 @@
-import * as client from "openid-client";
 import passport from "passport";
-import { Strategy as OpenIDConnectStrategy } from "passport-openidconnect";
+import { Strategy as OAuth2Strategy } from "passport-oauth2";
 import session from "express-session";
 import type { Express } from "express";
-import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 
@@ -11,50 +9,12 @@ if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
-const getOidcConfig = memoize(
-  async () => {
-    try {
-      console.log('🔍 OIDC Discovery starting...');
-      
-      const issuerUrl = process.env.ISSUER_URL || "https://replit.com/oidc";
-      console.log(`🔍 Using OIDC issuer: ${issuerUrl}`);
-      
-      const config = await client.discovery(
-        new URL(issuerUrl),
-        process.env.REPL_ID!
-      );
-      console.log('✅ OIDC Discovery successful');
-      return config;
-    } catch (error: any) {
-      console.error('❌ OIDC Discovery failed:', error.message);
-      
-      // Fallback manual configuration
-      const issuerUrl = process.env.ISSUER_URL || "https://replit.com/oidc";
-      
-      const manualConfig = {
-        issuer: issuerUrl,
-        authorization_endpoint: `${issuerUrl}/authorize`,
-        token_endpoint: `${issuerUrl}/token`,
-        userinfo_endpoint: `${issuerUrl}/userinfo`,
-        jwks_uri: `${issuerUrl}/jwks`,
-        response_types_supported: ['code'],
-        grant_types_supported: ['authorization_code', 'refresh_token'],
-        scopes_supported: ['openid', 'email', 'profile'],
-        metadata: {
-          issuer: issuerUrl,
-          authorization_endpoint: `${issuerUrl}/authorize`,
-          token_endpoint: `${issuerUrl}/token`,
-          userinfo_endpoint: `${issuerUrl}/userinfo`,
-          jwks_uri: `${issuerUrl}/jwks`
-        }
-      };
-      
-      console.log('✅ Manual OIDC configuration created');
-      return manualConfig as any;
-    }
-  },
-  { maxAge: 3600 * 1000 }
-);
+// Replit OAuth2 configuration - Correct endpoints based on Replit Auth system
+const REPLIT_OAUTH_CONFIG = {
+  authorizationURL: 'https://replit.com/oidc/authorize',
+  tokenURL: 'https://replit.com/oidc/token',
+  userProfileURL: 'https://replit.com/oidc/userinfo'
+};
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -109,12 +69,12 @@ async function upsertUser(claims: any) {
 }
 
 export async function setupAuth(app: Express) {
+  console.log('🔧 Setting up Replit OAuth authentication (Standard OAuth2)...');
+  
   app.set("trust proxy", 1);
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
-
-  const config = await getOidcConfig();
 
   // Get domains from environment
   const domains = process.env.REPLIT_DOMAINS!.split(",");
@@ -131,33 +91,45 @@ export async function setupAuth(app: Express) {
   for (const domain of domains) {
     const callbackURL = `https://${domain}/api/callback`;
     
-    console.log(`🔍 Registering OAuth strategy for domain: ${domain}`);
+    console.log(`🔍 Registering OAuth2 strategy for domain: ${domain}`);
     console.log(`🔍 Callback URL: ${callbackURL}`);
       
-    const strategy = new OpenIDConnectStrategy(
+    const strategy = new OAuth2Strategy(
       {
-        issuer: config.issuer || config.metadata?.issuer || "https://replit.com/oidc",
-        authorizationURL: config.authorization_endpoint || config.metadata?.authorization_endpoint!,
-        tokenURL: config.token_endpoint || config.metadata?.token_endpoint!,
-        userInfoURL: config.userinfo_endpoint || config.metadata?.userinfo_endpoint!,
+        authorizationURL: REPLIT_OAUTH_CONFIG.authorizationURL,
+        tokenURL: REPLIT_OAUTH_CONFIG.tokenURL,
         clientID: process.env.REPL_ID!,
         clientSecret: process.env.REPL_ID!, // Replit uses REPL_ID for both
         callbackURL,
-        scope: 'openid email profile offline_access'
+        scope: ['identity']
       },
-      async (issuer: any, profile: any, context: any, idToken: any, accessToken: any, refreshToken: any, verified: any) => {
+      async (accessToken: string, refreshToken: string, profile: any, done: any) => {
         try {
-          console.log('✅ OAuth callback received:', { 
-            profileId: profile.id, 
-            email: profile.emails?.[0]?.value 
+          console.log('🔍 OAuth2 verification - fetching user profile...');
+          
+          // Fetch user profile from Replit API
+          const response = await fetch(REPLIT_OAUTH_CONFIG.userProfileURL, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch user profile: ${response.status}`);
+          }
+          
+          const userProfile = await response.json();
+          console.log('✅ OAuth2 user profile received:', { 
+            id: userProfile.id, 
+            email: userProfile.email 
           });
           
           const userClaims = {
-            sub: profile.id,
-            email: profile.emails?.[0]?.value,
-            first_name: profile.name?.givenName,
-            last_name: profile.name?.familyName,
-            profile_image_url: profile.photos?.[0]?.value
+            sub: userProfile.id.toString(),
+            email: userProfile.email,
+            first_name: userProfile.firstName || userProfile.displayName?.split(' ')[0],
+            last_name: userProfile.lastName || userProfile.displayName?.split(' ')[1],
+            profile_image_url: userProfile.image
           };
           
           const user = {
@@ -167,10 +139,10 @@ export async function setupAuth(app: Express) {
           };
           
           await upsertUser(userClaims);
-          verified(null, user);
+          done(null, user);
         } catch (error) {
-          console.error('OAuth verification error:', error);
-          verified(error);
+          console.error('❌ OAuth2 verification error:', error);
+          done(error);
         }
       }
     );
@@ -178,7 +150,7 @@ export async function setupAuth(app: Express) {
     // Set strategy name for domain-specific routing
     strategy.name = `replitauth:${domain}`;
     passport.use(strategy);
-    console.log(`✅ Registered auth strategy for: ${domain}`);
+    console.log(`✅ Registered OAuth2 strategy for: ${domain}`);
   }
 
   passport.serializeUser((user: Express.User, cb) => {
@@ -199,42 +171,50 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Login endpoint with timeout protection
+  // Login endpoint with fixed hostname resolution
   app.get("/api/login", (req, res, next) => {
     console.log('🔍 Login endpoint called:', {
       hostname: req.hostname,
+      host: req.get('host'),
       query: req.query,
       authDomains: app.locals.authDomains
     });
 
-    // Add request timeout to prevent hanging
-    const timeout = setTimeout(() => {
-      console.error('❌ OAuth login timeout - endpoint hanging');
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Authentication timeout' });
-      }
-    }, 5000);
+    // Find matching strategy based on hostname or fallback
+    let strategyDomain = req.hostname;
+    
+    // For localhost development, use first available domain
+    if (req.hostname === 'localhost' || req.hostname.includes('127.0.0.1')) {
+      strategyDomain = app.locals.authDomains[0];
+      console.log(`🔍 Localhost detected, using fallback domain: ${strategyDomain}`);
+    }
+    
+    // Check if domain has registered strategy
+    if (!app.locals.authDomains.includes(strategyDomain)) {
+      strategyDomain = app.locals.authDomains[0];
+      console.log(`🔍 Domain not found, using fallback: ${strategyDomain}`);
+    }
 
-    const strategy = `replitauth:${req.hostname}`;
-    console.log(`🔍 Using strategy: ${strategy}`);
+    const strategy = `replitauth:${strategyDomain}`;
+    console.log(`🔍 Using OAuth2 strategy: ${strategy}`);
 
     try {
       passport.authenticate(strategy, {
-        scope: "openid email profile offline_access"
+        scope: ['identity'] // OAuth2 scope, not OpenID Connect
       })(req, res, (err) => {
-        clearTimeout(timeout);
         if (err) {
           console.error('❌ Passport authentication error:', err);
           if (!res.headersSent) {
-            res.status(500).json({ error: 'Authentication failed' });
+            res.status(500).json({ error: 'Authentication failed', details: err.message });
           }
+        } else {
+          console.log('✅ Authentication redirect initiated');
         }
       });
     } catch (error) {
-      clearTimeout(timeout);
       console.error('❌ Strategy authentication error:', error);
       if (!res.headersSent) {
-        res.status(500).json({ error: 'Strategy configuration error' });
+        res.status(500).json({ error: 'Strategy configuration error', details: error.message });
       }
     }
   });
