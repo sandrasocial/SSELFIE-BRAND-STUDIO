@@ -860,7 +860,7 @@ ${workflowConfig.schedule ? `
       canReadFiles: false,
       canWriteFiles: false,
       canCreateAPIs: false,
-      canCanAccessDatabase: false,
+      canAccessDatabase: false,
       canSendEmails: false,
       canCreateWorkflows: false
     };

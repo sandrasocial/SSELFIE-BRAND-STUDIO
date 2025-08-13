@@ -20,7 +20,7 @@ export function setupRollbackRoutes(app: Express) {
       const backupContent = await readFile(backupPath, 'utf8');
       
       // Restore original file
-      await AgentCodebaseIntegration.writeFile(filePath, backupContent);
+      await AgentCodebaseIntegration.writeFile('admin', filePath, backupContent, 'File rollback operation');
       
       // Remove backup file
       await unlink(backupPath);
