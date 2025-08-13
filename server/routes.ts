@@ -21,8 +21,7 @@ import { ModelRetrainService } from './retrain-model';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
-import adminRouter from './routes/admin';
-import adminCacheRouter from './routes/admin-cache-management';
+// REMOVED: Competing admin routers - using consulting-agents-routes as single admin interface
 import quinnTestingRouter from './routes/quinn-testing';
 import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
@@ -1548,9 +1547,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
   // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
   
-  // RESTORED: Sandra's designed admin and consulting agent routes
-  app.use('/api/admin', adminRouter);
-  app.use('/api/admin/cache', adminCacheRouter);
+  // UNIFIED ADMIN SYSTEM: Single consulting-agents interface (competing routes removed)
   
   // Quinn Testing Routes for User Journey Validation
   app.use('/api/quinn', quinnTestingRouter);
