@@ -7,6 +7,17 @@ if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
+// Replit Auth middleware - automatically provided by Replit platform
+function getReplitUser(req: any) {
+  // Replit automatically injects user info in headers when authenticated
+  return req.headers['x-replit-user-id'] ? {
+    id: req.headers['x-replit-user-id'],
+    name: req.headers['x-replit-user-name'],
+    email: req.headers['x-replit-user-email'],
+    profileImageUrl: req.headers['x-replit-user-profile-image']
+  } : null;
+}
+
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   
@@ -42,82 +53,106 @@ export function getSession() {
   });
 }
 
-// Simple authentication system using demo user approach
+// Replit Auth integration - automatic authentication
 export function setupAuth(app: Express) {
-  console.log('🔒 Setting up simplified authentication system...');
+  console.log('🔒 Setting up Replit Auth integration...');
 
-  // Login endpoint - handle all user scenarios
+  // Replit Auth login endpoint - leverages platform authentication
   app.get("/api/login", async (req, res) => {
     try {
-      const { email, userId, isNewUser } = req.query;
-      console.log('🔑 Login request:', { email, userId, isNewUser });
+      console.log('🔑 Replit Auth login attempt');
       
-      let user;
+      // Check for Replit user from platform
+      const replitUser = getReplitUser(req);
       
-      if (email && userId) {
-        // SCENARIO 1: New user from checkout or registration
-        console.log('👤 Creating new user session');
-        user = await storage.upsertUser({
-          id: userId as string,
-          email: email as string,
-          firstName: (email as string).split('@')[0],
-          lastName: '',
-          profileImageUrl: ''
+      if (replitUser) {
+        console.log('✅ Replit user authenticated:', replitUser.email);
+        
+        // Store/update user in database
+        const user = await storage.upsertUser({
+          id: replitUser.id,
+          email: replitUser.email,
+          firstName: replitUser.name?.split(' ')[0] || replitUser.email.split('@')[0],
+          lastName: replitUser.name?.split(' ').slice(1).join(' ') || '',
+          profileImageUrl: replitUser.profileImageUrl || ''
         });
-      } else {
-        // SCENARIO 2: Demo/admin login (current Sandra workflow)
-        console.log('👑 Admin/demo login');
-        user = await storage.upsertUser({
-          id: 'sandra-admin-2025',
-          email: 'ssa@ssasocial.com',
-          firstName: 'Sandra',
-          lastName: 'S',
-          profileImageUrl: ''
-        });
-      }
 
-      // Create authenticated session
-      (req.session as any).user = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        profileImageUrl: user.profileImageUrl || '',
-        role: user.role || 'member',
-        isAuthenticated: true
-      };
+        // Create session
+        (req.session as any).user = {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl,
+          role: user.role || 'member',
+          isAuthenticated: true
+        };
 
-      console.log('✅ User session created:', user.email);
-      
-      // Redirect based on user type
-      if (isNewUser === 'true') {
-        res.redirect('/onboarding');
-      } else {
+        console.log('✅ Session created for:', user.email);
         res.redirect('/workspace');
+      } else {
+        // Redirect to Replit Auth - platform will handle authentication
+        console.log('🔄 Redirecting to Replit Auth');
+        res.redirect('/@replit/auth?redirect=' + encodeURIComponent(req.get('host') + '/api/callback'));
       }
     } catch (error) {
-      console.error('❌ Login error:', error);
-      res.status(500).json({ error: 'Login failed', details: error.message });
+      console.error('❌ Auth error:', error);
+      res.status(500).json({ error: 'Authentication failed', details: error.message });
     }
   });
 
-  // Callback endpoint (placeholder for now)
+  // Replit Auth callback - handles post-authentication
   app.get("/api/callback", async (req, res) => {
-    console.log('🔄 Auth callback received - redirecting to workspace');
-    res.redirect('/workspace');
+    try {
+      console.log('🔄 Replit Auth callback received');
+      
+      const replitUser = getReplitUser(req);
+      
+      if (replitUser) {
+        console.log('✅ Callback: User authenticated:', replitUser.email);
+        
+        // Store user data
+        const user = await storage.upsertUser({
+          id: replitUser.id,
+          email: replitUser.email,
+          firstName: replitUser.name?.split(' ')[0] || replitUser.email.split('@')[0],
+          lastName: replitUser.name?.split(' ').slice(1).join(' ') || '',
+          profileImageUrl: replitUser.profileImageUrl || ''
+        });
+
+        // Create authenticated session
+        (req.session as any).user = {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl,
+          role: user.role || 'member',
+          isAuthenticated: true
+        };
+
+        console.log('✅ Callback session created, redirecting to workspace');
+        res.redirect('/workspace');
+      } else {
+        console.log('❌ No user data in callback');
+        res.redirect('/login');
+      }
+    } catch (error) {
+      console.error('❌ Callback error:', error);
+      res.redirect('/login');
+    }
   });
 
-  // User info endpoint - get current authenticated user
+  // User info endpoint - check current user status
   app.get("/api/auth/user", async (req, res) => {
     try {
+      // Check session first
       const sessionUser = (req.session as any)?.user;
       
       if (sessionUser?.isAuthenticated) {
-        // Fetch latest user data from database
         const dbUser = await storage.getUser(sessionUser.id);
-        
         if (dbUser) {
-          console.log('✅ User authenticated:', dbUser.email);
+          console.log('✅ Session user authenticated:', dbUser.email);
           return res.json({
             id: dbUser.id,
             email: dbUser.email,
@@ -131,7 +166,43 @@ export function setupAuth(app: Express) {
         }
       }
 
-      console.log('❌ User not authenticated');
+      // Check Replit headers as fallback
+      const replitUser = getReplitUser(req);
+      if (replitUser) {
+        console.log('✅ Replit headers user found:', replitUser.email);
+        
+        const user = await storage.upsertUser({
+          id: replitUser.id,
+          email: replitUser.email,
+          firstName: replitUser.name?.split(' ')[0] || replitUser.email.split('@')[0],
+          lastName: replitUser.name?.split(' ').slice(1).join(' ') || '',
+          profileImageUrl: replitUser.profileImageUrl || ''
+        });
+
+        // Create session for future requests
+        (req.session as any).user = {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl,
+          role: user.role || 'member',
+          isAuthenticated: true
+        };
+
+        return res.json({
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl,
+          role: user.role,
+          plan: user.plan,
+          monthlyGenerationLimit: user.monthlyGenerationLimit
+        });
+      }
+
+      console.log('❌ No authentication found');
       res.status(401).json({ error: 'Not authenticated' });
     } catch (error) {
       console.error('❌ Auth check error:', error);
@@ -153,90 +224,9 @@ export function setupAuth(app: Express) {
     });
   });
 
-  // Registration endpoint for new users  
-  app.post("/api/auth/register", async (req, res) => {
-    try {
-      const { email, firstName, lastName, source } = req.body;
-      console.log('📝 User registration:', { email, source });
-      
-      // Create new user account
-      const user = await storage.upsertUser({
-        id: 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-        email,
-        firstName: firstName || email.split('@')[0],
-        lastName: lastName || '',
-        profileImageUrl: '',
-        role: 'member'
-      });
 
-      // Create session for immediate login
-      (req.session as any).user = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        profileImageUrl: user.profileImageUrl,
-        role: user.role,
-        isAuthenticated: true
-      };
 
-      console.log('✅ User registered and logged in:', user.email);
-      res.json({ 
-        success: true, 
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName
-        },
-        redirectTo: source === 'checkout' ? '/onboarding' : '/workspace'
-      });
-    } catch (error) {
-      console.error('❌ Registration error:', error);
-      res.status(500).json({ error: 'Registration failed' });
-    }
-  });
-
-  // Login with existing credentials
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      const { email } = req.body;
-      console.log('🔑 User login attempt:', email);
-      
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-
-      // Create authenticated session
-      (req.session as any).user = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        profileImageUrl: user.profileImageUrl,
-        role: user.role,
-        isAuthenticated: true
-      };
-
-      console.log('✅ User logged in:', user.email);
-      res.json({ 
-        success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role
-        }
-      });
-    } catch (error) {
-      console.error('❌ Login error:', error);
-      res.status(500).json({ error: 'Login failed' });
-    }
-  });
-
-  console.log('✅ Complete authentication system setup with registration and login');
+  console.log('✅ Replit Auth integration complete - using platform authentication');
 }
 
 // Simple authentication middleware
