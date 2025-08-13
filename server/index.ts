@@ -75,16 +75,10 @@ async function startCompleteApp() {
     console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
     console.log('✅ All your features loaded!');
     
-    // Set up development or production mode
-    const isDevelopment = process.env.NODE_ENV !== 'production';
-    
-    if (isDevelopment) {
-      console.log('🔧 Starting development mode with Vite...');
-      await setupDevelopmentMode(server);
-    } else {
-      console.log('🚀 Starting production mode...');
-      setupStaticFiles();
-    }
+    // Set up static file serving (production mode)
+    // Using built assets from client/dist to avoid Vite HMR WebSocket issues
+    console.log('🚀 Starting with built assets (production mode)...');
+    setupStaticFiles();
     
     return server;
   } catch (error) {
@@ -110,42 +104,57 @@ async function setupDevelopmentMode(server: any) {
 }
 
 function setupStaticFiles() {
-  // Serve built frontend assets
-  const possibleDistPaths = [
-    path.join(__dirname, '../dist/public'),
-    path.join(__dirname, '../client/dist'), 
-    path.join(__dirname, '../dist')
-  ];
+  // Priority order for serving built assets
+  const distPath = path.join(__dirname, '../client/dist');
   
-  for (const distPath of possibleDistPaths) {
-    if (fs.existsSync(distPath)) {
-      console.log(`📁 Serving static files from: ${distPath}`);
-      app.use(express.static(distPath));
-      app.use('/assets', express.static(path.join(distPath, 'assets')));
-      break;
-    }
-  }
-  
-  // React app fallback for SPA routing
-  app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/') || req.path === '/health' || res.headersSent) {
-      return;
+  if (fs.existsSync(distPath)) {
+    console.log(`📁 Serving static files from: ${distPath}`);
+    
+    // Serve static assets with proper headers
+    app.use(express.static(distPath, {
+      maxAge: '1h',
+      etag: true,
+      lastModified: true
+    }));
+    
+    // Explicit assets routing
+    const assetsPath = path.join(distPath, 'assets');
+    if (fs.existsSync(assetsPath)) {
+      app.use('/assets', express.static(assetsPath, {
+        maxAge: '1h',
+        etag: true
+      }));
+      console.log(`📦 Assets directory found with ${fs.readdirSync(assetsPath).length} files`);
     }
     
-    const possibleIndexPaths = [
-      path.join(__dirname, '../dist/public/index.html'),
-      path.join(__dirname, '../client/dist/index.html'),
-      path.join(__dirname, '../dist/index.html')
-    ];
-    
-    for (const indexPath of possibleIndexPaths) {
-      if (fs.existsSync(indexPath)) {
-        return res.sendFile(indexPath);
+    // React app fallback for SPA routing
+    app.get('*', (req, res) => {
+      if (req.path.startsWith('/api/') || req.path === '/health' || res.headersSent) {
+        return;
       }
-    }
+      
+      const indexPath = path.join(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).send('Application not found - index.html missing');
+      }
+    });
+  } else {
+    console.error(`❌ Build directory not found: ${distPath}`);
+    console.log('🔧 Please run: npm run build');
     
-    res.status(404).send('Application not found - please run npm run build');
-  });
+    // Fallback error page
+    app.get('*', (req, res) => {
+      if (!req.path.startsWith('/api/')) {
+        res.status(503).send(`
+          <h1>SSELFIE Studio - Build Required</h1>
+          <p>Frontend assets not found. Please run: <code>npm run build</code></p>
+          <p>Looking for: ${distPath}</p>
+        `);
+      }
+    });
+  }
 }
 
 // Start server with complete application
