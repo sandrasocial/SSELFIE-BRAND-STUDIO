@@ -9,34 +9,21 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Agent images - Use beautiful SVG avatars as placeholders
-const createAgentAvatar = (name: string, primaryColor: string, secondaryColor: string) => `data:image/svg+xml,${encodeURIComponent(`
-<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad-${name}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:${primaryColor};stop-opacity:1" />
-      <stop offset="100%" style="stop-color:${secondaryColor};stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <circle cx="60" cy="60" r="58" fill="url(#grad-${name})" stroke="#fff" stroke-width="4"/>
-  <text x="60" y="70" text-anchor="middle" font-family="Times New Roman, serif" font-size="32" font-weight="600" fill="white">${name.charAt(0)}</text>
-</svg>
-`)}`;
-
-const AgentElena = createAgentAvatar('Elena', '#000000', '#333333');
-const AgentMaya = createAgentAvatar('Maya', '#8B4513', '#D2691E');
-const AgentVictoria = createAgentAvatar('Victoria', '#800080', '#DA70D6');
-const AgentAria = createAgentAvatar('Aria', '#FFD700', '#FFA500');
-const AgentZara = createAgentAvatar('Zara', '#DC143C', '#FF69B4');
-const AgentRachel = createAgentAvatar('Rachel', '#4169E1', '#87CEEB');
-const AgentAva = createAgentAvatar('Ava', '#32CD32', '#98FB98');
-const AgentQuinn = createAgentAvatar('Quinn', '#696969', '#A9A9A9');
-const AgentSophia = createAgentAvatar('Sophia', '#FF1493', '#FFB6C1');
-const AgentMartha = createAgentAvatar('Martha', '#8A2BE2', '#DDA0DD');
-const AgentDiana = createAgentAvatar('Diana', '#006400', '#90EE90');
-const AgentWilma = createAgentAvatar('Wilma', '#B8860B', '#F0E68C');
-const AgentOlga = createAgentAvatar('Olga', '#2F4F4F', '#708090');
-const AgentFlux = createAgentAvatar('Flux', '#191970', '#6495ED');
+// Agent images - Direct paths to existing migrated assets  
+const AgentElena = "/attached_assets/out-0 (33)_1753426218039.png";
+const AgentMaya = "/attached_assets/out-0 (34)_1753426218040.png";
+const AgentVictoria = "/attached_assets/out-0 (37)_1753426218041.png";
+const AgentAria = "/attached_assets/out-0 (20)_1753426218042.png";
+const AgentZara = "/attached_assets/out-0 (28)_1753426218042.png";
+const AgentRachel = "/attached_assets/out-0 (42)_1753426218042.png";
+const AgentAva = "/attached_assets/out-1 (27)_1753426218043.png";
+const AgentQuinn = "/attached_assets/out-0 (26)_1753426218043.png";
+const AgentSophia = "/attached_assets/out-1 (18)_1753426218043.png";
+const AgentMartha = "/attached_assets/out-0 (29)_1753426218044.png";
+const AgentDiana = "/attached_assets/out-2 (18)_1753426218045.png";
+const AgentWilma = "/attached_assets/out-0 (22)_1753426218045.png";
+const AgentOlga = "/attached_assets/out-0 (32)_1753426290403.png";
+const AgentFlux = "/attached_assets/out-0 (31).png";
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
