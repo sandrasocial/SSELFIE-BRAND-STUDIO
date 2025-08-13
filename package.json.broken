@@ -599,12 +599,13 @@
     "yocto-queue": "^0.1.0",
     "zod": "^3.25.76",
     "zwitch": "^2.0.4"
-  },
-  "scripts": {
-    "dev": "cd server && NODE_ENV=development PORT=3000 npx tsx index.ts",
-    "start": "cd server && NODE_ENV=production PORT=3000 npx tsx index.ts",
-    "build": "vite build client"
-  },
+  {
+    "scripts": {
+      "dev": "NODE_ENV=development PORT=3000 node start-fixed-server.js",
+      "start": "NODE_ENV=production PORT=3000 cd server && npx tsx index.ts",
+      "build": "vite build client"
+    }
+  }
   "keywords": [],
   "author": "",
   "license": "ISC",
