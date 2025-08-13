@@ -38,7 +38,7 @@ import { PersonalityIntegrationService } from '../agents/personality-integration
 import { LocalProcessingEngine } from '../services/hybrid-intelligence/local-processing-engine';
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
-import { claudeConversations, claudeMessages } from '../../shared/schema';
+import { claudeConversations, claudeMessages } from '../../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
 // COORDINATION TOOLS: Import schemas and direct tool functions
 import { TOOL_SCHEMAS } from '../tools/tool-schemas';
