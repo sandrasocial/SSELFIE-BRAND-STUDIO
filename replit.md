@@ -37,6 +37,7 @@ Preferred communication style: Simple, everyday language.
 - **Agent Security**: Middleware enforcing tool access permissions.
 - **API Protection**: Route-level authentication guards and admin token validation.
 - **DEPLOYMENT READY (August 2025)**: OAuth authentication system fully functional for new and current users.
+- **PUBLIC ACCESS RESTORED (August 2025)**: Pre-login pages (landing, pricing, checkout, terms, etc.) now accessible without authentication while workspace routes remain protected.
 
 ### System Design Choices
 - Comprehensive separation between member revenue features and admin operational improvements.

@@ -9,7 +9,8 @@ import { Link, useLocation } from 'wouter';
 import { useToast } from '../hooks/use-toast';
 
 export default function Pricing() {
-  const { user } = useAuth();
+  // REMOVED: useAuth() - public pricing page doesn't need authentication
+  const user = null; // Public page - no user data needed
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [scrolled, setScrolled] = useState(false);
