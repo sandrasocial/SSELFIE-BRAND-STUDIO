@@ -2,6 +2,8 @@ import session from "express-session";
 import type { Express } from "express";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
+import passport from "passport";
+import { Strategy as OAuth2Strategy } from "passport-oauth2";
 
 if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
@@ -27,6 +29,13 @@ function parseReplIdentity() {
 }
 
 console.log('🔧 Using Repl Identity authentication system');
+
+// Replit OAuth2 Configuration
+const REPLIT_AUTH_CONFIG = {
+  authorizationURL: '/@replit/auth',
+  tokenURL: 'https://replit.com/api/oauth/token',
+  userProfileURL: 'https://replit.com/api/oauth/userinfo'
+};
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -85,9 +94,9 @@ export async function setupAuth(app: Express) {
   
   app.set("trust proxy", 1);
   app.use(getSession());
-  // Passport middleware disabled - using session-based auth instead
-  // app.use(passport.initialize());
-  // app.use(passport.session());
+  // Passport middleware - restored working authentication
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   // Get domains from environment
   const domains = process.env.REPLIT_DOMAINS!.split(",");
@@ -101,8 +110,7 @@ export async function setupAuth(app: Express) {
   
   app.locals.authDomains = domains;
   
-  // OAuth strategy configuration disabled - using session-based auth instead
-  /*
+  // OAuth strategy configuration - restored working authentication
   for (const domain of domains) {
     const callbackURL = `https://${domain}/api/callback`;
     
@@ -167,10 +175,8 @@ export async function setupAuth(app: Express) {
     passport.use(strategy);
     console.log(`✅ Registered OAuth2 strategy for: ${domain}`);
   }
-  */
 
-  // Passport serialization disabled - using session-based auth instead
-  /*
+  // Passport serialization - restored working authentication
   passport.serializeUser((user: Express.User, cb) => {
     try {
       cb(null, user);
@@ -188,7 +194,6 @@ export async function setupAuth(app: Express) {
       cb(null, false);
     }
   });
-  */
 
   // Login endpoint with fixed hostname resolution
   app.get("/api/login", (req, res, next) => {
@@ -218,9 +223,8 @@ export async function setupAuth(app: Express) {
     console.log(`🔍 Using OAuth2 strategy: ${strategy}`);
 
     try {
-      // Authentication disabled for development
-      console.log('Authentication disabled - using session-based auth');
-      res.status(501).json({ error: 'OAuth authentication temporarily disabled' });
+      // Restore working authentication
+      passport.authenticate(strategy, { state: req.query.returnTo || '/workspace' })(req, res, next);
     } catch (error) {
       console.error('❌ Strategy authentication error:', error);
       if (!res.headersSent) {
@@ -262,9 +266,11 @@ export async function setupAuth(app: Express) {
     const strategy = `replitauth:${strategyDomain}`;
     console.log(`🔍 Using callback strategy: ${strategy}`);
 
-    // Authentication callback disabled for development
-    console.log('Authentication callback disabled');
-    res.redirect('/?error=auth_disabled');
+    // Restore working authentication callback
+    passport.authenticate(strategy, {
+      successRedirect: req.query.state || '/workspace',
+      failureRedirect: '/?error=auth_failed'
+    })(req, res, next);
   });
 
   // User info endpoint
