@@ -163,7 +163,7 @@ export default function EditorialLanding() {
                 Blog
               </button>
               <button
-                onClick={() => setLocation('/login')}
+                onClick={() => window.location.href = '/api/login'}
                 className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
               >
                 Login
@@ -217,7 +217,7 @@ export default function EditorialLanding() {
               Blog
             </button>
             <button
-              onClick={() => { setLocation('/login'); setMobileMenuOpen(false); }}
+              onClick={() => { window.location.href = '/api/login'; setMobileMenuOpen(false); }}
               className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
             >
               Login
@@ -248,7 +248,7 @@ export default function EditorialLanding() {
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
             className="w-full h-full object-cover object-center"
             loading="eager"
-            fetchpriority="high"
+            fetchPriority="high"
           />
         </div>
         
