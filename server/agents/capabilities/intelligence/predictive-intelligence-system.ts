@@ -3,9 +3,9 @@
  * Makes SSELFIE Studio agents proactive like Replit AI by anticipating next steps
  */
 
-import { db } from '../../db';
+import { db } from '../../db.js';
 import { eq, desc, and } from 'drizzle-orm';
-import { claudeConversations, claudeMessages } from '../shared/schema';
+import { claudeConversations, claudeMessages } from '../../../shared/schema.js';
 
 interface UserPattern {
   userId: string;

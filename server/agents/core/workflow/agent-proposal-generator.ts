@@ -105,7 +105,7 @@ export class AgentProposalGenerator {
       preview: {
         explanation: "I've created a 30-day content calendar that showcases SSELFIE transformations while maintaining your authentic voice. Each post is designed to build desire and drive conversions without feeling salesy. The content mix includes before/after reveals, behind-the-scenes moments, and user-generated content.",
         content: await this.generateSocialContentPreview(context),
-        contentPlan: this.generateSocialContentPlan(context),
+        contentPlan: this.generateSocialContentProposal(context),
         data: {
           contentCount: 30,
           platform: "Instagram primary",
@@ -143,7 +143,7 @@ export class AgentProposalGenerator {
       preview: {
         explanation: "I've designed a performance campaign that targets women entrepreneurs aged 25-45 who are interested in personal branding. The creative strategy focuses on before/after transformations with social proof. Budget is optimized for immediate ROI while building long-term brand awareness.",
         content: await this.generateAdContentPreview(context),
-        campaignStructure: this.generateAdCampaignStructure(context),
+        campaignStructure: this.generateAdCampaignProposal(context),
         data: {
           platforms: ["Facebook", "Instagram"],
           targetAudience: "Female entrepreneurs 25-45",
