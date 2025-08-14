@@ -46,7 +46,7 @@ class SemanticSearchSystem {
       });
       
       // Convert new search results to old format for backwards compatibility
-      const resultsArray = Array.isArray(results) ? results : (typeof results === 'string' ? [] : results?.results || []);
+      const resultsArray = Array.isArray(results) ? results : (typeof results === 'object' && results && 'results' in results ? results.results : []);
       return resultsArray.slice(0, options.maxResults || 10).map(result => ({
         filePath: result.fileName,
         relevanceScore: (result.priority || 50) / 100, // Convert priority to 0-1 score

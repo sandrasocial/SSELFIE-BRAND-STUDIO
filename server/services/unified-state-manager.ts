@@ -38,7 +38,15 @@ export class UnifiedStateManager {
   }
 
   async updateAgentState(agentId: string, userId: string, context: any) {
-    return await simpleMemoryService.saveAgentMemory(agentId, userId, context);
+    const agentContext = { 
+      agentName: agentId, 
+      userId, 
+      memories: [], 
+      currentTask: 'update',
+      adminPrivileges: false,
+      timestamp: new Date()
+    };
+    return await simpleMemoryService.saveAgentMemory(agentContext, context);
   }
 
   // OLGA'S FIX: Essential workspace operations only

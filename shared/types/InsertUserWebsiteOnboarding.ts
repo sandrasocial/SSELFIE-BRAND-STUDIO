@@ -98,20 +98,16 @@ export const websiteBuilderConversationsRelations = relations(websiteBuilderConv
 }));
 
 // Zod Schemas for Website Builder Tables
-export const insertUserWebsiteOnboardingSchema = createInsertSchema(userWebsiteOnboarding);
-export const selectUserWebsiteOnboardingSchema = createSelectSchema(userWebsiteOnboarding);
-export type InsertUserWebsiteOnboarding = z.infer<typeof insertUserWebsiteOnboardingSchema>;
-export type SelectUserWebsiteOnboarding = z.infer<typeof selectUserWebsiteOnboardingSchema>;
+// Schema creation using Drizzle's built-in inference
+export type InsertUserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferInsert;
+export type SelectUserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferSelect;
 
-export const insertUserGeneratedWebsitesSchema = createInsertSchema(userGeneratedWebsites);
-export const selectUserGeneratedWebsitesSchema = createSelectSchema(userGeneratedWebsites);
-export type InsertUserGeneratedWebsites = z.infer<typeof insertUserGeneratedWebsitesSchema>;
-export type SelectUserGeneratedWebsites = z.infer<typeof selectUserGeneratedWebsitesSchema>;
+export type InsertUserGeneratedWebsites = typeof userGeneratedWebsites.$inferInsert;
+export type SelectUserGeneratedWebsites = typeof userGeneratedWebsites.$inferSelect;
 
-export const insertWebsiteBuilderConversationsSchema = createInsertSchema(websiteBuilderConversations);
-export const selectWebsiteBuilderConversationsSchema = createSelectSchema(websiteBuilderConversations);
-export type InsertWebsiteBuilderConversations = z.infer<typeof insertWebsiteBuilderConversationsSchema>;
-export type SelectWebsiteBuilderConversations = z.infer<typeof selectWebsiteBuilderConversationsSchema>;
+export type InsertWebsiteBuilderConversations = typeof websiteBuilderConversations.$inferInsert;
+export type SelectWebsiteBuilderConversations = typeof websiteBuilderConversations.$inferSelect;
+// End of schema definitions
 
 // Update users relations to include website builder relationships
 export const usersRelations = relations(users, ({ many }) => ({
