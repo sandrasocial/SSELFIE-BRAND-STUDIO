@@ -224,6 +224,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
   console.log('✅ CRITICAL: OAuth callback routes registered - testing interception...');
 
+  // CRITICAL BYPASS: Register OAuth callback route directly to prevent Vite interception
+  app.get("/api/callback", (req, res, next) => {
+    console.log('🔥 DIRECT CALLBACK ROUTE REACHED - bypassing Vite!');
+    console.log('🔥 Request details:', {
+      url: req.url,
+      query: req.query,
+      headers: req.headers['user-agent']
+    });
+    
+    // This route should handle the OAuth callback directly
+    // The setupAuth should have already registered the handler, but Vite is intercepting
+    // Forward to the next matching route (which should be the OAuth handler)
+    next();
+  });
+
   // ZARA'S PERFORMANCE OPTIMIZATIONS: Server-side performance middleware
   try {
     // Optional performance middleware - don't block server startup if missing
@@ -315,13 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Add session middleware first
-  app.use(getSession());
-  
-  // CRITICAL FIX: Setup authentication BEFORE any Vite middleware to prevent route interception
-  console.log('🔧 CRITICAL: Setting up OAuth authentication routes BEFORE Vite middleware...');
-  await setupAuth(app);
-  console.log('✅ CRITICAL: OAuth routes registered successfully - callback should work now');
+  // REMOVED: Duplicate authentication setup - OAuth is now set up at the very beginning
 
   // CRITICAL: Serve training ZIP files with correct content type
   app.get("/training-zip/:filename", (req, res) => {
