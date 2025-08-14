@@ -186,7 +186,6 @@ function ProtectedRoute({ component: Component, ...props }: { component: Compone
 }
 
 function Router() {
-  console.log('🔥 Router component rendering - Current path:', window.location.pathname);
   return (
     <div>
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
@@ -305,8 +304,6 @@ function AppWithProvider() {
 }
 
 function App() {
-  console.log('🔥 App component rendering - URL:', window.location.href);
-  
   // Enhanced domain access handling
   useEffect(() => {
     try {
