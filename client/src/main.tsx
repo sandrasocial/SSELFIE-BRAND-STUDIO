@@ -7,7 +7,7 @@ console.log('SSELFIE Studio: Main.tsx loading...');
 console.log('SSELFIE Studio: Root element found:', !!document.getElementById("root"));
 
 // Environment detection logging
-console.log('SSELFIE Studio: Application starting...', { timestamp: Date.now(), environment: 'development' });
+console.log('SSELFIE Studio: Application starting...', { timestamp: Date.now(), environment: (import.meta as any).env?.NODE_ENV || 'development' });
 
 // Error boundary for root level errors
 try {
