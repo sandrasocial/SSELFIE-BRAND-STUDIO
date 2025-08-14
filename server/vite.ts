@@ -75,7 +75,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  const distPath = path.resolve(import.meta.dirname, "..", "client", "dist");
   const assetsPath = path.join(distPath, "assets");
 
   if (!fs.existsSync(distPath)) {
