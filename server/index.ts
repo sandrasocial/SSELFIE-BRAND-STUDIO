@@ -7,9 +7,13 @@ import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { registerRoutes } from './routes';
 
-// ES module equivalent of __dirname
+// ES module equivalent of __dirname with proper path resolution
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Ensure we're working from the project root regardless of execution context
+const projectRoot = process.cwd().endsWith('/server') ? path.dirname(process.cwd()) : process.cwd();
+console.log(`📁 Project root: ${projectRoot}`);
 
 const app = express();
 // Use PORT from .replit config (3000) which maps to external port 80
@@ -96,7 +100,7 @@ async function startCompleteApp() {
     await registerRoutes(app);
     
     // Serve attached_assets directory for agent images and uploads
-    const attachedAssetsPath = path.join(__dirname, '../attached_assets');
+    const attachedAssetsPath = path.join(projectRoot, 'attached_assets');
     if (fs.existsSync(attachedAssetsPath)) {
       app.use('/attached_assets', express.static(attachedAssetsPath, {
         maxAge: '1h',
@@ -150,7 +154,7 @@ async function setupDevelopmentMode(server: any) {
 
 function setupStaticFiles() {
   // Priority order for serving built assets
-  const distPath = path.join(__dirname, '../client/dist');
+  const distPath = path.join(projectRoot, 'client/dist');
   
   if (fs.existsSync(distPath)) {
     console.log(`📁 Serving static files from: ${distPath}`);

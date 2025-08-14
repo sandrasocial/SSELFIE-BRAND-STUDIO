@@ -39,6 +39,7 @@ Preferred communication style: Simple, everyday language.
 - **AUTHENTICATION SYSTEM RESTORED (August 2025)**: Old Replit OAuth system deprecated, replaced with working session-based authentication. Login button properly redirects to workspace after user authentication.
 - **PUBLIC ACCESS RESTORED (August 2025)**: Pre-login pages (landing, pricing, checkout, terms, etc.) now accessible without authentication while workspace routes remain protected.
 - **CRITICAL ROUTING SYSTEM FIXED (August 14, 2025)**: Resolved complete frontend white screen/404 issue caused by server configuration mismatch. Root cause was NODE_ENV=production conflicting with Vite development server setup, preventing React app from hydrating. Fixed by forcing development mode in server configuration.
+- **DEPLOYMENT PATH RESOLUTION FIXED (August 14, 2025)**: Fixed deployment failures in promote step by implementing dynamic project root detection. Server now properly resolves paths when running from either root directory or server/ subdirectory, eliminating package.json script execution context conflicts.
 
 ### System Design Choices
 - Comprehensive separation between member revenue features and admin operational improvements.
