@@ -100,16 +100,21 @@ async function startCompleteApp() {
   }
 }
 
-// Setup Vite development server
+// Setup development mode with environment detection
 async function setupDevelopmentMode(server: any) {
   try {
+    const isProduction = process.env.NODE_ENV === 'production';
+    console.log('🔧 Environment mode:', isProduction ? 'production' : 'development');
+    
+    if (isProduction) {
+      console.log('🏭 Using production static files...');
+      setupStaticFiles();
+      return;
+    }
+    
     console.log('🔧 Setting up Vite development server...');
-    console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
     
-    // Force development mode regardless of NODE_ENV
-    process.env.NODE_ENV = 'development';
-    
-    // Import setupVite function
+    // Import setupVite function for development only
     const { setupVite } = await import('./vite.js');
     await setupVite(app, server);
     
