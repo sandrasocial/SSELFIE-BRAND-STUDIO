@@ -42,7 +42,8 @@ export class LaunchExcellenceProtocol {
    */
   private async validateDatabase(): Promise<boolean> {
     try {
-      await this.db.ping()
+      const { db } = await import('../db');
+      await db.select().from((await import('../../shared/schema')).users).limit(1);
       return true
     } catch (error) {
       console.error('Database validation failed:', error)
@@ -95,7 +96,7 @@ export class LaunchExcellenceProtocol {
       const metrics = await this.validateLaunchReadiness()
       
       // Store launch validation results
-      await this.db.set('launch:latest:metrics', metrics)
+      console.log('Launch metrics:', metrics)
       
       return true
     } catch (error) {

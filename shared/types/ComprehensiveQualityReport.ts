@@ -1,8 +1,17 @@
 // quality-testing/comprehensive-quality-suite.ts
-import { LuxuryBrandValidator } from './luxury-brand-validator';
-import { UserExperienceAuditor } from './user-experience-auditor';
-import { IndividualModelValidator } from './individual-model-validator';
-import { PremiumTierValidator } from './premium-tier-validator';
+// Luxury brand validator types
+// Quality testing type definitions
+interface UserExperienceAuditor {
+  validate: () => boolean;
+}
+
+interface IndividualModelValidator {
+  check: () => boolean;
+}
+
+interface PremiumTierValidator {
+  verify: () => boolean;
+}
 
 export interface ComprehensiveQualityReport {
   overallLuxuryScore: number;

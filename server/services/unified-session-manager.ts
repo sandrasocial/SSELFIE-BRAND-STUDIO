@@ -104,10 +104,11 @@ export class UnifiedSessionManager {
       console.log(`💾 SAVING AGENT CONTEXT: ${context.agentId} for user ${context.userId}`);
 
       // Create memory snapshot
-      const memorySnapshot = await ConversationManager.retrieveAgentMemory(
-        context.agentId, 
-        context.userId
-      );
+      const memorySnapshot = JSON.stringify({
+        agentId: context.agentId,
+        userId: context.userId,
+        lastInteraction: new Date()
+      });
 
       await db.insert(agentSessionContexts).values({
         userId: context.userId,

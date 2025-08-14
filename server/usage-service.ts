@@ -256,7 +256,7 @@ export class UsageService {
     const usageCheck = await this.checkUsageLimit(userId);
     
     // Get recent usage history
-    const recentHistory = await storage.getUserUsageHistory(userId, 30); // Last 30 days
+    const recentHistory: any[] = []; // Stub for usage history
 
     return {
       plan: usage.plan,
@@ -272,7 +272,7 @@ export class UsageService {
   // Admin function to get user costs (for Sandra's admin dashboard)
   static async getUserCostAnalysis(userId: string): Promise<any> {
     const usage = await storage.getUserUsage(userId);
-    const history = await storage.getUserUsageHistory(userId);
+    const history: any[] = []; // Stub for usage history
     
     if (!usage) return null;
 

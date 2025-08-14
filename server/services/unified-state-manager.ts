@@ -33,13 +33,12 @@ export class UnifiedStateManager {
   async getAgentState(agentId: string, userId: string) {
     return await simpleMemoryService.prepareAgentContext({
       agentName: agentId,
-      userId,
-      isAdminBypass: true
+      userId
     });
   }
 
   async updateAgentState(agentId: string, userId: string, context: any) {
-    return await simpleMemoryService.saveAgentMemory(agentId, userId, { context });
+    return await simpleMemoryService.saveAgentMemory(agentId, userId, context);
   }
 
   // OLGA'S FIX: Essential workspace operations only
