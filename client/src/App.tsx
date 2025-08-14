@@ -43,7 +43,6 @@ import AdminSubscriberImport from "./pages/admin-subscriber-import";
 import BridgeMonitor from "./pages/admin/bridge-monitor";
 // import { UnifiedAgentInterface } from "./components/admin/UnifiedAgentInterface";
 import UnifiedLoginButton from "./components/UnifiedLoginButton";
-
 import AgentApproval from "./pages/agent-approval";
 import AgentCommandCenter from "./pages/agent-command-center";
 
@@ -67,6 +66,58 @@ import SwitchAccount from "./pages/switch-account";
 import LaunchCountdown from "./pages/launch-countdown";
 import AdminAccessOnly from "./pages/admin-access-only";
 import Build from "./pages/build";
+
+// Properly define login component to avoid React Hook rules violations
+function LoginPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <UnifiedLoginButton text="Sign in to continue" showBrand={true} />
+    </div>
+  );
+}
+
+function LoginDirectPage() {
+  useEffect(() => {
+    window.location.href = '/api/login';
+  }, []);
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
+        <p>Redirecting to login...</p>
+      </div>
+    </div>
+  );
+}
+
+// Define test page component
+function TestPage() {
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl mb-4">Navigation Test</h1>
+      <p>If you can see this, navigation is working!</p>
+      <div className="mt-4 space-y-2">
+        <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
+        <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
+        <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
+      </div>
+    </div>
+  );
+}
+
+// Define redirect components
+function AuthRedirectPage() {
+  useEffect(() => { 
+    window.location.href = '/api/login'; 
+  }, []);
+  
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+    </div>
+  );
+}
 
 // Smart Home component that routes based on onboarding status
 function SmartHome() {
@@ -146,39 +197,11 @@ function Router() {
       <Route path="/" component={EditorialLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
-      <Route path="/login" component={() => (
-        <div className="min-h-screen flex items-center justify-center bg-white">
-          <UnifiedLoginButton text="Sign in to continue" showBrand={true} />
-        </div>
-      )} />
-      <Route path="/login-direct" component={() => {
-        // Direct redirect to Replit Auth (for cases that need immediate redirect)
-        useEffect(() => {
-          window.location.href = '/api/login';
-        }, []);
-        
-        return (
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
-              <p>Redirecting to login...</p>
-            </div>
-          </div>
-        );
-      }} />
+      <Route path="/login" component={LoginPage} />
+      <Route path="/login-direct" component={LoginDirectPage} />
 
       {/* DEVELOPMENT TEST PAGE */}
-      <Route path="/test" component={() => (
-        <div className="p-8">
-          <h1 className="text-2xl mb-4">Navigation Test</h1>
-          <p>If you can see this, navigation is working!</p>
-          <div className="mt-4 space-y-2">
-            <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
-            <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
-            <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
-          </div>
-        </div>
-      )} />
+      <Route path="/test" component={TestPage} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
@@ -199,18 +222,9 @@ function Router() {
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
       <Route path="/switch-account" component={SwitchAccount} />
-      <Route path="/auth" component={() => {
-        useEffect(() => { window.location.href = '/api/login'; }, []);
-        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
-      }} />
-      <Route path="/sign-in" component={() => {
-        useEffect(() => { window.location.href = '/api/login'; }, []);
-        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
-      }} />
-      <Route path="/auth-custom" component={() => {
-        useEffect(() => { window.location.href = '/api/login'; }, []);
-        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
-      }} />
+      <Route path="/auth" component={AuthRedirectPage} />
+      <Route path="/sign-in" component={AuthRedirectPage} />
+      <Route path="/auth-custom" component={AuthRedirectPage} />
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
