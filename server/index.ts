@@ -124,12 +124,21 @@ async function startCompleteApp() {
 
 // Setup serving mode with proper production detection  
 async function setupDevelopmentMode(server: any) {
-  const isProduction = process.env.NODE_ENV === 'production' || process.env.REPLIT_DEPLOYMENT === 'true';
-  console.log('🔍 Environment check:', { NODE_ENV: process.env.NODE_ENV, REPLIT_DEPLOYMENT: process.env.REPLIT_DEPLOYMENT });
+  const isProduction = process.env.NODE_ENV === 'production' || 
+                      process.env.REPLIT_DEPLOYMENT === 'true' ||
+                      process.env.REPLIT_ENV === 'production' ||
+                      !process.env.REPLIT_DEV;
+  
+  console.log('🔍 Environment check:', { 
+    NODE_ENV: process.env.NODE_ENV, 
+    REPLIT_DEPLOYMENT: process.env.REPLIT_DEPLOYMENT,
+    REPLIT_ENV: process.env.REPLIT_ENV,
+    REPLIT_DEV: process.env.REPLIT_DEV 
+  });
   console.log(`🔧 Environment mode: ${isProduction ? 'production' : 'development'}`);
   
   if (isProduction) {
-    console.log('🏭 Production mode: Using built static files...');
+    console.log('🏭 Production mode: Using built static files (NO WebSocket conflicts)...');
     setupStaticFiles();
     return;
   }
@@ -137,6 +146,13 @@ async function setupDevelopmentMode(server: any) {
   // Development mode: use Vite with proper setup
   console.log('🔧 Development mode: Setting up Vite server...');
   try {
+    // Skip Vite setup if we detect deployment environment to avoid WebSocket conflicts
+    if (process.env.PORT && process.env.PORT !== '3000') {
+      console.log('⚠️  Deployment detected, skipping Vite WebSocket to avoid port conflicts');
+      setupStaticFiles();
+      return;
+    }
+    
     const { setupVite } = await import('./vite.js');
     await setupVite(app, server);
     console.log('✅ Vite development server configured');
