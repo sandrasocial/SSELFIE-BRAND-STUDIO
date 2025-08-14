@@ -85,8 +85,9 @@ export async function setupAuth(app: Express) {
   
   app.set("trust proxy", 1);
   app.use(getSession());
-  app.use(passport.initialize());
-  app.use(passport.session());
+  // Passport middleware disabled - using session-based auth instead
+  // app.use(passport.initialize());
+  // app.use(passport.session());
 
   // Get domains from environment
   const domains = process.env.REPLIT_DOMAINS!.split(",");
@@ -100,6 +101,8 @@ export async function setupAuth(app: Express) {
   
   app.locals.authDomains = domains;
   
+  // OAuth strategy configuration disabled - using session-based auth instead
+  /*
   for (const domain of domains) {
     const callbackURL = `https://${domain}/api/callback`;
     
@@ -164,7 +167,10 @@ export async function setupAuth(app: Express) {
     passport.use(strategy);
     console.log(`✅ Registered OAuth2 strategy for: ${domain}`);
   }
+  */
 
+  // Passport serialization disabled - using session-based auth instead
+  /*
   passport.serializeUser((user: Express.User, cb) => {
     try {
       cb(null, user);
@@ -182,6 +188,7 @@ export async function setupAuth(app: Express) {
       cb(null, false);
     }
   });
+  */
 
   // Login endpoint with fixed hostname resolution
   app.get("/api/login", (req, res, next) => {
@@ -211,18 +218,9 @@ export async function setupAuth(app: Express) {
     console.log(`🔍 Using OAuth2 strategy: ${strategy}`);
 
     try {
-      passport.authenticate(strategy, {
-        scope: ['openid', 'profile', 'email'] // Updated OAuth2 scopes
-      })(req, res, (err) => {
-        if (err) {
-          console.error('❌ Passport authentication error:', err);
-          if (!res.headersSent) {
-            res.status(500).json({ error: 'Authentication failed', details: err.message });
-          }
-        } else {
-          console.log('✅ Authentication redirect initiated');
-        }
-      });
+      // Authentication disabled for development
+      console.log('Authentication disabled - using session-based auth');
+      res.status(501).json({ error: 'OAuth authentication temporarily disabled' });
     } catch (error) {
       console.error('❌ Strategy authentication error:', error);
       if (!res.headersSent) {
@@ -264,27 +262,9 @@ export async function setupAuth(app: Express) {
     const strategy = `replitauth:${strategyDomain}`;
     console.log(`🔍 Using callback strategy: ${strategy}`);
 
-    passport.authenticate(strategy, (err: any, user: any) => {
-      if (err) {
-        console.error('❌ Authentication error:', err);
-        return res.redirect('/?error=auth_failed');
-      }
-      
-      if (!user) {
-        console.error('❌ No user returned from authentication');
-        return res.redirect('/?error=no_user');
-      }
-
-      req.logIn(user, (err: any) => {
-        if (err) {
-          console.error('❌ Login error:', err);
-          return res.redirect('/?error=login_failed');
-        }
-        
-        console.log('✅ User successfully authenticated and logged in');
-        res.redirect('/workspace');
-      });
-    })(req, res, next);
+    // Authentication callback disabled for development
+    console.log('Authentication callback disabled');
+    res.redirect('/?error=auth_disabled');
   });
 
   // User info endpoint

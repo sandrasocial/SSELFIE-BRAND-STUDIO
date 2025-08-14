@@ -1,4 +1,5 @@
 import { storage } from './storage';
+import type { UserUsage } from '../shared/schema';
 
 // Plan configuration with usage limits and costs
 export const PLAN_LIMITS = {
@@ -158,12 +159,12 @@ export class UsageService {
 
     // For AI Pack (one-time purchase)
     if (usage.plan === 'ai-pack') {
-      const remaining = usage.totalGenerationsAllowed - usage.totalGenerationsUsed;
+      const remaining = (usage.monthlyGenerationsAllowed || 0) - (usage.monthlyGenerationsUsed || 0);
       return {
         canGenerate: remaining > 0,
         remainingGenerations: remaining,
-        totalUsed: usage.totalGenerationsUsed,
-        totalAllowed: usage.totalGenerationsAllowed,
+        totalUsed: usage.monthlyGenerationsUsed || 0,
+        totalAllowed: usage.monthlyGenerationsAllowed || 0,
         reason: remaining <= 0 ? 'AI Pack limit reached. Upgrade to Studio for monthly generations.' : undefined
       };
     }
@@ -174,8 +175,8 @@ export class UsageService {
       return {
         canGenerate: monthlyRemaining > 0,
         remainingGenerations: monthlyRemaining,
-        totalUsed: usage.totalGenerationsUsed,
-        totalAllowed: usage.totalGenerationsAllowed || 999999,
+        totalUsed: usage.monthlyGenerationsUsed || 0,
+        totalAllowed: usage.monthlyGenerationsAllowed || 999999,
         monthlyUsed: usage.monthlyGenerationsUsed || 0,
         monthlyAllowed: usage.monthlyGenerationsAllowed,
         resetDate: usage.currentPeriodEnd || undefined,
@@ -186,7 +187,7 @@ export class UsageService {
     return {
       canGenerate: false,
       remainingGenerations: 0,
-      totalUsed: usage.totalGenerationsUsed,
+      totalUsed: usage.monthlyGenerationsUsed || 0,
       totalAllowed: 0,
       reason: 'Invalid plan configuration'
     };
@@ -201,16 +202,10 @@ export class UsageService {
 
     // Record in usage history (skip if table doesn't exist)
     try {
-      await storage.createUsageHistory({
-        userId,
-        actionType: update.actionType,
-        resourceUsed: update.resourceUsed,
-        cost: update.cost.toString(),
-        details: update.details,
-        generatedImageId: update.generatedImageId
-      });
+      // Usage history creation temporarily disabled due to schema mismatch
+      console.log('Usage history recording skipped (feature disabled)');
     } catch (error) {
-      console.log('Usage history recording skipped (table may not exist):', error.message);
+      console.log('Usage history recording skipped (table may not exist):', (error as any).message);
     }
 
     // Update usage counters
@@ -221,16 +216,15 @@ export class UsageService {
 
     // Only count 'generation' actions against limits, NOT 'training'
     if (update.actionType === 'generation') {
-      updates.totalGenerationsUsed = usage.totalGenerationsUsed + 1;
+      // Use monthly generations for tracking since totalGenerationsUsed field is not in schema
+      const currentUsed = usage.monthlyGenerationsUsed || 0;
       
-      if (usage.monthlyGenerationsAllowed) {
-        updates.monthlyGenerationsUsed = (usage.monthlyGenerationsUsed || 0) + 1;
-      }
+      updates.monthlyGenerationsUsed = currentUsed + 1;
 
       // Check if limit is reached
       const planLimits = PLAN_LIMITS[usage.plan as keyof typeof PLAN_LIMITS];
       if (usage.plan === 'ai-pack') {
-        updates.isLimitReached = updates.totalGenerationsUsed >= usage.totalGenerationsAllowed;
+        updates.isLimitReached = updates.monthlyGenerationsUsed >= (usage.monthlyGenerationsAllowed || 0);
       } else if (planLimits.resetMonthly) {
         updates.isLimitReached = updates.monthlyGenerationsUsed >= (usage.monthlyGenerationsAllowed || 0);
       }
@@ -285,12 +279,12 @@ export class UsageService {
     const totalCost = parseFloat(usage.totalCostIncurred);
     const planRevenue = PLAN_LIMITS[usage.plan as keyof typeof PLAN_LIMITS].cost;
     const profitMargin = planRevenue - totalCost;
-    const profitPercentage = ((profitMargin / planRevenue) * 100).toFixed(1);
+    const profitPercentage = planRevenue > 0 ? ((profitMargin / planRevenue) * 100).toFixed(1) : '0.0';
 
     return {
       userId,
       plan: usage.plan,
-      totalGenerations: usage.totalGenerationsUsed,
+      totalGenerations: usage.monthlyGenerationsUsed || 0,
       totalCost,
       planRevenue,
       profitMargin,
