@@ -39,5 +39,12 @@ export default defineConfig({
     },
     host: '0.0.0.0',
     port: 3000,
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '0.0.0.0',
+      '.replit.dev',
+      '.picard.replit.dev',
+      'e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev'
+    ],
   },
-});
