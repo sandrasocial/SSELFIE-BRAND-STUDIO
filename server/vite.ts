@@ -26,7 +26,8 @@ export function log(message: string, source = "express") {
       customLogger: viteLogger,
       server: {
         middlewareMode: true,
-        hmr: { server }
+        hmr: { server },
+        allowedHosts: process.env.REPLIT_DOMAINS?.split(',') || ['localhost']
       },
       appType: "custom",
     });
