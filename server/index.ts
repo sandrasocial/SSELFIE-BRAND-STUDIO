@@ -237,13 +237,20 @@ async function startServer() {
       }
     });
 
-    // Graceful shutdown for Cloud Run
+    // Modified shutdown - prevent premature termination during authentication testing
     process.on('SIGTERM', () => {
-      console.log('🛑 SIGTERM received, shutting down gracefully...');
-      httpServer.close(() => {
-        console.log('✅ Server closed');
-        process.exit(0);
-      });
+      console.log('🔍 SIGTERM received - checking if shutdown is needed');
+      // Only shutdown if explicitly forced
+      if (process.env.FORCE_SHUTDOWN === 'true') {
+        console.log('🛑 FORCE_SHUTDOWN=true - graceful shutdown');
+        httpServer.close(() => {
+          console.log('✅ Server closed');
+          process.exit(0);
+        });
+      } else {
+        console.log('🔒 SIGTERM ignored - server staying alive for authentication');
+        console.log('💡 Authentication endpoints: /api/auth/user, /api/login');
+      }
     });
     
     return httpServer;
