@@ -136,17 +136,18 @@ export class BulletproofUploadService {
         const fileName = `user-${userId}/training-image-${i + 1}-${Date.now()}.jpg`;
         
         // Upload to S3 with public read access for Replicate training
-        const uploadResult = await this.s3.upload({
+        const command = new PutObjectCommand({
           Bucket: bucketName,
           Key: fileName,
           Body: imageBuffer,
           ContentType: 'image/jpeg'
           // No ACL specified - bucket policy handles permissions
-        }).promise();
+        });
+        const uploadResult = await this.s3.send(command);
         
         // Verify upload success
-        const s3Url = uploadResult.Location;
-        if (!s3Url) {
+        const s3Url = `https://${bucketName}.s3.amazonaws.com/${fileName}`;
+        if (!uploadResult) {
           errors.push(`Failed to upload image ${i + 1} to S3`);
           continue;
         }
