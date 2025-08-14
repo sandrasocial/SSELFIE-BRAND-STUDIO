@@ -2224,29 +2224,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Token usage monitoring endpoint for smart routing analysis
-  app.get('/api/admin/token-usage-stats', async (req: any, res) => {
-    try {
-      const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor');
-      const timeWindow = parseInt(req.query.hours as string) || 24;
-      const stats = tokenUsageMonitor.getUsageStats(timeWindow);
-      const recentEntries = tokenUsageMonitor.getRecentEntries(20);
-
-      res.json({
-        success: true,
-        stats,
-        recentEntries,
-        message: `Token usage stats for last ${timeWindow} hours`,
-        smartRoutingActive: true
-      });
-    } catch (error) {
-      console.error('Token usage stats error:', error);
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
+  // REMOVED: Token usage monitoring endpoint - performance monitoring system deleted
+  // app.get('/api/admin/token-usage-stats', async (req: any, res) => {
 
   // REMOVED: Smart routing test endpoint (smart routing layer removed for direct access)
 
