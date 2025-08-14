@@ -40,17 +40,9 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
-    app.use(vite.middlewares);
-
-    // CRITICAL FIX: Exclude API routes from catch-all to prevent OAuth callback interception
-    app.use("*", async (req, res, next) => {
-      const url = req.originalUrl;
-
-      // Skip Vite rendering for API routes - let them be handled by Express routes
-      if (url.startsWith('/api/')) {
-        console.log(`🔍 VITE: Skipping API route: ${url}`);
-        return next();
-      }
+  app.use(vite.middlewares);
+  app.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
 
     try {
       const clientTemplate = path.resolve(
