@@ -223,12 +223,20 @@ export async function setupAuth(app: Express) {
     console.log(`🔍 Using OAuth2 strategy: ${strategy}`);
 
     try {
+      // ZARA'S AUTHENTICATION FIX: Ensure response object exists before using
+      if (!res || typeof res.status !== 'function') {
+        console.error('❌ Invalid response object in authentication');
+        return next(new Error('Invalid response object'));
+      }
+      
       // Restore working authentication
       passport.authenticate(strategy, { state: req.query.returnTo || '/workspace' })(req, res, next);
     } catch (error) {
       console.error('❌ Strategy authentication error:', error);
-      if (!res.headersSent) {
+      if (res && typeof res.status === 'function' && !res.headersSent) {
         res.status(500).json({ error: 'Strategy configuration error', details: error.message });
+      } else {
+        next(error);
       }
     }
   });
