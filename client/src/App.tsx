@@ -1,5 +1,5 @@
 import { useEffect, ComponentType } from 'react';
-import { Route, useLocation, Redirect } from "wouter";
+import { Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
@@ -91,8 +91,8 @@ function LoginDirectPage() {
   );
 }
 
-// Define test page component
-function TestPage() {
+// Define test page component to verify routing works
+const TestPage = () => {
   return (
     <div className="p-8">
       <h1 className="text-2xl mb-4">Navigation Test</h1>
@@ -104,7 +104,7 @@ function TestPage() {
       </div>
     </div>
   );
-}
+};
 
 // Define redirect components
 function AuthRedirectPage() {
@@ -187,7 +187,7 @@ function ProtectedRoute({ component: Component, ...props }: { component: Compone
 
 function Router() {
   return (
-    <div>
+    <WouterRouter>
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* LAUNCH COUNTDOWN */}
@@ -289,7 +289,7 @@ function Router() {
 
       {/* 404 - Must be last */}
       <Route path="*" component={NotFound} />
-    </div>
+    </WouterRouter>
   );
 }
 
