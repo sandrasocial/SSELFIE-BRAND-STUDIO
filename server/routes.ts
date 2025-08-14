@@ -334,7 +334,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ZARA'S EMERGENCY AUTH BYPASS: Direct authentication route to avoid middleware conflicts
   app.get('/api/login', (req, res) => {
     console.log('🔐 ZARA EMERGENCY: Login endpoint accessed - redirecting to home with auth');
-    res.redirect('/?auth=emergency&user=sandra');
+    try {
+      if (res && typeof res.redirect === 'function') {
+        res.redirect('/?auth=emergency&user=sandra');
+      } else {
+        console.error('CRITICAL: res.redirect not a function - Express response object corrupted');
+        res.writeHead(302, { Location: '/?auth=emergency&user=sandra' });
+        res.end();
+      }
+    } catch (error) {
+      console.error('REDIRECT ERROR:', error);
+      res.writeHead(302, { Location: '/?auth=emergency&user=sandra' });
+      res.end();
+    }
   });
 
   app.get('/api/auth/user', async (req, res) => {

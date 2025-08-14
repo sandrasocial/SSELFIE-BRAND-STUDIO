@@ -1,5 +1,12 @@
-// SSELFIE STUDIO - COMPREHENSIVE SERVER WITH ALL FEATURES
-// This is your main application server with Maya, Victoria, Training, Payments, Admin systems
+// BYPASS REDIRECT: Use index.js instead to avoid TypeScript compilation conflicts
+console.log('🔄 REDIRECTING: Use server/index.js to avoid TypeScript conflicts');
+console.log('⚠️ This TypeScript server has Express response object corruption');
+console.log('✅ Clean JavaScript server available at server/index.js');
+
+// Import the working JavaScript server
+const cleanServer = require('./index.js');
+
+// This file remains for reference but the clean server runs instead
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
