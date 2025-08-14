@@ -208,7 +208,7 @@ export async function setupAuth(app: Express) {
     let strategyDomain = req.hostname;
     
     // For localhost development, use first available domain
-    if (req.hostname === 'localhost' || req.hostname.includes('127.0.0.1')) {
+    if (req.hostname === 'localhost' || (req.hostname && req.hostname.includes('127.0.0.1'))) {
       strategyDomain = app.locals.authDomains[0];
       console.log(`🔍 Localhost detected, using fallback domain: ${strategyDomain}`);
     }
@@ -253,7 +253,7 @@ export async function setupAuth(app: Express) {
     // Find matching strategy (same logic as login)
     let strategyDomain = req.hostname;
     
-    if (req.hostname === 'localhost' || req.hostname.includes('127.0.0.1')) {
+    if (req.hostname === 'localhost' || (req.hostname && req.hostname.includes('127.0.0.1'))) {
       strategyDomain = app.locals.authDomains[0];
       console.log(`🔍 Callback localhost detected, using fallback domain: ${strategyDomain}`);
     }
