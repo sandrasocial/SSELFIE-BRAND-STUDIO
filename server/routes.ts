@@ -2838,28 +2838,8 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   GenerationCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
 
-  // CRITICAL FIX: Setup Vite middleware for development
-  if (process.env.NODE_ENV === 'development') {
-    try {
-      console.log('🔧 DEVELOPMENT: Setting up Vite middleware...');
-      const { setupVite } = await import('./vite');
-      await setupVite(app, server);
-      console.log('✅ DEVELOPMENT: Vite middleware active - HMR and dev tools ready');
-    } catch (error) {
-      console.error('⚠️ DEVELOPMENT: Vite setup failed:', error);
-      // Continue without Vite in development mode
-    }
-  } else {
-    // Production: Serve static files
-    console.log('🚀 PRODUCTION: Setting up static file serving...');
-    const { serveStatic } = await import('./vite');
-    try {
-      serveStatic(app);
-      console.log('✅ PRODUCTION: Static files ready');
-    } catch (error) {
-      console.error('⚠️ PRODUCTION: Static file serving setup failed:', error);
-    }
-  }
+  // VITE COMPLETELY DISABLED - Static files handled in index.ts
+  console.log('🚀 STATIC FILE MODE: CSS serving handled by index.ts - NO Vite interference');
 
   return server;
 }
