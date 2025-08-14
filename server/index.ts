@@ -31,71 +31,45 @@ app.set('trust proxy', true);
 console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
 console.log(`🌐 Target Port: ${port}`);
 
-// HEALTH CHECK ENDPOINTS - Required for Cloud Run deployment
+// CRITICAL: Health checks MUST be registered FIRST before any complex initialization
+// Cloud Run requires response within 5 seconds - respond instantly before loading routes
+
+// INSTANT HEALTH CHECK - Responds before any initialization
 app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    service: 'SSELFIE Studio',
-    timestamp: new Date().toISOString(),
-    port: port
-  });
+  res.status(200).json({ status: 'ok', timestamp: Date.now() });
 });
 
 app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy', 
-    timestamp: new Date().toISOString(),
-    port: port,
-    env: process.env.NODE_ENV || 'development'
-  });
+  res.status(200).json({ status: 'ok', timestamp: Date.now() });
 });
 
-// IMMEDIATE HEALTH CHECK - Must respond instantly for deployment
+// ROOT ENDPOINT - INSTANT response for deployment health checks
 app.get('/', (req, res, next) => {
   const userAgent = req.headers['user-agent']?.toLowerCase() || '';
-  const acceptHeader = req.headers['accept']?.toLowerCase() || '';
   
-  // Respond immediately to any health check pattern
-  const isHealthCheck = 
-    userAgent.includes('googlehc') ||
-    userAgent.includes('kube-probe') ||
-    userAgent.includes('elb-healthchecker') ||
-    userAgent.includes('health') ||
-    userAgent.includes('probe') ||
-    userAgent.includes('check') ||
-    userAgent.includes('replit') ||
-    userAgent.includes('monitor') ||
-    userAgent.includes('uptime') ||
-    req.query.health === 'true' ||
-    req.headers['x-health-check'] ||
-    userAgent === '' ||
-    userAgent.length < 10 ||
-    // Production deployment checks without user agent
-    (process.env.NODE_ENV === 'production' && !userAgent.includes('mozilla'));
-  
-  if (isHealthCheck) {
-    return res.status(200).json({ 
-      status: 'ok',
-      ready: true,
-      timestamp: Date.now()
-    });
+  // Respond instantly to deployment health checks - no complex logic
+  if (!userAgent.includes('mozilla') || userAgent.includes('probe') || userAgent.includes('health') || userAgent === '') {
+    return res.status(200).json({ status: 'ok', ready: true });
   }
   
   next();
 });
 
-// Initialize your complete SSELFIE Studio application
+// Initialize your complete SSELFIE Studio application  
 async function startCompleteApp() {
   try {
-    console.log('📦 Loading comprehensive routes...');
+    // Create HTTP server FIRST to start responding to health checks
+    const server = createServer(app);
     
-    // CRITICAL: Register API routes FIRST, before any frontend middleware
-    console.log('🔧 Registering API routes first...');
+    // Start server immediately for health checks
+    server.listen(port, '0.0.0.0', () => {
+      console.log(`🚀 Server responding to health checks on port ${port}`);
+    });
+    
+    // Load routes AFTER server is listening
+    console.log('📦 Loading comprehensive routes...');
     await registerRoutes(app);
     console.log('✅ All API routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
-    
-    // Create HTTP server for Vite integration
-    const server = createServer(app);
     
     // Serve attached_assets directory for agent images and uploads
     const attachedAssetsPath = path.join(projectRoot, 'attached_assets');
@@ -232,14 +206,11 @@ function setupStaticFiles() {
 // Start server with complete application
 async function startServer() {
   try {
-    // Load your complete application BEFORE starting server
+    // Start server immediately for health checks, load features after
     const httpServer = await startCompleteApp();
     
-    // Start the server
-    httpServer.listen(port, '0.0.0.0', () => {
-      console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
-      console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
-    });
+    console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
+    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
     
     // Handle server errors gracefully
     httpServer.on('error', (err: any) => {
