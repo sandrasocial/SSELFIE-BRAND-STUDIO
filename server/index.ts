@@ -1,6 +1,6 @@
 // SSELFIE STUDIO - COMPREHENSIVE SERVER WITH ALL FEATURES
 // This is your main application server with Maya, Victoria, Training, Payments, Admin systems
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -16,6 +16,11 @@ const projectRoot = process.cwd().endsWith('/server') ? path.dirname(process.cwd
 console.log(`📁 Project root: ${projectRoot}`);
 
 const app = express();
+
+// CRITICAL: Express middleware setup BEFORE routes
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
 // Use PORT from environment, avoiding conflicting WebSocket port 24678
 const port = Number(process.env.PORT) || 3000;
 
@@ -35,28 +40,43 @@ console.log(`🌐 Target Port: ${port}`);
 // Cloud Run requires response within 5 seconds - respond instantly before loading routes
 
 // INSTANT HEALTH CHECK - Responds before any initialization
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: Date.now() });
+app.get('/health', (req: Request, res: Response) => {
+  try {
+    res.status(200).json({ status: 'ok', timestamp: Date.now() });
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.end('OK');
+  }
 });
 
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: Date.now() });
+app.get('/api/health', (req: Request, res: Response) => {
+  try {
+    res.status(200).json({ status: 'ok', timestamp: Date.now() });
+  } catch (error) {
+    console.error('API Health check error:', error);
+    res.end('OK');
+  }
 });
 
 // ROOT ENDPOINT ONLY - Health checks for deployment
-app.get('/', (req, res, next) => {
-  const userAgent = req.headers['user-agent']?.toLowerCase() || '';
-  
-  // ONLY respond with JSON for very specific deployment health checks
-  const query = req.query || {};
-  if (userAgent.includes('googlehc') || 
-      userAgent.includes('kube-probe') || 
-      query.health === 'true') {
-    return res.status(200).json({ status: 'ok', ready: true });
+app.get('/', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userAgent = req.headers['user-agent']?.toLowerCase() || '';
+    
+    // ONLY respond with JSON for very specific deployment health checks
+    const query = req.query || {};
+    if (userAgent.includes('googlehc') || 
+        userAgent.includes('kube-probe') || 
+        query.health === 'true') {
+      return res.status(200).json({ status: 'ok', ready: true });
+    }
+    
+    // Everything else continues to static files and React app
+    next();
+  } catch (error) {
+    console.error('Root endpoint error:', error);
+    next();
   }
-  
-  // Everything else continues to static files and React app
-  next();
 });
 
 // Initialize your complete SSELFIE Studio application  
@@ -65,10 +85,14 @@ async function startCompleteApp() {
     // Create HTTP server FIRST to start responding to health checks
     const server = createServer(app);
     
-    // Start server immediately for health checks
+    // Start server immediately for health checks with keep-alive
     server.listen(port, '0.0.0.0', () => {
       console.log(`🚀 Server responding to health checks on port ${port}`);
     });
+    
+    // CRITICAL: Keep process alive
+    server.keepAliveTimeout = 120000; // 2 minutes
+    server.headersTimeout = 120000;
     
     // Load routes AFTER server is listening
     console.log('📦 Loading comprehensive routes...');
@@ -231,8 +255,16 @@ async function startServer() {
   }
 }
 
-// Initialize server
-startServer().catch(error => {
+// Initialize server with keep-alive
+startServer().then(server => {
+  console.log('✅ Server started successfully and staying alive');
+  
+  // Keep process running
+  setInterval(() => {
+    console.log('🔄 Server heartbeat - process alive');
+  }, 30000);
+  
+}).catch(error => {
   console.error('❌ Failed to start server:', error);
   process.exit(1);
 });
