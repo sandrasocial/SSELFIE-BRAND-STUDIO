@@ -44,7 +44,7 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
   index("idx_agent_session_updated").on(table.updatedAt),
 ]);
 
-// User storage table for Replit OAuth
+// User storage table for Replit OAuth - MATCHES DATABASE SCHEMA
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
   email: varchar("email").unique(),
@@ -62,6 +62,10 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+export type UpsertUser = typeof users.$inferInsert;
 
 // Website schema for Victoria website builder
 export const websites = pgTable("websites", {

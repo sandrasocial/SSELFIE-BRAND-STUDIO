@@ -93,11 +93,13 @@ async function startCompleteApp() {
   try {
     console.log('📦 Loading comprehensive routes...');
     
+    // CRITICAL: Register API routes FIRST, before any frontend middleware
+    console.log('🔧 Registering API routes first...');
+    await registerRoutes(app);
+    console.log('✅ All API routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
+    
     // Create HTTP server for Vite integration
     const server = createServer(app);
-    
-    // Load your complete routing system with all features
-    await registerRoutes(app);
     
     // Serve attached_assets directory for agent images and uploads
     const attachedAssetsPath = path.join(projectRoot, 'attached_assets');
@@ -110,11 +112,8 @@ async function startCompleteApp() {
       console.log(`📁 Serving attached_assets from: ${attachedAssetsPath}`);
     }
     
-    console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
-    console.log('✅ All your features loaded!');
-    
-    // Set up serving mode based on environment
-    console.log('🔧 Configuring server for environment...');
+    // Set up serving mode based on environment AFTER API routes
+    console.log('🔧 Configuring frontend server for environment...');
     await setupDevelopmentMode(server);
     
     return server;
@@ -129,9 +128,10 @@ async function startCompleteApp() {
 
 // Setup serving mode with clean environment detection  
 async function setupDevelopmentMode(server: any) {
-  const isProduction = process.env.NODE_ENV === 'production' || process.env.REPLIT_DEPLOYMENT === 'true';
+  // FORCE DEVELOPMENT MODE to ensure API routes work correctly
+  const isProduction = false; // Always use development mode until we fix the Vite routing issue
   console.log('🔍 Environment check:', { NODE_ENV: process.env.NODE_ENV, REPLIT_DEPLOYMENT: process.env.REPLIT_DEPLOYMENT });
-  console.log('🔧 Environment mode:', isProduction ? 'production' : 'development');
+  console.log('🔧 FORCED Environment mode: development (to fix API routing)');
   
   if (isProduction) {
     console.log('🏭 Production mode: Using static files only...');
