@@ -1894,7 +1894,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         return res.json(req.session.user);
       }
 
-      console.log('❌ User not authenticated - redirecting to login');
+      console.log('❌ User not authenticated');
 
       return res.status(401).json({ 
         error: "Not authenticated",
