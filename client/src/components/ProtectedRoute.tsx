@@ -12,7 +12,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      setLocation('/login');
+      window.location.href = '/api/login';
     }
   }, [isAuthenticated, isLoading, setLocation]);
 

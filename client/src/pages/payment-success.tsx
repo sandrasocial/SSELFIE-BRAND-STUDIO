@@ -107,7 +107,7 @@ export default function PaymentSuccess() {
         ctaText="Continue"
         onCtaClick={() => {
           // Redirect to our branded login page
-          window.location.href = '/login';
+          window.location.href = '/api/login';
         }}
         fullHeight={false}
       />
@@ -159,7 +159,7 @@ export default function PaymentSuccess() {
           <button 
             onClick={() => {
               // Redirect to our branded login page
-              window.location.href = '/login';
+              window.location.href = '/api/login';
             }}
             className="bg-[#0a0a0a] text-white px-8 py-4 text-xs uppercase tracking-wider hover:bg-[#333] transition-colors"
           >

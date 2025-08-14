@@ -126,7 +126,7 @@ export function RegisterForm({
           Already have an account?{' '}
           <button 
             className="text-black hover:underline font-medium"
-            onClick={() => window.location.href = '/login'}
+            onClick={() => window.location.href = '/api/login'}
           >
             Sign in here
           </button>

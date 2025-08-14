@@ -94,7 +94,7 @@ export default function Workspace() {
           </h1>
           <p className="text-gray-600 mb-6">Access your personal AI model workspace</p>
           <Button 
-            onClick={() => window.location.href = '/auth'}
+            onClick={() => window.location.href = '/api/login'}
             className="border-black text-black hover:bg-black hover:text-white"
           >
             Sign In

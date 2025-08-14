@@ -67,7 +67,7 @@ export const EmailCaptureModal: FC<EmailCaptureModalProps> = ({
       
       // Redirect to authentication after brief delay for user feedback
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = '/api/login';
       }, 1000);
 
     } catch (error) {

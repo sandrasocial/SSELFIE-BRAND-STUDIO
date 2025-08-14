@@ -14,12 +14,12 @@ export default function FreeTierSignup() {
     // Store email and redirect to login for basic tier
     localStorage.setItem('preSignupEmail', email);
     localStorage.setItem('selectedPlan', 'basic');
-    window.location.href = '/login';
+    window.location.href = '/api/login';
   };
 
   const handleDirectSignup = () => {
     localStorage.setItem('selectedPlan', 'basic');
-    window.location.href = '/login';
+    window.location.href = '/api/login';
   };
 
   return (
