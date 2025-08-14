@@ -144,10 +144,11 @@ async function setupDevelopmentMode(server: any) {
     const { setupVite } = await import('./vite.js');
     await setupVite(app, server);
     console.log('✅ Vite development server configured');
+    console.log('🌐 HMR should connect to port 3000');
   } catch (error) {
     console.error('❌ Vite setup failed:', error);
-    // Don't fallback to static files in development - force proper Vite setup
-    throw new Error('Development server setup failed - Vite is required in development mode');
+    console.log('🔄 Attempting graceful recovery with static files...');
+    setupStaticFiles();
   }
 }
 
