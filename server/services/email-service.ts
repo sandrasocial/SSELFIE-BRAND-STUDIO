@@ -19,7 +19,7 @@ export interface EmailParams {
   to: string;
   subject: string;
   html: string;
-  tags?: Array<{ name: string; value: string; }>;
+  tags?: string[];
 }
 
 // Core email sending function
@@ -31,7 +31,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       subject: params.subject,
       html: params.html,
       replyTo: SSELFIE_CONFIG.replyTo,
-      tags: params.tags || []
+      tags: (params.tags || []).map(tag => ({ name: tag, value: '' }))
     });
 
     console.log('Email sent successfully:', result.data?.id);

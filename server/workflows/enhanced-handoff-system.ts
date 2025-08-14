@@ -225,7 +225,8 @@ export class EnhancedHandoffSystem {
     
     // Analyze agent workload distribution
     const agentWorkload = recentActivity.reduce((acc, conv) => {
-      acc[conv.agentName] = (acc[conv.agentName] || 0) + 1;
+      const agentName = conv.claude_conversations.agentName;
+      acc[agentName] = (acc[agentName] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     
