@@ -1,8 +1,10 @@
-import { setupEnhancementRoutes } from './services/backend-enhancement-services';
+// REMOVED: setupEnhancementRoutes - unused system
+// import { setupEnhancementRoutes } from './services/backend-enhancement-services';
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
-import { setupRollbackRoutes } from './routes/rollback.js';
+// REMOVED: setupRollbackRoutes - unused system
+// import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, getSession } from "./replitAuth";
 import { db } from "./db";
@@ -12,10 +14,12 @@ import emailAutomation from './routes/email-automation';
 import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
-import subscriberImportRouter from './routes/subscriber-import';
+// REMOVED: subscriberImportRouter - unused system
+// import subscriberImportRouter from './routes/subscriber-import';
 import Stripe from "stripe";
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
-import { whitelabelRoutes } from './routes/white-label-setup';
+// REMOVED: whitelabelRoutes - unused advanced customization
+// import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
@@ -23,11 +27,14 @@ import { ModelRetrainService } from './retrain-model';
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
 // REMOVED: Competing admin routers - using consulting-agents-routes as single admin interface
-import quinnTestingRouter from './routes/quinn-testing';
+// REMOVED: quinnTestingRouter - testing system not needed
+// import quinnTestingRouter from './routes/quinn-testing';
 import memberProtectionRouter from './routes/member-protection';
-import systemValidationRouter from './routes/system-validation';
+// REMOVED: systemValidationRouter - excessive validation logging
+// import systemValidationRouter from './routes/system-validation';
 import memberJourneyTestRouter from './routes/member-journey-test';
-import phase2CoordinationRouter from './routes/phase2-coordination';
+// REMOVED: phase2CoordinationRouter - unused coordination system
+// import phase2CoordinationRouter from './routes/phase2-coordination';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
@@ -252,7 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(express.static('public'));
 
   // Agent-generated enhancement routes
-  setupEnhancementRoutes(app);
+  // REMOVED: setupEnhancementRoutes(app) - unused system
 
   console.log('Starting route registration...');
 
@@ -544,7 +551,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Setup rollback routes
-  setupRollbackRoutes(app);
+  // REMOVED: setupRollbackRoutes(app) - unused system
 
   // Register Victoria AI service layer
   registerVictoriaService(app);
@@ -1204,7 +1211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
 
   // Register white-label client setup endpoints
-  app.use(whitelabelRoutes);
+  // REMOVED: app.use(whitelabelRoutes) - unused advanced customization
 
   // RESTORED: Sandra's admin user management system active
 
@@ -1767,20 +1774,20 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
   // UNIFIED ADMIN SYSTEM: Single consulting-agents interface (competing routes removed)
 
-  // Quinn Testing Routes for User Journey Validation
-  app.use('/api/quinn', quinnTestingRouter);
+  // REMOVED: Quinn Testing Routes - testing system not needed
+  // app.use('/api/quinn', quinnTestingRouter);
 
   // Member Protection Routes - Revenue Feature Safety
   app.use('/api/protection', memberProtectionRouter);
 
-  // System Validation Routes - Phase Testing
-  app.use('/api/system', systemValidationRouter);
+  // REMOVED: System Validation Routes - excessive validation logging
+  // app.use('/api/system', systemValidationRouter);
 
   // Member Journey Testing - Real User Experience
   app.use('/api/member-test', memberJourneyTestRouter);
 
-  // Phase 2 Coordination - Agent Workflow Execution
-  app.use('/api/phase2', phase2CoordinationRouter);
+  // REMOVED: Phase 2 Coordination - unused coordination system
+  // app.use('/api/phase2', phase2CoordinationRouter);
 
   // Phase 2 fixes handled by specialized agents
   // FIXED: Register consulting agents at correct path to match frontend calls
