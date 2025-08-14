@@ -199,7 +199,7 @@ export async function setupAuth(app: Express) {
   app.get("/api/login", (req, res, next) => {
     console.log('🔍 Login endpoint called:', {
       hostname: req.hostname,
-      host: req.get('host'),
+      host: req.headers.host,
       query: req.query,
       authDomains: app.locals.authDomains
     });
@@ -237,7 +237,7 @@ export async function setupAuth(app: Express) {
   app.get("/api/callback", (req, res, next) => {
     console.log('🔍 Callback endpoint called:', {
       hostname: req.hostname,
-      host: req.get('host'),
+      host: req.headers.host,
       query: req.query,
       code: req.query.code,
       state: req.query.state,
