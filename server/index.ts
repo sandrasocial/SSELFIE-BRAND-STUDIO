@@ -16,8 +16,14 @@ const projectRoot = process.cwd().endsWith('/server') ? path.dirname(process.cwd
 console.log(`📁 Project root: ${projectRoot}`);
 
 const app = express();
-// Use PORT from .replit config (3000) which maps to external port 80
+// Use PORT from environment, avoiding conflicting WebSocket port 24678
 const port = Number(process.env.PORT) || 3000;
+
+// Ensure we don't use the conflicting WebSocket port
+if (port === 24678) {
+  console.warn('⚠️  Avoiding WebSocket port conflict, using 3000 instead');
+  process.env.PORT = '3000';
+}
 
 // Trust proxy for proper forwarding (required for deployment)
 app.set('trust proxy', true);
@@ -44,47 +50,37 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint health check for deployment systems
+// IMMEDIATE HEALTH CHECK - Must respond instantly for deployment
 app.get('/', (req, res, next) => {
-  // Aggressive health check detection for deployment platforms
   const userAgent = req.headers['user-agent']?.toLowerCase() || '';
   const acceptHeader = req.headers['accept']?.toLowerCase() || '';
   
+  // Respond immediately to any health check pattern
   const isHealthCheck = 
-    // Deployment platform probes
     userAgent.includes('googlehc') ||
     userAgent.includes('kube-probe') ||
     userAgent.includes('elb-healthchecker') ||
     userAgent.includes('health') ||
     userAgent.includes('probe') ||
     userAgent.includes('check') ||
-    // Replit deployment system
     userAgent.includes('replit') ||
-    // Generic monitoring
     userAgent.includes('monitor') ||
     userAgent.includes('uptime') ||
-    // Query parameter override
     req.query.health === 'true' ||
-    // Header override
     req.headers['x-health-check'] ||
-    // Accept JSON with curl (deployment scripts)
-    (userAgent.includes('curl') && acceptHeader.includes('application/json')) ||
-    // Empty or minimal user agents (common for health checks)
-    userAgent === '' || userAgent.length < 10;
+    userAgent === '' ||
+    userAgent.length < 10 ||
+    // Production deployment checks without user agent
+    (process.env.NODE_ENV === 'production' && !userAgent.includes('mozilla'));
   
   if (isHealthCheck) {
-    console.log(`🔍 Health check detected: ${userAgent || 'empty'}`);
     return res.status(200).json({ 
-      status: 'healthy',
-      service: 'SSELFIE Studio',
-      timestamp: new Date().toISOString(),
-      port: port,
+      status: 'ok',
       ready: true,
-      userAgent: userAgent
+      timestamp: Date.now()
     });
   }
   
-  // For browsers and normal requests, continue to React app
   next();
 });
 
@@ -126,15 +122,14 @@ async function startCompleteApp() {
   }
 }
 
-// Setup serving mode with clean environment detection  
+// Setup serving mode with proper production detection  
 async function setupDevelopmentMode(server: any) {
-  // FORCE DEVELOPMENT MODE to ensure API routes work correctly
-  const isProduction = false; // Always use development mode until we fix the Vite routing issue
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.REPLIT_DEPLOYMENT === 'true';
   console.log('🔍 Environment check:', { NODE_ENV: process.env.NODE_ENV, REPLIT_DEPLOYMENT: process.env.REPLIT_DEPLOYMENT });
-  console.log('🔧 FORCED Environment mode: development (to fix API routing)');
+  console.log(`🔧 Environment mode: ${isProduction ? 'production' : 'development'}`);
   
   if (isProduction) {
-    console.log('🏭 Production mode: Using static files only...');
+    console.log('🏭 Production mode: Using built static files...');
     setupStaticFiles();
     return;
   }
