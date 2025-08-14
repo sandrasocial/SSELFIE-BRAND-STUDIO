@@ -1,0 +1,62 @@
+{
+  "timestamp": "2025-08-14T14:35:00Z",
+  "urgency": "CRITICAL",
+  "requestType": "server_architecture_emergency",
+  "from": "Sandra (via backend coordination)",
+  "to": "Zara - Technical Architect",
+  
+  "problemSummary": "Complete authentication system failure due to server connectivity crisis",
+  
+  "technicalDetails": {
+    "issue": "Server infrastructure has persistent connectivity issues preventing ALL API endpoints from responding",
+    "authenticationSystem": {
+      "codeStatus": "comprehensive and should work",
+      "devBypass": "/api/auth/user?dev_auth=sandra",
+      "endpoints": ["/api/auth/user", "/api/login", "/api/callback"],
+      "status": "unreachable due to server connectivity failures"
+    },
+    "databaseStatus": "intact with 10 users including sandra-admin-test account",
+    "frontendStatus": "loading successfully with proper styling",
+    "serverBehavior": {
+      "healthChecks": "work intermittently",
+      "apiEndpoints": "consistently timeout",
+      "processStartup": "completes initialization but fails on API connectivity",
+      "previousFixes": [
+        "SIGTERM shutdown handler applied",
+        "Keep-alive timeouts implemented", 
+        "Multiple server restart attempts",
+        "Standalone auth test server created on port 3001"
+      ]
+    }
+  },
+  
+  "impactAssessment": {
+    "currentUsers": "cannot authenticate or access admin agents",
+    "newUsers": "cannot register or login",
+    "systemFunctionality": "frontend loads but backend API completely inaccessible",
+    "businessImpact": "critical - no user access to SSELFIE Studio platform"
+  },
+  
+  "requestedActions": {
+    "primary": "diagnose root cause of server infrastructure connectivity failures",
+    "secondary": "implement immediate fix to restore API endpoint accessibility", 
+    "tertiary": "ensure authentication system functions for current and new users",
+    "validation": "test authentication endpoints respond properly"
+  },
+  
+  "availableResources": {
+    "workingComponents": [
+      "Database connection and queries",
+      "Frontend build and styling", 
+      "Authentication code logic",
+      "Development auth bypass functionality"
+    ],
+    "blockingIssues": [
+      "Server process connectivity failures",
+      "API endpoint timeouts",
+      "Port 3000 connectivity problems"
+    ]
+  },
+  
+  "expectedOutcome": "Restore full server connectivity so Sandra can authenticate and access admin agent system"
+}
