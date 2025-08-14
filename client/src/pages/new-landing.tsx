@@ -21,7 +21,7 @@ export default function NewLanding() {
               SSELFIE
             </div>
             <button
-              onClick={() => setLocation('/login')}
+              onClick={() => window.location.href = '/api/login'}
               className="text-xs uppercase tracking-widest text-black hover:opacity-60 transition-opacity"
             >
               Login

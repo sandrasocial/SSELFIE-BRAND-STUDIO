@@ -19,7 +19,7 @@ export default function Welcome() {
 
   const handleStartJourney = () => {
     // Redirect to login with purchase context
-    window.location.href = '/login';
+    window.location.href = '/api/login';
   };
 
   return (

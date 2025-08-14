@@ -127,7 +127,7 @@ export default function Maya() {
         description: "Please sign in to chat with Maya AI",
         
       });
-      setLocation('/login');
+      window.location.href = '/api/login';
       return;
     }
   }, [user, isLoading, setLocation, toast]);
