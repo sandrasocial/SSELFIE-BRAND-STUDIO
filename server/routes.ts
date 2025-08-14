@@ -4,7 +4,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, getSession } from "./auth-new";
+import { setupAuth, isAuthenticated, getSession } from "./replitAuth";
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
