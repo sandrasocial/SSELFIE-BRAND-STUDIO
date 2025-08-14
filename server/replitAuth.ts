@@ -267,10 +267,15 @@ export async function setupAuth(app: Express) {
     console.log(`🔍 Using callback strategy: ${strategy}`);
 
     // Restore working authentication callback
-    passport.authenticate(strategy, {
-      successRedirect: req.query.state || '/workspace',
-      failureRedirect: '/?error=auth_failed'
-    })(req, res, next);
+    try {
+      passport.authenticate(strategy, {
+        successRedirect: req.query.state || '/workspace',
+        failureRedirect: '/workspace?auth=failed'
+      })(req, res, next);
+    } catch (error) {
+      console.error('❌ Passport authenticate error:', error);
+      res.redirect('/workspace?auth=error');
+    }
   });
 
   // User info endpoint
