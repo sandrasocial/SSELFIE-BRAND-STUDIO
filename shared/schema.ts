@@ -519,9 +519,7 @@ export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities)
 
 
 
-// Type exports  
-export type InsertUser = typeof users.$inferInsert;
-export type User = typeof users.$inferSelect;
+// Type exports (duplicates removed - already defined above)
 
 // Website types
 export type Website = typeof websites.$inferSelect;
