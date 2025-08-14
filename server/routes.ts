@@ -1866,10 +1866,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
             const claims = (req.user as any).claims;
             const newUser = await storage.upsertUser({
               id: userId,
-              email: claims.email || 'unknown@unknown.com',
-              firstName: claims.first_name || 'User',
-              lastName: claims.last_name || '',
-              profileImageUrl: claims.profile_image_url || null
+              email: (claims as any).email || 'unknown@unknown.com',
+              firstName: (claims as any).first_name || 'User',
+              lastName: (claims as any).last_name || '',
+              profileImageUrl: (claims as any).profile_image_url || null
             });
             return res.json(newUser);
           }
@@ -1899,7 +1899,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       return res.status(401).json({ 
         error: "Not authenticated",
         loginUrl: "/api/login",
-        devBypass: isDevMode ? "/api/auth/user?dev_auth=sandra" : null
+        devBypass: process.env.NODE_ENV === 'development' ? "/api/auth/user?dev_auth=sandra" : null
       });
     } catch (error) {
       console.error("Error fetching user:", error);
