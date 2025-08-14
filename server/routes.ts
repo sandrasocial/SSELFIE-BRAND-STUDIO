@@ -15,7 +15,7 @@ import victoriaWebsiteRouter from "./routes/victoria-website";
 import { registerVictoriaService } from "./routes/victoria-service";
 import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
 // REMOVED: subscriberImportRouter - unused system
-// import subscriberImportRouter from './routes/subscriber-import';
+// DELETED: subscriber-import.ts - Already commented out, now removed
 import Stripe from "stripe";
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
 // REMOVED: whitelabelRoutes - unused advanced customization
@@ -32,7 +32,7 @@ import consultingAgentsRouter from './routes/consulting-agents-routes';
 import memberProtectionRouter from './routes/member-protection';
 // REMOVED: systemValidationRouter - excessive validation logging
 // import systemValidationRouter from './routes/system-validation';
-import memberJourneyTestRouter from './routes/member-journey-test';
+// DELETED: member-journey-test.ts - Development testing complete
 // REMOVED: phase2CoordinationRouter - unused coordination system
 // import phase2CoordinationRouter from './routes/phase2-coordination';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
@@ -1205,9 +1205,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email automation routes
   app.use('/api/email', emailAutomation);
 
-  // Subscriber import routes
-  const subscriberImport = await import('./routes/subscriber-import');
-  app.use('/api/subscribers', subscriberImport.default);
+  // DELETED: subscriber-import routes - File removed, functionality moved to direct database operations
+  // Subscriber management now handled through admin agents
   // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
 
   // Register white-label client setup endpoints
@@ -1784,7 +1783,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // app.use('/api/system', systemValidationRouter);
 
   // Member Journey Testing - Real User Experience
-  app.use('/api/member-test', memberJourneyTestRouter);
+  // DELETED: member-journey-test routes - Development complete
 
   // REMOVED: Phase 2 Coordination - unused coordination system
   // app.use('/api/phase2', phase2CoordinationRouter);
@@ -1802,9 +1801,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // ELIMINATED: intelligentOrchestrationRoutes - was forcing tool simulations
   // COMPETING SYSTEMS ELIMINATED: Only consulting-agents-routes.ts active for direct tool bypass
 
-  // Register flatlay library routes for Victoria
-  const flatlayLibraryRoutes = await import('./routes/flatlay-library');
-  app.use(flatlayLibraryRoutes.default);
+  // DELETED: flatlay-library routes - Collections need remigration, will rebuild fresh later
+  // Victoria's image library will be recreated with proper data migration
 
   // Generation tracker polling endpoint for live progress
   app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
