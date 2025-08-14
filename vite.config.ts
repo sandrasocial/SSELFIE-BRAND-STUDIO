@@ -33,7 +33,7 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
-  hmr: false,
+    hmr: false,
   host: '0.0.0.0',
   port: 3000,
   allowedHosts: process.env.REPLIT_DOMAINS?.split(',') || ['localhost'],
