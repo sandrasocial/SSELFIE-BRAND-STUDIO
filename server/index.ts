@@ -43,24 +43,18 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: Date.now() });
 });
 
-// ROOT ENDPOINT - Health checks vs React app routing  
+// ROOT ENDPOINT ONLY - Health checks for deployment
 app.get('/', (req, res, next) => {
   const userAgent = req.headers['user-agent']?.toLowerCase() || '';
   
-  // Only respond with JSON for deployment health checks
-  const isHealthCheck = 
-    userAgent.includes('googlehc') ||
-    userAgent.includes('kube-probe') ||
-    userAgent.includes('probe') ||
-    userAgent.includes('health') ||
-    userAgent.includes('elb-healthchecker') ||
-    req.query.health === 'true';
-  
-  if (isHealthCheck) {
+  // ONLY respond with JSON for very specific deployment health checks
+  if (userAgent.includes('googlehc') || 
+      userAgent.includes('kube-probe') || 
+      req.query.health === 'true') {
     return res.status(200).json({ status: 'ok', ready: true });
   }
   
-  // All other requests (browsers, curl without specific health patterns) continue to React app
+  // Everything else continues to static files and React app
   next();
 });
 
@@ -107,10 +101,8 @@ async function startCompleteApp() {
 
 // Setup serving mode with proper production detection  
 async function setupDevelopmentMode(server: any) {
-  const isProduction = process.env.NODE_ENV === 'production' || 
-                      process.env.REPLIT_DEPLOYMENT === 'true' ||
-                      process.env.REPLIT_ENV === 'production' ||
-                      !process.env.REPLIT_DEV;
+  // Force static file serving for now to fix CSS issues
+  const isProduction = true; // Force production mode to serve static files correctly
   
   console.log('🔍 Environment check:', { 
     NODE_ENV: process.env.NODE_ENV, 
@@ -126,25 +118,9 @@ async function setupDevelopmentMode(server: any) {
     return;
   }
   
-  // Development mode: use Vite with proper setup
-  console.log('🔧 Development mode: Setting up Vite server...');
-  try {
-    // Skip Vite setup if we detect deployment environment to avoid WebSocket conflicts
-    if (process.env.PORT && process.env.PORT !== '3000') {
-      console.log('⚠️  Deployment detected, skipping Vite WebSocket to avoid port conflicts');
-      setupStaticFiles();
-      return;
-    }
-    
-    const { setupVite } = await import('./vite.js');
-    await setupVite(app, server);
-    console.log('✅ Vite development server configured');
-    console.log('🌐 HMR should connect to port 3000');
-  } catch (error) {
-    console.error('❌ Vite setup failed:', error);
-    console.log('🔄 Attempting graceful recovery with static files...');
-    setupStaticFiles();
-  }
+  // Skip Vite entirely to fix CSS serving issues
+  console.log('🔧 Skipping Vite to fix CSS serving - using static files only...');
+  setupStaticFiles();
 }
 
 function setupStaticFiles() {
@@ -154,22 +130,39 @@ function setupStaticFiles() {
   if (fs.existsSync(distPath)) {
     console.log(`📁 Serving static files from: ${distPath}`);
     
-    // Serve static assets with proper headers
-    app.use(express.static(distPath, {
-      maxAge: '1h',
-      etag: true,
-      lastModified: true
-    }));
-    
-    // Explicit assets routing
+    // Critical: Serve assets directory FIRST with correct MIME types
     const assetsPath = path.join(distPath, 'assets');
     if (fs.existsSync(assetsPath)) {
       app.use('/assets', express.static(assetsPath, {
-        maxAge: '1h',
-        etag: true
+        maxAge: '1d',
+        etag: true,
+        setHeaders: (res, path) => {
+          if (path.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css');
+          } else if (path.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+          }
+        }
       }));
-      console.log(`📦 Assets directory found with ${fs.readdirSync(assetsPath).length} files`);
+      console.log(`📦 CSS/JS assets served from: ${assetsPath}`);
+      console.log(`📦 Assets found: ${fs.readdirSync(assetsPath).join(', ')}`);
     }
+    
+    // Serve all static files from dist
+    app.use(express.static(distPath, {
+      maxAge: '1h',
+      etag: true,
+      lastModified: true,
+      setHeaders: (res, path) => {
+        if (path.endsWith('.css')) {
+          res.setHeader('Content-Type', 'text/css; charset=utf-8');
+        } else if (path.endsWith('.js')) {
+          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        } else if (path.endsWith('.html')) {
+          res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        }
+      }
+    }));
     
     // React app fallback for SPA routing with timeout protection
     app.get('*', (req, res) => {
