@@ -48,3 +48,4 @@ export default defineConfig({
       'e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev'
     ],
   },
+  });
