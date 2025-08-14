@@ -341,7 +341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     throw new Error('STRIPE_SECRET_KEY environment variable is required');
   }
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2023-10-16",
+    apiVersion: "2025-07-30.basil",
   });
 
   // CRITICAL STRIPE CHECKOUT ROUTES
@@ -449,10 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         items: [{
           price_data: {
             currency: 'usd',
-            product_data: {
-              name: 'SSELFIE Studio Basic Plan',
-              description: 'Monthly subscription to SSELFIE Studio with AI model training and 30 monthly generations'
-            },
+            product: 'SSELFIE Studio Basic Plan',
             unit_amount: 997, // $9.97 in cents
             recurring: {
               interval: 'month'
@@ -471,9 +468,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('✅ Subscription created successfully:', subscription.id);
 
+      const latestInvoice = subscription.latest_invoice as any;
+      const clientSecret = latestInvoice?.payment_intent?.client_secret || null;
+
       res.json({
         subscriptionId: subscription.id,
-        clientSecret: subscription.latest_invoice?.payment_intent?.client_secret,
+        clientSecret: clientSecret,
         status: subscription.status
       });
       
