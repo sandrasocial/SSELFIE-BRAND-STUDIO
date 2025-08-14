@@ -287,7 +287,7 @@ function Router() {
       <Route path="/admin/dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
 
       {/* 404 - Must be last */}
-      <Route component={NotFound} />
+      <Route path="*" component={NotFound} />
     </div>
   );
 }
