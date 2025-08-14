@@ -614,9 +614,8 @@
     "zwitch": "^2.0.4"
   },
   "scripts": {
-    "dev": "cd server && NODE_ENV=development npx tsx index.ts",
-    "start": "npm run build && cd server && NODE_ENV=production npx tsx index.ts",
-    "build": "vite build client"
+    "dev": "NODE_ENV=development cd server && npx tsx index.ts",
+    "start": "NODE_ENV=production cd server && npx tsx index.ts"
   },
   "keywords": [],
   "author": "",
