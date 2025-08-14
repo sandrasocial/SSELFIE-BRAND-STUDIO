@@ -113,8 +113,8 @@ async function startCompleteApp() {
     console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
     console.log('✅ All your features loaded!');
     
-    // Set up development mode with Vite for proper SPA routing
-    console.log('🔧 Starting development mode with Vite...');
+    // Set up serving mode based on environment
+    console.log('🔧 Configuring server for environment...');
     await setupDevelopmentMode(server);
     
     return server;
@@ -127,27 +127,25 @@ async function startCompleteApp() {
   }
 }
 
-// Setup development mode with environment detection
+// Setup serving mode with clean environment detection  
 async function setupDevelopmentMode(server: any) {
+  const isProduction = process.env.NODE_ENV === 'production';
+  console.log('🔧 Environment mode:', isProduction ? 'production' : 'development');
+  
+  if (isProduction) {
+    console.log('🏭 Production mode: Using static files only...');
+    setupStaticFiles();
+    return;
+  }
+  
+  // Development mode: use Vite with error handling
   try {
-    const isProduction = process.env.NODE_ENV === 'production';
-    console.log('🔧 Environment mode:', isProduction ? 'production' : 'development');
-    
-    if (isProduction) {
-      console.log('🏭 Using production static files...');
-      setupStaticFiles();
-      return;
-    }
-    
-    console.log('🔧 Setting up Vite development server...');
-    
-    // Import setupVite function for development only
+    console.log('🔧 Development mode: Setting up Vite server...');
     const { setupVite } = await import('./vite.js');
     await setupVite(app, server);
-    
-    console.log('✅ Vite development server configured successfully');
+    console.log('✅ Vite development server active');
   } catch (error) {
-    console.error('⚠️ Vite setup failed, falling back to production mode:', error);
+    console.error('⚠️ Vite setup failed, using static files:', error);
     setupStaticFiles();
   }
 }
@@ -178,7 +176,11 @@ function setupStaticFiles() {
     
     // React app fallback for SPA routing with timeout protection
     app.get('*', (req, res) => {
-      if (req.path.startsWith('/api/') || req.path === '/health' || res.headersSent) {
+      // Skip routes that should be handled elsewhere
+      if (req.path.startsWith('/api/') || 
+          req.path === '/health' || 
+          req.path === '/api/health' ||
+          res.headersSent) {
         return;
       }
       
