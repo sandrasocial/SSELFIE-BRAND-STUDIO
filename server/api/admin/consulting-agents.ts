@@ -933,7 +933,7 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', asyn
     
     // Use existing database access (no duplicate Claude service creation)
     const { db } = await import('../db.js');
-    const { claudeConversations, claudeMessages } = await import('../../shared/schema.js');
+    const { claudeConversations, claudeMessages } = await import('../../shared/schema');
     const { eq, and, desc } = await import('drizzle-orm');
     
     // Get conversation list for this agent/user

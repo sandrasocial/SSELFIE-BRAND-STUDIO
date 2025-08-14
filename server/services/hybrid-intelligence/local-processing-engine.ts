@@ -5,7 +5,7 @@
  */
 
 import { db } from '../../db.js';
-import { agentLearning, agentSessionContexts } from '../../../shared/schema.js';
+import { agentLearning, agentSessionContexts } from '../../../shared/schema';
 import { eq, and } from 'drizzle-orm';
 
 export class LocalProcessingEngine {
