@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/use-auth';
 
 interface AuthFormProps {
   mode?: 'login' | 'register';
@@ -13,21 +13,17 @@ export default function AuthForm({ mode = 'login', onSuccess }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const { login, register, loading, error } = useAuth();
+  // This component needs to be updated to work with the current auth system
+  // Currently using legacy token auth which conflicts with session-based auth
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    try {
-      if (isLogin) {
-        await login(email, password);
-      } else {
-        await register(name, email, password);
-      }
-      onSuccess?.();
-    } catch (err) {
-      // Error handled by useAuth hook
-    }
+    // Redirect to OAuth login instead of form-based auth
+    // Current system uses Replit OAuth, not form-based login
+    window.location.href = '/api/login';
   };
 
   return (
