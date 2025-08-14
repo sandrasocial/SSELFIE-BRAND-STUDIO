@@ -616,8 +616,7 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development cd server && npx tsx index.ts",
-    "start": "NODE_ENV=production cd server && npx tsx index.ts",
-    "build": "NODE_ENV=production npx vite build"
+    "start": "NODE_ENV=production cd server && npx tsx index.ts"
   },
   "keywords": [],
   "author": "",
