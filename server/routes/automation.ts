@@ -29,12 +29,12 @@ export function registerAutomationRoutes(app: Express) {
       const userId = (req.user as any)?.claims?.sub;
 
       // Check if onboarding data already exists
-      const existingOnboarding = await storage.getUserOnboardingData(userId);
+      const existingOnboarding = await storage.getOnboardingData(userId);
       
       if (!existingOnboarding) {
-        await storage.createOnboardingData({
+        await storage.saveOnboardingData({
           userId,
-          currentStep: plan === 'ai-pack' ? 'selfie-upload' : 'brand-questionnaire',
+          currentStep: plan === 'ai-pack' ? 4 : 2,
           brandVibe: '',
           targetClient: '',
           businessGoal: '',
@@ -158,18 +158,18 @@ export function registerAutomationRoutes(app: Express) {
       }
 
       // Check if user has uploaded selfies
-      const selfieUploads = await storage.getUserSelfieUploads(userId);
+      const selfieUploads = await storage.getSelfieUploads(userId);
       if (selfieUploads.length === 0) {
         return res.status(400).json({ message: 'Please upload selfies first' });
       }
 
       // Create AI image records for bulk processing
       const aiImagePromises = prompts.map(async (prompt: string) => {
-        return storage.createAiImage({
+        return storage.saveAIImage({
           userId,
           prompt,
           imageUrl: '', // Will be updated when processing completes
-          status: 'pending',
+          generationStatus: 'pending',
         });
       });
 

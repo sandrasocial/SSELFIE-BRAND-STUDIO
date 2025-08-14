@@ -4,7 +4,7 @@
  */
 
 import { db } from '../db';
-import { users, userImages, aiImages } from '../../shared/schema';
+import { users, aiImages } from '../../shared/schema';
 import { eq, desc, sql, and, gte } from 'drizzle-orm';
 
 export interface PredictiveMetrics {

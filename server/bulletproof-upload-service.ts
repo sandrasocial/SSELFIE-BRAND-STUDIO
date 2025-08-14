@@ -232,8 +232,8 @@ export class BulletproofUploadService {
       await archive.finalize();
       
       // Wait for ZIP creation to complete
-      await new Promise((resolve, reject) => {
-        output.on('close', resolve);
+      await new Promise<void>((resolve, reject) => {
+        output.on('close', () => resolve());
         output.on('error', reject);
       });
       

@@ -9,7 +9,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
+  apiVersion: "2025-07-30.basil",
 });
 
 export function registerCheckoutRoutes(app: Express) {
@@ -158,7 +158,7 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
     if (!existingOnboarding) {
       await storage.saveOnboardingData({
         userId,
-        currentStep: plan === 'basic' ? 'ai-training' : 'brand-questionnaire',
+        currentStep: plan === 'basic' ? 4 : 2,
         brandVibe: '',
         targetClient: '',
         businessGoal: '',

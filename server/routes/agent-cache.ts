@@ -15,7 +15,7 @@ router.post('/clear-conversation', (req: Request, res: Response) => {
     });
   }
   
-  agentSearchCache.clearConversationCache(conversationId, agentName);
+  agentSearchCache.refreshConversationCache(conversationId, agentName);
   
   res.json({ 
     success: true, 

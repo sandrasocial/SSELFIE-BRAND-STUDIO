@@ -50,7 +50,7 @@ export class AdminContextManager {
       .limit(1);
 
     const existingMemory = existingSessions.length > 0 ? 
-      JSON.parse(existingSessions[0].contextData || '{}') : {};
+      JSON.parse(existingSessions[0].contextData as string || '{}') : {};
 
     const context: AdminAgentContext = {
       agentId,

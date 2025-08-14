@@ -159,7 +159,7 @@ export class AgentAutomationTasks {
           return await this.setupInstagramAutoReply(parameters);
         
         default:
-          return { success: false, error: 'Task not implemented yet' };
+          return { success: false, result: { error: 'Task not implemented yet' } };
       }
     } catch (error) {
       return { success: false, error: error.message };
@@ -185,7 +185,7 @@ export class AgentAutomationTasks {
         }
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, result: { error: error.message } };
     }
   }
 
@@ -203,7 +203,7 @@ export class AgentAutomationTasks {
 
       return { success: true, result: report };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, result: { error: error.message } };
     }
   }
 
@@ -223,7 +223,7 @@ export class AgentAutomationTasks {
         }
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, result: { error: error.message } };
     }
   }
 

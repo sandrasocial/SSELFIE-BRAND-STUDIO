@@ -294,7 +294,7 @@ export class ExternalAPIService {
 
     // Test ManyChat
     try {
-      await this.getManychtSubscribers();
+      await this.getManychatSubscribers();
       health.manychat = true;
     } catch {
       health.manychat = false;
