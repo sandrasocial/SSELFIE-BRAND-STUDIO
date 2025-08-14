@@ -43,15 +43,24 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: Date.now() });
 });
 
-// ROOT ENDPOINT - INSTANT response for deployment health checks
+// ROOT ENDPOINT - Health checks vs React app routing  
 app.get('/', (req, res, next) => {
   const userAgent = req.headers['user-agent']?.toLowerCase() || '';
   
-  // Respond instantly to deployment health checks - no complex logic
-  if (!userAgent.includes('mozilla') || userAgent.includes('probe') || userAgent.includes('health') || userAgent === '') {
+  // Only respond with JSON for deployment health checks
+  const isHealthCheck = 
+    userAgent.includes('googlehc') ||
+    userAgent.includes('kube-probe') ||
+    userAgent.includes('probe') ||
+    userAgent.includes('health') ||
+    userAgent.includes('elb-healthchecker') ||
+    req.query.health === 'true';
+  
+  if (isHealthCheck) {
     return res.status(200).json({ status: 'ok', ready: true });
   }
   
+  // All other requests (browsers, curl without specific health patterns) continue to React app
   next();
 });
 
