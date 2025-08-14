@@ -60,6 +60,7 @@ import BrandOnboarding from "./pages/brand-onboarding";
 import Welcome from "./pages/welcome";
 import AuthSuccess from "./pages/auth-success";
 import Login from "./pages/login";
+import Register from "./pages/register";
 import LoginPrompt from "./components/LoginPrompt";
 import DomainHelp from "./pages/domain-help";
 import SwitchAccount from "./pages/switch-account";
@@ -188,7 +189,19 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/pricing" component={Pricing} />
-      <Route path="/login" component={Login} />
+      <Route path="/login" component={() => {
+        useEffect(() => { 
+          window.location.href = '/api/login'; 
+        }, []);
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
+              <p>Connecting to Replit Auth...</p>
+            </div>
+          </div>
+        );
+      }} />
       <Route path="/domain-help" component={DomainHelp} />
 
       {/* PAYMENT FLOW */}
