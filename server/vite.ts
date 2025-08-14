@@ -19,26 +19,17 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-export async function setupVite(app: Express, server: Server) {
-  const serverOptions = {
-    middlewareMode: true,
-    hmr: { server },
-    allowedHosts: true as const,
-  };
-
-  const vite = await createViteServer({
-    ...viteConfig,
-    configFile: false,
-    customLogger: {
-      ...viteLogger,
-      error: (msg, options) => {
-        viteLogger.error(msg, options);
-        process.exit(1);
+  export async function setupVite(app: Express, server: Server) {
+    const vite = await createViteServer({
+      ...viteConfig,
+      configFile: false,
+      customLogger: viteLogger,
+      server: {
+        middlewareMode: true,
+        hmr: { server }
       },
-    },
-    server: serverOptions,
-    appType: "custom",
-  });
+      appType: "custom",
+    });
 
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
