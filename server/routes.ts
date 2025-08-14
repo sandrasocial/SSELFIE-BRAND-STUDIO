@@ -2882,6 +2882,11 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   GenerationCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
 
+  // CRITICAL PAYMENT ENDPOINTS - Register automation routes for Stripe webhooks
+  const { registerAutomationRoutes } = await import('./routes/automation');
+  registerAutomationRoutes(app);
+  console.log('✅ PAYMENT AUTOMATION: Critical payment endpoints registered');
+
   // VITE COMPLETELY DISABLED - Static files handled in index.ts
   console.log('🚀 STATIC FILE MODE: CSS serving handled by index.ts - NO Vite interference');
 
