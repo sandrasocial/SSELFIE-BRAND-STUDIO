@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { isAuthenticated } from '../replitAuth';
 import { db } from '../db';
-import { users, websites } from '../shared/schema';
+import { users, websites } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 
 const router = Router();

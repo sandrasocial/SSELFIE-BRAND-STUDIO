@@ -159,10 +159,8 @@ async function triggerPostPurchaseAutomation(userId: string, plan: string) {
       await storage.saveOnboardingData({
         userId,
         currentStep: plan === 'basic' ? 4 : 2,
-        brandVibe: '',
-        targetClient: '',
-        businessGoal: '',
-        completedSteps: [],
+        brandStory: '',
+        businessGoals: '',
       });
     }
 

@@ -218,7 +218,7 @@ export class ClaudeApiServiceSimple {
       // PERSONALITY RESTORATION: Load agent's authentic personality and context
       let agentPersonalityContext = '';
       try {
-        const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config.ts');
+        const { PURE_PERSONALITIES } = await import('../agents/personalities/personality-config');
         const personality = PURE_PERSONALITIES[agentName.toLowerCase() as keyof typeof PURE_PERSONALITIES];
         if (personality) {
           // Fix property access based on actual personality structure

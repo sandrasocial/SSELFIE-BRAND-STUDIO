@@ -19,7 +19,7 @@ export interface EmailParams {
   to: string;
   subject: string;
   html: string;
-  tags?: string[];
+  tags?: Array<{ name: string; value: string; }>;
 }
 
 // Core email sending function
@@ -30,7 +30,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       to: params.to,
       subject: params.subject,
       html: params.html,
-      reply_to: SSELFIE_CONFIG.replyTo,
+      replyTo: SSELFIE_CONFIG.replyTo,
       tags: params.tags || []
     });
 
