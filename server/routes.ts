@@ -10,10 +10,10 @@ import { setupAuth, isAuthenticated, getSession } from "./replitAuth";
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
-import emailAutomation from './routes/email-automation';
-import victoriaWebsiteRouter from "./routes/victoria-website";
-import { registerVictoriaService } from "./routes/victoria-service";
-import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
+import emailAutomation from './api/business/email-marketing';
+import victoriaWebsiteRouter from "./api/agents/victoria/website-customization";
+import { registerVictoriaService } from "./api/agents/victoria/business-analysis";
+import { registerVictoriaWebsiteGenerator } from "./api/agents/victoria/website-generation";
 // REMOVED: subscriberImportRouter - unused system
 // DELETED: subscriber-import.ts - Already commented out, now removed
 import Stripe from "stripe";
@@ -25,11 +25,11 @@ import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
-import consultingAgentsRouter from './routes/consulting-agents-routes';
+import consultingAgentsRouter from './api/admin/consulting-agents';
 // REMOVED: Competing admin routers - using consulting-agents-routes as single admin interface
 // REMOVED: quinnTestingRouter - testing system not needed
 // import quinnTestingRouter from './routes/quinn-testing';
-import memberProtectionRouter from './routes/member-protection';
+import memberProtectionRouter from './api/admin/member-protection';
 // REMOVED: systemValidationRouter - excessive validation logging
 // import systemValidationRouter from './routes/system-validation';
 // DELETED: member-journey-test.ts - Development testing complete
@@ -2881,7 +2881,7 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
 
   // CRITICAL PAYMENT ENDPOINTS - Register automation routes for Stripe webhooks
-  const { registerAutomationRoutes } = await import('./routes/automation');
+  const { registerAutomationRoutes } = await import('./api/business/automation');
   registerAutomationRoutes(app);
   console.log('✅ PAYMENT AUTOMATION: Critical payment endpoints registered');
 
