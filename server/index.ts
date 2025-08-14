@@ -104,6 +104,10 @@ async function startCompleteApp() {
 async function setupDevelopmentMode(server: any) {
   try {
     console.log('🔧 Setting up Vite development server...');
+    console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
+    
+    // Force development mode regardless of NODE_ENV
+    process.env.NODE_ENV = 'development';
     
     // Import setupVite function
     const { setupVite } = await import('./vite.js');

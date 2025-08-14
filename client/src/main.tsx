@@ -1,5 +1,7 @@
 import { createRoot } from "react-dom/client";
 import AppWithProvider from "./App";
+import TestApp from "./TestApp";
+import RouterTest from "./RouterTest";
 import "./index.css";
 
 // Debug logging for troubleshooting
