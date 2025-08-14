@@ -40,24 +40,47 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root endpoint - serve React app for browsers, limited health check for specific probes only
+// Root endpoint health check for deployment systems
 app.get('/', (req, res, next) => {
-  // Only return JSON for very specific deployment health probes
-  const isDeploymentProbe = req.headers['user-agent']?.includes('GoogleHC') ||
-                           req.headers['user-agent']?.includes('kube-probe') ||
-                           req.headers['user-agent']?.includes('ELB-HealthChecker');
+  // Aggressive health check detection for deployment platforms
+  const userAgent = req.headers['user-agent']?.toLowerCase() || '';
+  const acceptHeader = req.headers['accept']?.toLowerCase() || '';
   
-  if (isDeploymentProbe) {
-    // Health check for deployment probe only
+  const isHealthCheck = 
+    // Deployment platform probes
+    userAgent.includes('googlehc') ||
+    userAgent.includes('kube-probe') ||
+    userAgent.includes('elb-healthchecker') ||
+    userAgent.includes('health') ||
+    userAgent.includes('probe') ||
+    userAgent.includes('check') ||
+    // Replit deployment system
+    userAgent.includes('replit') ||
+    // Generic monitoring
+    userAgent.includes('monitor') ||
+    userAgent.includes('uptime') ||
+    // Query parameter override
+    req.query.health === 'true' ||
+    // Header override
+    req.headers['x-health-check'] ||
+    // Accept JSON with curl (deployment scripts)
+    (userAgent.includes('curl') && acceptHeader.includes('application/json')) ||
+    // Empty or minimal user agents (common for health checks)
+    userAgent === '' || userAgent.length < 10;
+  
+  if (isHealthCheck) {
+    console.log(`🔍 Health check detected: ${userAgent || 'empty'}`);
     return res.status(200).json({ 
       status: 'healthy',
       service: 'SSELFIE Studio',
       timestamp: new Date().toISOString(),
-      port: port
+      port: port,
+      ready: true,
+      userAgent: userAgent
     });
   }
   
-  // For all other requests (browsers, Replit preview, etc.), serve the React app
+  // For browsers and normal requests, continue to React app
   next();
 });
 
@@ -149,11 +172,18 @@ function setupStaticFiles() {
       console.log(`📦 Assets directory found with ${fs.readdirSync(assetsPath).length} files`);
     }
     
-    // React app fallback for SPA routing
+    // React app fallback for SPA routing with timeout protection
     app.get('*', (req, res) => {
       if (req.path.startsWith('/api/') || req.path === '/health' || res.headersSent) {
         return;
       }
+      
+      // Set response timeout to prevent hanging during health checks
+      res.setTimeout(4000, () => {
+        if (!res.headersSent) {
+          res.status(408).json({ error: 'Request timeout', service: 'SSELFIE Studio' });
+        }
+      });
       
       const indexPath = path.join(distPath, 'index.html');
       if (fs.existsSync(indexPath)) {
