@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { claudeConversations, claudeMessages } from '../shared/schema';
+import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, desc, and } from 'drizzle-orm';
 
 export interface AgentHandoffContext {
@@ -180,7 +180,7 @@ export class EnhancedHandoffSystem {
       role: 'system',
       content: JSON.stringify({
         type: 'batch_completion',
-        completedTasks: results,
+        completedTasks: contextData,
         timestamp: new Date().toISOString()
       }),
       metadata: { type: 'batch_completion' }

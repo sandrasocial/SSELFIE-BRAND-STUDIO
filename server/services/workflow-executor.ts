@@ -11,8 +11,10 @@ export class WorkflowExecutor {
 
   constructor() {
     // Ensure backup directory exists
-    if (!fs.exists(this.backupPath)) {
-      fs.mkdir(this.backupPath, { recursive: true });
+    try {
+      await fs.mkdir(this.backupPath, { recursive: true });
+    } catch (error) {
+      // Directory might already exist
     }
   }
 

@@ -11,9 +11,9 @@
  */
 
 import { db } from '../db';
-import { agentSessionContexts, sessions, users } from '../shared/schema';
+import { agentSessionContexts, sessions, users } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { ConversationManager } from '../agents/core/ConversationManager';
+// import { ConversationManager } from '../agents/core/ConversationManager'; // Temporarily disabled
 
 export interface AgentSessionContext {
   userId: string;
