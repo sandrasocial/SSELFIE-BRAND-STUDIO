@@ -54,16 +54,11 @@ export async function setupVite(app: Express, server: Server) {
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      // Add cache busting for all assets
-      const cacheBuster = nanoid();
+      // Simplified cache busting - only for main script
+      const cacheBuster = Date.now();
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${cacheBuster}"`,
-      );
-      // Add cache buster to all script and link tags
-      template = template.replace(
-        /<(script|link)[^>]*(src|href)="([^"]+)"/g,
-        (match, tag, attr, url) => `<${tag} ${attr}="${url}?v=${cacheBuster}"`
       );
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ 
