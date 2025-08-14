@@ -1,10 +1,14 @@
 // CLEAN JAVASCRIPT SERVER - Complete bypass of TypeScript compilation conflicts
 // This file replaces index.ts to avoid all Express.js middleware corruption
 
-const http = require('http');
-const url = require('url');
-const path = require('path');
-const fs = require('fs');
+import http from 'http';
+import url from 'url';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 console.log('🚀 CLEAN JavaScript Server - Bypassing all TypeScript conflicts');
 console.log('✅ This avoids the Express.js response object corruption');
@@ -156,4 +160,4 @@ process.on('SIGINT', () => {
   });
 });
 
-module.exports = server;
+export default server;
