@@ -336,7 +336,7 @@ export function isAuthenticated(req: any, res: any, next: any) {
     return next();
   }
   
-  console.log('❌ Authentication required, redirecting to login');
+  console.log('❌ Authentication required, redirecting to home page');
   res.status(401).json({ 
     error: 'Authentication required',
     needsLogin: true 
