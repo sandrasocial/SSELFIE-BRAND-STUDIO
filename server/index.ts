@@ -48,9 +48,10 @@ app.get('/', (req, res, next) => {
   const userAgent = req.headers['user-agent']?.toLowerCase() || '';
   
   // ONLY respond with JSON for very specific deployment health checks
+  const query = req.query || {};
   if (userAgent.includes('googlehc') || 
       userAgent.includes('kube-probe') || 
-      req.query.health === 'true') {
+      query.health === 'true') {
     return res.status(200).json({ status: 'ok', ready: true });
   }
   
@@ -87,7 +88,8 @@ async function startCompleteApp() {
     
     // Set up serving mode based on environment AFTER API routes
     console.log('🔧 Configuring frontend server for environment...');
-    await setupDevelopmentMode(server);
+    // FORCE static files only - no Vite development mode
+  setupStaticFiles();
     
     return server;
   } catch (error) {
@@ -99,29 +101,7 @@ async function startCompleteApp() {
   }
 }
 
-// Setup serving mode with proper production detection  
-async function setupDevelopmentMode(server: any) {
-  // Force static file serving for now to fix CSS issues
-  const isProduction = true; // Force production mode to serve static files correctly
-  
-  console.log('🔍 Environment check:', { 
-    NODE_ENV: process.env.NODE_ENV, 
-    REPLIT_DEPLOYMENT: process.env.REPLIT_DEPLOYMENT,
-    REPLIT_ENV: process.env.REPLIT_ENV,
-    REPLIT_DEV: process.env.REPLIT_DEV 
-  });
-  console.log(`🔧 Environment mode: ${isProduction ? 'production' : 'development'}`);
-  
-  if (isProduction) {
-    console.log('🏭 Production mode: Using built static files (NO WebSocket conflicts)...');
-    setupStaticFiles();
-    return;
-  }
-  
-  // Skip Vite entirely to fix CSS serving issues
-  console.log('🔧 Skipping Vite to fix CSS serving - using static files only...');
-  setupStaticFiles();
-}
+// Removed development mode function - using static files only
 
 function setupStaticFiles() {
   // Priority order for serving built assets
@@ -130,22 +110,33 @@ function setupStaticFiles() {
   if (fs.existsSync(distPath)) {
     console.log(`📁 Serving static files from: ${distPath}`);
     
-    // Critical: Serve assets directory FIRST with correct MIME types
+    // PRIORITY: CSS and JS assets must be served with correct MIME types
     const assetsPath = path.join(distPath, 'assets');
     if (fs.existsSync(assetsPath)) {
+      // Remove any existing asset middleware first
+      app._router.stack = app._router.stack.filter(layer => 
+        !(layer.regexp && layer.regexp.test('/assets'))
+      );
+      
       app.use('/assets', express.static(assetsPath, {
-        maxAge: '1d',
-        etag: true,
-        setHeaders: (res, path) => {
-          if (path.endsWith('.css')) {
-            res.setHeader('Content-Type', 'text/css');
-          } else if (path.endsWith('.js')) {
-            res.setHeader('Content-Type', 'application/javascript');
+        maxAge: '1h',
+        etag: false,
+        lastModified: false,
+        setHeaders: (res, filePath) => {
+          console.log(`🔧 Serving asset: ${filePath}`);
+          if (filePath.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-cache');
+          } else if (filePath.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-cache');
           }
         }
       }));
-      console.log(`📦 CSS/JS assets served from: ${assetsPath}`);
-      console.log(`📦 Assets found: ${fs.readdirSync(assetsPath).join(', ')}`);
+      console.log(`📦 CRITICAL CSS/JS from: ${assetsPath}`);
+      fs.readdirSync(assetsPath).forEach(file => {
+        console.log(`   ✓ ${file}`);
+      });
     }
     
     // Serve all static files from dist
@@ -164,28 +155,27 @@ function setupStaticFiles() {
       }
     }));
     
-    // React app fallback for SPA routing with timeout protection
+    // React app fallback MUST serve BUILT index.html (not development template)
     app.get('*', (req, res) => {
       // Skip routes that should be handled elsewhere
       if (req.path.startsWith('/api/') || 
           req.path === '/health' || 
           req.path === '/api/health' ||
+          req.path.includes('/assets/') ||
           res.headersSent) {
         return;
       }
       
-      // Set response timeout to prevent hanging during health checks
-      res.setTimeout(4000, () => {
-        if (!res.headersSent) {
-          res.status(408).json({ error: 'Request timeout', service: 'SSELFIE Studio' });
-        }
-      });
-      
       const indexPath = path.join(distPath, 'index.html');
+      console.log(`🔧 Serving HTML from: ${indexPath}`);
+      
       if (fs.existsSync(indexPath)) {
+        // Force proper content type for HTML
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.sendFile(indexPath);
       } else {
-        res.status(404).send('Application not found - index.html missing');
+        console.error(`❌ Built HTML missing: ${indexPath}`);
+        res.status(404).send('Application not built - run npm run build');
       }
     });
   } else {
