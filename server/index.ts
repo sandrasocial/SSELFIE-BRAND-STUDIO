@@ -129,7 +129,8 @@ async function startCompleteApp() {
 
 // Setup serving mode with clean environment detection  
 async function setupDevelopmentMode(server: any) {
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.REPLIT_DEPLOYMENT === 'true';
+  console.log('🔍 Environment check:', { NODE_ENV: process.env.NODE_ENV, REPLIT_DEPLOYMENT: process.env.REPLIT_DEPLOYMENT });
   console.log('🔧 Environment mode:', isProduction ? 'production' : 'development');
   
   if (isProduction) {
