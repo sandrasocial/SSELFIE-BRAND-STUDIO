@@ -99,7 +99,7 @@ export class ImageStorageService {
           
           // Update database with permanent URL directly
           const { db } = await import('./db');
-          const { aiImages } = await import('../shared/schema-simplified');
+          const { aiImages } = await import('../shared/schema');
           const { eq } = await import('drizzle-orm');
           
           await db

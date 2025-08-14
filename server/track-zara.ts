@@ -4,7 +4,7 @@
  */
 
 import { db } from './db.js';
-import { claudeConversations, claudeMessages, agentLearning, agentSessionContexts } from '../shared/schema.js';
+import { claudeConversations, claudeMessages, agentLearning, agentSessionContexts } from '../shared/schema';
 import { eq, desc, and } from 'drizzle-orm';
 
 async function trackZara() {
