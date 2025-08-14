@@ -138,15 +138,16 @@ async function setupDevelopmentMode(server: any) {
     return;
   }
   
-  // Development mode: use Vite with error handling
+  // Development mode: use Vite with proper setup
+  console.log('🔧 Development mode: Setting up Vite server...');
   try {
-    console.log('🔧 Development mode: Setting up Vite server...');
     const { setupVite } = await import('./vite.js');
     await setupVite(app, server);
-    console.log('✅ Vite development server active');
+    console.log('✅ Vite development server configured');
   } catch (error) {
-    console.error('⚠️ Vite setup failed, using static files:', error);
-    setupStaticFiles();
+    console.error('❌ Vite setup failed:', error);
+    // Don't fallback to static files in development - force proper Vite setup
+    throw new Error('Development server setup failed - Vite is required in development mode');
   }
 }
 
