@@ -233,16 +233,8 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Callback endpoint with proper hostname resolution - HIGHEST PRIORITY ROUTE
+  // Callback endpoint with proper hostname resolution
   app.get("/api/callback", (req, res, next) => {
-    console.log('🔥 OAUTH CALLBACK HANDLER REACHED - This should show in logs!');
-    console.log('🔥 If you do not see this message, the route is being intercepted!');
-    console.log('🔥 Request details:', {
-      url: req.url,
-      method: req.method,
-      headers: req.headers,
-      route: req.route
-    });
     console.log('🔍 Callback endpoint called:', {
       hostname: req.hostname,
       host: req.get('host'),
@@ -274,42 +266,12 @@ export async function setupAuth(app: Express) {
     const strategy = `replitauth:${strategyDomain}`;
     console.log(`🔍 Using callback strategy: ${strategy}`);
 
-    // Debug: Check if strategy exists
-    console.log('🔍 Available strategies:', Object.keys(passport._strategies || {}));
-    console.log('🔍 Looking for strategy:', strategy);
-
-    // Restore working authentication callback with detailed debugging
-    const authenticateCallback = passport.authenticate(strategy, (err, user, info) => {
-      console.log('🔍 Passport authenticate callback called:', {
-        error: err,
-        user: user ? 'User object received' : 'No user',
-        info: info
-      });
-
-      if (err) {
-        console.error('❌ Authentication error:', err);
-        return res.redirect('/workspace?auth=error');
-      }
-
-      if (!user) {
-        console.error('❌ Authentication failed - no user returned');
-        return res.redirect('/workspace?auth=failed');
-      }
-
-      // Manual login since passport.authenticate callback format
-      req.logIn(user, (loginErr) => {
-        if (loginErr) {
-          console.error('❌ Login error:', loginErr);
-          return res.redirect('/workspace?auth=login_error');
-        }
-
-        console.log('✅ Authentication successful, redirecting to:', req.query.state || '/workspace');
-        res.redirect(req.query.state as string || '/workspace');
-      });
-    });
-
+    // Restore working authentication callback
     try {
-      authenticateCallback(req, res, next);
+      passport.authenticate(strategy, {
+        successRedirect: req.query.state || '/workspace',
+        failureRedirect: '/workspace?auth=failed'
+      })(req, res, next);
     } catch (error) {
       console.error('❌ Passport authenticate error:', error);
       res.redirect('/workspace?auth=error');
