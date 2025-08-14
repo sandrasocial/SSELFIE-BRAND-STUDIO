@@ -135,11 +135,11 @@ export function setupAuth(app: Express) {
         res.redirect('/workspace');
       } else {
         console.log('❌ No user data in callback');
-        res.redirect('/login');
+        res.redirect('/');
       }
     } catch (error) {
       console.error('❌ Callback error:', error);
-      res.redirect('/login');
+      res.redirect('/');
     }
   });
 
