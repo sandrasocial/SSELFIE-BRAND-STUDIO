@@ -1,5 +1,5 @@
-import React from 'react';
+import React from "react";
 
 export function Toaster() {
-  return <div id="toaster"></div>;
+  return null; // Placeholder for toaster component
 }
