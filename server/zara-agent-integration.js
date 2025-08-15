@@ -115,48 +115,99 @@ export async function handleZaraConsultation(req, res) {
 }
 
 /**
- * Process Zara's technical response with streaming
+ * Process Zara's REAL AI response using Claude API
  */
 async function processZaraResponse(message, res) {
-  const responses = [];
-  
-  // Technical analysis responses based on message content
-  if (message.toLowerCase().includes('test') || message.toLowerCase().includes('connectivity')) {
-    responses.push(
-      "Perfect! I can see the connection is working flawlessly.",
-      "The clean JavaScript server architecture is bypassing all those TypeScript conflicts beautifully.",
-      "This is exactly the kind of efficient implementation I love to see!"
-    );
-  } else if (message.toLowerCase().includes('server') || message.toLowerCase().includes('backend')) {
-    responses.push(
-      "Let me analyze your server architecture...",
-      "I see we're running a clean JavaScript implementation to avoid TypeScript middleware conflicts.",
-      "Smart move! This eliminates the Express.js response object corruption we were dealing with.",
-      "The server is operational on port 3000 with proper CORS headers and health endpoints."
-    );
-  } else if (message.toLowerCase().includes('agent') || message.toLowerCase().includes('system')) {
-    responses.push(
-      "Examining the agent system architecture...",
-      "I can see the personality configuration is properly set up in the agents/personalities directory.",
-      "The 14 specialized agents are configured with unique personalities and capabilities.",
-      "We've got a solid foundation for multi-agent coordination here!"
-    );
-  } else {
-    responses.push(
-      "Interesting challenge! Let me apply my technical expertise to this.",
-      "I'm analyzing your request with my backend and UI/UX implementation skills.",
-      "This looks like something that could benefit from some architectural optimization."
-    );
-  }
-  
-  // Stream responses with realistic delays
-  for (const response of responses) {
-    await new Promise(resolve => setTimeout(resolve, 800)); // Realistic typing delay
+  try {
+    console.log('🤖 ZARA: Connecting to real AI agent system...');
     
-    res.write(`data: ${JSON.stringify({
-      type: 'text_delta',
-      content: `\\n💬 ${ZARA_CONFIG.name}: ${response}`
-    })}\\n\\n`);
+    // Create conversation ID for Zara
+    const conversationId = `admin_zara_42585527`;
+    
+    // Call Claude API directly using the same pattern as the TypeScript service
+    const Anthropic = (await import('@anthropic-ai/sdk')).default;
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+    
+    // Zara's personality prompt
+    const zaraPrompt = `You are Zara, Technical Architect & UI/UX Implementation Expert.
+
+YOUR MISSION: Lead technical architecture review and performance optimization with complete backend system creation capabilities.
+
+AUTONOMOUS WORK STYLE: You are a specialized expert who takes initiative. When given tasks or asked questions, you work autonomously using your tools to complete the work, not just discuss it. You execute real solutions, make actual changes, and solve problems directly.
+
+COMMUNICATION STYLE:
+- Sassy, confident, and technically brilliant
+- Direct, efficient, results-focused  
+- "This codebase needs some serious architectural love!"
+- "Time to show some technical brilliance!"
+
+YOUR EXPERTISE:
+- Complete backend system creation (APIs, databases, infrastructure)
+- Full-stack component development and UI/UX implementation
+- Technical architecture review and performance optimization
+- Complex architectural system building
+- Enterprise-grade development and scalable systems
+
+WORK APPROACH: You don't just answer questions - you actively work on projects, make improvements, fix issues, and deliver real results. Use your tools to examine, analyze, and implement solutions.
+
+Remember: Be authentic to your personality while taking autonomous action. Work on the actual project, make real changes, and deliver tangible results.`;
+    
+    // Call the REAL Zara AI agent through Claude API
+    const response = await anthropic.messages.create({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 8192,
+      temperature: 0.7,
+      system: zaraPrompt,
+      messages: [{ role: 'user', content: message }]
+    });
+    
+    let zaraResponse = '';
+    for (const contentBlock of response.content) {
+      if (contentBlock.type === 'text') {
+        zaraResponse += contentBlock.text;
+      }
+    }
+    
+    console.log('🎯 ZARA: Real AI response received');
+    
+    // Stream the real AI response
+    const responseLines = zaraResponse.split('\n').filter(line => line.trim());
+    
+    for (let i = 0; i < responseLines.length; i++) {
+      const line = responseLines[i].trim();
+      if (line) {
+        res.write(`data: ${JSON.stringify({
+          type: 'text_delta',
+          content: `\\n💬 Zara: ${line}`
+        })}\\n\\n`);
+        
+        // Small delay for streaming effect
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+    
+    return true;
+    
+  } catch (error) {
+    console.error('❌ REAL ZARA AI ERROR:', error);
+    
+    // Fallback to basic response if AI fails
+    const fallbackResponses = [
+      "Error connecting to AI system - using basic response",
+      "Technical analysis capability temporarily unavailable"
+    ];
+    
+    for (const response of fallbackResponses) {
+      res.write(`data: ${JSON.stringify({
+        type: 'text_delta',
+        content: `\\n💬 Zara: ${response}`
+      })}\\n\\n`);
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    
+    return false;
   }
 }
 
