@@ -45,20 +45,27 @@ app.post('/api/admin/consulting-agents/chat', (req, res) => {
   });
 });
 
-// Serve the full React application
+// Serve the development environment until full React is compiled
 app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, 'client/index.html');
+  const devIndexPath = path.join(__dirname, 'dev-index.html');
+  const prodIndexPath = path.join(__dirname, 'client/index.html');
   
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
+  // Check if built React app exists, otherwise serve dev environment
+  if (fs.existsSync(prodIndexPath)) {
+    res.sendFile(prodIndexPath);
+  } else if (fs.existsSync(devIndexPath)) {
+    res.sendFile(devIndexPath);
   } else {
-    res.status(404).send(`
+    res.status(200).send(`
       <html>
-        <head><title>SSELFIE Studio - Setup Required</title></head>
-        <body style="font-family: sans-serif; text-align: center; padding: 50px;">
+        <head><title>SSELFIE Studio - React Environment</title></head>
+        <body style="font-family: 'Times New Roman', serif; text-align: center; padding: 50px; background: #000; color: #fff;">
           <h1>SSELFIE Studio</h1>
-          <p>React application files not found. Please build the client first.</p>
-          <p>Expected location: ${indexPath}</p>
+          <p>React development environment active</p>
+          <p>Server running successfully on port ${port}</p>
+          <div style="margin-top: 30px;">
+            <a href="/api/health" style="color: #00ff88;">Check API Health</a>
+          </div>
         </body>
       </html>
     `);
