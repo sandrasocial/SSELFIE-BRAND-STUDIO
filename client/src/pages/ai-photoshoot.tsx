@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
-import { MemberNavigation } from '@/components/member-navigation';
-import { HeroFullBleed } from '@/components/hero-full-bleed';
-import { SandraImages } from '@/lib/sandra-images';
+import { apiRequest } from '../lib/queryClient';
+import { useToast } from '../hooks/use-toast';
+import { MemberNavigation } from '../components/member-navigation';
+import { HeroFullBleed } from '../components/hero-full-bleed';
+import { SandraImages } from '../lib/sandra-images';
 
 // ELEGANT PHOTOSHOOT COLLECTIONS - Lookbook Style
 const PROMPT_COLLECTIONS = {

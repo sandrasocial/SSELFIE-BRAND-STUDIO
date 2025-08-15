@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { PhotoshootPrompt } from '@/types/photoshoot';
-import { useToast } from '@/hooks/use-toast';
+import { PhotoshootPrompt } from './types/photoshoot';
+import { useToast } from './hooks/use-toast';
 
 interface PromptCardProps {
   prompt: PhotoshootPrompt;

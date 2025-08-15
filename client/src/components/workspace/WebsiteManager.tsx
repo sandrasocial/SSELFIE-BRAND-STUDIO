@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Button } from './components/ui/button';
+import { Card } from './components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { VictoriaEditorialBuilder } from '../victoria/VictoriaEditorialBuilder';
 import { WebsitePreview } from '../victoria/WebsitePreview';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest } from './lib/queryClient';
 
 interface WebsiteManagerProps {
   onComplete?: () => void;

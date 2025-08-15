@@ -4,8 +4,8 @@ import useEmblaCarousel, {
 } from "embla-carousel-react"
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "./lib/utils"
+import { Button } from "./components/ui/button"
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>

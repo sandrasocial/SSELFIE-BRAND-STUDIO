@@ -1,7 +1,7 @@
 import React from 'react';
-import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
-import { HeroFullBleed } from '@/components/HeroFullBleed';
-import { SandraImages } from '@/lib/sandra-images';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
+import { HeroFullBleed } from '../components/HeroFullBleed';
+import { SandraImages } from '../lib/sandra-images';
 
 interface Props {
   children: React.ReactNode;

@@ -3,13 +3,13 @@ import { WebsiteWizard } from './WebsiteWizard';
 import { WebsitePreview } from './WebsitePreview';
 import { VictoriaChat } from './VictoriaChat';
 import { VictoriaEditorialBuilder } from './VictoriaEditorialBuilder';
-import { RealImageSelection } from '@/components/onboarding/RealImageSelection';
-import { PersonalBrandQuestionnaire, type PersonalBrandAssessment } from '@/components/onboarding/PersonalBrandQuestionnaire';
-import { useWebsiteBuilder } from '@/hooks/useWebsiteBuilder';
-import { Button } from '@/components/ui/button';
+import { RealImageSelection } from './components/onboarding/RealImageSelection';
+import { PersonalBrandQuestionnaire, type PersonalBrandAssessment } from './components/onboarding/PersonalBrandQuestionnaire';
+import { useWebsiteBuilder } from './hooks/useWebsiteBuilder';
+import { Button } from './components/ui/button';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { useToast } from './hooks/use-toast';
+import { apiRequest } from './lib/queryClient';
 
 export function AIWebsiteBuilder() {
   const [currentView, setCurrentView] = useState<'checking' | 'photo-selection' | 'brand-questionnaire' | 'mode-select' | 'wizard' | 'chat' | 'preview' | 'customize'>('checking');

@@ -1,5 +1,5 @@
 import React from 'react';
-import { UnifiedAgentInterface } from '@/components/admin/UnifiedAgentInterface';
+import { UnifiedAgentInterface } from '../components/admin/UnifiedAgentInterface';
 
 export default function AgentSystemFixed() {
   return (
