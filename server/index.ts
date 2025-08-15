@@ -3,9 +3,11 @@ console.log('🚀 STABLE SERVER: Using modular TypeScript architecture');
 console.log('✅ Replaced 2,891-line routes.ts with focused modules');
 console.log('🔧 Express middleware conflicts resolved');
 
-// Use clean JavaScript server to avoid TypeScript compilation conflicts
-console.log('🔄 REDIRECT: Using clean JavaScript server to bypass TypeScript conflicts');
-import('./index.js');
+// DEPRECATED: This TypeScript server has been replaced by server/index.js
+// The clean JavaScript server eliminates Express.js middleware conflicts
+console.log('⚠️  DEPRECATED: Use server/index.js directly for stability');
+console.log('🔄 REDIRECT: Clean JavaScript server bypasses TypeScript conflicts');
+// import('./index.js'); // Commented out to prevent dual server conflicts
 
 // This file remains for reference but the clean server runs instead
 import express, { Request, Response, NextFunction } from 'express';
