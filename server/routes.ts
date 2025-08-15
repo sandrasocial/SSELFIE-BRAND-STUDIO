@@ -701,7 +701,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create new
         const [created] = await db
           .insert(brandOnboarding)
-          .values([brandData])
+          .values(brandData)
           .returning();
         res.json({ success: true, data: created });
       }
