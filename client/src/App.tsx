@@ -1,4 +1,4 @@
-import React, { useEffect, lazy, Suspense } from "react";
+import React, { useEffect, lazy } from "react";
 import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
-import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
+import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 // import { pwaManager } from "./utils/pwa";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
@@ -63,9 +63,7 @@ import PhotoSelection from "@/pages/photo-selection";
 import BrandOnboarding from "@/pages/brand-onboarding";
 import Welcome from "@/pages/welcome";
 import AuthSuccess from "@/pages/auth-success";
-import Login from "@/pages/login";
 // Unified login system - removed competing auth components
-import LoginPrompt from "@/components/LoginPrompt";
 import DomainHelp from "@/pages/domain-help";
 import SwitchAccount from "@/pages/switch-account";
 import LaunchCountdown from "@/pages/launch-countdown";
