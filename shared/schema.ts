@@ -44,7 +44,7 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
   index("idx_agent_session_updated").on(table.updatedAt),
 ]);
 
-// User storage table for Replit OAuth - MATCHES DATABASE SCHEMA
+// User storage table for Replit OAuth
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
   email: varchar("email").unique(),
@@ -62,10 +62,6 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
-
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-export type UpsertUser = typeof users.$inferInsert;
 
 // Website schema for Victoria website builder
 export const websites = pgTable("websites", {
@@ -487,7 +483,6 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
 
 // Schema exports
 export const upsertUserSchema = createInsertSchema(users);
-export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
 export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAiImageSchema = createInsertSchema(aiImages).omit({ id: true, createdAt: true });
@@ -519,59 +514,61 @@ export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities)
 
 
 
-// Type exports (duplicates removed - already defined above)
+// Type exports
+export type UpsertUser = z.infer<typeof upsertUserSchema>;
+export type User = typeof users.$inferSelect;
 
 // Website types
 export type Website = typeof websites.$inferSelect;
-export type InsertWebsite = typeof websites.$inferInsert;
+export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
 export type MayaChat = typeof mayaChats.$inferSelect;
 export type InsertMayaChat = typeof mayaChats.$inferInsert;
 export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
 export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
 export type GenerationTracker = typeof generationTrackers.$inferSelect;
-export type InsertGenerationTracker = typeof generationTrackers.$inferInsert;
+export type InsertGenerationTracker = z.infer<typeof insertGenerationTrackerSchema>;
 // User profiles table schema already defined at top of file
 
 export type UserProfile = typeof userProfiles.$inferSelect;
-export type InsertBrandOnboarding = typeof brandOnboarding.$inferInsert;
+export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
 export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
 // Website types already defined above at lines 750-751
-export type InsertUserProfile = typeof userProfiles.$inferInsert;
-export type InsertProject = typeof projects.$inferInsert;
+export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
+export type InsertProject = z.infer<typeof insertProjectSchema>;
 
 // Claude API types
 export type ClaudeConversation = typeof claudeConversations.$inferSelect;
-export type InsertClaudeConversation = typeof claudeConversations.$inferInsert;
+export type InsertClaudeConversation = z.infer<typeof insertClaudeConversationSchema>;
 export type ClaudeMessage = typeof claudeMessages.$inferSelect;
-export type InsertClaudeMessage = typeof claudeMessages.$inferInsert;
+export type InsertClaudeMessage = z.infer<typeof insertClaudeMessageSchema>;
 export type AgentLearning = typeof agentLearning.$inferSelect;
-export type InsertAgentLearning = typeof agentLearning.$inferInsert;
+export type InsertAgentLearning = z.infer<typeof insertAgentLearningSchema>;
 export type AgentCapability = typeof agentCapabilities.$inferSelect;
-export type InsertAgentCapability = typeof agentCapabilities.$inferInsert;
+export type InsertAgentCapability = z.infer<typeof insertAgentCapabilitySchema>;
 export type Project = typeof projects.$inferSelect;
-export type InsertAiImage = typeof aiImages.$inferInsert;
+export type InsertAiImage = z.infer<typeof insertAiImageSchema>;
 export type AiImage = typeof aiImages.$inferSelect;
-export type InsertTemplate = typeof templates.$inferInsert;
+export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
 export type Template = typeof templates.$inferSelect;
-export type InsertSubscription = typeof subscriptions.$inferInsert;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type Subscription = typeof subscriptions.$inferSelect;
-export type InsertOnboardingData = typeof onboardingData.$inferInsert;
+export type InsertOnboardingData = z.infer<typeof insertOnboardingDataSchema>;
 export type OnboardingData = typeof onboardingData.$inferSelect;
-export type InsertSelfieUpload = typeof selfieUploads.$inferInsert;
+export type InsertSelfieUpload = z.infer<typeof insertSelfieUploadSchema>;
 export type SelfieUpload = typeof selfieUploads.$inferSelect;
-export type InsertUserModel = typeof userModels.$inferInsert;
+export type InsertUserModel = z.infer<typeof insertUserModelSchema>;
 export type UserModel = typeof userModels.$inferSelect;
-export type InsertGeneratedImage = typeof generatedImages.$inferInsert;
+export type InsertGeneratedImage = z.infer<typeof insertGeneratedImageSchema>;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
-export type InsertVictoriaChat = typeof victoriaChats.$inferInsert;
+export type InsertVictoriaChat = z.infer<typeof insertVictoriaChatSchema>;
 export type VictoriaChat = typeof victoriaChats.$inferSelect;
-export type InsertPhotoSelection = typeof photoSelections.$inferInsert;
+export type InsertPhotoSelection = z.infer<typeof insertPhotoSelectionSchema>;
 export type PhotoSelection = typeof photoSelections.$inferSelect;
-export type InsertLandingPage = typeof landingPages.$inferInsert;
+export type InsertLandingPage = z.infer<typeof insertLandingPageSchema>;
 export type LandingPage = typeof landingPages.$inferSelect;
-export type InsertUserLandingPage = typeof userLandingPages.$inferInsert;
+export type InsertUserLandingPage = z.infer<typeof insertUserLandingPageSchema>;
 export type UserLandingPage = typeof userLandingPages.$inferSelect;
-export type InsertAgentConversation = typeof agentConversations.$inferInsert;
+export type InsertAgentConversation = z.infer<typeof insertAgentConversationSchema>;
 export type AgentConversation = typeof agentConversations.$inferSelect;
 
 
@@ -683,7 +680,7 @@ export const insertWebsiteBuilderConversationsSchema = createInsertSchema(websit
 
 // BUILD feature type exports
 export type UserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferSelect;
-export type InsertUserWebsiteOnboarding = typeof userWebsiteOnboarding.$inferInsert;
+export type InsertUserWebsiteOnboarding = z.infer<typeof insertUserWebsiteOnboardingSchema>;
 export type UserGeneratedWebsite = typeof userGeneratedWebsites.$inferSelect;
 
 // Imported subscribers table for email list migration
@@ -705,9 +702,9 @@ export const importedSubscribers = pgTable("imported_subscribers", {
 
 export type ImportedSubscriber = typeof importedSubscribers.$inferSelect;
 export type InsertImportedSubscriber = typeof importedSubscribers.$inferInsert;
-export type InsertUserGeneratedWebsite = typeof userGeneratedWebsites.$inferInsert;
+export type InsertUserGeneratedWebsite = z.infer<typeof insertUserGeneratedWebsitesSchema>;
 export type WebsiteBuilderConversation = typeof websiteBuilderConversations.$inferSelect;
-export type InsertWebsiteBuilderConversation = typeof websiteBuilderConversations.$inferInsert;
+export type InsertWebsiteBuilderConversation = z.infer<typeof insertWebsiteBuilderConversationsSchema>;
 
 
 
@@ -771,19 +768,19 @@ export const agentTrainingSessions = pgTable("agent_training_sessions", {
 
 // Additional Agent Learning Schemas
 export const insertAgentKnowledgeBaseSchemaOnly = createInsertSchema(agentKnowledgeBase);
-export type InsertAgentKnowledgeBaseOnly = typeof agentKnowledgeBase.$inferInsert;
+export type InsertAgentKnowledgeBaseOnly = z.infer<typeof insertAgentKnowledgeBaseSchemaOnly>;
 export type AgentKnowledgeBaseType = typeof agentKnowledgeBase.$inferSelect;
 
 export const insertAgentKnowledgeBaseSchema = createInsertSchema(agentKnowledgeBase);
-export type InsertAgentKnowledgeBase = typeof agentKnowledgeBase.$inferInsert;
+export type InsertAgentKnowledgeBase = z.infer<typeof insertAgentKnowledgeBaseSchema>;
 export type AgentKnowledgeBase = typeof agentKnowledgeBase.$inferSelect;
 
 export const insertAgentPerformanceMetricsSchema = createInsertSchema(agentPerformanceMetrics);
-export type InsertAgentPerformanceMetrics = typeof agentPerformanceMetrics.$inferInsert;
+export type InsertAgentPerformanceMetrics = z.infer<typeof insertAgentPerformanceMetricsSchema>;
 export type AgentPerformanceMetrics = typeof agentPerformanceMetrics.$inferSelect;
 
 export const insertAgentTrainingSessionsSchema = createInsertSchema(agentTrainingSessions);
-export type InsertAgentTrainingSession = typeof agentTrainingSessions.$inferInsert;
+export type InsertAgentTrainingSession = z.infer<typeof insertAgentTrainingSessionsSchema>;
 export type AgentTrainingSession = typeof agentTrainingSessions.$inferSelect;
 export type InsertUsageHistory = typeof usageHistory.$inferInsert;
 
@@ -907,19 +904,19 @@ export const insertSavedPromptSchema = createInsertSchema(savedPrompts).omit({ i
 
 // Type exports for missing tables
 export type ArchitectureAuditLog = typeof architectureAuditLog.$inferSelect;
-export type InsertArchitectureAuditLog = typeof architectureAuditLog.$inferInsert;
+export type InsertArchitectureAuditLog = z.infer<typeof insertArchitectureAuditLogSchema>;
 export type Brandbook = typeof brandbooks.$inferSelect;
-export type InsertBrandbook = typeof brandbooks.$inferInsert;
+export type InsertBrandbook = z.infer<typeof insertBrandbookSchema>;
 export type Dashboard = typeof dashboards.$inferSelect;
-export type InsertDashboard = typeof dashboards.$inferInsert;
+export type InsertDashboard = z.infer<typeof insertDashboardSchema>;
 export type InspirationPhoto = typeof inspirationPhotos.$inferSelect;
-export type InsertInspirationPhoto = typeof inspirationPhotos.$inferInsert;
+export type InsertInspirationPhoto = z.infer<typeof insertInspirationPhotoSchema>;
 export type ModelRecoveryLog = typeof modelRecoveryLog.$inferSelect;
-export type InsertModelRecoveryLog = typeof modelRecoveryLog.$inferInsert;
+export type InsertModelRecoveryLog = z.infer<typeof insertModelRecoveryLogSchema>;
 export type SandraConversation = typeof sandraConversations.$inferSelect;
-export type InsertSandraConversation = typeof sandraConversations.$inferInsert;
+export type InsertSandraConversation = z.infer<typeof insertSandraConversationSchema>;
 export type SavedPrompt = typeof savedPrompts.$inferSelect;
-export type InsertSavedPrompt = typeof savedPrompts.$inferInsert;
+export type InsertSavedPrompt = z.infer<typeof insertSavedPromptSchema>;
 
 // Note: Website type already defined above at line 502
 // Note: styleguide_templates and user_styleguides are imported from styleguide-schema.ts

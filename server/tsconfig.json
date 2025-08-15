@@ -12,11 +12,11 @@
     "isolatedModules": true,
     "incremental": true,
     "outDir": "./dist",
-    "rootDir": "..",
+    "rootDir": ".",
     "paths": {
       "@/*": ["../*"]
     }
   },
-  "include": ["**/*.ts", "../shared/**/*.ts", "../vite.config.ts"],
+  "include": ["**/*.ts", "../shared/**/*.ts"],
   "exclude": ["node_modules", "dist", "../node_modules"]
 }

@@ -1,10 +1,10 @@
-import { FC } from 'react';
 /**
  * @component WorkflowValidation
  * @description Luxury button component validation - Created by Aria (Creative Director)
  * @lastUpdated 2025-01-26
  */
 
+import React from 'react';
 import styled from 'styled-components';
 
 const LuxuryButton = styled.button`
@@ -26,7 +26,7 @@ const LuxuryButton = styled.button`
   }
 `;
 
-const WorkflowValidation: FC = () => {
+const WorkflowValidation: React.FC = () => {
   return (
     <div>
       <h2>ELENA WORKFLOW VALIDATION COMPLETE</h2>

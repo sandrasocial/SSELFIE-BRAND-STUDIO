@@ -1,0 +1,94 @@
+// VOGUE EDITORIAL Collection - High Fashion Authority
+{
+  id: 'vogue-editorial',
+  name: 'VOGUE EDITORIAL',
+  subtitle: 'High Fashion Authority',
+  description: 'Editorial portraits that command attention - where high fashion meets undeniable presence',
+  previewImage: '/images/collections/vogue-editorial-preview.jpg',
+  prompts: [
+    {
+      id: 'power-profile-statement',
+      name: 'Power Profile',
+      category: 'Editorial Authority',
+      description: 'The profile shot that stops everyone mid-scroll - pure editorial power',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], striking profile portrait in black leather jacket and designer sunglasses, dramatic side lighting creating strong shadows, confident expression with slight upward gaze, hair slicked back in sophisticated style, minimal statement jewelry, shot on Hasselblad H6D-400c with 80mm f/1.9 lens, high contrast black and white photography, studio editorial lighting, Vogue cover aesthetic'
+    },
+    {
+      id: 'dramatic-shadow-play',
+      name: 'Shadow Drama',
+      category: 'Cinematic Fashion',
+      description: 'When shadows become your co-star - architectural lighting meets high fashion',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in black turtleneck with dramatic window shadows creating geometric patterns across face, intense direct gaze, hair in perfect voluminous waves, natural editorial makeup, shot on Canon EOS R5 with 85mm f/1.2 lens, architectural shadow photography, high contrast lighting, Peter Lindbergh inspired aesthetic'
+    },
+    {
+      id: 'minimalist-power-pose',
+      name: 'Minimalist Authority',
+      category: 'Clean Editorial',
+      description: 'Less is more when you have this much presence - minimalist editorial perfection',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in simple black blazer against pure white background, arms crossed in confident power pose, direct intense eye contact, natural beauty with defined features, hair in sleek low bun, shot on Leica S3 with 120mm f/2.5 lens, clean studio photography, perfect even lighting, minimalist fashion editorial'
+    },
+    {
+      id: 'haute-couture-moment',
+      name: 'Haute Couture',
+      category: 'High Fashion',
+      description: 'Wearing fashion like armor - when clothes become art on your body',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], model in sculptural black designer piece with dramatic architectural details, powerful stance with hands positioned elegantly, serious editorial expression, hair styled in avant-garde fashion, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, high fashion photography, dramatic studio lighting, couture editorial aesthetic'
+    },
+    {
+      id: 'intimate-close-portrait',
+      name: 'Intimate Authority',
+      category: 'Beauty Editorial',
+      description: 'When the camera gets close enough to see your soul - raw beauty meets editorial perfection',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], extreme close-up portrait focusing on eyes and natural skin texture, hand gently touching face, vulnerable yet powerful expression, natural dewy skin with visible pores, hair falling naturally around face, shot on Sony A7R IV with 85mm f/1.4 lens, beauty editorial photography, soft directional lighting, intimate fashion aesthetic'
+    },
+    {
+      id: 'chair-power-pose',
+      name: 'Boardroom Queen',
+      category: 'Corporate Elegance',
+      description: 'Sitting like you own every room you enter - corporate power meets editorial sophistication',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in tailored black blazer sitting in modern chair with confident posture, one hand draped elegantly, direct authoritative gaze, professional yet striking styling, hair in polished waves, shot on Nikon Z9 with 105mm f/1.4 lens, corporate editorial photography, clean professional lighting, executive fashion aesthetic'
+    },
+    {
+      id: 'artistic-silhouette-drama',
+      name: 'Silhouette Drama',
+      category: 'Artistic Editorial',
+      description: 'When your silhouette tells the whole story - artistic drama meets fashion',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], dramatic silhouette in flowing black garment with strong rim lighting, profile creating powerful graphic element, hair movement captured in motion, artistic pose with fabric flowing, shot on Leica SL2 with 90mm f/2 lens, silhouette photography, dramatic backlighting, artistic fashion editorial'
+    },
+    {
+      id: 'casual-luxury-portrait',
+      name: 'Effortless Luxury',
+      category: 'Modern Editorial',
+      description: 'Making casual look like a million dollars - effortless sophistication',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in simple white tank top and jeans sitting on stool, natural confident expression, minimal makeup highlighting natural beauty, hair in effortless textured style, shot on Canon EOS R6 with 50mm f/1.2 lens, casual editorial photography, natural studio lighting, modern simplicity aesthetic'
+    },
+    {
+      id: 'emotional-intensity-portrait',
+      name: 'Emotional Intensity',
+      category: 'Raw Editorial',
+      description: 'When emotion becomes fashion - raw intensity meets editorial sophistication',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in black sleeveless top with hand running through hair, eyes closed in moment of introspection, natural emotional expression, textured messy hair, visible natural skin texture, shot on Fujifilm X-T5 with 56mm f/1.2 lens, emotional portrait photography, moody natural lighting, raw editorial aesthetic'
+    },
+    {
+      id: 'profile-elegance-study',
+      name: 'Profile Elegance',
+      category: 'Classic Editorial',
+      description: 'The timeless profile that belongs in a gallery - classic beauty meets modern edge',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], elegant profile portrait with hair in messy top knot, natural contemplative expression, minimal ear jewelry catching light, clean natural makeup, shot on Leica M11 with 50mm f/1.4 lens, classic portrait photography, soft side lighting, timeless editorial elegance'
+    },
+    {
+      id: 'fashion-rebellion-moment',
+      name: 'Fashion Rebellion',
+      category: 'Edgy Editorial',
+      description: 'When fashion becomes rebellion - edgy sophistication with attitude',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in all-black ensemble with rebellious styling, confident defiant expression, natural textured hair with movement, bold minimal makeup, dramatic pose with attitude, shot on Sony A7R V with 85mm f/1.4 lens, edgy fashion photography, dramatic contrast lighting, rebellious editorial aesthetic'
+    },
+    {
+      id: 'sophisticated-mystery',
+      name: 'Sophisticated Mystery',
+      category: 'Mysterious Editorial',
+      description: 'The mystery that makes people want to know your story - sophisticated intrigue',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], mysterious portrait with partial face in shadow, wearing elegant black clothing, enigmatic expression with slight smile, natural beauty enhanced by dramatic lighting, hair partially covering one side of face, shot on Hasselblad X2D 100C with 90mm f/2.5 lens, mysterious portrait photography, chiaroscuro lighting, sophisticated enigma aesthetic'
+    }
+  ]
+}

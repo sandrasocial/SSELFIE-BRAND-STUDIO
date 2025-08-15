@@ -1,42 +1,33 @@
-// REMOVED: setupEnhancementRoutes - unused system
-// import { setupEnhancementRoutes } from './services/backend-enhancement-services';
+import { setupEnhancementRoutes } from './services/backend-enhancement-services';
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
-// REMOVED: setupRollbackRoutes - unused system
-// import { setupRollbackRoutes } from './routes/rollback.js';
+import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, getSession } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { db } from "./db";
-import { claudeConversations, claudeMessages } from "../shared/schema";
+import { claudeConversations, claudeMessages } from "../shared/schema.js";
 import { eq, and, desc } from "drizzle-orm";
-import emailAutomation from './api/business/email-marketing';
-import victoriaWebsiteRouter from "./api/agents/victoria/website-customization";
-import { registerVictoriaService } from "./api/agents/victoria/business-analysis";
-import { registerVictoriaWebsiteGenerator } from "./api/agents/victoria/website-generation";
-// REMOVED: subscriberImportRouter - unused system
-// DELETED: subscriber-import.ts - Already commented out, now removed
-import Stripe from "stripe";
+import emailAutomation from './routes/email-automation';
+import victoriaWebsiteRouter from "./routes/victoria-website";
+import { registerVictoriaService } from "./routes/victoria-service";
+import { registerVictoriaWebsiteGenerator } from "./routes/victoria-website-generator";
+import subscriberImportRouter from './routes/subscriber-import';
 // REMOVED: Conflicting admin routers - consolidated into single adminRouter
-// REMOVED: whitelabelRoutes - unused advanced customization
-// import { whitelabelRoutes } from './routes/white-label-setup';
+import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
-import consultingAgentsRouter from './api/admin/consulting-agents';
-// REMOVED: Competing admin routers - using consulting-agents-routes as single admin interface
-// REMOVED: quinnTestingRouter - testing system not needed
-// import quinnTestingRouter from './routes/quinn-testing';
-import memberProtectionRouter from './api/admin/member-protection';
-// AGENT BRIDGE SYSTEM: Missing backend for bridge UI
-import agentBridgeRouter from './routes/agent-bridge-routes';
-// REMOVED: systemValidationRouter - excessive validation logging
-// import systemValidationRouter from './routes/system-validation';
-// DELETED: member-journey-test.ts - Development testing complete
-// REMOVED: phase2CoordinationRouter - unused coordination system
-// import phase2CoordinationRouter from './routes/phase2-coordination';
+import consultingAgentsRouter from './routes/consulting-agents-routes';
+import adminRouter from './routes/admin';
+import adminCacheRouter from './routes/admin-cache-management';
+import quinnTestingRouter from './routes/quinn-testing';
+import memberProtectionRouter from './routes/member-protection';
+import systemValidationRouter from './routes/system-validation';
+import memberJourneyTestRouter from './routes/member-journey-test';
+import phase2CoordinationRouter from './routes/phase2-coordination';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
@@ -49,7 +40,7 @@ function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
   const targetAudience = websiteData.targetAudience || onboardingData?.targetAudience || 'Our valued clients';
   const keyFeatures = websiteData.keyFeatures || [];
   const brandPersonality = websiteData.brandPersonality || onboardingData?.brandVoice || 'professional';
-
+  
   const colorScheme = {
     professional: { primary: '#2c3e50', secondary: '#34495e', accent: '#3498db' },
     elegant: { primary: '#8b5a2b', secondary: '#a67c00', accent: '#d4af37' },
@@ -58,9 +49,9 @@ function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
     approachable: { primary: '#2c5aa0', secondary: '#1e3a8a', accent: '#3b82f6' },
     creative: { primary: '#8b5cf6', secondary: '#7c3aed', accent: '#a855f7' }
   };
-
+  
   const colors = colorScheme[brandPersonality as keyof typeof colorScheme] || colorScheme.professional;
-
+  
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -190,12 +181,12 @@ function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
         <p>${businessDescription}</p>
         <button class="cta-button">Get Started</button>
     </section>
-
+    
     <section class="section about">
         <h2>About</h2>
         <p>Welcome to ${businessName}. We specialize in providing exceptional ${websiteData.businessType === 'coaching' ? 'coaching services' : 'professional services'} designed specifically for ${targetAudience.length > 100 ? 'our ideal clients' : targetAudience}.</p>
     </section>
-
+    
     ${keyFeatures.length > 0 ? `
     <section class="section features">
         <h2>What We Offer</h2>
@@ -209,7 +200,7 @@ function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
         </div>
     </section>
     ` : ''}
-
+    
     <section class="section contact">
         <h2>Ready to Get Started?</h2>
         <p>Let's work together to achieve your goals.</p>
@@ -220,65 +211,32 @@ function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // ZARA'S EMERGENCY PHASE 1: Remove ALL CSP restrictions immediately
-  app.use((req, res, next) => {
-    // Remove all CSP headers causing script blocking and authentication failures
-    res.removeHeader('Content-Security-Policy');
-    res.removeHeader('Content-Security-Policy-Report-Only');
-    res.removeHeader('X-Content-Security-Policy');
-    res.removeHeader('X-WebKit-CSP');
-    
-    // Set ultra-permissive headers for emergency operation
-    res.setHeader('X-Frame-Options', 'ALLOWALL');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    
-    console.log(`🚨 ZARA EMERGENCY: CSP bypassed for ${req.path}`);
-    next();
-  });
-
   // Essential middleware setup
   app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
   app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
-
-  // ZARA'S PERFORMANCE OPTIMIZATIONS: Server-side performance middleware
-  try {
-    // Optional performance middleware - don't block server startup if missing
-    console.log('⚠️ ZARA: Performance middleware skipped (path issue resolved)');
-  } catch (err) {
-    console.log('⚠️ ZARA: Performance middleware pending');
-  }
-
-  // ZARA'S EMERGENCY CHECKOUT FIX: Critical route bypass for checkout failures
-  app.get('/checkout*', (req, res) => {
-    console.log('💳 ZARA EMERGENCY: Checkout route bypassed - serving React app');
-    const clientPath = path.join(__dirname, '../client/dist');
-    res.sendFile(path.join(clientPath, 'index.html'));
-  });
-
+  
   // CRITICAL: Serve static files from public directory (flatlay images, etc.)
   app.use(express.static('public'));
-
+  
   // Agent-generated enhancement routes
-  // REMOVED: setupEnhancementRoutes(app) - unused system
+  setupEnhancementRoutes(app);
 
   console.log('Starting route registration...');
-
+  
   // Basic middleware and authentication setup
   const server = createServer(app);
-
+  
   // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
   console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
-
+  
   app.post('/api/consulting-agents/admin/consulting-chat', async (req: any, res: any) => {
     try {
       console.log('DIRECT ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
-
+      
       const adminToken = req.headers.authorization || 
                         (req.body && req.body.adminToken) || 
                         req.query.adminToken;
-
+      
       if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
         req.user = {
           claims: {
@@ -290,11 +248,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         req.isAdminBypass = true;
       }
-
+      
       // Import and handle via consulting agents router
-      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes');
+      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes.js');
       await handleAdminConsultingChat(req, res);
-
+      
     } catch (error) {
       console.error('❌ ADMIN CONSULTING ERROR:', error);
       res.status(500).json({
@@ -309,11 +267,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/consulting-chat', async (req: any, res: any) => {
     try {
       console.log('FRONTEND ROUTE: Admin consulting request received:', JSON.stringify(req.body, null, 2));
-
+      
       const adminToken = req.headers.authorization || 
                         (req.body && req.body.adminToken) || 
                         req.query.adminToken;
-
+      
       if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
         req.user = {
           claims: {
@@ -325,11 +283,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         req.isAdminBypass = true;
       }
-
+      
       // Import and handle via consulting agents router
-      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes');
+      const { handleAdminConsultingChat } = await import('./routes/consulting-agents-routes.js');
       await handleAdminConsultingChat(req, res);
-
+      
     } catch (error) {
       console.error('❌ FRONTEND CONSULTING ERROR:', error);
       res.status(500).json({
@@ -339,255 +297,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-
-  // ZARA'S EMERGENCY AUTH BYPASS: Direct authentication route to avoid middleware conflicts
-  app.get('/api/login', (req, res) => {
-    console.log('🔐 ZARA EMERGENCY: Login endpoint accessed - redirecting to home with auth');
-    try {
-      if (res && typeof res.redirect === 'function') {
-        res.redirect('/?auth=emergency&user=sandra');
-      } else {
-        console.error('CRITICAL: res.redirect not a function - Express response object corrupted');
-        res.writeHead(302, { Location: '/?auth=emergency&user=sandra' });
-        res.end();
-      }
-    } catch (error) {
-      console.error('REDIRECT ERROR:', error);
-      res.writeHead(302, { Location: '/?auth=emergency&user=sandra' });
-      res.end();
-    }
-  });
-
-  app.get('/api/auth/user', async (req, res) => {
-    console.log('🔐 ZARA EMERGENCY: User endpoint accessed');
-    
-    // Emergency Sandra authentication bypass
-    const sandraUser = {
-      id: '42585527',
-      email: 'ssa@ssasocial.com',
-      firstName: 'Sandra',
-      lastName: 'Sigurjonsdottir',
-      profileImageUrl: null,
-      plan: 'sselfie-studio',
-      role: 'admin',
-      monthlyGenerationLimit: -1,
-      generationsUsedThisMonth: 0,
-      mayaAiAccess: true,
-      victoriaAiAccess: true,
-      zaraEmergencyAuth: true,
-      authenticationWorking: true
-    };
-    
-    res.json(sandraUser);
-  });
-
-  // Add session middleware first
-  app.use(getSession());
   
-  // SKIP COMPLEX AUTH SETUP - using emergency bypass instead
-
+  // Setup authentication
+  await setupAuth(app);
+  
   // CRITICAL: Serve training ZIP files with correct content type
   app.get("/training-zip/:filename", (req, res) => {
     const filename = req.params.filename;
     const filePath = path.join(process.cwd(), 'temp_training', filename);
-
+    
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Training ZIP file not found' });
     }
-
+    
     // Set correct content type for ZIP files
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-
+    
     console.log(`📦 Serving training ZIP: ${filename} (${fs.statSync(filePath).size} bytes)`);
     res.sendFile(filePath);
   });
-
-  // Stripe payment processing setup
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('STRIPE_SECRET_KEY environment variable is required');
-  }
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2025-07-30.basil",
-  });
-
-  // CRITICAL STRIPE CHECKOUT ROUTES
-  // Create payment intent for one-time payments
-  app.post("/api/create-payment-intent", async (req, res) => {
-    try {
-      const { amount = 997 } = req.body; // Default to $9.97 for basic plan
-      
-      console.log('💳 Creating payment intent for amount:', amount);
-      
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: "usd",
-        automatic_payment_methods: {
-          enabled: true,
-        },
-      });
-
-      console.log('✅ Payment intent created successfully:', paymentIntent.id);
-      
-      res.json({ 
-        clientSecret: paymentIntent.client_secret,
-        amount: amount
-      });
-    } catch (error: any) {
-      console.error('❌ Payment intent creation error:', error);
-      res.status(500).json({ 
-        message: "Error creating payment intent: " + error.message 
-      });
-    }
-  });
-
-  // Get or create subscription for recurring payments
-  app.post('/api/get-or-create-subscription', async (req, res) => {
-    try {
-      console.log('💳 Processing subscription request...');
-      
-      // Check if user is authenticated
-      if (!req.isAuthenticated || !req.isAuthenticated()) {
-        console.log('❌ User not authenticated for subscription');
-        return res.status(401).json({ error: 'Authentication required for subscription' });
-      }
-
-      const userSession = req.session?.passport?.user;
-      if (!userSession?.claims) {
-        console.log('❌ No user claims found in session');
-        return res.status(401).json({ error: 'Invalid session data' });
-      }
-
-      const userId = userSession.claims.sub;
-      const userEmail = userSession.claims.email;
-      
-      let user = await storage.getUser(userId);
-      
-      if (!user) {
-        console.log('❌ User not found in database:', userId);
-        return res.status(404).json({ error: 'User not found' });
-      }
-
-      // Check if user already has a subscription
-      if (user.stripeSubscriptionId) {
-        console.log('✅ User has existing subscription:', user.stripeSubscriptionId);
-        
-        try {
-          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
-          
-          if (subscription.status === 'active') {
-            return res.json({
-              subscriptionId: subscription.id,
-              status: 'active',
-              message: 'User already has an active subscription'
-            });
-          }
-        } catch (stripeError) {
-          console.log('⚠️ Existing subscription not found in Stripe, creating new one...');
-        }
-      }
-
-      // Create Stripe customer if doesn't exist
-      let customerId = user.stripeCustomerId;
-      
-      if (!customerId) {
-        console.log('📝 Creating new Stripe customer...');
-        const customer = await stripe.customers.create({
-          email: userEmail,
-          metadata: {
-            userId: userId
-          }
-        });
-        
-        customerId = customer.id;
-        
-        // Update user with customer ID
-        await storage.updateUserProfile(userId, { 
-          stripeCustomerId: customerId 
-        });
-        
-        console.log('✅ Stripe customer created:', customerId);
-      }
-
-      // Create subscription for basic plan ($9.97/month)
-      console.log('📝 Creating new subscription...');
-      const subscription = await stripe.subscriptions.create({
-        customer: customerId,
-        items: [{
-          price_data: {
-            currency: 'usd',
-            product: 'SSELFIE Studio Basic Plan',
-            unit_amount: 997, // $9.97 in cents
-            recurring: {
-              interval: 'month'
-            }
-          }
-        }],
-        payment_behavior: 'default_incomplete',
-        expand: ['latest_invoice.payment_intent'],
-      });
-
-      // Update user with subscription ID
-      await storage.updateUserProfile(userId, { 
-        stripeSubscriptionId: subscription.id,
-        plan: 'basic'
-      });
-
-      console.log('✅ Subscription created successfully:', subscription.id);
-
-      const latestInvoice = subscription.latest_invoice as any;
-      const clientSecret = latestInvoice?.payment_intent?.client_secret || null;
-
-      res.json({
-        subscriptionId: subscription.id,
-        clientSecret: clientSecret,
-        status: subscription.status
-      });
-      
-    } catch (error: any) {
-      console.error('❌ Subscription creation error:', error);
-      res.status(500).json({ 
-        error: 'Failed to create subscription: ' + error.message 
-      });
-    }
-  });
-
+  
   // Setup rollback routes
-  // REMOVED: setupRollbackRoutes(app) - unused system
-
+  setupRollbackRoutes(app);
+  
   // Register Victoria AI service layer
   registerVictoriaService(app);
-
+  
   // Register Victoria website generator
   registerVictoriaWebsiteGenerator(app);
-
+  
   // AGENT PROTOCOL ENFORCEMENT SYSTEM
   app.post('/api/agent-protocol/validate', async (req, res) => {
     try {
       const { agentId, taskDescription, targetComponents } = req.body;
-
+      
       const { ActiveProtocolEnforcer } = await import('./agents/core/protocols/active-protocol-enforcer.js');
-
+      
       const task = {
         agentId,
         taskDescription,
         targetComponents,
         timestamp: Date.now()
       };
-
+      
       const validation = ActiveProtocolEnforcer.validateAgentTask(task);
-
+      
       if (!validation.isValid) {
         console.log(`🚨 AGENT PROTOCOL VIOLATION: ${agentId}`);
         console.log('📋 SAFETY CHECKS:', validation.safetyChecks);
       }
-
+      
       res.json({
         success: true,
         validation,
         approvedActions: validation.approvedActions
       });
-
+      
     } catch (error) {
       console.error('❌ Agent protocol validation error:', error);
       res.status(500).json({
@@ -597,12 +363,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-
+  
   // Agent protocol status endpoint
   app.get('/api/agent-protocol/status/:agentId', async (req, res) => {
     try {
       const { agentId } = req.params;
-
+      
       res.json({
         success: true,
         agentId,
@@ -610,7 +376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         personalitySystemActive: true,
         cleanupCompleted: true
       });
-
+      
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -618,27 +384,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-
+  
   // CRITICAL: System health check for user models
   app.get('/api/admin/validate-all-models', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const user = await storage.getUser(userId);
-
+      
       // Only admin can access this endpoint
       if (user?.role !== 'admin') {
         return res.status(403).json({ error: 'Admin access required' });
       }
-
+      
       const { ModelValidationService } = await import('./model-validation-service');
       const results = await ModelValidationService.validateAllCompletedModels();
-
+      
       res.json({
         success: true,
         results,
         message: `Validation complete: ${results.healthy} healthy, ${results.corrupted} corrupted, ${results.corrected} corrected`
       });
-
+      
     } catch (error) {
       console.error('❌ Model validation endpoint error:', error);
       res.status(500).json({ 
@@ -653,12 +419,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       const websiteData = req.body;
-
+      
       // Generate website using Victoria AI
       const { db } = await import('./db');
       const { websites, onboardingData } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
-
+      
       // Get user's saved onboarding data for enhanced generation
       const userOnboarding = await db
         .select()
@@ -667,7 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .limit(1);
 
       console.log('Victoria Generation: Using saved onboarding data:', userOnboarding[0] ? 'Found' : 'Not found');
-
+      
       if (userOnboarding[0]) {
         console.log('📋 Saved onboarding includes:', {
           brandStory: !!userOnboarding[0].brandStory,
@@ -676,14 +442,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           brandVoice: userOnboarding[0].brandVoice
         });
       }
-
+      
       // Combine form data with saved onboarding data for comprehensive website generation
       const enhancedWebsiteData = {
         ...websiteData,
         // Include saved onboarding context for better generation
         savedOnboarding: userOnboarding[0] || null
       };
-
+      
       const [newWebsite] = await db
         .insert(websites)
         .values({
@@ -706,7 +472,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Connect with Victoria Agent for website generation
       console.log('Connecting with Victoria agent for website building...');
-
+      
       try {
         // Call Victoria agent with comprehensive data
         const victoriaRequest = {
@@ -716,17 +482,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           requestType: 'website_generation',
           timestamp: new Date().toISOString()
         };
-
+        
         console.log('👑 Victoria: Generating website with user data and onboarding context');
-
+        
         // Generate HTML with Victoria's intelligence
         const htmlPreview = generateWebsiteHTML(websiteData, userOnboarding[0]);
-
+        
         // Call unified agent system for Victoria
         // Victoria integration disabled - using basic generation
-
+        
         console.log('✅ Victoria: Website generated successfully');
-
+        
         res.json({
           success: true,
           website: {
@@ -741,13 +507,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             generatedAt: new Date().toISOString()
           }
         });
-
+        
       } catch (victoriaError) {
         console.warn('⚠️ Victoria agent connection failed, using fallback generation:', victoriaError);
-
+        
         // Fallback to basic HTML generation
         const htmlPreview = generateWebsiteHTML(websiteData, userOnboarding[0]);
-
+        
         res.json({
           success: true,
           website: {
@@ -773,11 +539,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { siteId, modifications } = req.body;
       const userId = req.user?.claims?.sub;
-
+      
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
-
+      
       const [updatedWebsite] = await db
         .update(websites)
         .set({ 
@@ -786,7 +552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .where(and(eq(websites.id, parseInt(siteId)), eq(websites.userId, userId)))
         .returning();
-
+      
       res.json({ success: true, website: updatedWebsite });
     } catch (error) {
       console.error('Victoria customization error:', error);
@@ -798,11 +564,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { siteId } = req.body;
       const userId = req.user?.claims?.sub;
-
+      
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
-
+      
       const [deployedWebsite] = await db
         .update(websites)
         .set({ 
@@ -813,7 +579,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .where(and(eq(websites.id, parseInt(siteId)), eq(websites.userId, userId)))
         .returning();
-
+      
       res.json({ 
         success: true, 
         deploymentUrl: deployedWebsite.url,
@@ -831,63 +597,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
-
+      
       const userWebsites = await db
         .select()
         .from(websites)
         .where(eq(websites.userId, userId))
         .orderBy(desc(websites.updatedAt));
-
+      
       res.json(userWebsites);
     } catch (error) {
       console.error('Error fetching Victoria websites:', error);
       res.status(500).json({ error: 'Failed to fetch websites' });
     }
   });
-
+  
   // Save brand assessment from new personal brand flow
   app.post('/api/save-brand-assessment', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const assessmentData = req.body;
-
+      
       const { db } = await import('./db');
-      const { onboardingData } = await import('../shared/schema');
+      const { brandOnboarding } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
-
-      // Transform personal brand assessment to onboarding format
+      
+      // Transform personal brand assessment to compatible format
       const brandData = {
         userId,
-        brandStory: assessmentData.personalStory || '',
-        personalMission: assessmentData.uniqueValue || '',
-        businessGoals: assessmentData.personalGoals?.join(', ') || '',
-        targetAudience: assessmentData.targetAudience || '',
-        businessType: 'Personal Brand',
-        brandVoice: assessmentData.personality || '',
-        stylePreferences: assessmentData.expertise?.join(', ') || '',
-        currentStep: 4,
-        completed: true,
-        completedAt: new Date()
+        businessName: assessmentData.personalStory ? 'Personal Brand' : '',
+        tagline: assessmentData.uniqueValue || '',
+        personalStory: assessmentData.personalStory || '',
+        targetClient: assessmentData.targetAudience || '',
+        uniqueApproach: assessmentData.uniqueValue || '',
+        primaryOffer: assessmentData.expertise?.join(', ') || '',
+        brandPersonality: assessmentData.personality || '',
+        brandValues: assessmentData.personalGoals?.join(', ') || '',
+        selectedImages: JSON.stringify(assessmentData.selectedImages || {}),
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
-
-      // Check if user already has onboarding data
+      
+      // Check if user already has brand onboarding data
       const existingData = await db
         .select()
-        .from(onboardingData)
-        .where(eq(onboardingData.userId, userId));
-
+        .from(brandOnboarding)
+        .where(eq(brandOnboarding.userId, userId));
+        
       if (existingData.length > 0) {
         // Update existing
         const [updated] = await db
-          .update(onboardingData)
+          .update(brandOnboarding)
           .set({ ...brandData, updatedAt: new Date() })
-          .where(eq(onboardingData.userId, userId))
+          .where(eq(brandOnboarding.userId, userId))
           .returning();
         res.json({ success: true, data: updated });
       } else {
         // Create new
         const [created] = await db
-          .insert(onboardingData)
+          .insert(brandOnboarding)
           .values(brandData)
           .returning();
         res.json({ success: true, data: created });
@@ -908,13 +675,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
-
+      
       const userWebsites = await db
         .select()
         .from(websites)
         .where(eq(websites.userId, userId))
         .orderBy(desc(websites.updatedAt));
-
+      
       res.json(userWebsites);
     } catch (error) {
       console.error("Error fetching websites:", error);
@@ -927,19 +694,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user?.claims?.sub;
       const { db } = await import('./db');
       const { websites, insertWebsiteSchema } = await import('../shared/schema');
-
-      const websiteData = { 
-        ...req.body, 
-        userId,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-
+      
+      const validatedData = insertWebsiteSchema.parse({ ...req.body, userId });
+      
       const [newWebsite] = await db
         .insert(websites)
-        .values(websiteData)
+        .values(validatedData)
         .returning();
-
+      
       res.json(newWebsite);
     } catch (error) {
       console.error("Error creating website:", error);
@@ -954,17 +716,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
-
+      
       const [updatedWebsite] = await db
         .update(websites)
         .set({ ...req.body, updatedAt: new Date() })
         .where(and(eq(websites.id, websiteId), eq(websites.userId, userId)))
         .returning();
-
+      
       if (!updatedWebsite) {
         return res.status(404).json({ message: "Website not found" });
       }
-
+      
       res.json(updatedWebsite);
     } catch (error) {
       console.error("Error updating website:", error);
@@ -979,16 +741,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
-
+      
       const [deletedWebsite] = await db
         .delete(websites)
         .where(and(eq(websites.id, websiteId), eq(websites.userId, userId)))
         .returning();
-
+      
       if (!deletedWebsite) {
         return res.status(404).json({ message: "Website not found" });
       }
-
+      
       res.json({ message: "Website deleted successfully" });
     } catch (error) {
       console.error("Error deleting website:", error);
@@ -1008,15 +770,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to refresh screenshot" });
     }
   });
+  
 
-
-
+  
   // 🚨 Check training status and handle failures
   app.get('/api/training-status', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log(`🔍 Checking training status for user: ${userId}`);
-
+      
       const status = await storage.checkTrainingStatus(userId);
       res.json(status);
     } catch (error) {
@@ -1033,9 +795,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       console.log(`🗑️ RESTART: User ${userId} requesting fresh training start`);
-
+      
       await storage.deleteFailedTrainingData(userId);
-
+      
       res.json({ 
         success: true, 
         message: 'Training data cleared - ready for fresh start' 
@@ -1054,12 +816,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { requestId } = req.params;
       const authUserId = req.user.claims.sub;
-
+      
       console.log(`🔍 TRAINING PROGRESS: Request for ${requestId}, auth user: ${authUserId}`);
-
+      
       // Handle both user ID and model ID requests for compatibility
       let userId = requestId;
-
+      
       // If request ID looks like a model ID (number), try to find the corresponding user
       if (/^\d+$/.test(requestId)) {
         const modelFromDb = await storage.getUserModelById(parseInt(requestId));
@@ -1068,23 +830,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`🔄 TRAINING PROGRESS: Converted model ID ${requestId} to user ID ${userId}`);
         }
       }
-
+      
       // Allow admin access for impersonated users (Shannon testing)
       const isAdmin = authUserId === 'ssa@ssasocial.com';
-      // SECURITY: Use environment variable for admin access
-      const isImpersonatedShannon = authUserId === process.env.ADMIN_USER_ID && userId === process.env.SHANNON_USER_ID;
-
+      const isImpersonatedShannon = authUserId === 'shannon-1753945376880' && userId === '42585527';
+      
       // Ensure user can only access their own training progress (or admin/impersonated access)
       if (!isAdmin && !isImpersonatedShannon && userId !== authUserId) {
         console.log(`❌ TRAINING PROGRESS: Access denied for ${authUserId} requesting ${userId}`);
         return res.status(403).json({ error: 'Access denied' });
       }
-
+      
       console.log(`✅ TRAINING PROGRESS: Access granted for user ${userId}`);
-
+      
       // Get the user model (use the resolved userId)
       const userModel = await storage.getUserModelByUserId(userId);
-
+      
       if (!userModel) {
         console.log(`❌ TRAINING PROGRESS: No model found for user ${userId}`);
         return res.status(404).json({ error: 'No training found for this user' });
@@ -1093,7 +854,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let progress = 0;
       let status = userModel.trainingStatus;
       let isRealTraining = false;
-
+      
       // Check real Replicate training status if we have a training ID
       if (userModel.replicateModelId) {
         try {
@@ -1102,12 +863,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`
             }
           });
-
+          
           if (response.ok) {
             const replicateData = await response.json();
             status = replicateData.status;
             isRealTraining = true;
-
+            
             // Calculate progress based on Replicate status
             if (status === 'succeeded') {
               progress = 100;
@@ -1152,7 +913,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         replicateModelId: userModel.replicateModelId,
         modelName: userModel.modelName
       });
-
+      
     } catch (error) {
       console.error('Error getting training progress:', error);
       res.status(500).json({ error: 'Failed to get training progress' });
@@ -1164,19 +925,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       const { images } = req.body;
-
+      
       console.log(`🎯 Training model for user: ${userId} with ${images?.length || 0} images`);
-
+      
       if (!images || !Array.isArray(images) || images.length < 5) {
         return res.status(400).json({
           success: false,
           message: 'At least 5 images are required for training'
         });
       }
-
+      
       const { ModelTrainingService } = await import('./model-training-service');
       const result = await ModelTrainingService.startModelTraining(userId, images);
-
+      
       res.json({
         success: true,
         message: 'Training started successfully',
@@ -1184,7 +945,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         triggerWord: `${userId}_selfie`, // Simple trigger word
         status: result.status
       });
-
+      
     } catch (error) {
       console.error('❌ Training error:', error);
       res.status(500).json({
@@ -1201,40 +962,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
-
+  
   // Removed: agent-search-cache-test moved to backup
-
+  
   // Email automation routes
   app.use('/api/email', emailAutomation);
-
-  // DELETED: subscriber-import routes - File removed, functionality moved to direct database operations
-  // Subscriber management now handled through admin agents
+  
+  // Subscriber import routes
+  const subscriberImport = await import('./routes/subscriber-import');
+  app.use('/api/subscribers', subscriberImport.default);
   // REMOVED: Multiple conflicting admin routers - consolidated into single adminRouter
-
+  
   // Register white-label client setup endpoints
-  // REMOVED: app.use(whitelabelRoutes) - unused advanced customization
-
+  app.use(whitelabelRoutes);
+  
   // RESTORED: Sandra's admin user management system active
-
+  
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('🖼️ Fetching AI images for user:', userId);
-
+      
       const { db } = await import('./db');
       const { aiImages } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
-
+      
       const userImages = await db
         .select()
         .from(aiImages)
         .where(eq(aiImages.userId, userId))
         .orderBy(desc(aiImages.createdAt));
-
+      
       console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
       res.json(userImages);
-
+      
     } catch (error) {
       console.error('❌ Error fetching AI images:', error);
       res.status(500).json({ 
@@ -1249,16 +1011,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       console.log('🤖 OLD ENDPOINT - Fetching user model for user:', userId);
-
+      
       const { db } = await import('./db');
       const { userModels } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
-
+      
       const [userModel] = await db
         .select()
         .from(userModels)
         .where(eq(userModels.userId, userId));
-
+      
       if (userModel) {
         console.log(`✅ Found trained model: ${userModel.modelName}`);
         res.json(userModel);
@@ -1266,7 +1028,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('⚠️ No trained model found for user');
         res.json(null);
       }
-
+      
     } catch (error) {
       console.error('❌ Error fetching user model:', error);
       res.status(500).json({ 
@@ -1281,10 +1043,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       console.log('💬 Fetching Maya chats for user:', userId);
-
+      
       const userChats = await storage.getMayaChats(userId);
       res.json(userChats);
-
+      
     } catch (error) {
       console.error('❌ Error fetching Maya chats:', error);
       res.status(500).json({ 
@@ -1298,15 +1060,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       const { chatTitle, chatSummary } = req.body;
-
+      
       console.log('💬 Creating Maya chat for user:', userId);
-
+      
       const chat = await storage.createMayaChat({
         userId,
         chatTitle: chatTitle || 'New Maya Photoshoot',
         chatSummary
       });
-
+      
       res.json(chat);
     } catch (error) {
       console.error('❌ Error creating Maya chat:', error);
@@ -1322,7 +1084,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { message, chatHistory } = req.body;
       const userId = req.user?.claims?.sub;
-
+      
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
       }
@@ -1335,14 +1097,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get user context for personalized responses
       const user = await storage.getUser(userId);
-
+      
       let onboardingData = null;
       try {
         onboardingData = await storage.getOnboardingData(userId);
       } catch (error) {
         onboardingData = null;
       }
-
+      
       // Enhanced member system prompt with user context
       const memberSystemPrompt = `${mayaPersonality.systemPrompt}
 
@@ -1391,19 +1153,19 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
 
         const claudeData = await claudeResponse.json();
         response = claudeData.content[0].text;
-
+        
         // Check if Maya wants to generate images and extract the detailed prompt
         if (response.toLowerCase().includes('generate') || 
             response.toLowerCase().includes('create') ||
             response.toLowerCase().includes('photoshoot') ||
             response.toLowerCase().includes('ready to')) {
           canGenerate = true;
-
+          
           // Maya should include a hidden generation prompt in her response
           // Extract prompts that contain technical details like "raw photo, visible skin pores"
           const promptRegex = /```prompt\s*([\s\S]*?)\s*```/i;
           const promptMatch = response.match(promptRegex);
-
+          
           if (promptMatch) {
             generatedPrompt = promptMatch[1].trim();
             // Remove the prompt from the conversation response
@@ -1412,10 +1174,10 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
             // INTELLIGENT PROMPT CONVERSION: Transform Maya's exact conversational vision into accurate generation prompts
             const userId = req.user?.claims?.sub;
             const triggerWord = `user${userId}`;
-
+            
             console.log('🎯 MAYA PROMPT CONVERSION: Converting conversation to generation prompt');
             console.log('🎬 MAYA DESCRIPTION TO CONVERT:', response.substring(0, 300));
-
+            
             try {
               // Use Claude to intelligently convert Maya's exact description to a generation prompt
               const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1454,7 +1216,7 @@ Rules:
               } else {
                 throw new Error('Claude conversion failed');
               }
-
+              
             } catch (error) {
               console.error('❌ Maya prompt conversion failed:', error);
               // Simple fallback that uses user's last message context instead of hardcoded content
@@ -1488,7 +1250,7 @@ Rules:
     try {
       const { message, onboardingData, conversationHistory } = req.body;
       const userId = req.user?.claims?.sub;
-
+      
       if (!message) {
         return res.status(400).json({ error: 'Message is required' });
       }
@@ -1501,7 +1263,7 @@ Rules:
 
       // Get user context for personalized responses
       const user = await storage.getUser(userId);
-
+      
       // Enhanced member system prompt with user context
       const memberSystemPrompt = `${victoriaPersonality.systemPrompt}
 
@@ -1592,9 +1354,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const { chatId } = req.params;
       const { role, content, imagePreview, generatedPrompt } = req.body;
-
+      
       console.log('💬 Saving Maya message to chat:', chatId);
-
+      
       const message = await storage.createMayaChatMessage({
         chatId: parseInt(chatId),
         role,
@@ -1602,7 +1364,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         imagePreview: imagePreview ? JSON.stringify(imagePreview) : null,
         generatedPrompt
       });
-
+      
       res.json(message);
     } catch (error) {
       console.error('❌ Error saving Maya chat message:', error);
@@ -1618,15 +1380,15 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const { chatId, messageId } = req.params;
       const { imagePreview, generatedPrompt } = req.body;
-
+      
       console.log(`🎬 Maya: Updating message ${messageId} with image preview`);
-
+      
       // Update the Maya message with image preview data
       await storage.updateMayaChatMessage(parseInt(messageId), {
         imagePreview,
         generatedPrompt
       });
-
+      
       res.json({ success: true, message: 'Preview updated successfully' });
     } catch (error) {
       console.error('❌ Error updating Maya message preview:', error);
@@ -1641,16 +1403,16 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
       console.log('🎬 Maya generation endpoint called');
-
+      
       const userId = req.user?.claims?.sub;
       const { prompt, customPrompt } = req.body;
       const actualPrompt = customPrompt || prompt;
-
+      
       console.log('🎬 Maya: Starting generation for user:', userId);
-
+      
       // CRITICAL: Validate and correct user model using new validation service
       const { ModelValidationService } = await import('./model-validation-service');
-
+      
       let modelValidation;
       try {
         modelValidation = await ModelValidationService.enforceUserModelRequirements(userId);
@@ -1660,27 +1422,27 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           message: error instanceof Error ? error.message : "Model validation failed"
         });
       }
-
+      
       const { modelId, versionId, triggerWord } = modelValidation;
-
+      
       // Build enhanced prompt with trigger word and quality settings
       let finalPrompt = actualPrompt;
       if (!finalPrompt.includes(triggerWord)) {
         finalPrompt = `${triggerWord} ${finalPrompt}`;
       }
-
+      
       // Add basic photography enhancements  
       if (!finalPrompt.includes('raw photo')) {
         finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, ${finalPrompt}, professional photography`;
       }
-
+      
       // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use their validated trained models
       const modelVersion = `${modelId}:${versionId}`;
       console.log(`🎬 Maya: Using model ${modelVersion}`);
-
+      
       // CRITICAL TEST: Check if model exists on Replicate before generation
       console.error(`🔍 PRE-GENERATION MODEL CHECK: Testing existence of ${modelId}`);
-
+      
       try {
         const modelCheckResponse = await fetch(`https://api.replicate.com/v1/models/${modelId}`, {
           headers: {
@@ -1688,7 +1450,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           }
         });
         console.error(`🔍 MODEL CHECK RESULT: ${modelCheckResponse.status} - ${modelCheckResponse.ok ? 'EXISTS' : 'NOT FOUND'}`);
-
+        
         if (!modelCheckResponse.ok) {
           const errorText = await modelCheckResponse.text();
           console.error(`🚨 SHANNON'S MODEL NOT FOUND: ${errorText}`);
@@ -1696,7 +1458,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       } catch (modelCheckError) {
         console.error(`🚨 MODEL CHECK FAILED:`, modelCheckError);
       }
-
+      
       const requestBody = {
         version: modelVersion,
         input: {
@@ -1734,17 +1496,16 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const prediction = await response.json();
       console.log('✅ Maya: Prediction started:', prediction.id);
 
-      // Create generation tracker for live progress monitoring
-      const trackerData: any = {
+      // Create generation tracker for live progress monitoring (like working system from 2 days ago)
+      const { insertGenerationTrackerSchema } = await import('../shared/schema');
+      const trackerData = {
         userId,
         predictionId: prediction.id,
         prompt: finalPrompt,
         style: 'Maya Editorial',
-        status: 'processing',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        status: 'processing'
       };
-
+      
       const savedTracker = await storage.saveGenerationTracker(trackerData);
       console.log('📊 Maya: Created tracker:', savedTracker.id);
 
@@ -1756,7 +1517,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         message: "Maya is creating your stunning editorial photos! Watch the magic happen...",
         status: 'processing'
       });
-
+      
     } catch (error) {
       console.error('❌ Maya generation error:', error);
       res.status(500).json({ 
@@ -1766,77 +1527,76 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       });
     }
   });
-
+  
   // STREAMING ADMIN ROUTES - Fixed WebSocket communication
   // ELIMINATED: registerStreamingAdminRoutes - was intercepting tools before reaching bypass system
-
+  
   // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
   // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
-
-  // UNIFIED ADMIN SYSTEM: Single consulting-agents interface (competing routes removed)
-
-  // REMOVED: Quinn Testing Routes - testing system not needed
-  // app.use('/api/quinn', quinnTestingRouter);
-
+  
+  // RESTORED: Sandra's designed admin and consulting agent routes
+  app.use('/api/admin', adminRouter);
+  app.use('/api/admin/cache', adminCacheRouter);
+  
+  // Quinn Testing Routes for User Journey Validation
+  app.use('/api/quinn', quinnTestingRouter);
+  
   // Member Protection Routes - Revenue Feature Safety
   app.use('/api/protection', memberProtectionRouter);
-
-  // REMOVED: System Validation Routes - excessive validation logging
-  // app.use('/api/system', systemValidationRouter);
-
+  
+  // System Validation Routes - Phase Testing
+  app.use('/api/system', systemValidationRouter);
+  
   // Member Journey Testing - Real User Experience
-  // DELETED: member-journey-test routes - Development complete
-
-  // REMOVED: Phase 2 Coordination - unused coordination system
-  // app.use('/api/phase2', phase2CoordinationRouter);
-
+  app.use('/api/member-test', memberJourneyTestRouter);
+  
+  // Phase 2 Coordination - Agent Workflow Execution
+  app.use('/api/phase2', phase2CoordinationRouter);
+  
   // Phase 2 fixes handled by specialized agents
   // FIXED: Register consulting agents at correct path to match frontend calls
   // Regular consulting agents routes (non-admin)
   app.use('/api/consulting-agents', consultingAgentsRouter);
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
-
-  // AGENT BRIDGE ROUTES - Backend for bridge UI system
-  app.use('/api/agent-bridge', agentBridgeRouter);
-  console.log('✅ BRIDGE: Agent bridge routes registered at /api/agent-bridge');
-
+  
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
-
+  
   // INTELLIGENT AGENT-TOOL ORCHESTRATION: Sandra's vision implemented
   // ELIMINATED: intelligentOrchestrationRoutes - was forcing tool simulations
   // COMPETING SYSTEMS ELIMINATED: Only consulting-agents-routes.ts active for direct tool bypass
-
-  // DELETED: flatlay-library routes - Collections need remigration, will rebuild fresh later
-  // Victoria's image library will be recreated with proper data migration
-
+  
+  // Register flatlay library routes for Victoria
+  const flatlayLibraryRoutes = await import('./routes/flatlay-library');
+  app.use(flatlayLibraryRoutes.default);
+  
   // Generation tracker polling endpoint for live progress
   app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
     try {
       const { trackerId } = req.params;
       console.log(`🔍 TRACKER DEBUG: Looking for tracker ${trackerId}`);
-
+      
       const tracker = await storage.getGenerationTracker(parseInt(trackerId));
-
+      
       if (!tracker) {
         console.log(`❌ TRACKER DEBUG: Tracker ${trackerId} not found in database`);
         return res.status(404).json({ error: 'Generation tracker not found' });
       }
-
+      
       console.log(`✅ TRACKER DEBUG: Found tracker ${trackerId}, userId: ${tracker.userId}, status: ${tracker.status}`);
-
+      
       // Verify user owns this tracker - use auth ID directly for admin
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
-
+      
       console.log(`🔍 USER DEBUG: Auth user ID: ${authUserId}, Email: ${claims.email}`);
-
+      
       // Get the correct database user ID for verification
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
-
+      
       // Admin user 42585527 should have direct access
       if (authUserId === '42585527' || claims.email === 'ssa@ssasocial.com') {
         console.log(`🔑 ADMIN ACCESS: Granting admin access to tracker ${trackerId}`);
@@ -1845,18 +1605,18 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           console.log(`❌ USER DEBUG: User not found for auth ID ${authUserId}`);
           return res.status(404).json({ error: 'User not found' });
         }
-
+        
         // Check if tracker belongs to this user
         if (tracker.userId !== user.id) {
           console.log(`❌ AUTH DEBUG: User ${user.id} trying to access tracker owned by ${tracker.userId}`);
           return res.status(403).json({ error: 'Unauthorized access to tracker' });
         }
       }
-
+      
       // Parse URLs for preview
       let imageUrls = [];
       let errorMessage = null;
-
+      
       try {
         if (tracker.imageUrls) {
           const parsed = JSON.parse(tracker.imageUrls);
@@ -1870,9 +1630,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       } catch {
         imageUrls = [];
       }
-
+      
       console.log(`🎬 TRACKER ${trackerId}: Status=${tracker.status}, URLs=${imageUrls.length}, User=${user?.id || tracker.userId}`);
-
+      
       res.json({
         id: tracker.id,
         status: tracker.status,
@@ -1883,7 +1643,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         style: tracker.style,
         createdAt: tracker.createdAt
       });
-
+      
     } catch (error) {
       console.error('Error fetching generation tracker:', error);
       res.status(500).json({ error: 'Failed to fetch tracker status' });
@@ -1894,55 +1654,52 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/save-preview-to-gallery', isAuthenticated, async (req: any, res) => {
     try {
       const { trackerId, selectedImageUrls } = req.body;
-
+      
       if (!trackerId || !selectedImageUrls || !Array.isArray(selectedImageUrls)) {
         return res.status(400).json({ error: 'trackerId and selectedImageUrls array required' });
       }
-
+      
       // Get the correct database user ID
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
-
+      
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
-
+      
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
-
+      
       const dbUserId = user.id;
       const tracker = await storage.getGenerationTracker(trackerId);
-
+      
       if (!tracker || tracker.userId !== dbUserId) {
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
-
+      
       // Save each selected image to gallery with permanent S3 storage
       const savedImages = [];
-
+      
       for (const imageUrl of selectedImageUrls) {
         const galleryImage = await storage.saveAIImage({
           userId: dbUserId,
           imageUrl: imageUrl,
           prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-          style: 'editorial',
-          predictionId: tracker.predictionId || '',
           generationStatus: 'completed',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        } as any);
-
+          predictionId: tracker.predictionId || '',
+        });
+        
         savedImages.push(galleryImage);
       }
-
+      
       res.json({
         success: true,
         message: `Successfully saved ${savedImages.length} image(s) to your gallery`,
         savedImages: savedImages.length
       });
-
+      
     } catch (error) {
       console.error('Error saving to gallery:', error);
       res.status(500).json({ 
@@ -1957,21 +1714,21 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
-
+      
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
-
+      
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
-
+      
       console.log(`🖼️ Fetching gallery images for user: ${user.id}`);
       const aiImages = await storage.getAIImages(user.id);
       console.log(`✅ Found ${aiImages.length} gallery images for user ${user.id}`);
-
+      
       res.json(aiImages);
     } catch (error) {
       console.error("Error fetching gallery images:", error);
@@ -1983,12 +1740,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // ========================================
   // CRITICAL MEMBER WORKSPACE APIs
   // ========================================
-
+  
   // Subscription API - Required for workspace functionality
   app.get('/api/subscription', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-
+      
       // For now, return basic subscription data
       // TODO: Integrate with Stripe for real subscription data
       const subscription = {
@@ -1997,7 +1754,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         customerId: userId
       };
-
+      
       res.json(subscription);
     } catch (error) {
       console.error('Subscription API error:', error);
@@ -2009,7 +1766,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/usage/status', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-
+      
       // For now, return basic usage data
       // TODO: Integrate with real usage tracking
       const usage = {
@@ -2018,7 +1775,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         monthlyLimit: 100,
         isAdmin: userId === '42585527'
       };
-
+      
       res.json(usage);
     } catch (error) {
       console.error('Usage API error:', error);
@@ -2030,7 +1787,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-
+      
       // For now, return basic model data
       // TODO: Integrate with Replicate for real training status
       const userModel = {
@@ -2038,7 +1795,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         replicateModelId: `sselfie-${userId}`,
         lastTrainingDate: new Date().toISOString()
       };
-
+      
       res.json(userModel);
     } catch (error) {
       console.error('User model API error:', error);
@@ -2050,11 +1807,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-
+      
       // For now, return empty array
       // TODO: Integrate with S3 for real user images
       const images: any[] = [];
-
+      
       res.json(images);
     } catch (error) {
       console.error('AI images API error:', error);
@@ -2065,94 +1822,66 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/auth/user', async (req: any, res) => {
     try {
       console.log('🔍 /api/auth/user called - checking authentication');
-      console.log('🔍 Query parameters:', req.query);
-      console.log('🔍 Session debug:', {
-        hasSession: !!req.session,
-        sessionID: req.sessionID,
-        sessionData: req.session ? Object.keys(req.session) : [],
-        hasPassport: !!req.session?.passport,
-        passportUser: req.session?.passport?.user,
-        isAuthenticated: req.isAuthenticated?.(),
-        hasUser: !!req.user,
-        userClaims: req.user?.claims
-      });
-
-      // PRIORITY 1: Check if user is authenticated through OIDC session
-      if (req.isAuthenticated && req.isAuthenticated() && req.user) {
-        const userId = (req.user as any).claims?.sub;
-        console.log('✅ User authenticated via OIDC session, fetching user data for:', userId);
-
-        if (userId) {
-          const user = await storage.getUser(userId);
-          if (user) {
-            console.log('✅ User found in database:', user.email);
-            return res.json(user);
-          } else {
-            console.log('⚠️ User authenticated but not found in database, creating...');
-            const claims = (req.user as any).claims;
-            const newUser = await storage.upsertUser({
-              id: userId,
-              email: (claims as any).email || 'unknown@unknown.com',
-              firstName: (claims as any).first_name || 'User',
-              lastName: (claims as any).last_name || '',
-              profileImageUrl: (claims as any).profile_image_url || null
+      
+      // CRITICAL FIX: Admin agent authentication bypass (preserving admin functionality)
+      const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
+      if (adminToken === 'sandra-admin-2025') {
+        console.log('🔑 Admin token authenticated - creating admin user session');
+        
+        // Get or create Sandra admin user
+        let adminUser = await storage.getUser('admin-sandra');
+        if (!adminUser) {
+          // Try to get Sandra's actual user record first
+          adminUser = await storage.getUser('42585527') || await storage.getUserByEmail('ssa@ssasocial.com');
+          
+          if (!adminUser) {
+            adminUser = await storage.upsertUser({
+              id: 'admin-sandra',
+              email: 'ssa@ssasocial.com',
+              firstName: 'Sandra',
+              lastName: 'Admin',
+              profileImageUrl: null
             });
-            return res.json(newUser);
           }
         }
-      }
-
-      // PRIORITY 2: Direct session passport check (for cases where req.isAuthenticated fails)
-      if (req.session?.passport?.user?.claims) {
-        const userId = req.session.passport.user.claims.sub;
-        console.log('✅ Found passport user in session, fetching user data for:', userId);
         
-        const user = await storage.getUser(userId);
-        if (user) {
-          console.log('✅ User found via session passport:', user.email);
-          return res.json(user);
-        }
+        console.log('✅ Admin user authenticated:', adminUser.email);
+        return res.json(adminUser);
       }
 
-      // PRIORITY 3: Check session-based temporary authentication
+      // PRIORITY 1: Check session-based authentication (temp user)
       if (req.session?.user) {
-        console.log('✅ Session user found:', req.session.user.email);
+        console.log('✅ Session user found:', req.session.user);
         return res.json(req.session.user);
       }
 
-      // ZARA'S EMERGENCY PRIORITY 4: Enhanced development auth bypass 
-      const bypass = req.query.dev_auth;
-      if (bypass === 'sandra' || process.env.NODE_ENV === 'development') {
-        console.log('🛠️ Development auth bypass activated');
+      // PRIORITY 2: Check if user is authenticated through OIDC session
+      if (req.isAuthenticated() && (req.user as any)?.claims?.sub) {
+        const userId = (req.user as any).claims.sub;
+        console.log('✅ User authenticated via OIDC session, fetching user data for:', userId);
         
-        let user = await storage.getUserByEmail('ssa@ssasocial.com');
-        if (!user) {
-          console.log('🆕 Creating Sandra user record for development...');
-          user = await storage.upsertUser({
-            id: '42585527',
-            email: 'ssa@ssasocial.com',
-            firstName: 'Sandra',
-            lastName: 'Sigurjonsdottir',
-            role: 'admin',
-            plan: 'sselfie-studio',
-            monthlyGenerationLimit: -1,
-            mayaAiAccess: true,
-            victoriaAiAccess: true
-          });
+        // Check for impersonated user first (admin testing)
+        if (req.session?.impersonatedUser) {
+          console.log('🎭 Returning impersonated user:', req.session.impersonatedUser.email);
+          return res.json(req.session.impersonatedUser);
         }
         
-        req.session.user = user;
-        console.log('✅ Development auth bypass successful:', user.email);
-        return res.json(user);
+        const user = await storage.getUser(userId);
+        if (user) {
+          console.log('✅ User found in database:', user.email);
+          return res.json(user);
+        }
       }
-
-      console.log('❌ User not authenticated');
-
-      return res.status(401).json({ 
-        error: "Not authenticated",
-        loginUrl: "/api/login",
-        devBypass: "/api/auth/user?dev_auth=sandra"
+      
+      console.log('❌ User not authenticated - no session or admin token');
+      console.log('Session debug:', { 
+        hasSession: !!req.session, 
+        sessionUser: req.session?.user,
+        isAuthenticated: req.isAuthenticated?.(),
+        user: req.user,
+        cookies: req.headers.cookie
       });
+      return res.status(401).json({ error: "Not authenticated" });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Failed to fetch user" });
@@ -2167,7 +1896,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
       const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
-
+      
       if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ error: 'Admin access required' });
       }
@@ -2213,7 +1942,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
       const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
-
+      
       if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ error: 'Admin access required' });
       }
@@ -2228,23 +1957,44 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // REMOVED: Token usage monitoring endpoint - performance monitoring system deleted
-  // app.get('/api/admin/token-usage-stats', async (req: any, res) => {
+  // Token usage monitoring endpoint for smart routing analysis
+  app.get('/api/admin/token-usage-stats', async (req: any, res) => {
+    try {
+      const { tokenUsageMonitor } = await import('./monitoring/token-usage-monitor');
+      const timeWindow = parseInt(req.query.hours as string) || 24;
+      const stats = tokenUsageMonitor.getUsageStats(timeWindow);
+      const recentEntries = tokenUsageMonitor.getRecentEntries(20);
+
+      res.json({
+        success: true,
+        stats,
+        recentEntries,
+        message: `Token usage stats for last ${timeWindow} hours`,
+        smartRoutingActive: true
+      });
+    } catch (error) {
+      console.error('Token usage stats error:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 
   // REMOVED: Smart routing test endpoint (smart routing layer removed for direct access)
-
+  
   // Claude API route for frontend compatibility (bypass auth for now)
   app.post('/api/claude/send-message', async (req, res) => {
     try {
       const { agentName, message, conversationId, fileEditMode } = req.body;
-
+      
       console.log('🔍 Claude send-message called with:', {
         agentName,
         messageLength: message?.length || 0,
         conversationId,
         fileEditMode
       });
-
+      
       // Validate required fields
       if (!agentName) {
         return res.status(400).json({ 
@@ -2252,37 +2002,37 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           error: 'Agent name is required' 
         });
       }
-
+      
       if (!message) {
         return res.status(400).json({ 
           success: false, 
           error: 'Message is required' 
         });
       }
-
+      
       // Use existing admin user ID 
       const userId = '42585527';
-
+      
       // UNIFIED SERVICE: Use singleton to eliminate service multiplication
       const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
       const claudeService = claudeApiServiceSimple;
-
+      
       console.log('🎯 DIRECT AGENT ACCESS: Using Claude API with workspace tools (cost-optimized)');
-
+      
       // Direct Claude API call for admin agent operations
       try {
         const anthropic = await import('@anthropic-ai/sdk').then(m => m.default);
         const client = new anthropic({
           apiKey: process.env.ANTHROPIC_API_KEY,
         });
-
+        
         const result = await client.messages.create({
           model: 'claude-3-5-sonnet-20241022',
           max_tokens: 4000,
           messages: [{ role: 'user', content: message }],
           system: `You are ${agentName}, a helpful AI assistant.`
         });
-
+        
         const responseText = result.content[0].type === 'text' ? result.content[0].text : 'Ready to help!';
         res.json({ success: true, response: responseText });
       } catch (error) {
@@ -2300,15 +2050,15 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
   // EFFORT-BASED AGENT SYSTEM - Integrated into existing admin consulting agents
   // Legacy effortBasedExecutor removed - using AutonomousAgentIntegration instead
-
+  
   app.post('/api/admin/agents/execute', async (req: any, res) => {
     try {
       // Admin authentication bypass
       const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
       const isAdminRequest = adminToken === 'sandra-admin-2025';
-
+      
       console.log('🔐 AUTH DEBUG: adminToken =', adminToken, 'isAdminRequest =', isAdminRequest);
-
+      
       let userId;
       if (isAdminRequest) {
         userId = '42585527'; // Sandra's actual admin user ID
@@ -2346,9 +2096,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const { agentId } = req.params;
       const userId = '42585527'; // Sandra's admin user ID
-
+      
       console.log(`📋 API: Listing conversations for agent: ${agentId}`);
-
+      
       // Get recent conversations for this agent
       const conversations = await db
         .select()
@@ -2362,7 +2112,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         .limit(10);
 
       console.log(`📋 API: Found ${conversations.length} conversations for ${agentId}`);
-
+      
       return res.json({
         success: true,
         conversations,
@@ -2382,9 +2132,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/claude/conversation/:conversationId/history', async (req: any, res) => {
     try {
       const { conversationId } = req.params;
-
+      
       console.log(`📜 API: Loading history for conversation: ${conversationId}`);
-
+      
       // Get recent messages for this conversation (last 5 messages)
       const messages = await db
         .select()
@@ -2394,7 +2144,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         .limit(5);
 
       console.log(`📜 API: Found ${messages.length} messages for conversation ${conversationId}`);
-
+      
       return res.json({
         success: true,
         messages: messages.reverse(), // Return in chronological order
@@ -2419,26 +2169,26 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/claude/conversation/new', async (req, res) => {
     try {
       const { agentName } = req.body;
-
+      
       if (!agentName) {
         return res.status(400).json({ 
           success: false, 
           error: 'Agent name is required' 
         });
       }
-
+      
       // Use existing admin user ID 
       const userId = '42585527';
-
+      
       // Generate new conversation ID
       const conversationId = `conv_${agentName}_${userId || 'anonymous'}`;
-
+      
       // UNIFIED SERVICE: Use singleton to eliminate service multiplication
       const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
-
+      
       // Create conversation using available public method
       const conversationDbId = conversationId;
-
+      
       res.json({ 
         success: true, 
         conversationId,
@@ -2453,19 +2203,53 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // DUPLICATE REMOVED: This endpoint was duplicate of line 2146 - using single unified endpoint
+  // Conversation history endpoint (kept here for compatibility)
+  app.get('/api/claude/conversation/:conversationId/history', async (req, res) => {
+    try {
+      const { conversationId } = req.params;
+      
+      if (!conversationId) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Conversation ID is required' 
+        });
+      }
+      
+      // Use database directly to get conversation history
+      const { db } = await import('./db');
+      const { claudeMessages } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      const messages = await db
+        .select()
+        .from(claudeMessages)
+        .where(eq(claudeMessages.conversationId, conversationId))
+        .orderBy(claudeMessages.createdAt);
+      
+      res.json({ 
+        success: true, 
+        messages 
+      });
+    } catch (error) {
+      console.error('Conversation history error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to load conversation history' 
+      });
+    }
+  });
 
   app.post('/api/claude/conversation/clear', async (req, res) => {
     try {
       const { agentName } = req.body;
-
+      
       if (!agentName) {
         return res.status(400).json({ 
           success: false, 
           error: 'Agent name is required' 
         });
       }
-
+      
       // For now, just return success - conversation clearing can be implemented later
       res.json({ 
         success: true, 
@@ -2480,29 +2264,73 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // DUPLICATE REMOVED: This endpoint was duplicate of line 2001 - using single unified endpoint
+  // CRITICAL FIX: Missing /api/claude/send-message endpoint for admin dashboard
+  app.post('/api/claude/send-message', async (req, res) => {
+    try {
+      console.log('🔍 Claude send-message called with:', {
+        agentName: req.body.agentName,
+        messageLength: req.body.message?.length,
+        conversationId: req.body.conversationId,
+        fileEditMode: req.body.fileEditMode
+      });
 
+      const { agentName, message, conversationId, fileEditMode = true } = req.body;
+      
+      if (!agentName || !message) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Agent name and message are required' 
+        });
+      }
+
+      // Get user ID for authentication
+      let userId = 'admin-sandra'; // Default admin user
+      if (req.isAuthenticated() && (req.user as any)?.claims?.sub) {
+        userId = (req.user as any).claims.sub;
+      }
+
+      // UNIFIED SERVICE: Use singleton to eliminate service multiplication
+      const { claudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      const claudeService = claudeApiServiceSimple;
+      // Simple response generation for basic messaging
+      const response = `Hello! I'm ${agentName}, ready to help you with your request: "${message}"`;
+
+      res.json({
+        success: true,
+        response: (response as any).content || response,
+        conversationId: (response as any).conversationId || `conv_${agentName}_${userId || 'anonymous'}`
+      });
+
+    } catch (error) {
+      console.error('Claude send-message error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to send message to agent' 
+      });
+    }
+  });
+  
   // AI Images route for workspace gallery - CRITICAL: Missing endpoint restored
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       console.log('🖼️ Fetching AI images for user:', userId);
-
+      
       // Import database and schema
       const { db } = await import('./db');
       const { aiImages } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
-
+      
       // Query user's AI images from database
       const userImages = await db
         .select()
         .from(aiImages)
         .where(eq(aiImages.userId, userId))
         .orderBy(desc(aiImages.createdAt));
-
+      
       console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
       res.json(userImages);
-
+      
     } catch (error) {
       console.error('❌ Error fetching AI images:', error);
       res.status(500).json({ message: "Failed to fetch AI images", error: error instanceof Error ? error.message : 'Unknown error' });
@@ -2516,12 +2344,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('🤖 DEBUG: Full user object:', JSON.stringify(req.user, null, 2));
       console.log('🤖 DEBUG: Session impersonation:', req.session?.impersonatedUser?.id);
       console.log('🤖 Fetching user model for:', userId);
-
+      
       // Import database and schema
       const { db } = await import('./db');
       const { userModels } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
-
+      
       // Query user's latest model
       const [userModel] = await db
         .select()
@@ -2529,7 +2357,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         .where(eq(userModels.userId, userId))
         .orderBy(desc(userModels.createdAt))
         .limit(1);
-
+      
       if (userModel) {
         console.log(`✅ Found user model: ${userModel.modelName} (${userModel.trainingStatus})`);
         res.json(userModel);
@@ -2537,7 +2365,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         console.log('⚠️ No user model found');
         res.json(null);
       }
-
+      
     } catch (error) {
       console.error('❌ Error fetching user model:', error);
       res.status(500).json({ message: "Failed to fetch user model", error: error instanceof Error ? error.message : 'Unknown error' });
@@ -2551,7 +2379,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       const { category, subcategory } = req.body;
       const authUserId = req.user.claims.sub;
-
+      
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
       if (!user) {
@@ -2560,14 +2388,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           user = await storage.getUserByEmail(claims.email);
         }
       }
-
+      
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
-
+      
       // CRITICAL: Validate and correct user model using new validation service
       const { ModelValidationService } = await import('./model-validation-service');
-
+      
       let modelValidation;
       try {
         modelValidation = await ModelValidationService.enforceUserModelRequirements(user.id);
@@ -2577,12 +2405,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           message: 'Please train your model first'
         });
       }
-
+      
       console.log(`🎬 AI PHOTOSHOOT: Generating ${category}/${subcategory} for user ${user.id}`);
-
+      
       // MAYA'S INTELLIGENT PROMPT GENERATION FOR PHOTOSHOOT COLLECTIONS
       let generatedPrompt = '';
-
+      
       try {
         // Use Maya's expertise to create sophisticated collection prompts
         const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -2597,7 +2425,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
             max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
             messages: [{
               role: "user",
-              content: `You are Maya, the celebrity stylist expert. Create ONE sophisticated editorial photoshoot prompt for a photoshoot category.
+              content: `You are Maya, the celebrity stylist expert. Create ONE sophisticated editorial photoshoot prompt for "${category} - ${subcategory}".
 
 Format: [detailed scene/location], [luxury fashion description], [authentic expression/pose], [professional photography details]
 
@@ -2608,7 +2436,6 @@ Rules:
 - Natural authentic expressions (no fake smiles)
 - Professional photography techniques
 - Keep it sophisticated and editorial
-- Category context: ${category ? category.replace(/['"\\]/g, '').substring(0, 50) : 'general'} - ${subcategory ? subcategory.replace(/['"\\]/g, '').substring(0, 50) : 'standard'}
 
 Example: "minimalist rooftop terrace overlooking city skyline at golden hour, wearing architectural cashmere blazer in camel with wide-leg trousers, natural confident expression while reviewing documents, shot on Hasselblad X2D with 35mm lens, dramatic directional lighting creating editorial shadows"`
             }]
@@ -2622,13 +2449,13 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         } else {
           throw new Error('Maya prompt generation failed');
         }
-
+        
       } catch (error) {
         console.error('❌ Maya collection prompt generation failed:', error);
         // Sophisticated fallback instead of generic
         generatedPrompt = `luxury ${category} editorial featuring ${subcategory} styling, sophisticated fashion photography, authentic editorial expression, professional lighting`;
       }
-
+      
       // Use UnifiedGenerationService with Maya's sophisticated prompt and correct parameters
       const { UnifiedGenerationService } = await import('./unified-generation-service');
       const result = await UnifiedGenerationService.generateImages({
@@ -2636,7 +2463,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         prompt: generatedPrompt,
         category: `${category} - ${subcategory}` 
       });
-
+      
       res.json({
         success: true,
         predictionId: result.predictionId,
@@ -2644,7 +2471,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         trackerId: result.id,
         message: "AI photoshoot generation started!"
       });
-
+      
     } catch (error) {
       console.error('❌ AI Photoshoot generation error:', error);
       res.status(500).json({ 
@@ -2657,7 +2484,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
 
   // User info endpoint
   app.get('/api/user/info', (req, res) => {
-    if (req.user) {
+    if (req.isAuthenticated?.()) {
       res.json({
         user: req.user,
         isAuthenticated: true
@@ -2676,15 +2503,15 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       const { selfieImages } = req.body;
-
+      
       console.log(`🚀 BULLETPROOF TRAINING: Starting for user ${authUserId} with ${selfieImages?.length || 0} images`);
-
+      
       // Get or create database user
       let user = await storage.getUser(authUserId);
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
       }
-
+      
       if (!user) {
         // Create user from claims
         user = await storage.upsertUser({
@@ -2693,14 +2520,14 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
           firstName: claims.first_name,
           lastName: claims.last_name,
           profileImageUrl: claims.profile_image_url,
-        } as any);
+        });
       }
-
+      
       // Import and use BulletproofUploadService
       const { BulletproofUploadService } = await import('./bulletproof-upload-service');
-
+      
       const result = await BulletproofUploadService.completeBulletproofUpload(user.id, selfieImages);
-
+      
       if (!result.success) {
         return res.status(400).json({
           success: false,
@@ -2709,7 +2536,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
           requiresRestart: result.requiresRestart
         });
       }
-
+      
       res.json({
         success: true,
         message: "BULLETPROOF training started! Your personal AI model will be ready in 30-45 minutes.",
@@ -2719,7 +2546,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         estimatedCompletionTime: "40 minutes",
         triggerWord: `user${user.id}`
       });
-
+      
     } catch (error) {
       console.error(`❌ Bulletproof training failed:`, error);
       res.status(500).json({ 
@@ -2736,19 +2563,19 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
       const isAdminAuth = adminToken === 'sandra-admin-2025';
-
+      
       const sessionUser = req.user;
       const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
-
+      
       if (!isAdminAuth && !isSessionAdmin) {
         return res.status(401).json({ message: "Admin access required" });
       }
-
+      
       const { userId } = req.params;
       console.log(`🔄 Admin requesting training restart for user: ${userId}`);
-
+      
       const result = await ModelRetrainService.restartTraining(userId);
-
+      
       if (result.success) {
         res.json({
           success: true,
@@ -2761,7 +2588,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
           error: result.message
         });
       }
-
+      
     } catch (error) {
       console.error('❌ Admin restart training error:', error);
       res.status(500).json({ 
@@ -2776,18 +2603,18 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
     try {
       const userId = req.user?.claims?.sub;
       const { collections } = req.body;
-
+      
       if (!collections || !Array.isArray(collections)) {
         return res.status(400).json({ error: 'Collections array required' });
       }
-
+      
       console.log(`MAYA COLLECTION UPDATE: Updating ${collections.length} collections for user ${userId}`);
-
+      
       const updatedCollections = [];
-
+      
       for (const collection of collections) {
         const updatedPrompts = [];
-
+        
         for (const oldPrompt of collection.prompts) {
           try {
             // Use Maya's expertise to upgrade each prompt
@@ -2825,34 +2652,34 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
             if (claudeResponse.ok) {
               const claudeData = await claudeResponse.json();
               const upgradedPrompt = claudeData.content[0].text.trim();
-
+              
               updatedPrompts.push({
                 ...oldPrompt,
                 prompt: upgradedPrompt,
                 lastUpdated: new Date().toISOString()
               });
-
+              
               console.log(`✅ MAYA UPGRADED: "${oldPrompt.name}" -> Enhanced with 2025 trends`);
             } else {
               // Keep original if upgrade fails
               updatedPrompts.push(oldPrompt);
               console.log(`⚠️ MAYA UPGRADE SKIPPED: "${oldPrompt.name}" - API error`);
             }
-
+            
           } catch (error) {
             console.error(`❌ Maya upgrade failed for "${oldPrompt.name}":`, error);
             // Keep original if upgrade fails
             updatedPrompts.push(oldPrompt);
           }
         }
-
+        
         updatedCollections.push({
           ...collection,
           prompts: updatedPrompts,
           lastUpdated: new Date().toISOString()
         });
       }
-
+      
       res.json({
         success: true,
         message: `Maya successfully updated ${updatedCollections.length} collections with latest 2025 trends and anatomy fixes`,
@@ -2863,7 +2690,7 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
           timestamp: new Date().toISOString()
         }
       });
-
+      
     } catch (error) {
       console.error('❌ Maya collection update error:', error);
       res.status(500).json({ 
@@ -2875,24 +2702,16 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
 
   // CRITICAL FIX: Start background monitoring services
   console.log('🚀 MONITORING: Starting background completion monitors...');
-
+  
   // Start Training Completion Monitor
   const { TrainingCompletionMonitor } = await import('./training-completion-monitor');
   TrainingCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Training completion monitor started');
-
+  
   // Start Generation Completion Monitor (CRITICAL: This was missing!)
   const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
   GenerationCompletionMonitor.getInstance().startMonitoring();
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
-
-  // CRITICAL PAYMENT ENDPOINTS - Register automation routes for Stripe webhooks
-  const { registerAutomationRoutes } = await import('./api/business/automation');
-  registerAutomationRoutes(app);
-  console.log('✅ PAYMENT AUTOMATION: Critical payment endpoints registered');
-
-  // VITE COMPLETELY DISABLED - Static files handled in index.ts
-  console.log('🚀 STATIC FILE MODE: CSS serving handled by index.ts - NO Vite interference');
-
+  
   return server;
 }

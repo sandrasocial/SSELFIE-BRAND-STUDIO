@@ -1,5 +1,4 @@
 import { storage } from './storage';
-import type { UserUsage } from '../shared/schema';
 
 // Plan configuration with usage limits and costs
 export const PLAN_LIMITS = {
@@ -159,12 +158,12 @@ export class UsageService {
 
     // For AI Pack (one-time purchase)
     if (usage.plan === 'ai-pack') {
-      const remaining = (usage.monthlyGenerationsAllowed || 0) - (usage.monthlyGenerationsUsed || 0);
+      const remaining = usage.totalGenerationsAllowed - usage.totalGenerationsUsed;
       return {
         canGenerate: remaining > 0,
         remainingGenerations: remaining,
-        totalUsed: usage.monthlyGenerationsUsed || 0,
-        totalAllowed: usage.monthlyGenerationsAllowed || 0,
+        totalUsed: usage.totalGenerationsUsed,
+        totalAllowed: usage.totalGenerationsAllowed,
         reason: remaining <= 0 ? 'AI Pack limit reached. Upgrade to Studio for monthly generations.' : undefined
       };
     }
@@ -175,8 +174,8 @@ export class UsageService {
       return {
         canGenerate: monthlyRemaining > 0,
         remainingGenerations: monthlyRemaining,
-        totalUsed: usage.monthlyGenerationsUsed || 0,
-        totalAllowed: usage.monthlyGenerationsAllowed || 999999,
+        totalUsed: usage.totalGenerationsUsed,
+        totalAllowed: usage.totalGenerationsAllowed || 999999,
         monthlyUsed: usage.monthlyGenerationsUsed || 0,
         monthlyAllowed: usage.monthlyGenerationsAllowed,
         resetDate: usage.currentPeriodEnd || undefined,
@@ -187,7 +186,7 @@ export class UsageService {
     return {
       canGenerate: false,
       remainingGenerations: 0,
-      totalUsed: usage.monthlyGenerationsUsed || 0,
+      totalUsed: usage.totalGenerationsUsed,
       totalAllowed: 0,
       reason: 'Invalid plan configuration'
     };
@@ -202,10 +201,16 @@ export class UsageService {
 
     // Record in usage history (skip if table doesn't exist)
     try {
-      // Usage history creation temporarily disabled due to schema mismatch
-      console.log('Usage history recording skipped (feature disabled)');
+      await storage.createUsageHistory({
+        userId,
+        actionType: update.actionType,
+        resourceUsed: update.resourceUsed,
+        cost: update.cost.toString(),
+        details: update.details,
+        generatedImageId: update.generatedImageId
+      });
     } catch (error) {
-      console.log('Usage history recording skipped (table may not exist):', (error as any).message);
+      console.log('Usage history recording skipped (table may not exist):', error.message);
     }
 
     // Update usage counters
@@ -216,15 +221,16 @@ export class UsageService {
 
     // Only count 'generation' actions against limits, NOT 'training'
     if (update.actionType === 'generation') {
-      // Use monthly generations for tracking since totalGenerationsUsed field is not in schema
-      const currentUsed = usage.monthlyGenerationsUsed || 0;
+      updates.totalGenerationsUsed = usage.totalGenerationsUsed + 1;
       
-      updates.monthlyGenerationsUsed = currentUsed + 1;
+      if (usage.monthlyGenerationsAllowed) {
+        updates.monthlyGenerationsUsed = (usage.monthlyGenerationsUsed || 0) + 1;
+      }
 
       // Check if limit is reached
       const planLimits = PLAN_LIMITS[usage.plan as keyof typeof PLAN_LIMITS];
       if (usage.plan === 'ai-pack') {
-        updates.isLimitReached = updates.monthlyGenerationsUsed >= (usage.monthlyGenerationsAllowed || 0);
+        updates.isLimitReached = updates.totalGenerationsUsed >= usage.totalGenerationsAllowed;
       } else if (planLimits.resetMonthly) {
         updates.isLimitReached = updates.monthlyGenerationsUsed >= (usage.monthlyGenerationsAllowed || 0);
       }
@@ -256,7 +262,7 @@ export class UsageService {
     const usageCheck = await this.checkUsageLimit(userId);
     
     // Get recent usage history
-    const recentHistory: any[] = []; // Stub for usage history
+    const recentHistory = await storage.getUserUsageHistory(userId, 30); // Last 30 days
 
     return {
       plan: usage.plan,
@@ -272,19 +278,19 @@ export class UsageService {
   // Admin function to get user costs (for Sandra's admin dashboard)
   static async getUserCostAnalysis(userId: string): Promise<any> {
     const usage = await storage.getUserUsage(userId);
-    const history: any[] = []; // Stub for usage history
+    const history = await storage.getUserUsageHistory(userId);
     
     if (!usage) return null;
 
     const totalCost = parseFloat(usage.totalCostIncurred);
     const planRevenue = PLAN_LIMITS[usage.plan as keyof typeof PLAN_LIMITS].cost;
     const profitMargin = planRevenue - totalCost;
-    const profitPercentage = planRevenue > 0 ? ((profitMargin / planRevenue) * 100).toFixed(1) : '0.0';
+    const profitPercentage = ((profitMargin / planRevenue) * 100).toFixed(1);
 
     return {
       userId,
       plan: usage.plan,
-      totalGenerations: usage.monthlyGenerationsUsed || 0,
+      totalGenerations: usage.totalGenerationsUsed,
       totalCost,
       planRevenue,
       profitMargin,

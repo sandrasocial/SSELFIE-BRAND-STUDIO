@@ -67,7 +67,7 @@ export default function SystemVerificationComplete() {
                 <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                 <div>
                   <p className="font-medium">Admin Interface Cleanup</p>
-                  <p className="text-sm text-gray-600">Single consulting agents interface replaces multiple dashboards</p>
+                  <p className="text-sm text-gray-600">Single UnifiedAgentInterface replaces multiple dashboards</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">

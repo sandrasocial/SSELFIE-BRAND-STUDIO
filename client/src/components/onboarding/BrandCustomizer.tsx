@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import React from 'react';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Card } from '../ui/card';
@@ -22,10 +22,10 @@ interface BrandCustomization {
   brandName: string;
 }
 
-export const BrandCustomizer: FC<BrandCustomizationProps> = ({
+export const BrandCustomizer: React.FC<BrandCustomizationProps> = ({
   onCustomizationChange
 }) => {
-  const [customization, setCustomization] = useState<BrandCustomization>({
+  const [customization, setCustomization] = React.useState<BrandCustomization>({
     colors: {
       primary: '#0a0a0a',
       secondary: '#ffffff',

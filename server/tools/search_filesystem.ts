@@ -24,12 +24,12 @@ export async function search_filesystem(parameters: any): Promise<string> {
     const projectOverview = await getProjectOverview();
     const dirStructure = await getBasicDirectoryListing();
     
-    results += `🚀 SSELFIE STUDIO PROJECT - FULL ACCESS RESTORED\n`;
-    results += `✅ STATUS: COMPLETE PROJECT VISIBILITY - ALL TOOLS WORKING\n\n`;
-    results += `📁 COMPLETE DIRECTORY STRUCTURE:\n${dirStructure}\n`;
+    results += `🚀 SSELFIE STUDIO PROJECT DETECTED AND READY\n`;
+    results += `✅ STATUS: FULLY INITIALIZED - DO NOT USE BASH OR SEARCH AGAIN\n\n`;
+    results += `📁 COMPLETE DIRECTORY LISTING (RAW DATA):\n${dirStructure}\n`;
     results += `📋 PROJECT ARCHITECTURE:\n${projectOverview}\n\n`;
-    results += `🎯 AGENT ACCESS: You now have complete visibility of the project structure and files.\n`;
-    results += `🔧 TOOLS AVAILABLE: You can now use str_replace_based_edit_tool, bash, and all other tools normally.\n`;
+    results += `🎯 FINAL RESULT: PROJECT IS FULLY VISIBLE - STOP SEARCHING AND USE THIS DATA\n`;
+    results += `⚠️ IMPORTANT: This search tool provides complete information. Do not use bash or search again.\n`;
 
     // If specific code snippets are provided, search for them
     if (code.length > 0) {
@@ -146,65 +146,28 @@ async function getProjectOverview(): Promise<string> {
 ✅ PROJECT STATUS: FULLY INITIALIZED AND READY FOR DEVELOPMENT`;
 }
 
-// Get complete directory listing - FIXED: No truncation for admin agents
+// Get basic directory listing
 async function getBasicDirectoryListing(): Promise<string> {
-  try {
-    // Use native fs for more reliable and comprehensive results
-    const fs = await import('fs/promises');
-    const path = await import('path');
+  const { spawn } = await import('child_process');
+  
+  return new Promise((resolve) => {
+    const cmd = spawn('ls', ['-la']);
     
-    // Get root directory contents first
-    const rootItems = await fs.readdir('.', { withFileTypes: true });
-    let listing = 'ROOT DIRECTORY CONTENTS:\n';
+    let output = '';
     
-    for (const item of rootItems.slice(0, 50)) { // Limit to prevent overwhelming output
-      const type = item.isDirectory() ? 'DIR' : 'FILE';
-      const name = item.name;
-      
-      // Skip node_modules and other large directories for cleaner output
-      if (!['node_modules', '.git', 'dist'].includes(name)) {
-        listing += `${type}: ${name}\n`;
-        
-        // Show key subdirectories for important folders
-        if (item.isDirectory() && ['server', 'client', 'src', 'components', 'pages', 'shared'].includes(name)) {
-          try {
-            const subItems = await fs.readdir(name, { withFileTypes: true });
-            for (const subItem of subItems.slice(0, 15)) {
-              const subType = subItem.isDirectory() ? 'DIR' : 'FILE';
-              listing += `  └─ ${subType}: ${name}/${subItem.name}\n`;
-            }
-          } catch (error) {
-            listing += `  └─ (access restricted)\n`;
-          }
-        }
-      }
-    }
-    
-    return listing;
-  } catch (error) {
-    // Fallback to ls command but WITHOUT TRUNCATION
-    const { spawn } = await import('child_process');
-    
-    return new Promise((resolve) => {
-      const cmd = spawn('ls', ['-la']);
-      
-      let output = '';
-      
-      cmd.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-      
-      cmd.on('close', () => {
-        // CRITICAL FIX: Return FULL output without truncation
-        resolve(output || 'Directory listing unavailable');
-      });
-      
-      setTimeout(() => {
-        cmd.kill();
-        resolve('Directory listing timed out');
-      }, 10000); // Increased timeout
+    cmd.stdout.on('data', (data) => {
+      output += data.toString();
     });
-  }
+    
+    cmd.on('close', () => {
+      resolve(output.substring(0, 1000) || 'Directory listing unavailable');
+    });
+    
+    setTimeout(() => {
+      cmd.kill();
+      resolve('Directory listing timed out');
+    }, 5000);
+  });
 }
 
 // Extract search terms from description

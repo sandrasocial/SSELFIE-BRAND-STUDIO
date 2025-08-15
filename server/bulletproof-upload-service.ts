@@ -136,18 +136,17 @@ export class BulletproofUploadService {
         const fileName = `user-${userId}/training-image-${i + 1}-${Date.now()}.jpg`;
         
         // Upload to S3 with public read access for Replicate training
-        const command = new PutObjectCommand({
+        const uploadResult = await this.s3.upload({
           Bucket: bucketName,
           Key: fileName,
           Body: imageBuffer,
           ContentType: 'image/jpeg'
           // No ACL specified - bucket policy handles permissions
-        });
-        const uploadResult = await this.s3.send(command);
+        }).promise();
         
         // Verify upload success
-        const s3Url = `https://${bucketName}.s3.amazonaws.com/${fileName}`;
-        if (!uploadResult) {
+        const s3Url = uploadResult.Location;
+        if (!s3Url) {
           errors.push(`Failed to upload image ${i + 1} to S3`);
           continue;
         }
@@ -232,8 +231,8 @@ export class BulletproofUploadService {
       await archive.finalize();
       
       // Wait for ZIP creation to complete
-      await new Promise<void>((resolve, reject) => {
-        output.on('close', () => resolve());
+      await new Promise((resolve, reject) => {
+        output.on('close', resolve);
         output.on('error', reject);
       });
       
@@ -272,7 +271,7 @@ export class BulletproofUploadService {
       }
       
       // Serve ZIP from local server (avoiding S3 region issues)
-      const zipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:3000'}/training-zip/${path.basename(zipPath)}`;
+      const zipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${path.basename(zipPath)}`;
       
       console.log(`✅ ZIP CREATION: Created ${zipStats.size} bytes at ${zipUrl}`);
       

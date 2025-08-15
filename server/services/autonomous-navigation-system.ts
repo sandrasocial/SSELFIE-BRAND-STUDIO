@@ -74,13 +74,12 @@ export class AutonomousNavigationSystem {
         contextualFiles,
         intentBasedFiles,
         smartResolution,
-        // workContext
+        workContext
       ] = await Promise.all([
         this.discoverContextualFiles(intent),
         this.performIntentBasedSearch(intent),
         this.smartPathResolution(intent.goal),
-        // ContextPreservationSystem.prepareAgentWorkspace('navigation', 'autonomous', intent.goal, false)
-        Promise.resolve({ filesModified: [], contextData: {} })
+        ContextPreservationSystem.prepareAgentWorkspace('navigation', 'autonomous', intent.goal, false)
       ]);
 
       // Combine and deduplicate results
@@ -88,14 +87,14 @@ export class AutonomousNavigationSystem {
         ...contextualFiles,
         ...intentBasedFiles,
         ...smartResolution,
-        // ...workContext.filesModified
+        ...workContext.filesModified
       ], intent);
 
       const result: NavigationResult = {
         success: allFiles.length > 0,
         discoveredFiles: allFiles.slice(0, 8), // Limit to prevent overwhelming
         suggestedActions: this.generateNavigationSuggestions(allFiles, intent),
-        contextualHelp: this.generateContextualHelp(intent, { contextData: {} }),
+        contextualHelp: this.generateContextualHelp(intent, workContext),
         errorPrevention: this.generateErrorPrevention(intent, allFiles)
       };
 
@@ -188,13 +187,13 @@ export class AutonomousNavigationSystem {
   }> {
     console.log('📊 AUTONOMOUS NAV: Analyzing workspace state');
 
-    // const projectContext = await ContextPreservationSystem.buildProjectContext(); // Disabled
+    const projectContext = await ContextPreservationSystem.buildProjectContext();
     
     return {
-      recentFiles: [],
-      activeAreas: ['server', 'client', 'shared'],
-      potentialIssues: [],
-      recommendations: ['Review project structure']
+      recentFiles: projectContext.recentChanges || [],
+      activeAreas: this.identifyActiveAreas(projectContext),
+      potentialIssues: await this.identifyPotentialIssues(projectContext),
+      recommendations: this.generateWorkspaceRecommendations(projectContext)
     };
   }
 
@@ -207,13 +206,19 @@ export class AutonomousNavigationSystem {
       expectedResults: []
     };
 
-    // Simplified file discovery
+    // Use unified context system for file discovery
+    const projectContext = await ContextPreservationSystem.buildProjectContext();
+    const result = await ContextPreservationSystem.findRelevantFiles(contextQuery.intent, projectContext);
+    
+    return Array.isArray(result) ? result : [];
+    
     return [];
   }
 
   private async performIntentBasedSearch(intent: NavigationIntent): Promise<string[]> {
-    // Simplified intent-based search
-    return [];
+    // Use intelligent context manager for semantic search
+    const files = await ContextPreservationSystem.findRelevantFiles(intent.goal, await ContextPreservationSystem.buildProjectContext());
+    return files;
   }
 
   private async smartPathResolution(goal: string): Promise<string[]> {
@@ -288,7 +293,7 @@ export class AutonomousNavigationSystem {
     return suggestions;
   }
 
-  private generateContextualHelp(intent: NavigationIntent, workContext?: any): string[] {
+  private generateContextualHelp(intent: NavigationIntent, workContext?: AgentContext): string[] {
     const help: string[] = [];
 
     if (workContext?.filesModified && workContext.filesModified.length > 0) {
@@ -359,8 +364,12 @@ export class AutonomousNavigationSystem {
     if (file.includes('/components/')) {
       const baseName = file.split('/').pop()?.replace('.tsx', '').replace('.ts', '');
       if (baseName) {
-        // Simplified related file discovery
-        related.push(`${baseName}.test.ts`, `${baseName}.styles.ts`);
+        const projectContext = await ContextPreservationSystem.buildProjectContext();
+        const searchResult = await ContextPreservationSystem.findRelevantFiles(`files related to ${baseName}`, projectContext);
+        
+        if (Array.isArray(searchResult)) {
+          related.push(...searchResult.filter(Boolean));
+        }
       }
     }
     
@@ -399,13 +408,22 @@ export class AutonomousNavigationSystem {
   }
 
   private async semanticPathMatch(reference: string, context?: string): Promise<string[]> {
-    // Simplified semantic matching
-    return [reference];
+    const query: IntentBasedQuery = {
+      intent: reference,
+      context: context || '',
+      expectedResults: []
+    };
+    
+    const projectContext = await ContextPreservationSystem.buildProjectContext();
+    const result = await ContextPreservationSystem.findRelevantFiles(query.intent, projectContext);
+    
+    return Array.isArray(result) ? result : [];
   }
 
   private async contextualPathMatch(reference: string, context?: string): Promise<string[]> {
-    // Simplified contextual matching
-    return [reference];
+    const projectContext = await ContextPreservationSystem.buildProjectContext();
+    const files = await ContextPreservationSystem.findRelevantFiles(`${reference} ${context || ''}`, projectContext);
+    return files;
   }
 
   private identifyActiveAreas(projectContext: any): string[] {

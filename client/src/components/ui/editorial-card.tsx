@@ -1,20 +1,20 @@
-import { ReactNode, forwardRef } from 'react';
+import React from 'react';
 
 interface EditorialCardProps {
   title: string;
   subtitle?: string;
   image?: string;
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
 }
 
-export const EditorialCard = ({
+export const EditorialCard: React.FC<EditorialCardProps> = ({
   title,
   subtitle,
   image,
   children,
   className = ''
-}: EditorialCardProps) => {
+}) => {
   return (
     <article className={`bg-white border border-gray-200 ${className}`}>
       {image && (

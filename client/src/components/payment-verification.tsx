@@ -1,11 +1,11 @@
-import { ReactNode } from 'react';
-import { useAuth } from '../hooks/use-auth';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 
 interface PaymentVerificationProps {
-  children: ReactNode;
+  children: React.ReactNode;
   requiredPlan?: string;
 }
 
@@ -47,12 +47,12 @@ export function PaymentVerification({ children, requiredPlan }: PaymentVerificat
     // FIXED: Free users should get immediate access to workspace
     // Only block access if user needs specific premium features
     if (requiredPlan && requiredPlan !== 'free') {
-      const hasRequiredPlan = subscription && typeof subscription === 'object' && subscription !== null && 'plan' in subscription ? (subscription as any).plan === requiredPlan : false;
+      const hasRequiredPlan = subscription?.plan === requiredPlan;
       if (!hasRequiredPlan) {
         toast({
           title: "Upgrade Required",
           description: `This feature requires ${requiredPlan} subscription.`,
-          
+          variant: "destructive",
         });
         setLocation('/pricing');
         return;

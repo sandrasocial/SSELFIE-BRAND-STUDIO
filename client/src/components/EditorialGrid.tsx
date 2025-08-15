@@ -1,5 +1,6 @@
-import { FC } from 'react';
-export const EditorialGrid: FC = () => {
+import React from 'react';
+
+export const EditorialGrid: React.FC = () => {
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4">

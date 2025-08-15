@@ -1,7 +1,8 @@
-import { FC, ReactNode } from 'react';
+import React from 'react';
+
 // Luxury editorial grid layout component
-export const EditorialGrid: FC<{
-  children: ReactNode;
+export const EditorialGrid: React.FC<{
+  children: React.ReactNode;
   columns?: number;
 }> = ({ children, columns = 3 }) => {
   return (

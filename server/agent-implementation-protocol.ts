@@ -577,7 +577,7 @@ export interface ${this.extractInterfaceName(importPath)} {
     
     // Test that new API endpoints respond
     try {
-      const response = await fetch('http://localhost:3000/api/enhancement/health');
+      const response = await fetch('http://localhost:5000/api/enhancement/health');
       results.push({
         type: 'integration',
         status: response.ok ? 'passed' : 'failed',

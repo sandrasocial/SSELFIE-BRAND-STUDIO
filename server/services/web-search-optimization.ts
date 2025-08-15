@@ -28,7 +28,7 @@ interface CachedDocument {
 export class WebSearchOptimizationService {
   private searchCache: Map<string, SearchResult> = new Map();
   private documentCache: Map<string, CachedDocument> = new Map();
-  private cacheDirectory = './server/cache/search';
+  private cacheDirectory = './server/cache/web-search';
   private maxCacheSize = 1000;
   private cacheDuration = 24 * 60 * 60 * 1000; // 24 hours
 

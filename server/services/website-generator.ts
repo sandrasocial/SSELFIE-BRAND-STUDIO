@@ -1,21 +1,4 @@
-// Types defined inline to avoid import errors
-interface WebsiteData {
-  businessName?: string;
-  businessDescription?: string;
-  targetAudience?: string;
-  keyFeatures?: string[];
-  brandPersonality?: string;
-}
-
-interface OnboardingData {
-  brandStory?: string;
-  targetAudience?: string;
-  brandVoice?: string;
-}
-
-interface ColorScheme {
-  [key: string]: { primary: string; secondary: string; accent: string; };
-}
+import { WebsiteData, OnboardingData, ColorScheme } from '../types';
 
 const colorScheme: ColorScheme = {
   professional: { primary: '#2c3e50', secondary: '#34495e', accent: '#3498db' },

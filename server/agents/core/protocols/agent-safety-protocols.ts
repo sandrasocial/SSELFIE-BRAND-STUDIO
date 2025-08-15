@@ -1,4 +1,4 @@
-import { AgentProtocolValidator } from '../../capabilities/tools/agent-protocol-validator.js';
+import { AgentProtocolValidator } from '../validators/agent-protocol-validator';
 import { ActiveProtocolEnforcer } from './active-protocol-enforcer';
 
 // Re-export the consolidated enforcement system

@@ -1,8 +1,8 @@
-import { FC, ReactNode } from 'react';
+import React from 'react';
 import { cn } from "@/lib/utils";
 
 interface LuxuryCardProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   variant?: "default" | "elevated" | "editorial" | "minimal";
   padding?: "none" | "sm" | "md" | "lg" | "xl";
@@ -10,7 +10,7 @@ interface LuxuryCardProps {
   background?: "white" | "gray" | "transparent";
 }
 
-export const LuxuryCard: FC<LuxuryCardProps> = ({
+export const LuxuryCard: React.FC<LuxuryCardProps> = ({
   children,
   className,
   variant = "default",
@@ -79,7 +79,7 @@ interface LuxuryCardHeaderProps {
   titleSize?: "sm" | "md" | "lg" | "xl";
 }
 
-export const LuxuryCardHeader: FC<LuxuryCardHeaderProps> = ({
+export const LuxuryCardHeader: React.FC<LuxuryCardHeaderProps> = ({
   title,
   subtitle,
   className,
@@ -117,11 +117,11 @@ export const LuxuryCardHeader: FC<LuxuryCardHeaderProps> = ({
 
 // Editorial Card Content Component
 interface LuxuryCardContentProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
 }
 
-export const LuxuryCardContent: FC<LuxuryCardContentProps> = ({
+export const LuxuryCardContent: React.FC<LuxuryCardContentProps> = ({
   children,
   className
 }) => {
@@ -140,11 +140,11 @@ export const LuxuryCardContent: FC<LuxuryCardContentProps> = ({
 
 // Editorial Card Footer Component  
 interface LuxuryCardFooterProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
 }
 
-export const LuxuryCardFooter: FC<LuxuryCardFooterProps> = ({
+export const LuxuryCardFooter: React.FC<LuxuryCardFooterProps> = ({
   children,
   className
 }) => {

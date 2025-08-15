@@ -1,8 +1,8 @@
-import { FC } from 'react';
+import React from 'react';
 import { Link } from 'wouter';
-import { InstallButton } from './ui/install-button';
+import { InstallButton } from '@/components/ui/install-button';
 
-export const GlobalFooter: FC = () => {
+export const GlobalFooter: React.FC = () => {
   return (
     <footer className="bg-black text-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

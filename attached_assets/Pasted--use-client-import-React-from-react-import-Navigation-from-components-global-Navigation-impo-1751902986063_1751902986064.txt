@@ -1,0 +1,215 @@
+'use client'
+
+import React from 'react'
+import Navigation from '@/components/global/Navigation'
+import { EditorialFooter } from '@/components/global/EditorialFooter'
+import { HeroFullBleed } from '@/components/sections/hero/HeroFullBleed'
+import { SandraImages } from '@/components/sandra-image-library'
+import Link from 'next/link'
+
+const faqData = [
+  {
+    question: "Do I need to be good at tech to use SSELFIE?",
+    answer: "Nope. If you can upload a photo and tap a button, you're more than qualified. I built this for women who'd rather spend time living than learning new software."
+  },
+  {
+    question: "What if I don't look like an influencer?",
+    answer: "Perfect. Me neither. SSELFIE is about real women, real stories, and real brands. No filters, no fake perfection, just you, showing up as her."
+  },
+  {
+    question: "Do I need professional photos?",
+    answer: "Absolutely not. All you need is your phone and a little window light. I'll show you exactly how to take the selfies that work (even on a messy Monday)."
+  },
+  {
+    question: "Is this just for coaches?",
+    answer: "Nope. It's for anyone who wants to build a personal brand: coaches, service providers, product makers, or \"I'm not sure what I do yet\" types. If you want to be seen, you're in the right place."
+  },
+  {
+    question: "How much time does this take?",
+    answer: "You can go from first selfie to live landing page in under an hour. Most women do it between school drop-off and their third cup of coffee."
+  },
+  {
+    question: "What do I get (like, actually)?",
+    answer: "• Your own brand mood board (colors, fonts, vibe)\n• Magazine-worthy on-brand selfies (AI-powered, but still you)\n• A done-for-you landing page (with email capture & booking)\n• Your custom SSELFIE link\n• Optional: Downloadable guides and digital products, ready to sell or send"
+  },
+  {
+    question: "What if I want to change something later?",
+    answer: "It's your brand. Change anything, anytime. Upload new selfies, switch up your colors, or update your offer whenever you want. No extra fees, no tech headaches."
+  },
+  {
+    question: "Can I use my own domain?",
+    answer: "For now, you get a custom sselfie.ai/yourname link. If you're craving a .com, DM me. We're working on it."
+  },
+  {
+    question: "Is this monthly or one-time?",
+    answer: "Membership is monthly, so you can update and keep everything fresh. Cancel anytime, no guilt, no drama."
+  },
+  {
+    question: "What if I get stuck?",
+    answer: "You won't. But if you do, I'm here. DM me on Instagram or use the contact page."
+  }
+]
+
+export default function FAQPage() {
+  return (
+    <>
+      <Navigation />
+      
+      <div className="min-h-screen">
+        {/* Hero Section */}
+        <HeroFullBleed
+          backgroundImage={SandraImages.editorial.laughing}
+          tagline="REAL QUESTIONS, REAL ANSWERS"
+          title="FAQ"
+          ctaText="STILL CURIOUS? JUST ASK"
+          ctaLink="#contact-sandra"
+        />
+
+        {/* FAQ Section */}
+        <section style={{ padding: '120px 0', backgroundColor: '#ffffff' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '80px' }}>
+              {faqData.map((faq, index) => (
+                <div 
+                  key={index} 
+                  style={{ 
+                    borderBottom: index < faqData.length - 1 ? '1px solid #e5e5e5' : 'none',
+                    paddingBottom: index < faqData.length - 1 ? '80px' : '0'
+                  }}
+                >
+                  <h3 
+                    style={{
+                      fontFamily: "'Times New Roman', serif",
+                      fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+                      lineHeight: '1.3',
+                      color: '#0a0a0a',
+                      fontWeight: '300',
+                      marginBottom: '24px',
+                      letterSpacing: '-0.01em'
+                    }}
+                  >
+                    {faq.question}
+                  </h3>
+                  <div 
+                    style={{
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                      fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
+                      lineHeight: '1.6',
+                      color: '#666666',
+                      fontWeight: '300',
+                      whiteSpace: 'pre-line'
+                    }}
+                  >
+                    {faq.answer}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section 
+          id="contact-sandra" 
+          style={{ 
+            padding: '120px 0', 
+            backgroundColor: '#0a0a0a',
+            textAlign: 'center'
+          }}
+        >
+          <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 40px' }}>
+            <h2 
+              style={{
+                fontFamily: "'Times New Roman', serif",
+                fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+                lineHeight: '1.2',
+                color: '#ffffff',
+                fontWeight: '200',
+                marginBottom: '32px',
+                letterSpacing: '-0.01em'
+              }}
+            >
+              Still have questions?
+            </h2>
+            
+            <p 
+              style={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
+                lineHeight: '1.6',
+                color: 'rgba(255,255,255,0.8)',
+                fontWeight: '300',
+                marginBottom: '48px',
+                maxWidth: '700px',
+                margin: '0 auto 48px auto'
+              }}
+            >
+              I get it. Sometimes you just want to talk to a real person.<br />
+              Message me on Instagram (@sandra.social) or send a note through the contact page.
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+              <a 
+                href="https://instagram.com/sandrasocial" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  fontSize: '11px',
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  color: '#ffffff',
+                  textDecoration: 'none',
+                  padding: '16px 32px',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  display: 'inline-block',
+                  transition: 'all 0.3s ease',
+                  fontWeight: '300'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff'
+                  e.currentTarget.style.color = '#0a0a0a'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.color = '#ffffff'
+                }}
+              >
+                DM ON INSTAGRAM
+              </a>
+              
+              <Link 
+                href="/contact"
+                style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                  fontSize: '11px',
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  color: '#ffffff',
+                  textDecoration: 'none',
+                  padding: '16px 32px',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  display: 'inline-block',
+                  transition: 'all 0.3s ease',
+                  fontWeight: '300'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff'
+                  e.currentTarget.style.color = '#0a0a0a'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.color = '#ffffff'
+                }}
+              >
+                ASK SANDRA
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
+      
+      <EditorialFooter />
+    </>
+  )
+}

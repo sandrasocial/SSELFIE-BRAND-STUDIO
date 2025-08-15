@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { SandraImages } from "../lib/sandra-images";
+import { SandraImages } from "@/lib/sandra-images";
 
 export default function NewLanding() {
   const [, setLocation] = useLocation();
@@ -21,7 +21,7 @@ export default function NewLanding() {
               SSELFIE
             </div>
             <button
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => setLocation('/login')}
               className="text-xs uppercase tracking-widest text-black hover:opacity-60 transition-opacity"
             >
               Login

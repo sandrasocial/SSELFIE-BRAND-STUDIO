@@ -1,8 +1,10 @@
-// Database service stub for workflow executor
+import { DatabaseService } from '../services/database-service';
 
 export class WorkflowExecutor {
-  constructor() {
-    // Simplified workflow executor
+  private db: DatabaseService;
+
+  constructor(db: DatabaseService) {
+    this.db = db;
   }
 
   async execute(workflow: any) {
@@ -19,7 +21,7 @@ export class WorkflowExecutor {
         const stepResult = await this.executeStep(step);
         results.steps.push(stepResult);
 
-        if (!stepResult.success && step.required) {
+        if (stepResult.error && step.required) {
           throw new Error(`Required step failed: ${step.name}`);
         }
       }
@@ -57,7 +59,7 @@ export class WorkflowExecutor {
   private async executeDatabaseStep(step: any) {
     switch (step.action) {
       case 'test_connection':
-        console.log('Database connection test completed');
+        await this.db.testConnection();
         break;
       case 'backup':
         // Implement backup logic

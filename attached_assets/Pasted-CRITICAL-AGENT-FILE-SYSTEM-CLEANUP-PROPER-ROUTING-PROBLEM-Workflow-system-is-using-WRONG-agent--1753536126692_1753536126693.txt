@@ -1,0 +1,40 @@
+CRITICAL: AGENT FILE SYSTEM CLEANUP & PROPER ROUTING
+
+PROBLEM: Workflow system is using WRONG agent files from archive/legacy systems instead of current operational agents. This is causing hardcoded old workflows and wrong agent responses.
+
+IMMEDIATE FIXES REQUIRED:
+
+1. AGENT FILE ARCHITECTURE CLEANUP:
+   - Identify which agent files are the CURRENT operational versions Sandra uses
+   - Remove or isolate all legacy/archive agent configurations
+   - Ensure workflow system only accesses current agent implementations
+   - Fix any routing that pulls from old/wrong agent sources
+
+2. WORKFLOW SYSTEM AGENT ROUTING FIX:
+   - Ensure Elena workflow system uses Sandra's CURRENT agents only
+   - Remove any hardcoded test workflows or old dashboard redesign workflows
+   - Connect workflow execution to the correct agent chat endpoints
+   - Validate that deployed agents are Sandra's actual working agents
+
+3. AUTHENTICATION & ACCESS CLEANUP:
+   - Consolidate to single agent authentication system Sandra uses
+   - Remove conflicting admin routes and duplicate agent endpoints  
+   - Ensure workflow system uses correct admin token and session auth
+   - Eliminate any service conflicts or competing authentication systems
+
+4. AGENT IDENTITY VERIFICATION:
+   - Confirm which Aria, Victoria, Maya, Zara etc. are Sandra's current agents
+   - Ensure workflow system deploys the correct agent versions
+   - Remove any archive/legacy agent personalities interfering
+   - Test that deployed agents match Sandra's actual agent conversations
+
+5. COMPLETE SYSTEM VALIDATION:
+   - Test that Elena workflow deploys Sandra's REAL agents (not archive versions)
+   - Verify agents use current business model (€67 SSELFIE STUDIO, not old info)
+   - Ensure no hardcoded test workflows or old dashboard modifications
+   - Confirm agents execute with Sandra's current agent capabilities
+
+CRITICAL: Sandra's agents work individually (Aria proved it) but workflow system is using WRONG agent files. Fix the routing to use Sandra's CURRENT agents, not archive/legacy versions.
+
+Clean up the entire agent file architecture immediately.
+```

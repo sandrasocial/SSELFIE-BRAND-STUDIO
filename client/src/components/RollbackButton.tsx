@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -41,6 +41,7 @@ export function RollbackButton({ filePath, className }: RollbackButtonProps) {
       toast({
         title: "Rollback Failed",
         description: "Could not rollback the file. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsRollingBack(false);

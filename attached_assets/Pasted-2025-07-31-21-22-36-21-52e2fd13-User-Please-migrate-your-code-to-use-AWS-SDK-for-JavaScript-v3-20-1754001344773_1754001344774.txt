@@ -1,0 +1,131 @@
+2025-07-31 21:22:36.21
+52e2fd13
+User
+Please migrate your code to use AWS SDK for JavaScript (v3).
+2025-07-31 21:22:36.21
+52e2fd13
+User
+For more information, check the blog post at https://a.co/cUPnyil
+2025-07-31 21:22:36.21
+52e2fd13
+User
+(Use `node --trace-warnings ...` to show where the warning was created)
+2025-08-01 00:07:46.41
+52e2fd13
+User
+Thu, 31 Jul 2025 22:07:46 GMT express deprecated req.host: Use req.hostname instead at file:/home/runner/workspace/node_modules/openid-client/build/passport.js:224:49
+2025-08-01 00:33:21.38
+18bc13e5
+User
+(node:37) NOTE: The AWS SDK for JavaScript (v2) is in maintenance mode.
+2025-08-01 00:33:21.38
+18bc13e5
+User
+SDK releases are limited to address critical bug fixes and security issues only.
+2025-08-01 00:33:21.38
+18bc13e5
+User
+2025-08-01 00:33:21.38
+18bc13e5
+User
+Please migrate your code to use AWS SDK for JavaScript (v3).
+2025-08-01 00:33:21.38
+18bc13e5
+User
+For more information, check the blog post at https://a.co/cUPnyil
+2025-08-01 00:33:21.38
+18bc13e5
+User
+(Use `node --trace-warnings ...` to show where the warning was created)
+2025-08-01 00:34:16.48
+18bc13e5
+User
+Thu, 31 Jul 2025 22:34:16 GMT express deprecated req.host: Use req.hostname instead at file:/home/runner/workspace/node_modules/openid-client/build/passport.js:224:49
+2025-08-01 00:34:16.63
+18bc13e5
+User
+ResponseBodyError: server responded with an error in the response body
+2025-08-01 00:34:16.63
+18bc13e5
+User
+at checkOAuthBodyError (file:///home/runner/workspace/node_modules/oauth4webapi/build/index.js:889:19)
+2025-08-01 00:34:16.63
+18bc13e5
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-08-01 00:34:16.63
+18bc13e5
+User
+at async processGenericAccessTokenResponse (file:///home/runner/workspace/node_modules/oauth4webapi/build/index.js:1165:5)
+2025-08-01 00:34:16.63
+18bc13e5
+User
+at async processAuthorizationCodeOAuth2Response (file:///home/runner/workspace/node_modules/oauth4webapi/build/index.js:1398:20)
+2025-08-01 00:34:16.63
+18bc13e5
+User
+at async Module.authorizationCodeGrant (file:///home/runner/workspace/node_modules/openid-client/build/index.js:942:18)
+2025-08-01 00:34:16.63
+18bc13e5
+User
+at async Strategy.authorizationCodeGrant (file:///home/runner/workspace/node_modules/openid-client/build/passport.js:194:28)
+2025-08-01 00:34:21.91
+18bc13e5
+User
+(node:36) NOTE: The AWS SDK for JavaScript (v2) is in maintenance mode.
+2025-08-01 00:34:21.91
+18bc13e5
+User
+SDK releases are limited to address critical bug fixes and security issues only.
+2025-08-01 00:34:21.91
+18bc13e5
+User
+2025-08-01 00:34:21.91
+18bc13e5
+User
+Please migrate your code to use AWS SDK for JavaScript (v3).
+2025-08-01 00:34:21.91
+18bc13e5
+User
+For more information, check the blog post at https://a.co/cUPnyil
+2025-08-01 00:34:21.91
+18bc13e5
+User
+(Use `node --trace-warnings ...` to show where the warning was created)
+2025-08-01 00:34:57.20
+18bc13e5
+User
+🚨🚨🚨 MAYA ENDPOINT DEFINITELY HIT - START OF FUNCTION 🚨🚨🚨
+2025-08-01 00:34:57.20
+18bc13e5
+User
+🚨🚨🚨 REQUEST RECEIVED - PROCESSING MAYA GENERATION 🚨🚨🚨
+2025-08-01 00:34:57.20
+18bc13e5
+User
+🚨🚨🚨 MAYA ENDPOINT HIT - VALIDATION STARTING 🚨🚨🚨
+2025-08-01 00:34:57.25
+18bc13e5
+User
+🚨🚨🚨 MAYA DEBUG: SENDING TO REPLICATE API: sandrasocial/45038279-selfie-lora-1753999745754:ee3b2219301a339fe43c99ca92680a80446e77141acc74dde9d88ce3686e2a23 🚨🚨🚨
+2025-08-01 00:34:57.25
+18bc13e5
+User
+🚨🚨🚨 REQUEST BODY DEBUG: {
+2025-08-01 00:34:57.25
+18bc13e5
+User
+"version": "sandrasocial/45038279-selfie-lora-1753999745754:ee3b2219301a339fe43c99ca92680a80446e77141acc74dde9d88ce3686e2a23"
+2025-08-01 00:34:57.25
+18bc13e5
+User
+} 🚨🚨🚨
+2025-08-01 00:34:57.25
+18bc13e5
+User
+🔍 PRE-GENERATION MODEL CHECK: Testing existence of sandrasocial/45038279-selfie-lora-1753999745754
+2025-08-01 00:34:57.42
+18bc13e5
+User
+🔍 MODEL CHECK RESULT: 200 - EXISTS
+

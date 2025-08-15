@@ -1,22 +1,23 @@
-// Browser compatibility utilities
-export function redirectToHttps() {
-  if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-    location.replace(`https:${location.href.substring(location.protocol.length)}`);
+export function redirectToHttps(): void {
+  if (location.protocol === 'http:' && location.hostname !== 'localhost') {
+    location.href = location.href.replace('http:', 'https:');
   }
 }
 
-export function detectBrowserIssues() {
-  const userAgent = navigator.userAgent.toLowerCase();
-  const isIE = userAgent.indexOf('msie') !== -1 || userAgent.indexOf('trident') !== -1;
+export function detectBrowserIssues(): string[] {
+  const issues: string[] = [];
   
-  if (isIE) {
-    console.warn('Internet Explorer detected - some features may not work properly');
-    return 'ie';
+  if (!window.fetch) {
+    issues.push('Fetch API not supported');
   }
   
-  return null;
+  if (!window.Promise) {
+    issues.push('Promise not supported');
+  }
+  
+  return issues;
 }
 
-export function showDomainHelp() {
-  console.log('Domain help available at /domain-help');
+export function showDomainHelp(): void {
+  console.warn('Browser compatibility issues detected. Please update your browser.');
 }

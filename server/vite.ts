@@ -19,18 +19,26 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-  export async function setupVite(app: Express, server: Server) {
-    const vite = await createViteServer({
-      ...viteConfig,
-      configFile: false,
-      customLogger: viteLogger,
-      server: {
-        middlewareMode: true,
-        allowedHosts: process.env.REPLIT_DOMAINS?.split(',') || ['localhost'],
-        host: '0.0.0.0'
+export async function setupVite(app: Express, server: Server) {
+  const serverOptions = {
+    middlewareMode: true,
+    hmr: { server },
+    allowedHosts: true as const,
+  };
+
+  const vite = await createViteServer({
+    ...viteConfig,
+    configFile: false,
+    customLogger: {
+      ...viteLogger,
+      error: (msg, options) => {
+        viteLogger.error(msg, options);
+        process.exit(1);
       },
-      appType: "custom",
-    });
+    },
+    server: serverOptions,
+    appType: "custom",
+  });
 
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
@@ -46,19 +54,12 @@ export function log(message: string, source = "express") {
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      // Simplified cache busting - only for main script
-      const cacheBuster = Date.now();
       template = template.replace(
         `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${cacheBuster}"`,
+        `src="/src/main.tsx?v=${nanoid()}"`,
       );
       const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ 
-        "Content-Type": "text/html",
-        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0"
-      }).end(page);
+      res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);
@@ -67,8 +68,7 @@ export function log(message: string, source = "express") {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "..", "client", "dist");
-  const assetsPath = path.join(distPath, "assets");
+  const distPath = path.resolve(import.meta.dirname, "public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -76,27 +76,7 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // Verify assets directory exists
-  if (!fs.existsSync(assetsPath)) {
-    throw new Error(
-      `Could not find the assets directory: ${assetsPath}, make sure the build process completed correctly`,
-    );
-  }
-
-  // Log available assets for debugging
-  const assets = fs.readdirSync(assetsPath);
-  log(`Available assets: ${assets.join(", ")}`, "static-server");
-
   app.use(express.static(distPath));
-  
-  // Add monitoring for 404s on asset requests
-  app.use("/assets/*", (req, res, next) => {
-    const assetPath = req.path;
-    if (!fs.existsSync(path.join(distPath, assetPath))) {
-      log(`404 Asset not found: ${assetPath}`, "static-server");
-    }
-    next();
-  });
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {

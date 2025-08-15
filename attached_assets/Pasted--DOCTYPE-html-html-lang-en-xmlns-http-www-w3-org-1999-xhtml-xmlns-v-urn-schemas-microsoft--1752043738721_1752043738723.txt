@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>Welcome to SSELFIE STUDIO</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:AllowPNG/>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+    <style>
+        /* Email Client Reset */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+            background: #ffffff;
+        }
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+        div[style*="margin: 16px 0"] {
+            margin: 0 !important;
+        }
+        table, td {
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 0 auto !important;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+
+        /* Typography */
+        .serif {
+            font-family: 'Times New Roman', Times, serif !important;
+            font-weight: 300;
+            letter-spacing: -0.01em;
+        }
+        .sans {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+            font-weight: 300;
+        }
+        .eyebrow {
+            font-size: 11px !important;
+            letter-spacing: 0.4em !important;
+            text-transform: uppercase !important;
+            color: #666666 !important;
+            margin: 0 0 16px 0 !important;
+            line-height: 1.4 !important;
+        }
+        .headline {
+            font-size: 32px !important;
+            line-height: 1.1 !important;
+            color: #0a0a0a !important;
+            margin: 0 0 24px 0 !important;
+        }
+        .subhead {
+            font-size: 18px !important;
+            line-height: 1.5 !important;
+            color: #0a0a0a !important;
+            margin: 0 0 32px 0 !important;
+        }
+        .body {
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+            color: #0a0a0a !important;
+            margin: 0 0 20px 0 !important;
+        }
+        .small {
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            color: #666666 !important;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 600px !important;
+            margin: 0 auto !important;
+            background: #ffffff;
+        }
+        .section {
+            padding: 40px 30px !important;
+        }
+        .section-dark {
+            background: #0a0a0a !important;
+            color: #ffffff !important;
+        }
+        .section-gray {
+            background: #f5f5f5 !important;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block !important;
+            padding: 16px 32px !important;
+            background: #0a0a0a !important;
+            color: #ffffff !important;
+            text-decoration: none !important;
+            font-size: 11px !important;
+            letter-spacing: 0.3em !important;
+            text-transform: uppercase !important;
+            border: none !important;
+            text-align: center !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+            font-weight: 400 !important;
+        }
+        .btn-white {
+            background: #ffffff !important;
+            color: #0a0a0a !important;
+        }
+
+        /* Mobile Responsive */
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .section {
+                padding: 30px 20px !important;
+            }
+            .headline {
+                font-size: 28px !important;
+            }
+            .subhead {
+                font-size: 16px !important;
+            }
+            .mobile-center {
+                text-align: center !important;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .dark-mode-bg {
+                background: #ffffff !important;
+            }
+            .dark-mode-text {
+                color: #0a0a0a !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="display: none; font-size: 1px; color: #ffffff; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+        Welcome to SSELFIE STUDIO — where your brand starts with a selfie
+    </div>
+    
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+            <td>
+                <div class="container">
+                    
+                    <!-- Header -->
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td class="section" style="text-align: center; padding-bottom: 0;">
+                                <div class="eyebrow sans">SSELFIE STUDIO</div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Hero Section -->
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td class="section" style="text-align: center;">
+                                <h1 class="headline serif">This didn't start as a business.<br>It started as survival.</h1>
+                                <p class="subhead sans">Hey beautiful — Sandra here. And I'm so damn proud you're taking this step.</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Story Section -->
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td class="section">
+                                <p class="body sans">One year ago, I was exactly where you might be right now.</p>
+                                
+                                <p class="body sans">Divorced. Three kids. Zero plan. Hiding from cameras because I didn't recognize the woman looking back at me.</p>
+                                
+                                <p class="body sans">But here's what I figured out: You don't need a full rebrand. You don't need fancy equipment or a design degree.</p>
+                                
+                                <p class="body sans">You just need your face, your story, and about twenty minutes.</p>
+                                
+                                <p class="body sans">That's exactly what SSELFIE STUDIO gives you.</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- CTA Section -->
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td class="section section-dark" style="text-align: center;">
+                                <h2 class="headline serif" style="color: #ffffff; margin-bottom: 16px;">Ready to build something real?</h2>
+                                <p class="body sans" style="color: #ffffff; margin-bottom: 32px;">Your AI-powered brand studio is waiting.</p>
+                                <a href="#" class="btn btn-white">START YOUR STUDIO</a>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- What's Next Section -->
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td class="section section-gray">
+                                <div class="eyebrow sans">WHAT HAPPENS NEXT</div>
+                                <h3 class="headline serif" style="font-size: 24px;">Three steps. That's it.</h3>
+                                
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 32px;">
+                                    <tr>
+                                        <td style="padding-bottom: 24px;">
+                                            <div class="eyebrow sans">STEP 01</div>
+                                            <p class="body sans" style="margin: 8px 0 0 0;"><strong>Upload 10-15 selfies</strong><br>Face the window, wear what you love. No ring light needed.</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-bottom: 24px;">
+                                            <div class="eyebrow sans">STEP 02</div>
+                                            <p class="body sans" style="margin: 8px 0 0 0;"><strong>Pick your vibe</strong><br>Choose your niche, your look, your dream client energy.</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-bottom: 0;">
+                                            <div class="eyebrow sans">STEP 03</div>
+                                            <p class="body sans" style="margin: 8px 0 0 0;"><strong>Watch the magic</strong><br>Your AI creates a whole editorial gallery. Instantly.</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Quote Section -->
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td class="section" style="text-align: center; padding: 60px 30px;">
+                                <p class="serif" style="font-size: 24px; line-height: 1.3; color: #0a0a0a; font-style: italic; margin: 0;">"Your mess is your message.<br>Let's turn it into money."</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Footer -->
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td class="section" style="text-align: center; border-top: 1px solid #e5e5e5;">
+                                <p class="small sans">You're receiving this because you joined SSELFIE STUDIO.<br>Ready to show up as her? Let's build something real together.</p>
+                                
+                                <p class="small sans" style="margin-top: 32px;">
+                                    SSELFIE STUDIO<br>
+                                    <a href="#" style="color: #666666;">Unsubscribe</a> | <a href="#" style="color: #666666;">Update preferences</a>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

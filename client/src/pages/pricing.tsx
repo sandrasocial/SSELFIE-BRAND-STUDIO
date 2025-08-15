@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/use-auth';
-import { HeroFullBleed } from '../components/hero-full-bleed';
-import { SandraImages } from '../components/sandra-image-library';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { EmailCaptureModal } from '../components/email-capture-modal';
-import { GlobalFooter } from '../components/global-footer';
+import { useAuth } from '@/hooks/use-auth';
+import { HeroFullBleed } from '@/components/hero-full-bleed';
+import { SandraImages } from '@/components/sandra-image-library';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
+import { EmailCaptureModal } from '@/components/email-capture-modal';
+import { GlobalFooter } from '@/components/global-footer';
 import { Link, useLocation } from 'wouter';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Pricing() {
-  // REMOVED: useAuth() - public pricing page doesn't need authentication
-  const user = null; // Public page - no user data needed
+  const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [scrolled, setScrolled] = useState(false);
@@ -96,7 +95,7 @@ export default function Pricing() {
 
     const script = document.createElement('script');
     script.type = 'application/ld+json';
-    script.textContent = JSON.stringify(structuredData);
+    script.innerHTML = JSON.stringify(structuredData);
     document.head.appendChild(script);
 
     return () => {

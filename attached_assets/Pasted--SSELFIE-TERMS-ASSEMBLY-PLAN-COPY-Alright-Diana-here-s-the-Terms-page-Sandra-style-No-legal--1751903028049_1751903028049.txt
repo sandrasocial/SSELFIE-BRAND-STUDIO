@@ -1,0 +1,119 @@
+# SSELFIE TERMS — ASSEMBLY PLAN & COPY
+
+Alright Diana, here’s the Terms page—Sandra style. No legal robot language, no endless scroll of fine print. Just the real deal on what you’re signing up for, what you can expect, and how we keep it all fair and safe.
+
+---
+
+## 1. HERO SECTION
+
+- **Component:** `HeroFullBleed.tsx`
+- **Image:** Editorial: Sandra, confident and hands-on-hips or arms crossed, “let’s get real” energy.
+- **Title:**  
+  TERMS
+- **Tagline:**  
+  THE FINE PRINT, WITHOUT THE FINE PRINT
+- **CTA:**  
+  HAVE QUESTIONS? JUST ASK
+
+---
+
+## 2. PLAIN ENGLISH OVERVIEW
+
+**Headline:**  
+Let’s keep it fair.
+
+**Copy:**  
+This is where we lay it all out—no surprises, no gotchas.  
+When you use SSELFIE, you’re agreeing to a few simple things (and so am I).  
+If you ever feel confused, just ask. I’m always here to explain in real words.
+
+---
+
+## 3. WHAT YOU CAN EXPECT FROM SSELFIE
+
+- You get access to everything your plan promises—no hidden fees, no sudden paywalls.
+- Your photos, brand, and content belong to you. Always.
+- We’ll do our best to keep the tech running and your stuff safe.
+- We’ll update you if anything changes—especially prices, features, or how your data is handled.
+
+---
+
+## 4. WHAT SSELFIE EXPECTS FROM YOU
+
+- Be real. Use your own photos, stories, and info.
+- Don’t upload anything illegal, hateful, or that isn’t yours.
+- Don’t try to hack, copy, or resell SSELFIE or anyone else’s work here.
+- If you’re stuck or unsure, reach out—don’t struggle in silence.
+
+---
+
+## 5. MEMBERSHIP & PAYMENTS
+
+- Membership is monthly, billed in advance.
+- Cancel anytime—your access stays active until the end of your billing cycle.
+- No refunds for time already used (just like a gym membership).
+- If a payment fails, we’ll let you know so you can fix it (no drama).
+
+---
+
+## 6. CANCELLING OR LEAVING
+
+- Cancel in your dashboard, no angry emails required.
+- When you leave, your info and photos are deleted within 30 days (unless you ask sooner).
+- Want your data back? Download anything you need before you go.
+
+---
+
+## 7. CHANGES TO THE TERMS
+
+- If we change anything big, you’ll get a heads-up (never a surprise).
+- Keeping using SSELFIE means you’re okay with the updates.
+
+---
+
+## 8. LEGAL BASICS (IN HUMAN LANGUAGE)
+
+- We follow the laws in the EU and US (GDPR, CCPA, etc.).
+- SSELFIE isn’t responsible for what you post—use your best judgment.
+- If something goes wrong (tech bugs, downtime), we’ll do our best to fix it fast, but can’t be liable for lost business or missed opportunities.
+- If you have a business dispute, let’s talk first. If we can’t fix it, local Icelandic law applies.
+
+---
+
+## 9. CONTACT
+
+**Headline:**  
+Still want it in lawyer-speak? Or just need something explained?
+
+**Copy:**  
+Send me a note through the contact page or DM me on Instagram (@sandrasocial).  
+No bots, no wait times, just Sandra.
+
+**CTA Button:**  
+ASK SANDRA
+
+---
+
+## 10. STYLE & QA REMINDERS
+
+- Editorial images only—never stock, never “corporate.”
+- Layout: Air, clarity, and lots of white space.
+- Typography:  
+  - Headlines = ‘Times New Roman’, serif  
+  - Body/UI = system sans
+- Button: All caps, minimal, inviting.
+- Copy: Sandra’s voice—warm, direct, plain English, zero lawyer jargon.
+- No m-dash. Never “legalese.”
+
+---
+
+## FINAL CHECKLIST
+
+- [ ] Hero: Title, tagline, CTA
+- [ ] Real talk intro—sets the tone
+- [ ] Clear expectations: both ways
+- [ ] Membership & cancellation rules—simple, fair
+- [ ] Legal basics—plain English
+- [ ] Contact/CTA—Sandra’s voice, not a bot
+
+Let’s make this the only terms page you’ll ever actually read.

@@ -1,0 +1,46 @@
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-WERSD76P.js?v=a310d610:14032
+update.callback @ chunk-WERSD76P.js?v=a310d610:14052
+callCallback @ chunk-WERSD76P.js?v=a310d610:11248
+commitUpdateQueue @ chunk-WERSD76P.js?v=a310d610:11265
+commitLayoutEffectOnFiber @ chunk-WERSD76P.js?v=a310d610:17093
+commitLayoutMountEffects_complete @ chunk-WERSD76P.js?v=a310d610:17980
+commitLayoutEffects_begin @ chunk-WERSD76P.js?v=a310d610:17969
+commitLayoutEffects @ chunk-WERSD76P.js?v=a310d610:17920
+commitRootImpl @ chunk-WERSD76P.js?v=a310d610:19353
+commitRoot @ chunk-WERSD76P.js?v=a310d610:19277
+finishConcurrentRender @ chunk-WERSD76P.js?v=a310d610:18760
+performConcurrentWorkOnRoot @ chunk-WERSD76P.js?v=a310d610:18718
+workLoop @ chunk-WERSD76P.js?v=a310d610:197
+flushWork @ chunk-WERSD76P.js?v=a310d610:176
+performWorkUntilDeadline @ chunk-WERSD76P.js?v=a310d610:384Understand this error
+chunk-WERSD76P.js?v=a310d610:20442 Uncaught Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: object.
+
+Check the render method of `LiveComponentPreview`.
+    at createFiberFromTypeAndProps (chunk-WERSD76P.js?v=a310d610:20442:23)
+    at createFiberFromElement (chunk-WERSD76P.js?v=a310d610:20463:23)
+    at reconcileSingleElement (chunk-WERSD76P.js?v=a310d610:10513:31)
+    at reconcileChildFibers2 (chunk-WERSD76P.js?v=a310d610:10550:43)
+    at reconcileChildren (chunk-WERSD76P.js?v=a310d610:14290:37)
+    at updateOffscreenComponent (chunk-WERSD76P.js?v=a310d610:14517:11)
+    at beginWork (chunk-WERSD76P.js?v=a310d610:15995:22)
+    at beginWork$1 (chunk-WERSD76P.js?v=a310d610:19753:22)
+    at performUnitOfWork (chunk-WERSD76P.js?v=a310d610:19198:20)
+    at workLoopSync (chunk-WERSD76P.js?v=a310d610:19137:13)
+createFiberFromTypeAndProps @ chunk-WERSD76P.js?v=a310d610:20442
+createFiberFromElement @ chunk-WERSD76P.js?v=a310d610:20463
+reconcileSingleElement @ chunk-WERSD76P.js?v=a310d610:10513
+reconcileChildFibers2 @ chunk-WERSD76P.js?v=a310d610:10550
+reconcileChildren @ chunk-WERSD76P.js?v=a310d610:14290
+updateOffscreenComponent @ chunk-WERSD76P.js?v=a310d610:14517
+beginWork @ chunk-WERSD76P.js?v=a310d610:15995
+beginWork$1 @ chunk-WERSD76P.js?v=a310d610:19753
+performUnitOfWork @ chunk-WERSD76P.js?v=a310d610:19198
+workLoopSync @ chunk-WERSD76P.js?v=a310d610:19137
+renderRootSync @ chunk-WERSD76P.js?v=a310d610:19116
+recoverFromConcurrentError @ chunk-WERSD76P.js?v=a310d610:18736
+performConcurrentWorkOnRoot @ chunk-WERSD76P.js?v=a310d610:18684
+workLoop @ chunk-WERSD76P.js?v=a310d610:197
+flushWork @ chunk-WERSD76P.js?v=a310d610:176
+performWorkUntilDeadline @ chunk-WERSD76P.js?v=a310d610:384Understand this error

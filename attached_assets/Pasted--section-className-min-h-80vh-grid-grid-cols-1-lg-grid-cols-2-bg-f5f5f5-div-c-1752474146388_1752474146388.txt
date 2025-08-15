@@ -1,0 +1,33 @@
+      <section className="min-h-[80vh] grid grid-cols-1 lg:grid-cols-2 bg-[#f5f5f5]">
+        <div className="bg-[#0a0a0a] relative overflow-hidden min-h-[320px]">
+          <img
+            src={SandraImages.editorial.laptop1}
+            alt="Sandra's SSELFIE editorial example"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="py-20 px-15 flex flex-col justify-center">
+          <p className="text-[11px] tracking-[0.4em] uppercase text-[#666666] mb-6 font-light font-inter">welcome to sselfie studio</p>
+          <h2 className="text-3xl md:text-5xl font-light leading-tight text-[#0a0a0a] mb-7 tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif', fontWeight: 300 }}>
+            The digital studio where your face is the brand.
+          </h2>
+          <blockquote className="italic text-lg text-[#0a0a0a]/70 border-l-4 border-[#e5e5e5] pl-4 mb-4 font-light font-inter">
+            "One year ago my marriage ended. Single mom, three kids, zero plan. But I had a phone. And I figured out that was all I needed."
+          </blockquote>
+          <p className="text-base leading-relaxed text-[#0a0a0a]/70 mb-4 font-light font-inter">
+            SSELFIE STUDIO is for women who are done waiting for perfect. Upload your actual selfies. No fancy camera, no design degree, no pretending. My AI just brings out what's already there. Your face. Your story. Your brand, all done in minutes.
+          </p>
+          <h2 className="text-3xl md:text-5xl font-light leading-tight text-[#0a0a0a] mb-7 tracking-[-0.01em]" style={{ fontFamily: 'Times New Roman, serif', fontWeight: 300 }}>
+            This didn't start as a business. It started as survival.
+          </h2>
+          <p className="text-base leading-relaxed text-[#0a0a0a]/70 mb-4 font-light font-inter">
+            One year ago, I hit rock bottom. Divorced. Three kids. No backup plan. I was heartbroken, exhausted, and completely disconnected from the woman I used to be.
+          </p>
+          <p className="text-base leading-relaxed text-[#0a0a0a]/70 mb-6 font-light font-inter">
+            And one day, in the middle of all that mess—I picked up my phone. Took a selfie. Posted something honest. Not perfect. Just true.
+          </p>
+          <button className="inline-block text-[11px] tracking-[0.4em] uppercase text-[#0a0a0a] pb-2 border-b border-[#e5e5e5] hover:border-[#0a0a0a] transition-all duration-300 self-start font-light font-inter bg-transparent cursor-pointer">
+            Read My Full Story
+          </button>
+        </div>
+      </section>

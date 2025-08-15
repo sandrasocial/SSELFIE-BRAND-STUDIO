@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import React, { useState } from 'react';
 import { Card } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 
@@ -16,7 +16,7 @@ interface ImageSelectionProps {
   onSelectionComplete: (selected: string[]) => void;
 }
 
-const ImageSelection: FC<ImageSelectionProps> = ({ 
+const ImageSelection: React.FC<ImageSelectionProps> = ({ 
   aiGallery, 
   flatlayLibrary, 
   onSelectionComplete 

@@ -1,11 +1,11 @@
-import { FormEvent, ReactNode, useState } from 'react';
 /**
  * Service Integration UI - Luxury interface for service setup and management
  * SSELFIE Studio Enhancement Project - Aria Implementation
  */
 
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,7 +27,7 @@ import {
 interface ServiceStatus {
   id: string;
   name: string;
-  icon: ReactNode;
+  icon: React.ReactNode;
   status: 'connected' | 'disconnected' | 'error' | 'configuring';
   description: string;
   lastChecked: Date;
@@ -129,7 +129,7 @@ export default function ServiceIntegrationUI() {
       toast({
         title: "Refresh failed",
         description: "Could not check service connections",
-        
+        variant: "destructive"
       });
     } finally {
       setIsRefreshing(false);
@@ -160,7 +160,7 @@ export default function ServiceIntegrationUI() {
       toast({
         title: "Configuration failed",
         description: "Could not save service configuration",
-        
+        variant: "destructive"
       });
     }
   };
@@ -281,7 +281,7 @@ function ServiceConfigForm({
 }) {
   const [config, setConfig] = useState<ServiceConfig>({});
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(config);
   };

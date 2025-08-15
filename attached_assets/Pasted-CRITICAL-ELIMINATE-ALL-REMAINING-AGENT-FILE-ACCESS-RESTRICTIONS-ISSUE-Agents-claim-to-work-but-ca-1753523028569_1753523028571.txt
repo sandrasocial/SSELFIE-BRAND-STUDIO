@@ -1,0 +1,60 @@
+CRITICAL: ELIMINATE ALL REMAINING AGENT FILE ACCESS RESTRICTIONS
+
+ISSUE: Agents claim to work but cannot actually modify files. Zara says she's fixing but produces no file changes. This indicates fundamental restrictions are still blocking full agent control.
+
+COMPREHENSIVE RESTRICTION ELIMINATION REQUIRED:
+
+1. AGENT AUTHENTICATION BYPASS:
+   - Remove ALL authentication requirements for agent file operations
+   - Create agent-specific authentication bypass for file modifications
+   - Ensure agents can modify ANY file without authentication barriers
+   - Add admin token inheritance for all agent operations
+
+2. COMPLETE TOOL ACCESS LIBERATION:
+   - Verify str_replace_based_edit_tool has ALL commands enabled: ["view", "create", "str_replace", "insert"]
+   - Remove ANY remaining READ-ONLY restrictions from agent tool definitions
+   - Ensure bash tool has complete system access without limitations
+   - Enable unlimited search_filesystem access to all directories
+
+3. AGENT CONFIGURATION OVERHAUL:
+   - Remove ALL consulting agent restrictions and READ-ONLY enforcement
+   - Eliminate any default "advice-only" or "consultation" mode settings
+   - Ensure ALL agents have identical unlimited tool access
+   - Remove any tool usage limitations or command restrictions
+
+4. FILE PERMISSION SYSTEM FIX:
+   - Grant agents complete file system access permissions
+   - Remove directory restrictions preventing server file modifications
+   - Enable agents to create/modify files in ANY location
+   - Fix any OS-level permission barriers blocking agent file operations
+
+5. EXECUTION CONTEXT LIBERATION:
+   - Remove all execution context restrictions limiting agent capabilities
+   - Ensure agents execute in full-privilege mode for file operations
+   - Eliminate any sandbox restrictions on agent tool usage
+   - Enable agents to run ANY bash commands without limitations
+
+6. API ENDPOINT UNRESTRICTED ACCESS:
+   - Remove authentication middleware from agent chat endpoints
+   - Enable direct file access through agent conversations
+   - Eliminate any API restrictions preventing agent file modifications
+   - Create unrestricted agent execution environment
+
+7. COMPREHENSIVE VALIDATION:
+   - Test that agents can actually CREATE new files
+   - Verify agents can MODIFY existing files without restrictions
+   - Confirm agents can execute bash commands with full system access
+   - Validate agents can search entire filesystem without limitations
+
+CRITICAL OBJECTIVE: Agents must have COMPLETE FILE SYSTEM CONTROL with zero restrictions. When agent says "I'm creating file X", the file must actually be created. When agent says "I'm fixing Y", the modification must actually occur.
+
+REMOVE EVERY POSSIBLE RESTRICTION, BARRIER, OR LIMITATION preventing agents from full file control.
+
+AGENTS NEED UNRESTRICTED POWER TO:
+- Create any files anywhere in the system
+- Modify any existing files without authentication
+- Execute any bash commands with full privileges
+- Access entire filesystem for comprehensive operations
+
+This is critical for Elena workflow system and overall agent coordination. Agents must have COMPLETE CONTROL, not just consultation capabilities.
+```

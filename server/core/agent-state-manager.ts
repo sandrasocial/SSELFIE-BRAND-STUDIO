@@ -44,8 +44,7 @@ class AgentStateManager extends EventEmitter {
   }
 
   private initializeAgentStates(): void {
-    const defaultAgents = ['aria', 'victoria', 'zara', 'maya', 'rachel', 'ava', 'quinn', 'sophia', 'martha', 'elena', 'olga', 'diana', 'flux', 'jasmine'];
-    defaultAgents.forEach(agentId => {
+    Object.keys(agentConfigs).forEach(agentId => {
       this.agentStates.set(agentId, {
         agentId,
         status: 'idle',

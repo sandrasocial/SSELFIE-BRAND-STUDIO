@@ -1,0 +1,656 @@
+// LUXE FEMININE - COMPLETE BRANDBOOK TEMPLATE
+import React, { useState, useEffect } from 'react';
+import { Download, Copy, Check, Heart, Crown, Sparkles, Star, Eye } from 'lucide-react';
+
+// TypeScript interfaces
+interface BrandbookProps {
+  brandbook: {
+    name: string;
+    tagline: string;
+    script: string;
+    monogram: string;
+    story: string;
+    manifesto: string;
+    voice: {
+      tone: string;
+      personality: string[];
+      dosDonts: {
+        dos: string[];
+        donts: string[];
+      };
+    };
+    fonts: {
+      primary: {
+        name: string;
+        usage: string;
+        weight: string;
+      };
+      script: {
+        name: string;
+        usage: string;
+        weight: string;
+      };
+      body: {
+        name: string;
+        usage: string;
+        weight: string;
+      };
+    };
+    colors: {
+      primary: {
+        name: string;
+        hex: string;
+        code: string;
+        usage: string;
+      }[];
+      neutral: {
+        name: string;
+        hex: string;
+        code: string;
+        usage: string;
+      }[];
+    };
+    applications: {
+      businessCard: string;
+      socialMedia: string;
+      packaging: string;
+      website: string;
+      stationery: string;
+    };
+  };
+  userImages: {
+    portraits: string[];
+    flatlays: string[];
+  };
+}
+
+export function LuxeFeminineBrandbook({ brandbook, userImages }: BrandbookProps) {
+  const [copiedColor, setCopiedColor] = useState<string | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [hoveredElement, setHoveredElement] = useState<string | null>(null);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    setIsVisible(true);
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedColor(text);
+    setTimeout(() => setCopiedColor(null), 2000);
+  };
+
+  const downloadAsset = (assetName: string) => {
+    console.log(`Downloading ${assetName}`);
+  };
+
+  return (
+    <div className="min-h-screen bg-white font-sans">
+      {/* Hero Section with Burgundy Background */}
+      <div 
+        className={`min-h-screen flex items-center justify-center relative overflow-hidden transition-all duration-2000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+        style={{ backgroundColor: brandbook.colors.primary[0].hex }}
+      >
+        <div 
+          className="absolute inset-0 opacity-10"
+          style={{ transform: `translateY(${scrollY * 0.5}px)` }}
+        >
+          <img 
+            src={userImages.flatlays[0]} 
+            alt="Luxury background"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="text-center relative z-10 group">
+          <div 
+            className="text-8xl font-thin mb-4 tracking-[0.2em] text-white hover:tracking-[0.3em] transition-all duration-700 cursor-pointer" 
+            style={{ fontFamily: 'serif' }}
+            onMouseEnter={() => setHoveredElement('main-logo')}
+            onMouseLeave={() => setHoveredElement(null)}
+          >
+            {brandbook.name}
+          </div>
+          <div className="text-2xl tracking-[0.3em] uppercase text-white opacity-80 mb-8">
+            {brandbook.tagline}
+          </div>
+          <div className={`w-32 h-0.5 bg-white bg-opacity-60 mx-auto transition-all duration-500 ${hoveredElement === 'main-logo' ? 'w-48 bg-opacity-100' : ''}`}></div>
+          <div className="mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <Download 
+              size={24} 
+              className="text-white hover:text-pink-200 cursor-pointer mx-auto"
+              onClick={() => downloadAsset('primary-logo')}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Brand Philosophy */}
+      <div className={`py-20 px-8 bg-white transition-all duration-1500 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl font-thin mb-12 tracking-wide" style={{ fontFamily: 'serif', color: brandbook.colors.primary[0].hex }}>
+            Brand Philosophy
+          </h2>
+          <div className="text-xl font-light leading-relaxed text-gray-700 italic mb-8">
+            "{brandbook.manifesto || brandbook.voice.tone}"
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {brandbook.voice.personality.map((trait, index) => (
+              <div key={index} className="text-center p-4 bg-pink-50 hover:bg-pink-100 transition-colors duration-300 group">
+                <Heart size={16} className="mx-auto mb-2 text-pink-400 group-hover:text-pink-600 transition-colors duration-300" />
+                <div className="text-sm text-gray-700">{trait}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Logo Variations Grid */}
+      <div className={`py-24 px-8 bg-gradient-to-b from-white to-pink-50 relative transition-all duration-1500 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <div className="absolute inset-0 opacity-3">
+          <img 
+            src={userImages.flatlays[1]} 
+            alt="Background texture"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <h2 className="text-center text-4xl font-thin mb-20 tracking-wide text-gray-800 flex items-center justify-center" style={{ fontFamily: 'serif' }}>
+            <Crown size={32} className="mr-4" style={{ color: brandbook.colors.primary[0].hex }} />
+            Logo Variations
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            {/* Main Logo on Burgundy */}
+            <div 
+              className="p-16 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 group relative overflow-hidden"
+              style={{ backgroundColor: brandbook.colors.primary[0].hex }}
+            >
+              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Download 
+                  size={16} 
+                  className="text-white hover:text-pink-200 cursor-pointer" 
+                  onClick={() => downloadAsset('primary-logo')}
+                />
+              </div>
+              <div className="text-center">
+                <div className="text-5xl font-thin text-white mb-2 group-hover:scale-105 transition-transform duration-300" style={{ fontFamily: 'serif' }}>
+                  {brandbook.name}
+                </div>
+                <div className="text-lg tracking-[0.2em] uppercase text-white opacity-80">
+                  {brandbook.tagline}
+                </div>
+              </div>
+            </div>
+            
+            {/* Script Logo on Blush */}
+            <div 
+              className="p-16 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 group relative overflow-hidden"
+              style={{ backgroundColor: brandbook.colors.neutral[1].hex }}
+            >
+              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Download 
+                  size={16} 
+                  className="text-gray-600 hover:text-gray-800 cursor-pointer"
+                  onClick={() => downloadAsset('script-logo')}
+                />
+              </div>
+              <div className="text-center">
+                <div className="text-6xl font-light italic group-hover:scale-105 transition-transform duration-300" style={{ fontFamily: 'cursive', color: brandbook.colors.primary[0].hex }}>
+                  {brandbook.script}
+                </div>
+                <div className="text-sm tracking-[0.2em] uppercase mt-2" style={{ color: brandbook.colors.primary[0].hex }}>
+                  {brandbook.tagline}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary Logos */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Monogram */}
+            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group border border-pink-100 relative">
+              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Download 
+                  size={16} 
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                  onClick={() => downloadAsset('monogram')}
+                />
+              </div>
+              <div className="text-center">
+                <div className="text-6xl font-thin group-hover:scale-110 transition-transform duration-300" style={{ fontFamily: 'serif', color: brandbook.colors.primary[0].hex }}>
+                  {brandbook.monogram}
+                </div>
+              </div>
+            </div>
+            
+            {/* Icon Mark */}
+            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group border border-pink-100">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300" style={{ backgroundColor: brandbook.colors.primary[0].hex }}>
+                  <Heart size={24} className="text-white" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Circular Logo */}
+            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group border border-pink-100">
+              <div className="text-center">
+                <div 
+                  className="w-20 h-20 mx-auto rounded-full border-2 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                  style={{ borderColor: brandbook.colors.primary[0].hex }}
+                >
+                  <div className="text-2xl font-thin" style={{ fontFamily: 'serif', color: brandbook.colors.primary[0].hex }}>
+                    {brandbook.name.charAt(0)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Color Palette with Circles */}
+      <div className={`py-24 px-8 bg-white relative transition-all duration-1500 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <div className="absolute top-12 right-12 w-24 h-24 opacity-8">
+          <img 
+            src={userImages.flatlays[2]} 
+            alt="Corner accent"
+            className="w-full h-full object-cover rounded-full"
+          />
+        </div>
+        
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl font-thin mb-20 tracking-wide text-gray-800 flex items-center justify-center" style={{ fontFamily: 'serif' }}>
+            <Heart size={32} className="mr-4" style={{ color: brandbook.colors.primary[0].hex }} />
+            Color Palette
+          </h2>
+          
+          {/* Color Circles matching inspiration */}
+          <div className="flex justify-center items-center space-x-8 mb-16">
+            {[...brandbook.colors.primary, ...brandbook.colors.neutral].map((color, index) => (
+              <div key={index} className="text-center group">
+                <div 
+                  className="w-24 h-24 rounded-full cursor-pointer hover:scale-110 transition-all duration-500 relative shadow-lg hover:shadow-xl"
+                  style={{ backgroundColor: color.hex }}
+                  onClick={() => copyToClipboard(color.hex)}
+                >
+                  <div className="absolute inset-0 bg-white bg-opacity-0 hover:bg-opacity-10 rounded-full transition-all duration-300 flex items-center justify-center">
+                    {copiedColor === color.hex ? (
+                      <Check size={20} className="text-white opacity-90" />
+                    ) : (
+                      <Copy size={16} className="text-white opacity-0 group-hover:opacity-90 transition-opacity duration-300" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Color Details */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-12">
+            {[...brandbook.colors.primary, ...brandbook.colors.neutral].map((color, index) => (
+              <div key={index} className="text-center">
+                <div className="text-lg font-medium mb-2 tracking-wide" style={{ color: brandbook.colors.primary[0].hex }}>
+                  {color.name}
+                </div>
+                <div className="text-sm text-gray-600 font-mono mb-2">
+                  {color.code}
+                </div>
+                <div className="text-sm text-gray-500 italic">
+                  {color.usage}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Typography Section */}
+      <div 
+        className={`py-24 px-8 text-white relative transition-all duration-1500 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+        style={{ backgroundColor: brandbook.colors.primary[1].hex }}
+      >
+        <div className="absolute inset-0 opacity-10">
+          <img 
+            src={userImages.flatlays[3]} 
+            alt="Background texture"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl font-thin mb-20 tracking-wide text-white flex items-center justify-center" style={{ fontFamily: 'serif' }}>
+            <Sparkles size={32} className="mr-4 text-pink-200" />
+            Typography
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+            {/* Primary Font */}
+            <div className="text-center group">
+              <h3 className="text-xl font-medium mb-8 tracking-wide text-pink-200">Headlines</h3>
+              <div className="bg-white bg-opacity-10 p-12 backdrop-blur-sm hover:bg-opacity-20 transition-all duration-500 hover:scale-105">
+                <div className="text-6xl font-thin mb-6 text-white group-hover:scale-110 transition-transform duration-300" style={{ fontFamily: 'serif' }}>
+                  Aa
+                </div>
+                <div className="text-lg text-white mb-4">
+                  {brandbook.fonts.primary.name}
+                </div>
+                <div className="text-sm text-pink-200 italic mb-2">
+                  Weight: {brandbook.fonts.primary.weight}
+                </div>
+                <div className="text-sm text-pink-200 italic">
+                  {brandbook.fonts.primary.usage}
+                </div>
+              </div>
+            </div>
+            
+            {/* Script Font */}
+            <div className="text-center group">
+              <h3 className="text-xl font-medium mb-8 tracking-wide text-pink-200">Script</h3>
+              <div className="bg-white bg-opacity-10 p-12 backdrop-blur-sm hover:bg-opacity-20 transition-all duration-500 hover:scale-105">
+                <div className="text-5xl mb-6 text-white italic group-hover:scale-110 transition-transform duration-300" style={{ fontFamily: 'cursive' }}>
+                  Aa
+                </div>
+                <div className="text-lg text-white mb-4">
+                  {brandbook.fonts.script.name}
+                </div>
+                <div className="text-sm text-pink-200 italic mb-2">
+                  Weight: {brandbook.fonts.script.weight}
+                </div>
+                <div className="text-sm text-pink-200 italic">
+                  {brandbook.fonts.script.usage}
+                </div>
+              </div>
+            </div>
+            
+            {/* Body Font */}
+            <div className="text-center group">
+              <h3 className="text-xl font-medium mb-8 tracking-wide text-pink-200">Body</h3>
+              <div className="bg-white bg-opacity-10 p-12 backdrop-blur-sm hover:bg-opacity-20 transition-all duration-500 hover:scale-105">
+                <div className="text-5xl mb-6 text-white font-sans group-hover:scale-110 transition-transform duration-300">
+                  Aa
+                </div>
+                <div className="text-lg text-white mb-4">
+                  {brandbook.fonts.body.name}
+                </div>
+                <div className="text-sm text-pink-200 italic mb-2">
+                  Weight: {brandbook.fonts.body.weight}
+                </div>
+                <div className="text-sm text-pink-200 italic">
+                  {brandbook.fonts.body.usage}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Brand Guidelines */}
+      <div className={`py-24 px-8 bg-gradient-to-b from-pink-50 to-white relative transition-all duration-1500 delay-800 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-center text-4xl font-thin mb-20 tracking-wide" style={{ fontFamily: 'serif', color: brandbook.colors.primary[0].hex }}>
+            Brand Guidelines
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+            {/* Do's */}
+            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105">
+              <h3 className="text-2xl font-medium mb-8 tracking-wide flex items-center" style={{ color: brandbook.colors.primary[0].hex }}>
+                <Heart size={24} className="mr-3 text-pink-400" />
+                Do's
+              </h3>
+              <div className="space-y-4">
+                {brandbook.voice.dosDonts.dos.map((item, index) => (
+                  <div key={index} className="flex items-start group">
+                    <div className="w-3 h-3 bg-pink-400 rounded-full mr-4 mt-2 flex-shrink-0 group-hover:scale-125 transition-transform duration-300"></div>
+                    <p className="text-gray-700 leading-relaxed group-hover:text-pink-700 transition-colors duration-300">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Don'ts */}
+            <div className="bg-white p-12 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105">
+              <h3 className="text-2xl font-medium mb-8 tracking-wide text-red-700 flex items-center">
+                <Star size={24} className="mr-3 text-red-500" />
+                Don'ts
+              </h3>
+              <div className="space-y-4">
+                {brandbook.voice.dosDonts.donts.map((item, index) => (
+                  <div key={index} className="flex items-start group">
+                    <div className="w-3 h-3 bg-red-500 rounded-full mr-4 mt-2 flex-shrink-0 group-hover:scale-125 transition-transform duration-300"></div>
+                    <p className="text-gray-700 leading-relaxed group-hover:text-red-700 transition-colors duration-300">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Brand Story with Portrait */}
+      <div className={`py-24 px-8 bg-white relative transition-all duration-1500 delay-900 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+          {/* Portrait with Overlay */}
+          <div className="relative group">
+            <div className="aspect-[4/5] overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-700">
+              <img 
+                src={userImages.portraits[0]} 
+                alt="Brand portrait"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            <div 
+              className="absolute -bottom-8 -right-8 p-8 shadow-xl hover:shadow-2xl transition-all duration-500"
+              style={{ backgroundColor: brandbook.colors.primary[0].hex }}
+            >
+              <div className="text-3xl font-thin text-white italic" style={{ fontFamily: 'cursive' }}>
+                {brandbook.script}
+              </div>
+            </div>
+          </div>
+          
+          {/* Brand Story */}
+          <div>
+            <h2 className="text-4xl font-thin mb-8 tracking-wide flex items-center" style={{ fontFamily: 'serif', color: brandbook.colors.primary[0].hex }}>
+              <Heart size={32} className="mr-4 text-pink-400" />
+              Brand Story
+            </h2>
+            <div className="text-2xl font-light leading-relaxed text-gray-700 mb-8 italic">
+              "{brandbook.story}"
+            </div>
+            <div className="flex items-center space-x-4 mb-8">
+              {brandbook.voice.personality.map((trait, index) => (
+                <div key={index} className="px-4 py-2 bg-pink-100 text-pink-800 text-sm rounded-full hover:bg-pink-200 transition-colors duration-300">
+                  {trait}
+                </div>
+              ))}
+            </div>
+            <div className="w-24 h-1 hover:w-32 transition-all duration-500" style={{ backgroundColor: brandbook.colors.primary[0].hex }}></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Moodboard Grid */}
+      <div className={`py-24 px-8 bg-gradient-to-b from-pink-50 to-white relative transition-all duration-1500 delay-1100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-center text-4xl font-thin mb-20 tracking-wide flex items-center justify-center" style={{ fontFamily: 'serif', color: brandbook.colors.primary[0].hex }}>
+            <Crown size={32} className="mr-4 text-pink-400" />
+            Visual Identity
+          </h2>
+          
+          {/* Grid matching the inspiration layout */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {Array.from({ length: 9 }, (_, index) => (
+              <div key={index} className="aspect-square overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 group relative">
+                <img 
+                  src={index % 2 === 0 ? userImages.flatlays[index % userImages.flatlays.length] : userImages.portraits[index % userImages.portraits.length]}
+                  alt={index % 2 === 0 ? "Flatlay" : "Portrait"}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black from-transparent to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-500"></div>
+                <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <div className="text-white text-sm font-medium">
+                    {index % 2 === 0 ? "Lifestyle" : "Portrait"}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Brand Applications */}
+      <div className={`py-24 px-8 bg-white relative transition-all duration-1500 delay-1200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-center text-4xl font-thin mb-20 tracking-wide" style={{ fontFamily: 'serif', color: brandbook.colors.primary[0].hex }}>
+            Brand Applications
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+            {Object.entries(brandbook.applications).map(([key, value], index) => (
+              <div key={key} className="bg-gradient-to-b from-pink-50 to-white p-8 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 group">
+                <h3 className="text-lg font-medium mb-6 tracking-wide capitalize" style={{ color: brandbook.colors.primary[0].hex }}>
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                </h3>
+                <div className="aspect-square bg-gray-100 mb-6 rounded overflow-hidden">
+                  <img 
+                    src={value} 
+                    alt={`${key} mockup`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <button 
+                  onClick={() => downloadAsset(key)}
+                  className="flex items-center text-sm transition-colors duration-300 group-hover:translate-x-2"
+                  style={{ color: brandbook.colors.primary[0].hex }}
+                >
+                  <Download size={16} className="mr-2" />
+                  Download
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Quote Section */}
+      <div 
+        className={`py-24 px-8 text-white relative transition-all duration-1500 delay-1300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+        style={{ backgroundColor: brandbook.colors.primary[2].hex }}
+      >
+        <div className="absolute inset-0 opacity-5">
+          <img 
+            src={userImages.portraits[userImages.portraits.length - 1]} 
+            alt="Background portrait"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="text-5xl font-light leading-relaxed text-white mb-8 italic hover:scale-105 transition-transform duration-700 cursor-pointer" style={{ fontFamily: 'cursive' }}>
+            "Femininity is not weakness, it's power in its most beautiful form"
+          </div>
+          <div className="w-32 h-1 bg-white mx-auto hover:w-40 transition-all duration-500"></div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className={`bg-gradient-to-b from-pink-50 to-white py-20 px-8 relative transition-all duration-1500 delay-1500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="flex justify-center space-x-4 mb-12">
+            {[...brandbook.colors.primary, ...brandbook.colors.neutral].map((color, index) => (
+              <div 
+                key={index} 
+                className="w-16 h-16 rounded-full hover:scale-110 transition-transform duration-300 cursor-pointer shadow-lg" 
+                style={{ backgroundColor: color.hex }}
+                onClick={() => copyToClipboard(color.hex)}
+              ></div>
+            ))}
+          </div>
+          <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8 mb-12">
+            <button 
+              onClick={() => downloadAsset('complete-brand-package')}
+              className="px-8 py-4 text-sm tracking-wide uppercase hover:scale-105 transition-all duration-300 flex items-center shadow-lg hover:shadow-xl text-white"
+              style={{ backgroundColor: brandbook.colors.primary[0].hex }}
+            >
+              <Download size={16} className="mr-3" />
+              Download Brand Package
+            </button>
+            <button 
+              onClick={() => window.print()}
+              className="border-2 px-8 py-4 text-sm tracking-wide uppercase hover:bg-pink-50 transition-colors duration-300 flex items-center"
+              style={{ borderColor: brandbook.colors.primary[0].hex, color: brandbook.colors.primary[0].hex }}
+            >
+              <Eye size={16} className="mr-3" />
+              Print Brandbook
+            </button>
+          </div>
+          <div className="text-sm tracking-[0.2em] uppercase text-gray-500">
+            Created with SSELFIE Studio
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Template Configuration Object
+export const luxeFeminineConfig = {
+  id: 'luxe-feminine',
+  name: 'Luxe Feminine',
+  description: 'Sophisticated femininity for the woman who embraces pink as a power color',
+  category: 'brandbook',
+  colors: {
+    primary: '#6B2D5C', // Burgundy
+    secondary: '#4A1E3A', // Plum
+    accent: '#E8C4B8', // Blush
+    neutral: '#F5E6D3' // Pearl
+  },
+  fonts: {
+    headline: 'serif',
+    script: 'cursive',
+    body: 'sans-serif'
+  },
+  sections: [
+    'hero',
+    'philosophy',
+    'logos',
+    'colors',
+    'typography',
+    'guidelines',
+    'story',
+    'moodboard',
+    'applications',
+    'quote'
+  ],
+  customizable: {
+    colors: true,
+    fonts: true,
+    layout: true,
+    sections: true
+  },
+  animations: {
+    entrance: 'feminine-stagger',
+    hover: 'gentle-scale',
+    interactive: 'soft-parallax',
+    colors: 'smooth-transitions'
+  },
+  features: [
+    'burgundy-hero-background',
+    'circular-color-palette',
+    'script-typography-emphasis',
+    'gradient-backgrounds',
+    'heart-iconography',
+    'sophisticated-pink-palette'
+  ]
+};
+
+// Sandra AI Designer Prompts
+export const sandraAIPrompts = {
+  description: "This is for the woman who knows that pink can be powerful. Luxe Feminine combines sophisticated burgundy with soft blush tones - it's femininity with confidence, elegance with edge. Perfect for luxury lifestyle brands, beauty businesses, and any woman who wants to embrace her feminine power unapologetically.",
+  
+  customization: {
+    colors: "The burgundy/blush palette is absolutely gorgeous, but I can totally customize this to match your brand while keeping that sophisticated feminine energy. We could go deeper with wine and rose gold, or softer with lavender and cream - whatever feels most 'you'.",
+    fonts: "The serif/

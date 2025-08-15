@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import React, { useState } from "react";
 import { SandraImages } from "@/lib/sandra-images";
 import { useLocation } from "wouter";
 
@@ -8,18 +8,18 @@ export default function FreeTierSignup() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Store email and redirect to login for basic tier
     localStorage.setItem('preSignupEmail', email);
     localStorage.setItem('selectedPlan', 'basic');
-    window.location.href = '/api/login';
+    window.location.href = '/login';
   };
 
   const handleDirectSignup = () => {
     localStorage.setItem('selectedPlan', 'basic');
-    window.location.href = '/api/login';
+    window.location.href = '/login';
   };
 
   return (

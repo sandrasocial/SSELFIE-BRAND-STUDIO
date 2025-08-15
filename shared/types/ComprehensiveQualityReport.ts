@@ -1,17 +1,8 @@
 // quality-testing/comprehensive-quality-suite.ts
-// Luxury brand validator types
-// Quality testing type definitions
-interface UserExperienceAuditor {
-  validate: () => boolean;
-}
-
-interface IndividualModelValidator {
-  check: () => boolean;
-}
-
-interface PremiumTierValidator {
-  verify: () => boolean;
-}
+import { LuxuryBrandValidator } from './luxury-brand-validator';
+import { UserExperienceAuditor } from './user-experience-auditor';
+import { IndividualModelValidator } from './individual-model-validator';
+import { PremiumTierValidator } from './premium-tier-validator';
 
 export interface ComprehensiveQualityReport {
   overallLuxuryScore: number;
@@ -25,7 +16,10 @@ export interface ComprehensiveQualityReport {
 }
 
 export class ComprehensiveQualitySuite {
-  // Simplified quality suite without external validators
+  private luxuryValidator = new LuxuryBrandValidator();
+  private uxAuditor = new UserExperienceAuditor();
+  private modelValidator = new IndividualModelValidator();
+  private premiumValidator = new PremiumTierValidator();
 
   async runCompleteQualityAudit(): Promise<ComprehensiveQualityReport> {
     console.log('🔍 Starting comprehensive luxury quality audit...');
@@ -48,36 +42,35 @@ export class ComprehensiveQualitySuite {
     for (const component of components) {
       console.log(`✅ Testing luxury standards for: ${component}`);
       
-      // Simplified luxury standards check
-      const luxuryScore = Math.random() * 100; // Placeholder score
-      const uxScore = Math.random() * 100;
+      const luxuryStandards = this.luxuryValidator.validateLuxuryStandards(component);
+      const uxMetrics = this.uxAuditor.auditUserExperience(component);
       
       // Collect scores
-      luxuryScores.push(luxuryScore);
-      uxScores.push(uxScore);
+      luxuryScores.push(uxMetrics.luxuryPerception);
+      uxScores.push(uxMetrics.userFlowEfficiency);
       
       // Check for critical issues
-      if (luxuryScore < 70) {
+      if (uxMetrics.luxuryPerception < 7) {
         criticalIssues.push(`${component}: Luxury perception below premium standards`);
       }
-      if (uxScore < 80) {
+      if (uxMetrics.technicalExcellence < 8) {
         criticalIssues.push(`${component}: Technical excellence needs improvement`);
       }
     }
 
-    // Simplified quality checks
+    // Test individual model quality
     console.log('🔍 Testing individual model quality...');
-    const modelQuality = Math.random() * 100;
+    const modelMetrics = this.modelValidator.validateModelQuality('test-user');
     
-    if (modelQuality < 80) {
+    if (modelMetrics.imageGenerationQuality < 8) {
       criticalIssues.push('Individual model image quality below magazine standards');
     }
 
     // Test premium tier validation
     console.log('🔍 Testing premium tier experience...');
-    const premiumQuality = Math.random() * 100;
+    const premiumMetrics = this.premiumValidator.validatePremiumTier();
     
-    if (premiumQuality < 80) {
+    if (premiumMetrics.luxuryExperienceScore < 8) {
       criticalIssues.push('Premium tier experience needs luxury enhancement');
     }
 
@@ -90,7 +83,7 @@ export class ComprehensiveQualitySuite {
       'Enhance premium upgrade flow with exclusive invitation feel'
     );
 
-    const overallScore = Math.round((luxuryScores.reduce((a, b) => a + b, 0) + uxScores.reduce((a, b) => a + b, 0)) / (luxuryScores.length + uxScores.length));
+    const overallScore = this.calculateOverallScore(luxuryScores, uxScores, modelMetrics, premiumMetrics);
 
     return {
       overallLuxuryScore: overallScore,

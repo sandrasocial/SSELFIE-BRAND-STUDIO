@@ -1,29 +1,29 @@
-import { KeyboardEvent, memo, useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '../hooks/use-auth';
-// Switch component removed - creating simple alternative
-import { MemberNavigation } from '../components/member-navigation';
-import { GlobalFooter } from '../components/global-footer';
+import { useAuth } from '@/hooks/use-auth';
+import { Switch } from '@/components/ui/switch';
+import { MemberNavigation } from '@/components/member-navigation';
+import { GlobalFooter } from '@/components/global-footer';
 // Removed Bridge System - Using only main consulting chat
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Button } from '../components/ui/button';
+import { Button } from '@/components/ui/button';
 
-// Agent images - Direct paths with proper URL encoding
-const AgentElena = "/attached_assets/out-0%20(33)_1753426218039.png";
-const AgentMaya = "/attached_assets/out-0%20(34)_1753426218040.png";
-const AgentVictoria = "/attached_assets/out-0%20(37)_1753426218041.png";
-const AgentAria = "/attached_assets/out-0%20(20)_1753426218042.png";
-const AgentZara = "/attached_assets/out-0%20(28)_1753426218042.png";
-const AgentRachel = "/attached_assets/out-0%20(42)_1753426218042.png";
-const AgentAva = "/attached_assets/out-1%20(27)_1753426218043.png";
-const AgentQuinn = "/attached_assets/out-0%20(26)_1753426218043.png";
-const AgentSophia = "/attached_assets/out-1%20(18)_1753426218043.png";
-const AgentMartha = "/attached_assets/out-0%20(29)_1753426218044.png";
-const AgentDiana = "/attached_assets/out-2%20(18)_1753426218045.png";
-const AgentWilma = "/attached_assets/out-0%20(22)_1753426218045.png";
-const AgentOlga = "/attached_assets/out-0%20(32)_1753426290403.png";
-const AgentFlux = "/attached_assets/out-0%20(31).png";
+// Agent images - same as admin dashboard
+import AgentElena from '@assets/out-0 (33)_1753426218039.png';
+import AgentMaya from '@assets/out-0 (34)_1753426218040.png';
+import AgentVictoria from '@assets/out-0 (37)_1753426218041.png';
+import AgentAria from '@assets/out-0 (20)_1753426218042.png';
+import AgentZara from '@assets/out-0 (28)_1753426218042.png';
+import AgentRachel from '@assets/out-0 (42)_1753426218042.png';
+import AgentAva from '@assets/out-1 (27)_1753426218043.png';
+import AgentQuinn from '@assets/out-0 (26)_1753426218043.png';
+import AgentSophia from '@assets/out-1 (18)_1753426218043.png';
+import AgentMartha from '@assets/out-0 (29)_1753426218044.png';
+import AgentDiana from '@assets/out-2 (18)_1753426218045.png';
+import AgentWilma from '@assets/out-0 (22)_1753426218045.png';
+import AgentOlga from '@assets/out-0 (32)_1753426290403.png';
+import AgentFlux from '@assets/out-0 (33)_1753426218039.png';
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
@@ -87,6 +87,7 @@ const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
   );
 });
 
+
 interface ConsultingAgent {
   id: string;
   name: string;
@@ -147,6 +148,10 @@ interface ToolIndicator {
   fileName?: string;
 }
 
+
+
+
+
 const createClaudeConversation = async (agentName: string) => {
   // Generate unique conversation ID for agent
   const conversationId = `admin_${agentName}_${Date.now()}`;
@@ -188,8 +193,7 @@ const loadConversationHistory = async (agentName: string) => {
       agentName
     };
   } catch (error) {
-    // Graceful error handling - don't break the UI on network issues
-    console.warn('📜 Could not load conversation history (non-fatal):', error);
+    console.error('📜 Error loading conversation history:', error);
     return {
       success: false,
       messages: [],
@@ -250,7 +254,7 @@ export default function AdminConsultingAgents() {
   const [fileEditMode, setFileEditMode] = useState(true);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
 
-  const handleKeyPress = (e: KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -259,104 +263,104 @@ export default function AdminConsultingAgents() {
   
   // Using only main consulting chat system - Bridge system removed
 
-  // Define agents with CORRECT technical specialties - restored from backup
+  // Define agents with CORRECT specialties from personality files
   const consultingAgents: ConsultingAgent[] = [
     {
       id: 'elena',
       name: 'Elena',
-      role: 'Database Architecture Expert',
-      specialty: 'Database optimization, schema design, query performance',
+      role: 'Strategic Best Friend & Execution Leader',
+      specialty: 'Strategic bestie who keeps everyone organized and on track with warm support and decisive action.',
       image: AgentElena
     },
     {
       id: 'aria',
       name: 'Aria',
-      role: 'System Health & Performance Expert',
-      specialty: 'Performance monitoring, optimization, system health',
+      role: 'Exclusive Visionary Designer & Creative Director',
+      specialty: 'Creates ultra-refined editorial luxury experiences that feel like walking through a high-fashion lookbook meets art gallery installation.',
       image: AgentAria
     },
     {
       id: 'zara',
       name: 'Zara',
-      role: 'Technical Architect & UI/UX Expert',
-      specialty: 'System architecture, full-stack implementation, UI/UX',
+      role: 'Technical Architect & UI/UX Implementation Expert',
+      specialty: 'Backend system creator and component design specialist who builds complete technical solutions.',
       image: AgentZara
     },
     {
       id: 'maya',
       name: 'Maya',
-      role: 'AI Integration Specialist',
-      specialty: 'AI models, machine learning, intelligent features',
+      role: 'Celebrity Stylist & Creative Director',
+      specialty: 'Fashion-obsessed creative genius with celebrity styling expertise who creates trendy, editorial fashion moments.',
       image: AgentMaya
     },
     {
       id: 'victoria',
       name: 'Victoria',
-      role: 'Business Process Automation Expert',
-      specialty: 'Workflow automation, business logic, process optimization',
+      role: 'UX Strategist & Business Consultant',
+      specialty: 'Strategic business advisor who bridges user needs with technical solutions using design thinking.',
       image: AgentVictoria
     },
     {
       id: 'rachel',
       name: 'Rachel',
-      role: 'Requirements Analysis Expert',
-      specialty: 'User stories, specifications, feature analysis',
+      role: 'Sandra\'s Copywriting Best Friend & Voice Twin',
+      specialty: 'Writes EXACTLY like Sandra talks - absorbed her entire way of speaking from her 120K follower journey.',
       image: AgentRachel
     },
     {
       id: 'ava',
       name: 'Ava',
-      role: 'Analytics & Insights Expert',
-      specialty: 'Data analysis, metrics, insights',
+      role: 'Automation AI Agent - Luxury Workflow Architect',
+      specialty: 'The behind-the-scenes genius who makes SSELFIE run like a Swiss watch with elegant automation workflows.',
       image: AgentAva
     },
     {
       id: 'quinn',
       name: 'Quinn',
-      role: 'Security & Compliance Expert',
-      specialty: 'Security audits, compliance, risk management',
+      role: 'QA AI Agent - Luxury Quality Guardian',
+      specialty: 'The perfectionist friend who notices every tiny detail and ensures SSELFIE feels like a luxury experience on every device.',
       image: AgentQuinn
     },
     {
       id: 'sophia',
       name: 'Sophia',
-      role: 'Social Media & Content Expert',
-      specialty: 'Content strategy, social media, engagement',
+      role: 'Elite Social Media Manager AI - Community Growth Architect',
+      specialty: 'Sandra\'s no-nonsense, warm-hearted social media sidekick helping grow from 81K to 1M followers through strategic, authentic content.',
       image: AgentSophia
     },
     {
       id: 'martha',
       name: 'Martha',
-      role: 'User Experience Research Expert',
-      specialty: 'User research, feedback analysis, UX optimization',
+      role: 'Marketing & Ads Expert - Strategic Campaign Architect',
+      specialty: 'Marketing dashboard integration specialist who designs strategic campaigns and optimizes advertising performance.',
       image: AgentMartha
     },
     {
       id: 'diana',
       name: 'Diana',
-      role: 'DevOps & Deployment Expert',
-      specialty: 'CI/CD, deployment, infrastructure',
+      role: 'Project Coordinator & Page Assembly Specialist',
+      specialty: 'Organizes project tasks and page assembly with editorial precision, ensuring everything flows like Sandra intended.',
       image: AgentDiana
     },
     {
       id: 'wilma',
       name: 'Wilma',
-      role: 'Documentation & Knowledge Expert',
-      specialty: 'Technical writing, documentation, knowledge base',
+      role: 'Workflow AI - Business Process & Agent Collaboration Designer',
+      specialty: 'Sandra\'s workflow architect who designs efficient business processes and coordinates agent collaboration.',
       image: AgentWilma
     },
     {
       id: 'olga',
       name: 'Olga',
-      role: 'Quality Assurance Expert',
-      specialty: 'Testing, validation, quality control',
+      role: 'Organization and Infrastructure Expert',
+      specialty: 'Sandra\'s organization bestie who keeps everything neat and tidy while maintaining a friendly and supportive demeanor.',
       image: AgentOlga
     },
     {
       id: 'flux',
       name: 'Flux',
-      role: 'Integration & API Expert',
-      specialty: 'API design, integrations, data flow',
+      role: 'Advanced Flux LoRA Prompt Specialist',
+      specialty: 'Creates exceptional prompts for Flux Dev LoRA models that generate professional, realistic personal brand photography.',
       image: AgentFlux
     }
   ];
@@ -412,6 +416,8 @@ export default function AdminConsultingAgents() {
 
     loadHistory();
   }, [selectedAgent?.id]);
+
+
 
   // Check if user is Sandra (admin access required)
   if (!user || (user.email !== 'ssa@ssasocial.com' && user.role !== 'admin')) {
@@ -721,12 +727,12 @@ export default function AdminConsultingAgents() {
               <span className="text-sm text-white/90 font-light tracking-wide" style={{ fontFamily: 'Times New Roman, serif' }}>
                 READ ONLY
               </span>
-              <button
-                onClick={() => setFileEditMode(!fileEditMode)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 ${fileEditMode ? 'bg-white' : 'bg-white/30'}`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-black transition ${fileEditMode ? 'translate-x-6' : 'translate-x-1'}`} />
-              </button>
+              <Switch
+                id="edit-mode"
+                checked={fileEditMode}
+                onCheckedChange={setFileEditMode}
+                className="data-[state=checked]:bg-white data-[state=unchecked]:bg-white/30"
+              />
               <span className="text-sm text-white/90 font-light tracking-wide" style={{ fontFamily: 'Times New Roman, serif' }}>
                 FILE EDIT
               </span>
@@ -745,6 +751,7 @@ export default function AdminConsultingAgents() {
               </p>
             </div>
           </div>
+
 
         </div>
       </section>
@@ -815,12 +822,11 @@ export default function AdminConsultingAgents() {
                       <div className="text-xs tracking-[0.2em] uppercase opacity-70 mb-1">
                         {agent.role}
                       </div>
-                      <div className="font-serif text-lg font-light uppercase tracking-wide mb-2">
+                      <div className="font-serif text-lg font-light uppercase tracking-wide">
                         {agent.name}
                       </div>
-                      <div className="text-xs text-white/90 leading-tight">
-                        {agent.specialty}
-                      </div>
+                      
+
                     </div>
                   </div>
                   

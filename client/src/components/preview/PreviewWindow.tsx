@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import React from 'react';
 import { Card } from '../ui/card';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { Laptop, Smartphone } from 'lucide-react';
@@ -8,11 +8,11 @@ interface PreviewWindowProps {
   isLoading?: boolean;
 }
 
-export const PreviewWindow: FC<PreviewWindowProps> = ({
+export const PreviewWindow: React.FC<PreviewWindowProps> = ({
   previewUrl,
   isLoading = false
 }) => {
-  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+  const [viewMode, setViewMode] = React.useState<'desktop' | 'mobile'>('desktop');
 
   return (
     <div className="space-y-4">

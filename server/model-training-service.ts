@@ -117,14 +117,14 @@ export class ModelTrainingService {
       await archive.finalize();
       
       // Wait for the zip to be written
-      await new Promise<void>((resolve, reject) => {
-        output.on('close', () => resolve());
+      await new Promise((resolve, reject) => {
+        output.on('close', resolve);
         output.on('error', reject);
       });
       
       // For now, serve the ZIP directly from our server to avoid S3 region issues
       // Keep the ZIP file in temp directory for serving
-      const localZipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:3000'}/training-zip/${path.basename(zipPath)}`;
+      const localZipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${path.basename(zipPath)}`;
       return localZipUrl;
       
     } catch (error) {

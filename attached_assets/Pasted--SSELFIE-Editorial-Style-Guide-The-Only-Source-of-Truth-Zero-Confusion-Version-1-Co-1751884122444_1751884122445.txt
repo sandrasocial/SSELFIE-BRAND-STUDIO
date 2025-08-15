@@ -1,0 +1,154 @@
+# SSELFIE Editorial Style Guide  
+*(The Only Source of Truth—Zero Confusion Version)*
+
+---
+
+## 1. Color Palette
+
+| Name            | HEX         | Usage                                  |
+|-----------------|-------------|----------------------------------------|
+| Black           | #0a0a0a     | Headlines, backgrounds, CTA, nav       |
+| White           | #ffffff     | Background, text, negative space       |
+| Editorial Gray  | #f5f5f5     | Moodboard, testimonials, section BG    |
+| Mid Gray        | #fafafa     | Default page BG, footer, nav BG        |
+| Soft Gray       | #666666     | Subtext, muted copy, secondary UI      |
+| Accent Line     | #e5e5e5     | Borders, separators, field outlines    |
+
+**Strict rules:**  
+- Only use colors listed here.  
+- Never use color for “fun,” “emphasis,” or “decoration.”  
+- No gradients, no pastel pinks or purples, no blue. Ever.
+
+---
+
+## 2. Typography
+
+**There is only ONE headline font. No exceptions.**
+
+- **Headlines / Editorial Titles:**  
+  `font-family: 'Times New Roman', Times, serif;`  
+  *Weight:* 200–400  
+  *Case:* Sentence or Title  
+  *Letter-spacing:* -0.01em (tight, luxe)  
+  *No Bodoni, No Playfair, No substitutes. Ever.*
+
+- **Body Copy & General UI:**  
+  `font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;`  
+  *Weight:* 300–400  
+  *Case:* Sentence  
+  *Letter-spacing:* normal
+
+- **Subtext / Eyebrow / Stats / UI Labels:**  
+  *Font:* Same as body  
+  *Size:* 11px  
+  *Letter-spacing:* 0.4em  
+  *Case:* UPPERCASE  
+  *Color:* #666666 (on light), rgba(255,255,255,0.5) (on black)  
+
+**Don’t:**  
+- Use Bodoni, Playfair, Georgia, or any other serif.  
+- Use italics, drop shadows, or outline text.
+
+---
+
+## 3. Spacing & Layout
+
+- **Section Padding:**  
+  Desktop: 80–120px top/bottom  
+  Mobile: 30–40px top/bottom
+- **Grid Gaps:**  
+  8–60px depending on context (err on more space)
+- **Max Widths:**  
+  Editorial: 1200px  
+  Moodboard: 1400px  
+  CTA: 700–900px
+- **If it feels crowded, add more space. Luxury = air.**
+
+---
+
+## 4. Buttons & CTAs
+
+- **Style:**  
+  - Minimal, no fills or gradients  
+  - All caps, 11–13px, tracked (0.3–0.4em letter-spacing)  
+  - Underline or border on hover only  
+  - No icons, no box-shadows, no rounded corners  
+  - Use only #0a0a0a (black), #fff (white), or #e5e5e5 (accent)  
+- **Copy:**  
+  - Direct, never cutesy:  
+    - BEGIN  
+    - START YOUR JOURNEY  
+    - SSELFIE METHOD  
+    - 1:1 COACHING  
+    - SEE MORE STORIES  
+
+---
+
+## 5. Imagery
+
+- **Style:**  
+  - Editorial, high contrast, slightly desaturated or true color  
+  - No oversaturated, no Instagram “filters”  
+  - Black & white for drama, color for energy  
+  - Never random, “cute,” or clip art  
+- **Layout:**  
+  - Full-bleed or strict grid/collage  
+  - Never border-radius, never floating, always intentional  
+  - Plenty of negative space
+
+---
+
+## 6. UI Components
+
+- **All UI elements (checkbox, input, alert, card, etc):**
+  - Sharp corners only—no border-radius  
+  - Borders: #e5e5e5, 1px, minimal  
+  - No icons, no default browser blue, no shadows  
+  - Text: system sans-serif, correct weights, UPPERCASE for labels only  
+  - Hover/focus: underline or border only—no color fills
+
+---
+
+## 7. Copywriting & Voice
+
+- **Every word = advice from your smartest friend**  
+- Never corporate, never “boss babe,” never empowerment speak  
+- Icelandic directness + warmth + “I’ve actually lived this” energy  
+- Copy always passes these:
+  - Would Sandra say it to a friend over coffee?
+  - Would it make a tired mom feel seen—not shamed?
+  - Does it sound lived-in, not “inspirational quote”?
+- **No exclamation marks unless you’d actually shout it.**
+
+---
+
+## 8. Editorial Don’ts
+
+- No Bodoni, Playfair, or any other “magazine” serif  
+- No icons, emojis, illustrations, or clip art  
+- No pastel or “fun” color  
+- No gradients, animated backgrounds, or moving elements  
+- No empowerment jargon, fake urgency, or marketing speak  
+- No “cards” with rounded corners, no drop shadows, no glassmorphism
+
+---
+
+## 9. Section Structure
+
+- **Hero:** Editorial headline (Times New Roman, tight), subtext/eyebrow, minimal CTA  
+- **Editorial Spread:** Power quote, split image/story, magazine columns, stats, testimonials  
+- **Moodboard:** Grid/collage, negative space, one strong quote  
+- **CTA:** Minimal, all-caps, feels like an invitation
+
+---
+
+## 10. If You’re Ever Unsure…
+
+Ask: “What would Sandra text her best friend at midnight?”  
+That’s your answer. If you’re still not sure, default to LESS, not more.
+
+---
+
+*This is the only style guide. If you see another, ignore it. If you’re not sure, stick to this.*
+
+Let’s build something real together.

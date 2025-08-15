@@ -229,7 +229,7 @@ ${context.totalFilesSearched > 20 ? `\n...and ${context.totalFilesSearched - 20}
     if (preserveContext) {
       const existing = this.cache.get(key);
       if (existing) {
-        (existing as any).timestamp = Date.now();
+        existing.timestamp = Date.now();
         console.log(`🔄 CACHE REFRESHED for ${agentName} in conversation ${conversationId} (context preserved)`);
         return;
       }

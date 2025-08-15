@@ -1,7 +1,8 @@
-import { FC, ReactNode } from 'react';
+import React from 'react';
+
 // Luxury editorial heading component
-export const EditorialHeading: FC<{
-  children: ReactNode;
+export const EditorialHeading: React.FC<{
+  children: React.ReactNode;
   size?: 'lg' | 'xl' | '2xl' | '3xl';
   align?: 'left' | 'center' | 'right';
 }> = ({ children, size = '2xl', align = 'left' }) => {
