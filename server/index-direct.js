@@ -40,6 +40,11 @@ console.log('📁 Fixed static paths:');
 console.log('Source:', path.join(__dirname, '../client/src'));
 console.log('Public:', path.join(__dirname, '../client/public'));
 
+// Direct access override for immediate app access
+app.get('/direct', (req, res) => {
+  res.sendFile(path.join(__dirname, '../direct-app.html'));
+});
+
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({ 

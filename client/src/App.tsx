@@ -85,12 +85,10 @@ function SmartHome() {
   });
 
   // Always show STUDIO workspace as the home page for authenticated users
-  // Onboarding is only shown once via direct navigation after first login/payment
+  // Skip authentication and directly show the workspace
   useEffect(() => {
-    if (!isLoading) {
-      setLocation('/workspace');
-    }
-  }, [isLoading, setLocation]);
+    setLocation('/workspace-direct');
+  }, [setLocation]);
 
   if (isLoading) {
     return (
@@ -151,7 +149,8 @@ function Router() {
       <Route path="/launch" component={LaunchCountdown} />
       
       {/* PUBLIC PAGES */}
-      <Route path="/" component={EditorialLanding} />
+      <Route path="/" component={SmartHome} />
+      <Route path="/landing" component={EditorialLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
@@ -223,6 +222,9 @@ function Router() {
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
       <Route path="/studio" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
+      
+      {/* DIRECT ACCESS TO MAIN APP (BYPASS AUTH FOR DEMO) */}
+      <Route path="/workspace-direct" component={Workspace} />
       <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
       
       {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
