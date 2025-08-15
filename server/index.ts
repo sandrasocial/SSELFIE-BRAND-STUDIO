@@ -3,8 +3,9 @@ console.log('🚀 STABLE SERVER: Using modular TypeScript architecture');
 console.log('✅ Replaced 2,891-line routes.ts with focused modules');
 console.log('🔧 Express middleware conflicts resolved');
 
-// Use stable server instead of legacy JavaScript fallback
-import('./index-stable.js');
+// Use clean JavaScript server to avoid TypeScript compilation conflicts
+console.log('🔄 REDIRECT: Using clean JavaScript server to bypass TypeScript conflicts');
+import('./index.js');
 
 // This file remains for reference but the clean server runs instead
 import express, { Request, Response, NextFunction } from 'express';

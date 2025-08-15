@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { registerNewRoutes } from './routes/new-routes.js';
+import { registerNewRoutes } from './routes/new-routes.ts';
 
 // ES module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);

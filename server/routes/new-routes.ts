@@ -3,12 +3,12 @@ import express from "express";
 import { createServer, type Server } from "http";
 
 // Import all modular route modules
-import { setupHealthRoutes } from "./health.js";
-import { setupAuthRoutes } from "./auth.js";
-import { setupUserRoutes } from "./users.js";
-import { setupMayaRoutes } from "./agents/maya.js";
-import { setupVictoriaRoutes } from "./agents/victoria.js";
-import { setupPaymentRoutes } from "./business/payments.js";
+import { setupHealthRoutes } from "./health.ts";
+import { setupAuthRoutes } from "./auth.ts";
+import { setupUserRoutes } from "./users.ts";
+import { setupMayaRoutes } from "./agents/maya.ts";
+import { setupVictoriaRoutes } from "./agents/victoria.ts";
+import { setupPaymentRoutes } from "./business/payments.ts";
 
 export async function registerNewRoutes(app: Express): Promise<Server> {
   console.log('🚀 REGISTERING MODULAR ROUTES - Breaking down 2,891-line routes.ts');
