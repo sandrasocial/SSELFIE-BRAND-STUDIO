@@ -30,6 +30,8 @@ import consultingAgentsRouter from './api/admin/consulting-agents';
 // REMOVED: quinnTestingRouter - testing system not needed
 // import quinnTestingRouter from './routes/quinn-testing';
 import memberProtectionRouter from './api/admin/member-protection';
+// AGENT BRIDGE SYSTEM: Missing backend for bridge UI
+import agentBridgeRouter from './routes/agent-bridge-routes';
 // REMOVED: systemValidationRouter - excessive validation logging
 // import systemValidationRouter from './routes/system-validation';
 // DELETED: member-journey-test.ts - Development testing complete
@@ -1793,6 +1795,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Regular consulting agents routes (non-admin)
   app.use('/api/consulting-agents', consultingAgentsRouter);
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
+
+  // AGENT BRIDGE ROUTES - Backend for bridge UI system
+  app.use('/api/agent-bridge', agentBridgeRouter);
+  console.log('✅ BRIDGE: Agent bridge routes registered at /api/agent-bridge');
 
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
