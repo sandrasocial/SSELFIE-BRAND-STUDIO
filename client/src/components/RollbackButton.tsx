@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -52,14 +51,12 @@ export function RollbackButton({ filePath, className }: RollbackButtonProps) {
   };
 
   return (
-    <Button
+    <button
       onClick={handleRollback}
       disabled={isRollingBack}
-      variant="outline"
-      size="sm"
-      className={`border-red-200 text-red-600 hover:bg-red-50 ${className}`}
+      className={`px-3 py-1 text-sm border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 ${className}`}
     >
       {isRollingBack ? 'Rolling back...' : 'Rollback'}
-    </Button>
+    </button>
   );
 }

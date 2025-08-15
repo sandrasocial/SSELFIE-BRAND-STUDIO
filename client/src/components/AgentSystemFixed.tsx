@@ -1,4 +1,4 @@
-import React from 'react';
+// React import removed - not needed
 import { UnifiedAgentInterface } from '@/components/admin/UnifiedAgentInterface';
 
 export default function AgentSystemFixed() {

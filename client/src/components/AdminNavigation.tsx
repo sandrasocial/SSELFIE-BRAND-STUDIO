@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -12,7 +12,7 @@ export function AdminNavigation({ transparent = true }: AdminNavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  // Removed unused isLoading state
 
   useEffect(() => {
     const handleScroll = () => {
