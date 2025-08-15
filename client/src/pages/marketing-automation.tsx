@@ -1,4 +1,4 @@
-import React from 'react';
+// Marketing automation page component
 
 export default function MarketingAutomation() {
   return (
