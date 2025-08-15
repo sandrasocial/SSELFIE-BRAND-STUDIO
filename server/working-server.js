@@ -1,9 +1,9 @@
-// FULL REACT DEPLOYMENT: Start complete React application
-console.log('🚀 Starting SSELFIE Studio with complete React environment...');
-console.log('🎯 FULL DEPLOYMENT: React TypeScript application active');
+// VITE DEVELOPMENT SERVER: Start proper React TypeScript compilation
+console.log('🚀 Starting SSELFIE Studio with Vite development server...');
+console.log('🎯 VITE DEPLOYMENT: Proper TypeScript compilation active');
 
-// Start the full React server instead
-require('../full-react-server.js');
+// Start Vite development server for proper React TypeScript handling
+require('../start-real-server.js');
 return;
 
 const express = require('express');
