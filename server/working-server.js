@@ -1,12 +1,10 @@
-// EMERGENCY FIX: Override tsx server with working frontend
-console.log('🚀 Starting SSELFIE Studio with all your 4 months of work...');
-console.log('🚀 EMERGENCY: Serving working frontend directly');
+// FULL REACT DEPLOYMENT: Start complete React application
+console.log('🚀 Starting SSELFIE Studio with complete React environment...');
+console.log('🎯 FULL DEPLOYMENT: React TypeScript application active');
 
-// Kill tsx server and start our working server
-process.exit = () => {}; // Prevent exit
-setTimeout(() => {
-  console.log('🔧 OVERRIDE: Starting working server...');
-}, 100);
+// Start the full React server instead
+require('../full-react-server.js');
+return;
 
 const express = require('express');
 const path = require('path');
