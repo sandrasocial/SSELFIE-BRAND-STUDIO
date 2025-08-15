@@ -2,7 +2,7 @@
 // Triggers for automatic email sending
 
 import { Router } from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { isAuthenticated } from '../../replitAuth';
 import { 
   sendWelcomeEmail, 
   sendTrainingCompleteEmail, 
