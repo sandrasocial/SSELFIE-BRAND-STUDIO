@@ -30,12 +30,18 @@
       "@pages/*": ["./client/src/pages/*"],
       "@utils/*": ["./client/src/utils/*"]
     },
-    "incremental": true
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "client/src",
     "shared",
-    "server/**/*.ts"
+    "server/**/*.ts",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

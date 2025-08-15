@@ -1,10 +1,10 @@
-// FULL REACT DEPLOYMENT: Start complete React application
-console.log('🚀 Starting SSELFIE Studio with complete React environment...');
-console.log('🎯 FULL DEPLOYMENT: React TypeScript application active');
+// Use tsx to run your comprehensive TypeScript server
+require('child_process').spawn('npx', ['tsx', 'server/index.ts'], { 
+  stdio: 'inherit',
+  env: { ...process.env, PORT: process.env.PORT || '5000' }
+});
 
-// Start the full React server instead
-require('../full-react-server.js');
-return;
+return; // Exit early to avoid running old server
 
 const express = require('express');
 const path = require('path');
@@ -67,8 +67,8 @@ app.get('/api/login', (req, res) => {
   `);
 });
 
-// Serve working frontend for all other routes
-const htmlPath = path.join(__dirname, '../client/index-working.html');
+// Serve React app for all other routes
+const htmlPath = path.join(__dirname, '../client/index.html');
 
 app.get('*', (req, res) => {
   if (fs.existsSync(htmlPath)) {
