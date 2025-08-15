@@ -9,9 +9,10 @@
 ### COORDINATION ATTEMPTS
 
 #### Direct API Coordination
-- **Status**: ❌ Backend server unavailable 
+- **Status**: ❌ Backend server not running in current workflow
 - **Endpoint Tested**: `/api/consulting-agents/admin/consulting-chat`
-- **Result**: Connection refused (port 5000)
+- **Issue**: Workflow only runs frontend (Vite port 5173), backend coordination requires separate startup
+- **Attempted**: tsx server/index.ts, working-server.js, basic-server.js - all failed to start
 
 #### Documentation-Based Coordination  
 - **Status**: ✅ Active
