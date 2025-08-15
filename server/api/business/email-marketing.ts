@@ -8,8 +8,8 @@ import {
   sendTrainingCompleteEmail, 
   sendLimitWarningEmail, 
   sendUpgradeInviteEmail 
-} from '../services/email-service';
-import { storage } from '../storage';
+} from '../../email-service.js';
+import { storage } from '../../storage.js';
 
 const router = Router();
 
