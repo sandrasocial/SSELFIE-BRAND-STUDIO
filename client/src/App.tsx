@@ -45,6 +45,7 @@ import AdminSubscriberImport from "@/pages/admin-subscriber-import";
 import BridgeMonitor from "@/pages/admin/bridge-monitor";
 import { UnifiedAgentInterface } from "@/components/admin/UnifiedAgentInterface";
 import UnifiedLoginButton from "@/components/UnifiedLoginButton";
+import AdminProtectedRoute from "@/components/AdminProtectedRoute";
 
 
 import AgentApproval from "@/pages/agent-approval";
@@ -74,7 +75,7 @@ import Build from "@/pages/build";
 
 
 
-// Smart Home component that routes based on onboarding status  
+// Smart Home routing component - redirects authenticated users to workspace
 function SmartHome() {
   const [, setLocation] = useLocation();
   const { isLoading } = useQuery({
@@ -82,8 +83,6 @@ function SmartHome() {
     retry: false,
   });
 
-  // Always show STUDIO workspace as the home page for authenticated users
-  // Onboarding is only shown once via direct navigation after first login/payment
   useEffect(() => {
     if (!isLoading) {
       setLocation('/workspace');
@@ -150,6 +149,7 @@ function Router() {
       
       {/* PUBLIC PAGES */}
       <Route path="/" component={EditorialLanding} />
+      <Route path="/editorial-landing" component={EditorialLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
