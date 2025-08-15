@@ -1,76 +1,70 @@
 import express from 'express';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import session from 'express-session';
+import passport from 'passport';
 import path from 'path';
-import fs from 'fs';
+import { db } from './db';
+import { registerRoutes } from './routes';
 
 const app = express();
-const port = Number(process.env.PORT) || 5000;
+const server = createServer(app);
+const wss = new WebSocketServer({ server });
 
-async function setupServer() {
-  // Basic middleware
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Session configuration - using memory store for now to avoid db.pool issue
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'development_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  }
+}));
 
-  // Try to use Vite dev server if available, fall back to static serving
-  let viteDevMode = false;
-  try {
-    if (process.env.NODE_ENV !== 'production') {
-      const { createServer } = await import('vite');
-      const vite = await createServer({
-        server: { middlewareMode: true },
-        appType: 'spa',
-        root: path.join(__dirname, '../client')
-      });
-      app.use(vite.ssrFixStacktrace);
-      app.use(vite.middlewares);
-      viteDevMode = true;
-      console.log('🔥 Vite dev server enabled');
+// Passport initialization
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Body parsing
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// WebSocket handling
+wss.on('connection', (ws) => {
+  ws.on('message', async (message) => {
+    try {
+      const data = JSON.parse(message.toString());
+      // Handle different message types
+      switch(data.type) {
+        case 'AGENT_MESSAGE':
+          // Handle agent messages
+          break;
+        case 'USER_MESSAGE':
+          // Handle user messages
+          break;
+        default:
+          console.warn('Unknown message type:', data.type);
+      }
+    } catch (error) {
+      console.error('WebSocket message handling error:', error);
     }
-  } catch (error) {
-    console.log('📁 Using static file serving (Vite unavailable)');
-    
-    // Serve static files with correct MIME types
-    app.use('/src', express.static(path.join(__dirname, '../client/src'), {
-      setHeaders: (res, filePath) => {
-        if (filePath.endsWith('.tsx') || filePath.endsWith('.ts')) {
-          res.setHeader('Content-Type', 'application/javascript');
-        } else if (filePath.endsWith('.jsx') || filePath.endsWith('.js')) {
-          res.setHeader('Content-Type', 'application/javascript');
-        } else if (filePath.endsWith('.css')) {
-          res.setHeader('Content-Type', 'text/css');
-        }
-      }
-    }));
-    
-    // Serve client public assets
-    app.use('/assets', express.static(path.join(__dirname, '../client/public')));
-    app.use(express.static(path.join(__dirname, '../client/public')));
-  }
-
-  // Health check
-  app.get('/api/health', (req, res) => {
-    res.json({ 
-      status: 'healthy', 
-      timestamp: new Date().toISOString(),
-      server: `SSELFIE Studio (${viteDevMode ? 'Vite' : 'Static'})`
-    });
   });
+});
 
-  // Only serve HTML fallback if not using Vite
-  if (!viteDevMode) {
-    const htmlPath = path.join(__dirname, '../client/index.html');
-    app.get('*', (req, res) => {
-      if (fs.existsSync(htmlPath)) {
-        res.sendFile(htmlPath);
-      } else {
-        res.status(404).send('App not found');
-      }
-    });
-  }
+const port = process.env.PORT || 5000;
 
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`🚀 SSELFIE Studio running on port ${port}`);
-    console.log(`🌐 Access: http://localhost:${port}`);
+// Register all the comprehensive routes from routes.ts and start server
+console.log('🔧 Registering comprehensive routes...');
+registerRoutes(app).then(() => {
+  console.log('✅ All routes registered successfully');
+  server.listen(port, () => {
+    console.log(`🚀 Server running on port ${port}`);
   });
-}
-
-setupServer().catch(console.error);
+}).catch(err => {
+  console.error('❌ Route registration failed:', err);
+  // Start basic server even if routes fail
+  server.listen(port, () => {
+    console.log(`🚀 Server running on port ${port} (with route registration errors)`);
+  });
+});
