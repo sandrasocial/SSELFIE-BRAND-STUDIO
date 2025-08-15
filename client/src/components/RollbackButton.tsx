@@ -19,12 +19,15 @@ export function RollbackButton({ filePath, className }: RollbackButtonProps) {
 
     setIsRollingBack(true);
     try {
-      const response = await apiRequest('POST', '/api/admin/rollback-file', {
-        filePath,
-        adminToken: 'sandra-admin-2025'
+      const response = await apiRequest('/api/admin/rollback-file', {
+        method: 'POST',
+        body: JSON.stringify({
+          filePath,
+          adminToken: 'sandra-admin-2025'
+        })
       });
 
-      if (response.ok) {
+      if (response.success) {
         toast({
           title: "File Rolled Back",
           description: `${filePath} has been restored to its previous version.`,
