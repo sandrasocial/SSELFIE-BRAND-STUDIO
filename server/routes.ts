@@ -341,7 +341,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Setup authentication
+  // CRITICAL: Setup static file serving BEFORE authentication middleware
+  // This ensures frontend files are accessible without auth
+  
+  // Setup authentication AFTER static files
   await setupAuth(app);
   
   // CRITICAL: Serve training ZIP files with correct content type
@@ -2757,7 +2760,12 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
   
   // SPA catch-all route - serve SSELFIE Studio app for all other routes (MUST BE LAST!)
+  // Catch-all route for SPA - MUST EXCLUDE static file paths!
   app.get('*', (req, res) => {
+    // Don't serve HTML for static file requests (js, css, ts, tsx, etc)
+    if (req.path.match(/\.(js|css|ts|tsx|jsx|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
+      return res.status(404).send('Static file not found');
+    }
     res.sendFile(path.join(__dirname, '../index.html'));
   });
   

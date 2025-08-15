@@ -6,4 +6,9 @@ import "./index.css";
 console.log('SSELFIE Studio: Main.tsx loading...');
 console.log('SSELFIE Studio: Root element found:', !!document.getElementById("root"));
 
-createRoot(document.getElementById("root")!).render(<App />);
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  createRoot(rootElement).render(<App />);
+} else {
+  console.error('SSELFIE Studio: Root element not found!');
+}
