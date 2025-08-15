@@ -1,6 +1,6 @@
 import { Router, Request } from 'express';
-import { isAuthenticated } from '../replitAuth';
-import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/personality-config';
+import { isAuthenticated } from '../replitAuth.js';
+import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/personality-config.js';
 // REMOVED: ClaudeApiServiceSimple import - using singleton instead
 
 // Type definitions for admin requests
@@ -28,25 +28,25 @@ interface ConsultingChatBody {
 }
 
 // UNIFIED SERVICE: Use singleton from claude-api-service-simple.ts (eliminates service multiplication)
-import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
+import { claudeApiServiceSimple } from '../services/claude-api-service-simple.js';
 // REMOVED: DirectWorkspaceAccess - unified native tool architecture
 // ELIMINATED: autonomousNavigation - part of competing memory systems
 // REMOVED: architectural-knowledge-base - part of old complex system
 // ELIMINATE BROKEN SYSTEMS: Replace with personality-first admin agents
-import { AdminContextManager } from '../memory/admin-context-manager';
-import { PersonalityIntegrationService } from '../agents/personality-integration-service';
-import { LocalProcessingEngine } from '../services/hybrid-intelligence/local-processing-engine';
-import { simpleMemoryService } from '../services/simple-memory-service';
-import { db } from '../db';
-import { claudeConversations, claudeMessages } from '../../shared/schema';
+import { AdminContextManager } from '../memory/admin-context-manager.js';
+import { PersonalityIntegrationService } from '../agents/personality-integration-service.js';
+import { LocalProcessingEngine } from '../services/hybrid-intelligence/local-processing-engine.js';
+import { simpleMemoryService } from '../services/simple-memory-service.js';
+import { db } from '../db.js';
+import { claudeConversations, claudeMessages } from '../../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
 // COORDINATION TOOLS: Import schemas and direct tool functions
-import { TOOL_SCHEMAS } from '../tools/tool-schemas';
-import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_tool';
-import { bash } from '../tools/bash';
-import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
-import { execute_sql_tool } from '../tools/execute_sql_tool';
-import { search_filesystem } from '../tools/search_filesystem';
+import { TOOL_SCHEMAS } from '../tools/tool-schemas.js';
+import { str_replace_based_edit_tool } from '../tools/str_replace_based_edit_tool.js';
+import { bash } from '../tools/bash.js';
+import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics.js';
+import { execute_sql_tool } from '../tools/execute_sql_tool.js';
+import { search_filesystem } from '../tools/search_filesystem.js';
 // PERSONALITY-FIRST ADMIN AGENTS: Eliminate generic systems
 const adminContextManager = AdminContextManager.getInstance();
 const personalityService = PersonalityIntegrationService.getInstance();
@@ -933,7 +933,7 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', asyn
     
     // Use existing database access (no duplicate Claude service creation)
     const { db } = await import('../db.js');
-    const { claudeConversations, claudeMessages } = await import('../../shared/schema');
+    const { claudeConversations, claudeMessages } = await import('../../shared/schema.js');
     const { eq, and, desc } = await import('drizzle-orm');
     
     // Get conversation list for this agent/user
