@@ -14,6 +14,9 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from client/dist (built React app)
 app.use(express.static(path.join(__dirname, 'client/dist')));
 
+// Also serve static assets for development
+app.use('/assets', express.static(path.join(__dirname, 'client/dist/assets')));
+
 // Serve development files directly from client/src with proper MIME types
 app.use('/src', express.static(path.join(__dirname, 'client/src'), {
   setHeaders: (res, filePath) => {
@@ -45,14 +48,17 @@ app.post('/api/admin/consulting-agents/chat', (req, res) => {
   });
 });
 
-// Serve the development environment until full React is compiled
+// Serve the React application (built or development)
 app.get('*', (req, res) => {
+  const builtIndexPath = path.join(__dirname, 'client/dist/index.html');
   const devIndexPath = path.join(__dirname, 'dev-index.html');
-  const prodIndexPath = path.join(__dirname, 'client/index.html');
+  const originalIndexPath = path.join(__dirname, 'client/index.html');
   
-  // Check if built React app exists, otherwise serve dev environment
-  if (fs.existsSync(prodIndexPath)) {
-    res.sendFile(prodIndexPath);
+  // Priority: Built app > Development HTML > Fallback
+  if (fs.existsSync(builtIndexPath)) {
+    res.sendFile(builtIndexPath);
+  } else if (fs.existsSync(originalIndexPath)) {
+    res.sendFile(originalIndexPath);
   } else if (fs.existsSync(devIndexPath)) {
     res.sendFile(devIndexPath);
   } else {
@@ -65,6 +71,8 @@ app.get('*', (req, res) => {
           <p>Server running successfully on port ${port}</p>
           <div style="margin-top: 30px;">
             <a href="/api/health" style="color: #00ff88;">Check API Health</a>
+            <br><br>
+            <a href="/api/victoria/generate" style="color: #00ff88;">Test Victoria API</a>
           </div>
         </body>
       </html>
