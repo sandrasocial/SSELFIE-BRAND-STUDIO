@@ -43,8 +43,8 @@ function SimpleHomePage() {
             fontSize: '1.1rem',
             cursor: 'pointer'
           }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#333'}
-          onMouseOut={(e) => e.target.style.backgroundColor = '#000'}
+          onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = '#333'}
+          onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = '#000'}
         >
           Get Started
         </button>
