@@ -33,81 +33,6 @@ import phase2CoordinationRouter from './routes/phase2-coordination';
 
 import { generateWebsiteHTML } from './services/website-generator';
 
-// Victoria website content generation functions
-async function generateVictoriaWebsiteContent(prompt: string, type: string, style: string) {
-  const templates = {
-    'landing-page': {
-      sections: ['hero', 'features', 'testimonials', 'cta'],
-      layout: 'single-page'
-    },
-    'portfolio': {
-      sections: ['hero', 'about', 'projects', 'contact'],
-      layout: 'multi-page'
-    },
-    'business': {
-      sections: ['hero', 'services', 'about', 'contact'],
-      layout: 'professional'
-    }
-  };
-
-  const template = templates[type as keyof typeof templates] || templates['landing-page'];
-  
-  return {
-    title: extractVictoriaTitle(prompt),
-    description: `A ${style} ${type} generated from: ${prompt.substring(0, 100)}...`,
-    content: {
-      template: template,
-      sections: await generateVictoriaSections(prompt, template.sections, style),
-      theme: style,
-      customizations: {}
-    }
-  };
-}
-
-function extractVictoriaTitle(prompt: string): string {
-  const titleMatch = prompt.match(/(?:for|about|called)\s+["']?([^"',.!?]+)["']?/i);
-  return titleMatch ? titleMatch[1].trim() : `Website from "${prompt.substring(0, 30)}..."`;
-}
-
-async function generateVictoriaSections(prompt: string, sections: string[], style: string) {
-  const sectionData: Record<string, any> = {};
-  
-  for (const section of sections) {
-    sectionData[section] = await generateVictoriaSectionContent(prompt, section, style);
-  }
-  
-  return sectionData;
-}
-
-async function generateVictoriaSectionContent(prompt: string, section: string, style: string) {
-  const sectionTemplates = {
-    hero: {
-      headline: `Transform Your Vision Into Reality`,
-      subheadline: `Based on: ${prompt}`,
-      cta: 'Get Started',
-      background: style === 'luxury' ? 'gradient-luxury' : 'gradient-modern'
-    },
-    features: {
-      title: 'Key Features',
-      items: [
-        { title: 'Professional Design', description: 'Generated from your specific requirements' },
-        { title: 'Custom Content', description: 'Tailored to your business needs' },
-        { title: 'Modern Technology', description: 'Built with latest web standards' }
-      ]
-    },
-    about: {
-      title: 'About',
-      content: `This section was generated based on your prompt: ${prompt}`
-    },
-    contact: {
-      title: 'Get In Touch',
-      fields: ['name', 'email', 'message']
-    }
-  };
-
-  return sectionTemplates[section as keyof typeof sectionTemplates] || { title: section };
-}
-
 // Generate Victoria website HTML content
 function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
   const businessName = websiteData.businessName || 'Your Business';
@@ -401,36 +326,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Victoria website generator
   registerVictoriaWebsiteGenerator(app);
-
-  // Victoria AI Website Generation API - Express version
-  app.post('/api/victoria/generate', async (req, res) => {
-    try {
-      const { prompt, type = 'landing-page', style = 'modern' } = req.body;
-
-      if (!prompt) {
-        return res.status(400).json({ error: 'Prompt is required' });
-      }
-
-      // Generate website content using AI
-      const websiteData = await generateVictoriaWebsiteContent(prompt, type, style);
-      
-      res.json({
-        success: true,
-        website: {
-          title: websiteData.title,
-          description: websiteData.description,
-          content: websiteData.content,
-          style,
-          type,
-          createdAt: new Date().toISOString(),
-        }
-      });
-
-    } catch (error) {
-      console.error('Victoria generation error:', error);
-      res.status(500).json({ error: 'Failed to generate website' });
-    }
-  });
   
   // AGENT PROTOCOL ENFORCEMENT SYSTEM
   app.post('/api/agent-protocol/validate', async (req, res) => {
