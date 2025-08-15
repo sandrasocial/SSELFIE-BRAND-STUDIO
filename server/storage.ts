@@ -56,7 +56,7 @@ import {
   type ClaudeMessage,
   type InsertClaudeConversation,
   type InsertClaudeMessage,
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { db } from "./db";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
