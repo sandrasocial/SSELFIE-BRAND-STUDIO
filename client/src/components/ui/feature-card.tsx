@@ -1,4 +1,4 @@
-import { FC, forwardRef } from 'react';
+import React from "react";
 import { cn } from "@/lib/utils";
 
 interface FeatureCardProps {
@@ -9,7 +9,7 @@ interface FeatureCardProps {
   className?: string;
 }
 
-const FeatureCard: FC<FeatureCardProps> = ({
+const FeatureCard: React.FC<FeatureCardProps> = ({
   title,
   description,
   imageSrc,

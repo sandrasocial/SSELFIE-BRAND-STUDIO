@@ -1,14 +1,14 @@
-import React, { InputHTMLAttributes, forwardRef } from 'react';
-import { cn } from "../../lib/utils";
+import React from "react";
+import { cn } from "@/lib/utils";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   fullWidth?: boolean;
   className?: string;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, fullWidth = false, className, ...props }, ref) => (
     <div className={cn("flex flex-col", fullWidth && "w-full", className)}>
       {label && (

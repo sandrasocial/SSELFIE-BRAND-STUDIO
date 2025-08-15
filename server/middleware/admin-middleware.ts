@@ -50,16 +50,16 @@ export function isAdmin(user: any): boolean {
  * Express middleware for admin route protection
  * Use this instead of inline admin checks
  */
-export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+export function requireAdmin(req: AdminUser, res: Response, next: NextFunction): void {
   try {
     // Check for admin token in headers, body, or query
     const adminToken = req.headers.authorization || 
-                      (req.body && (req.body as any).adminToken) || 
-                      (req.query as any).adminToken;
+                      (req.body && req.body.adminToken) || 
+                      req.query.adminToken;
 
     // Handle admin token bypass
     if (adminToken === `Bearer ${ADMIN_TOKEN}` || adminToken === ADMIN_TOKEN) {
-      (req as any).user = {
+      req.user = {
         claims: {
           sub: ADMIN_USER_ID,
           email: ADMIN_EMAIL,
@@ -67,11 +67,11 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction): v
           last_name: 'Sigurjonsdottir'
         }
       };
-      (req as any).isAdminBypass = true;
+      req.isAdminBypass = true;
     }
 
     // Validate admin access
-    if (!isAdmin((req as any).user)) {
+    if (!isAdmin(req.user)) {
       res.status(403).json({ 
         success: false, 
         message: 'Admin access required',
@@ -95,16 +95,16 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction): v
  * Lightweight admin check for conditional logic
  * Use this for optional admin features
  */
-export function checkAdminAccess(req: Request): boolean {
+export function checkAdminAccess(req: AdminUser): boolean {
   const adminToken = req.headers.authorization || 
-                    (req.body && (req.body as any).adminToken) || 
-                    (req.query as any).adminToken;
+                    (req.body && req.body.adminToken) || 
+                    req.query.adminToken;
 
   if (adminToken === `Bearer ${ADMIN_TOKEN}` || adminToken === ADMIN_TOKEN) {
     return true;
   }
 
-  return isAdmin((req as any).user);
+  return isAdmin(req.user);
 }
 
 /**

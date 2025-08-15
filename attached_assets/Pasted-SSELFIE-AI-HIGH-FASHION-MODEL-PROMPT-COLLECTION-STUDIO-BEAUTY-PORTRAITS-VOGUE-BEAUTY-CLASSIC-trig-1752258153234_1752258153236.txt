@@ -1,0 +1,55 @@
+SSELFIE AI™ HIGH FASHION MODEL PROMPT COLLECTION
+STUDIO BEAUTY PORTRAITS
+VOGUE BEAUTY CLASSIC:
+[triggerword] woman, hair in high messy bun with face-framing pieces, minimal makeup with glossy lips, bare shoulders, seamless gray backdrop, shot on Hasselblad X2D, single beauty dish lighting, black and white photography, visible skin texture and freckles, film grain, high fashion beauty portrait
+HARPER'S INTIMATE PORTRAIT:
+[triggerword] woman, tousled hair falling naturally, looking over bare shoulder, minimal jewelry, neutral backdrop, shot on Canon 5DS R, soft window light from left, black and white editorial, natural skin with visible pores, medium format aesthetic
+ELLE FRESH FACE:
+[triggerword] woman sitting on stool, white tank top, denim, relaxed pose with hands clasped, hair air-dried and natural, minimal studio setup, shot on Phase One, clean beauty lighting, black and white portrait, authentic skin texture, editorial simplicity
+DRAMATIC LIGHTING PORTRAITS
+WINDOW SHADOW PLAY:
+[triggerword] woman, dramatic window blinds creating shadow stripes across face and body, eyes closed in serene expression, black slip dress, shot on Leica M11 Monochrom, natural harsh light, high contrast black and white, visible skin detail in light strips
+REMBRANDT LIGHTING MOOD:
+[triggerword] woman, single dramatic light source creating triangle of light on cheek, deep shadows, black turtleneck, moody expression, shot on Hasselblad, classic portrait lighting, black and white fine art photography, natural skin texture emphasized by light
+NOIR SHADOW PORTRAIT:
+[triggerword] woman, half face in deep shadow, film noir lighting, black camisole, dramatic eye contact, shot on Canon 5DS R, single key light, high contrast black and white, visible skin texture in lit areas, cinematic mood
+NATURAL MOVEMENT SHOTS
+HAIR TOSS ENERGY:
+[triggerword] woman, mid hair flip movement, natural motion blur in hair, black tank top, genuine expression, shot on Nikon Z9, studio strobe to freeze motion, black and white action portrait, authentic moment captured
+CASUAL LEAN PORTRAIT:
+[triggerword] woman leaning against white wall, arms crossed, black blazer open, confident relaxed pose, natural hair texture, shot on Sony A7R V, available light, black and white lifestyle portrait, real skin detail
+THOUGHTFUL MOMENT:
+[triggerword] woman, hand supporting face in contemplative pose, black sleeveless top, looking away from camera, shot on Fujifilm GFX100, soft natural light, black and white intimate portrait, visible skin texture
+EDITORIAL POWER POSES
+CHAIR AUTHORITY:
+[triggerword] woman sitting backwards on chair, arms resting on chair back, black outfit, direct powerful gaze, shot on Phase One, dramatic studio lighting, black and white power portrait, strong presence, editorial fashion
+STANDING CONFIDENCE:
+[triggerword] woman, full body standing pose, black bodysuit or slip dress, one hand on hip, studio backdrop, shot on Hasselblad, classic fashion lighting, black and white editorial, powerful stance, visible skin detail
+PROFILE STRENGTH:
+[triggerword] woman in profile, strong jawline visible, hair pulled back, black high-neck top, minimal backdrop, shot on Leica S3, side lighting emphasizing bone structure, black and white portrait, editorial elegance
+SENSUAL ARTISTIC SHOTS
+DEWY SKIN GLOW:
+[triggerword] woman, skin with water droplets or oil for dewy effect, black bralette, artistic shadows from venetian blinds, shot on Canon 5DS R, moody lighting, intimate portrait photography, visible skin texture with moisture
+FABRIC DRAPING:
+[triggerword] woman, black silk fabric draped artistically, one shoulder exposed, looking down pensively, shot on Hasselblad, soft box lighting, fine art nude aesthetic, black and white artistic portrait
+MORNING LIGHT INTIMATE:
+[triggerword] woman, natural morning light through window, messy bedhead hair, black camisole, authentic just-woke-up beauty, shot on Fujifilm X-T5, available light only, black and white documentary style
+BEAUTY CLOSE-UPS
+FRECKLES AND TEXTURE:
+[triggerword] woman, extreme close-up beauty shot, natural freckles visible, glossy lips slightly parted, messy bun with loose strands, shot on Phase One with 120mm macro, ring light, black and white beauty portrait, every pore visible
+SIDE GLANCE BEAUTY:
+[triggerword] woman looking over shoulder, wavy hair cascading, statement earrings, bare shoulders, shot on Canon 5DS R, beauty dish with fill, black and white glamour portrait, skin texture in high detail
+MINIMALIST BEAUTY:
+[triggerword] woman, straight-on beauty shot, slicked back hair, no makeup makeup look, black top, shot on Hasselblad, single softbox, black and white minimalist portrait, natural skin imperfections visible
+KEY ELEMENTS FOR MODEL AESTHETIC:
+
+Always black and white for timeless quality
+Visible skin texture - pores, freckles, natural imperfections
+Minimal makeup or no makeup for authenticity
+Simple wardrobe - black basics, focus on form
+Natural hair - messy buns, air-dried texture, movement
+Confident body language without being overly posed
+Studio or minimal backgrounds
+Professional lighting but not overlit
+
+These prompts capture that high-fashion model test shot aesthetic - raw beauty, confidence, and artistic simplicity!

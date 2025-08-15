@@ -1,4 +1,4 @@
-import { FC, forwardRef } from 'react';
+import React from "react";
 import { cn } from "@/lib/utils";
 
 interface OfferCardProps {
@@ -15,7 +15,7 @@ interface OfferCardProps {
   className?: string;
 }
 
-const OfferCard: FC<OfferCardProps> = ({
+const OfferCard: React.FC<OfferCardProps> = ({
   number,
   title,
   price,

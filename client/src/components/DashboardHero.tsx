@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import React from 'react';
+
 interface DashboardHeroProps {
   totalUsers: number;
   totalRevenue: number;
@@ -6,7 +7,7 @@ interface DashboardHeroProps {
   monthlyGrowth: number;
 }
 
-export const DashboardHero: FC<DashboardHeroProps> = ({
+export const DashboardHero: React.FC<DashboardHeroProps> = ({
   totalUsers,
   totalRevenue,
   premiumUsers,

@@ -1,14 +1,14 @@
-import { KeyboardEvent, useState, useEffect, useRef } from 'react';
-import { useAuth } from '../hooks/use-auth';
+import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Button } from '../components/ui/button';
-import { Textarea } from '../components/ui/textarea';
-import { apiRequest } from '../lib/queryClient';
-import { SandraImages } from '../lib/sandra-images';
-import { EditorialImageBreak } from '../components/editorial-image-break';
-import { MemberNavigation } from '../components/member-navigation';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { apiRequest } from '@/lib/queryClient';
+import { SandraImages } from '@/lib/sandra-images';
+import { EditorialImageBreak } from '@/components/editorial-image-break';
+import { MemberNavigation } from '@/components/member-navigation';
 // import { MayaChatInterface } from '@/components/maya/MayaChatInterface';
 
 interface ChatMessage {
@@ -119,15 +119,16 @@ export default function Maya() {
   const [currentTrackerId, setCurrentTrackerId] = useState<number | null>(null);
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
 
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !user) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to chat with Maya AI",
-        
+        variant: "destructive",
       });
-      window.location.href = '/api/login';
+      setLocation('/login');
       return;
     }
   }, [user, isLoading, setLocation, toast]);
@@ -284,6 +285,8 @@ export default function Maya() {
     }
   };
 
+
+
   // 🔑 FIXED: Poll tracker for image completion with robust authentication
   const pollForTrackerCompletion = async (trackerId: number) => {
     const maxAttempts = 40; // 2 minutes total (3 second intervals)
@@ -323,7 +326,7 @@ export default function Maya() {
           toast({
             title: "Authentication Required",
             description: "Please refresh the page and try again.",
-            
+            variant: "destructive",
           });
           return;
         }
@@ -496,7 +499,7 @@ export default function Maya() {
           toast({
             title: "AI Model Required",
             description: data.error || "Please complete your AI model training first.",
-            
+            variant: "destructive",
           });
           setTimeout(() => {
             setLocation(data.redirectTo || '/simple-training');
@@ -684,7 +687,7 @@ export default function Maya() {
     }
   };
 
-  const handleKeyPress = (e: KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();

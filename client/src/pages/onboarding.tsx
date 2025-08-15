@@ -1,12 +1,12 @@
-import { ChangeEvent, useState, useEffect } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
-import { useAuth } from '../hooks/use-auth';
+import React, { useState, useRef } from 'react';
+import { MemberNavigation } from '@/components/member-navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '../lib/queryClient';
+import { apiRequest } from '@/lib/queryClient';
 import { useLocation } from 'wouter';
-import { SandraImages } from '../lib/sandra-images';
-import { HeroFullBleed } from '../components/HeroFullBleed';
-import { useToast } from '../hooks/use-toast';
+import { SandraImages } from '@/lib/sandra-images';
+import { HeroFullBleed } from '@/components/HeroFullBleed';
+import { useToast } from '@/hooks/use-toast';
 
 interface OnboardingFormData {
   // Step 1: Brand Story
@@ -217,7 +217,7 @@ export default function OnboardingNew() {
   }: { 
     label: string, 
     value: string, 
-    onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
     multiline?: boolean 
   }) => (
     <div className="mb-8">
@@ -252,7 +252,7 @@ export default function OnboardingNew() {
       // toast({
       //   title: "Save failed",
       //   description: "Failed to save your progress. Please try again.",
-      //   
+      //   variant: "destructive",
       // });
     }
   });
@@ -274,7 +274,7 @@ export default function OnboardingNew() {
         toast({
           title: "Training Validation Failed",
           description: `Please fix these issues: ${response.errors?.join(', ')}`,
-          
+          variant: "destructive",
         });
       }
     },
@@ -282,7 +282,7 @@ export default function OnboardingNew() {
       toast({
         title: "Training failed",
         description: "Training system error. Please restart upload process.",
-        
+        variant: "destructive",
       });
     }
   });
@@ -323,7 +323,7 @@ export default function OnboardingNew() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
     // 🛡️ BULLETPROOF VALIDATION: Strict requirements
@@ -338,7 +338,7 @@ export default function OnboardingNew() {
       toast({
         title: "Invalid files",
         description: "Please upload only high-quality image files (10KB-10MB).",
-        
+        variant: "destructive",
       });
     }
 
@@ -354,7 +354,7 @@ export default function OnboardingNew() {
       toast({
         title: "Not enough photos",
         description: "Please upload at least 10 selfies for AI training.",
-        
+        variant: "destructive",
       });
       return;
     }

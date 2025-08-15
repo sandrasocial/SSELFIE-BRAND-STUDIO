@@ -1,0 +1,49 @@
+{
+  "id": "search_1754219953462",
+  "query": "",
+  "results": [
+    {
+      "title": " - Result 1",
+      "url": "https://example.com/docs/-1",
+      "snippet": "Comprehensive guide about  with practical examples and implementation details.",
+      "category": "technical",
+      "relevance": 1,
+      "lastModified": "2025-08-03T11:19:13.462Z"
+    },
+    {
+      "title": " - Result 2",
+      "url": "https://example.com/docs/-2",
+      "snippet": "Comprehensive guide about  with practical examples and implementation details.",
+      "category": "technical",
+      "relevance": 0.9,
+      "lastModified": "2025-08-02T11:19:13.462Z"
+    },
+    {
+      "title": " - Result 3",
+      "url": "https://example.com/docs/-3",
+      "snippet": "Comprehensive guide about  with practical examples and implementation details.",
+      "category": "technical",
+      "relevance": 0.8,
+      "lastModified": "2025-08-01T11:19:13.462Z"
+    },
+    {
+      "title": " - Result 4",
+      "url": "https://example.com/docs/-4",
+      "snippet": "Comprehensive guide about  with practical examples and implementation details.",
+      "category": "technical",
+      "relevance": 0.7,
+      "lastModified": "2025-07-31T11:19:13.462Z"
+    },
+    {
+      "title": " - Result 5",
+      "url": "https://example.com/docs/-5",
+      "snippet": "Comprehensive guide about  with practical examples and implementation details.",
+      "category": "technical",
+      "relevance": 0.6,
+      "lastModified": "2025-07-30T11:19:13.462Z"
+    }
+  ],
+  "timestamp": "2025-08-03T11:19:13.462Z",
+  "source": "live",
+  "relevanceScore": 0.95
+}

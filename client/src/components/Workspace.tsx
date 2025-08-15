@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../hooks/use-auth';
-import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/hooks/use-auth';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -94,7 +94,7 @@ export default function Workspace() {
           </h1>
           <p className="text-gray-600 mb-6">Access your personal AI model workspace</p>
           <Button 
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/auth'}
             className="border-black text-black hover:bg-black hover:text-white"
           >
             Sign In

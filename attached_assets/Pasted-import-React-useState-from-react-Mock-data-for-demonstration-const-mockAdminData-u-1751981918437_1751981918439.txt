@@ -1,0 +1,486 @@
+import React, { useState } from 'react';
+
+// Mock data for demonstration
+const mockAdminData = {
+  user: { name: "Sandra Stevens" },
+  revenue: {
+    total: 127450,
+    starterkit: 45600,
+    presets: 32800,
+    SelfietoCEO: 49050,
+    growth: 34.2
+  },
+  financials: {
+    totalRevenue: 127450,
+    vatToPay: 31863,
+    taxReserve: 38235,
+    netProfit: 57352
+  },
+  analytics: {
+    profileViews: 23847,
+    engagementRate: 12.4,
+    newFollowers: 1856,
+    contentViews: 89234
+  },
+  recentActivity: [
+    { action: "New course purchase - Branded by Selfie", timestamp: "2 hours ago", amount: "$497" },
+    { action: "Starter Kit sold", timestamp: "4 hours ago", amount: "$147" },
+    { action: "Preset pack downloaded", timestamp: "6 hours ago", amount: "$47" }
+  ]
+};
+
+// Hero Section Component
+function AdminHeroSection({ user = mockAdminData.user }) {
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  return (
+    <div className="relative h-screen overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <img 
+          src="https://i.postimg.cc/nrKdm7Vj/out-2-4.webp" 
+          alt="Hero background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/90 via-[#0a0a0a]/70 to-transparent"></div>
+      </div>
+      
+      {/* Content */}
+      <div className="relative z-10 h-full flex items-center">
+        <div className="max-w-7xl mx-auto px-8 w-full">
+          <div className="max-w-2xl">
+            <div className="text-xs uppercase tracking-[0.3em] text-white/80 mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
+              ADMIN DASHBOARD
+            </div>
+            <h1 className="text-7xl font-light text-white mb-4 leading-none" style={{ fontFamily: 'Times New Roman, serif' }}>
+              W E L C O M E
+            </h1>
+            <h2 className="text-6xl font-light text-white mb-8 leading-none" style={{ fontFamily: 'Times New Roman, serif' }}>
+              {user.name.split(' ')[0].toUpperCase()}
+            </h2>
+            <p className="text-xl text-white/90 mb-6 font-light">
+              {today}
+            </p>
+            <p className="text-lg text-white/80 italic mb-12 font-light">
+              "Today you're building an empire, not just a business."
+            </p>
+            <button className="border border-white text-white px-8 py-4 text-sm uppercase tracking-wider hover:bg-white hover:text-[#0a0a0a] transition-all duration-300">
+              Time to run the show
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Modern Image Widget with Overlay Text
+function ImageOverlayWidget({ 
+  backgroundImage, 
+  title, 
+  subtitle, 
+  value, 
+  growth, 
+  size = 'medium',
+  theme = 'dark' 
+}) {
+  const sizeClasses = {
+    small: 'aspect-square',
+    medium: 'aspect-[4/3]',
+    large: 'aspect-[16/9]',
+    hero: 'aspect-[21/9]'
+  };
+
+  return (
+    <div className={`relative overflow-hidden cursor-pointer group ${sizeClasses[size]}`}>
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <img 
+          src={backgroundImage} 
+          alt={title}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className={`absolute inset-0 ${
+          theme === 'dark' 
+            ? 'bg-gradient-to-br from-[#0a0a0a]/90 via-[#0a0a0a]/70 to-[#0a0a0a]/30' 
+            : 'bg-gradient-to-br from-white/90 via-white/70 to-white/30'
+        }`}></div>
+      </div>
+      
+      {/* Content Overlay */}
+      <div className="relative z-10 p-8 h-full flex flex-col justify-between">
+        <div className="text-xs uppercase tracking-[0.2em] text-white/70 mb-2">
+          {subtitle}
+        </div>
+        
+        <div>
+          <h3 className="text-4xl font-light text-white mb-2 leading-none" style={{ fontFamily: 'Times New Roman, serif' }}>
+            {value}
+          </h3>
+          <div className="text-xl font-light text-white" style={{ fontFamily: 'Times New Roman, serif' }}>
+            {title}
+          </div>
+          {growth && (
+            <div className="text-sm text-white/80 mt-2">
+              +{growth}% growth
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Revenue Grid Widget
+function RevenueGridWidget({ data = mockAdminData.revenue }) {
+  const products = [
+    { 
+      name: 'Selfie Starter Kit', 
+      value: `$${data.starterkit.toLocaleString()}`,
+      image: 'https://i.postimg.cc/50bQ0Frk/out-0-20.webp',
+      category: 'STARTER'
+    },
+    { 
+      name: 'Lightroom Presets', 
+      value: `$${data.presets.toLocaleString()}`,
+      image: 'https://i.postimg.cc/fLc7qNG1/out-0-12.webp',
+      category: 'PRESETS'
+    },
+    { 
+      name: 'Branded by Selfie', 
+      value: `$${data.SelfietoCEO.toLocaleString()}`,
+      image: 'https://i.postimg.cc/9ftzvQfP/out-0-18.webp',
+      category: 'PREMIUM'
+    }
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {products.map((product, index) => (
+        <ImageOverlayWidget
+          key={index}
+          backgroundImage={product.image}
+          title={product.name}
+          subtitle={product.category}
+          value={product.value}
+          size="medium"
+          theme="dark"
+        />
+      ))}
+    </div>
+  );
+}
+
+// Analytics Hero Widget
+function AnalyticsHeroWidget({ data = mockAdminData.analytics }) {
+  return (
+    <ImageOverlayWidget
+      backgroundImage="https://i.postimg.cc/jq8nx24Z/out-1-20.webp"
+      title="Total Reach"
+      subtitle="ANALYTICS"
+      value={`${(data.profileViews + data.contentViews).toLocaleString()}`}
+      growth={data.engagementRate}
+      size="hero"
+      theme="dark"
+    />
+  );
+}
+
+// Modern Stats Grid
+function ModernStatsGrid({ data = mockAdminData }) {
+  const stats = [
+    { 
+      label: 'Revenue Growth', 
+      value: `+${data.revenue.growth}%`,
+      sublabel: 'This Quarter',
+      image: 'https://i.postimg.cc/HnPrBvkf/out-0-19.webp'
+    },
+    { 
+      label: 'Profile Views', 
+      value: data.analytics.profileViews.toLocaleString(),
+      sublabel: 'This Month',
+      image: 'https://i.postimg.cc/YqG0t39C/out-1-24.webp'
+    },
+    { 
+      label: 'New Followers', 
+      value: `+${data.analytics.newFollowers}`,
+      sublabel: 'This Week',
+      image: 'https://i.postimg.cc/s20bfp13/out-1-4.webp'
+    },
+    { 
+      label: 'Engagement Rate', 
+      value: `${data.analytics.engagementRate}%`,
+      sublabel: 'Average',
+      image: 'https://i.postimg.cc/L82cx9rF/out-1-1.webp'
+    }
+  ];
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {stats.map((stat, index) => (
+        <div key={index} className="relative aspect-square overflow-hidden group cursor-pointer">
+          <div className="absolute inset-0">
+            <img 
+              src={stat.image} 
+              alt={stat.label}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/95 via-[#0a0a0a]/60 to-transparent"></div>
+          </div>
+          
+          <div className="relative z-10 p-6 h-full flex flex-col justify-end text-center">
+            <div className="text-xs uppercase tracking-[0.2em] text-white/70 mb-2">
+              {stat.sublabel}
+            </div>
+            <div className="text-2xl font-light text-white mb-1" style={{ fontFamily: 'Times New Roman, serif' }}>
+              {stat.value}
+            </div>
+            <div className="text-sm text-white/90 font-light">
+              {stat.label}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Financial Summary Widget
+function FinancialSummaryWidget({ data = mockAdminData.financials }) {
+  return (
+    <div className="relative h-96 overflow-hidden">
+      <div className="absolute inset-0">
+        <img 
+          src="https://i.postimg.cc/7hcLgCB4/out-1-25.webp" 
+          alt="Financial summary"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/95 via-[#0a0a0a]/80 to-transparent"></div>
+      </div>
+      
+      <div className="relative z-10 p-8 h-full">
+        <div className="text-xs uppercase tracking-[0.2em] text-white/70 mb-6">
+          FINANCIAL OVERVIEW
+        </div>
+        
+        <div className="grid grid-cols-2 gap-8 max-w-lg">
+          <div>
+            <div className="text-3xl font-light text-white mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+              ${data.totalRevenue.toLocaleString()}
+            </div>
+            <div className="text-sm text-white/90 uppercase tracking-wider">Total Revenue</div>
+          </div>
+          
+          <div>
+            <div className="text-3xl font-light text-white mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+              ${data.netProfit.toLocaleString()}
+            </div>
+            <div className="text-sm text-white/90 uppercase tracking-wider">Net Profit</div>
+          </div>
+          
+          <div>
+            <div className="text-3xl font-light text-white mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+              ${data.vatToPay.toLocaleString()}
+            </div>
+            <div className="text-sm text-white/90 uppercase tracking-wider">VAT to Pay</div>
+          </div>
+          
+          <div>
+            <div className="text-3xl font-light text-white mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+              ${data.taxReserve.toLocaleString()}
+            </div>
+            <div className="text-sm text-white/90 uppercase tracking-wider">Tax Reserve</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Recent Activity Feed
+function RecentActivityWidget({ data = mockAdminData.recentActivity }) {
+  return (
+    <div className="bg-white border border-[#e5e5e5] p-8">
+      <div className="text-xs uppercase tracking-[0.2em] text-[#666] mb-6">
+        RECENT ACTIVITY
+      </div>
+      
+      <div className="space-y-6">
+        {data.map((activity, index) => (
+          <div key={index} className="flex justify-between items-start border-b border-[#f5f5f5] pb-4 last:border-0">
+            <div className="flex items-start space-x-4">
+              <div className="text-xs text-[#666] mt-1">
+                {String(index + 1).padStart(2, '0')}
+              </div>
+              <div>
+                <div className="text-sm text-[#0a0a0a] mb-1">
+                  {activity.action}
+                </div>
+                <div className="text-xs text-[#666]">
+                  {activity.timestamp}
+                </div>
+              </div>
+            </div>
+            <div className="text-lg font-light text-[#0a0a0a]" style={{ fontFamily: 'Times New Roman, serif' }}>
+              {activity.amount}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <button className="w-full mt-6 border border-[#e5e5e5] py-3 text-xs uppercase tracking-wider text-[#666] hover:text-[#0a0a0a] hover:border-[#0a0a0a] transition-colors">
+        View All Activity
+      </button>
+    </div>
+  );
+}
+
+// Quick Actions Grid
+function QuickActionsWidget() {
+  const actions = [
+    { name: 'Stripe Dashboard', url: 'https://dashboard.stripe.com', icon: '01' },
+    { name: 'Shopify Admin', url: 'https://partners.shopify.com', icon: '02' },
+    { name: 'Analytics', url: 'https://analytics.google.com', icon: '03' },
+    { name: 'Email Marketing', url: 'https://mailchimp.com', icon: '04' }
+  ];
+
+  return (
+    <div className="bg-white border border-[#e5e5e5] p-8">
+      <div className="text-xs uppercase tracking-[0.2em] text-[#666] mb-6">
+        QUICK ACTIONS
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        {actions.map((action) => (
+          <button
+            key={action.name}
+            onClick={() => window.open(action.url, '_blank')}
+            className="aspect-square border border-[#e5e5e5] hover:border-[#0a0a0a] transition-colors group"
+          >
+            <div className="h-full flex flex-col items-center justify-center space-y-3">
+              <div className="text-2xl font-light text-[#666] group-hover:text-[#0a0a0a]" style={{ fontFamily: 'Times New Roman, serif' }}>
+                {action.icon}
+              </div>
+              <div className="text-xs uppercase tracking-wider text-[#666] group-hover:text-[#0a0a0a] text-center">
+                {action.name}
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Main Dashboard Component
+export default function SSELFIEAdminDashboard() {
+  const [selectedView, setSelectedView] = useState('overview');
+
+  return (
+    <div className="min-h-screen bg-[#f5f5f5]">
+      {/* Hero Section */}
+      <AdminHeroSection />
+      
+      {/* Navigation Bar */}
+      <div className="bg-white border-b border-[#e5e5e5] sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="text-lg font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
+              SSELFIE STUDIO
+            </div>
+            
+            <div className="flex space-x-8">
+              {['overview', 'revenue', 'analytics', 'content'].map((view) => (
+                <button
+                  key={view}
+                  onClick={() => setSelectedView(view)}
+                  className={`text-xs uppercase tracking-wider px-4 py-2 ${
+                    selectedView === view 
+                      ? 'text-[#0a0a0a] border-b-2 border-[#0a0a0a]' 
+                      : 'text-[#666] hover:text-[#0a0a0a]'
+                  }`}
+                >
+                  {view}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Dashboard Content */}
+      <div className="max-w-7xl mx-auto px-8 py-12">
+        {selectedView === 'overview' && (
+          <div className="space-y-12">
+            {/* Analytics Hero */}
+            <AnalyticsHeroWidget />
+            
+            {/* Revenue Grid */}
+            <div>
+              <h2 className="text-3xl font-light text-[#0a0a0a] mb-8" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Revenue Breakdown
+              </h2>
+              <RevenueGridWidget />
+            </div>
+            
+            {/* Stats Grid */}
+            <div>
+              <h2 className="text-3xl font-light text-[#0a0a0a] mb-8" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Performance Metrics
+              </h2>
+              <ModernStatsGrid />
+            </div>
+            
+            {/* Bottom Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2">
+                <FinancialSummaryWidget />
+              </div>
+              <div className="space-y-8">
+                <RecentActivityWidget />
+                <QuickActionsWidget />
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {selectedView === 'revenue' && (
+          <div className="space-y-12">
+            <h2 className="text-4xl font-light text-[#0a0a0a]" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Revenue Dashboard
+            </h2>
+            <RevenueGridWidget />
+            <FinancialSummaryWidget />
+          </div>
+        )}
+        
+        {selectedView === 'analytics' && (
+          <div className="space-y-12">
+            <h2 className="text-4xl font-light text-[#0a0a0a]" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Analytics Overview
+            </h2>
+            <AnalyticsHeroWidget />
+            <ModernStatsGrid />
+          </div>
+        )}
+        
+        {selectedView === 'content' && (
+          <div className="space-y-12">
+            <h2 className="text-4xl font-light text-[#0a0a0a]" style={{ fontFamily: 'Times New Roman, serif' }}>
+              Content Management
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <RecentActivityWidget />
+              <QuickActionsWidget />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

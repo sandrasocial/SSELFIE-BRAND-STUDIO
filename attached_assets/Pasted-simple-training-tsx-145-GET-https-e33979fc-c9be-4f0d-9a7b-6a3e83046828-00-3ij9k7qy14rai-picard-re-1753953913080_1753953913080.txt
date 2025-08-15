@@ -1,0 +1,52 @@
+simple-training.tsx:145  GET https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/training-progress/110 403 (Forbidden)
+window.fetch @ Network.js:219
+(anonymous) @ simple-training.tsx:145
+setInterval
+(anonymous) @ simple-training.tsx:119
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=0b8a524c:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=0b8a524c:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=0b8a524c:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=0b8a524c:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=0b8a524c:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=0b8a524c:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=0b8a524c:19447
+commitRootImpl @ chunk-RPCDYKBN.js?v=0b8a524c:19416
+commitRoot @ chunk-RPCDYKBN.js?v=0b8a524c:19277
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=0b8a524c:18895
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=0b8a524c:9119
+(anonymous) @ chunk-RPCDYKBN.js?v=0b8a524c:18627
+setTimeout
+scheduleFn @ @tanstack_react-query.js?v=0b8a524c:555
+flush @ @tanstack_react-query.js?v=0b8a524c:569
+batch @ @tanstack_react-query.js?v=0b8a524c:587
+dispatch_fn @ @tanstack_react-query.js?v=0b8a524c:996
+setData @ @tanstack_react-query.js?v=0b8a524c:696
+onSuccess @ @tanstack_react-query.js?v=0b8a524c:897
+resolve @ @tanstack_react-query.js?v=0b8a524c:456
+Promise.then
+run @ @tanstack_react-query.js?v=0b8a524c:498
+start @ @tanstack_react-query.js?v=0b8a524c:536
+fetch @ @tanstack_react-query.js?v=0b8a524c:926
+executeFetch_fn @ @tanstack_react-query.js?v=0b8a524c:2211
+fetch @ @tanstack_react-query.js?v=0b8a524c:2011
+refetch @ @tanstack_react-query.js?v=0b8a524c:2001
+(anonymous) @ simple-training.tsx:121
+setInterval
+(anonymous) @ simple-training.tsx:119
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=0b8a524c:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=0b8a524c:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=0b8a524c:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=0b8a524c:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=0b8a524c:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=0b8a524c:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=0b8a524c:19447
+performSyncWorkOnRoot @ chunk-RPCDYKBN.js?v=0b8a524c:18868
+flushSyncCallbacks @ chunk-RPCDYKBN.js?v=0b8a524c:9119
+commitRootImpl @ chunk-RPCDYKBN.js?v=0b8a524c:19432
+commitRoot @ chunk-RPCDYKBN.js?v=0b8a524c:19277
+finishConcurrentRender @ chunk-RPCDYKBN.js?v=0b8a524c:18805
+performConcurrentWorkOnRoot @ chunk-RPCDYKBN.js?v=0b8a524c:18718
+workLoop @ chunk-RPCDYKBN.js?v=0b8a524c:197
+flushWork @ chunk-RPCDYKBN.js?v=0b8a524c:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=0b8a524c:384Understand this error
+simple-training.tsx:145  GET https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/training-progress/110 403 (Forbidden)

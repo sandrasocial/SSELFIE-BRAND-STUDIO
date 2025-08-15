@@ -8,7 +8,6 @@ import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MultiAgentWorkflowManager, WorkflowTemplate } from '../workflows/templates/multi-agent-workflow-template';
 import { WorkflowPersistence } from '../workflows/active/workflow-persistence';
 import { AutoTaskExecutor } from '../workflows/automation/auto-task-executor';
-import { multiAgentCoordinator } from '../services/multi-agent-coordinator';
 // UUID generation for coordination IDs
 const generateId = () => `coord_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -169,18 +168,6 @@ ${workflowTemplate ? `**Note:** This workflow has ${workflowTemplate.agents.leng
     console.log(`✅ COORDINATION SUCCESS: ${target_agent} received task assignment`);
     console.log(`📄 Response preview: ${response.substring(0, 200)}...`);
 
-    // Use the MultiAgentCoordinator for proper task coordination
-    console.log(`🎯 USING MULTI-AGENT COORDINATOR for ${target_agent}`);
-    await multiAgentCoordinator.coordinateAgent({
-      targetAgent: target_agent,
-      taskDescription: task_description,
-      priority: priority as 'low' | 'medium' | 'high',
-      requestingAgent: 'elena',
-      userId: '42585527',
-      workflowId: workflowTemplate?.id,
-      expectedDeliverables: expected_deliverables
-    });
-    
     // AUTOMATIC TASK EXECUTION: Trigger agent to start working immediately
     console.log(`⚡ TRIGGERING AUTO-EXECUTION for ${target_agent}`);
     setTimeout(async () => {

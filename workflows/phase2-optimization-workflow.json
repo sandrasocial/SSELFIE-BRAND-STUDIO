@@ -1,0 +1,121 @@
+{
+  "workflow_name": "Phase 2: User Journey & Payment Optimization",
+  "priority": "CRITICAL",
+  "launch_blocker": true,
+  "created_at": "2025-08-10T10:33:00Z",
+  "estimated_duration": "2-3 hours",
+  "agents_required": ["elena", "zara", "maya", "victoria", "quinn"],
+  
+  "tasks": {
+    "task_2a_user_journey": {
+      "name": "User Journey Flow Testing & Optimization",
+      "priority": "HIGH",
+      "estimated_time": "90 minutes",
+      "lead_agent": "elena",
+      "supporting_agents": ["zara", "maya", "victoria"],
+      "steps": [
+        {
+          "step": "1_train_fix",
+          "description": "Fix training system for new users",
+          "route": "/ai-training",
+          "issues_to_fix": [
+            "Replicate API configuration for new training",
+            "Training destination validation",
+            "Error handling for failed training",
+            "Progress tracking during training"
+          ],
+          "success_criteria": "New user can complete full training flow"
+        },
+        {
+          "step": "2_style_optimize", 
+          "description": "Optimize Maya AI interaction",
+          "route": "/maya",
+          "issues_to_fix": [
+            "Generation endpoint JSON responses",
+            "Image saving to gallery",
+            "Maya chat conversation flow",
+            "Prompt optimization"
+          ],
+          "success_criteria": "Smooth Maya chat → generation → save flow"
+        },
+        {
+          "step": "3_shoot_validate",
+          "description": "Test photoshoot generation system",
+          "route": "/ai-photoshoot", 
+          "issues_to_fix": [
+            "Prompt collections functionality",
+            "Bulk photo generation",
+            "Gallery integration",
+            "Loading states during generation"
+          ],
+          "success_criteria": "Complete photoshoot workflow functional"
+        },
+        {
+          "step": "4_build_integration",
+          "description": "Victoria website building flow",
+          "route": "/build",
+          "issues_to_fix": [
+            "Victoria chat integration",
+            "Website creation process", 
+            "Preview functionality",
+            "Publishing workflow"
+          ],
+          "success_criteria": "End-to-end website building working"
+        }
+      ]
+    },
+    
+    "task_2b_payment_integration": {
+      "name": "Payment & Subscription System Validation",
+      "priority": "HIGH", 
+      "estimated_time": "60 minutes",
+      "lead_agent": "quinn",
+      "supporting_agents": ["elena"],
+      "steps": [
+        {
+          "step": "checkout_testing",
+          "description": "Test complete checkout flow",
+          "route": "/simple-checkout",
+          "issues_to_fix": [
+            "Stripe integration validation",
+            "Payment success handling", 
+            "Subscription activation",
+            "Feature access after payment"
+          ],
+          "success_criteria": "Full checkout → activation working"
+        },
+        {
+          "step": "subscription_tiers",
+          "description": "Validate subscription tier logic",
+          "tiers": [
+            {"name": "Creator", "price": "€27", "features": "30 generations, training, gallery"},
+            {"name": "Entrepreneur", "price": "€67", "features": "100 generations, all features"}
+          ],
+          "issues_to_fix": [
+            "Feature access by tier",
+            "Usage limit enforcement",
+            "Generation tracking accuracy",
+            "Upgrade/downgrade flows"
+          ],
+          "success_criteria": "Correct feature access per subscription"
+        }
+      ]
+    }
+  },
+  
+  "coordination_plan": {
+    "phase_1": "Elena coordinates training system fixes with Zara",
+    "phase_2": "Maya optimizes generation and chat systems", 
+    "phase_3": "Victoria validates website building flow",
+    "phase_4": "Quinn tests payment integration end-to-end",
+    "phase_5": "Elena validates complete user journey"
+  },
+  
+  "success_metrics": {
+    "new_user_signup_to_first_generation": "< 30 minutes",
+    "training_completion_rate": "> 95%",
+    "generation_success_rate": "> 98%", 
+    "payment_completion_rate": "> 99%",
+    "full_journey_completion": "> 90%"
+  }
+}

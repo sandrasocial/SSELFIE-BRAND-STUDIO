@@ -1,4 +1,4 @@
-// SIMPLIFIED: Workflow restart tool
+// SIMPLIFIED: Remove dependency on deactivated multi-agent-coordinator
 import { exec } from 'child_process';
 import { promisify } from 'util';
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, KeyboardEvent } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Send, Mic, MicOff, Sparkles } from 'lucide-react';
 
 interface Message {
@@ -70,7 +70,7 @@ export default function VictoriaChat() {
     return responses[Math.floor(Math.random() * responses.length)];
   };
 
-  const handleKeyPress = (e: KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();

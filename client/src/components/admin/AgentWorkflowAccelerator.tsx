@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -115,6 +115,7 @@ export default function AgentWorkflowAccelerator() {
       toast({
         title: "Workflow Failed",
         description: error.message,
+        variant: "destructive",
       });
     }
   });

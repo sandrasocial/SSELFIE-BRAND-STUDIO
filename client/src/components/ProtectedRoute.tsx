@@ -1,18 +1,18 @@
-import { ReactNode, useEffect } from 'react';
+import React from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from '@/hooks/use-auth';
 
 interface ProtectedRouteProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      window.location.href = '/api/login';
+      setLocation('/login');
     }
   }, [isAuthenticated, isLoading, setLocation]);
 

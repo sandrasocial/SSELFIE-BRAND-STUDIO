@@ -17,7 +17,7 @@ import {
   mayaChats,
   mayaChatMessages,
   type User,
-  type InsertUser,
+  type UpsertUser,
   type UserProfile,
   type InsertUserProfile,
   type OnboardingData,
@@ -56,17 +56,17 @@ import {
   type ClaudeMessage,
   type InsertClaudeConversation,
   type InsertClaudeMessage,
-} from "../shared/schema";
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (required for Replit OAuth)  
+  // User operations (required for Google OAuth)
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
-  upsertUser(user: Partial<InsertUser> & { id: string }): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
 
   // User Profile operations
@@ -201,16 +201,16 @@ export class DatabaseStorage implements IStorage {
     return allUsers;
   }
 
-  async upsertUser(userData: any): Promise<User> {
+  async upsertUser(userData: UpsertUser): Promise<User> {
     console.log('🔄 Upserting user:', userData.id, userData.email);
 
     // Special admin setup for ssa@ssasocial.com
     if (userData.email === 'ssa@ssasocial.com') {
-      userData.role = 'admin' as any;
-      userData.monthlyGenerationLimit = -1 as any; // Unlimited
-      userData.plan = 'sselfie-studio' as any;
-      userData.mayaAiAccess = true as any;
-      userData.victoriaAiAccess = true as any;
+      userData.role = 'admin';
+      userData.monthlyGenerationLimit = -1; // Unlimited
+      userData.plan = 'sselfie-studio';
+      userData.mayaAiAccess = true;
+      userData.victoriaAiAccess = true;
       console.log('👑 Setting admin privileges for ssa@ssasocial.com');
     }
 
@@ -272,7 +272,7 @@ export class DatabaseStorage implements IStorage {
     try {
       const [user] = await db
         .insert(users)
-        .values(userData as any)
+        .values(userData)
         .returning();
       return user;
     } catch (error: any) {
@@ -325,7 +325,7 @@ export class DatabaseStorage implements IStorage {
       // Insert new profile
       const [profile] = await db
         .insert(userProfiles)
-        .values(data as any)
+        .values(data)
         .returning();
       return profile;
     }
@@ -343,7 +343,7 @@ export class DatabaseStorage implements IStorage {
 
 
   async saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData> {
-    const [saved] = await db.insert(onboardingData).values(data as any).returning();
+    const [saved] = await db.insert(onboardingData).values(data).returning();
     return saved;
   }
 
@@ -385,7 +385,7 @@ export class DatabaseStorage implements IStorage {
   async createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data as any)
+      .values(data)
       .returning();
     return tracker;
   }
@@ -393,7 +393,7 @@ export class DatabaseStorage implements IStorage {
   async saveGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data as any)
+      .values(data)
       .returning();
     return tracker;
   }
@@ -476,7 +476,7 @@ export class DatabaseStorage implements IStorage {
 
   async createUserModel(data: InsertUserModel): Promise<UserModel> {
     console.log('Creating user model with data:', data);
-    const [model] = await db.insert(userModels).values(data as any).returning();
+    const [model] = await db.insert(userModels).values(data).returning();
     return model;
   }
 
@@ -537,11 +537,11 @@ export class DatabaseStorage implements IStorage {
     // Create new user model that requires actual training
     console.log('🔄 Creating new user model for user:', userId);
     const triggerWord = `user${userId}`;
-    const modelData: any = {
+    const modelData: InsertUserModel = {
       userId,
       triggerWord,
-      trainingStatus: 'not_started' as any, // User must complete training
-      modelName: `${userId}-selfie-lora` as any, // Consistent with training service
+      trainingStatus: 'not_started', // User must complete training
+      modelName: `${userId}-selfie-lora`, // Consistent with training service
     };
 
     return await this.createUserModel(modelData);
@@ -602,7 +602,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveSelfieUpload(data: InsertSelfieUpload): Promise<SelfieUpload> {
-    const [saved] = await db.insert(selfieUploads).values(data as any).returning();
+    const [saved] = await db.insert(selfieUploads).values(data).returning();
     return saved;
   }
 
@@ -657,7 +657,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSubscription(data: InsertSubscription): Promise<Subscription> {
-    const [subscription] = await db.insert(subscriptions).values(data as any).returning();
+    const [subscription] = await db.insert(subscriptions).values(data).returning();
     return subscription;
   }
 
@@ -671,7 +671,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUserUsage(data: InsertUserUsage): Promise<UserUsage> {
-    const [usage] = await db.insert(userUsage).values(data as any).returning();
+    const [usage] = await db.insert(userUsage).values(data).returning();
     return usage;
   }
 
@@ -752,7 +752,7 @@ export class DatabaseStorage implements IStorage {
   async createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat> {
     const [chat] = await db
       .insert(victoriaChats)
-      .values(data as any)
+      .values(data)
       .returning();
     return chat;
   }
@@ -777,7 +777,7 @@ export class DatabaseStorage implements IStorage {
   async savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection> {
     const [selection] = await db
       .insert(photoSelections)
-      .values(data as any)
+      .values(data)
       .onConflictDoUpdate({
         target: photoSelections.userId,
         set: {
@@ -822,7 +822,7 @@ export class DatabaseStorage implements IStorage {
   async createLandingPage(data: InsertLandingPage): Promise<LandingPage> {
     const [page] = await db
       .insert(landingPages)
-      .values(data as any)
+      .values(data)
       .returning();
     return page;
   }
@@ -839,7 +839,7 @@ export class DatabaseStorage implements IStorage {
   async createUserLandingPage(data: InsertUserLandingPage): Promise<UserLandingPage> {
     const [page] = await db
       .insert(userLandingPages)
-      .values(data as any)
+      .values(data)
       .returning();
     return page;
   }
@@ -875,7 +875,7 @@ export class DatabaseStorage implements IStorage {
   async saveBrandOnboarding(data: InsertBrandOnboarding): Promise<BrandOnboarding> {
     const [saved] = await db
       .insert(brandOnboarding)
-      .values(data as any)
+      .values(data)
       .onConflictDoUpdate({
         target: brandOnboarding.userId,
         set: {

@@ -1,8 +1,4 @@
 {
-  "app": {
-    "version": "1.0",
-    "debug": true
-  },
   "server": {
     "port": 3000,
     "host": "localhost"

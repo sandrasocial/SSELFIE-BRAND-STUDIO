@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "../lib/auth/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 
 interface StyleguidePreviewProps {
   userId?: string;

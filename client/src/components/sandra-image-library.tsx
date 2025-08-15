@@ -1,6 +1,5 @@
-import { FC } from 'react';
 // Re-export from main sandra-images library
-export { SandraImages, ImageRules } from '../lib/sandra-images';
+export { SandraImages, ImageRules } from '@/lib/sandra-images';
 
 // Image component with editorial hover effects
 interface EditorialImageProps {
@@ -10,7 +9,7 @@ interface EditorialImageProps {
   aspectRatio?: 'square' | 'wide' | 'tall';
 }
 
-export const EditorialImage: FC<EditorialImageProps> = ({
+export const EditorialImage: React.FC<EditorialImageProps> = ({
   src,
   alt,
   className = "",

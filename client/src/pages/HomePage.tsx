@@ -1,10 +1,10 @@
-import { FC } from 'react';
+import React from 'react';
 import { Hero } from '../components/editorial/Hero';
 import { BrandStory } from '../components/editorial/BrandStory';
 import { ServicesOverview } from '../components/editorial/ServicesOverview';
 import { CallToAction } from '../components/editorial/CallToAction';
 
-const HomePage: FC = () => {
+const HomePage: React.FC = () => {
   return (
     <div className="homepage luxury-layout">
       <Hero 

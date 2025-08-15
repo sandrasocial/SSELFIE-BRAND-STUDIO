@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Check } from 'lucide-react';
 
 // Import from our clean collection file
-import { cleanedFlatlayCollections as flatlayCollections } from '../data/cleaned-flatlay-collections';
+import { cleanedFlatlayCollections as flatlayCollections } from '@/data/cleaned-flatlay-collections';
 
 export default function FlatlayLibraryClean() {
   const [selectedCategory, setSelectedCategory] = useState('all');

@@ -1,7 +1,5 @@
 "use client"
 
-import { ComponentProps, forwardRef } from 'react';
-
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
 import * as ResizablePrimitive from "react-resizable-panels"
 
@@ -10,7 +8,7 @@ import { cn } from "@/lib/utils"
 const ResizablePanelGroup = ({
   className,
   ...props
-}: ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
+}: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
   <ResizablePrimitive.PanelGroup
     className={cn(
       "flex h-full w-full data-[panel-group-direction=vertical]:flex-col",
@@ -26,7 +24,7 @@ const ResizableHandle = ({
   withHandle,
   className,
   ...props
-}: ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
+}: React.ComponentProps<typeof ResizablePrimitive.PanelResizeHandle> & {
   withHandle?: boolean
 }) => (
   <ResizablePrimitive.PanelResizeHandle

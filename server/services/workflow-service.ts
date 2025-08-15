@@ -26,7 +26,7 @@ export class WorkflowService {
       }
     } catch (error) {
       // Handle errors according to workflow definition
-      await this.handleError(error, { name: workflowName });
+      await this.handleError(error, workflow);
     }
   }
 

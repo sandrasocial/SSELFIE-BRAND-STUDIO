@@ -4,7 +4,7 @@
  */
 
 import { db } from './db.js';
-import { claudeMessages } from '../shared/schema';
+import { claudeMessages } from '../shared/schema.js';
 import { eq, desc } from 'drizzle-orm';
 
 async function checkZaraWorkflow() {

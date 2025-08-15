@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { User, Settings, Eye } from 'lucide-react';
@@ -35,9 +35,8 @@ export default function WhiteLabelClientManager() {
   // Simple Shannon access mutation
   const accessShannonMutation = useMutation({
     mutationFn: () =>
-      apiRequest('POST', '/api/admin/impersonate-user', { 
-        email: 'shannon@soulresets.com',
-        adminToken: 'sandra-admin-2025'
+      apiRequest('/api/admin/impersonate-user', 'POST', { email: 'shannon@soulresets.com' }, {
+        'x-admin-token': 'sandra-admin-2025'
       }),
     onSuccess: () => {
       toast({
@@ -53,7 +52,7 @@ export default function WhiteLabelClientManager() {
       toast({
         title: "Access Failed",
         description: error.message,
-        
+        variant: "destructive",
       });
     }
   });

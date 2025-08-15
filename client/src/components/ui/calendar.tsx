@@ -1,12 +1,11 @@
-import React, { ComponentProps, forwardRef } from 'react';
-// React imported via individual functions
+import * as React from "react"
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/Button"
+import { buttonVariants } from "@/components/ui/button"
 
-export type CalendarProps = ComponentProps<typeof DayPicker>
+export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
 function Calendar({
   className,

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { useWebsiteBuilder, type WebsiteGenerationRequest } from '../../hooks/useWebsiteBuilder';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-// Label component removed
-import { Textarea } from '../ui/textarea';
-// Select and Checkbox components removed
+import { useWebsiteBuilder, type WebsiteGenerationRequest } from '@/hooks/useWebsiteBuilder';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '../../lib/queryClient';
-import { useToast } from '../../hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 interface WebsiteWizardProps {
   onComplete: (website: any) => void;
@@ -37,7 +38,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
       toast({
         title: "Save Failed",
         description: "Failed to save your information. Please try again.",
-        
+        variant: "destructive",
       });
     },
   });
@@ -105,7 +106,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
         toast({
           title: "Generation Failed",
           description: "Failed to create your website. Please try again.",
-          
+          variant: "destructive",
         });
       }
     }

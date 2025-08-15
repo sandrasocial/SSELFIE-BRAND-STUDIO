@@ -127,7 +127,7 @@ export default function MayaCollectionManager() {
         toast({
           title: "Update Failed",
           description: result.message,
-          
+          variant: "destructive"
         });
       }
 
@@ -141,7 +141,7 @@ export default function MayaCollectionManager() {
       toast({
         title: "Update Error",
         description: errorMessage,
-        
+        variant: "destructive"
       });
     } finally {
       setIsUpdating(false);

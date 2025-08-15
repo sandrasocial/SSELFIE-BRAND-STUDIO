@@ -1,11 +1,12 @@
-import { FC, ReactNode, forwardRef } from 'react';
+import React from 'react';
+
 interface EditorialGridProps {
-  children: ReactNode;
+  children: React.ReactNode;
   columns?: 2 | 3 | 4;
   className?: string;
 }
 
-export const EditorialGrid: FC<EditorialGridProps> = ({
+export const EditorialGrid: React.FC<EditorialGridProps> = ({
   children,
   columns = 3,
   className = ''

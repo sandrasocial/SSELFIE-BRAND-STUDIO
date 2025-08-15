@@ -1,0 +1,65 @@
+ABSOLUTE PROHIBITIONS (NEVER VIOLATE)
+❌ NO ICONS OR EMOJIS EVER - Use text characters only (×, +, >, <, •, ...)
+❌ NO ROUNDED CORNERS - All elements must have sharp, clean edges
+❌ NO SHADOWS OR GRADIENTS - Flat, minimal design only
+❌ NO BLUE LINKS - All interactive elements use approved palette
+❌ NO VISUAL CLUTTER - Maximum whitespace, minimal elements
+❌ NO SAAS PLATFORM VIBES - This is luxury art, not software
+❌ NO BASIC TEMPLATES - Every element custom-crafted for WOW factor
+APPROVED COLOR PALETTE ONLY
+css--black: #0a0a0a;           /* Deep editorial black */
+--white: #ffffff;            /* Pure gallery white */
+--editorial-gray: #f5f5f5;   /* Soft background luxury */
+--mid-gray: #fafafa;         /* Subtle depth layer */
+--soft-gray: #666666;        /* Sophisticated mid-tone */
+--accent-line: #e5e5e5;      /* Delicate division lines */
+TYPOGRAPHY SYSTEM (SACRED RULES)
+css/* Headlines - Times New Roman ONLY */
+h1, h2, h3 {
+    font-family: 'Times New Roman', serif;
+    font-weight: 200;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+}
+
+/* Body Text - System Sans */
+body, p, div {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+}
+
+/* Editorial Quote Style */
+.editorial-quote {
+    font-family: 'Times New Roman', serif;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-style: italic;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    font-weight: 300;
+}
+
+LOOKBOOK & ART GALLERY DESIGN PRINCIPLES
+1. EDITORIAL PACING MASTERY
+
+Create visual breathing between content sections
+Use full-bleed images like magazine spreads
+Design content reveals that feel like page turns
+Build anticipation through strategic white space
+Make every scroll feel like discovering art
+
+2. TRANSFORMATION VISUAL STORYTELLING
+
+Before/during/after narrative arcs in layouts
+Visual metaphors for growth and empowerment
+Image sequences that show progression
+Typography that evolves from whisper to roar
+Layout transformations that mirror personal growth
+
+3. ULTRA WOW FACTOR CREATION
+
+Unexpected layout compositions that surprise
+Interactive elements that feel like art installations
+Custom imagery generated specifically for each concept
+Typography treatments that become visual art
+Page transitions that feel cinematic

@@ -1,123 +1,80 @@
-import { useEffect, ComponentType } from 'react';
-import { Route, useLocation, Redirect } from "wouter";
+import React, { useEffect, lazy, Suspense } from "react";
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "./components/ui/toaster";
-import { TooltipProvider } from "./components/ui/tooltip";
-import { useAuth } from "./hooks/use-auth";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
-import NotFound from "./pages/not-found";
-import Landing from "./pages/landing";
-import EditorialLanding from "./pages/editorial-landing";
-import Pricing from "./pages/pricing";
-import Workspace from "./pages/workspace";
-import Onboarding from "./pages/onboarding";
-import About from "./pages/about";
-import Blog from "./pages/blog";
-import Contact from "./pages/contact";
-import FAQ from "./pages/faq";
-import Terms from "./pages/terms";
-import Privacy from "./pages/privacy";
-import HowItWorks from "./pages/how-it-works";
-import SelfieGuide from "./pages/selfie-guide";
-import Profile from "./pages/profile";
-import PaymentSuccess from "./pages/payment-success";
-import Checkout from "./pages/checkout";
-import SimpleCheckout from "./pages/simple-checkout";
-import ThankYou from "./pages/thank-you";
-import SandraPhotoshoot from "./pages/sandra-photoshoot";
-import SandraAI from "./pages/sandra-ai";
-import RachelChat from "./pages/rachel-chat";
-import RachelActivation from "./pages/rachel-activation";
-import SSELFIEGallery from "./pages/sselfie-gallery";
-import AIGenerator from "./pages/ai-generator";
-import AIPhotoshoot from "./pages/ai-photoshoot";
-import SimpleTraining from "./pages/simple-training";
+// import { pwaManager } from "./utils/pwa";
+import NotFound from "@/pages/not-found";
+import Landing from "@/pages/landing";
+import EditorialLanding from "@/pages/editorial-landing";
+import Pricing from "@/pages/pricing";
+import Workspace from "@/pages/workspace";
+import Onboarding from "@/pages/onboarding";
+import About from "@/pages/about";
+import Blog from "@/pages/blog";
+import Contact from "@/pages/contact";
+import FAQ from "@/pages/faq";
+import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
+import HowItWorks from "@/pages/how-it-works";
+import SelfieGuide from "@/pages/selfie-guide";
+import Profile from "@/pages/profile";
+import PaymentSuccess from "@/pages/payment-success";
+import Checkout from "@/pages/checkout";
+import SimpleCheckout from "@/pages/simple-checkout";
+import ThankYou from "@/pages/thank-you";
+import SandraPhotoshoot from "@/pages/sandra-photoshoot";
+import SandraAI from "@/pages/sandra-ai";
+import RachelChat from "@/pages/rachel-chat";
+import RachelActivation from "@/pages/rachel-activation";
+import SSELFIEGallery from "@/pages/sselfie-gallery";
+import AIGenerator from "@/pages/ai-generator";
+import AIPhotoshoot from "@/pages/ai-photoshoot";
+import SimpleTraining from "@/pages/simple-training";
 
-import AdminDashboard from "./pages/admin-dashboard";
-import AdminBusinessOverview from "./pages/admin-business-overview";
-import AdminConsultingAgents from "./pages/admin-consulting-agents";
-import AdminSubscriberImport from "./pages/admin-subscriber-import";
 
-import BridgeMonitor from "./pages/admin/bridge-monitor";
-// import { UnifiedAgentInterface } from "./components/admin/UnifiedAgentInterface";
-import UnifiedLoginButton from "./components/UnifiedLoginButton";
-import AgentApproval from "./pages/agent-approval";
-import AgentCommandCenter from "./pages/agent-command-center";
+import AdminDashboard from "@/pages/admin-dashboard";
+import AdminBusinessOverview from "@/pages/admin-business-overview";
+import AdminConsultingAgents from "@/pages/admin-consulting-agents";
+import AdminSubscriberImport from "@/pages/admin-subscriber-import";
 
-import CustomPhotoshootLibrary from "./pages/custom-photoshoot-library";
-import FlatlayLibrary from "./pages/flatlay-library";
-import Maya from "./pages/maya";
-import Victoria from "./pages/victoria";
-import VictoriaChat from "./pages/victoria-chat";
+import BridgeMonitor from "@/pages/admin/bridge-monitor";
+import { UnifiedAgentInterface } from "@/components/admin/UnifiedAgentInterface";
+import UnifiedLoginButton from "@/components/UnifiedLoginButton";
 
-import VictoriaBuilder from './pages/victoria-builder';
-import VictoriaPreview from './pages/victoria-preview';
-import PhotoSelection from "./pages/photo-selection";
-import BrandOnboarding from "./pages/brand-onboarding";
-import Welcome from "./pages/welcome";
-import AuthSuccess from "./pages/auth-success";
-import Login from "./pages/login";
-import Register from "./pages/register";
-import LoginPrompt from "./components/LoginPrompt";
-import DomainHelp from "./pages/domain-help";
-import SwitchAccount from "./pages/switch-account";
-import LaunchCountdown from "./pages/launch-countdown";
-import AdminAccessOnly from "./pages/admin-access-only";
-import Build from "./pages/build";
 
-// Properly define login component to avoid React Hook rules violations
-function LoginPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <UnifiedLoginButton text="Sign in to continue" showBrand={true} />
-    </div>
-  );
-}
+import AgentApproval from "@/pages/agent-approval";
+import AgentCommandCenter from "@/pages/agent-command-center";
 
-function LoginDirectPage() {
-  useEffect(() => {
-    window.location.href = '/api/login';
-  }, []);
-  
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
-        <p>Redirecting to login...</p>
-      </div>
-    </div>
-  );
-}
 
-// Define test page component to verify routing works
-const TestPage = () => {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl mb-4">Navigation Test</h1>
-      <p>If you can see this, navigation is working!</p>
-      <div className="mt-4 space-y-2">
-        <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
-        <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
-        <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
-      </div>
-    </div>
-  );
-};
+import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
+import FlatlayLibrary from "@/pages/flatlay-library";
+import Maya from "@/pages/maya";
+import Victoria from "@/pages/victoria";
+import VictoriaChat from "@/pages/victoria-chat";
 
-// Define redirect components
-function AuthRedirectPage() {
-  useEffect(() => { 
-    window.location.href = '/api/login'; 
-  }, []);
-  
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-    </div>
-  );
-}
+import VictoriaBuilder from '@/pages/victoria-builder';
+import VictoriaPreview from '@/pages/victoria-preview';
+import PhotoSelection from "@/pages/photo-selection";
+import BrandOnboarding from "@/pages/brand-onboarding";
+import Welcome from "@/pages/welcome";
+import AuthSuccess from "@/pages/auth-success";
+import Login from "@/pages/login";
+// Unified login system - removed competing auth components
+import LoginPrompt from "@/components/LoginPrompt";
+import DomainHelp from "@/pages/domain-help";
+import SwitchAccount from "@/pages/switch-account";
+import LaunchCountdown from "@/pages/launch-countdown";
+import AdminAccessOnly from "@/pages/admin-access-only";
+import Build from "@/pages/build";
+
+// Removed duplicate photoshoot imports - using existing system
+
+
 
 // Smart Home component that routes based on onboarding status
 function SmartHome() {
@@ -146,80 +103,48 @@ function SmartHome() {
   return null;
 }
 
-// ZARA'S ENHANCED PROTECTED ROUTE - Complete authentication flow
-function ProtectedRoute({ component: Component, ...props }: { component: ComponentType<any>, [key: string]: any }) {
-  const { isAuthenticated, isLoading, user, error } = useAuth();
+// Protected wrapper component that handles authentication
+function ProtectedRoute({ component: Component, ...props }: { component: React.ComponentType<any>, [key: string]: any }) {
+  const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
   
-  // ZARA FIX: Enhanced debugging for authentication state
+  // Enhanced logging for debugging navigation issues
   useEffect(() => {
-    console.log('🛡️ ZARA ProtectedRoute state:', { 
-      isAuthenticated, 
-      isLoading, 
-      hasUser: !!user,
-      userEmail: user?.email,
-      authMode: user?.authMode,
-      zaraInfrastructure: user?.zaraInfrastructure,
-      error: error?.message 
-    });
-  }, [isAuthenticated, isLoading, user, error]);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('ProtectedRoute state:', { isAuthenticated, isLoading, hasUser: !!user });
+    }
+  }, [isAuthenticated, isLoading, user]);
 
-  // ZARA FIX: Enhanced authentication flow with proper error handling
+  // FIXED: Move useEffect outside conditional to follow Rules of Hooks
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      console.log('🔐 ZARA: User not authenticated, checking authentication flow...');
-      
-      // Check if we're in development and can use dev bypass
-      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
-      
-      if (isDevelopment) {
-        console.log('🛠️ ZARA: Development environment - authentication should auto-work with dev_auth');
-        // Force a re-check of authentication in development
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      } else {
-        console.log('🔄 ZARA: Production environment - redirecting to OAuth login');
-        window.location.href = '/api/login';
-      }
+      // Use proper authentication flow instead of broken login route
+      window.location.href = '/api/login';
     }
   }, [isLoading, isAuthenticated, setLocation]);
-
-  // ZARA FIX: Better loading state with authentication context
+  
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-sm text-gray-600">🔧 ZARA: Checking authentication...</p>
-          <p className="text-xs text-gray-400 mt-2">Server infrastructure operational</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
       </div>
     );
   }
-
-  // ZARA FIX: Authentication pending state with user feedback
+  
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-sm text-gray-600">🔐 ZARA: Authenticating user...</p>
-          <p className="text-xs text-gray-400 mt-2">Development bypass should activate automatically</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
       </div>
     );
   }
-
-  // ZARA SUCCESS: User is authenticated, show success feedback
-  console.log('✅ ZARA: User authenticated successfully, rendering protected component');
   
   return <Component {...props} />;
 }
 
 function Router() {
   return (
-    <div>
+    <Switch>
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* LAUNCH COUNTDOWN */}
@@ -229,11 +154,39 @@ function Router() {
       <Route path="/" component={EditorialLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
-      <Route path="/login" component={LoginPage} />
-      <Route path="/login-direct" component={LoginDirectPage} />
+      <Route path="/login" component={() => (
+        <div className="min-h-screen flex items-center justify-center bg-white">
+          <UnifiedLoginButton text="Sign in to continue" showBrand={true} />
+        </div>
+      )} />
+      <Route path="/login-direct" component={() => {
+        // Direct redirect to Replit Auth (for cases that need immediate redirect)
+        React.useEffect(() => {
+          window.location.href = '/api/login';
+        }, []);
+        
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
+              <p>Redirecting to login...</p>
+            </div>
+          </div>
+        );
+      }} />
 
       {/* DEVELOPMENT TEST PAGE */}
-      <Route path="/test" component={TestPage} />
+      <Route path="/test" component={() => (
+        <div className="p-8">
+          <h1 className="text-2xl mb-4">Navigation Test</h1>
+          <p>If you can see this, navigation is working!</p>
+          <div className="mt-4 space-y-2">
+            <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
+            <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
+            <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
+          </div>
+        </div>
+      )} />
       <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
@@ -254,9 +207,18 @@ function Router() {
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
       <Route path="/switch-account" component={SwitchAccount} />
-      <Route path="/auth" component={AuthRedirectPage} />
-      <Route path="/sign-in" component={AuthRedirectPage} />
-      <Route path="/auth-custom" component={AuthRedirectPage} />
+      <Route path="/auth" component={() => {
+        React.useEffect(() => { window.location.href = '/api/login'; }, []);
+        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
+      }} />
+      <Route path="/sign-in" component={() => {
+        React.useEffect(() => { window.location.href = '/api/login'; }, []);
+        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
+      }} />
+      <Route path="/auth-custom" component={() => {
+        React.useEffect(() => { window.location.href = '/api/login'; }, []);
+        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
+      }} />
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
@@ -298,30 +260,88 @@ function Router() {
             <div className="max-w-7xl mx-auto px-4 py-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">Unified Agent Interface</h1>
-                  <p className="text-gray-600">Coordinate with all consulting agents from one place</p>
+                  <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'Times New Roman, serif' }}>
+                    Unified Agent Architecture
+                  </h1>
+                  <p className="text-gray-600 mt-1">
+                    Real-time agent execution and monitoring system
+                  </p>
+                </div>
+                <div className="text-sm text-gray-500">
+                  SSELFIE Studio Admin
                 </div>
               </div>
             </div>
           </div>
-          <div className="max-w-7xl mx-auto p-6">
-            <div className="text-center py-12">
-              <h2 className="text-xl text-gray-600">Agent interface loading...</h2>
-            </div>
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <UnifiedAgentInterface />
           </div>
         </div>
       )} {...props} />} />
-      <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/business-overview" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
+      <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/subscriber-import" component={(props) => <ProtectedRoute component={AdminSubscriberImport} {...props} />} />
-      <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
-      <Route path="/admin/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
-      <Route path="/admin/agent-command-center" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
-      <Route path="/admin/dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
 
-      {/* 404 - Must be last */}
-      <Route path="*" component={NotFound} />
-    </div>
+
+      <Route path="/admin/bridge-monitor" component={(props) => <ProtectedRoute component={BridgeMonitor} {...props} />} />
+      <Route path="/admin/agent-activity" component={() => <div className="p-8">Agent Activity Dashboard - Coming Soon</div>} />
+
+      <Route path="/admin-access-only" component={AdminAccessOnly} />
+      {/* Old admin routes archived - all functionality moved to main admin dashboard */}
+      <Route path="/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
+      <Route path="/admin/agent-approval" component={(props) => <ProtectedRoute component={AgentApproval} {...props} />} />
+      <Route path="/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
+      <Route path="/admin/agent-command" component={(props) => <ProtectedRoute component={AgentCommandCenter} {...props} />} />
+      <Route path="/agent-dashboard" component={(props) => <ProtectedRoute component={AdminDashboard} {...props} />} />
+      <Route path="/admin/agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
+      <Route path="/admin/progress" component={() => <div className="p-8">Admin Progress - Coming Soon</div>} />
+      <Route path="/admin/roadmap" component={() => <div className="p-8">Admin Roadmap - Coming Soon</div>} />
+      <Route path="/admin/ai-models" component={() => <div className="p-8">AI Models Management - Coming Soon</div>} />
+      <Route path="/rachel-chat" component={(props) => <ProtectedRoute component={RachelChat} {...props} />} />
+      <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
+      
+      {/* ADMIN MARKETING AUTOMATION */}
+      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
+      
+      {/* DEBUGGING */}
+      <Route path="/test" component={() => (
+        <div className="p-8">
+          <h1 className="text-2xl mb-4">Navigation Test</h1>
+          <p>If you can see this, navigation is working!</p>
+          <div className="mt-4 space-y-2">
+            <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
+            <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
+            <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
+          </div>
+        </div>
+      )} />
+      {/* Test routes removed - all test files archived */}
+      <Route path="/debug-auth" component={() => {
+        const { user, isAuthenticated, isLoading, error } = useAuth();
+        return (
+          <div className="p-8">
+            <h1 className="text-2xl mb-4">Authentication Debug</h1>
+            <div className="space-y-2">
+              <p>isLoading: {isLoading.toString()}</p>
+              <p>isAuthenticated: {isAuthenticated.toString()}</p>
+              <p>error: {error?.message || 'none'}</p>
+              <p>user: {user ? JSON.stringify(user, null, 2) : 'null'}</p>
+              <p>hostname: {window.location.hostname}</p>
+              <p>origin: {window.location.origin}</p>
+              <div className="mt-4">
+                <a href="/login" className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Try Login</a>
+                <a href="/workspace" 
+                   className="bg-green-500 text-white px-4 py-2 rounded">
+                  Go to Workspace
+                </a>
+              </div>
+            </div>
+          </div>
+        );
+      }} />
+
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
@@ -341,19 +361,16 @@ function App() {
     try {
       console.log('SSELFIE Studio: App initializing...');
       
-      // Only apply redirects for production domain, not localhost
-      if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('replit')) {
-        // Force HTTPS redirect if needed
-        if (window.location.protocol === 'http:' && window.location.hostname === 'sselfie.ai') {
-          window.location.href = window.location.href.replace('http:', 'https:');
-          return;
-        }
-        
-        // Handle www subdomain redirect
-        if (window.location.hostname === 'www.sselfie.ai') {
-          window.location.href = window.location.href.replace('www.sselfie.ai', 'sselfie.ai');
-          return;
-        }
+      // Force HTTPS redirect if needed
+      if (window.location.protocol === 'http:' && window.location.hostname === 'sselfie.ai') {
+        window.location.href = window.location.href.replace('http:', 'https:');
+        return;
+      }
+      
+      // Handle www subdomain redirect
+      if (window.location.hostname === 'www.sselfie.ai') {
+        window.location.href = window.location.href.replace('www.sselfie.ai', 'sselfie.ai');
+        return;
       }
       
       // Check for domain access issues
@@ -363,17 +380,19 @@ function App() {
         showDomainHelp();
       }
       
-      console.log('SSELFIE Studio: App initialization complete');
+      console.log('SSELFIE Studio: Domain access validated, app ready');
     } catch (error) {
-      console.warn('SSELFIE Studio: Non-critical initialization error:', error);
+      console.error('Error in App initialization:', error);
     }
   }, []);
 
+  console.log('SSELFIE Studio: App rendering...');
+  
   return (
-    <div className="App">
-      <Router />
+    <>
       <Toaster />
-    </div>
+      <Router />
+    </>
   );
 }
 
