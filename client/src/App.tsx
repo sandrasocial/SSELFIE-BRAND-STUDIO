@@ -2,75 +2,75 @@ import React, { useEffect, lazy, Suspense } from "react";
 import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "./components/ui/toaster";
-import { TooltipProvider } from "./components/ui/tooltip";
-// import { useAuth } from "./hooks/use-auth";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 // import { pwaManager } from "./utils/pwa";
-import NotFound from "./pages/not-found";
-import Landing from "./pages/landing";
-import EditorialLanding from "./pages/editorial-landing";
-import Pricing from "./pages/pricing";
-import Workspace from "./pages/workspace";
-import Onboarding from "./pages/onboarding";
-import About from "./pages/about";
-import Blog from "./pages/blog";
-import Contact from "./pages/contact";
-import FAQ from "./pages/faq";
-import Terms from "./pages/terms";
-import Privacy from "./pages/privacy";
-import HowItWorks from "./pages/how-it-works";
-import SelfieGuide from "./pages/selfie-guide";
-import Profile from "./pages/profile";
-import PaymentSuccess from "./pages/payment-success";
-import Checkout from "./pages/checkout";
-import SimpleCheckout from "./pages/simple-checkout";
-import ThankYou from "./pages/thank-you";
-import SandraPhotoshoot from "./pages/sandra-photoshoot";
-import SandraAI from "./pages/sandra-ai";
-import RachelChat from "./pages/rachel-chat";
-import RachelActivation from "./pages/rachel-activation";
-import SSELFIEGallery from "./pages/sselfie-gallery";
-import AIGenerator from "./pages/ai-generator";
-import AIPhotoshoot from "./pages/ai-photoshoot";
-import SimpleTraining from "./pages/simple-training";
+import NotFound from "@/pages/not-found";
+import Landing from "@/pages/landing";
+import EditorialLanding from "@/pages/editorial-landing";
+import Pricing from "@/pages/pricing";
+import Workspace from "@/pages/workspace";
+import Onboarding from "@/pages/onboarding";
+import About from "@/pages/about";
+import Blog from "@/pages/blog";
+import Contact from "@/pages/contact";
+import FAQ from "@/pages/faq";
+import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
+import HowItWorks from "@/pages/how-it-works";
+import SelfieGuide from "@/pages/selfie-guide";
+import Profile from "@/pages/profile";
+import PaymentSuccess from "@/pages/payment-success";
+import Checkout from "@/pages/checkout";
+import SimpleCheckout from "@/pages/simple-checkout";
+import ThankYou from "@/pages/thank-you";
+import SandraPhotoshoot from "@/pages/sandra-photoshoot";
+import SandraAI from "@/pages/sandra-ai";
+import RachelChat from "@/pages/rachel-chat";
+import RachelActivation from "@/pages/rachel-activation";
+import SSELFIEGallery from "@/pages/sselfie-gallery";
+import AIGenerator from "@/pages/ai-generator";
+import AIPhotoshoot from "@/pages/ai-photoshoot";
+import SimpleTraining from "@/pages/simple-training";
 
 
-import AdminDashboard from "./pages/admin-dashboard";
-import AdminBusinessOverview from "./pages/admin-business-overview";
-import AdminConsultingAgents from "./pages/admin-consulting-agents";
-import AdminSubscriberImport from "./pages/admin-subscriber-import";
+import AdminDashboard from "@/pages/admin-dashboard";
+import AdminBusinessOverview from "@/pages/admin-business-overview";
+import AdminConsultingAgents from "@/pages/admin-consulting-agents";
+import AdminSubscriberImport from "@/pages/admin-subscriber-import";
 
-import BridgeMonitor from "./pages/admin/bridge-monitor";
-import { UnifiedAgentInterface } from "./components/admin/UnifiedAgentInterface";
-import UnifiedLoginButton from "./components/UnifiedLoginButton";
-
-
-import AgentApproval from "./pages/agent-approval";
-import AgentCommandCenter from "./pages/agent-command-center";
+import BridgeMonitor from "@/pages/admin/bridge-monitor";
+import { UnifiedAgentInterface } from "@/components/admin/UnifiedAgentInterface";
+import UnifiedLoginButton from "@/components/UnifiedLoginButton";
 
 
-import CustomPhotoshootLibrary from "./pages/custom-photoshoot-library";
-import FlatlayLibrary from "./pages/flatlay-library";
-import Maya from "./pages/maya";
-import Victoria from "./pages/victoria";
-import VictoriaChat from "./pages/victoria-chat";
+import AgentApproval from "@/pages/agent-approval";
+import AgentCommandCenter from "@/pages/agent-command-center";
 
-import VictoriaBuilder from './pages/victoria-builder';
-import VictoriaPreview from './pages/victoria-preview';
-import PhotoSelection from "./pages/photo-selection";
-import BrandOnboarding from "./pages/brand-onboarding";
-import Welcome from "./pages/welcome";
-import AuthSuccess from "./pages/auth-success";
-import Login from "./pages/login";
+
+import CustomPhotoshootLibrary from "@/pages/custom-photoshoot-library";
+import FlatlayLibrary from "@/pages/flatlay-library";
+import Maya from "@/pages/maya";
+import Victoria from "@/pages/victoria";
+import VictoriaChat from "@/pages/victoria-chat";
+
+import VictoriaBuilder from '@/pages/victoria-builder';
+import VictoriaPreview from '@/pages/victoria-preview';
+import PhotoSelection from "@/pages/photo-selection";
+import BrandOnboarding from "@/pages/brand-onboarding";
+import Welcome from "@/pages/welcome";
+import AuthSuccess from "@/pages/auth-success";
+import Login from "@/pages/login";
 // Unified login system - removed competing auth components
-import LoginPrompt from "./components/LoginPrompt";
-import DomainHelp from "./pages/domain-help";
-import SwitchAccount from "./pages/switch-account";
-import LaunchCountdown from "./pages/launch-countdown";
-import AdminAccessOnly from "./pages/admin-access-only";
-import Build from "./pages/build";
+import LoginPrompt from "@/components/LoginPrompt";
+import DomainHelp from "@/pages/domain-help";
+import SwitchAccount from "@/pages/switch-account";
+import LaunchCountdown from "@/pages/launch-countdown";
+import AdminAccessOnly from "@/pages/admin-access-only";
+import Build from "@/pages/build";
 
 // Removed duplicate photoshoot imports - using existing system
 
@@ -85,10 +85,12 @@ function SmartHome() {
   });
 
   // Always show STUDIO workspace as the home page for authenticated users
-  // Skip authentication and directly show the workspace
+  // Onboarding is only shown once via direct navigation after first login/payment
   useEffect(() => {
-    setLocation('/workspace-direct');
-  }, [setLocation]);
+    if (!isLoading) {
+      setLocation('/workspace');
+    }
+  }, [isLoading, setLocation]);
 
   if (isLoading) {
     return (
@@ -149,8 +151,7 @@ function Router() {
       <Route path="/launch" component={LaunchCountdown} />
       
       {/* PUBLIC PAGES */}
-      <Route path="/" component={SmartHome} />
-      <Route path="/landing" component={EditorialLanding} />
+      <Route path="/" component={EditorialLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
@@ -222,9 +223,6 @@ function Router() {
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
       <Route path="/studio" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
-      
-      {/* DIRECT ACCESS TO MAIN APP (BYPASS AUTH FOR DEMO) */}
-      <Route path="/workspace-direct" component={Workspace} />
       <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
       
       {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
@@ -303,7 +301,7 @@ function Router() {
       <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
       
       {/* ADMIN MARKETING AUTOMATION */}
-      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('./pages/marketing-automation'))} {...props} />} />
+      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('@/pages/marketing-automation'))} {...props} />} />
       
       {/* DEBUGGING */}
       <Route path="/test" component={() => (

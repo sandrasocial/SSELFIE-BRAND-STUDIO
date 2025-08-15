@@ -2,7 +2,7 @@ import * as React from "react"
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
 
-import { cn } from "./lib/utils"
+import { cn } from "@/lib/utils"
 
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,

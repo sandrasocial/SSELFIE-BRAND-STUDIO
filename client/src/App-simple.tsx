@@ -5,52 +5,16 @@ import { queryClient } from "./lib/queryClient";
 
 function SimpleHomePage() {
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f8f9fa',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'sans-serif'
-    }}>
-      <div style={{
-        textAlign: 'center',
-        padding: '2rem',
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        maxWidth: '500px'
-      }}>
-        <h1 style={{
-          fontSize: '3rem',
-          fontWeight: 'bold',
-          marginBottom: '1rem',
-          color: '#000'
-        }}>SSELFIE Studio</h1>
-        <p style={{
-          color: '#666',
-          fontSize: '1.2rem',
-          marginBottom: '2rem'
-        }}>AI Personal Branding Platform</p>
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-4">SSELFIE Studio</h1>
+        <p className="text-gray-600 mb-8">AI Personal Branding Platform</p>
         <button 
           onClick={() => window.location.href = '/api/login'}
-          style={{
-            backgroundColor: '#000',
-            color: 'white',
-            padding: '12px 24px',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '1.1rem',
-            cursor: 'pointer'
-          }}
-          onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = '#333'}
-          onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = '#000'}
+          className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800"
         >
           Get Started
         </button>
-        <div style={{ marginTop: '2rem', fontSize: '0.9rem', color: '#888' }}>
-          Full React App Successfully Deployed ✓
-        </div>
       </div>
     </div>
   );

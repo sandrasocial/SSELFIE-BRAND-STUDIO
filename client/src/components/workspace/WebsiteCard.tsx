@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from './components/ui/button';
+import { Button } from '@/components/ui/button';
 import { 
   ExternalLink, 
   Edit, 
@@ -15,10 +15,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import { WebsiteScreenshot } from './WebsiteScreenshot';
-import { useToast } from './hooks/use-toast';
-import { apiRequest } from './lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 // Simple formatDistanceToNow utility
 const formatDistanceToNow = (date: Date, options?: { addSuffix?: boolean }) => {
   const now = new Date();

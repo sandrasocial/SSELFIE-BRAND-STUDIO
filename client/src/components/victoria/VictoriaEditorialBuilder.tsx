@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { HeroFullBleed } from './components/hero-full-bleed';
-import { EditorialImageBreak } from './components/editorial-image-break';
-import { MoodboardGallery } from './components/moodboard-gallery';
-import EditorialSpread from './components/editorial-spread';
-import { EditorialCard } from './components/ui/editorial-card';
+import { HeroFullBleed } from '@/components/hero-full-bleed';
+import { EditorialImageBreak } from '@/components/editorial-image-break';
+import { MoodboardGallery } from '@/components/moodboard-gallery';
+import EditorialSpread from '@/components/editorial-spread';
+import { EditorialCard } from '@/components/ui/editorial-card';
 import { VictoriaChat } from './VictoriaChat';
-import { Button } from './components/ui/button';
+import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
-import { apiRequest } from './lib/queryClient';
+import { apiRequest } from '@/lib/queryClient';
 
 interface WebsiteData {
   businessName: string;

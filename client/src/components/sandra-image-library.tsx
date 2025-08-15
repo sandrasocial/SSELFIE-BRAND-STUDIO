@@ -1,5 +1,5 @@
 // Re-export from main sandra-images library
-export { SandraImages, ImageRules } from '../lib/sandra-images';
+export { SandraImages, ImageRules } from '@/lib/sandra-images';
 
 // Image component with editorial hover effects
 interface EditorialImageProps {

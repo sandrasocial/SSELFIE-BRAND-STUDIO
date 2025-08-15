@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader } from "../components/ui/card";
-import { Input } from "../components/ui/input";
-import { ScrollArea } from "../components/ui/scroll-area";
-import { Separator } from "../components/ui/separator";
-import { apiRequest } from "../lib/queryClient";
-import { useAuth } from "../hooks/use-auth";
-import { useToast } from "../hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChatMessage {
   id: string;

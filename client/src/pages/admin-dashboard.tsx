@@ -1,7 +1,7 @@
 import React from 'react';
 import { MonitoringDashboard } from '../components/admin/MonitoringDashboard';
-import { useAuth } from '../hooks/use-auth';
-import { UnifiedAgentInterface } from '../components/admin/UnifiedAgentInterface';
+import { useAuth } from '@/hooks/use-auth';
+import { UnifiedAgentInterface } from '@/components/admin/UnifiedAgentInterface';
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();

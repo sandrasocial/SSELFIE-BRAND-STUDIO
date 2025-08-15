@@ -1,5 +1,5 @@
 import React from 'react';
-import { SandraImages } from '../lib/sandra-images';
+import { SandraImages } from '@/lib/sandra-images';
 
 interface HeroFullBleedProps {
   backgroundImage: string;
