@@ -104,7 +104,7 @@ export class UsageService {
     return await storage.createUserUsage({
       userId,
       plan,
-      monthlyGenerationsAllowed: planLimits.monthlyGenerations,
+      monthlyGenerationsAllowed: planLimits.monthlyGenerations || 0,
       monthlyGenerationsUsed: 0,
       totalCostIncurred: "0.0000",
       currentPeriodStart: now,
@@ -121,7 +121,7 @@ export class UsageService {
     const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com', 'sandra@sselfie.ai'];
     
     // Admin users get unlimited access
-    if (user && (adminEmails.includes(user.email) || user.role === 'admin')) {
+    if (user && user.email && (adminEmails.includes(user.email) || user.role === 'admin')) {
       console.log(`👑 Admin user detected: ${user.email} - granting unlimited access`);
       return {
         canGenerate: true,
@@ -158,12 +158,12 @@ export class UsageService {
 
     // For AI Pack (one-time purchase)
     if (usage.plan === 'ai-pack') {
-      const remaining = usage.totalGenerationsAllowed - usage.totalGenerationsUsed;
+      const remaining = (usage.monthlyGenerationsAllowed || 0) - (usage.monthlyGenerationsUsed || 0);
       return {
         canGenerate: remaining > 0,
         remainingGenerations: remaining,
-        totalUsed: usage.totalGenerationsUsed,
-        totalAllowed: usage.totalGenerationsAllowed,
+        totalUsed: usage.monthlyGenerationsUsed || 0,
+        totalAllowed: usage.monthlyGenerationsAllowed || 0,
         reason: remaining <= 0 ? 'AI Pack limit reached. Upgrade to Studio for monthly generations.' : undefined
       };
     }
@@ -174,8 +174,8 @@ export class UsageService {
       return {
         canGenerate: monthlyRemaining > 0,
         remainingGenerations: monthlyRemaining,
-        totalUsed: usage.totalGenerationsUsed,
-        totalAllowed: usage.totalGenerationsAllowed || 999999,
+        totalUsed: usage.monthlyGenerationsUsed || 0,
+        totalAllowed: usage.monthlyGenerationsAllowed || 999999,
         monthlyUsed: usage.monthlyGenerationsUsed || 0,
         monthlyAllowed: usage.monthlyGenerationsAllowed,
         resetDate: usage.currentPeriodEnd || undefined,
@@ -186,7 +186,7 @@ export class UsageService {
     return {
       canGenerate: false,
       remainingGenerations: 0,
-      totalUsed: usage.totalGenerationsUsed,
+      totalUsed: usage.monthlyGenerationsUsed || 0,
       totalAllowed: 0,
       reason: 'Invalid plan configuration'
     };
