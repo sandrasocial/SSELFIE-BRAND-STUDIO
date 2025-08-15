@@ -4,7 +4,7 @@ import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
-import { cn } from "./lib/utils"
+import { cn } from "@/lib/utils"
 
 const Select = SelectPrimitive.Root
 

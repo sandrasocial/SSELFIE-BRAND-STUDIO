@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
-import { useToast } from '../hooks/use-toast';
-import { apiRequest } from '../lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 
 interface UserSelfie {
   id: number;

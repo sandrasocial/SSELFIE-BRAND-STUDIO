@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { Button } from './components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
-import { Input } from './components/ui/input';
-import { Textarea } from './components/ui/textarea';
-import { Alert, AlertDescription } from './components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react';
-import { useToast } from './hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ManyChatPSIDUploaderProps {
   onPSIDListReady: (psids: string[]) => void;

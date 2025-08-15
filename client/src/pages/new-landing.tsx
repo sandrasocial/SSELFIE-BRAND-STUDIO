@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { SandraImages } from "../lib/sandra-images";
+import { SandraImages } from "@/lib/sandra-images";
 
 export default function NewLanding() {
   const [, setLocation] = useLocation();

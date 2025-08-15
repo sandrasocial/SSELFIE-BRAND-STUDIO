@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
-import { HeroFullBleed } from '../components/HeroFullBleed';
-import { SandraImages } from '../lib/sandra-images';
-import { apiRequest } from "../lib/queryClient";
-import { useToast } from "../hooks/use-toast";
+import { MemberNavigation } from '@/components/member-navigation';
+import { HeroFullBleed } from '@/components/HeroFullBleed';
+import { SandraImages } from '@/lib/sandra-images';
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { useLocation } from 'wouter';
 
 export default function SimpleCheckout() {

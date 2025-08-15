@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SandraImages } from "../lib/sandra-images";
+import { SandraImages } from "@/lib/sandra-images";
 
 export default function SignupGift() {
   const [email, setEmail] = useState("");

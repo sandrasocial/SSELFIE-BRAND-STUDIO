@@ -3,7 +3,7 @@ import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 // Removed Lucide React icon import to comply with Sandra's no-icons styleguide
 
-import { cn } from "./lib/utils"
+import { cn } from "@/lib/utils"
 
 const ToastProvider = ToastPrimitives.Provider
 

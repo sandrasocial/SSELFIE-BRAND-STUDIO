@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import SandraNavigation from '../components/SandraNavigation';
-import { Button } from "../components/ui/button";
+import SandraNavigation from '@/components/SandraNavigation';
+import { Button } from "@/components/ui/button";
 
 interface ChatMessage {
   type: 'user' | 'sandra';

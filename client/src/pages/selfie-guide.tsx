@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
+import { MemberNavigation } from '@/components/member-navigation';
 import { Link } from 'wouter';
 
 const essentialPhotos = [

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { Button } from '../../components/ui/button';
+import { Button } from '@/components/ui/button';
 // Luxury typography focus - no generic icons needed
-// import { EditorialImageBreak } from './components/ui/editorial';
+// import { EditorialImageBreak } from '@/components/ui/editorial';
 
 // SSELFIE STUDIO Luxury Bridge Coordination Interface
 // Swiss-precision monitoring with Chanel-level minimalism
