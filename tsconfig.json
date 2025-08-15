@@ -16,11 +16,15 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@components/*": ["./src/components/*"],
-      "@lib/*": ["./src/lib/*"]
+      "@/*": ["./client/src/*"],
+      "@components/*": ["./client/src/components/*"],
+      "@lib/*": ["./client/src/lib/*"],
+      "@pages/*": ["./client/src/pages/*"],
+      "@hooks/*": ["./client/src/hooks/*"],
+      "@shared/*": ["./shared/*"],
+      "@assets/*": ["./attached_assets/*"]
     }
   },
-  "include": ["src"],
+  "include": ["client/src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
