@@ -13,6 +13,8 @@ SSELFIE Studio is a premium AI-powered personal branding platform designed to tr
 - **✅ AGENT COORDINATION VERIFIED:** All specialized agents (Quinn: 2/2, Zara: 7/7, Elena: 2/2) operational with fresh development tasks assigned
 - **✅ STREAMING SERVICE CONFIRMED WORKING:** Backend SSE streaming verified - agents respond in real-time with proper text_delta events
 - **✅ AGENT SPECIALTIES CORRECTED:** Fixed ALL incorrect agent descriptions throughout codebase to match actual personality files
+- **✅ APP CRASH FIXED:** Resolved server startup crash due to missing auth routes - app now running successfully on port 5000
+- **✅ RATE LIMITING PROTECTION:** Added 3-second delays between Claude API calls to prevent rate limit errors during intensive agent work
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

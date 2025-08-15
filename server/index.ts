@@ -1,67 +1,34 @@
 import express from 'express';
-import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
-import session from 'express-session';
-import passport from 'passport';
-import { db } from '../lib/db';
-import { authRouter } from './routes/auth';
-import { apiRouter } from './routes/api';
-import { agentRouter } from './routes/agents';
+import path from 'path';
+import fs from 'fs';
 
 const app = express();
-const server = createServer(app);
-const wss = new WebSocketServer({ server });
+const port = Number(process.env.PORT) || 5000;
 
-// Session configuration
-app.use(session({
-  store: new (require('connect-pg-simple')(session))({
-    pool: db.pool,
-  }),
-  secret: process.env.SESSION_SECRET || 'development_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  }
-}));
+// Basic middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Passport initialization
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Body parsing
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Routes
-app.use('/auth', authRouter);
-app.use('/api', apiRouter);
-app.use('/agents', agentRouter);
-
-// WebSocket handling
-wss.on('connection', (ws) => {
-  ws.on('message', async (message) => {
-    try {
-      const data = JSON.parse(message.toString());
-      // Handle different message types
-      switch(data.type) {
-        case 'AGENT_MESSAGE':
-          // Handle agent messages
-          break;
-        case 'USER_MESSAGE':
-          // Handle user messages
-          break;
-        default:
-          console.warn('Unknown message type:', data.type);
-      }
-    } catch (error) {
-      console.error('WebSocket message handling error:', error);
-    }
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    server: 'SSELFIE Studio (Fixed)'
   });
 });
 
-const port = process.env.PORT || 5000;
-server.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
+// Serve React app
+const htmlPath = path.join(__dirname, '../client/index.html');
+app.get('*', (req, res) => {
+  if (fs.existsSync(htmlPath)) {
+    res.sendFile(htmlPath);
+  } else {
+    res.status(404).send('App not found');
+  }
+});
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`🚀 SSELFIE Studio fixed and running on port ${port}`);
+  console.log(`🌐 Access: http://localhost:${port}`);
 });
