@@ -1,12 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '../hooks/use-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
-import { MemberNavigation } from '@/components/member-navigation';
+import { useToast } from '../hooks/use-toast';
+import { MemberNavigation } from '../components/member-navigation';
 // Removed PaymentVerification - free users should access AI generator
-import { SandraImages } from '@/lib/sandra-images';
-import { apiRequest } from '@/lib/queryClient';
-import UsageTracker from '@/components/UsageTracker';
+import { SandraImages } from '../lib/sandra-images';
+import { apiRequest } from '../lib/queryClient';
+import UsageTracker from '../components/UsageTracker';
 
 type GenerationStep = 'selection' | 'processing' | 'results' | 'integration';
 

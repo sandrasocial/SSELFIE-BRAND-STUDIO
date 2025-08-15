@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { PhotoshootCollection } from '@/types/photoshoot';
+import { PhotoshootCollection } from './types/photoshoot';
 
 interface CollectionCardProps {
   collection: PhotoshootCollection;

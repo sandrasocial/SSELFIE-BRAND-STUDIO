@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { OfferCard } from "@/components/ui/offer-card";
-import { SandraImages } from "@/lib/sandra-images";
+import { OfferCard } from "../components/ui/offer-card";
+import { SandraImages } from "../lib/sandra-images";
 
 const offers = [
   {

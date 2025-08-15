@@ -3,7 +3,7 @@
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
 import * as ResizablePrimitive from "react-resizable-panels"
 
-import { cn } from "@/lib/utils"
+import { cn } from "./lib/utils"
 
 const ResizablePanelGroup = ({
   className,

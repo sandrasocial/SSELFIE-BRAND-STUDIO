@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { PhotoshootPrompt, PhotoshootCollection } from '@/types/photoshoot';
+import { PhotoshootPrompt, PhotoshootCollection } from './types/photoshoot';
 import { PromptCard } from './PromptCard';
 
 interface PromptGridProps {

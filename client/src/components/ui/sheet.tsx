@@ -5,7 +5,7 @@ import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
 
-import { cn } from "@/lib/utils"
+import { cn } from "./lib/utils"
 
 const Sheet = SheetPrimitive.Root
 

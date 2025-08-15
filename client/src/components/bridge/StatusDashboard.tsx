@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
+import { Badge } from './components/ui/badge';
 import { Clock, CheckCircle, AlertCircle, PlayCircle, Users } from 'lucide-react';
 import TaskStatusIndicator from './TaskStatusIndicator';
 

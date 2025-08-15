@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '../hooks/use-auth';
 import { useLocation } from 'wouter';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '../hooks/use-toast';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { apiRequest } from '@/lib/queryClient';
-import { SandraImages } from '@/lib/sandra-images';
-import { EditorialImageBreak } from '@/components/editorial-image-break';
-import { MemberNavigation } from '@/components/member-navigation';
-// import { MayaChatInterface } from '@/components/maya/MayaChatInterface';
+import { Button } from '../components/ui/button';
+import { Textarea } from '../components/ui/textarea';
+import { apiRequest } from '../lib/queryClient';
+import { SandraImages } from '../lib/sandra-images';
+import { EditorialImageBreak } from '../components/editorial-image-break';
+import { MemberNavigation } from '../components/member-navigation';
+// import { MayaChatInterface } from '../components/maya/MayaChatInterface';
 
 interface ChatMessage {
   id?: number;

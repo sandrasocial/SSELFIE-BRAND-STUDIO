@@ -2,7 +2,7 @@ import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
-import { cn } from "@/lib/utils"
+import { cn } from "./lib/utils"
 
 const DropdownMenu = DropdownMenuPrimitive.Root
 
