@@ -14,6 +14,7 @@ interface AdminRequest extends Request {
     }
   };
   isAdminBypass?: boolean; // Enhanced memory bypass flag
+  body: any; // Add body property to AdminRequest interface
 }
 
 // Type definition for consulting chat request body
