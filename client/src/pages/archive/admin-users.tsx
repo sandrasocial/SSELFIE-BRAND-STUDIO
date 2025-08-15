@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "../lib/auth/use-auth";
 import { Link, useLocation } from "wouter";
 
 export default function AdminUsers() {
