@@ -1,9 +1,8 @@
-import React from 'react';
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
-interface TooltipProviderProps {
-  children: React.ReactNode;
-}
+const TooltipProvider = TooltipPrimitive.Provider;
+const Tooltip = TooltipPrimitive.Root;
+const TooltipTrigger = TooltipPrimitive.Trigger;
+const TooltipContent = TooltipPrimitive.Content;
 
-export function TooltipProvider({ children }: TooltipProviderProps) {
-  return <>{children}</>;
-}
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
