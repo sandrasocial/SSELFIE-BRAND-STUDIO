@@ -190,29 +190,20 @@ START WORKING NOW.
       const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       const taskData = {
-        task_id: taskId,
-        agent_name: request.targetAgent,
+        agentName: request.targetAgent,
         instruction: request.taskDescription,
-        priority: request.priority,
+        priority: request.priority === 'critical' ? 'high' : request.priority as 'high' | 'medium' | 'low',
         status: 'active',
         progress: 0,
-        created_at: new Date(),
-        updated_at: new Date(),
-        completion_criteria: JSON.stringify({
-          deliverables: request.expectedDeliverables || [],
-          workflow_id: request.workflowId
-        }),
-        conversation_context: JSON.stringify({
-          requesting_agent: request.requestingAgent,
-          user_id: request.userId,
-          coordination_type: 'multi_agent_workflow'
-        })
+        estimatedDuration: 30, // 30 minutes default
+        completionCriteria: [request.expectedDeliverables?.join(', ') || 'Complete assigned task'],
+        conversationContext: [`requesting_agent: ${request.requestingAgent}`, `user_id: ${request.userId}`, 'coordination_type: multi_agent_workflow']
       };
 
-      await db.insert(agentTasks).values(taskData);
-      console.log(`📝 TASK CREATED: ${taskId} for ${request.targetAgent}`);
+      const [insertedTask] = await db.insert(agentTasks).values([taskData]).returning({ taskId: agentTasks.taskId });
+      console.log(`📝 TASK CREATED: ${insertedTask.taskId} for ${request.targetAgent}`);
       
-      return taskId;
+      return insertedTask.taskId;
 
     } catch (error) {
       console.error('❌ TASK CREATION FAILED:', error);

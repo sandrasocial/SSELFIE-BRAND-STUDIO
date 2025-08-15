@@ -199,10 +199,9 @@ BEGIN TASK EXECUTION NOW.
         .update(agentTasks)
         .set({
           status,
-          progress,
-          updated_at: new Date()
+          progress
         })
-        .where(eq(agentTasks.task_id, taskId));
+        .where(eq(agentTasks.taskId, taskId));
 
       console.log(`📊 TASK UPDATE: ${taskId} - ${status} (${progress}%)`);
 

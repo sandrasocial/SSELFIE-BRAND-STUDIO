@@ -77,17 +77,17 @@ router.get('/active-tasks', async (req: Request, res: Response) => {
       .select()
       .from(agentTasks)
       .where(eq(agentTasks.status, 'active'))
-      .orderBy(desc(agentTasks.created_at))
+      .orderBy(desc(agentTasks.createdAt))
       .limit(20);
 
     // Transform database tasks to bridge format
     const bridgeTasks = recentTasks.map(task => ({
-      id: task.task_id,
-      agentName: task.agent_name,
+      id: task.taskId,
+      agentName: task.agentName,
       instruction: task.instruction,
       status: task.status === 'active' ? 'Executing' : 'Completed',
       progress: task.progress || 0,
-      createdAt: task.created_at?.toISOString() || new Date().toISOString(),
+      createdAt: task.createdAt?.toISOString() || new Date().toISOString(),
       steps: [
         {
           id: 'step_1',
@@ -242,7 +242,7 @@ router.get('/task/:taskId', async (req: Request, res: Response) => {
     const tasks = await db
       .select()
       .from(agentTasks)
-      .where(eq(agentTasks.task_id, taskId))
+      .where(eq(agentTasks.taskId, taskId))
       .limit(1);
 
     if (tasks.length === 0) {
@@ -255,13 +255,13 @@ router.get('/task/:taskId', async (req: Request, res: Response) => {
     const task = tasks[0];
     
     const bridgeTask = {
-      id: task.task_id,
-      agentName: task.agent_name,
+      id: task.taskId,
+      agentName: task.agentName,
       instruction: task.instruction,
       status: task.status === 'active' ? 'Executing' : task.status === 'completed' ? 'Completed' : 'Failed',
       progress: task.progress || 0,
-      createdAt: task.created_at?.toISOString() || new Date().toISOString(),
-      updatedAt: task.updated_at?.toISOString() || new Date().toISOString()
+      createdAt: task.createdAt?.toISOString() || new Date().toISOString(),
+      completedAt: task.completedAt?.toISOString() || undefined
     };
 
     res.json({
