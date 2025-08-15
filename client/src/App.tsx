@@ -5,7 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "@tanstack/react-query";
+// useQuery removed - no longer needed after SmartHome component removal
 import { detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 // import { pwaManager } from "./utils/pwa";
 import NotFound from "@/pages/not-found";
@@ -45,7 +45,7 @@ import AdminSubscriberImport from "@/pages/admin-subscriber-import";
 import BridgeMonitor from "@/pages/admin/bridge-monitor";
 import { UnifiedAgentInterface } from "@/components/admin/UnifiedAgentInterface";
 import UnifiedLoginButton from "@/components/UnifiedLoginButton";
-import AdminProtectedRoute from "@/components/AdminProtectedRoute";
+// AdminProtectedRoute removed - using existing ProtectedRoute system
 
 
 import AgentApproval from "@/pages/agent-approval";
@@ -75,30 +75,7 @@ import Build from "@/pages/build";
 
 
 
-// Smart Home routing component - redirects authenticated users to workspace
-function SmartHome() {
-  const [, setLocation] = useLocation();
-  const { isLoading } = useQuery({
-    queryKey: ['/api/onboarding'],
-    retry: false,
-  });
-
-  useEffect(() => {
-    if (!isLoading) {
-      setLocation('/workspace');
-    }
-  }, [isLoading, setLocation]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-  
-  return null;
-}
+// SmartHome component removed - was causing unused component error
 
 // Protected wrapper component that handles authentication
 function ProtectedRoute({ component: Component, ...props }: { component: React.ComponentType<any>, [key: string]: any }) {

@@ -167,7 +167,6 @@ interface ChatQuickActionsProps {
 }
 
 export const ChatQuickActions: React.FC<ChatQuickActionsProps> = ({ 
-  agentName, 
   actions 
 }) => {
   return (
