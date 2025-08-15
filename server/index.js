@@ -6,6 +6,7 @@ import url from 'url';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { handleZaraConsultation } from './zara-agent-integration.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +16,7 @@ console.log('✅ This avoids the Express.js response object corruption');
 
 const port = process.env.PORT || 3000;
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
   
@@ -75,7 +76,14 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Handle POST data for API endpoints
+  // ZARA AGENT CONSULTATION ENDPOINT
+  if (req.method === 'POST' && (pathname === '/api/admin/consulting-chat' || pathname === '/api/consulting-agents/admin/consulting-chat')) {
+    console.log('🤖 ZARA: Agent consultation request received');
+    await handleZaraConsultation(req, res);
+    return;
+  }
+
+  // Handle other POST data for API endpoints
   if (req.method === 'POST' && pathname.startsWith('/api/')) {
     let body = '';
     req.on('data', chunk => {
