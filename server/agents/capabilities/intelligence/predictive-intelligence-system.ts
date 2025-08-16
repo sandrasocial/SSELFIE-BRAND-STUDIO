@@ -5,7 +5,7 @@
 
 import { db } from '../../db';
 import { eq, desc, and } from 'drizzle-orm';
-import { claudeConversations, claudeMessages } from '@shared/schema';
+import { claudeConversations, claudeMessages } from '../../../shared/schema.js';
 
 interface UserPattern {
   userId: string;

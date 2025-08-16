@@ -11,7 +11,7 @@ import { ModelValidationService } from './model-validation-service';
 import { 
   InsertGenerationTracker,
   type User 
-} from '@shared/schema';
+} from '../shared/schema.js';
 
 export interface UnifiedGenerationRequest {
   userId: string;
