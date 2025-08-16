@@ -20,16 +20,19 @@ export default defineConfig({
                 try {
                     // Setup API routes using Express middleware
                     const express = await import('express');
-                    const { registerRoutes } = await import('../server/routes.js');
+                    const { registerRoutes } = await import('./server/routes.ts');
                     
                     const app = express.default();
-                    app.use(express.default.json({ limit: '50mb' }));
-                    app.use(express.default.urlencoded({ extended: true, limit: '50mb' }));
                     
-                    await registerRoutes(app);
+                    // Create HTTP server for registerRoutes (it expects to return a server)
+                    const httpServer = await registerRoutes(app);
+                    
+                    // Use the Express app as middleware for Vite
                     server.middlewares.use('/api', app);
+                    console.log('✅ Backend routes successfully integrated with Vite dev server');
                 } catch (error) {
                     console.log('Backend setup failed, running frontend only:', error.message);
+                    console.error('Backend error details:', error);
                 }
             }
         }
