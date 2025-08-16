@@ -54,17 +54,24 @@ wss.on('connection', (ws) => {
 
 const port = process.env.PORT || 5000;
 
-// Register all the comprehensive routes from routes.ts and start server
-console.log('🔧 Registering comprehensive routes...');
-registerRoutes(app).then(() => {
-  console.log('✅ All routes registered successfully');
-  server.listen(port, () => {
-    console.log(`🚀 Server running on port ${port}`);
-  });
-}).catch(err => {
-  console.error('❌ Route registration failed:', err);
-  // Start basic server even if routes fail
-  server.listen(port, () => {
-    console.log(`🚀 Server running on port ${port} (with route registration errors)`);
-  });
-});
+async function startServer() {
+  try {
+    // Register all the comprehensive routes from routes.ts first
+    console.log('🔧 Registering comprehensive routes...');
+    await registerRoutes(app);
+    console.log('✅ All routes registered successfully');
+    
+    server.listen(port, () => {
+      console.log(`🚀 SSELFIE Studio server running on http://localhost:${port}`);
+      console.log('📋 Admin agents Elena, Quinn, and Zara are operational with Claude intelligence');
+    });
+  } catch (err) {
+    console.error('❌ Server startup failed:', err);
+    // Try basic startup without routes
+    server.listen(port, () => {
+      console.log(`🚀 Basic server running on port ${port} (route registration failed)`);
+    });
+  }
+}
+
+startServer();
