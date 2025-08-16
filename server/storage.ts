@@ -272,7 +272,7 @@ export class DatabaseStorage implements IStorage {
     try {
       const [user] = await db
         .insert(users)
-        .values([userData])
+        .values(userData)
         .returning();
       return user;
     } catch (error: any) {
@@ -325,7 +325,7 @@ export class DatabaseStorage implements IStorage {
       // Insert new profile
       const [profile] = await db
         .insert(userProfiles)
-        .values([data])
+        .values(data)
         .returning();
       return profile;
     }
@@ -343,7 +343,7 @@ export class DatabaseStorage implements IStorage {
 
 
   async saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData> {
-    const [saved] = await db.insert(onboardingData).values([data]).returning();
+    const [saved] = await db.insert(onboardingData).values(data).returning();
     return saved;
   }
 
@@ -368,7 +368,7 @@ export class DatabaseStorage implements IStorage {
   async saveAIImage(data: InsertAiImage): Promise<AiImage> {
     // Remove project_id from data since we're not using projects table
     const { projectId, ...imageData } = data as any;
-    const [saved] = await db.insert(aiImages).values([imageData]).returning();
+    const [saved] = await db.insert(aiImages).values(imageData).returning();
     return saved;
   }
 
@@ -385,7 +385,7 @@ export class DatabaseStorage implements IStorage {
   async createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values([data])
+      .values(data)
       .returning();
     return tracker;
   }
@@ -393,7 +393,7 @@ export class DatabaseStorage implements IStorage {
   async saveGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values([data])
+      .values(data)
       .returning();
     return tracker;
   }
@@ -476,7 +476,7 @@ export class DatabaseStorage implements IStorage {
 
   async createUserModel(data: InsertUserModel): Promise<UserModel> {
     console.log('Creating user model with data:', data);
-    const [model] = await db.insert(userModels).values([data]).returning();
+    const [model] = await db.insert(userModels).values(data).returning();
     return model;
   }
 
@@ -602,7 +602,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveSelfieUpload(data: InsertSelfieUpload): Promise<SelfieUpload> {
-    const [saved] = await db.insert(selfieUploads).values([data]).returning();
+    const [saved] = await db.insert(selfieUploads).values(data).returning();
     return saved;
   }
 
@@ -657,7 +657,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSubscription(data: InsertSubscription): Promise<Subscription> {
-    const [subscription] = await db.insert(subscriptions).values([data]).returning();
+    const [subscription] = await db.insert(subscriptions).values(data).returning();
     return subscription;
   }
 
@@ -671,7 +671,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUserUsage(data: InsertUserUsage): Promise<UserUsage> {
-    const [usage] = await db.insert(userUsage).values([data]).returning();
+    const [usage] = await db.insert(userUsage).values(data).returning();
     return usage;
   }
 
@@ -752,7 +752,7 @@ export class DatabaseStorage implements IStorage {
   async createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat> {
     const [chat] = await db
       .insert(victoriaChats)
-      .values([data])
+      .values(data as any)
       .returning();
     return chat;
   }
@@ -777,7 +777,7 @@ export class DatabaseStorage implements IStorage {
   async savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection> {
     const [selection] = await db
       .insert(photoSelections)
-      .values([data])
+      .values(data as any)
       .onConflictDoUpdate({
         target: photoSelections.userId,
         set: {
@@ -822,7 +822,7 @@ export class DatabaseStorage implements IStorage {
   async createLandingPage(data: InsertLandingPage): Promise<LandingPage> {
     const [page] = await db
       .insert(landingPages)
-      .values([data])
+      .values(data as any)
       .returning();
     return page;
   }
@@ -839,7 +839,7 @@ export class DatabaseStorage implements IStorage {
   async createUserLandingPage(data: InsertUserLandingPage): Promise<UserLandingPage> {
     const [page] = await db
       .insert(userLandingPages)
-      .values([data])
+      .values(data as any)
       .returning();
     return page;
   }
@@ -875,7 +875,7 @@ export class DatabaseStorage implements IStorage {
   async saveBrandOnboarding(data: InsertBrandOnboarding): Promise<BrandOnboarding> {
     const [saved] = await db
       .insert(brandOnboarding)
-      .values([data])
+      .values(data as any)
       .onConflictDoUpdate({
         target: brandOnboarding.userId,
         set: {
@@ -1120,7 +1120,7 @@ export class DatabaseStorage implements IStorage {
   async captureEmail(data: InsertEmailCapture): Promise<EmailCapture> {
     const [capture] = await db
       .insert(emailCaptures)
-      .values([data])
+      .values(data as any)
       .returning();
     return capture;
   }
@@ -1137,7 +1137,7 @@ export class DatabaseStorage implements IStorage {
   async createMayaChat(data: InsertMayaChat): Promise<MayaChat> {
     const [chat] = await db
       .insert(mayaChats)
-      .values([data])
+      .values(data as any)
       .returning();
     return chat;
   }
@@ -1204,7 +1204,7 @@ export class DatabaseStorage implements IStorage {
   async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
     const [message] = await db
       .insert(mayaChatMessages)
-      .values([data])
+      .values(data as any)
       .returning();
     return message;
   }

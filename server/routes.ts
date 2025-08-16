@@ -755,7 +755,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const [newWebsite] = await db
         .insert(websites)
-        .values([validatedData])
+        .values(validatedData)
         .returning();
       
       res.json(newWebsite);
@@ -1562,7 +1562,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         status: 'processing'
       };
       
-      const savedTracker = await storage.saveGenerationTracker(trackerData);
+      const savedTracker = await storage.saveGenerationTracker(trackerData as any);
       console.log('📊 Maya: Created tracker:', savedTracker.id);
 
       // Return immediately with trackerId for live frontend polling (working pattern from 2 days ago)
@@ -1745,7 +1745,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           prompt: tracker.prompt || 'Maya Editorial Photoshoot',
           generationStatus: 'completed',
           predictionId: tracker.predictionId || '',
-        });
+        } as any);
         
         savedImages.push(galleryImage);
       }
