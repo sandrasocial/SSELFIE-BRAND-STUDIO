@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -156,17 +156,14 @@ export default function CheckpointManagementInterface() {
 
                 <div className="flex items-center space-x-2">
                   <Badge 
-                    variant={checkpoint.status === 'success' ? 'default' : 'destructive'}
-                    className={checkpoint.status === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : ''}
+                    className={checkpoint.status === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}
                   >
                     {checkpoint.status}
                   </Badge>
                   
                   <Button
-                    variant="outline"
-                    size="sm"
                     onClick={() => handleRestore(checkpoint.id)}
-                    className="border-gray-300 dark:border-gray-600"
+                    className="border border-gray-300 dark:border-gray-600 bg-white hover:bg-gray-50 text-black px-3 py-1 text-sm"
                   >
                     <RotateCcw className="mr-1 h-3 w-3" />
                     Restore

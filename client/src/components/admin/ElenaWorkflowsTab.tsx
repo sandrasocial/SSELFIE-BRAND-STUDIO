@@ -3,7 +3,7 @@
  * Revolutionary conversational-to-autonomous bridge interface
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -173,7 +173,7 @@ export function ElenaWorkflowsTab() {
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={`text-white ${getPriorityColor(workflow.priority)}`}>
+                      <Badge className={`text-white border ${getPriorityColor(workflow.priority)}`}>
                         {getPriorityIcon(workflow.priority)}
                         <span className="ml-1 capitalize">{workflow.priority}</span>
                       </Badge>
@@ -220,7 +220,7 @@ export function ElenaWorkflowsTab() {
                   <div className="mt-3 pt-3 border-t border-zinc-100">
                     <div className="flex flex-wrap gap-2">
                       {workflow.agents.map((agent) => (
-                        <Badge key={agent} variant="secondary" className="text-xs">
+                        <Badge key={agent} className="bg-gray-100 text-gray-800 text-xs">
                           {agent}
                         </Badge>
                       ))}
