@@ -1,22 +1,31 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "es2022",
-    "moduleResolution": "node",
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true,
-    "outDir": "./dist",
+    "skipLibCheck": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "noEmit": true,
+    "baseUrl": ".",
     "rootDir": ".",
     "paths": {
-      "@/*": ["../*"]
+      "@shared/*": ["../shared/*"]
     }
   },
-  "include": ["**/*.ts", "../shared/**/*.ts"],
-  "exclude": ["node_modules", "dist", "../node_modules"]
+  "include": [
+    "**/*.ts",
+    "../shared/**/*.ts",
+    "../vite.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
