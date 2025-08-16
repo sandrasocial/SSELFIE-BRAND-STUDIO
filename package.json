@@ -37,6 +37,7 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.539.0",
     "memoizee": "^0.4.17",
+    "nanoid": "^5.1.5",
     "openid-client": "^6.6.4",
     "passport": "^0.7.0",
     "postcss": "^8.5.6",
