@@ -670,12 +670,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Transform personal brand assessment to compatible format
       const brandData = {
         userId,
-        businessName: assessmentData.personalStory ? 'Personal Brand' : '',
-        tagline: assessmentData.uniqueValue || '',
+        email: req.user?.claims?.email || 'admin@sselfie.ai',
+        businessName: assessmentData.businessName || 'Personal Brand',
+        tagline: assessmentData.tagline || assessmentData.uniqueValue || 'Building my personal brand',
         personalStory: assessmentData.personalStory || '',
         targetClient: assessmentData.targetAudience || '',
+        problemYouSolve: assessmentData.uniqueValue || 'Personal branding solutions',
         uniqueApproach: assessmentData.uniqueValue || '',
         primaryOffer: assessmentData.expertise?.join(', ') || '',
+        primaryOfferPrice: assessmentData.pricing || '$100',
         brandPersonality: assessmentData.personality || '',
         brandValues: assessmentData.personalGoals?.join(', ') || '',
         selectedImages: JSON.stringify(assessmentData.selectedImages || {}),
@@ -741,7 +744,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import('./db');
       const { websites, insertWebsiteSchema } = await import('../shared/schema');
       
-      const validatedData = insertWebsiteSchema.parse({ ...req.body, userId });
+      const websiteData = { 
+        ...req.body, 
+        userId,
+        title: req.body.title || 'New Website',
+        slug: req.body.slug || `website-${Date.now()}`,
+        content: req.body.content || {}
+      };
+      const validatedData = insertWebsiteSchema.parse(websiteData);
       
       const [newWebsite] = await db
         .insert(websites)
