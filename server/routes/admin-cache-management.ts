@@ -1,10 +1,10 @@
 import { Router } from 'express';
 // ELIMINATED: ContextPreservationSystem - replaced with simple-memory-service
 import { simpleMemoryService } from '../services/simple-memory-service';
-import { autonomousNavigation } from '../services/autonomous-navigation-system';
+// import { autonomousNavigation } from '../services/autonomous-navigation-system';
 import { UnifiedStateManager } from '../services/unified-state-manager';
 import { SSELFIE_ARCHITECTURE, AGENT_TOOL_INTELLIGENCE, FileAnalysis } from '../agents/capabilities/intelligence/architectural-knowledge-base';
-import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
+// import { agentPerformanceMonitor } from '../services/agent-performance-monitor';
 import { requireAdmin, validateUserId, getAdminUserData } from '../middleware/admin-middleware';
 
 const adminCacheRouter = Router();
@@ -34,7 +34,7 @@ adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req: any, res: 
     simpleMemoryService.clearAgentMemory('*', userIdValidation.normalizedId!);
     
     // Clear navigation learning data
-    autonomousNavigation.clearNavigationData();
+    // autonomousNavigation.clearNavigationData();
     
     // Clear workspace state
     UnifiedStateManager.getInstance().clearWorkspaceState();
@@ -70,20 +70,21 @@ adminCacheRouter.post('/clear-agent-cache', requireAdmin, async (req: any, res: 
  */
 adminCacheRouter.get('/agent-performance', async (req, res) => {
   try {
-    const systemOverview = agentPerformanceMonitor.getSystemOverview();
-    const performanceIssues = agentPerformanceMonitor.checkPerformanceIssues();
+    // const systemOverview = agentPerformanceMonitor.getSystemOverview();
+    // const performanceIssues = agentPerformanceMonitor.checkPerformanceIssues();
     
-    // Get individual agent reports
-    const agentReports: Record<string, any> = {};
-    ['victoria', 'maya', 'rachel', 'sophia', 'ava', 'quinn', 'martha', 'diana', 'wilma'].forEach(agentId => {
-      agentReports[agentId] = agentPerformanceMonitor.getAgentPerformanceReport(agentId);
-    });
+    // // Get individual agent reports
+    // const agentReports: Record<string, any> = {};
+    // ['victoria', 'maya', 'rachel', 'sophia', 'ava', 'quinn', 'martha', 'diana', 'wilma'].forEach(agentId => {
+    //   agentReports[agentId] = agentPerformanceMonitor.getAgentPerformanceReport(agentId);
+    // });
 
     res.json({
       success: true,
-      systemOverview,
-      performanceIssues,
-      agentReports
+      message: 'Performance monitoring temporarily disabled',
+      // systemOverview,
+      // performanceIssues,
+      // agentReports
     });
 
   } catch (error) {

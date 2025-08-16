@@ -118,7 +118,7 @@ export class ModelTrainingService {
       
       // Wait for the zip to be written
       await new Promise((resolve, reject) => {
-        output.on('close', resolve);
+        output.on('close', () => resolve(undefined));
         output.on('error', reject);
       });
       

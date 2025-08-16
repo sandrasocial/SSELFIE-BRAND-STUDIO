@@ -246,7 +246,7 @@ import { execute_sql_tool } from './execute_sql_tool';
 import { web_search } from './web_search';
 import { restart_workflow } from './restart-workflow';
 import { search_filesystem } from './search_filesystem';
-import { coordinate_agent } from './coordinate_agent';
+// import { coordinate_agent } from './coordinate_agent';
 
 export const TOOL_FUNCTIONS = {
   bash,
@@ -256,5 +256,5 @@ export const TOOL_FUNCTIONS = {
   web_search,
   restart_workflow,
   search_filesystem,
-  coordinate_agent
+  // coordinate_agent
 };
