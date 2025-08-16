@@ -310,11 +310,6 @@ export class ClaudeApiServiceSimple {
         
         // Clean execution with proper tool handling
         
-        // RATE LIMIT PROTECTION: Add delay between rapid API calls
-        if (iterationCount > 1) {
-          await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay for subsequent calls
-        }
-        
         // RESTORED: Full Claude API call with proper schemas
         const response = await anthropic.messages.create({
           model: DEFAULT_MODEL_STR,

@@ -1,23 +1,25 @@
-import * as React from "react";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { ReactNode, forwardRef, ComponentPropsWithoutRef, ElementRef } from 'react';
 
-const TooltipProvider = TooltipPrimitive.Provider;
+interface TooltipProviderProps {
+  children: ReactNode;
+  delayDuration?: number;
+}
 
-const Tooltip = TooltipPrimitive.Root;
+export function TooltipProvider({ children }: TooltipProviderProps) {
+  return <>{children}</>;
+}
 
-const TooltipTrigger = TooltipPrimitive.Trigger;
+export const Tooltip = ({ children }: { children: ReactNode }) => <>{children}</>;
 
-const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Content
-    ref={ref}
-    sideOffset={sideOffset}
-    className={`z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ${className}`}
-    {...props}
-  />
-));
-TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+export const TooltipTrigger = forwardRef<
+  ElementRef<"button">,
+  ComponentPropsWithoutRef<"button"> & { asChild?: boolean }
+>(({ asChild, ...props }, ref) => <button ref={ref} {...props} />);
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+export const TooltipContent = forwardRef<
+  ElementRef<"div">,
+  ComponentPropsWithoutRef<"div"> & { side?: string; align?: string; sideOffset?: number }
+>(({ children, side, align, sideOffset, ...props }, ref) => <div ref={ref} {...props}>{children}</div>);
+
+TooltipTrigger.displayName = "TooltipTrigger";
+TooltipContent.displayName = "TooltipContent";

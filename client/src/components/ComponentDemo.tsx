@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 interface ComponentDemoProps {
   title?: string;
   onAction?: () => void;
 }
 
-const ComponentDemo: React.FC<ComponentDemoProps> = ({ 
+const ComponentDemo = ({ 
   title = 'Multi-Agent Coordination & Delegation Component',
-  onAction 
-}) => {
+  onAction
+}: ComponentDemoProps) => {
   const [isActive, setIsActive] = useState(false);
 
   const handleClick = () => {

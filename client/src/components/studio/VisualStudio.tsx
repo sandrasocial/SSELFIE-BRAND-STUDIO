@@ -1,11 +1,11 @@
-import React from 'react';
+import { FC } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface VisualStudioProps {
   className?: string;
 }
 
-export const VisualStudio: React.FC<VisualStudioProps> = ({
+export const VisualStudio: FC<VisualStudioProps> = ({
   className,
 }) => {
   return (

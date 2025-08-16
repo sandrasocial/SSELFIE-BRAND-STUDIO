@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
-import { HeroFullBleed } from '@/components/hero-full-bleed';
-import { EditorialStory } from '@/components/editorial-story';
-import { EditorialImageBreak } from '@/components/editorial-image-break';
-import PowerQuote from '@/components/power-quote';
-import { EditorialTestimonials } from '@/components/editorial-testimonials';
-import WelcomeEditorial from '@/components/welcome-editorial';
-import { EmailCaptureModal } from '@/components/email-capture-modal';
-import { GlobalFooter } from '@/components/global-footer';
-import { SandraImages } from '@/lib/sandra-images';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
+import { HeroFullBleed } from '../components/hero-full-bleed';
+import { EditorialStory } from '../components/editorial-story';
+import { EditorialImageBreak } from '../components/editorial-image-break';
+import PowerQuote from '../components/power-quote';
+import { EditorialTestimonials } from '../components/editorial-testimonials';
+import WelcomeEditorial from '../components/welcome-editorial';
+import { EmailCaptureModal } from '../components/email-capture-modal';
+import { GlobalFooter } from '../components/global-footer';
+import { SandraImages } from '../lib/sandra-images';
 
 export default function AboutPage() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -83,7 +83,7 @@ export default function AboutPage() {
 
     const script = document.createElement('script');
     script.type = 'application/ld+json';
-    script.innerHTML = JSON.stringify(structuredData);
+    script.textContent = JSON.stringify(structuredData);
     document.head.appendChild(script);
 
     return () => {

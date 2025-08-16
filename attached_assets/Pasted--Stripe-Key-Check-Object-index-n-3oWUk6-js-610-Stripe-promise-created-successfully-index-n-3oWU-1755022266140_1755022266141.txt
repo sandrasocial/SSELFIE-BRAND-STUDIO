@@ -1,0 +1,42 @@
+🔐 Stripe Key Check: Object
+index-n-3oWUk6.js:610 ✅ Stripe promise created successfully
+index-n-3oWUk6.js:1187 SSELFIE Studio: Main.tsx loading...
+index-n-3oWUk6.js:1187 SSELFIE Studio: Root element found: true
+2index-n-3oWUk6.js:1187 SSELFIE Studio: App rendering...
+index-n-3oWUk6.js:32 ReferenceError: React is not defined
+    at Xb (index-n-3oWUk6.js:603:11168)
+    at wo (index-n-3oWUk6.js:30:17385)
+    at up (index-n-3oWUk6.js:32:44632)
+    at lp (index-n-3oWUk6.js:32:40234)
+    at _x (index-n-3oWUk6.js:32:40162)
+    at Ll (index-n-3oWUk6.js:32:40015)
+    at Yo (index-n-3oWUk6.js:32:36310)
+    at np (index-n-3oWUk6.js:32:35258)
+    at K (index-n-3oWUk6.js:17:1613)
+    at MessagePort.O (index-n-3oWUk6.js:17:1980)
+Ao @ index-n-3oWUk6.js:32Understand this error
+index-n-3oWUk6.js:32 ReferenceError: React is not defined
+    at Vb (index-n-3oWUk6.js:48:27024)
+    at wo (index-n-3oWUk6.js:30:17385)
+    at up (index-n-3oWUk6.js:32:44632)
+    at lp (index-n-3oWUk6.js:32:40234)
+    at _x (index-n-3oWUk6.js:32:40162)
+    at Ll (index-n-3oWUk6.js:32:40015)
+    at Yo (index-n-3oWUk6.js:32:36310)
+    at np (index-n-3oWUk6.js:32:35258)
+    at K (index-n-3oWUk6.js:17:1613)
+    at MessagePort.O (index-n-3oWUk6.js:17:1980)
+Ao @ index-n-3oWUk6.js:32Understand this error
+index-n-3oWUk6.js:32 Uncaught ReferenceError: React is not defined
+    at Xb (index-n-3oWUk6.js:603:11168)
+    at wo (index-n-3oWUk6.js:30:17385)
+    at up (index-n-3oWUk6.js:32:44632)
+    at lp (index-n-3oWUk6.js:32:40234)
+    at _x (index-n-3oWUk6.js:32:40162)
+    at Ll (index-n-3oWUk6.js:32:40015)
+    at Yo (index-n-3oWUk6.js:32:36310)
+    at np (index-n-3oWUk6.js:32:35258)
+    at K (index-n-3oWUk6.js:17:1613)
+    at MessagePort.O (index-n-3oWUk6.js:17:1980)Understand this error
+index-n-3oWUk6.js:48 SSELFIE Studio: Service Worker registration failed SecurityError: Failed to register a ServiceWorker for scope ('https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev:5000/') with script ('https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev:5000/sw.js'): The script has an unsupported MIME type ('text/html').
+manifest.json:1 Manifest: Line: 1, column: 1, Syntax error.Understand this error

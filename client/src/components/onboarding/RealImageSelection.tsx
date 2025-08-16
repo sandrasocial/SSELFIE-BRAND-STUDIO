@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { FC, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '../ui/card';
-import { ScrollArea } from '../ui/scroll-area';
+// ScrollArea component removed
 import { Check, Image, Sparkles } from 'lucide-react';
-import { cleanedFlatlayCollections } from '@/data/cleaned-flatlay-collections';
+import { cleanedFlatlayCollections } from '../../data/cleaned-flatlay-collections';
 
 interface RealImageSelectionProps {
   onSelectionComplete: (selected: {
@@ -12,7 +12,7 @@ interface RealImageSelectionProps {
   }) => void;
 }
 
-export const RealImageSelection: React.FC<RealImageSelectionProps> = ({ 
+export const RealImageSelection: FC<RealImageSelectionProps> = ({ 
   onSelectionComplete 
 }) => {
   const [selectedAIPhotos, setSelectedAIPhotos] = useState<any[]>([]);

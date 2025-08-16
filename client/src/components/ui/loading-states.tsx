@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 
 export const LoadingSpinner = () => (
   <div className="flex items-center justify-center h-full w-full">

@@ -31,8 +31,7 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    const user = JSON.parse(userData as string);
+    const user = typeof userData === 'string' ? JSON.parse(userData) : JSON.parse(JSON.stringify(userData));
     const { password: _, ...userWithoutPassword } = user;
 
     return NextResponse.json({

@@ -1,0 +1,40 @@
+export const SandraImages = {
+  // HERO IMAGES (Full-bleed, dramatic)
+  hero: {
+    homepage: "https://i.postimg.cc/rwTG02cZ/out-1-23.png", // Power pose
+    about: "https://i.postimg.cc/bNF14sGc/out-1-4.png", // Vulnerable but strong
+    pricing: "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp", // Confident business
+    method: "https://i.postimg.cc/HkNwfjh8/out-2-14.jpg", // Teaching mode
+    contact: "https://i.postimg.cc/HsrPfn0G/out-2-26.png", // Approachable
+    aiImages: "@assets/out-1 (1)_1752344371746.jpg", // Gallery mood
+    ai: "https://i.postimg.cc/4NG0n2wN/out-1-12.png", // AI page hero
+    dashboard: "https://i.postimg.cc/htszBH6F/file-47.png", // Flatlay
+    agents: "https://i.postimg.cc/RV9pBPGc/out-2-5.webp", // Sandra's Agents card
+  },
+export const SandraImages = {
+  // HERO IMAGES (Full-bleed, dramatic)
+  hero: {
+    homepage: "https://i.postimg.cc/rwTG02cZ/out-1-23.png", // Power pose
+    about: "https://i.postimg.cc/bNF14sGc/out-1-4.png", // Vulnerable but strong
+    pricing: "https://i.postimg.cc/nrKdm7Vj/out-2-4.webp", // Confident business
+    method: "https://i.postimg.cc/HkNwfjh8/out-2-14.jpg", // Teaching mode
+    contact: "https://i.postimg.cc/HsrPfn0G/out-2-26.png", // Approachable
+    aiImages: "@assets/out-1 (1)_1752344371746.jpg", // Gallery mood
+    ai: "https://i.postimg.cc/4NG0n2wN/out-1-12.png", // AI page hero
+    dashboard: "https://i.postimg.cc/htszBH6F/file-47.png", // Flatlay
+    agents: "https://i.postimg.cc/RV9pBPGc/out-2-5.webp", // Sandra's Agents card
+  },
+  // EDITORIAL IMAGES
+  editorial: {
+    laptop1: "https://example.com/laptop1.jpg",
+    laptop2: "https://example.com/laptop2.jpg",
+    phone1: "https://example.com/phone1.jpg",
+    phone2: "https://example.com/phone2.jpg",
+    thinking: "https://example.com/thinking.jpg",
+    laughing: "https://example.com/laughing.jpg",
+    mirror: "https://example.com/mirror.jpg",
+    firstAI: "https://example.com/firstAI.jpg",
+    aiInProgress: "https://example.com/aiInProgress.jpg",
+    aiSuccess: "https://example.com/aiSuccess.jpg",
+    luxury1: "https://example.com/luxury1.jpg"
+  },

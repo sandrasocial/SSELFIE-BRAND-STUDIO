@@ -1,13 +1,12 @@
-import React from 'react';
-
+import { FC, ReactNode } from 'react';
 interface EditorialTextProps {
-  children: React.ReactNode;
+  children: ReactNode;
   size?: 'sm' | 'base' | 'lg';
   weight?: 'normal' | 'medium' | 'bold';
   italic?: boolean;
 }
 
-export const EditorialText: React.FC<EditorialTextProps> = ({
+export const EditorialText: FC<EditorialTextProps> = ({
   children,
   size = 'base',
   weight = 'normal',

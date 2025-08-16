@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -91,8 +91,10 @@ export default function AgentAccountabilityTracker() {
             {agents.map((agent) => (
               <Button
                 key={agent.id}
-                className={`text-sm px-3 py-1 ${selectedAgent === agent.id ? "bg-black text-white" : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}`}
+                variant={selectedAgent === agent.id ? "default" : "outline"}
+                size="sm"
                 onClick={() => setSelectedAgent(agent.id)}
+                className={selectedAgent === agent.id ? "bg-black text-white" : ""}
               >
                 {agent.name}
               </Button>
@@ -107,7 +109,7 @@ export default function AgentAccountabilityTracker() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <h4 className="font-medium capitalize">{selectedAgent} Accountability</h4>
-              <Button className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm px-3 py-1" onClick={() => refetch()}>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
                 Refresh
               </Button>
             </div>

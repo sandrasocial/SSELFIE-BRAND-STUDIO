@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -115,7 +115,6 @@ export default function AgentWorkflowAccelerator() {
       toast({
         title: "Workflow Failed",
         description: error.message,
-        variant: "destructive",
       });
     }
   });
@@ -197,7 +196,7 @@ export default function AgentWorkflowAccelerator() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium text-sm">{workflow.name}</h4>
-                    <Badge className="text-xs border border-gray-300">
+                    <Badge variant="outline" className="text-xs">
                       {workflow.estimatedTime}
                     </Badge>
                   </div>
@@ -256,9 +255,11 @@ export default function AgentWorkflowAccelerator() {
             {quickTasks.map((task) => (
               <Button
                 key={task.id}
+                variant="outline"
+                size="sm"
                 onClick={() => executeQuickTask.mutate({ taskId: task.id, customMessage: '' })}
                 disabled={executeQuickTask.isPending}
-                className="h-auto p-3 text-left flex flex-col items-start border border-gray-300 bg-white hover:bg-gray-50"
+                className="h-auto p-3 text-left flex flex-col items-start"
               >
                 <div className="font-medium text-xs">{task.name}</div>
                 <div className="text-xs text-gray-500 capitalize">{task.agent}</div>
@@ -277,7 +278,7 @@ export default function AgentWorkflowAccelerator() {
           <p className="text-sm text-gray-600">Send direct commands to any agent</p>
         </CardHeader>
         <CardContent>
-          <CustomAgentCommand onExecute={(_, message) => 
+          <CustomAgentCommand onExecute={(agentId, message) => 
             executeQuickTask.mutate({ taskId: 'custom', customMessage: message })
           } />
         </CardContent>
@@ -303,11 +304,10 @@ function CustomAgentCommand({ onExecute }: { onExecute: (agentId: string, messag
         {agents.map((agent) => (
           <Button
             key={agent.id}
+            variant={selectedAgent === agent.id ? "default" : "outline"}
+            size="sm"
             onClick={() => setSelectedAgent(agent.id)}
-            className={selectedAgent === agent.id ? 
-              "bg-black text-white px-3 py-1 text-sm" : 
-              "border border-gray-300 bg-white hover:bg-gray-50 text-black px-3 py-1 text-sm"
-            }
+            className={selectedAgent === agent.id ? "bg-black text-white" : ""}
           >
             {agent.name}
           </Button>
@@ -325,7 +325,8 @@ function CustomAgentCommand({ onExecute }: { onExecute: (agentId: string, messag
         <Button
           onClick={() => onExecute(selectedAgent, message)}
           disabled={!message.trim()}
-          className="bg-black text-white hover:bg-gray-800 px-3 py-1 text-sm"
+          className="bg-black text-white hover:bg-gray-800"
+          size="sm"
         >
           Send Command
         </Button>

@@ -17,7 +17,7 @@ import {
   mayaChats,
   mayaChatMessages,
   type User,
-  type UpsertUser,
+  type InsertUser,
   type UserProfile,
   type InsertUserProfile,
   type OnboardingData,
@@ -56,7 +56,7 @@ import {
   type ClaudeMessage,
   type InsertClaudeConversation,
   type InsertClaudeMessage,
-} from "../shared/schema.js";
+} from "../shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
@@ -66,7 +66,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  upsertUser(user: InsertUser): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
 
   // User Profile operations
@@ -201,7 +201,7 @@ export class DatabaseStorage implements IStorage {
     return allUsers;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async upsertUser(userData: InsertUser): Promise<User> {
     console.log('🔄 Upserting user:', userData.id, userData.email);
 
     // Special admin setup for ssa@ssasocial.com
@@ -343,7 +343,7 @@ export class DatabaseStorage implements IStorage {
 
 
   async saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData> {
-    const [saved] = await db.insert(onboardingData).values(data).returning();
+    const [saved] = await db.insert(onboardingData).values(data as any).returning();
     return saved;
   }
 
@@ -385,7 +385,7 @@ export class DatabaseStorage implements IStorage {
   async createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data)
+      .values(data as any)
       .returning();
     return tracker;
   }
@@ -393,7 +393,7 @@ export class DatabaseStorage implements IStorage {
   async saveGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data)
+      .values(data as any)
       .returning();
     return tracker;
   }
@@ -752,7 +752,7 @@ export class DatabaseStorage implements IStorage {
   async createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat> {
     const [chat] = await db
       .insert(victoriaChats)
-      .values(data as any)
+      .values(data)
       .returning();
     return chat;
   }
@@ -777,7 +777,7 @@ export class DatabaseStorage implements IStorage {
   async savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection> {
     const [selection] = await db
       .insert(photoSelections)
-      .values(data as any)
+      .values(data)
       .onConflictDoUpdate({
         target: photoSelections.userId,
         set: {
@@ -822,7 +822,7 @@ export class DatabaseStorage implements IStorage {
   async createLandingPage(data: InsertLandingPage): Promise<LandingPage> {
     const [page] = await db
       .insert(landingPages)
-      .values(data as any)
+      .values(data)
       .returning();
     return page;
   }
@@ -839,7 +839,7 @@ export class DatabaseStorage implements IStorage {
   async createUserLandingPage(data: InsertUserLandingPage): Promise<UserLandingPage> {
     const [page] = await db
       .insert(userLandingPages)
-      .values(data as any)
+      .values(data)
       .returning();
     return page;
   }
@@ -875,7 +875,7 @@ export class DatabaseStorage implements IStorage {
   async saveBrandOnboarding(data: InsertBrandOnboarding): Promise<BrandOnboarding> {
     const [saved] = await db
       .insert(brandOnboarding)
-      .values(data as any)
+      .values(data)
       .onConflictDoUpdate({
         target: brandOnboarding.userId,
         set: {
@@ -905,31 +905,31 @@ export class DatabaseStorage implements IStorage {
     });
     
     if (!conversation) {
-      [conversation] = await db.insert(claudeConversations).values([{
+      [conversation] = await db.insert(claudeConversations).values({
         userId,
         agentName: agentId,
         conversationId: convId,
         title: `Admin chat with ${agentId}`,
         lastMessageAt: new Date(),
         messageCount: 0
-      }]).returning();
+      }).returning();
     }
     
     // Save user message
-    await db.insert(claudeMessages).values([{
+    await db.insert(claudeMessages).values({
       conversationId: convId,
       role: 'user',
       content: userMessage,
       metadata: fileOperations ? { fileOperations } : null
-    }]);
+    });
     
     // Save agent response  
-    await db.insert(claudeMessages).values([{
+    await db.insert(claudeMessages).values({
       conversationId: convId,
       role: 'assistant', 
       content: agentResponse,
       metadata: fileOperations ? { fileOperations } : null
-    }]);
+    });
     
     // Update conversation metadata
     await db.update(claudeConversations)
@@ -1120,7 +1120,7 @@ export class DatabaseStorage implements IStorage {
   async captureEmail(data: InsertEmailCapture): Promise<EmailCapture> {
     const [capture] = await db
       .insert(emailCaptures)
-      .values(data as any)
+      .values(data)
       .returning();
     return capture;
   }
@@ -1137,7 +1137,7 @@ export class DatabaseStorage implements IStorage {
   async createMayaChat(data: InsertMayaChat): Promise<MayaChat> {
     const [chat] = await db
       .insert(mayaChats)
-      .values(data as any)
+      .values(data)
       .returning();
     return chat;
   }
@@ -1204,7 +1204,7 @@ export class DatabaseStorage implements IStorage {
   async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
     const [message] = await db
       .insert(mayaChatMessages)
-      .values(data as any)
+      .values(data)
       .returning();
     return message;
   }

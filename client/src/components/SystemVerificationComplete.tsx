@@ -1,4 +1,5 @@
-import { CheckCircle, Settings } from 'lucide-react';
+import React from 'react';
+import { CheckCircle, AlertCircle, Users, Settings, Server } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -27,7 +28,7 @@ export default function SystemVerificationComplete() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium">{item.component}</CardTitle>
-                  <Badge className="bg-green-100 text-green-800">
+                  <Badge variant="default" className="bg-green-100 text-green-800">
                     {item.status}
                   </Badge>
                 </div>
@@ -66,7 +67,7 @@ export default function SystemVerificationComplete() {
                 <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                 <div>
                   <p className="font-medium">Admin Interface Cleanup</p>
-                  <p className="text-sm text-gray-600">Single UnifiedAgentInterface replaces multiple dashboards</p>
+                  <p className="text-sm text-gray-600">Single consulting agents interface replaces multiple dashboards</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">

@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { SandraImages } from '@/lib/sandra-images';
 
 interface EnhancedHeroProps {
@@ -18,7 +18,7 @@ interface EnhancedHeroProps {
 }
 
 export function EnhancedHero({
-  backgroundImage = SandraImages.editorial.luxury1,
+  backgroundImage = SandraImages.hero.homepage,
   title,
   tagline,
   subtitle,
@@ -110,7 +110,7 @@ export function EditorialHero({
   backgroundImage?: string;
   title: string;
   subtitle?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <section 

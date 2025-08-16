@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
@@ -8,10 +8,10 @@ import { cn } from '@/lib/utils';
 import { AiImage } from '@shared/schema';
 
 export default function Workspace() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [activeStep, setActiveStep] = useState<number | null>(null);
 
-  const { data: aiImages = [] } = useQuery({
+  const { data: aiImages = [], isLoading } = useQuery({
     queryKey: ['/api/ai-images'],
     enabled: isAuthenticated,
   });
@@ -123,11 +123,12 @@ export default function Workspace() {
             </div>
             <div className="text-right">
               <Badge 
+                variant={isPremium ? "default" : "outline"}
                 className={cn(
                   "text-sm px-4 py-2",
                   isPremium 
                     ? "bg-black text-white" 
-                    : "border border-gray-300 bg-white text-gray-600"
+                    : "border-gray-300 text-gray-600"
                 )}
               >
                 {isPremium ? 'SSELFIE Studio Active' : 'Free Plan'}
@@ -172,12 +173,13 @@ export default function Workspace() {
                     {step.number}
                   </div>
                   <Badge 
+                    variant="outline"
                     className={cn(
                       "text-xs",
-                      step.status === 'completed' ? 'border-green-500 text-green-700 bg-green-50' :
-                      step.status === 'current' ? 'border-black text-black bg-gray-50' :
-                      step.status === 'available' ? 'border-blue-500 text-blue-700 bg-blue-50' :
-                      'border-gray-300 text-gray-500 bg-gray-50'
+                      step.status === 'completed' ? 'border-green-500 text-green-700' :
+                      step.status === 'current' ? 'border-black text-black' :
+                      step.status === 'available' ? 'border-blue-500 text-blue-700' :
+                      'border-gray-300 text-gray-500'
                     )}
                   >
                     {step.status === 'completed' ? 'Complete' :
@@ -216,6 +218,7 @@ export default function Workspace() {
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" 
                       : "border-black text-black hover:bg-black hover:text-white"
                   )}
+                  variant="outline"
                 >
                   {step.action}
                 </Button>

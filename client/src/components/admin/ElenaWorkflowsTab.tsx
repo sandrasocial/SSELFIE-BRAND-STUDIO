@@ -3,7 +3,7 @@
  * Revolutionary conversational-to-autonomous bridge interface
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -82,7 +82,6 @@ export function ElenaWorkflowsTab() {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/agents/coordination-metrics'] });
       } else {
         toast({
-          variant: "destructive",
           title: "Elena Execution Failed",
           description: data.error || "Failed to execute Elena's workflow",
         });
@@ -90,7 +89,6 @@ export function ElenaWorkflowsTab() {
     },
     onError: (error) => {
       toast({
-        variant: "destructive",
         title: "Execution Error",
         description: error.message,
       });
@@ -173,7 +171,7 @@ export function ElenaWorkflowsTab() {
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge className={`text-white border ${getPriorityColor(workflow.priority)}`}>
+                      <Badge variant="outline" className={`text-white ${getPriorityColor(workflow.priority)}`}>
                         {getPriorityIcon(workflow.priority)}
                         <span className="ml-1 capitalize">{workflow.priority}</span>
                       </Badge>
@@ -220,7 +218,7 @@ export function ElenaWorkflowsTab() {
                   <div className="mt-3 pt-3 border-t border-zinc-100">
                     <div className="flex flex-wrap gap-2">
                       {workflow.agents.map((agent) => (
-                        <Badge key={agent} className="bg-gray-100 text-gray-800 text-xs">
+                        <Badge key={agent} variant="secondary" className="text-xs">
                           {agent}
                         </Badge>
                       ))}

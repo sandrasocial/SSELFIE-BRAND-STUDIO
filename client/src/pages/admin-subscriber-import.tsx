@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 import { AlertCircle, Download, Users, Mail, MessageSquare } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import { ManyChatPSIDUploader } from '@/components/admin/ManyChatPSIDUploader';
+import { Alert, AlertDescription } from '../components/ui/alert';
+import { useToast } from '../hooks/use-toast';
+import { apiRequest } from '../lib/queryClient';
+import { ManyChatPSIDUploader } from '../components/admin/ManyChatPSIDUploader';
 
 interface ImportResult {
   success: boolean;
@@ -43,7 +43,7 @@ export default function AdminSubscriberImport() {
       toast({
         title: "Flodesk Import Failed",
         description: error instanceof Error ? error.message : "Failed to import from Flodesk",
-        variant: "destructive",
+        
       });
     } finally {
       setImporting(false);
@@ -63,7 +63,7 @@ export default function AdminSubscriberImport() {
       toast({
         title: "ManyChat Import Failed", 
         description: error instanceof Error ? error.message : "Failed to import ManyChat subscribers",
-        variant: "destructive",
+        
       });
     } finally {
       setImporting(false);
@@ -82,7 +82,7 @@ export default function AdminSubscriberImport() {
       toast({
         title: "ManyChat API Import Failed",
         description: error instanceof Error ? error.message : "Failed to import from ManyChat API. Please check your API token.",
-        variant: "destructive",
+        
       });
     } finally {
       setImporting(false);
@@ -104,14 +104,14 @@ export default function AdminSubscriberImport() {
         toast({
           title: "Import Completed with Issues",
           description: "Some imports failed - check results below",
-          variant: "destructive",
+          
         });
       }
     } catch (error) {
       toast({
         title: "Import Failed",
         description: error instanceof Error ? error.message : "Failed to complete import",
-        variant: "destructive",
+        
       });
     } finally {
       setImporting(false);

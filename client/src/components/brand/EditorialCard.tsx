@@ -1,13 +1,12 @@
-import React from 'react';
-
+import { FC, ReactNode } from 'react';
 interface EditorialCardProps {
   title: string;
   subtitle?: string;
   image?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export const EditorialCard: React.FC<EditorialCardProps> = ({
+export const EditorialCard: FC<EditorialCardProps> = ({
   title,
   subtitle,
   image,

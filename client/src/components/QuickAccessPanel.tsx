@@ -1,4 +1,4 @@
-// React import removed - not needed
+import React from 'react';
 
 export default function QuickAccessPanel() {
   return (

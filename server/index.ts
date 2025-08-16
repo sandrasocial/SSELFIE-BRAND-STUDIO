@@ -1,77 +1,160 @@
+// SSELFIE STUDIO - COMPREHENSIVE SERVER WITH ALL FEATURES
+// This is your main application server with Maya, Victoria, Training, Payments, Admin systems
 import express from 'express';
-import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
-import session from 'express-session';
-import passport from 'passport';
 import path from 'path';
-import { db } from './db';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { registerRoutes } from './routes';
 
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const server = createServer(app);
-const wss = new WebSocketServer({ server });
+// Use PORT from .replit config (3000) which maps to external port 80
+const port = Number(process.env.PORT) || 3000;
 
-// Session configuration - using memory store for now to avoid db.pool issue
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'development_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  }
-}));
+// Trust proxy for proper forwarding (required for deployment)
+app.set('trust proxy', true);
 
-// Passport initialization
-app.use(passport.initialize());
-app.use(passport.session());
+console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`🌐 Target Port: ${port}`);
 
-// Body parsing
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// WebSocket handling
-wss.on('connection', (ws) => {
-  ws.on('message', async (message) => {
-    try {
-      const data = JSON.parse(message.toString());
-      // Handle different message types
-      switch(data.type) {
-        case 'AGENT_MESSAGE':
-          // Handle agent messages
-          break;
-        case 'USER_MESSAGE':
-          // Handle user messages
-          break;
-        default:
-          console.warn('Unknown message type:', data.type);
-      }
-    } catch (error) {
-      console.error('WebSocket message handling error:', error);
-    }
+// HEALTH CHECK ENDPOINTS - Required for Cloud Run deployment
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    service: 'SSELFIE Studio',
+    timestamp: new Date().toISOString(),
+    port: port
   });
 });
 
-const port = process.env.PORT || 5000;
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    port: port,
+    env: process.env.NODE_ENV || 'development'
+  });
+});
 
-async function startServer() {
+// Root endpoint - serve React app for browsers, limited health check for specific probes only
+app.get('/', (req, res, next) => {
+  // Only return JSON for very specific deployment health probes
+  const isDeploymentProbe = req.headers['user-agent']?.includes('GoogleHC') ||
+                           req.headers['user-agent']?.includes('kube-probe') ||
+                           req.headers['user-agent']?.includes('ELB-HealthChecker');
+  
+  if (isDeploymentProbe) {
+    // Health check for deployment probe only
+    return res.status(200).json({ 
+      status: 'healthy',
+      service: 'SSELFIE Studio',
+      timestamp: new Date().toISOString(),
+      port: port
+    });
+  }
+  
+  // For all other requests (browsers, Replit preview, etc.), serve the React app
+  next();
+});
+
+// Initialize your complete SSELFIE Studio application
+async function startCompleteApp() {
   try {
-    // Register all the comprehensive routes from routes.ts first
-    console.log('🔧 Registering comprehensive routes...');
-    await registerRoutes(app);
-    console.log('✅ All routes registered successfully');
+    console.log('📦 Loading comprehensive routes...');
     
-    server.listen(port, () => {
-      console.log(`🚀 SSELFIE Studio server running on http://localhost:${port}`);
-      console.log('📋 Admin agents Elena, Quinn, and Zara are operational with Claude intelligence');
-    });
-  } catch (err) {
-    console.error('❌ Server startup failed:', err);
-    // Try basic startup without routes
-    server.listen(port, () => {
-      console.log(`🚀 Basic server running on port ${port} (route registration failed)`);
-    });
+    // Load your complete routing system with all features
+    const server = await registerRoutes(app);
+    
+    console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
+    console.log('✅ All your features loaded!');
+    
+    // Set up static file serving after routes are loaded
+    setupStaticFiles();
+    
+    return server;
+  } catch (error) {
+    console.error('❌ CRITICAL: Failed to load your main application:', error);
+    process.exit(1);
   }
 }
 
-startServer();
+function setupStaticFiles() {
+  // Serve built frontend assets
+  const possibleDistPaths = [
+    path.join(__dirname, '../dist/public'),
+    path.join(__dirname, '../client/dist'), 
+    path.join(__dirname, '../dist')
+  ];
+  
+  for (const distPath of possibleDistPaths) {
+    if (fs.existsSync(distPath)) {
+      console.log(`📁 Serving static files from: ${distPath}`);
+      app.use(express.static(distPath));
+      app.use('/assets', express.static(path.join(distPath, 'assets')));
+      break;
+    }
+  }
+  
+  // React app fallback for SPA routing
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/') || req.path === '/health' || res.headersSent) {
+      return;
+    }
+    
+    const possibleIndexPaths = [
+      path.join(__dirname, '../dist/public/index.html'),
+      path.join(__dirname, '../client/dist/index.html'),
+      path.join(__dirname, '../dist/index.html')
+    ];
+    
+    for (const indexPath of possibleIndexPaths) {
+      if (fs.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+      }
+    }
+    
+    res.status(404).send('Application not found - please run npm run build');
+  });
+}
+
+// Start server with complete application
+async function startServer() {
+  try {
+    // Load your complete application BEFORE starting server
+    await startCompleteApp();
+    
+    const server = app.listen(port, '0.0.0.0', () => {
+      console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
+      console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+    
+    // Handle server errors
+    server.on('error', (err: any) => {
+      console.error('❌ Server startup error:', err);
+      process.exit(1);
+    });
+
+    // Graceful shutdown for Cloud Run
+    process.on('SIGTERM', () => {
+      console.log('🛑 SIGTERM received, shutting down gracefully...');
+      server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+      });
+    });
+    
+    return server;
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// Initialize server
+startServer().catch(error => {
+  console.error('❌ Failed to start server:', error);
+  process.exit(1);
+});

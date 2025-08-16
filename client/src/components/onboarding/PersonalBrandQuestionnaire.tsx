@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { FC } from 'react';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
+// Label component removed
 import { Textarea } from '../ui/textarea';
 
 export interface PersonalBrandAssessment {
@@ -45,7 +45,7 @@ const EXPERTISE_OPTIONS = [
   'Technology & Innovation'
 ];
 
-export const PersonalBrandQuestionnaire: React.FC<PersonalBrandQuestionnaireProps> = ({
+export const PersonalBrandQuestionnaire: FC<PersonalBrandQuestionnaireProps> = ({
   assessment,
   onChange
 }) => {
