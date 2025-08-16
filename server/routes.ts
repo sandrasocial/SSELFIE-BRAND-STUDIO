@@ -2771,12 +2771,14 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   
   // SPA catch-all route - serve SSELFIE Studio app for all other routes (MUST BE LAST!)
   // Catch-all route for SPA - MUST EXCLUDE static file paths!
+  // Catch-all route for SPA - serve index.html
   app.get('*', (req, res) => {
-    // Don't serve HTML for static file requests (js, css, ts, tsx, etc)
+    // Don't serve HTML for static file requests
     if (req.path.match(/\.(js|css|ts|tsx|jsx|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
       return res.status(404).send('Static file not found');
     }
-    res.sendFile(path.join(__dirname, '../index.html'));
+    const indexPath = path.join(process.cwd(), 'index.html');
+    res.sendFile(indexPath);
   });
   
   return server;
