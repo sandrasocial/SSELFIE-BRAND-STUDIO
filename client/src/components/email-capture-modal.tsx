@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { SandraImages } from '@/lib/sandra-images';
-import { useToast } from '@/hooks/use-toast';
+import { FC, FormEvent, useState } from 'react';
+import { SandraImages } from '../lib/sandra-images';
+import { useToast } from '../hooks/use-toast';
 
 interface EmailCaptureModalProps {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface EmailCaptureModalProps {
   plan: 'free' | 'sselfie-studio' | 'basic' | 'full-access';
 }
 
-export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
+export const EmailCaptureModal: FC<EmailCaptureModalProps> = ({
   isOpen,
   onClose,
   onEmailCaptured,
@@ -19,14 +19,14 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
     if (!email || !email.includes('@')) {
       toast({
         title: "Email Required",
         description: "Please enter a valid email address",
-        variant: "destructive",
+        
       });
       return;
     }
@@ -57,7 +57,6 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
       toast({
         title: "Email Captured!",
         description: "Redirecting to authentication...",
-        variant: "default",
       });
       
       if (onEmailCaptured) {
@@ -75,7 +74,7 @@ export const EmailCaptureModal: React.FC<EmailCaptureModalProps> = ({
       toast({
         title: "Something went wrong",
         description: "Please try again or contact support",
-        variant: "destructive",
+        
       });
     } finally {
       setIsSubmitting(false);

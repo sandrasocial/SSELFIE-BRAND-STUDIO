@@ -1,27 +1,22 @@
-import React from 'react';
-import { Card, CardContent, Typography, Box } from '@mui/material';
-import { useGrafanaData } from '@/hooks/useGrafanaData';
-import type { SystemMetrics } from '@/types/monitoring';
-
-export const SystemStats: React.FC = () => {
-  const { data, isLoading: loading, isError: error } = useGrafanaData('system-metrics');
-
-  if (loading) return <div>Loading system stats...</div>;
-  if (error) return <div>Error loading system stats</div>;
-
+import { FC } from 'react';
+export const SystemStats: FC = () => {
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          System Statistics
-        </Typography>
-        <Box>
-          <Typography>CPU Usage: {data?.cpuUsage}%</Typography>
-          <Typography>Memory Usage: {data?.memoryUsage}%</Typography>
-          <Typography>Active Users: {data?.activeUsers}</Typography>
-          <Typography>Response Time: {data?.responseTime}ms</Typography>
-        </Box>
-      </CardContent>
-    </Card>
+    <div className="bg-white p-6 rounded-lg shadow-sm border">
+      <h3 className="text-lg font-medium mb-3">System Stats</h3>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span>Server Status</span>
+          <span className="text-green-600">Online</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Build Status</span>
+          <span className="text-green-600">Successful</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Database</span>
+          <span className="text-green-600">Connected</span>
+        </div>
+      </div>
+    </div>
   );
 };

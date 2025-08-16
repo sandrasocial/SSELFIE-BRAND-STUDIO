@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { SandraImages } from "@/lib/sandra-images";
-import { PortfolioSection } from "@/components/portfolio-section";
-import FreeTierSignup from "@/components/free-tier-signup";
-import WelcomeEditorial from "@/components/welcome-editorial";
-import { EmailCaptureModal } from "@/components/email-capture-modal";
-import { InlineEmailCapture } from "@/components/inline-email-capture";
-import { GlobalFooter } from "@/components/global-footer";
+import { SandraImages } from "../lib/sandra-images";
+import { PortfolioSection } from "../components/portfolio-section";
+import FreeTierSignup from "../components/free-tier-signup";
+import WelcomeEditorial from "../components/welcome-editorial";
+import { EmailCaptureModal } from "../components/email-capture-modal";
+import { InlineEmailCapture } from "../components/inline-email-capture";
+import { GlobalFooter } from "../components/global-footer";
 
 export default function EditorialLanding() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);

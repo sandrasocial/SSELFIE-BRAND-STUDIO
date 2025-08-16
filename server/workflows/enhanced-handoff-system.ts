@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { claudeConversations, claudeMessages } from '../../shared/schema.js';
+import { claudeConversations, claudeMessages } from '../shared/schema';
 import { eq, desc, and } from 'drizzle-orm';
 
 export interface AgentHandoffContext {
@@ -180,7 +180,7 @@ export class EnhancedHandoffSystem {
       role: 'system',
       content: JSON.stringify({
         type: 'batch_completion',
-        completedTasks: [],
+        completedTasks: results,
         timestamp: new Date().toISOString()
       }),
       metadata: { type: 'batch_completion' }
@@ -224,8 +224,8 @@ export class EnhancedHandoffSystem {
       .limit(50);
     
     // Analyze agent workload distribution
-    const agentWorkload = recentActivity.reduce((acc, item) => {
-      acc[item.claude_conversations.agentName] = (acc[item.claude_conversations.agentName] || 0) + 1;
+    const agentWorkload = recentActivity.reduce((acc, conv) => {
+      acc[conv.agentName] = (acc[conv.agentName] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     

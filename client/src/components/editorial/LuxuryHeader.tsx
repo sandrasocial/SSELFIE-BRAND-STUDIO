@@ -1,12 +1,11 @@
-import React from 'react';
-
+import { FC } from 'react';
 interface LuxuryHeaderProps {
   title: string;
   subtitle?: string;
   alignment?: 'left' | 'center';
 }
 
-export const LuxuryHeader: React.FC<LuxuryHeaderProps> = ({
+export const LuxuryHeader: FC<LuxuryHeaderProps> = ({
   title,
   subtitle,
   alignment = 'left'

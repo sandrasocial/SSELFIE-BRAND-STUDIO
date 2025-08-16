@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from 'react';
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -52,7 +52,7 @@ function Router() {
 }
 
 function App() {
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('SSELFIE Studio: App initializing...');
     console.log('SSELFIE Studio: App rendering...');
     console.log('SSELFIE Studio: Domain access validated, app ready');

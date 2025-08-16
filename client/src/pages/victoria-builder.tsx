@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { KeyboardEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { apiRequest } from '@/lib/queryClient';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { COMPREHENSIVE_LANDING_TEMPLATE } from '@/components/comprehensive-landing-template';
+import { apiRequest } from '../lib/queryClient';
+import { Button } from '../components/ui/button';
+import { Textarea } from '../components/ui/textarea';
+import { useToast } from '../hooks/use-toast';
+import { COMPREHENSIVE_LANDING_TEMPLATE } from '../components/comprehensive-landing-template';
 
 interface ChatMessage {
   id: number;
@@ -454,7 +454,7 @@ export default function VictoriaBuilder() {
       toast({
         title: "Message failed",
         description: "Could not send message to Victoria",
-        variant: "destructive",
+        
       });
       setIsTyping(false);
     },
@@ -485,7 +485,7 @@ export default function VictoriaBuilder() {
     sendMessageMutation.mutate(currentMessage);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();

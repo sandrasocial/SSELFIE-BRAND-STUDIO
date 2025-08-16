@@ -1,5 +1,4 @@
-import React from 'react';
-
+import { FC } from 'react';
 interface EditorialStoryProps {
   headline: string;
   paragraphs: string[];
@@ -15,7 +14,7 @@ interface EditorialStoryProps {
   };
 }
 
-export const EditorialStory: React.FC<EditorialStoryProps> = ({
+export const EditorialStory: FC<EditorialStoryProps> = ({
   headline,
   paragraphs,
   imageSrc,

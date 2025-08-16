@@ -28,8 +28,7 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-
-    const user = JSON.parse(userData as string);
+    const user = typeof userData === 'string' ? JSON.parse(userData) : JSON.parse(JSON.stringify(userData));
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);

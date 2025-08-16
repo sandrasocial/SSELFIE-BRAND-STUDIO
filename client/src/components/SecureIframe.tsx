@@ -1,5 +1,5 @@
 // components/shared/SecureIframe.tsx - Luxury iframe wrapper
-// React import not needed with Vite JSX transform
+import React from 'react';
 
 interface SecureIframeProps {
   src: string;

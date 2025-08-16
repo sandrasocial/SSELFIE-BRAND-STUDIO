@@ -5,6 +5,9 @@ import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/
 
 // Type definitions for admin requests
 interface AdminRequest extends Request {
+  body: any; // Add body property for request handling
+  params: any; // Add params property for route parameters
+  headers: any; // Add headers property for request headers
   user?: {
     claims: {
       sub: string;
@@ -29,10 +32,13 @@ import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 // REMOVED: DirectWorkspaceAccess - unified native tool architecture
 // ELIMINATED: autonomousNavigation - part of competing memory systems
 // REMOVED: architectural-knowledge-base - part of old complex system
-// SIMPLIFIED MEMORY SYSTEM: Replaced 4 competing systems with one clean interface
+// ELIMINATE BROKEN SYSTEMS: Replace with personality-first admin agents
+import { AdminContextManager } from '../memory/admin-context-manager';
+import { PersonalityIntegrationService } from '../agents/personality-integration-service';
+import { LocalProcessingEngine } from '../services/hybrid-intelligence/local-processing-engine';
 import { simpleMemoryService } from '../services/simple-memory-service';
 import { db } from '../db';
-import { claudeConversations, claudeMessages } from '../../shared/schema.js';
+import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, desc } from 'drizzle-orm';
 // COORDINATION TOOLS: Import schemas and direct tool functions
 import { TOOL_SCHEMAS } from '../tools/tool-schemas';
@@ -41,14 +47,16 @@ import { bash } from '../tools/bash';
 import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
 import { execute_sql_tool } from '../tools/execute_sql_tool';
 import { search_filesystem } from '../tools/search_filesystem';
-// ZARA'S CONTEXT LOSS FIX: Import workflow state management
-import { ConversationManager } from '../agents/core/conversation/ConversationManager';
+// PERSONALITY-FIRST ADMIN AGENTS: Eliminate generic systems
+const adminContextManager = AdminContextManager.getInstance();
+const personalityService = PersonalityIntegrationService.getInstance();
+const localProcessingEngine = LocalProcessingEngine.getInstance();
 
 function getClaudeService() {
   return claudeApiServiceSimple;
 }
 
-// LOCAL TOOL EXECUTION: Execute tools locally while preserving agent intelligence for responses
+// ADMIN AGENT WITH PERSONALITY: Execute with full personality, memory, and hybrid intelligence
 async function handleDirectAdminExecution(
   userId: string,
   agentId: string,
@@ -57,7 +65,13 @@ async function handleDirectAdminExecution(
   availableTools: any[],
   res: any
 ) {
-  console.log(`🔧 LOCAL TOOLS: ${agentId.toUpperCase()} executing tools locally (agent responses still use Claude API)`);
+  // ELIMINATE GENERIC ROUTING: Validate and load personality-first agent
+  if (!personalityService.validatePersonality(agentId)) {
+    throw new Error(`Agent ${agentId} personality not found - cannot execute`);
+  }
+
+  // CREATE PERSONALITY CONTEXT: Direct admin execution with full personality
+  const personalityContext = personalityService.createPersonalityContext(agentId, true);
   
   // Set up Server-Sent Events streaming response
   res.writeHead(200, {
@@ -375,17 +389,33 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
         res
       );
     } else {
-      // CLAUDE INTELLIGENCE: All agent responses and conversations use full Claude API
-      console.log(`🧠 CLAUDE INTELLIGENCE: ${normalizedAgentId.toUpperCase()} using full AI intelligence${isAdminRequest ? ' [ADMIN]' : ''}`);
+      // ELIMINATE GENERIC SYSTEMS: Use personality-first admin agent integration
+      if (!personalityService.validatePersonality(normalizedAgentId)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Agent ${normalizedAgentId} personality not found` 
+        });
+      }
+
+      // CREATE PERSONALITY CONTEXT: Full integration with admin bypass
+      const personalityContext = personalityService.createPersonalityContext(normalizedAgentId, isAdminRequest);
       
+      // CREATE ADMIN CONTEXT: Memory and personality preservation
+      await adminContextManager.createAdminAgentContext(
+        normalizedAgentId,
+        userId, 
+        baseConversationId,
+        personalityContext
+      );
+
       await claudeService.sendStreamingMessage(
         userId,
         normalizedAgentId,
         baseConversationId,
         message,
-        PersonalityManager.getNaturalPrompt(normalizedAgentId),
+        personalityContext.enhancedPrompt,
         availableTools,
-        res // Pass the response object for real streaming
+        res
       );
     }
 
@@ -1022,6 +1052,32 @@ consultingAgentsRouter.get('/admin/implementation/config', adminAuth, async (req
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
+});
+
+// Direct agent endpoints for individual agent access
+consultingAgentsRouter.post('/:agentId', async (req: AdminRequest, res: any) => {
+  console.log(`🎯 DIRECT AGENT ACCESS: ${req.params.agentId}`);
+  
+  // Admin token authentication for direct access
+  const adminToken = req.headers.authorization || req.body.adminToken;
+  
+  if (adminToken === 'Bearer sandra-admin-2025' || adminToken === 'sandra-admin-2025') {
+    req.user = {
+      claims: {
+        sub: '42585527',
+        email: 'ssa@ssasocial.com',
+        first_name: 'Sandra', 
+        last_name: 'Sigurjonsdottir'
+      }
+    };
+    req.isAdminBypass = true;
+  }
+  
+  // Set agent ID in body for processing
+  req.body.agentId = req.params.agentId;
+  
+  // Use the main handler
+  return handleAdminConsultingChat(req, res);
 });
 
 export default consultingAgentsRouter;

@@ -1,14 +1,14 @@
-import React from 'react';
+import { FC, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface CardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   variant?: 'default' | 'elevated' | 'outlined' | 'luxury';
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export const Card: React.FC<CardProps> = ({
+export const Card: FC<CardProps> = ({
   children,
   className,
   variant = 'default',

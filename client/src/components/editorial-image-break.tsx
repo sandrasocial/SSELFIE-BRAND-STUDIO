@@ -1,5 +1,4 @@
-import React from 'react';
-
+import { FC } from 'react';
 interface EditorialImageBreakProps {
   src: string;
   alt: string;
@@ -8,7 +7,7 @@ interface EditorialImageBreakProps {
   overlayText?: string;
 }
 
-export const EditorialImageBreak: React.FC<EditorialImageBreakProps> = ({
+export const EditorialImageBreak: FC<EditorialImageBreakProps> = ({
   src,
   alt,
   height = 'medium',

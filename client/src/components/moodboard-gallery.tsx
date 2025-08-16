@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import { EditorialImage } from './sandra-image-library';
 
 interface MoodboardItem {
@@ -15,7 +15,7 @@ interface MoodboardGalleryProps {
   className?: string;
 }
 
-export const MoodboardGallery: React.FC<MoodboardGalleryProps> = ({
+export const MoodboardGallery: FC<MoodboardGalleryProps> = ({
   items,
   className = ""
 }) => {

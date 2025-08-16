@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { apiRequest } from '@/lib/queryClient';
+import { KeyboardEvent, useState, useRef, useEffect } from 'react';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { apiRequest } from '../../lib/queryClient';
 
 interface ChatMessage {
   id: string;
@@ -91,7 +91,7 @@ Now, let's create your editorial website. Tell me about your business - what do 
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,15 +19,12 @@ export function RollbackButton({ filePath, className }: RollbackButtonProps) {
 
     setIsRollingBack(true);
     try {
-      const response = await apiRequest('/api/admin/rollback-file', {
-        method: 'POST',
-        body: JSON.stringify({
-          filePath,
-          adminToken: 'sandra-admin-2025'
-        })
+      const response = await apiRequest('POST', '/api/admin/rollback-file', {
+        filePath,
+        adminToken: 'sandra-admin-2025'
       });
 
-      if (response.success) {
+      if (response.ok) {
         toast({
           title: "File Rolled Back",
           description: `${filePath} has been restored to its previous version.`,
@@ -43,7 +41,6 @@ export function RollbackButton({ filePath, className }: RollbackButtonProps) {
       toast({
         title: "Rollback Failed",
         description: "Could not rollback the file. Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsRollingBack(false);
@@ -51,12 +48,14 @@ export function RollbackButton({ filePath, className }: RollbackButtonProps) {
   };
 
   return (
-    <button
+    <Button
       onClick={handleRollback}
       disabled={isRollingBack}
-      className={`px-3 py-1 text-sm border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 ${className}`}
+      variant="outline"
+      size="sm"
+      className={`border-red-200 text-red-600 hover:bg-red-50 ${className}`}
     >
       {isRollingBack ? 'Rolling back...' : 'Rollback'}
-    </button>
+    </Button>
   );
 }

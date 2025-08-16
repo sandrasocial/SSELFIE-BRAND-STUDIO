@@ -1,5 +1,4 @@
-import React from 'react';
-
+import { FC } from 'react';
 interface AdminHeroSectionProps {
   title?: string;
   subtitle?: string;
@@ -7,7 +6,7 @@ interface AdminHeroSectionProps {
   backgroundImage?: string;
 }
 
-export const AdminHeroSection: React.FC<AdminHeroSectionProps> = ({
+export const AdminHeroSection: FC<AdminHeroSectionProps> = ({
   title = "SSELFIE Studio Empire",
   subtitle = "From Rock Bottom to Revenue Revolution",
   description = "Transform your vision into a luxury business empire through strategic design, editorial storytelling, and uncompromising excellence.",

@@ -1,0 +1,11 @@
+HTTP/1.1 302 Found
+X-Powered-By: Express
+X-Response-Time: 1755037832341
+Location: /api/manual-callback
+Vary: Accept, Accept-Encoding
+Content-Type: text/plain; charset=utf-8
+Content-Length: 42
+Date: Tue, 12 Aug 2025 22:30:32 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+

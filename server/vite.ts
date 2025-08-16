@@ -54,12 +54,24 @@ export async function setupVite(app: Express, server: Server) {
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      // Add cache busting for all assets
+      const cacheBuster = nanoid();
       template = template.replace(
         `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`,
+        `src="/src/main.tsx?v=${cacheBuster}"`,
+      );
+      // Add cache buster to all script and link tags
+      template = template.replace(
+        /<(script|link)[^>]*(src|href)="([^"]+)"/g,
+        (match, tag, attr, url) => `<${tag} ${attr}="${url}?v=${cacheBuster}"`
       );
       const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+      res.status(200).set({ 
+        "Content-Type": "text/html",
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0"
+      }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);
@@ -69,6 +81,7 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   const distPath = path.resolve(import.meta.dirname, "public");
+  const assetsPath = path.join(distPath, "assets");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -76,7 +89,27 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // Verify assets directory exists
+  if (!fs.existsSync(assetsPath)) {
+    throw new Error(
+      `Could not find the assets directory: ${assetsPath}, make sure the build process completed correctly`,
+    );
+  }
+
+  // Log available assets for debugging
+  const assets = fs.readdirSync(assetsPath);
+  log(`Available assets: ${assets.join(", ")}`, "static-server");
+
   app.use(express.static(distPath));
+  
+  // Add monitoring for 404s on asset requests
+  app.use("/assets/*", (req, res, next) => {
+    const assetPath = req.path;
+    if (!fs.existsSync(path.join(distPath, assetPath))) {
+      log(`404 Asset not found: ${assetPath}`, "static-server");
+    }
+    next();
+  });
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {

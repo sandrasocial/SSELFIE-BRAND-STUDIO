@@ -1,4 +1,4 @@
-// React import not needed with Vite JSX transform
+import React from 'react';
 
 export default function AdminHeroRedesigned() {
   return (

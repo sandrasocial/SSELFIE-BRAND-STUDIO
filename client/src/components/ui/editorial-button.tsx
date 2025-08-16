@@ -1,15 +1,15 @@
-import React from "react";
+import React, { ButtonHTMLAttributes, ReactNode, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
-export interface EditorialButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface EditorialButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'white' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
-const EditorialButton = React.forwardRef<HTMLButtonElement, EditorialButtonProps>(
+const EditorialButton = forwardRef<HTMLButtonElement, EditorialButtonProps>(
   (
     {
       variant = 'primary',

@@ -1,6 +1,5 @@
-import React from 'react';
-
-export const EditorialHero: React.FC = () => {
+import { FC } from 'react';
+export const EditorialHero: FC = () => {
   return (
     <section className="relative h-screen flex items-center justify-center bg-black text-white">
       <div className="absolute inset-0 z-0">

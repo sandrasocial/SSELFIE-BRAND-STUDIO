@@ -1,7 +1,8 @@
+import { ReactNode } from 'react';
 import { cn } from "@/lib/utils";
 
 interface LuxuryTextProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   size?: "sm" | "base" | "lg";
   as?: "p" | "span";

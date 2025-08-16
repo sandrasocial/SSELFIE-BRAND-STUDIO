@@ -359,6 +359,9 @@ export async function setupAuth(app: Express) {
     })(req, res, next);
   });
 
+  // Manual callback route for OAuth failures
+  app.get("/api/manual-callback", handleManualTokenExchange);
+
   // CRITICAL: Manual OAuth token exchange function
   async function handleManualTokenExchange(req: any, res: any, next: any) {
     try {

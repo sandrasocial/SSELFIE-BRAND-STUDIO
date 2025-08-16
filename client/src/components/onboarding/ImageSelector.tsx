@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC, useState } from 'react';
 import { Card } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 
@@ -16,12 +16,12 @@ interface ImageSelectionProps {
   onImageSelect: (images: string[]) => void;
 }
 
-export const ImageSelector: React.FC<ImageSelectionProps> = ({
+export const ImageSelector: FC<ImageSelectionProps> = ({
   aiGallery,
   flatlayLibrary,
   onImageSelect
 }) => {
-  const [selectedImages, setSelectedImages] = React.useState<string[]>([]);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
   const handleImageSelect = (imagePath: string) => {
     const newSelection = selectedImages.includes(imagePath)
