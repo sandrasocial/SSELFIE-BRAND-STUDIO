@@ -91,10 +91,8 @@ export default function AgentAccountabilityTracker() {
             {agents.map((agent) => (
               <Button
                 key={agent.id}
-                variant={selectedAgent === agent.id ? "default" : "outline"}
-                size="sm"
+                className={`text-sm px-3 py-1 ${selectedAgent === agent.id ? "bg-black text-white" : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}`}
                 onClick={() => setSelectedAgent(agent.id)}
-                className={selectedAgent === agent.id ? "bg-black text-white" : ""}
               >
                 {agent.name}
               </Button>
@@ -109,7 +107,7 @@ export default function AgentAccountabilityTracker() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <h4 className="font-medium capitalize">{selectedAgent} Accountability</h4>
-              <Button variant="outline" size="sm" onClick={() => refetch()}>
+              <Button className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm px-3 py-1" onClick={() => refetch()}>
                 Refresh
               </Button>
             </div>
