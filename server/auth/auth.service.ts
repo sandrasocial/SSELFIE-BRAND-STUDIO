@@ -4,6 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import session from 'express-session';
 // import RedisStore from 'connect-redis';
 import rateLimit from 'express-rate-limit';
+import '../types/session';
 
 // TEMPORARILY DISABLED - Redis dependencies not installed
 // Redis client for session storage
