@@ -498,7 +498,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const [newWebsite] = await db
         .insert(websites)
-        .values({
+        .values([{
           userId,
           title: websiteData.businessName,
           slug: `${websiteData.businessName.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
@@ -513,7 +513,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           status: 'draft',
           isPublished: false,
-        })
+        }])
         .returning();
 
       // Connect with Victoria Agent for website generation
@@ -701,7 +701,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create new
         const [created] = await db
           .insert(brandOnboarding)
-          .values(brandData)
+          .values([brandData])
           .returning();
         res.json({ success: true, data: created });
       }
@@ -745,7 +745,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const [newWebsite] = await db
         .insert(websites)
-        .values(validatedData)
+        .values([validatedData])
         .returning();
       
       res.json(newWebsite);
