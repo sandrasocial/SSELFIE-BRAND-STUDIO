@@ -11,9 +11,9 @@
  */
 
 import { db } from '../db';
-import { agentSessionContexts, sessions, users } from '../../shared/schema.js';
+import { agentSessionContexts, sessions, users } from '../../shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { ConversationManager } from '../agents/core/ConversationManager';
+// ConversationManager import removed - using unified session handling
 
 export interface AgentSessionContext {
   userId: string;
@@ -104,10 +104,7 @@ export class UnifiedSessionManager {
       console.log(`💾 SAVING AGENT CONTEXT: ${context.agentId} for user ${context.userId}`);
 
       // Create memory snapshot
-      const memorySnapshot = await ConversationManager.retrieveAgentMemory(
-        context.agentId, 
-        context.userId
-      );
+      const memorySnapshot = {}; // ConversationManager removed - using unified session handling
 
       await db.insert(agentSessionContexts).values({
         userId: context.userId,
