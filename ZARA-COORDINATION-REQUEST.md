@@ -38,10 +38,13 @@ Please verify protection is working for:
 - ✅ login
 
 **Member Workspace (Protected Routes)**:
-- workspace (step 1)
-- onboarding (step 2) 
-- ai-training/simple-training (step 3)
-- sselfie-gallery (step 4)
+- workspace
+- ai-training/simple-training (step 1) 
+- MAya chat Style (step 2) 
+- Ai photoshoot (ai generation prompts) shoot (step 3)
+- build website with victoria (step 4)
+- SSelfie gallery
+- Flatlay library
 
 **Member Agents (Protected)**:
 - Maya agent pages
