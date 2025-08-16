@@ -1,4 +1,4 @@
-import React from 'react';
+// React import not needed with Vite JSX transform
 import { Link, useLocation } from 'wouter';
 
 export default function SandraNavigation() {

@@ -1,4 +1,4 @@
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Settings } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -27,7 +27,7 @@ export default function SystemVerificationComplete() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium">{item.component}</CardTitle>
-                  <Badge variant="default" className="bg-green-100 text-green-800">
+                  <Badge className="bg-green-100 text-green-800">
                     {item.status}
                   </Badge>
                 </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+// React import not needed with Vite JSX transform
 
 interface UnifiedLoginButtonProps {
   text: string;
