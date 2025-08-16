@@ -1594,25 +1594,18 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.use('/api/admin', adminRouter);
   app.use('/api/admin/cache', adminCacheRouter);
   
-  // Quinn Testing Routes for User Journey Validation
-  app.use('/api/quinn', quinnTestingRouter);
-  
-  // Member Protection Routes - Revenue Feature Safety
-  app.use('/api/protection', memberProtectionRouter);
-  
-  // System Validation Routes - Phase Testing
-  app.use('/api/system', systemValidationRouter);
-  
-  // Member Journey Testing - Real User Experience
-  app.use('/api/member-test', memberJourneyTestRouter);
-  
-  // Phase 2 Coordination - Agent Workflow Execution
-  app.use('/api/phase2', phase2CoordinationRouter);
+  // Temporarily disabled to isolate path-to-regexp error
+  // app.use('/api/quinn', quinnTestingRouter);
+  // app.use('/api/protection', memberProtectionRouter);
+  // app.use('/api/system', systemValidationRouter);
+  // app.use('/api/member-test', memberJourneyTestRouter);
+  // app.use('/api/phase2', phase2CoordinationRouter);
   
   // Phase 2 fixes handled by specialized agents
   // FIXED: Register consulting agents at correct path to match frontend calls
   // Regular consulting agents routes (non-admin)
-  app.use('/api/consulting-agents', consultingAgentsRouter);
+  // Temporarily disabled to isolate path-to-regexp error
+  // app.use('/api/consulting-agents', consultingAgentsRouter);
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
@@ -1623,8 +1616,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // COMPETING SYSTEMS ELIMINATED: Only consulting-agents-routes.ts active for direct tool bypass
   
   // Register flatlay library routes for Victoria
-  const flatlayLibraryRoutes = await import('./routes/flatlay-library');
-  app.use(flatlayLibraryRoutes.default);
+  // Temporarily disabled to isolate path-to-regexp error
+  // const flatlayLibraryRoutes = await import('./routes/flatlay-library');
+  // app.use(flatlayLibraryRoutes.default);
   
   // Generation tracker polling endpoint for live progress
   app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
@@ -2780,6 +2774,16 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
     const indexPath = path.join(process.cwd(), 'index.html');
     res.sendFile(indexPath);
   });
-  
+  // SPA catch-all route - serve SSELFIE Studio app for all other routes (MUST BE LAST!)
+  app.get('*', (req, res) => {
+    // Don't serve HTML for static file requests
+    if (req.path.match(/\.(js|css|ts|tsx|jsx|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
+      return res.status(404).send('Static file not found');
+    }
+    const indexPath = path.join(process.cwd(), 'index.html');
+    res.sendFile(indexPath);
+  });
+
+  return server;
   return server;
 }
