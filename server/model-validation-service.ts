@@ -72,7 +72,7 @@ export class ModelValidationService {
       }
       
       // Validate model ID format
-      if (!modelId || !modelId.includes('/')) {
+      if (!modelId || !modelId.startsWith('sandrasocial/')) {
         return {
           isValid: false,
           canGenerate: false,

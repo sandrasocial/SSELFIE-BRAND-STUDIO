@@ -1,11 +1,11 @@
-import { ChangeEvent, useState, useRef } from 'react';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
-import { Textarea } from '../ui/textarea';
-import { Alert, AlertDescription } from '../ui/alert';
+import React, { useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react';
-import { useToast } from '../../hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ManyChatPSIDUploaderProps {
   onPSIDListReady: (psids: string[]) => void;
@@ -19,7 +19,7 @@ export function ManyChatPSIDUploader({ onPSIDListReady }: ManyChatPSIDUploaderPr
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -37,7 +37,7 @@ export function ManyChatPSIDUploader({ onPSIDListReady }: ManyChatPSIDUploaderPr
       toast({
         title: "Error processing file",
         description: "Please check your file format and try again",
-        
+        variant: "destructive",
       });
     } finally {
       setIsProcessing(false);
@@ -58,7 +58,7 @@ export function ManyChatPSIDUploader({ onPSIDListReady }: ManyChatPSIDUploaderPr
       toast({
         title: "Error processing text",
         description: "Please check your PSID format and try again",
-        
+        variant: "destructive",
       });
     } finally {
       setIsProcessing(false);

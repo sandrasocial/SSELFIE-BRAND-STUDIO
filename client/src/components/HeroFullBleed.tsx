@@ -1,8 +1,7 @@
-import { FC, MouseEvent, ReactNode } from 'react';
 interface HeroFullBleedProps {
   backgroundImage: string;
   tagline?: string;
-  title: string | ReactNode;
+  title: string | React.ReactNode;
   subtitle?: string;
   ctaText?: string;
   ctaLink?: string;
@@ -11,7 +10,7 @@ interface HeroFullBleedProps {
   fullHeight?: boolean;
 }
 
-export const HeroFullBleed: FC<HeroFullBleedProps> = ({
+export const HeroFullBleed: React.FC<HeroFullBleedProps> = ({
   backgroundImage,
   tagline,
   title,
@@ -22,7 +21,7 @@ export const HeroFullBleed: FC<HeroFullBleedProps> = ({
   alignment = 'center',
   fullHeight = true
 }) => {
-  const handleCTAClick = (e: MouseEvent) => {
+  const handleCTAClick = (e: React.MouseEvent) => {
     if (ctaLink?.startsWith('#')) {
       e.preventDefault();
       const element = document.querySelector(ctaLink);

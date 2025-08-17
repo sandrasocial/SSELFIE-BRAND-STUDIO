@@ -1,5 +1,5 @@
 import React from 'react';
-import { AIWebsiteBuilder } from '../components/victoria/AIWebsiteBuilder';
+import { AIWebsiteBuilder } from '@/components/victoria/AIWebsiteBuilder';
 
 export default function BuildPage() {
   return (

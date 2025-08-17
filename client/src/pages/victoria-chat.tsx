@@ -1,13 +1,13 @@
-import { KeyboardEvent } from 'react';
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader } from "../components/ui/card";
-import { Input } from "../components/ui/input";
-// ScrollArea component removed
-// Separator component removed
-import { apiRequest } from "../lib/queryClient";
-import { useAuth } from "../hooks/use-auth";
-import { useToast } from "../hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChatMessage {
   id: string;
@@ -82,14 +82,14 @@ export default function VictoriaChat() {
       toast({
         title: "Chat Error",
         description: "Failed to send message to Victoria. Please try again.",
-        
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e: KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();

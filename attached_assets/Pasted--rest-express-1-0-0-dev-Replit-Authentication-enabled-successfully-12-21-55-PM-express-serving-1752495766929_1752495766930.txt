@@ -1,0 +1,118 @@
+
+> rest-express@1.0.0 dev
+✅ Replit Authentication enabled successfully
+12:21:55 PM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+express deprecated req.host: Use req.hostname instead file:/home/runner/workspace/node_modules/openid-client/build/passport.js:224:49
+12:22:23 PM [express] GET /api/login 302 in 385ms
+🔍 Auth verify function called
+🔍 User claims: {
+  "sub": "42585527",
+  "email": "ssa@ssasocial.com",
+  "username": "ssa27",
+  "first_name": "Sandra",
+  "last_name": "Sigurjonsdottir",
+  "auth_time": 1752495748,
+  "at_hash": "nW4Rnzf3W7K0peNjUZhSAQ",
+  "aud": "e33979fc-c9be-4f0d-9a7b-6a3e83046828",
+  "exp": 1752499349,
+  "iat": 1752495749,
+  "iss": "https://replit.com/oidc"
+}
+🔍 User session updated
+🔍 Upserting user with claims: {
+  id: '42585527',
+  email: 'ssa@ssasocial.com',
+  firstName: 'Sandra',
+  lastName: 'Sigurjonsdottir',
+  profileImageUrl: undefined
+}
+🔄 Upserting user: 42585527 ssa@ssasocial.com
+✅ Found existing user by email, updating with new ID...
+❌ upsertUser error: NeonDbError: update or delete on table "users" violates foreign key constraint "user_usage_user_id_users_id_fk" on table "user_usage"
+    at execute (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1556:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonHttpPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-http/session.ts:68:18)
+    at async DatabaseStorage.upsertUser (/home/runner/workspace/server/storage.ts:161:24)
+    at async upsertUser (/home/runner/workspace/server/replitAuth.ts:77:26)
+    at async Strategy.verify (/home/runner/workspace/server/replitAuth.ts:128:7) {
+  severity: 'ERROR',
+  code: '23503',
+  detail: 'Key (id)=(admin_sandra_2025) is still referenced from table "user_usage".',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'user_usage',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'user_usage_user_id_users_id_fk',
+  file: 'ri_triggers.c',
+  line: '2621',
+  routine: 'ri_ReportViolation',
+  sourceError: undefined
+}
+❌ Error details: update or delete on table "users" violates foreign key constraint "user_usage_user_id_users_id_fk" on table "user_usage"
+❌ Error stack: NeonDbError: update or delete on table "users" violates foreign key constraint "user_usage_user_id_users_id_fk" on table "user_usage"
+    at execute (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1556:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonHttpPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-http/session.ts:68:18)
+    at async DatabaseStorage.upsertUser (/home/runner/workspace/server/storage.ts:161:24)
+    at async upsertUser (/home/runner/workspace/server/replitAuth.ts:77:26)
+    at async Strategy.verify (/home/runner/workspace/server/replitAuth.ts:128:7)
+❌ Auth verify error: NeonDbError: update or delete on table "users" violates foreign key constraint "user_usage_user_id_users_id_fk" on table "user_usage"
+    at execute (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1556:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonHttpPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-http/session.ts:68:18)
+    at async DatabaseStorage.upsertUser (/home/runner/workspace/server/storage.ts:161:24)
+    at async upsertUser (/home/runner/workspace/server/replitAuth.ts:77:26)
+    at async Strategy.verify (/home/runner/workspace/server/replitAuth.ts:128:7) {
+  severity: 'ERROR',
+  code: '23503',
+  detail: 'Key (id)=(admin_sandra_2025) is still referenced from table "user_usage".',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'user_usage',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'user_usage_user_id_users_id_fk',
+  file: 'ri_triggers.c',
+  line: '2621',
+  routine: 'ri_ReportViolation',
+  sourceError: undefined
+}
+❌ Error stack: NeonDbError: update or delete on table "users" violates foreign key constraint "user_usage_user_id_users_id_fk" on table "user_usage"
+    at execute (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1556:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonHttpPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-http/session.ts:68:18)
+    at async DatabaseStorage.upsertUser (/home/runner/workspace/server/storage.ts:161:24)
+    at async upsertUser (/home/runner/workspace/server/replitAuth.ts:77:26)
+    at async Strategy.verify (/home/runner/workspace/server/replitAuth.ts:128:7)
+❌ Authentication error: update or delete on table "users" violates foreign key constraint "user_usage_user_id_users_id_fk" on table "user_usage"
+12:22:29 PM [express] GET /api/callback 302 in 637ms
+ClientError: invalid response encountered
+    at e (/home/runner/workspace/node_modules/openid-client/src/index.ts:912:10)
+    at errorHandler (/home/runner/workspace/node_modules/openid-client/src/index.ts:939:15)
+    at Module.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/index.ts:3315:11)
+    at Strategy.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/passport.ts:556:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+ClientError: invalid response encountered
+    at e (/home/runner/workspace/node_modules/openid-client/src/index.ts:912:10)
+    at errorHandler (/home/runner/workspace/node_modules/openid-client/src/index.ts:939:15)
+    at Module.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/index.ts:3315:11)
+    at Strategy.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/passport.ts:556:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+ClientError: invalid response encountered
+    at e (/home/runner/workspace/node_modules/openid-client/src/index.ts:912:10)
+    at errorHandler (/home/runner/workspace/node_modules/openid-client/src/index.ts:939:15)
+    at Module.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/index.ts:3315:11)
+    at Strategy.authorizationCodeGrant (/home/runner/workspace/node_modules/openid-client/src/passport.ts:556:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)

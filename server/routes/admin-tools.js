@@ -95,44 +95,10 @@ router.post('/direct-bash', adminBypass, async (req, res) => {
   try {
     const { command } = req.body;
     
-    // SECURITY: Validate and sanitize command to prevent injection
-    if (!command || typeof command !== 'string') {
-      return res.status(400).json({ error: 'Invalid command format' });
-    }
-    
-    // Whitelist of allowed commands for admin operations
-    const allowedCommands = [
-      /^ls\s.*/, /^cat\s.*/, /^grep\s.*/, /^find\s.*/, 
-      /^npm\s+run\s+\w+$/, /^npm\s+install$/, /^npm\s+test$/,
-      /^git\s+status$/, /^git\s+log\s+--oneline$/
-    ];
-    
-    const isAllowed = allowedCommands.some(pattern => pattern.test(command.trim()));
-    
-    if (!isAllowed) {
-      return res.status(403).json({ 
-        error: 'Command not allowed for security reasons',
-        allowedPatterns: ['ls', 'cat', 'grep', 'find', 'npm run', 'git status']
-      });
-    }
-    
-    // SECURITY FIX: Use parameterized execution to prevent command injection
-    // Split command into safe components
-    const commandParts = command.trim().split(/\s+/);
-    const baseCommand = commandParts[0];
-    const args = commandParts.slice(1);
-    
-    // Additional validation for arguments
-    const sanitizedArgs = args.filter(arg => 
-      !/[;&|`$()]/.test(arg) && arg.length < 200
-    );
-    
-    // Execute with safe command construction
-    const output = execSync(`${baseCommand} ${sanitizedArgs.join(' ')}`, { 
+    // Execute command
+    const output = execSync(command, { 
       encoding: 'utf8',
-      maxBuffer: 512 * 1024, // 512KB buffer
-      timeout: 10000, // 10 second timeout
-      shell: false // Prevent shell injection
+      maxBuffer: 1024 * 1024 // 1MB buffer
     });
     
     res.json({ 
@@ -157,12 +123,9 @@ router.get('/direct-search', adminBypass, async (req, res) => {
   try {
     const { query } = req.query;
     
-    // SECURITY FIX: Safe file search without user input in command
-    const files = execSync('find . -type f \\( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \\) | head -50', { 
-      encoding: 'utf8',
-      shell: false,
-      timeout: 5000
-    }).split('\n').filter(Boolean);
+    // Simple file search
+    const searchCommand = `find . -type f -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | head -50`;
+    const files = execSync(searchCommand, { encoding: 'utf8' }).split('\n').filter(Boolean);
     
     res.json({ 
       success: true, 

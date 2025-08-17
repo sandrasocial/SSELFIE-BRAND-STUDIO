@@ -1,0 +1,47 @@
+[11:34:42.123] Running build in Washington, D.C., USA (East) – iad1
+[11:34:42.123] Build machine configuration: 4 cores, 8 GB
+[11:34:42.136] Cloning github.com/sandrasocial/SSELFIE (Branch: main, Commit: 7ab5181)
+[11:34:42.592] Cloning completed: 456.000ms
+[11:34:43.280] Restored build cache from previous deployment (4uaxZirShyC1fyPvXp5MWABLD4Bv)
+[11:34:43.884] Running "vercel build"
+[11:34:44.723] Vercel CLI 44.2.13
+[11:34:44.889] WARN! Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+[11:34:45.455] Installing dependencies...
+[11:34:47.229] 
+[11:34:47.230] up to date in 1s
+[11:34:47.230] 
+[11:34:47.230] 81 packages are looking for funding
+[11:34:47.230]   run `npm fund` for details
+[11:34:47.272] Running "npm run build"
+[11:34:47.393] 
+[11:34:47.393] > rest-express@1.0.0 build
+[11:34:47.394] > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+[11:34:47.394] 
+[11:34:47.708] [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+[11:34:48.051] transforming...
+[11:34:48.117] Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+[11:34:48.117]   npx update-browserslist-db@latest
+[11:34:48.117]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[11:34:52.222] [32m✓[39m 1732 modules transformed.
+[11:34:52.524] rendering chunks...
+[11:34:52.542] computing gzip size...
+[11:34:52.597] [2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  0.63 kB[22m[1m[22m[2m │ gzip:   0.38 kB[22m
+[11:34:52.598] [2m../dist/public/[22m[2massets/[22m[35mindex-PPt4udiZ.css  [39m[1m[2m117.95 kB[22m[1m[22m[2m │ gzip:  18.46 kB[22m
+[11:34:52.598] [2m../dist/public/[22m[2massets/[22m[36mindex-BvPNQ_dw.js   [39m[1m[33m646.43 kB[39m[22m[2m │ gzip: 168.21 kB[22m
+[11:34:52.598] [32m✓ built in 4.58s[39m
+[11:34:52.598] [33m
+[11:34:52.598] (!) Some chunks are larger than 500 kB after minification. Consider:
+[11:34:52.598] - Using dynamic import() to code-split the application
+[11:34:52.598] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[11:34:52.598] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[11:34:52.735] ✘ [ERROR] Expected ";" but found ":"
+[11:34:52.735] 
+[11:34:52.736]     server/index.ts:65:8:
+[11:34:52.736]       65 │     host: "0.0.0.0",
+[11:34:52.736]          │         ^
+[11:34:52.736]          ╵         ;
+[11:34:52.736] 
+[11:34:52.737] 1 error
+[11:34:52.746] Error: Command "npm run build" exited with 1
+[11:34:53.084] 
+[11:34:55.862] Exiting build container

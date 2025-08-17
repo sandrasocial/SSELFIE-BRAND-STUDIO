@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import Database from '@replit/database';
+import { Database } from '@replit/database';
 
 const db = new Database();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-    const user = typeof userData === 'string' ? JSON.parse(userData) : JSON.parse(JSON.stringify(userData));
+
+    const user = JSON.parse(userData as string);
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);

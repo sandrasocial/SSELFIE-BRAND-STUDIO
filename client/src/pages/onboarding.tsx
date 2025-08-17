@@ -1,12 +1,12 @@
-import { ChangeEvent, useState, useEffect } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
-import { useAuth } from '../hooks/use-auth';
+import React, { useState, useRef } from 'react';
+import { MemberNavigation } from '@/components/member-navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '../lib/queryClient';
+import { apiRequest } from '@/lib/queryClient';
 import { useLocation } from 'wouter';
-import { SandraImages } from '../lib/sandra-images';
-import { HeroFullBleed } from '../components/HeroFullBleed';
-import { useToast } from '../hooks/use-toast';
+import { SandraImages } from '@/lib/sandra-images';
+import { HeroFullBleed } from '@/components/HeroFullBleed';
+import { useToast } from '@/hooks/use-toast';
 
 interface OnboardingFormData {
   // Step 1: Brand Story
@@ -36,76 +36,8 @@ export default function OnboardingNew() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('desktop');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Luxury Editorial Image Selection
-  const ImageSelector = () => (
-    <div className="mb-16">
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h2 className="editorial-headline mb-2">Select Your Images</h2>
-          <p className="editorial-subheadline">Choose the visuals that tell your story</p>
-        </div>
-        <button 
-          onClick={() => setPreviewMode(previewMode === 'desktop' ? 'mobile' : 'desktop')}
-          className="eyebrow-text hover:text-[var(--soft-gray)] transition-colors"
-        >
-          {previewMode === 'desktop' ? 'View Mobile' : 'View Desktop'}
-        </button>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {SandraImages.map((image, index) => (
-          <div 
-            key={index}
-            className="aspect-[3/4] relative group cursor-pointer"
-            onClick={() => {
-              if (selectedImages.includes(image)) {
-                setSelectedImages(prev => prev.filter(img => img !== image));
-              } else {
-                setSelectedImages(prev => [...prev, image]);
-              }
-            }}
-          >
-            <img 
-              src={image} 
-              alt={`Editorial image ${index + 1}`}
-              className="w-full h-full object-cover"
-            />
-            <div className={`absolute inset-0 bg-[var(--luxury-black)] transition-opacity duration-200 ${
-              selectedImages.includes(image) ? 'opacity-20' : 'opacity-0 group-hover:opacity-10'
-            }`} />
-            {selectedImages.includes(image) && (
-              <div className="absolute top-4 right-4">
-                <div className="w-6 h-6 border-2 border-[var(--pure-white)] bg-[var(--luxury-black)] flex items-center justify-center">
-                  <span className="text-[var(--pure-white)] text-xs">✓</span>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  // Luxury Editorial Progress Indicator
-  const ProgressBar = () => (
-    <div className="w-full mb-12">
-      <div className="flex justify-between mb-2">
-        <span className="eyebrow-text">Your Progress</span>
-        <span className="eyebrow-text">{Math.round((currentStep/totalSteps) * 100)}%</span>
-      </div>
-      <div className="w-full h-[1px] bg-[var(--accent-line)]">
-        <div 
-          className="h-full bg-[var(--luxury-black)] transition-all duration-500 ease-out"
-          style={{ width: `${(currentStep/totalSteps) * 100}%` }}
-        />
-      </div>
-    </div>
-  );
   
   const [formData, setFormData] = useState<OnboardingFormData>({
     brandStory: '',
@@ -123,122 +55,6 @@ export default function OnboardingNew() {
 
   const totalSteps = 6;
 
-  // Luxury Editorial Brand Customizer
-  const BrandCustomizer = () => {
-    const [brandStyle, setBrandStyle] = useState({
-      palette: 'editorial',
-      font: 'Times New Roman',
-      vibe: 'editorial'
-    });
-
-    return (
-      <div className="mb-16">
-        <h2 className="editorial-headline mb-2">Brand Style</h2>
-        <p className="editorial-subheadline mb-12">Define your visual identity</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div>
-            <label className="eyebrow-text block mb-4">Color Palette</label>
-            <div className="grid grid-cols-2 gap-4">
-              {['editorial', 'luxury', 'minimalist', 'bold'].map(palette => (
-                <button
-                  key={palette}
-                  onClick={() => setBrandStyle(prev => ({ ...prev, palette }))}
-                  className={`p-6 border ${
-                    brandStyle.palette === palette 
-                      ? 'border-[var(--luxury-black)]' 
-                      : 'border-[var(--accent-line)]'
-                  } hover:border-[var(--luxury-black)] transition-colors`}
-                >
-                  <span className="editorial-subheadline capitalize">{palette}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <div>
-            <label className="eyebrow-text block mb-4">Typography</label>
-            <div className="space-y-4">
-              {['Times New Roman', 'Georgia', 'Playfair'].map(font => (
-                <button
-                  key={font}
-                  onClick={() => setBrandStyle(prev => ({ ...prev, font }))}
-                  className={`w-full p-6 border ${
-                    brandStyle.font === font 
-                      ? 'border-[var(--luxury-black)]' 
-                      : 'border-[var(--accent-line)]'
-                  } hover:border-[var(--luxury-black)] transition-colors text-left`}
-                >
-                  <span style={{ fontFamily: font }} className="text-xl">
-                    {font}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-        
-        <div className="mt-12">
-          <label className="eyebrow-text block mb-4">Brand Vibe</label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {['editorial', 'luxury', 'minimalist', 'modern', 'bold'].map(vibe => (
-              <button
-                key={vibe}
-                onClick={() => setBrandStyle(prev => ({ ...prev, vibe }))}
-                className={`p-6 border ${
-                  brandStyle.vibe === vibe 
-                    ? 'border-[var(--luxury-black)]' 
-                    : 'border-[var(--accent-line)]'
-                } hover:border-[var(--luxury-black)] transition-colors`}
-              >
-                <span className="editorial-subheadline capitalize">{vibe}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Luxury Editorial Step Title Component
-  const StepTitle = ({ title, description }: { title: string, description: string }) => (
-    <div className="mb-12">
-      <h1 className="editorial-headline mb-4">{title}</h1>
-      <p className="editorial-subheadline">{description}</p>
-    </div>
-  );
-
-  // Luxury Editorial Input Field
-  const EditorialInput = ({ 
-    label, 
-    value, 
-    onChange, 
-    multiline = false 
-  }: { 
-    label: string, 
-    value: string, 
-    onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
-    multiline?: boolean 
-  }) => (
-    <div className="mb-8">
-      <label className="eyebrow-text block mb-2">{label}</label>
-      {multiline ? (
-        <textarea 
-          value={value}
-          onChange={onChange}
-          className="w-full bg-[var(--pure-white)] border border-[var(--accent-line)] p-4 min-h-[120px]"
-        />
-      ) : (
-        <input
-          type="text"
-          value={value}
-          onChange={onChange}
-          className="w-full bg-[var(--pure-white)] border border-[var(--accent-line)] p-4"
-        />
-      )}
-    </div>
-  );
-
   const saveOnboardingMutation = useMutation({
     mutationFn: async (data: Partial<OnboardingFormData>) => {
       return apiRequest('POST', '/api/onboarding', data);
@@ -252,7 +68,7 @@ export default function OnboardingNew() {
       // toast({
       //   title: "Save failed",
       //   description: "Failed to save your progress. Please try again.",
-      //   
+      //   variant: "destructive",
       // });
     }
   });
@@ -274,7 +90,7 @@ export default function OnboardingNew() {
         toast({
           title: "Training Validation Failed",
           description: `Please fix these issues: ${response.errors?.join(', ')}`,
-          
+          variant: "destructive",
         });
       }
     },
@@ -282,7 +98,7 @@ export default function OnboardingNew() {
       toast({
         title: "Training failed",
         description: "Training system error. Please restart upload process.",
-        
+        variant: "destructive",
       });
     }
   });
@@ -323,7 +139,7 @@ export default function OnboardingNew() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
     // 🛡️ BULLETPROOF VALIDATION: Strict requirements
@@ -338,7 +154,7 @@ export default function OnboardingNew() {
       toast({
         title: "Invalid files",
         description: "Please upload only high-quality image files (10KB-10MB).",
-        
+        variant: "destructive",
       });
     }
 
@@ -354,7 +170,7 @@ export default function OnboardingNew() {
       toast({
         title: "Not enough photos",
         description: "Please upload at least 10 selfies for AI training.",
-        
+        variant: "destructive",
       });
       return;
     }
@@ -395,18 +211,17 @@ export default function OnboardingNew() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--mid-gray)]">
+    <div className="min-h-screen bg-white">
       <MemberNavigation />
       
       <HeroFullBleed
-        backgroundImage={SandraImages.building}
+        backgroundImage={SandraImages.journey.onboarding}
         title="WELCOME TO SSELFIE STUDIO"
         tagline="Let's build your personal brand"
         alignment="center"
       />
 
       <div className="max-w-4xl mx-auto px-6 py-16">
-        <ProgressBar />
         {/* Progress Bar */}
         <div className="w-full h-0.5 bg-gray-200 mb-16">
           <div 

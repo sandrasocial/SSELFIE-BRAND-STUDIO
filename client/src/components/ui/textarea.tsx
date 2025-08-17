@@ -1,14 +1,14 @@
-import React, { TextareaHTMLAttributes, forwardRef } from 'react';
-import { cn } from "../../lib/utils";
+import React from "react";
+import { cn } from "@/lib/utils";
 
-interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   fullWidth?: boolean;
   className?: string;
 }
 
-const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, fullWidth = false, className, ...props }, ref) => (
     <div className={cn("flex flex-col", fullWidth && "w-full", className)}>
       {label && (

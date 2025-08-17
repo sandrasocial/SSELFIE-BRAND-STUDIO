@@ -1,38 +1,37 @@
-// Simple console logger - no external dependencies
-export const logger = {
-  info: (data: any) => {
-    if (typeof data === 'object') {
-      console.log(`[INFO] ${new Date().toISOString()}:`, JSON.stringify(data));
-    } else {
-      console.log(`[INFO] ${new Date().toISOString()}: ${data}`);
-    }
-  },
-  error: (data: any) => {
-    if (typeof data === 'object') {
-      console.error(`[ERROR] ${new Date().toISOString()}:`, JSON.stringify(data));
-    } else {
-      console.error(`[ERROR] ${new Date().toISOString()}: ${data}`);
-    }
-  },
-  warn: (data: any) => {
-    if (typeof data === 'object') {
-      console.warn(`[WARN] ${new Date().toISOString()}:`, JSON.stringify(data));
-    } else {
-      console.warn(`[WARN] ${new Date().toISOString()}: ${data}`);
-    }
-  }
-};
+import winston from 'winston';
+import newrelic from 'newrelic';
 
-// Simple performance tracking - no external dependencies
+// Configure Winston logger
+// Consolidated logging configuration
+export const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' })
+  ]
+});
+
+// Add console logging in development
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple()
+  }));
+}
+
+// Performance monitoring wrapper
 export const trackPerformance = (name: string, fn: Function) => {
   return async (...args: any[]) => {
     const startTime = Date.now();
     try {
       const result = await fn(...args);
-      console.log(`[PERF] ${name}: ${Date.now() - startTime}ms`);
+      newrelic.recordMetric(`Custom/${name}/duration`, Date.now() - startTime);
       return result;
     } catch (error) {
-      console.error(`[PERF ERROR] ${name}:`, error);
+      newrelic.noticeError(error);
       throw error;
     }
   };

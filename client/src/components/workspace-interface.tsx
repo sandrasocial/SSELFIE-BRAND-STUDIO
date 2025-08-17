@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import React, { useState } from 'react';
 import { EditorialImage } from './sandra-image-library';
 
 interface WorkspaceInterfaceProps {
@@ -6,7 +6,7 @@ interface WorkspaceInterfaceProps {
   onLaunch?: () => void;
 }
 
-export const WorkspaceInterface: FC<WorkspaceInterfaceProps> = ({
+export const WorkspaceInterface: React.FC<WorkspaceInterfaceProps> = ({
   onPreview,
   onLaunch
 }) => {

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'wouter';
 
 interface Phase {
@@ -13,7 +13,7 @@ interface WorkspacePhaseNavigationProps {
   phases: Phase[];
 }
 
-export const WorkspacePhaseNavigation: FC<WorkspacePhaseNavigationProps> = ({ phases }) => {
+export const WorkspacePhaseNavigation: React.FC<WorkspacePhaseNavigationProps> = ({ phases }) => {
   const [location] = useLocation();
 
   const getPhaseNumber = (index: number) => {

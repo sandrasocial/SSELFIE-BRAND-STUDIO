@@ -1,0 +1,115 @@
+# SSELFIE STUDIO: REVOLUTIONARY PLATFORM PROJECT BRIEF
+
+## 🔥 Vision
+You are NOT building a basic photo tool or a generic SaaS. You are building the Tesla of personal branding—a revolutionary, AI-powered platform that lets a woman upload a selfie and launch a full business in 20 minutes. Every page, component, and word must feel editorial, luxe, and unmistakably Sandra.
+
+---
+
+## 🛠️ What to Use and How
+
+- **Leverage my existing components:**  
+  Use only the components from the attached repo that match our style guide and actually work. If in doubt, use what’s proven and clean up/refactor as needed.
+- **Do NOT use broken, legacy, or off-brand code:**  
+  If a component doesn’t match the strict editorial style or isn’t stable, skip or rebuild it.
+- **Commit everything as a new branch in my GitHub repo.**
+
+---
+
+## 🏗️ File & Folder Structure
+
+- `/components` – Editorial layouts (Hero, EditorialSpread, Moodboard, CTA, OfferCard, etc)
+- `/components/ui` – UI kit (Button, Input, Checkbox, Tabs, Badge, ProgressLabel, etc)
+- `/components/business` – Business logic (Billing, PricingCard, OnboardingSteps, etc)
+- `/components/sandra-image-library.ts` – Central brand image URLs
+- `/pages` – Next.js pages (Homepage, How It Works, About, Pricing, Dashboard, etc)
+- `/public` – Brand images/assets
+- `/styles` – CSS modules, styleguide
+
+---
+
+## ⚡️ Platform Requirements
+
+- **Editorial, luxury UX—never generic or default.**
+- **Strictly follow the attached style guide for:**
+  - Typography (Times New Roman for headlines, system sans for UI/body, NO Bodoni, Playfair, or “magazine” serifs)
+  - Color palette (#0a0a0a, #fff, #f5f5f5, #fafafa, #666, #e5e5e5)
+  - Spacing (luxury = air; section padding, grid gaps, no cramped layouts)
+  - Button & Card styles (no fill, no gradients, sharp corners, no icons)
+  - Imagery/placement (editorial, negative space, never clip art)
+- **Copywriting:** All UI copy, CTAs, and microcopy must use Sandra’s voice (see style guide and copy guide).
+- **AI Agent Integration:** Scaffold for future agent modules (Sandra, Diana, Victoria, Ava, Maya, Sophia, Rachel, Quinn).
+- **Accessibility:** Semantic HTML, alt tags, label every form, test on mobile.
+- **Business logic:** Stripe payments, booking (Calendly), onboarding, dashboard, growth tracking.
+- **Centralized image library:** All brand images/URLs live in `/components/sandra-image-library.ts`.
+
+---
+
+## 🏆 What to Build (and in what order)
+
+### 1. HOMEPAGE (Revolution Announcement)
+- Hero: “Launch Your Business Today. It Starts With a Selfie.”
+- Problem/Solution: Show the old way vs. SSELFIE way
+- Social Proof: Real women, before/after, revenue stories
+- Two Entry Paths: Try the AI (€47) or Go Full Studio (€97)
+
+### 2. HOW IT WORKS
+- 3-step process: Upload & AI magic, One-click business setup, Launch & scale
+- Visual demos, simple copy, editorial layout
+
+### 3. ABOUT
+- Sandra’s story, the “why,” future vision
+
+### 4. PRICING
+- SSELFIE AI Pack (€47)
+- SSELFIE Studio (€97/month)
+- Future: Enterprise mention
+
+### 5. DASHBOARD (Command Center)
+- Business metrics, customer management, content calendar, growth insights
+
+### 6. BUSINESS BUILDER (one-click setup, template library, copy automation, domain connect)
+
+### 7. AGENT INTERFACE (scaffold only for now)
+
+---
+
+## 💎 Brand & Voice Rules
+
+- **Every word = advice from your smartest friend**
+- **No corporate speak, no default CTAs, no fake empowerment**
+- **Warm, confident, direct, relatable (see attached style guide for voice rules and copy examples)**
+
+---
+
+## 🚫 HARD "NO'S"
+- No lorem ipsum, no default placeholder text
+- No off-brand fonts, colors, or rounded corners
+- No Tailwind, no styled-components, no unnecessary dependencies
+- No “boss babe,” “empowerment,” or “girlboss” language
+- No icons, gradients, blue, or emoji
+
+---
+
+## 📝 When in Doubt
+
+- If a component is messy or off-brand, clean it up or rebuild using editorial rules.
+- Use code and design patterns from my attached repo wherever possible.
+- All new code/components must be clean, readable, and aligned with the style guide.
+
+---
+
+## 📦 Attachments
+
+- Complete style guide (`styleguide.md`)
+- README for usage/imports
+- Existing component files as reference (use, refactor, or rebuild as needed)
+
+---
+
+**Commit all changes to a new branch on GitHub.  
+If anything is unclear, ask for clarification—don’t guess.  
+Ready to build the revolution? Let’s go.**
+
+```
+(Include the full style guide and README as attachments in the project directory.)
+```

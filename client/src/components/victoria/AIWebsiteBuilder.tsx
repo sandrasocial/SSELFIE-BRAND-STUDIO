@@ -3,29 +3,13 @@ import { WebsiteWizard } from './WebsiteWizard';
 import { WebsitePreview } from './WebsitePreview';
 import { VictoriaChat } from './VictoriaChat';
 import { VictoriaEditorialBuilder } from './VictoriaEditorialBuilder';
-import { RealImageSelection } from '../onboarding/RealImageSelection';
-import { PersonalBrandQuestionnaire, type PersonalBrandAssessment } from '../onboarding/PersonalBrandQuestionnaire';
-import { useWebsiteBuilder } from '../../hooks/useWebsiteBuilder';
-import { Button } from '../ui/button';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '../../hooks/use-toast';
-import { apiRequest } from '../../lib/queryClient';
+import { useWebsiteBuilder } from '@/hooks/useWebsiteBuilder';
+import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
 
 export function AIWebsiteBuilder() {
-  const [currentView, setCurrentView] = useState<'checking' | 'photo-selection' | 'brand-questionnaire' | 'mode-select' | 'wizard' | 'chat' | 'preview' | 'customize'>('checking');
-  const [selectedImages, setSelectedImages] = useState<any>(null);
-  const [brandAssessment, setBrandAssessment] = useState<PersonalBrandAssessment>({
-    personalStory: '',
-    targetAudience: '',
-    personalGoals: [],
-    expertise: [],
-    personality: '',
-    uniqueValue: '',
-    dreamClients: ''
-  });
+  const [currentView, setCurrentView] = useState<'checking' | 'mode-select' | 'wizard' | 'chat' | 'preview' | 'customize'>('checking');
   const { currentWebsite, generationProgress, isGenerating, simulateProgress } = useWebsiteBuilder();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   // Check if user has existing brand onboarding data (admin-built system)
   const { data: existingOnboarding, isLoading: checkingOnboarding } = useQuery({
@@ -45,7 +29,7 @@ export function AIWebsiteBuilder() {
     }
   }, [isGenerating, generationProgress, simulateProgress]);
 
-  // Handle user flow - start with photo selection for new users
+  // Handle brand onboarding check and route users appropriately
   useEffect(() => {
     if (!checkingOnboarding && !checkingWebsites) {
       console.log('🔍 BUILD Navigation:', {
@@ -61,48 +45,13 @@ export function AIWebsiteBuilder() {
         console.log('✅ Returning user with brand onboarding, showing mode selection');
         setCurrentView('mode-select');
       } else {
-        console.log('🆕 New user, starting with photo selection');
-        setCurrentView('photo-selection');
+        console.log('🆕 New user, redirecting to brand onboarding');
+        // Redirect to admin-built brand onboarding instead of duplicate wizard
+        window.location.href = '/brand-onboarding';
+        return;
       }
     }
   }, [checkingOnboarding, checkingWebsites, existingOnboarding, userWebsites]);
-
-  // Save brand assessment mutation
-  const saveBrandAssessmentMutation = useMutation({
-    mutationFn: async (data: PersonalBrandAssessment & { selectedImages: any }) => {
-      return apiRequest('POST', '/api/save-brand-assessment', data);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Personal Brand Saved",
-        description: "Your brand story and photos have been saved. Let's create your website!",
-      });
-      setCurrentView('mode-select');
-      // Refresh onboarding data
-      queryClient.invalidateQueries({ queryKey: ['/api/brand-onboarding'] });
-    },
-    onError: (error) => {
-      toast({
-        title: "Save Failed",
-        description: "Failed to save your brand information. Please try again.",
-        
-      });
-    },
-  });
-
-  const handlePhotoSelectionComplete = (images: any) => {
-    setSelectedImages(images);
-    setCurrentView('brand-questionnaire');
-  };
-
-  const handleBrandQuestionnaireComplete = () => {
-    if (!selectedImages) return;
-    
-    saveBrandAssessmentMutation.mutate({
-      ...brandAssessment,
-      selectedImages
-    });
-  };
 
   const handleWizardComplete = (website: any) => {
     setCurrentView('preview');
@@ -176,54 +125,6 @@ export function AIWebsiteBuilder() {
 
   return (
     <div className="min-h-screen bg-white">
-      {currentView === 'photo-selection' && (
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white border-b border-gray-200 px-8 py-6">
-            <div className="text-center">
-              <h1 className="text-4xl font-normal mb-2" style={{ fontFamily: 'Times New Roman' }}>
-                Build Your Website
-              </h1>
-              <p className="text-xl text-gray-600">Step 1: Choose Your Photos</p>
-            </div>
-          </div>
-          <RealImageSelection onSelectionComplete={handlePhotoSelectionComplete} />
-        </div>
-      )}
-
-      {currentView === 'brand-questionnaire' && (
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white border-b border-gray-200 px-8 py-6">
-            <div className="text-center">
-              <h1 className="text-4xl font-normal mb-2" style={{ fontFamily: 'Times New Roman' }}>
-                Build Your Website
-              </h1>
-              <p className="text-xl text-gray-600">Step 2: Tell Us About You</p>
-            </div>
-          </div>
-          <PersonalBrandQuestionnaire 
-            assessment={brandAssessment}
-            onChange={(updates) => setBrandAssessment(prev => ({ ...prev, ...updates }))}
-          />
-          <div className="max-w-4xl mx-auto px-8 py-6 border-t border-gray-200">
-            <div className="flex justify-between items-center">
-              <button 
-                onClick={() => setCurrentView('photo-selection')}
-                className="text-gray-600 hover:text-black transition-colors"
-              >
-                ← Back to Photo Selection
-              </button>
-              <button 
-                onClick={handleBrandQuestionnaireComplete}
-                disabled={!brandAssessment.personalStory || saveBrandAssessmentMutation.isPending}
-                className="bg-black text-white px-8 py-3 rounded hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {saveBrandAssessmentMutation.isPending ? 'Saving...' : 'Continue to Website Creation'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {currentView === 'mode-select' && (
         <div className="max-w-4xl mx-auto p-8">
           <div className="mb-12">

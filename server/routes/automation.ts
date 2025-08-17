@@ -210,7 +210,7 @@ async function sendWelcomeEmail(user: any, plan: string) {
         Text me back if you need anything. Seriously.
 
         Your new best friend who happens to be really good with AI,
-        Sandra
+        Sandra ✨
 
         P.S. I believe in you. Like, really believe in you.
       `
@@ -263,7 +263,7 @@ async function sendWelcomeEmail(user: any, plan: string) {
         I can't wait to personally help you build something that changes everything.
 
         Your success is my success,
-        Sandra
+        Sandra 🔥
 
         P.S. You're about to surprise yourself with what you're capable of. I've seen it happen hundreds of times.
       `

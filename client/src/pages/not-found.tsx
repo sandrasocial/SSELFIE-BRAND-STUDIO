@@ -1,4 +1,4 @@
-import { Card, CardContent } from "../components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
 
 export default function NotFound() {

@@ -354,9 +354,7 @@ export class BulletproofUploadService {
             cache_latents_to_disk: false,
             caption_dropout_rate: 0.1 // 🎯 RESEARCH-PROVEN: 0.1 standard for face training (not too low)
           },
-          // PHASE 2 FIX: Remove hardcoded destination to prevent "training destination does not exist" error  
-          // destination: `sandrasocial/${modelName}` // This requires special permissions
-          // Let Replicate auto-assign destination for new users
+          destination: `sandrasocial/${modelName}`
         })
       });
       
