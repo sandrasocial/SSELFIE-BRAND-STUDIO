@@ -326,6 +326,7 @@ export const selfieUploads = pgTable("selfie_uploads", {
   processingStatus: varchar("processing_status").default("pending"), // pending, processing, completed, failed
   aiModelOutput: jsonb("ai_model_output"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // User AI Models table for individual trained models - Enhanced for FLUX Pro

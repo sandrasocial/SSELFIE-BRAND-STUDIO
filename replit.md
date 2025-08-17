@@ -3,6 +3,9 @@
 ## Overview
 SSELFIE Studio is a premium AI-powered personal branding platform that transforms selfies into professional brand photography. Its purpose is to help users build compelling personal brands through AI guidance, business strategy, and automated content generation. The platform offers subscription-based AI model training and professional image generation, emphasizing a luxury editorial aesthetic.
 
+## Recent Changes (August 17, 2025)
+**Data Consolidation Completed**: Fixed critical data consistency issues by consolidating image storage to `ai_images` as the primary table, ensuring upload tracking matches training records, and aligning generation success tracking. Migrated 76 completed generation records from `generation_trackers` to `ai_images` and created upload tracking for existing trained models. All image data now properly consolidated with consistent tracking across the system.
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 

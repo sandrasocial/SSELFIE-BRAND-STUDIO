@@ -2721,6 +2721,121 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
     }
   });
 
+  // Data Consolidation endpoint - Admin only for fixing data inconsistencies
+  app.post('/api/admin/consolidate-data', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers['x-admin-token'];
+      const isAdminAuth = adminToken === 'sandra-admin-2025';
+      
+      const sessionUser = req.user;
+      const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      
+      if (!isAdminAuth && !isSessionAdmin) {
+        return res.status(401).json({ message: "Admin access required" });
+      }
+
+      console.log('🔄 DATA CONSOLIDATION: Starting complete data consolidation...');
+      
+      const { DataConsolidationService } = await import('./data-consolidation-service');
+      const result = await DataConsolidationService.runCompleteConsolidation();
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          message: "Data consolidation completed successfully",
+          summary: result.summary,
+          details: {
+            imagesConsolidated: result.summary.imagesConsolidated,
+            uploadsSync: result.summary.uploadsSync,
+            trackingAligned: result.summary.trackingAligned,
+            totalErrors: result.summary.totalErrors
+          }
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: "Data consolidation completed with errors",
+          summary: result.summary,
+          errors: result.errors
+        });
+      }
+      
+    } catch (error) {
+      console.error('❌ Data consolidation endpoint error:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to run data consolidation',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Data Status endpoint - Check data consistency
+  app.get('/api/admin/data-status', async (req: any, res) => {
+    try {
+      // Admin authentication check
+      const adminToken = req.headers['x-admin-token'];
+      const isAdminAuth = adminToken === 'sandra-admin-2025';
+      
+      const sessionUser = req.user;
+      const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      
+      if (!isAdminAuth && !isSessionAdmin) {
+        return res.status(401).json({ message: "Admin access required" });
+      }
+
+      console.log('📊 DATA STATUS: Checking data consistency...');
+      
+      const { db } = await import('./db');
+      const { aiImages, generatedImages, selfieUploads, userModels, generationTrackers } = await import('../shared/schema');
+      const { sql } = await import('drizzle-orm');
+      
+      // Get counts for all tables
+      const [aiImagesCount] = await db.select({ count: sql`count(*)` }).from(aiImages);
+      const [generatedImagesCount] = await db.select({ count: sql`count(*)` }).from(generatedImages);
+      const [selfieUploadsCount] = await db.select({ count: sql`count(*)` }).from(selfieUploads);
+      const [userModelsCount] = await db.select({ count: sql`count(*)` }).from(userModels);
+      const [generationTrackersCount] = await db.select({ count: sql`count(*)` }).from(generationTrackers);
+      
+      // Get status breakdown
+      const { eq } = await import('drizzle-orm');
+      const [completedGenerations] = await db.select({ count: sql`count(*)` }).from(generationTrackers).where(eq(generationTrackers.status, 'completed'));
+      const [trainedModels] = await db.select({ count: sql`count(*)` }).from(userModels).where(eq(userModels.trainingStatus, 'completed'));
+      
+      const status = {
+        tables: {
+          ai_images: Number(aiImagesCount.count),
+          generated_images: Number(generatedImagesCount.count),
+          selfie_uploads: Number(selfieUploadsCount.count),
+          user_models: Number(userModelsCount.count),
+          generation_trackers: Number(generationTrackersCount.count)
+        },
+        completedGenerations: Number(completedGenerations.count),
+        trainedModels: Number(trainedModels.count),
+        dataConsistency: {
+          hasUploadTracking: Number(selfieUploadsCount.count) > 0,
+          imagesInPrimaryTable: Number(aiImagesCount.count) > 0,
+          modelsWithTraining: Number(trainedModels.count) > 0
+        },
+        timestamp: new Date().toISOString()
+      };
+      
+      res.json({
+        success: true,
+        status
+      });
+      
+    } catch (error) {
+      console.error('❌ Data status endpoint error:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to get data status',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // CRITICAL FIX: Start background monitoring services
   console.log('🚀 MONITORING: Starting background completion monitors...');
   
