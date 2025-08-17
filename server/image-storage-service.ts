@@ -29,20 +29,57 @@ export class ImageStorageService {
         throw new Error('AWS_S3_BUCKET environment variable is required');
       }
       
-      // Download image from Replicate with error handling
-      const response = await fetch(replicateUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
+      // Download image from Replicate with error handling and retries
+      let response;
+      let retries = 0;
+      const maxRetries = 3;
+      
+      while (retries <= maxRetries) {
+        try {
+          response = await fetch(replicateUrl, {
+            headers: {
+              'User-Agent': 'SSELFIE-Studio/1.0'
+            }
+          });
+          
+          if (response.ok) {
+            break;
+          }
+          
+          if (retries < maxRetries) {
+            console.log(`⚠️ S3 MIGRATION: Retrying download for ${replicateUrl} (attempt ${retries + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, (retries + 1) * 2000));
+            retries++;
+            continue;
+          }
+          
+          throw new Error(`Failed to download image after ${maxRetries} attempts: ${response.status} ${response.statusText}`);
+          
+        } catch (error) {
+          if (retries >= maxRetries) {
+            throw error;
+          }
+          retries++;
+        }
       }
       
-      const arrayBuffer = await response.arrayBuffer();
+      const arrayBuffer = await response!.arrayBuffer();
       const imageBuffer = Buffer.from(arrayBuffer);
-      const contentType = response.headers.get('content-type') || 'image/jpeg';
+      const contentType = response!.headers.get('content-type') || 'image/jpeg';
       
-      // Generate unique filename
+      // Validate image buffer
+      if (imageBuffer.length === 0) {
+        throw new Error('Downloaded image is empty');
+      }
+      
+      if (imageBuffer.length < 1024) {
+        throw new Error('Downloaded image is too small (likely corrupted)');
+      }
+      
+      // Generate unique filename with better structure
       const timestamp = Date.now();
       const fileExtension = contentType.includes('png') ? 'png' : 'jpg';
-      const filename = `images/${userId}/${imageId}_${timestamp}.${fileExtension}`;
+      const filename = `generated-images/${userId}/${imageId}_${timestamp}.${fileExtension}`;
       
       // Upload to S3 (without ACL since bucket doesn't support it)
       const upload = new Upload({
@@ -59,7 +96,13 @@ export class ImageStorageService {
       const uploadResult = await upload.done();
       const permanentUrl = `https://${this.BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${filename}`;
       
-      console.log(`Image stored permanently at: ${permanentUrl}`);
+      // Verify upload was successful
+      if (!uploadResult || !uploadResult.Location) {
+        console.error(`❌ S3 UPLOAD: Upload result missing Location field`, uploadResult);
+      }
+      
+      console.log(`✅ S3 UPLOAD SUCCESS: Image stored permanently at: ${permanentUrl}`);
+      console.log(`📊 S3 UPLOAD STATS: Size: ${imageBuffer.length} bytes, Type: ${contentType}`);
       return permanentUrl;
       
     } catch (error) {
@@ -99,7 +142,7 @@ export class ImageStorageService {
           
           // Update database with permanent URL directly
           const { db } = await import('./db');
-          const { aiImages } = await import('../shared/schema-simplified');
+          const { aiImages } = await import('../shared/schema');
           const { eq } = await import('drizzle-orm');
           
           await db

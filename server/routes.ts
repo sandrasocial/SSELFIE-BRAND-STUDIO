@@ -2847,7 +2847,12 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
   // Start Generation Completion Monitor (CRITICAL: This was missing!)
   const { GenerationCompletionMonitor } = await import('./generation-completion-monitor');
   GenerationCompletionMonitor.getInstance().startMonitoring();
-  console.log('✅ MONITORING: Generation completion monitor started - Maya images will now appear!');
+  
+  // CRITICAL: Start migration monitor to prevent image loss from URL expiration
+  const { migrationMonitor } = await import('./migration-monitor');
+  migrationMonitor.startMonitoring();
+  
+  console.log('✅ MONITORING: All monitors active - Generation, Training, and URL Migration protecting user images!');
   
   return server;
 }

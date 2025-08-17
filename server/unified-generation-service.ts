@@ -46,7 +46,7 @@ export class UnifiedGenerationService {
     
     // CRITICAL: Use new validation service to check and correct model data
     const modelValidation = await ModelValidationService.enforceUserModelRequirements(userId);
-    const { modelId, versionId, triggerWord } = modelValidation;
+    const { modelId, versionId, triggerWord }: any = modelValidation;
     
     console.log(`🔒 VALIDATED: User ${userId} can generate with model: ${modelId}:${versionId}, trigger: ${triggerWord}`);
     
@@ -222,13 +222,14 @@ export class UnifiedGenerationService {
           for (let i = 0; i < tempImageUrls.length; i++) {
             const tempUrl = tempImageUrls[i];
             try {
-              const imageId = `tracker_${trackerId}_img_${i}`;
+              const imageId = `tracker_${trackerId}_img_${i}_${Date.now()}`;
               const permanentUrl = await ImageStorageService.ensurePermanentStorage(tempUrl, tracker.userId, imageId);
               permanentUrls.push(permanentUrl);
               console.log(`✅ S3 MIGRATION SUCCESS: ${tempUrl.substring(0, 50)}... → ${permanentUrl.substring(0, 50)}...`);
             } catch (error) {
               console.error(`❌ S3 MIGRATION FAILED for ${tempUrl}:`, error);
-              // Keep temp URL as fallback 
+              console.error(`❌ MIGRATION ERROR DETAILS:`, error);
+              // IMPORTANT: Still try to save to database for debugging
               permanentUrls.push(tempUrl);
             }
           }
