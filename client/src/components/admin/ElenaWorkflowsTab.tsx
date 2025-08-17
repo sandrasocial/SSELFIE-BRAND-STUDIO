@@ -82,6 +82,7 @@ export function ElenaWorkflowsTab() {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/agents/coordination-metrics'] });
       } else {
         toast({
+          variant: "destructive",
           title: "Elena Execution Failed",
           description: data.error || "Failed to execute Elena's workflow",
         });
@@ -89,6 +90,7 @@ export function ElenaWorkflowsTab() {
     },
     onError: (error) => {
       toast({
+        variant: "destructive",
         title: "Execution Error",
         description: error.message,
       });

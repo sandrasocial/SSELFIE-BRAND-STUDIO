@@ -5,7 +5,6 @@
  */
 
 import { storage } from './storage';
-import { paths } from './utils/paths';
 
 export class TrainingCompletionMonitor {
   private static instance: TrainingCompletionMonitor;
@@ -63,7 +62,7 @@ export class TrainingCompletionMonitor {
           trainingStatus: 'completed',
           replicateVersionId: versionId, // Store version ID only (universal format)
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
-          trainedModelPath: paths.getUserModelPath(userId),
+          trainedModelPath: `sandrasocial/${userId}-selfie-lora`,
           modelType: 'flux-standard',
           // Keep replicateModelId as training ID for tracking purposes
           updatedAt: new Date()
@@ -112,9 +111,9 @@ export class TrainingCompletionMonitor {
    */
   static async checkModelByName(userId: string, modelName: string): Promise<boolean> {
     try {
-      console.log(`🔍 Checking model by name: ${process.env.REPLICATE_USERNAME || 'models'}/${modelName} for user ${userId}`);
+      console.log(`🔍 Checking model by name: sandrasocial/${modelName} for user ${userId}`);
       
-      const response = await fetch(`https://api.replicate.com/v1/models/${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`, {
+      const response = await fetch(`https://api.replicate.com/v1/models/sandrasocial/${modelName}`, {
         headers: {
           'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
           'Content-Type': 'application/json'
@@ -122,7 +121,7 @@ export class TrainingCompletionMonitor {
       });
 
       if (response.status === 404) {
-        console.log(`⏳ Model ${process.env.REPLICATE_USERNAME || 'models'}/${modelName} not yet available`);
+        console.log(`⏳ Model sandrasocial/${modelName} not yet available`);
         return false;
       }
 
@@ -149,7 +148,7 @@ export class TrainingCompletionMonitor {
         
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
-          replicateModelId: `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`,
+          replicateModelId: `sandrasocial/${modelName}`,
           replicateVersionId: modelData.latest_version.id,
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainingProgress: 100,

@@ -1,4 +1,4 @@
-// SSELFIE STUDIO - RESEND API CONFIGURATION
+// 🔥 SSELFIE STUDIO - RESEND API CONFIGURATION
 // Invisible Empire Email Infrastructure
 // Target: €67/month luxury conversions with 87% profit margins
 
@@ -30,7 +30,7 @@ export const SSELFIE_EMAIL_CONFIG = {
   }
 };
 
-// SUBSCRIPTION TIER CONFIGURATION
+// 🏆 SUBSCRIPTION TIER CONFIGURATION
 export const SUBSCRIPTION_TIERS = {
   BASIC: {
     price: 29,

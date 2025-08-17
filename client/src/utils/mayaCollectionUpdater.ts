@@ -23,7 +23,7 @@ export class MayaCollectionUpdater {
    */
   static async updateCollections(collections: any[]): Promise<CollectionUpdateResult> {
     try {
-      console.log('MAYA: Starting collection update with latest 2025 trends...');
+      console.log('🎨 Maya: Starting collection update with latest 2025 trends...');
       
       const response = await apiRequest('/api/maya-update-collections', 'POST', {
         collections
@@ -46,7 +46,6 @@ export class MayaCollectionUpdater {
    * Get sample collections for testing Maya's updates
    */
   static getSampleCollections() {
-    // Enhanced collections with visual indicators and style tags
     return [
       {
         id: 'executive-power',

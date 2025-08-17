@@ -1,8 +1,7 @@
-import { ReactNode } from 'react';
 import { cn } from "@/lib/utils";
 
 interface LuxurySectionProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   fullWidth?: boolean;
   dark?: boolean;

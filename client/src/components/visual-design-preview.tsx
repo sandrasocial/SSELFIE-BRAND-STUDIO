@@ -1,11 +1,12 @@
-import { FC, useState } from 'react';
+import React, { useState } from 'react';
+
 interface VisualDesignPreviewProps {
   designContent?: string;
   previewType?: 'component' | 'layout' | 'page' | 'email';
   onApprove?: (approved: boolean) => void;
 }
 
-export const VisualDesignPreview: FC<VisualDesignPreviewProps> = ({
+export const VisualDesignPreview: React.FC<VisualDesignPreviewProps> = ({
   designContent,
   previewType = 'component',
   onApprove

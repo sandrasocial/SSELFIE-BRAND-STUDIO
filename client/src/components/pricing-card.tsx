@@ -1,4 +1,4 @@
-import { FC, MouseEvent } from 'react';
+import React from 'react';
 import { EditorialImage } from './sandra-image-library';
 
 interface PricingCardProps {
@@ -14,7 +14,7 @@ interface PricingCardProps {
   className?: string;
 }
 
-export const PricingCard: FC<PricingCardProps> = ({
+export const PricingCard: React.FC<PricingCardProps> = ({
   title,
   price,
   period,
@@ -26,7 +26,7 @@ export const PricingCard: FC<PricingCardProps> = ({
   badge,
   className = ""
 }) => {
-  const handleClick = (e: MouseEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     if (onCtaClick) {
       e.preventDefault();
       onCtaClick();

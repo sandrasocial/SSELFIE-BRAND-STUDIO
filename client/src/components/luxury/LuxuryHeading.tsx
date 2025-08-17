@@ -1,8 +1,7 @@
-import { ReactNode } from 'react';
 import { cn } from "@/lib/utils";
 
 interface LuxuryHeadingProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   size?: "sm" | "md" | "lg" | "xl";
   as?: "h1" | "h2" | "h3" | "h4";

@@ -1,31 +1,43 @@
+import * as Sentry from '@sentry/node';
+import * as winston from 'winston';
+import 'winston-daily-rotate-file';
 import * as PrometheusClient from 'prom-client';
 
-// Simple console logger replacement
-const logger = {
-  info: (data: any) => {
-    if (typeof data === 'object') {
-      console.log(`[INFO] ${new Date().toISOString()}:`, JSON.stringify(data));
-    } else {
-      console.log(`[INFO] ${new Date().toISOString()}: ${data}`);
-    }
-  },
-  error: (data: any) => {
-    if (typeof data === 'object') {
-      console.error(`[ERROR] ${new Date().toISOString()}:`, JSON.stringify(data));
-    } else {
-      console.error(`[ERROR] ${new Date().toISOString()}: ${data}`);
-    }
-  },
-  warn: (data: any) => {
-    if (typeof data === 'object') {
-      console.warn(`[WARN] ${new Date().toISOString()}:`, JSON.stringify(data));
-    } else {
-      console.warn(`[WARN] ${new Date().toISOString()}: ${data}`);
-    }
-  }
-};
+// Initialize Sentry
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1.0,
+  environment: process.env.NODE_ENV,
+});
 
-// No external monitoring dependencies
+// Initialize Winston logger
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.DailyRotateFile({
+      filename: 'logs/error-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      level: 'error',
+      maxFiles: '14d'
+    }),
+    new winston.transports.DailyRotateFile({
+      filename: 'logs/combined-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      maxFiles: '14d'
+    })
+  ]
+});
+
+// Add console logging in development
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple()
+  }));
+}
 
 // Initialize Prometheus metrics
 const metrics = {
@@ -63,4 +75,4 @@ setInterval(() => {
   metrics.memoryUsage.set(process.memoryUsage().heapUsed);
 }, 30000);
 
-export { logger, metrics };
+export { logger, metrics, Sentry };

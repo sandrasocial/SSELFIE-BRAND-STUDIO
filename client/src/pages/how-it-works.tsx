@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { HeroFullBleed } from '../components/hero-full-bleed';
-import { SandraImages } from '../components/sandra-image-library';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { GlobalFooter } from '../components/global-footer';
+import { HeroFullBleed } from '@/components/hero-full-bleed';
+import { SandraImages } from '@/components/sandra-image-library';
+import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
+import { GlobalFooter } from '@/components/global-footer';
 import { Link } from 'wouter';
 
 const steps = [
@@ -168,7 +168,7 @@ export default function HowItWorksPage() {
 
     const script = document.createElement('script');
     script.type = 'application/ld+json';
-    script.textContent = JSON.stringify(structuredData);
+    script.innerHTML = JSON.stringify(structuredData);
     document.head.appendChild(script);
 
     return () => {

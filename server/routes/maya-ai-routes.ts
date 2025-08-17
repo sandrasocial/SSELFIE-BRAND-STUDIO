@@ -5,7 +5,7 @@ export function registerMayaAIRoutes(app: Express) {
   // Maya AI Photography endpoint for website building context
   app.post("/api/maya-ai-photo", isAuthenticated, async (req, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
+      const userId = req.user?.claims?.sub;
       if (!userId) {
         return res.status(401).json({ error: "Authentication required" });
       }
@@ -42,7 +42,7 @@ export function registerMayaAIRoutes(app: Express) {
           'Product or service photos',
           'Brand lifestyle shots'
         ] : [],
-        conversationId: `maya_${userId}`
+        conversationId: `maya-${userId}-${Date.now()}`
       });
 
     } catch (error) {

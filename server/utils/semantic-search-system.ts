@@ -1,9 +1,10 @@
 /**
- * ACTIVE: SEMANTIC SEARCH SYSTEM - CORE INTELLIGENCE
- * Advanced natural language search with semantic matching,
- * priority-based ranking, and intelligent file discovery.
+ * DEPRECATED: SEMANTIC SEARCH SYSTEM REPLACED
+ * This functionality has been integrated into the new intelligent search system
+ * in server/tools/tool-exports.ts with superior priority-based ranking,
+ * semantic matching, and related file discovery.
  * 
- * Integrated with autonomous navigation and agent knowledge base.
+ * Redirecting to new intelligent search system...
  */
 
 import { search_filesystem } from '../tools/search_filesystem';
@@ -18,16 +19,16 @@ export interface SemanticSearchResult {
   relatedFiles: string[];
 }
 
-// COMPREHENSIVE INTELLIGENT SEARCH SYSTEM - ACTIVE
+// SIMPLIFIED WRAPPER AROUND NEW INTELLIGENT SEARCH SYSTEM
 class SemanticSearchSystem {
-  private activeSystemLog() {
-    console.log('🧠 SEMANTIC SEARCH: Using comprehensive intelligent search system');
-    console.log('🔍 FEATURES: Natural language, priority ranking, contextual discovery');
+  private deprecationWarning() {
+    console.warn('⚠️ DEPRECATED: SemanticSearchSystem replaced by intelligent search in tool-exports.ts');
+    console.log('🔄 REDIRECTING: Using new priority-based search system instead');
   }
   
   /**
-   * ACTIVE: Comprehensive intelligent file search with semantic matching
-   * Integrates with autonomous navigation and agent knowledge base
+   * DEPRECATED: Use new intelligent search system instead
+   * This method redirects to the advanced search in tool-exports.ts
    */
   async intelligentFileSearch(query: string, options: {
     contextHints?: string[];
@@ -35,7 +36,7 @@ class SemanticSearchSystem {
     maxResults?: number;
     includeRelated?: boolean;
   } = {}): Promise<SemanticSearchResult[]> {
-    this.activeSystemLog();
+    this.deprecationWarning();
     
     try {
       // REDIRECT TO NEW INTELLIGENT SEARCH SYSTEM

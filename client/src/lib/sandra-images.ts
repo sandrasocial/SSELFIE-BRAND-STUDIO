@@ -28,7 +28,6 @@ export const SandraImages = {
     firstAI: "https://i.postimg.cc/9Q0P8yJj/story_2.jpg", // First AI selfie story
     aiInProgress: "https://i.postimg.cc/VkVddttn/67.png", // AI processing/work shot
     aiSuccess: "https://i.postimg.cc/76vVdbWY/out-0-7.png", // AI success/main character energy
-    luxury1: "https://i.postimg.cc/76vVdbWY/out-0-7.png", // Luxury editorial shot
   },
 
   // TRANSFORMATION SHOTS

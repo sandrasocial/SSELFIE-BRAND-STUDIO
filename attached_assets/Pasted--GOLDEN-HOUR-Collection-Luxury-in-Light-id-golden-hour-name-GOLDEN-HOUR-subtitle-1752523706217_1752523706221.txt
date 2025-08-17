@@ -1,0 +1,94 @@
+// GOLDEN HOUR Collection - Luxury in Light
+{
+  id: 'golden-hour',
+  name: 'GOLDEN HOUR',
+  subtitle: 'Luxury in Light',
+  description: 'When golden light meets luxury living - beach clubs, rooftops, and endless summer captured in perfect light',
+  previewImage: '/images/collections/golden-hour-preview.jpg',
+  prompts: [
+    {
+      id: 'beach-sunset-silhouette',
+      name: 'Beach Sunset Dreams',
+      category: 'Coastal Luxury',
+      description: 'Full scenery - Where ocean meets sky in perfect golden light',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in flowing white linen dress walking along pristine beach at golden hour, endless ocean and dramatic sunset sky in background, hair flowing in ocean breeze, natural serene expression, bare feet in soft sand, shot on Canon EOS R5 with 24-70mm f/2.8 lens, full body beach photography, golden hour lighting, coastal luxury aesthetic, Mediterranean sunset vibes'
+    },
+    {
+      id: 'rooftop-city-portrait',
+      name: 'Rooftop Authority',
+      category: 'Urban Sunset',
+      description: 'Portrait - City lights beginning to twinkle as golden hour peaks',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], close-up portrait on luxury penthouse rooftop during golden hour, city skyline softly blurred in background, warm sunset light illuminating face, natural confident expression, hair gently moved by evening breeze, minimal gold jewelry catching light, shot on Sony A7R IV with 85mm f/1.4 lens, rooftop portrait photography, golden hour backlighting, urban luxury aesthetic'
+    },
+    {
+      id: 'beach-club-champagne',
+      name: 'Beach Club Elegance',
+      category: 'Social Luxury',
+      description: 'Half body - The golden hour toast that defines summer luxury',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], elegant woman in designer swimwear and sheer cover-up holding champagne glass at exclusive beach club, Mykonos-style white architecture and ocean in background, natural sophisticated expression, hair in effortless beach waves, shot on Leica Q2 with 28mm f/1.7 lens, half-body beach club photography, golden hour ambient lighting, Mediterranean luxury aesthetic'
+    },
+    {
+      id: 'yacht-deck-sunset',
+      name: 'Yacht Deck Dreams',
+      category: 'Nautical Luxury',
+      description: 'Full scenery - Living the yacht life as the sun kisses the horizon',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in elegant white dress on luxury yacht deck at sunset, endless ocean and dramatic sky creating stunning backdrop, natural windswept hair, peaceful expression while watching sunset, designer accessories, shot on Fujifilm GFX 100S with 63mm f/2.8 lens, yacht lifestyle photography, golden hour over water, nautical luxury aesthetic'
+    },
+    {
+      id: 'infinity-pool-portrait',
+      name: 'Infinity Pool Goddess',
+      category: 'Resort Luxury',
+      description: 'Portrait - Where pool meets sky in golden perfection',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], portrait by infinity pool edge during golden hour, pool water reflecting warm sunset colors, natural relaxed expression with eyes gently closed feeling warm light, wet hair slicked back elegantly, minimal makeup highlighting natural glow, shot on Nikon Z9 with 105mm f/1.4 lens, poolside portrait photography, golden hour reflection lighting, resort luxury aesthetic'
+    },
+    {
+      id: 'rooftop-dinner-ambiance',
+      name: 'Rooftop Dining',
+      category: 'Evening Luxury',
+      description: 'Half body - The golden hour dinner where everything feels perfect',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], sophisticated woman at rooftop restaurant table during golden hour, elegant dinner setting with city views, natural contemplative expression while enjoying wine, designer dress and delicate jewelry, hair styled in loose elegant waves, shot on Canon EOS R6 with 50mm f/1.2 lens, dining lifestyle photography, warm golden hour lighting, rooftop luxury aesthetic'
+    },
+    {
+      id: 'beach-walk-meditation',
+      name: 'Beach Walk Serenity',
+      category: 'Mindful Luxury',
+      description: 'Full scenery - Finding peace in paradise as day transitions to night',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman in neutral linen clothing walking along water edge at golden hour, dramatic sky with soft clouds, peaceful meditative expression, natural windswept hair, hands gently touching flowing fabric, shot on Leica SL2 with 90mm f/2 lens, beach meditation photography, golden hour serenity lighting, mindful luxury aesthetic'
+    },
+    {
+      id: 'balcony-wine-moment',
+      name: 'Balcony Wine Hour',
+      category: 'Private Luxury',
+      description: 'Portrait - The private moment that feels like a movie scene',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], intimate portrait on private balcony during golden hour, wine glass in hand, natural content expression while watching sunset, hair catching golden light, wearing silk robe or elegant loungewear, shot on Sony A7R V with 85mm f/1.4 lens, balcony lifestyle photography, warm evening lighting, intimate luxury aesthetic'
+    },
+    {
+      id: 'beach-club-pool-edge',
+      name: 'Pool Edge Paradise',
+      category: 'Poolside Luxury',
+      description: 'Half body - The pool edge moment where time stands still',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman sitting on edge of beach club pool during golden hour, legs in crystal blue water, designer bikini and flowing kimono, natural serene expression, hair in beachy waves with golden highlights, shot on Fujifilm X-T5 with 35mm f/1.4 lens, poolside photography, golden hour pool lighting, beach club luxury aesthetic'
+    },
+    {
+      id: 'rooftop-panoramic-view',
+      name: 'Rooftop Panorama',
+      category: 'Urban Views',
+      description: 'Full scenery - The city view that makes everything worth it',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman on luxury rooftop terrace with panoramic city view during golden hour, wearing flowing evening dress, natural expression of awe at the view, hair moving in gentle evening breeze, shot on Hasselblad H6D-400c with 80mm f/1.9 lens, rooftop panoramic photography, golden hour cityscape lighting, urban luxury aesthetic'
+    },
+    {
+      id: 'sunset-champagne-toast',
+      name: 'Champagne Sunset',
+      category: 'Celebration Luxury',
+      description: 'Portrait - The toast that celebrates your beautiful life',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], close-up portrait raising champagne glass toward golden sunset, warm light illuminating face and glass, natural joyful expression of gratitude, hair glowing in backlight, elegant dress and jewelry, shot on Leica M11 with 50mm f/1.4 lens, celebration portrait photography, golden hour backlighting, luxury celebration aesthetic'
+    },
+    {
+      id: 'beach-hammock-serenity',
+      name: 'Hammock Serenity',
+      category: 'Relaxation Luxury',
+      description: 'Half body - The hammock moment where life feels perfect',
+      prompt: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [triggerword], woman relaxing in beach hammock during golden hour, tropical paradise and ocean in soft focus background, natural peaceful expression with eyes gently closed, flowing white dress and natural hair, shot on Canon EOS R5 with 70-200mm f/2.8 lens, beach relaxation photography, warm golden hour lighting, tropical luxury aesthetic'
+    }
+  ]
+}

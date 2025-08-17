@@ -39,25 +39,25 @@ export default function AdminBusinessOverview() {
   const priorityMetrics = useMemo(() => [
     { 
       key: 'revenue', 
-      value: `€${(businessMetrics as any)?.monthlyRevenue || 0}`, 
+      value: `€${businessMetrics?.monthlyRevenue || 0}`, 
       label: 'Monthly Revenue',
-      trend: (businessMetrics as any)?.revenueTrend || 0,
+      trend: businessMetrics?.revenueTrend || 0,
       priority: 'critical',
       action: '/admin/revenue-analytics'
     },
     { 
       key: 'subscribers', 
-      value: (businessMetrics as any)?.totalSubscribers || 0, 
+      value: businessMetrics?.totalSubscribers || 0, 
       label: 'Active Subscribers',
-      trend: (businessMetrics as any)?.subscriberGrowth || 0,
+      trend: businessMetrics?.subscriberGrowth || 0,
       priority: 'high',
       action: '/admin/subscriber-import'
     },
     { 
       key: 'users', 
-      value: (businessMetrics as any)?.activeUsers || 0, 
+      value: businessMetrics?.activeUsers || 0, 
       label: 'Platform Users',
-      trend: (businessMetrics as any)?.userGrowth || 0,
+      trend: businessMetrics?.userGrowth || 0,
       priority: 'medium',
       action: '/admin/user-analytics'
     }
@@ -66,8 +66,8 @@ export default function AdminBusinessOverview() {
   // WORKFLOW EFFICIENCY CALCULATOR
   const workflowEfficiency = useMemo(() => {
     const baseScore = 85;
-    const revenueBoost = ((businessMetrics as any)?.monthlyRevenue || 0) > 10000 ? 5 : 0;
-    const subscriberBoost = ((businessMetrics as any)?.totalSubscribers || 0) > 1000 ? 5 : 0;
+    const revenueBoost = (businessMetrics?.monthlyRevenue || 0) > 10000 ? 5 : 0;
+    const subscriberBoost = (businessMetrics?.totalSubscribers || 0) > 1000 ? 5 : 0;
     const activityBoost = quickActions.systemHealth === 'optimal' ? 5 : 0;
     return Math.min(100, baseScore + revenueBoost + subscriberBoost + activityBoost);
   }, [businessMetrics, quickActions]);
@@ -237,7 +237,7 @@ export default function AdminBusinessOverview() {
               <div className="grid grid-cols-2 md:grid-cols-6 gap-0 mb-20 border border-gray-200">
                 <div className="text-center p-8 border border-gray-200">
                   <div className="font-serif text-4xl font-light mb-2">
-                    €{(businessMetrics as any)?.totalRevenue || 0}
+                    €{businessMetrics?.totalRevenue || 0}
                   </div>
                   <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
                     Total Revenue
@@ -246,7 +246,7 @@ export default function AdminBusinessOverview() {
                 
                 <div className="text-center p-8 border border-gray-200">
                   <div className="font-serif text-4xl font-light mb-2">
-                    €{(businessMetrics as any)?.monthlyRevenue || 0}
+                    €{businessMetrics?.monthlyRevenue || 0}
                   </div>
                   <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
                     Monthly Revenue
@@ -255,7 +255,7 @@ export default function AdminBusinessOverview() {
                 
                 <div className="text-center p-8 border border-gray-200">
                   <div className="font-serif text-4xl font-light mb-2">
-                    {(businessMetrics as any)?.totalSubscribers || 0}
+                    {businessMetrics?.totalSubscribers || 0}
                   </div>
                   <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
                     Total Subscribers
@@ -264,7 +264,7 @@ export default function AdminBusinessOverview() {
                 
                 <div className="text-center p-8 border border-gray-200">
                   <div className="font-serif text-4xl font-light mb-2">
-                    {(businessMetrics as any)?.activeUsers || 0}
+                    {businessMetrics?.activeUsers || 0}
                   </div>
                   <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
                     Active Users
@@ -273,7 +273,7 @@ export default function AdminBusinessOverview() {
                 
                 <div className="text-center p-8 border border-gray-200">
                   <div className="font-serif text-4xl font-light mb-2">
-                    {(businessMetrics as any)?.totalAIImages || 0}
+                    {businessMetrics?.totalAIImages || 0}
                   </div>
                   <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
                     AI Images Generated
@@ -282,7 +282,7 @@ export default function AdminBusinessOverview() {
                 
                 <div className="text-center p-8 border border-gray-200">
                   <div className="font-serif text-4xl font-light mb-2">
-                    {(businessMetrics as any)?.trainedModels || 0}
+                    {businessMetrics?.trainedModels || 0}
                   </div>
                   <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
                     Trained Models

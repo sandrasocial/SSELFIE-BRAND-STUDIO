@@ -1,6 +1,6 @@
 import { Express } from 'express';
-// import { AgentCodebaseIntegration } from '../agents/capabilities/intelligence/agent-codebase-integration.js';
-import { readFile, unlink, writeFile } from 'fs/promises';
+import { AgentCodebaseIntegration } from '../agents/agent-codebase-integration.js';
+import { readFile, unlink } from 'fs/promises';
 
 export function setupRollbackRoutes(app: Express) {
   // Rollback a file to its backup version
@@ -20,7 +20,7 @@ export function setupRollbackRoutes(app: Express) {
       const backupContent = await readFile(backupPath, 'utf8');
       
       // Restore original file
-      await writeFile(filePath, backupContent, 'utf8');
+      await AgentCodebaseIntegration.writeFile(filePath, backupContent);
       
       // Remove backup file
       await unlink(backupPath);

@@ -1,11 +1,11 @@
-import { ChangeEvent } from 'react';
-import { MemberNavigation } from '../components/member-navigation';
-import { SandraImages } from '../lib/sandra-images';
-import { useAuth } from '../hooks/use-auth';
+import React, { useState, useRef, useEffect } from 'react';
+import { MemberNavigation } from '@/components/member-navigation';
+import { SandraImages } from '@/lib/sandra-images';
+import { useAuth } from '@/hooks/use-auth';
 import { Link } from 'wouter';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { apiRequest } from '../lib/queryClient';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function SimpleTraining() {
   // Always call hooks in the same order
@@ -76,7 +76,7 @@ export default function SimpleTraining() {
       toast({
         title: "Reset Failed",
         description: "Unable to reset training. Please try again.",
-        
+        variant: "destructive"
       });
     }
   });
@@ -234,7 +234,7 @@ export default function SimpleTraining() {
         toast({
           title: "Training Validation Failed",
           description: `Please fix these issues: ${data.errors?.join(', ')}`,
-          
+          variant: "destructive",
         });
       }
     },
@@ -246,19 +246,19 @@ export default function SimpleTraining() {
         toast({
           title: "Training Failed",
           description: "Please restart upload process and try again.",
-          
+          variant: "destructive",
         });
       } else {
         toast({
           title: "Training Failed",
           description: error.message || "Training system error. Please try again.",
-          
+          variant: "destructive",
         });
       }
     }
   });
 
-  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
     // 🛡️ BULLETPROOF VALIDATION: Strict requirements
@@ -273,7 +273,7 @@ export default function SimpleTraining() {
       toast({
         title: "Invalid files",
         description: "Please upload only high-quality image files (10KB-10MB).",
-        
+        variant: "destructive",
       });
     }
     
@@ -329,7 +329,7 @@ export default function SimpleTraining() {
       toast({
         title: "❌ CRITICAL: Need More Photos",
         description: `Only ${selfieImages.length} photos uploaded. MINIMUM 10 selfies required - no exceptions.`,
-        
+        variant: "destructive",
       });
       return;
     }
@@ -372,7 +372,7 @@ export default function SimpleTraining() {
       toast({
         title: "Upload Failed",
         description: "Failed to process images. Please try again with different photos.",
-        
+        variant: "destructive",
       });
       console.error('Image processing failed:', error);
     }
@@ -561,7 +561,7 @@ export default function SimpleTraining() {
                   letterSpacing: '0.025em'
                 }}>
                   <div style={{ marginBottom: '8px', fontWeight: 400 }}>
-                    <strong>€67 Premium Training Experience</strong>
+                    ✨ <strong>€67 Premium Training Experience</strong>
                   </div>
                   <div>
                     Professional-grade model • Face distortion prevention • Gallery-ready results
@@ -982,6 +982,7 @@ export default function SimpleTraining() {
                 </div>
               </div>
 
+
             </div>
           </section>
         </div>
@@ -1203,7 +1204,7 @@ export default function SimpleTraining() {
                 </div>
               ) : selfieImages.length < 10 ? 
                 `Upload ${10 - selfieImages.length} More Photos` : 
-                'Start Premium AI Training'}
+                '✨ Start Premium AI Training'}
             </button>
 
             {/* LUXURY VALUE MESSAGING */}
@@ -1225,7 +1226,7 @@ export default function SimpleTraining() {
                   letterSpacing: '0.025em'
                 }}>
                   <div style={{ marginBottom: '8px', fontWeight: 500 }}>
-                    <strong>€67 Premium Training Experience</strong>
+                    ✨ <strong>€67 Premium Training Experience</strong>
                   </div>
                   <div style={{ opacity: 0.8 }}>
                     Professional-grade AI model • 20-minute training • Face distortion prevention

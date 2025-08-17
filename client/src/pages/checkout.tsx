@@ -1,8 +1,8 @@
-import { FormEvent } from 'react';
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { useToast } from "../hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 // Initialize Stripe with comprehensive error handling
 const getStripePromise = () => {
@@ -44,7 +44,7 @@ const CheckoutForm = () => {
     return urlPlan || storedPlan || 'full-access';
   });
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!stripe || !elements) {
@@ -65,7 +65,7 @@ const CheckoutForm = () => {
         toast({
           title: "Payment Failed",
           description: error.message,
-          
+          variant: "destructive",
         });
       }
     } catch (err) {
@@ -73,7 +73,7 @@ const CheckoutForm = () => {
       toast({
         title: "Payment Error",
         description: "Something went wrong. Please try again.",
-        
+        variant: "destructive",
       });
     } finally {
       setLoading(false);

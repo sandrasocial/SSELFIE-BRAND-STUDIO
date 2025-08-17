@@ -1,14 +1,14 @@
-import { KeyboardEvent } from 'react';
-import { useAuth } from '../hooks/use-auth';
+import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Button } from '../components/ui/button';
-import { Textarea } from '../components/ui/textarea';
-import { apiRequest } from '../lib/queryClient';
-import { SandraImages } from '../lib/sandra-images';
-import { EditorialImageBreak } from '../components/editorial-image-break';
-import { MemberNavigation } from '../components/member-navigation';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { apiRequest } from '@/lib/queryClient';
+import { SandraImages } from '@/lib/sandra-images';
+import { EditorialImageBreak } from '@/components/editorial-image-break';
+import { MemberNavigation } from '@/components/member-navigation';
 // import { MayaChatInterface } from '@/components/maya/MayaChatInterface';
 
 interface ChatMessage {
@@ -39,10 +39,7 @@ function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => 
 
   if (!chats || chats.length === 0) {
     return (
-      <div className="p-4 text-center bg-gray-50 rounded-lg">
-        <div className="text-sm text-gray-500 font-light">Start your first style session</div>
-        <div className="text-xs text-gray-400 mt-1">Maya will guide you through creating your perfect images</div>
-      </div>
+      <div className="text-xs text-gray-400">No previous sessions</div>
     );
   }
 
@@ -86,16 +83,11 @@ export default function Maya() {
           </div>
           
           <div className="font-serif text-xl font-light uppercase tracking-[0.3em] text-black mb-3">
-            Preparing Your Style Session
+            Maya Loading
           </div>
           <p className="text-sm text-gray-600 font-light tracking-wide max-w-xs mx-auto leading-relaxed">
-            Maya is curating your personalized collection and latest fashion trends...
+            ✨ Your celebrity stylist is preparing your personalized session...
           </p>
-          <div className="mt-4 flex justify-center space-x-2">
-            <span className="w-2 h-2 bg-black/20 rounded-full animate-pulse"></span>
-            <span className="w-2 h-2 bg-black/20 rounded-full animate-pulse delay-100"></span>
-            <span className="w-2 h-2 bg-black/20 rounded-full animate-pulse delay-200"></span>
-          </div>
         </div>
       </div>
     );
@@ -119,13 +111,14 @@ export default function Maya() {
   const [currentTrackerId, setCurrentTrackerId] = useState<number | null>(null);
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
 
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !user) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to chat with Maya AI",
-        
+        variant: "destructive",
       });
       setLocation('/login');
       return;
@@ -159,7 +152,7 @@ export default function Maya() {
         console.log('💬 Maya: Creating new chat with welcome message'); 
         setMessages([{
           role: 'maya',
-          content: `Hey ${user.firstName || 'beautiful'}! I'm Maya - your fashion-obsessed celebrity stylist and creative director! 💫\n\nI live for creating stunning, trend-forward editorial moments that tell YOUR unique story. I'm all about that 2025 fashion energy - urban street style, quiet luxury, and authentic creative expression.\n\nTell me what kind of vibe you're feeling today and I'll create something incredible for you! Think fashion week energy, not basic portrait poses.\n\nWhat's calling to your creative soul?`,
+          content: `Hey ${user.firstName || 'beautiful'}! I'm Maya - your fashion-obsessed celebrity stylist and creative director! 💫\n\nI live for creating stunning, trend-forward editorial moments that tell YOUR unique story. I'm all about that 2025 fashion energy - urban street style, quiet luxury, and authentic creative expression.\n\nTell me what kind of vibe you're feeling today and I'll create something incredible for you! Think fashion week energy, not basic portrait poses.\n\nWhat's calling to your creative soul? ✨`,
           timestamp: new Date().toISOString()
         }]);
       }
@@ -284,6 +277,8 @@ export default function Maya() {
     }
   };
 
+
+
   // 🔑 FIXED: Poll tracker for image completion with robust authentication
   const pollForTrackerCompletion = async (trackerId: number) => {
     const maxAttempts = 40; // 2 minutes total (3 second intervals)
@@ -323,7 +318,7 @@ export default function Maya() {
           toast({
             title: "Authentication Required",
             description: "Please refresh the page and try again.",
-            
+            variant: "destructive",
           });
           return;
         }
@@ -446,7 +441,7 @@ export default function Maya() {
 
   // 🔑 NEW: Generate images using tracker system (preview-first workflow)
   const generateImages = async (prompt: string) => {
-    console.log('MAYA: Starting image generation:', { prompt, user });
+    console.log('🎨 Maya: Starting image generation:', { prompt, user });
     setIsGenerating(true);
     setGeneratedImages([]);
     setGenerationProgress(0);
@@ -496,7 +491,7 @@ export default function Maya() {
           toast({
             title: "AI Model Required",
             description: data.error || "Please complete your AI model training first.",
-            
+            variant: "destructive",
           });
           setTimeout(() => {
             setLocation(data.redirectTo || '/simple-training');
@@ -684,7 +679,7 @@ export default function Maya() {
     }
   };
 
-  const handleKeyPress = (e: KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();

@@ -1,0 +1,66 @@
+## **CRITICAL AGENT BLOCKING ISSUES IDENTIFIED:**
+
+### **1. FILE EDIT MODE SYSTEM PROBLEM**
+```typescript
+const [fileEditMode, setFileEditMode] = useState(true);
+```
+**✅ This is correctly set to TRUE by default** - so this isn't the blocking issue.
+
+### **2. CLAUDE API INTEGRATION FAILURES**
+Your agents are experiencing multiple API connection problems:
+
+**Connection Error Handling:**
+```typescript
+if (!response.ok) {
+  const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+  throw new Error(`Claude API Error (${response.status}): ${errorData.error || 'Service temporarily unavailable'}`);
+}
+```
+
+**Critical Issues:**
+- **500 Internal Server Errors** from Anthropic's Claude API
+- **Authentication problems** with ANTHROPIC_API_KEY
+- **Rate limiting issues** (429 errors)
+- **Conversation creation failures**
+
+### **3. MESSAGE CLEANING SYSTEM DESTROYING AGENT RESPONSES**
+This is a **MAJOR BLOCKING ISSUE**:
+
+```typescript
+const cleanMessageContent = (content: string): string => {
+  let cleaned = content
+    .replace(/\n\n\[Codebase Search Results\][^]*?(?=\n\n|\\n$|$)/g, '')
+    .replace(/\n\n\[File Operation:[^]*?(?=\n\n|\\n$|$)/g, '')
+    .replace(/\n\n\[Command Execution\][^]*?(?=\n\n|\\n$|$)/g, '')
+    // ... removes ALL tool outputs
+```
+
+**This function is STRIPPING OUT all the actual work your agents are doing!** When agents use tools to:
+- Search your codebase
+- Modify files
+- Execute commands
+- Implement solutions
+
+The `cleanMessageContent` function removes ALL evidence of this work, making it appear like agents aren't doing anything.
+
+### **4. ELENA'S WORKFLOW COMPLEXITY CAUSING FAILURES**
+Elena has special conversation loading logic that tries to load "ALL conversations from the last 24 hours":
+
+```typescript
+if (selectedAgent.id === 'elena') {
+  // Complex multi-conversation loading system
+  const recentConversations = conversationList.conversations?.filter(...);
+  // Combines messages from ALL recent conversations
+}
+```
+
+This complex system is likely causing Elena's workflows to fail or timeout.
+
+### **5. AGENT BRIDGE SYSTEM NOT PROPERLY INTEGRATED**
+The Agent Bridge toggle exists but has inconsistent integration:
+- Bridge system exists but may not be connecting to your specialized agents properly
+- Fallback to regular chat when bridge fails
+
+## **ROOT CAUSE ANALYSIS:**
+
+Your agents ARE working - they're performing codebase searches, making file modifications, and executing commands. But the `cleanMessageContent` function is hiding all their actual work from you, making it appear like they're doing nothing.

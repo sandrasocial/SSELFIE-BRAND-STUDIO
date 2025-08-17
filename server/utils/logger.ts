@@ -1,33 +1,29 @@
-// Simple console logger - no external dependencies
-export const logger = {
-  info: (data: any) => {
-    if (typeof data === 'object') {
-      console.log(`[INFO] ${new Date().toISOString()}:`, JSON.stringify(data));
-    } else {
-      console.log(`[INFO] ${new Date().toISOString()}: ${data}`);
-    }
-  },
-  error: (data: any) => {
-    if (typeof data === 'object') {
-      console.error(`[ERROR] ${new Date().toISOString()}:`, JSON.stringify(data));
-    } else {
-      console.error(`[ERROR] ${new Date().toISOString()}: ${data}`);
-    }
-  },
-  warn: (data: any) => {
-    if (typeof data === 'object') {
-      console.warn(`[WARN] ${new Date().toISOString()}:`, JSON.stringify(data));
-    } else {
-      console.warn(`[WARN] ${new Date().toISOString()}: ${data}`);
-    }
-  },
-  debug: (data: any) => {
-    if (process.env.NODE_ENV === 'development') {
-      if (typeof data === 'object') {
-        console.debug(`[DEBUG] ${new Date().toISOString()}:`, JSON.stringify(data));
-      } else {
-        console.debug(`[DEBUG] ${new Date().toISOString()}: ${data}`);
-      }
-    }
-  }
-};
+import winston from 'winston';
+import 'winston-daily-rotate-file';
+
+const logFormat = winston.format.combine(
+  winston.format.timestamp(),
+  winston.format.json()
+);
+
+const transport = new winston.transports.DailyRotateFile({
+  filename: 'logs/sselfie-%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  zippedArchive: true,
+  maxSize: '20m',
+  maxFiles: '14d'
+});
+
+export const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: logFormat,
+  transports: [
+    transport,
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      )
+    })
+  ]
+});

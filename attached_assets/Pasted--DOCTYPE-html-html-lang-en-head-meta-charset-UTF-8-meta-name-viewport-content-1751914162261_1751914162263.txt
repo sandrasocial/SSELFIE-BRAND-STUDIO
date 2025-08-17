@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSELFIE STUDIO | Build Your Brand Story</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --editorial-gray: #f5f5f5;
+            --mid-gray: #fafafa;
+            --soft-gray: #666666;
+            --accent: #e5e5e5;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 300;
+            color: var(--black);
+            background: var(--white);
+            line-height: 1.6;
+            letter-spacing: normal;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 200;
+            letter-spacing: -0.01em;
+            line-height: 1.1;
+        }
+        
+        h1 {
+            font-size: clamp(36px, 5vw, 64px);
+            margin-bottom: 16px;
+        }
+        
+        h2 {
+            font-size: clamp(28px, 4vw, 48px);
+            margin-bottom: 24px;
+        }
+        
+        h3 {
+            font-size: clamp(20px, 3vw, 32px);
+            margin-bottom: 16px;
+        }
+        
+        .onboarding-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            min-height: 100vh;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 2px;
+            background: var(--editorial-gray);
+            margin-bottom: 60px;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--black);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .step {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .step-header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .step-subtitle {
+            font-size: 18px;
+            color: var(--soft-gray);
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 32px;
+        }
+        
+        label {
+            display: block;
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 12px;
+            color: var(--black);
+        }
+        
+        input[type="text"], 
+        input[type="email"], 
+        textarea, 
+        select {
+            width: 100%;
+            padding: 20px;
+            border: 1px solid var(--accent);
+            background: var(--white);
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, 
+        textarea:focus, 
+        select:focus {
+            outline: none;
+            border-color: var(--black);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .option-card {
+            padding: 24px;
+            border: 1px solid var(--accent);
+            background: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .option-card:hover {
+            border-color: var(--black);
+            background: var(--editorial-gray);
+        }
+        
+        .option-card.selected {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+        
+        .option-card h4 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
+        }
+        
+        .option-card p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            gap: 20px;
+        }
+        
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: var(--black);
+            color: var(--white);
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            background: #000;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--black);
+            border: 1px solid var(--accent);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--black);
+        }
+        
+        .welcome-message {
+            background: var(--editorial-gray);
+            padding: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .brand-story {
+            background: var(--black);
+            color: var(--white);
+            padding: 40px;
+            margin: 40px 0;
+        }
+        
+        .brand-story h3 {
+            color: var(--white);
+        }
+        
+        .sandra-quote {
+            font-style: italic;
+            font-size: 18px;
+            text-align: center;
+            margin: 40px 0;
+            color: var(--soft-gray);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--accent);
+            padding: 60px 40px;
+            text-align: center;
+            background: var(--editorial-gray);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--black);
+            background: var(--white);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--black);
+            background: var(--white);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .uploaded-files {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .file-preview {
+            aspect-ratio: 1;
+            background: var(--editorial-gray);
+            border: 1px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-file {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--black);
+            color: var(--white);
+            border: none;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .onboarding-container {
+                padding: 20px 16px;
+            }
+            
+            .option-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="onboarding-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <!-- Step 1: Welcome -->
+        <div class="step active" id="step1">
+            <div class="welcome-message">
+                <h1>Welcome to SSELFIE Studio!</h1>
+                <p class="step-subtitle">Let's build your brand story together</p>
+            </div>
+            
+            <div class="sandra-quote">
+                "Your face is your brand. Your story is your superpower. Let's turn both into money."
+            </div>
+            
+            <p style="font-size: 18px; text-align: center; margin-bottom: 40px;">
+                I'm about to walk you through the exact process I used to go from hiding from cameras to building a 120K-follower brand. 
+                This isn't just about pretty pictures - this is about building something real.
+            </p>
+            
+            <div class="form-group">
+                <label for="firstName">What should I call you?</label>
+                <input type="text" id="firstName" placeholder="Your first name">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email (so I can send you your AI images)</label>
+                <input type="email" id="email" placeholder="your@email.com">
+            </div>
+        </div>
+        
+        <!-- Step 2: Your Why -->
+        <div class="step" id="step2">
+            <div class="step-header">
+                <h2>Let's talk about your why</h2>
+                <p class="step-subtitle">The real reason you're here</p>
+            </div>
+            
+            <div class="form-group">
+                <label>What made you say "I need to do this"?</label>
+                <textarea placeholder="Was it seeing someone else's success? Tired of hiding? Ready to stop playing small? Tell me the real story..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Where do you want to be in 6 months?</label>
+                <textarea placeholder="Be specific. More clients? Different life? Freedom to work from anywhere? Paint me the picture..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>What's your biggest fear about showing up online?</label>
+                <div class="option-grid">
+                    <div class="option-card" data-value="judgment">
+                        <h4>People judging me</h4>
+                        <p>What will they think?</p>
+                    </div>
+                    <div class="option-card" data-value="tech">
+                        <h4>The tech stuff</h4>
+                        <p>I'm not technical</p>
+                    </div>
+                    <div class="option-card" data-value="photos">
+                        <h4>Bad photos</h4>
+                        <p>I hate how I look</p>
+                    </div>
+                    <div class="option-card" data-value="impostor">
+                        <h4>Impostor syndrome</h4>
+                        <p>Who am I to do this?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 3: Your Business -->
+        <div class="step" id="step3">
+            <div class="step-header">
+                <h2>Tell me about your business</h2>
+                <p class="step-subtitle">Or the one you're building</p>
+            </div>
+            
+            <div class="form-group">
+                <label>What do you do (or want to do)?</label>
+                <div class="option-grid">
+                    <div class="option-card" data-value="coach">
+                        <h4>Life/Business Coach</h4>
+                        <p>Help people transform</p>
+                    </div>
+                    <div class="option-card" data-value="consultant">
+                        <h4>Consultant</h4>
+                        <p>Expert advice</p>
+                    </div>
+                    <div class="option-card" data-value="creative">
+                        <h4>Creative Services</h4>
+                        <p>Design, photography, etc.</p>
+                    </div>
+                    <div class="option-card" data-value="wellness">
+                        <h4>Health & Wellness</h4>
+                        <p>Fitness, nutrition, therapy</p>
+                    </div>
+                    <div class="option-card" data-value="service">
+                        <h4>Service Business</h4>
+                        <p>VA, marketing, etc.</p>
+                    </div>
+                    <div class="option-card" data-value="other">
+                        <h4>Something else</h4>
+                        <p>Tell me more!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="businessDescription">Describe what you do in one sentence (like you're telling your neighbor)</label>
+                <textarea id="businessDescription" placeholder="I help... / I teach... / I create... Keep it simple and real."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Who's your dream client?</label>
+                <textarea placeholder="Not demographics - who is she really? What's she struggling with? What does she dream about?"></textarea>
+            </div>
+        </div>
+        
+        <!-- Step 4: Your Vibe -->
+        <div class="step" id="step4">
+            <div class="step-header">
+                <h2>What's your vibe?</h2>
+                <p class="step-subtitle">How do you want to show up?</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Pick your energy (choose all that feel like YOU)</label>
+                <div class="option-grid">
+                    <div class="option-card" data-value="warm">
+                        <h4>Warm & Approachable</h4>
+                        <p>Your best friend</p>
+                    </div>
+                    <div class="option-card" data-value="bold">
+                        <h4>Bold & Confident</h4>
+                        <p>I know my worth</p>
+                    </div>
+                    <div class="option-card" data-value="elegant">
+                        <h4>Elegant & Sophisticated</h4>
+                        <p>Refined luxury</p>
+                    </div>
+                    <div class="option-card" data-value="fun">
+                        <h4>Fun & Playful</h4>
+                        <p>Life's an adventure</p>
+                    </div>
+                    <div class="option-card" data-value="authentic">
+                        <h4>Raw & Authentic</h4>
+                        <p>Real talk only</p>
+                    </div>
+                    <div class="option-card" data-value="mystical">
+                        <h4>Mystical & Intuitive</h4>
+                        <p>Trust the universe</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>What colors make you feel most like YOU?</label>
+                <div class="option-grid">
+                    <div class="option-card" data-value="neutrals">
+                        <h4>Soft Neutrals</h4>
+                        <p>Cream, beige, sage</p>
+                    </div>
+                    <div class="option-card" data-value="bold-colors">
+                        <h4>Bold & Bright</h4>
+                        <p>Red, emerald, royal blue</p>
+                    </div>
+                    <div class="option-card" data-value="monochrome">
+                        <h4>Black & White</h4>
+                        <p>Classic elegance</p>
+                    </div>
+                    <div class="option-card" data-value="earth">
+                        <h4>Earth Tones</h4>
+                        <p>Terracotta, olive, rust</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 5: Upload Selfies -->
+        <div class="step" id="step5">
+            <div class="step-header">
+                <h2>Now for the magic part</h2>
+                <p class="step-subtitle">Upload 10-15 of your best selfies</p>
+            </div>
+            
+            <div class="brand-story">
+                <h3>Here's what I need from you:</h3>
+                <p style="margin-top: 16px;">
+                    • Face the window (natural light is everything)<br>
+                    • Wear what makes you feel amazing<br>
+                    • Different angles, different expressions<br>
+                    • No filters, no heavy makeup needed<br>
+                    • Just be YOU - that's who we're selling
+                </p>
+                <button class="btn btn-secondary" style="margin-top: 24px; background: var(--white); color: var(--black); border: 1px solid var(--white);" onclick="window.open('sselfie-ai-selfie-training-guide.html', '_blank')">
+                    SEE THE COMPLETE GUIDE
+                </button>
+            </div>
+            
+            <div class="upload-area" id="uploadArea">
+                <h3>Drag your selfies here</h3>
+                <p>or click to browse</p>
+                <input type="file" id="fileInput" class="file-input" multiple accept="image/*">
+            </div>
+            
+            <div style="text-align: center; margin: 24px 0;">
+                <button class="btn btn-secondary" onclick="window.open('sselfie-ai-selfie-training-guide.html', '_blank')" style="font-size: 11px; letter-spacing: 0.3em;">
+                    NEED HELP? SEE EXAMPLES
+                </button>
+            </div>
+            
+            <div class="uploaded-files" id="uploadedFiles"></div>
+            
+            <div class="sandra-quote">
+                "Remember: Your AI model learns from these photos. The better the selfies, the more amazing your results."
+            </div>
+        </div>
+        
+        <!-- Step 6: Final Details -->
+        <div class="step" id="step6">
+            <div class="step-header">
+                <h2>Almost there!</h2>
+                <p class="step-subtitle">Just a few more details</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="brandName">What should we call your brand?</label>
+                <input type="text" id="brandName" placeholder="Your name, business name, or something creative">
+            </div>
+            
+            <div class="form-group">
+                <label for="tagline">Your one-liner (optional but powerful)</label>
+                <input type="text" id="tagline" placeholder="I help women... / Transforming lives through... / Your story, your way">
+            </div>
+            
+            <div class="form-group">
+                <label>When do you want to launch?</label>
+                <div class="option-grid">
+                    <div class="option-card" data-value="asap">
+                        <h4>ASAP</h4>
+                        <p>I'm ready now</p>
+                    </div>
+                    <div class="option-card" data-value="week">
+                        <h4>This week</h4>
+                        <p>Just need to prep</p>
+                    </div>
+                    <div class="option-card" data-value="month">
+                        <h4>This month</h4>
+                        <p>Want to do it right</p>
+                    </div>
+                    <div class="option-card" data-value="someday">
+                        <h4>When I'm ready</h4>
+                        <p>Still figuring it out</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="brand-story">
+                <h3>What happens next?</h3>
+                <p style="margin-top: 16px;">
+                    1. I'll train your custom AI model (24-48 hours)<br>
+                    2. You'll get 30 editorial-quality images<br>
+                    3. We'll build your one-click studio<br>
+                    4. You'll have a live business by Friday<br><br>
+                    <strong>Ready to build your empire?</strong>
+                </p>
+            </div>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)">Back</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 6;
+        let formData = {};
+        let selectedOptions = {};
+        
+        // Initialize
+        updateProgress();
+        updateButtons();
+        
+        function changeStep(direction) {
+            // Save current step data
+            saveCurrentStepData();
+            
+            // Move to next/previous step
+            currentStep += direction;
+            
+            if (currentStep < 1) currentStep = 1;
+            if (currentStep > totalSteps) {
+                // Submit form
+                submitForm();
+                return;
+            }
+            
+            showCurrentStep();
+            updateProgress();
+            updateButtons();
+        }
+        
+        function showCurrentStep() {
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById(`step${currentStep}`).classList.add('active');
+        }
+        
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.style.display = currentStep === 1 ? 'none' : 'block';
+            nextBtn.textContent = currentStep === totalSteps ? 'Launch My Brand' : 'Continue';
+        }
+        
+        function saveCurrentStepData() {
+            const currentStepElement = document.getElementById(`step${currentStep}`);
+            const inputs = currentStepElement.querySelectorAll('input, textarea, select');
+            
+            inputs.forEach(input => {
+                if (input.type === 'file') {
+                    formData[input.id] = input.files;
+                } else {
+                    formData[input.id] = input.value;
+                }
+            });
+        }
+        
+        function submitForm() {
+            console.log('Form submitted:', formData);
+            console.log('Selected options:', selectedOptions);
+            
+            // Here you would normally send the data to your backend
+            alert('Welcome to SSELFIE Studio! Your custom AI model will be ready in 24-48 hours. Check your email for next steps.');
+        }
+        
+        // Handle option card selection
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.option-card')) {
+                const card = e.target.closest('.option-card');
+                const group = card.parentElement;
+                const isMultiSelect = card.closest('.form-group').querySelector('label').textContent.includes('choose all');
+                
+                if (isMultiSelect) {
+                    card.classList.toggle('selected');
+                } else {
+                    group.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                }
+                
+                // Save selection
+                const stepNum = document.querySelector('.step.active').id.replace('step', '');
+                const value = card.dataset.value;
+                const questionText = card.closest('.form-group').querySelector('label').textContent;
+                
+                if (!selectedOptions[stepNum]) selectedOptions[stepNum] = {};
+                if (isMultiSelect) {
+                    if (!selectedOptions[stepNum][questionText]) selectedOptions[stepNum][questionText] = [];
+                    const index = selectedOptions[stepNum][questionText].indexOf(value);
+                    if (index > -1) {
+                        selectedOptions[stepNum][questionText].splice(index, 1);
+                    } else {
+                        selectedOptions[stepNum][questionText].push(value);
+                    }
+                } else {
+                    selectedOptions[stepNum][questionText] = value;
+                }
+            }
+        });
+        
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadedFiles = document.getElementById('uploadedFiles');
+        let files = [];
+        
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        function handleFiles(newFiles) {
+            for (let file of newFiles) {
+                if (file.type.startsWith('image/')) {
+                    files.push(file);
+                    displayFile(file);
+                }
+            }
+            updateUploadArea();
+        }
+        
+        function displayFile(file) {
+            const div = document.createElement('div');
+            div.className = 'file-preview';
+            
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-file';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = () => {
+                files = files.filter(f => f !== file);
+                div.remove();
+                updateUploadArea();
+            };
+            
+            div.appendChild(img);
+            div.appendChild(removeBtn);
+            uploadedFiles.appendChild(div);
+        }
+        
+        function updateUploadArea() {
+            const count = files.length;
+            uploadArea.querySelector('h3').textContent = count > 0 ? `${count} selfies uploaded` : 'Drag your selfies here';
+            uploadArea.querySelector('p').textContent = count < 15 ? 'Add more for better results' : 'Perfect! You\'re all set';
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import { FC, forwardRef } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 
 export interface HeroCardProps {

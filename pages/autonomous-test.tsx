@@ -7,17 +7,7 @@ interface AutonomousTestPageProps {
 }
 
 const AutonomousTestPage: React.FC<AutonomousTestPageProps> = ({ 
-  title = "Autonomous Test Page" 
-}) => {
-  return (
-    <div className="autonomous-test-page">
-      <AutonomousNavigation />
-      <div className="content">
-        <h1>{title}</h1>
-        <AutonomousTestStack />
-      </div>
-    </div>
-  );
+
 };
 
-export default AutonomousTestPage;
+export default autonomous-test;

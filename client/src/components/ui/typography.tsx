@@ -1,6 +1,6 @@
-import React, { HTMLAttributes, forwardRef } from 'react';
 import { cn } from "@/lib/utils"
 import { VariantProps, cva } from "class-variance-authority"
+import { forwardRef } from "react"
 
 const typographyVariants = cva("", {
   variants: {
@@ -26,7 +26,7 @@ const typographyVariants = cva("", {
 })
 
 interface TypographyProps
-  extends HTMLAttributes<HTMLHeadingElement | HTMLParagraphElement>,
+  extends React.HTMLAttributes<HTMLHeadingElement | HTMLParagraphElement>,
     VariantProps<typeof typographyVariants> {
   as?: "h1" | "h2" | "h3" | "h4" | "p" | "div" | "span"
 }

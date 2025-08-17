@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React from 'react';
 
 interface LuxuryHeroProps {
   headline: string;
@@ -8,7 +8,7 @@ interface LuxuryHeroProps {
   onCtaClick: () => void;
 }
 
-export const LuxuryHero: FC<LuxuryHeroProps> = ({
+export const LuxuryHero: React.FC<LuxuryHeroProps> = ({
   headline,
   subheadline,
   ctaText,
@@ -44,7 +44,7 @@ export const LuxuryHero: FC<LuxuryHeroProps> = ({
         )}
       </div>
 
-      <style>{`
+      <style jsx>{`
         .luxury-hero {
           position: relative;
           min-height: 100vh;

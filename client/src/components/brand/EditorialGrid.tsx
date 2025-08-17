@@ -1,10 +1,11 @@
-import { FC, ReactNode } from 'react';
+import React from 'react';
+
 interface EditorialGridProps {
-  children: ReactNode;
+  children: React.ReactNode;
   columns?: 2 | 3 | 4;
 }
 
-export const EditorialGrid: FC<EditorialGridProps> = ({
+export const EditorialGrid: React.FC<EditorialGridProps> = ({
   children,
   columns = 3
 }) => {

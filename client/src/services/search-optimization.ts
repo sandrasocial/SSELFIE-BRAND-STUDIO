@@ -27,7 +27,7 @@ export class SearchOptimizer {
   private frequentlyAccessed: Set<string> = new Set();
 
   async configure(): Promise<void> {
-    console.log('SEARCH OPTIMIZATION: Configuring enhanced search capabilities...');
+    console.log('🔍 SEARCH OPTIMIZATION: Configuring enhanced search capabilities...');
     await this.loadDocumentationCache();
     this.setupRelevanceTracking();
   }
@@ -38,7 +38,7 @@ export class SearchOptimizer {
     // Check cache first for frequently accessed docs
     const cachedResults = this.searchCache(query);
     if (cachedResults.length > 0) {
-      console.log(`CACHE HIT: Found ${cachedResults.length} cached results`);
+      console.log(`🔍 CACHE HIT: Found ${cachedResults.length} cached results`);
       return cachedResults;
     }
 
@@ -51,7 +51,7 @@ export class SearchOptimizer {
     // Update search history
     this.updateSearchHistory(results);
     
-    console.log(`SEARCH COMPLETE: ${results.length} results in ${Date.now() - startTime}ms`);
+    console.log(`🔍 SEARCH COMPLETE: ${results.length} results in ${Date.now() - startTime}ms`);
     return results;
   }
 

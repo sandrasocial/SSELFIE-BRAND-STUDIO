@@ -1,6 +1,6 @@
-import { KeyboardEvent } from 'react';
-import SandraNavigation from '../components/SandraNavigation';
-import { Button } from "../components/ui/button";
+import React, { useState, useRef, useEffect } from 'react';
+import SandraNavigation from '@/components/SandraNavigation';
+import { Button } from "@/components/ui/button";
 
 interface ChatMessage {
   type: 'user' | 'sandra';
@@ -86,7 +86,7 @@ What's your biggest dream for your personal brand right now?`,
     }
   };
 
-  const handleKeyPress = (e: KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();

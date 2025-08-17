@@ -1,0 +1,456 @@
+ 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+ [LaunchDarkly] LaunchDarkly client initialized
+SSELFIE-STUDIO:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+ Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'battery'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'layout-animations'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'navigation-override'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'oversized-images'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'publickey-credentials'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'speaker-selection'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'unoptimized-images'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'unsized-media'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Unrecognized feature: 'pointer-lock'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+ Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-0ca1b51e9fd8bea3.js:1
+/cdn-cgi/image/width=3840,quality=80,format=auto/https://storage.googleapis.com/screenshot-production-us-central1/e33979fc-c9be-4f0d-9a7b-6a3e83046828/699f82e3-b1fa-4d82-a967-9161be59c637/OPgdJz5:1  Failed to load resource: the server responded with a status of 524 ()
+[Violation] Potential permissions policy violation: payment is not allowed in this document.
+Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('<URL>').
+Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('<URL>').
+Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('<URL>').
+Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('<URL>').
+Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('<URL>').
+Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('<URL>').
+ stallwart: failed ping 1
+events.launchdarkly.com/events/bulk/62b35a865152ab14c5942820:1  Failed to load resource: net::ERR_TIMED_OUT
+events.launchdarkly.com/events/bulk/62b35a865152ab14c5942820:1  Failed to load resource: net::ERR_TIMED_OUT
+logs.browser-intake-us5-datadoghq.com/api/v2/logs?ddsource=browser&ddtags=sdk_version%3A4.46.0%2Capi%3Afetch%2Cenv%3Aproduction%2Cservice%3Awebsite%2Cversion%3Aca66146c&dd-api-key=pub31a5047a3a4692afb84a423db984dc57&dd-evp-origin-version=4.46.0&dd-evp-origin=browser&dd-request-id=7ae76fb1-b582-4802-84e0-6edbf334d212:1  Failed to load resource: net::ERR_CONNECTION_CLOSED
+events.launchdarkly.com/events/bulk/62b35a865152ab14c5942820:1  Failed to load resource: net::ERR_TIMED_OUT
+ WebSocket is already in CLOSING or CLOSED state.
+send @ 6546-b7c0f579fb75339b.js:1
+ WebSocket connection to 'wss://eval.picard.platform.replit.com/wsv2/v2.public.Q2dZSTZzaWt4QVlTQmdpSjVhVEVCaUlHY0dsallYSmtNQUE2aFFJS0pHVXpNemszT1daakxXTTVZbVV0TkdZd1pDMDVZVGRpTFRaaE0yVTRNekEwTmpneU9CSURibWw0R2hoeVpYQnNhWFF0Y21Wd2JDMW1hV3hsY3kxd2FXTmhjbVFpRGxOVFJVeEdTVVV0VTFSVlJFbFBLZ1Z6YzJFeU4wSlVDaGx5WlhCc2FYUXRjbVZ3YkMxaWJHOWphM010Y0dsallYSmtFaGR5WlhCc2FYUXRjbVZ3YkMxdFpYUmhMWEJwWTJGeVpCb2VjbVZ3YkdsMExXMWhjbWRoY21sdVpTMWliRzlqYTNNdGNHbGpZWEprU2djSXQ1dW5GQkFCVUFCYUQybHVkR1Z1ZEY5aWRYTnBibVZ6YzFvV2IyNWliMkZ5WkdsdVoxOXliMnhsWDIxbGJXSm...lZkWFpDTTNoNFFrNUlRa0ZGZURCUVltTmpaMHBIUVhoa2EydE5WblIyZW1KR2RFNHdSbFk0Y3pWV1NXNXlaSHBETTFWeFJtOTJUM2R6ZUVVeFJHWlpURE14VWpoVlVHMWlUSGhsZDFaUE5YaE5UMUZwSlRKR01WcFZaeVV5UmtKTE16bERabWs1WTBOeVJrTjNhM2xOVlZsMVVXZElVVzVUU0RKSFZGUkNhMnhMZVZaclJXdENOalp3U1dOeVYwVTBOVTl1UjJWSWIyaFpSV281Ymt4b09GZFFVbk5ETWt0RE5tWkVWSGx4VVRGdlQzZExOSFZJTlVGalZYcHFVRXBaYm1wRFZrWk9Xbk1sTWtKYU5VdHRaeVV6UkNVelJBPT3OtO0Q4CHlxg6vagMhVdjRf7wJ_kXOTMID5KOJuzzv1-3TI-YNWFIAVG7a3LQiEoDNhS16j_qXp9-rhRBvLzgE.Q2dad2NtOWtPak1pQ25KbGNHeHBkQzVqYjIwPQ' failed: 
+connect @ 5802-f8e6d9c4515a163b.js:1
+ WebSocket connection to 'wss://eval.picard.platform.replit.com/wsv2/v2.public.Q2dZSTZzaWt4QVlTQmdpSjVhVEVCaUlHY0dsallYSmtNQUE2aFFJS0pHVXpNemszT1daakxXTTVZbVV0TkdZd1pDMDVZVGRpTFRaaE0yVTRNekEwTmpneU9CSURibWw0R2hoeVpYQnNhWFF0Y21Wd2JDMW1hV3hsY3kxd2FXTmhjbVFpRGxOVFJVeEdTVVV0VTFSVlJFbFBLZ1Z6YzJFeU4wSlVDaGx5WlhCc2FYUXRjbVZ3YkMxaWJHOWphM010Y0dsallYSmtFaGR5WlhCc2FYUXRjbVZ3YkMxdFpYUmhMWEJwWTJGeVpCb2VjbVZ3YkdsMExXMWhjbWRoY21sdVpTMWliRzlqYTNNdGNHbGpZWEprU2djSXQ1dW5GQkFCVUFCYUQybHVkR1Z1ZEY5aWRYTnBibVZ6YzFvV2IyNWliMkZ5WkdsdVoxOXliMnhsWDIxbGJXSm...lZkWFpDTTNoNFFrNUlRa0ZGZURCUVltTmpaMHBIUVhoa2EydE5WblIyZW1KR2RFNHdSbFk0Y3pWV1NXNXlaSHBETTFWeFJtOTJUM2R6ZUVVeFJHWlpURE14VWpoVlVHMWlUSGhsZDFaUE5YaE5UMUZwSlRKR01WcFZaeVV5UmtKTE16bERabWs1WTBOeVJrTjNhM2xOVlZsMVVXZElVVzVUU0RKSFZGUkNhMnhMZVZaclJXdENOalp3U1dOeVYwVTBOVTl1UjJWSWIyaFpSV281Ymt4b09GZFFVbk5ETWt0RE5tWkVWSGx4VVRGdlQzZExOSFZJTlVGalZYcHFVRXBaYm1wRFZrWk9Xbk1sTWtKYU5VdHRaeVV6UkNVelJBPT3OtO0Q4CHlxg6vagMhVdjRf7wJ_kXOTMID5KOJuzzv1-3TI-YNWFIAVG7a3LQiEoDNhS16j_qXp9-rhRBvLzgE.Q2dad2NtOWtPak1pQ25KbGNHeHBkQzVqYjIwPQ' failed: 
+connect @ 5802-f8e6d9c4515a163b.js:1
+logs.browser-intake-us5-datadoghq.com/api/v2/logs?ddsource=browser&ddtags=sdk_version%3A4.46.0%2Capi%3Afetch%2Cenv%3Aproduction%2Cservice%3Awebsite%2Cversion%3Aca66146c&dd-api-key=pub31a5047a3a4692afb84a423db984dc57&dd-evp-origin-version=4.46.0&dd-evp-origin=browser&dd-request-id=91ae7ada-c6ca-4b55-b0d6-d0970d08d03d:1  Failed to load resource: net::ERR_TIMED_OUT
+logs.browser-intake-us5-datadoghq.com/api/v2/logs?ddsource=browser&ddtags=sdk_version%3A4.46.0%2Capi%3Afetch%2Cenv%3Aproduction%2Cservice%3Awebsite%2Cversion%3Aca66146c&dd-api-key=pub31a5047a3a4692afb84a423db984dc57&dd-evp-origin-version=4.46.0&dd-evp-origin=browser&dd-request-id=46278d81-2e70-4ce6-b468-fe301209bdc6:1  Failed to load resource: net::ERR_TIMED_OUT
+ WebSocket is already in CLOSING or CLOSED state.
+send @ 6546-b7c0f579fb75339b.js:1
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html:32 Unrecognized feature: 'battery'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+ WebSocket connection to 'wss://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/?token=wu6aNErhDs_M' failed: 
+t @ eruda.js:2
+eruda.js:2 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=wu6aNErhDs_M' is invalid.
+ 🔐 Stripe Key Check: [object Object]
+ ✅ Stripe promise created successfully
+ SSELFIE Studio: Service Worker registered [object ServiceWorkerRegistration]
+ SSELFIE Studio: App rendering...
+ SSELFIE Studio: App initializing...
+ SSELFIE Studio: Domain access validated, app ready
+ 🔍 useAuth final state: [object Object]
+ 🔍 Auth check: Making request to /api/auth/user
+e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/auth/user:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+ 🔍 Auth check: Response status: 401
+ 🔍 Auth check: User not authenticated (401)
+ 🔍 useAuth final state: [object Object]
+[Violation] Potential permissions policy violation: payment is not allowed in this document.
+ WebSocket connection to 'wss://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/?token=wu6aNErhDs_M' failed: 
+t @ eruda.js:2
+eruda.js:2 Uncaught (in promise) 
+ 🔐 Stripe Key Check: Object
+ ✅ Stripe promise created successfully
+ SSELFIE Studio: Service Worker registered ServiceWorkerRegistration
+ SSELFIE Studio: App rendering...
+ 🔍 useAuth final state: Object
+ 🔍 Auth check: Making request to /api/auth/user
+ ProtectedRoute state: Object
+ SSELFIE Studio: App initializing...
+ SSELFIE Studio: Domain access validated, app ready
+ 🔍 Auth check: Response status: 200
+ ✅ Auth check: User authenticated: ssa@ssasocial.com
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ ProtectedRoute state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ ProtectedRoute state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+ 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 Maya chat error: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 🔍 useAuth final state: Object
+Console.js:61 🔍 useAuth final state: Object

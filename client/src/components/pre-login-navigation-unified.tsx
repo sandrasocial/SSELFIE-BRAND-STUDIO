@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { InstallButton } from './ui/install-button';
+import { InstallButton } from '@/components/ui/install-button';
 
 interface PreLoginNavigationUnifiedProps {
   transparent?: boolean;

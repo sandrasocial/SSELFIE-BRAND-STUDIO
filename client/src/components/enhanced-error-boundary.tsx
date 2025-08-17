@@ -1,10 +1,10 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
+import React from 'react';
 import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
-import { HeroFullBleed } from '@/components/hero-full-bleed';
+import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { SandraImages } from '@/lib/sandra-images';
 
 interface Props {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 interface State {
@@ -12,7 +12,7 @@ interface State {
   error: Error | null;
 }
 
-export class EnhancedErrorBoundary extends Component<Props, State> {
+export class EnhancedErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -22,7 +22,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
   }
 
@@ -33,7 +33,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
           <PreLoginNavigationUnified />
           
           <HeroFullBleed
-            backgroundImage={SandraImages.editorial.laptop1}
+            backgroundImage={SandraImages.editorial.luxury1}
             tagline="Something went wrong"
             title="ERROR"
             ctaText="Try Again"

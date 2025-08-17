@@ -1,10 +1,10 @@
-import { FC, ReactNode } from 'react';
-import { SandraImages } from '../lib/sandra-images';
+import React from 'react';
+import { SandraImages } from '@/lib/sandra-images';
 
 interface HeroFullBleedProps {
   backgroundImage: string;
   tagline?: string; // The small top text
-  title: string | ReactNode;
+  title: string | React.ReactNode;
   subtitle?: string; // For long last names or secondary text
   ctaText?: string;
   ctaLink?: string;
@@ -14,7 +14,7 @@ interface HeroFullBleedProps {
   fullHeight?: boolean;
 }
 
-export const HeroFullBleed: FC<HeroFullBleedProps> = ({
+export const HeroFullBleed: React.FC<HeroFullBleedProps> = ({
   backgroundImage,
   tagline,
   title,
