@@ -115,7 +115,6 @@ export default function AgentWorkflowAccelerator() {
       toast({
         title: "Workflow Failed",
         description: error.message,
-        variant: "destructive",
       });
     }
   });

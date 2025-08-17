@@ -41,7 +41,6 @@ export function RollbackButton({ filePath, className }: RollbackButtonProps) {
       toast({
         title: "Rollback Failed",
         description: "Could not rollback the file. Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsRollingBack(false);

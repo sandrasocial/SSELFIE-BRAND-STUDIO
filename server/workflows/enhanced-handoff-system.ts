@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { claudeConversations, claudeMessages } from '@shared/schema';
+import { claudeConversations, claudeMessages } from '../shared/schema';
 import { eq, desc, and } from 'drizzle-orm';
 
 export interface AgentHandoffContext {

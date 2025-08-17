@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '../hooks/use-toast';
+import { apiRequest } from '../lib/queryClient';
 
 interface UserSelfie {
   id: number;
@@ -54,7 +54,7 @@ export default function PhotoSelection() {
       toast({
         title: "Save Failed",
         description: "Failed to save photo selections. Please try again.",
-        variant: "destructive",
+        
       });
     },
   });
@@ -69,7 +69,7 @@ export default function PhotoSelection() {
         toast({
           title: "Selection Limit",
           description: "Please select maximum 5 selfies for your landing page.",
-          variant: "destructive",
+          
         });
         return prev;
       }
@@ -81,7 +81,7 @@ export default function PhotoSelection() {
       toast({
         title: "No Photos Selected",
         description: "Please select at least 1 selfie for your landing page.",
-        variant: "destructive",
+        
       });
       return;
     }

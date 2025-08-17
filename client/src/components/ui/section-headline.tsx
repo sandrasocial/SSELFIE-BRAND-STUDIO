@@ -1,4 +1,4 @@
-import React from 'react'
+import { FC, forwardRef } from 'react';
 import { cn } from '@/lib/utils'
 
 interface SectionHeadlineProps {
@@ -7,7 +7,7 @@ interface SectionHeadlineProps {
   className?: string
 }
 
-export const SectionHeadline: React.FC<SectionHeadlineProps> = ({
+export const SectionHeadline: FC<SectionHeadlineProps> = ({
   tagline,
   headline,
   className

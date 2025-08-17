@@ -17,7 +17,7 @@ import {
   mayaChats,
   mayaChatMessages,
   type User,
-  type UpsertUser,
+  type InsertUser,
   type UserProfile,
   type InsertUserProfile,
   type OnboardingData,
@@ -56,7 +56,7 @@ import {
   type ClaudeMessage,
   type InsertClaudeConversation,
   type InsertClaudeMessage,
-} from "@shared/schema";
+} from "../shared/schema";
 import { db } from "./db";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
@@ -66,7 +66,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  upsertUser(user: InsertUser): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
 
   // User Profile operations
@@ -89,6 +89,7 @@ export interface IStorage {
   getGenerationTracker(id: number): Promise<GenerationTracker | undefined>;
   getUserGenerationTrackers(userId: string): Promise<GenerationTracker[]>;
   getCompletedGenerationTrackersForUser(userId: string, hoursBack: number): Promise<GenerationTracker[]>;
+  getProcessingGenerationTrackers(): Promise<GenerationTracker[]>; // CRITICAL FIX: Missing interface method
   updateAIImage(id: number, data: Partial<AiImage>): Promise<AiImage>;
 
   // User Model operations
@@ -136,6 +137,7 @@ export interface IStorage {
   getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]>;
   // REMOVED: getAllMayaChatMessages to prevent session mixing
   createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
+  saveMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>; // CRITICAL FIX: Missing method
   updateMayaChatMessage(messageId: number, updates: Partial<{ imagePreview: string; generatedPrompt: string }>): Promise<void>;
 
   // Photo selections operations
@@ -199,7 +201,7 @@ export class DatabaseStorage implements IStorage {
     return allUsers;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async upsertUser(userData: InsertUser): Promise<User> {
     console.log('🔄 Upserting user:', userData.id, userData.email);
 
     // Special admin setup for ssa@ssasocial.com
@@ -341,7 +343,7 @@ export class DatabaseStorage implements IStorage {
 
 
   async saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData> {
-    const [saved] = await db.insert(onboardingData).values(data).returning();
+    const [saved] = await db.insert(onboardingData).values(data as any).returning();
     return saved;
   }
 
@@ -383,7 +385,7 @@ export class DatabaseStorage implements IStorage {
   async createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data)
+      .values(data as any)
       .returning();
     return tracker;
   }
@@ -391,7 +393,7 @@ export class DatabaseStorage implements IStorage {
   async saveGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker> {
     const [tracker] = await db
       .insert(generationTrackers)
-      .values(data)
+      .values(data as any)
       .returning();
     return tracker;
   }
@@ -439,6 +441,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(generationTrackers)
       .where(eq(generationTrackers.userId, userId))
+      .orderBy(desc(generationTrackers.createdAt));
+  }
+
+  async getProcessingGenerationTrackers(): Promise<GenerationTracker[]> {
+    return await db
+      .select()
+      .from(generationTrackers)
+      .where(eq(generationTrackers.status, 'processing'))
       .orderBy(desc(generationTrackers.createdAt));
   }
 
@@ -887,8 +897,8 @@ export class DatabaseStorage implements IStorage {
 
   // Agent Conversations (unified with claudeConversations/claudeMessages)
   async saveAgentConversation(agentId: string, userId: string, userMessage: string, agentResponse: string, fileOperations?: any[], conversationId?: string): Promise<ClaudeConversation> {
-    // Create or get conversation
-    const convId = conversationId || `admin_${agentId}_${Date.now()}`;
+    // Create or get conversation - USE STABLE ID per agent per user
+    const convId = conversationId || `admin_${agentId}_${userId}`;
     
     let conversation = await db.query.claudeConversations.findFirst({
       where: eq(claudeConversations.conversationId, convId)
@@ -1023,15 +1033,22 @@ export class DatabaseStorage implements IStorage {
   // Agent memory operations - Complete implementation
   async saveAgentMemory(agentId: string, userId: string, memoryData: any): Promise<void> {
     try {
+      // ENHANCED: Include full conversation history in memory data
+      const enhancedMemoryData = {
+        ...memoryData,
+        conversationHistory: memoryData.conversationHistory || [],
+        lastSaved: new Date().toISOString()
+      };
+      
       // Save memory as special conversation entry
       await this.saveAgentConversation(
         agentId,
         userId,
         '**CONVERSATION_MEMORY**',
-        JSON.stringify(memoryData),
+        JSON.stringify(enhancedMemoryData),
         []
       );
-      console.log(`💾 Agent memory saved for ${agentId}`);
+      console.log(`💾 Agent memory saved for ${agentId} with ${enhancedMemoryData.conversationHistory?.length || 0} conversation messages`);
     } catch (error) {
       console.error('Failed to save agent memory:', error);
       throw error;
@@ -1190,6 +1207,11 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return message;
+  }
+
+  // CRITICAL FIX: Missing saveMayaChatMessage method causing GenerationCompletionMonitor failure
+  async saveMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
+    return this.createMayaChatMessage(data);
   }
 
 

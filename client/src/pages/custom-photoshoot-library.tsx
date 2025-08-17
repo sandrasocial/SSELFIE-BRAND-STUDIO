@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { MemberNavigation } from '@/components/member-navigation';
-import { HeroFullBleed } from '@/components/hero-full-bleed';
-import { SandraImages } from '@/lib/sandra-images';
+import { MemberNavigation } from '../components/member-navigation';
+import { HeroFullBleed } from '../components/hero-full-bleed';
+import { SandraImages } from '../lib/sandra-images';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
-import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '../hooks/use-toast';
+import { useAuth } from '../hooks/use-auth';
+import { apiRequest } from '../lib/queryClient';
 
 interface SavedPrompt {
   id: string;
@@ -66,7 +66,7 @@ export default function CustomPhotoshootLibrary() {
       toast({
         title: "Save Failed",
         description: "Could not save image to gallery",
-        variant: "destructive",
+        
       });
     }
   }, [queryClient, toast]);
@@ -124,7 +124,7 @@ export default function CustomPhotoshootLibrary() {
       toast({
         title: "Generation Failed",
         description: "Something went wrong with image generation",
-        variant: "destructive",
+        
       });
     } finally {
       setTimeout(() => {

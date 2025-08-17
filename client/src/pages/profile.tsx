@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { FormEvent, useState } from 'react';
+import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import { MemberNavigation } from '@/components/member-navigation';
+import { useToast } from '../hooks/use-toast';
+import { apiRequest } from '../lib/queryClient';
+import { MemberNavigation } from '../components/member-navigation';
 // Removed PaymentVerification - free users should access profile
-import { SandraImages } from '@/lib/sandra-images';
+import { SandraImages } from '../lib/sandra-images';
 
 export default function Profile() {
   const { user, isAuthenticated } = useAuth();
@@ -37,7 +37,7 @@ export default function Profile() {
       toast({
         title: "Update Failed", 
         description: error.message || "Failed to update profile.",
-        variant: "destructive"
+        
       });
     }
   });
@@ -68,7 +68,7 @@ export default function Profile() {
     }
   }, [profile]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     updateProfileMutation.mutate(formData);
   };

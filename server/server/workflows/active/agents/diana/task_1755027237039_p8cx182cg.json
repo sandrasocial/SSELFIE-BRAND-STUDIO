@@ -1,0 +1,78 @@
+{
+  "taskId": "task_1755027237039_p8cx182cg",
+  "assignedAgent": "diana",
+  "coordinatorAgent": "elena",
+  "taskDescription": "Monitor port configurations and detect conflicts between frontend and backend services. Set up alerts for any unauthorized port changes or conflicts.",
+  "workflowContext": "Resolving critical port conflicts affecting React application bundle serving and component mounting.",
+  "expectedDeliverables": [
+    "Port monitoring configuration",
+    "Conflict detection rules",
+    "Alert system setup"
+  ],
+  "priority": "high",
+  "status": "assigned",
+  "assignedAt": "2025-08-12T19:33:57.039Z",
+  "workflowType": "system_health",
+  "workflowTemplate": {
+    "id": "workflow_1755027237039_wi3hii9ga",
+    "name": "Comprehensive System Health Check",
+    "description": "Quick but thorough validation of all system components including technical, business, and user interface aspects",
+    "agents": [
+      {
+        "agentId": "zara",
+        "taskDescription": "Technical system health validation",
+        "expectedDeliverables": [
+          "Database connectivity status",
+          "API endpoint health check",
+          "Performance metrics analysis"
+        ],
+        "priority": "high",
+        "estimatedDuration": "15-20 minutes"
+      },
+      {
+        "agentId": "victoria",
+        "taskDescription": "Business functionality validation",
+        "expectedDeliverables": [
+          "Core business flow validation",
+          "User workflow testing",
+          "Integration status check"
+        ],
+        "priority": "high",
+        "estimatedDuration": "15-20 minutes"
+      },
+      {
+        "agentId": "aria",
+        "taskDescription": "User interface and experience validation",
+        "expectedDeliverables": [
+          "UI component status check",
+          "User experience flow validation",
+          "Frontend functionality verification"
+        ],
+        "priority": "medium",
+        "estimatedDuration": "15-20 minutes"
+      }
+    ],
+    "coordinationSteps": [
+      "1. Initialize workflow and assign tasks to agents",
+      "2. Monitor agent progress and task completion",
+      "3. Coordinate dependencies between agents",
+      "4. Collect deliverables from all agents",
+      "5. Validate success criteria and compile results"
+    ],
+    "successCriteria": [
+      "All assigned agents respond and acknowledge their tasks",
+      "All expected deliverables are provided by agents",
+      "No blocking errors or failures in task execution",
+      "zara provides: Database connectivity status",
+      "zara provides: API endpoint health check",
+      "zara provides: Performance metrics analysis",
+      "victoria provides: Core business flow validation",
+      "victoria provides: User workflow testing",
+      "victoria provides: Integration status check",
+      "aria provides: UI component status check",
+      "aria provides: User experience flow validation",
+      "aria provides: Frontend functionality verification"
+    ],
+    "created": "2025-08-12T19:33:57.039Z"
+  }
+}

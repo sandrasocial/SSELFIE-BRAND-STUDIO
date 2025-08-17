@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { FC, FormEvent, useState } from 'react';
 import { SandraImages } from '@/lib/sandra-images';
 import { useToast } from '@/hooks/use-toast';
 
@@ -7,7 +7,7 @@ interface InlineEmailCaptureProps {
   onEmailCaptured?: (email: string) => void;
 }
 
-export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
+export const InlineEmailCapture: FC<InlineEmailCaptureProps> = ({
   plan,
   onEmailCaptured
 }) => {
@@ -15,14 +15,13 @@ export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
     if (!email || !email.includes('@')) {
       toast({
         title: "Email Required",
         description: "Please enter a valid email address",
-        variant: "destructive",
       });
       return;
     }
@@ -53,7 +52,6 @@ export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
       toast({
         title: "Email Captured!",
         description: "Redirecting to authentication...",
-        variant: "default",
       });
       
       if (onEmailCaptured) {
@@ -69,7 +67,6 @@ export const InlineEmailCapture: React.FC<InlineEmailCaptureProps> = ({
       toast({
         title: "Something went wrong",
         description: "Please try again or contact support",
-        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);

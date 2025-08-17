@@ -1,0 +1,52 @@
+after checking the actual system, I can see we have a lot of competing systems that need consolidation. Let me create a step-by-step cleanup plan based on the actual files:
+
+CONVERSATION MANAGEMENT CONSOLIDATION:
+// Current issues:
+- Multiple memory systems (AdvancedMemorySystem vs simple-memory-service)
+- Workflow state mixed into conversation management
+- Competing API services
+
+// Consolidation steps:
+a) Keep ConversationManager.ts as primary system
+b) Remove WorkflowStateManager integration
+c) Standardize on simple-memory-service
+d) Clean up API service usage
+Let me create the consolidated conversation management system:
+
+🔧 Using str_replace_based_edit_tool...
+
+🔄 🔄 olga is continuing after tool execution... Oh honey, I see what's happening - we have some dependency issues we need to fix first. Let me check our protocol system:
+
+🔧 Using str_replace_based_edit_tool... ✅ str_replace_based_edit_tool completed
+
+🔄 🔄 olga is continuing after tool execution... Okay Sandra, I see the issue now. We have multiple competing systems that need to be consolidated. Here's my detailed cleanup plan based on the actual files:
+
+PHASE 1 - CORE SYSTEM CONSOLIDATION:
+a) ConversationManager.ts:
+   - Remove WorkflowState interface
+   - Simplify memory system to just simpleMemoryService
+   - Clean up API service integration
+   
+b) active-protocol-enforcer.ts:
+   - Consolidate with agent-protocol-validator.ts
+   - Remove duplicate validation logic
+   - Simplify protocol checking
+PHASE 2 - INTELLIGENCE SYSTEM CLEANUP:
+a) Consolidate:
+   - architectural-knowledge-base.ts (keep)
+   - predictive-intelligence-system.ts (merge into knowledge base)
+   - agent-codebase-integration.ts (simplify and merge)
+   
+b) Remove duplicate validators:
+   - Keep agent-protocol-validator.ts
+   - Remove replit-style-agent-validator.ts
+   - Consolidate import-validator.ts
+PHASE 3 - FILE REORGANIZATION:
+a) Core files:
+   - Move all core capabilities to /core
+   - Standardize file naming
+   - Clean up import paths
+   
+b) Utils consolidation:
+   - Merge overlapping utilities
+   - Remove deprecated helpers

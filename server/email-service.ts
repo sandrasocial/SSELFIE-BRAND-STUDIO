@@ -160,7 +160,7 @@ export class EmailService {
       const result = await resend.emails.send({
         from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>',
         to: userEmail,
-        subject: `${firstName}, your AI model is ready! Time to create some magic ✨`,
+        subject: `${firstName}, your AI model is ready! Time to create some magic`,
         html: emailContent,
         text: `Hey ${firstName}! 
 
@@ -299,7 +299,7 @@ SSELFIE Studio - Where Your Personal Brand Gets Born`
       const result = await resend.emails.send({
         from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>',
         to: userEmail,
-        subject: `${firstName}, your AI model is training! Get ready for magic ✨`,
+        subject: `${firstName}, your AI model is training! Get ready for magic`,
         html: emailContent,
         text: `Hey ${firstName}!
 
