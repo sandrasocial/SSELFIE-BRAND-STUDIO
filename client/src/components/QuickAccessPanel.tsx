@@ -13,13 +13,13 @@ export default function QuickAccessPanel() {
             onClick={() => window.open('/', '_blank')}
             className="w-full px-4 py-2 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 transition-colors text-sm"
           >
-            🚀 Open Full Preview
+            Open Full Preview
           </button>
           <button
             onClick={() => window.location.href = '/visual-editor'}
             className="w-full px-4 py-2 bg-black text-white border border-black hover:bg-gray-800 transition-colors text-sm"
           >
-            🎨 Visual Editor
+            Visual Editor
           </button>
           <div className="text-xs text-gray-500 text-center mt-2">
             Preview has "Open Full Preview" button

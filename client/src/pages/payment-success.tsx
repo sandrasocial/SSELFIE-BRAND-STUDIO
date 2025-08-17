@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
-import { HeroFullBleed } from '@/components/HeroFullBleed';
-import { SandraImages } from '@/lib/sandra-images';
-import { useAuth } from '@/hooks/use-auth';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
+import { HeroFullBleed } from '../components/HeroFullBleed';
+import { SandraImages } from '../lib/sandra-images';
+import { useAuth } from '../hooks/use-auth';
 import { Link, useLocation } from 'wouter';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '../hooks/use-toast';
+import { apiRequest } from '../lib/queryClient';
 
 export default function PaymentSuccess() {
   const { user, isAuthenticated } = useAuth();

@@ -1,12 +1,11 @@
-import React from 'react';
-
+import { FC, ReactNode } from 'react';
 interface LuxuryEditorialLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
   title?: string;
   subtitle?: string;
 }
 
-export const LuxuryEditorialLayout: React.FC<LuxuryEditorialLayoutProps> = ({
+export const LuxuryEditorialLayout: FC<LuxuryEditorialLayoutProps> = ({
   children,
   title,
   subtitle

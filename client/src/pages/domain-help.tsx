@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCorrectDomainUrl, detectBrowserIssues } from "@/utils/browserCompat";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { getCorrectDomainUrl, detectBrowserIssues } from "../utils/browserCompat";
 
 export default function DomainHelp() {
   const [browserIssues, setBrowserIssues] = useState<string[]>([]);

@@ -19,7 +19,7 @@ export class MayaChatPreviewService {
 
 Here are your stunning photos! Click the heart ♡ on any image you love to save it to your gallery.
 
-✨ Generated with your personal AI model using Sandra's proven settings
+Generated with your personal AI model using Sandra's proven settings
 📸 ${imageUrls.length} professional-quality images created`,
         imagePreview: JSON.stringify(imageUrls), // Store URLs as JSON
         generatedPrompt: prompt
@@ -39,13 +39,12 @@ Here are your stunning photos! Click the heart ♡ on any image you love to save
    */
   static async heartImageToGallery(userId: string, imageUrl: string, prompt: string, category: string = 'Maya AI') {
     try {
-      // Create permanent gallery entry when user hearts the image
+      // Create permanent gallery entry when user hearts the image  
       const galleryImage = await storage.saveAIImage({
         userId,
         imageUrl,
         prompt,
-        category,
-        status: 'completed',
+        style: category, // Use 'style' field instead of 'category'
         generationStatus: 'completed',
         predictionId: '', // Not needed for hearted images
         

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { Database } from '@replit/database';
+import Database from '@replit/database';
 
 const db = new Database();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -31,8 +31,7 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    const user = JSON.parse(userData as string);
+    const user = typeof userData === 'string' ? JSON.parse(userData) : JSON.parse(JSON.stringify(userData));
     const { password: _, ...userWithoutPassword } = user;
 
     return NextResponse.json({

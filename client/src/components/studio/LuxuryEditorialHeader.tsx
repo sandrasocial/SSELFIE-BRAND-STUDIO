@@ -1,7 +1,6 @@
-import React from 'react';
-
+import { FC } from 'react';
 // Luxury editorial header component for SSELFIE Studio
-export const LuxuryEditorialHeader: React.FC<{
+export const LuxuryEditorialHeader: FC<{
   title: string;
   subtitle?: string;
 }> = ({ title, subtitle }) => {

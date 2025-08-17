@@ -1,5 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger, Sentry } from '../config/monitoring';
+import { logger } from '../config/monitoring';
+
+// Extend Express Request type to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
 
 // Custom error class
 export class AppError extends Error {
@@ -37,9 +46,9 @@ export const errorHandler = (
     user: req.user,
   });
 
-  // Send to Sentry if it's a server error
+  // Log server errors for monitoring
   if (err.statusCode >= 500) {
-    Sentry.captureException(err);
+    logger.error(`Server Error: ${err.message}`);
   }
 
   // Development error response

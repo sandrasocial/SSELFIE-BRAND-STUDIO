@@ -1,0 +1,40 @@
+8 potential vulnerabilities found.
+Last ran on
+ 
+12:55 noon, Aug 12, 2025
+Outdated dependencies have known vulnerabilities
+There are dependencies that have vulnerabilities and may need to be updated.
+These dependencies may cause issues if updated without making additional changes. You can have the Agent update them for you and make any necessary changes.
+next@13.5.11
+Detected potential vulnerability in client/src/pages/about.tsx
+XSS Vulnerability: Unsafe DOM Manipulation. User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities. Replace with safe DOM methods: Use createElement() + appendChild() + textContent for dynamic content. Avoid use innerHTML with user data: Even escaped data can be risky. If HTML injection is absolutely necessary: Sanitize with DOMPurify library first.
+client/src/pages/about.tsx
+    script.innerHTML = JSON.stringify(structuredData);
+Detected potential vulnerability in client/src/pages/how-it-works.tsx
+XSS Vulnerability: Unsafe DOM Manipulation. User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities. Replace with safe DOM methods: Use createElement() + appendChild() + textContent for dynamic content. Avoid use innerHTML with user data: Even escaped data can be risky. If HTML injection is absolutely necessary: Sanitize with DOMPurify library first.
+client/src/pages/how-it-works.tsx
+    script.innerHTML = JSON.stringify(structuredData);
+Detected potential vulnerability in client/src/pages/pricing.tsx
+XSS Vulnerability: Unsafe DOM Manipulation. User controlled data in methods like `innerHTML`, `outerHTML` or `document.write` is an anti-pattern that can lead to XSS vulnerabilities. Replace with safe DOM methods: Use createElement() + appendChild() + textContent for dynamic content. Avoid use innerHTML with user data: Even escaped data can be risky. If HTML injection is absolutely necessary: Sanitize with DOMPurify library first.
+client/src/pages/pricing.tsx
+    script.innerHTML = JSON.stringify(structuredData);
+Detected potential vulnerability in server/routes.ts
+A gitleaks Generic API Key detected. Avoid hardcoding credentials directly in connection strings as this creates security risks. Instead, use environment variables to store and access credentials at runtime. If you need the actual credential values to make this work properly, ask me to provide them through Replit's secret system.
+server/routes.ts
+      const isImpersonatedShannon = authUserId === 'shannon-1753945376880' && userId === '42585527';
+Detected potential vulnerability in server/routes.ts
+Detected user input used to manually construct a SQL string. This is usually bad practice because manual construction could accidentally result in a SQL injection. An attacker could use a SQL injection to steal or modify contents of the database. Instead, use a parameterized query which is available by default in most database engines. Alternatively, consider using an object-relational mapper (ORM) such as Sequelize which will protect your queries.
+server/routes.ts
+              content: `You are Maya, the celebrity stylist expert. Create ONE sophisticated editorial photoshoot prompt for "${category} - ${subcategory}".
+Detected potential vulnerability in server/routes/admin-tools.js
+Detected calls to child_process from a function argument `req`. This could lead to a command injection if the input is user controllable. Try to avoid calls to child_process, and if it is needed ensure user input is correctly sanitized or sandboxed.
+server/routes/admin-tools.js
+    const output = execSync(command, { 
+Detected potential vulnerability in server/tools/bash.ts
+Detected non-literal calls to spawn(). This could lead to a command injection vulnerability.
+server/tools/bash.ts
+    const child = spawn('bash', ['-c', command], {
+Detected potential vulnerability in server/tools/bash.ts
+Detected non-literal calls to spawn(). This could lead to a command injection vulnerability.
+server/tools/bash.ts
+    const child = spawn('bash', ['-c', command], {

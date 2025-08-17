@@ -1,49 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 interface UnifiedLoginButtonProps {
-  text?: string;
-  subtitle?: string;
-  className?: string;
-  showBrand?: boolean;
+  text: string;
+  showBrand: boolean;
 }
 
-export default function UnifiedLoginButton({ 
-  text = "Sign in to continue",
-  subtitle = "Access your AI photography studio",
-  className = "",
-  showBrand = true 
-}: UnifiedLoginButtonProps) {
-  const [isLoading, setIsLoading] = useState(false);
-
+export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButtonProps) {
   const handleLogin = () => {
-    setIsLoading(true);
-    window.location.href = "/api/login";
+    window.location.href = '/api/login';
   };
 
   return (
-    <div className={`text-center ${className}`}>
+    <div className="text-center">
       {showBrand && (
-        <div className="mb-6">
-          <h2 className="font-serif text-2xl font-light text-black mb-2">
-            SSELFIE STUDIO
-          </h2>
-          <p className="text-gray-600 text-sm">
-            {subtitle}
-          </p>
-        </div>
+        <h1 className="text-3xl font-bold mb-4">SSELFIE Studio</h1>
       )}
-
-      <button
+      <button 
         onClick={handleLogin}
-        disabled={isLoading}
-        className="bg-black text-white px-8 py-3 text-sm tracking-wider uppercase hover:bg-gray-800 transition-colors disabled:opacity-50"
+        className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
       >
-        {isLoading ? 'Connecting...' : text}
+        {text}
       </button>
-      
-      <div className="text-sm text-gray-500 mt-4">
-        Secure authentication powered by Replit
-      </div>
     </div>
   );
 }

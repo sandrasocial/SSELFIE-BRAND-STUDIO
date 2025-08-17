@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { KeyboardEvent } from 'react';
 import { PhotoshootPrompt } from '@/types/photoshoot';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,12 +24,12 @@ export const PromptCard = memo<PromptCardProps>(({
       toast({
         title: "Training Required",
         description: "Please complete your AI model training first.",
-        variant: "destructive",
+        
       });
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleClick();

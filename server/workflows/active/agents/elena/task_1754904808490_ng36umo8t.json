@@ -1,0 +1,78 @@
+{
+  "taskId": "task_1754904808490_ng36umo8t",
+  "assignedAgent": "elena",
+  "coordinatorAgent": "elena",
+  "taskDescription": "Please help coordinate a systematic cleanup of our TypeScript issues. We need to:\n1. Prioritize which types/interfaces need fixing first\n2. Create a structured plan for addressing the 488 TypeScript errors\n3. Ensure all key dependencies have proper type declarations\n4. Validate database schema types match usage",
+  "workflowContext": "We're conducting a comprehensive project audit and need to clean up technical debt, particularly around TypeScript typing issues.",
+  "expectedDeliverables": [
+    "Prioritized list of TypeScript fixes",
+    "Dependency type declaration plan",
+    "Database schema validation report"
+  ],
+  "priority": "medium",
+  "status": "assigned",
+  "assignedAt": "2025-08-11T09:33:28.490Z",
+  "workflowType": "system_health",
+  "workflowTemplate": {
+    "id": "workflow_1754904808489_kffyn0db3",
+    "name": "Comprehensive System Health Check",
+    "description": "Quick but thorough validation of all system components including technical, business, and user interface aspects",
+    "agents": [
+      {
+        "agentId": "zara",
+        "taskDescription": "Technical system health validation",
+        "expectedDeliverables": [
+          "Database connectivity status",
+          "API endpoint health check",
+          "Performance metrics analysis"
+        ],
+        "priority": "high",
+        "estimatedDuration": "15-20 minutes"
+      },
+      {
+        "agentId": "victoria",
+        "taskDescription": "Business functionality validation",
+        "expectedDeliverables": [
+          "Core business flow validation",
+          "User workflow testing",
+          "Integration status check"
+        ],
+        "priority": "high",
+        "estimatedDuration": "15-20 minutes"
+      },
+      {
+        "agentId": "aria",
+        "taskDescription": "User interface and experience validation",
+        "expectedDeliverables": [
+          "UI component status check",
+          "User experience flow validation",
+          "Frontend functionality verification"
+        ],
+        "priority": "medium",
+        "estimatedDuration": "15-20 minutes"
+      }
+    ],
+    "coordinationSteps": [
+      "1. Initialize workflow and assign tasks to agents",
+      "2. Monitor agent progress and task completion",
+      "3. Coordinate dependencies between agents",
+      "4. Collect deliverables from all agents",
+      "5. Validate success criteria and compile results"
+    ],
+    "successCriteria": [
+      "All assigned agents respond and acknowledge their tasks",
+      "All expected deliverables are provided by agents",
+      "No blocking errors or failures in task execution",
+      "zara provides: Database connectivity status",
+      "zara provides: API endpoint health check",
+      "zara provides: Performance metrics analysis",
+      "victoria provides: Core business flow validation",
+      "victoria provides: User workflow testing",
+      "victoria provides: Integration status check",
+      "aria provides: UI component status check",
+      "aria provides: User experience flow validation",
+      "aria provides: Frontend functionality verification"
+    ],
+    "created": "2025-08-11T09:33:28.489Z"
+  }
+}

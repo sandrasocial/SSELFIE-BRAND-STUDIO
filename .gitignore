@@ -9,6 +9,14 @@ dist/
 build/
 *.tsbuildinfo
 
+# Development cache
+.cache/
+.vite/
+
+# Training data (keep in production)
+# temp_training/
+# attached_assets/
+
 # Environment variables
 .env
 .env.local

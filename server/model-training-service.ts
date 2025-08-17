@@ -118,7 +118,7 @@ export class ModelTrainingService {
       
       // Wait for the zip to be written
       await new Promise((resolve, reject) => {
-        output.on('close', resolve);
+        output.on('close', () => resolve(undefined));
         output.on('error', reject);
       });
       
@@ -184,17 +184,19 @@ export class ModelTrainingService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1000, // 🔥 SHANNON'S SUCCESS: 1000 steps = optimal balance (vs 1200 overtraining)
-            learning_rate: 0.0004, // 🔥 SHANNON'S SUCCESS: 0.0004 = strong feature learning (vs 0.0001 too weak)
-            batch_size: 1, // 🔥 SHANNON'S SUCCESS: Single batch for precise training
-            lora_rank: 32, // 🔥 SHANNON'S SUCCESS: 32 for complex facial features
-            resolution: "1024", // 🔥 SHANNON'S SUCCESS: 1024x1024 ideal resolution
-            optimizer: "adamw8bit", // 🔥 SHANNON'S SUCCESS: Memory efficient optimizer
-            autocaption: false, // 🔥 SHANNON'S SUCCESS: Disabled = pure trigger word association (vs true = diluted)
-            cache_latents_to_disk: false, // 🔥 SHANNON'S SUCCESS: Memory optimization
-            caption_dropout_rate: 0.1 // 🔥 SHANNON'S SUCCESS: 0.1 = better generalization (vs 0.05 = overfitting)
+            steps: 1000, // SHANNON'S SUCCESS: 1000 steps = optimal balance (vs 1200 overtraining)
+            learning_rate: 0.0004, // SHANNON'S SUCCESS: 0.0004 = strong feature learning (vs 0.0001 too weak)
+            batch_size: 1, // SHANNON'S SUCCESS: Single batch for precise training
+            lora_rank: 32, // SHANNON'S SUCCESS: 32 for complex facial features
+            resolution: "1024", // SHANNON'S SUCCESS: 1024x1024 ideal resolution
+            optimizer: "adamw8bit", // SHANNON'S SUCCESS: Memory efficient optimizer
+            autocaption: false, // SHANNON'S SUCCESS: Disabled = pure trigger word association (vs true = diluted)
+            cache_latents_to_disk: false, // SHANNON'S SUCCESS: Memory optimization
+            caption_dropout_rate: 0.1 // SHANNON'S SUCCESS: 0.1 = better generalization (vs 0.05 = overfitting)
           },
-          destination: `sandrasocial/${modelName}`
+          // PHASE 2 FIX: Remove hardcoded destination to prevent "training destination does not exist" error
+          // destination: `sandrasocial/${modelName}` // This requires special permissions
+          // Let Replicate auto-assign destination for new users
         })
       });
 
@@ -281,7 +283,7 @@ export class ModelTrainingService {
         try {
           // Get the trained model's actual version ID from Replicate API
           const modelName = `${userId}-selfie-lora`;
-          const modelResponse = await fetch(`https://api.replicate.com/v1/models/sandrasocial/${modelName}`, {
+          const modelResponse = await fetch(`https://api.replicate.com/v1/models/${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`, {
             headers: {
               'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
               'Content-Type': 'application/json'
@@ -293,7 +295,7 @@ export class ModelTrainingService {
             // Use the latest version ID from the trained model
             if (modelData.latest_version?.id) {
               updateData.replicateVersionId = modelData.latest_version.id;
-              updateData.replicateModelId = `sandrasocial/${modelName}`; // Update to actual model name
+              updateData.replicateModelId = `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`; // Update to actual model name
             }
           }
         } catch (error) {
@@ -303,7 +305,7 @@ export class ModelTrainingService {
       }
       
       if (status === 'completed') {
-        updateData.trainedModelPath = `sandrasocial/${userModel.replicateModelId}`;
+        updateData.trainedModelPath = userModel.replicateModelId;
       }
       
       await storage.updateUserModel(userId, updateData);

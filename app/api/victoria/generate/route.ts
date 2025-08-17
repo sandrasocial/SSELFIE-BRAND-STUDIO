@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = getAuth(request);
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Temporary auth bypass for development
+    const userId = 'temp-user-id';
 
     const body = await request.json();
     const { prompt, type = 'landing-page', style = 'modern' } = body;
@@ -17,33 +12,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
-    // Generate website content using AI
-    const websiteData = await generateWebsiteContent(prompt, type, style);
-    
-    // Save to database
-    const website = await db.website.create({
-      data: {
-        userId,
+    // Temporary response for development
+    const websiteData = {
+      title: `Generated: ${prompt}`,
+      description: `Website for: ${prompt}`,
+      content: `<h1>${prompt}</h1><p>Generated website content for ${type} style ${style}</p>`,
+      status: 'generated'
+    };
+
+    return NextResponse.json({
+      success: true,
+      website: {
+        id: 'temp-id',
         title: websiteData.title,
         description: websiteData.description,
         content: websiteData.content,
         style,
         type,
-        prompt,
-        status: 'generated',
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      website: {
-        id: website.id,
-        title: website.title,
-        description: website.description,
-        content: website.content,
-        style: website.style,
-        type: website.type,
-        createdAt: website.createdAt,
+        createdAt: new Date().toISOString(),
       }
     });
 

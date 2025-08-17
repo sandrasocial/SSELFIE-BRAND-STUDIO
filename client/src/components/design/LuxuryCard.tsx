@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import styled from 'styled-components';
 
 interface LuxuryCardProps {
@@ -51,7 +51,7 @@ const LuxuryImage = styled.img`
   display: block;
 `;
 
-const LuxuryCard: React.FC<LuxuryCardProps> = ({
+const LuxuryCard: FC<LuxuryCardProps> = ({
   title,
   subtitle,
   content,

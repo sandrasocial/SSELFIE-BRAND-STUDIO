@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '@/hooks/use-auth';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '../hooks/use-auth';
+import { apiRequest } from '../lib/queryClient';
+import { useToast } from '../hooks/use-toast';
 
 export default function AuthSuccess() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -41,10 +41,8 @@ export default function AuthSuccess() {
             description: "Your account has been set up successfully.",
           });
 
-          // Redirect to workspace after successful setup
-          setTimeout(() => {
-            setLocation('/workspace');
-          }, 1000);
+          // Immediate redirect with proper auth state
+          setLocation('/workspace');
         } else {
           throw new Error('Failed to setup plan');
         }
@@ -53,7 +51,7 @@ export default function AuthSuccess() {
         toast({
           title: "Setup Error",
           description: "There was an issue setting up your account. Please try again.",
-          variant: "destructive",
+          
         });
         
         // Still redirect to workspace, they can setup later

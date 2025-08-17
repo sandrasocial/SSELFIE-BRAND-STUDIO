@@ -1,3 +1,4 @@
+import { FC } from 'react';
 interface MoodboardSectionProps {
   title: string;
   images: string[];
@@ -5,7 +6,7 @@ interface MoodboardSectionProps {
   padding?: string;
 }
 
-export const MoodboardSection: React.FC<MoodboardSectionProps> = ({
+export const MoodboardSection: FC<MoodboardSectionProps> = ({
   title,
   images
 }) => {

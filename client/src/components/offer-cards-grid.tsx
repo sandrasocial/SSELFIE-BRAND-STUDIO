@@ -1,6 +1,7 @@
-"use client";
+"use client"
 
-import React from "react";
+import { FC } from 'react';;
+
 import { OfferCard } from "@/components/ui/offer-card";
 import { SandraImages } from "@/lib/sandra-images";
 
@@ -40,7 +41,7 @@ const offers = [
   }
 ];
 
-const OfferCardsGrid: React.FC = () => (
+const OfferCardsGrid: FC = () => (
   <section className="py-20 md:py-32 bg-[#F1F1F1]">
     <div className="max-w-5xl mx-auto px-6 md:px-8 lg:px-12">
       {/* Section Header */}

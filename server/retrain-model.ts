@@ -36,7 +36,7 @@ export class ModelRetrainService {
       
       // Start new Replicate training using ostris/flux-dev-lora-trainer
       const trainingData = {
-        destination: `sandrasocial/${newModelName}`,
+        destination: `${process.env.REPLICATE_USERNAME || 'models'}/${newModelName}`,
         input: {
           input_images: s3ZipUrl,
           trigger_word: existingModel.triggerWord, // Use existing trigger word
@@ -89,7 +89,7 @@ export class ModelRetrainService {
         modelName: newModelName,
         trainingStatus: 'training',
         triggerWord: existingModel.triggerWord, // Keep existing trigger word
-        trainedModelPath: `sandrasocial/${newModelName}`,
+        trainedModelPath: `${process.env.REPLICATE_USERNAME || 'models'}/${newModelName}`,
         modelType: 'flux-standard',
         updatedAt: new Date()
       });

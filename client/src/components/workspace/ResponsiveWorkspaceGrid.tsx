@@ -1,7 +1,6 @@
-import React from 'react';
-
+import { ReactNode } from 'react';
 interface ResponsiveWorkspaceGridProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function ResponsiveWorkspaceGrid({ children }: ResponsiveWorkspaceGridProps) {
