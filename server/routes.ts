@@ -1803,25 +1803,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // User Model API - Required for AI training status
-  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user?.claims?.sub;
-      
-      // For now, return basic model data
-      // TODO: Integrate with Replicate for real training status
-      const userModel = {
-        trainingStatus: 'completed',
-        replicateModelId: `sselfie-${userId}`,
-        lastTrainingDate: new Date().toISOString()
-      };
-      
-      res.json(userModel);
-    } catch (error) {
-      console.error('User model API error:', error);
-      res.status(500).json({ error: 'Failed to get user model' });
-    }
-  });
+  // REMOVED: Hardcoded user model endpoint - replaced by real database endpoint below
 
   // AI Images API - Required for user gallery
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
