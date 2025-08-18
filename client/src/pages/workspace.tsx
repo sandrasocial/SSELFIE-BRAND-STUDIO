@@ -15,19 +15,43 @@ import { WebsiteManager } from '../components/workspace/WebsiteManager';
 
 
 export default function Workspace() {
+  // DEVELOPMENT BYPASS: Check for admin development parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const isDevelopmentAdmin = urlParams.get('dev_admin') === 'sandra';
+  
   const { user, isAuthenticated, isLoading, error } = useAuth();
+  
+  // Override authentication check for development
+  const effectiveAuthenticated = isDevelopmentAdmin || isAuthenticated;
+  
+  // Mock user data for development admin
+  const effectiveUser = isDevelopmentAdmin ? {
+    id: '44991795',
+    email: 'sandra@sselfie.ai',
+    plan: 'admin',
+    role: 'admin',
+    name: 'Sandra (Admin Dev)'
+  } : user;
+  
+  console.log('🔧 WORKSPACE AUTH CHECK:', {
+    isDevelopmentAdmin,
+    isAuthenticated,
+    effectiveAuthenticated,
+    effectiveUser: effectiveUser?.email,
+    searchParams: window.location.search
+  });
   
 
 
   // Fetch user data with proper typing
   const { data: aiImages = [] } = useQuery({
     queryKey: ['/api/ai-images'],
-    enabled: isAuthenticated
+    enabled: effectiveAuthenticated
   });
 
   const { data: userModel, refetch: refetchUserModel } = useQuery({
     queryKey: ['/api/user-model'],
-    enabled: isAuthenticated,
+    enabled: effectiveAuthenticated,
     refetchInterval: (data: any) => {
       // CRITICAL FIX: Only auto-refresh when actually on workspace page to prevent Maya interference
       const currentPath = window.location.pathname;
@@ -69,17 +93,18 @@ export default function Workspace() {
 
   const { data: subscription = {} } = useQuery({
     queryKey: ['/api/subscription'],
-    enabled: isAuthenticated
+    enabled: effectiveAuthenticated
   });
 
   const { data: usage = {} } = useQuery({
     queryKey: ['/api/usage/status'],
-    enabled: isAuthenticated
+    enabled: effectiveAuthenticated
   });
 
   // Check if user has full access based on new pricing structure
-  const hasFullAccess = user?.plan === 'full-access' || 
-                        user?.role === 'admin' ||
+  const hasFullAccess = effectiveUser?.plan === 'full-access' || 
+                        effectiveUser?.plan === 'admin' ||
+                        effectiveUser?.role === 'admin' ||
                         (subscription as any)?.plan === 'full-access' || 
                         (subscription as any)?.plan === 'sselfie-studio' || // Legacy plan support
                         (usage as any)?.plan === 'full-access' ||
@@ -103,11 +128,11 @@ export default function Workspace() {
     }
     
     // Enhanced plan detection from multiple sources
-    const userPlan = user?.plan || (subscription as any)?.plan || usageData?.plan || 'basic';
+    const userPlan = effectiveUser?.plan || (subscription as any)?.plan || usageData?.plan || 'basic';
     const hasFullAccessPlan = userPlan === 'full-access' || userPlan === 'sselfie-studio' || userPlan === 'admin';
     
-    const used = usageData.monthlyUsed || user?.generationsUsedThisMonth || 0;
-    const total = hasFullAccessPlan ? (user?.monthlyGenerationLimit || 100) : (user?.monthlyGenerationLimit || 30);
+    const used = usageData.monthlyUsed || effectiveUser?.generationsUsedThisMonth || 0;
+    const total = hasFullAccessPlan ? (effectiveUser?.monthlyGenerationLimit || 100) : (effectiveUser?.monthlyGenerationLimit || 30);
     
     return {
       used,
@@ -138,7 +163,7 @@ export default function Workspace() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!effectiveAuthenticated) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
