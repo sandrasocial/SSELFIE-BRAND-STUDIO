@@ -1,4 +1,4 @@
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { apiRequest } from '../lib/queryClient';
@@ -304,11 +304,11 @@ export default function VictoriaBuilder() {
 
   // Function to inject user photos into template using all 5 selected selfies
   const injectUserPhotos = (htmlTemplate: string) => {
-    if (!userGallery?.userSelfies?.length) return htmlTemplate;
+    if (!(userGallery as any)?.userSelfies?.length) return htmlTemplate;
     
     // Get user's selected selfies and flatlay collection
-    const selectedSelfies = userGallery.userSelfies || [];
-    const allFlatlays = userGallery.flatlayCollections?.flatMap(col => col.images) || [];
+    const selectedSelfies = (userGallery as any)?.userSelfies || [];
+    const allFlatlays = (userGallery as any)?.flatlayCollections?.flatMap((col: any) => col.images) || [];
     
     // Use all available selected selfies across different sections
     const heroPhoto = selectedSelfies[0]?.url || ''; // Best selfie for hero
