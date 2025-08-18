@@ -214,6 +214,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Essential middleware setup
   app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
   app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
+
+  // Content Security Policy to fix browser warnings
+  app.use((req, res, next) => {
+    res.setHeader('Content-Security-Policy', 
+      "default-src 'self' 'unsafe-inline' 'unsafe-eval' " +
+      "*.replit.dev *.replit.com *.replicate.com *.postimg.cc *.googleapis.com " +
+      "https://js.stripe.com https://api.stripe.com https://fonts.gstatic.com " +
+      "https://api.replicate.com https://i.postimg.cc https://checkout.stripe.com " +
+      "data: blob:; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
+      "*.replit.dev *.replit.com https://js.stripe.com https://replit.com; " +
+      "style-src 'self' 'unsafe-inline' *.googleapis.com *.gstatic.com; " +
+      "img-src 'self' data: blob: https: *.replicate.com *.postimg.cc *.amazonaws.com; " +
+      "connect-src 'self' *.replit.dev *.replit.com *.replicate.com https://api.stripe.com " +
+      "https://api.replicate.com wss: ws:; " +
+      "font-src 'self' *.googleapis.com *.gstatic.com data:; " +
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com;"
+    );
+    next();
+  });
   
   // ZARA'S PERFORMANCE OPTIMIZATIONS: Server-side performance middleware
   try {
