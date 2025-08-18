@@ -37,12 +37,32 @@ export default function Workspace() {
         return false; // Never auto-refresh when user is on other pages (Maya, etc.)
       }
       
+      // DEBUGGING: Log the exact data being returned
+      if (data) {
+        console.log('🔍 WORKSPACE DEBUG - User Model Data:', {
+          trainingStatus: data.trainingStatus,
+          replicateModelId: data.replicateModelId,
+          triggerWord: data.triggerWord,
+          trainingProgress: data.trainingProgress,
+          fullData: data
+        });
+      }
+      
       // Auto-refresh every 10 seconds if training is in progress and on workspace
       const isTraining = data?.trainingStatus === 'training' || 
                         data?.trainingStatus === 'starting' ||
                         data?.trainingStatus === 'processing' ||
                         data?.trainingStatus === 'pending' ||
                         (data?.replicateModelId && data?.trainingStatus !== 'completed' && data?.trainingStatus !== 'failed');
+      
+      console.log('🔍 WORKSPACE DEBUG - Training Detection:', {
+        isTraining,
+        trainingStatus: data?.trainingStatus,
+        hasReplicateId: !!data?.replicateModelId,
+        isCompleted: data?.trainingStatus === 'completed',
+        isFailed: data?.trainingStatus === 'failed'
+      });
+      
       return isTraining ? 10000 : false; // 10 seconds if training, otherwise no auto-refresh
     }
   });
