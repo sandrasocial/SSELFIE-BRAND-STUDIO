@@ -1,4 +1,4 @@
-import { FormEvent } from 'react';
+import { FormEvent, useState, useCallback } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '../hooks/use-toast';
@@ -250,7 +250,6 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
           toast({
             title: "Generation in Progress", 
             description: "Your images are still being created. They will appear once ready.",
-            variant: "default",
           });
           // Don't reset to selection - let user see the processing state
         }
@@ -1009,7 +1008,7 @@ function SandraAIHelper({
                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                   {message.prompt && (
                     <button
-                      onClick={() => onGeneratePrompt(message.prompt)}
+                      onClick={() => onGeneratePrompt(message.prompt || '')}
                       className="mt-2 text-xs underline hover:no-underline"
                       disabled={isGenerating}
                     >
