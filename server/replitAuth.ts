@@ -456,7 +456,30 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  // REMOVED: Mock admin bypass - using real authentication only
+  // DEVELOPMENT BYPASS: Allow admin user Sandra access during development
+  if (process.env.NODE_ENV === 'development') {
+    // Check for development admin bypass parameter
+    if (req.query.dev_admin === 'sandra' || req.headers['x-dev-admin'] === 'sandra') {
+      console.log('🔧 DEV BYPASS: Admin Sandra accessing workspace during development');
+      
+      // Create mock admin user session for Sandra
+      const adminUser = {
+        claims: {
+          sub: '44991795', // Sandra's admin user ID
+          email: 'sandra@sselfie.ai',
+          first_name: 'Sandra',
+          last_name: 'Admin',
+          profile_image_url: null
+        },
+        expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+      };
+      
+      // Set mock user in request
+      req.user = adminUser;
+      console.log('✅ DEV BYPASS: Admin session created for Sandra');
+      return next();
+    }
+  }
 
   if (!req.isAuthenticated || !req.isAuthenticated() || !user) {
     return res.status(401).json({ message: "Unauthorized" });
