@@ -916,7 +916,7 @@ export default function AIPhotoshootPage() {
         setGenerationProgress(progressPercent);
         
         // Enhanced authentication retry logic (matching Maya's working system)
-        let response;
+        let response: Response | undefined;
         let authRetries = 0;
         const maxAuthRetries = 3;
         
@@ -934,6 +934,18 @@ export default function AIPhotoshootPage() {
           authRetries++;
           console.log(`AI-PHOTOSHOOT: Auth retry ${authRetries}/${maxAuthRetries} for tracker ${trackerId}`);
           await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+        }
+        
+        // Check if response is available after retry attempts
+        if (!response) {
+          console.error('AI-PHOTOSHOOT: No response received after retries');
+          setGeneratingImages(false);
+          toast({
+            title: "Network Error", 
+            description: "Could not connect to server. Please check your connection.",
+            
+          });
+          return;
         }
         
         console.log(`AI-PHOTOSHOOT: Polling attempt ${attempts}/${maxAttempts}, status:`, response.status);
