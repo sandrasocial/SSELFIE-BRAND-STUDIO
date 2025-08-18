@@ -517,60 +517,60 @@ export const insertAgentCapabilitySchema = createInsertSchema(agentCapabilities)
 
 
 // Type exports  
-export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
 // Website types
 export type Website = typeof websites.$inferSelect;
-export type InsertWebsite = z.infer<typeof insertWebsiteSchema>;
+export type InsertWebsite = typeof websites.$inferInsert;
 export type MayaChat = typeof mayaChats.$inferSelect;
 export type InsertMayaChat = typeof mayaChats.$inferInsert;
 export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;
 export type InsertMayaChatMessage = typeof mayaChatMessages.$inferInsert;
 export type GenerationTracker = typeof generationTrackers.$inferSelect;
-export type InsertGenerationTracker = z.infer<typeof insertGenerationTrackerSchema>;
+export type InsertGenerationTracker = typeof generationTrackers.$inferInsert;
 // User profiles table schema already defined at top of file
 
 export type UserProfile = typeof userProfiles.$inferSelect;
-export type InsertBrandOnboarding = z.infer<typeof insertBrandOnboardingSchema>;
+export type InsertBrandOnboarding = typeof brandOnboarding.$inferInsert;
 export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
 // Website types already defined above at lines 750-751
-export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
-export type InsertProject = z.infer<typeof insertProjectSchema>;
+export type InsertUserProfile = typeof userProfiles.$inferInsert;
+export type InsertProject = typeof projects.$inferInsert;
 
 // Claude API types
 export type ClaudeConversation = typeof claudeConversations.$inferSelect;
-export type InsertClaudeConversation = z.infer<typeof insertClaudeConversationSchema>;
+export type InsertClaudeConversation = typeof claudeConversations.$inferInsert;
 export type ClaudeMessage = typeof claudeMessages.$inferSelect;
-export type InsertClaudeMessage = z.infer<typeof insertClaudeMessageSchema>;
+export type InsertClaudeMessage = typeof claudeMessages.$inferInsert;
 export type AgentLearning = typeof agentLearning.$inferSelect;
-export type InsertAgentLearning = z.infer<typeof insertAgentLearningSchema>;
+export type InsertAgentLearning = typeof agentLearning.$inferInsert;
 export type AgentCapability = typeof agentCapabilities.$inferSelect;
-export type InsertAgentCapability = z.infer<typeof insertAgentCapabilitySchema>;
+export type InsertAgentCapability = typeof agentCapabilities.$inferInsert;
 export type Project = typeof projects.$inferSelect;
-export type InsertAiImage = z.infer<typeof insertAiImageSchema>;
+export type InsertAiImage = typeof aiImages.$inferInsert;
 export type AiImage = typeof aiImages.$inferSelect;
-export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
+export type InsertTemplate = typeof templates.$inferInsert;
 export type Template = typeof templates.$inferSelect;
-export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type InsertSubscription = typeof subscriptions.$inferInsert;
 export type Subscription = typeof subscriptions.$inferSelect;
-export type InsertOnboardingData = z.infer<typeof insertOnboardingDataSchema>;
+export type InsertOnboardingData = typeof onboardingData.$inferInsert;
 export type OnboardingData = typeof onboardingData.$inferSelect;
-export type InsertSelfieUpload = z.infer<typeof insertSelfieUploadSchema>;
+export type InsertSelfieUpload = typeof selfieUploads.$inferInsert;
 export type SelfieUpload = typeof selfieUploads.$inferSelect;
-export type InsertUserModel = z.infer<typeof insertUserModelSchema>;
+export type InsertUserModel = typeof userModels.$inferInsert;
 export type UserModel = typeof userModels.$inferSelect;
-export type InsertGeneratedImage = z.infer<typeof insertGeneratedImageSchema>;
+export type InsertGeneratedImage = typeof generatedImages.$inferInsert;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
-export type InsertVictoriaChat = z.infer<typeof insertVictoriaChatSchema>;
+export type InsertVictoriaChat = typeof victoriaChats.$inferInsert;
 export type VictoriaChat = typeof victoriaChats.$inferSelect;
-export type InsertPhotoSelection = z.infer<typeof insertPhotoSelectionSchema>;
+export type InsertPhotoSelection = typeof photoSelections.$inferInsert;
 export type PhotoSelection = typeof photoSelections.$inferSelect;
-export type InsertLandingPage = z.infer<typeof insertLandingPageSchema>;
+export type InsertLandingPage = typeof landingPages.$inferInsert;
 export type LandingPage = typeof landingPages.$inferSelect;
-export type InsertUserLandingPage = z.infer<typeof insertUserLandingPageSchema>;
+export type InsertUserLandingPage = typeof userLandingPages.$inferInsert;
 export type UserLandingPage = typeof userLandingPages.$inferSelect;
-export type InsertAgentConversation = z.infer<typeof insertAgentConversationSchema>;
+export type InsertAgentConversation = typeof agentConversations.$inferInsert;
 export type AgentConversation = typeof agentConversations.$inferSelect;
 
 

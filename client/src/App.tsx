@@ -45,8 +45,9 @@ import BridgeMonitor from "./pages/admin/bridge-monitor";
 
 import UnifiedLoginButton from "./components/UnifiedLoginButton";
 
-import AgentApproval from "./pages/agent-approval";
-import AgentCommandCenter from "./pages/agent-command-center";
+// REMOVED: Missing agent pages - using existing admin pages instead
+// import AgentApproval from "./pages/agent-approval";
+// import AgentCommandCenter from "./pages/agent-command-center";
 
 import CustomPhotoshootLibrary from "./pages/custom-photoshoot-library";
 import FlatlayLibrary from "./pages/flatlay-library";
