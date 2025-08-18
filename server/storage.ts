@@ -476,7 +476,7 @@ export class DatabaseStorage implements IStorage {
 
   async createUserModel(data: InsertUserModel): Promise<UserModel> {
     console.log('Creating user model with data:', data);
-    const [model] = await db.insert(userModels).values(data).returning();
+    const [model] = await db.insert(userModels).values([data]).returning();
     return model;
   }
 
@@ -602,7 +602,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveSelfieUpload(data: InsertSelfieUpload): Promise<SelfieUpload> {
-    const [saved] = await db.insert(selfieUploads).values(data).returning();
+    const [saved] = await db.insert(selfieUploads).values([data]).returning();
     return saved;
   }
 
@@ -657,7 +657,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSubscription(data: InsertSubscription): Promise<Subscription> {
-    const [subscription] = await db.insert(subscriptions).values(data).returning();
+    const [subscription] = await db.insert(subscriptions).values([data]).returning();
     return subscription;
   }
 
@@ -752,7 +752,7 @@ export class DatabaseStorage implements IStorage {
   async createVictoriaChat(data: InsertVictoriaChat): Promise<VictoriaChat> {
     const [chat] = await db
       .insert(victoriaChats)
-      .values(data)
+      .values([data])
       .returning();
     return chat;
   }
@@ -777,7 +777,7 @@ export class DatabaseStorage implements IStorage {
   async savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection> {
     const [selection] = await db
       .insert(photoSelections)
-      .values(data)
+      .values([data])
       .onConflictDoUpdate({
         target: photoSelections.userId,
         set: {
@@ -822,7 +822,7 @@ export class DatabaseStorage implements IStorage {
   async createLandingPage(data: InsertLandingPage): Promise<LandingPage> {
     const [page] = await db
       .insert(landingPages)
-      .values(data)
+      .values([data])
       .returning();
     return page;
   }
@@ -839,7 +839,7 @@ export class DatabaseStorage implements IStorage {
   async createUserLandingPage(data: InsertUserLandingPage): Promise<UserLandingPage> {
     const [page] = await db
       .insert(userLandingPages)
-      .values(data)
+      .values([data])
       .returning();
     return page;
   }
