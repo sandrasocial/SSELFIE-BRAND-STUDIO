@@ -2818,6 +2818,19 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
     }
   });
 
+  // DEVELOPMENT BYPASS: Direct workspace access for testing
+  if (process.env.NODE_ENV === 'development') {
+    app.get('/dev-workspace', (req, res) => {
+      console.log('🔧 DEV ROUTE: Direct workspace access requested');
+      
+      // Redirect to workspace with admin bypass parameter
+      const workspaceUrl = '/workspace?dev_admin=sandra';
+      res.redirect(workspaceUrl);
+    });
+    
+    console.log('✅ DEV ROUTE: Development workspace bypass available at /dev-workspace');
+  }
+
   // CRITICAL FIX: Start background monitoring services
   console.log('🚀 MONITORING: Starting background completion monitors...');
   
