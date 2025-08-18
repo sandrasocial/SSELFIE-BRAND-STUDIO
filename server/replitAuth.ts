@@ -1,5 +1,5 @@
 import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
+import { Strategy } from "openid-client/passport";
 
 import passport from "passport";
 import session from "express-session";
@@ -141,7 +141,7 @@ export async function setupAuth(app: Express) {
 
   const config = await getOidcConfig();
 
-  const verify: VerifyFunction = async (
+  const verify = async (
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
@@ -190,7 +190,7 @@ export async function setupAuth(app: Express) {
     console.log(`✅ Registered auth strategy for: ${domain}`);
   }
 
-  passport.serializeUser((user: Express.User, cb) => {
+  passport.serializeUser((user: any, cb) => {
     try {
       cb(null, user);
     } catch (error) {
@@ -199,7 +199,7 @@ export async function setupAuth(app: Express) {
     }
   });
   
-  passport.deserializeUser((user: Express.User, cb) => {
+  passport.deserializeUser((user: any, cb) => {
     try {
       cb(null, user);
     } catch (error) {
@@ -215,8 +215,8 @@ export async function setupAuth(app: Express) {
     // For account switching, always force logout and re-authentication
     if (forceAccountSelection) {
       console.log('🔍 Account switching requested - forcing logout and re-authentication');
-      if (req.isAuthenticated()) {
-        req.logout(() => {
+      if ((req as any).isAuthenticated()) {
+        (req as any).logout(() => {
           req.session.destroy((err) => {
             if (err) console.error('❌ Session destroy error:', err);
             res.clearCookie('connect.sid');
@@ -236,7 +236,7 @@ export async function setupAuth(app: Express) {
     }
     
     // Check if user is already authenticated (unless forcing account selection)
-    if (!forceAccountSelection && req.isAuthenticated() && req.user) {
+    if (!forceAccountSelection && (req as any).isAuthenticated() && req.user) {
       const user = req.user as any;
       if (user.expires_at) {
         const now = Math.floor(Date.now() / 1000);
@@ -432,7 +432,7 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/logout", (req, res) => {
     console.log('🔍 Logout requested for user:', (req.user as any)?.claims?.email);
-    req.logout(() => {
+    (req as any).logout(() => {
       // Clear session completely to allow account switching
       req.session.destroy((err) => {
         if (err) {
@@ -481,7 +481,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     }
   }
 
-  if (!req.isAuthenticated || !req.isAuthenticated() || !user) {
+  if (!(req as any).isAuthenticated || !(req as any).isAuthenticated() || !user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 

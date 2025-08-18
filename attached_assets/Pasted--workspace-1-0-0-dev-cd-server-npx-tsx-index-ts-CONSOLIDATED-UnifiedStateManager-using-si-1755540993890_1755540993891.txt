@@ -1,0 +1,56 @@
+> workspace@1.0.0 dev
+> cd server && npx tsx index.ts
+
+🧠 CONSOLIDATED: UnifiedStateManager using simple-memory-service
+🔧 Environment: development
+🌐 Target Port: 3000
+📦 Loading comprehensive routes...
+⚠️ ZARA: Performance middleware skipped (path issue resolved)
+🔌 BACKEND: Initializing API orchestration layer...
+✅ BACKEND: Enhancement API routes registered
+Starting route registration...
+🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system
+🔒 PRODUCTION SESSION CONFIG: {
+  domain: 'e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev,sselfie.ai',
+  isSSELFIEDomain: true,
+  useSecureCookies: true,
+  sessionTtl: '7 days'
+}
+🔍 OIDC Discovery starting...
+🔍 Using OIDC issuer: https://replit.com/oidc
+✅ OIDC Discovery successful
+🔧 Added workspace domain: e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-workspace.ssa27.replit.dev
+🔍 Registering strategy for domain: e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev
+🔍 Callback URL: https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/callback
+✅ Registered auth strategy for: e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev
+🔍 Registering strategy for domain: sselfie.ai
+🔍 Callback URL: https://sselfie.ai/api/callback
+✅ Registered auth strategy for: sselfie.ai
+🔍 Registering strategy for domain: e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-workspace.ssa27.replit.dev
+🔍 Callback URL: https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-workspace.ssa27.replit.dev/api/callback
+✅ Registered auth strategy for: e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-workspace.ssa27.replit.dev
+✅ FIXED: Consulting agent system active at /api/consulting-agents/*
+🚀 MONITORING: Starting background completion monitors...
+🚀 Starting Training Completion Monitor (checks every 2 minutes)
+🔍 TRAINING COMPLETION MONITOR: Checking all in-progress trainings...
+✅ MONITORING: Training completion monitor started
+🚀 GENERATION MONITOR: Starting automatic generation monitoring...
+🔍 GENERATION MONITOR: Checking all in-progress generations...
+🚀 MIGRATION MONITOR: Starting automatic URL migration service
+🔍 MIGRATION MONITOR: Scanning for temp URLs that need migration...
+✅ MONITORING: All monitors active - Generation, Training, and URL Migration protecting user images!
+✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!
+✅ All your features loaded!
+📁 Serving static files from: /home/runner/workspace/client/dist
+🚀 SSELFIE Studio LIVE on port 3000
+🔧 Environment: development
+✅ GENERATION MONITOR: No in-progress generations found
+✅ No in-progress trainings found
+✅ MIGRATION MONITOR: No temp URLs found - all images already permanent
+🔍 GENERATION MONITOR: Checking all in-progress generations...
+✅ GENERATION MONITOR: No in-progress generations found
+🔍 Login requested for hostname: e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev
+🔍 Available strategies: e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev, sselfie.ai, e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-workspace.ssa27.replit.dev
+🔍 Login requested - starting authentication flow with simplified OAuth
+🔍 Using strategy: replitauth:e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev for domain: e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev
+express deprecated req.host: Use req.hostname instead file:/home/runner/workspace/node_modules/openid-client/build/passport.js:224:49
