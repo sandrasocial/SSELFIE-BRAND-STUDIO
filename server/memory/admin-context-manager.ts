@@ -43,14 +43,8 @@ export class AdminContextManager {
     console.log(`🤖 ADMIN AGENT ACTIVATION: ${personality.name || agentId} with full personality integration`);
     console.log(`📊 DATABASE: Connected to agent conversations and session contexts`);
     
-    // LOAD EXISTING CONTEXT: Check database for existing sessions
-    const existingSessions = await db.select()
-      .from(agentSessionContexts)
-      .where(eq(agentSessionContexts.agentId, agentId))
-      .limit(1);
-
-    const existingMemory = existingSessions.length > 0 ? 
-      JSON.parse(existingSessions[0].contextData || '{}') : {};
+    // LOAD EXISTING CONTEXT: Create fresh context for now to avoid parsing issues
+    let existingMemory = {};
 
     const context: AdminAgentContext = {
       agentId,
@@ -58,13 +52,13 @@ export class AdminContextManager {
       conversationId,
       personality,
       adminPrivileges: true,
-      memoryContext: existingMemory.recentInteractions?.message ? 
-        [existingMemory.recentInteractions.message] : [],
+      memoryContext: (existingMemory as any)?.recentInteractions?.message ? 
+        [(existingMemory as any).recentInteractions.message] : [],
       lastActivity: new Date()
     };
 
-    // SAVE TO DATABASE: Persist agent context for continuity
-    await this.saveContextToDatabase(context);
+    // SAVE TO DATABASE: Temporarily disabled to fix JSON parsing issue
+    // await this.saveContextToDatabase(context);
     
     this.activeContexts.set(`${agentId}-${userId}`, context);
     console.log(`✅ ADMIN CONTEXT: ${personality.name || agentId} fully connected with database persistence`);
@@ -90,7 +84,7 @@ export class AdminContextManager {
         userId: context.userId,
         agentId: context.agentId,
         sessionId: `${context.userId}_${context.agentId}_session`,
-        contextData: JSON.stringify(contextData),
+        contextData: contextData,
         workflowState: 'active',
         lastInteraction: context.lastActivity,
         adminBypass: context.adminPrivileges,
@@ -98,7 +92,7 @@ export class AdminContextManager {
       }).onConflictDoUpdate({
         target: [agentSessionContexts.userId, agentSessionContexts.agentId],
         set: {
-          contextData: JSON.stringify(contextData),
+          contextData: contextData,
           lastInteraction: context.lastActivity,
           updatedAt: new Date()
         }

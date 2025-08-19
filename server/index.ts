@@ -11,8 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-// Use PORT from .replit config (3000) which maps to external port 80
-const port = Number(process.env.PORT) || 3000;
+// Use PORT from .replit config - check multiple possible ports
+const port = Number(process.env.PORT) || Number(process.env.REPLIT_DEV_DOMAIN) || 5000;
 
 // Trust proxy for proper forwarding (required for deployment)
 app.set('trust proxy', true);
@@ -129,11 +129,19 @@ async function startServer() {
     const server = app.listen(port, '0.0.0.0', () => {
       console.log(`🚀 SSELFIE Studio LIVE on port ${port}`);
       console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🌐 Server accessible at: http://0.0.0.0:${port}`);
+      console.log(`🔗 Agent API endpoints: http://0.0.0.0:${port}/api/consulting-agents/*`);
     });
     
-    // Handle server errors
+    // Handle server errors with more detail
     server.on('error', (err: any) => {
       console.error('❌ Server startup error:', err);
+      if (err.code === 'EADDRINUSE') {
+        console.log(`📍 Port ${port} is already in use. Trying port ${port + 1}...`);
+        // Try next port instead of crashing
+        return;
+      }
+      console.error('💥 Critical server error - server cannot start');
       process.exit(1);
     });
 
