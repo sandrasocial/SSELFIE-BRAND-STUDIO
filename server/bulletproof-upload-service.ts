@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
@@ -136,20 +137,26 @@ export class BulletproofUploadService {
         const fileName = `user-${userId}/training-image-${i + 1}-${Date.now()}.jpg`;
         
         // Upload to S3 with public read access for Replicate training
-        const uploadResult = await this.s3.upload({
-          Bucket: bucketName,
-          Key: fileName,
-          Body: imageBuffer,
-          ContentType: 'image/jpeg'
-          // No ACL specified - bucket policy handles permissions
-        }).promise();
+        const upload = new Upload({
+          client: this.s3,
+          params: {
+            Bucket: bucketName,
+            Key: fileName,
+            Body: imageBuffer,
+            ContentType: 'image/jpeg'
+            // No ACL specified - bucket policy handles permissions
+          }
+        });
+        
+        const uploadResult = await upload.done();
         
         // Verify upload success
-        const s3Url = uploadResult.Location;
-        if (!s3Url) {
+        if (!uploadResult || !uploadResult.Key) {
           errors.push(`Failed to upload image ${i + 1} to S3`);
           continue;
         }
+        
+        const s3Url = `https://${bucketName}.s3.amazonaws.com/${fileName}`;
         
         s3Urls.push(s3Url);
         console.log(`✅ S3 UPLOAD: Image ${i + 1} uploaded successfully`);
@@ -231,8 +238,8 @@ export class BulletproofUploadService {
       await archive.finalize();
       
       // Wait for ZIP creation to complete
-      await new Promise((resolve, reject) => {
-        output.on('close', resolve);
+      await new Promise<void>((resolve, reject) => {
+        output.on('close', () => resolve());
         output.on('error', reject);
       });
       
