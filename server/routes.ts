@@ -1901,7 +1901,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
       const devAdmin = req.headers['x-dev-admin'] || req.query.dev_admin;
       
-      if (adminToken === 'sandra-admin-2025' || devAdmin === 'sandra') {
+      // DEVELOPMENT MODE: Always allow Sandra admin access in development
+      if (process.env.NODE_ENV === 'development' && (adminToken === 'sandra-admin-2025' || devAdmin === 'sandra' || req.query.admin === 'sandra')) {
         console.log('🔑 Admin/Dev bypass authenticated - creating admin user session');
         
         // Get Sandra's actual admin user from database
