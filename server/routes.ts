@@ -1889,27 +1889,32 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/auth/user', async (req: any, res) => {
     try {
       console.log('🔍 /api/auth/user called - checking authentication');
+      console.log('🔍 Headers debug:', { 
+        xDevAdmin: req.headers['x-dev-admin'],
+        xAdminToken: req.headers['x-admin-token'],
+        authorization: req.headers.authorization,
+        devAdminQuery: req.query.dev_admin 
+      });
       
-      // CRITICAL FIX: Admin agent authentication bypass (preserving admin functionality)
+      // CRITICAL FIX: Admin agent authentication bypass (preserving admin functionality) 
+      // DEVELOPMENT BYPASS: Check for dev admin header for Sandra
       const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
-      if (adminToken === 'sandra-admin-2025') {
-        console.log('🔑 Admin token authenticated - creating admin user session');
+      const devAdmin = req.headers['x-dev-admin'] || req.query.dev_admin;
+      
+      if (adminToken === 'sandra-admin-2025' || devAdmin === 'sandra') {
+        console.log('🔑 Admin/Dev bypass authenticated - creating admin user session');
         
-        // Get or create Sandra admin user
-        let adminUser = await storage.getUser('admin-sandra');
-        if (!adminUser) {
-          // Try to get Sandra's actual user record first
-          adminUser = await storage.getUser('42585527') || await storage.getUserByEmail('ssa@ssasocial.com');
+        // Get Sandra's actual admin user from database
+        let adminUser = await storage.getUserByEmail('sandra@sselfie.ai');
           
-          if (!adminUser) {
-            adminUser = await storage.upsertUser({
-              id: 'admin-sandra',
-              email: 'ssa@ssasocial.com',
-              firstName: 'Sandra',
-              lastName: 'Admin',
-              profileImageUrl: null
-            } as any);
-          }
+        if (!adminUser) {
+          adminUser = await storage.upsertUser({
+            id: 'sandra-admin-test',
+            email: 'sandra@sselfie.ai',
+            firstName: 'Sandra',
+            lastName: 'Admin',
+            profileImageUrl: null
+          } as any);
         }
         
         console.log('✅ Admin user authenticated:', adminUser.email);
