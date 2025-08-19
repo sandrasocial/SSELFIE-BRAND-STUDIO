@@ -97,6 +97,12 @@ export default function SimpleTraining() {
       // Removed red toast notification per user request
       return; // Don't proceed with normal training flow
     }
+
+    // NEW: Check if user has paid plan but no model - enable retraining
+    if (userModel?.canRetrain && userModel?.needsTraining && !userModel?.id) {
+      console.log('📚 PAID USER WITH NO MODEL: Enabling new training flow');
+      setIsRetrainingMode(false); // Use normal training flow for new users
+    }
     
     if (userModel && userModel.trainingStatus === 'training') {
       console.log('🔄 Found active training on page load:', userModel);

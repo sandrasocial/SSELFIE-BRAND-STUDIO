@@ -812,8 +812,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user?.claims?.sub;
       console.log(`🔍 Checking training status for user: ${userId}`);
       
+      // Get user plan to verify they can retrain
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ 
+          needsRestart: false, 
+          reason: 'User not found' 
+        });
+      }
+
+      // Check if user has a paid plan for retraining
+      const hasPaidPlan = ['pro', 'full-access', 'sselfie-studio'].includes(user.plan || '');
+      if (!hasPaidPlan) {
+        return res.status(403).json({ 
+          needsRestart: false, 
+          reason: 'Upgrade to Pro plan to access AI model training' 
+        });
+      }
+
       const status = await storage.checkTrainingStatus(userId);
-      res.json(status);
+      
+      // Enhanced response with user plan context
+      res.json({
+        ...status,
+        canRetrain: hasPaidPlan,
+        userPlan: user.plan,
+        hasModelAccess: hasPaidPlan
+      });
     } catch (error) {
       console.error('Error checking training status:', error);
       res.status(500).json({ 
@@ -829,11 +854,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user?.claims?.sub;
       console.log(`🗑️ RESTART: User ${userId} requesting fresh training start`);
       
+      // Verify user has access to retraining
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'User not found' 
+        });
+      }
+
+      const hasPaidPlan = ['pro', 'full-access', 'sselfie-studio'].includes(user.plan || '');
+      if (!hasPaidPlan) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Upgrade to Pro plan to access AI model training' 
+        });
+      }
+
+      // Clean up any existing training data
       await storage.deleteFailedTrainingData(userId);
       
       res.json({ 
         success: true, 
-        message: 'Training data cleared - ready for fresh start' 
+        message: 'Training data cleared - ready for fresh start',
+        canRetrain: true,
+        userPlan: user.plan
       });
     } catch (error) {
       console.error('Error restarting training:', error);
@@ -2363,9 +2408,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
-      console.log('🤖 DEBUG: Full user object:', JSON.stringify(req.user, null, 2));
-      console.log('🤖 DEBUG: Session impersonation:', req.session?.impersonatedUser?.id);
       console.log('🤖 Fetching user model for:', userId);
+      
+      // Get user plan information
+      const user = await storage.getUser(userId);
+      const hasPaidPlan = user && ['pro', 'full-access', 'sselfie-studio'].includes(user.plan || '');
       
       // Import database and schema
       const { db } = await import('./db');
@@ -2382,10 +2429,26 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       if (userModel) {
         console.log(`✅ Found user model: ${userModel.modelName} (${userModel.trainingStatus})`);
-        res.json(userModel);
+        
+        // Enhanced response with plan context
+        res.json({
+          ...userModel,
+          canRetrain: hasPaidPlan,
+          userPlan: user?.plan || 'free',
+          hasModelAccess: hasPaidPlan
+        });
       } else {
         console.log('⚠️ No user model found');
-        res.json(null);
+        
+        // Return plan information even when no model exists
+        res.json({
+          id: null,
+          trainingStatus: null,
+          canRetrain: hasPaidPlan,
+          userPlan: user?.plan || 'free',
+          hasModelAccess: hasPaidPlan,
+          needsTraining: hasPaidPlan // Indicates user can start training
+        });
       }
       
     } catch (error) {
@@ -2576,6 +2639,66 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         message: "AI model training failed - please restart upload process", 
         error: error instanceof Error ? error.message : 'Unknown error',
         requiresRestart: true
+      });
+    }
+  });
+
+  // Enhanced endpoint for users to start fresh training (retraining)
+  app.post('/api/initiate-new-training', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { resetExisting = false } = req.body;
+      
+      console.log(`🚀 RETRAIN: User ${userId} initiating new training (reset: ${resetExisting})`);
+      
+      // Verify user has access to training
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'User not found' 
+        });
+      }
+
+      const hasPaidPlan = ['pro', 'full-access', 'sselfie-studio'].includes(user.plan || '');
+      if (!hasPaidPlan) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Upgrade to Pro plan to access AI model training' 
+        });
+      }
+
+      // If requested, clear existing training data for fresh start
+      if (resetExisting) {
+        await storage.deleteFailedTrainingData(userId);
+        console.log(`✅ RETRAIN: Cleared existing training data for user ${userId}`);
+      }
+
+      // Check for existing selfie uploads
+      const { db } = await import('./db');
+      const { selfieUploads } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      const existingUploads = await db
+        .select()
+        .from(selfieUploads)
+        .where(eq(selfieUploads.userId, userId));
+
+      res.json({ 
+        success: true, 
+        message: 'Ready to start new training',
+        canRetrain: true,
+        userPlan: user.plan,
+        hasExistingUploads: existingUploads.length > 0,
+        existingUploadsCount: existingUploads.length,
+        requiresNewImages: true // Always require fresh images for best results
+      });
+      
+    } catch (error) {
+      console.error('❌ Error initiating new training:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to initiate new training' 
       });
     }
   });
