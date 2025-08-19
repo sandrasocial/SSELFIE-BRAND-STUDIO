@@ -1620,6 +1620,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.use('/api/admin', adminRouter);
   app.use('/api/admin/cache', adminCacheRouter);
   
+  // User intervention routes for managing inactive paid users
+  const userInterventionRouter = await import('./routes/admin/user-intervention.js');
+  app.use('/api/admin/intervention', userInterventionRouter.default);
+  
+  // Intervention campaign execution routes
+  const interventionCampaignRouter = await import('./routes/admin/intervention-campaign.js');
+  app.use('/api/admin/campaign', interventionCampaignRouter.default);
+  
   // Quinn Testing Routes for User Journey Validation
   app.use('/api/quinn', quinnTestingRouter);
   
