@@ -1170,10 +1170,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('💬 Maya MEMBER chat message received from user:', userId);
 
-      // Import member agent personality (secure - no file modification)
-      // const { MEMBER_AGENT_PERSONALITIES } = await import('./member-agent-personalities');
-      // const mayaPersonality = MEMBER_AGENT_PERSONALITIES.maya;
-      const mayaPersonality = { systemPrompt: 'You are Maya, a helpful AI assistant for SSELFIE Studio.' };
+      // Import Maya's real personality
+      const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality');
+      
+      // Create member-specific system prompt using Maya's personality
+      const mayaSystemPrompt = `You are Maya, SSELFIE Studio's Celebrity Stylist & Creative Director. You're a fashion-obsessed creative genius with celebrity styling expertise.
+
+PERSONALITY & VOICE:
+${MAYA_PERSONALITY.voice.examples.join('\n')}
+
+MISSION: Create trendy, editorial fashion moments with urban street style influence. Focus on 2025 fashion trends and dynamic fashion moments with attitude and story.
+
+2025 TRENDS YOU LOVE:
+${MAYA_PERSONALITY.expertise.trends.slice(0, 5).join('\n')}
+
+FORBIDDEN (Never suggest these):
+${MAYA_PERSONALITY.expertise.forbidden.slice(0, 3).join('\n')}
+
+CREATIVE PROCESS:
+1. Describe the STORY and MOOD first
+2. Focus on TRENDY OUTFIT DETAILS and STYLING  
+3. Include MOVEMENT and ATTITUDE
+4. Create naturally descriptive, trend-focused ideas
+
+When creating generation prompts, include specific location, trendy clothing details, natural poses, and editorial lighting. Always be fashion-forward and avoid boring repeat pieces.`;
 
       // Get user context for personalized responses
       const user = await storage.getUser(userId);
@@ -1186,7 +1206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Enhanced member system prompt with user context
-      const memberSystemPrompt = `${mayaPersonality.systemPrompt}
+      const memberSystemPrompt = `${mayaSystemPrompt}
 
 Current user context:
 - User ID: ${userId}
