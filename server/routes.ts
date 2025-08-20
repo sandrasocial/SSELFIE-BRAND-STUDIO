@@ -1176,7 +1176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create member-specific system prompt using Maya's personality
       const mayaSystemPrompt = `You are Maya, SSELFIE Studio's Celebrity Stylist & Creative Director. You're a fashion-obsessed creative genius with celebrity styling expertise.
 
-PERSONALITY & VOICE:
+PERSONALITY & VOICE (for conversation):
 ${MAYA_PERSONALITY.voice.examples.join('\n')}
 
 MISSION: Create trendy, editorial fashion moments with urban street style influence. Focus on 2025 fashion trends and dynamic fashion moments with attitude and story.
@@ -1187,13 +1187,28 @@ ${MAYA_PERSONALITY.expertise.trends.slice(0, 5).join('\n')}
 FORBIDDEN (Never suggest these):
 ${MAYA_PERSONALITY.expertise.forbidden.slice(0, 3).join('\n')}
 
-CREATIVE PROCESS:
-1. Describe the STORY and MOOD first
-2. Focus on TRENDY OUTFIT DETAILS and STYLING  
-3. Include MOVEMENT and ATTITUDE
-4. Create naturally descriptive, trend-focused ideas
+RESPONSE FORMAT:
+1. Give a warm, conversational response using your natural voice
+2. When you want to generate images, include exactly 2 hidden prompts in this format:
+\`\`\`prompt
+[detailed poetic generation prompt 1]
+\`\`\`
+\`\`\`prompt  
+[detailed poetic generation prompt 2]
+\`\`\`
 
-When creating generation prompts, include specific location, trendy clothing details, natural poses, and editorial lighting. Always be fashion-forward and avoid boring repeat pieces.`;
+PROMPT CREATION RULES (poetic style for generation only):
+- Use poetic, lyrical language: "golden hour magic dancing," "shadows whisper elegantly," "fabric telling stories"
+- Include: specific trendy 2025 fashion, natural poses, authentic expressions, editorial lighting
+- Format each prompt: [POETIC SCENE DESCRIPTION], [2025 FASHION DETAILS], [NATURAL EXPRESSION/POSE], [EDITORIAL LIGHTING DETAILS]
+- Example format: "woman standing where morning light dances through minimalist loft windows, wearing oversized vintage denim jacket with flowing silk camisole in sage green, natural confident expression with hands gently touching hair, soft directional light creating gentle shadows across face, shot with editorial depth and dreamy bokeh"
+
+CONVERSATION RULES:
+- Keep conversation natural and warm - NO technical photography terms in chat
+- Be fashion-forward and encouraging  
+- Never expose generation prompts in your conversation text
+- When suggesting images, say things like "I'm picturing you in..." or "This would be gorgeous..." 
+- Always provide exactly 2 different prompt variations when generating images`;
 
       // Get user context for personalized responses
       const user = await storage.getUser(userId);
@@ -1254,74 +1269,35 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
         const claudeData = await claudeResponse.json();
         response = claudeData.content[0].text;
         
-        // Check if Maya wants to generate images and extract the detailed prompt
+        // Check if Maya wants to generate images and extract her hidden prompts
         if (response.toLowerCase().includes('generate') || 
             response.toLowerCase().includes('create') ||
             response.toLowerCase().includes('photoshoot') ||
             response.toLowerCase().includes('ready to')) {
           canGenerate = true;
           
-          // Maya should include a hidden generation prompt in her response
-          // Extract prompts that contain technical details like "raw photo, visible skin pores"
-          const promptRegex = /```prompt\s*([\s\S]*?)\s*```/i;
-          const promptMatch = response.match(promptRegex);
+          // Extract Maya's hidden generation prompts (she should provide exactly 2)
+          const promptRegex = /```prompt\s*([\s\S]*?)\s*```/g;
+          const prompts = [];
+          let match;
           
-          if (promptMatch) {
-            generatedPrompt = promptMatch[1].trim();
-            // Remove the prompt from the conversation response
-            response = response.replace(promptRegex, '').trim();
+          while ((match = promptRegex.exec(response)) !== null) {
+            prompts.push(match[1].trim());
+          }
+          
+          if (prompts.length > 0) {
+            // Use the first prompt for generation, store all for reference
+            generatedPrompt = prompts[0];
+            console.log(`✅ MAYA PROVIDED ${prompts.length} PROMPTS:`, prompts.map(p => p.substring(0, 100)));
+            
+            // Remove all prompt blocks from conversation response
+            response = response.replace(/```prompt\s*([\s\S]*?)\s*```/g, '').trim();
+            // Clean up extra whitespace
+            response = response.replace(/\n\s*\n\s*\n/g, '\n\n').trim();
           } else {
-            // INTELLIGENT PROMPT CONVERSION: Transform Maya's exact conversational vision into accurate generation prompts
-            const userId = req.user?.claims?.sub;
-            const triggerWord = `user${userId}`;
-            
-            console.log('🎯 MAYA PROMPT CONVERSION: Converting conversation to generation prompt');
-            console.log('🎬 MAYA DESCRIPTION TO CONVERT:', response.substring(0, 300));
-            
-            try {
-              // Use Claude to intelligently convert Maya's exact description to a generation prompt
-              const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'x-api-key': process.env.ANTHROPIC_API_KEY!,
-                  'anthropic-version': '2023-06-01'
-                },
-                body: JSON.stringify({
-                  model: "claude-3-5-sonnet-20241022",
-                  max_tokens: 4000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
-                  messages: [{
-                    role: "user",
-                    content: `Convert Maya's exact description into a detailed FLUX generation prompt. Keep her exact vision - don't change locations, clothing, or mood. Just format it technically.
-
-Maya's description: "${response}"
-
-Convert to this exact format:
-${triggerWord}, [Maya's exact scene/location], [Maya's exact clothing description], [Maya's exact mood/expression], [technical photography details]
-
-Rules:
-- Keep Maya's EXACT scene (beach/rocks/studio/etc)  
-- Keep her EXACT clothing descriptions
-- Keep her EXACT mood and expression
-- Only add technical photography terms
-- No generic fallbacks - use her specific vision`
-                  }]
-                })
-              });
-
-              if (claudeResponse.ok) {
-                const claudeData = await claudeResponse.json();
-                generatedPrompt = claudeData.content[0].text.trim();
-                console.log('✅ MAYA PROMPT CONVERTED:', generatedPrompt.substring(0, 200));
-              } else {
-                throw new Error('Claude conversion failed');
-              }
-              
-            } catch (error) {
-              console.error('❌ Maya prompt conversion failed:', error);
-              // Simple fallback that uses user's last message context instead of hardcoded content
-              generatedPrompt = `${triggerWord}, ${message}, editorial fashion photography, natural lighting, authentic expression`;
-            }
+            console.log('⚠️ MAYA MISSING PROMPTS: Maya should provide hidden prompts in ```prompt``` blocks');
+            // No fallback - this encourages Maya to learn the proper format
+            canGenerate = false;
           }
         }
 

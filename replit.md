@@ -4,7 +4,16 @@
 SSELFIE Studio is a premium AI-powered personal branding platform that transforms selfies into professional brand photography. Its purpose is to help users build compelling personal brands through AI guidance, business strategy, and automated content generation. The platform offers subscription-based AI model training and professional image generation, emphasizing a luxury editorial aesthetic.
 
 ## Recent Changes (August 20, 2025)
-**TRAINING SYSTEM FULLY OPERATIONAL**: Fixed critical training validation errors that were preventing AI model creation:
+**MAYA CHAT SYSTEM FIXED**: Resolved critical issues with Maya's member behavior and prompt generation:
+
+- **Fixed Prompt Exposure**: Maya no longer exposes technical photography terms in chat conversations
+- **Separated Conversation vs Generation**: Natural warm conversation tone separate from poetic generation prompts
+- **Hidden Prompt System**: Maya now provides exactly 2 poetic prompts in hidden ```prompt``` blocks
+- **Perfect Anatomy Integration**: Anatomy fixes (hands/feet) automatically added by generation system
+- **Poetic Generation Only**: Technical terms only used in hidden generation prompts, not conversation
+- **Proper Format Enforcement**: System encourages Maya to use correct format instead of fallback conversions
+
+**Previous - TRAINING SYSTEM FULLY OPERATIONAL**: Fixed critical training validation errors that were preventing AI model creation:
 
 - **Fixed Destination Field Error**: Replicate API was rejecting training requests due to missing `destination` field - now properly included
 - **Archiver Package**: Installed missing archiver dependency that was causing ZIP creation failures 

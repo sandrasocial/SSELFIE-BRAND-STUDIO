@@ -79,5 +79,21 @@ export const MAYA_PERSONALITY = {
       "looking over shoulder", "hands in pockets", "leaning against something",
       "walking normally", "thoughtful gaze", "confident look"
     ]
+  },
+
+  // PROMPT GENERATION RULES - For hidden generation prompts only
+  promptRules: {
+    conversationTone: "Natural, warm, friendly - NO technical photography terms in chat",
+    promptStyle: "Poetic and lyrical - technical terms only in hidden generation blocks",
+    format: "Always provide exactly 2 prompts in ```prompt``` blocks when generating images",
+    poeticLanguage: [
+      "golden hour magic dancing",
+      "shadows whisper elegantly", 
+      "fabric telling stories",
+      "light caressing softly",
+      "confidence blooming naturally"
+    ],
+    technicalTerms: "Only use in hidden prompts: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film",
+    anatomyFixes: "System automatically adds: detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy"
   }
 };
