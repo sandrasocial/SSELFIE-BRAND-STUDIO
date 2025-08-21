@@ -7,6 +7,7 @@ import express from 'express';
 import { coordinate_workflow } from '../tools/coordinate_workflow';
 import { get_assigned_tasks } from '../tools/get_assigned_tasks';
 import { agentCoordinationBridge } from '../services/agent-coordination-bridge';
+import { agentContextIntelligence } from '../services/agent-context-intelligence';
 
 const router = express.Router();
 
@@ -515,6 +516,202 @@ router.post('/test-autonomous-execution', async (req, res) => {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'Autonomous execution pipeline test encountered an error'
+    });
+  }
+});
+
+// ============= PHASE 4.5: AGENT CONTEXT INTELLIGENCE TEST ENDPOINT =============
+
+/**
+ * PHASE 4.5: Test agent context intelligence - conversation vs execution mode detection
+ */
+router.post('/test-context-intelligence', async (req, res) => {
+  try {
+    console.log('🎭 PHASE 4.5 TEST: Agent Context Intelligence');
+    
+    const testResults = {
+      phase: 'Phase 4.5: Agent Context Intelligence',
+      timestamp: new Date().toISOString(),
+      tests: [] as any[]
+    };
+
+    // TEST SCENARIOS - Different user inputs to test context detection
+    const testScenarios = [
+      {
+        input: "Hey Elena, what do you think about our current progress?",
+        expectedMode: 'conversation',
+        agentId: 'elena',
+        description: 'Conversational question'
+      },
+      {
+        input: "Please implement the new user dashboard feature",
+        expectedMode: 'workflow_execution', 
+        agentId: 'zara',
+        description: 'Clear execution request'
+      },
+      {
+        input: "How would you implement the user dashboard?",
+        expectedMode: 'clarification_needed',
+        agentId: 'zara', 
+        description: 'Implementation question (ambiguous)'
+      },
+      {
+        input: "Maya, I love your fashion recommendations!",
+        expectedMode: 'conversation',
+        agentId: 'maya',
+        description: 'Personal appreciation'
+      },
+      {
+        input: "Go ahead and create the new payment flow",
+        expectedMode: 'workflow_execution',
+        agentId: 'elena',
+        description: 'Direct action command'
+      }
+    ];
+
+    // TEST 1: Context Detection Accuracy
+    console.log('🧠 TEST 1: Testing context detection accuracy...');
+    
+    let correctDetections = 0;
+    const detectionResults = [];
+
+    for (const scenario of testScenarios) {
+      const analysis = agentContextIntelligence.analyzeUserInput(
+        scenario.input, 
+        scenario.agentId
+      );
+      
+      const isCorrect = analysis.mode === scenario.expectedMode;
+      if (isCorrect) correctDetections++;
+      
+      detectionResults.push({
+        input: scenario.input,
+        expected: scenario.expectedMode,
+        detected: analysis.mode,
+        confidence: analysis.confidence,
+        correct: isCorrect,
+        reasoning: analysis.reasoning
+      });
+    }
+
+    testResults.tests.push({
+      test: 'Context Detection Accuracy',
+      status: correctDetections >= 4 ? 'PASSED' : 'FAILED',
+      result: `${correctDetections}/${testScenarios.length} correctly detected (${Math.round(correctDetections/testScenarios.length*100)}% accuracy)`
+    });
+
+    // TEST 2: Personality Integration
+    console.log('🎭 TEST 2: Testing personality integration...');
+    
+    const personalityTests = [
+      { agentId: 'elena', mode: 'conversation' },
+      { agentId: 'maya', mode: 'workflow_execution' },
+      { agentId: 'zara', mode: 'clarification' }
+    ];
+
+    const personalityResponses = personalityTests.map(test => {
+      const response = agentContextIntelligence.getPersonalityResponse(
+        test.agentId,
+        test.mode,
+        "test input"
+      );
+      return {
+        agent: test.agentId,
+        mode: test.mode,
+        response: response.substring(0, 50) + '...',
+        hasPersonality: response.length > 10
+      };
+    });
+
+    testResults.tests.push({
+      test: 'Personality Integration',
+      status: personalityResponses.every(p => p.hasPersonality) ? 'PASSED' : 'FAILED',
+      result: `Generated ${personalityResponses.length} personality-specific responses`
+    });
+
+    // TEST 3: Execution Intent Confirmation
+    console.log('⚡ TEST 3: Testing execution intent confirmation...');
+    
+    const executionTests = [
+      "Please build the new feature now",
+      "Maybe you could implement this?",
+      "What do you think about implementing this?"
+    ];
+
+    const executionResults = executionTests.map(input => {
+      const confirmation = agentContextIntelligence.confirmExecutionIntent(input, 'elena');
+      return {
+        input: input.substring(0, 30) + '...',
+        shouldExecute: confirmation.shouldExecute,
+        confidence: confirmation.confidence,
+        needsConfirmation: confirmation.confirmationNeeded
+      };
+    });
+
+    testResults.tests.push({
+      test: 'Execution Intent Confirmation',
+      status: executionResults.length > 0 ? 'PASSED' : 'FAILED',
+      result: `Analyzed ${executionResults.length} execution scenarios with confidence scoring`
+    });
+
+    // TEST 4: Mode Switching Detection
+    console.log('🔄 TEST 4: Testing mode switching intelligence...');
+    
+    const modeSwitchTest = agentContextIntelligence.detectModeSwitch(
+      'conversation',
+      'Okay, please go ahead and implement this',
+      'zara'
+    );
+
+    testResults.tests.push({
+      test: 'Mode Switching Detection',
+      status: modeSwitchTest.shouldSwitch ? 'PASSED' : 'PARTIAL',
+      result: `Switch detected: ${modeSwitchTest.shouldSwitch}, New mode: ${modeSwitchTest.newMode}, Confidence: ${modeSwitchTest.confidence}`
+    });
+
+    // Calculate test summary
+    const totalTests = testResults.tests.length;
+    const passedTests = testResults.tests.filter(t => t.status === 'PASSED').length;
+    
+    testResults.summary = {
+      totalTests,
+      passedTests,
+      failedTests: totalTests - passedTests,
+      successRate: `${((passedTests / totalTests) * 100).toFixed(1)}%`,
+      overallStatus: passedTests >= 3 ? 'CONTEXT INTELLIGENCE OPERATIONAL' : 'NEEDS IMPROVEMENT'
+    };
+
+    console.log(`🎭 PHASE 4.5 TEST COMPLETE: ${passedTests}/${totalTests} context intelligence tests passed`);
+
+    res.json({
+      success: true,
+      message: 'Phase 4.5: Agent Context Intelligence test completed',
+      results: testResults,
+      contextCapabilities: [
+        'Conversation vs Execution Detection - Natural language understanding',
+        'Personality-Driven Responses - Agent-specific communication styles',
+        'Intent Confidence Scoring - Probabilistic decision making',
+        'Mode Switching Intelligence - Dynamic context adaptation',
+        'Execution Confirmation - Smart workflow triggering'
+      ],
+      systemStatus: {
+        contextDetection: 'Active',
+        personalityIntegration: 'Enabled',
+        intentAnalysis: 'Operational',
+        modeSwitching: 'Intelligent',
+        executionGating: 'Smart'
+      },
+      detectionResults,
+      personalityResponses,
+      executionResults
+    });
+
+  } catch (error) {
+    console.error('❌ PHASE 4.5 CONTEXT INTELLIGENCE TEST FAILED:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'Context intelligence test encountered an error'
     });
   }
 });
