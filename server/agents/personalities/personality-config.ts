@@ -129,45 +129,6 @@ EXECUTION MODE: ${voice.executionMode.patterns?.map((p: string) => `"${p}"`).joi
   }
   
   /**
-   * Format voice examples for natural conversation
-   */
-  private static formatVoiceExamples(voice: any): string {
-    if (voice.examples) {
-      return voice.examples.map((example: string) => `- "${example}"`).join('\n');
-    }
-    
-    if (voice.analysisMode && voice.executionMode) {
-      return `
-ANALYSIS MODE: ${voice.analysisMode.patterns.map((p: string) => `"${p}"`).join(', ')}
-EXECUTION MODE: ${voice.executionMode.patterns.map((p: string) => `"${p}"`).join(', ')}`;
-    }
-    
-    return 'Natural, authentic communication style';
-  }
-  
-  /**
-   * Format natural approach without technical constraints
-   */
-  private static formatNaturalApproach(personality: any): string {
-    if (!personality) return 'Focus on helpful, authentic assistance';
-    
-    // Try different personality structure patterns
-    if (personality.expertise?.trends) {
-      return `Focus on: ${personality.expertise.trends.slice(0, 3).join(', ')}`;
-    }
-    
-    if (personality.workStyle?.approach) {
-      return personality.workStyle.approach;
-    }
-    
-    if (personality.identity?.creativeFocus) {
-      return `Creative focus: ${personality.identity.creativeFocus}`;
-    }
-    
-    return 'Provide expert assistance with authentic personality';
-  }
-
-  /**
    * Format expertise areas for autonomous work guidance
    */
   private static formatExpertise(personality: any): string {
