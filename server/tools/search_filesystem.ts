@@ -99,9 +99,7 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
     });
     
     cmd.on('close', (code) => {
-      if (output.length > 5000) {
-        output = output.substring(0, 5000) + '\n... (output truncated)';
-      }
+      // ADMIN AGENTS: NO OUTPUT TRUNCATION - FULL RESULTS
       resolve(output || 'No matches found');
     });
     
@@ -113,41 +111,50 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
   });
 }
 
-// Simple project overview - CORRECTED STRUCTURE  
+// COMPLETE BUSINESS MODEL VISIBILITY FOR ADMIN AGENTS
 async function getProjectOverview(): Promise<string> {
-  return `🚀 SSELFIE Studio - CORRECT PROJECT STRUCTURE:
+  // READ BUSINESS MODEL DOCUMENTATION
+  const businessDocs = await getBusinessModelDocumentation();
+  
+  return `🚀 SSELFIE STUDIO - COMPLETE PROJECT & BUSINESS MODEL ACCESS:
+
+${businessDocs}
 
 ✅ ROOT DIRECTORIES (what agents can access):
 ./server/ - Express.js backend, API routes, agent tools, services
-./client/ - Frontend React application (CONTAINS src/ subdirectory)
+./client/ - Frontend React application (CONTAINS src/ subdirectory)  
 ./client/src/ - Main React source code (components, pages, hooks)
 ./shared/ - TypeScript schemas (database models, types)
 ./config/ - Configuration files
 ./_architecture/ - Architecture documentation
+./attached_assets/ - User uploads and project assets
+./admin-development/ - Admin agent development files
+./infrastructure/ - Infrastructure and deployment configurations
 
-📋 KEY FILES TO KNOW:
+📋 KEY BUSINESS & PROJECT FILES:
+./replit.md - COMPLETE project documentation and business architecture
+./SANDRA_LAUNCH_STRATEGY.md - Launch strategy and business plans
+./MEMBER_WORKSPACE_REDESIGN_PLAN.md - User experience and features
+./ARCHITECTURE_OVERVIEW.md - Technical architecture documentation  
+./PROJECT_GUIDE.md - Development and business guidelines
 ./package.json - Dependencies (React, Express, PostgreSQL, Drizzle, etc.)
 ./server/index.ts - Main server entry point
-./server/routes/ - API routes directory
-./server/tools/ - Agent tools directory (search_filesystem, bash, etc.)
 ./shared/schema.ts - Database schema (PostgreSQL + Drizzle ORM)
-./replit.md - Project documentation and architecture
 
 🎯 CRITICAL LOCATIONS FOR AGENTS:
+- Business Strategy: ./SANDRA_LAUNCH_STRATEGY.md, ./replit.md
+- User Experience: ./MEMBER_WORKSPACE_REDESIGN_PLAN.md  
 - React Components: ./client/src/components/
-- React Pages: ./client/src/pages/
+- React Pages: ./client/src/pages/ (including pricing, workspace, etc.)
 - API Routes: ./server/routes/
 - Database: PostgreSQL with Drizzle ORM in ./shared/schema.ts
 - Agent Tools: ./server/tools/
 
-⚠️  IMPORTANT: 
-- NO ./src/ directory at root - React code is in ./client/src/
-- Edit existing files in ./client/src/pages/ instead of creating new ones
-- Follow existing project structure and design patterns
-
 🔧 Tech Stack: React 18 + TypeScript + Express + PostgreSQL + Drizzle + Tailwind CSS
+💰 Revenue Model: €39 Single Mom Starter + Premium subscriptions
+🎯 Business Focus: AI Personal Branding Platform for immediate income generation
 
-✅ PROJECT STATUS: FULLY INITIALIZED AND READY FOR DEVELOPMENT`;
+✅ PROJECT STATUS: READY FOR SIMPLIFIED LAUNCH WITH REVENUE GENERATION`;
 }
 
 // Get complete directory listing - FIXED: No truncation for admin agents
@@ -163,19 +170,20 @@ async function getBasicDirectoryListing(): Promise<string> {
     const rootItems = await fs.readdir(workspaceRoot, { withFileTypes: true });
     let listing = 'ROOT DIRECTORY CONTENTS:\n';
     
-    for (const item of rootItems.slice(0, 50)) { // Limit to prevent overwhelming output
+    // ADMIN AGENTS: FULL REPOSITORY ACCESS - NO LIMITATIONS
+    for (const item of rootItems) { // NO TRUNCATION for admin agents
       const type = item.isDirectory() ? 'DIR' : 'FILE';
       const name = item.name;
       
-      // Skip node_modules and other large directories for cleaner output
-      if (!['node_modules', '.git', 'dist'].includes(name)) {
+      // Skip ONLY node_modules and .git to show complete project
+      if (!['node_modules', '.git'].includes(name)) {
         listing += `${type}: ${name}\n`;
         
-        // Show key subdirectories for important folders
-        if (item.isDirectory() && ['server', 'client', 'src', 'components', 'pages', 'shared', 'config', '_architecture'].includes(name)) {
+        // Show ALL key subdirectories for admin agents  
+        if (item.isDirectory() && ['server', 'client', 'src', 'components', 'pages', 'shared', 'config', '_architecture', 'attached_assets', 'admin-development', 'infrastructure'].includes(name)) {
           try {
             const subItems = await fs.readdir(name, { withFileTypes: true });
-            for (const subItem of subItems.slice(0, 20)) {
+            for (const subItem of subItems) { // NO SLICE LIMITATION
               const subType = subItem.isDirectory() ? 'DIR' : 'FILE';
               listing += `  └─ ${subType}: ${name}/${subItem.name}\n`;
               
@@ -183,7 +191,7 @@ async function getBasicDirectoryListing(): Promise<string> {
               if (name === 'client' && subItem.isDirectory() && subItem.name === 'src') {
                 try {
                   const srcItems = await fs.readdir(`${name}/${subItem.name}`, { withFileTypes: true });
-                  for (const srcSubItem of srcItems.slice(0, 15)) {
+                  for (const srcSubItem of srcItems) { // NO SLICE - FULL ACCESS
                     const srcType = srcSubItem.isDirectory() ? 'DIR' : 'FILE';
                     listing += `    └─ ${srcType}: ${name}/${subItem.name}/${srcSubItem.name}\n`;
                     
@@ -191,7 +199,7 @@ async function getBasicDirectoryListing(): Promise<string> {
                     if (srcSubItem.isDirectory() && srcSubItem.name === 'pages') {
                       try {
                         const pageItems = await fs.readdir(`${name}/${subItem.name}/${srcSubItem.name}`, { withFileTypes: true });
-                        for (const pageItem of pageItems.slice(0, 10)) {
+                        for (const pageItem of pageItems) { // NO SLICE - SHOW ALL
                           listing += `      └─ FILE: ${name}/${subItem.name}/${srcSubItem.name}/${pageItem.name}\n`;
                         }
                       } catch {}
@@ -232,6 +240,39 @@ async function getBasicDirectoryListing(): Promise<string> {
       }, 10000); // Increased timeout
     });
   }
+}
+
+// BUSINESS MODEL ACCESS: Read key business documentation for admin agents
+async function getBusinessModelDocumentation(): Promise<string> {
+  let businessInfo = '';
+  
+  const keyBusinessFiles = [
+    'replit.md',
+    'SANDRA_LAUNCH_STRATEGY.md', 
+    'MEMBER_WORKSPACE_REDESIGN_PLAN.md',
+    'ARCHITECTURE_OVERVIEW.md',
+    'PROJECT_GUIDE.md'
+  ];
+  
+  for (const filename of keyBusinessFiles) {
+    try {
+      const fs = await import('fs/promises');
+      const workspaceRoot = process.cwd().endsWith('/server') ? '..' : '.';
+      const content = await fs.readFile(`${workspaceRoot}/${filename}`, 'utf-8');
+      
+      // Include first 2000 characters of each key business file
+      businessInfo += `\n📄 ${filename.toUpperCase()}:\n`;
+      businessInfo += content.substring(0, 2000);
+      if (content.length > 2000) {
+        businessInfo += '\n... (file continues)';
+      }
+      businessInfo += '\n\n';
+    } catch (error) {
+      businessInfo += `\n📄 ${filename}: Not accessible\n`;
+    }
+  }
+  
+  return businessInfo || '📄 Business documentation access limited - check file permissions';
 }
 
 // Extract search terms from description
