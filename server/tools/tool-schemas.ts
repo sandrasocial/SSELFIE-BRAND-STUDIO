@@ -235,6 +235,108 @@ export const TOOL_SCHEMAS = {
       },
       required: ["agent_name"]
     }
+  },
+
+  agent_handoff: {
+    name: "agent_handoff",
+    description: "Direct agent-to-agent task handoffs and communication",
+    input_schema: {
+      type: "object",
+      properties: {
+        action: {
+          type: "string",
+          enum: ["complete_task", "request_handoff", "accept_task", "notify_completion", "check_dependencies"],
+          description: "The handoff action to perform"
+        },
+        agentId: {
+          type: "string",
+          description: "Agent performing the handoff action"
+        },
+        taskId: {
+          type: "string",
+          description: "ID of the task being handed off"
+        },
+        targetAgent: {
+          type: "string",
+          description: "Agent to hand off the task to"
+        },
+        taskResults: {
+          type: "object",
+          description: "Results and deliverables from completed task"
+        },
+        handoffMessage: {
+          type: "string",
+          description: "Message to accompany the handoff"
+        },
+        priority: {
+          type: "string",
+          enum: ["low", "medium", "high", "critical"],
+          description: "Priority of the handoff"
+        }
+      },
+      required: ["action", "agentId"]
+    }
+  },
+
+  get_handoff_tasks: {
+    name: "get_handoff_tasks",
+    description: "Get pending task handoffs for an agent",
+    input_schema: {
+      type: "object", 
+      properties: {
+        agentName: {
+          type: "string",
+          description: "Name of the agent to check handoffs for"
+        }
+      },
+      required: ["agentName"]
+    }
+  },
+
+  autonomous_workflow: {
+    name: "autonomous_workflow",
+    description: "Start and manage fully autonomous multi-agent workflows",
+    input_schema: {
+      type: "object",
+      properties: {
+        action: {
+          type: "string",
+          enum: ["start_autonomous_workflow", "join_workflow", "check_workflow_status", "complete_workflow_step"],
+          description: "The autonomous workflow action"
+        },
+        workflowName: {
+          type: "string",
+          description: "Name of the autonomous workflow"
+        },
+        agentId: {
+          type: "string", 
+          description: "Agent initiating or joining the workflow"
+        },
+        workflowType: {
+          type: "string",
+          enum: ["feature_development", "content_creation", "launch_preparation", "business_operations", "custom"],
+          description: "Type of autonomous workflow"
+        },
+        targetOutcome: {
+          type: "string",
+          description: "Desired outcome of the autonomous workflow"
+        },
+        collaboratingAgents: {
+          type: "array",
+          items: { type: "string" },
+          description: "Agents that should collaborate in the workflow"
+        },
+        maxExecutionTime: {
+          type: "integer",
+          description: "Maximum execution time in minutes"
+        },
+        businessContext: {
+          type: "object",
+          description: "Business context and impact information"
+        }
+      },
+      required: ["action", "workflowName", "agentId"]
+    }
   }
 };
 
@@ -246,7 +348,10 @@ import { execute_sql_tool } from './execute_sql_tool';
 import { web_search } from './web_search';
 import { restart_workflow } from './restart-workflow';
 import { search_filesystem } from './search_filesystem';
-// import { coordinate_agent } from './coordinate_agent';
+import { coordinate_workflow } from './coordinate_workflow';
+import { get_assigned_tasks } from './get_assigned_tasks';
+import { agent_handoff, get_handoff_tasks } from './agent_handoff';
+import { autonomous_workflow } from './autonomous_workflow';
 
 export const TOOL_FUNCTIONS = {
   bash,
@@ -256,5 +361,9 @@ export const TOOL_FUNCTIONS = {
   web_search,
   restart_workflow,
   search_filesystem,
-  // coordinate_agent
+  coordinate_workflow,
+  get_assigned_tasks,
+  agent_handoff,
+  get_handoff_tasks,
+  autonomous_workflow
 };

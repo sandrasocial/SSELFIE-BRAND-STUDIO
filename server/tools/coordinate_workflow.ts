@@ -41,7 +41,11 @@ export async function coordinate_workflow(input: CoordinateWorkflowInput): Promi
           description: input.description,
           coordinatorAgent: input.coordinatorAgent,
           targetAgents: input.targetAgents,
-          tasks: input.tasks || [],
+          tasks: input.tasks?.map(task => ({ 
+            ...task, 
+            assignedAgent: '', 
+            dependencies: task.dependencies || [] 
+          })) || [],
           priority: input.priority || 'medium',
           userId
         });
@@ -71,7 +75,11 @@ ${result.nextSteps.map(step => `- ${step}`).join('\n')}
           requestType: 'task_assignment',
           coordinatorAgent: input.coordinatorAgent,
           targetAgents: input.targetAgents,
-          tasks: input.tasks,
+          tasks: input.tasks?.map(task => ({ 
+            ...task, 
+            assignedAgent: '', 
+            dependencies: task.dependencies || [] 
+          })) || [],
           priority: input.priority || 'medium',
           userId
         });
