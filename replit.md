@@ -43,6 +43,7 @@ Preferred communication style: Simple, everyday language.
 - Strict CSS editing guidelines for application stability.
 - Real-time agent protocol validation to prevent duplicate work.
 - **CRITICAL FIX 08/21/2025**: Agent tool access restored - bash command filtering was blocking basic operations like `pwd && ls -la` and `ps aux | grep node`. Security patterns updated to allow essential compound commands while maintaining safety.
+- **ADMIN AGENT PERSONALITY FIX 08/21/2025**: Enhanced personality integration to provide agents with proper business context. Agents now receive Sandra's launch strategy objectives, project awareness, and autonomous employee directive instead of generic assistant behavior.
 - Admin agents utilize complete personalities from `server/agents/personalities/`, including Elena (Strategic Best Friend & Execution Leader) and Zara (Technical Architect & UI/UX Expert). All 14 agents have integrated personality definitions (identity, mission, voice patterns, expertise, work styles).
 - Database-connected memory for loading and persisting agent contexts and personality-driven interactions.
 - Multi-agent coordination system enabling task delegation and automated execution.
