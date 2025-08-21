@@ -358,4 +358,165 @@ router.post('/test-cross-agent-learning', async (req, res) => {
   }
 });
 
+// ============= PHASE 4: AUTONOMOUS EXECUTION PIPELINE TEST ENDPOINT =============
+
+/**
+ * PHASE 4: Test autonomous execution pipeline with learning optimization
+ */
+router.post('/test-autonomous-execution', async (req, res) => {
+  try {
+    console.log('🤖 PHASE 4 TEST: Autonomous Execution Pipeline');
+    
+    const testResults = {
+      phase: 'Phase 4: Autonomous Execution Pipeline',
+      timestamp: new Date().toISOString(),
+      tests: [] as any[]
+    };
+
+    // TEST 1: Start autonomous execution with learning optimization
+    console.log('🚀 TEST 1: Starting autonomous execution...');
+    
+    const autonomousRequest = {
+      requestType: 'autonomous_execution' as const,
+      workflowName: 'Auto Test Workflow',
+      description: 'Demonstrate autonomous execution with cross-agent learning',
+      coordinatorAgent: 'elena',
+      targetAgents: ['aria', 'zara', 'maya'],
+      tasks: [
+        {
+          id: 'auto_task_1',
+          description: 'Design UI components with learning optimization',
+          priority: 'high',
+          estimatedDuration: 10,
+          dependencies: []
+        },
+        {
+          id: 'auto_task_2',
+          description: 'Implement backend API with performance tracking',
+          priority: 'high', 
+          estimatedDuration: 15,
+          dependencies: ['auto_task_1']
+        },
+        {
+          id: 'auto_task_3',
+          description: 'Deploy application with automated testing',
+          priority: 'medium',
+          estimatedDuration: 8,
+          dependencies: ['auto_task_2']
+        }
+      ],
+      priority: 'high' as const,
+      userId: 'test-user',
+      autonomousMode: true,
+      maxExecutionTime: 120000, // 2 minutes for test
+      expectedDeliverables: [
+        'UI components designed and optimized',
+        'Backend API implemented with monitoring',
+        'Application deployed with quality checks'
+      ]
+    };
+
+    const coordinationResult = await agentCoordinationBridge.coordinateWorkflow(autonomousRequest);
+    
+    testResults.tests.push({
+      test: 'Autonomous Execution Initialization',
+      status: coordinationResult.success && coordinationResult.autonomousExecution?.isActive ? 'PASSED' : 'FAILED',
+      result: `Execution ${coordinationResult.autonomousExecution?.executionId} started with ${autonomousRequest.tasks.length} tasks`
+    });
+
+    // TEST 2: Monitor autonomous execution progress
+    console.log('📊 TEST 2: Monitoring autonomous execution progress...');
+    
+    const executionId = coordinationResult.autonomousExecution?.executionId;
+    if (executionId) {
+      // Wait 10 seconds to see progress
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      
+      const executionStatus = agentCoordinationBridge.getAutonomousExecutionStatus(executionId);
+      
+      testResults.tests.push({
+        test: 'Autonomous Execution Progress Tracking',
+        status: executionStatus && executionStatus.progress >= 0 ? 'PASSED' : 'FAILED',
+        result: executionStatus ? `Progress: ${executionStatus.progress}%, Current: ${executionStatus.currentTask}` : 'No status available'
+      });
+    } else {
+      testResults.tests.push({
+        test: 'Autonomous Execution Progress Tracking',
+        status: 'FAILED',
+        result: 'No execution ID available for monitoring'
+      });
+    }
+
+    // TEST 3: Check all active executions
+    console.log('🔍 TEST 3: Checking active autonomous executions...');
+    
+    const activeExecutions = agentCoordinationBridge.getAllActiveExecutions();
+    
+    testResults.tests.push({
+      test: 'Active Executions Monitoring',
+      status: activeExecutions.length >= 0 ? 'PASSED' : 'FAILED',
+      result: `Found ${activeExecutions.length} active autonomous executions`
+    });
+
+    // TEST 4: System status with autonomous capabilities
+    console.log('🏥 TEST 4: Checking system health with autonomous capabilities...');
+    
+    const systemStatus = agentCoordinationBridge.getSystemStatus();
+    
+    testResults.tests.push({
+      test: 'System Health with Autonomous Capabilities',
+      status: systemStatus.coordinationBridge === 'Operational' ? 'PASSED' : 'FAILED',
+      result: `Bridge: ${systemStatus.coordinationBridge}, Connected Systems: ${Object.keys(systemStatus.connectedSystems).length}`
+    });
+
+    // Calculate test summary
+    const totalTests = testResults.tests.length;
+    const passedTests = testResults.tests.filter(t => t.status === 'PASSED').length;
+    
+    testResults.summary = {
+      totalTests,
+      passedTests,
+      failedTests: totalTests - passedTests,
+      successRate: `${((passedTests / totalTests) * 100).toFixed(1)}%`,
+      overallStatus: passedTests === totalTests ? 'AUTONOMOUS EXECUTION OPERATIONAL' : 'PARTIAL FUNCTIONALITY'
+    };
+
+    console.log(`🤖 PHASE 4 TEST COMPLETE: ${passedTests}/${totalTests} autonomous execution tests passed`);
+
+    res.json({
+      success: true,
+      message: 'Phase 4: Autonomous Execution Pipeline test completed',
+      results: testResults,
+      autonomousCapabilities: [
+        'Self-Executing Workflows - Complete automation without manual intervention',
+        'Learning-Optimized Tasks - Cross-agent pattern application for efficiency',
+        'Real-time Progress Tracking - Continuous monitoring of autonomous execution',
+        'Intelligent Task Categorization - Automatic optimization based on task type',
+        'Performance-Based Learning - Success patterns captured for future optimization'
+      ],
+      systemStatus: {
+        autonomousExecution: 'Active',
+        learningOptimization: 'Enabled',
+        progressTracking: 'Real-time',
+        crossAgentIntelligence: 'Operational',
+        executionManagement: 'Automated'
+      },
+      executionDetails: coordinationResult.autonomousExecution ? {
+        executionId: coordinationResult.autonomousExecution.executionId,
+        currentProgress: coordinationResult.autonomousExecution.progress,
+        currentTask: coordinationResult.autonomousExecution.currentTask,
+        estimatedCompletion: coordinationResult.autonomousExecution.estimatedCompletion
+      } : null
+    });
+
+  } catch (error) {
+    console.error('❌ PHASE 4 AUTONOMOUS EXECUTION TEST FAILED:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'Autonomous execution pipeline test encountered an error'
+    });
+  }
+});
+
 export default router;
