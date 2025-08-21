@@ -1872,7 +1872,25 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // REMOVED: Hardcoded user model endpoint - replaced by real database endpoint below
+  // Test model validation endpoint
+  app.post('/api/test-model-validation', async (req, res) => {
+    try {
+      const { userId } = req.body;
+      const { ModelValidationService } = await import('./model-validation-service');
+      
+      console.log(`🔍 Testing model validation for user: ${userId}`);
+      const validation = await ModelValidationService.validateAndCorrectUserModel(userId);
+      
+      res.json({
+        success: true,
+        validation,
+        databaseModel: await storage.getUserModelByUserId(userId)
+      });
+    } catch (error) {
+      console.error('Model validation test error:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
 
   // AI Images API - Required for user gallery
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
