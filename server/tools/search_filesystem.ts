@@ -291,8 +291,8 @@ async function getBusinessModelDocumentation(): Promise<string> {
       }
       businessInfo += '\n\n';
     } catch (error) {
-      console.log(`❌ FAILED TO READ ${filename}:`, error.message);
-      businessInfo += `\n📄 ${filename}: File not accessible - ${error.message}\n`;
+      console.log(`❌ FAILED TO READ ${filename}:`, error instanceof Error ? error.message : 'Unknown error');
+      businessInfo += `\n📄 ${filename}: File not accessible - ${error instanceof Error ? error.message : 'Unknown error'}\n`;
     }
   }
   
