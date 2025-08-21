@@ -51,13 +51,13 @@ export class ElenaDelegationSystem {
   private initializeAgentWorkloads(): void {
     const agents: AgentWorkload[] = [
       {
-        agentId: 'aria',
+        agentId: 'elena',
         currentTasks: 0,
-        maxCapacity: 3,
-        specialties: ['ui', 'ux', 'design', 'components', 'frontend'],
-        averageTaskTime: 45,
+        maxCapacity: 5,
+        specialties: ['coordination', 'strategy', 'delegation', 'project-management', 'oversight'],
+        averageTaskTime: 30,
         lastTaskAssigned: null,
-        efficiency: 0.9
+        efficiency: 0.95
       },
       {
         agentId: 'zara',
@@ -72,26 +72,107 @@ export class ElenaDelegationSystem {
         agentId: 'maya',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['ai', 'ml', 'image-generation', 'prompts', 'claude'],
+        specialties: ['ai', 'ml', 'image-generation', 'styling', 'prompts'],
         averageTaskTime: 30,
         lastTaskAssigned: null,
         efficiency: 0.85
       },
       {
+        agentId: 'aria',
+        currentTasks: 0,
+        maxCapacity: 3,
+        specialties: ['ui', 'ux', 'design', 'components', 'frontend'],
+        averageTaskTime: 45,
+        lastTaskAssigned: null,
+        efficiency: 0.9
+      },
+      {
         agentId: 'victoria',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['website-builder', 'templates', 'business-setup'],
+        specialties: ['business-strategy', 'ux-consulting', 'market-analysis', 'planning'],
         averageTaskTime: 90,
         lastTaskAssigned: null,
         efficiency: 0.8
       },
       {
+        agentId: 'quinn',
+        currentTasks: 0,
+        maxCapacity: 3,
+        specialties: ['qa', 'testing', 'quality-assurance', 'debugging', 'validation'],
+        averageTaskTime: 40,
+        lastTaskAssigned: null,
+        efficiency: 0.9
+      },
+      {
+        agentId: 'rachel',
+        currentTasks: 0,
+        maxCapacity: 2,
+        specialties: ['copywriting', 'voice-replication', 'brand-messaging', 'content'],
+        averageTaskTime: 35,
+        lastTaskAssigned: null,
+        efficiency: 0.85
+      },
+      {
+        agentId: 'sophia',
+        currentTasks: 0,
+        maxCapacity: 3,
+        specialties: ['social-media', 'community-growth', 'content-strategy', 'engagement'],
+        averageTaskTime: 25,
+        lastTaskAssigned: null,
+        efficiency: 0.85
+      },
+      {
         agentId: 'olga',
         currentTasks: 0,
         maxCapacity: 3,
-        specialties: ['deployment', 'optimization', 'cleanup', 'organization'],
+        specialties: ['deployment', 'optimization', 'cleanup', 'organization', 'infrastructure'],
         averageTaskTime: 35,
+        lastTaskAssigned: null,
+        efficiency: 0.9
+      },
+      {
+        agentId: 'wilma',
+        currentTasks: 0,
+        maxCapacity: 2,
+        specialties: ['workflow-design', 'process-automation', 'agent-coordination', 'efficiency'],
+        averageTaskTime: 50,
+        lastTaskAssigned: null,
+        efficiency: 0.8
+      },
+      {
+        agentId: 'diana',
+        currentTasks: 0,
+        maxCapacity: 2,
+        specialties: ['analytics', 'data-analysis', 'performance-tracking', 'reporting'],
+        averageTaskTime: 45,
+        lastTaskAssigned: null,
+        efficiency: 0.85
+      },
+      {
+        agentId: 'martha',
+        currentTasks: 0,
+        maxCapacity: 2,
+        specialties: ['admin-management', 'user-management', 'system-administration', 'compliance'],
+        averageTaskTime: 55,
+        lastTaskAssigned: null,
+        efficiency: 0.8
+      },
+      {
+        agentId: 'ava',
+        currentTasks: 0,
+        maxCapacity: 2,
+        specialties: ['customer-support', 'documentation', 'user-assistance', 'training'],
+        averageTaskTime: 30,
+        lastTaskAssigned: null,
+        efficiency: 0.85
+      },
+      {
+        agentId: 'flux',
+        currentTasks: 0,
+        maxCapacity: 1,
+        specialties: ['ai-generation', 'model-training', 'image-generation', 'flux-models'],
+        averageTaskTime: 20,
         lastTaskAssigned: null,
         efficiency: 0.9
       }
@@ -102,6 +183,7 @@ export class ElenaDelegationSystem {
     });
     
     console.log('👥 ELENA DELEGATION: Initialized workload tracking for', agents.length, 'agents');
+    console.log('✨ ECOSYSTEM COMPLETE: All 14 agents now tracked with specializations and capacity limits');
   }
   
   /**
