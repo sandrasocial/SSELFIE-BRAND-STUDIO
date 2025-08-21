@@ -272,91 +272,91 @@ export default function AdminConsultingAgents() {
       name: 'Aria',
       role: 'System Health & Performance Expert',
       specialty: 'Performance monitoring, optimization, system health',
-      image: '/attached_assets/out-0%20(28)_1753426218046.png'
+      image: '/attached_assets/out-0%20(22)_1753426218045.png'
     },
     {
       id: 'zara',
       name: 'Zara',
       role: 'Technical Architect & UI/UX Expert',
       specialty: 'System architecture, full-stack implementation, UI/UX',
-      image: '/attached_assets/out-0%20(29)_1753426218047.png'
+      image: '/attached_assets/out-0%20(26)_1753426218043.png'
     },
     {
       id: 'maya',
       name: 'Maya',
       role: 'AI Integration Specialist',
       specialty: 'AI models, machine learning, intelligent features',
-      image: '/attached_assets/out-0%20(22)_1753426218045.png'
+      image: '/attached_assets/out-0%20(28)_1753426218042.png'
     },
     {
       id: 'victoria',
       name: 'Victoria',
       role: 'Business Process Automation Expert',
       specialty: 'Workflow automation, business logic, process optimization',
-      image: '/attached_assets/out-0%20(26)_1753426218046.png'
+      image: '/attached_assets/out-0%20(29)_1753426218044.png'
     },
     {
       id: 'rachel',
       name: 'Rachel',
       role: 'Requirements Analysis Expert',
       specialty: 'User stories, specifications, feature analysis',
-      image: '/attached_assets/out-0%20(32)_1753426218048.png'
+      image: '/attached_assets/out-0%20(32)_1753426290403.png'
     },
     {
       id: 'ava',
       name: 'Ava',
       role: 'Analytics & Insights Expert',
       specialty: 'Data analysis, metrics, insights',
-      image: '/attached_assets/out-0%20(33)_1753426218048.png'
+      image: '/attached_assets/out-0%20(33)_1753426218039.png'
     },
     {
       id: 'quinn',
       name: 'Quinn',
       role: 'Security & Compliance Expert',
       specialty: 'Security audits, compliance, risk management',
-      image: '/attached_assets/out-0%20(34)_1753426218049.png'
+      image: '/attached_assets/out-0%20(34)_1753426218040.png'
     },
     {
       id: 'sophia',
       name: 'Sophia',
       role: 'Social Media & Content Expert',
       specialty: 'Content strategy, social media, engagement',
-      image: '/attached_assets/out-0%20(37)_1753426218050.png'
+      image: '/attached_assets/out-0%20(37)_1753426218041.png'
     },
     {
       id: 'martha',
       name: 'Martha',
       role: 'User Experience Research Expert',
       specialty: 'User research, feedback analysis, UX optimization',
-      image: '/attached_assets/out-0%20(42)_1753426218052.png'
+      image: '/attached_assets/out-0%20(42)_1753426218042.png'
     },
     {
       id: 'diana',
       name: 'Diana',
       role: 'DevOps & Deployment Expert',
       specialty: 'CI/CD, deployment, infrastructure',
-      image: '/attached_assets/out-1%20(18)_1753426219061.png'
+      image: '/attached_assets/out-1%20(18)_1753426218043.png'
     },
     {
       id: 'wilma',
       name: 'Wilma',
       role: 'Documentation & Knowledge Expert',
       specialty: 'Technical writing, documentation, knowledge base',
-      image: '/attached_assets/out-1%20(27)_1753426219064.png'
+      image: '/attached_assets/out-1%20(27)_1753426218043.png'
     },
     {
       id: 'olga',
       name: 'Olga',
       role: 'Quality Assurance Expert',
       specialty: 'Testing, validation, quality control',
-      image: '/attached_assets/out-2%20(18)_1753426220072.png'
+      image: '/attached_assets/out-2%20(18)_1753426218045.png'
     },
     {
       id: 'flux',
       name: 'Flux',
       role: 'Integration & API Expert',
       specialty: 'API design, integrations, data flow',
-      image: '/attached_assets/out-2%20(23)_1753426220074.png'
+      image: '/attached_assets/out-2%20(23)_1753426218044.png'
     }
   ];
 
