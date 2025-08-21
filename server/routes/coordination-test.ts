@@ -1,6 +1,6 @@
 /**
- * COORDINATION BRIDGE TEST ENDPOINT
- * Demonstrates Phase 1 implementation working with existing autonomous systems
+ * COORDINATION BRIDGE TEST ENDPOINT - PHASE 2
+ * Demonstrates project context integration with existing autonomous systems
  */
 
 import express from 'express';
@@ -163,30 +163,81 @@ router.post('/test-coordination', async (req, res) => {
 });
 
 /**
- * GET COORDINATION STATUS - Real-time system monitoring
+ * GET COORDINATION STATUS - Real-time system monitoring (PHASE 2)
  */
 router.get('/status', async (req, res) => {
   try {
-    const status = await agentCoordinationBridge.getCoordinationStatus();
+    // PHASE 2: Get enhanced system status with project context
+    const systemStatus = agentCoordinationBridge.getSystemStatus();
+    const coordinationStatus = await agentCoordinationBridge.getCoordinationStatus();
     
     res.json({
       success: true,
-      coordinationBridge: 'Phase 1 - Operational',
+      ...systemStatus,
       timestamp: new Date().toISOString(),
-      ...status,
-      connectedSystems: {
-        workflowExecutor: 'Connected',
-        taskDistributor: 'Connected', 
-        delegationSystem: 'Connected',
-        stateManager: 'Connected',
-        processingEngine: 'Connected',
-        contextManager: 'Connected'
-      }
+      ...coordinationStatus
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
+      phase: 'Phase 2 - Project Context Integration',
+      coordinationBridge: 'Error'
+    });
+  }
+});
+
+/**
+ * PHASE 2: Test agent file access validation with automatic context creation
+ */
+router.post('/test-file-access', async (req, res) => {
+  try {
+    const { agentId, filePaths } = req.body;
+    
+    if (!agentId || !filePaths || !Array.isArray(filePaths)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: agentId and filePaths array'
+      });
+    }
+
+    console.log(`🔍 PHASE 2 TEST: Validating file access for ${agentId}`);
+    
+    // PHASE 2: Create agent context if it doesn't exist
+    const contextManager = agentCoordinationBridge['contextManager'];
+    const existingContext = contextManager.getProjectContextForAgent(agentId);
+    
+    if (!existingContext) {
+      console.log(`🤖 PHASE 2: Creating project context for ${agentId}`);
+      await contextManager.createAdminAgentContext(
+        agentId,
+        'admin-test-user',
+        'test-conversation-' + Date.now(),
+        { name: agentId, role: 'Test Agent' }
+      );
+    }
+    
+    const validation = agentCoordinationBridge.validateAgentFileAccess(agentId, filePaths);
+    
+    res.json({
+      success: true,
+      phase: 'Phase 2: Project Context Integration',
+      agent: agentId,
+      contextCreated: !existingContext,
+      fileAccessValidation: validation,
+      summary: {
+        allowedFiles: validation.allowed.length,
+        blockedFiles: validation.blocked.length,
+        warnings: validation.warnings.length
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ FILE ACCESS TEST FAILED:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'File access validation test encountered an error'
     });
   }
 });
