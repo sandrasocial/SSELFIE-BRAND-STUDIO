@@ -47,6 +47,8 @@ import { bash } from '../tools/bash';
 import { get_latest_lsp_diagnostics } from '../tools/get_latest_lsp_diagnostics';
 import { execute_sql_tool } from '../tools/execute_sql_tool';
 import { search_filesystem } from '../tools/search_filesystem';
+import { get_assigned_tasks } from '../tools/get_assigned_tasks';
+import { get_handoff_tasks } from '../tools/get_handoff_tasks';
 // PERSONALITY-FIRST ADMIN AGENTS: Eliminate generic systems
 const adminContextManager = AdminContextManager.getInstance();
 const personalityService = PersonalityIntegrationService.getInstance();

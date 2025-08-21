@@ -38,7 +38,7 @@ export async function get_assigned_tasks(input: GetAssignedTasksInput): Promise<
 - **Description:** ${task.taskDescription}
 - **Priority:** ${task.priority}
 - **Status:** ${task.status}
-- **Assigned:** ${task.assignedAt?.toLocaleDateString()}
+- **Assigned:** ${task.assignedAt ? (typeof task.assignedAt === 'string' ? new Date(task.assignedAt).toLocaleDateString() : task.assignedAt.toLocaleDateString()) : 'Recently'}
 - **Coordinator:** ${task.coordinatorAgent}
 - **Deliverables:** ${task.expectedDeliverables.join(', ')}`;
 

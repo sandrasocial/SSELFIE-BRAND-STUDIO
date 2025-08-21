@@ -574,6 +574,11 @@ export class ClaudeApiServiceSimple {
         const result = await get_assigned_tasks(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
+      } else if (toolCall.name === 'get_handoff_tasks') {
+        const { get_handoff_tasks } = await import('../tools/get_handoff_tasks');
+        const result = await get_handoff_tasks(toolCall.input);
+        return typeof result === 'string' ? result : JSON.stringify(result);
+        
       } else if (toolCall.name === 'search_filesystem') {
         // Import from tool-exports (search_filesystem IS properly exported)
         const { search_filesystem } = await import('../tools/tool-exports');
