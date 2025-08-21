@@ -54,9 +54,19 @@ export async function bash(parameters: any): Promise<any> {
       arg.length < 200 && !/[;&|`$()]/.test(arg)
     );
     
+    // AGENT NAVIGATION FIX: Auto-navigate to project root for file operations
+    const isFileOperation = ['ls', 'find', 'cat', 'grep', 'head', 'tail'].includes(baseCommand);
+    const workingDir = isFileOperation && process.cwd().includes('/server') 
+      ? process.cwd().replace('/server', '') 
+      : process.cwd();
+    
+    if (isFileOperation && workingDir !== process.cwd()) {
+      console.log('🔧 AGENT NAVIGATION: Running from project root:', workingDir);
+    }
+    
     const child = spawn(baseCommand, args, {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: process.cwd(),
+      cwd: workingDir,
       env: { ...process.env, PATH: process.env.PATH } // Controlled environment
     });
     
