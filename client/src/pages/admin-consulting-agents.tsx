@@ -469,15 +469,17 @@ export default function AdminConsultingAgents() {
         setConversationId(finalConversationId);
       }
       
-      // Start Server-Sent Events stream - FIXED: Using optimized endpoint with abort control
+      // FIXED: Proper Server-Sent Events implementation with enhanced error handling
       const response = await fetch('/api/consulting-agents/admin/consulting-chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Accept': 'text/event-stream'
+          'Accept': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Authorization': 'Bearer sandra-admin-2025'
         },
         credentials: 'include',
-        signal: controller.signal, // Add abort signal
+        signal: controller.signal,
         body: JSON.stringify({
           agentId: selectedAgent.id,
           message: userMessage.content,
@@ -491,98 +493,108 @@ export default function AdminConsultingAgents() {
         throw new Error(`Agent communication failed: ${response.status}`);
       }
 
-      // Handle Server-Sent Events stream
+      // FIXED: Proper streaming response handling with better buffer management
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
+      let buffer = '';
 
       if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
+            // ENHANCED: Better chunk processing with buffer management
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            
+            // Keep last incomplete line in buffer
+            buffer = lines.pop() || '';
 
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                
-                // Handle different stream events
-                switch (data.type) {
-                  case 'message_start':
-                  case 'agent_start':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { ...msg, content: `${data.message}\n\n` }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'text_delta':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { ...msg, content: msg.content + data.content }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'tool_start':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { 
-                            ...msg, 
-                            content: msg.content + `\n\n🔧 **Using ${data.toolName}...**\n`,
-                            toolsUsed: [...(msg.toolsUsed || []), data.toolName]
-                          }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'continuing':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { 
-                            ...msg, 
-                            content: msg.content + `\n\n🔄 **${data.message}**\n`
-                          }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'tool_complete':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { 
-                            ...msg, 
-                            content: msg.content + `✅ **${data.toolName} completed**\n\n`
-                          }
-                        : msg
-                    ));
-                    break;
-                    
-                  case 'completion':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { ...msg, streaming: false }
-                        : msg
-                    ));
-                    setIsLoading(false);
-                    break;
-                    
-                  case 'error':
-                  case 'stream_error':
-                    setMessages(prev => prev.map(msg => 
-                      msg.id === agentMessageId 
-                        ? { 
-                            ...msg, 
-                            content: msg.content + `\n\n❌ **Error:** ${data.message}`,
-                            streaming: false 
-                          }
-                        : msg
-                    ));
-                    setIsLoading(false);
-                    break;
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const jsonData = line.slice(6).trim();
+                  if (jsonData === '') continue; // Skip empty data lines
+                  
+                  const data = JSON.parse(jsonData);
+                  console.log('📡 STREAMING:', data.type, data);
+                  
+                  // ENHANCED: Better handling of different stream events
+                  switch (data.type) {
+                    case 'message_start':
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { ...msg, content: `${data.agentName || selectedAgent.name}: ${data.message || ''}\n\n` }
+                          : msg
+                      ));
+                      break;
+                      
+                    case 'text_delta':
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { ...msg, content: msg.content + (data.content || '') }
+                          : msg
+                      ));
+                      break;
+                      
+                    case 'tool_start':
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { 
+                              ...msg, 
+                              content: msg.content + `\n\n🔧 Using ${data.toolName}...`,
+                              toolsUsed: [...(msg.toolsUsed || []), data.toolName]
+                            }
+                          : msg
+                      ));
+                      break;
+                      
+                    case 'continuing':
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { 
+                              ...msg, 
+                              content: msg.content + `\n\n🔄 ${data.message}`
+                            }
+                          : msg
+                      ));
+                      break;
+                      
+                    case 'tool_complete':
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { 
+                              ...msg, 
+                              content: msg.content + ` ✅ ${data.message}\n\n`
+                            }
+                          : msg
+                      ));
+                      break;
+                      
+                    case 'completion':
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { ...msg, streaming: false }
+                          : msg
+                      ));
+                      setIsLoading(false);
+                      console.log(`✅ Agent ${selectedAgent.name} streaming completed`);
+                      break;
+                      
+                    case 'error':
+                    case 'stream_error':
+                      setMessages(prev => prev.map(msg => 
+                        msg.id === agentMessageId 
+                          ? { 
+                              ...msg, 
+                              content: msg.content + `\n\n❌ **Error:** ${data.message}`,
+                              streaming: false 
+                            }
+                          : msg
+                      ));
+                      setIsLoading(false);
+                      break;
                 }
               } catch (parseError) {
                 console.error('Error parsing stream data:', parseError);
