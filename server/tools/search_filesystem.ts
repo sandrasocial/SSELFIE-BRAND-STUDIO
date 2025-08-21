@@ -170,12 +170,33 @@ async function getBasicDirectoryListing(): Promise<string> {
         listing += `${type}: ${name}\n`;
         
         // Show key subdirectories for important folders
-        if (item.isDirectory() && ['server', 'client', 'src', 'components', 'pages', 'shared'].includes(name)) {
+        if (item.isDirectory() && ['server', 'client', 'src', 'components', 'pages', 'shared', 'config', '_architecture'].includes(name)) {
           try {
             const subItems = await fs.readdir(name, { withFileTypes: true });
-            for (const subItem of subItems.slice(0, 15)) {
+            for (const subItem of subItems.slice(0, 20)) {
               const subType = subItem.isDirectory() ? 'DIR' : 'FILE';
               listing += `  └─ ${subType}: ${name}/${subItem.name}\n`;
+              
+              // Show deeper levels for client/src specifically
+              if (name === 'client' && subItem.isDirectory() && subItem.name === 'src') {
+                try {
+                  const srcItems = await fs.readdir(`${name}/${subItem.name}`, { withFileTypes: true });
+                  for (const srcSubItem of srcItems.slice(0, 15)) {
+                    const srcType = srcSubItem.isDirectory() ? 'DIR' : 'FILE';
+                    listing += `    └─ ${srcType}: ${name}/${subItem.name}/${srcSubItem.name}\n`;
+                    
+                    // Show pages directory contents
+                    if (srcSubItem.isDirectory() && srcSubItem.name === 'pages') {
+                      try {
+                        const pageItems = await fs.readdir(`${name}/${subItem.name}/${srcSubItem.name}`, { withFileTypes: true });
+                        for (const pageItem of pageItems.slice(0, 10)) {
+                          listing += `      └─ FILE: ${name}/${subItem.name}/${srcSubItem.name}/${pageItem.name}\n`;
+                        }
+                      } catch {}
+                    }
+                  }
+                } catch {}
+              }
             }
           } catch (error) {
             listing += `  └─ (access restricted)\n`;
