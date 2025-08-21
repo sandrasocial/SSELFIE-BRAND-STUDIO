@@ -17,7 +17,9 @@ export async function str_replace_based_edit_tool(parameters: any): Promise<any>
     }
 
     // Resolve the file path relative to the project root
-    const resolvedPath = path.resolve(process.cwd(), filePath || '');
+    // If running from server directory, go up one level to workspace root
+    const workspaceRoot = process.cwd().endsWith('/server') ? path.resolve(process.cwd(), '..') : process.cwd();
+    const resolvedPath = path.resolve(workspaceRoot, filePath || '');
     
     switch (command) {
       case 'view':

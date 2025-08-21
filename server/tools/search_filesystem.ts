@@ -157,8 +157,10 @@ async function getBasicDirectoryListing(): Promise<string> {
     const fs = await import('fs/promises');
     const path = await import('path');
     
-    // Get root directory contents first
-    const rootItems = await fs.readdir('.', { withFileTypes: true });
+    // Get root directory contents first  
+    // If running from server directory, go up one level to workspace root
+    const workspaceRoot = process.cwd().endsWith('/server') ? '..' : '.';
+    const rootItems = await fs.readdir(workspaceRoot, { withFileTypes: true });
     let listing = 'ROOT DIRECTORY CONTENTS:\n';
     
     for (const item of rootItems.slice(0, 50)) { // Limit to prevent overwhelming output
