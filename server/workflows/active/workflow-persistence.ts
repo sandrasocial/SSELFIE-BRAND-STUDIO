@@ -65,6 +65,53 @@ export class WorkflowPersistence {
   }
   
   /**
+   * Get tasks assigned to a specific agent
+   */
+  static getAgentTasks(agentName: string): ActiveTask[] {
+    try {
+      const sessions = this.getAllWorkflowSessions();
+      const agentTasks: ActiveTask[] = [];
+      
+      sessions.forEach(session => {
+        session.assignedTasks.forEach(task => {
+          if (task.assignedAgent === agentName && task.status !== 'completed') {
+            agentTasks.push(task);
+          }
+        });
+      });
+      
+      return agentTasks;
+    } catch (error) {
+      console.error('Error getting agent tasks:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get handoff tasks (placeholder for now)
+   */
+  static getHandoffTasks(agentName?: string): any[] {
+    // For now, return empty array - handoffs are handled through direct coordination
+    return [];
+  }
+
+  /**
+   * Get all workflow sessions
+   */
+  static getAllWorkflowSessions(): WorkflowSession[] {
+    try {
+      const sessionFiles = fs.readdirSync(this.WORKFLOW_DIR).filter(f => f.endsWith('.json'));
+      return sessionFiles.map(file => {
+        const content = fs.readFileSync(path.join(this.WORKFLOW_DIR, file), 'utf8');
+        return JSON.parse(content);
+      });
+    } catch (error) {
+      console.error('Error reading workflow sessions:', error);
+      return [];
+    }
+  }
+
+  /**
    * Add a task to a workflow session
    */
   static addTaskToWorkflow(
