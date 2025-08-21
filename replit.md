@@ -42,6 +42,7 @@ Preferred communication style: Simple, everyday language.
 - Efficient agent coordination with specialized roles (training, generation, payment validation).
 - Strict CSS editing guidelines for application stability.
 - Real-time agent protocol validation to prevent duplicate work.
+- **CRITICAL FIX 08/21/2025**: Agent tool access restored - bash command filtering was blocking basic operations like `pwd && ls -la` and `ps aux | grep node`. Security patterns updated to allow essential compound commands while maintaining safety.
 - Admin agents utilize complete personalities from `server/agents/personalities/`, including Elena (Strategic Best Friend & Execution Leader) and Zara (Technical Architect & UI/UX Expert). All 14 agents have integrated personality definitions (identity, mission, voice patterns, expertise, work styles).
 - Database-connected memory for loading and persisting agent contexts and personality-driven interactions.
 - Multi-agent coordination system enabling task delegation and automated execution.

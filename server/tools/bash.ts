@@ -19,39 +19,109 @@ export async function bash(parameters: any): Promise<any> {
     throw new Error('Command parameter is required');
   }
   
+  console.log(`🔧 EXECUTING BASH: ${command}`);
+  
+  // SECURITY: Validate command before execution
+  if (!command || typeof command !== 'string') {
+    throw new Error('Invalid command format');
+  }
+  
+  // SECURITY FIX: Enhanced command validation and safe execution
+  const dangerousPatterns = [/[;`$()]/g, /\brm\s+-rf\b/, /\bsudo\b/, /\bsu\b/, />/g];
+  const hasDangerousChars = dangerousPatterns.some(pattern => pattern.test(command));
+  
+  if (hasDangerousChars) {
+    throw new Error('Command contains unsafe characters or patterns');
+  }
+  
+  // Whitelist approach for allowed commands
+  const allowedCommands = [
+    /^ls\b/, /^cat\b/, /^grep\b/, /^find\b/, /^echo\b/, 
+    /^npm\s+/, /^node\b/, /^curl\s+/, /^ps\b/, /^pwd/, /^whoami$/,
+    /^mkdir\b/, /^cp\b/, /^mv\b/, /^chmod\b/, /^head\b/, /^tail\b/,
+    /^pwd\s+&&/, /^ls.*&&/, /^pwd.*\|/, /^ps.*\|/
+  ];
+  
+  const isCommandAllowed = allowedCommands.some(pattern => pattern.test(command.trim()));
+  if (!isCommandAllowed) {
+    throw new Error('Command not in allowed list for security');
+  }
+  
+  // Handle compound commands safely
+  if (command.includes('&&')) {
+    // Allow safe compound commands like "pwd && ls -la" using shell
+    return new Promise((resolve, reject) => {
+      const child = spawn('sh', ['-c', command], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: process.cwd()
+      });
+      
+      let stdout = '';
+      let stderr = '';
+      
+      child.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+      
+      child.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+      
+      child.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(`Compound command failed: ${stderr}`));
+          return;
+        }
+        resolve(stdout || stderr || 'Command completed');
+      });
+      
+      child.on('error', (error) => {
+        reject(error);
+      });
+    });
+  }
+  
+  // Handle pipe commands safely  
+  if (command.includes('|')) {
+    // Allow safe pipes like "ps aux | grep node" using shell
+    return new Promise((resolve, reject) => {
+      const child = spawn('sh', ['-c', command], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: process.cwd()
+      });
+      
+      let stdout = '';
+      let stderr = '';
+      
+      child.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+      
+      child.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+      
+      child.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(`Pipe command failed: ${stderr}`));
+          return;
+        }
+        resolve(stdout || stderr || 'Command completed');
+      });
+      
+      child.on('error', (error) => {
+        reject(error);
+      });
+    });
+  }
+
   return new Promise((resolve, reject) => {
-    console.log(`🔧 EXECUTING BASH: ${command}`);
-    
-    // SECURITY: Validate command before execution
-    if (!command || typeof command !== 'string') {
-      throw new Error('Invalid command format');
-    }
-    
-    // SECURITY FIX: Enhanced command validation and safe execution
-    const dangerousPatterns = [/[;&|`$()]/g, /\brm\s+-rf\b/, /\bsudo\b/, /\bsu\b/, />/g];
-    const hasDangerousChars = dangerousPatterns.some(pattern => pattern.test(command));
-    
-    if (hasDangerousChars) {
-      throw new Error('Command contains unsafe characters or patterns');
-    }
-    
-    // Whitelist approach for allowed commands
-    const allowedCommands = [
-      /^ls\b/, /^cat\b/, /^grep\b/, /^find\b/, /^echo\b/, 
-      /^npm\s+/, /^node\b/, /^curl\s+/, /^ps\b/, /^pwd$/,
-      /^mkdir\b/, /^cp\b/, /^mv\b/, /^chmod\b/
-    ];
-    
-    const isCommandAllowed = allowedCommands.some(pattern => pattern.test(command.trim()));
-    if (!isCommandAllowed) {
-      throw new Error('Command not in allowed list for security');
-    }
     
     // Split command safely to prevent injection
     const commandParts = command.trim().split(/\s+/);
     const baseCommand = commandParts[0];
     const args = commandParts.slice(1).filter(arg => 
-      arg.length < 200 && !/[;&|`$()]/.test(arg)
+      arg.length < 200 && !/[;`$()]/.test(arg)
     );
     
     // AGENT NAVIGATION FIX: Auto-navigate to project root for file operations
@@ -77,7 +147,7 @@ export async function bash(parameters: any): Promise<any> {
     const timeoutMs = getCommandTimeout(command);
     const timeoutId = setTimeout(() => {
       child.kill('SIGTERM');
-      reject(new Error(`Command timeout after ${timeoutMs/1000} seconds. Consider breaking down complex commands or using faster alternatives.`));
+      reject(new Error(`Command timeout after ${Math.floor(timeoutMs/1000)} seconds. Consider breaking down complex commands or using faster alternatives.`));
     }, timeoutMs);
     
     child.stdout.on('data', (data) => {
@@ -205,3 +275,4 @@ function getErrorSuggestion(command: string, exitCode: number, errorOutput: stri
   // Default suggestion
   return 'Try breaking the command into smaller parts or use an alternative approach. Check the error output for specific details.';
 }
+
