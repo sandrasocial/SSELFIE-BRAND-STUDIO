@@ -2528,23 +2528,20 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
   
-  // AI Images route for workspace gallery - CRITICAL: Missing endpoint restored
+  // AI Images route for workspace gallery - FIXED: Use correct column names
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       console.log('🖼️ Fetching AI images for user:', userId);
       
-      // Import database and schema
+      // Import database and schema  
       const { db } = await import('./db');
-      const { aiImages } = await import('../shared/schema');
-      const { eq, desc } = await import('drizzle-orm');
+      const { sql } = await import('drizzle-orm');
       
-      // Query user's AI images from database
-      const userImages = await db
-        .select()
-        .from(aiImages)
-        .where(eq(aiImages.userId, userId))
-        .orderBy(desc(aiImages.createdAt));
+      // Query user's AI images from database using correct column name user_id
+      const userImages = await db.execute(
+        sql`SELECT * FROM ai_images WHERE user_id = ${userId} ORDER BY created_at DESC`
+      );
       
       console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
       res.json(userImages);
