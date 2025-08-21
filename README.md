@@ -12,29 +12,31 @@
 ### Project Structure
 
 ```
-📁 SSELFIE Studio/ (CLEAN & ORGANIZED)
-├── 📖 README.md, PROJECT_GUIDE.md, replit.md  # Agent orientation
-├── 📦 package.json                            # Dependencies & scripts
+📁 SSELFIE Studio/ (ARCHITECTURALLY SEPARATED)
+├── 📖 DOCUMENTATION & ORIENTATION
+│   ├── README.md                          # This file - project overview
+│   ├── PROJECT_GUIDE.md                   # Comprehensive guide
+│   ├── ARCHITECTURE_OVERVIEW.md           # Clean architectural clarity
+│   └── replit.md                          # Technical architecture
 │
-├── 🎯 REVENUE CORE (Maya's Protected Income)
-│   └── server/                               # Backend services
-│       ├── unified-generation-service.ts     # 🔒 Image generation
-│       ├── model-training-service.ts         # 🔒 AI training
-│       ├── image-storage-service.ts          # 🔒 S3 storage
-│       └── routes/maya-ai-routes.ts          # 🔒 Maya chat
+├── 🎯 MEMBER REVENUE SYSTEMS (🔒 Protected Income)
+│   ├── server/                            # Backend services  
+│   │   ├── unified-generation-service.ts  # 🔒 Image generation
+│   │   ├── model-training-service.ts      # 🔒 AI training
+│   │   ├── image-storage-service.ts       # 🔒 S3 storage
+│   │   └── routes/maya-ai-routes.ts       # 🔒 Maya chat
+│   ├── shared/schema.ts                   # 🔒 Database schema
+│   └── client/                            # 🔒 User interface
 │
-├── 🤖 ADMIN AGENTS (Development Team)
-│   ├── server/agents/personalities/          # 15 AI agents
-│   └── server/routes/consulting-agents-routes.ts # Coordination
+├── 🤖 ADMIN DEVELOPMENT (✅ Safe to modify)
+│   ├── server/agents/personalities/       # 15 AI agents
+│   ├── server/routes/consulting-agents-routes.ts # Coordination
+│   ├── admin-development/                 # Agent tools & reports
+│   └── _architecture/                     # Logical separation guides
 │
-├── 🔄 SHARED SYSTEMS
-│   ├── shared/schema.ts                      # Database schema
-│   └── client/                               # React frontend
-│
-└── 🏗️ INFRASTRUCTURE (Organized)
-    ├── infrastructure/config/                # All config files
-    ├── infrastructure/deployment/            # Launch docs
-    └── _architecture/                        # Logical separation guide
+└── 🏗️ INFRASTRUCTURE (✅ Organized utilities)
+    ├── infrastructure/                    # Config, deployment, utilities
+    └── attached_assets/                   # User uploads & design assets
 ```
 
 ### 🔒 Critical Rules
