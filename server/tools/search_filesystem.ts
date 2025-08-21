@@ -113,11 +113,14 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
 
 // COMPLETE BUSINESS MODEL VISIBILITY FOR ADMIN AGENTS
 async function getProjectOverview(): Promise<string> {
-  // READ BUSINESS MODEL DOCUMENTATION
+  // READ BUSINESS MODEL DOCUMENTATION WITH DEBUG
+  console.log('🔍 LOADING BUSINESS DOCS...');
   const businessDocs = await getBusinessModelDocumentation();
+  console.log('📄 BUSINESS DOCS LENGTH:', businessDocs.length);
   
   return `🚀 SSELFIE STUDIO - COMPLETE PROJECT & BUSINESS MODEL ACCESS:
 
+📋 SANDRA'S BUSINESS MODEL & LAUNCH STRATEGY:
 ${businessDocs}
 
 ✅ ROOT DIRECTORIES (what agents can access):
@@ -244,11 +247,12 @@ async function getBasicDirectoryListing(): Promise<string> {
 
 // BUSINESS MODEL ACCESS: Read key business documentation for admin agents
 async function getBusinessModelDocumentation(): Promise<string> {
+  console.log('🔍 GETTING BUSINESS DOCS...');
   let businessInfo = '';
   
   const keyBusinessFiles = [
-    'replit.md',
     'SANDRA_LAUNCH_STRATEGY.md', 
+    'replit.md',
     'MEMBER_WORKSPACE_REDESIGN_PLAN.md',
     'ARCHITECTURE_OVERVIEW.md',
     'PROJECT_GUIDE.md'
@@ -258,20 +262,41 @@ async function getBusinessModelDocumentation(): Promise<string> {
     try {
       const fs = await import('fs/promises');
       const workspaceRoot = process.cwd().endsWith('/server') ? '..' : '.';
+      console.log(`🔍 TRYING TO READ: ${workspaceRoot}/${filename}`);
       const content = await fs.readFile(`${workspaceRoot}/${filename}`, 'utf-8');
+      console.log(`✅ READ ${filename}: ${content.length} characters`);
       
-      // Include first 2000 characters of each key business file
+      // KEY BUSINESS CRITICAL INFO - FULL ACCESS FOR AGENTS
       businessInfo += `\n📄 ${filename.toUpperCase()}:\n`;
-      businessInfo += content.substring(0, 2000);
-      if (content.length > 2000) {
-        businessInfo += '\n... (file continues)';
+      
+      // SPECIAL HANDLING FOR CRITICAL FILES
+      if (filename === 'SANDRA_LAUNCH_STRATEGY.md') {
+        // Include MORE of the launch strategy since it's critical
+        businessInfo += content.substring(0, 4000);
+        if (content.length > 4000) {
+          businessInfo += '\n... (file continues - agents can access full file via str_replace_based_edit_tool)';
+        }
+      } else if (filename === 'replit.md') {
+        // Include business model overview from replit.md
+        businessInfo += content.substring(0, 3000);
+        if (content.length > 3000) {
+          businessInfo += '\n... (file continues)';
+        }
+      } else {
+        // Other files - substantial excerpts
+        businessInfo += content.substring(0, 1500);
+        if (content.length > 1500) {
+          businessInfo += '\n... (file continues)';
+        }
       }
       businessInfo += '\n\n';
     } catch (error) {
-      businessInfo += `\n📄 ${filename}: Not accessible\n`;
+      console.log(`❌ FAILED TO READ ${filename}:`, error.message);
+      businessInfo += `\n📄 ${filename}: File not accessible - ${error.message}\n`;
     }
   }
   
+  console.log('📄 FINAL BUSINESS INFO LENGTH:', businessInfo.length);
   return businessInfo || '📄 Business documentation access limited - check file permissions';
 }
 
