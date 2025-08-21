@@ -2004,18 +2004,29 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // AI Images API - Required for user gallery
+  // AI Images API - FIXED: Return actual user images from database
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = (req.user as any)?.claims?.sub;
+      console.log('🖼️ Fetching AI images for user:', userId);
       
-      // For now, return empty array
-      // TODO: Integrate with S3 for real user images
-      const images: any[] = [];
+      // Import database and schema
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema');
+      const { eq, desc } = await import('drizzle-orm');
       
-      res.json(images);
+      // Query user's AI images from database
+      const userImages = await db
+        .select()
+        .from(aiImages)
+        .where(eq(aiImages.userId, userId))
+        .orderBy(desc(aiImages.createdAt));
+      
+      console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
+      res.json(userImages);
+      
     } catch (error) {
-      console.error('AI images API error:', error);
+      console.error('❌ Error fetching AI images:', error);
       res.status(500).json({ error: 'Failed to get AI images' });
     }
   });

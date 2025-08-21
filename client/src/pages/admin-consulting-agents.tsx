@@ -9,7 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Agent images - URL-encoded paths for proper browser display
+// Agent images - Using static public URLs for reliable serving
 const AgentElena = "/attached_assets/out-0%20(33)_1753426218039.png";
 const AgentMaya = "/attached_assets/out-0%20(34)_1753426218040.png";
 const AgentVictoria = "/attached_assets/out-0%20(37)_1753426218041.png";

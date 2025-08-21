@@ -98,6 +98,9 @@ function setupStaticFiles() {
     }
   }
   
+  // Serve attached assets for agent images and other uploaded files
+  app.use('/attached_assets', express.static(path.join(__dirname, '../attached_assets')));
+  
   // React app fallback for SPA routing
   app.get('*', (req, res) => {
     if (req.path.startsWith('/api/') || req.path === '/health' || res.headersSent) {
