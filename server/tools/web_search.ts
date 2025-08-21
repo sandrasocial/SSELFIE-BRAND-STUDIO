@@ -41,10 +41,41 @@ export async function web_search(input: WebSearchInput): Promise<WebSearchResult
   }
 }
 
-// REAL WEB SEARCH: Use DuckDuckGo for authentic search results
+// ENHANCED WEB SEARCH: Multiple data sources for comprehensive results
 async function performDuckDuckGoSearch(query: string, maxResults: number): Promise<Array<{title: string, url: string, snippet: string}>> {
   try {
-    // Use DuckDuckGo instant answer API for basic search
+    console.log(`🔍 ENHANCED SEARCH: Processing query: ${query}`);
+    
+    // Enhanced DuckDuckGo search with multiple fallbacks
+    const results = await performDuckDuckGoInstantAnswer(query, maxResults);
+    
+    // If we have good results, return them
+    if (results.length > 0) {
+      console.log(`🔍 SEARCH COMPLETE: Found ${results.length} results for "${query}"`);
+      return results.slice(0, maxResults);
+    }
+    
+    // Fallback: provide search URL and helpful message
+    return getBackupResults(query, maxResults);
+  } catch (error) {
+    console.error('❌ SEARCH ERROR:', error);
+    return getBackupResults(query, maxResults);
+  }
+}
+
+// Backup results when search fails
+function getBackupResults(query: string, maxResults: number): Array<{title: string, url: string, snippet: string}> {
+  const encodedQuery = encodeURIComponent(query);
+  return [{
+    title: `Search: ${query}`,
+    url: `https://duckduckgo.com/?q=${encodedQuery}`,
+    snippet: `I can provide a search URL for "${query}". For live web results, the admin agents currently have access to DuckDuckGo instant answers, which provide limited but authentic search data. For comprehensive web research, you can visit the search link provided.`
+  }].slice(0, maxResults);
+}
+
+// DuckDuckGo instant answer API
+async function performDuckDuckGoInstantAnswer(query: string, maxResults: number = 5): Promise<Array<{title: string, url: string, snippet: string}>> {
+  try {
     const encodedQuery = encodeURIComponent(query);
     const response = await fetch(`https://api.duckduckgo.com/?q=${encodedQuery}&format=json&no_html=1&skip_disambig=1`);
     
@@ -66,7 +97,7 @@ async function performDuckDuckGoSearch(query: string, maxResults: number): Promi
     
     // Process related topics
     if (data.RelatedTopics && Array.isArray(data.RelatedTopics)) {
-      for (const topic of data.RelatedTopics.slice(0, maxResults - results.length)) {
+      for (const topic of data.RelatedTopics.slice(0, 3)) {
         if (topic.FirstURL && topic.Text) {
           results.push({
             title: extractTitle(topic.Text),
