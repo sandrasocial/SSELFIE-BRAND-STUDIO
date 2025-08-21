@@ -1,23 +1,62 @@
 /**
- * LOCAL PROCESSING ENGINE
- * Handles pattern extraction, validation, and data processing locally
- * WITHOUT consuming Claude API tokens while preserving agent intelligence
+ * LOCAL PROCESSING ENGINE - PHASE 3: CROSS-AGENT LEARNING ACTIVATION
+ * Connects with agent learning database for cross-agent intelligence sharing
+ * Handles pattern extraction, validation, and knowledge persistence locally
+ * WITHOUT consuming Claude API tokens while building shared agent intelligence
  */
 
 import { db } from '../../db.js';
-import { agentLearning, agentSessionContexts } from '../../../shared/schema.js';
-import { eq, and } from 'drizzle-orm';
+import { 
+  agentLearning, 
+  agentSessionContexts, 
+  agentKnowledgeBase, 
+  agentPerformanceMetrics, 
+  agentTrainingSessions 
+} from '../../../shared/schema.js';
+import { eq, and, desc, sql } from 'drizzle-orm';
 
 export class LocalProcessingEngine {
   private static instance: LocalProcessingEngine;
+  private learningCache = new Map<string, any>();
+  private crossAgentPatterns = new Map<string, any[]>();
 
-  private constructor() {}
+  private constructor() {
+    console.log('🧠 PHASE 3: Cross-Agent Learning Engine initializing...');
+    this.initializeCrossAgentLearning();
+  }
 
   public static getInstance(): LocalProcessingEngine {
     if (!LocalProcessingEngine.instance) {
       LocalProcessingEngine.instance = new LocalProcessingEngine();
     }
     return LocalProcessingEngine.instance;
+  }
+
+  /**
+   * PHASE 3: Initialize cross-agent learning system
+   */
+  private async initializeCrossAgentLearning(): Promise<void> {
+    try {
+      // Load existing learning patterns for cross-agent sharing
+      const existingLearning = await db
+        .select()
+        .from(agentLearning)
+        .orderBy(desc(agentLearning.confidence))
+        .limit(100);
+
+      // Cache high-confidence patterns for quick access
+      for (const learning of existingLearning) {
+        if (parseFloat(learning.confidence || '0') > 0.7) {
+          const cacheKey = `${learning.agentName}-${learning.category}`;
+          this.learningCache.set(cacheKey, learning);
+        }
+      }
+
+      console.log(`🧠 PHASE 3: Loaded ${existingLearning.length} learning patterns for cross-agent sharing`);
+      console.log(`🔥 PHASE 3: Cached ${this.learningCache.size} high-confidence patterns`);
+    } catch (error) {
+      console.error('⚠️ PHASE 3: Learning initialization error:', error);
+    }
   }
 
   // ================== PATTERN EXTRACTION (LOCAL) ==================
@@ -700,6 +739,315 @@ export class LocalProcessingEngine {
     }
     
     return suggestions.length > 0 ? suggestions : ['Review error details and check documentation'];
+  }
+
+  // ================== PHASE 3: CROSS-AGENT LEARNING ==================
+
+  /**
+   * PHASE 3: Save agent learning pattern to database for cross-agent sharing
+   */
+  async saveAgentLearning(
+    agentName: string,
+    userId: string | null,
+    learningType: string,
+    category: string,
+    data: any,
+    confidence: number = 0.5
+  ): Promise<void> {
+    try {
+      // Check if similar learning pattern already exists
+      const existing = await db
+        .select()
+        .from(agentLearning)
+        .where(
+          and(
+            eq(agentLearning.agentName, agentName),
+            eq(agentLearning.category, category),
+            eq(agentLearning.learningType, learningType)
+          )
+        )
+        .limit(1);
+
+      if (existing.length > 0) {
+        // Update existing pattern with increased frequency and confidence
+        const updatedConfidence = Math.min(1.0, confidence + 0.1);
+        const updatedFrequency = (existing[0].frequency || 1) + 1;
+
+        await db
+          .update(agentLearning)
+          .set({
+            data,
+            confidence: updatedConfidence.toString(),
+            frequency: updatedFrequency,
+            lastSeen: new Date(),
+            updatedAt: new Date()
+          })
+          .where(eq(agentLearning.id, existing[0].id));
+
+        console.log(`🧠 PHASE 3: Updated learning pattern for ${agentName}/${category} (confidence: ${updatedConfidence})`);
+      } else {
+        // Create new learning pattern
+        await db
+          .insert(agentLearning)
+          .values({
+            agentName,
+            userId,
+            learningType,
+            category,
+            data,
+            confidence: confidence.toString(),
+            frequency: 1,
+            lastSeen: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
+
+        console.log(`🧠 PHASE 3: Created new learning pattern for ${agentName}/${category}`);
+      }
+
+      // Update learning cache for quick access
+      const cacheKey = `${agentName}-${category}`;
+      this.learningCache.set(cacheKey, { agentName, category, data, confidence });
+
+      // Share learning with other agents if confidence is high
+      if (confidence > 0.8) {
+        await this.shareLearningAcrossAgents(agentName, category, data, confidence);
+      }
+
+    } catch (error) {
+      console.error(`❌ PHASE 3: Failed to save learning for ${agentName}:`, error);
+    }
+  }
+
+  /**
+   * PHASE 3: Share high-confidence learning patterns across agents
+   */
+  private async shareLearningAcrossAgents(
+    sourceAgent: string,
+    category: string,
+    data: any,
+    confidence: number
+  ): Promise<void> {
+    const targetAgents = ['elena', 'zara', 'aria', 'maya', 'victoria'];
+    const relevantAgents = targetAgents.filter(agent => agent !== sourceAgent);
+
+    console.log(`🌐 PHASE 3: Sharing learning from ${sourceAgent} to ${relevantAgents.length} agents`);
+
+    for (const targetAgent of relevantAgents) {
+      // Create knowledge base entry for cross-agent learning
+      try {
+        await db
+          .insert(agentKnowledgeBase)
+          .values({
+            agentId: targetAgent,
+            topic: `Cross-agent learning: ${category}`,
+            content: JSON.stringify({
+              sourceAgent,
+              learningData: data,
+              sharedAt: new Date().toISOString(),
+              originalConfidence: confidence
+            }),
+            source: 'cross_agent_learning',
+            confidence: (confidence * 0.8).toString(), // Reduce confidence for shared learning
+            lastUpdated: new Date(),
+            tags: [category, 'cross_agent', sourceAgent]
+          });
+
+        console.log(`📚 PHASE 3: Shared knowledge to ${targetAgent}`);
+      } catch (error) {
+        console.log(`⚠️ PHASE 3: Failed to share to ${targetAgent}:`, error);
+      }
+    }
+  }
+
+  /**
+   * PHASE 3: Get cross-agent learning insights for an agent
+   */
+  async getCrossAgentLearning(agentName: string, category?: string): Promise<{
+    ownLearning: any[];
+    sharedLearning: any[];
+    performanceMetrics: any;
+  }> {
+    try {
+      // Get agent's own learning patterns
+      let ownLearningQuery = db
+        .select()
+        .from(agentLearning)
+        .where(eq(agentLearning.agentName, agentName))
+        .orderBy(desc(agentLearning.confidence));
+
+      if (category) {
+        ownLearningQuery = ownLearningQuery.where(eq(agentLearning.category, category));
+      }
+
+      const ownLearning = await ownLearningQuery.limit(20);
+
+      // Get shared learning from other agents
+      let sharedLearningQuery = db
+        .select()
+        .from(agentKnowledgeBase)
+        .where(
+          and(
+            eq(agentKnowledgeBase.agentId, agentName),
+            eq(agentKnowledgeBase.source, 'cross_agent_learning')
+          )
+        )
+        .orderBy(desc(agentKnowledgeBase.confidence));
+
+      if (category) {
+        sharedLearningQuery = sharedLearningQuery.where(
+          sql`${agentKnowledgeBase.tags} @> ARRAY[${category}]`
+        );
+      }
+
+      const sharedLearning = await sharedLearningQuery.limit(10);
+
+      // Get performance metrics
+      const performanceMetrics = await db
+        .select()
+        .from(agentPerformanceMetrics)
+        .where(eq(agentPerformanceMetrics.agentId, agentName))
+        .limit(1);
+
+      console.log(`🧠 PHASE 3: Retrieved learning for ${agentName}: ${ownLearning.length} own patterns, ${sharedLearning.length} shared patterns`);
+
+      return {
+        ownLearning,
+        sharedLearning,
+        performanceMetrics: performanceMetrics[0] || null
+      };
+
+    } catch (error) {
+      console.error(`❌ PHASE 3: Failed to get cross-agent learning for ${agentName}:`, error);
+      return {
+        ownLearning: [],
+        sharedLearning: [],
+        performanceMetrics: null
+      };
+    }
+  }
+
+  /**
+   * PHASE 3: Record agent performance for learning optimization
+   */
+  async recordAgentPerformance(
+    agentId: string,
+    taskType: string,
+    success: boolean,
+    duration: number,
+    userSatisfaction?: number
+  ): Promise<void> {
+    try {
+      // Get existing metrics
+      const existing = await db
+        .select()
+        .from(agentPerformanceMetrics)
+        .where(
+          and(
+            eq(agentPerformanceMetrics.agentId, agentId),
+            eq(agentPerformanceMetrics.taskType, taskType)
+          )
+        )
+        .limit(1);
+
+      if (existing.length > 0) {
+        // Update existing metrics
+        const current = existing[0];
+        const totalTasks = (current.totalTasks || 0) + 1;
+        const currentSuccessRate = parseFloat(current.successRate || '0');
+        const newSuccessRate = ((currentSuccessRate * (totalTasks - 1)) + (success ? 1 : 0)) / totalTasks;
+        const currentAvgTime = current.averageTime || 0;
+        const newAvgTime = ((currentAvgTime * (totalTasks - 1)) + duration) / totalTasks;
+
+        await db
+          .update(agentPerformanceMetrics)
+          .set({
+            successRate: newSuccessRate.toString(),
+            averageTime: Math.round(newAvgTime),
+            userSatisfactionScore: userSatisfaction?.toString() || current.userSatisfactionScore,
+            totalTasks,
+            improvementTrend: newSuccessRate > currentSuccessRate ? 'improving' : 
+                             newSuccessRate < currentSuccessRate ? 'declining' : 'stable',
+            lastUpdated: new Date()
+          })
+          .where(eq(agentPerformanceMetrics.id, current.id));
+
+        console.log(`📊 PHASE 3: Updated performance for ${agentId}/${taskType}: ${(newSuccessRate * 100).toFixed(1)}% success rate`);
+      } else {
+        // Create new metrics
+        await db
+          .insert(agentPerformanceMetrics)
+          .values({
+            agentId,
+            taskType,
+            successRate: success ? '1.0' : '0.0',
+            averageTime: duration,
+            userSatisfactionScore: userSatisfaction?.toString() || '0.0',
+            totalTasks: 1,
+            improvementTrend: 'stable',
+            lastUpdated: new Date()
+          });
+
+        console.log(`📊 PHASE 3: Created performance metrics for ${agentId}/${taskType}`);
+      }
+    } catch (error) {
+      console.error(`❌ PHASE 3: Failed to record performance for ${agentId}:`, error);
+    }
+  }
+
+  /**
+   * PHASE 3: Get learning recommendations for agent based on cross-agent patterns
+   */
+  async getLearningRecommendations(agentId: string): Promise<{
+    skillsToImprove: string[];
+    learningFromOthers: any[];
+    performanceInsights: any;
+  }> {
+    try {
+      // Analyze performance to identify improvement areas
+      const performance = await db
+        .select()
+        .from(agentPerformanceMetrics)
+        .where(eq(agentPerformanceMetrics.agentId, agentId))
+        .orderBy(agentPerformanceMetrics.successRate);
+
+      const skillsToImprove = performance
+        .filter(p => parseFloat(p.successRate || '0') < 0.8)
+        .map(p => p.taskType);
+
+      // Find successful patterns from other agents for those skills
+      const learningFromOthers = await db
+        .select()
+        .from(agentLearning)
+        .where(
+          and(
+            sql`${agentLearning.agentName} != ${agentId}`,
+            sql`${agentLearning.confidence} > 0.8`
+          )
+        )
+        .orderBy(desc(agentLearning.confidence))
+        .limit(10);
+
+      console.log(`💡 PHASE 3: Generated learning recommendations for ${agentId}: ${skillsToImprove.length} skills to improve`);
+
+      return {
+        skillsToImprove,
+        learningFromOthers,
+        performanceInsights: {
+          totalMetrics: performance.length,
+          averageSuccessRate: performance.reduce((sum, p) => sum + parseFloat(p.successRate || '0'), 0) / performance.length || 0,
+          improvingTasks: performance.filter(p => p.improvementTrend === 'improving').length
+        }
+      };
+
+    } catch (error) {
+      console.error(`❌ PHASE 3: Failed to get learning recommendations for ${agentId}:`, error);
+      return {
+        skillsToImprove: [],
+        learningFromOthers: [],
+        performanceInsights: {}
+      };
+    }
   }
 }
 

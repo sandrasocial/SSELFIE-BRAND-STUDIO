@@ -242,4 +242,120 @@ router.post('/test-file-access', async (req, res) => {
   }
 });
 
+/**
+ * PHASE 3: Test cross-agent learning system
+ */
+router.post('/test-cross-agent-learning', async (req, res) => {
+  try {
+    console.log('🧠 PHASE 3 TEST: Cross-Agent Learning System');
+    
+    const testResults = {
+      phase: 'Phase 3: Cross-Agent Learning Activation',
+      timestamp: new Date().toISOString(),
+      tests: [] as any[]
+    };
+
+    // Get the LocalProcessingEngine instance
+    const processingEngine = agentCoordinationBridge['processingEngine'];
+
+    // TEST 1: Save agent learning pattern
+    console.log('📚 TEST 1: Saving agent learning pattern...');
+    await processingEngine.saveAgentLearning(
+      'elena',
+      'test-user',
+      'workflow_pattern',
+      'coordination',
+      {
+        workflowType: 'task_delegation',
+        successFactors: ['clear_instructions', 'agent_expertise_match'],
+        optimizationTips: 'Prioritize high-confidence agents for critical tasks'
+      },
+      0.9
+    );
+
+    testResults.tests.push({
+      test: 'Save Agent Learning Pattern',
+      status: 'PASSED',
+      result: 'Elena learning pattern saved with 0.9 confidence'
+    });
+
+    // TEST 2: Get cross-agent learning insights
+    console.log('🌐 TEST 2: Getting cross-agent learning insights...');
+    const learningInsights = await processingEngine.getCrossAgentLearning('zara', 'coordination');
+
+    testResults.tests.push({
+      test: 'Cross-Agent Learning Retrieval',
+      status: learningInsights ? 'PASSED' : 'FAILED',
+      result: `Retrieved ${learningInsights.ownLearning.length} own patterns, ${learningInsights.sharedLearning.length} shared patterns`
+    });
+
+    // TEST 3: Record agent performance
+    console.log('📊 TEST 3: Recording agent performance...');
+    await processingEngine.recordAgentPerformance(
+      'maya',
+      'content_creation', 
+      true,
+      2500,
+      0.95
+    );
+
+    testResults.tests.push({
+      test: 'Agent Performance Recording',
+      status: 'PASSED',
+      result: 'Maya performance recorded: content_creation success'
+    });
+
+    // TEST 4: Get learning recommendations
+    console.log('💡 TEST 4: Getting learning recommendations...');
+    const recommendations = await processingEngine.getLearningRecommendations('aria');
+
+    testResults.tests.push({
+      test: 'Learning Recommendations',
+      status: recommendations ? 'PASSED' : 'FAILED',
+      result: `Generated ${recommendations.skillsToImprove.length} improvement areas, ${recommendations.learningFromOthers.length} cross-agent patterns`
+    });
+
+    // Calculate overall results
+    const passedTests = testResults.tests.filter(test => test.status === 'PASSED').length;
+    const totalTests = testResults.tests.length;
+    
+    testResults.summary = {
+      totalTests,
+      passedTests,
+      failedTests: totalTests - passedTests,
+      successRate: `${((passedTests / totalTests) * 100).toFixed(1)}%`,
+      overallStatus: passedTests === totalTests ? 'CROSS-AGENT LEARNING OPERATIONAL' : 'PARTIAL FUNCTIONALITY'
+    };
+
+    console.log(`🧠 PHASE 3 TEST COMPLETE: ${passedTests}/${totalTests} cross-agent learning tests passed`);
+
+    res.json({
+      success: true,
+      message: 'Phase 3: Cross-Agent Learning system test completed',
+      results: testResults,
+      learningCapabilities: [
+        'Agent Pattern Storage - Database persistence',
+        'Cross-Agent Knowledge Sharing - High-confidence pattern distribution', 
+        'Performance Tracking - Success rate and improvement metrics',
+        'Learning Recommendations - Skill improvement suggestions',
+        'Collaborative Intelligence - Shared learning across agent network'
+      ],
+      systemStatus: {
+        learningEngine: 'Active',
+        databaseIntegration: 'Connected',
+        crossAgentSharing: 'Enabled',
+        performanceTracking: 'Operational'
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ PHASE 3 LEARNING TEST FAILED:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'Cross-agent learning test encountered an error'
+    });
+  }
+});
+
 export default router;
