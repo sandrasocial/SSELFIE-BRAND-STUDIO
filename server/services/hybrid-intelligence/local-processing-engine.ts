@@ -74,6 +74,125 @@ export class LocalProcessingEngine {
     if (userLower.includes('please') || userLower.includes('can you') || userLower.includes('help')) {
       patterns.push({
         type: 'communication_style',
+        category: 'user_interaction',
+        data: {
+          politeRequest: true,
+          helpSeeking: true,
+          communicationTone: 'collaborative'
+        }
+      });
+    }
+
+    return patterns;
+  }
+
+  /**
+   * SAVE LEARNING DATA to agent_learning table
+   */
+  async saveLearningData(agentName: string, learningType: string, category: string, data: any): Promise<void> {
+    try {
+      console.log(`💾 SAVING LEARNING: ${agentName} - ${category}`);
+      
+      await db.insert(agentLearning).values({
+        agentName,
+        learningType,
+        category,
+        data: JSON.stringify(data),
+        confidence: 0.8,
+        frequency: 1
+      });
+      
+      console.log(`✅ LEARNING SAVED: ${agentName} pattern stored in database`);
+    } catch (error) {
+      console.error(`❌ LEARNING SAVE FAILED:`, error);
+    }
+  }
+
+  /**
+   * Extract intent locally without API calls
+   */
+  private extractIntentLocally(userMessage: string): string {
+    const message = userMessage.toLowerCase();
+    
+    if (message.includes('fix') || message.includes('error') || message.includes('bug')) {
+      return 'debugging';
+    } else if (message.includes('create') || message.includes('build') || message.includes('add')) {
+      return 'creation';
+    } else if (message.includes('update') || message.includes('modify') || message.includes('change')) {
+      return 'modification';
+    } else if (message.includes('help') || message.includes('how') || message.includes('what')) {
+      return 'assistance';
+    } else {
+      return 'general';
+    }
+  }
+
+  /**
+   * Extract response type locally
+   */
+  private extractResponseTypeLocally(assistantMessage: string): string {
+    const message = assistantMessage.toLowerCase();
+    
+    if (message.includes('tool_calls') || message.includes('str_replace')) {
+      return 'implementation';
+    } else if (message.includes('explanation') || message.includes('analysis')) {
+      return 'explanation';
+    } else if (message.includes('✅') || message.includes('completed')) {
+      return 'completion';
+    } else {
+      return 'conversational';
+    }
+  }
+
+  /**
+   * Identify task type locally
+   */
+  private identifyTaskTypeLocally(userMessage: string): string {
+    const message = userMessage.toLowerCase();
+    
+    if (message.includes('database') || message.includes('sql')) {
+      return 'database';
+    } else if (message.includes('frontend') || message.includes('ui') || message.includes('component')) {
+      return 'frontend';
+    } else if (message.includes('backend') || message.includes('api') || message.includes('server')) {
+      return 'backend';
+    } else if (message.includes('fix') || message.includes('debug')) {
+      return 'debugging';
+    } else {
+      return 'general';
+    }
+  }
+
+  /**
+   * Extract tools used locally
+   */
+  private extractToolsUsedLocally(assistantMessage: string): string[] {
+    const tools = [];
+    
+    if (assistantMessage.includes('str_replace_based_edit_tool')) {
+      tools.push('file_editing');
+    }
+    if (assistantMessage.includes('bash')) {
+      tools.push('shell_commands');
+    }
+    if (assistantMessage.includes('execute_sql_tool')) {
+      tools.push('database_operations');
+    }
+    if (assistantMessage.includes('search_filesystem')) {
+      tools.push('file_search');
+    }
+    
+    return tools;
+  }
+
+  // Continue with remaining methods...
+  extractCommunicationPatternsLocally(userMessage: string): any[] {
+    const patterns = [];
+    const message = userMessage.toLowerCase();
+    
+    if (message.includes('please') || message.includes('can you')) {
+      patterns.push({
+        type: 'communication_style',
         category: 'preference',
         data: {
           politenessLevel: userLower.includes('please') ? 'polite' : 'direct',

@@ -1612,6 +1612,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
   // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
   
+  // COORDINATION BRIDGE TEST - Phase 1 Implementation
+  const coordinationTestRouter = await import('./routes/coordination-test');
+  app.use('/api/coordination', coordinationTestRouter.default);
+
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
   app.use('/api/admin/cache', adminCacheRouter);

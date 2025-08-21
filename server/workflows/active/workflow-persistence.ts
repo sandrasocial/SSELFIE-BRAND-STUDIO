@@ -153,6 +153,60 @@ export class WorkflowPersistence {
   }
   
   /**
+   * Get all active workflows
+   */
+  static getActiveWorkflows(): WorkflowSession[] {
+    try {
+      const workflows: WorkflowSession[] = [];
+      const files = fs.readdirSync(this.WORKFLOW_DIR).filter(file => 
+        file.endsWith('.json') && !file.startsWith('agents/')
+      );
+      
+      for (const file of files) {
+        try {
+          const filePath = path.join(this.WORKFLOW_DIR, file);
+          const data = fs.readFileSync(filePath, 'utf8');
+          const workflow = JSON.parse(data);
+          if (workflow.status === 'active') {
+            workflows.push(workflow);
+          }
+        } catch (error) {
+          console.error(`Failed to load workflow ${file}:`, error);
+        }
+      }
+      return workflows;
+    } catch (error) {
+      console.error('Failed to get active workflows:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get all active tasks across all agents
+   */
+  static getAllActiveTasks(): ActiveTask[] {
+    const allTasks: ActiveTask[] = [];
+    try {
+      const agentsDir = path.join(this.WORKFLOW_DIR, 'agents');
+      if (!fs.existsSync(agentsDir)) {
+        return [];
+      }
+      
+      const agentDirs = fs.readdirSync(agentsDir).filter(item => 
+        fs.statSync(path.join(agentsDir, item)).isDirectory()
+      );
+      
+      for (const agentName of agentDirs) {
+        const tasks = this.getAgentTasks(agentName);
+        allTasks.push(...tasks);
+      }
+    } catch (error) {
+      console.error('Failed to get all active tasks:', error);
+    }
+    return allTasks;
+  }
+
+  /**
    * Get all active tasks for an agent
    */
   static getAgentTasks(agentName: string): ActiveTask[] {

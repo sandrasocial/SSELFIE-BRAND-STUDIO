@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { promises as fs } from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -11,8 +11,8 @@ export class WorkflowExecutor {
 
   constructor() {
     // Ensure backup directory exists
-    if (!fs.exists(this.backupPath)) {
-      fs.mkdir(this.backupPath, { recursive: true });
+    if (!fs.existsSync(this.backupPath)) {
+      fs.mkdirSync(this.backupPath, { recursive: true });
     }
   }
 
@@ -35,7 +35,7 @@ export class WorkflowExecutor {
   async verifySchema(schemaPath: string, tables: string[]): Promise<boolean> {
     try {
       // Read schema definition
-      const schemaContent = await fs.readFile(schemaPath, 'utf-8');
+      const schemaContent = await fs.promises.readFile(schemaPath, 'utf-8');
       
       // Get current database schema
       for (const table of tables) {

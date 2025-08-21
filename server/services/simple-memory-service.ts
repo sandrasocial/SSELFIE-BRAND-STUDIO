@@ -97,6 +97,10 @@ export class SimpleMemoryService {
       task: context.currentTask
     };
     
+    // Ensure memories array exists before pushing
+    if (!context.memories) {
+      context.memories = [];
+    }
     context.memories.push(memoryItem);
 
     // Update cache (keep for speed)
