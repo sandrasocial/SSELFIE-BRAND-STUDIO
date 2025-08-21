@@ -115,16 +115,15 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
 
 // Simple project overview - CORRECTED STRUCTURE  
 async function getProjectOverview(): Promise<string> {
-  return `🚀 SSELFIE Studio - FULL PROJECT STRUCTURE DETECTED:
+  return `🚀 SSELFIE Studio - CORRECT PROJECT STRUCTURE:
 
 ✅ ROOT DIRECTORIES (what agents can access):
 ./server/ - Express.js backend, API routes, agent tools, services
-./client/ - Frontend React application  
-./src/ - Main React source code (components, pages, hooks)
+./client/ - Frontend React application (CONTAINS src/ subdirectory)
+./client/src/ - Main React source code (components, pages, hooks)
 ./shared/ - TypeScript schemas (database models, types)
-./components/ - Additional UI component library
-./pages/ - Page components and routing
-./database/ - Database migrations and setup
+./config/ - Configuration files
+./_architecture/ - Architecture documentation
 
 📋 KEY FILES TO KNOW:
 ./package.json - Dependencies (React, Express, PostgreSQL, Drizzle, etc.)
@@ -134,12 +133,17 @@ async function getProjectOverview(): Promise<string> {
 ./shared/schema.ts - Database schema (PostgreSQL + Drizzle ORM)
 ./replit.md - Project documentation and architecture
 
-🎯 IMPORTANT LOCATIONS:
-- React Components: ./src/components/ and ./components/
+🎯 CRITICAL LOCATIONS FOR AGENTS:
+- React Components: ./client/src/components/
+- React Pages: ./client/src/pages/
 - API Routes: ./server/routes/
 - Database: PostgreSQL with Drizzle ORM in ./shared/schema.ts
 - Agent Tools: ./server/tools/
-- Frontend Pages: ./src/pages/ and ./pages/
+
+⚠️  IMPORTANT: 
+- NO ./src/ directory at root - React code is in ./client/src/
+- Edit existing files in ./client/src/pages/ instead of creating new ones
+- Follow existing project structure and design patterns
 
 🔧 Tech Stack: React 18 + TypeScript + Express + PostgreSQL + Drizzle + Tailwind CSS
 
