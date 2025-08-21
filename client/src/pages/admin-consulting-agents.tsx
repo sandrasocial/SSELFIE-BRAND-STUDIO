@@ -1,4 +1,4 @@
-import { KeyboardEvent, memo, useState, useEffect } from 'react';
+import React, { KeyboardEvent, memo, useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
 // Switch component removed - creating simple alternative
@@ -603,9 +603,6 @@ export default function AdminConsultingAgents() {
           }
         }
       }
-
-      console.log(`✅ Agent ${selectedAgent.name} streaming completed`);
-
     } catch (error) {
       // Handle abort differently from other errors
       if ((error as Error).name === 'AbortError') {
@@ -636,8 +633,6 @@ export default function AdminConsultingAgents() {
       setAbortController(null); // Clean up controller
     }
   };
-
-  // Simplified helper functions
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const handleClearChat = async () => {
@@ -1079,3 +1074,6 @@ export default function AdminConsultingAgents() {
     </div>
   );
 }
+
+// Add missing export
+export default AdminConsultingAgents;
