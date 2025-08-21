@@ -2552,44 +2552,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // S3 Gallery Import endpoint for admin users to import all missing images  
-  app.post('/api/admin/import-s3-gallery', isAuthenticated, async (req: any, res) => {
-    try {
-      const { userId } = req.body;
-      
-      // Verify admin access (Sandra only)
-      const authUser = (req.user as any)?.claims?.sub;
-      console.log(`🔒 S3 IMPORT AUTH: User ${authUser} requesting import`);
-      
-      if (!authUser || authUser !== '42585527') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
-      console.log(`🚀 S3 IMPORT: Starting comprehensive import for user ${userId || authUser}`);
-      
-      const { S3GalleryImporter } = await import('./s3-gallery-importer');
-      const importer = new S3GalleryImporter();
-      
-      const result = await importer.importAllUserImages(userId || authUser);
-      
-      console.log(`✅ S3 IMPORT COMPLETE:`, result);
-      
-      res.json({
-        success: true,
-        message: `Import completed: ${result.imported} new images imported, ${result.skipped} already existed`,
-        ...result
-      });
-      
-    } catch (error) {
-      console.error('❌ S3 Import failed:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: "S3 import failed", 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      });
-    }
-  });
-
   // User model endpoint for workspace model status  
   app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
     try {
