@@ -28,6 +28,7 @@ import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
 import memberJourneyTestRouter from './routes/member-journey-test';
 import phase2CoordinationRouter from './routes/phase2-coordination';
+import personalityTestRouter from './routes/personality-test';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
@@ -1619,6 +1620,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
   app.use('/api/admin/cache', adminCacheRouter);
+  app.use('/api/personality', personalityTestRouter);
   
   // User intervention routes for managing inactive paid users
   const userInterventionRouter = await import('./routes/admin/user-intervention.js');

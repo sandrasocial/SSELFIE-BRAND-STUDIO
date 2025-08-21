@@ -57,21 +57,75 @@ export class PersonalityManager {
    */
   private static buildNaturalPrompt(personality: any): string {
     const identityType = personality.identity?.type || personality.role || 'specialist';
-    return `You are ${personality.name}, ${identityType}.
+    
+    // Build comprehensive personality prompt
+    let prompt = `You are ${personality.name}, ${identityType}.
+
+${personality.description || ''}
 
 YOUR MISSION: ${personality.identity?.mission || personality.mission || 'Provide expert assistance with professional insight and strategic thinking.'}
 
-AUTONOMOUS WORK STYLE: You are a specialized expert who takes initiative. When given tasks or asked questions, you work autonomously using your tools to complete the work, not just discuss it. You execute real solutions, make actual changes, and solve problems directly.
+PERSONALITY & COMMUNICATION STYLE:
+${personality.voice?.tone ? `- Voice: ${personality.voice.tone}` : ''}
+${personality.traits?.energy ? `- Energy: ${personality.traits.energy}` : ''}
+${personality.traits?.approach ? `- Approach: ${personality.traits.approach}` : ''}
 
-COMMUNICATION STYLE:
-${this.formatVoiceExamples(personality.voice)}
+COMMUNICATION CHARACTERISTICS:
+${personality.voice?.characteristics ? personality.voice.characteristics.map((c: string) => `- ${c}`).join('\n') : ''}
+
+NATURAL PHRASES YOU USE:
+${personality.voice?.samplePhrases ? personality.voice.samplePhrases.map((p: string) => `"${p}"`).join('\n') : ''}
 
 YOUR EXPERTISE:
-${this.formatExpertise(personality)}
+${personality.expertise?.specializations ? personality.expertise.specializations.map((s: string) => `- ${s}`).join('\n') : ''}
 
-WORK APPROACH: You don't just answer questions - you actively work on projects, make improvements, fix issues, and deliver real results. Use your tools to examine, analyze, and implement solutions.
+WORK STYLE:
+${personality.workStyle?.approach ? `Approach: ${personality.workStyle.approach}` : ''}
 
-Remember: Be authentic to your personality while taking autonomous action. Work on the actual project, make real changes, and deliver tangible results.`;
+AUTONOMOUS WORK STYLE: You are a specialized expert who takes initiative. When given tasks or asked questions, you work autonomously using your tools to complete the work, not just discuss it. You execute real solutions, make actual changes, and solve problems directly.
+
+IMPORTANT: Always respond in your natural personality style using the voice patterns and phrases above. Maintain your character consistently throughout the conversation.`;
+
+    return prompt;
+  }
+  
+  /**
+   * Format voice examples for natural conversation
+   */
+  private static formatVoiceExamples(voice: any): string {
+    if (voice?.examples) {
+      return voice.examples.map((example: string) => `- "${example}"`).join('\n');
+    }
+    
+    if (voice?.analysisMode && voice?.executionMode) {
+      return `
+ANALYSIS MODE: ${voice.analysisMode.patterns?.map((p: string) => `"${p}"`).join(', ') || ''}
+EXECUTION MODE: ${voice.executionMode.patterns?.map((p: string) => `"${p}"`).join(', ') || ''}`;
+    }
+    
+    return 'Natural, authentic communication style';
+  }
+  
+  /**
+   * Format natural approach without technical constraints
+   */
+  private static formatNaturalApproach(personality: any): string {
+    if (!personality) return 'Focus on helpful, authentic assistance';
+    
+    // Try different personality structure patterns
+    if (personality.expertise?.trends) {
+      return `Focus on: ${personality.expertise.trends.slice(0, 3).join(', ')}`;
+    }
+    
+    if (personality.workStyle?.approach) {
+      return personality.workStyle.approach;
+    }
+    
+    if (personality.identity?.creativeFocus) {
+      return `Creative focus: ${personality.identity.creativeFocus}`;
+    }
+    
+    return 'Professional expertise and authentic assistance';
   }
   
   /**
