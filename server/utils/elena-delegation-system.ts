@@ -28,7 +28,15 @@ export interface DelegationDecision {
   priority: TaskDependency['priority'];
 }
 
-class ElenaDelegationSystem {
+export class ElenaDelegationSystem {
+  private static instance: ElenaDelegationSystem;
+  
+  static getInstance(): ElenaDelegationSystem {
+    if (!this.instance) {
+      this.instance = new ElenaDelegationSystem();
+    }
+    return this.instance;
+  }
   private taskQueue: TaskDependency[] = [];
   private agentWorkloads: Map<string, AgentWorkload> = new Map();
   private taskHistory: Map<string, any[]> = new Map();
@@ -97,9 +105,29 @@ class ElenaDelegationSystem {
   }
   
   /**
+   * Get current agent workloads for coordination bridge
+   */
+  getAgentWorkloads(): Map<string, AgentWorkload> {
+    return this.agentWorkloads;
+  }
+
+  /**
+   * Delegate task with ActiveTask interface for coordination bridge
+   */
+  async delegateTask(task: any): Promise<DelegationDecision> {
+    return this.delegateTaskLegacy(
+      task.taskDescription,
+      'admin',
+      task.priority,
+      task.dependencies || [],
+      []
+    );
+  }
+
+  /**
    * Elena's intelligent task delegation with dependency mapping
    */
-  async delegateTask(
+  async delegateTaskLegacy(
     taskDescription: string,
     userId: string,
     priority: TaskDependency['priority'] = 'medium',

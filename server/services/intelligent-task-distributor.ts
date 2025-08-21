@@ -46,8 +46,18 @@ export interface DeploymentStatus {
   estimatedTimeRemaining: number;
 }
 
-class IntelligentTaskDistributor {
+export class IntelligentTaskDistributor {
   private deployments = new Map<string, DeploymentStatus>();
+  // Export as singleton for coordination bridge
+  static getInstance(): IntelligentTaskDistributor {
+    if (!this.instance) {
+      this.instance = new IntelligentTaskDistributor();
+    }
+    return this.instance;
+  }
+  
+  private static instance: IntelligentTaskDistributor;
+
   private agentCapabilities = {
     elena: ['coordination', 'strategy', 'workflow_management'],
     aria: ['ui_design', 'luxury_design', 'frontend', 'components'],
