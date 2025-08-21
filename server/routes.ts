@@ -1896,18 +1896,73 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/test-shannon-generation', async (req, res) => {
     try {
       const { prompt } = req.body;
-      const { UnifiedGenerationService } = await import('./unified-generation-service');
       
-      console.log(`🔍 Testing Shannon's model generation`);
-      const result = await UnifiedGenerationService.generateImages({
-        userId: 'shannon-1753945376880',
-        prompt: prompt || 'Young woman standing confidently among misty Icelandic black sand beaches at golden hour, wearing oversized chunky knit sweater in cream layered over metallic silver slip dress, baggy cargo pants in sage green, chunky platform boots, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth'
+      console.log(`🔍 Testing Shannon's model generation directly`);
+      
+      // Use Shannon's exact model details
+      const modelVersion = 'sandrasocial/shannon-1753945376880-selfie-lora-1753983966781:2fed9e1abe9a80206d0a7b146914ee9f653b8aaf5b0dd7e82b8feb57ab5ec753';
+      const triggerWord = 'usershannon-1753945376880';
+      
+      const testPrompt = prompt || 'Young woman standing confidently among misty Icelandic black sand beaches at golden hour, wearing oversized chunky knit sweater in cream layered over metallic silver slip dress, baggy cargo pants in sage green, chunky platform boots, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth';
+      
+      // Clean prompt and add Shannon's trigger
+      let cleanPrompt = testPrompt
+        .replace(/raw photo,?\s*/gi, '')
+        .replace(/visible skin pores,?\s*/gi, '')
+        .replace(/film grain,?\s*/gi, '')
+        .replace(/unretouched natural skin texture,?\s*/gi, '')
+        .replace(/subsurface scattering,?\s*/gi, '')
+        .replace(/photographed on film,?\s*/gi, '')
+        .trim();
+      
+      const anatomyTerms = "detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy";
+      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}, ${anatomyTerms}`;
+      
+      const requestBody = {
+        version: modelVersion,
+        input: {
+          prompt: finalPrompt,
+          lora_scale: 0.9,
+          guidance_scale: 5.0,
+          num_inference_steps: 50,
+          num_outputs: 2,
+          aspect_ratio: "3:4",
+          output_format: "png",
+          output_quality: 95,
+          go_fast: false,
+          disable_safety_checker: false,
+          megapixels: "1",
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+      
+      console.log(`🚀 SHANNON TEST: Making direct Replicate call`);
+      console.log(`   Model: ${modelVersion}`);
+      console.log(`   Trigger: ${triggerWord}`);
+      
+      const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
       });
+      
+      const predictionData = await replicateResponse.json();
+      
+      if (!replicateResponse.ok) {
+        throw new Error(`Replicate API error: ${JSON.stringify(predictionData)}`);
+      }
       
       res.json({
         success: true,
-        result
+        predictionId: predictionData.id,
+        status: predictionData.status,
+        urls: predictionData.urls || [],
+        message: `Shannon's model test started - Prediction ID: ${predictionData.id}`
       });
+      
     } catch (error) {
       console.error('Shannon generation test error:', error);
       res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
