@@ -579,16 +579,26 @@ consultingAgentsRouter.post('/admin/legacy-chat', adminAuth, async (req: AdminRe
       // Continue without workflow enhancement if there's an error
     }
     
-    // ENHANCED PROMPT: Include workflow context to prevent context loss  
+    // PERSONALITY-FIRST PROMPT: Preserve agent personality while adding context  
     let systemPrompt = PersonalityManager.getNaturalPrompt(agentId.toLowerCase());
     
+    // Add essential context but keep personality dominant
     if (contextRequirement.isWorkTask && contextSummary) {
-      systemPrompt += `\n\n## CURRENT CONTEXT:\n${contextSummary}`;
+      // Limit context to preserve personality strength
+      const limitedContext = contextSummary.length > 800 ? 
+        contextSummary.substring(0, 800) + '...' : contextSummary;
+      systemPrompt += `\n\n## RECENT CONTEXT:\n${limitedContext}`;
     }
     
     if (workflowContext) {
-      systemPrompt += workflowContext;
+      // Limit workflow context to essential information only
+      const limitedWorkflow = workflowContext.length > 500 ? 
+        workflowContext.substring(0, 500) + '...' : workflowContext;
+      systemPrompt += limitedWorkflow;
     }
+    
+    // CRITICAL: Add personality reinforcement at the end
+    systemPrompt += `\n\n🎯 PERSONALITY REMINDER: Always respond in your natural ${agentId} personality style. Use your characteristic voice patterns, energy level, and communication approach from your personality definition above.`;
     
     console.log(`🚀 UNRESTRICTED: Agent ${agentId} using natural intelligence without hardcoded restrictions`);
     
