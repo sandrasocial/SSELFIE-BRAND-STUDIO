@@ -40,14 +40,14 @@ export function validateDesignSafeOperation(operation: 'create' | 'modify', file
   if (operation === 'create' && isDesignFileProtected(filePath)) {
     return {
       ...result,
-      advisory: `INFO: Creating ${filePath} - this affects SSELFIE design system. Consider reviewing existing styling.`
+      advisory: `INFO: Creating ${filePath} - this affects SSELFIE design system. MUST follow Sandra's design patterns in server/tools/sandra_design_system.ts - Times New Roman, tracking-[0.4em], luxury editorial aesthetic.`
     };
   }
   
   if (operation === 'modify' && isDesignFileProtected(filePath)) {
     return {
       ...result,
-      advisory: `INFO: Modifying ${filePath} - this is a core SSELFIE design file. Changes will affect the design system.`
+      advisory: `INFO: Modifying ${filePath} - this is a core SSELFIE design file. MANDATORY: Use Sandra's design system patterns from server/tools/sandra_design_system.ts - no deviations from luxury editorial aesthetic.`
     };
   }
   
