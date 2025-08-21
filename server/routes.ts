@@ -1892,6 +1892,29 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+  // Test generation with admin model using optimized parameters
+  app.post('/api/test-admin-generation', async (req, res) => {
+    try {
+      const { prompt } = req.body;
+      const { UnifiedGenerationService } = await import('./unified-generation-service');
+      
+      console.log(`🔍 Testing ADMIN model with OPTIMIZED parameters`);
+      const result = await UnifiedGenerationService.generateImages({
+        userId: '42585527', // Admin user ID
+        prompt: prompt || 'Young woman standing confidently among misty Icelandic black sand beaches at golden hour, wearing oversized chunky knit sweater in cream layered over metallic silver slip dress, baggy cargo pants in sage green, chunky platform boots, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth'
+      });
+      
+      res.json({
+        success: true,
+        result,
+        message: 'Admin model test with optimized parameters started'
+      });
+    } catch (error) {
+      console.error('Admin generation test error:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
   // Test generation with Shannon's model for comparison
   app.post('/api/test-shannon-generation', async (req, res) => {
     try {
@@ -1918,20 +1941,23 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const anatomyTerms = "detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy";
       const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}, ${anatomyTerms}`;
       
+      // OPTIMIZED PARAMETERS MATCHING UnifiedGenerationService (August 21, 2025)
       const requestBody = {
         version: modelVersion,
         input: {
           prompt: finalPrompt,
-          lora_scale: 0.9,
-          guidance_scale: 5.0,
-          num_inference_steps: 50,
-          num_outputs: 2,
-          aspect_ratio: "3:4",
-          output_format: "png",
-          output_quality: 95,
-          go_fast: false,
+          lora_scale: 0.9,              // Optimal facial accuracy
+          megapixels: "1",              // Full resolution quality
+          num_outputs: 2,               // Always generate 2 options
+          aspect_ratio: "4:5",          // Portrait orientation
+          output_format: "png",         // High quality format
+          guidance_scale: 5,            // Perfect balance for anatomy & style
+          output_quality: 95,           // Maximum quality
+          prompt_strength: 0.8,         // Strong prompt adherence
+          extra_lora_scale: 1,          // Enhanced model influence
+          num_inference_steps: 50,      // Detailed generation process
+          go_fast: false,               // Quality over speed
           disable_safety_checker: false,
-          megapixels: "1",
           seed: Math.floor(Math.random() * 1000000)
         }
       };

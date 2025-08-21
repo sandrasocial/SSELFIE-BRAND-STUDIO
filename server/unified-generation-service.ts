@@ -92,20 +92,24 @@ export class UnifiedGenerationService {
     const modelVersion = `${modelId}:${versionId}`;
     console.log(`🔒 VERSION VALIDATION: Model: ${modelId}, Version: ${versionId}, Combined: ${modelVersion}`);
     
+    // OPTIMIZED PARAMETERS FOR ALL USERS (August 21, 2025)
+    // Based on Shannon's high-quality results - these parameters ensure optimal image quality
     const requestBody = {
       version: modelVersion,
       input: {
         prompt: finalPrompt,
-        lora_scale: 0.9, // Keep for facial accuracy
-        guidance_scale: 5.0, // ANATOMY FIX: Increased from 3.0 to 5.0 for better anatomy adherence
-        num_inference_steps: 50, // ANATOMY FIX: Increased from 40 to 50 for detailed extremities
-        num_outputs: 2,
-        aspect_ratio: "3:4",
-        output_format: "png",
-        output_quality: 95,
-        go_fast: false,
+        lora_scale: 0.9,              // Optimal facial accuracy
+        megapixels: "1",              // Full resolution quality
+        num_outputs: 2,               // Always generate 2 options
+        aspect_ratio: "4:5",          // Portrait orientation (was 3:4)
+        output_format: "png",         // High quality format
+        guidance_scale: 5,            // Perfect balance for anatomy & style
+        output_quality: 95,           // Maximum quality
+        prompt_strength: 0.8,         // Strong prompt adherence
+        extra_lora_scale: 1,          // Enhanced model influence
+        num_inference_steps: 50,      // Detailed generation process
+        go_fast: false,               // Quality over speed
         disable_safety_checker: false,
-        megapixels: "1",
         seed: Math.floor(Math.random() * 1000000)
       }
     };
