@@ -6,14 +6,15 @@ SSELFIE Studio is a premium AI-powered personal branding platform that transform
 ## Recent Changes (August 21, 2025)
 **REPOSITORY REORGANIZATION COMPLETED**: Fixed completely scattered file structure that was preventing agent comprehension:
 
-- **Root Directory Cleaned**: Reduced from 106 scattered files to organized structure with only 25 essential items
-- **Logical Organization**: Created `/config/`, `/deployment/`, `/scripts/`, `/docs/`, `/temp/` directories
-- **Agent-Friendly Structure**: Added README.md and PROJECT_GUIDE.md for immediate agent orientation
-- **Protected Core Systems**: Maya's revenue systems remain untouched and operational
-- **Clear Separation**: Config files, deployment docs, and temp files now properly organized
-- **Navigation Guides**: Multiple entry points (README, PROJECT_GUIDE, replit.md) for different agent needs
+- **Root Directory Cleaned**: Reduced from 106+ scattered files to clean organized structure
+- **Infrastructure Organization**: All config files moved to `infrastructure/config/`, deployment docs to `infrastructure/deployment/`
+- **Architectural Clarity**: Created `_architecture/` directory with logical separation guides
+- **Agent-Friendly Structure**: Added README.md, PROJECT_GUIDE.md, and `_architecture/README.md` for immediate agent orientation
+- **Protected Core Systems**: Maya's revenue systems clearly identified and protected (🔒 symbols in documentation)
+- **Zero Breaking Changes**: All import paths maintained, all monitoring systems operational
+- **Clear Separation**: Admin agents vs Member revenue systems clearly documented
 
-**Result**: Any agent can now quickly understand project structure and locate files without confusion. Repository went from chaotic mess to professional organization while keeping all systems operational.
+**Result**: Any agent can now instantly understand project structure, locate files, and know what's safe to modify vs protected revenue systems. Repository went from chaotic mess to professional organization while keeping all systems operational and launch-ready.
 
 ## Previous Changes
 **OPTIMIZED GENERATION PARAMETERS DEPLOYED**: Fixed quality differences between models by implementing Shannon's proven optimal parameters for ALL users:

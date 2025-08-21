@@ -12,26 +12,29 @@
 ### Project Structure
 
 ```
-📁 SSELFIE Studio/
-├── 🎯 REVENUE CORE (Maya's Income Systems)
-│   ├── server/unified-generation-service.ts    # Optimized image generation
-│   ├── server/model-training-service.ts        # AI model training
-│   ├── server/routes/maya-ai-routes.ts         # Maya chat endpoints
-│   └── server/image-storage-service.ts         # S3 storage & migration
+📁 SSELFIE Studio/ (CLEAN & ORGANIZED)
+├── 📖 README.md, PROJECT_GUIDE.md, replit.md  # Agent orientation
+├── 📦 package.json                            # Dependencies & scripts
 │
-├── 🤖 ADMIN AGENTS (Your Development Team)
-│   ├── server/agents/personalities/            # 15 AI agent personalities
-│   ├── server/routes/consulting-agents-routes.ts # Agent coordination
-│   └── Elena (Strategic), Zara (Technical), Maya (Revenue)
+├── 🎯 REVENUE CORE (Maya's Protected Income)
+│   └── server/                               # Backend services
+│       ├── unified-generation-service.ts     # 🔒 Image generation
+│       ├── model-training-service.ts         # 🔒 AI training
+│       ├── image-storage-service.ts          # 🔒 S3 storage
+│       └── routes/maya-ai-routes.ts          # 🔒 Maya chat
 │
-├── 💾 DATA & CONFIG
-│   ├── shared/schema.ts                        # Database schema
-│   ├── config/                                 # All config files
-│   └── deployment/                             # Deployment docs
+├── 🤖 ADMIN AGENTS (Development Team)
+│   ├── server/agents/personalities/          # 15 AI agents
+│   └── server/routes/consulting-agents-routes.ts # Coordination
 │
-└── 🎨 FRONTEND
-    ├── client/                                 # React app
-    └── User workspace, training, generation UI
+├── 🔄 SHARED SYSTEMS
+│   ├── shared/schema.ts                      # Database schema
+│   └── client/                               # React frontend
+│
+└── 🏗️ INFRASTRUCTURE (Organized)
+    ├── infrastructure/config/                # All config files
+    ├── infrastructure/deployment/            # Launch docs
+    └── _architecture/                        # Logical separation guide
 ```
 
 ### 🔒 Critical Rules
