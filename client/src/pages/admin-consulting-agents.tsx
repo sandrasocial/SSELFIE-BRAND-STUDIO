@@ -9,20 +9,20 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Agent images - Each agent has unique image (fixed duplicate assignments)
-const AgentElena = "/attached_assets/out-0%20(33)_1753426218039.png";    // Strategic Leader
-const AgentMaya = "/attached_assets/out-0%20(34)_1753426218040.png";     // Brand Expert
-const AgentVictoria = "/attached_assets/out-0%20(37)_1753426218041.png"; // Content Strategist
-const AgentAria = "/attached_assets/out-0%20(20)_1753426218042.png";     // Business Operations
-const AgentZara = "/attached_assets/out-0%20(28)_1753426218042.png";     // Technical Architect
-const AgentRachel = "/attached_assets/out-0%20(42)_1753426218042.png";   // Marketing Strategist
-const AgentAva = "/attached_assets/out-1%20(27)_1753426218043.png";      // QA Testing
-const AgentQuinn = "/attached_assets/out-0%20(26)_1753426218043.png";    // Workflow Coordinator
-const AgentSophia = "/attached_assets/out-1%20(18)_1753426218043.png";   // Social Media Expert
-const AgentMartha = "/attached_assets/out-0%20(29)_1753426218044.png";   // Process Enhancement
-const AgentDiana = "/attached_assets/out-2%20(18)_1753426218045.png";    // Analytics Specialist
-const AgentWilma = "/attached_assets/out-0%20(22)_1753426218045.png";    // Documentation Expert
-const AgentOlga = "/attached_assets/out-0%20(32)_1753426290403.png";     // Revenue Operations
+// Agent images - TRULY unique images for each agent (no duplicates)
+const AgentElena = "/attached_assets/out-0%20(20)_1753426218042.png";    // Strategic Leader
+const AgentMaya = "/attached_assets/out-0%20(22)_1753426218045.png";     // Brand Expert  
+const AgentVictoria = "/attached_assets/out-0%20(26)_1753426218043.png"; // Content Strategist
+const AgentAria = "/attached_assets/out-0%20(28)_1753426218042.png";     // Business Operations
+const AgentZara = "/attached_assets/out-0%20(29)_1753426218044.png";     // Technical Architect
+const AgentRachel = "/attached_assets/out-0%20(32)_1753426290403.png";   // Marketing Strategist
+const AgentAva = "/attached_assets/out-0%20(33)_1753426218039.png";      // QA Testing
+const AgentQuinn = "/attached_assets/out-0%20(34)_1753426218040.png";    // Workflow Coordinator
+const AgentSophia = "/attached_assets/out-0%20(37)_1753426218041.png";   // Social Media Expert
+const AgentMartha = "/attached_assets/out-0%20(42)_1753426218042.png";   // Process Enhancement
+const AgentDiana = "/attached_assets/out-1%20(18)_1753426218043.png";    // Analytics Specialist
+const AgentWilma = "/attached_assets/out-1%20(27)_1753426218043.png";    // Documentation Expert
+const AgentOlga = "/attached_assets/out-2%20(18)_1753426218045.png";     // Revenue Operations
 const AgentFlux = "/attached_assets/out-2%20(23)_1753426218044.png";     // Image Generation
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
