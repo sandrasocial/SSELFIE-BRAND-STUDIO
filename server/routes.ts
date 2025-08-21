@@ -21,6 +21,7 @@ import { ModelRetrainService } from './retrain-model';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
+import agentHandoffRouter from './routes/agent-handoff-routes';
 import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
 import quinnTestingRouter from './routes/quinn-testing';
@@ -1649,6 +1650,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // FIXED: Register consulting agents at correct path to match frontend calls
   // Regular consulting agents routes (non-admin)
   app.use('/api/consulting-agents', consultingAgentsRouter);
+  // AGENT HANDOFF ROUTES - Direct autonomous communication
+  app.use('/api/agent-handoff', agentHandoffRouter);
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
   
   // STEP 3: Advanced Multi-Agent Workflow Orchestration

@@ -365,8 +365,11 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       TOOL_SCHEMAS.web_search,
       TOOL_SCHEMAS.restart_workflow,
       TOOL_SCHEMAS.search_filesystem,
-      TOOL_SCHEMAS.coordinate_agent,  // ELENA'S COORDINATION TOOL
-      TOOL_SCHEMAS.get_assigned_tasks // WORKFLOW TASK RETRIEVAL TOOL
+      TOOL_SCHEMAS.coordinate_agent,      // ELENA'S COORDINATION TOOL
+      TOOL_SCHEMAS.get_assigned_tasks,    // WORKFLOW TASK RETRIEVAL TOOL
+      TOOL_SCHEMAS.agent_handoff,         // DIRECT AGENT-TO-AGENT HANDOFFS
+      TOOL_SCHEMAS.get_handoff_tasks,     // CHECK PENDING HANDOFFS
+      TOOL_SCHEMAS.autonomous_workflow    // FULLY AUTONOMOUS WORKFLOWS
     ];
 
     // ADMIN INTELLIGENT MODE: Use Claude API for conversations, direct tools for specific requests
