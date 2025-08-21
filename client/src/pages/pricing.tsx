@@ -18,12 +18,12 @@ export default function Pricing() {
   // SEO Meta tags setup
   useEffect(() => {
     // Update page title
-    document.title = "Pricing - SSELFIE Studio | €29 Basic or €67 Full Access";
+    document.title = "Single Mom Starter €39/month - From Divorced to Digital CEO | SSELFIE Studio";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Choose your plan: Basic (€29/month, 30 AI images + Maya) or Full Access (€67/month, 100 images + Maya & Victoria AI).');
+      metaDescription.setAttribute('content', 'One year ago my marriage ended. Single mom, three kids, zero plan. Now I help other moms build 6-figure personal brands. Start your journey with our Single Mom Starter Plan - €39/month.');
     }
 
     // Update Open Graph tags
@@ -58,7 +58,7 @@ export default function Pricing() {
       "@context": "https://schema.org",
       "@type": "Product",
       "name": "SSELFIE Studio",
-      "description": "AI-powered personal branding platform with celebrity stylist and brand strategist",
+      "description": "From divorced single mom to 6-figure personal brand in 90 days. Now helping other moms do the same.",
       "brand": {
         "@type": "Organization",
         "name": "SSELFIE Studio",
@@ -67,17 +67,17 @@ export default function Pricing() {
       "offers": [
         {
           "@type": "Offer",
-          "name": "Basic",
-          "description": "30 AI images per month with trained personal model + Maya AI photographer",
-          "price": "29",
+          "name": "Single Mom Starter",
+          "description": "No fancy equipment. No design degree. Just strategy that actually works. I built my brand between soccer practice and homework help - now it's your turn.",
+          "price": "39",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/checkout?plan=basic",
+          "url": "https://sselfie.ai/checkout?plan=single-mom-starter",
           "priceValidUntil": "2025-12-31"
         },
         {
-          "@type": "Offer", 
-          "name": "Full Access",
+          "@type": "Offer",
+          "name": "Single Mom Success",
           "description": "100 AI images, Maya AI chat, Victoria website builder, and BUILD workspace",
           "price": "67",
           "priceCurrency": "EUR",
