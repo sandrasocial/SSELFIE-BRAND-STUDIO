@@ -1892,6 +1892,28 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+  // Test generation with Shannon's model for comparison
+  app.post('/api/test-shannon-generation', async (req, res) => {
+    try {
+      const { prompt } = req.body;
+      const { UnifiedGenerationService } = await import('./unified-generation-service');
+      
+      console.log(`🔍 Testing Shannon's model generation`);
+      const result = await UnifiedGenerationService.generateImages({
+        userId: 'shannon-1753945376880',
+        prompt: prompt || 'Young woman standing confidently among misty Icelandic black sand beaches at golden hour, wearing oversized chunky knit sweater in cream layered over metallic silver slip dress, baggy cargo pants in sage green, chunky platform boots, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth'
+      });
+      
+      res.json({
+        success: true,
+        result
+      });
+    } catch (error) {
+      console.error('Shannon generation test error:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
   // AI Images API - Required for user gallery
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
