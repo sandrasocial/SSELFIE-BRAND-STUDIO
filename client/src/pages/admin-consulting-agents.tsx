@@ -9,21 +9,21 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Agent images - Direct paths to existing assets  
-const AgentElena = "/attached_assets/out-0 (33)_1753426218039.png";
-const AgentMaya = "/attached_assets/out-0 (34)_1753426218040.png";
-const AgentVictoria = "/attached_assets/out-0 (37)_1753426218041.png";
-const AgentAria = "/attached_assets/out-0 (20)_1753426218042.png";
-const AgentZara = "/attached_assets/out-0 (28)_1753426218042.png";
-const AgentRachel = "/attached_assets/out-0 (42)_1753426218042.png";
-const AgentAva = "/attached_assets/out-1 (27)_1753426218043.png";
-const AgentQuinn = "/attached_assets/out-0 (26)_1753426218043.png";
-const AgentSophia = "/attached_assets/out-1 (18)_1753426218043.png";
-const AgentMartha = "/attached_assets/out-0 (29)_1753426218044.png";
-const AgentDiana = "/attached_assets/out-2 (18)_1753426218045.png";
-const AgentWilma = "/attached_assets/out-0 (22)_1753426218045.png";
-const AgentOlga = "/attached_assets/out-0 (32)_1753426290403.png";
-const AgentFlux = "/attached_assets/out-0 (31).png";
+// Agent images - URL-encoded paths for proper browser display
+const AgentElena = "/attached_assets/out-0%20(33)_1753426218039.png";
+const AgentMaya = "/attached_assets/out-0%20(34)_1753426218040.png";
+const AgentVictoria = "/attached_assets/out-0%20(37)_1753426218041.png";
+const AgentAria = "/attached_assets/out-0%20(20)_1753426218042.png";
+const AgentZara = "/attached_assets/out-0%20(28)_1753426218042.png";
+const AgentRachel = "/attached_assets/out-0%20(42)_1753426218042.png";
+const AgentAva = "/attached_assets/out-1%20(27)_1753426218043.png";
+const AgentQuinn = "/attached_assets/out-0%20(26)_1753426218043.png";
+const AgentSophia = "/attached_assets/out-1%20(18)_1753426218043.png";
+const AgentMartha = "/attached_assets/out-0%20(29)_1753426218044.png";
+const AgentDiana = "/attached_assets/out-2%20(18)_1753426218045.png";
+const AgentWilma = "/attached_assets/out-0%20(22)_1753426218045.png";
+const AgentOlga = "/attached_assets/out-0%20(32)_1753426290403.png";
+const AgentFlux = "/attached_assets/out-2%20(23)_1753426218044.png";
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
