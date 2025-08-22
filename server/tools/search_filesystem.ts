@@ -20,28 +20,8 @@ export async function search_filesystem(parameters: any): Promise<string> {
 
     let results = '';
 
-    // AGENT-FRIENDLY PROJECT STATUS - Direct and Clear
-    const projectOverview = await getProjectOverview();
-    const dirStructure = await getBasicDirectoryListing();
-    
     // SHOW CURRENT WORKING DIRECTORY FOR DEBUG
     console.log('🔍 AGENT WORKING DIRECTORY:', process.cwd());
-    
-    results += `🚀 SSELFIE STUDIO PROJECT - CURRENT IMPLEMENTATION STATUS\n`;
-    results += `✅ BUSINESS MODEL: Pre-login + Post-login workspace (TRAIN-STYLE-SHOOT-BUILD) + Gallery\n\n`;
-    results += `📱 CURRENT LIVE STRUCTURE:\n`;
-    results += `✅ Pre-login: Editorial landing (/), about, pricing, blog, login\n`;
-    results += `✅ Post-login: Workspace (/workspace) with 4-phase journey:\n`;
-    results += `   • TRAIN: /ai-training (SimpleTraining component)\n`;
-    results += `   • STYLE: /maya (Maya AI stylist component)\n`;
-    results += `   • SHOOT: /ai-photoshoot (AIPhotoshoot component)\n`;
-    results += `   • BUILD: /build (Build component)\n`;
-    results += `✅ SSELFIE GALLERY: /gallery, /sselfie-gallery (SSELFIEGallery component)\n\n`;
-    results += `⚠️  CRITICAL: Look at client/src/App.tsx for current routing, not old documentation!\n\n`;
-    results += `📁 COMPLETE DIRECTORY STRUCTURE:\n${dirStructure}\n`;
-    results += `📋 PROJECT ARCHITECTURE:\n${projectOverview}\n\n`;
-    results += `🎯 AGENT ACCESS: You have complete visibility and can edit all files.\n`;
-    results += `🔧 TOOLS AVAILABLE: Use str_replace_based_edit_tool for file access, bash for commands.\n`;
 
     // If specific code snippets are provided, search for them
     if (code.length > 0) {
@@ -67,41 +47,23 @@ export async function search_filesystem(parameters: any): Promise<string> {
       }
     }
 
-    // Enhanced search for query descriptions
+    // INTELLIGENT SEARCH: Use grep to find actual content
     if (query_description) {
-      // ADMIN AGENTS: Direct file content access for specific queries
-      if (query_description.toLowerCase().includes('about') || query_description.toLowerCase().includes('story')) {
-        const aboutFiles = await getSpecificFileContent([
-          'client/src/pages/AboutPage.tsx',
-          'client/src/pages/about.tsx', 
-          'client/src/components/editorial-story.tsx',
-          'client/src/components/welcome-section.tsx',
-          'client/src/components/welcome-editorial.tsx'
-        ]);
-        results += `\n🔍 SANDRA'S STORY & ABOUT PAGE CONTENT:\n${aboutFiles}\n`;
-      }
-      
-      if (query_description.toLowerCase().includes('how') || query_description.toLowerCase().includes('works')) {
-        const howItWorksContent = await getSpecificFileContent([
-          'client/src/pages/how-it-works.tsx'
-        ]);
-        results += `\n🔍 HOW IT WORKS PAGE CONTENT:\n${howItWorksContent}\n`;
-      }
-      
-      if (query_description.toLowerCase().includes('pricing') || query_description.toLowerCase().includes('plan')) {
-        const pricingContent = await getSpecificFileContent([
-          'client/src/pages/pricing.tsx',
-          'client/src/components/pricing'
-        ]);
-        results += `\n🔍 PRICING CONTENT:\n${pricingContent}\n`;
-      }
-      
-      // Basic content search for specific terms
       const searchTerms = extractSearchTerms(query_description);
+      console.log('🔍 SEARCH TERMS EXTRACTED:', searchTerms);
+      
       for (const term of searchTerms) {
         const grepResult = await executeGrep(term, search_paths);
         if (grepResult && grepResult !== 'No matches found') {
-          results += `\n=== Found: "${term}" ===\n${grepResult.substring(0, 1000)}`;
+          results += `\n=== Found "${term}" ===\n${grepResult}\n`;
+        }
+      }
+      
+      // If no specific terms, search the description directly
+      if (searchTerms.length === 0) {
+        const directResult = await executeGrep(query_description, search_paths);
+        if (directResult && directResult !== 'No matches found') {
+          results += `\n=== Search Results ===\n${directResult}\n`;
         }
       }
     }
@@ -135,7 +97,7 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
     });
     
     cmd.on('close', (code) => {
-      // ADMIN AGENTS: NO OUTPUT TRUNCATION - FULL RESULTS
+      // Return full output without truncation
       resolve(output || 'No matches found');
     });
     
@@ -147,24 +109,7 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
   });
 }
 
-// GET SPECIFIC FILE CONTENT FOR ADMIN AGENTS
-async function getSpecificFileContent(filePaths: string[]): Promise<string> {
-  const fs = await import('fs/promises');
-  const path = await import('path');
-  let content = '';
-  
-  for (const filePath of filePaths) {
-    try {
-      const fullPath = path.resolve(filePath);
-      const fileContent = await fs.readFile(fullPath, 'utf-8');
-      content += `\n📄 FILE: ${filePath}\n${fileContent.substring(0, 2000)}\n${'='.repeat(50)}\n`;
-    } catch (error) {
-      console.log(`⚠️ File not found: ${filePath}`);
-    }
-  }
-  
-  return content;
-}
+// REMOVED: Hardcoded file content function - agents should use str_replace_based_edit_tool
 
 // COMPLETE BUSINESS MODEL VISIBILITY FOR ADMIN AGENTS
 async function getProjectOverview(): Promise<string> {
@@ -358,6 +303,19 @@ async function getBusinessModelDocumentation(): Promise<string> {
 
 // Extract search terms from description
 function extractSearchTerms(description: string): string[] {
+  // Remove the hardcoded file reading and return intelligent search terms
+  const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'where', 'when', 'why', 'show', 'find', 'search', 'get', 'look'];
+  
+  return description
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(word => word.length > 2 && !commonWords.includes(word))
+    .slice(0, 5); // Take top 5 meaningful terms
+}
+
+// REMOVED: All hardcoded file access functions to let agents use intelligence
+
+function oldExtractSearchTerms(description: string): string[] {
   const words = description.toLowerCase().split(/\s+/);
   return words.filter(word => 
     word.length > 2 && 
