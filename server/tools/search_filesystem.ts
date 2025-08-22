@@ -426,34 +426,48 @@ async function getBusinessModelDocumentation(): Promise<string> {
 
 // INTELLIGENT SEMANTIC SEARCH TERM EXTRACTION
 function extractSearchTerms(description: string): string[] {
-  // COMPREHENSIVE KEYWORD MAPPING for SSELFIE Studio
+  // COMPREHENSIVE KEYWORD MAPPING for SSELFIE Studio Complete User Journey
   const sselfieKeywordMap = {
-    // Core Features
-    'train': ['SimpleTraining', 'simple-training', 'model-training', 'replicate', 'flux', 'lora', 'user_models', 'training'],
-    'style': ['Maya', 'maya', 'styling', 'fashion', 'aesthetic', 'maya_chat', 'style-guide', 'brand'],
-    'gallery': ['SSELFIEGallery', 'sselfie-gallery', 'ai_images', 'generated_images', 'photo', 'image'],
-    'photoshoot': ['ai-photoshoot', 'sandra-photoshoot', 'AIPhotoshoot', 'generation', 'ai_images'],
-    'workspace': ['workspace', 'dashboard', 'member', 'studio', 'home'],
+    // PRE-LOGIN PAGES (Public Website)
+    'landing': ['editorial-landing', 'EditorialLanding', 'landing', 'home', 'hero', 'public'],
+    'about': ['about', 'AboutPage', 'story', 'mission', 'vision'],
+    'how-it-works': ['how-it-works', 'HowItWorks', 'process', 'workflow', 'steps'],
+    'pricing': ['pricing', 'Pricing', 'subscription', 'stripe', 'payment', 'checkout', 'plan', 'cost'],
+    'blog': ['blog', 'Blog', 'content', 'articles', 'posts'],
+    'login': ['login', 'Login', 'auth', 'authentication', 'signin', 'replit'],
+    'checkout': ['checkout', 'Checkout', 'simple-checkout', 'payment-success', 'thank-you'],
     
-    // UI Components
-    'component': ['components', 'ui', 'tsx', 'jsx', 'button', 'form', 'modal'],
-    'page': ['pages', 'route', 'App.tsx', 'navigation', 'routing'],
-    'navigation': ['MemberNavigation', 'nav', 'menu', 'header', 'sidebar'],
+    // POST-LOGIN CORE FEATURES (Member Area)
+    'workspace': ['workspace', 'Workspace', 'dashboard', 'member', 'studio', 'home', 'main'],
+    'train': ['SimpleTraining', 'simple-training', 'ai-training', 'model-training', 'replicate', 'flux', 'lora', 'user_models', 'training'],
+    'style': ['Maya', 'maya', 'styling', 'fashion', 'aesthetic', 'maya_chat', 'maya-chat', 'style-guide', 'brand', 'personal-brand'],
+    'gallery': ['SSELFIEGallery', 'sselfie-gallery', 'ai_images', 'generated_images', 'photo', 'image', 'collection'],
+    'build': ['Build', 'build', 'Victoria', 'victoria', 'victoria-builder', 'victoria-preview', 'website', 'landing-page', 'builder'],
     
-    // Backend
-    'api': ['routes', 'server', 'endpoint', 'api', 'express', 'backend'],
-    'database': ['schema', 'drizzle', 'postgres', 'table', 'sql', 'db'],
-    'auth': ['authentication', 'login', 'user', 'session', 'replit'],
+    // BUILD WORKSPACE COMPONENTS
+    'victoria': ['Victoria', 'victoria', 'victoria-chat', 'victoria-builder', 'victoria-preview', 'website-builder', 'landing-pages'],
+    'website': ['website', 'landing-page', 'builder', 'preview', 'domain', 'publish', 'site'],
+    'photoshoot': ['ai-photoshoot', 'sandra-photoshoot', 'AIPhotoshoot', 'generation', 'custom-photoshoot'],
     
-    // Business
-    'pricing': ['subscription', 'stripe', 'payment', 'checkout', 'plan'],
-    'admin': ['admin', 'consulting-agents', 'elena', 'coordination'],
-    'business': ['model', 'strategy', 'launch', 'revenue', 'plan'],
+    // UI/UX Components
+    'component': ['components', 'ui', 'tsx', 'jsx', 'button', 'form', 'modal', 'interface'],
+    'page': ['pages', 'route', 'App.tsx', 'navigation', 'routing', 'view'],
+    'navigation': ['MemberNavigation', 'nav', 'menu', 'header', 'sidebar', 'link'],
     
-    // Technical
-    'service': ['service', 'utility', 'helper', 'tool', 'function'],
-    'config': ['config', 'setup', 'environment', 'settings'],
-    'integration': ['integration', 'webhook', 'external', 'third-party']
+    // Backend Systems
+    'api': ['routes', 'server', 'endpoint', 'api', 'express', 'backend', 'service'],
+    'database': ['schema', 'drizzle', 'postgres', 'table', 'sql', 'db', 'data'],
+    'auth': ['authentication', 'login', 'user', 'session', 'replit', 'protected'],
+    
+    // Business & Admin
+    'admin': ['admin', 'consulting-agents', 'elena', 'coordination', 'agent', 'management'],
+    'business': ['model', 'strategy', 'launch', 'revenue', 'plan', 'overview'],
+    'onboarding': ['onboarding', 'brand-onboarding', 'welcome', 'setup', 'questionnaire'],
+    
+    // Technical Infrastructure
+    'service': ['service', 'utility', 'helper', 'tool', 'function', 'integration'],
+    'config': ['config', 'setup', 'environment', 'settings', 'deployment'],
+    'flow': ['flow', 'workflow', 'process', 'journey', 'funnel', 'experience']
   };
   
   const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'where', 'when', 'why', 'show', 'find', 'search', 'get', 'look', 'see', 'view', 'read', 'content', 'file', 'page', 'current', 'status', 'implementation', 'please', 'help'];
@@ -499,26 +513,43 @@ function extractSearchTerms(description: string): string[] {
 async function discoverRelatedFiles(searchTerms: string[], workspaceRoot: string): Promise<string[]> {
   const relatedFiles = new Set<string>();
   
-  // SSELFIE STUDIO SPECIFIC FILE RELATIONSHIPS
+  // SSELFIE STUDIO COMPLETE FILE RELATIONSHIP MAP
   const fileRelationships = {
-    // Core Features
-    'SimpleTraining': [`${workspaceRoot}/client/src/pages/simple-training.tsx`, `${workspaceRoot}/client/src/components/training`, `${workspaceRoot}/server/routes/*training*`],
+    // PRE-LOGIN PAGES (Public Website)
+    'editorial-landing': [`${workspaceRoot}/client/src/pages/editorial-landing.tsx`, `${workspaceRoot}/client/src/pages/landing.tsx`],
+    'about': [`${workspaceRoot}/client/src/pages/about.tsx`, `${workspaceRoot}/client/src/pages/AboutPage.tsx`],
+    'how-it-works': [`${workspaceRoot}/client/src/pages/how-it-works.tsx`],
+    'pricing': [`${workspaceRoot}/client/src/pages/pricing.tsx`],
+    'blog': [`${workspaceRoot}/client/src/pages/blog.tsx`],
+    'login': [`${workspaceRoot}/client/src/pages/login.tsx`, `${workspaceRoot}/server/replitAuth.ts`, `${workspaceRoot}/server/auth`],
+    'checkout': [`${workspaceRoot}/client/src/pages/checkout.tsx`, `${workspaceRoot}/client/src/pages/simple-checkout.tsx`, `${workspaceRoot}/client/src/pages/payment-success.tsx`, `${workspaceRoot}/client/src/pages/thank-you.tsx`],
+    
+    // POST-LOGIN CORE FEATURES (Member Workspace)
+    'workspace': [`${workspaceRoot}/client/src/pages/workspace.tsx`, `${workspaceRoot}/client/src/components/member-navigation.tsx`],
+    'SimpleTraining': [`${workspaceRoot}/client/src/pages/simple-training.tsx`, `${workspaceRoot}/client/src/pages/ai-training.tsx`, `${workspaceRoot}/client/src/components/training`, `${workspaceRoot}/server/routes/*training*`],
     'Maya': [`${workspaceRoot}/client/src/pages/maya.tsx`, `${workspaceRoot}/client/src/components/maya`, `${workspaceRoot}/server/routes/*maya*`],
     'SSELFIEGallery': [`${workspaceRoot}/client/src/pages/sselfie-gallery.tsx`, `${workspaceRoot}/client/src/components/gallery`, `${workspaceRoot}/server/routes/*gallery*`],
     
-    // UI Components
+    // BUILD WORKSPACE (Victoria & Website Builder)
+    'Build': [`${workspaceRoot}/client/src/pages/build.tsx`],
+    'Victoria': [`${workspaceRoot}/client/src/pages/victoria.tsx`, `${workspaceRoot}/client/src/pages/victoria-chat.tsx`, `${workspaceRoot}/client/src/pages/victoria-builder.tsx`, `${workspaceRoot}/client/src/pages/victoria-preview.tsx`, `${workspaceRoot}/client/src/components/victoria`],
+    'website-builder': [`${workspaceRoot}/client/src/pages/victoria-builder.tsx`, `${workspaceRoot}/client/src/pages/victoria-preview.tsx`, `${workspaceRoot}/client/src/components/website`, `${workspaceRoot}/server/routes/*website*`],
+    'photoshoot': [`${workspaceRoot}/client/src/pages/ai-photoshoot.tsx`, `${workspaceRoot}/client/src/pages/sandra-photoshoot.tsx`, `${workspaceRoot}/client/src/pages/custom-photoshoot-library.tsx`],
+    
+    // UI/UX Components
     'components': [`${workspaceRoot}/client/src/components`, `${workspaceRoot}/client/src/components/ui`],
     'pages': [`${workspaceRoot}/client/src/pages`, `${workspaceRoot}/client/src/App.tsx`],
     'navigation': [`${workspaceRoot}/client/src/components/member-navigation.tsx`, `${workspaceRoot}/client/src/components/navigation`],
     
-    // Backend
+    // Backend Systems
     'api': [`${workspaceRoot}/server/routes`, `${workspaceRoot}/server/index.ts`],
     'database': [`${workspaceRoot}/shared/schema.ts`, `${workspaceRoot}/server/db`, `${workspaceRoot}/drizzle`],
     'auth': [`${workspaceRoot}/server/replitAuth.ts`, `${workspaceRoot}/server/auth`],
     
-    // Business
+    // Business & Admin
     'business': [`${workspaceRoot}/*.md`, `${workspaceRoot}/docs`, `${workspaceRoot}/infrastructure/docs`],
-    'admin': [`${workspaceRoot}/client/src/pages/admin*`, `${workspaceRoot}/server/agents`, `${workspaceRoot}/server/routes/consulting-agents*`]
+    'admin': [`${workspaceRoot}/client/src/pages/admin*`, `${workspaceRoot}/server/agents`, `${workspaceRoot}/server/routes/consulting-agents*`],
+    'onboarding': [`${workspaceRoot}/client/src/pages/onboarding.tsx`, `${workspaceRoot}/client/src/pages/brand-onboarding.tsx`, `${workspaceRoot}/client/src/pages/welcome.tsx`]
   };
   
   // Add related files based on search terms
