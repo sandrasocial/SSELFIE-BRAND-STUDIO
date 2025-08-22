@@ -9,31 +9,40 @@ import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 // import { pwaManager } from "./utils/pwa";
 
-import Landing from "./pages/landing";
-import Pricing from "./pages/pricing";
-import Workspace from "./pages/workspace";
-import Onboarding from "./pages/onboarding";
-import About from "./pages/about";
-import Blog from "./pages/blog";
-import Contact from "./pages/contact";
-import FAQ from "./pages/faq";
-import Terms from "./pages/terms";
-import Privacy from "./pages/privacy";
-import HowItWorks from "./pages/how-it-works";
+// PRE-LOGIN EDITORIAL PAGES
+import Landing from "./pages/public/landing";
+import About from "./pages/public/about";
+import HowItWorks from "./pages/public/how-it-works";
+import Blog from "./pages/public/blog";
+import Pricing from "./pages/public/pricing";
+import Contact from "./pages/public/contact";
+import FAQ from "./pages/public/faq";
+import Terms from "./pages/public/terms";
+import Privacy from "./pages/public/privacy";
 import SelfieGuide from "./pages/selfie-guide";
-import Profile from "./pages/profile";
-import PaymentSuccess from "./pages/payment-success";
-import Checkout from "./pages/checkout";
-import SimpleCheckout from "./pages/simple-checkout";
-import ThankYou from "./pages/thank-you";
+
+// CHECKOUT FLOW
+import Checkout from "./pages/checkout/checkout";
+import SimpleCheckout from "./pages/checkout/simple-checkout";
+import PaymentSuccess from "./pages/checkout/payment-success";
+import ThankYou from "./pages/checkout/thank-you";
+
+// MEMBER WORKSPACE - SIMPLIFIED TRAIN → STYLE → GALLERY
+import Workspace from "./pages/member/workspace";
+import Onboarding from "./pages/member/onboarding";
+import Profile from "./pages/member/profile";
 import SandraPhotoshoot from "./pages/sandra-photoshoot";
 import SandraAI from "./pages/sandra-ai";
 import RachelChat from "./pages/rachel-chat";
 import RachelActivation from "./pages/rachel-activation";
-import SSELFIEGallery from "./pages/sselfie-gallery";
+// CORE MEMBER FEATURES - TRAIN → STYLE → GALLERY
+import SimpleTraining from "./pages/member/simple-training";
+import Maya from "./pages/member/maya";
+import SSELFIEGallery from "./pages/member/sselfie-gallery";
+
+// COMPLEX FEATURES - PRESERVED BUT ARCHIVED
 import AIGenerator from "./pages/ai-generator";
 import AIPhotoshoot from "./pages/ai-photoshoot";
-import SimpleTraining from "./pages/simple-training";
 
 
 import AdminBusinessOverview from "./pages/admin-business-overview";
@@ -50,7 +59,6 @@ import UnifiedLoginButton from "./components/UnifiedLoginButton";
 
 import CustomPhotoshootLibrary from "./pages/custom-photoshoot-library";
 import FlatlayLibrary from "./pages/flatlay-library";
-import Maya from "./pages/maya";
 import Victoria from "./pages/victoria";
 import VictoriaChat from "./pages/victoria-chat";
 
@@ -58,8 +66,8 @@ import VictoriaBuilder from './pages/victoria-builder';
 import VictoriaPreview from './pages/victoria-preview';
 import PhotoSelection from "./pages/photo-selection";
 import BrandOnboarding from "./pages/brand-onboarding";
-import Welcome from "./pages/welcome";
-import AuthSuccess from "./pages/auth-success";
+import Welcome from "./pages/checkout/welcome";
+import AuthSuccess from "./pages/checkout/auth-success";
 import Login from "./pages/login";
 // Unified login system - removed competing auth components
 import LoginPrompt from "./components/LoginPrompt";
