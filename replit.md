@@ -21,6 +21,36 @@ Preferred communication style: Simple, everyday language.
 - Sandra maintains oversight, I handle execution
 - Focus on member revenue features vs admin improvements
 
+## Launch Strategy Plan (August 2025)
+
+### Pre-Login Flow Analysis
+**Current State**: ✅ Working
+- Landing page: `/` (editorial hero + pricing)
+- Navigation: About, How It Works, Pricing, Blog, Contact
+- Login trigger: `/api/login` (Replit OIDC)
+
+### Login Flow Analysis  
+**Current State**: ✅ Working
+- Entry points: `/login`, login buttons, protected route redirects
+- Authentication: Replit OIDC via `/api/login` → `/api/callback`
+- Session management: PostgreSQL session store, 7-day TTL
+- Protected routes: All member features require authentication
+
+### Checkout Flow Analysis
+**Current State**: ⚠️ Needs Review
+- **Two checkout systems**: 
+  - `/checkout` (Elements UI with payment intents)
+  - `/simple-checkout` (hosted Stripe sessions)
+- **Payment success**: `/payment-success` with user upgrade automation
+- **Pricing tiers**: €29 Basic, €67 Full Access
+- **Webhook**: Stripe webhook handler at `/api/webhook/stripe`
+
+### Critical Launch Priorities
+1. **Unify checkout system** - Choose one flow (recommend hosted sessions)
+2. **Test payment automation** - Ensure user upgrades work post-payment
+3. **Member onboarding** - Streamline first-time user experience
+4. **Revenue tracking** - Verify subscription management works
+
 ## System Architecture
 
 ### Frontend Architecture
