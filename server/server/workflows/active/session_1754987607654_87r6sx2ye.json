@@ -809,6 +809,59 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T12:40:14.711Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755867185074_1gj25885r",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Design and implement an automated task execution workflow that:\n1. Periodically checks for assigned tasks across all agents\n2. Automatically triggers agent activation when tasks are assigned\n3. Implements task prioritization based on urgency/dependencies\n4. Sets up automated handoffs between agents\n5. Creates a monitoring system for task progress",
+      "workflowContext": "We need to improve the efficiency of our multi-agent system by ensuring tasks are automatically picked up and executed. This will streamline our operations for Sandra's SSELFIE STUDIO launch.",
+      "expectedDeliverables": [
+        "Automated task checking workflow",
+        "Agent activation triggers",
+        "Task prioritization system",
+        "Automated handoff protocol",
+        "Progress monitoring dashboard"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T12:53:05.123Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755867203831_1cjkp1ajj",
+      "assignedAgent": "zara",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Implement the technical backend for automated task execution:\n1. Create an API endpoint for task status monitoring\n2. Implement a task queue system with priority handling\n3. Set up automated agent activation triggers\n4. Create a task dependency resolution system\n5. Implement real-time task status updates",
+      "workflowContext": "This is part of our automated task execution system implementation. The backend needs to support Wilma's workflow automation and enable seamless agent activation.",
+      "expectedDeliverables": [
+        "Task monitoring API",
+        "Priority queue system",
+        "Agent activation endpoints",
+        "Dependency resolver",
+        "Status update websockets"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T12:53:23.881Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755867210274_omp464v1y",
+      "assignedAgent": "olga",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Set up monitoring and organization system for automated tasks:\n1. Create a structured task repository\n2. Implement logging and monitoring\n3. Set up task execution metrics\n4. Create agent performance dashboards\n5. Implement automatic task archiving",
+      "workflowContext": "This complements the automated task execution system by providing visibility and organization to all automated processes.",
+      "expectedDeliverables": [
+        "Task repository structure",
+        "Monitoring system",
+        "Performance metrics dashboard",
+        "Automated archives"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T12:53:30.322Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-12T08:33:27.654Z",

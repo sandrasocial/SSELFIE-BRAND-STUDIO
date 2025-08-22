@@ -1,0 +1,26 @@
+{
+  "sessionId": "session_1755867137759_t5u2trjg7",
+  "name": "maya Coordination Tasks",
+  "description": "Active coordination tasks managed by maya",
+  "coordinatorAgent": "maya",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755867137710_uqa522rco",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Request current UI mockups and style specifications for SSELFIE Studio platform",
+      "workflowContext": "Need to validate style requirements for UI mockups as part of launch preparation. Looking for existing mockups and style guidelines.",
+      "expectedDeliverables": [
+        "Current UI mockups",
+        "Style guidelines document",
+        "Brand requirements specification"
+      ],
+      "priority": "medium",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T12:52:17.758Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T12:52:17.759Z",
+  "status": "active"
+}
