@@ -63,7 +63,7 @@ export class ElenaDelegationSystem {
         agentId: 'zara',
         currentTasks: 0,
         maxCapacity: 4,
-        specialties: ['backend', 'api', 'database', 'architecture', 'technical'],
+        specialties: ['frontend_architecture', 'ui_design', 'user_experience', 'technical_implementation'],
         averageTaskTime: 60,
         lastTaskAssigned: null,
         efficiency: 0.95
@@ -132,10 +132,10 @@ export class ElenaDelegationSystem {
         efficiency: 0.9
       },
       {
-        agentId: 'wilma',
+        agentId: 'atlas',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['workflow-design', 'process-automation', 'agent-coordination', 'workflow-automation'],
+        specialties: ['system_monitoring', 'performance_optimization', 'analytics', 'infrastructure'],
         averageTaskTime: 50,
         lastTaskAssigned: null,
         efficiency: 0.8
@@ -173,6 +173,15 @@ export class ElenaDelegationSystem {
         maxCapacity: 1,
         specialties: ['flux-lora', 'replicate-models', 'model-training', 'black-forest-labs', 'image-generation'],
         averageTaskTime: 20,
+        lastTaskAssigned: null,
+        efficiency: 0.9
+      },
+      {
+        agentId: 'nova',
+        currentTasks: 0,
+        maxCapacity: 2,
+        specialties: ['customer_success', 'user_onboarding', 'support_optimization', 'user_experience'],
+        averageTaskTime: 35,
         lastTaskAssigned: null,
         efficiency: 0.9
       }
