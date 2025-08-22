@@ -1,0 +1,26 @@
+{
+  "sessionId": "session_1755883130122_8hz4sbdcf",
+  "name": "olga Coordination Tasks",
+  "description": "Active coordination tasks managed by olga",
+  "coordinatorAgent": "olga",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755883130069_29huhenxq",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "olga",
+      "taskDescription": "Verify security boundaries and access controls in new repository structure",
+      "workflowContext": "Analyzing Replit AI's repository reorganization",
+      "expectedDeliverables": [
+        "Security boundary report",
+        "Access control verification",
+        "Permission structure analysis"
+      ],
+      "priority": "medium",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:18:50.121Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T17:18:50.122Z",
+  "status": "active"
+}
