@@ -22,11 +22,17 @@ export async function search_filesystem(parameters: any): Promise<string> {
 
     // SHOW CURRENT WORKING DIRECTORY FOR DEBUG
     console.log('🔍 AGENT WORKING DIRECTORY:', process.cwd());
+    
+    // AGENTS ARE RUNNING FROM SERVER DIR - NEED TO ADJUST PATHS
+    const workspaceRoot = process.cwd().endsWith('/server') ? '..' : '.';
+    const adjustedPaths = search_paths.map(path => 
+      path === '.' ? workspaceRoot : path.startsWith('./') ? path.replace('./', `${workspaceRoot}/`) : path
+    );
 
     // If specific code snippets are provided, search for them
     if (code.length > 0) {
       for (const codeSnippet of code) {
-        const grepResult = await executeGrep(codeSnippet, search_paths);
+        const grepResult = await executeGrep(codeSnippet, adjustedPaths);
         results += `\n=== Searching for code: "${codeSnippet}" ===\n${grepResult}`;
       }
     }
@@ -34,7 +40,7 @@ export async function search_filesystem(parameters: any): Promise<string> {
     // If class names are provided, search for them
     if (class_names.length > 0) {
       for (const className of class_names) {
-        const grepResult = await executeGrep(`class ${className}`, search_paths);
+        const grepResult = await executeGrep(`class ${className}`, adjustedPaths);
         results += `\n=== Searching for class: "${className}" ===\n${grepResult}`;
       }
     }
@@ -42,28 +48,31 @@ export async function search_filesystem(parameters: any): Promise<string> {
     // If function names are provided, search for them
     if (function_names.length > 0) {
       for (const funcName of function_names) {
-        const grepResult = await executeGrep(`function ${funcName}\\|${funcName}\\s*[=:]`, search_paths);
+        const grepResult = await executeGrep(`function ${funcName}\\|${funcName}\\s*[=:]`, adjustedPaths);
         results += `\n=== Searching for function: "${funcName}" ===\n${grepResult}`;
       }
     }
 
-    // INTELLIGENT SEARCH: Use grep to find actual content
+    // SMART SEARCH: Focus on specific files for common queries
     if (query_description) {
+      if (query_description.toLowerCase().includes('about')) {
+        const aboutResult = await executeGrep('about', [`${workspaceRoot}/client/src/pages`, `${workspaceRoot}/client/src/components`]);
+        results += `\n=== About Pages & Components ===\n${aboutResult.substring(0, 2000)}\n`;
+      }
+      
+      if (query_description.toLowerCase().includes('how') && query_description.toLowerCase().includes('work')) {
+        const howResult = await executeGrep('how.*work', [`${workspaceRoot}/client/src/pages`]);
+        results += `\n=== How It Works Content ===\n${howResult.substring(0, 2000)}\n`;
+      }
+      
+      // For other searches, extract meaningful terms but limit output
       const searchTerms = extractSearchTerms(query_description);
       console.log('🔍 SEARCH TERMS EXTRACTED:', searchTerms);
       
-      for (const term of searchTerms) {
-        const grepResult = await executeGrep(term, search_paths);
+      for (const term of searchTerms.slice(0, 2)) { // Limit to 2 terms to avoid massive output
+        const grepResult = await executeGrep(term, adjustedPaths);
         if (grepResult && grepResult !== 'No matches found') {
-          results += `\n=== Found "${term}" ===\n${grepResult}\n`;
-        }
-      }
-      
-      // If no specific terms, search the description directly
-      if (searchTerms.length === 0) {
-        const directResult = await executeGrep(query_description, search_paths);
-        if (directResult && directResult !== 'No matches found') {
-          results += `\n=== Search Results ===\n${directResult}\n`;
+          results += `\n=== Found "${term}" ===\n${grepResult.substring(0, 1500)}\n`;
         }
       }
     }
