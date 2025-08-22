@@ -235,15 +235,15 @@ export class ClaudeApiServiceSimple {
         console.error(`Failed to load personality for ${agentName}:`, error);
       }
       
-      // CRITICAL FIX: Limited message loading to prevent admin chat overload
+      // BALANCED FIX: Sufficient context for continuity while preventing UI overload
       let optimizedMessages = messages;
       if (isAdminAgent) {
-        // FIXED: Limit admin agents to prevent chat interface overload
-        optimizedMessages = messages.slice(-15); // MAX 15 messages to prevent overload
-        console.log(`🧠 ADMIN CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName} (limited to prevent overload)`);
+        // BALANCED: Give admin agents enough context for continuity (50 messages)
+        optimizedMessages = messages.slice(-50); // Enough for context continuity 
+        console.log(`🧠 ADMIN CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName} (balanced for continuity)`);
       } else {
-        // Regular agents get last 10 messages for proper context
-        optimizedMessages = messages.slice(-10); // FIXED: Reduced from 20 to 10
+        // Regular agents get last 20 messages for proper context
+        optimizedMessages = messages.slice(-20); 
         console.log(`🧠 REGULAR CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName}`);
       }
       

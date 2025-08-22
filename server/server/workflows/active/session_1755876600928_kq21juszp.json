@@ -1,0 +1,43 @@
+{
+  "sessionId": "session_1755876600928_kq21juszp",
+  "name": "sophia Coordination Tasks",
+  "description": "Active coordination tasks managed by sophia",
+  "coordinatorAgent": "sophia",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755876600879_dvepkn6yz",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "sophia",
+      "taskDescription": "Create visual style guide for SSELFIE Studio pricing launch campaign, including:\n1. Color palette for cost comparison graphics\n2. Template designs for testimonial showcases\n3. Story highlight cover designs\n4. Reel cover template for feature demonstrations\nFocus on luxury editorial feel while maintaining approachability.",
+      "workflowContext": "Part of SSELFIE Studio pricing launch campaign, targeting 135K+ existing followers with focus on cost savings and value proposition.",
+      "expectedDeliverables": [
+        "Visual style guide document",
+        "Story highlight cover designs",
+        "Testimonial templates",
+        "Reel cover templates"
+      ],
+      "priority": "medium",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:30:00.927Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755876607973_6qs764l01",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "sophia",
+      "taskDescription": "Create landing page strategy aligned with social media campaign:\n1. Design pricing comparison calculator\n2. Develop testimonial showcase section\n3. Create early-bird signup system\n4. Set up analytics tracking for social media conversions",
+      "workflowContext": "Supporting SSELFIE Studio pricing launch campaign with website components that reinforce social media messaging about cost savings and value.",
+      "expectedDeliverables": [
+        "Landing page strategy document",
+        "Pricing calculator specs",
+        "Analytics tracking plan"
+      ],
+      "priority": "medium",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:30:08.022Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T15:30:00.928Z",
+  "status": "active"
+}

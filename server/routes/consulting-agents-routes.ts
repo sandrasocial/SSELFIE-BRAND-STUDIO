@@ -963,8 +963,8 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', asyn
         .where(eq(claudeMessages.conversationId, latestConversationId))
         .orderBy(desc(claudeMessages.createdAt));
       
-      // Take only the last 20 messages to prevent overload
-      messages = allMessages.slice(0, 20).reverse(); // Get latest 20, then reverse for chronological order
+      // Take only the last 50 messages to prevent overload while maintaining context
+      messages = allMessages.slice(0, 50).reverse(); // Get latest 50, then reverse for chronological order
       
       console.log(`📜 CONVERSATION LOADED: ${messages.length}/${allMessages.length} messages (limited to prevent overload)`);
     }
