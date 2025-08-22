@@ -72,7 +72,7 @@ export class ElenaDelegationSystem {
         agentId: 'maya',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['ai', 'ml', 'image-generation', 'styling', 'prompts'],
+        specialties: ['style', 'design', 'styling', 'fashion', 'aesthetic', 'visual-style'],
         averageTaskTime: 30,
         lastTaskAssigned: null,
         efficiency: 0.85
@@ -81,7 +81,7 @@ export class ElenaDelegationSystem {
         agentId: 'aria',
         currentTasks: 0,
         maxCapacity: 3,
-        specialties: ['ui', 'ux', 'design', 'components', 'frontend'],
+        specialties: ['design', 'ux', 'ui', 'digital-design', 'visual-design', 'components'],
         averageTaskTime: 45,
         lastTaskAssigned: null,
         efficiency: 0.9
@@ -90,7 +90,7 @@ export class ElenaDelegationSystem {
         agentId: 'victoria',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['business-strategy', 'ux-consulting', 'market-analysis', 'planning'],
+        specialties: ['frontend', 'website-development', 'web-development', 'frontend-development'],
         averageTaskTime: 90,
         lastTaskAssigned: null,
         efficiency: 0.8
@@ -99,7 +99,7 @@ export class ElenaDelegationSystem {
         agentId: 'quinn',
         currentTasks: 0,
         maxCapacity: 3,
-        specialties: ['qa', 'testing', 'quality-assurance', 'debugging', 'validation'],
+        specialties: ['qa', 'testing', 'quality-assurance', 'debugging', 'validation', 'quality-control'],
         averageTaskTime: 40,
         lastTaskAssigned: null,
         efficiency: 0.9
@@ -117,7 +117,7 @@ export class ElenaDelegationSystem {
         agentId: 'sophia',
         currentTasks: 0,
         maxCapacity: 3,
-        specialties: ['social-media', 'community-growth', 'content-strategy', 'engagement'],
+        specialties: ['social-media', 'community-growth', 'content-strategy', 'engagement', 'social-media-management'],
         averageTaskTime: 25,
         lastTaskAssigned: null,
         efficiency: 0.85
@@ -126,7 +126,7 @@ export class ElenaDelegationSystem {
         agentId: 'olga',
         currentTasks: 0,
         maxCapacity: 3,
-        specialties: ['deployment', 'optimization', 'cleanup', 'organization', 'infrastructure'],
+        specialties: ['repo-organization', 'project-organization', 'cleanup', 'file-management', 'structure'],
         averageTaskTime: 35,
         lastTaskAssigned: null,
         efficiency: 0.9
@@ -135,7 +135,7 @@ export class ElenaDelegationSystem {
         agentId: 'wilma',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['workflow-design', 'process-automation', 'agent-coordination', 'efficiency'],
+        specialties: ['workflow-design', 'process-automation', 'agent-coordination', 'workflow-automation'],
         averageTaskTime: 50,
         lastTaskAssigned: null,
         efficiency: 0.8
@@ -144,7 +144,7 @@ export class ElenaDelegationSystem {
         agentId: 'diana',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['analytics', 'data-analysis', 'performance-tracking', 'reporting'],
+        specialties: ['business-coaching', 'strategy', 'personal-brand-scaling', 'business-guidance', 'growth-strategy'],
         averageTaskTime: 45,
         lastTaskAssigned: null,
         efficiency: 0.85
@@ -153,7 +153,7 @@ export class ElenaDelegationSystem {
         agentId: 'martha',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['admin-management', 'user-management', 'system-administration', 'compliance'],
+        specialties: ['ads', 'promotion', 'advertising', 'marketing-campaigns', 'paid-promotion'],
         averageTaskTime: 55,
         lastTaskAssigned: null,
         efficiency: 0.8
@@ -162,7 +162,7 @@ export class ElenaDelegationSystem {
         agentId: 'ava',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['customer-support', 'documentation', 'user-assistance', 'training'],
+        specialties: ['automation', 'email-automation', 'content-automation', 'make', 'manychat', 'social-media-automation'],
         averageTaskTime: 30,
         lastTaskAssigned: null,
         efficiency: 0.85
@@ -171,7 +171,7 @@ export class ElenaDelegationSystem {
         agentId: 'flux',
         currentTasks: 0,
         maxCapacity: 1,
-        specialties: ['ai-generation', 'model-training', 'image-generation', 'flux-models'],
+        specialties: ['flux-lora', 'replicate-models', 'model-training', 'black-forest-labs', 'image-generation'],
         averageTaskTime: 20,
         lastTaskAssigned: null,
         efficiency: 0.9
@@ -383,36 +383,74 @@ export class ElenaDelegationSystem {
       specialties.push('ai', 'ml', 'image-generation');
     }
     
-    // BUSINESS STRATEGY
-    if (description.includes('business strategy') || description.includes('market analysis') || 
-        description.includes('planning') || description.includes('ux consulting')) {
-      specialties.push('business-strategy', 'planning');
+    // BUSINESS COACHING & STRATEGY (Diana)
+    if (description.includes('business coaching') || description.includes('business strategy') || 
+        description.includes('personal brand scaling') || description.includes('growth strategy') ||
+        description.includes('business guidance') || description.includes('scaling')) {
+      specialties.push('business-coaching', 'strategy', 'personal-brand-scaling');
     }
     
-    // QA & TESTING
+    // QA & TESTING (Quinn)
     if (description.includes('testing') || description.includes('qa') || 
         description.includes('quality') || description.includes('validation') ||
-        description.includes('debugging')) {
+        description.includes('debugging') || description.includes('quality assurance')) {
       specialties.push('qa', 'testing', 'validation');
     }
     
-    // DEPLOYMENT & INFRASTRUCTURE
-    if (description.includes('deploy') || description.includes('optimization') || 
-        description.includes('cleanup') || description.includes('organization') ||
-        description.includes('infrastructure')) {
-      specialties.push('deployment', 'optimization', 'infrastructure');
+    // REPO ORGANIZATION (Olga)
+    if (description.includes('repo') || description.includes('organization') || 
+        description.includes('cleanup') || description.includes('file management') ||
+        description.includes('project organization') || description.includes('structure')) {
+      specialties.push('repo-organization', 'project-organization', 'cleanup');
     }
     
-    // SOCIAL MEDIA
+    // SOCIAL MEDIA (Sophia)
     if (description.includes('social media') || description.includes('community') || 
-        description.includes('engagement') || description.includes('social')) {
-      specialties.push('social-media', 'engagement');
+        description.includes('engagement') || description.includes('social') ||
+        description.includes('social media management')) {
+      specialties.push('social-media', 'engagement', 'social-media-management');
     }
     
-    // ANALYTICS & DATA
-    if (description.includes('analytics') || description.includes('data analysis') || 
-        description.includes('performance tracking') || description.includes('reporting')) {
-      specialties.push('analytics', 'data-analysis');
+    // ADS & PROMOTION (Martha)
+    if (description.includes('ads') || description.includes('promotion') || 
+        description.includes('advertising') || description.includes('marketing campaigns') ||
+        description.includes('paid promotion')) {
+      specialties.push('ads', 'promotion', 'advertising');
+    }
+    
+    // AUTOMATION (Ava)
+    if (description.includes('automation') || description.includes('email automation') || 
+        description.includes('content automation') || description.includes('make') ||
+        description.includes('manychat') || description.includes('social media automation')) {
+      specialties.push('automation', 'email-automation', 'content-automation');
+    }
+    
+    // WORKFLOW AUTOMATION (Wilma)
+    if (description.includes('workflow') || description.includes('process automation') || 
+        description.includes('workflow design') || description.includes('workflow automation')) {
+      specialties.push('workflow-design', 'process-automation', 'workflow-automation');
+    }
+    
+    // STYLE & FASHION (Maya)
+    if (description.includes('style') || description.includes('styling') || 
+        description.includes('fashion') || description.includes('aesthetic') ||
+        description.includes('visual style')) {
+      specialties.push('style', 'styling', 'fashion', 'aesthetic');
+    }
+    
+    // FRONTEND & WEBSITE DEVELOPMENT (Victoria)
+    if (description.includes('frontend') || description.includes('website development') || 
+        description.includes('web development') || description.includes('website building') ||
+        description.includes('landing page') || description.includes('web page') ||
+        description.includes('website template') || description.includes('web template')) {
+      specialties.push('frontend', 'website-development', 'web-development');
+    }
+    
+    // FLUX & MODEL TRAINING (Flux)
+    if (description.includes('flux') || description.includes('replicate') || 
+        description.includes('model training') || description.includes('black forest') ||
+        description.includes('lora') || description.includes('image generation')) {
+      specialties.push('flux-lora', 'replicate-models', 'model-training');
     }
     
     // Default to coordination if no specific match

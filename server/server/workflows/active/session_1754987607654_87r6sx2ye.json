@@ -197,6 +197,126 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T10:43:46.161Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755860240241_4s4dyh2qf",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create high-converting headlines and value propositions for SSELFIE Studio's landing page that:\n1. Emphasize the all-in-one personal branding solution (replacing €120-180+ worth of monthly subscriptions)\n2. Highlight the 5-step journey: TRAIN → STYLE → SHOOT → BUILD → MANAGE\n3. Focus on creator pain points around managing multiple expensive tools\n4. Include primary headline options, subheadlines, and 3-5 core value propositions\n5. Incorporate pricing value messaging (€27 Creator / €67 Entrepreneur tiers)",
+      "workflowContext": "We're preparing for SSELFIE Studio's market launch, focusing on positioning as an integrated personal branding platform. The copy needs to clearly communicate the value proposition and differentiate from individual point solutions like Canva, ChatGPT, etc.",
+      "expectedDeliverables": [
+        "Primary headline options (3-5 variations)",
+        "Subheadline options that support main value proposition",
+        "3-5 core value propositions written in compelling language",
+        "Price comparison messaging highlighting savings vs. multiple subscriptions"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T10:57:20.292Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755860254214_tzmmq01hb",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create visual style recommendations for SSELFIE Studio's landing page that will:\n1. Support and enhance the upcoming copy from Victoria\n2. Visualize the 5-step journey (TRAIN → STYLE → SHOOT → BUILD → MANAGE)\n3. Create compelling visual hierarchy for pricing tiers\n4. Design mockups for key value proposition sections\n5. Ensure brand consistency across all elements",
+      "workflowContext": "Working in parallel with Victoria who is developing the copy. We need a cohesive visual language that emphasizes SSELFIE Studio as a premium, all-in-one personal branding platform while maintaining accessibility and appeal to creators.",
+      "expectedDeliverables": [
+        "Visual hierarchy recommendations",
+        "Journey visualization concepts",
+        "Pricing section design mockup",
+        "Key section layout recommendations",
+        "Brand style guide elements"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T10:57:34.262Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755860275297_476c4iq7w",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create visual brand style guide for Sandra's personal brand that aligns with SSELFIE STUDIO aesthetic. Focus on colors, typography, and visual elements that tell the \"single mom to tech founder\" story.",
+      "workflowContext": "Building foundational brand assets for Sandra's personal brand scaling strategy",
+      "expectedDeliverables": [
+        "Brand color palette",
+        "Typography system",
+        "Visual element guidelines",
+        "Sample social media templates"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T10:57:55.346Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755860280497_5svk4d6yf",
+      "assignedAgent": "elena",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Develop high-converting landing page template for Sandra's personal brand that highlights her journey from single mom to tech founder, with focus on SSELFIE STUDIO as her flagship product.",
+      "workflowContext": "Creating conversion-focused web presence for Sandra's brand scaling",
+      "expectedDeliverables": [
+        "Landing page template",
+        "Call-to-action strategy",
+        "Lead magnet implementation plan"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T10:58:00.545Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755860338329_lh9e0sk6u",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create a cohesive social media branding strategy for SSELFIE Studio launch, focusing on:\n1. Visual identity guidelines for social media\n2. Content pillars that highlight the 5-step journey (TRAIN→STYLE→SHOOT→BUILD→MANAGE)\n3. Brand voice and messaging that emphasizes the all-in-one solution replacing multiple subscriptions\n4. Strategic positioning against €120-180 competitor costs",
+      "workflowContext": "This is part of the SSELFIE Studio launch strategy, targeting existing followers and new potential customers. We need to position SSELFIE Studio as the comprehensive personal branding solution at an attractive price point.",
+      "expectedDeliverables": [
+        "Brand voice guidelines",
+        "Content pillar strategy",
+        "Visual identity guidelines",
+        "Key messaging points"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T10:58:58.378Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755860343583_56hd7ox6p",
+      "assignedAgent": "sophia",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Develop a community growth and engagement strategy for SSELFIE Studio:\n1. Plan for converting Sandra's existing 135K+ followers into platform users\n2. Community engagement tactics for both Creator (€27/mo) and Entrepreneur (€67/mo) tiers\n3. Social proof and testimonial collection system\n4. Community-driven content creation framework\n5. Engagement metrics and KPIs",
+      "workflowContext": "We're launching SSELFIE Studio and need to leverage Sandra's existing audience while building a strong community around the platform. Focus on creating value and engagement that drives platform adoption.",
+      "expectedDeliverables": [
+        "Community growth roadmap",
+        "Engagement strategy document",
+        "KPI tracking framework",
+        "Conversion tactics guide"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T10:59:03.634Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755860379274_x2k3ltmx0",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create compelling sales page copywriting including:\n1. Main headline and sub-headlines that highlight SSELFIE Studio as the all-in-one personal branding platform\n2. Clear value propositions emphasizing how we replace €120-180+ monthly subscriptions (Canva, ChatGPT, photo editors) with one affordable solution\n3. Benefit-focused copy for both pricing tiers:\n   - Creator (€27/month)\n   - Entrepreneur (€67/month)\n4. Compelling descriptions of our 5-step journey:\n   - TRAIN (AI model)\n   - STYLE (personalized branding)\n   - SHOOT (photo prompts)\n   - BUILD (website creation)\n   - MANAGE (ongoing content)\n5. Call-to-action copy that drives conversions\n\nFocus on pain points: high costs of multiple subscriptions, time waste switching between tools, complexity of personal branding.",
+      "workflowContext": "We need conversion-focused sales copy that positions SSELFIE Studio as the comprehensive yet affordable solution for personal branding. The copy should emphasize our unique value proposition of replacing expensive tool subscriptions with one platform. This is for immediate launch marketing materials.",
+      "expectedDeliverables": [
+        "Main headline and supporting sub-headlines",
+        "Value proposition statements",
+        "Pricing tier benefit descriptions",
+        "5-step journey compelling copy",
+        "Call-to-action phrases"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T10:59:39.324Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-12T08:33:27.654Z",
