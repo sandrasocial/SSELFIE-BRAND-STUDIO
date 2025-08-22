@@ -3,180 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSELFIE STUDIO - Your All-in-One Personal Branding Platform</title>
+    <title>SSELFIE STUDIO | Premium Personal Branding Platform</title>
     <style>
-        /* Modern, clean styling */
+        /* Luxury Dark Theme Variables */
         :root {
-            --primary-color: #ff6b6b;
-            --secondary-color: #4ecdc4;
-            --dark-color: #2c3e50;
-            --light-color: #f7f9fc;
+            --primary-dark: #1A1A1A;
+            --accent-gold: #C9A55C;
+            --editorial-white: #FFFFFF;
+            --spacing-luxury: 4rem;
         }
-        
+
         body {
-            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-dark);
+            color: var(--editorial-white);
+            font-family: 'Cormorant Garamond', serif;
             margin: 0;
             padding: 0;
+        }
+
+        /* Editorial Typography */
+        .hero-headline {
+            font-size: 4.5rem;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        .luxury-description {
+            font-size: 1.8rem;
             line-height: 1.6;
-            color: var(--dark-color);
+            font-weight: 300;
         }
 
-        .hero {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 100px 20px;
-            text-align: center;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        .value-prop {
+        /* Pricing Tiers */
+        .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 60px 0;
-        }
-
-        .journey-steps {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            margin: 40px 0;
-        }
-
-        .step {
-            flex: 1;
-            min-width: 200px;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .pricing-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 40px 0;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-luxury);
+            padding: var(--spacing-luxury);
         }
 
         .pricing-card {
-            border: 1px solid #eee;
-            border-radius: 10px;
-            padding: 30px;
+            border: 1px solid var(--accent-gold);
+            padding: 3rem;
             text-align: center;
-            transition: transform 0.3s ease;
         }
 
-        .pricing-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        .price-amount {
+            font-size: 3.5rem;
+            color: var(--accent-gold);
         }
 
+        /* Call to Action */
         .cta-button {
-            background: var(--primary-color);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 25px;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
-            transition: background 0.3s ease;
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            padding: 1.5rem 3rem;
+            border: none;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .cta-button:hover {
-            background: var(--secondary-color);
+            background: var(--editorial-white);
         }
     </style>
 </head>
 <body>
+    <!-- Hero Section -->
     <section class="hero">
-        <div class="container">
-            <h1>Transform Your Personal Brand with SSELFIE STUDIO</h1>
-            <p class="subtitle">The all-in-one platform that replaces €120-180+ worth of monthly subscriptions</p>
-            <a href="#pricing" class="cta-button">Get Started Today</a>
+        <h1 class="hero-headline">Elevate Your Personal Brand</h1>
+        <p class="luxury-description">Transform your digital presence with SSELFIE STUDIO's all-in-one personal branding platform.</p>
+    </section>
+
+    <!-- Pricing Grid -->
+    <section class="pricing-grid">
+        <!-- Creator Tier -->
+        <div class="pricing-card">
+            <h2>Creator</h2>
+            <div class="price-amount">€47</div>
+            <ul>
+                <li>AI Personal Brand Training</li>
+                <li>Style Guide Generation</li>
+                <li>Photoshoot Direction</li>
+                <li>Basic Website Builder</li>
+            </ul>
+            <button class="cta-button">Begin Your Journey</button>
+        </div>
+
+        <!-- Professional Tier -->
+        <div class="pricing-card featured">
+            <h2>Professional</h2>
+            <div class="price-amount">€97</div>
+            <ul>
+                <li>Advanced AI Training</li>
+                <li>Premium Style Guidelines</li>
+                <li>Advanced Shoot Direction</li>
+                <li>Pro Website Features</li>
+                <li>Brand Analytics</li>
+            </ul>
+            <button class="cta-button">Elevate Your Brand</button>
+        </div>
+
+        <!-- Enterprise Tier -->
+        <div class="pricing-card">
+            <h2>Enterprise</h2>
+            <div class="price-amount">€197</div>
+            <ul>
+                <li>Custom AI Model Training</li>
+                <li>Exclusive Style Suite</li>
+                <li>Multi-Brand Management</li>
+                <li>Enterprise Websites</li>
+                <li>Advanced Analytics</li>
+                <li>Priority Support</li>
+            </ul>
+            <button class="cta-button">Transform Your Empire</button>
         </div>
     </section>
 
-    <section class="container">
-        <div class="value-prop">
-            <div>
-                <h2>One Platform, Complete Solution</h2>
-                <p>Replace multiple subscriptions (Canva, ChatGPT, photo editors) with a single, powerful platform.</p>
-            </div>
-            <div>
-                <h2>Save Money, Get More</h2>
-                <p>Why pay €120-180+ monthly for multiple tools when you can get everything for a fraction of the cost?</p>
-            </div>
-            <div>
-                <h2>Built for Creators</h2>
-                <p>Designed specifically for personal branding and content creation needs.</p>
-            </div>
-        </div>
+    <!-- Value Proposition -->
+    <section class="value-proposition">
+        <h2>Replace Your Entire Tech Stack</h2>
+        <p>Why pay €120-180+ monthly for multiple tools when you can have everything in one seamless platform?</p>
+        <ul>
+            <li>✓ AI-Powered Brand Training</li>
+            <li>✓ Professional Style Guidelines</li>
+            <li>✓ Photoshoot Direction</li>
+            <li>✓ Website Building & Management</li>
+        </ul>
     </section>
-
-    <section class="container">
-        <h2>Your Journey to Personal Brand Success</h2>
-        <div class="journey-steps">
-            <div class="step">
-                <h3>TRAIN</h3>
-                <p>Train your AI model</p>
-            </div>
-            <div class="step">
-                <h3>STYLE</h3>
-                <p>Define your unique style</p>
-            </div>
-            <div class="step">
-                <h3>SHOOT</h3>
-                <p>Create perfect content</p>
-            </div>
-            <div class="step">
-                <h3>BUILD</h3>
-                <p>Develop your platform</p>
-            </div>
-            <div class="step">
-                <h3>MANAGE</h3>
-                <p>Scale your brand</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="container" id="pricing">
-        <h2>Choose Your Path to Success</h2>
-        <div class="pricing-cards">
-            <div class="pricing-card">
-                <h3>Creator</h3>
-                <p class="price">€27/month</p>
-                <ul>
-                    <li>Personal AI Model Training</li>
-                    <li>Basic Style Guidelines</li>
-                    <li>Content Creation Tools</li>
-                    <li>Essential Website Builder</li>
-                    <li>Basic Brand Management</li>
-                </ul>
-                <a href="#" class="cta-button">Start Creating</a>
-            </div>
-            <div class="pricing-card">
-                <h3>Entrepreneur</h3>
-                <p class="price">€67/month</p>
-                <ul>
-                    <li>Advanced AI Model Training</li>
-                    <li>Premium Style Guidelines</li>
-                    <li>Professional Content Suite</li>
-                    <li>Advanced Website Builder</li>
-                    <li>Complete Brand Management</li>
-                    <li>Priority Support</li>
-                </ul>
-                <a href="#" class="cta-button">Scale Your Brand</a>
-            </div>
-        </div>
-    </section>
-
-    <footer class="container">
-        <p>Ready to transform your personal brand? Join SSELFIE STUDIO today!</p>
-        <a href="#pricing" class="cta-button">Get Started</a>
-    </footer>
 </body>
 </html>

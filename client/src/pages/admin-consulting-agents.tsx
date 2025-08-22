@@ -178,8 +178,8 @@ const loadConversationHistory = async (agentName: string) => {
     
     const data = await response.json();
     
-    // CRITICAL FIX: Limit messages to prevent chat overload
-    const limitedMessages = (data.messages || []).slice(-20); // MAX 20 messages in frontend
+    // BALANCED FIX: Sufficient messages for context while preventing UI overload
+    const limitedMessages = (data.messages || []).slice(-50); // MAX 50 messages in frontend
     console.log(`📜 Loaded ${limitedMessages.length}/${data.messages?.length || 0} messages (limited to prevent overload)`);
     
     return {
