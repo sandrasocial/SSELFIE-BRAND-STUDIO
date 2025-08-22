@@ -91,6 +91,20 @@ export class AgentCoordinationBridge {
     console.log(`🤖 AUTONOMOUS MODE: ${request.autonomousMode ? 'ENABLED' : 'DISABLED'}`);
     console.log(`🏗️ PROJECT CONTEXT: Checking agent permissions and safe development zones`);
     
+    // SPECIALIZATION CHECK: Prevent coordination loops
+    const { SpecializationIntegration } = await import('../agents/specialization-integration');
+    const shouldCoordinate = request.coordinatorAgent === 'elena' || request.requestType === 'workflow_creation';
+    
+    if (!shouldCoordinate && request.coordinatorAgent !== 'elena') {
+      console.log(`🚨 COORDINATION LOOP PREVENTION: ${request.coordinatorAgent} should execute directly, not coordinate`);
+      return {
+        success: false,
+        coordinationId,
+        error: `Agent ${request.coordinatorAgent} should focus on their specialty, not coordinate other agents. Only Elena coordinates.`,
+        nextSteps: [`${request.coordinatorAgent} should execute tasks in their specialty area directly`]
+      };
+    }
+    
     // PHASE 2: Validate agent project context and permissions
     const projectContext = this.contextManager.getProjectContextForAgent(request.coordinatorAgent);
     if (!projectContext) {
