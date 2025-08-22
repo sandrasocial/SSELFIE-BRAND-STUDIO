@@ -5,6 +5,7 @@
  */
 
 import { db } from './db';
+import { sql, eq } from 'drizzle-orm';
 
 class AgentTaskMonitor {
   private static instance: AgentTaskMonitor;
@@ -27,14 +28,14 @@ class AgentTaskMonitor {
       console.log('🤖 AGENT TASK MONITOR: Checking for assigned tasks...');
 
       // Get all tasks with status='assigned' from last 24 hours  
-      const result = await db.execute(
-        `SELECT task_id, agent_name, instruction, priority, created_at
-         FROM agent_tasks 
-         WHERE status = 'assigned' 
-         AND created_at > NOW() - INTERVAL '24 hours'
-         ORDER BY priority DESC, created_at ASC
-         LIMIT 10`
-      );
+      const result = await db.execute(sql`
+        SELECT task_id, agent_name, instruction, priority, created_at
+        FROM agent_tasks 
+        WHERE status = 'assigned' 
+        AND created_at > NOW() - INTERVAL '24 hours'
+        ORDER BY priority DESC, created_at ASC
+        LIMIT 10
+      `);
       const assignedTasks = result.rows;
 
       if (assignedTasks.length === 0) {
@@ -49,12 +50,11 @@ class AgentTaskMonitor {
         await this.triggerAgentExecution(task);
         
         // Mark task as in_progress
-        await db.execute(
-          `UPDATE agent_tasks 
-           SET status = 'in_progress', updated_at = NOW() 
-           WHERE task_id = $1`,
-          [task.task_id]
-        );
+        await db.execute(sql`
+          UPDATE agent_tasks 
+          SET status = 'in_progress', updated_at = NOW() 
+          WHERE task_id = ${task.task_id}
+        `);
 
         // Small delay between agent triggers
         await new Promise(resolve => setTimeout(resolve, 2000));
