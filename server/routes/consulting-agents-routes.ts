@@ -377,52 +377,40 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
     // ADMIN INTELLIGENT MODE: Use Claude API for conversations, direct tools for specific requests
     const isAdminRequest = req.body.adminToken === 'sandra-admin-2025' || userId === '42585527';
     
-    // TOKEN OPTIMIZED MODE: Local processing for tool operations, Claude API for agent intelligence
-    const isExactJSONToolCall = message.trim().startsWith('{') && message.trim().endsWith('}') && 
-                               (message.includes('"command":') || message.includes('"query_description":') || message.includes('"sql_query":'));
-    
-    if (isAdminRequest && isExactJSONToolCall) {
-      // LOCAL TOOL EXECUTION: Direct tool processing without consuming Claude tokens
-      console.log(`🔧 LOCAL TOOLS: ${normalizedAgentId.toUpperCase()} executing tools locally (token optimization)`);
-      
-      return await handleDirectAdminExecution(
-        userId,
-        normalizedAgentId, 
-        baseConversationId,
-        message,
-        availableTools,
-        res
-      );
-    } else {
-      // ELIMINATE GENERIC SYSTEMS: Use personality-first admin agent integration
-      if (!personalityService.validatePersonality(normalizedAgentId)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: `Agent ${normalizedAgentId} personality not found` 
-        });
-      }
-
-      // CREATE PERSONALITY CONTEXT: Full integration with admin bypass
-      const personalityContext = personalityService.createPersonalityContext(normalizedAgentId, isAdminRequest);
-      
-      // CREATE ADMIN CONTEXT: Memory and personality preservation
-      await adminContextManager.createAdminAgentContext(
-        normalizedAgentId,
-        userId, 
-        baseConversationId,
-        personalityContext
-      );
-
-      await claudeService.sendStreamingMessage(
-        userId,
-        normalizedAgentId,
-        baseConversationId,
-        message,
-        personalityContext.enhancedPrompt,
-        availableTools,
-        res
-      );
+    // PERSONALITY VALIDATION: Ensure agent exists
+    if (!personalityService.validatePersonality(normalizedAgentId)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Agent ${normalizedAgentId} personality not found` 
+      });
     }
+
+    // CREATE PERSONALITY CONTEXT: Full integration with admin capabilities
+    const personalityContext = personalityService.createPersonalityContext(normalizedAgentId, isAdminRequest);
+    
+    // CREATE ADMIN CONTEXT: Memory and personality preservation
+    await adminContextManager.createAdminAgentContext(
+      normalizedAgentId,
+      userId, 
+      baseConversationId,
+      personalityContext
+    );
+
+    // ADMIN AGENTS: Always use Claude API with tools for intelligent interaction
+    if (isAdminRequest) {
+      console.log(`🤖 ADMIN INTELLIGENCE: ${normalizedAgentId.toUpperCase()} using Claude API with tools`);
+    }
+
+    // EXECUTE: Send to Claude API with tools for all agents
+    await claudeService.sendStreamingMessage(
+      userId,
+      normalizedAgentId,
+      baseConversationId,
+      message,
+      personalityContext.enhancedPrompt,
+      availableTools,
+      res
+    );
 
   } catch (error) {
     console.error(`❌ Consulting error:`, error);
