@@ -6,6 +6,21 @@ SSELFIE Studio is Sandra's simplified AI personal brand photo platform following
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Launch-Critical Workflow (August 2025)
+**Context**: After 4 months of development, Sandra needs to launch ASAP for revenue. Admin agents are functional but need supervision.
+
+**Direct Human-AI Coordination Strategy:**
+1. **Admin agents provide recommendations** → Sandra tells me their suggestions
+2. **I implement immediately** → Handle all technical work directly  
+3. **Sandra approves/rejects** → Maintains business control
+4. **Launch preparation** → Focus on revenue-generating features
+
+**Key Principles:**
+- Speed over perfection - launch is priority after 4 months
+- Direct coordination eliminates agent confusion loops
+- Sandra maintains oversight, I handle execution
+- Focus on member revenue features vs admin improvements
+
 ## System Architecture
 
 ### Frontend Architecture
