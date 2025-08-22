@@ -12,14 +12,16 @@ export const AGENT_BOUNDARIES = {
       "/server/services/",
       "/docs/business/",
       "/server/workflows/",
-      "/shared/types/"
+      "/shared/types/",
+      "/client/src/pages/public/",
+      "/pricing/",
+      "/marketing/"
     ],
     restrictedPaths: [
-      "/client/src/pages/member/",
       "/server/auth/",
       "/server/payments/"
     ],
-    capabilities: ["coordinate_agents", "create_workflows", "business_strategy"],
+    capabilities: ["coordinate_agents", "create_workflows", "business_strategy", "revenue_optimization"],
     requiredChecks: ["typescript", "path-validation", "agent-coordination"]
   },
 
@@ -47,16 +49,19 @@ export const AGENT_BOUNDARIES = {
     name: "Rachel - Copywriting & Content Expert",
     allowedPaths: [
       "/client/src/pages/public/",
+      "/client/src/pages/checkout/",
       "/docs/business/",
       "/marketing/",
-      "/brand/"
+      "/brand/",
+      "/pricing/"
     ],
     restrictedPaths: [
-      "/server/",
+      "/server/auth/",
+      "/server/payments/",
       "/client/src/pages/admin/",
       "/shared/schema.ts"
     ],
-    capabilities: ["content_creation", "copywriting", "marketing"],
+    capabilities: ["content_creation", "copywriting", "marketing", "conversion_optimization"],
     requiredChecks: ["content-validation", "brand-consistency"]
   },
 
@@ -64,17 +69,18 @@ export const AGENT_BOUNDARIES = {
   maya: {
     name: "Maya - Celebrity Stylist & Personal Brand Expert",
     allowedPaths: [
-      "/client/src/pages/member/maya.tsx",
+      "/client/src/pages/member/",
       "/server/ai/styling/",
       "/shared/types/styling/",
-      "/assets/style/"
+      "/assets/style/",
+      "/server/ai/"
     ],
     restrictedPaths: [
       "/server/auth/",
       "/server/payments/",
       "/client/src/pages/admin/"
     ],
-    capabilities: ["style_consultation", "ai_styling", "fashion_expertise"],
+    capabilities: ["style_consultation", "ai_styling", "fashion_expertise", "member_experience_optimization"],
     requiredChecks: ["typescript", "styling-validation"]
   },
 
@@ -85,14 +91,17 @@ export const AGENT_BOUNDARIES = {
       "/docs/business/",
       "/server/analytics/",
       "/pricing/",
-      "/marketing/"
+      "/marketing/",
+      "/client/src/pages/public/",
+      "/client/src/pages/checkout/",
+      "/business_strategy.md"
     ],
     restrictedPaths: [
-      "/client/src/",
-      "/server/core/",
+      "/server/auth/",
+      "/server/payments/",
       "/shared/schema.ts"
     ],
-    capabilities: ["business_strategy", "revenue_optimization", "analytics"],
+    capabilities: ["business_strategy", "revenue_optimization", "analytics", "conversion_optimization"],
     requiredChecks: ["business-validation", "revenue-impact"]
   },
 
