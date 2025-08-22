@@ -105,6 +105,40 @@ export async function search_filesystem(parameters: any): Promise<string> {
                            query_description.toLowerCase().includes('gallery') ||
                            query_description.toLowerCase().includes('sselfie');
       
+      // SSELFIE CORE COMPONENT MAPPING: Help agents find actual component names
+      const sselfieQuery = query_description.toLowerCase().includes('train') ||
+                          query_description.toLowerCase().includes('style') ||
+                          query_description.toLowerCase().includes('maya') ||
+                          query_description.toLowerCase().includes('gallery') ||
+                          query_description.toLowerCase().includes('sselfie') ||
+                          query_description.toLowerCase().includes('component');
+      
+      if (sselfieQuery) {
+        console.log('🔍 SSELFIE COMPONENT SEARCH: Including core component files');
+        const coreComponents = [
+          `${workspaceRoot}/client/src/pages/simple-training.tsx`,
+          `${workspaceRoot}/client/src/pages/maya.tsx`,
+          `${workspaceRoot}/client/src/pages/sselfie-gallery.tsx`,
+          `${workspaceRoot}/client/src/pages/ai-photoshoot.tsx`,
+          `${workspaceRoot}/client/src/pages/workspace.tsx`,
+          `${workspaceRoot}/client/src/App.tsx`
+        ];
+        
+        // Search core components specifically
+        for (const term of searchTerms.slice(0, 3)) {
+          const componentResult = await executeGrep(term, coreComponents);
+          if (componentResult && componentResult !== 'No matches found') {
+            results += `\n=== SSELFIE Core Components "${term}" ===\n${componentResult.substring(0, 1500)}\n`;
+          }
+        }
+        
+        // Always include component routing information
+        const routingResult = await executeGrep('simple-training\\|maya\\|sselfie-gallery', [`${workspaceRoot}/client/src/App.tsx`]);
+        if (routingResult && routingResult !== 'No matches found') {
+          results += `\n=== SSELFIE Component Routes ===\n${routingResult.substring(0, 1000)}\n`;
+        }
+      }
+      
       if (businessQuery) {
         console.log('🔍 BUSINESS MODEL SEARCH: Including business documentation files');
         for (const term of searchTerms.slice(0, 3)) {
