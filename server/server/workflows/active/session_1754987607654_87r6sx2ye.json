@@ -2564,6 +2564,38 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T15:58:42.334Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755879781556_4le9qm26j",
+      "assignedAgent": "zara",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Conduct technical security audit of authentication infrastructure:\n1. Review password hashing and storage mechanisms\n2. Analyze authentication routes and controllers\n3. Assess API endpoints security\n4. Evaluate session management implementation\n5. Document all findings and vulnerabilities",
+      "workflowContext": "High-priority authentication security audit focusing on backend infrastructure and security measures",
+      "expectedDeliverables": [
+        "Security audit report",
+        "Vulnerability assessment",
+        "Technical recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T16:23:01.603Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755879786868_erbfcczg1",
+      "assignedAgent": "quinn",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Perform comprehensive QA testing of authentication systems:\n1. Test user registration flows\n2. Validate login mechanisms\n3. Check password reset functionality\n4. Test session timeout and management\n5. Document all edge cases and security gaps",
+      "workflowContext": "High-priority authentication security audit requiring thorough QA testing of all auth-related functionality",
+      "expectedDeliverables": [
+        "QA test results",
+        "Security testing report",
+        "User flow vulnerabilities"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T16:23:06.921Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-12T08:33:27.654Z",
