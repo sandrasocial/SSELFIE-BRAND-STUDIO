@@ -25,9 +25,15 @@ export async function search_filesystem(parameters: any): Promise<string> {
     
     // AGENTS ARE RUNNING FROM SERVER DIR - NEED TO ADJUST PATHS
     const workspaceRoot = process.cwd().endsWith('/server') ? '..' : '.';
-    const adjustedPaths = search_paths.map(path => 
-      path === '.' ? workspaceRoot : path.startsWith('./') ? path.replace('./', `${workspaceRoot}/`) : path
-    );
+    const adjustedPaths = search_paths.map(path => {
+      if (path === '.') return workspaceRoot;
+      if (path.startsWith('./')) return path.replace('./', `${workspaceRoot}/`);
+      if (path.startsWith('/')) return path; // Absolute paths unchanged
+      // Relative paths need workspace root prefix
+      return `${workspaceRoot}/${path}`;
+    });
+    
+    console.log('🔍 PATH ADJUSTMENT:', { original: search_paths, adjusted: adjustedPaths });
 
     // If specific code snippets are provided, search for them
     if (code.length > 0) {
@@ -53,11 +59,18 @@ export async function search_filesystem(parameters: any): Promise<string> {
       }
     }
 
-    // SMART SEARCH: Focus on specific files for common queries
+    // INTELLIGENT SEARCH: Focus on finding actual content
     if (query_description) {
-      if (query_description.toLowerCase().includes('about')) {
+      // Search for Sandra's story and key content
+      if (query_description.toLowerCase().includes('about') || query_description.toLowerCase().includes('story')) {
+        const storyResult = await executeGrep('marriage ended', adjustedPaths);
+        if (storyResult && storyResult !== 'No matches found') {
+          results += `\n=== Sandra's Story ===\n${storyResult}\n`;
+        }
         const aboutResult = await executeGrep('about', [`${workspaceRoot}/client/src/pages`, `${workspaceRoot}/client/src/components`]);
-        results += `\n=== About Pages & Components ===\n${aboutResult.substring(0, 2000)}\n`;
+        if (aboutResult && aboutResult !== 'No matches found') {
+          results += `\n=== About Pages & Components ===\n${aboutResult.substring(0, 2000)}\n`;
+        }
       }
       
       if (query_description.toLowerCase().includes('how') && query_description.toLowerCase().includes('work')) {
@@ -65,14 +78,22 @@ export async function search_filesystem(parameters: any): Promise<string> {
         results += `\n=== How It Works Content ===\n${howResult.substring(0, 2000)}\n`;
       }
       
-      // For other searches, extract meaningful terms but limit output
+      // Search for business documents
+      if (query_description.toLowerCase().includes('business') || query_description.toLowerCase().includes('strategy') || query_description.toLowerCase().includes('pricing')) {
+        const businessResult = await executeGrep('BUSINESS_MODEL\|pricing\|strategy', [workspaceRoot]);
+        if (businessResult && businessResult !== 'No matches found') {
+          results += `\n=== Business & Strategy Documents ===\n${businessResult.substring(0, 2000)}\n`;
+        }
+      }
+      
+      // General term search with better results
       const searchTerms = extractSearchTerms(query_description);
       console.log('🔍 SEARCH TERMS EXTRACTED:', searchTerms);
       
-      for (const term of searchTerms.slice(0, 2)) { // Limit to 2 terms to avoid massive output
+      for (const term of searchTerms.slice(0, 3)) { // Search top 3 terms
         const grepResult = await executeGrep(term, adjustedPaths);
         if (grepResult && grepResult !== 'No matches found') {
-          results += `\n=== Found "${term}" ===\n${grepResult.substring(0, 1500)}\n`;
+          results += `\n=== Found "${term}" ===\n${grepResult.substring(0, 1000)}\n`;
         }
       }
     }
@@ -86,13 +107,26 @@ export async function search_filesystem(parameters: any): Promise<string> {
   }
 }
 
-// Execute grep command safely
+// Execute grep command safely with proper path handling
 async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<string> {
   const { spawn } = await import('child_process');
   
   return new Promise((resolve) => {
+    // Ensure we have valid paths, default to current working directory
     const pathArgs = searchPaths.length > 0 ? searchPaths : ['.'];
-    const cmd = spawn('grep', ['-r', '-n', '-i', '--include=*.ts', '--include=*.js', '--include=*.tsx', '--include=*.jsx', searchTerm, ...pathArgs]);
+    
+    console.log('🔍 GREP COMMAND:', `grep -r -n -i --include=*.ts --include=*.js --include=*.tsx --include=*.jsx --include=*.md "${searchTerm}" ${pathArgs.join(' ')}`);
+    
+    // Include markdown files and more file types for comprehensive search
+    const cmd = spawn('grep', [
+      '-r', '-n', '-i', 
+      '--include=*.ts', '--include=*.js', '--include=*.tsx', '--include=*.jsx', 
+      '--include=*.md', '--include=*.json',
+      searchTerm, 
+      ...pathArgs
+    ], {
+      cwd: process.cwd() // Ensure we run from the correct directory
+    });
     
     let output = '';
     let errorOutput = '';
@@ -106,7 +140,11 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
     });
     
     cmd.on('close', (code) => {
-      // Return full output without truncation
+      console.log('🔍 GREP EXIT CODE:', code);
+      console.log('🔍 GREP OUTPUT LENGTH:', output.length);
+      if (output) {
+        console.log('🔍 GREP SAMPLE:', output.substring(0, 300));
+      }
       resolve(output || 'No matches found');
     });
     
