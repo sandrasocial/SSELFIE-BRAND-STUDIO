@@ -1,0 +1,93 @@
+{
+  "sessionId": "session_1755885289651_eza1nh3zc",
+  "name": "victoria Coordination Tasks",
+  "description": "Active coordination tasks managed by victoria",
+  "coordinatorAgent": "victoria",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755885289601_yfqf5s2no",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Please provide current STYLE feature specifications and key value propositions that should be highlighted for the €27/month Creator Plan.",
+      "workflowContext": "Optimizing launch messaging for Creator Plan (€27/month) with focus on STYLE + SHOOT components. Need to ensure accurate feature representation and compelling value proposition.",
+      "expectedDeliverables": [
+        "Current STYLE features list",
+        "Key value propositions",
+        "Any usage limitations for Creator tier"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:54:49.650Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885311129_l4uc9stan",
+      "assignedAgent": "zara",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Please provide current SHOOT feature specifications and key value propositions that should be highlighted for the €27/month Creator Plan.",
+      "workflowContext": "Optimizing launch messaging for Creator Plan (€27/month) with focus on STYLE + SHOOT components. Need to ensure accurate feature representation and compelling value proposition.",
+      "expectedDeliverables": [
+        "Current SHOOT features list",
+        "Key value propositions",
+        "Any usage limitations for Creator tier"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:55:11.177Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885415336_eo5c3zj12",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Need urgent status update on currently implemented STYLE features and capabilities for the €27/month Creator Plan. Please provide technical specifications of what's actually built and ready.",
+      "workflowContext": "Conducting urgent analysis of launch-ready features for Creator Plan pricing tier",
+      "expectedDeliverables": [
+        "List of implemented style features",
+        "Technical capabilities currently active",
+        "Usage limits for Creator Plan",
+        "Integration status with other modules"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:56:55.384Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885540232_6yra12vyy",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Request detailed technical specifications of implemented style transfer features and capabilities, particularly focusing on the Creator Plan implementation.",
+      "workflowContext": "Analyzing STYLE feature implementation status for immediate launch assessment. Need technical details to align with business strategy and user experience requirements.",
+      "expectedDeliverables": [
+        "Technical specifications of style transfer capabilities",
+        "Current feature limitations",
+        "Implementation status of style-related features",
+        "Integration points with other system components"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:59:00.279Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885648629_7f3zglumx",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Please provide detailed information about currently implemented style transfer features, including:\n1. List of active style transfer algorithms\n2. Available style presets\n3. Technical capabilities and limitations\n4. Current integration points",
+      "workflowContext": "Analyzing launch readiness for SSELFIE Studio Creator Plan style transfer features",
+      "expectedDeliverables": [
+        "implemented_algorithms_list",
+        "active_presets",
+        "technical_specifications",
+        "integration_points"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T18:00:48.675Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T17:54:49.651Z",
+  "status": "active"
+}

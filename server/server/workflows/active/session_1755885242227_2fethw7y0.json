@@ -1,0 +1,92 @@
+{
+  "sessionId": "session_1755885242227_2fethw7y0",
+  "name": "maya Coordination Tasks",
+  "description": "Active coordination tasks managed by maya",
+  "coordinatorAgent": "maya",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755885242176_00xqplf7v",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Review new launch messaging for Creator Plan (€27/month) and ensure website copy/UI elements align with these value propositions. Focus on STYLE + SHOOT components.",
+      "workflowContext": "Creating simplified launch messaging for immediate market entry, focusing on Creator Plan and core STYLE + SHOOT features.",
+      "expectedDeliverables": [
+        "Website copy alignment confirmation",
+        "Any suggested messaging adjustments",
+        "Implementation timeline for copy updates"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:54:02.227Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885350178_97dnzy82m",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need urgent confirmation of currently implemented STYLE features and capabilities for the €27/month Creator Plan. Please provide technical specifications of what's actually built and ready.",
+      "workflowContext": "Analyzing launch-ready STYLE features for immediate market entry and pricing strategy",
+      "expectedDeliverables": [
+        "List of implemented STYLE features",
+        "Technical capabilities ready for launch",
+        "Integration status with other platform components"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:55:50.413Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885469120_du2soqp1s",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need urgent status check on implemented STYLE features and their technical specifications, particularly for the €27 Creator Plan. Please provide details on any styling-related components or services you've implemented.",
+      "workflowContext": "Conducting urgent technical audit of launch-ready STYLE features for immediate go-to-market strategy",
+      "expectedDeliverables": [
+        "List of implemented STYLE features",
+        "Technical specifications",
+        "Integration points with other services",
+        "Current limitations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:57:49.171Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885586351_22hno17n8",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need detailed technical specifications for currently implemented style transfer features, particularly for Creator Plan. Please provide:\n1. List of implemented style transfer algorithms/methods\n2. Current style presets or templates available\n3. Technical limitations and capabilities\n4. API endpoints or integration points\n5. Performance metrics and processing capabilities",
+      "workflowContext": "Analyzing launch readiness for SSELFIE Studio's Creator Plan (€27/month tier). Need to understand technical implementation status of style features.",
+      "expectedDeliverables": [
+        "Technical specification document",
+        "API documentation",
+        "Feature capability matrix",
+        "Performance metrics report"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:59:46.399Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885721480_miy2hraix",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Update website product features to emphasize current manual styling capabilities and templates, while maintaining flexibility for future AI style transfer implementation. Focus on premium, personalized approach for €67 tier.",
+      "workflowContext": "Analyzing style transfer capabilities for immediate launch strategy. Current focus is on manual styling and templates, with infrastructure ready for future AI implementation.",
+      "expectedDeliverables": [
+        "Updated feature list for website",
+        "Revised product tier descriptions",
+        "Integration points for future style transfer features"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T18:02:01.524Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T17:54:02.228Z",
+  "status": "active"
+}

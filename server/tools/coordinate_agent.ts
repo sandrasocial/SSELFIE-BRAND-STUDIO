@@ -43,6 +43,21 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
       throw new Error('Agent coordination requires admin authentication');
     }
 
+    // SPECIALIZATION CHECK: Prevent coordination loops 
+    const { SpecializationIntegration } = await import('../agents/specialization-integration');
+    const shouldCoordinate = input.coordinating_agent === 'elena';
+    
+    if (!shouldCoordinate) {
+      return {
+        success: false,
+        coordination_id: `blocked_${Date.now()}`,
+        error: `Agent ${input.coordinating_agent} should focus on their specialty, not coordinate other agents. Only Elena coordinates.`,
+        message: `${input.coordinating_agent} should execute tasks directly in their specialty area.`,
+        assigned_agent: input.coordinating_agent,
+        next_steps: [`${input.coordinating_agent} should work on tasks matching their expertise`]
+      };
+    }
+
     // INTELLIGENT AGENT SELECTION: Use Elena's delegation system for optimal assignments
     let selectedAgent = input.target_agent;
     let delegationReasoning = '';

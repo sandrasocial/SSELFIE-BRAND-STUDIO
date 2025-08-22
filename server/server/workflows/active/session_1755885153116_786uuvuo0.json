@@ -1,0 +1,94 @@
+{
+  "sessionId": "session_1755885153116_786uuvuo0",
+  "name": "elena Coordination Tasks",
+  "description": "Active coordination tasks managed by elena",
+  "coordinatorAgent": "elena",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755885152903_67v92tjuf",
+      "assignedAgent": "elena",
+      "coordinatorAgent": "elena",
+      "taskDescription": "URGENT: Recover and restore admin user (42585527) generated images into sselfie gallery. Tasks:\n1. Audit current image storage system\n2. Locate all generated images for admin user\n3. Remove unauthorized stock photos\n4. Implement proper image recovery system\n5. Restore admin user's generated images to gallery",
+      "workflowContext": "Critical pre-launch task: We need to recover all generated images for our admin user before we can proceed with launch preparations. This affects our ability to showcase and use these images in our platform designs.",
+      "expectedDeliverables": [
+        "Database audit report",
+        "Image recovery implementation",
+        "Restored image gallery for admin user",
+        "Technical documentation of fix"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:52:33.115Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885162787_pm2bl34jg",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create simplified launch messaging focusing on:\n1. Core value proposition for Creator Plan (€27/month)\n2. Focus on STYLE + SHOOT components\n3. Emphasis on personal brand transformation\n4. Clear, compelling benefits that justify the price point",
+      "workflowContext": "Preparing for immediate launch with simplified business model. Need compelling messaging that focuses on ready-to-launch features while setting stage for future expansion.",
+      "expectedDeliverables": [
+        "Core messaging document",
+        "Value proposition statements",
+        "Launch copy recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:52:42.848Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885185223_55baspkwe",
+      "assignedAgent": "quinn",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Urgent: Test and validate image recovery process for admin user 42585527. \n1. Test current image storage paths\n2. Validate backup system integrity\n3. Create recovery validation checklist\n4. Document any data inconsistencies found",
+      "workflowContext": "Admin user's generated images need immediate recovery and restoration to gallery. Working with Zara and Olga on full system recovery.",
+      "expectedDeliverables": [
+        "Image storage validation report",
+        "Recovery test results",
+        "Data integrity checklist",
+        "Validation documentation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:53:05.278Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885190400_5wy7rpe03",
+      "assignedAgent": "zara",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Urgent: Implement database recovery for admin user 42585527 images.\n1. Check backup tables and storage systems\n2. Implement recovery queries\n3. Restore image references to main gallery\n4. Create monitoring system for future prevention",
+      "workflowContext": "Working with Quinn and Olga on full image recovery system. Need backend database expertise for proper restoration.",
+      "expectedDeliverables": [
+        "Database recovery scripts",
+        "Restored image references",
+        "Monitoring system implementation",
+        "Technical documentation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:53:10.454Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755885195352_m7qzjfiuj",
+      "assignedAgent": "olga",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Urgent: Organize and structure image storage system for admin user 42585527.\n1. Audit current file organization\n2. Remove unauthorized stock images\n3. Implement proper folder structure\n4. Set up automated cleanup system",
+      "workflowContext": "Coordinating with Quinn and Zara on image recovery. Need your expertise in file system organization and cleanup.",
+      "expectedDeliverables": [
+        "File system audit report",
+        "Cleanup documentation",
+        "New folder structure",
+        "Automated maintenance plan"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T17:53:15.412Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T17:52:33.116Z",
+  "status": "active"
+}
