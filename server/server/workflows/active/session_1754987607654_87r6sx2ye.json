@@ -1246,6 +1246,38 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T14:00:39.764Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871246671_14bkhfhnv",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Perform comprehensive QA testing of new style guide implementation:\n- Verify typography rendering across all browsers\n- Test responsive behavior of clamp() functions\n- Check color consistency across all pages\n- Validate section padding and max-width implementation\n- Test uppercase transforms and letter-spacing\nDocument any inconsistencies or rendering issues.",
+      "workflowContext": "Critical style guide update requires immediate QA validation across all platform elements.",
+      "expectedDeliverables": [
+        "Cross-browser testing report",
+        "Responsive design validation",
+        "Style implementation issues list"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:00:46.722Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871251778_4sx9zn62l",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Update and organize style guide documentation:\n- Ensure editorial-style-guide.json is properly versioned\n- Update README files with new style guidelines\n- Create documentation for developers on style implementation\n- Organize example snippets and usage guidelines\nMaintain clear documentation of all style decisions.",
+      "workflowContext": "New editorial style guide requires comprehensive documentation for team reference.",
+      "expectedDeliverables": [
+        "Updated style guide documentation",
+        "Developer implementation guide",
+        "Style example repository"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:00:51.830Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-12T08:33:27.654Z",
