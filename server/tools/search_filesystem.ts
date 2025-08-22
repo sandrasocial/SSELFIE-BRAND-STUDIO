@@ -31,29 +31,32 @@ export async function search_filesystem(parameters: any): Promise<string> {
     // SHOW CURRENT WORKING DIRECTORY FOR DEBUG
     console.log('🔍 AGENT WORKING DIRECTORY:', process.cwd());
     
-    // AGENTS ARE RUNNING FROM SERVER DIR - NEED TO ADJUST PATHS
-    const workspaceRoot = process.cwd().endsWith('/server') ? '..' : '.';
+    // CRITICAL FIX: Elena's search tool must work from workspace root
+    const currentDir = process.cwd();
+    console.log('🔍 CURRENT DIRECTORY:', currentDir);
     
-    // FOCUSED SEARCH PATHS: Exclude cache and temporary directories
+    // AGENTS ARE RUNNING FROM WORKSPACE ROOT - NOT server directory
+    const workspaceRoot = '.';
+    
+    // FOCUSED SEARCH PATHS: Target actual project structure
     const validSearchPaths = search_paths.length > 0 ? search_paths : ['.'];
     const adjustedPaths = validSearchPaths.map(path => {
       if (path === '.') {
-        // For root searches, target ALL main directories including documentation
+        // For root searches, target ALL main directories where files actually exist
         return [
-          `${workspaceRoot}/client/src`, 
-          `${workspaceRoot}/server`, 
-          `${workspaceRoot}/shared`, 
-          `${workspaceRoot}/infrastructure`,
-          `${workspaceRoot}/docs`,
-          `${workspaceRoot}/*.md`,
-          `${workspaceRoot}/infrastructure/docs`,
-          `${workspaceRoot}/infrastructure/docs/*.md`
+          'client/src/pages',
+          'client/src/components', 
+          'server', 
+          'shared', 
+          'client/src',
+          '*.md',
+          'server/services',
+          'server/agents',
+          'server/utils'
         ];
       }
-      if (path.startsWith('./')) return path.replace('./', `${workspaceRoot}/`);
-      if (path.startsWith('/')) return path; // Absolute paths unchanged
-      // Relative paths need workspace root prefix
-      return `${workspaceRoot}/${path}`;
+      // Keep paths as-is since we're already at workspace root
+      return path;
     }).flat();
     
     console.log('🔍 PATH ADJUSTMENT:', { original: search_paths, adjusted: adjustedPaths });
@@ -88,7 +91,7 @@ export async function search_filesystem(parameters: any): Promise<string> {
       console.log('🧠 SEMANTIC EXPANSION:', searchTerms);
       
       // CONTEXTUAL RELATIONSHIP DISCOVERY: Find related files automatically
-      const relatedFiles = await discoverRelatedFiles(searchTerms, workspaceRoot);
+      const relatedFiles = await discoverRelatedFiles(searchTerms, '.');
       console.log('🔗 DISCOVERED RELATED FILES:', relatedFiles.length);
       
       // COMPREHENSIVE SEARCH STRATEGY: Multiple search approaches
@@ -112,7 +115,7 @@ export async function search_filesystem(parameters: any): Promise<string> {
         ];
         
         for (const pattern of componentPatterns) {
-          const patternResult = await executeGrep(pattern, [`${workspaceRoot}/client/src`]);
+          const patternResult = await executeGrep(pattern, ['client/src']);
           if (patternResult && patternResult !== 'No matches found') {
             results += `\n=== 🧩 Component Pattern "${pattern.split('|')[0]}" ===\n${patternResult.substring(0, 1000)}\n`;
           }

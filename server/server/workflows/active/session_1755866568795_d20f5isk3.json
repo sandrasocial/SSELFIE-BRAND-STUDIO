@@ -393,6 +393,73 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T14:11:16.474Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755874992356_sxo58qvp7",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "aria",
+      "taskDescription": "Urgent: Implement AWS S3 bucket configuration and initial setup for SSELFIE STUDIO admin image storage. Requirements:\n1. Create S3 bucket with appropriate security policies\n2. Set up IAM roles and permissions\n3. Configure CORS and bucket policies\n4. Implement initial connection testing\n5. Provide configuration details for integration",
+      "workflowContext": "This is part of the critical image storage infrastructure implementation for SSELFIE STUDIO. We need a secure, scalable solution for storing admin account images with proper backup and recovery systems.",
+      "expectedDeliverables": [
+        "S3 bucket configuration details",
+        "IAM credentials and policies",
+        "Connection test results",
+        "Implementation documentation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:03:12.407Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755874996504_tqdvk4n3m",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "aria",
+      "taskDescription": "Set up initial backend infrastructure with focus on:\n1. User authentication system implementation\n2. API endpoints for TRAIN/STYLE/SHOOT/BUILD workflow\n3. Database schema design for user profiles and subscription tiers",
+      "workflowContext": "SSELFIE Studio platform launch - Creating foundational backend architecture with emphasis on scalability and premium user experience. Supporting €27 Creator and €67 Entrepreneur subscription tiers.",
+      "expectedDeliverables": [
+        "Authentication system implementation plan",
+        "API endpoint documentation",
+        "Database schema SQL",
+        "Technical architecture diagram"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:03:16.551Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755874999076_i87rvld8e",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "aria",
+      "taskDescription": "Need assistance with setting up testing infrastructure for image storage system. Please review and provide input on:\n1. Test case templates for S3 bucket operations\n2. Mock data generation for image testing\n3. Best practices for storage system migration testing\n4. Recommended testing frameworks and tools",
+      "workflowContext": "Creating comprehensive testing suite for SSELFIE STUDIO's image storage system. This is critical for ensuring reliable image handling for our luxury editorial platform.",
+      "expectedDeliverables": [
+        "Test case templates",
+        "Mock data specifications",
+        "Testing framework recommendations",
+        "Migration test scenarios"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:03:19.126Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875017199_yrjobylys",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "aria",
+      "taskDescription": "Urgent: Configure development database environment for SSELFIE Studio platform. Need immediate setup for:\n1. PostgreSQL database initialization\n2. Proper permissions and access configuration\n3. Environment variable setup for database connections",
+      "workflowContext": "Setting up initial backend infrastructure for SSELFIE Studio platform launch. Database configuration needed before schema creation.",
+      "expectedDeliverables": [
+        "Database configuration",
+        "Connection credentials",
+        "Environment setup confirmation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:03:37.250Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:42:48.795Z",
