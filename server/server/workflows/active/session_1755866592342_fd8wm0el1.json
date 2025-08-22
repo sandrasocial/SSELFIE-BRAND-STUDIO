@@ -345,6 +345,95 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T14:18:36.687Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875056929_7xv8yg4i4",
+      "assignedAgent": "zara",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Urgent: Implement AWS S3 bucket configuration for SSELFIE STUDIO admin image storage. Technical requirements:\n1. Create S3 bucket named 'sselfie-studio-admin-storage'\n2. Configure IAM roles with least privilege access\n3. Implement CORS policy for web access\n4. Set up bucket policies for secure access\n5. Implement and test initial connection\n6. Document all configuration details",
+      "workflowContext": "This is a critical infrastructure component for SSELFIE STUDIO's image storage needs. The S3 bucket will store user-generated content and platform assets. We need to ensure secure, scalable, and cost-effective implementation.",
+      "expectedDeliverables": [
+        "S3 bucket configuration details",
+        "IAM role ARNs and policies",
+        "CORS configuration",
+        "Bucket policy JSON",
+        "Connection test results",
+        "Integration documentation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:04:16.980Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875063199_i2jpj1hhx",
+      "assignedAgent": "elena",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Implement secure user authentication system with JWT tokens supporting both Creator (€27/month) and Entrepreneur (€67/month) subscription tiers. Include email verification and password reset functionality.",
+      "workflowContext": "Setting up initial backend infrastructure for SSELFIE Studio platform. This authentication system needs to support our subscription-based business model and integrate with the TRAIN/STYLE/SHOOT/BUILD workflow.",
+      "expectedDeliverables": [
+        "Authentication API endpoints",
+        "JWT token implementation",
+        "User registration flow",
+        "Password reset functionality",
+        "Email verification system"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:04:23.251Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875078195_fxuz3rakx",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Set up PostgreSQL database infrastructure for SSELFIE Studio, including proper connection configurations and necessary environment variables. Ensure database security best practices are implemented.",
+      "workflowContext": "Implementing initial backend infrastructure with focus on user authentication and subscription management. Database needs to support user profiles, subscription tiers, and content management.",
+      "expectedDeliverables": [
+        "PostgreSQL database setup",
+        "Connection configuration",
+        "Environment variables setup",
+        "Security configurations",
+        "Backup strategy"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:04:38.257Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875084359_ghw6kqo09",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Design and implement RESTful API endpoints for TRAIN/STYLE/SHOOT/BUILD workflow. Include proper request/response validation, rate limiting based on subscription tiers, and comprehensive API documentation.",
+      "workflowContext": "Building core API infrastructure for SSELFIE Studio platform. APIs need to support different subscription tiers (Creator €27/month, Entrepreneur €67/month) with varying access levels and usage limits.",
+      "expectedDeliverables": [
+        "API endpoint implementations",
+        "OpenAPI/Swagger documentation",
+        "Rate limiting configuration",
+        "Request/response validation",
+        "Integration tests"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:04:44.411Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875198240_q9j57oc53",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Review and validate the new website database schema for style integration compatibility. Ensure the JSONB configuration fields align with your styling requirements.",
+      "workflowContext": "Implementing core website builder database structure for SSELFIE Studio launch",
+      "expectedDeliverables": [
+        "Style configuration validation",
+        "Required style fields specification",
+        "Integration requirements document"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:06:38.286Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:43:12.342Z",

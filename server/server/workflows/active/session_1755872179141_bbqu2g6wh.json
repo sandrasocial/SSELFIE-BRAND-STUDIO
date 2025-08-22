@@ -35,6 +35,57 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T14:16:23.972Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875097112_kjqp6on89",
+      "assignedAgent": "olga",
+      "coordinatorAgent": "diana",
+      "taskDescription": "Need assistance with PostgreSQL database setup and initialization for SSELFIE Studio. I've created the initial schema and environment configuration, but we need help with:\n1. Database user creation and permissions\n2. Schema initialization\n3. Verification of database connectivity",
+      "workflowContext": "Setting up development database environment for SSELFIE Studio platform launch",
+      "expectedDeliverables": [
+        "Configured PostgreSQL database",
+        "Initialized schema",
+        "Database connection verification",
+        "Access permissions setup"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:04:57.161Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875155092_f6b7wmoj0",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "diana",
+      "taskDescription": "Review the database schema and configuration for website building compatibility. Please confirm if the current structure meets your requirements for the website builder component.",
+      "workflowContext": "Setting up PostgreSQL database infrastructure for SSELFIE Studio with focus on website builder integration.",
+      "expectedDeliverables": [
+        "Schema review feedback",
+        "Additional table requirements if needed",
+        "Website-specific indexing recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:05:55.137Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875231043_1c4hp591x",
+      "assignedAgent": "elena",
+      "coordinatorAgent": "diana",
+      "taskDescription": "Conduct comprehensive security audit of authentication system with focus on:\n1. JWT implementation security assessment\n2. OWASP Top 10 vulnerability scan\n3. Authentication flow security review\n4. Token management and storage security\n5. Detailed security recommendations report\n\nExpected deliverables:\n- Full security audit report\n- JWT implementation assessment\n- OWASP compliance checklist\n- Critical vulnerability findings\n- Remediation recommendations",
+      "workflowContext": "This is part of SSELFIE Studio's launch preparation phase. We need to ensure robust security measures are in place for the authentication system while QA testing is being handled separately. This audit will help ensure our €27/month Creator and €67/month Entrepreneur tiers have enterprise-grade security.",
+      "expectedDeliverables": [
+        "Security Audit Report",
+        "JWT Implementation Assessment",
+        "OWASP Compliance Checklist",
+        "Vulnerability Findings",
+        "Remediation Plan"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:07:11.099Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T14:16:19.141Z",

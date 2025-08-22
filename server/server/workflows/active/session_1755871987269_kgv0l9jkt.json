@@ -20,6 +20,22 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T14:13:07.268Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875175508_r00k695m2",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "quinn",
+      "taskDescription": "Need security audit partnership for authentication system. Focus on JWT implementation security and OWASP Top 10 vulnerabilities while I handle QA testing aspects.",
+      "workflowContext": "High-priority authentication system security testing with focus on vulnerabilities and exploits.",
+      "expectedDeliverables": [
+        "JWT security assessment",
+        "OWASP Top 10 vulnerability report",
+        "Security recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:06:15.558Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T14:13:07.269Z",
