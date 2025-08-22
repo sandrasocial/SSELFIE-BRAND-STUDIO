@@ -112,4 +112,25 @@ export class PersonalityIntegrationService {
     console.log(`✅ PERSONALITY VALIDATED: ${personality.name} ready for activation`);
     return true;
   }
+
+  /**
+   * GET AGENT VOICE PATTERNS: Extract natural communication patterns for personality consistency
+   */
+  getAgentVoicePatterns(agentId: string): any {
+    const personality = PURE_PERSONALITIES[agentId as keyof typeof PURE_PERSONALITIES];
+    if (!personality) return null;
+    
+    // Handle different personality structures safely
+    const voice = personality.voice as any;
+    const traits = (personality as any).traits;
+    const workStyle = (personality as any).workStyle;
+    
+    return {
+      analysisMode: voice?.analysisMode?.patterns || [],
+      executionMode: voice?.executionMode?.patterns || [],
+      samplePhrases: voice?.samplePhrases || voice?.examples || [],
+      characteristics: voice?.characteristics || [],
+      approach: traits?.approach || workStyle?.approach || 'Professional and direct'
+    };
+  }
 }
