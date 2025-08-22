@@ -86,6 +86,57 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T15:07:11.099Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875261115_c2zgewfx2",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "diana",
+      "taskDescription": "Prepare codebase for security audit with focus on:\n1. JWT implementation files and configs\n2. Authentication routes and middleware\n3. Security-sensitive database operations\n4. Token management system\n\nPlease organize and document relevant files for Elena's security audit, ensuring all authentication flows are accessible.",
+      "workflowContext": "This is a critical security audit preparation for SSELFIE Studio's authentication system. We need to ensure all JWT and auth-related code is properly organized and documented for Elena's comprehensive security review.",
+      "expectedDeliverables": [
+        "Authentication Codebase Documentation",
+        "JWT Implementation Files",
+        "Security-Critical Routes List",
+        "Database Auth Operations Summary"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:07:41.162Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875409648_4u2qibes1",
+      "assignedAgent": "olga",
+      "coordinatorAgent": "diana",
+      "taskDescription": "Conduct comprehensive OWASP vulnerability scan and penetration testing for SSELFIE Studio platform. Focus on:\n1. Critical OWASP Top 10 vulnerabilities\n2. API security assessment\n3. Authentication/authorization vulnerabilities\n4. Data protection measures\n5. Input validation and sanitization",
+      "workflowContext": "Coordinating security testing efforts across platform. This vulnerability assessment will complement ongoing QA security testing to ensure comprehensive platform security.",
+      "expectedDeliverables": [
+        "Detailed vulnerability assessment report",
+        "Critical security findings summary",
+        "Remediation recommendations",
+        "Security risk matrix"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:10:09.697Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875430014_96k1lp7my",
+      "assignedAgent": "rachel",
+      "coordinatorAgent": "diana",
+      "taskDescription": "Conduct comprehensive security audit focusing on:\n1. Authentication flows and session management\n2. Data encryption and protection measures \n3. Access control implementation\n4. Security middleware configuration\n5. API endpoint security",
+      "workflowContext": "Working on platform security assessment. Security audit will provide additional insights alongside Olga's OWASP vulnerability scan.",
+      "expectedDeliverables": [
+        "Security audit report",
+        "Security configuration recommendations",
+        "Authentication flow assessment",
+        "Data protection review"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:10:30.066Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T14:16:19.141Z",

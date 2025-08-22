@@ -956,13 +956,18 @@ consultingAgentsRouter.get('/admin/agents/conversation-history/:agentName', asyn
     let messages: any[] = [];
     if (conversations.length > 0) {
       const latestConversationId = conversations[0].conversationId;
+      // CRITICAL FIX: Limit messages to prevent chat overload
       messages = await db
         .select()
         .from(claudeMessages)
         .where(eq(claudeMessages.conversationId, latestConversationId))
-        .orderBy(claudeMessages.createdAt);
+        .orderBy(desc(claudeMessages.createdAt))
+        .limit(20); // MAX 20 messages to prevent overload
       
-      console.log(`📜 CONVERSATION LOADED: ${messages.length} messages from conversation ${latestConversationId}`);
+      // Reverse to show chronological order (oldest first)
+      messages = messages.reverse();
+      
+      console.log(`📜 CONVERSATION LOADED: ${messages.length} messages (limited to prevent overload)`);
     }
     
     // Format messages for frontend

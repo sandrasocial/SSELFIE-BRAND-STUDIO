@@ -1734,6 +1734,72 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T15:05:33.462Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875295286_m32yvmloj",
+      "assignedAgent": "zara",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Conduct thorough backend security assessment:\n1. Analyze JWT implementation and token management\n2. Review authentication middleware security\n3. Assess token storage mechanisms\n4. Check for potential security vulnerabilities\n5. Document findings in technical security report",
+      "workflowContext": "High-priority security audit of authentication system focusing on JWT implementation and OWASP compliance",
+      "expectedDeliverables": [
+        "JWT implementation security report",
+        "Token management assessment",
+        "Backend security vulnerabilities documentation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:08:15.333Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875300423_j9sdbj6w7",
+      "assignedAgent": "quinn",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Perform comprehensive security testing:\n1. Run OWASP Top 10 vulnerability scan\n2. Test authentication flows for security gaps\n3. Conduct penetration testing on auth endpoints\n4. Validate security of token handling\n5. Create detailed QA security report",
+      "workflowContext": "High-priority security audit requiring thorough OWASP compliance testing and vulnerability assessment",
+      "expectedDeliverables": [
+        "OWASP compliance report",
+        "Authentication flow security assessment",
+        "Penetration testing results"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:08:20.469Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875365952_igp6rqvie",
+      "assignedAgent": "zara",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Conduct immediate security audit of backend systems:\n1. Review/implement authentication middleware\n2. Audit API route security\n3. Analyze database operation security\n4. Review token management implementation\n5. Assess user session handling\n\nDeliverables:\n- Security audit report\n- List of critical vulnerabilities\n- Immediate fix recommendations\n- Security implementation plan",
+      "workflowContext": "HIGH PRIORITY SECURITY AUDIT: We need to ensure our authentication and security systems are robust before launch. This is blocking for deployment.",
+      "expectedDeliverables": [
+        "Security audit report",
+        "Vulnerability assessment",
+        "Implementation recommendations",
+        "Security fixes"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:09:26.004Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875371260_wdk76ukb9",
+      "assignedAgent": "zara",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Conduct security testing of existing authentication and authorization systems:\n1. Test authentication flows\n2. Validate session management\n3. Check for common security vulnerabilities\n4. Test API endpoint security\n5. Verify frontend security components\n\nDeliverables:\n- Security test results\n- Vulnerability report\n- Test coverage report\n- Security recommendations",
+      "workflowContext": "HIGH PRIORITY SECURITY TESTING: Working in parallel with Zara's security audit to validate all security implementations.",
+      "expectedDeliverables": [
+        "Security test results",
+        "Vulnerability report",
+        "Test coverage analysis",
+        "Security recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:09:31.306Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-12T08:33:27.654Z",

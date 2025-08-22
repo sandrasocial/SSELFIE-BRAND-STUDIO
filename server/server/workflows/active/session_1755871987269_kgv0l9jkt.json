@@ -36,6 +36,22 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T15:06:15.558Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755875353578_ln1yzxyj3",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "quinn",
+      "taskDescription": "Need collaboration on OWASP vulnerability scan and penetration testing aspects while I handle QA security testing. Please provide security expertise input on potential vulnerabilities found.",
+      "workflowContext": "Conducting comprehensive security audit of SSELFIE platform, focusing on authentication flows and token handling. This is HIGH priority security testing.",
+      "expectedDeliverables": [
+        "Vulnerability scan results",
+        "Penetration testing findings",
+        "Security recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:09:13.626Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T14:13:07.269Z",
