@@ -82,87 +82,78 @@ export async function search_filesystem(parameters: any): Promise<string> {
       }
     }
 
-    // UNIVERSAL INTELLIGENT SEARCH: Extract meaningful terms and search comprehensively
+    // INTELLIGENT SEMANTIC SEARCH: Advanced natural language processing
     if (query_description) {
       const searchTerms = extractSearchTerms(query_description);
-      console.log('🔍 SEARCH TERMS EXTRACTED:', searchTerms);
+      console.log('🧠 SEMANTIC EXPANSION:', searchTerms);
       
-      // BUSINESS MODEL SPECIFIC SEARCH: Include key business documentation files
-      const businessFiles = [
-        `${workspaceRoot}/infrastructure/docs/README.md`,
-        `${workspaceRoot}/SANDRA_ACTUAL_BUSINESS_MODEL.md`,
-        `${workspaceRoot}/server/SSELFIE_BUSINESS_MODEL_ANALYSIS.md`,
-        `${workspaceRoot}/business_strategy.md`,
-        `${workspaceRoot}/launch_strategy.md`,
-        `${workspaceRoot}/SANDRA_LAUNCH_STRATEGY.md`
-      ];
+      // CONTEXTUAL RELATIONSHIP DISCOVERY: Find related files automatically
+      const relatedFiles = await discoverRelatedFiles(searchTerms, workspaceRoot);
+      console.log('🔗 DISCOVERED RELATED FILES:', relatedFiles.length);
       
-      // Check if this looks like a business model query
-      const businessQuery = query_description.toLowerCase().includes('business') || 
-                           query_description.toLowerCase().includes('model') ||
-                           query_description.toLowerCase().includes('train') ||
-                           query_description.toLowerCase().includes('style') ||
-                           query_description.toLowerCase().includes('gallery') ||
-                           query_description.toLowerCase().includes('sselfie');
+      // COMPREHENSIVE SEARCH STRATEGY: Multiple search approaches
       
-      // SSELFIE CORE COMPONENT MAPPING: Help agents find actual component names
-      const sselfieQuery = query_description.toLowerCase().includes('train') ||
-                          query_description.toLowerCase().includes('style') ||
-                          query_description.toLowerCase().includes('maya') ||
-                          query_description.toLowerCase().includes('gallery') ||
-                          query_description.toLowerCase().includes('sselfie') ||
-                          query_description.toLowerCase().includes('component');
+      // 1. EXACT TERM MATCHING across all discovered files
+      for (const term of searchTerms.slice(0, 5)) {
+        const broadResult = await executeGrep(term, [...adjustedPaths, ...relatedFiles]);
+        if (broadResult && broadResult !== 'No matches found' && broadResult.length > 50) {
+          results += `\n=== 🔍 Found "${term}" (${broadResult.split('\n').length} matches) ===\n${broadResult.substring(0, 1800)}\n`;
+        }
+      }
       
-      if (sselfieQuery) {
-        console.log('🔍 SSELFIE COMPONENT SEARCH: Including core component files');
-        const coreComponents = [
-          `${workspaceRoot}/client/src/pages/simple-training.tsx`,
-          `${workspaceRoot}/client/src/pages/maya.tsx`,
-          `${workspaceRoot}/client/src/pages/sselfie-gallery.tsx`,
-          `${workspaceRoot}/client/src/pages/ai-photoshoot.tsx`,
-          `${workspaceRoot}/client/src/pages/workspace.tsx`,
-          `${workspaceRoot}/client/src/App.tsx`
+      // 2. PATTERN MATCHING for component relationships
+      if (searchTerms.some(term => ['component', 'page', 'route', 'ui', 'tsx'].includes(term.toLowerCase()))) {
+        const componentPatterns = [
+          'export default function',
+          'import.*from.*pages',
+          'component.*props',
+          'Route path=',
+          'useState|useEffect'
         ];
         
-        // Search core components specifically
-        for (const term of searchTerms.slice(0, 3)) {
-          const componentResult = await executeGrep(term, coreComponents);
-          if (componentResult && componentResult !== 'No matches found') {
-            results += `\n=== SSELFIE Core Components "${term}" ===\n${componentResult.substring(0, 1500)}\n`;
+        for (const pattern of componentPatterns) {
+          const patternResult = await executeGrep(pattern, [`${workspaceRoot}/client/src`]);
+          if (patternResult && patternResult !== 'No matches found') {
+            results += `\n=== 🧩 Component Pattern "${pattern.split('|')[0]}" ===\n${patternResult.substring(0, 1000)}\n`;
           }
         }
+      }
+      
+      // 3. API AND DATABASE RELATIONSHIP DISCOVERY
+      if (searchTerms.some(term => ['api', 'database', 'route', 'endpoint', 'schema'].includes(term.toLowerCase()))) {
+        const backendPatterns = [
+          'router\\.',
+          'app\\.(get|post|put|delete)',
+          'export.*schema',
+          'drizzle|postgres',
+          'apiRequest'
+        ];
         
-        // Always include component routing information
-        const routingResult = await executeGrep('simple-training\\|maya\\|sselfie-gallery', [`${workspaceRoot}/client/src/App.tsx`]);
-        if (routingResult && routingResult !== 'No matches found') {
-          results += `\n=== SSELFIE Component Routes ===\n${routingResult.substring(0, 1000)}\n`;
-        }
-      }
-      
-      if (businessQuery) {
-        console.log('🔍 BUSINESS MODEL SEARCH: Including business documentation files');
-        for (const term of searchTerms.slice(0, 3)) {
-          const businessResult = await executeGrep(term, businessFiles);
-          if (businessResult && businessResult !== 'No matches found') {
-            results += `\n=== Business Documentation "${term}" ===\n${businessResult.substring(0, 1500)}\n`;
+        for (const pattern of backendPatterns) {
+          const apiResult = await executeGrep(pattern, [`${workspaceRoot}/server`, `${workspaceRoot}/shared`]);
+          if (apiResult && apiResult !== 'No matches found') {
+            results += `\n=== 🔌 API Pattern "${pattern.split('\\')[0]}" ===\n${apiResult.substring(0, 1000)}\n`;
           }
         }
       }
       
-      // Search all meaningful terms without hardcoded patterns
-      for (const term of searchTerms.slice(0, 3)) { // Search top 3 most relevant terms
-        const grepResult = await executeGrep(term, adjustedPaths);
-        if (grepResult && grepResult !== 'No matches found') {
-          results += `\n=== Found "${term}" ===\n${grepResult.substring(0, 1200)}\n`;
+      // 4. BUSINESS LOGIC AND FEATURE DISCOVERY
+      if (searchTerms.some(term => ['business', 'model', 'strategy', 'launch', 'plan'].includes(term.toLowerCase()))) {
+        const businessPatterns = await executeGrep('train.*style.*gallery\\|business.*model\\|launch.*strategy', [
+          `${workspaceRoot}/*.md`,
+          `${workspaceRoot}/docs`,
+          `${workspaceRoot}/infrastructure/docs`
+        ]);
+        
+        if (businessPatterns && businessPatterns !== 'No matches found') {
+          results += `\n=== 📋 Business Intelligence ===\n${businessPatterns.substring(0, 1500)}\n`;
         }
       }
       
-      // If query is very specific, also search the full description as a phrase
-      if (query_description.length > 20 && !query_description.includes(' ')) {
-        const exactResult = await executeGrep(query_description, adjustedPaths);
-        if (exactResult && exactResult !== 'No matches found') {
-          results += `\n=== Exact Match: "${query_description}" ===\n${exactResult.substring(0, 1200)}\n`;
-        }
+      // 5. CROSS-REFERENCE FILE IMPORTS AND DEPENDENCIES
+      const importResults = await findFileImports(searchTerms, workspaceRoot);
+      if (importResults.length > 0) {
+        results += `\n=== 🔗 Related File Dependencies ===\n${importResults.join('\n').substring(0, 1200)}\n`;
       }
     }
 
@@ -433,25 +424,133 @@ async function getBusinessModelDocumentation(): Promise<string> {
   return businessInfo || '📄 Business documentation access limited - check file permissions';
 }
 
-// Extract search terms from description
+// INTELLIGENT SEMANTIC SEARCH TERM EXTRACTION
 function extractSearchTerms(description: string): string[] {
-  // INTELLIGENT TERM EXTRACTION: Remove common words, prioritize meaningful terms
-  const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'where', 'when', 'why', 'show', 'find', 'search', 'get', 'look', 'see', 'view', 'read', 'content', 'file', 'page'];
+  // COMPREHENSIVE KEYWORD MAPPING for SSELFIE Studio
+  const sselfieKeywordMap = {
+    // Core Features
+    'train': ['SimpleTraining', 'simple-training', 'model-training', 'replicate', 'flux', 'lora', 'user_models', 'training'],
+    'style': ['Maya', 'maya', 'styling', 'fashion', 'aesthetic', 'maya_chat', 'style-guide', 'brand'],
+    'gallery': ['SSELFIEGallery', 'sselfie-gallery', 'ai_images', 'generated_images', 'photo', 'image'],
+    'photoshoot': ['ai-photoshoot', 'sandra-photoshoot', 'AIPhotoshoot', 'generation', 'ai_images'],
+    'workspace': ['workspace', 'dashboard', 'member', 'studio', 'home'],
+    
+    // UI Components
+    'component': ['components', 'ui', 'tsx', 'jsx', 'button', 'form', 'modal'],
+    'page': ['pages', 'route', 'App.tsx', 'navigation', 'routing'],
+    'navigation': ['MemberNavigation', 'nav', 'menu', 'header', 'sidebar'],
+    
+    // Backend
+    'api': ['routes', 'server', 'endpoint', 'api', 'express', 'backend'],
+    'database': ['schema', 'drizzle', 'postgres', 'table', 'sql', 'db'],
+    'auth': ['authentication', 'login', 'user', 'session', 'replit'],
+    
+    // Business
+    'pricing': ['subscription', 'stripe', 'payment', 'checkout', 'plan'],
+    'admin': ['admin', 'consulting-agents', 'elena', 'coordination'],
+    'business': ['model', 'strategy', 'launch', 'revenue', 'plan'],
+    
+    // Technical
+    'service': ['service', 'utility', 'helper', 'tool', 'function'],
+    'config': ['config', 'setup', 'environment', 'settings'],
+    'integration': ['integration', 'webhook', 'external', 'third-party']
+  };
   
-  // Clean and normalize input
-  const cleanDescription = description
+  const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'where', 'when', 'why', 'show', 'find', 'search', 'get', 'look', 'see', 'view', 'read', 'content', 'file', 'page', 'current', 'status', 'implementation', 'please', 'help'];
+  
+  // Extract base terms
+  const baseTerms = description
     .toLowerCase()
-    .replace(/[^\w\s'-]/g, ' ') // Remove special chars except apostrophes and hyphens
+    .replace(/[^\w\s'-]/g, ' ')
     .split(/\s+/)
     .filter(word => word.length > 2 && !commonWords.includes(word));
   
-  // Prioritize longer, more specific terms
-  return cleanDescription
-    .sort((a, b) => b.length - a.length) // Longer terms first
-    .slice(0, 5); // Take top 5 meaningful terms
+  // Expand with semantic mappings
+  const expandedTerms = new Set<string>();
+  
+  for (const term of baseTerms) {
+    expandedTerms.add(term);
+    
+    // Add semantic mappings
+    for (const [key, mappings] of Object.entries(sselfieKeywordMap)) {
+      if (term.includes(key) || key.includes(term)) {
+        mappings.forEach(mapping => expandedTerms.add(mapping));
+      }
+    }
+  }
+  
+  // Convert back to array and prioritize
+  const finalTerms = Array.from(expandedTerms)
+    .sort((a, b) => {
+      // Prioritize longer, more specific terms
+      if (a.length !== b.length) return b.length - a.length;
+      // Prioritize exact matches from the original query
+      if (baseTerms.includes(a) && !baseTerms.includes(b)) return -1;
+      if (baseTerms.includes(b) && !baseTerms.includes(a)) return 1;
+      return 0;
+    })
+    .slice(0, 8); // Increased to 8 terms for better coverage
+  
+  console.log(`🧠 SEMANTIC EXPANSION: "${description}" → [${finalTerms.join(', ')}]`);
+  return finalTerms;
 }
 
-// REMOVED: All hardcoded file access functions to let agents use intelligence
+// INTELLIGENT FILE DISCOVERY: Find related files based on semantic context
+async function discoverRelatedFiles(searchTerms: string[], workspaceRoot: string): Promise<string[]> {
+  const relatedFiles = new Set<string>();
+  
+  // SSELFIE STUDIO SPECIFIC FILE RELATIONSHIPS
+  const fileRelationships = {
+    // Core Features
+    'SimpleTraining': [`${workspaceRoot}/client/src/pages/simple-training.tsx`, `${workspaceRoot}/client/src/components/training`, `${workspaceRoot}/server/routes/*training*`],
+    'Maya': [`${workspaceRoot}/client/src/pages/maya.tsx`, `${workspaceRoot}/client/src/components/maya`, `${workspaceRoot}/server/routes/*maya*`],
+    'SSELFIEGallery': [`${workspaceRoot}/client/src/pages/sselfie-gallery.tsx`, `${workspaceRoot}/client/src/components/gallery`, `${workspaceRoot}/server/routes/*gallery*`],
+    
+    // UI Components
+    'components': [`${workspaceRoot}/client/src/components`, `${workspaceRoot}/client/src/components/ui`],
+    'pages': [`${workspaceRoot}/client/src/pages`, `${workspaceRoot}/client/src/App.tsx`],
+    'navigation': [`${workspaceRoot}/client/src/components/member-navigation.tsx`, `${workspaceRoot}/client/src/components/navigation`],
+    
+    // Backend
+    'api': [`${workspaceRoot}/server/routes`, `${workspaceRoot}/server/index.ts`],
+    'database': [`${workspaceRoot}/shared/schema.ts`, `${workspaceRoot}/server/db`, `${workspaceRoot}/drizzle`],
+    'auth': [`${workspaceRoot}/server/replitAuth.ts`, `${workspaceRoot}/server/auth`],
+    
+    // Business
+    'business': [`${workspaceRoot}/*.md`, `${workspaceRoot}/docs`, `${workspaceRoot}/infrastructure/docs`],
+    'admin': [`${workspaceRoot}/client/src/pages/admin*`, `${workspaceRoot}/server/agents`, `${workspaceRoot}/server/routes/consulting-agents*`]
+  };
+  
+  // Add related files based on search terms
+  for (const term of searchTerms) {
+    for (const [key, paths] of Object.entries(fileRelationships)) {
+      if (term.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(term.toLowerCase())) {
+        paths.forEach(path => relatedFiles.add(path));
+      }
+    }
+  }
+  
+  return Array.from(relatedFiles);
+}
+
+// IMPORT RELATIONSHIP DISCOVERY: Find files that import/export related functionality
+async function findFileImports(searchTerms: string[], workspaceRoot: string): Promise<string[]> {
+  const importResults: string[] = [];
+  
+  try {
+    // Search for import statements related to search terms
+    for (const term of searchTerms.slice(0, 3)) {
+      const importSearch = await executeGrep(`import.*${term}|from.*${term}`, [`${workspaceRoot}/client/src`, `${workspaceRoot}/server`]);
+      if (importSearch && importSearch !== 'No matches found') {
+        importResults.push(`Import references for "${term}":\n${importSearch.substring(0, 500)}`);
+      }
+    }
+  } catch (error) {
+    console.log('Import search failed:', error);
+  }
+  
+  return importResults;
+}
 
 function oldExtractSearchTerms(description: string): string[] {
   const words = description.toLowerCase().split(/\s+/);
