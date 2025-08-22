@@ -1,0 +1,26 @@
+{
+  "sessionId": "session_1755859453469_gc9eq4r2h",
+  "name": "rachel Coordination Tasks",
+  "description": "Active coordination tasks managed by rachel",
+  "coordinatorAgent": "rachel",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755859453424_1q39uc0vd",
+      "assignedAgent": "elena",
+      "coordinatorAgent": "rachel",
+      "taskDescription": "Request assignment confirmation for SSELFIE Studio repositioning tasks - specifically pricing model optimization from €29/€67 to €39 Single Mom Starter and implementation of new success-story focused messaging.",
+      "workflowContext": "Currently working on repositioning SSELFIE Studio as Single Mom Success System with new €39 Single Mom Starter pricing tier. Need to confirm if I should proceed with full implementation across all marketing materials.",
+      "expectedDeliverables": [
+        "Task assignment confirmation",
+        "Priority level for repositioning",
+        "Implementation scope verification"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T10:44:13.468Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T10:44:13.469Z",
+  "status": "active"
+}
