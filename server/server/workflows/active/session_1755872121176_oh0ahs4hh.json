@@ -1,0 +1,27 @@
+{
+  "sessionId": "session_1755872121176_oh0ahs4hh",
+  "name": "wilma Coordination Tasks",
+  "description": "Active coordination tasks managed by wilma",
+  "coordinatorAgent": "wilma",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755872121127_jlypvsfla",
+      "assignedAgent": "olga",
+      "coordinatorAgent": "wilma",
+      "taskDescription": "Please implement the following task cleanup cron job:\n\n1. Deploy the task cleanup script to /usr/local/bin/task_cleanup.sh\n2. Configure hourly cron job execution\n3. Ensure proper logging to /var/log/task_cleanup.log\n4. Set up log rotation for the cleanup logs\n\nThe cleanup script and SQL function have been created. This will help maintain system health by archiving stale tasks.",
+      "workflowContext": "This is part of a system maintenance workflow to prevent accumulation of stale tasks. The SQL function cleanup_stale_tasks() has been created and tested.",
+      "expectedDeliverables": [
+        "Deployed cleanup script",
+        "Configured cron job",
+        "Verified log setup",
+        "Log rotation configuration"
+      ],
+      "priority": "medium",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:15:21.175Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T14:15:21.176Z",
+  "status": "active"
+}

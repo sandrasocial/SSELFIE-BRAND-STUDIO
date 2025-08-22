@@ -310,6 +310,103 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T14:10:08.575Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872097336_4bs350ndg",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need assistance setting up database schema and tracking system for social media content and editorial guidelines. This should include tables for:\n1. Social media posts\n2. Editorial guidelines\n3. Platform-specific requirements\n4. Content performance metrics",
+      "workflowContext": "Working on social media content audit for SSELFIE Studio launch. Need proper infrastructure to track and maintain content consistency across platforms.",
+      "expectedDeliverables": [
+        "Database schema for social content tracking",
+        "API endpoints for content management",
+        "Integration plan with existing systems"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:14:57.381Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872097503_5eai4bldo",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need status check on current website copy and brand voice implementation. Looking for any existing style guidelines or brand voice documentation you're working with.",
+      "workflowContext": "Conducting editorial style guide audit for SSELFIE Studio launch. Need to ensure brand voice consistency across all touchpoints.",
+      "expectedDeliverables": [
+        "Current website copy samples",
+        "Any existing brand voice guidelines",
+        "Notes on tone/style being implemented"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:14:57.549Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872104080_sfcpd1en2",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need comprehensive audit of current social media content and creation of updated editorial style guide for SSELFIE Studio. Focus areas:\n1. Brand voice and tone documentation\n2. Visual style guidelines\n3. Platform-specific content requirements\n4. Key messaging pillars for SSELFIE Studio launch",
+      "workflowContext": "Preparing for SSELFIE Studio launch by ensuring consistent brand presence across all platforms. Working alongside Victoria who is developing technical infrastructure for content tracking.",
+      "expectedDeliverables": [
+        "Editorial style guide document",
+        "Content audit report",
+        "Platform-specific guidelines",
+        "Brand voice documentation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:15:04.127Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872233789_2qiwajjb2",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Review new visual style guidelines (docs/style_guide/visual_guidelines.md) and ensure website development aligns with specified color codes, typography, and layout principles. Please confirm if any adjustments needed for technical implementation.",
+      "workflowContext": "Creating cohesive brand experience across SSELFIE Studio platform",
+      "expectedDeliverables": [
+        "Technical feasibility assessment",
+        "Implementation recommendations",
+        "Any suggested style guide updates"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:17:13.839Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872234627_okq9dgast",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "I've created new brand voice guidelines for SSELFIE Studio. Please review and incorporate these guidelines into the website copy and UI text. The guidelines are in brand_voice_guidelines.md. Key focus areas: warm & professional tone, emphasis on all-in-one solution, and clear value proposition for both Creator (€27) and Entrepreneur (€67) plans.",
+      "workflowContext": "This is part of establishing consistent brand messaging across all touchpoints for SSELFIE Studio's launch. The guidelines will help ensure cohesive communication across the platform.",
+      "expectedDeliverables": [
+        "Website copy review and updates based on new guidelines",
+        "UI text alignment with brand voice",
+        "Confirmation of implementation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:17:14.677Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872329659_ncyo56jik",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need to align on visual elements for Creator (€27) and Entrepreneur (€67) pricing tiers. Please share current website design files and brand guidelines so I can enhance visual differentiation while maintaining warm, professional tone.",
+      "workflowContext": "Working on visual brand alignment for SSELFIE Studio launch, focusing on pricing tier differentiation and value proposition visualization.",
+      "expectedDeliverables": [
+        "Current website design files",
+        "Existing brand guidelines",
+        "Pricing page layouts"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:18:49.708Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:52:17.759Z",

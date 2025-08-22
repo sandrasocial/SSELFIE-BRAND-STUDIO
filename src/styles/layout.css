@@ -1,0 +1,67 @@
+/* SSELFIE STUDIO Layout System */
+
+/* Grid System */
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.grid {
+  display: grid;
+  gap: var(--grid-gap);
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Responsive Grid */
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .grid {
+    grid-template-columns: repeat(12, 1fr);
+  }
+}
+
+/* Spacing Utilities */
+.margin-bottom {
+  margin-bottom: var(--spacing-md);
+}
+
+.margin-top {
+  margin-top: var(--spacing-md);
+}
+
+.padding {
+  padding: var(--spacing-md);
+}
+
+/* Layout Utilities */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Creator vs Entrepreneur Specific Layouts */
+.creator-layout {
+  /* Dynamic, content-focused layout */
+  gap: var(--spacing-md);
+  grid-template-rows: auto;
+}
+
+.entrepreneur-layout {
+  /* Professional, structured layout */
+  gap: var(--spacing-lg);
+  grid-template-rows: auto;
+}
