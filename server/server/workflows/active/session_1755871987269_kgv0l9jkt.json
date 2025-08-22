@@ -183,6 +183,38 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T15:39:20.763Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878114771_dvhm6yobv",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "quinn",
+      "taskDescription": "Need to verify your chat integration endpoints and response handling for both Creator (€27) and Entrepreneur (€67) tiers. Please confirm your current chat feature limitations and tier-specific capabilities.",
+      "workflowContext": "Conducting comprehensive QA testing of launch features, focusing on TRAIN, Maya chat, and SSELFIE gallery integration.",
+      "expectedDeliverables": [
+        "Tier-specific feature matrix",
+        "Chat endpoint status",
+        "Known limitations list"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:55:14.819Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878141682_nu0no6n0x",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "quinn",
+      "taskDescription": "Need verification of error handling and responsive design implementation in website components, particularly for SSELFIE gallery display and TRAIN module interface.",
+      "workflowContext": "QA testing launch features, found potential gaps in error handling and cross-browser compatibility.",
+      "expectedDeliverables": [
+        "Responsive design status",
+        "Error handling coverage report",
+        "Critical path testing results"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:55:41.733Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T14:13:07.269Z",
