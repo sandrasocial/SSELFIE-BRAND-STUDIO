@@ -36,6 +36,42 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T15:30:08.022Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878131578_reycaour9",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "sophia",
+      "taskDescription": "Create visual assets for SSELFIE Studio launch campaign including:\n1. Reel templates for cost comparison content\n2. Story templates for feature previews\n3. Carousel designs for educational content\n4. Visual guidelines for testimonial spotlights",
+      "workflowContext": "Social media launch campaign targeting 135K followers, focusing on TRAIN, Maya chat, and SSELFIE gallery features. Need cohesive visual strategy that maintains luxury editorial feel while showcasing platform benefits.",
+      "expectedDeliverables": [
+        "Reel templates (3 variations)",
+        "Story templates (5 variations)",
+        "Carousel post templates (3 variations)",
+        "Testimonial spotlight templates",
+        "Visual style guide for launch campaign"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:55:31.630Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878138134_dsqhc6nlu",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "sophia",
+      "taskDescription": "Prepare website infrastructure for SSELFIE Studio launch:\n1. Create optimized landing pages for Creator and Entrepreneur tiers\n2. Set up early-bird pricing functionality\n3. Implement waitlist system\n4. Ensure smooth user onboarding flow",
+      "workflowContext": "Launching SSELFIE Studio to 135K followers with special early-bird pricing (Creator: €20/month, Entrepreneur: €47/month). Need website infrastructure to handle high traffic and conversions.",
+      "expectedDeliverables": [
+        "Landing page designs",
+        "Early-bird pricing system",
+        "Waitlist functionality",
+        "User onboarding flow",
+        "Traffic handling optimization plan"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:55:38.183Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T15:30:00.928Z",

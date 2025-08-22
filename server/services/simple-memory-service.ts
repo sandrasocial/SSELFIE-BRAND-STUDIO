@@ -131,11 +131,17 @@ export class SimpleMemoryService {
    */
   /**
    * FULL LOCAL MEMORY SYSTEM: Get complete conversation context locally
-   * Returns formatted conversation history without Claude API calls
+   * ELENA FIX: Ensures proper conversation ID and message loading
    */
   async getFullConversationContext(agentName: string, userId: string): Promise<Array<{role: string, content: string}>> {
     try {
       const context = await this.prepareAgentContext({ agentName, userId, isAdminBypass: true });
+      
+      // ELENA FIX: Ensure conversation exists before loading
+      if (agentName.toLowerCase() === 'elena') {
+        const { ElenaMemoryFix } = await import('../memory/elena-memory-fix.js');
+        await ElenaMemoryFix.ensureElenaConversation(userId);
+      }
       
       // LOAD FULL CONVERSATION FROM STORAGE (not just memories)
       const storedData = await storage.getAgentMemory(agentName, userId);
@@ -162,7 +168,7 @@ export class SimpleMemoryService {
         content: msg.content
       }));
       
-      console.log(`🧠 LOCAL FALLBACK: Loaded ${formattedMessages.length} messages from database for ${agentName}`);
+      console.log(`🧠 LOCAL FALLBACK: Loaded ${formattedMessages.length} messages from database for ${agentName} (conversationId: ${conversationId})`);
       return formattedMessages;
       
     } catch (error) {

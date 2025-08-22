@@ -569,6 +569,119 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T15:39:38.279Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755877919673_aso0hiocn",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need quick overview of current styling components and photo generation features implemented in the system",
+      "workflowContext": "Analyzing MVP-critical STYLE components for SSELFIE Studio launch",
+      "expectedDeliverables": [
+        "List of implemented styling features",
+        "Current photo generation capabilities"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:51:59.720Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878017329_5m7axbhmp",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Please review and integrate the new StyleTransform.vue component and transformService.js into the main application. Need endpoint configuration and routing setup for the photo transformation feature.",
+      "workflowContext": "Implementing streamlined photo generation interface for SSELFIE Studio's initial launch. Focus is on single-style transformation with luxury editorial feel.",
+      "expectedDeliverables": [
+        "Component integration confirmation",
+        "API endpoint configuration",
+        "Route setup",
+        "Integration test results"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:53:37.378Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878120113_usuq9kc6z",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Please review the new launch messaging I've created in marketing/launch_messaging.md and ensure the website copy and structure aligns with these value propositions and tier benefits. We need to particularly highlight the three core features: TRAIN, Maya chat, and SSELFIE gallery.",
+      "workflowContext": "We're preparing for immediate launch with focused messaging on our three core features, with clear differentiation between Creator (€27) and Entrepreneur (€67) tiers.",
+      "expectedDeliverables": [
+        "Website copy alignment confirmation",
+        "Any suggested messaging adjustments",
+        "Implementation timeline"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:55:20.322Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878177319_rtrxixkn8",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need urgent alignment on chat feature implementations between Maya and Victoria systems. Specifically:\n1. How are you handling tier-based access (€27 vs €67)?\n2. What rate limiting are you implementing?\n3. Do you have subscription-level checks in place?",
+      "workflowContext": "Analyzing chat integration endpoints and tier-specific capabilities for SSELFIE Studio launch",
+      "expectedDeliverables": [
+        "Current tier implementation details",
+        "Rate limiting specifications",
+        "Subscription validation process"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:56:17.374Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878186738_bwdtgvto2",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need your website color codes and typography specifications to ensure our launch campaign visuals match perfectly with your website design. Also, please confirm any specific UI elements or components you're using that we should mirror in our social media assets.",
+      "workflowContext": "Creating visual assets for SSELFIE Studio launch campaign - need alignment with website design system",
+      "expectedDeliverables": [
+        "Color hex codes",
+        "Typography specifications",
+        "UI component list",
+        "Website style guide"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:56:26.783Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878300374_t2ny2o0i7",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Urgent: Need implementation of rate limiting for subscription tiers. Creator tier should be limited to 500 API requests/month, Entrepreneur to 2000 requests/month. Please provide technical implementation plan.",
+      "workflowContext": "Working on subscription tier access controls and rate limiting for SSELFIE Studio launch",
+      "expectedDeliverables": [
+        "Rate limiting technical specification",
+        "Implementation timeline",
+        "Integration points with existing subscription system"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:58:20.426Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755878310233_h6u8j16j0",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need security audit of subscription validation process. Focus on access control implementation and usage monitoring for different subscription tiers.",
+      "workflowContext": "Ensuring robust subscription tier management for SSELFIE Studio launch",
+      "expectedDeliverables": [
+        "Security audit report",
+        "Access control recommendations",
+        "Implementation gaps analysis"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T15:58:30.286Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:52:17.759Z",

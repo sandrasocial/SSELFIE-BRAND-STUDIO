@@ -1,38 +1,47 @@
-import winston from 'winston';
-import newrelic from 'newrelic';
+import { MonitoringConfig } from '../types/monitoring';
 
-// Configure Winston logger
-export const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' })
-  ]
-});
-
-// Add console logging in development
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.simple()
-  }));
-}
-
-// Configure performance monitoring
-export const monitoring = {
-  trackError: (error: Error) => {
-    logger.error(error.message, { stack: error.stack });
-    newrelic.noticeError(error);
+export const monitoringConfig: MonitoringConfig = {
+  errorTracking: {
+    enabled: true,
+    criticalAlertThreshold: 5, // Alert after 5 critical errors within timeWindow
+    timeWindow: 300000, // 5 minutes in milliseconds
+    modules: {
+      gallery: {
+        enabled: true,
+        errorTypes: ['runtime', 'network', 'resource'],
+      },
+      train: {
+        enabled: true,
+        errorTypes: ['runtime', 'model', 'processing'],
+      }
+    },
+    alertChannels: ['email', 'slack'],
   },
-  trackMetric: (name: string, value: number) => {
-    newrelic.recordMetric(name, value);
-    logger.info(`Metric recorded: ${name}`, { value });
+  responsiveAnalytics: {
+    enabled: true,
+    breakpoints: {
+      mobile: 320,
+      tablet: 768,
+      desktop: 1024,
+      wide: 1440
+    },
+    tracking: {
+      deviceTypes: true,
+      screenSizes: true,
+      orientations: true,
+      interactions: true,
+    },
+    reportingInterval: 86400000, // Daily in milliseconds
+    retentionPeriod: 2592000000, // 30 days in milliseconds
   },
-  trackEvent: (name: string, attributes: object) => {
-    newrelic.recordCustomEvent(name, attributes);
-    logger.info(`Event recorded: ${name}`, attributes);
+  dashboards: {
+    errorRate: {
+      refreshInterval: 300000, // 5 minutes
+      metrics: ['count', 'impactedUsers', 'errorType', 'module'],
+    },
+    responsivePerformance: {
+      refreshInterval: 900000, // 15 minutes
+      metrics: ['deviceType', 'breakpoint', 'successRate', 'viewportSize'],
+    }
   }
 };
