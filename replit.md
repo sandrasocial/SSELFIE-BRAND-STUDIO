@@ -1,7 +1,7 @@
 # SSELFIE Studio - AI Personal Branding Platform
 
 ## Overview
-SSELFIE Studio is Sandra's all-in-one personal branding platform that replaces €120-180+ monthly subscriptions (Canva, ChatGPT, photo editors, etc.) with one solution. The 5-step user journey includes TRAIN (AI model), STYLE (Maya agent), SHOOT (prompts), BUILD (Victoria websites), and MANAGE (dashboard). Sandra has 135K+ followers and needs her admin agents to help determine launch pricing strategy, isolate ready features, and simplify positioning for immediate market entry. Long-term goal: use success to sell admin agent ecosystem.
+SSELFIE Studio is Sandra's simplified AI personal brand photo platform following Elena's strategic focus. The streamlined 3-step journey includes TRAIN (AI model), STYLE (Maya consultation), and GALLERY (unlimited photo generation). One core offer at €47/month targets Sandra's 135K+ followers with the core value proposition: AI-powered personal brand photos that make you stand out instantly. This simplified approach focuses on the money maker (professional AI photos) before expanding to additional features.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
