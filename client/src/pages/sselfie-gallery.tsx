@@ -204,8 +204,6 @@ const downloadImage = async (imageUrl: string, filename: string) => {
     }
   };
 
-
-
   const toggleFavorite = (imageId: number) => {
     console.log('Heart clicked for image:', imageId);
     console.log('Current favorites:', favorites);
