@@ -374,6 +374,22 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       TOOL_SCHEMAS.autonomous_workflow    // FULLY AUTONOMOUS WORKFLOWS
     ];
 
+    // CRITICAL PATH VALIDATION: Add project structure context to all agents
+    const PROJECT_STRUCTURE_CONTEXT = `
+    
+CRITICAL PROJECT STRUCTURE RULES - MUST FOLLOW:
+- Frontend files: Use "client/src/" prefix (NEVER use bare "src/")
+- Backend files: Use "server/" prefix  
+- Shared files: Use "shared/" prefix
+- Existing workspace components:
+  * client/src/pages/member/workspace.tsx (main workspace)
+  * client/src/pages/member/simple-training.tsx (TRAIN step)
+  * client/src/pages/member/maya.tsx (STYLE step)
+  * client/src/pages/member/sselfie-gallery.tsx (GALLERY step)
+- DO NOT create duplicate components
+- DO NOT create "src/" directories (use "client/src/")
+- ALWAYS check existing files with search_filesystem before creating new ones`;
+
     // ADMIN INTELLIGENT MODE: Use Claude API for conversations, direct tools for specific requests
     const isAdminRequest = req.body.adminToken === 'sandra-admin-2025' || userId === '42585527';
     
@@ -387,6 +403,9 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
 
     // CREATE PERSONALITY CONTEXT: Full integration with admin capabilities
     const personalityContext = personalityService.createPersonalityContext(normalizedAgentId, isAdminRequest);
+    
+    // INJECT PROJECT STRUCTURE CONTEXT: Prevent wrong file paths
+    personalityContext.enhancedPrompt += PROJECT_STRUCTURE_CONTEXT;
     
     // CREATE ADMIN CONTEXT: Memory and personality preservation using simpleMemoryService
     await simpleMemoryService.prepareAgentContext({
