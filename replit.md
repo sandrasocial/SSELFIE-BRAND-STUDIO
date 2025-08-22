@@ -1,7 +1,7 @@
 # SSELFIE Studio - AI Personal Branding Platform
 
 ## Overview
-SSELFIE Studio is a premium AI-powered personal branding platform designed to transform selfies into professional brand photography. Its core purpose is to assist users in building compelling personal brands through AI-guided business strategy and automated content generation. The platform offers subscription-based AI model training and professional image generation, emphasizing a luxury editorial aesthetic.
+SSELFIE Studio is Sandra's all-in-one personal branding platform that replaces €120-180+ monthly subscriptions (Canva, ChatGPT, photo editors, etc.) with one solution. The 5-step user journey includes TRAIN (AI model), STYLE (Maya agent), SHOOT (prompts), BUILD (Victoria websites), and MANAGE (dashboard). Sandra has 135K+ followers and needs her admin agents to help determine launch pricing strategy, isolate ready features, and simplify positioning for immediate market entry. Long-term goal: use success to sell admin agent ecosystem.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
