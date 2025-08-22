@@ -59,41 +59,24 @@ export async function search_filesystem(parameters: any): Promise<string> {
       }
     }
 
-    // INTELLIGENT SEARCH: Focus on finding actual content
+    // UNIVERSAL INTELLIGENT SEARCH: Extract meaningful terms and search comprehensively
     if (query_description) {
-      // Search for Sandra's story and key content
-      if (query_description.toLowerCase().includes('about') || query_description.toLowerCase().includes('story')) {
-        const storyResult = await executeGrep('marriage ended', adjustedPaths);
-        if (storyResult && storyResult !== 'No matches found') {
-          results += `\n=== Sandra's Story ===\n${storyResult}\n`;
-        }
-        const aboutResult = await executeGrep('about', [`${workspaceRoot}/client/src/pages`, `${workspaceRoot}/client/src/components`]);
-        if (aboutResult && aboutResult !== 'No matches found') {
-          results += `\n=== About Pages & Components ===\n${aboutResult.substring(0, 2000)}\n`;
-        }
-      }
-      
-      if (query_description.toLowerCase().includes('how') && query_description.toLowerCase().includes('work')) {
-        const howResult = await executeGrep('how.*work', [`${workspaceRoot}/client/src/pages`]);
-        results += `\n=== How It Works Content ===\n${howResult.substring(0, 2000)}\n`;
-      }
-      
-      // Search for business documents
-      if (query_description.toLowerCase().includes('business') || query_description.toLowerCase().includes('strategy') || query_description.toLowerCase().includes('pricing')) {
-        const businessResult = await executeGrep('BUSINESS_MODEL\|pricing\|strategy', [workspaceRoot]);
-        if (businessResult && businessResult !== 'No matches found') {
-          results += `\n=== Business & Strategy Documents ===\n${businessResult.substring(0, 2000)}\n`;
-        }
-      }
-      
-      // General term search with better results
       const searchTerms = extractSearchTerms(query_description);
       console.log('🔍 SEARCH TERMS EXTRACTED:', searchTerms);
       
-      for (const term of searchTerms.slice(0, 3)) { // Search top 3 terms
+      // Search all meaningful terms without hardcoded patterns
+      for (const term of searchTerms.slice(0, 3)) { // Search top 3 most relevant terms
         const grepResult = await executeGrep(term, adjustedPaths);
         if (grepResult && grepResult !== 'No matches found') {
-          results += `\n=== Found "${term}" ===\n${grepResult.substring(0, 1000)}\n`;
+          results += `\n=== Found "${term}" ===\n${grepResult.substring(0, 1200)}\n`;
+        }
+      }
+      
+      // If query is very specific, also search the full description as a phrase
+      if (query_description.length > 20 && !query_description.includes(' ')) {
+        const exactResult = await executeGrep(query_description, adjustedPaths);
+        if (exactResult && exactResult !== 'No matches found') {
+          results += `\n=== Exact Match: "${query_description}" ===\n${exactResult.substring(0, 1200)}\n`;
         }
       }
     }
@@ -350,13 +333,19 @@ async function getBusinessModelDocumentation(): Promise<string> {
 
 // Extract search terms from description
 function extractSearchTerms(description: string): string[] {
-  // Remove the hardcoded file reading and return intelligent search terms
-  const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'where', 'when', 'why', 'show', 'find', 'search', 'get', 'look'];
+  // INTELLIGENT TERM EXTRACTION: Remove common words, prioritize meaningful terms
+  const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'where', 'when', 'why', 'show', 'find', 'search', 'get', 'look', 'see', 'view', 'read', 'content', 'file', 'page'];
   
-  return description
+  // Clean and normalize input
+  const cleanDescription = description
     .toLowerCase()
+    .replace(/[^\w\s'-]/g, ' ') // Remove special chars except apostrophes and hyphens
     .split(/\s+/)
-    .filter(word => word.length > 2 && !commonWords.includes(word))
+    .filter(word => word.length > 2 && !commonWords.includes(word));
+  
+  // Prioritize longer, more specific terms
+  return cleanDescription
+    .sort((a, b) => b.length - a.length) // Longer terms first
     .slice(0, 5); // Take top 5 meaningful terms
 }
 
