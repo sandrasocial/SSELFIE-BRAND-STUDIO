@@ -42,6 +42,43 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
     if (!isAdminUser) {
       throw new Error('Agent coordination requires admin authentication');
     }
+
+    // INTELLIGENT AGENT SELECTION: Use Elena's delegation system for optimal assignments
+    let selectedAgent = input.target_agent;
+    let delegationReasoning = '';
+    
+    if (input.coordinating_agent === 'elena') {
+      try {
+        const { ElenaDelegationSystem } = await import('../utils/elena-delegation-system');
+        const delegationSystem = ElenaDelegationSystem.getInstance();
+        
+        // Analyze task to determine required specialties
+        const requiredSpecialties = delegationSystem.analyzeRequiredSpecialties(input.task_description);
+        
+        // Create task for intelligent assignment
+        const taskDependency = {
+          taskId: `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          dependsOn: [],
+          priority: input.priority || 'medium',
+          estimatedTime: delegationSystem.estimateTaskTime(input.task_description, requiredSpecialties),
+          agentSpecialty: requiredSpecialties,
+          status: 'pending' as const
+        };
+        
+        const optimalDecision = await delegationSystem.findOptimalAgent(taskDependency);
+        selectedAgent = optimalDecision.assignedAgent;
+        delegationReasoning = optimalDecision.reasoning;
+        
+        console.log(`🧠 INTELLIGENT ASSIGNMENT: Elena selected ${selectedAgent} for "${input.task_description.substring(0, 50)}..." based on specialties [${requiredSpecialties.join(', ')}]. Reasoning: ${delegationReasoning}`);
+        
+        // Update input with intelligent selection
+        input.target_agent = selectedAgent;
+        
+      } catch (error) {
+        console.warn(`⚠️ DELEGATION WARNING: Could not use intelligent assignment, using manually specified agent ${input.target_agent}:`, error);
+        selectedAgent = input.target_agent;
+      }
+    }
     
     // Validate target agent exists
     const validAgents = [
@@ -49,8 +86,8 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
       'sophia', 'olga', 'flux', 'wilma', 'diana', 'martha', 'ava'
     ];
     
-    if (!validAgents.includes(input.target_agent)) {
-      throw new Error(`Invalid target agent: ${input.target_agent}. Must be one of: ${validAgents.join(', ')}`);
+    if (!validAgents.includes(selectedAgent)) {
+      throw new Error(`Invalid target agent: ${selectedAgent}. Must be one of: ${validAgents.join(', ')}`);
     }
 
     // Generate coordination ID
@@ -59,7 +96,7 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
     // Create task delegation record
     const coordination_data = {
       coordination_id,
-      target_agent: input.target_agent,
+      target_agent: selectedAgent,
       task_description: input.task_description,
       workflow_context: input.workflow_context || 'Direct coordination',
       priority: input.priority,
@@ -73,10 +110,11 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
     };
 
     // Log coordination attempt
-    console.log(`🤝 AGENT COORDINATION: ${coordination_data.coordinating_agent} → ${input.target_agent}`, {
+    console.log(`🤝 AGENT COORDINATION: ${coordination_data.coordinating_agent} → ${selectedAgent}`, {
       task: input.task_description.substring(0, 100) + '...',
       priority: input.priority,
-      deliverables: input.expected_deliverables.length
+      deliverables: input.expected_deliverables.length,
+      intelligentSelection: delegationReasoning ? 'Yes' : 'Manual'
     });
 
     // SYSTEM INTEGRATION: Store in both in-memory AND database + WorkflowPersistence

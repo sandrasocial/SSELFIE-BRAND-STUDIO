@@ -261,7 +261,7 @@ export class ElenaDelegationSystem {
   /**
    * Find optimal agent for task assignment
    */
-  private async findOptimalAgent(task: TaskDependency): Promise<DelegationDecision> {
+  public async findOptimalAgent(task: TaskDependency): Promise<DelegationDecision> {
     const candidates: Array<{agent: AgentWorkload, score: number, reasoning: string}> = [];
     
     for (const [agentId, workload] of Array.from(this.agentWorkloads.entries())) {
@@ -346,46 +346,78 @@ export class ElenaDelegationSystem {
   /**
    * Analyze task description to determine required specialties
    */
-  private analyzeRequiredSpecialties(taskDescription: string): string[] {
+  public analyzeRequiredSpecialties(taskDescription: string): string[] {
     const description = taskDescription.toLowerCase();
     const specialties: string[] = [];
     
-    // UI/UX related
-    if (description.includes('ui') || description.includes('ux') || 
-        description.includes('design') || description.includes('component') ||
-        description.includes('frontend') || description.includes('interface')) {
-      specialties.push('ui', 'design');
+    // COPYWRITING & CONTENT (HIGH PRIORITY - Check first)
+    if (description.includes('copywriting') || description.includes('copy') || 
+        description.includes('messaging') || description.includes('headline') ||
+        description.includes('value proposition') || description.includes('content strategy') ||
+        description.includes('brand messaging') || description.includes('voice') ||
+        description.includes('cta') || description.includes('call-to-action')) {
+      specialties.push('copywriting', 'brand-messaging', 'content');
     }
     
-    // Backend related
+    // VISUAL DESIGN (UI/UX)
+    if (description.includes('visual') || description.includes('design') || 
+        description.includes('ui') || description.includes('ux') || 
+        description.includes('component') || description.includes('frontend') || 
+        description.includes('interface') || description.includes('branding') ||
+        description.includes('color') || description.includes('layout')) {
+      specialties.push('ui', 'design', 'components');
+    }
+    
+    // BACKEND & TECHNICAL
     if (description.includes('api') || description.includes('backend') || 
         description.includes('server') || description.includes('database') ||
-        description.includes('route') || description.includes('service')) {
-      specialties.push('backend', 'api');
+        description.includes('route') || description.includes('service') ||
+        description.includes('schema') || description.includes('technical')) {
+      specialties.push('backend', 'api', 'technical');
     }
     
-    // AI related
-    if (description.includes('ai') || description.includes('claude') || 
-        description.includes('image') || description.includes('generation') ||
-        description.includes('ml') || description.includes('prompt')) {
-      specialties.push('ai', 'ml');
+    // AI & IMAGE GENERATION (Only for actual AI tasks)
+    if (description.includes('ai generation') || description.includes('image generation') || 
+        description.includes('claude') || description.includes('flux') ||
+        description.includes('model training') || description.includes('prompt engineering')) {
+      specialties.push('ai', 'ml', 'image-generation');
     }
     
-    // Business setup related
-    if (description.includes('website') || description.includes('business') || 
-        description.includes('template') || description.includes('builder')) {
-      specialties.push('website-builder', 'business-setup');
+    // BUSINESS STRATEGY
+    if (description.includes('business strategy') || description.includes('market analysis') || 
+        description.includes('planning') || description.includes('ux consulting')) {
+      specialties.push('business-strategy', 'planning');
     }
     
-    // Deployment related
+    // QA & TESTING
+    if (description.includes('testing') || description.includes('qa') || 
+        description.includes('quality') || description.includes('validation') ||
+        description.includes('debugging')) {
+      specialties.push('qa', 'testing', 'validation');
+    }
+    
+    // DEPLOYMENT & INFRASTRUCTURE
     if (description.includes('deploy') || description.includes('optimization') || 
-        description.includes('cleanup') || description.includes('organization')) {
-      specialties.push('deployment', 'optimization');
+        description.includes('cleanup') || description.includes('organization') ||
+        description.includes('infrastructure')) {
+      specialties.push('deployment', 'optimization', 'infrastructure');
     }
     
-    // Default to technical if no specific match
+    // SOCIAL MEDIA
+    if (description.includes('social media') || description.includes('community') || 
+        description.includes('engagement') || description.includes('social')) {
+      specialties.push('social-media', 'engagement');
+    }
+    
+    // ANALYTICS & DATA
+    if (description.includes('analytics') || description.includes('data analysis') || 
+        description.includes('performance tracking') || description.includes('reporting')) {
+      specialties.push('analytics', 'data-analysis');
+    }
+    
+    // Default to coordination if no specific match
     if (specialties.length === 0) {
-      specialties.push('technical');
+      specialties.push('coordination');
     }
     
     return Array.from(new Set(specialties)); // Remove duplicates
@@ -394,7 +426,7 @@ export class ElenaDelegationSystem {
   /**
    * Estimate task completion time based on description and specialties
    */
-  private estimateTaskTime(taskDescription: string, specialties: string[]): number {
+  public estimateTaskTime(taskDescription: string, specialties: string[]): number {
     let baseTime = 30; // 30 minutes base
     
     const description = taskDescription.toLowerCase();
