@@ -207,7 +207,8 @@ export class ElenaDelegationSystem {
   }
 
   /**
-   * Elena's intelligent task delegation with dependency mapping
+   * CRITICAL FIX: Elena must research existing files before delegating
+   * Prevents agents from creating duplicates by directing them to existing files
    */
   async delegateTaskLegacy(
     taskDescription: string,
@@ -222,6 +223,10 @@ export class ElenaDelegationSystem {
       console.log('⚡ Priority:', priority);
       console.log('🔗 Dependencies:', dependencies);
       
+      // CRITICAL FIX: Transform task description to work on existing files
+      const correctedTaskDescription = this.preventDuplicateFileCreation(taskDescription);
+      console.log('🔧 CORRECTED TASK:', correctedTaskDescription);
+      
       const taskId = `task_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
       
       // Create task dependency object
@@ -229,8 +234,8 @@ export class ElenaDelegationSystem {
         taskId,
         dependsOn: dependencies,
         priority,
-        estimatedTime: this.estimateTaskTime(taskDescription, requiredSpecialties),
-        agentSpecialty: requiredSpecialties.length > 0 ? requiredSpecialties : this.analyzeRequiredSpecialties(taskDescription),
+        estimatedTime: this.estimateTaskTime(correctedTaskDescription, requiredSpecialties),
+        agentSpecialty: requiredSpecialties.length > 0 ? requiredSpecialties : this.analyzeRequiredSpecialties(correctedTaskDescription),
         status: 'pending'
       };
       
@@ -570,6 +575,71 @@ export class ElenaDelegationSystem {
     };
   }
   
+  /**
+   * CRITICAL FIX: Prevent agents from creating duplicate files
+   * Transform task descriptions to work on existing files
+   */
+  private preventDuplicateFileCreation(taskDescription: string): string {
+    const task = taskDescription.toLowerCase();
+    
+    // Landing page duplication prevention
+    if (task.includes('landing') || task.includes('editorial')) {
+      if (task.includes('create') || task.includes('build') || task.includes('implement')) {
+        return taskDescription.replace(
+          /create|build|implement/gi, 
+          'UPDATE existing client/src/pages/landing.tsx to enhance'
+        ) + ' - DO NOT create new editorial-landing.tsx files. Use React+Wouter framework (wouter Link, react-helmet Helmet).';
+      }
+    }
+    
+    // Gallery page duplication prevention
+    if (task.includes('gallery') || task.includes('photos')) {
+      if (task.includes('create') || task.includes('redesign')) {
+        return taskDescription.replace(
+          /create|redesign/gi,
+          'UPDATE existing client/src/pages/sselfie-gallery.tsx to enhance'
+        ) + ' - Work on existing gallery page, do not create duplicates.';
+      }
+    }
+    
+    // Maya page duplication prevention
+    if (task.includes('maya') || task.includes('style consultation')) {
+      if (task.includes('create') || task.includes('build')) {
+        return taskDescription.replace(
+          /create|build/gi,
+          'UPDATE existing client/src/pages/maya.tsx to enhance'
+        ) + ' - Work on existing Maya page, do not create duplicates.';
+      }
+    }
+    
+    // Workspace duplication prevention
+    if (task.includes('workspace') || task.includes('dashboard')) {
+      if (task.includes('create') || task.includes('redesign')) {
+        return taskDescription.replace(
+          /create|redesign/gi,
+          'UPDATE existing client/src/pages/workspace.tsx to enhance'
+        ) + ' - Work on existing workspace page, do not create duplicates.';
+      }
+    }
+    
+    // Component duplication prevention
+    if (task.includes('component') && (task.includes('create') || task.includes('build'))) {
+      return taskDescription.replace(
+        /create|build/gi,
+        'First check if similar component exists using search tool, then UPDATE existing OR create only if truly new'
+      ) + ' - Avoid duplicates by searching existing components first.';
+    }
+    
+    // General duplication prevention
+    if (task.includes('create') || task.includes('build') || task.includes('implement')) {
+      return 'First use search tool to find existing files, then ' + 
+             taskDescription.replace(/create|build|implement/gi, 'UPDATE existing') + 
+             ' - Only create new if no existing file serves the purpose. Use React+Wouter framework patterns.';
+    }
+    
+    return taskDescription + ' - Check existing project structure first, work on existing files when possible.';
+  }
+
   /**
    * Clear completed tasks from queue (cleanup)
    */
