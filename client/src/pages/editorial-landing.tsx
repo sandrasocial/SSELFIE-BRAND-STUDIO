@@ -1,15 +1,15 @@
 import React from 'react';
-import Head from 'next/head';
-import Link from 'next/link';
+import { Link } from 'wouter';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet';
 
 export default function EditorialLanding() {
   return (
     <div className="min-h-screen bg-black text-white">
-      <Head>
+      <Helmet>
         <title>SSELFIE STUDIO - Your AI-Powered Personal Brand Platform</title>
         <meta name="description" content="Transform your personal brand with AI-powered storytelling, professional photos, and automated content creation - all in one revolutionary platform." />
-      </Head>
+      </Helmet>
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center">
