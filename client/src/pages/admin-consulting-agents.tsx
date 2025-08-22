@@ -248,6 +248,13 @@ export default function AdminConsultingAgents() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [fileEditMode, setFileEditMode] = useState(true);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
+  
+  // PERFORMANCE: Clear chat function to reset conversation and free memory
+  const clearChat = () => {
+    setMessages([]);
+    setConversationId(null);
+    setMessage('');
+  };
 
   const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -394,8 +401,10 @@ export default function AdminConsultingAgents() {
         const historyResult = await loadConversationHistory(selectedAgent.id);
         
         if (historyResult.success && historyResult.messages.length > 0) {
-          console.log(`📜 PAGE REFRESH: Loaded ${historyResult.messages.length} previous messages`);
-          setMessages(historyResult.messages);
+          // PERFORMANCE FIX: Limit initial display to last 20 messages for fast UI
+          const recentMessages = historyResult.messages.slice(-20);
+          console.log(`📜 PAGE REFRESH: Loaded ${recentMessages.length} recent messages (${historyResult.messages.length} total)`);
+          setMessages(recentMessages);
           setConversationId(historyResult.currentConversationId);
         } else {
           console.log(`📜 PAGE REFRESH: No previous conversation found, starting fresh`);
@@ -786,8 +795,10 @@ export default function AdminConsultingAgents() {
                       const historyResult = await loadConversationHistory(agent.id);
                       
                       if (historyResult.success && historyResult.messages.length > 0) {
-                        console.log(`📜 MANUAL SELECTION: Loaded ${historyResult.messages.length} previous messages`);
-                        setMessages(historyResult.messages);
+                        // PERFORMANCE FIX: Limit initial display to last 20 messages for fast UI
+                        const recentMessages = historyResult.messages.slice(-20);
+                        console.log(`📜 MANUAL SELECTION: Loaded ${recentMessages.length} recent messages (${historyResult.messages.length} total)`);
+                        setMessages(recentMessages);
                         setConversationId(historyResult.currentConversationId);
                       } else {
                         console.log(`📜 MANUAL SELECTION: No previous conversation found, starting fresh`);
