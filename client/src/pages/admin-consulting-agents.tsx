@@ -529,6 +529,11 @@ export default function AdminConsultingAgents() {
                   const data = JSON.parse(jsonData);
                   console.log('📡 STREAMING:', data.type, data);
                   
+                  // Add debug log for all streaming events
+                  if (window.location.hostname === 'localhost' || window.location.hostname.includes('replit')) {
+                    console.log(`🔄 STREAM EVENT: ${data.type}`, data);
+                  }
+                  
                   // ENHANCED: Better handling of different stream events
                   switch (data.type) {
                     case 'message_start':
