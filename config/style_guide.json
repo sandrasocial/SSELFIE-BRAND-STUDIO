@@ -1,0 +1,60 @@
+{
+  "brand": {
+    "typography": {
+      "primary_font": "Times New Roman",
+      "font_hierarchy": {
+        "headlines": "Times New Roman Bold",
+        "subheadings": "Times New Roman Regular",
+        "body_text": "Times New Roman Regular",
+        "captions": "Times New Roman Italic"
+      },
+      "font_sizes": {
+        "h1": "48px",
+        "h2": "36px",
+        "h3": "24px",
+        "body": "16px",
+        "caption": "14px"
+      }
+    },
+    "color_palette": {
+      "primary": {
+        "editorial_black": "#1A1A1A",
+        "luxury_gold": "#C0A080",
+        "classic_cream": "#F5F5F0"
+      },
+      "secondary": {
+        "muted_sage": "#8C9A8C",
+        "soft_taupe": "#B2A59B",
+        "warm_gray": "#A69F98"
+      },
+      "accents": {
+        "deep_burgundy": "#732F2F",
+        "navy_blue": "#1B264F"
+      }
+    },
+    "photography_guidelines": {
+      "lighting": {
+        "primary": "natural",
+        "secondary": "soft diffused",
+        "contrast_ratio": "moderate to high"
+      },
+      "composition": {
+        "preferred_ratios": ["4:5", "1:1", "16:9"],
+        "focal_points": "rule of thirds",
+        "negative_space": "generous"
+      },
+      "styling_recommendations": {
+        "professional": {
+          "poses": ["confident stance", "engaged expression", "natural movement"],
+          "wardrobe": ["timeless pieces", "neutral base", "one statement element"],
+          "backgrounds": ["minimal", "architectural", "natural textures"]
+        },
+        "creative": {
+          "poses": ["dynamic angles", "artistic expression", "storytelling moments"],
+          "wardrobe": ["bold statements", "mixed textures", "personal style focus"],
+          "backgrounds": ["urban elements", "creative spaces", "signature environments"]
+        }
+      }
+    }
+  }
+}

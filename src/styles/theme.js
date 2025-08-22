@@ -1,12 +1,18 @@
 export const theme = {
   colors: {
     primary: '#FF69B4', // SSELFIE brand pink
+    primaryLight: '#FFB6D9',
+    primaryDark: '#CC5490',
     secondary: '#4A90E2',
     accent: '#7E57C2',
     background: '#FFFFFF',
+    backgroundGradient: 'linear-gradient(135deg, #FFFFFF 0%, #FFF0F7 100%)',
     text: '#333333',
+    textLight: '#666666',
     error: '#FF5252',
-    success: '#4CAF50'
+    success: '#4CAF50',
+    gold: '#FFD700',
+    premiumGradient: 'linear-gradient(135deg, #FF69B4 0%, #FFB6D9 100%)'
   },
   typography: {
     fontFamily: "'Poppins', sans-serif",
