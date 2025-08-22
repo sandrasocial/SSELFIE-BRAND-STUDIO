@@ -2543,7 +2543,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         sql`SELECT * FROM ai_images WHERE user_id = ${userId} ORDER BY created_at DESC`
       );
       
-      console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
+      console.log(`✅ Found ${userImages.rows.length} AI images for user ${userId}`);
       res.json(userImages);
       
     } catch (error) {
