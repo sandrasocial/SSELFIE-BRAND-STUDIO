@@ -233,6 +233,38 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T13:51:06.699Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870739951_wnpc328pr",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Need access to current landing page design files and assets for SSELFIE Studio to perform technical implementation review. Please share the latest HTML/CSS structure and design assets.",
+      "workflowContext": "Performing landing page technical implementation review for website builder compatibility. Need to assess current design state to provide strategic recommendations.",
+      "expectedDeliverables": [
+        "Current landing page HTML/CSS files",
+        "Design assets and specifications",
+        "Any existing website builder integration notes"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:52:20.003Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870820661_rn2ziaftp",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Create and implement core typography CSS system based on Times New Roman specifications from visual style guide. Priority focus on primary typography classes for immediate launch.",
+      "workflowContext": "Typography system is critical for luxury editorial positioning and €67/month tier value proposition. Current implementation gap needs immediate attention.",
+      "expectedDeliverables": [
+        "Core typography CSS file",
+        "Typography component documentation",
+        "Implementation guide for developers"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:53:40.709Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:43:12.342Z",
