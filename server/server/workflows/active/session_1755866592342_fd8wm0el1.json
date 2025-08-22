@@ -201,6 +201,38 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T13:48:40.809Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870629272_r5wsv787p",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Need immediate status update on landing page design and copy implementation. Looking to assess:\n1. Current landing page copy and design status\n2. Implementation progress\n3. Any existing content strategy documents",
+      "workflowContext": "High-priority landing page review for SSELFIE Studio launch readiness assessment. Need to align technical capabilities with marketing promises.",
+      "expectedDeliverables": [
+        "Current landing page status report",
+        "Copy strategy documentation",
+        "Technical implementation blockers if any"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:50:29.322Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870666652_vmtohqdub",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Review implemented style guide for visual consistency with your AI-generated content. Focus on Times New Roman typography system and editorial luxury aesthetic. Ensure transformation journey visuals align with style guide.",
+      "workflowContext": "Implementing new brand style guide across website templates with focus on editorial luxury layouts and transformation storytelling.",
+      "expectedDeliverables": [
+        "Visual consistency review",
+        "Style guide compatibility confirmation",
+        "Recommendations for content adaptation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:51:06.699Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:43:12.342Z",

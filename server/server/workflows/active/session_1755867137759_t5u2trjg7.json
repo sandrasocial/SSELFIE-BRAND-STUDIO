@@ -197,6 +197,70 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T13:49:03.600Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870634774_mrusaa79a",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need to sync on existing visual assets and mockups for the style transformation journey. Looking to establish clear visual guidelines for showcasing user transformations and styling process.",
+      "workflowContext": "Working on visual style guide alignment for SSELFIE Studio's transformation storytelling. Need to ensure our visual assets properly showcase the styling journey from start to finish.",
+      "expectedDeliverables": [
+        "Current mockups and design files",
+        "Existing style guide documentation",
+        "User journey visualization assets"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:50:34.821Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870646177_0ix23d1fa",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Need to implement a visual transformation documentation system following these key components:\n1. Initial style assessment photography guidelines\n2. Progress tracking photo requirements\n3. Final transformation showcase templates\n4. Before/After comparison layout standards",
+      "workflowContext": "Creating standardized visual guidelines for SSELFIE Studio's transformation journey documentation",
+      "expectedDeliverables": [
+        "Visual transformation documentation template",
+        "Photography guidelines document",
+        "Layout standards guide"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:50:46.226Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870662766_b7y2w834c",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Please integrate the new style guide (config/style_guide.json) into your website templates. Focus on implementing the Times New Roman typography system and luxury color palette. The StyleRecommendationEngine class in lib/style_recommendations.py provides all the necessary methods for dynamic styling.",
+      "workflowContext": "We're elevating SSELFIE Studio's brand with an editorial luxury aesthetic. The style guide needs to be reflected in all website builds to maintain brand consistency.",
+      "expectedDeliverables": [
+        "Updated website templates with new typography",
+        "Integrated color scheme implementation",
+        "Responsive design adjustments for new styling"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:51:02.814Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870663106_zefxuufy3",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Review the landing page design I've created for technical implementation feedback and website builder compatibility. Please assess the HTML/CSS structure and suggest any optimizations for your website builder integration.",
+      "workflowContext": "Creating high-converting landing page for SSELFIE STUDIO launch",
+      "expectedDeliverables": [
+        "Technical review feedback",
+        "Implementation recommendations",
+        "Website builder compatibility assessment"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:51:03.155Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:52:17.759Z",

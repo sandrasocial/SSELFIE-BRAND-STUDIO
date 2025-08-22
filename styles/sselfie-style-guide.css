@@ -1,0 +1,123 @@
+/* SSELFIE STUDIO Style Guide
+ * Designed by Victoria - UX Strategist
+ * Premium Editorial Luxury Aesthetic
+ */
+
+:root {
+  /* Typography System */
+  --font-primary: "Times New Roman", Times, serif;
+  --font-secondary: "Georgia", serif;
+  
+  /* Color Palette */
+  --color-primary: #1a1a1a;
+  --color-secondary: #9d8875;
+  --color-accent: #d4af37;
+  --color-background: #ffffff;
+  --color-text: #333333;
+  
+  /* Spacing System */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 3rem;
+  --spacing-xl: 5rem;
+}
+
+/* Typography */
+body {
+  font-family: var(--font-primary);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-primary);
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+h1 {
+  font-size: 3.5rem;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-lg);
+}
+
+h2 {
+  font-size: 2.5rem;
+  line-height: 1.3;
+  margin-bottom: var(--spacing-md);
+}
+
+/* Editorial Layout Components */
+.editorial-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+.transformation-story {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+  margin: var(--spacing-xl) 0;
+}
+
+.luxury-card {
+  background: var(--color-background);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-secondary);
+  transition: transform 0.3s ease;
+}
+
+.luxury-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Premium UI Elements */
+.premium-button {
+  font-family: var(--font-primary);
+  background: var(--color-primary);
+  color: var(--color-background);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.premium-button:hover {
+  background: var(--color-accent);
+}
+
+/* Transformation Journey Sections */
+.journey-step {
+  position: relative;
+  padding: var(--spacing-xl) 0;
+  text-align: center;
+}
+
+.journey-step::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 2px;
+  background: var(--color-accent);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .transformation-story {
+    grid-template-columns: 1fr;
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+}
