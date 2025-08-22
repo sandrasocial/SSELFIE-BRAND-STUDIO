@@ -12,6 +12,9 @@ export interface CoordinateAgentInput {
   expected_deliverables: string[];
   deadline?: string;
   dependencies?: string[];
+  coordinating_agent?: string;
+  userId?: string;
+  adminContext?: boolean;
 }
 
 export interface CoordinateAgentResult {
@@ -28,6 +31,18 @@ export interface CoordinateAgentResult {
  */
 export async function coordinate_agent(input: CoordinateAgentInput): Promise<CoordinateAgentResult> {
   try {
+    // AUTHENTICATION CHECK: Ensure admin access for agent coordination
+    const isAdminUser = input.userId === '42585527' || input.adminContext === true;
+    console.log('🔐 COORDINATION AUTHENTICATION:', { 
+      userId: input.userId, 
+      coordinatingAgent: input.coordinating_agent, 
+      adminAccess: isAdminUser 
+    });
+    
+    if (!isAdminUser) {
+      throw new Error('Agent coordination requires admin authentication');
+    }
+    
     // Validate target agent exists
     const validAgents = [
       'elena', 'zara', 'maya', 'aria', 'quinn', 'rachel', 'victoria', 
@@ -53,7 +68,8 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
       dependencies: input.dependencies || [],
       status: 'queued' as const,
       created_at: new Date().toISOString(),
-      coordinating_agent: 'elena' // Default to Elena as coordinator
+      coordinating_agent: input.coordinating_agent || 'elena', // Use authenticated agent
+      admin_user_id: input.userId
     };
 
     // Log coordination attempt
