@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { MemberNavigation } from '../components/member-navigation';
 import { GlobalFooter } from '../components/global-footer';
+import '../styles/editorial.css';
 import { SandraImages } from '../lib/sandra-images';
 
 // Elena's Revolutionary 4-Phase Navigation System
@@ -175,7 +176,7 @@ export default function Workspace() {
           </p>
           <a
             href="/login"
-            className="inline-block px-8 py-4 text-xs uppercase tracking-wide border border-black hover:bg-black hover:text-white transition-all duration-300"
+            className="inline-block px-8 py-4 text-xs font-editorial uppercase tracking-widest border-2 border-black hover:bg-black hover:text-white transition-all duration-300 shadow-soft"
           >
             Continue with Google
           </a>
