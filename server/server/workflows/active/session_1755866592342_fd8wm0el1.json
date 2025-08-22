@@ -281,6 +281,70 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T14:11:18.887Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872162186_v8ds8d4pt",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Need to align on brand voice development for SSELFIE Studio. Please provide any existing brand voice guidelines or creative direction you're working with for website copy and marketing materials.",
+      "workflowContext": "Conducting website copy and brand voice audit for immediate launch preparation. Need to ensure consistent messaging across Creator (€27) and Entrepreneur (€67) tiers.",
+      "expectedDeliverables": [
+        "Current brand voice guidelines if they exist",
+        "Creative direction documentation",
+        "Any established tone of voice parameters"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:16:02.232Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872230834_hhwbf9g3f",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Review the new content style guide I've created and ensure alignment with visual brand guidelines. Please provide any additional style recommendations specific to visual content and brand aesthetics.",
+      "workflowContext": "Creating cohesive brand and content guidelines for SSELFIE STUDIO's launch",
+      "expectedDeliverables": [
+        "Visual style recommendations",
+        "Brand consistency feedback",
+        "Additional style guide sections if needed"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:17:10.884Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872310799_04b8btpkv",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Review and align visual design elements with new brand voice guidelines, particularly focusing on the Creator (€27) and Entrepreneur (€67) plan differentiation. Ensure visual elements complement the warm, professional tone while emphasizing the all-in-one solution value proposition.",
+      "workflowContext": "Implementing new brand voice guidelines across SSELFIE Studio platform, focusing on consistent messaging and visual harmony.",
+      "expectedDeliverables": [
+        "Updated color scheme recommendations",
+        "Visual hierarchy for pricing plans",
+        "UI component style guide aligned with brand voice"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:18:30.845Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872316465_tsncd6syt",
+      "assignedAgent": "rachel",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Review new website copy and UI text for technical SEO optimization while maintaining the brand voice guidelines. Focus on key terms around \"all-in-one personal branding platform\" and ensure proper heading hierarchy and meta descriptions.",
+      "workflowContext": "Implementing new brand voice guidelines with SEO best practices for SSELFIE Studio platform launch.",
+      "expectedDeliverables": [
+        "SEO-optimized meta descriptions",
+        "Heading structure recommendations",
+        "Keyword density analysis"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:18:36.687Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:43:12.342Z",

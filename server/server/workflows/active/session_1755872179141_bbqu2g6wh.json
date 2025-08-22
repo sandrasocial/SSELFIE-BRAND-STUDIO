@@ -1,0 +1,42 @@
+{
+  "sessionId": "session_1755872179141_bbqu2g6wh",
+  "name": "diana Coordination Tasks",
+  "description": "Active coordination tasks managed by diana",
+  "coordinatorAgent": "diana",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755872178934_e5193wucs",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "diana",
+      "taskDescription": "Review the visual style guidelines section of the new editorial style guide and provide input on visual branding elements, particularly regarding photo styling and color usage. Please suggest any refinements to ensure perfect alignment with Sandra's visual aesthetic.",
+      "workflowContext": "Creating comprehensive editorial style guide for SSELFIE Studio launch. Need to ensure visual guidelines match Sandra's aesthetic vision perfectly.",
+      "expectedDeliverables": [
+        "Visual style refinements",
+        "Additional photo guidelines",
+        "Color palette specifications"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:16:19.139Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872183926_km0ijtduf",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "diana",
+      "taskDescription": "Review the website content guidelines in the new style guide and provide specific recommendations for website copy, UX writing, and conversion optimization while maintaining Sandra's voice.",
+      "workflowContext": "Developing comprehensive editorial style guide for SSELFIE Studio. Need website-specific content guidelines that balance conversion with authenticity.",
+      "expectedDeliverables": [
+        "Website copywriting guidelines",
+        "UX writing best practices",
+        "Conversion optimization recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:16:23.972Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T14:16:19.141Z",
+  "status": "active"
+}
