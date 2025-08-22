@@ -345,6 +345,54 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T13:50:01.974Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871859312_yi46a8xe6",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "aria",
+      "taskDescription": "Need comprehensive list of React components using refs and forwardRef for QA testing after React 18 update. Please identify all components requiring ref testing and provide their current implementation details.",
+      "workflowContext": "Post React 18 update QA testing focusing on ref functionality and component behavior verification",
+      "expectedDeliverables": [
+        "List of components using refs",
+        "Current ref implementation details",
+        "Known component dependencies"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:10:59.489Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871872747_b6nseabqq",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "aria",
+      "taskDescription": "Create and implement automated UI tests for React components after React 18 update, focusing on ref functionality. Need particular attention to any styling components that might be affected.",
+      "workflowContext": "Part of post-React 18 update QA testing, focusing on UI consistency and ref behavior",
+      "expectedDeliverables": [
+        "Automated UI test suite",
+        "Visual regression test results",
+        "UI component behavior report"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:11:12.794Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871876426_0ctxb1g9z",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "aria",
+      "taskDescription": "Need urgent assistance locating:\n1. Main frontend package.json file containing react-is dependency\n2. Vite configuration file for React 18 updates\nPlease provide exact file paths for these critical files.",
+      "workflowContext": "High-priority task to update react-is to ^18.2.0 and ensure Vite compatibility with React 18. This is blocking development.",
+      "expectedDeliverables": [
+        "Exact file path for frontend package.json",
+        "Exact file path for Vite config",
+        "Any additional frontend build configuration files that need updating"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:11:16.474Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:42:48.795Z",

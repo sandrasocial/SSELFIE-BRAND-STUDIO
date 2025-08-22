@@ -265,6 +265,22 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T13:53:40.709Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871878838_oui55cspr",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Review new style guide implementation for SSELFIE Studio. Need your expertise on ensuring the style guidelines align with your AI styling capabilities and brand vision. Please review docs/style_guide.md and provide feedback on color palette and typography choices from a styling perspective.",
+      "workflowContext": "Creating cohesive brand identity for SSELFIE Studio launch. Style guide will be used for website implementation and overall brand consistency.",
+      "expectedDeliverables": [
+        "Style guide feedback",
+        "AI styling alignment confirmation",
+        "Any suggested adjustments for brand consistency"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:11:18.887Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:43:12.342Z",
