@@ -33,7 +33,7 @@ import { claudeApiServiceSimple } from '../services/claude-api-service-simple';
 // ELIMINATED: autonomousNavigation - part of competing memory systems
 // REMOVED: architectural-knowledge-base - part of old complex system
 // ELIMINATE BROKEN SYSTEMS: Replace with personality-first admin agents
-import { AdminContextManager } from '../memory/admin-context-manager';
+// import { AdminContextManager } from '../memory/admin-context-manager';
 import { PersonalityIntegrationService } from '../agents/personality-integration-service';
 import { LocalProcessingEngine } from '../services/hybrid-intelligence/local-processing-engine';
 import { simpleMemoryService } from '../services/simple-memory-service';
@@ -50,7 +50,7 @@ import { search_filesystem } from '../tools/search_filesystem';
 import { get_assigned_tasks } from '../tools/get_assigned_tasks';
 import { get_handoff_tasks } from '../tools/get_handoff_tasks';
 // PERSONALITY-FIRST ADMIN AGENTS: Eliminate generic systems
-const adminContextManager = AdminContextManager.getInstance();
+// const adminContextManager = AdminContextManager.getInstance();
 const personalityService = PersonalityIntegrationService.getInstance();
 const localProcessingEngine = LocalProcessingEngine.getInstance();
 
