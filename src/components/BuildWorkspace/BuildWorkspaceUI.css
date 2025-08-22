@@ -1,0 +1,97 @@
+.build-workspace {
+  background: #141414;
+  min-height: 100vh;
+  padding: 4rem;
+  color: #ffffff;
+}
+
+.build-workspace-header {
+  margin-bottom: 4rem;
+  text-align: center;
+}
+
+.build-workspace-header h1 {
+  font-family: "Times New Roman", serif;
+  font-size: 4rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.subtitle {
+  font-family: "Times New Roman", serif;
+  font-size: 1.2rem;
+  font-style: italic;
+  opacity: 0.8;
+  margin-top: 1rem;
+}
+
+.template-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.template-card {
+  background: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.template-card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.template-card h3 {
+  font-family: "Times New Roman", serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 0.5rem 0;
+}
+
+.template-card p {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.editing-tools {
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+.tool-section h2 {
+  font-family: "Times New Roman", serif;
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.tool-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #ffffff;
+  padding: 1rem;
+  font-family: "Times New Roman", serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tool-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.3);
+}

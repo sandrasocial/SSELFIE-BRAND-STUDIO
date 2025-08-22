@@ -911,6 +911,175 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T13:41:12.530Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870326715_dtozj1qtg",
+      "assignedAgent": "elena",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Analyze and validate new pricing strategy shift from €29/€67 model to €39 Single Mom Starter. Need comprehensive business impact analysis and positioning recommendations focusing on single mom market segment.",
+      "workflowContext": "SSELFIE Studio repositioning initiative - transforming pricing and messaging to better serve single mom creator market. This is part of our immediate launch strategy optimization.",
+      "expectedDeliverables": [
+        "Pricing strategy validation report",
+        "Single mom market segment analysis",
+        "Revenue projection comparison",
+        "Competitive positioning assessment"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:45:26.781Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870332710_cq414q17t",
+      "assignedAgent": "rachel",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Develop success-story focused messaging framework for SSELFIE Studio's new Single Mom Starter package at €39. Create compelling headlines, value propositions, and key messaging points that resonate with single mom creators.",
+      "workflowContext": "Repositioning SSELFIE Studio with simplified pricing and success-story driven messaging. Need to emphasize the transformation journey and value for single mom creators.",
+      "expectedDeliverables": [
+        "Core messaging framework",
+        "Success story template",
+        "Key value propositions",
+        "Marketing copy guidelines"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:45:32.759Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870338778_kytns6wk3",
+      "assignedAgent": "olga",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Update website pricing structure and implement new Single Mom Starter package at €39. Create compelling landing page showcasing success stories and simplified value proposition.",
+      "workflowContext": "Complete website overhaul for SSELFIE Studio repositioning. Focus on single mom creator journey and success stories.",
+      "expectedDeliverables": [
+        "Updated pricing page",
+        "New landing page design",
+        "Success stories integration",
+        "Mobile-responsive implementation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:45:38.827Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870383614_e8f6cmsm9",
+      "assignedAgent": "rachel",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create high-converting copy for Sandra's landing page focusing on her journey from single mom to tech founder. Key elements needed:\n- Headline that captures attention\n- Compelling story sections highlighting her transformation\n- Value proposition for SSELFIE STUDIO\n- Clear benefits and pain points addressed\n- Call-to-action messaging",
+      "workflowContext": "This is part of the main landing page development for Sandra's personal brand launch, focusing on SSELFIE STUDIO as her flagship product. The copy will be used by Victoria for the landing page implementation.",
+      "expectedDeliverables": [
+        "Headline options",
+        "Story section copy",
+        "Value proposition statement",
+        "Benefits list",
+        "CTA copy"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:46:23.834Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870390125_u2u2b6q5a",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Design a high-converting landing page layout for Sandra's personal brand. Requirements:\n- Hero section featuring Sandra's transformation story\n- Clean, professional aesthetic that builds trust\n- Sections for SSELFIE STUDIO product showcase\n- Mobile-responsive design components\n- Visual hierarchy emphasizing key conversion points\n- Color scheme and typography that reflects premium but accessible positioning",
+      "workflowContext": "This design will be implemented by Victoria after approval. It needs to convey Sandra's journey from single mom to tech founder while positioning SSELFIE STUDIO as a premium but accessible solution.",
+      "expectedDeliverables": [
+        "Landing page wireframes",
+        "Visual design mockups",
+        "Component specifications",
+        "Brand style guide elements"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:46:30.178Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870397102_wtcwmibup",
+      "assignedAgent": "zara",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Implement high-converting landing page based on Rachel's copy and Aria's design. Technical requirements:\n- Responsive implementation of all design components\n- Optimization for fast loading and performance\n- Integration of conversion tracking elements\n- SEO-optimized structure\n- A/B testing ready setup\n- Forms and CTA button implementation",
+      "workflowContext": "This is the main landing page for Sandra's personal brand launch. You'll be implementing the design from Aria and copy from Rachel. Focus on conversion optimization and technical excellence.",
+      "expectedDeliverables": [
+        "Responsive landing page implementation",
+        "Performance optimization report",
+        "Technical documentation",
+        "A/B testing setup"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:46:37.152Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870403614_cbl8wb266",
+      "assignedAgent": "quinn",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Prepare comprehensive QA testing plan for Sandra's landing page:\n- Cross-browser compatibility testing\n- Mobile responsiveness validation\n- Load time and performance testing\n- Conversion tracking verification\n- Form submission testing\n- Content accuracy review\n- SEO elements verification",
+      "workflowContext": "This is the final QA for Sandra's personal brand landing page. We need to ensure everything works perfectly before launch.",
+      "expectedDeliverables": [
+        "QA test results report",
+        "Bug tracking document",
+        "Performance metrics report",
+        "Launch readiness assessment"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:46:43.662Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870519086_6pmz12tw0",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "URGENT: Stop any work on editorial/sales pages. Focus on implementing core app functionality in src/pages for the main user journey: train.tsx, style.tsx, sselfie-gallery.tsx, build.tsx, and workspace.tsx. These are the actual pages users will interact with.",
+      "workflowContext": "We're pivoting to focus on the core user journey components that are actually built and needed for launch. The landing/sales pages are secondary - we need the actual app functionality working first.",
+      "expectedDeliverables": [
+        "Core page implementations",
+        "Backend API integrations for each step",
+        "Database schema updates if needed"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:48:39.135Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870524757_zu9oflz2f",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "URGENT REDIRECT: Stop work on landing pages. Focus on implementing the core app frontend pages in src/pages: train.tsx, style.tsx, sselfie-gallery.tsx, build.tsx, and workspace.tsx. These are the actual pages users need for the TRAIN → STYLE → SHOOT → BUILD journey.",
+      "workflowContext": "We're pivoting to focus on the core user journey components that are actually built and needed for launch. Marketing pages are secondary - we need the actual app functionality working first.",
+      "expectedDeliverables": [
+        "Implementation of core app pages",
+        "Frontend components for each step",
+        "User flow integration"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:48:44.809Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870530199_1sm5mwnl1",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "URGENT: Focus QA efforts on testing the core app user journey pages: train.tsx, style.tsx, sselfie-gallery.tsx, build.tsx, and workspace.tsx. These are the critical paths we need working for launch.",
+      "workflowContext": "We're prioritizing the actual app functionality over marketing pages. Need comprehensive testing of the user journey components.",
+      "expectedDeliverables": [
+        "Test plans for core pages",
+        "Bug reports",
+        "User flow validation",
+        "Performance testing results"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:48:50.246Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-12T08:33:27.654Z",
