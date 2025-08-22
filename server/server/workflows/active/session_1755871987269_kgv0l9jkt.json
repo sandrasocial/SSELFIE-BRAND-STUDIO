@@ -1,0 +1,27 @@
+{
+  "sessionId": "session_1755871987269_kgv0l9jkt",
+  "name": "quinn Coordination Tasks",
+  "description": "Active coordination tasks managed by quinn",
+  "coordinatorAgent": "quinn",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755871987221_da8rcgyy9",
+      "assignedAgent": "elena",
+      "coordinatorAgent": "quinn",
+      "taskDescription": "Need urgent assistance with task management system audit:\n1. Access to task persistence layer for phantom task cleanup\n2. Current workflow state validation rules\n3. Direct database access credentials if available\n4. Task management system architecture documentation",
+      "workflowContext": "Investigating 99 phantom in_progress tasks. Need system-level access to properly audit and clean up task management system.",
+      "expectedDeliverables": [
+        "Database access credentials",
+        "Current workflow validation rules",
+        "System architecture documentation",
+        "Task cleanup procedure"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:13:07.268Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T14:13:07.269Z",
+  "status": "active"
+}

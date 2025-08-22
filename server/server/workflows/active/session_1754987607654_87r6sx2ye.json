@@ -1393,6 +1393,105 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T14:11:45.837Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871910541_2jjyu4d5a",
+      "assignedAgent": "quinn",
+      "coordinatorAgent": "elena",
+      "taskDescription": "URGENT: Audit and reconcile task management system:\n1. Review all workflow persistence files\n2. Clean up phantom task entries\n3. Implement task state validation\n4. Document task management architecture",
+      "workflowContext": "System showing 99 phantom in_progress tasks that need reconciliation",
+      "expectedDeliverables": [
+        "Workflow audit report",
+        "Task cleanup confirmation",
+        "State validation implementation",
+        "System architecture documentation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:11:50.591Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871978609_s9oarkkpd",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "URGENT: React version mismatch needs immediate resolution:\n1. Update react-is to ^18.2.0\n2. Verify and update Vite configuration\n3. Test forwardRef functionality\n4. Implement version consistency checks\n\nRequired Actions:\n- Locate and update package.json with correct React dependencies\n- Review and update Vite configuration\n- Test component forwarding\n- Add version validation",
+      "workflowContext": "Critical production issue affecting React version compatibility. Need immediate technical resolution to ensure consistent React versioning across the application.",
+      "expectedDeliverables": [
+        "Updated package.json with React 18.2.0",
+        "Verified Vite configuration",
+        "ForwardRef functionality test results",
+        "Version consistency check implementation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:12:58.657Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871983694_ie3db6hfx",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "URGENT: QA Testing needed for React version update:\n1. Verify React 18.2.0 compatibility across all components\n2. Test forwardRef functionality thoroughly\n3. Run regression tests after version update\n4. Document any breaking changes",
+      "workflowContext": "Supporting Victoria in critical React version mismatch resolution. Need comprehensive testing to ensure update doesn't break existing functionality.",
+      "expectedDeliverables": [
+        "Component compatibility test results",
+        "ForwardRef functionality verification",
+        "Regression test report",
+        "Breaking changes documentation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:13:03.742Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872035020_7qamvrkbm",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Review and verify the current implementation of the editorial style guide across content assets. Focus on tone consistency, brand voice alignment, and documentation completeness.",
+      "workflowContext": "Editorial style guide implementation verification following system task cleanup. Need comprehensive audit of current state.",
+      "expectedDeliverables": [
+        "Style guide implementation status report",
+        "List of compliant content pieces",
+        "Areas requiring alignment"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:13:55.070Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872039343_ymwsomx6w",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Audit social media content against the editorial style guide. Verify consistency across platforms and identify any posts needing updates to meet guidelines.",
+      "workflowContext": "Comprehensive editorial style guide verification across all social channels following system update.",
+      "expectedDeliverables": [
+        "Social media content audit report",
+        "Style guide compliance checklist",
+        "Platform-specific recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:13:59.393Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755872047716_g0fndf2e0",
+      "assignedAgent": "wilma",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create automated workflow to clean up stale tasks (>24h old) that are neither completed nor failed. Include safety checks and logging.",
+      "workflowContext": "Task management system maintenance and optimization",
+      "expectedDeliverables": [
+        "Automated cleanup workflow",
+        "Safety validation rules",
+        "Logging implementation"
+      ],
+      "priority": "medium",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:14:07.765Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-12T08:33:27.654Z",
