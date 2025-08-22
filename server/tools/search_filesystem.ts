@@ -69,6 +69,33 @@ export async function search_filesystem(parameters: any): Promise<string> {
 
     // Enhanced search for query descriptions
     if (query_description) {
+      // ADMIN AGENTS: Direct file content access for specific queries
+      if (query_description.toLowerCase().includes('about') || query_description.toLowerCase().includes('story')) {
+        const aboutFiles = await getSpecificFileContent([
+          'client/src/pages/AboutPage.tsx',
+          'client/src/pages/about.tsx', 
+          'client/src/components/editorial-story.tsx',
+          'client/src/components/welcome-section.tsx',
+          'client/src/components/welcome-editorial.tsx'
+        ]);
+        results += `\n🔍 SANDRA'S STORY & ABOUT PAGE CONTENT:\n${aboutFiles}\n`;
+      }
+      
+      if (query_description.toLowerCase().includes('how') || query_description.toLowerCase().includes('works')) {
+        const howItWorksContent = await getSpecificFileContent([
+          'client/src/pages/how-it-works.tsx'
+        ]);
+        results += `\n🔍 HOW IT WORKS PAGE CONTENT:\n${howItWorksContent}\n`;
+      }
+      
+      if (query_description.toLowerCase().includes('pricing') || query_description.toLowerCase().includes('plan')) {
+        const pricingContent = await getSpecificFileContent([
+          'client/src/pages/pricing.tsx',
+          'client/src/components/pricing'
+        ]);
+        results += `\n🔍 PRICING CONTENT:\n${pricingContent}\n`;
+      }
+      
       // Basic content search for specific terms
       const searchTerms = extractSearchTerms(query_description);
       for (const term of searchTerms) {
@@ -77,9 +104,6 @@ export async function search_filesystem(parameters: any): Promise<string> {
           results += `\n=== Found: "${term}" ===\n${grepResult.substring(0, 1000)}`;
         }
       }
-      
-      // Additional search terms processed above
-      // Directory structure already included at top
     }
 
     console.log('🔍 SEARCH RESULTS LENGTH:', results.length);
@@ -121,6 +145,25 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
       resolve('Search timed out');
     }, 10000);
   });
+}
+
+// GET SPECIFIC FILE CONTENT FOR ADMIN AGENTS
+async function getSpecificFileContent(filePaths: string[]): Promise<string> {
+  const fs = await import('fs/promises');
+  const path = await import('path');
+  let content = '';
+  
+  for (const filePath of filePaths) {
+    try {
+      const fullPath = path.resolve(filePath);
+      const fileContent = await fs.readFile(fullPath, 'utf-8');
+      content += `\n📄 FILE: ${filePath}\n${fileContent.substring(0, 2000)}\n${'='.repeat(50)}\n`;
+    } catch (error) {
+      console.log(`⚠️ File not found: ${filePath}`);
+    }
+  }
+  
+  return content;
 }
 
 // COMPLETE BUSINESS MODEL VISIBILITY FOR ADMIN AGENTS
