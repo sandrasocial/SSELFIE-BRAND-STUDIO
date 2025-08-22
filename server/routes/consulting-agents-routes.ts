@@ -388,13 +388,13 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
     // CREATE PERSONALITY CONTEXT: Full integration with admin capabilities
     const personalityContext = personalityService.createPersonalityContext(normalizedAgentId, isAdminRequest);
     
-    // CREATE ADMIN CONTEXT: Memory and personality preservation
-    await adminContextManager.createAdminAgentContext(
-      normalizedAgentId,
+    // CREATE ADMIN CONTEXT: Memory and personality preservation using simpleMemoryService
+    await simpleMemoryService.prepareAgentContext({
+      agentName: normalizedAgentId,
       userId, 
-      baseConversationId,
-      personalityContext
-    );
+      task: message,
+      isAdminBypass: isAdminRequest
+    });
 
     // ADMIN AGENTS: Always use Claude API with tools for intelligent interaction
     if (isAdminRequest) {
