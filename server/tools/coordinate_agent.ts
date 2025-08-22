@@ -113,7 +113,7 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
     console.log(`🤝 AGENT COORDINATION: ${coordination_data.coordinating_agent} → ${selectedAgent}`, {
       task: input.task_description.substring(0, 100) + '...',
       priority: input.priority,
-      deliverables: input.expected_deliverables.length,
+      deliverables: input.expected_deliverables?.length || 0,
       intelligentSelection: delegationReasoning ? 'Yes' : 'Manual'
     });
 

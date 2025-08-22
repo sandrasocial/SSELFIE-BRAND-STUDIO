@@ -317,6 +317,59 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T10:59:39.324Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755860950934_u353kgusi",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create compelling headlines and value propositions for SSELFIE Studio's sales page focusing on:\n\n1. Main headline that captures the all-in-one personal branding platform value\n2. Sub-headlines highlighting key benefits of replacing multiple subscriptions (Canva, ChatGPT, photo editors) with one solution\n3. Value propositions for both pricing tiers:\n   - Creator (€27/month)\n   - Entrepreneur (€67/month)\n4. Clear benefit statements around the TRAIN → STYLE → SHOOT → BUILD → MANAGE journey\n\nKey messaging points to incorporate:\n- Cost savings vs €120-180+ monthly subscriptions\n- All-in-one platform simplification\n- Personal branding acceleration\n- AI-powered transformation",
+      "workflowContext": "We're preparing for SSELFIE Studio's market launch and need compelling sales copy that clearly communicates our value proposition and pricing tiers. This copy will be central to our sales page and conversion strategy.",
+      "expectedDeliverables": [
+        "Main headline for sales page",
+        "3-4 powerful sub-headlines",
+        "Value propositions for Creator tier (€27/month)",
+        "Value propositions for Entrepreneur tier (€67/month)",
+        "Benefit statements for each step of the user journey",
+        "Copy variations for A/B testing"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T11:09:10.983Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755860997200_9kav27jyl",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Create compelling homepage headlines for SSELFIE Studio that:\n1. Emphasize the all-in-one personal branding platform value proposition\n2. Highlight the cost-saving benefit (replacing €120-180+ monthly subscriptions)\n3. Incorporate the TRAIN → STYLE → SHOOT → BUILD → MANAGE journey\n4. Appeal to creators and entrepreneurs\n5. Focus on immediate value delivery for launch\n\nKey points to incorporate:\n- Primary value: All-in-one personal branding solution\n- Cost benefit: Replace multiple expensive subscriptions\n- Target audience: Creators (€27/mo) and Entrepreneurs (€67/mo)\n- Unique selling point: Complete personal branding journey with AI assistance",
+      "workflowContext": "We're preparing for the immediate launch of SSELFIE Studio. These headlines will be crucial for the homepage to clearly communicate our value proposition and convert visitors. The copy needs to be launch-ready and focused on what we can deliver now.",
+      "expectedDeliverables": [
+        "Primary hero headline",
+        "3-4 secondary headlines for key sections",
+        "Value proposition statement",
+        "Call-to-action variations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T11:09:57.248Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755861006560_m8r875l4u",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Prepare the homepage structure to receive new headlines:\n1. Review current homepage layout and identify all headline placement locations\n2. Ensure headline components are properly structured for easy updates\n3. Prepare responsive styling for different headline lengths\n4. Set up A/B testing capability if possible for headline variations",
+      "workflowContext": "Rachel is creating new homepage headlines for our launch. We need the technical infrastructure ready to implement these effectively across all sections.",
+      "expectedDeliverables": [
+        "Homepage headline component audit",
+        "Implementation readiness report",
+        "List of headline placement locations",
+        "Technical requirements for A/B testing"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T11:10:06.608Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-12T08:33:27.654Z",

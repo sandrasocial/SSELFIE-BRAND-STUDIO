@@ -72,7 +72,7 @@ export class ElenaDelegationSystem {
         agentId: 'maya',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['style', 'design', 'styling', 'fashion', 'aesthetic', 'visual-style'],
+        specialties: ['style', 'styling', 'fashion', 'aesthetic', 'visual-style'],
         averageTaskTime: 30,
         lastTaskAssigned: null,
         efficiency: 0.85
