@@ -38,8 +38,17 @@ export async function search_filesystem(parameters: any): Promise<string> {
     const validSearchPaths = search_paths.length > 0 ? search_paths : ['.'];
     const adjustedPaths = validSearchPaths.map(path => {
       if (path === '.') {
-        // For root searches, target main directories only
-        return [`${workspaceRoot}/client/src`, `${workspaceRoot}/server`, `${workspaceRoot}/shared`, `${workspaceRoot}/*.md`];
+        // For root searches, target ALL main directories including documentation
+        return [
+          `${workspaceRoot}/client/src`, 
+          `${workspaceRoot}/server`, 
+          `${workspaceRoot}/shared`, 
+          `${workspaceRoot}/infrastructure`,
+          `${workspaceRoot}/docs`,
+          `${workspaceRoot}/*.md`,
+          `${workspaceRoot}/infrastructure/docs`,
+          `${workspaceRoot}/infrastructure/docs/*.md`
+        ];
       }
       if (path.startsWith('./')) return path.replace('./', `${workspaceRoot}/`);
       if (path.startsWith('/')) return path; // Absolute paths unchanged
@@ -77,6 +86,34 @@ export async function search_filesystem(parameters: any): Promise<string> {
     if (query_description) {
       const searchTerms = extractSearchTerms(query_description);
       console.log('🔍 SEARCH TERMS EXTRACTED:', searchTerms);
+      
+      // BUSINESS MODEL SPECIFIC SEARCH: Include key business documentation files
+      const businessFiles = [
+        `${workspaceRoot}/infrastructure/docs/README.md`,
+        `${workspaceRoot}/SANDRA_ACTUAL_BUSINESS_MODEL.md`,
+        `${workspaceRoot}/server/SSELFIE_BUSINESS_MODEL_ANALYSIS.md`,
+        `${workspaceRoot}/business_strategy.md`,
+        `${workspaceRoot}/launch_strategy.md`,
+        `${workspaceRoot}/SANDRA_LAUNCH_STRATEGY.md`
+      ];
+      
+      // Check if this looks like a business model query
+      const businessQuery = query_description.toLowerCase().includes('business') || 
+                           query_description.toLowerCase().includes('model') ||
+                           query_description.toLowerCase().includes('train') ||
+                           query_description.toLowerCase().includes('style') ||
+                           query_description.toLowerCase().includes('gallery') ||
+                           query_description.toLowerCase().includes('sselfie');
+      
+      if (businessQuery) {
+        console.log('🔍 BUSINESS MODEL SEARCH: Including business documentation files');
+        for (const term of searchTerms.slice(0, 3)) {
+          const businessResult = await executeGrep(term, businessFiles);
+          if (businessResult && businessResult !== 'No matches found') {
+            results += `\n=== Business Documentation "${term}" ===\n${businessResult.substring(0, 1500)}\n`;
+          }
+        }
+      }
       
       // Search all meaningful terms without hardcoded patterns
       for (const term of searchTerms.slice(0, 3)) { // Search top 3 most relevant terms
