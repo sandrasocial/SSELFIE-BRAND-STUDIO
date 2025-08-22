@@ -1,0 +1,28 @@
+{
+  "sessionId": "session_1755866592342_fd8wm0el1",
+  "name": "victoria Coordination Tasks",
+  "description": "Active coordination tasks managed by victoria",
+  "coordinatorAgent": "victoria",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755866592290_b47xn4ygf",
+      "assignedAgent": "maya",
+      "coordinatorAgent": "victoria",
+      "taskDescription": "Review and align on style requirements for SSELFIE Studio UI implementation. Key areas to address:\n1. Confirm the proposed color palette aligns with your style vision (Deep Noir, Gallery White, Metallic Silver, etc.)\n2. Validate typography choices (Times New Roman for headers, Helvetica Neue for interface)\n3. Ensure the \"high-fashion editorial experience\" matches your style direction\n4. Review interactive elements (gradient-filled buttons, animations) for brand consistency\n5. Provide any additional style guidelines needed for implementation",
+      "workflowContext": "We're reviewing Aria's UI mockup to ensure the style direction aligns with your vision before implementation. This is critical for maintaining consistent brand identity across the platform.",
+      "expectedDeliverables": [
+        "Style alignment confirmation",
+        "Any style adjustments needed",
+        "Additional brand guidelines",
+        "Typography recommendations",
+        "Color palette validation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T12:43:12.342Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T12:43:12.342Z",
+  "status": "active"
+}
