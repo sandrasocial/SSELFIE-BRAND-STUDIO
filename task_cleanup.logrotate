@@ -1,8 +1,0 @@
-/var/log/task_cleanup.log {
-    rotate 7
-    daily
-    compress
-    missingok
-    notifempty
-    create 644 root root
-}
