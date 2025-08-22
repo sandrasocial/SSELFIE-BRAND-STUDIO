@@ -25,13 +25,19 @@ export async function search_filesystem(parameters: any): Promise<string> {
     
     // AGENTS ARE RUNNING FROM SERVER DIR - NEED TO ADJUST PATHS
     const workspaceRoot = process.cwd().endsWith('/server') ? '..' : '.';
-    const adjustedPaths = search_paths.map(path => {
-      if (path === '.') return workspaceRoot;
+    
+    // FOCUSED SEARCH PATHS: Exclude cache and temporary directories
+    const validSearchPaths = search_paths.length > 0 ? search_paths : ['.'];
+    const adjustedPaths = validSearchPaths.map(path => {
+      if (path === '.') {
+        // For root searches, target main directories only
+        return [`${workspaceRoot}/client/src`, `${workspaceRoot}/server`, `${workspaceRoot}/shared`, `${workspaceRoot}/*.md`];
+      }
       if (path.startsWith('./')) return path.replace('./', `${workspaceRoot}/`);
       if (path.startsWith('/')) return path; // Absolute paths unchanged
       // Relative paths need workspace root prefix
       return `${workspaceRoot}/${path}`;
-    });
+    }).flat();
     
     console.log('🔍 PATH ADJUSTMENT:', { original: search_paths, adjusted: adjustedPaths });
 
@@ -100,11 +106,17 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
     
     console.log('🔍 GREP COMMAND:', `grep -r -n -i --include=*.ts --include=*.js --include=*.tsx --include=*.jsx --include=*.md "${searchTerm}" ${pathArgs.join(' ')}`);
     
-    // Include markdown files and more file types for comprehensive search
+    // Include source files only, exclude cache and node_modules
     const cmd = spawn('grep', [
       '-r', '-n', '-i', 
       '--include=*.ts', '--include=*.js', '--include=*.tsx', '--include=*.jsx', 
-      '--include=*.md', '--include=*.json',
+      '--include=*.md',
+      '--exclude-dir=node_modules',
+      '--exclude-dir=.cache',
+      '--exclude-dir=.local',
+      '--exclude-dir=.git',
+      '--exclude-dir=dist',
+      '--exclude-dir=build',
       searchTerm, 
       ...pathArgs
     ], {
