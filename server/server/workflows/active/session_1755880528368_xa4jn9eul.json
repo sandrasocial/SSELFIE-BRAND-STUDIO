@@ -1,0 +1,42 @@
+{
+  "sessionId": "session_1755880528368_xa4jn9eul",
+  "name": "olga Coordination Tasks",
+  "description": "Active coordination tasks managed by olga",
+  "coordinatorAgent": "olga",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755880528320_ai5l12clk",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "olga",
+      "taskDescription": "Need security review and implementation for repository access controls and validation rules.",
+      "workflowContext": "Implementing repository organization fixes to prevent architectural chaos. Need security measures for file access and validation.",
+      "expectedDeliverables": [
+        "Access control implementation",
+        "Security validation rules",
+        "Audit logging setup"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T16:35:28.367Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755880568593_woo3eph2f",
+      "assignedAgent": "elena",
+      "coordinatorAgent": "olga",
+      "taskDescription": "Need implementation of repository organization rules and pre-commit validation. Please review and implement the validation system.",
+      "workflowContext": "Implementing comprehensive repository organization to prevent architectural chaos. Need technical implementation of validation rules.",
+      "expectedDeliverables": [
+        "Validation system implementation",
+        "Pre-commit hook setup",
+        "Technical documentation"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T16:36:08.639Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T16:35:28.368Z",
+  "status": "active"
+}

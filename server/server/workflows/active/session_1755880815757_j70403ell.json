@@ -1,0 +1,43 @@
+{
+  "sessionId": "session_1755880815757_j70403ell",
+  "name": "aria Coordination Tasks",
+  "description": "Active coordination tasks managed by aria",
+  "coordinatorAgent": "aria",
+  "assignedTasks": [
+    {
+      "taskId": "coord_1755880815713_fm099sgwq",
+      "assignedAgent": "diana",
+      "coordinatorAgent": "aria",
+      "taskDescription": "Urgent security audit needed. Please perform deep inspection of:\n1. Current CSRF protection implementation\n2. Rate limiting mechanisms\n3. Email validation patterns\n4. Type safety in security middleware\n\nRequired deliverables:\n- Security vulnerability report\n- Implementation recommendations\n- Critical fixes needed",
+      "workflowContext": "High-priority security validation testing for SSELFIE STUDIO launch readiness. Need to ensure robust security measures are in place for user data protection.",
+      "expectedDeliverables": [
+        "Security Audit Report",
+        "Vulnerability Assessment",
+        "Implementation Recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T16:40:15.757Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755880867789_hbxnxakxp",
+      "assignedAgent": "olga",
+      "coordinatorAgent": "aria",
+      "taskDescription": "Need immediate security audit and implementation assistance for:\n1. Login attempt monitoring system\n2. Rate limiting configuration\n3. Security alert implementation\n4. Automated security scanning setup\n\nPlease provide security expertise while I handle the implementation coordination.",
+      "workflowContext": "Implementing comprehensive security monitoring system for SSELFIE STUDIO platform. This is a high-priority task requiring immediate attention.",
+      "expectedDeliverables": [
+        "Security audit report",
+        "Rate limiting configuration specs",
+        "Alert system architecture",
+        "Scanning implementation plan"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T16:41:07.838Z",
+      "workflowType": "coordination"
+    }
+  ],
+  "created": "2025-08-22T16:40:15.758Z",
+  "status": "active"
+}
