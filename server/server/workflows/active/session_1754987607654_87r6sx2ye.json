@@ -370,6 +370,88 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T11:10:06.608Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755863942510_6czuq0xik",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Rewrite all pre-login page copy focusing on personal branding transformation. Use Sandra's story as the core narrative. Emphasize the power of having your own AI model trained on your unique brand.",
+      "workflowContext": "Immediate launch preparation - simplifying messaging and positioning for SSELFIE STUDIO launch",
+      "expectedDeliverables": [
+        "New homepage copy",
+        "About page narrative",
+        "How it Works simplified copy",
+        "Pricing page copy with new structure"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T11:59:02.561Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755863948461_v135kr3jz",
+      "assignedAgent": "flux",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Complete full QA audit of TRAIN and STYLE features. Test AI model training flow and Maya's image generation capabilities. Document any issues or optimization needs.",
+      "workflowContext": "Launch preparation - ensuring core features are production-ready",
+      "expectedDeliverables": [
+        "QA report on TRAIN feature",
+        "Maya chat interface testing results",
+        "Gallery functionality audit",
+        "Performance optimization recommendations"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T11:59:08.508Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755863954405_pe2le68wm",
+      "assignedAgent": "flux",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Optimize style consultation flow and image generation parameters. Create documentation for optimal prompting patterns that capture personal brand essence.",
+      "workflowContext": "Launch preparation - optimizing core STYLE feature",
+      "expectedDeliverables": [
+        "Optimized style consultation flow",
+        "Updated prompt templates",
+        "Brand personality mapping guide"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T11:59:14.453Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755864251789_c08m8vg5z",
+      "assignedAgent": "olga",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Craft simplified pricing tier messaging focused on Sandra's core selfie expertise. Need:\n1. Two-tier pricing structure headlines\n2. Value proposition that ties to Sandra's Instagram selfie tutorial authority\n3. Clear differentiation between tiers that feels natural for selfie/personal brand focus",
+      "workflowContext": "Sandra is simplifying SSELFIE STUDIO positioning to align with her proven Instagram selfie tutorial expertise. Need messaging that makes pricing tiers feel natural extension of her existing authority.",
+      "expectedDeliverables": [
+        "Tier names aligned with selfie/personal brand focus",
+        "Core value proposition statement",
+        "Key differentiators between tiers"
+      ],
+      "priority": "medium",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T12:04:11.839Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755864263849_rmxo47ngz",
+      "assignedAgent": "aria",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Review and validate simplified two-tier pricing strategy for SSELFIE STUDIO. Analyze:\n1. Market fit for €27 Selfie Starter vs €67 Brand Builder tiers\n2. Positioning against competitor tools (Canva, ChatGPT, etc.)\n3. Growth pathway from starter to premium tier",
+      "workflowContext": "Simplifying SSELFIE STUDIO positioning to focus on Sandra's core selfie expertise and Instagram authority. Need business validation of simplified pricing structure.",
+      "expectedDeliverables": [
+        "Market positioning analysis",
+        "Competitor pricing comparison",
+        "Tier upgrade strategy recommendations"
+      ],
+      "priority": "medium",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T12:04:23.903Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-12T08:33:27.654Z",
