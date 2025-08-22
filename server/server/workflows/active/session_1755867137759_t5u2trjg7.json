@@ -294,6 +294,22 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T13:53:18.145Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755871808517_vguf5qkbf",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Review new SSELFIE Studio style guide for website implementation. Need your input on typography choices and how to best implement these guidelines in the website design.",
+      "workflowContext": "Creating and implementing comprehensive brand style guide for SSELFIE Studio launch. Need to ensure website design aligns with new guidelines.",
+      "expectedDeliverables": [
+        "Typography recommendations",
+        "Website style implementation plan",
+        "Feedback on current style guide"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T14:10:08.575Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:52:17.759Z",
