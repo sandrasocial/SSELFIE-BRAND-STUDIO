@@ -1,0 +1,124 @@
+/* SSELFIE STUDIO Typography System
+ * Designed by Aria - Editorial Luxury Experience
+ * Core typography system based on Times New Roman for sophisticated editorial presence
+ */
+
+:root {
+  /* Typography Scale - Editorial Luxury */
+  --font-display: 3.815rem;  /* 61.04px */
+  --font-headline: 3.052rem; /* 48.83px */
+  --font-title: 2.441rem;   /* 39.06px */
+  --font-subtitle: 1.953rem; /* 31.25px */
+  --font-body-large: 1.563rem; /* 25.00px */
+  --font-body: 1.25rem;     /* 20.00px */
+  --font-small: 1rem;       /* 16.00px */
+  --font-micro: 0.8rem;     /* 12.80px */
+
+  /* Line Heights for Editorial Spacing */
+  --line-height-display: 1.2;
+  --line-height-headline: 1.3;
+  --line-height-body: 1.5;
+  --line-height-tight: 1.1;
+
+  /* Letter Spacing for Refined Details */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+}
+
+/* Core Typography Classes */
+.typography-display {
+  font-family: "Times New Roman", Times, serif;
+  font-size: var(--font-display);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--tracking-tight);
+  font-weight: 700;
+}
+
+.typography-headline {
+  font-family: "Times New Roman", Times, serif;
+  font-size: var(--font-headline);
+  line-height: var(--line-height-headline);
+  letter-spacing: var(--tracking-tight);
+  font-weight: 700;
+}
+
+.typography-title {
+  font-family: "Times New Roman", Times, serif;
+  font-size: var(--font-title);
+  line-height: var(--line-height-headline);
+  letter-spacing: var(--tracking-normal);
+  font-weight: 600;
+}
+
+.typography-subtitle {
+  font-family: "Times New Roman", Times, serif;
+  font-size: var(--font-subtitle);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--tracking-normal);
+  font-weight: 500;
+}
+
+.typography-body-large {
+  font-family: "Times New Roman", Times, serif;
+  font-size: var(--font-body-large);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--tracking-normal);
+  font-weight: 400;
+}
+
+.typography-body {
+  font-family: "Times New Roman", Times, serif;
+  font-size: var(--font-body);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--tracking-normal);
+  font-weight: 400;
+}
+
+.typography-small {
+  font-family: "Times New Roman", Times, serif;
+  font-size: var(--font-small);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--tracking-normal);
+  font-weight: 400;
+}
+
+.typography-micro {
+  font-family: "Times New Roman", Times, serif;
+  font-size: var(--font-micro);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--tracking-wide);
+  font-weight: 400;
+}
+
+/* Editorial Utility Classes */
+.typography-uppercase {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.typography-italic {
+  font-style: italic;
+}
+
+.typography-light {
+  font-weight: 300;
+}
+
+.typography-bold {
+  font-weight: 700;
+}
+
+/* Responsive Typography */
+@media screen and (max-width: 768px) {
+  :root {
+    --font-display: 2.441rem;
+    --font-headline: 1.953rem;
+    --font-title: 1.563rem;
+    --font-subtitle: 1.25rem;
+    --font-body-large: 1.125rem;
+    --font-body: 1rem;
+    --font-small: 0.8rem;
+    --font-micro: 0.64rem;
+  }
+}

@@ -6,52 +6,77 @@ class StyleRecommendationEngine:
         self.style_guide = self._load_style_guide()
         
     def _load_style_guide(self):
+        """Load the style guide configuration from JSON file."""
         style_guide_path = os.path.join('config', 'style_guide.json')
         with open(style_guide_path, 'r') as file:
             return json.load(file)
     
-    def get_typography_recommendations(self, content_type):
-        """Generate typography recommendations based on content type."""
-        typography = self.style_guide['brand']['typography']
-        return {
-            'font_family': typography['primary_font'],
-            'size': typography['font_sizes'].get(content_type, typography['font_sizes']['body']),
-            'hierarchy': typography['font_hierarchy']
+    def get_typography_styles(self, element_type):
+        """Get typography styles for specific element types."""
+        typography = self.style_guide['typography']
+        
+        styles = {
+            'font-family': typography['primary'],
+            'line-height': typography['lineHeight']['body']
         }
+        
+        if element_type in typography['sizes']:
+            styles['font-size'] = typography['sizes'][element_type]
+            
+        if 'heading' in element_type:
+            styles['line-height'] = typography['lineHeight']['headings']
+            
+        return styles
     
-    def get_color_scheme(self, brand_style='professional'):
-        """Recommend color combinations based on brand style."""
-        colors = self.style_guide['brand']['color_palette']
-        if brand_style == 'professional':
+    def get_color_scheme(self, context='default'):
+        """Get color scheme based on context."""
+        colors = self.style_guide['colors']
+        
+        if context == 'luxury':
             return {
-                'primary': colors['primary']['editorial_black'],
-                'secondary': colors['primary']['classic_cream'],
-                'accent': colors['primary']['luxury_gold']
+                'background': colors['background']['primary'],
+                'text': colors['text']['primary'],
+                'accent': colors['accent']['gold']
             }
-        else:  # creative style
-            return {
-                'primary': colors['primary']['luxury_gold'],
-                'secondary': colors['secondary']['soft_taupe'],
-                'accent': colors['accents']['deep_burgundy']
-            }
-    
-    def get_photo_styling_recommendations(self, brand_persona='professional'):
-        """Generate comprehensive photo styling recommendations."""
-        guidelines = self.style_guide['brand']['photography_guidelines']
-        styling = guidelines['styling_recommendations'][brand_persona]
         
         return {
-            'lighting': guidelines['lighting'],
-            'composition': guidelines['composition'],
-            'poses': styling['poses'],
-            'wardrobe': styling['wardrobe'],
-            'backgrounds': styling['backgrounds']
+            'background': colors['background']['primary'],
+            'text': colors['text']['primary'],
+            'accent': colors['secondary']['main']
         }
     
-    def generate_complete_style_guide(self, brand_persona='professional'):
-        """Generate a complete style guide for the user."""
-        return {
-            'typography': self.get_typography_recommendations('body'),
-            'colors': self.get_color_scheme(brand_persona),
-            'photography': self.get_photo_styling_recommendations(brand_persona)
-        }
+    def generate_component_styles(self, component_type):
+        """Generate complete styles for specific component types."""
+        styles = {}
+        
+        if component_type == 'header':
+            styles.update({
+                'typography': self.get_typography_styles('heading1'),
+                'colors': self.get_color_scheme('luxury'),
+                'spacing': {
+                    'padding': self.style_guide['spacing']['lg']
+                }
+            })
+        elif component_type == 'body':
+            styles.update({
+                'typography': self.get_typography_styles('body'),
+                'colors': self.get_color_scheme('default'),
+                'spacing': {
+                    'margin': self.style_guide['spacing']['md']
+                }
+            })
+            
+        return styles
+    
+    def get_responsive_styles(self, component_type, viewport='desktop'):
+        """Get responsive styles based on viewport size."""
+        base_styles = self.generate_component_styles(component_type)
+        
+        if viewport == 'mobile':
+            # Adjust sizes for mobile
+            if 'typography' in base_styles:
+                current_size = base_styles['typography'].get('font-size', '1rem')
+                base_size = float(current_size.replace('rem', ''))
+                base_styles['typography']['font-size'] = f"{base_size * 0.8}rem"
+                
+        return base_styles

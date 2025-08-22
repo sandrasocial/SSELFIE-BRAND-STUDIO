@@ -261,6 +261,39 @@
       "status": "assigned",
       "assignedAt": "2025-08-22T13:51:03.155Z",
       "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870747910_powxg8g8w",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Urgent review needed: Implementation status of Times New Roman typography system and luxury editorial aesthetic in current codebase. Need details on: 1) Current typography implementation 2) Style guide integration 3) Visual asset management system",
+      "workflowContext": "High-priority style guide review for SSELFIE Studio launch, focusing on visual consistency and luxury branding implementation",
+      "expectedDeliverables": [
+        "Current typography implementation status",
+        "Style guide technical documentation",
+        "Visual asset management system details"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:52:27.963Z",
+      "workflowType": "coordination"
+    },
+    {
+      "taskId": "coord_1755870798096_dhxnottct",
+      "assignedAgent": "victoria",
+      "coordinatorAgent": "maya",
+      "taskDescription": "Urgent check needed: Are there existing landing page files and web assets for SSELFIE Studio? Need status update on any current website implementation progress and access to design files if they exist.",
+      "workflowContext": "Performing technical implementation review for SSELFIE Studio launch strategy. Need to assess current state of landing page and web presence.",
+      "expectedDeliverables": [
+        "Current status of website implementation",
+        "Location of any existing web assets",
+        "List of implemented features",
+        "Identification of missing critical components"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-22T13:53:18.145Z",
+      "workflowType": "coordination"
     }
   ],
   "created": "2025-08-22T12:52:17.759Z",

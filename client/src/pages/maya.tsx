@@ -9,6 +9,10 @@ import { apiRequest } from '../lib/queryClient';
 import { SandraImages } from '../lib/sandra-images';
 import { EditorialImageBreak } from '../components/editorial-image-break';
 import { MemberNavigation } from '../components/member-navigation';
+import { MayaLayout } from '../components/maya/MayaLayout';
+import { StyleChat } from '../components/maya/StyleChat';
+import { PhotoGeneration } from '../components/maya/PhotoGeneration';
+import { StyleChat } from '../components/maya/StyleChat';
 // import { MayaChatInterface } from '@/components/maya/MayaChatInterface';
 
 interface ChatMessage {

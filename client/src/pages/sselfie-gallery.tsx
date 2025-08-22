@@ -1,4 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { styled } from '@mui/material/styles';
+import { Typography, Paper, Box, Chip, IconButton, TextField, InputAdornment, Container } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MemberNavigation } from '../components/member-navigation';
@@ -7,10 +15,57 @@ import { HeroFullBleed } from '../components/hero-full-bleed';
 import { SandraImages } from '../lib/sandra-images';
 import { apiRequest } from '../lib/queryClient';
 
+// Styled components for editorial luxury experience
+const GalleryGrid = styled(Box)(({ theme }) => ({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+  gap: '2rem',
+  padding: '2rem',
+  '@media (min-width: 1024px)': {
+    gridTemplateColumns: 'repeat(3, 1fr)',
+  },
+}));
+
+const EditorialCard = styled(Paper)(({ theme }) => ({
+  position: 'relative',
+  borderRadius: '0',
+  overflow: 'hidden',
+  transition: 'all 0.3s ease',
+  backgroundColor: '#ffffff',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.08)',
+  },
+}));
+
+const SearchBar = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '0',
+    backgroundColor: '#ffffff',
+    '& fieldset': {
+      borderColor: '#E0E0E0',
+    },
+  },
+  marginBottom: '2rem',
+}));
+
+const FilterChip = styled(Chip)(({ theme }) => ({
+  borderRadius: '0',
+  margin: '0 0.5rem 0.5rem 0',
+  '&.MuiChip-filled': {
+    backgroundColor: '#000000',
+    color: '#ffffff',
+  },
+}));
+
+// Editorial Gallery Component
 export default function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
   const queryClient = useQueryClient();
 
   // Fetch user's deliberately saved gallery images
@@ -26,6 +81,41 @@ export default function SSELFIEGallery() {
   });
 
   const favorites = favoritesData?.favorites || [];
+
+  // Enhanced filtering and sorting logic
+  const filteredImages = useMemo(() => {
+    let filtered = [...aiImages];
+    
+    // Apply favorites filter
+    if (showFavoritesOnly) {
+      filtered = filtered.filter(img => favorites.includes(img.id));
+    }
+    
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(img => 
+        img.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        img.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // Apply category filter
+    if (selectedFilter !== 'all') {
+      filtered = filtered.filter(img => img.category === selectedFilter);
+    }
+    
+    // Apply sorting
+    filtered.sort((a, b) => {
+      if (sortBy === 'newest') {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      } else if (sortBy === 'oldest') {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      }
+      return 0;
+    });
+    
+    return filtered;
+  }, [aiImages, showFavoritesOnly, favorites, searchQuery, selectedFilter, sortBy]);
 
   // Toggle favorite mutation
   const toggleFavoriteMutation = useMutation({
@@ -59,7 +149,21 @@ export default function SSELFIEGallery() {
 
 
 
-  const downloadImage = async (imageUrl: string, filename: string) => {
+  // Gallery filter options
+const filterOptions = [
+  { label: 'All', value: 'all' },
+  { label: 'Professional', value: 'professional' },
+  { label: 'Casual', value: 'casual' },
+  { label: 'Creative', value: 'creative' }
+];
+
+// Sort options
+const sortOptions = [
+  { label: 'Newest', value: 'newest' },
+  { label: 'Oldest', value: 'oldest' }
+];
+
+const downloadImage = async (imageUrl: string, filename: string) => {
     try {
       // Skip broken or invalid URLs
       if (!imageUrl || !imageUrl.startsWith('http')) {
@@ -119,11 +223,62 @@ export default function SSELFIEGallery() {
     aiImages.filter(img => favorites.includes(img.id)) : 
     aiImages;
 
+  const renderGalleryHeader = () => (
+    <Box sx={{ mb: 4, mt: 2 }}>
+      <Typography 
+        variant="h1" 
+        sx={{ 
+          fontFamily: 'Times New Roman, serif',
+          fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+          fontWeight: 300,
+          letterSpacing: '-0.02em',
+          mb: 3,
+          textAlign: 'center'
+        }}
+      >
+        Your Editorial Collection
+      </Typography>
+      
+      <Box sx={{ maxWidth: '800px', mx: 'auto', mb: 4 }}>
+        <SearchBar
+          fullWidth
+          placeholder="Search your collection..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
+
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center', mb: 3 }}>
+        {filterOptions.map((option) => (
+          <FilterChip
+            key={option.value}
+            label={option.label}
+            onClick={() => setSelectedFilter(option.value)}
+            variant={selectedFilter === option.value ? 'filled' : 'outlined'}
+          />
+        ))}
+        <FilterChip
+          label="Favorites"
+          onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+          variant={showFavoritesOnly ? 'filled' : 'outlined'}
+        />
+      </Box>
+    </Box>
+  );
+
   if (!isAuthenticated) {
     return (
-      <div style={{ 
+      <Box sx={{ 
         minHeight: '100vh', 
         background: '#ffffff',
+        pb: 8,
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         fontWeight: 300,
         color: '#0a0a0a'
@@ -162,12 +317,16 @@ export default function SSELFIEGallery() {
   }
 
   return (
-      <div className="min-h-screen bg-white touch-manipulation" style={{ 
+    <Box 
+      sx={{ 
+        minHeight: '100vh',
+        bgcolor: '#ffffff',
+        color: '#0a0a0a',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontWeight: 300,
-        color: '#0a0a0a'
-      }}>
-        <MemberNavigation />
+        fontWeight: 300
+      }}
+    >
+      <MemberNavigation />
         
         {/* Full Bleed Hero Section */}
         <HeroFullBleed
@@ -179,20 +338,115 @@ export default function SSELFIEGallery() {
           overlay={0.4}
         />
         
-        {/* Gallery Statistics & Controls Section */}
-        <section style={{
-          padding: '80px 0 60px 0',
-          background: '#ffffff'
-        }}>
-          <div style={{
-            maxWidth: '1400px',
-            margin: '0 auto',
-            padding: '0 6vw'
-          }}>
-            <div style={{
-              textAlign: 'center',
-              marginBottom: '60px'
-            }}>
+        <Container maxWidth="xl" sx={{ py: 8 }}>
+          {renderGalleryHeader()}
+          
+          <GalleryGrid>
+            {filteredImages.map((image) => (
+              <EditorialCard key={image.id} elevation={0}>
+                <Box sx={{ position: 'relative', paddingTop: '133%', overflow: 'hidden' }}>
+                  <Box
+                    component="img"
+                    src={image.url}
+                    alt={image.title || 'Gallery image'}
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.3s ease',
+                      '&:hover': {
+                        transform: 'scale(1.05)'
+                      }
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      p: 2,
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)',
+                      color: '#fff',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-end'
+                    }}
+                  >
+                    <Box>
+                      <Typography 
+                        variant="subtitle1" 
+                        sx={{ 
+                          fontFamily: 'Times New Roman, serif',
+                          fontSize: '1.2rem',
+                          fontWeight: 300
+                        }}
+                      >
+                        {image.title || 'Untitled'}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <IconButton
+                        onClick={() => toggleFavorite(image.id)}
+                        sx={{ color: favorites.includes(image.id) ? '#ff385c' : '#fff' }}
+                      >
+                        {favorites.includes(image.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                      </IconButton>
+                      <IconButton
+                        onClick={() => downloadImage(image.url, `sselfie-${image.id}.jpg`)}
+                        sx={{ color: '#fff' }}
+                      >
+                        <DownloadIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => deleteImage(image.id)}
+                        sx={{ color: '#fff' }}
+                      >
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </Box>
+              </EditorialCard>
+            ))}
+          </GalleryGrid>
+          
+          {filteredImages.length === 0 && (
+            <Box 
+              sx={{ 
+                textAlign: 'center', 
+                py: 8,
+                px: 2
+              }}
+            >
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontFamily: 'Times New Roman, serif',
+                  fontWeight: 300,
+                  mb: 2
+                }}
+              >
+                No Images Found
+              </Typography>
+              <Typography 
+                variant="body1" 
+                sx={{ 
+                  color: 'text.secondary',
+                  maxWidth: '600px',
+                  mx: 'auto'
+                }}
+              >
+                {showFavoritesOnly 
+                  ? "You haven't favorited any images yet." 
+                  : "Your gallery is empty. Start creating your professional photos!"}
+              </Typography>
+            </Box>
+          )}
+        </Container>
               <p style={{
                 fontSize: '20px',
                 lineHeight: 1.5,
