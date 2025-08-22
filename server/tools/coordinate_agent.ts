@@ -79,12 +79,61 @@ export async function coordinate_agent(input: CoordinateAgentInput): Promise<Coo
       deliverables: input.expected_deliverables.length
     });
 
-    // Store coordination task (in production this would go to database)
-    // For now, we'll use in-memory coordination tracking
+    // SYSTEM INTEGRATION: Store in both in-memory AND database + WorkflowPersistence
+    // 1. In-memory tracking for immediate access
     if (!global.agentCoordinations) {
       global.agentCoordinations = new Map();
     }
     global.agentCoordinations.set(coordination_id, coordination_data);
+    
+    // 2. Store in database for persistence
+    try {
+      const { db } = await import('../db');
+      const { agentTasks } = await import('../../shared/schema');
+      const { sql } = await import('drizzle-orm');
+      
+      await db.insert(agentTasks).values({
+        taskId: sql`gen_random_uuid()`,
+        agentName: input.target_agent,
+        instruction: input.task_description,
+        conversationContext: [input.workflow_context || 'Direct coordination'],
+        priority: input.priority,
+        completionCriteria: input.expected_deliverables,
+        qualityGates: ['coordination_success'],
+        estimatedDuration: input.priority === 'critical' ? 60 : 
+                          input.priority === 'high' ? 120 :
+                          input.priority === 'medium' ? 240 : 480,
+        status: 'assigned',
+        progress: 0
+      });
+      
+      console.log(`💾 DATABASE: Task stored for ${input.target_agent}`);
+    } catch (dbError) {
+      console.warn(`⚠️ DATABASE WARNING: Could not store task in database:`, dbError);
+    }
+    
+    // 3. Store in WorkflowPersistence for immediate agent access
+    try {
+      const { WorkflowPersistence } = await import('../workflows/active/workflow-persistence');
+      
+      const workflowTask = {
+        taskId: coordination_id,
+        agentName: input.target_agent,
+        taskDescription: input.task_description,
+        priority: input.priority,
+        status: 'assigned' as const,
+        assignedAt: new Date(),
+        coordinatorAgent: input.coordinating_agent || 'elena',
+        expectedDeliverables: input.expected_deliverables,
+        workflowType: 'coordination',
+        workflowContext: input.workflow_context || 'Direct coordination'
+      };
+      
+      WorkflowPersistence.assignTaskToAgent(input.target_agent, workflowTask);
+      console.log(`🔄 WORKFLOW: Task assigned to ${input.target_agent} via WorkflowPersistence`);
+    } catch (workflowError) {
+      console.warn(`⚠️ WORKFLOW WARNING: Could not assign task via WorkflowPersistence:`, workflowError);
+    }
 
     // Estimate completion time based on priority and complexity
     const estimatedHours = input.priority === 'critical' ? 1 : 
