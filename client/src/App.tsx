@@ -10,7 +10,6 @@ import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/br
 // import { pwaManager } from "./utils/pwa";
 
 import Landing from "./pages/landing";
-import EditorialLanding from "./pages/editorial-landing";
 import Pricing from "./pages/pricing";
 import Workspace from "./pages/workspace";
 import Onboarding from "./pages/onboarding";
@@ -147,7 +146,7 @@ function Router() {
       <Route path="/launch" component={LaunchCountdown} />
       
       {/* PUBLIC PAGES */}
-      <Route path="/" component={EditorialLanding} />
+      <Route path="/" component={Landing} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
