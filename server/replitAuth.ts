@@ -289,41 +289,13 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Using strategy: replitauth:${hostname} for domain: ${hostname}`);
       
       // CRITICAL FIX: Force OAuth mode instead of email verification
-      console.log(`🔍 Attempting authentication with strategy: replitauth:${hostname}`);
+      console.log(`🔍 Starting OAuth authentication with strategy: replitauth:${hostname}`);
       
-      // Check if this is a popup request
-      const isPopup = req.query.popup === 'true';
-      console.log(`🔍 Is popup request: ${isPopup}`);
-      
-      // Build OAuth options with popup state preservation
-      const authOptions: any = {
+      // Standard OAuth authentication
+      passport.authenticate(`replitauth:${hostname}`, {
         scope: ["openid", "email", "profile", "offline_access"],
-        response_type: "code",
-        prompt: "consent", // Force OAuth consent screen instead of email verification
-        access_type: "offline" // Ensure refresh tokens
-      };
-      
-      // Preserve popup state in OAuth state parameter
-      if (isPopup) {
-        authOptions.state = `popup=true`;
-        console.log(`🔍 Adding popup state to OAuth flow`);
-      }
-      
-      const authenticator = passport.authenticate(`replitauth:${hostname}`, authOptions);
-      
-      // Wrap in try-catch to handle authentication errors
-      try {
-        authenticator(req, res, (err: any) => {
-          if (err) {
-            console.error('❌ Passport authentication error:', err);
-            return res.status(500).json({ error: 'Authentication failed', details: err.message });
-          }
-          next();
-        });
-      } catch (error: any) {
-        console.error('❌ Authentication wrapper error:', error);
-        return res.status(500).json({ error: 'Authentication setup failed', details: error.message });
-      }
+        prompt: "consent"
+      })(req, res, next);
     }
     
     authenticateUser();
@@ -382,80 +354,13 @@ export async function setupAuth(app: Express) {
     
     console.log(`🔍 Callback using strategy: replitauth:${hostname}`);
     
-    // POPUP WINDOW SUPPORT: Check if this is a popup window callback
-    const isPopup = req.query.popup === 'true' || 
-                    req.query.state?.includes('popup=true') || 
-                    req.headers.referer?.includes('oauth_popup');
+    console.log(`🔍 Processing OAuth callback with strategy: replitauth:${hostname}`);
     
-    console.log(`🔍 Callback popup detection:`, {
-      queryPopup: req.query.popup,
-      statePopup: req.query.state?.includes('popup=true'),
-      refererPopup: req.headers.referer?.includes('oauth_popup'),
-      isPopup
-    });
-    
-    if (isPopup) {
-      // Handle popup window callback with postMessage
-      passport.authenticate(`replitauth:${hostname}`, {
-        successReturnToOrRedirect: "/api/popup-success",
-        failureRedirect: "/api/popup-error"
-      })(req, res, next);
-    } else {
-      // Standard full-page callback handling
-      passport.authenticate(`replitauth:${hostname}`, {
-        successReturnToOrRedirect: "/workspace",
-        failureRedirect: "/api/manual-callback"
-      })(req, res, next);
-    }
-  });
-
-  // Popup success handler
-  app.get("/api/popup-success", (req, res) => {
-    console.log('✅ Popup OAuth success - sending postMessage to parent');
-    res.send(`
-      <html>
-        <body>
-          <script>
-            if (window.opener) {
-              window.opener.postMessage({
-                type: 'OAUTH_SUCCESS',
-                user: ${JSON.stringify((req.user as any)?.claims || {})}
-              }, window.location.origin);
-              window.close();
-            } else {
-              // Fallback if no opener
-              window.location.href = '/workspace';
-            }
-          </script>
-          <p>Authentication successful! This window should close automatically.</p>
-        </body>
-      </html>
-    `);
-  });
-  
-  // Popup error handler
-  app.get("/api/popup-error", (req, res) => {
-    console.log('❌ Popup OAuth error - sending postMessage to parent');
-    const error = req.query.error || 'Authentication failed';
-    res.send(`
-      <html>
-        <body>
-          <script>
-            if (window.opener) {
-              window.opener.postMessage({
-                type: 'OAUTH_ERROR',
-                error: '${error}'
-              }, window.location.origin);
-              window.close();
-            } else {
-              // Fallback if no opener
-              window.location.href = '/?error=' + encodeURIComponent('${error}');
-            }
-          </script>
-          <p>Authentication failed. This window should close automatically.</p>
-        </body>
-      </html>
-    `);
+    // Standard OAuth callback handling
+    passport.authenticate(`replitauth:${hostname}`, {
+      successReturnToOrRedirect: "/workspace",
+      failureRedirect: "/api/manual-callback"
+    })(req, res, next);
   });
 
   // Manual callback route for OAuth failures
@@ -519,14 +424,7 @@ export async function setupAuth(app: Express) {
         }
         
         console.log('✅ Manual OAuth login successful for user:', user.claims?.email);
-        
-        // Check if this is a popup callback
-        const isPopup = req.query.popup === 'true' || req.headers.referer?.includes('oauth_popup');
-        if (isPopup) {
-          res.redirect('/api/popup-success');
-        } else {
-          res.redirect('/workspace');
-        }
+        res.redirect('/workspace');
       });
       
     } catch (error: any) {
