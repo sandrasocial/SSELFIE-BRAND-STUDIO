@@ -10,7 +10,7 @@ import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/br
 // import { pwaManager } from "./utils/pwa";
 
 // PRE-LOGIN EDITORIAL PAGES
-import Landing from "./pages/public/landing";
+import EditorialLanding from "./pages/public/landing";
 import About from "./pages/public/about";
 import HowItWorks from "./pages/public/how-it-works";
 import Blog from "./pages/public/blog";
@@ -154,7 +154,7 @@ function Router() {
       <Route path="/launch" component={LaunchCountdown} />
       
       {/* PUBLIC PAGES */}
-      <Route path="/" component={Landing} />
+      <Route path="/" component={EditorialLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
@@ -190,7 +190,7 @@ function Router() {
           </div>
         </div>
       )} />
-      <Route path="/old-landing" component={Landing} />
+      <Route path="/old-landing" component={EditorialLanding} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/selfie-guide" component={SelfieGuide} />
