@@ -16,4 +16,4 @@ console.log('React hooks COMPLETELY FIXED version 6.0.0', { version: '6.0.0', ti
 // Force CSS reload for debugging
 console.log('CSS files loaded:', document.styleSheets.length);
 
-createRoot(document.getElementById("root")!).render(React.createElement(App));
+createRoot(document.getElementById("root")!).render(<App />);
