@@ -245,9 +245,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('⚠️ ZARA: Performance middleware pending');
   }
   
-  // CRITICAL: Serve static files from public directory (flatlay images, etc.)
-  app.use(express.static('public'));
-  
   // Agent-generated enhancement routes
   setupEnhancementRoutes(app);
 
@@ -256,8 +253,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Basic middleware and authentication setup
   const server = createServer(app);
   
-  // CRITICAL FIX: Setup frontend serving (Vite dev or static fallback)
-  // In Replit, NODE_ENV is often empty, so check for non-production environment
+  // CRITICAL FIX: Setup frontend serving FIRST (Vite dev or static fallback)
+  // This must run BEFORE any static middleware to properly transform TypeScript files
   const isProduction = process.env.NODE_ENV === 'production';
   console.log('🔧 FRONTEND: Setting up frontend serving...');
   
@@ -273,6 +270,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } else {
     await setupStaticFallback();
   }
+  
+  // AFTER Vite setup: Serve static files from public directory (flatlay images, etc.)
+  app.use(express.static('public'));
   
   async function setupStaticFallback() {
     const path = await import('path');
