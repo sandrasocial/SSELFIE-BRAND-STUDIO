@@ -1,3 +1,4 @@
+import React from 'react';
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
@@ -9,4 +10,7 @@ console.log('SSELFIE Studio: Root element found:', !!document.getElementById("ro
 // Force cache bust for React hooks fix - August 12, 2025 - ULTIMATE VERSION
 console.log('React hooks COMPLETELY FIXED version 6.0.0', { version: '6.0.0', timestamp: Date.now(), fixedComponents: '16+ components fixed, major pages updated' });
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Make React globally available for debugging
+(window as any).React = React;
+
+createRoot(document.getElementById("root")!).render(React.createElement(App));
