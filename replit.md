@@ -1,83 +1,10 @@
 # SSELFIE Studio - AI Personal Branding Platform
 
 ## Overview
-SSELFIE Studio is Sandra's simplified AI personal brand photo platform following Elena's strategic focus. The streamlined 3-step journey includes TRAIN (AI model), STYLE (Maya consultation), and GALLERY (unlimited photo generation). One core offer at €47/month targets Sandra's 135K+ followers with the core value proposition: AI-powered personal brand photos that make you stand out instantly. This simplified approach focuses on the money maker (professional AI photos) before expanding to additional features.
+SSELFIE Studio is Sandra's all-in-one personal branding platform that replaces €120-180+ monthly subscriptions (Canva, ChatGPT, photo editors, etc.) with one solution. The 5-step user journey includes TRAIN (AI model), STYLE (Maya agent), SHOOT (prompts), BUILD (Victoria websites), and MANAGE (dashboard). Sandra has 135K+ followers and needs her admin agents to help determine launch pricing strategy, isolate ready features, and simplify positioning for immediate market entry. Long-term goal: use success to sell admin agent ecosystem.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
-
-## Launch-Critical Workflow (August 2025)
-**Context**: After 4 months of development, Sandra needs to launch ASAP for revenue. Admin agents are functional but need supervision.
-
-**Direct Human-AI Coordination Strategy:**
-1. **Admin agents provide recommendations** → Sandra tells me their suggestions
-2. **I implement immediately** → Handle all technical work directly  
-3. **Sandra approves/rejects** → Maintains business control
-4. **Launch preparation** → Focus on revenue-generating features
-
-**Key Principles:**
-- Speed over perfection - launch is priority after 4 months
-- Direct coordination eliminates agent confusion loops
-- Sandra maintains oversight, I handle execution
-- Focus on member revenue features vs admin improvements
-
-## Launch Strategy Plan (August 2025)
-
-### Pre-Login Flow Analysis
-**Current State**: ✅ Working
-- Landing page: `/` (editorial hero + pricing)
-- Navigation: About, How It Works, Pricing, Blog, Contact
-- Login trigger: `/api/login` (Replit OIDC)
-
-### Login Flow Analysis  
-**Current State**: ✅ Working
-- Entry points: `/login`, login buttons, protected route redirects
-- Authentication: Replit OIDC via `/api/login` → `/api/callback`
-- Session management: PostgreSQL session store, 7-day TTL
-- Protected routes: All member features require authentication
-
-### Checkout Flow Analysis
-**Current State**: ⚠️ Needs Review
-- **Two checkout systems**: 
-  - `/checkout` (Elements UI with payment intents)
-  - `/simple-checkout` (hosted Stripe sessions)
-- **Payment success**: `/payment-success` with user upgrade automation
-- **Pricing tiers**: €29 Basic, €67 Full Access
-- **Webhook**: Stripe webhook handler at `/api/webhook/stripe`
-
-### Critical Launch Priorities
-1. **Unify checkout system** - Choose one flow (recommend hosted sessions)
-2. **Test payment automation** - Ensure user upgrades work post-payment
-3. **Member onboarding** - Streamline first-time user experience
-4. **Revenue tracking** - Verify subscription management works
-
-## Agent System Status (August 2025)
-
-### Path Validation System Implemented
-**Issue Resolved**: Agents were creating files in wrong directories (`src/` instead of `client/src/`)
-**Solution Deployed**: 
-- PROJECT_STRUCTURE_CONTEXT injected into all agent prompts
-- Path validation rules prevent incorrect file creation
-- Focus redirected to existing component improvement vs rebuilding
-
-### Existing Working Architecture (DO NOT REBUILD)
-- ✅ `client/src/pages/member/workspace.tsx` - Main member dashboard
-- ✅ `client/src/pages/member/simple-training.tsx` - TRAIN step (working)
-- ✅ `client/src/pages/member/maya.tsx` - STYLE step (working)
-- ✅ `client/src/pages/member/sselfie-gallery.tsx` - GALLERY step (working)
-
-### Strategic Shift: Building → Launching
-**Priority Change**: Focus on launch readiness instead of new feature development
-**Timeline**: 3-week launch window with existing feature optimization
-
-### Agent System Verification Complete (August 22, 2025)
-**✅ AGENTS WORKING CORRECTLY**: Maya agent activity confirmed in logs
-- Tool execution successful (12 tools available)
-- Proper file path usage (client/src/)
-- Authentication resolved
-- Learning patterns active
-- Elena delegation system initialized
-**Status**: Ready for productive launch preparation tasks
 
 ## System Architecture
 
@@ -136,12 +63,8 @@ Preferred communication style: Simple, everyday language.
 - Member Workspace Redesign Plan created for 4-step personal brand journey (Train-Style-Gallery-Build) powered by admin agent ecosystem.
 - Dual business model strategy: member subscriptions + agent ecosystem licensing for enterprise clients.
 - **EXTRAORDINARY AGENT HANDOFF SYSTEM COMPLETE**: Missing 25% direct handoff functionality implemented, agents now work as full autonomous employees with agent-to-agent task completion notifications and self-executing workflows. Train feature ready for $197/month beta launch.
-- **ROOT DIRECTORY OPTIMIZATION (08/22/2025)**: Cleaned root from 32 files to 8 essential files (75% reduction). Removed 17 legacy/duplicate files, archived 6 completion documentation files to docs/archive/. Project now has professional structure with only critical files in root: business_strategy.md, package.json, README.md, replit.md, and core config files.
-- **AGENT INFRASTRUCTURE FIXES (08/22/2025)**: Resolved critical coordination loops where all agents were trying to coordinate instead of executing their specializations. Fixed component organization by moving root components/ to BUILD feature (client/src/pages/build/components/). Implemented specialization boundary enforcement - only Elena coordinates, specialists execute directly. Agent system now works as intended with focused expertise instead of coordination chaos.
 - **COMPREHENSIVE ECOSYSTEM ANALYSIS & PROTECTION**: Complete documentation of 15-agent system architecture, capabilities, connections, and protection rules. Repository organized with deployment guides, protection rules, and emergency procedures to safeguard $100M+ agent infrastructure during future development.
 - **ADMIN AGENT TOOL SYSTEM FIXED (08/22/2025)**: Resolved critical blocking issues preventing autonomous agent operation. Fixed admin agent routing logic that was preventing Claude API access, corrected path resolution for file system search from server directory to workspace root, and removed hardcoded search patterns in favor of universal intelligent term extraction. Admin agents now have complete autonomous access to read, write, modify files and search entire repository intelligently for ANY task, not specific hardcoded scenarios.
-- **UNIVERSAL AUTHENTICATION SYSTEM IMPLEMENTED (08/22/2025)**: Fixed critical authentication gap affecting 7 admin tools (search_filesystem, execute_sql_tool, coordinate_agent, get_assigned_tasks, get_handoff_tasks, str_replace_based_edit_tool, bash). All tools now receive authenticated user context (userId: 42585527/ssa@ssasocial.com, adminContext: true, agentName) enabling complete autonomous operation. Authentication verification implemented in critical tools with confirmation logging. Admin agents can now perform database operations, file system access, agent coordination, and system commands with full authenticated privileges. Documentation created in ADMIN_AGENT_AUTHENTICATION_FIX.md to prevent regression.
-- **INTELLIGENT TASK DELEGATION SYSTEM FIXED (08/22/2025)**: Resolved critical issue where Elena was assigning wrong agents to tasks (e.g., Zara for copywriting instead of Rachel). Connected coordinate_agent tool to ElenaDelegationSystem for intelligent agent selection based on actual specialties, workload, and efficiency ratings. Fixed agent specialty definitions to match actual personalities: Rachel (copywriting), Diana (business coaching), Quinn (QA testing), Aria (design/UX), Olga (repo organization), Sophia (social media), Martha (ads/promotion), Ava (automation), Victoria (frontend/website development), Maya (style/fashion), Flux (model training). Elena now automatically selects optimal agents with reasoning and scoring system. System integration complete across database, WorkflowPersistence, and coordination systems.
 
 ## External Dependencies
 

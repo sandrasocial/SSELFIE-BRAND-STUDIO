@@ -1,77 +1,57 @@
-# SSELFIE Studio - AI Personal Brand Photos
+# SSELFIE Studio - AI Personal Branding Platform
 
-> Elena's Simplified Strategy: TRAIN→STYLE→GALLERY
+> Transform selfies into professional brand photography with Maya, your AI celebrity stylist
 
-## 🎯 Core Value Proposition
-**AI-powered personal brand photos that make you stand out instantly**
+## 🚀 Quick Start for Agents
 
-## 🚀 Simplified 3-Step Journey
+### Core Business
+- **Maya Personal Branding Studio**: $97/month subscription service
+- **Target Market**: Entrepreneurs, coaches, consultants, content creators  
+- **Value Proposition**: Celebrity stylist creates magazine-worthy brand photos from selfies
 
-### 1. TRAIN (5 minutes)
-Upload 20-30 photos, AI learns your unique style
-
-### 2. STYLE (Guided consultation)  
-Maya helps perfect your brand aesthetic
-
-### 3. GALLERY (Instant results)
-Generate unlimited professional brand photos
-
-## 💰 One Core Offer: €47/month
-- Perfect price point (between original €27/€67 tiers)
-- Unlimited AI personal brand photos
-- Maya style consultation included
-- Clear value without pricing confusion
-
-## 🎯 Why This Works
-- **Solves immediate pain**: Professional photos are expensive
-- **Unique technology**: AI learns your personal style  
-- **Instant gratification**: Unlimited photo generation
-- **Clear value**: Amateur photos → Professional brand images
-
-## 🎯 Target Market
-- Content creators who need professional photos
-- Entrepreneurs building personal brands  
-- Anyone posting on social media professionally
-- Sandra's 135K+ follower base
-
-## 🚀 Launch Strategy
-1. **Launch TRAIN→STYLE→GALLERY first** (focus on money maker)
-2. **Validate with 135K+ followers** (prove concept works)
-3. **Add advanced features later** (as upgrades, not complications)
-4. **Scale after success** (expand strategically)
-
-## ✅ Technical Status
-- **Core Systems**: Operational ✅
-- **Maya AI**: Ready for style consultations ✅  
-- **Image Generation**: FLUX models integrated ✅
-- **User Flow**: TRAIN→STYLE→GALLERY implemented ✅
-
-## 🏗️ Project Structure
+### Project Structure
 
 ```
-📁 SSELFIE Studio/
-├── 🎯 CORE VALUE (Revenue Systems - Protected)
-│   ├── server/unified-generation-service.ts  # AI photo generation
-│   ├── server/model-training-service.ts      # Personal AI training
-│   ├── server/routes/maya-ai-routes.ts       # Maya consultations
-│   └── client/src/pages/Train.tsx            # User journey
+📁 SSELFIE Studio/ (ARCHITECTURALLY SEPARATED)
+├── 📖 DOCUMENTATION & ORIENTATION
+│   ├── README.md                          # This file - project overview
+│   ├── PROJECT_GUIDE.md                   # Comprehensive guide
+│   ├── ARCHITECTURE_OVERVIEW.md           # Clean architectural clarity
+│   └── replit.md                          # Technical architecture
 │
-├── 🤖 ADMIN AGENTS (Development Support)
-│   ├── server/agents/personalities/          # 15 specialized agents
-│   └── Elena (Strategic Coordinator)         # Simplification leader
+├── 🎯 MEMBER REVENUE SYSTEMS (🔒 Protected Income)
+│   ├── server/                            # Backend services  
+│   │   ├── unified-generation-service.ts  # 🔒 Image generation
+│   │   ├── model-training-service.ts      # 🔒 AI training
+│   │   ├── image-storage-service.ts       # 🔒 S3 storage
+│   │   └── routes/maya-ai-routes.ts       # 🔒 Maya chat
+│   ├── shared/schema.ts                   # 🔒 Database schema
+│   └── client/                            # 🔒 User interface
 │
-└── 📚 DOCUMENTATION
-    ├── business_strategy.md                  # Elena's simplified plan
-    └── replit.md                            # Technical architecture
+├── 🤖 ADMIN DEVELOPMENT (✅ Safe to modify)
+│   ├── server/agents/personalities/       # 15 AI agents
+│   ├── server/routes/consulting-agents-routes.ts # Coordination
+│   ├── admin-development/                 # Agent tools & reports
+│   └── _architecture/                     # Logical separation guides
+│
+└── 🏗️ INFRASTRUCTURE (✅ Organized utilities)
+    ├── infrastructure/                    # Config, deployment, utilities
+    └── attached_assets/                   # User uploads & design assets
 ```
 
-## 🔒 Critical Rules
-1. **Protect revenue systems** during development
-2. **Test new features separately** before integration  
-3. **Focus on money maker** (AI personal brand photos)
-4. **Keep it simple** - expand after validation
+### 🔒 Critical Rules
+1. **NEVER modify Maya's revenue systems during development**
+2. **Test new features separately before integration**  
+3. **Use Elena for strategic coordination, Zara for technical implementation**
+4. **Maya Personal Branding can launch TODAY with existing systems**
+
+### 🏃‍♂️ For New Agents
+1. **Read this README first** to understand the business
+2. **Check `docs/replit.md`** for detailed architecture
+3. **Maya generates income** - protect her systems at all costs
+4. **Build in safe zones** - don't break what's working
 
 ---
-**Status**: Ready for €47/month launch with 135K+ followers  
-**Strategy**: Elena's simplified TRAIN→STYLE→GALLERY approach  
-**Goal**: Fast validation, then strategic expansion
+**Last Updated**: August 21, 2025  
+**Status**: Ready for Maya Personal Branding launch  
+**Revenue Systems**: Operational ✅

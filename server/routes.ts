@@ -1807,45 +1807,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Delete AI Image endpoint
-  app.delete('/api/ai-images/:id', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user?.claims?.sub;
-      const imageId = parseInt(req.params.id);
-      
-      console.log(`🗑️ Deleting AI image ${imageId} for user: ${userId}`);
-      
-      const { db } = await import('./db');
-      const { aiImages } = await import('../shared/schema');
-      const { eq, and } = await import('drizzle-orm');
-      
-      // Verify ownership before deletion
-      const [imageToDelete] = await db
-        .select()
-        .from(aiImages)
-        .where(and(eq(aiImages.id, imageId), eq(aiImages.userId, userId)));
-      
-      if (!imageToDelete) {
-        return res.status(404).json({ error: 'Image not found or not owned by user' });
-      }
-      
-      // Delete the image from database
-      await db
-        .delete(aiImages)
-        .where(and(eq(aiImages.id, imageId), eq(aiImages.userId, userId)));
-      
-      console.log(`✅ Successfully deleted image ${imageId} for user ${userId}`);
-      res.json({ success: true, message: 'Image deleted successfully' });
-      
-    } catch (error) {
-      console.error('❌ Error deleting AI image:', error);
-      res.status(500).json({ 
-        message: "Failed to delete image", 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
   // Gallery images endpoint (alias for ai-images for compatibility)
   app.get('/api/gallery-images', isAuthenticated, async (req: any, res) => {
     try {
@@ -2582,7 +2543,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         sql`SELECT * FROM ai_images WHERE user_id = ${userId} ORDER BY created_at DESC`
       );
       
-      console.log(`✅ Found ${userImages.rows.length} AI images for user ${userId}`);
+      console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
       res.json(userImages);
       
     } catch (error) {

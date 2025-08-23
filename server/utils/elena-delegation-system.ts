@@ -63,7 +63,7 @@ export class ElenaDelegationSystem {
         agentId: 'zara',
         currentTasks: 0,
         maxCapacity: 4,
-        specialties: ['frontend_architecture', 'ui_design', 'user_experience', 'technical_implementation'],
+        specialties: ['backend', 'api', 'database', 'architecture', 'technical'],
         averageTaskTime: 60,
         lastTaskAssigned: null,
         efficiency: 0.95
@@ -72,7 +72,7 @@ export class ElenaDelegationSystem {
         agentId: 'maya',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['style', 'styling', 'fashion', 'aesthetic', 'visual-style'],
+        specialties: ['ai', 'ml', 'image-generation', 'styling', 'prompts'],
         averageTaskTime: 30,
         lastTaskAssigned: null,
         efficiency: 0.85
@@ -81,7 +81,7 @@ export class ElenaDelegationSystem {
         agentId: 'aria',
         currentTasks: 0,
         maxCapacity: 3,
-        specialties: ['design', 'ux', 'ui', 'digital-design', 'visual-design', 'components'],
+        specialties: ['ui', 'ux', 'design', 'components', 'frontend'],
         averageTaskTime: 45,
         lastTaskAssigned: null,
         efficiency: 0.9
@@ -90,7 +90,7 @@ export class ElenaDelegationSystem {
         agentId: 'victoria',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['frontend', 'website-development', 'web-development', 'frontend-development'],
+        specialties: ['business-strategy', 'ux-consulting', 'market-analysis', 'planning'],
         averageTaskTime: 90,
         lastTaskAssigned: null,
         efficiency: 0.8
@@ -99,7 +99,7 @@ export class ElenaDelegationSystem {
         agentId: 'quinn',
         currentTasks: 0,
         maxCapacity: 3,
-        specialties: ['qa', 'testing', 'quality-assurance', 'debugging', 'validation', 'quality-control'],
+        specialties: ['qa', 'testing', 'quality-assurance', 'debugging', 'validation'],
         averageTaskTime: 40,
         lastTaskAssigned: null,
         efficiency: 0.9
@@ -117,7 +117,7 @@ export class ElenaDelegationSystem {
         agentId: 'sophia',
         currentTasks: 0,
         maxCapacity: 3,
-        specialties: ['social-media', 'community-growth', 'content-strategy', 'engagement', 'social-media-management'],
+        specialties: ['social-media', 'community-growth', 'content-strategy', 'engagement'],
         averageTaskTime: 25,
         lastTaskAssigned: null,
         efficiency: 0.85
@@ -126,16 +126,16 @@ export class ElenaDelegationSystem {
         agentId: 'olga',
         currentTasks: 0,
         maxCapacity: 3,
-        specialties: ['repo-organization', 'project-organization', 'cleanup', 'file-management', 'structure'],
+        specialties: ['deployment', 'optimization', 'cleanup', 'organization', 'infrastructure'],
         averageTaskTime: 35,
         lastTaskAssigned: null,
         efficiency: 0.9
       },
       {
-        agentId: 'atlas',
+        agentId: 'wilma',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['system_monitoring', 'performance_optimization', 'analytics', 'infrastructure'],
+        specialties: ['workflow-design', 'process-automation', 'agent-coordination', 'efficiency'],
         averageTaskTime: 50,
         lastTaskAssigned: null,
         efficiency: 0.8
@@ -144,7 +144,7 @@ export class ElenaDelegationSystem {
         agentId: 'diana',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['business-coaching', 'strategy', 'personal-brand-scaling', 'business-guidance', 'growth-strategy'],
+        specialties: ['analytics', 'data-analysis', 'performance-tracking', 'reporting'],
         averageTaskTime: 45,
         lastTaskAssigned: null,
         efficiency: 0.85
@@ -153,7 +153,7 @@ export class ElenaDelegationSystem {
         agentId: 'martha',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['ads', 'promotion', 'advertising', 'marketing-campaigns', 'paid-promotion'],
+        specialties: ['admin-management', 'user-management', 'system-administration', 'compliance'],
         averageTaskTime: 55,
         lastTaskAssigned: null,
         efficiency: 0.8
@@ -162,7 +162,7 @@ export class ElenaDelegationSystem {
         agentId: 'ava',
         currentTasks: 0,
         maxCapacity: 2,
-        specialties: ['automation', 'email-automation', 'content-automation', 'make', 'manychat', 'social-media-automation'],
+        specialties: ['customer-support', 'documentation', 'user-assistance', 'training'],
         averageTaskTime: 30,
         lastTaskAssigned: null,
         efficiency: 0.85
@@ -171,17 +171,8 @@ export class ElenaDelegationSystem {
         agentId: 'flux',
         currentTasks: 0,
         maxCapacity: 1,
-        specialties: ['flux-lora', 'replicate-models', 'model-training', 'black-forest-labs', 'image-generation'],
+        specialties: ['ai-generation', 'model-training', 'image-generation', 'flux-models'],
         averageTaskTime: 20,
-        lastTaskAssigned: null,
-        efficiency: 0.9
-      },
-      {
-        agentId: 'nova',
-        currentTasks: 0,
-        maxCapacity: 2,
-        specialties: ['customer_success', 'user_onboarding', 'support_optimization', 'user_experience'],
-        averageTaskTime: 35,
         lastTaskAssigned: null,
         efficiency: 0.9
       }
@@ -216,8 +207,7 @@ export class ElenaDelegationSystem {
   }
 
   /**
-   * CRITICAL FIX: Elena must research existing files before delegating
-   * Prevents agents from creating duplicates by directing them to existing files
+   * Elena's intelligent task delegation with dependency mapping
    */
   async delegateTaskLegacy(
     taskDescription: string,
@@ -232,10 +222,6 @@ export class ElenaDelegationSystem {
       console.log('⚡ Priority:', priority);
       console.log('🔗 Dependencies:', dependencies);
       
-      // CRITICAL FIX: Transform task description to work on existing files
-      const correctedTaskDescription = this.preventDuplicateFileCreation(taskDescription);
-      console.log('🔧 CORRECTED TASK:', correctedTaskDescription);
-      
       const taskId = `task_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
       
       // Create task dependency object
@@ -243,8 +229,8 @@ export class ElenaDelegationSystem {
         taskId,
         dependsOn: dependencies,
         priority,
-        estimatedTime: this.estimateTaskTime(correctedTaskDescription, requiredSpecialties),
-        agentSpecialty: requiredSpecialties.length > 0 ? requiredSpecialties : this.analyzeRequiredSpecialties(correctedTaskDescription),
+        estimatedTime: this.estimateTaskTime(taskDescription, requiredSpecialties),
+        agentSpecialty: requiredSpecialties.length > 0 ? requiredSpecialties : this.analyzeRequiredSpecialties(taskDescription),
         status: 'pending'
       };
       
@@ -275,7 +261,7 @@ export class ElenaDelegationSystem {
   /**
    * Find optimal agent for task assignment
    */
-  public async findOptimalAgent(task: TaskDependency): Promise<DelegationDecision> {
+  private async findOptimalAgent(task: TaskDependency): Promise<DelegationDecision> {
     const candidates: Array<{agent: AgentWorkload, score: number, reasoning: string}> = [];
     
     for (const [agentId, workload] of Array.from(this.agentWorkloads.entries())) {
@@ -360,116 +346,46 @@ export class ElenaDelegationSystem {
   /**
    * Analyze task description to determine required specialties
    */
-  public analyzeRequiredSpecialties(taskDescription: string): string[] {
+  private analyzeRequiredSpecialties(taskDescription: string): string[] {
     const description = taskDescription.toLowerCase();
     const specialties: string[] = [];
     
-    // COPYWRITING & CONTENT (HIGH PRIORITY - Check first)
-    if (description.includes('copywriting') || description.includes('copy') || 
-        description.includes('messaging') || description.includes('headline') ||
-        description.includes('value proposition') || description.includes('content strategy') ||
-        description.includes('brand messaging') || description.includes('voice') ||
-        description.includes('cta') || description.includes('call-to-action')) {
-      specialties.push('copywriting', 'brand-messaging', 'content');
+    // UI/UX related
+    if (description.includes('ui') || description.includes('ux') || 
+        description.includes('design') || description.includes('component') ||
+        description.includes('frontend') || description.includes('interface')) {
+      specialties.push('ui', 'design');
     }
     
-    // VISUAL DESIGN (UI/UX)
-    if (description.includes('visual') || description.includes('design') || 
-        description.includes('ui') || description.includes('ux') || 
-        description.includes('component') || description.includes('frontend') || 
-        description.includes('interface') || description.includes('branding') ||
-        description.includes('color') || description.includes('layout')) {
-      specialties.push('ui', 'design', 'components');
-    }
-    
-    // BACKEND & TECHNICAL
+    // Backend related
     if (description.includes('api') || description.includes('backend') || 
         description.includes('server') || description.includes('database') ||
-        description.includes('route') || description.includes('service') ||
-        description.includes('schema') || description.includes('technical')) {
-      specialties.push('backend', 'api', 'technical');
+        description.includes('route') || description.includes('service')) {
+      specialties.push('backend', 'api');
     }
     
-    // AI & IMAGE GENERATION (Only for actual AI tasks)
-    if (description.includes('ai generation') || description.includes('image generation') || 
-        description.includes('claude') || description.includes('flux') ||
-        description.includes('model training') || description.includes('prompt engineering')) {
-      specialties.push('ai', 'ml', 'image-generation');
+    // AI related
+    if (description.includes('ai') || description.includes('claude') || 
+        description.includes('image') || description.includes('generation') ||
+        description.includes('ml') || description.includes('prompt')) {
+      specialties.push('ai', 'ml');
     }
     
-    // BUSINESS COACHING & STRATEGY (Diana)
-    if (description.includes('business coaching') || description.includes('business strategy') || 
-        description.includes('personal brand scaling') || description.includes('growth strategy') ||
-        description.includes('business guidance') || description.includes('scaling')) {
-      specialties.push('business-coaching', 'strategy', 'personal-brand-scaling');
+    // Business setup related
+    if (description.includes('website') || description.includes('business') || 
+        description.includes('template') || description.includes('builder')) {
+      specialties.push('website-builder', 'business-setup');
     }
     
-    // QA & TESTING (Quinn)
-    if (description.includes('testing') || description.includes('qa') || 
-        description.includes('quality') || description.includes('validation') ||
-        description.includes('debugging') || description.includes('quality assurance')) {
-      specialties.push('qa', 'testing', 'validation');
+    // Deployment related
+    if (description.includes('deploy') || description.includes('optimization') || 
+        description.includes('cleanup') || description.includes('organization')) {
+      specialties.push('deployment', 'optimization');
     }
     
-    // REPO ORGANIZATION (Olga)
-    if (description.includes('repo') || description.includes('organization') || 
-        description.includes('cleanup') || description.includes('file management') ||
-        description.includes('project organization') || description.includes('structure')) {
-      specialties.push('repo-organization', 'project-organization', 'cleanup');
-    }
-    
-    // SOCIAL MEDIA (Sophia)
-    if (description.includes('social media') || description.includes('community') || 
-        description.includes('engagement') || description.includes('social') ||
-        description.includes('social media management')) {
-      specialties.push('social-media', 'engagement', 'social-media-management');
-    }
-    
-    // ADS & PROMOTION (Martha)
-    if (description.includes('ads') || description.includes('promotion') || 
-        description.includes('advertising') || description.includes('marketing campaigns') ||
-        description.includes('paid promotion')) {
-      specialties.push('ads', 'promotion', 'advertising');
-    }
-    
-    // AUTOMATION (Ava)
-    if (description.includes('automation') || description.includes('email automation') || 
-        description.includes('content automation') || description.includes('make') ||
-        description.includes('manychat') || description.includes('social media automation')) {
-      specialties.push('automation', 'email-automation', 'content-automation');
-    }
-    
-    // WORKFLOW AUTOMATION (Wilma)
-    if (description.includes('workflow') || description.includes('process automation') || 
-        description.includes('workflow design') || description.includes('workflow automation')) {
-      specialties.push('workflow-design', 'process-automation', 'workflow-automation');
-    }
-    
-    // STYLE & FASHION (Maya)
-    if (description.includes('style') || description.includes('styling') || 
-        description.includes('fashion') || description.includes('aesthetic') ||
-        description.includes('visual style')) {
-      specialties.push('style', 'styling', 'fashion', 'aesthetic');
-    }
-    
-    // FRONTEND & WEBSITE DEVELOPMENT (Victoria)
-    if (description.includes('frontend') || description.includes('website development') || 
-        description.includes('web development') || description.includes('website building') ||
-        description.includes('landing page') || description.includes('web page') ||
-        description.includes('website template') || description.includes('web template')) {
-      specialties.push('frontend', 'website-development', 'web-development');
-    }
-    
-    // FLUX & MODEL TRAINING (Flux)
-    if (description.includes('flux') || description.includes('replicate') || 
-        description.includes('model training') || description.includes('black forest') ||
-        description.includes('lora') || description.includes('image generation')) {
-      specialties.push('flux-lora', 'replicate-models', 'model-training');
-    }
-    
-    // Default to coordination if no specific match
+    // Default to technical if no specific match
     if (specialties.length === 0) {
-      specialties.push('coordination');
+      specialties.push('technical');
     }
     
     return Array.from(new Set(specialties)); // Remove duplicates
@@ -478,7 +394,7 @@ export class ElenaDelegationSystem {
   /**
    * Estimate task completion time based on description and specialties
    */
-  public estimateTaskTime(taskDescription: string, specialties: string[]): number {
+  private estimateTaskTime(taskDescription: string, specialties: string[]): number {
     let baseTime = 30; // 30 minutes base
     
     const description = taskDescription.toLowerCase();
@@ -584,71 +500,6 @@ export class ElenaDelegationSystem {
     };
   }
   
-  /**
-   * CRITICAL FIX: Prevent agents from creating duplicate files
-   * Transform task descriptions to work on existing files
-   */
-  private preventDuplicateFileCreation(taskDescription: string): string {
-    const task = taskDescription.toLowerCase();
-    
-    // Landing page duplication prevention
-    if (task.includes('landing') || task.includes('editorial')) {
-      if (task.includes('create') || task.includes('build') || task.includes('implement')) {
-        return taskDescription.replace(
-          /create|build|implement/gi, 
-          'UPDATE existing client/src/pages/landing.tsx to enhance'
-        ) + ' - DO NOT create new editorial-landing.tsx files. Use React+Wouter framework (wouter Link, react-helmet Helmet).';
-      }
-    }
-    
-    // Gallery page duplication prevention
-    if (task.includes('gallery') || task.includes('photos')) {
-      if (task.includes('create') || task.includes('redesign')) {
-        return taskDescription.replace(
-          /create|redesign/gi,
-          'UPDATE existing client/src/pages/sselfie-gallery.tsx to enhance'
-        ) + ' - Work on existing gallery page, do not create duplicates.';
-      }
-    }
-    
-    // Maya page duplication prevention
-    if (task.includes('maya') || task.includes('style consultation')) {
-      if (task.includes('create') || task.includes('build')) {
-        return taskDescription.replace(
-          /create|build/gi,
-          'UPDATE existing client/src/pages/maya.tsx to enhance'
-        ) + ' - Work on existing Maya page, do not create duplicates.';
-      }
-    }
-    
-    // Workspace duplication prevention
-    if (task.includes('workspace') || task.includes('dashboard')) {
-      if (task.includes('create') || task.includes('redesign')) {
-        return taskDescription.replace(
-          /create|redesign/gi,
-          'UPDATE existing client/src/pages/workspace.tsx to enhance'
-        ) + ' - Work on existing workspace page, do not create duplicates.';
-      }
-    }
-    
-    // Component duplication prevention
-    if (task.includes('component') && (task.includes('create') || task.includes('build'))) {
-      return taskDescription.replace(
-        /create|build/gi,
-        'First check if similar component exists using search tool, then UPDATE existing OR create only if truly new'
-      ) + ' - Avoid duplicates by searching existing components first.';
-    }
-    
-    // General duplication prevention
-    if (task.includes('create') || task.includes('build') || task.includes('implement')) {
-      return 'First use search tool to find existing files, then ' + 
-             taskDescription.replace(/create|build|implement/gi, 'UPDATE existing') + 
-             ' - Only create new if no existing file serves the purpose. Use React+Wouter framework patterns.';
-    }
-    
-    return taskDescription + ' - Check existing project structure first, work on existing files when possible.';
-  }
-
   /**
    * Clear completed tasks from queue (cleanup)
    */
