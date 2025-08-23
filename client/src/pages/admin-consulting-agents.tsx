@@ -9,36 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Generate simple agent avatars using available images or placeholders
-const generateAgentAvatar = (agentName: string, role: string) => {
-  // Use a consistent color scheme based on the agent's name
-  const colors = {
-    'elena': '#8B5CF6', // Purple for strategic leader
-    'maya': '#F59E0B',  // Amber for stylist
-    'victoria': '#10B981', // Emerald for business
-    'aria': '#EC4899',  // Pink for design
-    'zara': '#3B82F6',  // Blue for technical
-    'rachel': '#EF4444', // Red for copywriting
-    'ava': '#6366F1',   // Indigo for analytics
-    'quinn': '#84CC16', // Lime for QA
-    'sophia': '#F97316', // Orange for social media
-    'martha': '#8B5A2B', // Brown for process
-    'diana': '#06B6D4', // Cyan for data
-    'wilma': '#A855F7', // Violet for workflow
-    'olga': '#059669',  // Teal for operations
-    'flux': '#DC2626'   // Rose for AI generation
-  };
-  
-  const color = colors[agentName.toLowerCase() as keyof typeof colors] || '#6B7280';
-  const initials = agentName.substring(0, 2).toUpperCase();
-  
-  return `data:image/svg+xml,${encodeURIComponent(`
-    <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="100" cy="100" r="100" fill="${color}"/>
-      <text x="100" y="115" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="60" font-weight="bold">${initials}</text>
-    </svg>
-  `)}`;
-};
+// Original agent images - need to find the correct paths
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
@@ -289,98 +260,98 @@ export default function AdminConsultingAgents() {
       name: 'Elena',
       role: 'Database Architecture Expert',
       specialty: 'Database optimization, schema design, query performance',
-      image: generateAgentAvatar('elena', 'Database Architecture Expert')
+      image: '/attached_assets/09858e4e-bdc3-4609-821a-454573775167_1753943438114.JPG'
     },
     {
       id: 'aria',
       name: 'Aria',
       role: 'System Health & Performance Expert',
       specialty: 'Performance monitoring, optimization, system health',
-      image: generateAgentAvatar('aria', 'System Health & Performance Expert')
+      image: '/attached_assets/30235492-1362-4605-9c5f-c1ee347993ad_1753943438113.JPG'
     },
     {
       id: 'zara',
       name: 'Zara',
       role: 'Technical Architect & UI/UX Expert',
       specialty: 'System architecture, full-stack implementation, UI/UX',
-      image: generateAgentAvatar('zara', 'Technical Architect & UI/UX Expert')
+      image: '/attached_assets/381d0ae1-be94-401a-96be-f057b93e4b2a_1753943438114.JPG'
     },
     {
       id: 'maya',
       name: 'Maya',
       role: 'AI Integration Specialist',
       specialty: 'AI models, machine learning, intelligent features',
-      image: generateAgentAvatar('maya', 'AI Integration Specialist')
+      image: '/attached_assets/497d752b-4849-4226-a851-63f50b87c090_1753943438114.JPG'
     },
     {
       id: 'victoria',
       name: 'Victoria',
       role: 'Business Process Automation Expert',
       specialty: 'Workflow automation, business logic, process optimization',
-      image: generateAgentAvatar('victoria', 'Business Process Automation Expert')
+      image: '/attached_assets/65c64f27-9592-4b0f-86df-bbc9c4330e1d_1753943438113.JPG'
     },
     {
       id: 'rachel',
       name: 'Rachel',
       role: 'Requirements Analysis Expert',
       specialty: 'User stories, specifications, feature analysis',
-      image: generateAgentAvatar('rachel', 'Requirements Analysis Expert')
+      image: '/attached_assets/6a4232fd-a98d-4606-8a37-f2089249fa26_1753943438114.JPG'
     },
     {
       id: 'ava',
       name: 'Ava',
       role: 'Analytics & Insights Expert',
       specialty: 'Data analysis, metrics, insights',
-      image: generateAgentAvatar('ava', 'Analytics & Insights Expert')
+      image: '/attached_assets/76139531-4e51-49b0-9097-8b0edd437f8b_1753943438113.JPG'
     },
     {
       id: 'quinn',
       name: 'Quinn',
       role: 'Security & Compliance Expert',
       specialty: 'Security audits, compliance, risk management',
-      image: generateAgentAvatar('quinn', 'Security & Compliance Expert')
+      image: '/attached_assets/b3bc8437-a0f0-48ca-9fe4-a0c129f47f28_1753943438113.JPG'
     },
     {
       id: 'sophia',
       name: 'Sophia',
       role: 'Social Media & Content Expert',
       specialty: 'Content strategy, social media, engagement',
-      image: generateAgentAvatar('sophia', 'Social Media & Content Expert')
+      image: '/attached_assets/c181f637-abb1-4251-beae-199d7ec89891_1753943438112.JPG'
     },
     {
       id: 'martha',
       name: 'Martha',
       role: 'User Experience Research Expert',
       specialty: 'User research, feedback analysis, UX optimization',
-      image: generateAgentAvatar('martha', 'User Experience Research Expert')
+      image: '/attached_assets/c70adccd-b4c6-4b6f-b53b-5f9b1268c97b_1753943438111.JPG'
     },
     {
       id: 'diana',
       name: 'Diana',
       role: 'DevOps & Deployment Expert',
       specialty: 'CI/CD, deployment, infrastructure',
-      image: generateAgentAvatar('diana', 'DevOps & Deployment Expert')
+      image: '/attached_assets/cb43f0cc-d217-476e-a1a7-6c1ad3b8dffb_1753943438112.JPG'
     },
     {
       id: 'wilma',
       name: 'Wilma',
       role: 'Documentation & Knowledge Expert',
       specialty: 'Technical writing, documentation, knowledge base',
-      image: generateAgentAvatar('wilma', 'Documentation & Knowledge Expert')
+      image: '/attached_assets/dbe55e7c-dde3-42e8-bb52-d55b43ca66cc_1753943438112.JPG'
     },
     {
       id: 'olga',
       name: 'Olga',
       role: 'Quality Assurance Expert',
       specialty: 'Testing, validation, quality control',
-      image: generateAgentAvatar('olga', 'Quality Assurance Expert')
+      image: '/attached_assets/df36f4a6-fd52-43bf-aeb9-34e4ce678ae1_1753943438110.JPG'
     },
     {
       id: 'flux',
       name: 'Flux',
       role: 'Integration & API Expert',
       specialty: 'API design, integrations, data flow',
-      image: generateAgentAvatar('flux', 'Integration & API Expert')
+      image: '/attached_assets/e58c813d-21b5-433d-ae61-5d72482c3a07_1753943438111.JPG'
     }
   ];
 
