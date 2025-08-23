@@ -217,10 +217,6 @@ const downloadImage = async (imageUrl: string, filename: string) => {
     }
   };
 
-  const filteredImages = showFavoritesOnly ? 
-    aiImages.filter(img => favorites.includes(img.id)) : 
-    aiImages;
-
   const renderGalleryHeader = () => (
     <Box sx={{ mb: 4, mt: 2 }}>
       <Typography 
@@ -310,7 +306,7 @@ const downloadImage = async (imageUrl: string, filename: string) => {
             You need to be signed in to access your SSELFIE Gallery.
           </p>
         </div>
-      </div>
+      </Box>
     );
   }
 
@@ -445,7 +441,10 @@ const downloadImage = async (imageUrl: string, filename: string) => {
             </Box>
           )}
         </Container>
-              <p style={{
+        
+        <Box sx={{ py: 8, textAlign: 'center' }}>
+          <Container maxWidth="lg">
+            <p style={{
                 fontSize: '20px',
                 lineHeight: 1.5,
                 fontWeight: 300,
@@ -456,7 +455,6 @@ const downloadImage = async (imageUrl: string, filename: string) => {
                 Every photo here is you, just elevated. Download what serves your brand, delete what doesn't. 
                 This is your professional arsenal ready for anything.
               </p>
-            </div>
             
             {/* Gallery Stats - Centered Layout */}
             <div style={{
@@ -584,8 +582,8 @@ const downloadImage = async (imageUrl: string, filename: string) => {
                 ♥ Favorites ({favorites.length})
               </button>
             </div>
-          </div>
-        </section>
+          </Container>
+        </Box>
 
         {/* Gallery Grid Section */}
         {isLoading ? (
@@ -976,6 +974,6 @@ const downloadImage = async (imageUrl: string, filename: string) => {
             </a>
           </div>
         </section>
-      </div>
+      </Box>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { HeroFullBleed } from '../components/hero-full-bleed';
+import { HeroFullBleed } from '../../components/hero-full-bleed';
 import { EditorialStory } from '../components/editorial-story';
 import { EditorialImageBreak } from '../components/editorial-image-break';
 import PowerQuote from '../components/power-quote';

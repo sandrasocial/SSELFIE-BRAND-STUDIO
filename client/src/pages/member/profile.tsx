@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '../../hooks/use-toast';
 import { apiRequest } from '../lib/queryClient';
 import { MemberNavigation } from '../components/member-navigation';
 // Removed PaymentVerification - free users should access profile
