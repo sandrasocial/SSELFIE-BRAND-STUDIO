@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { PreLoginNavigationUnified } from '../../components/pre-login-navigation-unified';
 import { HeroFullBleed } from '../../components/hero-full-bleed';
 // Temporarily disabled for build fix
-// import { EditorialStory } from '../components/editorial-story';
-// import { EditorialImageBreak } from '../components/editorial-image-break';
-// import PowerQuote from '../components/power-quote';
-// import { EditorialTestimonials } from '../components/editorial-testimonials';
+// import { EditorialStory } from '../../components/editorial-story';
+// import { EditorialImageBreak } from '../../components/editorial-image-break';
+// import PowerQuote from '../../components/power-quote';
+// import { EditorialTestimonials } from '../../components/editorial-testimonials';
 // Temporarily disabled for build fix
 // import WelcomeEditorial from '../../components/welcome-editorial';
 // Temporarily disabled for build fix
-// import { EmailCaptureModal } from '../components/email-capture-modal';
+// import { EmailCaptureModal } from '../../components/email-capture-modal';
 import { GlobalFooter } from '../../components/global-footer';
 import { SandraImages } from '../../lib/sandra-images';
 
