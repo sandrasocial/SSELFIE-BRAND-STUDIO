@@ -292,10 +292,7 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Starting OAuth authentication with strategy: replitauth:${hostname}`);
       
       // Standard OAuth authentication
-      passport.authenticate(`replitauth:${hostname}`, {
-        scope: ["openid", "email", "profile", "offline_access"],
-        prompt: "consent"
-      })(req, res, next);
+      passport.authenticate(`replitauth:${hostname}`)(req, res, next);
     }
     
     authenticateUser();
