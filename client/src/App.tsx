@@ -11,6 +11,7 @@ import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/br
 
 
 import EditorialLanding from "./pages/editorial-landing";
+import TestMinimal from "./pages/test-minimal";
 import Pricing from "./pages/pricing";
 import Workspace from "./pages/workspace";
 import Onboarding from "./pages/onboarding";
@@ -147,7 +148,8 @@ function Router() {
       <Route path="/launch" component={LaunchCountdown} />
       
       {/* PUBLIC PAGES - SINGLE MAIN LANDING PAGE */}
-      <Route path="/" component={EditorialLanding} />
+      <Route path="/" component={TestMinimal} />
+      <Route path="/editorial" component={EditorialLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
