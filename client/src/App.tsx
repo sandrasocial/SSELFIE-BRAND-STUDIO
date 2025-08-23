@@ -59,7 +59,7 @@ import VictoriaBuilder from './pages/victoria-builder';
 import VictoriaPreview from './pages/victoria-preview';
 import PhotoSelection from "./pages/photo-selection";
 import BrandOnboarding from "./pages/brand-onboarding";
-import Welcome from "./pages/welcome";
+// ARCHIVED: import Welcome from "./pages/welcome";
 import AuthSuccess from "./pages/auth-success";
 import Login from "./pages/login";
 // Unified login system - removed competing auth components
@@ -183,8 +183,12 @@ function Router() {
           </div>
         </div>
       )} />
+      {/* ALL OTHER LANDING PAGES ARCHIVED - ONLY EDITORIAL-LANDING.TSX IS USED */}
       <Route path="/old-landing" component={() => <Redirect to="/" />} />
       <Route path="/new-landing" component={() => <Redirect to="/" />} />
+      <Route path="/landing" component={() => <Redirect to="/" />} />
+      <Route path="/home" component={() => <Redirect to="/" />} />
+      <Route path="/index" component={() => <Redirect to="/" />} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/selfie-guide" component={SelfieGuide} />
@@ -199,7 +203,7 @@ function Router() {
       {/* PAYMENT FLOW */}
       <Route path="/checkout" component={Checkout} />
       <Route path="/simple-checkout" component={SimpleCheckout} />
-      <Route path="/welcome" component={Welcome} />
+      <Route path="/welcome" component={() => <Redirect to="/" />} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
