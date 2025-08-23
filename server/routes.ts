@@ -2097,38 +2097,28 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       });
       
       // CRITICAL FIX: Admin agent authentication bypass (preserving admin functionality) 
-      // ADMIN AGENTS: Check for admin token headers for agent authentication
+      // DEVELOPMENT BYPASS: Check for dev admin header for Sandra
       const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
       const devAdmin = req.headers['x-dev-admin'] || req.query.dev_admin;
       
-      // ADMIN AGENTS: Allow admin agent access with proper authentication
-      if (adminToken === 'sandra-admin-2025' || devAdmin === 'ssa' || req.query.admin === 'ssa') {
-        console.log('🔑 Admin agent authenticated - creating admin user session');
+      // DEVELOPMENT MODE: Always allow Sandra admin access in development
+      if (process.env.NODE_ENV === 'development' && (adminToken === 'sandra-admin-2025' || devAdmin === 'sandra' || req.query.admin === 'sandra')) {
+        console.log('🔑 Admin/Dev bypass authenticated - creating admin user session');
         
-        // Get real admin user from database
-        let adminUser = await storage.getUserByEmail('ssa@ssasocial.com');
+        // Get Sandra's actual admin user from database
+        let adminUser = await storage.getUserByEmail('sandra@sselfie.ai');
           
         if (!adminUser) {
           adminUser = await storage.upsertUser({
-            id: '42585527',
-            email: 'ssa@ssasocial.com',
+            id: 'sandra-admin-test',
+            email: 'sandra@sselfie.ai',
             firstName: 'Sandra',
             lastName: 'Admin',
-            profileImageUrl: null,
-            stripeCustomerId: null,
-            stripeSubscriptionId: null,
-            plan: 'admin',
-            role: 'admin',
-            monthlyGenerationLimit: 999999,
-            generationsUsedThisMonth: 0,
-            mayaAiAccess: true,
-            victoriaAiAccess: true,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            profileImageUrl: null
           } as any);
         }
         
-        console.log('✅ Admin agent user authenticated:', adminUser.email);
+        console.log('✅ Admin user authenticated:', adminUser.email);
         return res.json(adminUser);
       }
 
