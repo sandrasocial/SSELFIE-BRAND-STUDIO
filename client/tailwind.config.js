@@ -6,6 +6,7 @@ module.exports = {
     "../shared/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: ["class"],
+  blocklist: [],
   theme: {
     extend: {
       fontFamily: {
