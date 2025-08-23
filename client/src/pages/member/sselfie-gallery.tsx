@@ -7,13 +7,13 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DownloadIcon from '@mui/icons-material/Download';
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from '../../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MemberNavigation } from '../components/member-navigation';
+import { MemberNavigation } from '../../components/member-navigation';
 // Removed PaymentVerification - free users should access gallery
-import { HeroFullBleed } from '../components/hero-full-bleed';
-import { SandraImages } from '../lib/sandra-images';
-import { apiRequest } from '../lib/queryClient';
+import { HeroFullBleed } from '../../components/hero-full-bleed';
+import { SandraImages } from '../../lib/sandra-images';
+import { apiRequest } from '../../lib/queryClient';
 
 // Styled components for editorial luxury experience
 const GalleryGrid = styled(Box)(({ theme }) => ({
