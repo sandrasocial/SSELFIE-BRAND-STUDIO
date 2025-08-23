@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HeroFullBleed } from '../components/hero-full-bleed';
-import { SandraImages } from '../components/sandra-image-library';
+import { SandraImages } from '../../lib/sandra-images';
 import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
 import { GlobalFooter } from '../components/global-footer';
 import { Link } from 'wouter';
