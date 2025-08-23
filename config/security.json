@@ -1,0 +1,74 @@
+{
+  "access_controls": {
+    "roles": {
+      "admin": {
+        "permissions": ["full_access", "user_management", "security_settings"],
+        "validation_rules": ["strict"]
+      },
+      "creator": {
+        "permissions": ["content_creation", "style_transfer", "model_training"],
+        "validation_rules": ["standard"]
+      },
+      "entrepreneur": {
+        "permissions": ["content_creation", "style_transfer", "model_training", "team_management"],
+        "validation_rules": ["enhanced"]
+      }
+    },
+    "validation_rules": {
+      "strict": {
+        "input_sanitization": true,
+        "rate_limiting": true,
+        "2fa_required": true,
+        "session_timeout": 3600
+      },
+      "enhanced": {
+        "input_sanitization": true,
+        "rate_limiting": true,
+        "2fa_optional": true,
+        "session_timeout": 7200
+      },
+      "standard": {
+        "input_sanitization": true,
+        "rate_limiting": true,
+        "session_timeout": 14400
+      }
+    },
+    "rate_limits": {
+      "api_calls": {
+        "creator": 1000,
+        "entrepreneur": 2500,
+        "admin": 5000
+      },
+      "style_transfers": {
+        "creator": 50,
+        "entrepreneur": 150
+      }
+    }
+  },
+  "security_policies": {
+    "password_policy": {
+      "min_length": 12,
+      "require_special_chars": true,
+      "require_numbers": true,
+      "require_mixed_case": true
+    },
+    "session_management": {
+      "token_expiration": 86400,
+      "refresh_token_rotation": true,
+      "concurrent_sessions": {
+        "creator": 2,
+        "entrepreneur": 5,
+        "admin": 3
+      }
+    },
+    "audit_logging": {
+      "enabled": true,
+      "events": [
+        "login_attempts",
+        "permission_changes",
+        "security_settings_updates",
+        "user_role_changes"
+      ]
+    }
+  }
+}

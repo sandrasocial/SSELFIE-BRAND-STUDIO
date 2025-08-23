@@ -10,7 +10,7 @@ import { ElenaDelegationSystem } from '../utils/elena-delegation-system';
 import { WorkflowPersistence, ActiveTask } from '../workflows/active/workflow-persistence';
 import { UnifiedStateManager } from './unified-state-manager';
 import { LocalProcessingEngine } from './hybrid-intelligence/local-processing-engine';
-import { AdminContextManager } from '../memory/admin-context-manager';
+// import { AdminContextManager } from '../memory/admin-context-manager';
 
 export interface CoordinationRequest {
   requestType: 'workflow_creation' | 'task_assignment' | 'agent_delegation' | 'status_check' | 'autonomous_execution';
@@ -52,7 +52,7 @@ export class AgentCoordinationBridge {
   private delegationSystem: ElenaDelegationSystem;
   private stateManager: UnifiedStateManager;
   private processingEngine: LocalProcessingEngine;
-  private contextManager: AdminContextManager;
+  // private contextManager: AdminContextManager;
   
   // PHASE 4: Autonomous execution tracking
   private autonomousExecutions = new Map<string, any>();
@@ -64,7 +64,7 @@ export class AgentCoordinationBridge {
     this.delegationSystem = ElenaDelegationSystem.getInstance();
     this.stateManager = UnifiedStateManager.getInstance();
     this.processingEngine = LocalProcessingEngine.getInstance();
-    this.contextManager = AdminContextManager.getInstance();
+    // this.contextManager = AdminContextManager.getInstance();
     
     console.log('🚀 PHASE 4: Autonomous Execution Pipeline initializing...');
     console.log('🔗 CONNECTED: WorkflowExecutor + TaskDistributor + DelegationSystem + LearningEngine + AutonomousExecutor');
@@ -90,6 +90,20 @@ export class AgentCoordinationBridge {
     console.log(`🎯 TARGET AGENTS: ${request.targetAgents?.join(', ') || 'Auto-assign'}`);
     console.log(`🤖 AUTONOMOUS MODE: ${request.autonomousMode ? 'ENABLED' : 'DISABLED'}`);
     console.log(`🏗️ PROJECT CONTEXT: Checking agent permissions and safe development zones`);
+    
+    // SPECIALIZATION CHECK: Prevent coordination loops
+    const { SpecializationIntegration } = await import('../agents/specialization-integration');
+    const shouldCoordinate = request.coordinatorAgent === 'elena' || request.requestType === 'workflow_creation';
+    
+    if (!shouldCoordinate && request.coordinatorAgent !== 'elena') {
+      console.log(`🚨 COORDINATION LOOP PREVENTION: ${request.coordinatorAgent} should execute directly, not coordinate`);
+      return {
+        success: false,
+        coordinationId,
+        error: `Agent ${request.coordinatorAgent} should focus on their specialty, not coordinate other agents. Only Elena coordinates.`,
+        nextSteps: [`${request.coordinatorAgent} should execute tasks in their specialty area directly`]
+      };
+    }
     
     // PHASE 2: Validate agent project context and permissions
     const projectContext = this.contextManager.getProjectContextForAgent(request.coordinatorAgent);

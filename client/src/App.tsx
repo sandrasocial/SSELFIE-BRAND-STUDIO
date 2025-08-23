@@ -1,4 +1,4 @@
-import React, { ComponentType, useEffect } from 'react';
+import React, { ComponentType, useEffect, lazy } from 'react';
 import { Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -9,33 +9,40 @@ import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 // import { pwaManager } from "./utils/pwa";
 
-
-import EditorialLanding from "./pages/editorial-landing";
-import Pricing from "./pages/pricing";
-import Workspace from "./pages/workspace";
-import Onboarding from "./pages/onboarding";
-import About from "./pages/about";
-import Blog from "./pages/blog";
-import Contact from "./pages/contact";
-import FAQ from "./pages/faq";
-import Terms from "./pages/terms";
-import Privacy from "./pages/privacy";
-import HowItWorks from "./pages/how-it-works";
+// PRE-LOGIN EDITORIAL PAGES
+import Landing from "./pages/public/landing";
+import About from "./pages/public/about";
+import HowItWorks from "./pages/public/how-it-works";
+import Blog from "./pages/public/blog";
+import Pricing from "./pages/public/pricing";
+import Contact from "./pages/public/contact";
+import FAQ from "./pages/public/faq";
+import Terms from "./pages/public/terms";
+import Privacy from "./pages/public/privacy";
 import SelfieGuide from "./pages/selfie-guide";
-import Profile from "./pages/profile";
-import PaymentSuccess from "./pages/payment-success";
-import Checkout from "./pages/checkout";
+
+// SIMPLIFIED CHECKOUT FLOW
 import SimpleCheckout from "./pages/simple-checkout";
+import PaymentSuccess from "./pages/payment-success";
 import ThankYou from "./pages/thank-you";
+
+// MEMBER WORKSPACE - SIMPLIFIED TRAIN → STYLE → GALLERY
+import Workspace from "./pages/member/workspace";
+import Onboarding from "./pages/member/onboarding";
+import Profile from "./pages/member/profile";
 import SandraPhotoshoot from "./pages/sandra-photoshoot";
 import SandraAI from "./pages/sandra-ai";
 import RachelChat from "./pages/rachel-chat";
 import RachelActivation from "./pages/rachel-activation";
-import SSELFIEGallery from "./pages/sselfie-gallery";
+// CORE MEMBER FEATURES - TRAIN → STYLE → GALLERY
+import SimpleTraining from "./pages/member/simple-training";
+import Maya from "./pages/member/maya";
+import SSELFIEGallery from "./pages/member/sselfie-gallery";
+
+// COMPLEX FEATURES - PRESERVED BUT ARCHIVED
 import AIGenerator from "./pages/ai-generator";
 import AIPhotoshoot from "./pages/ai-photoshoot";
-import SimpleTraining from "./pages/simple-training";
-import MarketingAutomation from "./pages/marketing-automation";
+
 
 import AdminBusinessOverview from "./pages/admin-business-overview";
 import AdminConsultingAgents from "./pages/admin-consulting-agents";
@@ -51,7 +58,6 @@ import UnifiedLoginButton from "./components/UnifiedLoginButton";
 
 import CustomPhotoshootLibrary from "./pages/custom-photoshoot-library";
 import FlatlayLibrary from "./pages/flatlay-library";
-import Maya from "./pages/maya";
 import Victoria from "./pages/victoria";
 import VictoriaChat from "./pages/victoria-chat";
 
@@ -60,7 +66,6 @@ import VictoriaPreview from './pages/victoria-preview';
 import PhotoSelection from "./pages/photo-selection";
 import BrandOnboarding from "./pages/brand-onboarding";
 import Welcome from "./pages/welcome";
-import AuthSuccess from "./pages/auth-success";
 import Login from "./pages/login";
 // Unified login system - removed competing auth components
 import LoginPrompt from "./components/LoginPrompt";
@@ -146,8 +151,8 @@ function Router() {
       {/* LAUNCH COUNTDOWN */}
       <Route path="/launch" component={LaunchCountdown} />
       
-      {/* PUBLIC PAGES - SINGLE MAIN LANDING PAGE */}
-      <Route path="/" component={EditorialLanding} />
+      {/* PUBLIC PAGES */}
+      <Route path="/" component={Landing} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
@@ -183,8 +188,7 @@ function Router() {
           </div>
         </div>
       )} />
-      <Route path="/old-landing" component={() => <Redirect to="/" />} />
-      <Route path="/new-landing" component={() => <Redirect to="/" />} />
+      <Route path="/old-landing" component={Landing} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/selfie-guide" component={SelfieGuide} />
@@ -196,13 +200,12 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/domain-help" component={DomainHelp} />
 
-      {/* PAYMENT FLOW */}
-      <Route path="/checkout" component={Checkout} />
+      {/* SIMPLIFIED PAYMENT FLOW */}
+      <Route path="/checkout" component={SimpleCheckout} />
       <Route path="/simple-checkout" component={SimpleCheckout} />
       <Route path="/welcome" component={Welcome} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
-      <Route path="/auth-success" component={AuthSuccess} />
       <Route path="/switch-account" component={SwitchAccount} />
       <Route path="/auth" component={() => {
         useEffect(() => { window.location.href = '/api/login'; }, []);
@@ -262,9 +265,20 @@ function Router() {
       <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
       
       {/* ADMIN MARKETING AUTOMATION */}
-      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={MarketingAutomation} {...props} />} />
+      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('./pages/marketing-automation'))} {...props} />} />
       
-
+      {/* DEBUGGING */}
+      <Route path="/test" component={() => (
+        <div className="p-8">
+          <h1 className="text-2xl mb-4">Navigation Test</h1>
+          <p>If you can see this, navigation is working!</p>
+          <div className="mt-4 space-y-2">
+            <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
+            <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
+            <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
+          </div>
+        </div>
+      )} />
       {/* Test routes removed - all test files archived */}
       <Route path="/debug-auth" component={() => {
         const { user, isAuthenticated, isLoading, error } = useAuth();
