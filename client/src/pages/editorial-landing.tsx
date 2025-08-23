@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { SandraImages } from "../lib/sandra-images";
-// Temporarily remove missing imports to test basic rendering
+import { PortfolioSection } from "../components/portfolio-section";
+import FreeTierSignup from "../components/free-tier-signup";
+import WelcomeEditorial from "../components/welcome-editorial";
+import { EmailCaptureModal } from "../components/email-capture-modal";
+import { InlineEmailCapture } from "../components/inline-email-capture";
+import { GlobalFooter } from "../components/global-footer";
 
 export default function EditorialLanding() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -253,7 +258,7 @@ export default function EditorialLanding() {
             IT STARTS WITH YOUR SELFIES
           </p>
           
-          <h1 className="hero-title text-white" style={{ color: 'white !important' }}>
+          <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight text-white tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.5em] mb-2 sm:mb-4 leading-none">
             SSELFIE
           </h1>
           
@@ -270,7 +275,8 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Welcome Section - Editorial Style - Temporarily Removed */}
+      {/* Welcome Section - Editorial Style */}
+      <WelcomeEditorial />
 
       {/* Features Section - Editorial Grid */}
       <section className="py-16 sm:py-24 md:py-32 bg-gray-50">
@@ -468,7 +474,7 @@ export default function EditorialLanding() {
             </h2>
           </div>
           
-          {/* PortfolioSection - Temporarily Removed */}
+          <PortfolioSection />
         </div>
       </section>
 
@@ -515,10 +521,19 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Global Footer - Temporarily Removed */}
-      {/* <GlobalFooter /> */}
+      {/* Global Footer */}
+      <GlobalFooter />
 
-      {/* Email Capture Modal - Temporarily Removed */}
+      {/* Email Capture Modal */}
+      <EmailCaptureModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        plan={selectedPlan}
+        onEmailCaptured={(email) => {
+          console.log('Email captured:', email);
+          // Email modal will handle redirect to authentication
+        }}
+      />
     </div>
   );
 }
