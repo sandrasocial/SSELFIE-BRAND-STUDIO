@@ -1,0 +1,107 @@
+# About Page Update Brief for Replit AI
+
+## **IMPORTANT: Keep All Existing Design & Styling**
+✅ Keep all current typography (Times New Roman headers, clean body text)  
+✅ Keep all color schemes and spacing  
+✅ Keep all existing sections and their order  
+✅ Keep all current animations and hover effects  
+✅ Keep Sandra's photos and image placements  
+
+**We're only adding ONE new section and updating ONE button - NOT changing the design!**
+
+---
+
+## **Updates Needed**
+
+### **1. ADD NEW SECTION - "The Evolution"**
+
+**Location:** Insert between "The Origin Story" section and "Timeline Stats" section
+
+**Purpose:** Explain Sandra's journey from teaching selfie tips to building AI
+
+**Copy:** Use the exact code provided in the "About Page Evolution Section Copy" artifact
+
+### **2. UPDATE FINAL CTA BUTTON**
+
+**Current:** "Start your comeback story"  
+**Update to:** "Get My AI Photographer"
+
+**Keep:** All existing button styling, colors, and hover effects
+
+---
+
+## **Specific Replit AI Instructions**
+
+### **For Adding The Evolution Section:**
+
+```
+"In AboutPage.tsx, add a new section called 'The Evolution' between the existing 'Origin Story' section and the 'Timeline Stats' section. Use the exact code from the About Page Evolution Section Copy artifact. Match the styling of other sections - same background (bg-white), same typography hierarchy with Times New Roman headers, same spacing (py-20 md:py-32), same max-width container (max-w-5xl), and same color scheme."
+```
+
+### **For Updating the CTA:**
+
+```
+"In AboutPage.tsx, find the final button that says 'Start your comeback story' and change the text to 'Get My AI Photographer'. Keep all existing styling, className, and onClick functionality exactly the same."
+```
+
+---
+
+## **Section Placement Guide**
+
+**Current Order:**
+1. Hero Section
+2. Welcome Editorial Story  
+3. Image Break
+4. The Origin Story
+5. Timeline Stats (90 days, 120K followers, 1 phone)
+6. Evolution Story ("From there, I kept showing up")
+7. Philosophy
+8. Final Philosophy & CTA
+
+**New Order:**
+1. Hero Section
+2. Welcome Editorial Story
+3. Image Break  
+4. The Origin Story
+5. **[NEW] The Evolution** ← INSERT HERE
+6. Timeline Stats (90 days, 120K followers, 1 phone)
+7. Evolution Story ("From there, I kept showing up")
+8. Philosophy
+9. Final Philosophy & CTA (with updated button text)
+
+---
+
+## **Quality Checklist After Updates**
+
+- [ ] New "Evolution" section appears between Origin Story and Timeline Stats
+- [ ] All styling matches existing sections (typography, colors, spacing)
+- [ ] Final CTA button text updated to "Get My AI Photographer" 
+- [ ] All existing functionality preserved (modals, navigation, etc.)
+- [ ] Mobile responsive design maintained
+- [ ] Page loads correctly with no errors
+
+---
+
+## **The Key Message**
+
+The new Evolution section should communicate:
+1. Sandra started by teaching selfie techniques
+2. Women couldn't execute the techniques properly  
+3. Sandra realized they needed the photos, not the tips
+4. She built AI to create perfect photos automatically
+5. Now users get the results without the learning curve
+
+---
+
+## **What NOT to Change**
+
+❌ Don't modify any existing sections  
+❌ Don't change colors, fonts, or spacing  
+❌ Don't alter image placements or sizes  
+❌ Don't modify navigation or footer  
+❌ Don't change existing section order (except adding the new one)  
+❌ Don't update any other button text besides the final CTA  
+
+---
+
+**Remember: This is a strategic content addition that maintains your beautiful existing design while adding the crucial "teacher to AI builder" narrative that supports your launch positioning!**
