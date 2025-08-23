@@ -155,40 +155,10 @@ function Router() {
           <UnifiedLoginButton text="Sign in to continue" showBrand={true} />
         </div>
       )} />
-      <Route path="/login-direct" component={() => {
-        // Direct redirect to Replit Auth (for cases that need immediate redirect)
-        useEffect(() => {
-          window.location.href = '/api/login';
-        }, []);
-        
-        return (
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto mb-4" />
-              <p>Redirecting to login...</p>
-            </div>
-          </div>
-        );
-      }} />
 
-      {/* DEVELOPMENT TEST PAGE */}
-      <Route path="/test" component={() => (
-        <div className="p-8">
-          <h1 className="text-2xl mb-4">Navigation Test</h1>
-          <p>If you can see this, navigation is working!</p>
-          <div className="mt-4 space-y-2">
-            <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
-            <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
-            <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
-          </div>
-        </div>
-      )} />
+
+
       {/* ALL OTHER LANDING PAGES ARCHIVED - ONLY EDITORIAL-LANDING.TSX IS USED */}
-      <Route path="/old-landing" component={() => <Redirect to="/" />} />
-      <Route path="/new-landing" component={() => <Redirect to="/" />} />
-      <Route path="/landing" component={() => <Redirect to="/" />} />
-      <Route path="/home" component={() => <Redirect to="/" />} />
-      <Route path="/index" component={() => <Redirect to="/" />} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/selfie-guide" component={SelfieGuide} />
@@ -203,23 +173,12 @@ function Router() {
       {/* PAYMENT FLOW */}
       <Route path="/checkout" component={Checkout} />
       <Route path="/simple-checkout" component={SimpleCheckout} />
-      <Route path="/welcome" component={() => <Redirect to="/" />} />
+
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route path="/auth-success" component={AuthSuccess} />
       <Route path="/switch-account" component={SwitchAccount} />
-      <Route path="/auth" component={() => {
-        useEffect(() => { window.location.href = '/api/login'; }, []);
-        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
-      }} />
-      <Route path="/sign-in" component={() => {
-        useEffect(() => { window.location.href = '/api/login'; }, []);
-        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
-      }} />
-      <Route path="/auth-custom" component={() => {
-        useEffect(() => { window.location.href = '/api/login'; }, []);
-        return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" /></div>;
-      }} />
+
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
@@ -234,7 +193,7 @@ function Router() {
       <Route path="/sandra-photoshoot" component={(props) => <ProtectedRoute component={SandraPhotoshoot} {...props} />} />
       <Route path="/custom-photoshoot-library" component={(props) => <ProtectedRoute component={CustomPhotoshootLibrary} {...props} />} />
       <Route path="/flatlay-library" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
-      <Route path="/flatlays" component={() => <Redirect to="/flatlay-library" />} />
+
       <Route path="/sandra-ai" component={(props) => <ProtectedRoute component={SandraAI} {...props} />} />
       <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
       <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
@@ -270,29 +229,7 @@ function Router() {
       
 
       {/* Test routes removed - all test files archived */}
-      <Route path="/debug-auth" component={() => {
-        const { user, isAuthenticated, isLoading, error } = useAuth();
-        return (
-          <div className="p-8">
-            <h1 className="text-2xl mb-4">Authentication Debug</h1>
-            <div className="space-y-2">
-              <p>isLoading: {isLoading.toString()}</p>
-              <p>isAuthenticated: {isAuthenticated.toString()}</p>
-              <p>error: {error?.message || 'none'}</p>
-              <p>user: {user ? JSON.stringify(user, null, 2) : 'null'}</p>
-              <p>hostname: {window.location.hostname}</p>
-              <p>origin: {window.location.origin}</p>
-              <div className="mt-4">
-                <a href="/login" className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Try Login</a>
-                <a href="/workspace" 
-                   className="bg-green-500 text-white px-4 py-2 rounded">
-                  Go to Workspace
-                </a>
-              </div>
-            </div>
-          </div>
-        );
-      }} />
+
 
     </div>
   );
