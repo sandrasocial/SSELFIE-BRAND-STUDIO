@@ -106,7 +106,7 @@ export default function EditorialLanding() {
     
     if (emailCaptured) {
       // Email already captured, proceed to checkout for both plans
-      setLocation(`/checkout?plan=${plan}`);
+      setLocation('/simple-checkout');
     } else {
       // Show email capture modal first
       setIsEmailModalOpen(true);

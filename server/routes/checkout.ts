@@ -37,9 +37,14 @@ export function registerCheckoutRoutes(app: Express) {
           amount: 2900, // €29.00 in cents
         },
         'sselfie-studio': {
-          name: 'SSELFIE Studio Full Access',
-          description: 'Complete package: trained model + 100 photos + Maya + Victoria + website',
-          amount: 6700, // €67.00 in cents
+          name: 'SSELFIE STUDIO',
+          description: 'Personal AI model + unlimited photos + Maya AI photographer',
+          amount: 4700, // €47.00 in cents
+        },
+        'personal-brand-studio': {
+          name: 'SSELFIE STUDIO',
+          description: 'Personal AI model + unlimited photos + Maya AI photographer',
+          amount: 4700, // €47.00 in cents
         }
       };
 
