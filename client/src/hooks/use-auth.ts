@@ -18,10 +18,7 @@ export function useAuth() {
           'Cache-Control': 'no-cache'
         };
         
-        // DEVELOPMENT BYPASS: Add admin header for Sandra during development
-        if (import.meta.env.DEV) {
-          headers['x-dev-admin'] = 'sandra';
-        }
+        // DEVELOPMENT BYPASS DISABLED - Use real OAuth authentication
         
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
