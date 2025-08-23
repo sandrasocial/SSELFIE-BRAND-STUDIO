@@ -1,6 +1,6 @@
 import React from 'react';
-import { PreLoginNavigationUnified } from '../../components/pre-login-navigation-unified';
-import { SandraImages } from '../../lib/sandra-images';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
+import { SandraImages } from '../lib/sandra-images';
 import { useLocation } from 'wouter';
 
 export default function Landing() {
