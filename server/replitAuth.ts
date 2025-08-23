@@ -288,13 +288,17 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Login requested - starting authentication flow with simplified OAuth`);
       console.log(`🔍 Using strategy: replitauth:${hostname} for domain: ${hostname}`);
       
-      // CRITICAL FIX: Force OAuth mode instead of email verification
-      passport.authenticate(`replitauth:${hostname}`, {
-        scope: ["openid", "email", "profile", "offline_access"],
-        response_type: "code",
-        prompt: "consent", // Force OAuth consent screen instead of email verification
-        access_type: "offline" // Ensure refresh tokens
-      })(req, res, next);
+      // FORCE OAUTH: Use explicit authorization URL to bypass email verification
+      const authUrl = `https://replit.com/oidc/authorize?` +
+        `client_id=${process.env.REPL_ID}&` +
+        `response_type=code&` +
+        `scope=openid%20email%20profile%20offline_access&` +
+        `redirect_uri=${encodeURIComponent(`https://${hostname}/api/callback`)}&` +
+        `prompt=consent&` +
+        `access_type=offline`;
+      
+      console.log(`🔄 Forcing direct OAuth URL: ${authUrl}`);
+      res.redirect(authUrl);
     }
     
     authenticateUser();
