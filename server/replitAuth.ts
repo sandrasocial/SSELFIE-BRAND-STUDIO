@@ -289,12 +289,41 @@ export async function setupAuth(app: Express) {
       console.log(`🔍 Using strategy: replitauth:${hostname} for domain: ${hostname}`);
       
       // CRITICAL FIX: Force OAuth mode instead of email verification
-      passport.authenticate(`replitauth:${hostname}`, {
+      console.log(`🔍 Attempting authentication with strategy: replitauth:${hostname}`);
+      
+      // Check if this is a popup request
+      const isPopup = req.query.popup === 'true';
+      console.log(`🔍 Is popup request: ${isPopup}`);
+      
+      // Build OAuth options with popup state preservation
+      const authOptions: any = {
         scope: ["openid", "email", "profile", "offline_access"],
         response_type: "code",
         prompt: "consent", // Force OAuth consent screen instead of email verification
         access_type: "offline" // Ensure refresh tokens
-      })(req, res, next);
+      };
+      
+      // Preserve popup state in OAuth state parameter
+      if (isPopup) {
+        authOptions.state = `popup=true`;
+        console.log(`🔍 Adding popup state to OAuth flow`);
+      }
+      
+      const authenticator = passport.authenticate(`replitauth:${hostname}`, authOptions);
+      
+      // Wrap in try-catch to handle authentication errors
+      try {
+        authenticator(req, res, (err: any) => {
+          if (err) {
+            console.error('❌ Passport authentication error:', err);
+            return res.status(500).json({ error: 'Authentication failed', details: err.message });
+          }
+          next();
+        });
+      } catch (error: any) {
+        console.error('❌ Authentication wrapper error:', error);
+        return res.status(500).json({ error: 'Authentication setup failed', details: error.message });
+      }
     }
     
     authenticateUser();
@@ -354,7 +383,16 @@ export async function setupAuth(app: Express) {
     console.log(`🔍 Callback using strategy: replitauth:${hostname}`);
     
     // POPUP WINDOW SUPPORT: Check if this is a popup window callback
-    const isPopup = req.query.popup === 'true' || req.headers.referer?.includes('oauth_popup');
+    const isPopup = req.query.popup === 'true' || 
+                    req.query.state?.includes('popup=true') || 
+                    req.headers.referer?.includes('oauth_popup');
+    
+    console.log(`🔍 Callback popup detection:`, {
+      queryPopup: req.query.popup,
+      statePopup: req.query.state?.includes('popup=true'),
+      refererPopup: req.headers.referer?.includes('oauth_popup'),
+      isPopup
+    });
     
     if (isPopup) {
       // Handle popup window callback with postMessage
