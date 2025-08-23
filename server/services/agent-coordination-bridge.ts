@@ -10,7 +10,7 @@ import { ElenaDelegationSystem } from '../utils/elena-delegation-system';
 import { WorkflowPersistence, ActiveTask } from '../workflows/active/workflow-persistence';
 import { UnifiedStateManager } from './unified-state-manager';
 import { LocalProcessingEngine } from './hybrid-intelligence/local-processing-engine';
-// import { AdminContextManager } from '../memory/admin-context-manager';
+import { AdminContextManager } from '../memory/admin-context-manager';
 
 export interface CoordinationRequest {
   requestType: 'workflow_creation' | 'task_assignment' | 'agent_delegation' | 'status_check' | 'autonomous_execution';
@@ -52,7 +52,7 @@ export class AgentCoordinationBridge {
   private delegationSystem: ElenaDelegationSystem;
   private stateManager: UnifiedStateManager;
   private processingEngine: LocalProcessingEngine;
-  // private contextManager: AdminContextManager;
+  private contextManager: AdminContextManager;
   
   // PHASE 4: Autonomous execution tracking
   private autonomousExecutions = new Map<string, any>();
@@ -64,7 +64,7 @@ export class AgentCoordinationBridge {
     this.delegationSystem = ElenaDelegationSystem.getInstance();
     this.stateManager = UnifiedStateManager.getInstance();
     this.processingEngine = LocalProcessingEngine.getInstance();
-    // this.contextManager = AdminContextManager.getInstance();
+    this.contextManager = AdminContextManager.getInstance();
     
     console.log('🚀 PHASE 4: Autonomous Execution Pipeline initializing...');
     console.log('🔗 CONNECTED: WorkflowExecutor + TaskDistributor + DelegationSystem + LearningEngine + AutonomousExecutor');
