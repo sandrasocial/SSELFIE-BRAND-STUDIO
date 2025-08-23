@@ -680,6 +680,8 @@ export default function AdminConsultingAgents() {
     } catch (error) {
       console.error('Failed to create new conversation:', error);
     }
+      console.error('Failed to create new conversation:', error);
+    }
   };
 
   // Simple loading state management
