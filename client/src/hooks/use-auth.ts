@@ -18,9 +18,9 @@ export function useAuth() {
           'Cache-Control': 'no-cache'
         };
         
-        // DEVELOPMENT BYPASS: Add admin header for Sandra during development
+        // DEVELOPMENT BYPASS: Add admin header for real user during development
         if (import.meta.env.DEV) {
-          headers['x-dev-admin'] = 'sandra';
+          headers['x-dev-admin'] = 'ssa';
         }
         
         const response = await fetch('/api/auth/user', {
@@ -64,8 +64,8 @@ export function useAuth() {
     }
   });
 
-  // SINGLE ADMIN CHECK: Sandra's email only - FIXED CORRECT EMAIL
-  const isAdmin = user?.email === 'sandra@sselfie.ai';
+  // ADMIN CHECK: Real admin user email
+  const isAdmin = user?.email === 'ssa@ssasocial.com';
   
   // CRITICAL: Determine authentication state
   const isAuthenticated = !!(user && user.id);
