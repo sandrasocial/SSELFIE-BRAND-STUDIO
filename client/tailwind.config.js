@@ -1,11 +1,12 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "../shared/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: ["class"],
+  blocklist: [],
   theme: {
     extend: {
       fontFamily: {
@@ -69,4 +70,4 @@ export default {
     },
   },
   plugins: [],
-}
+};
