@@ -71,8 +71,11 @@ async function startCompleteApp() {
     console.log('✅ All your comprehensive routes loaded: Maya, Victoria, Training, Payments, Admin, and more!');
     console.log('✅ All your features loaded!');
     
-    // Set up static file serving after routes are loaded
-    setupStaticFiles();
+    // FIXED: Use Vite dev server in development, static files in production
+    if (process.env.NODE_ENV === 'production') {
+      setupStaticFiles();
+    }
+    // In development, routes.ts handles Vite middleware setup
     
     return server;
   } catch (error) {

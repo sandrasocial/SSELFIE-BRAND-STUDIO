@@ -256,6 +256,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Basic middleware and authentication setup
   const server = createServer(app);
   
+  // CRITICAL FIX: Setup frontend serving (Vite dev or static fallback)
+  // In Replit, NODE_ENV is often empty, so check for non-production environment
+  const isProduction = process.env.NODE_ENV === 'production';
+  console.log('🔧 FRONTEND: Setting up frontend serving...');
+  
+  if (!isProduction) {
+    try {
+      const { setupVite } = await import('./vite');
+      await setupVite(app, server);
+      console.log('✅ VITE: Development middleware active - React updates will be live!');
+    } catch (viteError) {
+      console.log('⚠️ VITE UNAVAILABLE: Using static fallback mode');
+      await setupStaticFallback();
+    }
+  } else {
+    await setupStaticFallback();
+  }
+  
+  async function setupStaticFallback() {
+    const path = await import('path');
+    const express = await import('express');
+    const fs = await import('fs');
+    
+    // Serve static assets with proper MIME types
+    app.use('/assets', express.static(path.join(import.meta.dirname, '../client/dist/assets'), {
+      setHeaders: (res, path) => {
+        if (path.endsWith('.css')) {
+          res.setHeader('Content-Type', 'text/css');
+        } else if (path.endsWith('.js')) {
+          res.setHeader('Content-Type', 'application/javascript');
+        }
+      }
+    }));
+    
+    // Check for built version first
+    const distPath = path.join(import.meta.dirname, '../client/dist');
+    const indexPath = path.join(distPath, 'index.html');
+    
+    if (fs.existsSync(indexPath)) {
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        if (!req.path.startsWith('/api/')) {
+          res.sendFile(indexPath);
+        }
+      });
+      console.log('📁 STATIC: Serving built app from client/dist');
+    } else {
+      // Emergency: Serve raw client files
+      const clientPath = path.join(import.meta.dirname, '../client');
+      app.use(express.static(clientPath));
+      app.get('*', (req, res) => {
+        if (!req.path.startsWith('/api/')) {
+          res.sendFile(path.join(clientPath, 'index.html'));
+        }
+      });
+      console.log('🚨 EMERGENCY: Serving raw client files');
+    }
+  }
+  
   // 🚨 CRITICAL FIX: Register admin consulting route BEFORE session middleware
   console.log('🤖 REGISTERING FIXED AGENT ROUTES: Clean conversation system');
   
