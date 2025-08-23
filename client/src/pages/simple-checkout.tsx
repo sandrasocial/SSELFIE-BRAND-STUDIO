@@ -17,9 +17,9 @@ export default function SimpleCheckout() {
     try {
       // Create Stripe checkout session instead of payment intent
       const response = await apiRequest("POST", "/api/create-checkout-session", {
-        priceId: "price_1234567890", // We'll use a fixed price ID
+        plan: "personal-brand-studio", // Use the plan we configured
         successUrl: `${window.location.origin}/payment-success?plan=sselfie-studio`,
-        cancelUrl: `${window.location.origin}/checkout`,
+        cancelUrl: `${window.location.origin}/simple-checkout`,
       });
 
       const { url } = await response.json();
@@ -66,7 +66,6 @@ export default function SimpleCheckout() {
         tagline="Your transformation starts here"
         title="SECURE CHECKOUT"
         ctaText="Continue"
-        onCtaClick={() => {}}
         fullHeight={false}
       />
 
@@ -78,18 +77,18 @@ export default function SimpleCheckout() {
             </h2>
             <div className="flex justify-between items-center mb-4">
               <div>
-                <div className="font-medium">SSELFIE AI Brand Photoshoot</div>
-                <div className="text-sm text-gray-600">100 monthly AI-generated professional photos</div>
+                <div className="font-medium">SSELFIE STUDIO</div>
+                <div className="text-sm text-gray-600">Personal AI model + unlimited photos + Maya AI photographer</div>
               </div>
               <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                €67/month
+                €47/month
               </div>
             </div>
             <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between items-center">
                 <div className="font-medium">Total</div>
                 <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  €67/month
+                  €47/month
                 </div>
               </div>
             </div>

@@ -117,7 +117,7 @@ export default function Pricing() {
       description: "Redirecting to checkout for €47/month plan...",
     });
     localStorage.setItem('selectedPlan', 'personal-brand-studio');
-    setLocation('/checkout?plan=personal-brand-studio');
+    setLocation('/simple-checkout');
   };
 
   return (
