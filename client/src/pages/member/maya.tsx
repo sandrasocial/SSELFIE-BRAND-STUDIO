@@ -1,4 +1,4 @@
-import { KeyboardEvent, useState, useEffect, useRef } from 'react';
+import React, { KeyboardEvent, useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../hooks/use-auth';
 import { useLocation } from 'wouter';
 import { useToast } from '../../hooks/use-toast';
