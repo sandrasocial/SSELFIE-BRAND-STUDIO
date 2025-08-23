@@ -64,11 +64,8 @@
           `src="/src/main.tsx"`,
           `src="/src/main.tsx?v=${cacheBuster}"`,
         );
-        // Add cache buster to all script and link tags
-        template = template.replace(
-          /<(script|link)[^>]*(src|href)="([^"]+)"/g,
-          (match, tag, attr, url) => `<${tag} ${attr}="${url}?v=${cacheBuster}"`
-        );
+        // Remove lines 68-71 completely since line 65 already handles main.tsx
+        // The general cache busting is causing more problems than it solves
         const page = await vite.transformIndexHtml(url, template);
         res.status(200).set({ 
           "Content-Type": "text/html",
