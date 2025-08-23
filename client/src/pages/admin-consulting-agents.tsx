@@ -9,7 +9,21 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Original agent images - need to find the correct paths
+// Agent images - TRULY unique images for each agent (no duplicates)
+const AgentElena = "/attached_assets/out-0%20(20)_1753426218042.png";    // Strategic Leader
+const AgentMaya = "/attached_assets/out-0%20(22)_1753426218045.png";     // Brand Expert  
+const AgentVictoria = "/attached_assets/out-0%20(26)_1753426218043.png"; // Content Strategist
+const AgentAria = "/attached_assets/out-0%20(28)_1753426218042.png";     // Business Operations
+const AgentZara = "/attached_assets/out-0%20(29)_1753426218044.png";     // Technical Architect
+const AgentRachel = "/attached_assets/out-0%20(32)_1753426290403.png";   // Marketing Strategist
+const AgentAva = "/attached_assets/out-0%20(33)_1753426218039.png";      // QA Testing
+const AgentQuinn = "/attached_assets/out-0%20(34)_1753426218040.png";    // Workflow Coordinator
+const AgentSophia = "/attached_assets/out-0%20(37)_1753426218041.png";   // Social Media Expert
+const AgentMartha = "/attached_assets/out-0%20(42)_1753426218042.png";   // Process Enhancement
+const AgentDiana = "/attached_assets/out-1%20(18)_1753426218043.png";    // Analytics Specialist
+const AgentWilma = "/attached_assets/out-1%20(27)_1753426218043.png";    // Documentation Expert
+const AgentOlga = "/attached_assets/out-2%20(18)_1753426218045.png";     // Revenue Operations
+const AgentFlux = "/attached_assets/out-2%20(23)_1753426218044.png";     // Image Generation
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
@@ -260,98 +274,98 @@ export default function AdminConsultingAgents() {
       name: 'Elena',
       role: 'Database Architecture Expert',
       specialty: 'Database optimization, schema design, query performance',
-      image: '/attached_assets/09858e4e-bdc3-4609-821a-454573775167_1753943438114.JPG'
+      image: '/attached_assets/out-0%20(20)_1753426218042.png'
     },
     {
       id: 'aria',
       name: 'Aria',
       role: 'System Health & Performance Expert',
       specialty: 'Performance monitoring, optimization, system health',
-      image: '/attached_assets/30235492-1362-4605-9c5f-c1ee347993ad_1753943438113.JPG'
+      image: '/attached_assets/out-0%20(22)_1753426218045.png'
     },
     {
       id: 'zara',
       name: 'Zara',
       role: 'Technical Architect & UI/UX Expert',
       specialty: 'System architecture, full-stack implementation, UI/UX',
-      image: '/attached_assets/381d0ae1-be94-401a-96be-f057b93e4b2a_1753943438114.JPG'
+      image: '/attached_assets/out-0%20(26)_1753426218043.png'
     },
     {
       id: 'maya',
       name: 'Maya',
       role: 'AI Integration Specialist',
       specialty: 'AI models, machine learning, intelligent features',
-      image: '/attached_assets/497d752b-4849-4226-a851-63f50b87c090_1753943438114.JPG'
+      image: '/attached_assets/out-0%20(28)_1753426218042.png'
     },
     {
       id: 'victoria',
       name: 'Victoria',
       role: 'Business Process Automation Expert',
       specialty: 'Workflow automation, business logic, process optimization',
-      image: '/attached_assets/65c64f27-9592-4b0f-86df-bbc9c4330e1d_1753943438113.JPG'
+      image: '/attached_assets/out-0%20(29)_1753426218044.png'
     },
     {
       id: 'rachel',
       name: 'Rachel',
       role: 'Requirements Analysis Expert',
       specialty: 'User stories, specifications, feature analysis',
-      image: '/attached_assets/6a4232fd-a98d-4606-8a37-f2089249fa26_1753943438114.JPG'
+      image: '/attached_assets/out-0%20(32)_1753426290403.png'
     },
     {
       id: 'ava',
       name: 'Ava',
       role: 'Analytics & Insights Expert',
       specialty: 'Data analysis, metrics, insights',
-      image: '/attached_assets/76139531-4e51-49b0-9097-8b0edd437f8b_1753943438113.JPG'
+      image: '/attached_assets/out-0%20(33)_1753426218039.png'
     },
     {
       id: 'quinn',
       name: 'Quinn',
       role: 'Security & Compliance Expert',
       specialty: 'Security audits, compliance, risk management',
-      image: '/attached_assets/b3bc8437-a0f0-48ca-9fe4-a0c129f47f28_1753943438113.JPG'
+      image: '/attached_assets/out-0%20(34)_1753426218040.png'
     },
     {
       id: 'sophia',
       name: 'Sophia',
       role: 'Social Media & Content Expert',
       specialty: 'Content strategy, social media, engagement',
-      image: '/attached_assets/c181f637-abb1-4251-beae-199d7ec89891_1753943438112.JPG'
+      image: '/attached_assets/out-0%20(37)_1753426218041.png'
     },
     {
       id: 'martha',
       name: 'Martha',
       role: 'User Experience Research Expert',
       specialty: 'User research, feedback analysis, UX optimization',
-      image: '/attached_assets/c70adccd-b4c6-4b6f-b53b-5f9b1268c97b_1753943438111.JPG'
+      image: '/attached_assets/out-0%20(42)_1753426218042.png'
     },
     {
       id: 'diana',
       name: 'Diana',
       role: 'DevOps & Deployment Expert',
       specialty: 'CI/CD, deployment, infrastructure',
-      image: '/attached_assets/cb43f0cc-d217-476e-a1a7-6c1ad3b8dffb_1753943438112.JPG'
+      image: '/attached_assets/out-1%20(18)_1753426218043.png'
     },
     {
       id: 'wilma',
       name: 'Wilma',
       role: 'Documentation & Knowledge Expert',
       specialty: 'Technical writing, documentation, knowledge base',
-      image: '/attached_assets/dbe55e7c-dde3-42e8-bb52-d55b43ca66cc_1753943438112.JPG'
+      image: '/attached_assets/out-1%20(27)_1753426218043.png'
     },
     {
       id: 'olga',
       name: 'Olga',
       role: 'Quality Assurance Expert',
       specialty: 'Testing, validation, quality control',
-      image: '/attached_assets/df36f4a6-fd52-43bf-aeb9-34e4ce678ae1_1753943438110.JPG'
+      image: '/attached_assets/out-2%20(18)_1753426218045.png'
     },
     {
       id: 'flux',
       name: 'Flux',
       role: 'Integration & API Expert',
       specialty: 'API design, integrations, data flow',
-      image: '/attached_assets/e58c813d-21b5-433d-ae61-5d72482c3a07_1753943438111.JPG'
+      image: '/attached_assets/out-2%20(23)_1753426218044.png'
     }
   ];
 
