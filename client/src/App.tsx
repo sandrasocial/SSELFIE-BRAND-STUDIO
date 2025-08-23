@@ -11,6 +11,7 @@ import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/br
 
 // PRE-LOGIN EDITORIAL PAGES
 import Landing from "./pages/public/landing";
+import TestLanding from "./pages/public/test-landing";
 import About from "./pages/public/about";
 import HowItWorks from "./pages/public/how-it-works";
 import Blog from "./pages/public/blog";
@@ -153,6 +154,7 @@ function Router() {
       
       {/* PUBLIC PAGES */}
       <Route path="/" component={Landing} />
+      <Route path="/test-landing" component={TestLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
