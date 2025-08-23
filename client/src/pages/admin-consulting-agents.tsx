@@ -496,7 +496,8 @@ export default function AdminConsultingAgents() {
       let buffer = '';
 
       if (reader) {
-        while (true) {
+        try {
+          while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
@@ -1078,3 +1079,5 @@ export default function AdminConsultingAgents() {
   );
 }
 
+// Add missing export
+export default AdminConsultingAgents;

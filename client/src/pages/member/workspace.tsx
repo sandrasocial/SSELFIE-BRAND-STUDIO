@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/use-auth';
+import { useAuth } from '../hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { MemberNavigation } from '../../components/member-navigation';
-import { GlobalFooter } from '../../components/global-footer';
-import '../../styles/editorial.css';
-import { SandraImages } from '../../lib/sandra-images';
+import { MemberNavigation } from '../components/member-navigation';
+import { GlobalFooter } from '../components/global-footer';
+import '../styles/editorial.css';
+import { SandraImages } from '../lib/sandra-images';
 
 // Elena's Revolutionary 4-Phase Navigation System
-import { ElenaPhaseNavigation } from '../../components/workspace/ElenaPhaseNavigation';
-import { PremiumProgressDashboard } from '../../components/workspace/PremiumProgressDashboard';
-import { LuxuryPhaseCard } from '../../components/workspace/LuxuryPhaseCard';
-import { ResponsiveWorkspaceGrid } from '../../components/workspace/ResponsiveWorkspaceGrid';
-import { WebsiteManager } from '../../components/workspace/WebsiteManager';
+import { ElenaPhaseNavigation } from '../components/workspace/ElenaPhaseNavigation';
+import { PremiumProgressDashboard } from '../components/workspace/PremiumProgressDashboard';
+import { LuxuryPhaseCard } from '../components/workspace/LuxuryPhaseCard';
+import { ResponsiveWorkspaceGrid } from '../components/workspace/ResponsiveWorkspaceGrid';
+import { WebsiteManager } from '../components/workspace/WebsiteManager';
 
 
 export default function Workspace() {

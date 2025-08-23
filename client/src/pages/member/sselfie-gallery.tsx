@@ -7,13 +7,13 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DownloadIcon from '@mui/icons-material/Download';
-import { useAuth } from '../../hooks/use-auth';
+import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MemberNavigation } from '../../components/member-navigation';
+import { MemberNavigation } from '../components/member-navigation';
 // Removed PaymentVerification - free users should access gallery
-import { HeroFullBleed } from '../../components/hero-full-bleed';
-import { SandraImages } from '../../lib/sandra-images';
-import { apiRequest } from '../../lib/queryClient';
+import { HeroFullBleed } from '../components/hero-full-bleed';
+import { SandraImages } from '../lib/sandra-images';
+import { apiRequest } from '../lib/queryClient';
 
 // Styled components for editorial luxury experience
 const GalleryGrid = styled(Box)(({ theme }) => ({
@@ -217,6 +217,10 @@ const downloadImage = async (imageUrl: string, filename: string) => {
     }
   };
 
+  const filteredImages = showFavoritesOnly ? 
+    aiImages.filter(img => favorites.includes(img.id)) : 
+    aiImages;
+
   const renderGalleryHeader = () => (
     <Box sx={{ mb: 4, mt: 2 }}>
       <Typography 
@@ -306,7 +310,7 @@ const downloadImage = async (imageUrl: string, filename: string) => {
             You need to be signed in to access your SSELFIE Gallery.
           </p>
         </div>
-      </Box>
+      </div>
     );
   }
 
@@ -441,10 +445,7 @@ const downloadImage = async (imageUrl: string, filename: string) => {
             </Box>
           )}
         </Container>
-        
-        <Box sx={{ py: 8, textAlign: 'center' }}>
-          <Container maxWidth="lg">
-            <p style={{
+              <p style={{
                 fontSize: '20px',
                 lineHeight: 1.5,
                 fontWeight: 300,
@@ -455,6 +456,7 @@ const downloadImage = async (imageUrl: string, filename: string) => {
                 Every photo here is you, just elevated. Download what serves your brand, delete what doesn't. 
                 This is your professional arsenal ready for anything.
               </p>
+            </div>
             
             {/* Gallery Stats - Centered Layout */}
             <div style={{
@@ -582,8 +584,8 @@ const downloadImage = async (imageUrl: string, filename: string) => {
                 ♥ Favorites ({favorites.length})
               </button>
             </div>
-          </Container>
-        </Box>
+          </div>
+        </section>
 
         {/* Gallery Grid Section */}
         {isLoading ? (
@@ -974,6 +976,6 @@ const downloadImage = async (imageUrl: string, filename: string) => {
             </a>
           </div>
         </section>
-      </Box>
+      </div>
   );
 }

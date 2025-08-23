@@ -1,12 +1,12 @@
 import { ChangeEvent, useState, useEffect } from 'react';
-import { MemberNavigation } from '../../components/member-navigation';
-import { useAuth } from '../../hooks/use-auth';
+import { MemberNavigation } from '../components/member-navigation';
+import { useAuth } from '../hooks/use-auth';
 import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '../../lib/queryClient';
+import { apiRequest } from '../lib/queryClient';
 import { useLocation } from 'wouter';
-import { SandraImages } from '../../lib/sandra-images';
-import { HeroFullBleed } from '../../components/HeroFullBleed';
-import { useToast } from '../../hooks/use-toast';
+import { SandraImages } from '../lib/sandra-images';
+import { HeroFullBleed } from '../components/HeroFullBleed';
+import { useToast } from '../hooks/use-toast';
 
 interface OnboardingFormData {
   // Step 1: Brand Story
