@@ -1,6 +1,6 @@
-import React, { FC, FormEvent, useState } from 'react';
-import { SandraImages } from '../lib/sandra-images';
-import { useToast } from '../hooks/use-toast';
+import { FC, FormEvent, useState } from 'react';
+import { SandraImages } from '@/lib/sandra-images';
+import { useToast } from '@/hooks/use-toast';
 
 interface InlineEmailCaptureProps {
   plan: 'free' | 'sselfie-studio' | 'basic' | 'full-access';

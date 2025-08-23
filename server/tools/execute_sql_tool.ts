@@ -5,19 +5,9 @@ import { sql } from 'drizzle-orm';
 export interface SqlParams {
   sql_query: string;
   environment?: 'development';
-  userId?: string;
-  agentName?: string;
-  adminContext?: boolean;
 }
 
 export async function execute_sql_tool(params: SqlParams): Promise<string> {
-  // AUTHENTICATION CHECK: Ensure admin access for SQL operations
-  const isAdminUser = params.userId === '42585527' || params.adminContext === true;
-  console.log('🔐 SQL AUTHENTICATION:', { userId: params.userId, agentName: params.agentName, adminAccess: isAdminUser });
-  
-  if (!isAdminUser) {
-    throw new Error('SQL access requires admin authentication');
-  }
   try {
     console.log(`🗄️ SQL EXECUTION: ${params.sql_query.substring(0, 100)}...`);
     

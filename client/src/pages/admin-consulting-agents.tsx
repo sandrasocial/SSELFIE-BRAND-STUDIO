@@ -178,13 +178,11 @@ const loadConversationHistory = async (agentName: string) => {
     
     const data = await response.json();
     
-    // BALANCED FIX: Sufficient messages for context while preventing UI overload
-    const limitedMessages = (data.messages || []).slice(-50); // MAX 50 messages in frontend
-    console.log(`📜 Loaded ${limitedMessages.length}/${data.messages?.length || 0} messages (limited to prevent overload)`);
+    console.log(`📜 Loaded ${data.messages?.length || 0} messages from conversation history`);
     
     return {
       success: true,
-      messages: limitedMessages,
+      messages: data.messages || [],
       conversations: data.conversations || [],
       currentConversationId: data.currentConversationId,
       agentName
@@ -617,7 +615,7 @@ export default function AdminConsultingAgents() {
               }
             }
           }
-
+        }
       }
     } catch (error) {
       // Handle abort differently from other errors
@@ -678,8 +676,6 @@ export default function AdminConsultingAgents() {
       const conversation = await createClaudeConversation(selectedAgent.id);
       setConversationId(conversation.conversationId);
     } catch (error) {
-      console.error('Failed to create new conversation:', error);
-    }
       console.error('Failed to create new conversation:', error);
     }
   };
