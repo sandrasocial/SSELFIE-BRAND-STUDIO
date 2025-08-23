@@ -1,322 +1,305 @@
-import React from 'react';
-import { PreLoginNavigationUnified } from '../../components/pre-login-navigation-unified';
-import { SandraImages } from '../../lib/sandra-images';
-import { useLocation } from 'wouter';
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { SandraImages } from "../../lib/sandra-images";
+import { PortfolioSection } from "../../components/portfolio-section";
+import FreeTierSignup from "../../components/free-tier-signup";
+import WelcomeEditorial from "../../components/welcome-editorial";
+import { EmailCaptureModal } from "../../components/email-capture-modal";
+import { InlineEmailCapture } from "../../components/inline-email-capture";
+import { GlobalFooter } from "../../components/global-footer";
 
-export default function Landing() {
+export default function EditorialLanding() {
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'sselfie-studio'>('free');
   const [, setLocation] = useLocation();
 
-  const handleGetStarted = () => {
-    setLocation('/simple-checkout');
+  // SEO Meta Tags and Performance Optimization
+  useEffect(() => {
+    document.title = "SSELFIE Studio - AI Personal Branding Platform | Transform Selfies Into Professional Photos";
+    
+    // Update or create meta description with rich keywords
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (!metaDescription) {
+      metaDescription = document.createElement('meta');
+      metaDescription.setAttribute('name', 'description');
+      document.head.appendChild(metaDescription);
+    }
+    metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria AI strategist help you build your personal brand and launch your business in 20 minutes. Start free - 5 AI images included.');
+    
+    // Add comprehensive SEO meta tags
+    const seoTags = [
+      { name: 'keywords', content: 'AI personal branding, AI photographer, professional headshots AI, personal brand builder, selfie to professional photos, AI brand strategist, business launch platform, professional photos from selfies, AI personal brand coach, digital brand transformation' },
+      { property: 'og:title', content: 'SSELFIE Studio - AI Personal Branding Platform | Professional Photos from Selfies' },
+      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria AI strategist included. Launch your business in 20 minutes. Start free today.' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: window.location.href },
+      { property: 'og:site_name', content: 'SSELFIE Studio' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'SSELFIE Studio - AI Personal Branding Platform' },
+      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria AI strategist. Start free today.' },
+      { name: 'twitter:creator', content: '@sandra.social' },
+      { name: 'author', content: 'Sandra Sigurjónsdóttir' },
+      { name: 'robots', content: 'index, follow, max-image-preview:large' }
+    ];
+    
+    seoTags.forEach(tag => {
+      let existingTag = document.querySelector(`meta[${tag.property ? 'property' : 'name'}="${tag.property || tag.name}"]`);
+      if (!existingTag) {
+        existingTag = document.createElement('meta');
+        existingTag.setAttribute(tag.property ? 'property' : 'name', tag.property || tag.name);
+        document.head.appendChild(existingTag);
+      }
+      existingTag.setAttribute('content', tag.content);
+    });
+
+    // Add structured data for better search results
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": ["WebPage", "SoftwareApplication"],
+      "name": "SSELFIE Studio",
+      "description": "AI-powered personal branding platform that transforms selfies into professional business photos",
+      "url": window.location.href,
+      "author": {
+        "@type": "Person",
+        "name": "Sandra Sigurjónsdóttir",
+        "url": "https://instagram.com/sandra.social"
+      },
+      "applicationCategory": "BusinessApplication",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free Plan",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "5 AI images per month, Maya AI photographer chat, Victoria AI strategist chat"
+        },
+        {
+          "@type": "Offer", 
+          "name": "SSELFIE Studio",
+          "price": "47",
+          "priceCurrency": "USD",
+          "description": "100 AI images monthly, complete Maya & Victoria AI access, landing page builder"
+        }
+      ]
+    };
+
+    let structuredDataScript = document.querySelector('script[type="application/ld+json"]');
+    if (!structuredDataScript) {
+      structuredDataScript = document.createElement('script');
+      structuredDataScript.type = 'application/ld+json';
+      document.head.appendChild(structuredDataScript);
+    }
+    structuredDataScript.textContent = JSON.stringify(structuredData);
+  }, []);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 50;
+      setScrolled(isScrolled);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleGetStarted = (plan: 'free' | 'sselfie-studio') => {
+    // Store the selected plan
+    localStorage.setItem('selectedPlan', plan);
+    
+    // Check if email already captured
+    const emailCaptured = localStorage.getItem('emailCaptured');
+    
+    if (emailCaptured) {
+      // Email already captured, proceed to authentication
+      if (plan === 'free') {
+        window.location.href = '/api/login';
+      } else {
+        setLocation('/checkout');
+      }
+    } else {
+      // Show email capture modal first
+      setSelectedPlan(plan);
+      setIsEmailModalOpen(true);
+    }
   };
 
+
+
   return (
-    <div className="bg-white text-[#0a0a0a]">
-      <PreLoginNavigationUnified />
-      
-      {/* Hero Section - Full Bleed */}
-      <section className="relative min-h-screen flex items-end justify-center bg-[#0a0a0a] overflow-hidden">
-        <div className="absolute inset-0">
-          <img 
-            src={SandraImages.hero.ai}
-            alt="Sandra's AI transformation"
-            className="w-full h-full object-cover opacity-40"
-          />
-        </div>
-        <div className="relative z-10 text-center text-white px-6 md:px-12 pb-20 md:pb-32">
-          <p className="text-[11px] tracking-[0.4em] uppercase mb-8 opacity-70 font-light">
-            Hey gorgeous, it's Sandra
-          </p>
-          <div className="mb-12">
-            <h1 
-              className="text-[5rem] md:text-[8rem] lg:text-[10rem] font-light mb-4 tracking-[0.5em] leading-[1]"
-              style={{ fontFamily: 'Times New Roman, serif' }}
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex items-center justify-between">
+            <button 
+              onClick={() => setLocation("/")}
+              className="font-serif text-xl font-light tracking-wide text-white hover:opacity-70 transition-opacity duration-300"
             >
               SSELFIE
-            </h1>
-            <p className="text-[12px] tracking-[0.5em] uppercase text-white/80 font-light">
-              AI BRAND PHOTOSHOOT
-            </p>
-          </div>
-          <button 
-            onClick={handleGetStarted}
-            className="bg-transparent border border-white text-white px-8 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-white hover:text-[#0a0a0a] transition-all duration-300"
-          >
-            Transform My Selfies - €67
-          </button>
-        </div>
-      </section>
-
-      {/* Before/After Gallery */}
-      <section className="py-20 md:py-32 bg-[#f5f5f5]">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="text-center mb-16">
-            <p className="text-[11px] tracking-[0.4em] uppercase text-[#666666] mb-6">
-              Real results from real women
-            </p>
-            <h2 
-              className="text-4xl md:text-6xl font-light mb-8 tracking-[-0.01em]"
-              style={{ fontFamily: 'Times New Roman, serif' }}
-            >
-              From selfie to CEO vibes
-            </h2>
-            <p className="text-lg text-[#666666] font-light max-w-2xl mx-auto">
-              Seriously, look at these transformations. Same person, different energy.
-            </p>
-          </div>
-          
-          {/* AI Gallery Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {[0, 1, 2, 3, 4, 5, 6, 7].map((index) => (
-              <div key={index} className="aspect-[4/5] overflow-hidden bg-white">
-                <img 
-                  src={SandraImages.aiGallery[index]}
-                  alt={`AI brand photo ${index + 1}`}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                />
-              </div>
-            ))}
-          </div>
-          
-          <div className="text-center mt-12">
-            <p className="text-[#666666] font-light">
-              100 monthly brand photos included • 4 professional styles • Your personal AI model
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Sandra's Story */}
-      <section className="py-20 md:py-32 bg-white">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
-          <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
-            <div>
-              <img 
-                src={SandraImages.editorial.firstAI}
-                alt="Sandra's first AI selfie"
-                className="w-full aspect-[4/5] object-cover"
-              />
-            </div>
-            <div>
-              <p className="text-[11px] tracking-[0.4em] uppercase text-[#666666] mb-6">
-                Okay, here's what happened
-              </p>
-              <h2 
-                className="text-3xl md:text-5xl font-light mb-8 tracking-[-0.01em]"
-                style={{ fontFamily: 'Times New Roman, serif' }}
-              >
-                I was broke, burnt out, and tired of looking unprofessional online
-              </h2>
-              <div className="space-y-6 text-lg text-[#666666] font-light leading-relaxed">
-                <p>
-                  Like, seriously. I had big dreams but my Instagram looked like a hot mess. 
-                  I couldn't afford a photographer every month, and let's be real - 
-                  who has time for that anyway?
-                </p>
-                <p>
-                  So I did what any slightly obsessed entrepreneur would do: 
-                  I trained an AI model on my face. And oh my god, the results were insane.
-                </p>
-                <p>
-                  Now I have an endless supply of professional brand photos. 
-                  Editorial shots, business headshots, lifestyle content - all from my couch.
-                </p>
-                <p className="font-medium text-[#0a0a0a]">
-                  This isn't just about photos. It's about finally looking like the boss you already are.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-20 md:py-32 bg-[#0a0a0a] text-white">
-        <div className="max-w-6xl mx-auto px-6 md:px-12">
-          <div className="text-center mb-20">
-            <p className="text-[11px] tracking-[0.4em] uppercase text-white/70 mb-6">
-              Super simple process
-            </p>
-            <h2 
-              className="text-4xl md:text-6xl font-light mb-8 tracking-[-0.01em]"
-              style={{ fontFamily: 'Times New Roman, serif' }}
-            >
-              Three steps to professional photos
-            </h2>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-12 md:gap-16">
-            {/* Step 1 */}
-            <div className="text-center">
-              <div className="mb-8">
-                <img 
-                  src={SandraImages.editorial.phone2}
-                  alt="Upload selfies"
-                  className="w-full aspect-square object-cover mx-auto max-w-xs"
-                />
-              </div>
-              <h3 
-                className="text-2xl md:text-3xl font-light mb-4 tracking-[-0.01em]"
-                style={{ fontFamily: 'Times New Roman, serif' }}
-              >
-                Upload 10-15 selfies
-              </h3>
-              <p className="text-white/80 font-light leading-relaxed">
-                Just normal selfies from your phone. We train a personal AI model that learns your face in 20 minutes.
-              </p>
-            </div>
-            
-            {/* Step 2 */}
-            <div className="text-center">
-              <div className="mb-8">
-                <img 
-                  src={SandraImages.editorial.aiInProgress}
-                  alt="AI processing"
-                  className="w-full aspect-square object-cover mx-auto max-w-xs"
-                />
-              </div>
-              <h3 
-                className="text-2xl md:text-3xl font-light mb-4 tracking-[-0.01em]"
-                style={{ fontFamily: 'Times New Roman, serif' }}
-              >
-                Let AI work its magic
-              </h3>
-              <p className="text-white/80 font-light leading-relaxed">
-                Our AI creates professional brand photos in 4 styles: Editorial, Business, Lifestyle, and Luxury.
-              </p>
-            </div>
-            
-            {/* Step 3 */}
-            <div className="text-center">
-              <div className="mb-8">
-                <img 
-                  src={SandraImages.editorial.aiSuccess}
-                  alt="Professional results"
-                  className="w-full aspect-square object-cover mx-auto max-w-xs"
-                />
-              </div>
-              <h3 
-                className="text-2xl md:text-3xl font-light mb-4 tracking-[-0.01em]"
-                style={{ fontFamily: 'Times New Roman, serif' }}
-              >
-                Download & dominate
-              </h3>
-              <p className="text-white/80 font-light leading-relaxed">
-                100 new photos every month. Use them everywhere - Instagram, LinkedIn, your website, everywhere.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="py-20 md:py-32 bg-[#f5f5f5]">
-        <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
-          <p className="text-[11px] tracking-[0.4em] uppercase text-[#666666] mb-6">
-            Stop looking amateur
-          </p>
-          <h2 
-            className="text-4xl md:text-6xl font-light mb-8 tracking-[-0.01em]"
-            style={{ fontFamily: 'Times New Roman, serif' }}
-          >
-            SSELFIE AI Brand Photoshoot
-          </h2>
-          <p className="text-xl text-[#666666] font-light mb-12 max-w-2xl mx-auto">
-            Your personal AI photographer that never sleeps, never charges extra, and always makes you look incredible.
-          </p>
-          
-          {/* Pricing Card */}
-          <div className="bg-white border border-[#e5e5e5] p-12 max-w-lg mx-auto">
-            <h3 
-              className="text-3xl font-light mb-6 tracking-[-0.01em]"
-              style={{ fontFamily: 'Times New Roman, serif' }}
-            >
-              €47/month
-            </h3>
-            <div className="space-y-4 text-left mb-8">
-              <div className="flex items-center">
-                <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">Personal AI model training (one-time setup)</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">100 brand photos per month</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">4 professional styles: Editorial, Business, Lifestyle, Luxury</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">High-resolution downloads</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">Commercial usage rights</span>
-              </div>
-            </div>
-            
-            <button 
-              onClick={handleGetStarted}
-              className="w-full bg-[#0a0a0a] text-white py-4 px-8 text-[11px] tracking-[0.3em] uppercase hover:bg-[#333333] transition-all duration-300 mb-4"
-            >
-              Start My AI Photoshoot
             </button>
-            <p className="text-sm text-[#666666] font-light">
-              Cancel anytime • 20-minute setup • Results guaranteed
-            </p>
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-10">
+              <button 
+                onClick={() => setLocation("/about")}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              >
+                About
+              </button>
+              <button 
+                onClick={() => setLocation("/how-it-works")}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              >
+                How It Works
+              </button>
+              <button 
+                onClick={() => setLocation("/pricing")}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              >
+                Pricing
+              </button>
+              <button 
+                onClick={() => setLocation("/blog")}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              >
+                Blog
+              </button>
+              <button
+                onClick={() => setLocation('/login')}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              >
+                Login
+              </button>
+            </div>
+            
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              MENU
+            </button>
+            
+            <button
+              onClick={() => handleGetStarted('free')}
+              className="hidden md:block px-6 py-3 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
+            >
+              Start Here
+            </button>
           </div>
         </div>
-      </section>
+      </nav>
 
-      {/* Coming Soon Tease */}
-      <section className="py-20 md:py-32 bg-white">
-        <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
-          <p className="text-[11px] tracking-[0.4em] uppercase text-[#666666] mb-6">
-            What's next
-          </p>
-          <h2 
-            className="text-3xl md:text-5xl font-light mb-8 tracking-[-0.01em]"
-            style={{ fontFamily: 'Times New Roman, serif' }}
-          >
-            The full SSELFIE Studio is coming soon
-          </h2>
-          <p className="text-lg text-[#666666] font-light mb-8 max-w-2xl mx-auto">
-            Landing page builder, business templates, and automated setup tools. 
-            But first, let's get you looking like the boss you are.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-[#666666]">
-            <span className="bg-[#f5f5f5] px-4 py-2">Landing Page Builder → Coming Soon</span>
-            <span className="bg-[#f5f5f5] px-4 py-2">Business Templates → Coming Soon</span>
-            <span className="bg-[#f5f5f5] px-4 py-2">Payment Setup → Coming Soon</span>
-            <span className="bg-[#f5f5f5] px-4 py-2">Custom Domains → Coming Soon</span>
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-sm md:hidden">
+          <div className="flex flex-col items-center justify-center min-h-screen space-y-12">
+            <button 
+              onClick={() => { setLocation("/about"); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              About
+            </button>
+            <button 
+              onClick={() => { setLocation("/how-it-works"); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              How It Works
+            </button>
+            <button 
+              onClick={() => { setLocation("/pricing"); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Pricing
+              </button>
+            <button 
+              onClick={() => { setLocation("/blog"); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Blog
+            </button>
+            <button
+              onClick={() => { setLocation('/login'); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Login
+            </button>
+            <button
+              onClick={() => { handleGetStarted('free'); setMobileMenuOpen(false); }}
+              className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
+            >
+              Start Here
+            </button>
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute top-8 right-8 text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Close
+            </button>
           </div>
         </div>
-      </section>
+      )}
 
-      {/* Final CTA */}
-      <section className="py-20 md:py-32 bg-[#0a0a0a] text-white text-center">
-        <div className="max-w-4xl mx-auto px-6 md:px-12">
-          <h2 
-            className="text-4xl md:text-6xl font-light mb-8 tracking-[-0.01em]"
-            style={{ fontFamily: 'Times New Roman, serif' }}
-          >
-            Ready to look professional?
-          </h2>
-          <p className="text-xl text-white/80 font-light mb-12 max-w-2xl mx-auto">
-            Stop waiting for the perfect moment. Your AI photographer is ready when you are.
+      {/* Hero Section - Full Bleed Editorial */}
+      <section className="relative min-h-screen flex items-end justify-center bg-black text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-40">
+          <img
+            src={SandraImages.hero.homepage}
+            alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
+            className="w-full h-full object-cover object-center"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+        
+        {/* Hero Content - Positioned Lower */}
+        <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 md:pb-24">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
+            IT STARTS WITH YOUR SELFIES
           </p>
-          <button 
-            onClick={handleGetStarted}
-            className="bg-white text-[#0a0a0a] px-12 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-[#f5f5f5] transition-all duration-300"
+          
+          <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight text-white tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.5em] mb-2 sm:mb-4 leading-none">
+            SSELFIE
+          </h1>
+          
+          <p className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-8 sm:mb-10 font-light">
+            STUDIO
+          </p>
+          
+          <button
+            onClick={() => handleGetStarted('free')}
+            className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
           >
-            Start My AI Photoshoot - €47
+            START FOR FREE
           </button>
-          <p className="text-sm text-white/60 mt-6">
-            Join 1,200+ women who stopped making excuses and started looking like CEOs
-          </p>
         </div>
       </section>
+
+      {/* Welcome Editorial Section */}
+      <WelcomeEditorial />
+
+      {/* Portfolio Section - Showcasing AI-Generated Brand Photos */}
+      <PortfolioSection />
+
+      {/* Free Tier Signup Section */}
+      <FreeTierSignup onGetStarted={handleGetStarted} />
+
+      {/* Inline Email Capture */}
+      <InlineEmailCapture />
+
+      {/* Global Footer */}
+      <GlobalFooter />
+
+      {/* Email Capture Modal */}
+      <EmailCaptureModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        selectedPlan={selectedPlan}
+      />
     </div>
   );
 }
