@@ -38,7 +38,7 @@ import RachelActivation from "./pages/rachel-activation";
 // CORE MEMBER FEATURES - TRAIN → STYLE → GALLERY
 import SimpleTraining from "./pages/member/simple-training";
 import Maya from "./pages/member/maya";
-import SSELFIEGallery from "./pages/member/sselfie-gallery";
+// import SSELFIEGallery from "./pages/member/sselfie-gallery";
 
 // COMPLEX FEATURES - PRESERVED BUT ARCHIVED
 import AIGenerator from "./pages/ai-generator";
@@ -46,7 +46,7 @@ import AIPhotoshoot from "./pages/ai-photoshoot";
 
 
 import AdminBusinessOverview from "./pages/admin-business-overview";
-// import AdminConsultingAgents from "./pages/admin-consulting-agents";
+import AdminConsultingAgents from "./pages/admin-consulting-agents";
 import AdminSubscriberImport from "./pages/admin-subscriber-import";
 
 import BridgeMonitor from "./pages/admin/bridge-monitor";
@@ -239,8 +239,8 @@ function Router() {
       <Route path="/flatlays" component={() => <Redirect to="/flatlay-library" />} />
       <Route path="/sandra-ai" component={(props) => <ProtectedRoute component={SandraAI} {...props} />} />
       <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
-      <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
-      <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
+      {/* <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} /> */}
+      {/* <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} /> */}
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
       
       {/* AI AGENTS */}
@@ -255,9 +255,9 @@ function Router() {
 
       
       {/* SANDRA'S ADMIN SYSTEM - UNIFIED ROUTING */}
-      {/* <Route path="/admin" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} /> */}
+      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/business-overview" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
-      {/* <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} /> */}
+      <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
       <Route path="/admin/subscriber-import" component={(props) => <ProtectedRoute component={AdminSubscriberImport} {...props} />} />
 
 

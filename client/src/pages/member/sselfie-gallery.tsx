@@ -217,9 +217,7 @@ const downloadImage = async (imageUrl: string, filename: string) => {
     }
   };
 
-  const filteredImages = showFavoritesOnly ? 
-    aiImages.filter(img => favorites.includes(img.id)) : 
-    aiImages;
+  // filteredImages already defined above with useMemo
 
   const renderGalleryHeader = () => (
     <Box sx={{ mb: 4, mt: 2 }}>
