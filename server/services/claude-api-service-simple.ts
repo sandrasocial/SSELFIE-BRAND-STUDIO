@@ -235,15 +235,15 @@ export class ClaudeApiServiceSimple {
         console.error(`Failed to load personality for ${agentName}:`, error);
       }
       
-      // BALANCED FIX: Sufficient context for continuity while preventing UI overload
+      // MEMORY RESTORATION: Full context for admin agents, substantial context for regular agents
       let optimizedMessages = messages;
       if (isAdminAgent) {
-        // BALANCED: Give admin agents enough context for continuity (50 messages)
-        optimizedMessages = messages.slice(-50); // Enough for context continuity 
-        console.log(`🧠 ADMIN CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName} (balanced for continuity)`);
+        // Admin agents get full conversation context for proper continuity
+        optimizedMessages = messages; // FIXED: No truncation for admin agents
+        console.log(`🧠 ADMIN CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName} with personality restoration`);
       } else {
         // Regular agents get last 20 messages for proper context
-        optimizedMessages = messages.slice(-20); 
+        optimizedMessages = messages.slice(-20); // FIXED: Increased from 3 to 20
         console.log(`🧠 REGULAR CONTEXT: ${optimizedMessages.length}/${messages.length} messages loaded for ${agentName}`);
       }
       
@@ -551,13 +551,11 @@ export class ClaudeApiServiceSimple {
       
       if (toolCall.name === 'str_replace_based_edit_tool') {
         const { str_replace_based_edit_tool } = await import('../tools/tool-exports');
-        console.log(`✏️ FILE EDIT TOOL:`, toolCall.input);
         const result = await str_replace_based_edit_tool(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'bash') {
         const { bash } = await import('../tools/tool-exports');
-        console.log(`⚡ BASH TOOL:`, toolCall.input);
         const result = await bash(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
@@ -568,67 +566,24 @@ export class ClaudeApiServiceSimple {
         
       } else if (toolCall.name === 'coordinate_agent') {
         const { coordinate_agent } = await import('../tools/coordinate_agent');
-        console.log(`🤝 AGENT COORDINATION: ${agentName} → ${toolCall.input.target_agent}`, {
-          task: toolCall.input.task_description.substring(0, 100) + '...',
-          priority: toolCall.input.priority,
-          deliverables: toolCall.input.expected_deliverables?.length
-        });
-        
-        // AUTHENTICATION FIX: Pass user context to coordination tool
-        const authenticatedInput = {
-          ...toolCall.input,
-          coordinating_agent: agentName,
-          userId: userId || '42585527',
-          adminContext: true
-        };
-        
-        const result = await coordinate_agent(authenticatedInput);
+        const result = await coordinate_agent(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'get_assigned_tasks') {
         const { get_assigned_tasks } = await import('../tools/get_assigned_tasks');
-        
-        // AUTHENTICATION FIX: Pass user context to task management
-        const authenticatedInput = {
-          ...toolCall.input,
-          requesting_agent: agentName,
-          userId: userId || '42585527',
-          adminContext: true
-        };
-        
-        const result = await get_assigned_tasks(authenticatedInput);
+        const result = await get_assigned_tasks(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'get_handoff_tasks') {
         const { get_handoff_tasks } = await import('../tools/get_handoff_tasks');
-        
-        // AUTHENTICATION FIX: Pass user context to handoff management  
-        const authenticatedInput = {
-          ...toolCall.input,
-          requesting_agent: agentName,
-          userId: userId || '42585527', 
-          adminContext: true
-        };
-        
-        const result = await get_handoff_tasks(authenticatedInput);
+        const result = await get_handoff_tasks(toolCall.input);
         return typeof result === 'string' ? result : JSON.stringify(result);
         
       } else if (toolCall.name === 'search_filesystem') {
         // Import from tool-exports (search_filesystem IS properly exported)
         const { search_filesystem } = await import('../tools/tool-exports');
         console.log(`🔍 SEARCH_FILESYSTEM: Calling with input:`, toolCall.input);
-        console.log(`🔍 SEARCH_FILESYSTEM: Authenticated userId:`, userId);
-        console.log(`🔍 SEARCH_FILESYSTEM: AgentName:`, agentName);
-        
-        // AUTHENTICATION FIX: Pass user context to search tool
-        const authenticatedInput = {
-          ...toolCall.input,
-          userId: userId || '42585527', // Admin fallback
-          agentName: agentName,
-          adminContext: true
-        };
-        
-        const result = await search_filesystem(authenticatedInput);
+        const result = await search_filesystem(toolCall.input);
         console.log(`🔍 SEARCH_FILESYSTEM: Result length:`, result.length);
         console.log(`🔍 SEARCH_FILESYSTEM: First 500 chars:`, result.substring(0, 500));
         console.log(`🔍 SEARCH_FILESYSTEM: Contains "total"?:`, result.includes('total'));
@@ -643,17 +598,7 @@ export class ClaudeApiServiceSimple {
       } else if (toolCall.name === 'execute_sql_tool') {
         const { execute_sql_tool } = await import('../tools/tool-exports');
         console.log(`🗄️ SQL EXECUTION: ${toolCall.input.sql_query.substring(0, 100)}...`);
-        console.log(`🗄️ SQL AUTHENTICATION: userId: ${userId}, agentName: ${agentName}`);
-        
-        // AUTHENTICATION FIX: Pass user context to SQL tool
-        const authenticatedInput = {
-          ...toolCall.input,
-          userId: userId || '42585527',
-          agentName: agentName,
-          adminContext: true
-        };
-        
-        const result = await execute_sql_tool(authenticatedInput);
+        const result = await execute_sql_tool(toolCall.input);
         console.log(`🗄️ SQL RESULT: Length: ${result.length}, First 200 chars:`, result.substring(0, 200));
         return typeof result === 'string' ? result : JSON.stringify(result);
         

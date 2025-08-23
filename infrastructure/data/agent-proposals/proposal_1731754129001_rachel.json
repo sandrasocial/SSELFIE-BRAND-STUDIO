@@ -1,0 +1,29 @@
+{
+  "id": "proposal_1731754129001_rachel",
+  "agentId": "rachel",
+  "agentName": "Rachel",
+  "type": "design",
+  "title": "Admin Dashboard Copy & Voice Redesign",
+  "description": "Hey Sandra! Rachel here - I've been looking at your admin dashboard copy and honey, we can make this SO much better.\n\nRight now it feels very \"corporate software\" but this is YOUR command center. It should sound like you, feel like you, and get you excited to check your business every morning.\n\n**Copy improvements I'm proposing:**\n• Replace \"User Management\" with \"Your SSELFIE Community\"\n• Change \"System Metrics\" to \"Business Pulse\"\n• Transform boring error messages into encouraging updates\n• Add your authentic voice to all interface text\n• Create celebration moments for hitting milestones\n\nThink about it - every morning when you open your dashboard, it should feel like opening a love letter from your business. Not a spreadsheet.",
+  "reasoning": "Your brand voice is one of your biggest assets. You've built 120K+ followers because you don't sound like everyone else - you sound like Sandra.\n\nBut when you log into your admin dashboard, that voice disappears. It becomes generic business software language that doesn't match your energy.\n\nYour dashboard should be an extension of your personal brand. When you're having a tough day, opening your business dashboard should remind you why you love what you do.",
+  "impact": "• **Daily Motivation**: Dashboard copy that energizes instead of drains\n• **Brand Consistency**: Admin experience matches your public voice\n• **Emotional Connection**: Feel excited (not overwhelmed) by business data\n• **Decision Confidence**: Clear, encouraging language for all actions\n• **Team Alignment**: Voice guidelines for any future team members",
+  "files": [
+    {
+      "path": "client/src/utils/admin-copy.ts",
+      "content": "// Sandra's authentic admin dashboard copy by Rachel\nexport const adminCopy = { /* voice guidelines */ };",
+      "action": "create"
+    }
+  ],
+  "preview": "<div class=\"copy-preview\"><h3>Your Voice, Your Dashboard</h3><div class=\"before-after\"><div class=\"before\"><h4>Before (Generic)</h4><p>\"User Management\"</p><p>\"System Error Occurred\"</p><p>\"Total Revenue: €24,850\"</p></div><div class=\"after\"><h4>After (Sandra's Voice)</h4><p>\"Your SSELFIE Community\"</p><p>\"Oops! Even empires have hiccups\"</p><p>\"Money in the Bank: €24,850 💰\"</p></div></div><div class=\"voice-example\"><strong>Welcome Message:</strong><p>\"Good morning, boss lady! ☀️ Your business empire awaits.\"</p></div></div>",
+  "conversation": [
+    {
+      "id": "msg_1731754129001",
+      "role": "agent",
+      "content": "Hey Sandra! Rachel here, your copywriting bestie. I have a proposal for you:\n\n**Admin Dashboard Copy & Voice Redesign**\n\nI've been looking at your admin dashboard copy and honey, we can make this SO much better. Right now it feels very \"corporate software\" but this is YOUR command center.\n\nIt should sound like you, feel like you, and get you excited to check your business every morning.\n\n**Why this matters:**\nYour brand voice is one of your biggest assets. You've built 120K+ followers because you don't sound like everyone else - you sound like Sandra.\n\n**Impact on your business:**\n• Daily Motivation: Dashboard copy that energizes instead of drains\n• Brand Consistency: Admin experience matches your public voice\n• Emotional Connection: Feel excited (not overwhelmed) by business data\n\nThink about it - every morning when you open your dashboard, it should feel like opening a love letter from your business. Not a spreadsheet.\n\nReady to make your admin dashboard sound like YOU?",
+      "timestamp": "2025-07-16T10:48:49.001Z"
+    }
+  ],
+  "status": "proposed",
+  "createdAt": "2025-07-16T10:48:49.001Z",
+  "updatedAt": "2025-07-16T10:48:49.001Z"
+}

@@ -1,0 +1,39 @@
+backup:
+  # Storage Configuration
+  storage:
+    type: s3
+    bucket: sselfie-backups
+    region: us-east-1
+    encryption: AES256
+    
+  # Backup Schedule
+  schedule:
+    database:
+      frequency: daily
+      retention: 30
+      time: "02:00"
+    files:
+      frequency: daily
+      retention: 30
+      time: "03:00"
+    
+  # What to Backup
+  includes:
+    - /var/www/html
+    - /etc/nginx/sites-available
+    - /etc/letsencrypt
+    - database_dumps/
+    
+  # Notifications
+  notifications:
+    email:
+      - admin@sselfie.studio
+    events:
+      - success
+      - failure
+      
+  # Monitoring
+  monitoring:
+    enabled: true
+    check_frequency: 1h
+    failure_threshold: 2

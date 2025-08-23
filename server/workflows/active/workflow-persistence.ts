@@ -65,54 +65,6 @@ export class WorkflowPersistence {
   }
   
   /**
-   * Assign a task directly to an agent (for coordination system integration)
-   */
-  static assignTaskToAgent(agentName: string, task: any): void {
-    try {
-      console.log(`🔄 WORKFLOW: Assigning task ${task.taskId} to ${agentName}`);
-      
-      // Convert task to ActiveTask format
-      const activeTask: ActiveTask = {
-        taskId: task.taskId,
-        assignedAgent: agentName,
-        coordinatorAgent: task.coordinatorAgent || 'elena',
-        taskDescription: task.taskDescription,
-        workflowContext: task.workflowContext || 'Direct assignment',
-        expectedDeliverables: task.expectedDeliverables || [],
-        priority: task.priority || 'medium',
-        status: task.status || 'assigned',
-        assignedAt: task.assignedAt || new Date(),
-        workflowType: task.workflowType || 'coordination'
-      };
-      
-      // Create or find an active workflow session for this agent
-      let sessions = this.getAllWorkflowSessions();
-      let targetSession = sessions.find(s => 
-        s.coordinatorAgent === activeTask.coordinatorAgent && 
-        s.status === 'active'
-      );
-      
-      if (!targetSession) {
-        // Create a new workflow session
-        targetSession = this.createWorkflowSession(
-          `${activeTask.coordinatorAgent} Coordination Tasks`,
-          `Active coordination tasks managed by ${activeTask.coordinatorAgent}`,
-          activeTask.coordinatorAgent
-        );
-      }
-      
-      // Add task to session
-      targetSession.assignedTasks.push(activeTask);
-      this.saveWorkflowSession(targetSession);
-      
-      console.log(`✅ WORKFLOW: Task successfully assigned to ${agentName} via WorkflowPersistence`);
-    } catch (error) {
-      console.error(`❌ WORKFLOW: Failed to assign task to ${agentName}:`, error);
-      throw error;
-    }
-  }
-
-  /**
    * Get tasks assigned to a specific agent
    */
   static getAgentTasks(agentName: string): ActiveTask[] {
