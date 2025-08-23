@@ -181,7 +181,7 @@ export async function setupAuth(app: Express) {
       {
         name: `replitauth:${domain}`,
         config,
-        scope: "openid email profile offline_access",
+        scope: "openid email profile",
         callbackURL
       },
       verify,
