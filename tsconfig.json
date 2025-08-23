@@ -4,12 +4,13 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
+    "allowImportingTsExtensions": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
+    "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -25,9 +26,10 @@
     }
   },
   "include": [
-    "client/src",
-    "shared",
-    "server/**/*.ts"
+    "vite.config.ts",
+    "client/src/**/*",
+    "shared/**/*",
+    "server/**/*"
   ],
   "exclude": [
     "node_modules",

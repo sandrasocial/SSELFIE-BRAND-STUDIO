@@ -32,10 +32,10 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: process.env.PORT ? parseInt(process.env.PORT) : 5000,
+    port: parseInt(process.env.PORT || '5000'),
     hmr: {
-      port: process.env.PORT ? parseInt(process.env.PORT) : 5000,
-      host: 'localhost'
+      port: parseInt(process.env.PORT || '5000'),
+      host: '0.0.0.0'
     },
     fs: {
       strict: true,
