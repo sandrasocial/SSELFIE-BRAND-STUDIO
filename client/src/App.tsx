@@ -46,7 +46,7 @@ import AIPhotoshoot from "./pages/ai-photoshoot";
 
 
 import AdminBusinessOverview from "./pages/admin-business-overview";
-import AdminConsultingAgents from "./pages/admin-consulting-agents";
+// import AdminConsultingAgents from "./pages/admin-consulting-agents";
 import AdminSubscriberImport from "./pages/admin-subscriber-import";
 
 import BridgeMonitor from "./pages/admin/bridge-monitor";
@@ -255,9 +255,9 @@ function Router() {
 
       
       {/* SANDRA'S ADMIN SYSTEM - UNIFIED ROUTING */}
-      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
+      {/* <Route path="/admin" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} /> */}
       <Route path="/admin/business-overview" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
-      <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
+      {/* <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} /> */}
       <Route path="/admin/subscriber-import" component={(props) => <ProtectedRoute component={AdminSubscriberImport} {...props} />} />
 
 
