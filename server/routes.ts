@@ -2089,38 +2089,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.get('/api/auth/user', async (req: any, res) => {
     try {
       console.log('🔍 /api/auth/user called - checking authentication');
-      console.log('🔍 Headers debug:', { 
-        xDevAdmin: req.headers['x-dev-admin'],
-        xAdminToken: req.headers['x-admin-token'],
-        authorization: req.headers.authorization,
-        devAdminQuery: req.query.dev_admin 
-      });
-      
-      // CRITICAL FIX: Admin agent authentication bypass (preserving admin functionality) 
-      // DEVELOPMENT BYPASS: Check for dev admin header for Sandra
-      const adminToken = req.headers.authorization?.replace('Bearer ', '') || req.headers['x-admin-token'];
-      const devAdmin = req.headers['x-dev-admin'] || req.query.dev_admin;
-      
-      // DEVELOPMENT MODE: Always allow Sandra admin access in development
-      if (process.env.NODE_ENV === 'development' && (adminToken === 'sandra-admin-2025' || devAdmin === 'sandra' || req.query.admin === 'sandra')) {
-        console.log('🔑 Admin/Dev bypass authenticated - creating admin user session');
-        
-        // Get Sandra's actual admin user from database
-        let adminUser = await storage.getUserByEmail('sandra@sselfie.ai');
-          
-        if (!adminUser) {
-          adminUser = await storage.upsertUser({
-            id: 'sandra-admin-test',
-            email: 'sandra@sselfie.ai',
-            firstName: 'Sandra',
-            lastName: 'Admin',
-            profileImageUrl: null
-          } as any);
-        }
-        
-        console.log('✅ Admin user authenticated:', adminUser.email);
-        return res.json(adminUser);
-      }
 
       // PRIORITY 1: Check session-based authentication (temp user)
       if (req.session?.user) {
