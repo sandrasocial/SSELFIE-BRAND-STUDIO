@@ -166,6 +166,51 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* The Evolution - From Teacher to AI Builder */}
+        <section className="py-20 md:py-32 bg-white">
+          <div className="max-w-5xl mx-auto px-8 md:px-12">
+            <div className="text-center mb-16 md:mb-20">
+              <h2 
+                className="text-4xl md:text-5xl lg:text-6xl font-light mb-6 tracking-[-0.02em] text-[#0a0a0a]" 
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                The Evolution
+              </h2>
+              <div className="w-12 h-px bg-[#B5B5B3] mx-auto"></div>
+            </div>
+            
+            <div className="max-w-3xl mx-auto">
+              <div className="space-y-8 md:space-y-10">
+                <p 
+                  className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-[#0a0a0a] text-center italic"
+                  style={{ fontFamily: 'Times New Roman, serif' }}
+                >
+                  I went from teaching women selfie techniques to building AI that creates perfect ones FOR them.
+                </p>
+                
+                <div className="space-y-6 text-lg md:text-xl leading-relaxed text-[#333] font-light">
+                  <p>At first, I shared selfie tips. The angles, the lighting tricks, the poses that made you feel confident.</p>
+                  
+                  <p>Women loved the tutorials. They saved every post. But I kept hearing the same thing: "I still can't get it right."</p>
+                  
+                  <p>That's when I realized something crucial: Teaching technique wasn't enough. Women didn't need more tips—they needed the actual photos.</p>
+                  
+                  <p 
+                    className="text-xl md:text-2xl font-light italic text-[#0a0a0a] border-l-2 border-[#B5B5B3] pl-8"
+                    style={{ fontFamily: 'Times New Roman, serif' }}
+                  >
+                    So I did what felt impossible. I built AI that knows all my techniques and creates perfect brand photos automatically.
+                  </p>
+                  
+                  <p>Now instead of teaching you how to take better selfies, I give you an AI photographer who already mastered them.</p>
+                  
+                  <p className="font-medium text-[#0a0a0a]">Same result. Zero learning curve. Just you, looking incredible, every single time.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Timeline Stats */}
         <section className="py-16 md:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -276,7 +321,7 @@ export default function AboutPage() {
                   style={{ fontFamily: 'Times New Roman, serif' }}
                   aria-label="Start your personal branding comeback story with SSELFIE Studio"
                 >
-                  Start your comeback story
+                  Get My AI Photographer
                 </button>
               </div>
             </div>
