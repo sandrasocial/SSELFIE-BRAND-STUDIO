@@ -78,7 +78,7 @@ export default function SimpleCheckout() {
             <div className="flex justify-between items-center mb-4">
               <div>
                 <div className="font-medium">SSELFIE STUDIO</div>
-                <div className="text-sm text-gray-600">Personal AI model + unlimited photos + Maya AI photographer</div>
+                <div className="text-sm text-gray-600">Personal AI model + 100 monthly photos + Maya AI photographer</div>
               </div>
               <div className="text-xl font-light" style={{ fontFamily: 'Times New Roman, serif' }}>
                 €47/month

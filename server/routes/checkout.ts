@@ -38,12 +38,12 @@ export function registerCheckoutRoutes(app: Express) {
         },
         'sselfie-studio': {
           name: 'SSELFIE STUDIO',
-          description: 'Personal AI model + unlimited photos + Maya AI photographer',
+          description: 'Personal AI model + 100 monthly photos + Maya AI photographer',
           amount: 4700, // €47.00 in cents
         },
         'personal-brand-studio': {
           name: 'SSELFIE STUDIO',
-          description: 'Personal AI model + unlimited photos + Maya AI photographer',
+          description: 'Personal AI model + 100 monthly photos + Maya AI photographer',
           amount: 4700, // €47.00 in cents
         }
       };

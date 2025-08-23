@@ -24,13 +24,13 @@ export default function EditorialLanding() {
       metaDescription.setAttribute('name', 'description');
       document.head.appendChild(metaDescription);
     }
-    metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, unlimited photos, Maya AI photographer.');
+    metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, 100 monthly professional photos, Maya AI photographer.');
     
     // Add comprehensive SEO meta tags
     const seoTags = [
       { name: 'keywords', content: 'AI personal branding, AI photographer, professional headshots AI, personal brand builder, selfie to professional photos, AI brand strategist, business launch platform, professional photos from selfies, AI personal brand coach, digital brand transformation' },
       { property: 'og:title', content: 'SSELFIE Studio - AI Personal Branding Platform | Professional Photos from Selfies' },
-      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, unlimited photos, Maya AI photographer.' },
+      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, 100 monthly professional photos, Maya AI photographer.' },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: window.location.href },
       { property: 'og:site_name', content: 'SSELFIE Studio' },
@@ -71,7 +71,7 @@ export default function EditorialLanding() {
           "name": "Personal Brand Studio",
           "price": "47",
           "priceCurrency": "EUR",
-          "description": "Your trained personal AI model + unlimited professional brand photos + Maya AI photographer access + personal brand photo gallery"
+          "description": "Your trained personal AI model + 100 monthly professional photos + Maya AI photographer access + personal brand photo gallery"
         }
       ]
     };
@@ -367,7 +367,7 @@ export default function EditorialLanding() {
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Unlimited professional brand photos</span>
+                  <span className="text-sm">100 monthly professional photos</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>

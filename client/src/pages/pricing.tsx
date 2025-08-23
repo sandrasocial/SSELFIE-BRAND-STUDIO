@@ -23,7 +23,7 @@ export default function Pricing() {
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, unlimited photos, Maya AI photographer.');
+      metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, 100 monthly professional photos, Maya AI photographer.');
     }
 
     // Update Open Graph tags
@@ -34,7 +34,7 @@ export default function Pricing() {
 
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) {
-      ogDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, unlimited photos, Maya AI photographer.');
+      ogDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, 100 monthly professional photos, Maya AI photographer.');
     }
 
     const ogUrl = document.querySelector('meta[property="og:url"]');
@@ -68,7 +68,7 @@ export default function Pricing() {
         {
           "@type": "Offer",
           "name": "Personal Brand Studio",
-          "description": "Your trained personal AI model + unlimited professional brand photos + Maya AI photographer access + personal brand photo gallery",
+          "description": "Your trained personal AI model + 100 monthly professional photos + Maya AI photographer access + personal brand photo gallery",
           "price": "47",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
@@ -206,7 +206,7 @@ export default function Pricing() {
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Unlimited professional brand photos</span>
+                  <span className="text-sm">100 monthly professional photos</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
@@ -263,7 +263,7 @@ export default function Pricing() {
                 <div itemScope itemType="https://schema.org/Answer">
                   <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
                      itemProp="text">
-                    Personal Brand Studio (€47/month): Your trained personal AI model + unlimited professional brand photos + Maya AI photographer access + personal brand photo gallery.
+                    Personal Brand Studio (€47/month): Your trained personal AI model + 100 monthly professional photos + Maya AI photographer access + personal brand photo gallery.
                   </p>
                 </div>
               </div>
@@ -309,7 +309,7 @@ export default function Pricing() {
                 <div itemScope itemType="https://schema.org/Answer">
                   <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
                      itemProp="text">
-                    With Personal Brand Studio, you get unlimited professional brand photo generation. No limits, no caps - just endless possibilities for your personal brand.
+                    With Personal Brand Studio, you get 100 monthly professional brand photo generation. Fresh content every month for your personal brand growth.
                   </p>
                 </div>
               </div>
