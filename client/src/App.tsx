@@ -28,9 +28,7 @@ import Checkout from "./pages/checkout";
 import SimpleCheckout from "./pages/simple-checkout";
 import ThankYou from "./pages/thank-you";
 import SandraPhotoshoot from "./pages/sandra-photoshoot";
-import SandraAI from "./pages/sandra-ai";
-import RachelChat from "./pages/rachel-chat";
-import RachelActivation from "./pages/rachel-activation";
+// Legacy agent pages removed - use /admin/consulting-agents instead
 import SSELFIEGallery from "./pages/sselfie-gallery";
 import AIGenerator from "./pages/ai-generator";
 import AIPhotoshoot from "./pages/ai-photoshoot";
@@ -194,7 +192,7 @@ function Router() {
       <Route path="/custom-photoshoot-library" component={(props) => <ProtectedRoute component={CustomPhotoshootLibrary} {...props} />} />
       <Route path="/flatlay-library" component={(props) => <ProtectedRoute component={FlatlayLibrary} {...props} />} />
 
-      <Route path="/sandra-ai" component={(props) => <ProtectedRoute component={SandraAI} {...props} />} />
+
       <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
       <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
@@ -221,8 +219,7 @@ function Router() {
 
       <Route path="/admin-access-only" component={AdminAccessOnly} />
       {/* Legacy admin routes - archived */}
-      <Route path="/rachel-chat" component={(props) => <ProtectedRoute component={RachelChat} {...props} />} />
-      <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
+      {/* Legacy agent routes removed - use /admin/consulting-agents instead */}
       
       {/* ADMIN MARKETING AUTOMATION */}
       <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={MarketingAutomation} {...props} />} />
