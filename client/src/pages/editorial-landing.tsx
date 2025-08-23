@@ -10,7 +10,7 @@ import { GlobalFooter } from "../components/global-footer";
 
 export default function EditorialLanding() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'full-access'>('basic');
+  const [selectedPlan] = useState('personal-brand-studio');
   const [, setLocation] = useLocation();
 
   // SEO Meta Tags and Performance Optimization
@@ -24,19 +24,19 @@ export default function EditorialLanding() {
       metaDescription.setAttribute('name', 'description');
       document.head.appendChild(metaDescription);
     }
-    metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria website builder. €29 Basic or €67 Full Access with trained personal AI model.');
+    metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, unlimited photos, Maya AI photographer.');
     
     // Add comprehensive SEO meta tags
     const seoTags = [
       { name: 'keywords', content: 'AI personal branding, AI photographer, professional headshots AI, personal brand builder, selfie to professional photos, AI brand strategist, business launch platform, professional photos from selfies, AI personal brand coach, digital brand transformation' },
       { property: 'og:title', content: 'SSELFIE Studio - AI Personal Branding Platform | Professional Photos from Selfies' },
-      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria website builder. €29 Basic or €67 Full Access with trained personal AI model.' },
+      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, unlimited photos, Maya AI photographer.' },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: window.location.href },
       { property: 'og:site_name', content: 'SSELFIE Studio' },
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: 'SSELFIE Studio - AI Personal Branding Platform' },
-      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. Maya AI photographer & Victoria website builder. €29 Basic or €67 Full Access.' },
+      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Never pay for another photoshoot.' },
       { name: 'twitter:creator', content: '@sandra.social' },
       { name: 'author', content: 'Sandra Sigurjónsdóttir' },
       { name: 'robots', content: 'index, follow, max-image-preview:large' }
@@ -68,17 +68,10 @@ export default function EditorialLanding() {
       "offers": [
         {
           "@type": "Offer",
-          "name": "SSELFIE Studio Basic",
-          "price": "29",
+          "name": "Personal Brand Studio",
+          "price": "47",
           "priceCurrency": "EUR",
-          "description": "Trained personal AI model + 30 monthly AI photos + Maya AI photographer access"
-        },
-        {
-          "@type": "Offer", 
-          "name": "SSELFIE Studio Full Access",
-          "price": "67",
-          "priceCurrency": "EUR",
-          "description": "Complete package with trained model + 100 photos + Maya + Victoria + website builder + flatlay library"
+          "description": "Your trained personal AI model + unlimited professional brand photos + Maya AI photographer access + personal brand photo gallery"
         }
       ]
     };
@@ -104,7 +97,7 @@ export default function EditorialLanding() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleGetStarted = (plan: 'basic' | 'full-access') => {
+  const handleGetStarted = (plan: string = 'personal-brand-studio') => {
     // Store the selected plan
     localStorage.setItem('selectedPlan', plan);
     
@@ -144,12 +137,7 @@ export default function EditorialLanding() {
               >
                 About
               </button>
-              <button 
-                onClick={() => setLocation("/how-it-works")}
-                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                How It Works
-              </button>
+
               <button 
                 onClick={() => setLocation("/pricing")}
                 className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
@@ -179,10 +167,10 @@ export default function EditorialLanding() {
             </button>
             
             <button
-              onClick={() => handleGetStarted('basic')}
+              onClick={() => handleGetStarted()}
               className="hidden md:block px-6 py-3 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
             >
-              Start €29
+              Start €47
             </button>
           </div>
         </div>
@@ -198,12 +186,7 @@ export default function EditorialLanding() {
             >
               About
             </button>
-            <button 
-              onClick={() => { setLocation("/how-it-works"); setMobileMenuOpen(false); }}
-              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              How It Works
-            </button>
+
             <button 
               onClick={() => { setLocation("/pricing"); setMobileMenuOpen(false); }}
               className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
@@ -223,10 +206,10 @@ export default function EditorialLanding() {
               Login
             </button>
             <button
-              onClick={() => { handleGetStarted('basic'); setMobileMenuOpen(false); }}
+              onClick={() => { handleGetStarted(); setMobileMenuOpen(false); }}
               className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
             >
-              Start €29
+              Start €47
             </button>
             
             {/* Close Button */}
@@ -267,10 +250,10 @@ export default function EditorialLanding() {
           </p>
           
           <button
-            onClick={() => handleGetStarted('basic')}
+            onClick={() => handleGetStarted()}
             className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
           >
-            START €29
+            START €47
           </button>
         </div>
       </section>
@@ -286,11 +269,11 @@ export default function EditorialLanding() {
               What I Do
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-black mb-6 sm:mb-8 px-4">
-              Your complete<br />personal brand transformation
+              Transform selfies into<br />professional brand photos
             </h2>
           </div>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid sm:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
             {/* AI Photoshoot */}
             <div className="bg-white group hover:bg-black hover:text-white transition-all duration-500">
               <div className="aspect-square bg-gray-100 overflow-hidden relative">
@@ -315,31 +298,7 @@ export default function EditorialLanding() {
               </div>
             </div>
 
-            {/* Luxury Flatlays */}
-            <div className="bg-white group hover:bg-black hover:text-white transition-all duration-500">
-              <div className="aspect-square bg-gray-100 overflow-hidden relative">
-                <img
-                  src={SandraImages.flatlays.luxury}
-                  alt="Luxury Flatlays"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
-                  <div className="text-white">
-                    <h4 className="text-xs uppercase tracking-[0.3em] mb-2">Luxury Flatlays</h4>
-                    <p className="text-sm opacity-80">Curated luxury lifestyle collections</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 sm:p-8">
-                <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">02</div>
-                <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">Luxury Flatlays</h3>
-                <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
-                  Gorgeous flatlay collections that make your brand look expensive. Perfect for when you need content but don't have time to style it yourself.
-                </p>
-              </div>
-            </div>
-
-            {/* Sandra's AI Agents */}
+            {/* Maya AI Photographer */}
             <div className="bg-white group hover:bg-black hover:text-white transition-all duration-500">
               <div className="aspect-square bg-gray-100 overflow-hidden relative">
                 <img
@@ -349,16 +308,16 @@ export default function EditorialLanding() {
                 />
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
                   <div className="text-white">
-                    <h4 className="text-xs uppercase tracking-[0.3em] mb-2">Sandra's Agents</h4>
-                    <p className="text-sm opacity-80">Meet Victoria and Maya</p>
+                    <h4 className="text-xs uppercase tracking-[0.3em] mb-2">Maya AI Photographer</h4>
+                    <p className="text-sm opacity-80">Your personal AI photographer</p>
                   </div>
                 </div>
               </div>
               <div className="p-6 sm:p-8">
-                <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">03</div>
-                <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">Sandra's Agents</h3>
+                <div className="text-6xl sm:text-8xl font-serif font-extralight opacity-10 absolute">02</div>
+                <h3 className="font-serif text-xl sm:text-2xl font-light mb-3 sm:mb-4 relative z-10">Maya AI Photographer</h3>
                 <p className="text-sm text-gray-600 group-hover:text-white/80 leading-relaxed">
-                  You get my trained AI agents Victoria and Maya. Victoria handles your brand strategy, Maya's your celebrity stylist. Like having my whole team in your pocket.
+                  Chat with Maya to create perfect brand photoshoots. She knows exactly how to style you and generate photos that look like you hired a professional photographer.
                 </p>
               </div>
             </div>
@@ -378,85 +337,53 @@ export default function EditorialLanding() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12">
-            {/* BASIC PLAN */}
-            <div className="bg-gray-50 p-8 sm:p-10 md:p-12 text-center group hover:bg-black hover:text-white transition-all duration-500">
-              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Basic</h3>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">€29<span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60">/month</span></div>
-              
-              <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
-                <div className="flex items-start">
-                  <span className="text-black group-hover:text-white mr-3">•</span>
-                  <span className="text-sm">Your personal AI model</span>
-                </div>
-                <div className="flex items-start">
-                  <span className="text-black group-hover:text-white mr-3">•</span>
-                  <span className="text-sm">30 AI photos monthly</span>
-                </div>
-                <div className="flex items-start">
-                  <span className="text-black group-hover:text-white mr-3">•</span>
-                  <span className="text-sm">Maya AI photographer</span>
-                </div>
-                <div className="flex items-start">
-                  <span className="text-black group-hover:text-white mr-3">•</span>
-                  <span className="text-sm">All basic editing tools</span>
-                </div>
-              </div>
-              
-              <button
-                onClick={() => handleGetStarted('basic')}
-                className="w-full py-4 border border-black group-hover:border-white text-black group-hover:text-white text-xs uppercase tracking-[0.3em] hover:bg-black hover:text-white group-hover:hover:bg-white group-hover:hover:text-black transition-all duration-300"
-              >
-                Start Basic
-              </button>
-            </div>
-
-            {/* FULL ACCESS PLAN */}
+          <div className="max-w-md mx-auto">
+            {/* PERSONAL BRAND STUDIO - SINGLE TIER */}
             <div className="bg-black text-white p-8 sm:p-10 md:p-12 text-center relative">
               <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
                 <div className="bg-white text-black px-4 sm:px-6 py-1 sm:py-2 text-xs uppercase tracking-[0.3em]">
-                  Most Popular
+                  Launch Special
                 </div>
               </div>
               
-              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Full Access</h3>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">€67<span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span></div>
+              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Personal Brand Studio</h3>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">€47<span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span></div>
               
               <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Everything in Basic</span>
+                  <span className="text-sm">Your trained personal AI model</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">100 AI photos monthly</span>
+                  <span className="text-sm">Unlimited professional brand photos</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Victoria website builder</span>
+                  <span className="text-sm">Maya AI photographer access</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Luxury flatlay library</span>
+                  <span className="text-sm">Personal brand photo gallery</span>
                 </div>
                 <div className="flex items-start">
                   <span className="text-white mr-3">•</span>
-                  <span className="text-sm">All future features</span>
+                  <span className="text-sm">Cancel anytime</span>
                 </div>
               </div>
               
               <button
-                onClick={() => handleGetStarted('full-access')}
+                onClick={() => handleGetStarted()}
                 className="w-full py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
               >
-                Start Full Access
+                Start Personal Brand Studio
               </button>
             </div>
           </div>
           
           <div className="text-center mt-8 sm:mt-10 md:mt-12">
             <p className="text-sm text-gray-500 px-4">
-              Both plans include your personal AI model training. Cancel anytime.
+              Never pay for another photoshoot. Your personal AI photographer available 24/7.
             </p>
           </div>
         </div>
@@ -507,16 +434,10 @@ export default function EditorialLanding() {
           </blockquote>
           
           <button
-            onClick={() => handleGetStarted('basic')}
-            className="inline-block px-12 py-6 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mr-4"
-          >
-            Start €29
-          </button>
-          <button
-            onClick={() => handleGetStarted('full-access')}
+            onClick={() => handleGetStarted()}
             className="inline-block px-12 py-6 bg-white text-black text-xs uppercase tracking-[0.3em] hover:bg-gray-100 transition-all duration-300"
           >
-            Full Access €67
+            Start Personal Brand Studio €47
           </button>
         </div>
       </section>
