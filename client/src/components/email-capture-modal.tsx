@@ -6,7 +6,7 @@ interface EmailCaptureModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEmailCaptured?: (email: string) => void;
-  plan: 'free' | 'sselfie-studio' | 'basic' | 'full-access';
+  plan: string;
 }
 
 export const EmailCaptureModal: FC<EmailCaptureModalProps> = ({

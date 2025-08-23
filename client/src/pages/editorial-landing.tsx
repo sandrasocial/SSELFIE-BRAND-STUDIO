@@ -109,7 +109,6 @@ export default function EditorialLanding() {
       setLocation(`/checkout?plan=${plan}`);
     } else {
       // Show email capture modal first
-      setSelectedPlan(plan);
       setIsEmailModalOpen(true);
     }
   };
