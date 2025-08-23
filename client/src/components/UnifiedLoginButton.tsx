@@ -25,9 +25,9 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
     const checkClosed = setInterval(() => {
       if (popup.closed) {
         clearInterval(checkClosed);
-        console.log('✅ OAuth popup closed, refreshing page');
-        // Refresh the page to get updated auth state
-        window.location.reload();
+        console.log('✅ OAuth popup closed, redirecting to workspace');
+        // Redirect to workspace instead of just refreshing
+        window.location.href = '/workspace';
       }
     }, 1000);
     
@@ -35,15 +35,20 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       
+      console.log('📨 Received message from popup:', event.data);
+      
       if (event.data.type === 'OAUTH_SUCCESS') {
         console.log('✅ OAuth success received from popup');
         popup.close();
         clearInterval(checkClosed);
+        window.removeEventListener('message', handleMessage);
         window.location.href = '/workspace';
       } else if (event.data.type === 'OAUTH_ERROR') {
         console.error('❌ OAuth error received from popup:', event.data.error);
         popup.close();
         clearInterval(checkClosed);
+        window.removeEventListener('message', handleMessage);
+        // Stay on current page to show error
       }
     };
     
@@ -52,6 +57,7 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
     // Cleanup after 5 minutes
     setTimeout(() => {
       if (!popup.closed) {
+        console.log('⏰ OAuth popup timeout, closing');
         popup.close();
         clearInterval(checkClosed);
         window.removeEventListener('message', handleMessage);
