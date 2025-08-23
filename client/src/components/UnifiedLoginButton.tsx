@@ -7,14 +7,7 @@ interface UnifiedLoginButtonProps {
 
 export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButtonProps) {
   const handleLogin = () => {
-    // In development, go directly to workspace to avoid OAuth email verification
-    if (import.meta.env.DEV) {
-      console.log('🔧 Development mode: Redirecting directly to workspace');
-      window.location.href = '/workspace';
-    } else {
-      // Production: Use OAuth flow
-      window.location.href = '/api/login';
-    }
+    window.location.href = '/api/login';
   };
 
   return (

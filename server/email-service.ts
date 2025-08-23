@@ -158,7 +158,7 @@ export class EmailService {
 </html>`;
 
       const result = await resend.emails.send({
-        from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>',
+        from: 'Sandra from SSELFIE Studio <ssa@ssasocial.com>',
         to: userEmail,
         subject: `${firstName}, your AI model is ready! Time to create some magic`,
         html: emailContent,
@@ -297,7 +297,7 @@ SSELFIE Studio - Where Your Personal Brand Gets Born`
 </html>`;
 
       const result = await resend.emails.send({
-        from: 'Sandra from SSELFIE Studio <sandra@sselfie.ai>',
+        from: 'Sandra from SSELFIE Studio <ssa@ssasocial.com>',
         to: userEmail,
         subject: `${firstName}, your AI model is training! Get ready for magic`,
         html: emailContent,

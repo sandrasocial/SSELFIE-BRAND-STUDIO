@@ -118,7 +118,7 @@ export class UsageService {
   static async checkUsageLimit(userId: string): Promise<UsageCheck> {
     // CRITICAL: Check if user is admin first
     const user = await storage.getUser(userId);
-    const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com', 'sandra@sselfie.ai'];
+    const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com'];
     
     // Admin users get unlimited access
     if (user && (adminEmails.includes(user.email) || user.role === 'admin')) {
