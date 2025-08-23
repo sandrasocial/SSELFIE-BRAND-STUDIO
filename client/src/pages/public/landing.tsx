@@ -46,7 +46,7 @@ export default function EditorialLanding() {
       let existingTag = document.querySelector(`meta[${tag.property ? 'property' : 'name'}="${tag.property || tag.name}"]`);
       if (!existingTag) {
         existingTag = document.createElement('meta');
-        existingTag.setAttribute(tag.property ? 'property' : 'name', tag.property || tag.name);
+        existingTag.setAttribute(tag.property ? 'property' : 'name', tag.property || tag.name || '');
         document.head.appendChild(existingTag);
       }
       existingTag.setAttribute('content', tag.content);
