@@ -4,7 +4,7 @@
 SSELFIE Studio is Sandra's simplified AI personal brand photo platform following Elena's strategic focus. The streamlined 3-step journey includes TRAIN (AI model), STYLE (Maya consultation), and GALLERY (unlimited photo generation). One core offer at €47/month targets Sandra's 135K+ followers with the core value proposition: AI-powered personal brand photos that make you stand out instantly. This simplified approach focuses on the money maker (professional AI photos) before expanding to additional features.
 
 ## User Preferences
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language like talking to your best friend over coffee. Warm, simple and understandable. No jargon, no corporate speak, no fancy language - just natural conversation like best friends would have.
 
 ## Launch-Critical Workflow (August 2025)
 **Context**: After 4 months of development, Sandra needs to launch ASAP for revenue. Admin agents are functional but need supervision.

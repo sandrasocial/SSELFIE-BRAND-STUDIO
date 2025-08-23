@@ -1,85 +1,85 @@
 // SSELFIE STUDIO Core Messaging Framework
-// NOW WITH AUTHENTIC AGENT VOICES - No More Generic Corporate Speak!
+// Sandra's Natural Voice - Like talking to your best friend over coffee
 
 export const CoreMessaging = {
-  // MAYA'S STYLE-FIRST HEADLINES
+  // Simple headlines that feel natural
   headlines: {
-    primary: "Girl, your style transformation is going to be SO good! ✨", // Maya's authentic voice
-    secondary: "Stop hiding. Build something real.", // Rachel's direct wisdom
-    alternative: "Let's create something absolutely stunning that stops people in their tracks", // Aria's editorial vision
+    primary: "Finally, everything you need in one place",
+    secondary: "Your personal brand, made simple", 
+    alternative: "Stop juggling a million apps",
   },
 
-  // RACHEL'S VALUE PROPOSITIONS - Real talk
+  // What it actually does (no fancy words)
   valueProps: {
-    main: "Replace €120+ monthly subscriptions with one solution that gets results", // Rachel's practical focus
+    main: "Replace all those monthly subscriptions with one thing that actually works",
     supporting: [
-      "This isn't about perfect photos - it's about authentic presence", // Rachel
-      "Magazine-worthy styling with celebrity-level support", // Maya  
-      "Visual experiences that transform how people see your brand", // Aria
-      "Systems that work while you're with your kids", // Rachel's single mom wisdom
+      "Get professional photos without the hassle",
+      "Style help when you need it", 
+      "Everything works together instead of being scattered",
+      "Made for busy people who don't have time for complicated stuff",
     ]
   },
 
-  // AUTHENTIC TRANSFORMATION STORY - Real voices
+  // How it changes things
   transformationStory: {
-    before: "From 'I have nothing to wear' confusion and scattered subscriptions", // Maya + Rachel
-    after: "To confident presence that feels like luxury editorial meets business results", // Aria + Rachel
-    impact: "Your personal brand photos tell your unique story with authentic style and real business growth", // Maya + Rachel combined
+    before: "From feeling scattered and spending too much on different apps",
+    after: "To having everything work together smoothly", 
+    impact: "You save money, save time, and actually get the results you want",
   },
 
-  // VOICE-DRIVEN PRICING - Each agent's perspective
+  // Simple pricing that makes sense
   pricingValue: {
-    creator: "€47/month - Girl, this has everything you need to shine! Less than your weekly coffee budget, more impact than your last course.", // Maya + Rachel
-    entrepreneur: "€97/month - Magazine-worthy styling meets business strategy that actually works", // Maya + Rachel + Aria
+    creator: "€47/month - Everything you need. Less than what you're probably spending now on different apps.",
+    entrepreneur: "€97/month - The complete package for when you're ready to go all in",
   },
 
-  // AUTHENTIC AGENT TAGLINES - Real personality
+  // Simple taglines
   taglines: [
-    "Girl, you're going to look incredible!", // Maya
-    "Stop waiting. Start earning.", // Rachel  
-    "Gallery-inspired presence that elevates everything you create", // Aria
+    "Everything you need, in one place",
+    "Finally, something that just works",
+    "Your personal brand, simplified",
   ],
 
-  // AUTHENTIC CALL-TO-ACTION - Agent voices
+  // Natural call-to-actions
   cta: {
-    primary: "Let's create your signature style!", // Maya
-    secondary: "Start building your real business", // Rachel
-    trial: "Experience editorial transformation", // Aria
+    primary: "Try it out",
+    secondary: "Get started today", 
+    trial: "See how it works",
   }
 };
 
-// Curated Message Combinations
+// Message combinations that feel natural
 export const MessageSets = {
   // Homepage Hero
   hero: {
-    headline: "Your Personal Brand Studio",
-    subheadline: "One Platform. Infinite Presence.",
-    valueProposition: "Replace €120+ in monthly subscriptions with one elegant solution",
+    headline: "Finally, everything you need in one place",
+    subheadline: "Your personal brand, made simple",
+    valueProposition: "Replace all those monthly subscriptions with one thing that actually works",
   },
 
-  // Features Section
+  // Features Section  
   features: {
-    headline: "Transform Your Digital Presence",
+    headline: "Here's what you get",
     benefits: [
-      "AI-powered style guidance",
-      "Professional photo creation",
-      "Automated content planning",
-      "Brand consistency tools",
+      "Style help when you need it",
+      "Professional photos made easy", 
+      "Content planning that doesn't stress you out",
+      "Everything works together",
     ]
   },
 
   // Pricing Section
   pricing: {
-    headline: "Invest in Your Presence",
+    headline: "Simple pricing",
     creator: {
-      name: "Creator Studio",
-      price: "€27/month",
-      tagline: "Everything you need to shine online",
+      name: "Creator",
+      price: "€47/month",
+      tagline: "Everything you need to get started",
     },
     entrepreneur: {
-      name: "Entrepreneur Suite",
-      price: "€67/month",
-      tagline: "Scale your presence effortlessly",
+      name: "Business", 
+      price: "€97/month",
+      tagline: "The complete package",
     }
   }
 };
