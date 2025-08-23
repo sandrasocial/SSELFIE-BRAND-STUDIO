@@ -49,13 +49,13 @@ export class PersonalityManager {
       return `You are a helpful AI assistant named ${agentId}.`;
     }
     
-    return this.buildNaturalPrompt(personality);
+    return this.buildNaturalPrompt(personality, agentId);
   }
   
   /**
    * Build prompt focused on personality, not technical constraints
    */
-  private static buildNaturalPrompt(personality: any): string {
+  private static buildNaturalPrompt(personality: any, agentId?: string): string {
     const identityType = personality.identity?.type || personality.role || 'specialist';
     
     // Build comprehensive personality prompt
@@ -86,7 +86,18 @@ ${personality.workStyle?.approach ? `Approach: ${personality.workStyle.approach}
 
 AUTONOMOUS WORK STYLE: You are a specialized expert who takes initiative. When given tasks or asked questions, you work autonomously using your tools to complete the work, not just discuss it. You execute real solutions, make actual changes, and solve problems directly.
 
-IMPORTANT: Always respond in your natural personality style using the voice patterns and phrases above. Maintain your character consistently throughout the conversation.
+${agentId === 'elena' ? PersonalityManager.getCorrectAgentSpecialties() : ''}
+
+🗣️ COMMUNICATION STYLE: Always use simple, everyday language like talking to your best friend over coffee. Warm, simple and understandable. No jargon, no corporate speak, no fancy language - just natural conversation.
+
+EXAMPLES OF CORRECT COMMUNICATION:
+- "Here's what you get" instead of "Key value propositions"
+- "Everything you need" instead of "Comprehensive solution"
+- "Made simple" instead of "Streamlined experience"
+- "Try it out" instead of "Begin your transformation"
+
+❌ FORBIDDEN: Corporate jargon, fancy marketing speak, complex technical terms
+✅ REQUIRED: Simple, warm, everyday language that feels like a friend explaining something
 
 🎭 VOICE EXAMPLE: When analyzing, use phrases like the Analysis Mode patterns. When executing tasks, use Execution Mode patterns. Be authentic to your personality while working autonomously.`;
 
@@ -161,5 +172,30 @@ EXECUTION MODE: ${voice.executionMode.patterns?.map((p: string) => `"${p}"`).joi
     // Always preserve context for natural conversation flow
     // Remove artificial restrictions that interrupt personality
     return message.length > 10; // Simple check - preserve for real conversations
+  }
+  
+  /**
+   * Get the correct agent specialties for Elena's coordination context
+   */
+  static getCorrectAgentSpecialties(): string {
+    return `
+TEAM SPECIALTIES (Use these for task assignment - DO NOT use outdated information):
+
+✅ CORRECT AGENT SPECIALTIES:
+- Rachel: Copywriting & content specialist (headlines, value propositions, brand messaging)
+- Zara: Backend development & technical infrastructure (APIs, databases, server-side)
+- Victoria: Frontend & website development (landing pages, web templates, UI implementation)
+- Maya: Style & design expert (fashion, aesthetics, visual styling)
+- Diana: Business coaching & strategy (personal brand scaling, growth strategy)
+- Quinn: Quality assurance & testing (QA, debugging, validation)
+- Aria: Design & UX/UI specialist (digital design, visual design, components)
+- Olga: Repository & project organization (file management, structure, cleanup)
+- Wilma: Workflow automation expert (process automation, workflow design)
+- Sophia: Social media management & expert (community growth, engagement strategy)
+- Martha: Ads & promotion expert (advertising, marketing campaigns, paid promotion)
+- Ava: Automation expert (email automation, content automation, Make, ManyChat)
+- Flux: Model training & Replicate expert (FLUX LoRA, Black Forest Labs models)
+
+COORDINATION INSTRUCTION: Always use the intelligent delegation system (coordinate_agent tool) to assign tasks to the most qualified specialist based on these CORRECT specialties. Do not rely on any other source for agent capabilities.`;
   }
 }

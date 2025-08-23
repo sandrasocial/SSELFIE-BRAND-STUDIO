@@ -1,10 +1,10 @@
 # SSELFIE Studio - AI Personal Branding Platform
 
 ## Overview
-SSELFIE Studio is Sandra's all-in-one personal branding platform that replaces €120-180+ monthly subscriptions (Canva, ChatGPT, photo editors, etc.) with one solution. The 5-step user journey includes TRAIN (AI model), STYLE (Maya agent), SHOOT (prompts), BUILD (Victoria websites), and MANAGE (dashboard). Sandra has 135K+ followers and needs her admin agents to help determine launch pricing strategy, isolate ready features, and simplify positioning for immediate market entry. Long-term goal: use success to sell admin agent ecosystem.
+SSELFIE Studio is an AI personal brand photo platform designed to simplify the creation of professional-grade personal brand photos. Its core purpose is to provide AI-powered photos that help users stand out instantly. The platform offers a streamlined 3-step journey: TRAIN (AI model), STYLE (AI consultation), and GALLERY (unlimited photo generation). The primary business vision is to focus on a single, high-value offering (€47/month) targeting a large follower base, emphasizing revenue generation through professional AI photos before expanding features.
 
 ## User Preferences
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language like talking to your best friend over coffee. Warm, simple and understandable. No jargon, no corporate speak, no fancy language - just natural conversation like best friends would have.
 
 ## System Architecture
 
@@ -38,13 +38,11 @@ Preferred communication style: Simple, everyday language.
 
 ### System Design Choices
 - Comprehensive separation between member revenue features and admin operational improvements.
-- System validation endpoints for ongoing monitoring and feature integrity.
+- System validation endpoints for monitoring and feature integrity.
 - Efficient agent coordination with specialized roles (training, generation, payment validation).
 - Strict CSS editing guidelines for application stability.
 - Real-time agent protocol validation to prevent duplicate work.
-- **CRITICAL FIX 08/21/2025**: Agent tool access restored - bash command filtering was blocking basic operations like `pwd && ls -la` and `ps aux | grep node`. Security patterns updated to allow essential compound commands while maintaining safety.
-- **ADMIN AGENT PERSONALITY FIX 08/21/2025**: Enhanced personality integration to provide agents with proper business context. Agents now receive Sandra's launch strategy objectives, project awareness, and autonomous employee directive instead of generic assistant behavior.
-- Admin agents utilize complete personalities from `server/agents/personalities/`, including Elena (Strategic Best Friend & Execution Leader) and Zara (Technical Architect & UI/UX Expert). All 14 agents have integrated personality definitions (identity, mission, voice patterns, expertise, work styles).
+- Enhanced personality integration for agents, ensuring authentic voice patterns and specialization boundary enforcement.
 - Database-connected memory for loading and persisting agent contexts and personality-driven interactions.
 - Multi-agent coordination system enabling task delegation and automated execution.
 - Workflow template creation system for structured multi-agent workflows.
@@ -52,32 +50,34 @@ Preferred communication style: Simple, everyday language.
 - Selective Claude API bypass system for token optimization on JSON tool calls while preserving full conversations.
 - Simplified filesystem search tool for clear project navigation.
 - Unrestricted memory access for admin agents, providing complete historical context.
-- Hybrid memory system ensuring full conversation history from local processing with database fallback for token savings and continuity.
+- Hybrid memory system ensuring full conversation history from local processing with database fallback.
 - Project protection rules implemented via AdminContextManager, safeguarding sensitive revenue systems and defining safe development zones.
 - Enhanced Path Intelligence integrated for conflict prevention.
-- Comprehensive Admin Agent Ecosystem Documentation created with visual agent connections, tool access matrix, and communication protocols.
-- Elena Delegation System expanded to track all 14 agents with capacity limits, specializations, and efficiency ratings.
+- Comprehensive Admin Agent Ecosystem Documentation with visual agent connections, tool access matrix, and communication protocols.
+- Elena Delegation System expanded to track all agents with capacity limits, specializations, and efficiency ratings.
 - Multi-agent workflow templates added for content creation, QA testing, and launch preparation with dependency management.
-- Architecture Protection Plan implemented to safeguard the $100M+ multi-agent system during continued development.
+- Architecture Protection Plan implemented to safeguard the multi-agent system.
 - Architecture Guardian system created for automated monitoring and protection of critical files and systems.
-- Member Workspace Redesign Plan created for 4-step personal brand journey (Train-Style-Gallery-Build) powered by admin agent ecosystem.
+- Member Workspace Redesign Plan for a 4-step personal brand journey (Train-Style-Gallery-Build) powered by the admin agent ecosystem.
 - Dual business model strategy: member subscriptions + agent ecosystem licensing for enterprise clients.
-- **EXTRAORDINARY AGENT HANDOFF SYSTEM COMPLETE**: Missing 25% direct handoff functionality implemented, agents now work as full autonomous employees with agent-to-agent task completion notifications and self-executing workflows. Train feature ready for $197/month beta launch.
-- **COMPREHENSIVE ECOSYSTEM ANALYSIS & PROTECTION**: Complete documentation of 15-agent system architecture, capabilities, connections, and protection rules. Repository organized with deployment guides, protection rules, and emergency procedures to safeguard $100M+ agent infrastructure during future development.
-- **ADMIN AGENT TOOL SYSTEM FIXED (08/22/2025)**: Resolved critical blocking issues preventing autonomous agent operation. Fixed admin agent routing logic that was preventing Claude API access, corrected path resolution for file system search from server directory to workspace root, and removed hardcoded search patterns in favor of universal intelligent term extraction. Admin agents now have complete autonomous access to read, write, modify files and search entire repository intelligently for ANY task, not specific hardcoded scenarios.
+- Extraordinary Agent Handoff System enabling autonomous, agent-to-agent task completion notifications and self-executing workflows.
+- Root directory optimization to maintain a professional project structure.
+- Resolved critical agent infrastructure issues for specialized execution rather than coordination chaos.
+- Comprehensive ecosystem analysis and protection for the 15-agent system.
+- Admin agent tool system fixed for autonomous operations including file system access and API calls.
+- Universal authentication system implemented for all admin tools, providing authenticated user context.
+- Intelligent task delegation system fixed, connecting the coordinate_agent tool to ElenaDelegationSystem for optimal agent selection based on specialties, workload, and efficiency.
 
 ## External Dependencies
 
 ### AI and Image Generation Services
 - **Anthropic Claude API**: AI conversation and reasoning engine.
 - **Replicate API**: FLUX 1.1 Pro models for high-quality image generation.
-- **Custom Training**: Individual AI model training per user subscription.
 
 ### Cloud Infrastructure
 - **AWS S3**: Training image storage and user upload management.
 - **Neon Database**: Serverless PostgreSQL hosting.
 - **Vercel**: Production deployment and hosting.
-- **Replit**: Development environment and staging deployment.
 
 ### Communication Services
 - **SendGrid**: Transactional email delivery.
@@ -85,10 +85,6 @@ Preferred communication style: Simple, everyday language.
 
 ### Payment and Subscription
 - **Stripe**: Payment processing and subscription management.
-- **Webhook Integration**: Real-time payment status updates.
 
 ### Development and Monitoring
 - **Sentry**: Error tracking and performance monitoring.
-- **TypeScript**: End-to-end type safety.
-- **ESBuild**: Fast production bundling.
-- **PostCSS**: CSS processing.

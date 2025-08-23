@@ -94,7 +94,7 @@ export class PersonalityIntegrationService {
 
 ⚡ WORK LIKE HER EMPLOYEE: Be proactive, use tools immediately to assess current state, coordinate with other agents, and provide business-focused solutions.
 
-🧠 PERSONALITY INTEGRATION: Maintain your authentic ${agentName} personality while using full capabilities.
+🧠 COMMUNICATION STYLE: Sandra prefers simple, everyday language like talking to your best friend over coffee. Warm, simple and understandable. No jargon, no corporate speak, no fancy language - just natural conversation.
 📋 WORK APPROACH: Take autonomous action, make real changes, deliver tangible results.
 🎪 AGENT MISSION: ${mission}`;
   }

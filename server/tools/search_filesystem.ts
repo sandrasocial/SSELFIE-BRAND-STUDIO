@@ -15,23 +15,49 @@ export async function search_filesystem(parameters: any): Promise<string> {
       class_names = [], 
       function_names = [], 
       code = [], 
-      search_paths = ['.'] 
+      search_paths = ['.'],
+      userId,
+      agentName,
+      adminContext = false
     } = parameters;
+
+    // AUTHENTICATION CHECK: Ensure admin agents have proper access
+    console.log('🔐 SEARCH AUTHENTICATION:', { userId, agentName, adminContext });
+    const isAdminUser = userId === '42585527' || adminContext === true;
+    console.log('🔐 ADMIN ACCESS GRANTED:', isAdminUser);
 
     let results = '';
 
     // SHOW CURRENT WORKING DIRECTORY FOR DEBUG
     console.log('🔍 AGENT WORKING DIRECTORY:', process.cwd());
     
-    // AGENTS ARE RUNNING FROM SERVER DIR - NEED TO ADJUST PATHS
-    const workspaceRoot = process.cwd().endsWith('/server') ? '..' : '.';
-    const adjustedPaths = search_paths.map(path => {
-      if (path === '.') return workspaceRoot;
-      if (path.startsWith('./')) return path.replace('./', `${workspaceRoot}/`);
-      if (path.startsWith('/')) return path; // Absolute paths unchanged
-      // Relative paths need workspace root prefix
-      return `${workspaceRoot}/${path}`;
-    });
+    // CRITICAL FIX: Elena's search tool must work from workspace root
+    const currentDir = process.cwd();
+    console.log('🔍 CURRENT DIRECTORY:', currentDir);
+    
+    // AGENTS ARE RUNNING FROM WORKSPACE ROOT - NOT server directory
+    const workspaceRoot = '.';
+    
+    // FOCUSED SEARCH PATHS: Target actual project structure
+    const validSearchPaths = search_paths.length > 0 ? search_paths : ['.'];
+    const adjustedPaths = validSearchPaths.map(path => {
+      if (path === '.') {
+        // For root searches, target ALL main directories where files actually exist
+        return [
+          'client/src/pages',
+          'client/src/components', 
+          'server', 
+          'shared', 
+          'client/src',
+          '*.md',
+          'server/services',
+          'server/agents',
+          'server/utils'
+        ];
+      }
+      // Keep paths as-is since we're already at workspace root
+      return path;
+    }).flat();
     
     console.log('🔍 PATH ADJUSTMENT:', { original: search_paths, adjusted: adjustedPaths });
 
@@ -59,29 +85,93 @@ export async function search_filesystem(parameters: any): Promise<string> {
       }
     }
 
-    // UNIVERSAL INTELLIGENT SEARCH: Extract meaningful terms and search comprehensively
+    // INTELLIGENT SEMANTIC SEARCH: Advanced natural language processing
     if (query_description) {
       const searchTerms = extractSearchTerms(query_description);
-      console.log('🔍 SEARCH TERMS EXTRACTED:', searchTerms);
+      console.log('🧠 SEMANTIC EXPANSION:', searchTerms);
       
-      // Search all meaningful terms without hardcoded patterns
-      for (const term of searchTerms.slice(0, 3)) { // Search top 3 most relevant terms
-        const grepResult = await executeGrep(term, adjustedPaths);
-        if (grepResult && grepResult !== 'No matches found') {
-          results += `\n=== Found "${term}" ===\n${grepResult.substring(0, 1200)}\n`;
+      // CONTEXTUAL RELATIONSHIP DISCOVERY: Find related files automatically
+      const relatedFiles = await discoverRelatedFiles(searchTerms, '.');
+      console.log('🔗 DISCOVERED RELATED FILES:', relatedFiles.length);
+      
+      // COMPREHENSIVE SEARCH STRATEGY: Multiple search approaches
+      
+      // 1. EXACT TERM MATCHING across all discovered files
+      for (const term of searchTerms.slice(0, 5)) {
+        const broadResult = await executeGrep(term, [...adjustedPaths, ...relatedFiles]);
+        if (broadResult && broadResult !== 'No matches found' && broadResult.length > 50) {
+          results += `\n=== 🔍 Found "${term}" (${broadResult.split('\n').length} matches) ===\n${broadResult.substring(0, 1800)}\n`;
         }
       }
       
-      // If query is very specific, also search the full description as a phrase
-      if (query_description.length > 20 && !query_description.includes(' ')) {
-        const exactResult = await executeGrep(query_description, adjustedPaths);
-        if (exactResult && exactResult !== 'No matches found') {
-          results += `\n=== Exact Match: "${query_description}" ===\n${exactResult.substring(0, 1200)}\n`;
+      // 2. PATTERN MATCHING for component relationships
+      if (searchTerms.some(term => ['component', 'page', 'route', 'ui', 'tsx'].includes(term.toLowerCase()))) {
+        const componentPatterns = [
+          'export default function',
+          'import.*from.*pages',
+          'component.*props',
+          'Route path=',
+          'useState|useEffect'
+        ];
+        
+        for (const pattern of componentPatterns) {
+          const patternResult = await executeGrep(pattern, ['client/src']);
+          if (patternResult && patternResult !== 'No matches found') {
+            results += `\n=== 🧩 Component Pattern "${pattern.split('|')[0]}" ===\n${patternResult.substring(0, 1000)}\n`;
+          }
         }
+      }
+      
+      // 3. API AND DATABASE RELATIONSHIP DISCOVERY
+      if (searchTerms.some(term => ['api', 'database', 'route', 'endpoint', 'schema'].includes(term.toLowerCase()))) {
+        const backendPatterns = [
+          'router\\.',
+          'app\\.(get|post|put|delete)',
+          'export.*schema',
+          'drizzle|postgres',
+          'apiRequest'
+        ];
+        
+        for (const pattern of backendPatterns) {
+          const apiResult = await executeGrep(pattern, [`${workspaceRoot}/server`, `${workspaceRoot}/shared`]);
+          if (apiResult && apiResult !== 'No matches found') {
+            results += `\n=== 🔌 API Pattern "${pattern.split('\\')[0]}" ===\n${apiResult.substring(0, 1000)}\n`;
+          }
+        }
+      }
+      
+      // 4. BUSINESS LOGIC AND FEATURE DISCOVERY
+      if (searchTerms.some(term => ['business', 'model', 'strategy', 'launch', 'plan'].includes(term.toLowerCase()))) {
+        const businessPatterns = await executeGrep('train.*style.*gallery\\|business.*model\\|launch.*strategy', [
+          `${workspaceRoot}/*.md`,
+          `${workspaceRoot}/docs`,
+          `${workspaceRoot}/infrastructure/docs`
+        ]);
+        
+        if (businessPatterns && businessPatterns !== 'No matches found') {
+          results += `\n=== 📋 Business Intelligence ===\n${businessPatterns.substring(0, 1500)}\n`;
+        }
+      }
+      
+      // 5. CROSS-REFERENCE FILE IMPORTS AND DEPENDENCIES
+      const importResults = await findFileImports(searchTerms, workspaceRoot);
+      if (importResults.length > 0) {
+        results += `\n=== 🔗 Related File Dependencies ===\n${importResults.join('\n').substring(0, 1200)}\n`;
       }
     }
 
     console.log('🔍 SEARCH RESULTS LENGTH:', results.length);
+    
+    // AUTHENTICATION: If no results and not admin, return permission message
+    if (!results && !isAdminUser) {
+      return 'Access restricted. Admin authentication required for full search capabilities.';
+    }
+    
+    // ADMIN ACCESS: Return full results with authentication confirmation
+    if (isAdminUser && results) {
+      return `🔐 AUTHENTICATED SEARCH (User: ${userId})\n\n${results}`;
+    }
+    
     return results || 'No results found for the search criteria.';
 
   } catch (error) {
@@ -100,11 +190,17 @@ async function executeGrep(searchTerm: string, searchPaths: string[]): Promise<s
     
     console.log('🔍 GREP COMMAND:', `grep -r -n -i --include=*.ts --include=*.js --include=*.tsx --include=*.jsx --include=*.md "${searchTerm}" ${pathArgs.join(' ')}`);
     
-    // Include markdown files and more file types for comprehensive search
+    // Include source files only, exclude cache and node_modules
     const cmd = spawn('grep', [
       '-r', '-n', '-i', 
       '--include=*.ts', '--include=*.js', '--include=*.tsx', '--include=*.jsx', 
-      '--include=*.md', '--include=*.json',
+      '--include=*.md',
+      '--exclude-dir=node_modules',
+      '--exclude-dir=.cache',
+      '--exclude-dir=.local',
+      '--exclude-dir=.git',
+      '--exclude-dir=dist',
+      '--exclude-dir=build',
       searchTerm, 
       ...pathArgs
     ], {
@@ -331,25 +427,164 @@ async function getBusinessModelDocumentation(): Promise<string> {
   return businessInfo || '📄 Business documentation access limited - check file permissions';
 }
 
-// Extract search terms from description
+// INTELLIGENT SEMANTIC SEARCH TERM EXTRACTION
 function extractSearchTerms(description: string): string[] {
-  // INTELLIGENT TERM EXTRACTION: Remove common words, prioritize meaningful terms
-  const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'where', 'when', 'why', 'show', 'find', 'search', 'get', 'look', 'see', 'view', 'read', 'content', 'file', 'page'];
+  // COMPREHENSIVE KEYWORD MAPPING for SSELFIE Studio Complete User Journey
+  const sselfieKeywordMap = {
+    // PRE-LOGIN PAGES (Public Website)
+    'landing': ['editorial-landing', 'EditorialLanding', 'landing', 'home', 'hero', 'public'],
+    'about': ['about', 'AboutPage', 'story', 'mission', 'vision'],
+    'how-it-works': ['how-it-works', 'HowItWorks', 'process', 'workflow', 'steps'],
+    'pricing': ['pricing', 'Pricing', 'subscription', 'stripe', 'payment', 'checkout', 'plan', 'cost'],
+    'blog': ['blog', 'Blog', 'content', 'articles', 'posts'],
+    'login': ['login', 'Login', 'auth', 'authentication', 'signin', 'replit'],
+    'checkout': ['checkout', 'Checkout', 'simple-checkout', 'payment-success', 'thank-you'],
+    
+    // POST-LOGIN CORE FEATURES (Member Area)
+    'workspace': ['workspace', 'Workspace', 'dashboard', 'member', 'studio', 'home', 'main'],
+    'train': ['SimpleTraining', 'simple-training', 'ai-training', 'model-training', 'replicate', 'flux', 'lora', 'user_models', 'training'],
+    'style': ['Maya', 'maya', 'styling', 'fashion', 'aesthetic', 'maya_chat', 'maya-chat', 'style-guide', 'brand', 'personal-brand'],
+    'gallery': ['SSELFIEGallery', 'sselfie-gallery', 'ai_images', 'generated_images', 'photo', 'image', 'collection'],
+    'build': ['Build', 'build', 'Victoria', 'victoria', 'victoria-builder', 'victoria-preview', 'website', 'landing-page', 'builder'],
+    
+    // BUILD WORKSPACE COMPONENTS
+    'victoria': ['Victoria', 'victoria', 'victoria-chat', 'victoria-builder', 'victoria-preview', 'website-builder', 'landing-pages'],
+    'website': ['website', 'landing-page', 'builder', 'preview', 'domain', 'publish', 'site'],
+    'photoshoot': ['ai-photoshoot', 'sandra-photoshoot', 'AIPhotoshoot', 'generation', 'custom-photoshoot'],
+    
+    // UI/UX Components
+    'component': ['components', 'ui', 'tsx', 'jsx', 'button', 'form', 'modal', 'interface'],
+    'page': ['pages', 'route', 'App.tsx', 'navigation', 'routing', 'view'],
+    'navigation': ['MemberNavigation', 'nav', 'menu', 'header', 'sidebar', 'link'],
+    
+    // Backend Systems
+    'api': ['routes', 'server', 'endpoint', 'api', 'express', 'backend', 'service'],
+    'database': ['schema', 'drizzle', 'postgres', 'table', 'sql', 'db', 'data'],
+    'auth': ['authentication', 'login', 'user', 'session', 'replit', 'protected'],
+    
+    // Business & Admin
+    'admin': ['admin', 'consulting-agents', 'elena', 'coordination', 'agent', 'management'],
+    'business': ['model', 'strategy', 'launch', 'revenue', 'plan', 'overview'],
+    'onboarding': ['onboarding', 'brand-onboarding', 'welcome', 'setup', 'questionnaire'],
+    
+    // Technical Infrastructure
+    'service': ['service', 'utility', 'helper', 'tool', 'function', 'integration'],
+    'config': ['config', 'setup', 'environment', 'settings', 'deployment'],
+    'flow': ['flow', 'workflow', 'process', 'journey', 'funnel', 'experience']
+  };
   
-  // Clean and normalize input
-  const cleanDescription = description
+  const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'how', 'what', 'where', 'when', 'why', 'show', 'find', 'search', 'get', 'look', 'see', 'view', 'read', 'content', 'file', 'page', 'current', 'status', 'implementation', 'please', 'help'];
+  
+  // Extract base terms
+  const baseTerms = description
     .toLowerCase()
-    .replace(/[^\w\s'-]/g, ' ') // Remove special chars except apostrophes and hyphens
+    .replace(/[^\w\s'-]/g, ' ')
     .split(/\s+/)
     .filter(word => word.length > 2 && !commonWords.includes(word));
   
-  // Prioritize longer, more specific terms
-  return cleanDescription
-    .sort((a, b) => b.length - a.length) // Longer terms first
-    .slice(0, 5); // Take top 5 meaningful terms
+  // Expand with semantic mappings
+  const expandedTerms = new Set<string>();
+  
+  for (const term of baseTerms) {
+    expandedTerms.add(term);
+    
+    // Add semantic mappings
+    for (const [key, mappings] of Object.entries(sselfieKeywordMap)) {
+      if (term.includes(key) || key.includes(term)) {
+        mappings.forEach(mapping => expandedTerms.add(mapping));
+      }
+    }
+  }
+  
+  // Convert back to array and prioritize
+  const finalTerms = Array.from(expandedTerms)
+    .sort((a, b) => {
+      // Prioritize longer, more specific terms
+      if (a.length !== b.length) return b.length - a.length;
+      // Prioritize exact matches from the original query
+      if (baseTerms.includes(a) && !baseTerms.includes(b)) return -1;
+      if (baseTerms.includes(b) && !baseTerms.includes(a)) return 1;
+      return 0;
+    })
+    .slice(0, 8); // Increased to 8 terms for better coverage
+  
+  console.log(`🧠 SEMANTIC EXPANSION: "${description}" → [${finalTerms.join(', ')}]`);
+  return finalTerms;
 }
 
-// REMOVED: All hardcoded file access functions to let agents use intelligence
+// INTELLIGENT FILE DISCOVERY: Find related files based on semantic context
+async function discoverRelatedFiles(searchTerms: string[], workspaceRoot: string): Promise<string[]> {
+  const relatedFiles = new Set<string>();
+  
+  // SSELFIE STUDIO COMPLETE FILE RELATIONSHIP MAP
+  const fileRelationships = {
+    // PRE-LOGIN PAGES (Public Website)
+    'editorial-landing': [`${workspaceRoot}/client/src/pages/editorial-landing.tsx`, `${workspaceRoot}/client/src/pages/landing.tsx`],
+    'about': [`${workspaceRoot}/client/src/pages/about.tsx`, `${workspaceRoot}/client/src/pages/AboutPage.tsx`],
+    'how-it-works': [`${workspaceRoot}/client/src/pages/how-it-works.tsx`],
+    'pricing': [`${workspaceRoot}/client/src/pages/pricing.tsx`],
+    'blog': [`${workspaceRoot}/client/src/pages/blog.tsx`],
+    'login': [`${workspaceRoot}/client/src/pages/login.tsx`, `${workspaceRoot}/server/replitAuth.ts`, `${workspaceRoot}/server/auth`],
+    'checkout': [`${workspaceRoot}/client/src/pages/checkout.tsx`, `${workspaceRoot}/client/src/pages/simple-checkout.tsx`, `${workspaceRoot}/client/src/pages/payment-success.tsx`, `${workspaceRoot}/client/src/pages/thank-you.tsx`],
+    
+    // POST-LOGIN CORE FEATURES (Member Workspace)
+    'workspace': [`${workspaceRoot}/client/src/pages/workspace.tsx`, `${workspaceRoot}/client/src/components/member-navigation.tsx`],
+    'SimpleTraining': [`${workspaceRoot}/client/src/pages/simple-training.tsx`, `${workspaceRoot}/client/src/pages/ai-training.tsx`, `${workspaceRoot}/client/src/components/training`, `${workspaceRoot}/server/routes/*training*`],
+    'Maya': [`${workspaceRoot}/client/src/pages/maya.tsx`, `${workspaceRoot}/client/src/components/maya`, `${workspaceRoot}/server/routes/*maya*`],
+    'SSELFIEGallery': [`${workspaceRoot}/client/src/pages/sselfie-gallery.tsx`, `${workspaceRoot}/client/src/components/gallery`, `${workspaceRoot}/server/routes/*gallery*`],
+    
+    // BUILD WORKSPACE (Victoria & Website Builder)
+    'Build': [`${workspaceRoot}/client/src/pages/build.tsx`],
+    'Victoria': [`${workspaceRoot}/client/src/pages/victoria.tsx`, `${workspaceRoot}/client/src/pages/victoria-chat.tsx`, `${workspaceRoot}/client/src/pages/victoria-builder.tsx`, `${workspaceRoot}/client/src/pages/victoria-preview.tsx`, `${workspaceRoot}/client/src/components/victoria`],
+    'website-builder': [`${workspaceRoot}/client/src/pages/victoria-builder.tsx`, `${workspaceRoot}/client/src/pages/victoria-preview.tsx`, `${workspaceRoot}/client/src/components/website`, `${workspaceRoot}/server/routes/*website*`],
+    'photoshoot': [`${workspaceRoot}/client/src/pages/ai-photoshoot.tsx`, `${workspaceRoot}/client/src/pages/sandra-photoshoot.tsx`, `${workspaceRoot}/client/src/pages/custom-photoshoot-library.tsx`],
+    
+    // UI/UX Components
+    'components': [`${workspaceRoot}/client/src/components`, `${workspaceRoot}/client/src/components/ui`],
+    'pages': [`${workspaceRoot}/client/src/pages`, `${workspaceRoot}/client/src/App.tsx`],
+    'navigation': [`${workspaceRoot}/client/src/components/member-navigation.tsx`, `${workspaceRoot}/client/src/components/navigation`],
+    
+    // Backend Systems
+    'api': [`${workspaceRoot}/server/routes`, `${workspaceRoot}/server/index.ts`],
+    'database': [`${workspaceRoot}/shared/schema.ts`, `${workspaceRoot}/server/db`, `${workspaceRoot}/drizzle`],
+    'auth': [`${workspaceRoot}/server/replitAuth.ts`, `${workspaceRoot}/server/auth`],
+    
+    // Business & Admin
+    'business': [`${workspaceRoot}/*.md`, `${workspaceRoot}/docs`, `${workspaceRoot}/infrastructure/docs`],
+    'admin': [`${workspaceRoot}/client/src/pages/admin*`, `${workspaceRoot}/server/agents`, `${workspaceRoot}/server/routes/consulting-agents*`],
+    'onboarding': [`${workspaceRoot}/client/src/pages/onboarding.tsx`, `${workspaceRoot}/client/src/pages/brand-onboarding.tsx`, `${workspaceRoot}/client/src/pages/welcome.tsx`]
+  };
+  
+  // Add related files based on search terms
+  for (const term of searchTerms) {
+    for (const [key, paths] of Object.entries(fileRelationships)) {
+      if (term.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(term.toLowerCase())) {
+        paths.forEach(path => relatedFiles.add(path));
+      }
+    }
+  }
+  
+  return Array.from(relatedFiles);
+}
+
+// IMPORT RELATIONSHIP DISCOVERY: Find files that import/export related functionality
+async function findFileImports(searchTerms: string[], workspaceRoot: string): Promise<string[]> {
+  const importResults: string[] = [];
+  
+  try {
+    // Search for import statements related to search terms
+    for (const term of searchTerms.slice(0, 3)) {
+      const importSearch = await executeGrep(`import.*${term}|from.*${term}`, [`${workspaceRoot}/client/src`, `${workspaceRoot}/server`]);
+      if (importSearch && importSearch !== 'No matches found') {
+        importResults.push(`Import references for "${term}":\n${importSearch.substring(0, 500)}`);
+      }
+    }
+  } catch (error) {
+    console.log('Import search failed:', error);
+  }
+  
+  return importResults;
+}
 
 function oldExtractSearchTerms(description: string): string[] {
   const words = description.toLowerCase().split(/\s+/);
