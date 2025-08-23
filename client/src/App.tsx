@@ -1,4 +1,4 @@
-import React, { ComponentType, useEffect, lazy } from 'react';
+import React, { ComponentType, useEffect } from 'react';
 import { Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 // import { pwaManager } from "./utils/pwa";
 
-import Landing from "./pages/landing";
+
 import EditorialLanding from "./pages/editorial-landing";
 import Pricing from "./pages/pricing";
 import Workspace from "./pages/workspace";
@@ -35,6 +35,7 @@ import SSELFIEGallery from "./pages/sselfie-gallery";
 import AIGenerator from "./pages/ai-generator";
 import AIPhotoshoot from "./pages/ai-photoshoot";
 import SimpleTraining from "./pages/simple-training";
+import MarketingAutomation from "./pages/marketing-automation";
 
 import AdminBusinessOverview from "./pages/admin-business-overview";
 import AdminConsultingAgents from "./pages/admin-consulting-agents";
@@ -182,7 +183,7 @@ function Router() {
           </div>
         </div>
       )} />
-      <Route path="/old-landing" component={Landing} />
+      <Route path="/old-landing" component={() => <Redirect to="/" />} />
       <Route path="/new-landing" component={() => <Redirect to="/" />} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
@@ -261,7 +262,7 @@ function Router() {
       <Route path="/rachel-activation" component={(props) => <ProtectedRoute component={RachelActivation} {...props} />} />
       
       {/* ADMIN MARKETING AUTOMATION */}
-      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('./pages/marketing-automation'))} {...props} />} />
+      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={MarketingAutomation} {...props} />} />
       
 
       {/* Test routes removed - all test files archived */}
