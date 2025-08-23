@@ -353,11 +353,71 @@ export async function setupAuth(app: Express) {
     
     console.log(`🔍 Callback using strategy: replitauth:${hostname}`);
     
-    // Standard passport callback handling
-    passport.authenticate(`replitauth:${hostname}`, {
-      successReturnToOrRedirect: "/workspace",
-      failureRedirect: "/api/manual-callback"
-    })(req, res, next);
+    // POPUP WINDOW SUPPORT: Check if this is a popup window callback
+    const isPopup = req.query.popup === 'true' || req.headers.referer?.includes('oauth_popup');
+    
+    if (isPopup) {
+      // Handle popup window callback with postMessage
+      passport.authenticate(`replitauth:${hostname}`, {
+        successReturnToOrRedirect: "/api/popup-success",
+        failureRedirect: "/api/popup-error"
+      })(req, res, next);
+    } else {
+      // Standard full-page callback handling
+      passport.authenticate(`replitauth:${hostname}`, {
+        successReturnToOrRedirect: "/workspace",
+        failureRedirect: "/api/manual-callback"
+      })(req, res, next);
+    }
+  });
+
+  // Popup success handler
+  app.get("/api/popup-success", (req, res) => {
+    console.log('✅ Popup OAuth success - sending postMessage to parent');
+    res.send(`
+      <html>
+        <body>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({
+                type: 'OAUTH_SUCCESS',
+                user: ${JSON.stringify((req.user as any)?.claims || {})}
+              }, window.location.origin);
+              window.close();
+            } else {
+              // Fallback if no opener
+              window.location.href = '/workspace';
+            }
+          </script>
+          <p>Authentication successful! This window should close automatically.</p>
+        </body>
+      </html>
+    `);
+  });
+  
+  // Popup error handler
+  app.get("/api/popup-error", (req, res) => {
+    console.log('❌ Popup OAuth error - sending postMessage to parent');
+    const error = req.query.error || 'Authentication failed';
+    res.send(`
+      <html>
+        <body>
+          <script>
+            if (window.opener) {
+              window.opener.postMessage({
+                type: 'OAUTH_ERROR',
+                error: '${error}'
+              }, window.location.origin);
+              window.close();
+            } else {
+              // Fallback if no opener
+              window.location.href = '/?error=' + encodeURIComponent('${error}');
+            }
+          </script>
+          <p>Authentication failed. This window should close automatically.</p>
+        </body>
+      </html>
+    `);
   });
 
   // Manual callback route for OAuth failures
@@ -421,7 +481,14 @@ export async function setupAuth(app: Express) {
         }
         
         console.log('✅ Manual OAuth login successful for user:', user.claims?.email);
-        res.redirect('/workspace');
+        
+        // Check if this is a popup callback
+        const isPopup = req.query.popup === 'true' || req.headers.referer?.includes('oauth_popup');
+        if (isPopup) {
+          res.redirect('/api/popup-success');
+        } else {
+          res.redirect('/workspace');
+        }
       });
       
     } catch (error: any) {
