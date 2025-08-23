@@ -1,6 +1,6 @@
 import React from 'react';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { SandraImages } from '../lib/sandra-images';
+import { PreLoginNavigationUnified } from '../../components/pre-login-navigation-unified';
+import { SandraImages } from '../../lib/sandra-images';
 import { useLocation } from 'wouter';
 
 export default function Landing() {
@@ -35,14 +35,14 @@ export default function Landing() {
               SSELFIE
             </h1>
             <p className="text-[12px] tracking-[0.5em] uppercase text-white/80 font-light">
-              AI BRAND PHOTOSHOOT
+              YOUR AI STYLIST & PHOTOGRAPHER
             </p>
           </div>
           <button 
             onClick={handleGetStarted}
             className="bg-transparent border border-white text-white px-8 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-white hover:text-[#0a0a0a] transition-all duration-300"
           >
-            Transform My Selfies - €67
+            Meet Maya - €47/month
           </button>
         </div>
       </section>
@@ -58,10 +58,10 @@ export default function Landing() {
               className="text-4xl md:text-6xl font-light mb-8 tracking-[-0.01em]"
               style={{ fontFamily: 'Times New Roman, serif' }}
             >
-              From selfie to CEO vibes
+              Meet Maya - your AI stylist who gets it
             </h2>
             <p className="text-lg text-[#666666] font-light max-w-2xl mx-auto">
-              Seriously, look at these transformations. Same person, different energy.
+              Tell Maya you want CEO vibes or cozy coffee shop photos. She styles you, picks the perfect location, and creates photos that look exactly like you.
             </p>
           </div>
           
@@ -80,7 +80,7 @@ export default function Landing() {
           
           <div className="text-center mt-12">
             <p className="text-[#666666] font-light">
-              100 monthly brand photos included • 4 professional styles • Your personal AI model
+              Perfect for your website, social media, guides, and digital products • Photos that look exactly like you
             </p>
           </div>
         </div>
@@ -114,15 +114,14 @@ export default function Landing() {
                   who has time for that anyway?
                 </p>
                 <p>
-                  So I did what any slightly obsessed entrepreneur would do: 
-                  I trained an AI model on my face. And oh my god, the results were insane.
+                  So I created Maya - my AI stylist, photographer, and honestly, my best friend. 
+                  She knows exactly what I need and creates amazing photos instantly.
                 </p>
                 <p>
-                  Now I have an endless supply of professional brand photos. 
-                  Editorial shots, business headshots, lifestyle content - all from my couch.
+                  Now I just tell Maya "I need website photos with boss energy" or "cozy coffee shop vibes for Instagram" and boom - perfect photos that look exactly like me.
                 </p>
                 <p className="font-medium text-[#0a0a0a]">
-                  This isn't just about photos. It's about finally looking like the boss you already are.
+                  No more hiring photographers or stylists. Maya's got everything covered.
                 </p>
               </div>
             </div>
@@ -141,7 +140,7 @@ export default function Landing() {
               className="text-4xl md:text-6xl font-light mb-8 tracking-[-0.01em]"
               style={{ fontFamily: 'Times New Roman, serif' }}
             >
-              Three steps to professional photos
+              How Maya works her magic
             </h2>
           </div>
           
@@ -159,10 +158,10 @@ export default function Landing() {
                 className="text-2xl md:text-3xl font-light mb-4 tracking-[-0.01em]"
                 style={{ fontFamily: 'Times New Roman, serif' }}
               >
-                Upload 10-15 selfies
+                Train your unique model
               </h3>
               <p className="text-white/80 font-light leading-relaxed">
-                Just normal selfies from your phone. We train a personal AI model that learns your face in 20 minutes.
+                Upload 10-15 selfies. Maya scans your features, face, and posture to create your personal model in 20 minutes.
               </p>
             </div>
             
@@ -179,10 +178,10 @@ export default function Landing() {
                 className="text-2xl md:text-3xl font-light mb-4 tracking-[-0.01em]"
                 style={{ fontFamily: 'Times New Roman, serif' }}
               >
-                Let AI work its magic
+                Chat with Maya
               </h3>
               <p className="text-white/80 font-light leading-relaxed">
-                Our AI creates professional brand photos in 4 styles: Editorial, Business, Lifestyle, and Luxury.
+                Tell Maya exactly what you want. "CEO photos in a luxury hotel" or "casual coffee shop vibes" - she styles you and picks the perfect location.
               </p>
             </div>
             
@@ -199,10 +198,10 @@ export default function Landing() {
                 className="text-2xl md:text-3xl font-light mb-4 tracking-[-0.01em]"
                 style={{ fontFamily: 'Times New Roman, serif' }}
               >
-                Download & dominate
+                Get amazing photos
               </h3>
               <p className="text-white/80 font-light leading-relaxed">
-                100 new photos every month. Use them everywhere - Instagram, LinkedIn, your website, everywhere.
+                Maya creates photos that look exactly like you. Organize everything in your SSELFIE Gallery and use them for your website, social media, guides, digital products - everything.
               </p>
             </div>
           </div>
@@ -219,10 +218,10 @@ export default function Landing() {
             className="text-4xl md:text-6xl font-light mb-8 tracking-[-0.01em]"
             style={{ fontFamily: 'Times New Roman, serif' }}
           >
-            SSELFIE AI Brand Photoshoot
+            Meet Maya, your AI stylist & photographer
           </h2>
           <p className="text-xl text-[#666666] font-light mb-12 max-w-2xl mx-auto">
-            Your personal AI photographer that never sleeps, never charges extra, and always makes you look incredible.
+            Maya creates amazing personal brand photos instantly. No photographer, no stylist needed - just tell her what you want.
           </p>
           
           {/* Pricing Card */}
@@ -231,28 +230,28 @@ export default function Landing() {
               className="text-3xl font-light mb-6 tracking-[-0.01em]"
               style={{ fontFamily: 'Times New Roman, serif' }}
             >
-              €67/month
+              €47/month
             </h3>
             <div className="space-y-4 text-left mb-8">
               <div className="flex items-center">
                 <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">Personal AI model training (one-time setup)</span>
+                <span className="text-[#666666] font-light">Train your unique AI model (one-time setup)</span>
               </div>
               <div className="flex items-center">
                 <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">100 brand photos per month</span>
+                <span className="text-[#666666] font-light">Chat with Maya anytime for new photos</span>
               </div>
               <div className="flex items-center">
                 <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">4 professional styles: Editorial, Business, Lifestyle, Luxury</span>
+                <span className="text-[#666666] font-light">Photos for website, social media, guides, everything</span>
               </div>
               <div className="flex items-center">
                 <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">High-resolution downloads</span>
+                <span className="text-[#666666] font-light">SSELFIE Gallery to organize all your images</span>
               </div>
               <div className="flex items-center">
                 <span className="text-[#0a0a0a] mr-3">✓</span>
-                <span className="text-[#666666] font-light">Commercial usage rights</span>
+                <span className="text-[#666666] font-light">Photos that look exactly like you</span>
               </div>
             </div>
             
@@ -260,7 +259,7 @@ export default function Landing() {
               onClick={handleGetStarted}
               className="w-full bg-[#0a0a0a] text-white py-4 px-8 text-[11px] tracking-[0.3em] uppercase hover:bg-[#333333] transition-all duration-300 mb-4"
             >
-              Start My AI Photoshoot
+              Meet Maya Now
             </button>
             <p className="text-sm text-[#666666] font-light">
               Cancel anytime • 20-minute setup • Results guaranteed
@@ -301,16 +300,16 @@ export default function Landing() {
             className="text-4xl md:text-6xl font-light mb-8 tracking-[-0.01em]"
             style={{ fontFamily: 'Times New Roman, serif' }}
           >
-            Ready to look professional?
+            Ready to meet Maya?
           </h2>
           <p className="text-xl text-white/80 font-light mb-12 max-w-2xl mx-auto">
-            Stop waiting for the perfect moment. Your AI photographer is ready when you are.
+            Stop struggling with photos. Maya's waiting to create amazing brand photos that look exactly like you.
           </p>
           <button 
             onClick={handleGetStarted}
             className="bg-white text-[#0a0a0a] px-12 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-[#f5f5f5] transition-all duration-300"
           >
-            Start My AI Photoshoot - €67
+            Meet Maya - €47/month
           </button>
           <p className="text-sm text-white/60 mt-6">
             Join 1,200+ women who stopped making excuses and started looking like CEOs
