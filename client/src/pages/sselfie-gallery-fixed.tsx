@@ -11,13 +11,13 @@ export default function SSELFIEGallery() {
   const queryClient = useQueryClient();
 
   // Fetch user's gallery images
-  const { data: aiImages = [], isLoading } = useQuery<any[]>({
+  const { data: aiImages = [], isLoading } = useQuery({
     queryKey: ['/api/gallery-images'],
     enabled: isAuthenticated
   });
 
   // Fetch user's favorites
-  const { data: favoritesData } = useQuery<{ favorites: number[] }>({
+  const { data: favoritesData } = useQuery({
     queryKey: ['/api/images/favorites'],
     enabled: isAuthenticated
   });

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/use-auth';
-import { HeroFullBleed } from '../components/hero-full-bleed';
-import { SandraImages } from '../components/sandra-image-library';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { EmailCaptureModal } from '../components/email-capture-modal';
-import { GlobalFooter } from '../components/global-footer';
+import { useAuth } from '../../hooks/use-auth';
+import { HeroFullBleed } from '../../components/hero-full-bleed';
+import { SandraImages } from '../../components/sandra-image-library';
+import { PreLoginNavigationUnified } from '../../components/pre-login-navigation-unified';
+import { EmailCaptureModal } from '../../components/email-capture-modal';
+import { GlobalFooter } from '../../components/global-footer';
 import { Link, useLocation } from 'wouter';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '../../hooks/use-toast';
 
 export default function Pricing() {
   const { user } = useAuth();
@@ -125,14 +125,14 @@ export default function Pricing() {
     if (plan === 'basic') {
       toast({
         title: "Basic Plan", 
-        description: "Redirecting to checkout for €29/month plan...",
+        description: "Redirecting to checkout for €47/month plan...",
       });
       localStorage.setItem('selectedPlan', 'basic');
       setLocation('/checkout?plan=basic');
     } else {
       toast({
         title: "Full Access Plan", 
-        description: "Redirecting to checkout for €67/month luxury plan...",
+        description: "Redirecting to checkout for €47/month plan...",
       });
       localStorage.setItem('selectedPlan', 'full-access');
       setLocation('/checkout?plan=full-access');
@@ -191,7 +191,7 @@ export default function Pricing() {
             <div className="w-16 h-px bg-[#B5B5B3] mx-auto mb-6 sm:mb-8"></div>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed px-4"
                itemProp="description">
-              Choose what works for you: Basic for personal AI model and photography, or Full Access for the complete business-building experience.
+              Complete AI brand package that includes everything you need to transform your personal brand with AI-powered photography.
             </p>
           </div>
         </section>
@@ -210,7 +210,7 @@ export default function Pricing() {
                 <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-light mb-4 sm:mb-6"
                     itemProp="name">Basic</h3>
                 <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-6 sm:mb-8">
-                  <span itemProp="price">€29</span>
+                  <span itemProp="price">€47</span>
                   <span className="text-sm sm:text-base md:text-lg text-gray-500 group-hover:text-white/60">/month</span>
                 </div>
                 
@@ -256,7 +256,7 @@ export default function Pricing() {
                 <h3 className="font-serif text-xl sm:text-2xl md:text-3xl font-light mb-4 sm:mb-6 mt-2 sm:mt-0"
                     itemProp="name">Full Access</h3>
                 <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light mb-6 sm:mb-8">
-                  <span itemProp="price">€67</span>
+                  <span itemProp="price">€47</span>
                   <span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span>
                 </div>
                 

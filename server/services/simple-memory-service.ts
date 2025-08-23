@@ -29,6 +29,14 @@ interface AgentContext {
 export class SimpleMemoryService {
   private static instance: SimpleMemoryService;
   private contextCache = new Map<string, AgentContext>();
+  
+  /**
+   * ONE-TIME CACHE CLEARING for fresh agent start
+   */
+  clearAllAgentMemory(): void {
+    this.contextCache.clear();
+    console.log('🧹 FRESH START: All 14 admin agent memory cleared');
+  }
 
   private constructor() {}
 

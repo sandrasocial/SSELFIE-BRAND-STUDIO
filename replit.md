@@ -4,7 +4,89 @@
 SSELFIE Studio is Sandra's simplified AI personal brand photo platform following Elena's strategic focus. The streamlined 3-step journey includes TRAIN (AI model), STYLE (Maya consultation), and GALLERY (unlimited photo generation). One core offer at €47/month targets Sandra's 135K+ followers with the core value proposition: AI-powered personal brand photos that make you stand out instantly. This simplified approach focuses on the money maker (professional AI photos) before expanding to additional features.
 
 ## User Preferences
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language like talking to your best friend over coffee. Warm, simple and understandable. No jargon, no corporate speak, no fancy language - just natural conversation like best friends would have.
+
+## Launch-Critical Workflow (August 2025)
+**Context**: After 4 months of development, Sandra needs to launch ASAP for revenue. Admin agents are functional but need supervision.
+
+**Direct Human-AI Coordination Strategy:**
+1. **Admin agents provide recommendations** → Sandra tells me their suggestions
+2. **I implement immediately** → Handle all technical work directly  
+3. **Sandra approves/rejects** → Maintains business control
+4. **Launch preparation** → Focus on revenue-generating features
+
+**Key Principles:**
+- Speed over perfection - launch is priority after 4 months
+- Direct coordination eliminates agent confusion loops
+- Sandra maintains oversight, I handle execution
+- Focus on member revenue features vs admin improvements
+
+## Launch Strategy Plan (August 2025)
+
+### Pre-Login Flow Analysis
+**Current State**: ✅ Working
+- Landing page: `/` (editorial hero + pricing)
+- Navigation: About, How It Works, Pricing, Blog, Contact
+- Login trigger: `/api/login` (Replit OIDC)
+
+### Login Flow Analysis  
+**Current State**: ✅ Working
+- Entry points: `/login`, login buttons, protected route redirects
+- Authentication: Replit OIDC via `/api/login` → `/api/callback`
+- Session management: PostgreSQL session store, 7-day TTL
+- Protected routes: All member features require authentication
+
+### Checkout Flow Analysis
+**Current State**: ⚠️ Needs Review
+- **Two checkout systems**: 
+  - `/checkout` (Elements UI with payment intents)
+  - `/simple-checkout` (hosted Stripe sessions)
+- **Payment success**: `/payment-success` with user upgrade automation
+- **Pricing tiers**: €29 Basic, €67 Full Access
+- **Webhook**: Stripe webhook handler at `/api/webhook/stripe`
+
+### Critical Launch Priorities
+1. **Unify checkout system** - Choose one flow (recommend hosted sessions)
+2. **Test payment automation** - Ensure user upgrades work post-payment
+3. **Member onboarding** - Streamline first-time user experience
+4. **Revenue tracking** - Verify subscription management works
+
+## Agent System Status (August 2025)
+
+### Path Validation System Implemented
+**Issue Resolved**: Agents were creating files in wrong directories (`src/` instead of `client/src/`)
+**Solution Deployed**: 
+- PROJECT_STRUCTURE_CONTEXT injected into all agent prompts
+- Path validation rules prevent incorrect file creation
+- Focus redirected to existing component improvement vs rebuilding
+
+### Existing Working Architecture (DO NOT REBUILD)
+- ✅ `client/src/pages/member/workspace.tsx` - Main member dashboard
+- ✅ `client/src/pages/member/simple-training.tsx` - TRAIN step (working)
+- ✅ `client/src/pages/member/maya.tsx` - STYLE step (working)
+- ✅ `client/src/pages/member/sselfie-gallery.tsx` - GALLERY step (working)
+
+### Strategic Shift: Building → Launching
+**Priority Change**: Focus on launch readiness instead of new feature development
+**Timeline**: 3-week launch window with existing feature optimization
+
+### Agent System Verification Complete (August 22, 2025)
+**✅ AGENTS WORKING CORRECTLY**: Maya agent activity confirmed in logs
+- Tool execution successful (12 tools available)
+- Proper file path usage (client/src/)
+- Authentication resolved
+- Learning patterns active
+- Elena delegation system initialized
+**Status**: Ready for productive launch preparation tasks
+
+### ADMIN AGENT PERSONALITY FIX (August 22, 2025)
+**Issue Resolved**: Agents were creating generic content without using their personalities
+**Solution Deployed**: 
+- Enhanced personality integration to force agents to use authentic voice patterns
+- Voice enforcement rules prevent generic corporate speak
+- Agent specialization boundary enforcement - only Elena coordinates, specialists execute directly
+- Content regenerated with authentic agent voices (Maya: fashion enthusiasm, Rachel: single mom wisdom, Aria: editorial luxury)
+**Status**: Agents now create content with their distinct personalities and specializations
 
 ## System Architecture
 
