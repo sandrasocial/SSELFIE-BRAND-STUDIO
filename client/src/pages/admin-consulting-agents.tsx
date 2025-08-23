@@ -9,21 +9,36 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../components/ui/button';
 
-// Agent images - TRULY unique images for each agent (no duplicates)
-const AgentElena = "/attached_assets/out-0%20(20)_1753426218042.png";    // Strategic Leader
-const AgentMaya = "/attached_assets/out-0%20(22)_1753426218045.png";     // Brand Expert  
-const AgentVictoria = "/attached_assets/out-0%20(26)_1753426218043.png"; // Content Strategist
-const AgentAria = "/attached_assets/out-0%20(28)_1753426218042.png";     // Business Operations
-const AgentZara = "/attached_assets/out-0%20(29)_1753426218044.png";     // Technical Architect
-const AgentRachel = "/attached_assets/out-0%20(32)_1753426290403.png";   // Marketing Strategist
-const AgentAva = "/attached_assets/out-0%20(33)_1753426218039.png";      // QA Testing
-const AgentQuinn = "/attached_assets/out-0%20(34)_1753426218040.png";    // Workflow Coordinator
-const AgentSophia = "/attached_assets/out-0%20(37)_1753426218041.png";   // Social Media Expert
-const AgentMartha = "/attached_assets/out-0%20(42)_1753426218042.png";   // Process Enhancement
-const AgentDiana = "/attached_assets/out-1%20(18)_1753426218043.png";    // Analytics Specialist
-const AgentWilma = "/attached_assets/out-1%20(27)_1753426218043.png";    // Documentation Expert
-const AgentOlga = "/attached_assets/out-2%20(18)_1753426218045.png";     // Revenue Operations
-const AgentFlux = "/attached_assets/out-2%20(23)_1753426218044.png";     // Image Generation
+// Generate simple agent avatars using available images or placeholders
+const generateAgentAvatar = (agentName: string, role: string) => {
+  // Use a consistent color scheme based on the agent's name
+  const colors = {
+    'elena': '#8B5CF6', // Purple for strategic leader
+    'maya': '#F59E0B',  // Amber for stylist
+    'victoria': '#10B981', // Emerald for business
+    'aria': '#EC4899',  // Pink for design
+    'zara': '#3B82F6',  // Blue for technical
+    'rachel': '#EF4444', // Red for copywriting
+    'ava': '#6366F1',   // Indigo for analytics
+    'quinn': '#84CC16', // Lime for QA
+    'sophia': '#F97316', // Orange for social media
+    'martha': '#8B5A2B', // Brown for process
+    'diana': '#06B6D4', // Cyan for data
+    'wilma': '#A855F7', // Violet for workflow
+    'olga': '#059669',  // Teal for operations
+    'flux': '#DC2626'   // Rose for AI generation
+  };
+  
+  const color = colors[agentName.toLowerCase() as keyof typeof colors] || '#6B7280';
+  const initials = agentName.substring(0, 2).toUpperCase();
+  
+  return `data:image/svg+xml,${encodeURIComponent(`
+    <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="100" r="100" fill="${color}"/>
+      <text x="100" y="115" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="60" font-weight="bold">${initials}</text>
+    </svg>
+  `)}`;
+};
 
 // OPTIMIZED CHAT MESSAGE COMPONENT - Prevents unnecessary re-renders
 const OptimizedChatMessage = memo(({ message }: { message: ChatMessage }) => {
@@ -274,98 +289,98 @@ export default function AdminConsultingAgents() {
       name: 'Elena',
       role: 'Database Architecture Expert',
       specialty: 'Database optimization, schema design, query performance',
-      image: '/attached_assets/out-0%20(20)_1753426218042.png'
+      image: generateAgentAvatar('elena', 'Database Architecture Expert')
     },
     {
       id: 'aria',
       name: 'Aria',
       role: 'System Health & Performance Expert',
       specialty: 'Performance monitoring, optimization, system health',
-      image: '/attached_assets/out-0%20(22)_1753426218045.png'
+      image: generateAgentAvatar('aria', 'System Health & Performance Expert')
     },
     {
       id: 'zara',
       name: 'Zara',
       role: 'Technical Architect & UI/UX Expert',
       specialty: 'System architecture, full-stack implementation, UI/UX',
-      image: '/attached_assets/out-0%20(26)_1753426218043.png'
+      image: generateAgentAvatar('zara', 'Technical Architect & UI/UX Expert')
     },
     {
       id: 'maya',
       name: 'Maya',
       role: 'AI Integration Specialist',
       specialty: 'AI models, machine learning, intelligent features',
-      image: '/attached_assets/out-0%20(28)_1753426218042.png'
+      image: generateAgentAvatar('maya', 'AI Integration Specialist')
     },
     {
       id: 'victoria',
       name: 'Victoria',
       role: 'Business Process Automation Expert',
       specialty: 'Workflow automation, business logic, process optimization',
-      image: '/attached_assets/out-0%20(29)_1753426218044.png'
+      image: generateAgentAvatar('victoria', 'Business Process Automation Expert')
     },
     {
       id: 'rachel',
       name: 'Rachel',
       role: 'Requirements Analysis Expert',
       specialty: 'User stories, specifications, feature analysis',
-      image: '/attached_assets/out-0%20(32)_1753426290403.png'
+      image: generateAgentAvatar('rachel', 'Requirements Analysis Expert')
     },
     {
       id: 'ava',
       name: 'Ava',
       role: 'Analytics & Insights Expert',
       specialty: 'Data analysis, metrics, insights',
-      image: '/attached_assets/out-0%20(33)_1753426218039.png'
+      image: generateAgentAvatar('ava', 'Analytics & Insights Expert')
     },
     {
       id: 'quinn',
       name: 'Quinn',
       role: 'Security & Compliance Expert',
       specialty: 'Security audits, compliance, risk management',
-      image: '/attached_assets/out-0%20(34)_1753426218040.png'
+      image: generateAgentAvatar('quinn', 'Security & Compliance Expert')
     },
     {
       id: 'sophia',
       name: 'Sophia',
       role: 'Social Media & Content Expert',
       specialty: 'Content strategy, social media, engagement',
-      image: '/attached_assets/out-0%20(37)_1753426218041.png'
+      image: generateAgentAvatar('sophia', 'Social Media & Content Expert')
     },
     {
       id: 'martha',
       name: 'Martha',
       role: 'User Experience Research Expert',
       specialty: 'User research, feedback analysis, UX optimization',
-      image: '/attached_assets/out-0%20(42)_1753426218042.png'
+      image: generateAgentAvatar('martha', 'User Experience Research Expert')
     },
     {
       id: 'diana',
       name: 'Diana',
       role: 'DevOps & Deployment Expert',
       specialty: 'CI/CD, deployment, infrastructure',
-      image: '/attached_assets/out-1%20(18)_1753426218043.png'
+      image: generateAgentAvatar('diana', 'DevOps & Deployment Expert')
     },
     {
       id: 'wilma',
       name: 'Wilma',
       role: 'Documentation & Knowledge Expert',
       specialty: 'Technical writing, documentation, knowledge base',
-      image: '/attached_assets/out-1%20(27)_1753426218043.png'
+      image: generateAgentAvatar('wilma', 'Documentation & Knowledge Expert')
     },
     {
       id: 'olga',
       name: 'Olga',
       role: 'Quality Assurance Expert',
       specialty: 'Testing, validation, quality control',
-      image: '/attached_assets/out-2%20(18)_1753426218045.png'
+      image: generateAgentAvatar('olga', 'Quality Assurance Expert')
     },
     {
       id: 'flux',
       name: 'Flux',
       role: 'Integration & API Expert',
       specialty: 'API design, integrations, data flow',
-      image: '/attached_assets/out-2%20(23)_1753426218044.png'
+      image: generateAgentAvatar('flux', 'Integration & API Expert')
     }
   ];
 
