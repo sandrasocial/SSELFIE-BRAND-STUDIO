@@ -258,7 +258,7 @@ export default function EditorialLanding() {
             IT STARTS WITH YOUR SELFIES
           </p>
           
-          <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight text-white tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.5em] mb-2 sm:mb-4 leading-none">
+          <h1 className="hero-title text-white">
             SSELFIE
           </h1>
           
