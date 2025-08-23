@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { SandraImages } from '../lib/sandra-images';
-import { GlobalFooter } from '../components/global-footer';
+import { PreLoginNavigationUnified } from '../../components/pre-login-navigation-unified';
+import { SandraImages } from '../../lib/sandra-images';
+import { GlobalFooter } from '../../components/global-footer';
 import { useLocation } from 'wouter';
 
 export default function Landing() {
