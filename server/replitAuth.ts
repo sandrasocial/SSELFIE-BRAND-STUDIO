@@ -356,80 +356,10 @@ export async function setupAuth(app: Express) {
     // Standard OAuth callback handling
     passport.authenticate(`replitauth:${hostname}`, {
       successReturnToOrRedirect: "/workspace",
-      failureRedirect: "/api/manual-callback"
+      failureRedirect: "/?error=oauth_failed"
     })(req, res, next);
   });
 
-  // Manual callback route for OAuth failures
-  app.get("/api/manual-callback", handleManualTokenExchange);
-
-  // CRITICAL: Manual OAuth token exchange function
-  async function handleManualTokenExchange(req: any, res: any, next: any) {
-    try {
-      console.log('🔧 Manual token exchange - bypassing state verification');
-      
-      const code = req.query.code;
-      const hostname = req.hostname;
-      
-      if (!code) {
-        console.error('❌ No authorization code in callback');
-        return res.redirect('/?error=no_auth_code');
-      }
-      
-      // Get the OAuth configuration
-      const config = await getOidcConfig();
-      
-      // Prepare token exchange with correct parameters
-      const tokenParams = new URLSearchParams({
-        grant_type: 'authorization_code',
-        code: code,
-        redirect_uri: `https://${hostname}/api/callback`,
-        client_id: process.env.REPL_ID!
-      });
-      
-      console.log('🔧 Token exchange request:', { 
-        redirect_uri: `https://${hostname}/api/callback`,
-        hostname,
-        hasCode: !!code,
-        clientId: !!process.env.REPL_ID
-      });
-      
-      // CRITICAL FIX: Use correct openid-client v5+ parameters for authorizationCodeGrant
-      console.log('🔧 Using openid-client v5+ compatible token exchange...');
-      
-      // Create proper URL object for currentUrl parameter (required by openid-client v5+)
-      const currentUrl = new URL(`https://${hostname}/api/callback?code=${code}`);
-      
-      // FIX: Use current openid-client v5+ API with proper parameters
-      const tokenSet = await client.authorizationCodeGrant(config, currentUrl);
-      
-      console.log('✅ Manual token exchange successful');
-      
-      // Create user object using openid-client's token set
-      const user: any = {};
-      updateUserSession(user, tokenSet);
-      
-      // Get claims from the token set
-      const claims = tokenSet.claims();
-      await upsertUser(claims);
-      
-      // Log in the user manually
-      req.logIn(user, (loginErr: any) => {
-        if (loginErr) {
-          console.error('❌ Manual login error:', loginErr);
-          return res.redirect('/?error=manual_login_failed');
-        }
-        
-        console.log('✅ Manual OAuth login successful for user:', user.claims?.email);
-        res.redirect('/workspace');
-      });
-      
-    } catch (error: any) {
-      console.error('❌ Manual token exchange failed:', error);
-      console.error('❌ Error details:', error.message);
-      res.redirect('/?error=token_exchange_failed&details=' + encodeURIComponent(error.message));
-    }
-  }
 
   app.get("/api/logout", (req, res) => {
     console.log('🔍 Logout requested for user:', (req.user as any)?.claims?.email);
