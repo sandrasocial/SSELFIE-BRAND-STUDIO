@@ -24,12 +24,12 @@ import consultingAgentsRouter from './routes/consulting-agents-routes';
 import agentHandoffRouter from './routes/agent-handoff-routes';
 import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
-import quinnTestingRouter from './routes/quinn-testing';
+// REMOVED: import quinnTestingRouter from './routes/quinn-testing';
 import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
-import memberJourneyTestRouter from './routes/member-journey-test';
+// REMOVED: import memberJourneyTestRouter from './routes/member-journey-test';
 import phase2CoordinationRouter from './routes/phase2-coordination';
-import personalityTestRouter from './routes/personality-test';
+// REMOVED: import personalityTestRouter from './routes/personality-test';
 // REMOVED: All competing streaming and orchestration systems that were intercepting tools
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
@@ -1614,14 +1614,12 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // UNIFIED AGENT SYSTEM - Initialize through single call (prevent duplicate logs)
   // PHASE 3 CONSOLIDATION COMPLETE: Competing agent endpoints consolidated
   
-  // COORDINATION BRIDGE TEST - Phase 1 Implementation
-  const coordinationTestRouter = await import('./routes/coordination-test');
-  app.use('/api/coordination', coordinationTestRouter.default);
+  // REMOVED: Coordination test routes
 
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
   app.use('/api/admin/cache', adminCacheRouter);
-  app.use('/api/personality', personalityTestRouter);
+  // REMOVED: Personality test router
   
   // User intervention routes for managing inactive paid users
   const userInterventionRouter = await import('./routes/admin/user-intervention.js');
@@ -1631,8 +1629,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   const interventionCampaignRouter = await import('./routes/admin/intervention-campaign.js');
   app.use('/api/admin/campaign', interventionCampaignRouter.default);
   
-  // Quinn Testing Routes for User Journey Validation
-  app.use('/api/quinn', quinnTestingRouter);
+  // REMOVED: Quinn testing routes
   
   // Member Protection Routes - Revenue Feature Safety
   app.use('/api/protection', memberProtectionRouter);
@@ -1640,8 +1637,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // System Validation Routes - Phase Testing
   app.use('/api/system', systemValidationRouter);
   
-  // Member Journey Testing - Real User Experience
-  app.use('/api/member-test', memberJourneyTestRouter);
+  // REMOVED: Member journey testing routes
   
   // Phase 2 Coordination - Agent Workflow Execution
   app.use('/api/phase2', phase2CoordinationRouter);
