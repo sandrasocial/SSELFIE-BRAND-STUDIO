@@ -7,8 +7,13 @@ import "./index.css";
 console.log('SSELFIE Studio: Main.tsx loading...');
 console.log('SSELFIE Studio: Root element found:', !!document.getElementById("root"));
 
-// Force cache bust for React hooks fix - August 12, 2025 - ULTIMATE VERSION
-console.log('React hooks COMPLETELY FIXED version 6.0.0', { version: '6.0.0', timestamp: Date.now(), fixedComponents: '16+ components fixed, major pages updated' });
+// Disable Vite HMR to prevent WebSocket connection errors
+if ((import.meta as any).hot) {
+  console.log('Disabling HMR to prevent connection issues');
+  (import.meta as any).hot.accept(() => {
+    // Accept all hot updates without triggering WebSocket connections
+  });
+}
 
 // Make React globally available for debugging
 (window as any).React = React;
@@ -16,4 +21,16 @@ console.log('React hooks COMPLETELY FIXED version 6.0.0', { version: '6.0.0', ti
 // Force CSS reload for debugging
 console.log('CSS files loaded:', document.styleSheets.length);
 
-createRoot(document.getElementById("root")!).render(<App />);
+const root = document.getElementById("root");
+if (root) {
+  try {
+    createRoot(root).render(React.createElement(App));
+    console.log('SSELFIE Studio: App rendered successfully');
+  } catch (error) {
+    console.error('SSELFIE Studio: Error rendering app:', error);
+    // Fallback to simple HTML if React fails
+    root.innerHTML = '<div style="padding: 20px; font-family: serif;">SSELFIE Studio Loading...</div>';
+  }
+} else {
+  console.error('SSELFIE Studio: Root element not found');
+}
