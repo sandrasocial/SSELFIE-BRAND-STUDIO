@@ -96,13 +96,7 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" crossorigin src="/src/main.tsx"></script>
-    <script>
-      // Override Vite client to prevent WebSocket connection attempts
-      if (window.__vite_plugin_react_preamble_installed__) {
-        console.log('Vite React plugin detected, disabling problematic features');
-      }
-    </script>
+    <script type="module" src="/src/main.tsx"></script>
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
