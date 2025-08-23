@@ -29,31 +29,7 @@ const getOidcConfig = memoize(
       return config;
     } catch (error: any) {
       console.error('❌ OIDC Discovery failed:', error.message);
-      
-      // FAILSAFE: Create manual configuration if discovery fails
-      console.log('🔧 Using manual OIDC configuration as fallback...');
-      const issuerUrl = process.env.ISSUER_URL ?? "https://replit.com/oidc";
-      
-      const manualConfig = {
-        issuer: issuerUrl,
-        authorization_endpoint: `${issuerUrl}/authorize`,
-        token_endpoint: `${issuerUrl}/token`,
-        userinfo_endpoint: `${issuerUrl}/userinfo`,
-        jwks_uri: `${issuerUrl}/jwks`,
-        response_types_supported: ['code'],
-        grant_types_supported: ['authorization_code', 'refresh_token'],
-        scopes_supported: ['openid', 'email', 'profile'],
-        metadata: {
-          issuer: issuerUrl,
-          authorization_endpoint: `${issuerUrl}/authorize`,
-          token_endpoint: `${issuerUrl}/token`,
-          userinfo_endpoint: `${issuerUrl}/userinfo`,
-          jwks_uri: `${issuerUrl}/jwks`
-        }
-      };
-      
-      console.log('✅ Manual OIDC configuration created');
-      return manualConfig as any;
+      throw error; // Let OAuth fail cleanly instead of using problematic fallback
     }
   },
   { maxAge: 3600 * 1000 }
