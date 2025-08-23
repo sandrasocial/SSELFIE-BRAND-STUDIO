@@ -617,7 +617,7 @@ export default function AdminConsultingAgents() {
               }
             }
           }
-        }
+
       }
     } catch (error) {
       // Handle abort differently from other errors
