@@ -155,6 +155,12 @@ export default function EditorialLanding() {
               >
                 Login
               </button>
+              <button 
+                onClick={() => setLocation("/contact")}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              >
+                Contact
+              </button>
             </div>
             
             {/* Mobile Menu Button */}
@@ -203,6 +209,12 @@ export default function EditorialLanding() {
               className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
             >
               Login
+            </button>
+            <button 
+              onClick={() => { setLocation("/contact"); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Contact
             </button>
             <button
               onClick={() => { handleGetStarted(); setMobileMenuOpen(false); }}
