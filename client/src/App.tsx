@@ -11,7 +11,6 @@ import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/br
 
 // PRE-LOGIN EDITORIAL PAGES
 import Landing from "./pages/public/landing";
-import TestLanding from "./pages/public/test-landing";
 import About from "./pages/public/about";
 import HowItWorks from "./pages/public/how-it-works";
 import Blog from "./pages/public/blog";
@@ -22,10 +21,11 @@ import Terms from "./pages/public/terms";
 import Privacy from "./pages/public/privacy";
 import SelfieGuide from "./pages/selfie-guide";
 
-// SIMPLIFIED CHECKOUT FLOW
-import SimpleCheckout from "./pages/simple-checkout";
-import PaymentSuccess from "./pages/payment-success";
-import ThankYou from "./pages/thank-you";
+// CHECKOUT FLOW
+import Checkout from "./pages/checkout/checkout";
+import SimpleCheckout from "./pages/checkout/simple-checkout";
+import PaymentSuccess from "./pages/checkout/payment-success";
+import ThankYou from "./pages/checkout/thank-you";
 
 // MEMBER WORKSPACE - SIMPLIFIED TRAIN → STYLE → GALLERY
 import Workspace from "./pages/member/workspace";
@@ -66,7 +66,8 @@ import VictoriaBuilder from './pages/victoria-builder';
 import VictoriaPreview from './pages/victoria-preview';
 import PhotoSelection from "./pages/photo-selection";
 import BrandOnboarding from "./pages/brand-onboarding";
-import Welcome from "./pages/welcome";
+import Welcome from "./pages/checkout/welcome";
+import AuthSuccess from "./pages/checkout/auth-success";
 import Login from "./pages/login";
 // Unified login system - removed competing auth components
 import LoginPrompt from "./components/LoginPrompt";
@@ -154,7 +155,6 @@ function Router() {
       
       {/* PUBLIC PAGES */}
       <Route path="/" component={Landing} />
-      <Route path="/test-landing" component={TestLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
@@ -202,12 +202,13 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/domain-help" component={DomainHelp} />
 
-      {/* SIMPLIFIED PAYMENT FLOW */}
-      <Route path="/checkout" component={SimpleCheckout} />
+      {/* PAYMENT FLOW */}
+      <Route path="/checkout" component={Checkout} />
       <Route path="/simple-checkout" component={SimpleCheckout} />
       <Route path="/welcome" component={Welcome} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
+      <Route path="/auth-success" component={AuthSuccess} />
       <Route path="/switch-account" component={SwitchAccount} />
       <Route path="/auth" component={() => {
         useEffect(() => { window.location.href = '/api/login'; }, []);
