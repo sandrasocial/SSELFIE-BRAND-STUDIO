@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
-import { PreLoginNavigationUnified } from '../../components/pre-login-navigation-unified';
-import { HeroFullBleed } from '../../components/hero-full-bleed';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
+import { HeroFullBleed } from '../components/hero-full-bleed';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
