@@ -150,7 +150,14 @@ export default function EditorialLanding() {
                 Blog
               </button>
               <button
-                onClick={() => setLocation('/login')}
+                onClick={() => {
+                  // In development, go directly to workspace
+                  if (import.meta.env.DEV) {
+                    setLocation('/workspace');
+                  } else {
+                    setLocation('/login');
+                  }
+                }}
                 className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
               >
                 Login
@@ -205,7 +212,15 @@ export default function EditorialLanding() {
               Blog
             </button>
             <button
-              onClick={() => { setLocation('/login'); setMobileMenuOpen(false); }}
+              onClick={() => { 
+                // In development, go directly to workspace
+                if (import.meta.env.DEV) {
+                  setLocation('/workspace');
+                } else {
+                  setLocation('/login');
+                }
+                setMobileMenuOpen(false); 
+              }}
               className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
             >
               Login
