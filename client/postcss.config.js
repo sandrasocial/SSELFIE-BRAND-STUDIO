@@ -5,6 +5,7 @@ export default {
         content: [
           "./index.html", 
           "./src/**/*.{js,jsx,ts,tsx}",
+          "./src/**/*.{html,js,ts,jsx,tsx}",
           "../shared/**/*.{js,jsx,ts,tsx}"
         ],
         darkMode: ["class"],
