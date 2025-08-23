@@ -1,0 +1,45 @@
+
+not available
+﻿
+91
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+91
+The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+91
+The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+_app-b8de05b5776b09ff.js:16 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+_app-b8de05b5776b09ff.js:16 [LaunchDarkly] LaunchDarkly client initialized
+91
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'ambient-light-sensor'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'battery'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'layout-animations'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'legacy-image-formats'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'navigation-override'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'oversized-images'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'publickey-credentials'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'speaker-selection'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'unoptimized-images'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'unsized-media'.
+framework-f35b036c991c8e8e.js:1 Unrecognized feature: 'pointer-lock'.
+framework-f35b036c991c8e8e.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+framework-f35b036c991c8e8e.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+framework-f35b036c991c8e8e.js:1 Unable to preventDefault inside passive event listener invocation.
+framework-f35b036c991c8e8e.js:1 Unable to preventDefault inside passive event listener invocation.
+framework-f35b036c991c8e8e.js:1 Unable to preventDefault inside passive event listener invocation.
