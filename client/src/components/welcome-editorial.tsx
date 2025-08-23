@@ -26,10 +26,10 @@ export default function WelcomeEditorial() {
             
             {/* Story Content */}
             <div className="space-y-6 text-base md:text-lg leading-relaxed text-[#171719] font-light font-inter">
-              <p>One year ago my marriage ended. Single mom, three kids, zero plan.</p>
-              <p>But I had a phone. And I figured out that was all I needed.</p>
-              <p>90 days later: 120K followers. Today: A business that actually works. Now: Teaching you exactly how I did it.</p>
-              <p>No fancy equipment. No design degree. Just strategy that actually works.</p>
+              <p>I went from teaching women selfie techniques to building AI that creates perfect brand photos FOR them.</p>
+              <p>Started as a selfie teacher. Then I realized... what if AI could do this better?</p>
+              <p>120K followers later: I built the AI photographer I always wished I had. Now you get her too.</p>
+              <p>No more booking photographers. No more waiting for the perfect shot. Just upload your selfies and watch Maya create magic.</p>
             </div>
           </div>
         </div>
