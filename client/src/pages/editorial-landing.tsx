@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { SandraImages } from "../lib/sandra-images";
-import { PortfolioSection } from "../components/portfolio-section";
-import FreeTierSignup from "../components/free-tier-signup";
-import WelcomeEditorial from "../components/welcome-editorial";
-import { EmailCaptureModal } from "../components/email-capture-modal";
-import { InlineEmailCapture } from "../components/inline-email-capture";
-import { GlobalFooter } from "../components/global-footer";
+// Temporarily remove missing imports to test basic rendering
 
 export default function EditorialLanding() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -275,8 +270,7 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Welcome Section - Editorial Style */}
-      <WelcomeEditorial />
+      {/* Welcome Section - Editorial Style - Temporarily Removed */}
 
       {/* Features Section - Editorial Grid */}
       <section className="py-16 sm:py-24 md:py-32 bg-gray-50">
@@ -474,7 +468,7 @@ export default function EditorialLanding() {
             </h2>
           </div>
           
-          <PortfolioSection />
+          {/* PortfolioSection - Temporarily Removed */}
         </div>
       </section>
 
@@ -521,19 +515,10 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Global Footer */}
-      <GlobalFooter />
+      {/* Global Footer - Temporarily Removed */}
+      {/* <GlobalFooter /> */}
 
-      {/* Email Capture Modal */}
-      <EmailCaptureModal
-        isOpen={isEmailModalOpen}
-        onClose={() => setIsEmailModalOpen(false)}
-        plan={selectedPlan}
-        onEmailCaptured={(email) => {
-          console.log('Email captured:', email);
-          // Email modal will handle redirect to authentication
-        }}
-      />
+      {/* Email Capture Modal - Temporarily Removed */}
     </div>
   );
 }
