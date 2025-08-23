@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { SandraImages } from "../lib/sandra-images";
 import { PortfolioSection } from "../components/portfolio-section";
@@ -248,7 +248,7 @@ export default function EditorialLanding() {
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
             className="w-full h-full object-cover object-center"
             loading="eager"
-            fetchpriority="high"
+            fetchPriority="high"
           />
         </div>
         
