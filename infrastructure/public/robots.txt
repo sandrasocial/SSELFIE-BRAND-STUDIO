@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# SSELFIE Studio - AI Personal Branding Platform
+Sitemap: https://sselfie.ai/sitemap.xml
+
+# Block admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /debug-auth
+Disallow: /test-auth
+
+# Allow important pages
+Allow: /
+Allow: /workspace
+Allow: /maya-chat
+Allow: /victoria-chat
+Allow: /flatlay-library
+Allow: /brandbook-designer
+Allow: /checkout
+
+# Preferred domain
+Host: https://sselfie.ai

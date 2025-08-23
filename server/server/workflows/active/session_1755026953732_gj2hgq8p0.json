@@ -1,0 +1,88 @@
+{
+  "sessionId": "session_1755026953732_gj2hgq8p0",
+  "name": "Comprehensive System Health Check",
+  "description": "Quick but thorough validation of all system components including technical, business, and user interface aspects",
+  "coordinatorAgent": "elena",
+  "assignedTasks": [
+    {
+      "taskId": "task_1755026953732_txt298o0v",
+      "assignedAgent": "elena",
+      "coordinatorAgent": "elena",
+      "taskDescription": "Critical React version mismatch requiring immediate attention:\n1. Update react-is from ^16.13.1 to ^18.2.0 to match React ^18.3.1\n2. Verify and update Vite configuration:\n   - Check JSX transform settings\n   - Verify @vitejs/plugin-react configuration\n3. Run dependency compatibility tests after updates\n4. Verify forwardRef functionality after changes",
+      "workflowContext": "Critical production bug: React version mismatch causing forwardRef errors. This is blocking proper component functionality and needs immediate resolution.",
+      "expectedDeliverables": [
+        "Updated package.json with correct react-is version",
+        "Verified Vite configuration",
+        "Test results confirming forwardRef functionality"
+      ],
+      "priority": "high",
+      "status": "assigned",
+      "assignedAt": "2025-08-12T19:29:13.732Z",
+      "workflowType": "system_health",
+      "workflowTemplate": {
+        "id": "workflow_1755026953731_cgo2p6qf7",
+        "name": "Comprehensive System Health Check",
+        "description": "Quick but thorough validation of all system components including technical, business, and user interface aspects",
+        "agents": [
+          {
+            "agentId": "zara",
+            "taskDescription": "Technical system health validation",
+            "expectedDeliverables": [
+              "Database connectivity status",
+              "API endpoint health check",
+              "Performance metrics analysis"
+            ],
+            "priority": "high",
+            "estimatedDuration": "15-20 minutes"
+          },
+          {
+            "agentId": "victoria",
+            "taskDescription": "Business functionality validation",
+            "expectedDeliverables": [
+              "Core business flow validation",
+              "User workflow testing",
+              "Integration status check"
+            ],
+            "priority": "high",
+            "estimatedDuration": "15-20 minutes"
+          },
+          {
+            "agentId": "aria",
+            "taskDescription": "User interface and experience validation",
+            "expectedDeliverables": [
+              "UI component status check",
+              "User experience flow validation",
+              "Frontend functionality verification"
+            ],
+            "priority": "medium",
+            "estimatedDuration": "15-20 minutes"
+          }
+        ],
+        "coordinationSteps": [
+          "1. Initialize workflow and assign tasks to agents",
+          "2. Monitor agent progress and task completion",
+          "3. Coordinate dependencies between agents",
+          "4. Collect deliverables from all agents",
+          "5. Validate success criteria and compile results"
+        ],
+        "successCriteria": [
+          "All assigned agents respond and acknowledge their tasks",
+          "All expected deliverables are provided by agents",
+          "No blocking errors or failures in task execution",
+          "zara provides: Database connectivity status",
+          "zara provides: API endpoint health check",
+          "zara provides: Performance metrics analysis",
+          "victoria provides: Core business flow validation",
+          "victoria provides: User workflow testing",
+          "victoria provides: Integration status check",
+          "aria provides: UI component status check",
+          "aria provides: User experience flow validation",
+          "aria provides: Frontend functionality verification"
+        ],
+        "created": "2025-08-12T19:29:13.732Z"
+      }
+    }
+  ],
+  "created": "2025-08-12T19:29:13.732Z",
+  "status": "active"
+}
