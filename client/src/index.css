@@ -36,36 +36,72 @@
 
 @layer base {
   * {
-    @apply border-gray-200;
+    border-color: rgb(229 231 235);
     border-radius: 0 !important; /* No rounded corners - editorial luxury */
   }
 
   body {
-    @apply font-sans antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     background-color: var(--mid-gray);
     color: var(--luxury-black);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
+}
 
-  /* Typography Hierarchy - SSELFIE Luxury Editorial */
-  .hero-title {
-    font-family: 'Times New Roman', Times, serif;
-    font-weight: 300;
-    letter-spacing: 0.5em;
-    line-height: 0.82; /* Tighter leading for more dramatic effect */
-    font-size: clamp(2.75rem, 9vw, 8.5rem); /* Increased maximum size */
-    text-transform: uppercase;
-    color: var(--luxury-black);
-    -webkit-font-smoothing: antialiased;
-    font-feature-settings: "liga" 1, "kern" 1, "dlig" 1, "swsh" 1, "hist" 1;
-    margin-left: -0.25em; /* Optical alignment for letter-spacing */
-    text-shadow: 0 1px 1px rgba(0,0,0,0.02); /* Subtle depth */
-    transition: letter-spacing 1.2s cubic-bezier(0.19, 1, 0.22, 1);
-  }
+/* Typography Hierarchy - SSELFIE Luxury Editorial */
+.hero-title {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 300;
+  letter-spacing: 0.5em;
+  line-height: 0.82; /* Tighter leading for more dramatic effect */
+  font-size: clamp(2.75rem, 9vw, 8.5rem); /* Increased maximum size */
+  text-transform: uppercase;
+  color: var(--luxury-black);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "liga" 1, "kern" 1, "dlig" 1, "swsh" 1, "hist" 1;
+  margin-left: -0.25em; /* Optical alignment for letter-spacing */
+  text-shadow: 0 1px 1px rgba(0,0,0,0.02); /* Subtle depth */
+  transition: letter-spacing 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
 
-  .hero-title:hover {
-    letter-spacing: 0.55em; /* Subtle expansion on hover */
-  }
+.hero-title:hover {
+  letter-spacing: 0.55em; /* Subtle expansion on hover */
+}
+
+.editorial-headline {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.75rem, 5vw, 3.5rem);
+  line-height: 1.1;
+}
+
+.editorial-subheadline {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 300;
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1.3;
+  color: var(--soft-gray);
+}
+
+/* Ensure all body text uses system fonts */
+.system-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 300;
+}
+
+/* Eyebrow text styling per style guide */
+.eyebrow-text {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  font-weight: 300;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+
 
   .editorial-headline {
     font-family: 'Times New Roman', Times, serif;
@@ -98,17 +134,7 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  .eyebrow-text {
-    font-size: 11px;
-    letter-spacing: 0.4em;
-    text-transform: uppercase;
-    font-weight: 300;
-  }
 
-  .system-text {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-}
 
 /* Loading Animations */
 @keyframes luxuryFade {
