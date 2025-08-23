@@ -1,4 +1,4 @@
-import { ComponentType, useEffect, lazy } from 'react';
+import React, { ComponentType, useEffect, lazy } from 'react';
 import { Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -35,7 +35,6 @@ import SSELFIEGallery from "./pages/sselfie-gallery";
 import AIGenerator from "./pages/ai-generator";
 import AIPhotoshoot from "./pages/ai-photoshoot";
 import SimpleTraining from "./pages/simple-training";
-
 
 import AdminBusinessOverview from "./pages/admin-business-overview";
 import AdminConsultingAgents from "./pages/admin-consulting-agents";
@@ -146,7 +145,7 @@ function Router() {
       {/* LAUNCH COUNTDOWN */}
       <Route path="/launch" component={LaunchCountdown} />
       
-      {/* PUBLIC PAGES */}
+      {/* PUBLIC PAGES - SINGLE MAIN LANDING PAGE */}
       <Route path="/" component={EditorialLanding} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
@@ -184,6 +183,7 @@ function Router() {
         </div>
       )} />
       <Route path="/old-landing" component={Landing} />
+      <Route path="/new-landing" component={() => <Redirect to="/" />} />
       <Route path="/about" component={About} />
       <Route path="/how-it-works" component={HowItWorks} />
       <Route path="/selfie-guide" component={SelfieGuide} />
@@ -263,18 +263,7 @@ function Router() {
       {/* ADMIN MARKETING AUTOMATION */}
       <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={lazy(() => import('./pages/marketing-automation'))} {...props} />} />
       
-      {/* DEBUGGING */}
-      <Route path="/test" component={() => (
-        <div className="p-8">
-          <h1 className="text-2xl mb-4">Navigation Test</h1>
-          <p>If you can see this, navigation is working!</p>
-          <div className="mt-4 space-y-2">
-            <div><a href="/workspace" className="text-blue-600 underline">Go to Workspace</a></div>
-            <div><a href="/victoria-preview" className="text-blue-600 underline">Go to Victoria Preview</a></div>
-            <div><a href="/maya" className="text-blue-600 underline">Go to Maya</a></div>
-          </div>
-        </div>
-      )} />
+
       {/* Test routes removed - all test files archived */}
       <Route path="/debug-auth" component={() => {
         const { user, isAuthenticated, isLoading, error } = useAuth();
