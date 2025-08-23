@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { SandraImages } from "../../lib/sandra-images";
 import { PortfolioSection } from "../../components/portfolio-section";
@@ -86,7 +86,7 @@ export default function EditorialLanding() {
     let structuredDataScript = document.querySelector('script[type="application/ld+json"]');
     if (!structuredDataScript) {
       structuredDataScript = document.createElement('script');
-      structuredDataScript.type = 'application/ld+json';
+      (structuredDataScript as HTMLScriptElement).type = 'application/ld+json';
       document.head.appendChild(structuredDataScript);
     }
     structuredDataScript.textContent = JSON.stringify(structuredData);
@@ -252,7 +252,7 @@ export default function EditorialLanding() {
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
             className="w-full h-full object-cover object-center"
             loading="eager"
-            fetchpriority="high"
+            fetchPriority="high"
           />
         </div>
         
@@ -286,10 +286,10 @@ export default function EditorialLanding() {
       <PortfolioSection />
 
       {/* Free Tier Signup Section */}
-      <FreeTierSignup onGetStarted={handleGetStarted} />
+      <FreeTierSignup />
 
       {/* Inline Email Capture */}
-      <InlineEmailCapture />
+      <InlineEmailCapture plan="free" />
 
       {/* Global Footer */}
       <GlobalFooter />
@@ -298,7 +298,7 @@ export default function EditorialLanding() {
       <EmailCaptureModal
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
-        selectedPlan={selectedPlan}
+        plan={selectedPlan}
       />
     </div>
   );
