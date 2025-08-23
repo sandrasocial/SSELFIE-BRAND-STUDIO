@@ -21,11 +21,10 @@ import Terms from "./pages/public/terms";
 import Privacy from "./pages/public/privacy";
 import SelfieGuide from "./pages/selfie-guide";
 
-// CHECKOUT FLOW
-import Checkout from "./pages/checkout/checkout";
-import SimpleCheckout from "./pages/checkout/simple-checkout";
-import PaymentSuccess from "./pages/checkout/payment-success";
-import ThankYou from "./pages/checkout/thank-you";
+// SIMPLIFIED CHECKOUT FLOW
+import SimpleCheckout from "./pages/simple-checkout";
+import PaymentSuccess from "./pages/payment-success";
+import ThankYou from "./pages/thank-you";
 
 // MEMBER WORKSPACE - SIMPLIFIED TRAIN → STYLE → GALLERY
 import Workspace from "./pages/member/workspace";
@@ -66,8 +65,7 @@ import VictoriaBuilder from './pages/victoria-builder';
 import VictoriaPreview from './pages/victoria-preview';
 import PhotoSelection from "./pages/photo-selection";
 import BrandOnboarding from "./pages/brand-onboarding";
-import Welcome from "./pages/checkout/welcome";
-import AuthSuccess from "./pages/checkout/auth-success";
+import Welcome from "./pages/welcome";
 import Login from "./pages/login";
 // Unified login system - removed competing auth components
 import LoginPrompt from "./components/LoginPrompt";
@@ -202,13 +200,12 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/domain-help" component={DomainHelp} />
 
-      {/* PAYMENT FLOW */}
-      <Route path="/checkout" component={Checkout} />
+      {/* SIMPLIFIED PAYMENT FLOW */}
+      <Route path="/checkout" component={SimpleCheckout} />
       <Route path="/simple-checkout" component={SimpleCheckout} />
       <Route path="/welcome" component={Welcome} />
       <Route path="/thank-you" component={ThankYou} />
       <Route path="/payment-success" component={PaymentSuccess} />
-      <Route path="/auth-success" component={AuthSuccess} />
       <Route path="/switch-account" component={SwitchAccount} />
       <Route path="/auth" component={() => {
         useEffect(() => { window.location.href = '/api/login'; }, []);
