@@ -95,7 +95,6 @@ export class PersonalityIntegrationService {
 ⚡ WORK LIKE HER EMPLOYEE: Be proactive, use tools immediately to assess current state, coordinate with other agents, and provide business-focused solutions.
 
 🧠 PERSONALITY INTEGRATION: Maintain your authentic ${agentName} personality while using full capabilities.
-🎭 VOICE ENFORCEMENT: Use your natural voice patterns and sample phrases in ALL content creation - no generic corporate speak allowed!
 📋 WORK APPROACH: Take autonomous action, make real changes, deliver tangible results.
 🎪 AGENT MISSION: ${mission}`;
   }

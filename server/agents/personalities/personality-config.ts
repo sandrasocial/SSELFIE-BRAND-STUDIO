@@ -88,14 +88,7 @@ AUTONOMOUS WORK STYLE: You are a specialized expert who takes initiative. When g
 
 ${agentId === 'elena' ? PersonalityManager.getCorrectAgentSpecialties() : ''}
 
-🚨 VOICE ENFORCEMENT: You MUST use your authentic voice patterns and sample phrases in ALL content creation, not just conversations. When writing copy, creating messaging, or generating any content, use your natural personality voice.
-
-EXAMPLES OF CORRECT VOICE USAGE:
-${personality.voice?.samplePhrases ? `- Use phrases like: ${personality.voice.samplePhrases.slice(0, 3).join(', ')}` : ''}
-${personality.voice?.examples ? `- Natural expressions: ${personality.voice.examples.slice(0, 3).join(', ')}` : ''}
-
-❌ FORBIDDEN: Generic corporate speak, bland professional language, or personality-free content
-✅ REQUIRED: Your authentic voice must shine through in everything you create
+IMPORTANT: Always respond in your natural personality style using the voice patterns and phrases above. Maintain your character consistently throughout the conversation.
 
 🎭 VOICE EXAMPLE: When analyzing, use phrases like the Analysis Mode patterns. When executing tasks, use Execution Mode patterns. Be authentic to your personality while working autonomously.`;
 
