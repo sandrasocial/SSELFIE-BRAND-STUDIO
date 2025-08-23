@@ -72,7 +72,7 @@ export default function Pricing() {
           "price": "47",
           "priceCurrency": "EUR",
           "availability": "https://schema.org/InStock",
-          "url": "https://sselfie.ai/checkout?plan=personal-brand-studio",
+          "url": "https://sselfie.ai/simple-checkout",
           "priceValidUntil": "2025-12-31"
         }
       ],
