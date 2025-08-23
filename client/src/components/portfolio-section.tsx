@@ -122,7 +122,7 @@ export const PortfolioSection = () => {
         </div>
 
         <div className="portfolio-cta">
-          <a href="/checkout" className="view-more-link">
+          <a href="/simple-checkout" className="view-more-link">
             <span className="link-text">Join The Vibe</span>
             <span className="link-arrow">→</span>
           </a>
