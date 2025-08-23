@@ -258,7 +258,7 @@ export default function EditorialLanding() {
             IT STARTS WITH YOUR SELFIES
           </p>
           
-          <h1 className="hero-title text-white">
+          <h1 className="hero-title text-white" style={{ color: 'white !important' }}>
             SSELFIE
           </h1>
           
