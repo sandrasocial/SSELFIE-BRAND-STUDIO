@@ -1,0 +1,58 @@
+4. NAVIGATION SIMPLIFICATION
+Remove:
+
+"How It Works" (if present) - too complex for v1
+
+Keep:
+
+About
+Pricing
+Blog
+Login
+Contact
+
+
+Specific Replit AI Instructions
+For Pricing Section Update:
+"In EditorialLanding.tsx, replace the current two-tier pricing grid with a single pricing card for 'Personal Brand Studio' at €47/month. Include the features: trained AI model, unlimited photos, Maya access, photo gallery. Keep the exact same styling, colors, and layout as the current pricing section."
+For CTA Button Updates:
+"Update all buttons that say 'START €29' to 'START €47' throughout EditorialLanding.tsx. Also update the handleGetStarted function to use '47' instead of '29' for the basic plan. Keep all existing styling and hover effects."
+For Features Section Cleanup:
+"In the features grid section of EditorialLanding.tsx, remove any cards or mentions of 'Victoria website builder' and 'luxury flatlays'. Keep the Maya AI photographer feature and AI photoshoot feature. Maintain all existing styling, hover effects, and layout structure."
+For Meta Tags Update:
+"Update the SEO meta description to mention €47 pricing instead of €29. Keep all other meta tags the same."
+
+What NOT to Change
+❌ Don't change the hero section typography or layout
+❌ Don't change the black/white color scheme
+❌ Don't change the editorial photography style
+❌ Don't change the navigation styling
+❌ Don't change any animations or hover effects
+❌ Don't change the overall page structure
+❌ Don't change Sandra's photos or image selections
+
+Testing Checklist After Updates
+
+ All €29 references changed to €47
+ Pricing section shows single tier only
+ No Victoria/flatlay references remain
+ All buttons and links work correctly
+ Mobile responsive design still intact
+ All hover effects still working
+ Page loads quickly and smoothly
+
+
+Success Criteria
+Visitor should understand:
+
+Sandra built AI that creates professional brand photos from selfies
+One clear price: €47/month for everything needed
+Main value: "Never pay for another photoshoot"
+Clear next step: Start with Maya AI photographer
+
+Visitor should NOT be confused by:
+
+Multiple pricing tiers
+Features that aren't ready (website builder)
+Complex explanations of how it works
+Too many options or decisions
