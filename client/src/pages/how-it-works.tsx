@@ -9,7 +9,7 @@ const steps = [
   {
     number: "01",
     title: "Choose your plan",
-    description: "Complete AI Brand Package (€47/month): Personal AI model + unlimited photos + Maya AI stylist + complete brand gallery.",
+    description: "Basic (€29/month): Personal AI model + 30 photos + Maya AI photographer. Full Access (€67/month): Everything in Basic + 100 photos + Victoria website builder + luxury flatlay library.",
     image: SandraImages.editorial.phone2
   },
   {
@@ -40,8 +40,8 @@ const steps = [
 
 const faqs = [
   {
-    question: "What's included in the €47/month plan?",
-    answer: "We've simplified everything into one plan: Complete AI Brand Package (€47/month) includes your personal AI model, unlimited photos, Maya AI stylist, and complete brand gallery. Everything you need to build your personal brand."
+    question: "What's the difference between Basic and Full Access?",
+    answer: "Basic (€29/month): Personal AI model + 30 photos + Maya AI photographer. Full Access (€67/month): Everything in Basic + 100 photos + Victoria website builder + luxury flatlay library + all future features."
   },
   {
     question: "Do I need to be tech-savvy?",

@@ -42,7 +42,7 @@ export default function Landing() {
             onClick={handleGetStarted}
             className="bg-transparent border border-white text-white px-8 py-4 text-[11px] tracking-[0.3em] uppercase hover:bg-white hover:text-[#0a0a0a] transition-all duration-300"
           >
-            Transform My Selfies - €47
+            Transform My Selfies - €67
           </button>
         </div>
       </section>
