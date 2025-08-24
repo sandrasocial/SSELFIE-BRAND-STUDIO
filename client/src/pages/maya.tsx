@@ -120,8 +120,8 @@ export default function Maya() {
   const loadChatHistory = async (chatId: number) => {
     try {
       const response = await apiRequest(`/api/maya-chats/${chatId}/messages`);
-      if (response.messages) {
-        setMessages(response.messages);
+      if (response && Array.isArray(response)) {
+        setMessages(response);
         setCurrentChatId(chatId);
       }
     } catch (error) {
