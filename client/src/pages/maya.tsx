@@ -198,7 +198,7 @@ export default function Maya() {
     setGenerationProgress(0);
 
     try {
-      const response = await apiRequest('/api/generate-images', 'POST', {
+      const response = await apiRequest('/api/maya-generate-images', 'POST', {
         prompt,
         chatId: currentChatId
       });
