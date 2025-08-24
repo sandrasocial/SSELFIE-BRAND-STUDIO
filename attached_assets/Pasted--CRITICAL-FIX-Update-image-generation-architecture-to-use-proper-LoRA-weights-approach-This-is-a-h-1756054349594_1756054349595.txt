@@ -1,0 +1,37 @@
+"CRITICAL FIX: Update image generation architecture to use proper LoRA weights approach. This is a high-priority fix for quality and queuing issues.
+
+1. ANALYZE CURRENT GENERATION SYSTEM:
+   - Document exactly how unified-generation-service.ts currently calls Replicate
+   - Identify where custom model IDs are used instead of LoRA weights
+   - Map the complete generation flow from Maya chat to image creation
+
+2. IMPLEMENT LoRA WEIGHTS EXTRACTION:
+   - Update training completion to extract LoRA weights (.safetensors files) from ostris/flux-dev-lora-trainer results
+   - Add loraWeightsUrl field to user model database schema
+   - Store LoRA weights URLs when training completes
+   - Update training-completion-monitor.ts to handle LoRA weights extraction
+
+3. UPDATE GENERATION ARCHITECTURE:
+   - Change unified-generation-service.ts to use base model: black-forest-labs/flux-1.1-pro
+   - Replace custom model calls with base model + lora_weights parameter
+   - Set lora_scale: 0.9 for optimal personalization
+   - Ensure trigger word integration remains intact
+
+4. MIGRATION FOR EXISTING USERS:
+   - Create migration script to extract LoRA weights from all previously trained models
+   - Update existing user records with their LoRA weights URLs
+   - Test generation with 3-5 existing users to verify quality improvement
+
+5. VALIDATION AND TESTING:
+   - Test new architecture with fresh user training
+   - Verify individual personalization (no model crossover)
+   - Confirm faster generation times and no queuing
+   - Document quality improvements
+
+6. CREATE ARCHITECTURE DOCUMENTATION:
+   - Document the correct training → LoRA extraction → generation flow
+   - Create troubleshooting guide for future issues
+   - Document all Replicate parameters and model configurations
+   - Include examples of correct API calls
+
+CRITICAL: This affects all user generation quality. Ensure zero downtime during migration and test thoroughly before deploying to all users. Document every change for future reference."
