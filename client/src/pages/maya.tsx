@@ -138,6 +138,7 @@ const editorialStyles = `
     letter-spacing: 0.1em;
     text-transform: uppercase;
     margin-bottom: 20px;
+    color: var(--editorial-white);
   }
 
   .hero-subtitle {
