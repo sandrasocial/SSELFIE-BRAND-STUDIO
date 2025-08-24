@@ -197,54 +197,44 @@ function generateFullMayaResponse(styleAnalysis: any): { userMessage: string; te
 
   switch (category) {
     case 'editorial_luxury':
-      // DYNAMIC INTERNATIONAL LOCATIONS - Rotating stunning global settings
-      const editorialLocations = [
+      // TRUE EDITORIAL - Magazine-style photography with studio lighting and high fashion
+      const editorialStyles = [
         {
-          location: "Italian Riviera coastline at golden hour",
-          setting: "limestone terraces overlooking azure Mediterranean waters",
-          vibe: "luxury resort sophistication"
+          styling: "architectural black blazer with statement gold jewelry",
+          lighting: "dramatic directional studio lighting with hard shadows",
+          mood: "powerful and sophisticated"
         },
         {
-          location: "Iceland's dramatic black sand beaches",
-          setting: "volcanic rock formations with ethereal mist",
-          vibe: "Nordic editorial minimalism"
+          styling: "minimalist white silk shirt with precision tailoring",
+          lighting: "clean high-key studio lighting with soft fill",
+          mood: "elegant and refined"
         },
         {
-          location: "Japanese temple gardens in Kyoto",
-          setting: "ancient stone pathways through bamboo groves",
-          vibe: "serene architectural elegance"
+          styling: "structured leather jacket with geometric accessories",
+          lighting: "moody low-key lighting with rim light accent",
+          mood: "edgy and confident"
         },
         {
-          location: "French château vineyard terraces",
-          setting: "rolling hills with morning light through grapevines",
-          vibe: "countryside luxury editorial"
+          styling: "luxurious cashmere coat in neutral tones",
+          lighting: "soft beauty lighting with gradient background",
+          mood: "timeless and editorial"
         },
         {
-          location: "Norwegian fjord overlooks",
-          setting: "dramatic cliffs with cascading waterfalls",
-          vibe: "powerful natural majesty"
-        },
-        {
-          location: "Danish modern architecture studio",
-          setting: "clean lines with floor-to-ceiling windows",
-          vibe: "Scandinavian editorial sophistication"
-        },
-        {
-          location: "Spanish colonial courtyard in Seville",
-          setting: "intricate tilework with dappled sunlight",
-          vibe: "romantic architectural elegance"
+          styling: "avant-garde asymmetrical design piece",
+          lighting: "creative split lighting with dramatic contrast",
+          mood: "artistic and fashion-forward"
         }
       ];
       
-      const randomLocation = editorialLocations[Math.floor(Math.random() * editorialLocations.length)];
+      const randomEditorial = editorialStyles[Math.floor(Math.random() * editorialStyles.length)];
       
-      userMessage = `Creating your editorial luxury shoot right now! I'm picturing you in ${randomLocation.location} - this is going to be absolutely stunning!
+      userMessage = `Creating your editorial luxury shoot right now! This is pure magazine sophistication - ${randomEditorial.mood} with high-fashion styling that will absolutely blow people away.
 
-This shoot captures that high-fashion magazine sophistication with ${randomLocation.vibe}. You'll look like you stepped straight out of Vogue - confident, elegant, and completely captivating.
+This is that Vogue-level editorial energy - professional studio lighting, luxury fashion pieces, and that powerful confident expression that makes you look like you own the room. Pure editorial perfection.
 
-These photos are going to be remarkable! The kind that make people stop scrolling and wonder who you are. Perfect for your personal brand - luxury, editorial, and absolutely unforgettable.`;
+These photos are going to be remarkable! The kind that make people stop scrolling and wonder who you are. Perfect for your personal brand - sophisticated, editorial, and absolutely unforgettable.`;
 
-      technicalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], elegant woman ${randomLocation.setting}, wearing sophisticated architectural blazer in champagne silk with wide-leg trousers in charcoal, natural confident expression with slight mysterious smile, ${randomLocation.vibe} lighting creating dramatic editorial shadows, luxury editorial fashion photography, thoughtful genuine gaze, detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy, shot on Hasselblad X2D with 90mm lens, luxury editorial depth with cinematic bokeh, ${randomLocation.location}, sophisticated editorial styling`;
+      technicalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], elegant woman in professional studio setting wearing ${randomEditorial.styling}, ${randomEditorial.mood} editorial expression with direct confident gaze, ${randomEditorial.lighting}, high-fashion editorial photography, luxury fashion styling, detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy, shot on Hasselblad X2D with 90mm lens, clean studio background, professional editorial depth, luxury magazine aesthetic`;
       break;
       
     case 'professional_authoritative':
