@@ -155,7 +155,7 @@ export function WebsiteWizard({ onComplete }: WebsiteWizardProps) {
             <div className="mt-8 pt-6 border-t border-white/30">
               <span className="text-lg font-normal text-white/90" 
                     style={{ fontFamily: 'Times New Roman, serif' }}>
-                €67/month • Premium Digital Architecture
+                $47/month • Personal Brand Platform
               </span>
             </div>
           </div>

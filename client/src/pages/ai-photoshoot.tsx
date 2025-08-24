@@ -1142,7 +1142,7 @@ export default function AIPhotoshootPage() {
           <div className="bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-3">
             <div className="max-w-4xl mx-auto text-center">
               <div className="text-xs text-gray-600 leading-relaxed">
-                <div className="mb-1"><strong>€67 Premium Service:</strong> Professional-grade AI photography</div>
+                <div className="mb-1"><strong>AI Photography Service:</strong> Personalized image generation</div>
                 <div>Natural skin texture • Film grain authenticity • Gallery-ready results</div>
               </div>
             </div>
@@ -1400,7 +1400,7 @@ export default function AIPhotoshootPage() {
                 {/* VALUE MESSAGING */}
                 <div className="mt-8 p-4 bg-gray-50/50 rounded-lg max-w-lg mx-auto">
                   <div className="text-xs text-gray-600 leading-relaxed">
-                    <div className="mb-2"><strong>€67 Premium Experience:</strong></div>
+                    <div className="mb-2"><strong>AI Photography Experience:</strong></div>
                     <div>Professional film grain • Natural skin texture • Gallery-ready composition</div>
                   </div>
                 </div>
