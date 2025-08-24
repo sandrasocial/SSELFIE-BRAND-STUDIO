@@ -428,19 +428,60 @@ export class ModelTrainingService {
       let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${naturalLighting}`;
       
 
-      // Call REAL Replicate API for image generation with optimal realistic settings
+      // CRITICAL: Extract LoRA weights if not available  
+      let loraWeightsUrl = userModel?.loraWeightsUrl;
+      
+      if (!loraWeightsUrl) {
+        console.log(`🔧 TRAINING SERVICE EXTRACTING LoRA weights for user ${userId}`);
+        
+        try {
+          const response = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const versionData = await response.json();
+            if (versionData.files?.weights) {
+              loraWeightsUrl = versionData.files.weights;
+            } else if (versionData.urls?.get) {
+              loraWeightsUrl = versionData.urls.get;
+            }
+            
+            if (loraWeightsUrl) {
+              await storage.updateUserModel(userId, {
+                loraWeightsUrl: loraWeightsUrl,
+                updatedAt: new Date()
+              });
+              console.log(`✅ TRAINING SERVICE EXTRACTED and saved LoRA weights: ${loraWeightsUrl}`);
+            }
+          }
+        } catch (error) {
+          console.error(`❌ TRAINING SERVICE Error extracting LoRA weights:`, error);
+        }
+      }
+      
+      // CRITICAL: ALWAYS require LoRA weights - no fallbacks!
+      if (!loraWeightsUrl) {
+        throw new Error(`Training service requires LoRA weights for user ${userId}. Cannot generate without individual LoRA weights.`);
+      }
+      
+      // FLUX 1.1 Pro + LoRA architecture with optimal realistic settings
       const requestBody = {
-        version: modelVersion,
+        version: "black-forest-labs/flux-1.1-pro",
         input: {
           prompt: finalPrompt,
+          lora_weights: loraWeightsUrl,
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
-          lora_scale: 0.9, // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
-          guidance: 2.6, // 🔧 FLUX LORA OPTIMAL: Sweet spot for prompt following with natural generation
-          num_inference_steps: 40, // 🔧 FLUX LORA OPTIMAL: Enough detail without diminishing returns
+          lora_scale: 0.9,
+          guidance_scale: 5,
+          num_inference_steps: 50,
           num_outputs: count,
-          aspect_ratio: "3:4", // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
+          aspect_ratio: "4:5",
           output_format: "png",
-          output_quality: 90,
+          output_quality: 95,
           go_fast: false,
           seed: Math.floor(Math.random() * 1000000)
         }
