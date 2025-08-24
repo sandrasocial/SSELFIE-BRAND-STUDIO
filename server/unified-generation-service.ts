@@ -88,14 +88,15 @@ export class UnifiedGenerationService {
     
     console.log(`UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use their validated trained models
-    const modelVersion = `${modelId}:${versionId}`;
-    console.log(`🔒 VERSION VALIDATION: Model: ${modelId}, Version: ${versionId}, Combined: ${modelVersion}`);
+    // CRITICAL FIX: Use FLUX 1.1 Pro Official Model (No Versioning Required)
+    // FLUX 1.1 Pro became "Official Model" Jan 29, 2025 - priority processing, no queue
+    console.log(`🔒 VERSION VALIDATION: Model: ${modelId}, Version: ${versionId}`);
+    console.log(`🚀 FLUX 1.1 PRO: Using official model for priority processing`);
     
     // OPTIMIZED PARAMETERS FOR ALL USERS (August 21, 2025)
     // Based on Shannon's high-quality results - these parameters ensure optimal image quality
     const requestBody = {
-      version: modelVersion,
+      version: "black-forest-labs/flux-1.1-pro",
       input: {
         prompt: finalPrompt,
         lora_scale: 0.9,              // Optimal facial accuracy
@@ -123,25 +124,27 @@ export class UnifiedGenerationService {
       userId: userId,
       model: modelId,
       versionId: versionId,
-      combined: modelVersion,
+      fluxModel: "black-forest-labs/flux-1.1-pro",
       trigger: triggerWord,
       lora_scale: requestBody.input.lora_scale,
       guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps
     });
     
-    // Call Replicate API with retry logic
+    // Call Replicate API with FLUX 1.1 Pro Official Model (Priority Processing)
     let replicateResponse;
     let retries = 0;
     const maxRetries = 3;
     
     while (retries <= maxRetries) {
       try {
+        console.log(`🚀 FLUX 1.1 PRO API CALL: Official model with priority processing`);
         replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
           method: 'POST',
           headers: {
             'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
             'Content-Type': 'application/json',
+            'Prefer': 'wait'  // FLUX 1.1 Pro: Synchronous response for faster results
           },
           body: JSON.stringify(requestBody),
         });
