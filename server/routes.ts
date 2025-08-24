@@ -1623,7 +1623,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // MAYA GENERATION: Individual Model with Optimized Parameters
       console.log(`🎬 MAYA: Using individual trained model ${modelId}:${versionId} with optimized parameters`);
       
-      // MAYA GENERATION: Individual model with correct parameter format
+      // MAYA GENERATION: Individual model with CORRECT schema parameters
       const requestBody = {
         version: `${modelId}:${versionId}`,
         input: {
@@ -1631,10 +1631,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           model: "dev",
           prompt: finalPrompt,
           go_fast: false,
+          replicate_weights: userModel?.loraWeightsUrl, // Correct parameter name for LoRA weights
           lora_scale: 0.85,
           megapixels: "1",
           num_outputs: 2,
-          aspect_ratio: "3:4",
+          aspect_ratio: "3:4", 
           output_format: "png",
           guidance_scale: 5,
           output_quality: 95,

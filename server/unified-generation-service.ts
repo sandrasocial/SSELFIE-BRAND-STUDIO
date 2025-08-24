@@ -102,19 +102,20 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 INDIVIDUAL MODEL: ${modelId}:${versionId}`);
     
-    // Use individual trained model directly with correct parameter format
+    // Use individual trained model directly with CORRECT schema parameters
     const requestBody = {
       version: `${modelId}:${versionId}`,
       input: {
         seed: Math.floor(Math.random() * 1000000),
-        model: "dev",
+        model: "dev", 
         prompt: finalPrompt,
         go_fast: false,
+        replicate_weights: loraWeightsUrl, // Correct parameter name for LoRA weights
         lora_scale: 0.85,
         megapixels: "1",
         num_outputs: 2,
         aspect_ratio: "3:4",
-        output_format: "png",
+        output_format: "png", 
         guidance_scale: 5,
         output_quality: 95,
         prompt_strength: 0.8,
