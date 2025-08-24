@@ -153,12 +153,9 @@ export default function Maya() {
     setIsTyping(true);
 
     try {
-      const response = await apiRequest('/api/maya-chat', {
-        method: 'POST',
-        body: {
-          message: input.trim(),
-          chatId: currentChatId,
-        },
+      const response = await apiRequest('/api/maya-chat', 'POST', {
+        message: input.trim(),
+        chatId: currentChatId,
       });
 
       if (response.chatId && !currentChatId) {
@@ -197,12 +194,9 @@ export default function Maya() {
     setGenerationProgress(0);
 
     try {
-      const response = await apiRequest('/api/generate-images', {
-        method: 'POST',
-        body: { 
-          prompt,
-          chatId: currentChatId 
-        }
+      const response = await apiRequest('/api/generate-images', 'POST', {
+        prompt,
+        chatId: currentChatId
       });
 
       if (response.predictionId) {
@@ -267,12 +261,9 @@ export default function Maya() {
     setSavingImages(prev => new Set(prev).add(imageUrl));
     
     try {
-      await apiRequest('/api/save-image', {
-        method: 'POST',
-        body: { 
-          imageUrl,
-          source: 'maya-chat'
-        }
+      await apiRequest('/api/save-image', 'POST', {
+        imageUrl,
+        source: 'maya-chat'
       });
       
       setSavedImages(prev => new Set(prev).add(imageUrl));
@@ -422,6 +413,7 @@ export default function Maya() {
           letter-spacing: 0.1em;
           text-transform: uppercase;
           margin-bottom: 20px;
+          color: var(--white);
         }
         
         .hero-subtitle {
