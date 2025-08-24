@@ -1209,7 +1209,7 @@ export default function SimpleTraining() {
                 </div>
               ) : selfieImages.length < 10 ? 
                 `Upload ${10 - selfieImages.length} More Photos` : 
-                'Start Premium AI Training'}
+                'Start AI Model Training'}
             </button>
 
             {/* LUXURY VALUE MESSAGING */}
