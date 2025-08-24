@@ -1620,52 +1620,17 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         console.error(`🚨 MODEL CHECK FAILED:`, modelCheckError);
       }
       
-      // CRITICAL: Extract LoRA weights if not available  
+      // CRITICAL: For individual user models, use the model directly without separate LoRA weights
+      console.log(`🎬 MAYA: Using individual user model ${modelId}:${versionId} (no separate LoRA weights needed)`);
+      
+      // For trained individual models, we use the model itself - no separate LoRA weights required
       let loraWeightsUrl = userModel?.loraWeightsUrl;
       
-      if (!loraWeightsUrl) {
-        console.log(`🔧 MAYA EXTRACTING LoRA weights for user ${userId}`);
-        
-        try {
-          const response = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
-            headers: {
-              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            const versionData = await response.json();
-            if (versionData.files?.weights) {
-              loraWeightsUrl = versionData.files.weights;
-            } else if (versionData.urls?.get) {
-              loraWeightsUrl = versionData.urls.get;
-            }
-            
-            if (loraWeightsUrl) {
-              await storage.updateUserModel(userId, {
-                loraWeightsUrl: loraWeightsUrl,
-                updatedAt: new Date()
-              });
-              console.log(`✅ MAYA EXTRACTED and saved LoRA weights: ${loraWeightsUrl}`);
-            }
-          }
-        } catch (error) {
-          console.error(`❌ MAYA Error extracting LoRA weights:`, error);
-        }
-      }
-      
-      // CRITICAL: ALWAYS require LoRA weights - users must train first!
-      if (!loraWeightsUrl) {
-        throw new Error(`Maya requires LoRA weights for user ${userId}. Please train your model first at /train before generating images.`);
-      }
-      
+      // MAYA GENERATION: Use individual user model directly (no LoRA weights needed)
       const requestBody = {
-        version: "black-forest-labs/flux-1.1-pro",
+        version: `${modelId}:${versionId}`,
         input: {
           prompt: finalPrompt,
-          lora_weights: loraWeightsUrl,
-          lora_scale: 0.9,
           guidance_scale: 5,
           num_inference_steps: 50,
           num_outputs: 2,
