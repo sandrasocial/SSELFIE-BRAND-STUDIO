@@ -38,14 +38,11 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
   const isAdmin = user?.email === 'ssa@ssasocial.com';
   const isImpersonating = user?.email === 'shannon@soulresets.com' && user?.role === 'user';
 
-  // Member navigation items - CLEAN (no admin access)
-  // MEMBER NAVIGATION - NO ADMIN ACCESS (Use footer Legal section)
+  // Member navigation items - SIMPLIFIED TO 3-STEP FLOW
   const navItems = [
-    { path: '/workspace', label: 'Studio' },
     { path: '/ai-training', label: 'Train' },
-    { path: '/maya', label: 'Photoshoot' },
+    { path: '/maya', label: 'Style' },
     { path: '/gallery', label: 'Gallery' },
-    { path: '/flatlay-library', label: 'Flatlays' },
     { path: '/profile', label: 'Profile' },
   ];
 
