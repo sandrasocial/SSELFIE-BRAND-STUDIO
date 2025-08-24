@@ -671,6 +671,12 @@ export default function Maya() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentTrackerId, setCurrentTrackerId] = useState<number | null>(null);
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
+  const [consultationStep, setConsultationStep] = useState<ConsultationStep>('brand-assessment');
+  const [brandAssessment, setBrandAssessment] = useState<BrandAssessment>({
+    goal: null,
+    style: null,
+    refinements: {}
+  });
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -1187,23 +1193,259 @@ export default function Maya() {
     });
   };
 
+  // Brand Assessment Step 1
+  const handleBrandGoalSelect = (goal: BrandAssessment['goal']) => {
+    setBrandAssessment(prev => ({ ...prev, goal }));
+    setConsultationStep('style-exploration');
+  };
+
+  // Style Exploration Step 2  
   const handleStyleSelect = (style: string) => {
-    const styleMessages = {
-      'editorial': 'Editorial luxury - magazine sophistication',
-      'natural': 'Natural beauty - effortless elegance', 
-      'professional': 'Professional power - CEO energy',
-      'creative': 'Creative artistic - unique expression',
-      'lifestyle': 'Lifestyle natural - authentic moments',
-      'confident': 'Confident power - unapologetic strength'
+    setBrandAssessment(prev => ({ ...prev, style }));
+    setConsultationStep('refinement-chat');
+  };
+
+  // Refinement Chat Step 3
+  const handleRefinementSelect = (key: keyof BrandAssessment['refinements'], value: string) => {
+    setBrandAssessment(prev => ({
+      ...prev,
+      refinements: { ...prev.refinements, [key]: value }
+    }));
+  };
+
+  const startGeneration = () => {
+    // Generate prompt based on assessment
+    const goalMessages = {
+      'professional': 'I want authoritative, professional headshots that show leadership',
+      'personal-brand': 'I\'m building my personal brand and need authentic images that tell my story', 
+      'instagram-profile': 'I need fresh Instagram profile photos that stand out',
+      'creative-entrepreneur': 'I want creative photos that show my entrepreneurial spirit',
+      'speaker': 'I need professional speaker photos for events and marketing',
+      'lifestyle': 'I want lifestyle photos that feel natural and authentic'
     };
+
+    const prompt = goalMessages[brandAssessment.goal || 'professional'];
+    setInput(prompt);
+    setConsultationStep('generation');
     
-    setInput(styleMessages[style as keyof typeof styleMessages] || 'I want to explore this style');
-    
-    // Auto-send the message after a brief delay for visual feedback
     setTimeout(() => {
       sendMessage();
     }, 300);
   };
+
+  // Render consultation steps
+  const renderConsultationStep = () => {
+    switch (consultationStep) {
+      case 'brand-assessment':
+        return renderBrandAssessment();
+      case 'style-exploration':
+        return renderStyleExploration();
+      case 'refinement-chat':
+        return renderRefinementChat();
+      default:
+        return renderGenerationView();
+    }
+  };
+
+  const renderBrandAssessment = () => (
+    <div className=\"consultation-container\">
+      <div className=\"maya-avatar-large\">
+        <img src=\"https://i.postimg.cc/mkqSzq3M/out-1-20.png\" alt=\"Maya - Your Creative Director\" />
+      </div>
+      <div className=\"consultation-eyebrow\">Step 1: Brand Assessment</div>
+      <h2 className=\"consultation-title\">Tell me about your personal brand goals</h2>
+      <p className=\"consultation-description\">I'm Maya, your creative director. Let's create images that perfectly represent you and your brand.</p>
+      
+      <div className=\"brand-goals-grid\">
+        <div className=\"brand-goal-option\" onClick={() => handleBrandGoalSelect('professional')}>
+          <div className=\"goal-preview\">
+            {/* Gray placeholder */}
+            <div className=\"goal-image-placeholder\"></div>
+          </div>
+          <div className=\"goal-label\">I want to look authoritative and professional</div>
+          <div className=\"goal-context\">Perfect for LinkedIn, business cards, speaker bios</div>
+        </div>
+        
+        <div className=\"brand-goal-option\" onClick={() => handleBrandGoalSelect('personal-brand')}>
+          <div className=\"goal-preview\">
+            <div className=\"goal-image-placeholder\"></div>
+          </div>
+          <div className=\"goal-label\">I'm building my personal brand</div>
+          <div className=\"goal-context\">Great for website headers, about pages, marketing</div>
+        </div>
+        
+        <div className=\"brand-goal-option\" onClick={() => handleBrandGoalSelect('instagram-profile')}>
+          <div className=\"goal-preview\">
+            <div className=\"goal-image-placeholder\"></div>
+          </div>
+          <div className=\"goal-label\">I need fresh Instagram profile photos</div>
+          <div className=\"goal-context\">Perfect for social media, content creation</div>
+        </div>
+        
+        <div className=\"brand-goal-option\" onClick={() => handleBrandGoalSelect('creative-entrepreneur')}>
+          <div className=\"goal-preview\">
+            <div className=\"goal-image-placeholder\"></div>
+          </div>
+          <div className=\"goal-label\">I'm a creative entrepreneur</div>
+          <div className=\"goal-context\">Ideal for portfolios, creative businesses</div>
+        </div>
+        
+        <div className=\"brand-goal-option\" onClick={() => handleBrandGoalSelect('speaker')}>
+          <div className=\"goal-preview\">
+            <div className=\"goal-image-placeholder\"></div>
+          </div>
+          <div className=\"goal-label\">I need professional speaker photos</div>
+          <div className=\"goal-context\">Great for events, conference materials</div>
+        </div>
+        
+        <div className=\"brand-goal-option\" onClick={() => handleBrandGoalSelect('lifestyle')}>
+          <div className=\"goal-preview\">
+            <div className=\"goal-image-placeholder\"></div>
+          </div>
+          <div className=\"goal-label\">I want authentic lifestyle photos</div>
+          <div className=\"goal-context\">Perfect for personal stories, lifestyle brands</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStyleExploration = () => (
+    <div className=\"consultation-container\">
+      <div className=\"maya-avatar-large\">
+        <img src=\"https://i.postimg.cc/mkqSzq3M/out-1-20.png\" alt=\"Maya - Your Creative Director\" />
+      </div>
+      <div className=\"consultation-eyebrow\">Step 2: Visual Style Exploration</div>
+      <h2 className=\"consultation-title\">Choose the aesthetic that speaks to you</h2>
+      <p className=\"consultation-description\">Each style creates a different impression. Click the one that feels most \"you\".</p>
+      
+      <div className=\"style-exploration-grid\">
+        <div className=\"style-exploration-option\" onClick={() => handleStyleSelect('editorial-luxury')}>
+          <div className=\"style-preview-grid\">
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+          </div>
+          <div className=\"style-outcome-label\">Editorial Luxury</div>
+          <div className=\"style-context\">Magazine-quality sophistication</div>
+        </div>
+        
+        <div className=\"style-exploration-option\" onClick={() => handleStyleSelect('confident-professional')}>
+          <div className=\"style-preview-grid\">
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+          </div>
+          <div className=\"style-outcome-label\">Confident Professional</div>
+          <div className=\"style-context\">Authoritative leadership presence</div>
+        </div>
+        
+        <div className=\"style-exploration-option\" onClick={() => handleStyleSelect('creative-entrepreneur')}>
+          <div className=\"style-preview-grid\">
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+          </div>
+          <div className=\"style-outcome-label\">Creative Entrepreneur</div>
+          <div className=\"style-context\">Innovative and approachable</div>
+        </div>
+        
+        <div className=\"style-exploration-option\" onClick={() => handleStyleSelect('luxury-lifestyle')}>
+          <div className=\"style-preview-grid\">
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+            <div className=\"style-image-placeholder\"></div>
+          </div>
+          <div className=\"style-outcome-label\">Luxury Lifestyle</div>
+          <div className=\"style-context\">Elevated everyday elegance</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderRefinementChat = () => (
+    <div className=\"consultation-container\">
+      <div className=\"maya-avatar-large\">
+        <img src=\"https://i.postimg.cc/mkqSzq3M/out-1-20.png\" alt=\"Maya - Your Creative Director\" />
+      </div>
+      <div className=\"consultation-eyebrow\">Step 3: Final Refinements</div>
+      <h2 className=\"consultation-title\">Let's perfect your vision</h2>
+      <p className=\"consultation-description\">A few quick choices to nail the exact mood you want.</p>
+      
+      <div className=\"refinement-questions\">
+        <div className=\"refinement-question\">
+          <div className=\"question-label\">What feeling do you want?</div>
+          <div className=\"refinement-options\">
+            <button 
+              className={`refinement-btn ${brandAssessment.refinements.feeling === 'editorial' ? 'selected' : ''}`}
+              onClick={() => handleRefinementSelect('feeling', 'editorial')}
+            >
+              Editorial & Artistic
+            </button>
+            <button 
+              className={`refinement-btn ${brandAssessment.refinements.feeling === 'commercial' ? 'selected' : ''}`}
+              onClick={() => handleRefinementSelect('feeling', 'commercial')}
+            >
+              Commercial & Polished
+            </button>
+          </div>
+        </div>
+        
+        <div className=\"refinement-question\">
+          <div className=\"question-label\">What lighting feels right?</div>
+          <div className=\"refinement-options\">
+            <button 
+              className={`refinement-btn ${brandAssessment.refinements.lighting === 'studio' ? 'selected' : ''}`}
+              onClick={() => handleRefinementSelect('lighting', 'studio')}
+            >
+              Studio & Controlled
+            </button>
+            <button 
+              className={`refinement-btn ${brandAssessment.refinements.lighting === 'natural' ? 'selected' : ''}`}
+              onClick={() => handleRefinementSelect('lighting', 'natural')}
+            >
+              Natural & Organic
+            </button>
+          </div>
+        </div>
+        
+        <div className=\"refinement-question\">
+          <div className=\"question-label\">What approach speaks to you?</div>
+          <div className=\"refinement-options\">
+            <button 
+              className={`refinement-btn ${brandAssessment.refinements.approach === 'classic' ? 'selected' : ''}`}
+              onClick={() => handleRefinementSelect('approach', 'classic')}
+            >
+              Classic & Timeless
+            </button>
+            <button 
+              className={`refinement-btn ${brandAssessment.refinements.approach === 'contemporary' ? 'selected' : ''}`}
+              onClick={() => handleRefinementSelect('approach', 'contemporary')}
+            >
+              Contemporary & Bold
+            </button>
+          </div>
+        </div>
+        
+        <button className=\"start-generation-btn\" onClick={startGeneration}>
+          Create My Brand Photos
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderGenerationView = () => (
+    <div>
+      {messages.map((message, index) => (
+        <div key={index} className={`editorial-message ${message.role}`}>
+          {/* Original message rendering code */}
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div>
