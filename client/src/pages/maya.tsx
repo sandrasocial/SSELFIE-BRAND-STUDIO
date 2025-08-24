@@ -29,6 +29,18 @@ interface MayaChat {
   updatedAt: string;
 }
 
+type ConsultationStep = 'brand-assessment' | 'style-exploration' | 'refinement-chat' | 'generation';
+
+interface BrandAssessment {
+  goal: 'professional' | 'personal-brand' | 'instagram-profile' | 'creative-entrepreneur' | 'speaker' | 'lifestyle' | null;
+  style: string | null;
+  refinements: {
+    feeling?: 'editorial' | 'commercial';
+    lighting?: 'studio' | 'natural';
+    approach?: 'classic' | 'contemporary';
+  };
+}
+
 // Editorial luxury styles
 const editorialStyles = `
   :root {
