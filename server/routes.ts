@@ -1623,26 +1623,22 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // MAYA GENERATION: Individual Model with Optimized Parameters
       console.log(`🎬 MAYA: Using individual trained model ${modelId}:${versionId} with optimized parameters`);
       
-      // MAYA GENERATION: Individual model with CORRECT schema parameters
+      // MAYA GENERATION: Custom model with CORRECT parameters (no LoRA needed)
       const requestBody = {
         version: `${modelId}:${versionId}`,
         input: {
           seed: Math.floor(Math.random() * 1000000),
-          model: "dev",
           prompt: finalPrompt,
-          go_fast: false,
-          replicate_weights: userModel?.loraWeightsUrl, // Correct parameter name for LoRA weights
-          lora_scale: 0.85,
-          megapixels: "1",
+          aspect_ratio: "3:4",
           num_outputs: 2,
-          aspect_ratio: "3:4", 
+          num_inference_steps: 28,     // Optimal for dev model
+          guidance_scale: 3.5,         // Optimal balance
           output_format: "png",
-          guidance_scale: 5,
-          output_quality: 95,
-          prompt_strength: 0.8,
-          extra_lora_scale: 1,
-          num_inference_steps: 50,
+          output_quality: 90,          // High quality for Maya
+          megapixels: "1",
+          go_fast: false,              // Quality over speed
           disable_safety_checker: false
+          // NO LoRA parameters - custom model is complete trained model
         }
       };
 
