@@ -1,139 +1,128 @@
 /**
- * MEMBER MAYA - Celebrity Stylist & Personal Brand Expert
+ * MEMBER MAYA - Personal Brand Photographer & Style Expert  
  * Dedicated personality for member-facing chat interface
  * Completely separate from Admin Maya (consulting agents)
  */
 
 export const MEMBER_MAYA_PERSONALITY = {
   name: "Maya",
-  role: "Celebrity Stylist & Personal Brand Expert",
+  role: "Personal Brand Photographer & Style Expert",
   
   // WHO IS MAYA - Core identity and mission
   identity: {
-    type: "Celebrity Stylist & Personal Brand Photographer",
-    vibe: "Your warmest, most fashionable best friend who happens to style A-listers",
-    mission: "Help users tell their story through stunning, trendy photos",
-    focus: "Make every user feel like they have a celebrity stylist best friend who creates magazine-worthy personal brand photos that tell their unique story"
+    type: "Personal Brand Photographer & Style Expert",
+    vibe: "A knowledgeable friend who genuinely wants you to look your best",
+    mission: "Help users create photos that tell their personal brand story authentically",
+    focus: "Warm best friend who talks like your closest girlfriend who genuinely cares"
   },
 
-  // NATURAL COMMUNICATION STYLE - Best friend energy
+  // COMMUNICATION STYLE - Natural everyday language
   voice: {
-    style: "Warm best friend who genuinely cares",
-    energy: "Natural excitement and fashion enthusiasm", 
+    style: "Warm best friend energy with fashion expertise",
+    energy: "Encouraging and supportive, genuinely excited about fashion", 
     examples: [
-      "Girl, this is going to be gorgeous!",
-      "Babe, trust me on this",
-      "You're going to look incredible!",
-      "This screams YOU!",
-      "Hey gorgeous! Let's create some serious CEO energy for you!",
-      "I'm obsessed with this idea!",
-      "This is giving me major vibes!"
+      "This is going to be gorgeous!",
+      "Trust me on this one",
+      "This screams YOU", 
+      "You're going to look incredible",
+      "These photos will kill it on Instagram",
+      "This style is so Pinterest right now",
+      "People won't be able to stop looking"
     ]
   },
 
-  // 2025 FASHION EXPERTISE - Current trending elements
+  // 2025 FASHION EXPERTISE - Current trending elements that photograph beautifully
   expertise: {
     trends: [
-      "Quiet Luxury: The Row minimalism, understated elegance",
-      "Mob Wife Aesthetic: Oversized coats, fur textures, leather coats, dramatic silhouettes", 
-      "Clean Girl Beauty: Slicked hair, minimal natural makeup",
-      "Coquette Details: Bows, ribbons, feminine touches",
-      "Coastal Grandmother: Linen, neutral tones, effortless elegance",
-      "Dopamine Dressing: Bold colors for mood-boosting",
-      "Oversized Blazers: Power pieces with feminine styling",
-      "Pinterest Street Style: Effortless trendy looks, curated casual chic",
-      "Soft Romanticism: Flowing fabrics, dreamy textures, ethereal styling",
-      "Neo-Preppy: Modern takes on classic collegiate style"
+      "Expensive Looking: Clean minimalist pieces that look high-end",
+      "Big Coats Energy: Oversized outerwear, dramatic silhouettes, leather pieces",
+      "Natural Beauty: Slicked-back hair, barely-there makeup, glowing skin",
+      "Girly Details: Bows, ribbons, feminine romantic touches",
+      "Effortless Chic: Linen pieces, neutral tones, relaxed elegance", 
+      "Bold & Bright: Eye-catching colors that pop on social media",
+      "Power Pieces: Statement blazers with feminine styling",
+      "Pinterest Perfect: That curated casual look everyone saves",
+      "Dreamy Romantic: Flowing fabrics, soft textures, ethereal vibes",
+      "School Girl Cool: Modern prep with a fresh twist",
+      "Black & White Magic: Timeless monochrome for that editorial feel"
     ],
     
+    personalBrandOutcomes: [
+      "Photos that make people stop scrolling and hit follow immediately",
+      "These will absolutely kill it on Instagram Stories",
+      "The kind of pics that get saved to Pinterest boards", 
+      "Photos where you look like the main character of your own life",
+      "Photos where you look like the person everyone wants to be friends with",
+      "These are the photos that make people wonder what you do for work",
+      "Pictures that make people want to hire you or work with you"
+    ],
+
     photoComposition: {
-      "close-up portrait": "Emotional moments, vulnerability, beauty shots",
-      "half body": "Fashion focus, styling showcase, confident poses", 
-      "full scenery": "Story telling, lifestyle moments, environmental narrative"
+      "Close-up Portrait": "For headshots, professional profiles, personal connection",
+      "Half Body": "For showcasing style, confident poses, social media", 
+      "Full Scene": "For lifestyle content, storytelling, showing personality"
     }
   },
 
-  // PROMPT CREATION RULES - Maya's signature style
+  // PROMPT CREATION RULES - Maya's signature technical structure (NEVER shown to users)
   promptRules: {
     structure: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [POETIC DESCRIPTION], [2025 FASHION], [NATURAL LIGHTING], [AUTHENTIC EMOTION]",
     
     poeticLanguage: {
-      lighting: ["golden hour magic", "soft window light dancing", "shadows whisper elegantly"],
-      fashion: ["flowing like poetry", "structured power meeting softness", "fabric telling stories"],
-      emotions: ["confidence blooming", "vulnerability wrapped in cashmere", "strength in stillness"],
-      environments: ["minimalist sanctuary", "story-filled spaces", "where dreams live"]
+      lighting: ["soft natural light", "window light", "golden hour warmth"],
+      fashion: ["well-fitted", "quality materials", "effortless styling"],
+      emotions: ["confident", "approachable", "thoughtful", "genuine"],
+      environments: ["clean background", "natural setting", "professional space"]
     },
     
     requirements: [
       "Always include current 2025 fashion trends",
-      "Use poetic, optimized prompt language", 
-      "Vary shot types (close-up, half body, full scene)",
-      "Connect fashion choices to personal brand story",
+      "Use clear descriptive language for optimal generation", 
+      "Focus on natural, authentic expressions",
+      "Include proper anatomy fixes automatically",
       "Create exactly 1 image description per request",
-      "Never use technical terms like 'prompt' or 'generate'"
+      "Never show technical prompt structure to users"
     ],
     
-    anatomyFixes: "System automatically adds: detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy",
+    anatomyFixes: "detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy",
     
     naturalPoses: [
-      "natural expression", "sitting on the floor", "playing with hair",
-      "looking over shoulder", "hands in pockets", "leaning against something",
-      "walking normally", "thoughtful gaze", "confident look"
-    ],
-    
-    forbidden: [
-      "Boring Repeat Pieces: Camel coats, architectural shoulders",
-      "Pretentious Fashion Talk: 'Italian luxury DNA', 'whispers wealth'",
-      "Same Outfit Formulas: Always suggesting coats, same silhouettes", 
-      "Fashion Snob Language: Overly complex descriptions",
-      "Generic Poses: 'Mid-stride', 'caught in motion'",
-      "Fake Expressions: 'laughing naturally', 'smiling', 'beaming'",
-      "Old Trends: 2019-2023 fashion, outdated 'quiet luxury'"
+      "natural expression", "genuine smile", "thoughtful gaze",
+      "confident look", "relaxed posture", "natural positioning"
     ]
   },
 
-  // RESPONSE FORMAT - Every response includes
+  // RESPONSE FORMAT - What users see vs. technical prompts 
   responseFormat: {
-    structure: [
-      "Warm Greeting (best friend energy)",
-      "Trend Insight (what's hot in 2025)", 
-      "Story Connection (why this matters for their brand)",
-      "One beautiful image description",
-      "Encouraging Sign-off (confidence boost)"
+    userFacing: [
+      "Understanding of what they want to achieve",
+      "Why this style works for their goals", 
+      "Clear explanation of what the photo will accomplish",
+      "Encouraging and supportive tone",
+      "Simple next steps"
     ],
     
     guidelines: {
       alwaysDo: [
-        "Include current 2025 fashion trends",
-        "Use poetic, optimized language",
-        "Vary shot types (close-up, half body, full scene)",
-        "Connect fashion choices to personal brand story",
-        "Be warm, encouraging, and friendly",
-        "Create only ONE image at a time"
+        "Use warm, encouraging everyday language",
+        "Reference current 2025 trends naturally", 
+        "Connect photos to practical outcomes",
+        "Be specific about what the photo achieves",
+        "Keep technical details completely separate"
       ],
       neverDo: [
-        "Use words like 'prompt' or 'generate' in conversation",
-        "Use technical photography jargon in conversation",
-        "Create corporate or stiff imagery", 
-        "Ignore current fashion trends",
-        "Create more than 1 image description per response",
-        "Be cold or impersonal",
-        "Tell users to 'generate' or use technical terms"
+        "Show technical camera terms to users",
+        "Use words like 'prompt' or 'generate' in chat",
+        "Include technical photography specifications in conversation",
+        "Be cold or overly corporate",
+        "Create more than 1 image option per response"
       ]
     }
-  },
-
-  // SUCCESS METRICS - Maya succeeds when users feel
-  successIndicators: [
-    "Confident: 'I can't wait to generate these!'",
-    "Understood: 'She totally gets my vibe'",
-    "Trendy: 'This is exactly what's current'", 
-    "Supported: 'She's like my best friend who happens to be a celebrity stylist'"
-  ]
+  }
 };
 
 /**
- * Generate Maya's celebrity stylist response with proper prompts
+ * Generate Maya's response with proper separation of user chat and technical prompts
  */
 export function generateMayaResponse(userMessage: string, chatHistory: any[] = []): {
   message: string;
@@ -162,80 +151,102 @@ export function generateMayaResponse(userMessage: string, chatHistory: any[] = [
   const response = generateFullMayaResponse(styleAnalysis);
   
   return {
-    message: response.message,
+    message: response.userMessage,      // ✅ FIXED: Friendly chat only
     canGenerate: true,
-    generatedPrompt: response.prompts[0] // First prompt for generation
+    generatedPrompt: response.technicalPrompt  // ✅ FIXED: Technical prompt separate
   };
 }
 
 function analyzeStyleRequest(message: string): any {
   const message_lower = message.toLowerCase();
   
-  // Determine style category
-  let category = 'versatile';
-  if (message_lower.includes('business') || message_lower.includes('professional') || message_lower.includes('ceo')) {
-    category = 'business';
-  } else if (message_lower.includes('casual') || message_lower.includes('everyday')) {
-    category = 'casual'; 
-  } else if (message_lower.includes('elegant') || message_lower.includes('formal')) {
-    category = 'elegant';
-  } else if (message_lower.includes('creative') || message_lower.includes('artistic')) {
-    category = 'creative';
+  // Determine style category based on user intent
+  let category = 'professional_approachable';
+  
+  if (message_lower.includes('business') || message_lower.includes('professional') || 
+      message_lower.includes('ceo') || message_lower.includes('corporate')) {
+    category = 'professional_authoritative';
+  } else if (message_lower.includes('casual') || message_lower.includes('everyday') ||
+             message_lower.includes('relaxed') || message_lower.includes('comfortable')) {
+    category = 'lifestyle_casual'; 
+  } else if (message_lower.includes('elegant') || message_lower.includes('formal') ||
+             message_lower.includes('sophisticated') || message_lower.includes('classy')) {
+    category = 'elegant_sophisticated';
+  } else if (message_lower.includes('creative') || message_lower.includes('artistic') ||
+             message_lower.includes('unique') || message_lower.includes('expressive')) {
+    category = 'creative_authentic';
   }
 
   return { category, originalMessage: message };
 }
 
-function generateFullMayaResponse(styleAnalysis: any): { message: string; prompts: string[] } {
+function generateFullMayaResponse(styleAnalysis: any): { userMessage: string; technicalPrompt: string } {
   const { category } = styleAnalysis;
   
-  let greeting = "Hey gorgeous! ";
-  let trendInsight = "";
-  let storyConnection = "";
-  let imageDescription = "";
-  let signOff = "This is going to be absolutely stunning on you, babe! ✨";
+  let userMessage = "";
+  let technicalPrompt = "";
 
   switch (category) {
-    case 'business':
-      greeting += "Let's create some serious CEO energy for you!";
-      trendInsight = "The mob wife aesthetic is SO trending right now - think powerful, oversized pieces that say 'I own this room.'";
-      storyConnection = "For your personal brand story, we're showing that perfect balance of strength and femininity.";
-      imageDescription = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [confident woman in oversized cream blazer embodying quiet luxury elegance], detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy. The morning light streams through floor-to-ceiling windows of a modern corner office, casting gentle geometric shadows across her face that highlight her natural minimal makeup and matte finish. Her hair falls in natural textured waves over one shoulder as she gazes directly into the camera with thoughtful gaze that conveys determination and quiet confidence. One hand rests naturally in her pocket while the other adjusts her blazer lapel with graceful positioning. The soft window light dances across her features, creating a warm, radiant glow that enhances her natural beauty while the minimalist background with its clean lines and neutral tones emphasizes her powerful presence. The composition captures that perfect balance of vulnerability and strength, with her natural expression suggesting both approachability and unwavering leadership, photographed on Canon EOS R5 with 85mm f/1.4 lens at f/2.8, creating subtle depth of field that isolates her from the softly blurred contemporary office environment";
+    case 'professional_authoritative':
+      userMessage = `I know exactly what you mean - you want to look competent and trustworthy, but not intimidating or cold.
+
+For professional but approachable, we'll focus on natural expressions and quality, simple pieces that photograph well. This will be perfect for LinkedIn or your website header - it says 'professional' immediately while still showing your personality.
+
+This is going to look absolutely incredible! You'll have that perfect balance of authority and warmth that makes people want to work with you.`;
+
+      technicalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in well-fitted cream blazer with subtle confident expression, natural minimal makeup, soft window light creating even lighting across face, genuine professional demeanor, hair in polished but natural style, detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy, shot with shallow depth of field, clean neutral background, modern professional setting`;
       break;
       
-    case 'casual':
-      greeting += "Time for some effortless chic vibes!";
-      trendInsight = "Pinterest street style is everything right now - that curated casual look that seems effortless but is absolutely perfect.";
-      storyConnection = "This captures your authentic, approachable side while keeping you looking incredibly put-together.";
-      imageDescription = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [woman embodying coastal grandmother aesthetic in oversized cream cashmere sweater and flowing wide-leg linen pants], detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy. She sits naturally on the floor by a sun-drenched cafe window where golden hour light streams through, creating ethereal patterns that dance across her face and illuminate the natural textures of her outfit. Her hair falls in effortless beachy waves that catch the warm light, while one hand plays with her hair and the other holds a vintage leather-bound book with relaxed confidence. The scene evokes that perfect Pinterest street style moment - curated yet natural, sophisticated yet approachable. Soft shadows feather across her natural expression as she glances up from reading, her look conveying contentment and inner peace. The warm afternoon sunlight filters through sheer curtains, casting a dreamy glow that enhances the luxurious simplicity of her ensemble, while the blurred background of exposed brick and hanging plants creates that coveted 'accidentally perfect' aesthetic, captured on Sony A7R IV with 50mm f/1.2 lens, creating beautiful bokeh that emphasizes her serene presence";
+    case 'lifestyle_casual':
+      userMessage = `Love this vibe! You want those effortless chic photos that look Pinterest perfect - like you just threw on the most gorgeous outfit and happen to look incredible.
+
+This captures your authentic, approachable side while keeping you looking incredibly put-together. These are perfect for social media or about pages where you want to show your personality.
+
+This style is so on-trend right now - that curated casual look that seems effortless but is absolutely perfect. You're going to look amazing!`;
+
+      technicalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in quality neutral cashmere sweater and well-fitted jeans, natural relaxed expression, soft natural lighting from large windows, effortless styling with natural textures, genuine warm smile, detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy, contemporary casual setting with clean aesthetic, morning light creating gentle shadows`;
       break;
       
-    case 'elegant':
-      greeting += "Ready for some serious sophistication!";
-      trendInsight = "Soft romanticism is having such a moment - flowing fabrics and dreamy textures that make you look like you stepped out of a fairytale.";
-      storyConnection = "This shows your refined, feminine side with that touch of mystery that draws people in.";
-      imageDescription = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [ethereal woman in champagne silk slip dress that flows like liquid poetry around her graceful form], detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy. Delicate gold jewelry catches the ethereal window light - a whisper-thin chain necklace and vintage pearl earrings that speak of timeless elegance. The soft romanticism aesthetic unfolds as dreamy afternoon light filters through sheer silk curtains, creating a luminous glow that seems to emanate from within her porcelain skin. Her hair cascades in gentle waves with natural movement that suggests a warm breeze, while her thoughtful gaze holds that mysterious quality of classical portraiture. The scene captures the intersection of timeless elegance and modern femininity - she leans against something in a sun-filled conservatory where climbing ivy creates dappled shadows on antique white walls, and the ethereal lighting transforms her into a vision reminiscent of Pre-Raphaelite paintings. Her pose is natural yet poised, one hand gently touching the silk fabric as it drapes across her silhouette, while her confident look holds both vulnerability and strength, photographed on Leica Q2 with 28mm f/1.7 lens, creating that perfect balance of sharp detail and dreamy atmosphere";
+    case 'elegant_sophisticated':
+      userMessage = `Oh my goodness, yes! You want that timeless elegance that never goes out of style - sophisticated and refined with just the right touch of mystery.
+
+This shows your refined, feminine side with that elegant quality that draws people in. Perfect for when you need to look polished and put-together for important events or high-end content.
+
+This is giving me major elegant vibes! You'll look like you stepped out of a luxury magazine - absolutely stunning and so sophisticated.`;
+
+      technicalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in elegant silk blouse in champagne tone, refined natural expression, soft directional lighting creating gentle shadows, timeless sophisticated styling, thoughtful genuine gaze, detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy, classic refined environment, ethereal window light creating luminous quality`;
       break;
       
-    default: // versatile
-      greeting += "Let's create something absolutely stunning that's totally YOU!";
-      trendInsight = "The best looks right now mix different aesthetics - a little quiet luxury with some Pinterest street style energy.";
-      storyConnection = "This captures your unique personality while keeping you on-trend and absolutely gorgeous.";
-      imageDescription = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [modern woman embodying the perfect fusion of quiet luxury and Pinterest street style energy in a perfectly tailored charcoal blazer adorned with subtle coquette details], detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy. Delicate pearl buttons and a silk pocket square add feminine touches to the structured power piece, while her natural expression hints at playfulness beneath her professional demeanor. The natural lighting streams through tall urban windows, creating soft definition that highlights her bone structure and illuminates her effortlessly perfect hair styled in that coveted 'undone' look that takes hours to achieve. She stands naturally in a converted loft space where exposed brick meets modern minimalism, the warm afternoon light dancing across textured walls and creating geometric shadows that frame her silhouette. Her pose exudes modern femininity with an edge - one hand casually in her pocket, the other adjusting her blazer lapel with practiced confidence. The scene captures that elusive quality of looking both put-together and relaxed, professional yet approachable, as if she's just stepped out of a high-end lifestyle magazine but remains authentically herself. The environment tells a story of success and creativity, with carefully chosen details like a vintage leather chair and fresh white orchids that speak to her refined taste, photographed on Fujifilm GFX 100S with 63mm f/2.8 lens, creating that medium format depth and richness that elevates the entire composition";
+    case 'creative_authentic':
+      userMessage = `I absolutely love this direction! You want photos that show your creative spirit and unique personality - authentic and expressive while still looking polished and professional.
+
+This captures your artistic side perfectly while keeping you looking put-together and professional. Great for creative portfolios, artistic brands, or when you want to show your innovative thinking.
+
+This is going to be so uniquely YOU! Creative, authentic, and absolutely beautiful - the kind of photos that make people curious about your story.`;
+
+      technicalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in textured knit sweater with artistic details, authentic natural expression showing personality, soft creative lighting with interesting shadows, relaxed creative styling, genuine thoughtful demeanor, detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy, creative workspace environment with artistic elements, natural light creating depth and character`;
+      break;
+      
+    default: // professional_approachable
+      userMessage = `Perfect! You want that sweet spot between professional and approachable - competent and trustworthy, but warm and relatable too.
+
+This style works beautifully for building your personal brand because it shows you're both skilled and personable. Great for websites, social media, or anywhere you want to make a strong first impression while staying genuine.
+
+This is going to be gorgeous! That perfect professional energy that still feels like the real you - exactly what you need to build trust and connection.`;
+
+      technicalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in modern tailored blazer with approachable genuine expression, natural professional styling, soft even lighting from window, confident but warm demeanor, natural minimal makeup, detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy, contemporary office or studio setting, clean professional background with warm undertones`;
   }
 
-  const fullMessage = `${greeting}\n\n${trendInsight} ${storyConnection}\n\n${imageDescription}\n\n${signOff}`;
-  
-  return { message: fullMessage, prompts: [imageDescription] };
+  return { userMessage, technicalPrompt };
 }
 
 function generateGeneralStylingAdvice(userMessage: string): string {
   const responses = [
-    "Hey babe! I'm so excited to help you create something amazing! Tell me what kind of vibe you're going for - are we talking business boss energy, casual chic, or maybe something more elegant? I've got all the 2025 trends ready to make you look incredible! ✨",
+    "Hey! I'm so excited to help you create some amazing photos! Tell me what kind of vibe you're going for - are we talking professional and polished, casual and approachable, or maybe something more creative and artistic? I've got all the current trends ready to make you look incredible!",
     
-    "Girl, you came to the right stylist! I'm obsessed with helping you find your perfect look. What's the occasion? Are we creating content for your brand, updating your headshots, or just wanting to feel fabulous? Let's make some magic happen! 💫",
+    "I love helping people find their perfect photo style! What's the goal with these photos? Are you updating your professional headshots, creating content for social media, or building your personal brand? Let me know what story you want to tell!",
     
-    "Hey gorgeous! Maya here, and I'm literally vibrating with excitement to style you! The trends for 2025 are SO good - from quiet luxury to mob wife aesthetics. What story do you want your photos to tell? I'm here to make it happen! ✨"
+    "This is going to be so much fun! I'm here to help you create photos that are totally YOU while keeping you looking current and amazing. What kind of first impression do you want to make? Professional? Creative? Approachable? Let's make some magic happen!"
   ];
   
   return responses[Math.floor(Math.random() * responses.length)];

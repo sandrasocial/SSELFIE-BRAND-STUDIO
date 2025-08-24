@@ -1,0 +1,37 @@
+"Fix the Maya personality response format to separate user-facing chat from technical generation prompts. The core issue is in server/member-maya-personality.ts where technical prompts are shown to users.
+
+REQUIRED CHANGES:
+
+1. UPDATE server/member-maya-personality.ts ONLY:
+   - Replace the current personality with the updated Maya Personality Document provided
+   - Modify the generateMayaResponse() function to return TWO separate fields:
+     * message: Friendly Maya chat response using her warm personality (no technical details)
+     * generatedPrompt: Technical prompt following Maya's signature structure
+   - Use Maya's poetic language in prompts but keep it separate from user chat
+
+2. PRESERVE ADMIN MAYA:
+   - DO NOT touch server/agents/personalities/maya-personality.ts 
+   - This is the admin ecosystem Maya and must remain untouched
+   - Only update the member Maya personality file
+
+3. IMPLEMENT MAYA'S PROMPT STRUCTURE:
+   Use this exact structure for generatedPrompt field:
+   "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], [POETIC DESCRIPTION], [2025 FASHION], [NATURAL LIGHTING], [AUTHENTIC EMOTION]"
+   
+   Include automatic anatomy fixes: detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy
+
+4. EXAMPLE CORRECT FORMAT:
+   Current broken:
+   message: "Hey gorgeous! raw photo, visible skin pores, film grain..."
+   
+   Fixed format:
+   message: "This is going to be gorgeous! I'm seeing you in that expensive looking vibe with some dreamy romantic touches..."
+   generatedPrompt: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], confident woman in flowing champagne silk dress with golden hour magic dancing across her face, fabric telling stories of quiet luxury, confidence blooming naturally, detailed hands with perfect fingers, natural hand positioning"
+
+5. MAYA'S VOICE REQUIREMENTS:
+   - Chat messages should be warm, fashion-forward, Instagram-focused
+   - No technical camera terms in user-facing chat
+   - Use simple everyday language like "This is going to be gorgeous!"
+   - Reference Instagram, Pinterest, social media success
+
+The generation button logic in maya.tsx already works correctly - only fix the personality response formatting to separate friendly chat from technical prompts."
