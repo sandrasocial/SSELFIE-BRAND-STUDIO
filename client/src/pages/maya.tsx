@@ -555,24 +555,41 @@ export default function Maya() {
 
   // Save single image to gallery with heart click
   const saveToGallery = async (imageUrl: string) => {
-    if (savedImages.has(imageUrl) || savingImages.has(imageUrl)) return;
+    console.log('💖 HEART CLICK: Starting save process for:', imageUrl);
+    console.log('💖 HEART CLICK: Current state - savedImages:', Array.from(savedImages));
+    console.log('💖 HEART CLICK: Current state - savingImages:', Array.from(savingImages));
+    
+    if (savedImages.has(imageUrl)) {
+      console.log('💖 HEART CLICK: Image already saved, ignoring click');
+      return;
+    }
+    
+    if (savingImages.has(imageUrl)) {
+      console.log('💖 HEART CLICK: Save already in progress, ignoring click');
+      return;
+    }
     
     setSavingImages(prev => new Set([...Array.from(prev), imageUrl]));
     
     try {
       // Extract tracker ID from image URL if currentTrackerId is null
       let trackerId = currentTrackerId;
+      console.log('💖 HEART CLICK: Current tracker ID:', trackerId);
+      
       if (!trackerId) {
         const match = imageUrl.match(/tracker_(\d+)_/);
         if (match) {
           trackerId = parseInt(match[1]);
-          console.log('🔴 HEART CLICK: Extracted tracker ID from URL:', trackerId);
+          console.log('💖 HEART CLICK: Extracted tracker ID from URL:', trackerId);
         }
       }
       
       if (!trackerId) {
+        console.error('💖 HEART CLICK: No tracker ID available');
         throw new Error('No tracker ID available for this image');
       }
+      
+      console.log('💖 HEART CLICK: Making API request with trackerId:', trackerId);
       
       const response = await fetch('/api/save-preview-to-gallery', {
         method: 'POST',
@@ -587,6 +604,7 @@ export default function Maya() {
       });
 
       const data = await response.json();
+      console.log('💖 HEART CLICK: API response:', { status: response.status, data });
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to save images');
@@ -594,19 +612,32 @@ export default function Maya() {
       
       // Mark image as saved - this should turn the heart red
       setSavedImages(prev => new Set([...Array.from(prev), imageUrl]));
+      console.log('💖 HEART CLICK: Image marked as saved in state');
       
       // Refresh both gallery endpoints to show newly saved images
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
       
+      // Success feedback
+      toast({
+        title: "Image Saved!",
+        description: "Successfully saved to your gallery",
+      });
+      
     } catch (error) {
-      console.error('Error saving to gallery:', error);
+      console.error('💖 HEART CLICK: Error saving to gallery:', error);
+      toast({
+        title: "Save Failed",
+        description: error instanceof Error ? error.message : 'Failed to save image to gallery',
+        
+      });
     } finally {
       setSavingImages(prev => {
         const newSet = new Set(Array.from(prev));
         newSet.delete(imageUrl);
         return newSet;
       });
+      console.log('💖 HEART CLICK: Save process completed');
     }
   };
 
@@ -858,7 +889,9 @@ export default function Maya() {
                                     {/* Heart Save Button */}
                                     <button
                                       onClick={(e) => {
+                                        console.log('💖 HEART BUTTON: Click detected on image:', imageUrl);
                                         e.stopPropagation();
+                                        e.preventDefault();
                                         saveToGallery(imageUrl);
                                       }}
                                       disabled={savingImages.has(imageUrl)}
