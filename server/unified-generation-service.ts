@@ -102,25 +102,25 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 INDIVIDUAL MODEL: ${modelId}:${versionId}`);
     
-    // Use individual trained model directly with optimized parameters
+    // Use individual trained model directly with correct parameter format
     const requestBody = {
       version: `${modelId}:${versionId}`,
       input: {
-        model: `${modelId}:${versionId}`,
+        seed: Math.floor(Math.random() * 1000000),
+        model: "dev",
         prompt: finalPrompt,
-        lora_scale: 0.85,                 // Optimal: 85% LoRA strength
-        extra_lora_scale: 1.0,            // Secondary LoRA scale
-        guidance_scale: 5,                // Optimal guidance scale
-        num_inference_steps: 50,          // Optimal steps for quality
-        megapixels: "1",                  // Full resolution quality
-        num_outputs: 2,                   // Always generate 2 options
-        aspect_ratio: "4:5",              // Portrait orientation
-        output_format: "png",             // High quality format
-        output_quality: 95,               // Maximum quality
-        prompt_strength: 0.8,             // Strong prompt adherence
         go_fast: false,
-        disable_safety_checker: false,
-        seed: Math.floor(Math.random() * 1000000)
+        lora_scale: 0.85,
+        megapixels: "1",
+        num_outputs: 2,
+        aspect_ratio: "3:4",
+        output_format: "png",
+        guidance_scale: 5,
+        output_quality: 95,
+        prompt_strength: 0.8,
+        extra_lora_scale: 1,
+        num_inference_steps: 50,
+        disable_safety_checker: false
       }
     };
     

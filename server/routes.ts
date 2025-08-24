@@ -1623,25 +1623,25 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // MAYA GENERATION: Individual Model with Optimized Parameters
       console.log(`🎬 MAYA: Using individual trained model ${modelId}:${versionId} with optimized parameters`);
       
-      // MAYA GENERATION: Individual model with optimal generation parameters
+      // MAYA GENERATION: Individual model with correct parameter format
       const requestBody = {
         version: `${modelId}:${versionId}`,
         input: {
-          model: `${modelId}:${versionId}`,
+          seed: Math.floor(Math.random() * 1000000),
+          model: "dev",
           prompt: finalPrompt,
-          lora_scale: 0.85,                 // Optimal: 85% LoRA strength as requested
-          extra_lora_scale: 1.0,            // Secondary LoRA scale as requested
-          guidance_scale: 5,                // Keep as requested  
-          num_inference_steps: 50,          // Keep as requested
-          num_outputs: 2,
-          aspect_ratio: "4:5",
-          output_format: "png",
-          output_quality: 95,
-          megapixels: "1",
           go_fast: false,
-          disable_safety_checker: false,
-          prompt_strength: 0.8,             // Strong prompt adherence
-          seed: Math.floor(Math.random() * 1000000)
+          lora_scale: 0.85,
+          megapixels: "1",
+          num_outputs: 2,
+          aspect_ratio: "3:4",
+          output_format: "png",
+          guidance_scale: 5,
+          output_quality: 95,
+          prompt_strength: 0.8,
+          extra_lora_scale: 1,
+          num_inference_steps: 50,
+          disable_safety_checker: false
         }
       };
 
