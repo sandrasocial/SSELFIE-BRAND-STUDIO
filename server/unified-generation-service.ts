@@ -88,18 +88,31 @@ export class UnifiedGenerationService {
     
     console.log(`UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // CRITICAL FIX: Use FLUX 1.1 Pro Official Model (No Versioning Required)
-    // FLUX 1.1 Pro became "Official Model" Jan 29, 2025 - priority processing, no queue
+    // CRITICAL: Use FLUX 1.1 Pro + Individual LoRA Weights Architecture
+    // This is the NEW approach: base model + user LoRA weights instead of custom models
     console.log(`🔒 VERSION VALIDATION: Model: ${modelId}, Version: ${versionId}`);
-    console.log(`🚀 FLUX 1.1 PRO: Using official model for priority processing`);
+    console.log(`🚀 FLUX 1.1 PRO + LORA: Using base model with individual LoRA weights`);
     
-    // OPTIMIZED PARAMETERS FOR ALL USERS (August 21, 2025)
-    // Based on Shannon's high-quality results - these parameters ensure optimal image quality
+    // Get user LoRA weights URL (NEW ARCHITECTURE)
+    const userModel = await storage.getUserModelByUserId(userId);
+    const loraWeightsUrl = userModel?.loraWeightsUrl;
+    
+    console.log(`🎯 LORA WEIGHTS: ${loraWeightsUrl || 'Not available - using fallback to custom model'}`);
+    
+    // OPTIMIZED PARAMETERS FOR FLUX 1.1 PRO + LORA ARCHITECTURE
     const requestBody = {
       version: "black-forest-labs/flux-1.1-pro",
       input: {
         prompt: finalPrompt,
-        lora_scale: 0.9,              // Optimal facial accuracy
+        // CRITICAL: Use LoRA weights if available, otherwise fallback to custom model approach
+        ...(loraWeightsUrl ? {
+          lora_weights: loraWeightsUrl,
+          lora_scale: 0.9              // Optimal facial accuracy with LoRA weights
+        } : {
+          // FALLBACK: Use custom model approach for users without LoRA weights
+          version: `${modelId}:${versionId}`,
+          lora_scale: 0.9
+        }),
         megapixels: "1",              // Full resolution quality
         num_outputs: 2,               // Always generate 2 options
         aspect_ratio: "4:5",          // Portrait orientation (was 3:4)
@@ -107,7 +120,6 @@ export class UnifiedGenerationService {
         guidance_scale: 5,            // Perfect balance for anatomy & style
         output_quality: 95,           // Maximum quality
         prompt_strength: 0.8,         // Strong prompt adherence
-        extra_lora_scale: 1,          // Enhanced model influence
         num_inference_steps: 50,      // Detailed generation process
         go_fast: false,               // Quality over speed
         disable_safety_checker: false,
@@ -125,6 +137,8 @@ export class UnifiedGenerationService {
       model: modelId,
       versionId: versionId,
       fluxModel: "black-forest-labs/flux-1.1-pro",
+      loraWeights: loraWeightsUrl || 'fallback to custom model',
+      architecture: loraWeightsUrl ? 'FLUX 1.1 Pro + LoRA' : 'Custom Model Fallback',
       trigger: triggerWord,
       lora_scale: requestBody.input.lora_scale,
       guidance_scale: requestBody.input.guidance_scale,
@@ -138,7 +152,8 @@ export class UnifiedGenerationService {
     
     while (retries <= maxRetries) {
       try {
-        console.log(`🚀 FLUX 1.1 PRO API CALL: Official model with priority processing`);
+        const architecture = loraWeightsUrl ? 'FLUX 1.1 Pro + LoRA weights' : 'Custom model fallback';
+        console.log(`🚀 API CALL: ${architecture} with priority processing`);
         replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
           method: 'POST',
           headers: {
