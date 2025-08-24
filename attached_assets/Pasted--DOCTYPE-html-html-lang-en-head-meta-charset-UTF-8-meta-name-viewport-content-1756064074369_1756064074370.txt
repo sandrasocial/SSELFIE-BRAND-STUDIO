@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maya - Personal Brand Photographer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --editorial-gray: #f5f5f5;
+            --mid-gray: #fafafa;
+            --soft-gray: #666666;
+            --accent-line: #e5e5e5;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 300;
+            color: var(--black);
+            background: var(--white);
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: var(--black);
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            opacity: 0.4;
+        }
+        
+        .hero-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Header overlay on hero */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 10, 10, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Times New Roman', serif;
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            color: var(--white);
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+        
+        .nav-menu a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            transition: opacity 0.3s ease;
+        }
+        
+        .nav-menu a:hover {
+            opacity: 0.6;
+        }
+        
+        /* Hero Content */
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            padding: 0 40px;
+        }
+        
+        .hero-eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        
+        .hero-title {
+            font-family: 'Times New Roman', serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            line-height: 0.9;
+            font-weight: 200;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        
+        .hero-subtitle {
+            font-family: 'Times New Roman', serif;
+            font-size: clamp(1rem, 3vw, 2rem);
+            font-style: italic;
+            letter-spacing: 0.05em;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        
+        .hero-cta {
+            display: inline-block;
+            padding: 16px 32px;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: 1px solid var(--white);
+            color: var(--white);
+            background: transparent;
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+        
+        .hero-cta:hover {
+            background: var(--white);
+            color: var(--black);
+        }
+        
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Left Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--editorial-gray);
+            border-right: 1px solid var(--accent-line);
+            padding: 40px 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            padding: 0 30px;
+            margin-bottom: 40px;
+        }
+        
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--soft-gray);
+            margin-bottom: 20px;
+        }
+        
+        .new-session-btn {
+            width: 100%;
+            padding: 16px 0;
+            background: var(--black);
+            color: var(--white);
+            border: none;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 300ms ease;
+            margin-bottom: 30px;
+        }
+        
+        .new-session-btn:hover {
+            background: var(--soft-gray);
+        }
+        
+        .session-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--accent-line);
+            cursor: pointer;
+            transition: all 200ms ease;
+        }
+        
+        .session-item:hover {
+            background: rgba(10, 10, 10, 0.05);
+        }
+        
+        .session-title {
+            font-size: 14px;
+            font-weight: 400;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        
+        .session-preview {
+            font-size: 12px;
+            color: var(--soft-gray);
+            line-height: 1.3;
+        }
+        
+        .more-sessions {
+            color: var(--soft-gray);
+            font-size: 12px;
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--white);
+        }
+        
+        /* Chat Header */
+        .chat-header {
+            padding: 30px 40px;
+            border-bottom: 1px solid var(--accent-line);
+            background: var(--white);
+        }
+        
+        .chat-title {
+            font-family: 'Times New Roman', serif;
+            font-size: 24px;
+            font-weight: 200;
+            margin-bottom: 8px;
+        }
+        
+        .chat-subtitle {
+            font-size: 14px;
+            color: var(--soft-gray);
+        }
+        
+        /* Messages Container */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+        
+        /* Welcome State */
+        .welcome-state {
+            text-align: center;
+            max-width: 600px;
+            margin: 60px auto;
+        }
+        
+        .maya-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--editorial-gray);
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--soft-gray);
+        }
+        
+        .welcome-eyebrow {
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--soft-gray);
+            margin-bottom: 20px;
+        }
+        
+        .welcome-title {
+            font-family: 'Times New Roman', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 200;
+            letter-spacing: -0.01em;
+            line-height: 1;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-description {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            color: var(--soft-gray);
+        }
+        
+        /* Style Quick-Select */
+        .style-quickselect {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .style-option {
+            aspect-ratio: 1;
+            background: var(--editorial-gray);
+            border: 1px solid var(--accent-line);
+            cursor: pointer;
+            transition: all 300ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .style-option:hover {
+            transform: scale(1.05);
+            border-color: var(--black);
+        }
+        
+        .style-preview {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--soft-gray);
+        }
+        
+        .style-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(10, 10, 10, 0.8));
+            color: var(--white);
+            padding: 15px 10px 10px;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-align: center;
+            transform: translateY(100%);
+            transition: transform 300ms ease;
+        }
+        
+        .style-option:hover .style-label {
+            transform: translateY(0);
+        }
+        
+        /* Messages */
+        .message {
+            margin-bottom: 30px;
+            max-width: 700px;
+        }
+        
+        .message.maya {
+            margin-right: auto;
+        }
+        
+        .message.user {
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+        
+        .message.user .message-header {
+            justify-content: flex-end;
+        }
+        
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--editorial-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--soft-gray);
+        }
+        
+        .message.user .message-avatar {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        .message-sender {
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--soft-gray);
+        }
+        
+        .message-time {
+            font-size: 10px;
+            color: var(--soft-gray);
+            opacity: 0.6;
+        }
+        
+        .message-content {
+            background: var(--editorial-gray);
+            padding: 24px;
+            border-radius: 0;
+            position: relative;
+        }
+        
+        .message.user .message-content {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        .message-text {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .message-text strong {
+            font-weight: 400;
+        }
+        
+        /* Style Selection in Messages */
+        .style-selection {
+            margin-top: 20px;
+            padding: 20px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .message.maya .style-selection {
+            border-top: 1px solid var(--accent-line);
+        }
+        
+        .style-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .style-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid var(--black);
+            color: var(--black);
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 300ms ease;
+        }
+        
+        .message.maya .style-btn:hover {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        .message.user .style-btn {
+            border-color: var(--white);
+            color: var(--white);
+        }
+        
+        .message.user .style-btn:hover {
+            background: var(--white);
+            color: var(--black);
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--soft-gray);
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+        
+        .typing-text {
+            font-size: 12px;
+            color: var(--soft-gray);
+        }
+        
+        /* Input Area */
+        .input-area {
+            padding: 30px 40px;
+            border-top: 1px solid var(--accent-line);
+            background: var(--white);
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        
+        .input-field {
+            flex: 1;
+            border: 1px solid var(--accent-line);
+            background: var(--white);
+            padding: 16px 20px;
+            font-size: 14px;
+            line-height: 1.4;
+            font-family: inherit;
+            resize: none;
+            min-height: 24px;
+            max-height: 120px;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--black);
+        }
+        
+        .input-field::placeholder {
+            color: var(--soft-gray);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.3em;
+        }
+        
+        .send-btn {
+            padding: 16px 24px;
+            background: var(--black);
+            color: var(--white);
+            border: none;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 300ms ease;
+        }
+        
+        .send-btn:hover {
+            background: var(--soft-gray);
+        }
+        
+        .send-btn:disabled {
+            background: var(--accent-line);
+            cursor: not-allowed;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                order: 2;
+            }
+            
+            .chat-area {
+                order: 1;
+                min-height: 70vh;
+            }
+            
+            .header-content {
+                padding: 0 20px;
+            }
+            
+            .nav-menu {
+                display: none;
+            }
+            
+            .messages-container,
+            .input-area,
+            .chat-header {
+                padding: 20px;
+            }
+            
+            .style-quickselect {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Header overlay -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">SSELFIE</div>
+                <ul class="nav-menu">
+                    <li><a href="#studio">Studio</a></li>
+                    <li><a href="#train">Train</a></li>
+                    <li><a href="#photoshoot">Photoshoot</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                    <li><a href="#flatlays">Flatlays</a></li>
+                    <li><a href="#profile">Profile</a></li>
+                    <li><a href="#logout">Logout</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Hero Background Image -->
+        <div class="hero-bg">
+            <img src="https://images.unsplash.com/photo-1494790108755-2616c79e9a9e?w=1600&h=1200&fit=crop&crop=face" alt="Maya - Your Celebrity Stylist">
+        </div>
+
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <div class="hero-eyebrow">Your personal brand photoshoot begins</div>
+            <h1 class="hero-title">Maya</h1>
+            <p class="hero-subtitle">Your Celebrity Stylist</p>
+            <button class="hero-cta" onclick="startPhotoshoot()">Begin Your Session</button>
+        </div>
+    </section>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <button class="new-session-btn" onclick="newSession()">New Session</button>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Previous Sessions</div>
+                
+                <div class="session-item" onclick="loadSession('golden-hour')">
+                    <div class="session-title">Golden Hour Portrait</div>
+                    <div class="session-preview">Soft romantic lighting for magazine glow</div>
+                </div>
+                
+                <div class="session-item" onclick="loadSession('norway-fjords')">
+                    <div class="session-title">Norway Fjords Shoot</div>
+                    <div class="session-preview">Natural landscape editorial</div>
+                </div>
+                
+                <div class="session-item" onclick="loadSession('street-fashion')">
+                    <div class="session-title">Street Fashion Shoot</div>
+                    <div class="session-preview">Urban cool with quiet luxury</div>
+                </div>
+                
+                <div class="session-item" onclick="loadSession('ice-photoshoot')">
+                    <div class="session-title">Ice Photoshoot</div>
+                    <div class="session-preview">Can you create a photoshoot of me in Ice...</div>
+                </div>
+                
+                <div class="more-sessions">85 more sessions</div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <h1 class="chat-title">Maya Studio Session</h1>
+                <p class="chat-subtitle">Your personal brand photographer</p>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="messages-container" id="messages">
+                <!-- Welcome State -->
+                <div class="welcome-state" id="welcome-state">
+                    <div class="maya-avatar">M</div>
+                    <div class="welcome-eyebrow">Personal Brand Photoshoot</div>
+                    <h2 class="welcome-title">Ready to create something beautiful?</h2>
+                    <p class="welcome-description">I'm Maya, your creative director. I'll help you create images that tell your story authentically. What kind of energy are you feeling today?</p>
+                    
+                    <!-- Quick Style Selection -->
+                    <div class="style-quickselect">
+                        <div class="style-option" onclick="selectQuickStyle('editorial')">
+                            <div class="style-preview">Editorial</div>
+                            <div class="style-label">Magazine Luxury</div>
+                        </div>
+                        <div class="style-option" onclick="selectQuickStyle('natural')">
+                            <div class="style-preview">Natural</div>
+                            <div class="style-label">Effortless Beauty</div>
+                        </div>
+                        <div class="style-option" onclick="selectQuickStyle('professional')">
+                            <div class="style-preview">Professional</div>
+                            <div class="style-label">CEO Energy</div>
+                        </div>
+                        <div class="style-option" onclick="selectQuickStyle('creative')">
+                            <div class="style-preview">Creative</div>
+                            <div class="style-label">Artistic Expression</div>
+                        </div>
+                        <div class="style-option" onclick="selectQuickStyle('lifestyle')">
+                            <div class="style-preview">Lifestyle</div>
+                            <div class="style-label">Your Real Life</div>
+                        </div>
+                        <div class="style-option" onclick="selectQuickStyle('confident')">
+                            <div class="style-preview">Confident</div>
+                            <div class="style-label">Pure Power</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample conversation (hidden initially) -->
+                <div class="conversation" id="conversation" style="display: none;">
+                    <div class="message maya">
+                        <div class="message-header">
+                            <div class="message-avatar">M</div>
+                            <div class="message-sender">Maya</div>
+                            <div class="message-time">15:55</div>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text">
+                                Hey Sandra! I'm Maya - your fashion-obsessed creative director who lives for creating stunning visuals that tell YOUR unique story.
+                                <br><br>
+                                I'm all about that 2025 fashion energy - think editorial moments, quiet luxury, and authentic creative expression.
+                                <br><br>
+                                Tell me what kind of vibe you're feeling today and I'll create something incredible for you! Think fashion week energy, not basic portrait poses.
+                                <br><br>
+                                <strong>What's calling to your creative soul?</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message user">
+                        <div class="message-header">
+                            <div class="message-time">15:55</div>
+                            <div class="message-sender">Sandra</div>
+                            <div class="message-avatar">S</div>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-text">
+                                Golden Hour Portrait - Soft romantic lighting for magazine glow
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="message-avatar">M</div>
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                        <div class="typing-text">Maya is creating your vision...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea 
+                        class="input-field" 
+                        id="message-input"
+                        placeholder="Tell Maya what kind of photos you want to create..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function startPhotoshoot() {
+            // Smooth scroll to main chat area
+            const heroHeight = document.querySelector('.hero').offsetHeight;
+            window.scrollTo({
+                top: heroHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        let isConversationStarted = false;
+
+        function newSession() {
+            // Reset to welcome state
+            isConversationStarted = false;
+            document.getElementById('welcome-state').style.display = 'block';
+            document.getElementById('conversation').style.display = 'none';
+            document.getElementById('message-input').value = '';
+        }
+
+        function loadSession(sessionId) {
+            // Hide welcome state and show conversation
+            document.getElementById('welcome-state').style.display = 'none';
+            document.getElementById('conversation').style.display = 'block';
+            isConversationStarted = true;
+            
+            // Highlight selected session
+            document.querySelectorAll('.session-item').forEach(item => {
+                item.style.background = 'transparent';
+            });
+            event.target.closest('.session-item').style.background = 'rgba(10, 10, 10, 0.1)';
+        }
+
+        function selectQuickStyle(style) {
+            // Start conversation with selected style
+            document.getElementById('welcome-state').style.display = 'none';
+            document.getElementById('conversation').style.display = 'block';
+            isConversationStarted = true;
+            
+            // Add visual feedback
+            event.target.style.transform = 'scale(1.1)';
+            event.target.style.borderColor = 'var(--black)';
+            
+            // Simulate sending the style choice
+            setTimeout(() => {
+                const styleNames = {
+                    'editorial': 'Editorial luxury - magazine sophistication',
+                    'natural': 'Natural beauty - effortless elegance',
+                    'professional': 'Professional power - CEO energy',
+                    'creative': 'Creative artistic - unique expression',
+                    'lifestyle': 'Lifestyle natural - authentic moments',
+                    'confident': 'Confident power - unapologetic strength'
+                };
+                
+                // Focus the input and add the style choice
+                document.getElementById('message-input').value = styleNames[style] || 'I want to explore this style';
+            }, 300);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            if (!isConversationStarted) {
+                // Start conversation
+                document.getElementById('welcome-state').style.display = 'none';
+                document.getElementById('conversation').style.display = 'block';
+                isConversationStarted = true;
+            }
+            
+            // Clear input
+            input.value = '';
+            
+            // Show typing indicator
+            document.getElementById('typing-indicator').style.display = 'flex';
+            
+            // Simulate Maya's response after delay
+            setTimeout(() => {
+                document.getElementById('typing-indicator').style.display = 'none';
+                // Here you would add the actual message to the conversation
+            }, 2000);
+        }
+
+        // Auto-resize textarea
+        document.getElementById('message-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Send message on Enter (but not Shift+Enter)
+        document.getElementById('message-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
