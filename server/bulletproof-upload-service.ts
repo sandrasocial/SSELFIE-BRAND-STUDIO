@@ -367,14 +367,15 @@ export class BulletproofUploadService {
         console.log(`✅ Model ${modelName} created successfully`);
       }
       
-      // Start training
-      const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
+      // Start training - FIXED: Use generic trainings endpoint for LoRA weights
+      const trainingResponse = await fetch('https://api.replicate.com/v1/trainings', {
         method: 'POST',
         headers: {
           'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          version: '26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2', // ostris/flux-dev-lora-trainer
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
