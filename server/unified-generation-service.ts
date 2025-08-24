@@ -95,27 +95,26 @@ export class UnifiedGenerationService {
     const userModel = await storage.getUserModelByUserId(userId);
     const loraWeightsUrl = userModel?.loraWeightsUrl;
     
-    if (!loraWeightsUrl) {
-      throw new Error(`Personal LoRA weights required for user ${userId}. Please train your model first at /train.`);
-    }
+    // INDIVIDUAL MODEL ARCHITECTURE: Use trained model directly
+    console.log(`🎬 UNIFIED: Using individual trained model (no separate LoRA weights required)`);
     
-    console.log(`🎯 PERSONAL LORA: ${loraWeightsUrl}`);
+    // Skip LoRA check for individual models - they are complete models
     
-    // Use FLUX 1.1 Pro base model + user's personal LoRA weights
+    console.log(`🎯 INDIVIDUAL MODEL: ${modelId}:${versionId}`);
+    
+    // Use individual trained model directly (no LoRA weights needed)
     const requestBody = {
-      version: "black-forest-labs/flux-1.1-pro",
+      version: `${modelId}:${versionId}`,
       input: {
         prompt: finalPrompt,
-        lora_weights: loraWeightsUrl,   // User's personal LoRA weights
-        lora_scale: 1.2,               // Research optimal: 1.0-1.3 for person training
         megapixels: "1",               // Full resolution quality
         num_outputs: 2,                // Always generate 2 options
         aspect_ratio: "4:5",           // Portrait orientation
         output_format: "png",          // High quality format
-        guidance_scale: 3.5,           // FLUX 1.1 Pro optimal guidance
+        guidance_scale: 3.5,           // Optimal guidance for individual models
         output_quality: 95,            // Maximum quality
         prompt_strength: 0.8,          // Strong prompt adherence
-        num_inference_steps: 28,       // FLUX 1.1 Pro optimal steps
+        num_inference_steps: 28,       // Optimal steps
         disable_safety_checker: false,
         seed: Math.floor(Math.random() * 1000000)
       }
@@ -126,16 +125,14 @@ export class UnifiedGenerationService {
     const isPremium = user?.plan === 'sselfie-studio' || user?.role === 'admin';
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     
-    console.log(`🚀 OPTION A GENERATION REQUEST:`, {
+    console.log(`🚀 INDIVIDUAL MODEL GENERATION REQUEST:`, {
       userId: userId,
-      baseModel: "black-forest-labs/flux-1.1-pro",
-      loraWeightsUrl: loraWeightsUrl,
-      architecture: 'FLUX 1.1 Pro + Personal LoRA Weights',
+      modelVersion: `${modelId}:${versionId}`,
+      architecture: 'Individual Trained Model',
       trigger: triggerWord,
-      lora_scale: requestBody.input.lora_scale,
       guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps,
-      approach: 'Base Model + LoRA Weights (Option A)'
+      approach: 'Individual Trained Model (Direct)'
     });
     
     // Call Replicate API with FLUX 1.1 Pro Official Model (Priority Processing)
