@@ -15,30 +15,16 @@ import { WebsiteManager } from '../components/workspace/WebsiteManager';
 
 
 export default function Workspace() {
-  // DEVELOPMENT BYPASS: Check for admin development parameter
-  const urlParams = new URLSearchParams(window.location.search);
-  const isDevelopmentAdmin = urlParams.get('dev_admin') === 'sandra';
+  // LAUNCH MODE: Feature flag for production launch (shows only first 3 steps)
+  const LAUNCH_MODE = true;
   
   const { user, isAuthenticated, isLoading, error } = useAuth();
   
-  // Override authentication check for development
-  const effectiveAuthenticated = isDevelopmentAdmin || isAuthenticated;
-  
-  // Mock user data for development admin
-  const effectiveUser = isDevelopmentAdmin ? {
-    id: '44991795',
-    email: 'sandra@sselfie.ai',
-    plan: 'admin',
-    role: 'admin',
-    name: 'Sandra (Admin Dev)'
-  } : user;
-  
   console.log('🔧 WORKSPACE AUTH CHECK:', {
-    isDevelopmentAdmin,
     isAuthenticated,
-    effectiveAuthenticated,
-    effectiveUser: effectiveUser?.email,
-    searchParams: window.location.search
+    user: user?.email,
+    role: user?.role,
+    launchMode: LAUNCH_MODE
   });
   
 
@@ -46,12 +32,12 @@ export default function Workspace() {
   // Fetch user data with proper typing
   const { data: aiImages = [] } = useQuery({
     queryKey: ['/api/ai-images'],
-    enabled: effectiveAuthenticated
+    enabled: isAuthenticated
   });
 
   const { data: userModel, refetch: refetchUserModel } = useQuery({
     queryKey: ['/api/user-model'],
-    enabled: effectiveAuthenticated,
+    enabled: isAuthenticated,
     refetchInterval: (data: any) => {
       // CRITICAL FIX: Only auto-refresh when actually on workspace page to prevent Maya interference
       const currentPath = window.location.pathname;
@@ -93,18 +79,18 @@ export default function Workspace() {
 
   const { data: subscription = {} } = useQuery({
     queryKey: ['/api/subscription'],
-    enabled: effectiveAuthenticated
+    enabled: isAuthenticated
   });
 
   const { data: usage = {} } = useQuery({
     queryKey: ['/api/usage/status'],
-    enabled: effectiveAuthenticated
+    enabled: isAuthenticated
   });
 
   // Check if user has full access based on new pricing structure
-  const hasFullAccess = effectiveUser?.plan === 'full-access' || 
-                        effectiveUser?.plan === 'admin' ||
-                        effectiveUser?.role === 'admin' ||
+  const hasFullAccess = user?.plan === 'full-access' || 
+                        user?.plan === 'admin' ||
+                        user?.role === 'admin' ||
                         (subscription as any)?.plan === 'full-access' || 
                         (subscription as any)?.plan === 'sselfie-studio' || // Legacy plan support
                         (usage as any)?.plan === 'full-access' ||
@@ -128,11 +114,11 @@ export default function Workspace() {
     }
     
     // Enhanced plan detection from multiple sources
-    const userPlan = effectiveUser?.plan || (subscription as any)?.plan || usageData?.plan || 'basic';
+    const userPlan = user?.plan || (subscription as any)?.plan || usageData?.plan || 'basic';
     const hasFullAccessPlan = userPlan === 'full-access' || userPlan === 'sselfie-studio' || userPlan === 'admin';
     
-    const used = usageData.monthlyUsed || effectiveUser?.generationsUsedThisMonth || 0;
-    const total = hasFullAccessPlan ? (effectiveUser?.monthlyGenerationLimit || 100) : (effectiveUser?.monthlyGenerationLimit || 30);
+    const used = usageData.monthlyUsed || user?.generationsUsedThisMonth || 0;
+    const total = hasFullAccessPlan ? (user?.monthlyGenerationLimit || 100) : (user?.monthlyGenerationLimit || 30);
     
     return {
       used,
@@ -163,7 +149,7 @@ export default function Workspace() {
     );
   }
 
-  if (!effectiveAuthenticated) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -184,19 +170,20 @@ export default function Workspace() {
     );
   }
 
-  // Elena's Revolutionary 4-Phase Journey System
+  // Elena's Revolutionary Journey System with Launch Mode Support
   const getJourneySteps = () => {
     const hasImages = Array.isArray(aiImages) && aiImages.length > 0;
     const hasTraining = userModel && (userModel as any).trainingStatus === 'completed';
     const modelStatus = (userModel as any)?.trainingStatus || 'none';
+    const isAdmin = user?.role === 'admin';
 
-    return [
+    const allSteps = [
       {
         id: 'train',
         title: 'Train Your AI Model',
         description: 'Upload 10-15 selfies to create your personal FLUX AI model. This takes about 15 minutes.',
         image: SandraImages.editorial.phone1,
-        link: '/ai-training',
+        link: '/simple-training',
         status: hasTraining ? 'complete' : hasImages ? 'progress' : 'ready',
         statusMessage: hasTraining ? 'Model Ready' : hasImages ? 'Training...' : 'Start Here',
         nextStep: hasTraining ? 'Ready for Maya styling session' : hasImages ? 'AI model training in progress' : 'Upload your selfies to begin'
@@ -212,26 +199,33 @@ export default function Workspace() {
         nextStep: hasTraining ? 'Define your signature style with Maya' : 'Complete AI training first'
       },
       {
-        id: 'photoshoot',
-        title: 'AI Photoshoot',
-        description: 'Generate luxury editorial photos instantly using your trained AI model and Maya\'s styling direction.',
+        id: 'gallery',
+        title: 'Curate Your Gallery',
+        description: 'Organize and manage your personal brand photo collection with smart categorization and optimization.',
         image: SandraImages.editorial.laptop1,
-        link: '/ai-photoshoot',
+        link: '/sselfie-gallery',
         status: hasTraining ? 'ready' : 'locked',
-        statusMessage: hasTraining ? 'Generate Photos' : 'Complete Previous Steps',
-        nextStep: hasTraining ? 'Create professional photos instantly' : 'Complete training and styling first'
+        statusMessage: hasTraining ? 'View Gallery' : 'Complete Previous Steps',
+        nextStep: hasTraining ? 'Organize your professional photos' : 'Complete training and styling first'
       },
       {
         id: 'build',
         title: 'Build Your Brand',
         description: 'Create landing pages, business websites, and professional presence using your AI photos.',
         image: SandraImages.editorial.aiSuccess,
-        link: '/build',
+        link: '/victoria',
         status: hasTraining ? 'ready' : 'locked',
         statusMessage: hasTraining ? 'Build Website' : 'Complete Previous Steps',
         nextStep: hasTraining ? 'Launch your professional website' : 'Complete previous phases first'
       }
     ];
+
+    // Filter steps based on launch mode (admins always see all steps)
+    if (LAUNCH_MODE && !isAdmin) {
+      return allSteps.slice(0, 3); // Show only TRAIN, STYLE, GALLERY for launch
+    }
+    
+    return allSteps;
   };
 
   const journeySteps = getJourneySteps();
@@ -276,7 +270,7 @@ export default function Workspace() {
               Here's What Happens Next
             </div>
             <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-light uppercase tracking-wide leading-tight mb-8">
-              Three Simple Steps
+              {LAUNCH_MODE && user?.role !== 'admin' ? 'Three Simple Steps' : 'Four Simple Steps'}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
               I know this might feel like a lot, but honestly, it's way easier than you think. 
@@ -319,7 +313,7 @@ export default function Workspace() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-white text-center">
                         <div className="font-serif text-3xl md:text-4xl font-light tracking-[0.4em] uppercase">
-                          {index === 0 ? 'T R A I N' : index === 1 ? 'S T Y L E' : index === 2 ? 'S H O O T' : 'B U I L D'}
+                          {index === 0 ? 'T R A I N' : index === 1 ? 'S T Y L E' : index === 2 ? 'G A L L E R Y' : 'B U I L D'}
                         </div>
                         <div className="text-xs tracking-[0.2em] uppercase opacity-80 mt-2">
                           Step {index + 1}
