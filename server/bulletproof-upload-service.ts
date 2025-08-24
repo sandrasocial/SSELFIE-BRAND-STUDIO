@@ -277,12 +277,39 @@ export class BulletproofUploadService {
         return { success: false, errors, zipUrl: null };
       }
       
-      // Serve ZIP from local server (avoiding S3 region issues)
-      const zipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${path.basename(zipPath)}`;
+      // Upload ZIP to S3 for Replicate access (Replicate can't access local URLs)
+      const zipBuffer = fs.readFileSync(zipPath);
+      const s3Key = `training_${userId}_${Date.now()}.zip`;
       
-      console.log(`✅ ZIP CREATION: Created ${zipStats.size} bytes at ${zipUrl}`);
+      const upload = new Upload({
+        client: this.s3,
+        params: {
+          Bucket: 'sselfie-training-zips',
+          Key: s3Key,
+          Body: zipBuffer,
+          ContentType: 'application/zip'
+        }
+      });
       
-      return { success: true, errors: [], zipUrl };
+      const uploadResult = await upload.done();
+      
+      if (!uploadResult || !uploadResult.Key) {
+        errors.push('Failed to upload ZIP file to S3');
+        return { success: false, errors, zipUrl: null };
+      }
+      
+      const s3ZipUrl = `https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/${s3Key}`;
+      
+      console.log(`✅ ZIP CREATION: Created ${zipStats.size} bytes and uploaded to S3: ${s3ZipUrl}`);
+      
+      // Clean up local file
+      try {
+        fs.unlinkSync(zipPath);
+      } catch (cleanupError) {
+        console.warn(`⚠️ ZIP CLEANUP: Could not delete local file ${zipPath}`);
+      }
+      
+      return { success: true, errors: [], zipUrl: s3ZipUrl };
       
     } catch (error) {
       console.error(`❌ ZIP CREATION: Failed for user ${userId}:`, error);
