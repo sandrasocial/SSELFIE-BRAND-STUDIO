@@ -36,12 +36,11 @@ export class ModelRetrainService {
       
       // Start new Replicate training using ostris/flux-dev-lora-trainer
       const trainingData = {
-        version: '4ffd32160efd92e956d39c5338a9b8fbafca58e03f791f6d8011f3e20e8ea6fa', // ostris/flux-dev-lora-trainer LATEST
-        // ✅ OPTION A: NO destination - outputs LoRA weights directly
+        destination: `${process.env.REPLICATE_USERNAME || 'models'}/${newModelName}`,
         input: {
           input_images: s3ZipUrl,
           trigger_word: existingModel.triggerWord, // Use existing trigger word
-          steps: 1500,                             // ✅ OPTION A: Research optimal 1500-2000 steps for LoRA quality
+          steps: 1000,                             // 🎯 RESEARCH-PROVEN: Community consensus for face training
           learning_rate: 4e-4,                     // 🎯 RESEARCH-PROVEN: 0.0004 works excellent for character training
           batch_size: 1,
           lora_rank: 32,                           // 🎯 RESEARCH-PROVEN: 32 for complex features and character training
@@ -54,7 +53,7 @@ export class ModelRetrainService {
           wandb_project: "flux_train_replicate",
           wandb_save_interval: 100,
           save_every_n_epochs: 1,
-          max_train_steps: 1500,                   // ✅ OPTION A: Updated to match steps
+          max_train_steps: 1000,                   // 🎯 Updated to match steps
           seed: 42
         }
       };
@@ -91,7 +90,7 @@ export class ModelRetrainService {
         trainingStatus: 'training',
         triggerWord: existingModel.triggerWord, // Keep existing trigger word
         trainedModelPath: `${process.env.REPLICATE_USERNAME || 'models'}/${newModelName}`,
-        modelType: 'flux-lora-weights', // ✅ OPTION A: LoRA weights architecture
+        modelType: 'flux-standard',
         updatedAt: new Date()
       });
       
