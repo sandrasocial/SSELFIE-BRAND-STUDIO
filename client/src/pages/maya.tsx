@@ -1195,6 +1195,9 @@ export default function Maya() {
 
   return (
     <div>
+      {/* Member Navigation */}
+      <MemberNavigation transparent={true} />
+      
       {/* Inject editorial styles */}
       <style dangerouslySetInnerHTML={{ __html: editorialStyles }} />
       
