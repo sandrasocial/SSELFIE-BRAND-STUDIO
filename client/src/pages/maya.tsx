@@ -1023,7 +1023,7 @@ export default function Maya() {
                 </div>
                 <div className="welcome-eyebrow">Personal Brand Photoshoot</div>
                 <h2 className="welcome-title">Ready to create something beautiful?</h2>
-                <p className="welcome-description">Hey gorgeous! This is going to be SO good - I can already see your photos killing it on Instagram! I'm here to create that main character energy you've been craving. What vibe are we bringing today?</p>
+                <p className="welcome-description">Hi there! I'm Maya, and I'm excited to help you create some beautiful photos. I love helping people tell their story through images that feel authentic and show who they really are. What kind of mood are you going for today?</p>
                 
                 {/* Quick Style Selection */}
                 <div className="style-quickselect">
