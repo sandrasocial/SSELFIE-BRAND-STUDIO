@@ -350,72 +350,12 @@ export async function setupAuth(app: Express) {
     
     console.log(`🔍 Callback using strategy: replitauth:${hostname}`);
     
-    // POPUP WINDOW SUPPORT: Check if this is a popup window callback
-    const isPopup = req.query.popup === 'true' || req.headers.referer?.includes('oauth_popup');
-    
-    if (isPopup) {
-      // Handle popup window callback with postMessage
-      passport.authenticate(`replitauth:${hostname}`, {
-        successReturnToOrRedirect: "/api/popup-success",
-        failureRedirect: "/api/popup-error"
-      })(req, res, next);
-    } else {
-      // Standard full-page callback handling
-      passport.authenticate(`replitauth:${hostname}`, {
-        successReturnToOrRedirect: "/workspace",
-        failureRedirect: "/api/manual-callback"
-      })(req, res, next);
-    }
+    passport.authenticate(`replitauth:${hostname}`, {
+      successReturnToOrRedirect: "/workspace",
+      failureRedirect: "/api/manual-callback"
+    })(req, res, next);
   });
 
-  // Popup success handler
-  app.get("/api/popup-success", (req, res) => {
-    console.log('✅ Popup OAuth success - sending postMessage to parent');
-    res.send(`
-      <html>
-        <body>
-          <script>
-            if (window.opener) {
-              window.opener.postMessage({
-                type: 'OAUTH_SUCCESS',
-                user: ${JSON.stringify((req.user as any)?.claims || {})}
-              }, window.location.origin);
-              window.close();
-            } else {
-              // Fallback if no opener
-              window.location.href = '/workspace';
-            }
-          </script>
-          <p>Authentication successful! This window should close automatically.</p>
-        </body>
-      </html>
-    `);
-  });
-  
-  // Popup error handler
-  app.get("/api/popup-error", (req, res) => {
-    console.log('❌ Popup OAuth error - sending postMessage to parent');
-    const error = req.query.error || 'Authentication failed';
-    res.send(`
-      <html>
-        <body>
-          <script>
-            if (window.opener) {
-              window.opener.postMessage({
-                type: 'OAUTH_ERROR',
-                error: '${error}'
-              }, window.location.origin);
-              window.close();
-            } else {
-              // Fallback if no opener
-              window.location.href = '/?error=' + encodeURIComponent('${error}');
-            }
-          </script>
-          <p>Authentication failed. This window should close automatically.</p>
-        </body>
-      </html>
-    `);
-  });
 
   // Manual callback route for OAuth failures
   app.get("/api/manual-callback", handleManualTokenExchange);
@@ -521,27 +461,6 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  // AUTOMATIC DEV BYPASS: Always use real admin user in development
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔧 AUTO DEV BYPASS: Using real admin account in development');
-    
-    // Use REAL admin user data from database (ID: 42585527, ssa@ssasocial.com)
-    const adminUser = {
-      claims: {
-        sub: '42585527', // Real Sandra admin user ID
-        email: 'ssa@ssasocial.com', // Real Sandra email
-        first_name: 'Sandra',
-        last_name: 'Sigurjonsdottir',
-        profile_image_url: null
-      },
-      expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
-    };
-    
-    // Set real user in request
-    req.user = adminUser;
-    console.log('✅ AUTO DEV BYPASS: Real admin session created for ssa@ssasocial.com');
-    return next();
-  }
 
   if (!(req as any).isAuthenticated || !(req as any).isAuthenticated() || !user) {
     return res.status(401).json({ message: "Unauthorized" });

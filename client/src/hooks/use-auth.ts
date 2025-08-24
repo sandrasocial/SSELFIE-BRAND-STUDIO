@@ -18,7 +18,6 @@ export function useAuth() {
           'Cache-Control': 'no-cache'
         };
         
-        // Development mode automatically bypasses OAuth
         
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
