@@ -283,15 +283,15 @@ const editorialStyles = `
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: var(--editorial-gray);
     margin: 0 auto 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--editorial-soft-gray);
+    overflow: hidden;
+    border: 2px solid var(--editorial-accent-line);
+  }
+
+  .maya-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .welcome-eyebrow {
@@ -318,6 +318,61 @@ const editorialStyles = `
     line-height: 1.6;
     margin-bottom: 40px;
     color: var(--editorial-soft-gray);
+  }
+
+  /* Style Quick-Select */
+  .style-quickselect {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 40px;
+  }
+
+  .style-option {
+    aspect-ratio: 1;
+    background: var(--editorial-gray);
+    border: 1px solid var(--editorial-accent-line);
+    cursor: pointer;
+    transition: all 300ms ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .style-option:hover {
+    transform: scale(1.05);
+    border-color: var(--editorial-black);
+  }
+
+  .style-preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--editorial-soft-gray);
+  }
+
+  .style-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(10, 10, 10, 0.8));
+    color: var(--editorial-white);
+    padding: 15px 10px 10px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    transform: translateY(100%);
+    transition: transform 300ms ease;
+  }
+
+  .style-option:hover .style-label {
+    transform: translateY(0);
   }
 
   .editorial-message {
@@ -457,6 +512,9 @@ const editorialStyles = `
 
   .input-field::placeholder {
     color: var(--editorial-soft-gray);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.3em;
   }
 
   .send-btn {
@@ -1117,6 +1175,24 @@ export default function Maya() {
     });
   };
 
+  const handleStyleSelect = (style: string) => {
+    const styleMessages = {
+      'editorial': 'Editorial luxury - magazine sophistication',
+      'natural': 'Natural beauty - effortless elegance', 
+      'professional': 'Professional power - CEO energy',
+      'creative': 'Creative artistic - unique expression',
+      'lifestyle': 'Lifestyle natural - authentic moments',
+      'confident': 'Confident power - unapologetic strength'
+    };
+    
+    setInput(styleMessages[style as keyof typeof styleMessages] || 'I want to explore this style');
+    
+    // Auto-send the message after a brief delay for visual feedback
+    setTimeout(() => {
+      sendMessage();
+    }, 300);
+  };
+
   return (
     <div>
       {/* Inject editorial styles */}
@@ -1182,10 +1258,40 @@ export default function Maya() {
             {messages.length === 0 ? (
               /* Welcome State */
               <div className="welcome-container">
-                <div className="maya-avatar-large">M</div>
+                <div className="maya-avatar-large">
+                  <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Creative Director" />
+                </div>
                 <div className="welcome-eyebrow">Personal Brand Photoshoot</div>
                 <h2 className="welcome-title">Ready to create something beautiful?</h2>
                 <p className="welcome-description">I'm Maya, your creative director. I'll help you create images that tell your story authentically. What kind of energy are you feeling today?</p>
+                
+                {/* Quick Style Selection */}
+                <div className="style-quickselect">
+                  <div className="style-option" onClick={() => handleStyleSelect('editorial')}>
+                    <div className="style-preview">Editorial</div>
+                    <div className="style-label">Magazine Luxury</div>
+                  </div>
+                  <div className="style-option" onClick={() => handleStyleSelect('natural')}>
+                    <div className="style-preview">Natural</div>
+                    <div className="style-label">Effortless Beauty</div>
+                  </div>
+                  <div className="style-option" onClick={() => handleStyleSelect('professional')}>
+                    <div className="style-preview">Professional</div>
+                    <div className="style-label">CEO Energy</div>
+                  </div>
+                  <div className="style-option" onClick={() => handleStyleSelect('creative')}>
+                    <div className="style-preview">Creative</div>
+                    <div className="style-label">Artistic Expression</div>
+                  </div>
+                  <div className="style-option" onClick={() => handleStyleSelect('lifestyle')}>
+                    <div className="style-preview">Lifestyle</div>
+                    <div className="style-label">Your Real Life</div>
+                  </div>
+                  <div className="style-option" onClick={() => handleStyleSelect('confident')}>
+                    <div className="style-preview">Confident</div>
+                    <div className="style-label">Pure Power</div>
+                  </div>
+                </div>
               </div>
             ) : (
               /* Messages */
@@ -1292,7 +1398,7 @@ export default function Maya() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 className="input-field"
-                placeholder="Tell Maya what kind of photos you want to create..."
+                placeholder="TELL MAYA WHAT KIND OF PHOTOS YOU WANT TO CREATE..."
                 rows={1}
                 disabled={isTyping}
                 style={{
