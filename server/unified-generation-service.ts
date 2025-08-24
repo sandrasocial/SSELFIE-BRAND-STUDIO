@@ -88,25 +88,34 @@ export class UnifiedGenerationService {
     
     console.log(`UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // CORRECT FLUX LoRA ARCHITECTURE: Use the trained destination model directly
-    console.log(`🔒 TRAINED MODEL: Using destination model ${modelId}:${versionId}`);
-    console.log(`🚀 DIRECT MODEL USAGE: Running inference on trained FLUX LoRA model`);
+    // OPTION A: FLUX 1.1 Pro + Personal LoRA Weights Architecture
+    console.log(`🔒 BASE MODEL + LORA: Using FLUX 1.1 Pro with personal LoRA weights`);
     
-    // Use the trained model directly - no LoRA weights needed!
+    // Get user's personal LoRA weights
+    const userModel = await storage.getUserModelByUserId(userId);
+    const loraWeightsUrl = userModel?.loraWeightsUrl;
+    
+    if (!loraWeightsUrl) {
+      throw new Error(`Personal LoRA weights required for user ${userId}. Please train your model first at /train.`);
+    }
+    
+    console.log(`🎯 PERSONAL LORA: ${loraWeightsUrl}`);
+    
+    // Use FLUX 1.1 Pro base model + user's personal LoRA weights
     const requestBody = {
-      version: `${modelId}:${versionId}`,
+      version: "black-forest-labs/flux-1.1-pro",
       input: {
         prompt: finalPrompt,
-        lora_scale: 0.9,               // Optimal facial accuracy with LoRA weights
+        lora_weights: loraWeightsUrl,   // User's personal LoRA weights
+        lora_scale: 1.2,               // Research optimal: 1.0-1.3 for person training
         megapixels: "1",               // Full resolution quality
         num_outputs: 2,                // Always generate 2 options
         aspect_ratio: "4:5",           // Portrait orientation
         output_format: "png",          // High quality format
-        guidance_scale: 5,             // Perfect balance for anatomy & style
+        guidance_scale: 3.5,           // FLUX 1.1 Pro optimal guidance
         output_quality: 95,            // Maximum quality
         prompt_strength: 0.8,          // Strong prompt adherence
-        num_inference_steps: 50,       // Detailed generation process
-        go_fast: false,                // Quality over speed
+        num_inference_steps: 28,       // FLUX 1.1 Pro optimal steps
         disable_safety_checker: false,
         seed: Math.floor(Math.random() * 1000000)
       }
@@ -117,17 +126,16 @@ export class UnifiedGenerationService {
     const isPremium = user?.plan === 'sselfie-studio' || user?.role === 'admin';
     ArchitectureValidator.validateGenerationRequest(requestBody, userId, isPremium);
     
-    console.log(`🚀 GENERATION REQUEST VERIFIED:`, {
+    console.log(`🚀 OPTION A GENERATION REQUEST:`, {
       userId: userId,
-      model: modelId,
-      versionId: versionId,
-      fluxModel: "black-forest-labs/flux-1.1-pro",
-      loraWeights: loraWeightsUrl,
-      architecture: 'FLUX 1.1 Pro + LoRA + Trigger (ALWAYS)',
+      baseModel: "black-forest-labs/flux-1.1-pro",
+      loraWeightsUrl: loraWeightsUrl,
+      architecture: 'FLUX 1.1 Pro + Personal LoRA Weights',
       trigger: triggerWord,
       lora_scale: requestBody.input.lora_scale,
       guidance_scale: requestBody.input.guidance_scale,
-      steps: requestBody.input.num_inference_steps
+      steps: requestBody.input.num_inference_steps,
+      approach: 'Base Model + LoRA Weights (Option A)'
     });
     
     // Call Replicate API with FLUX 1.1 Pro Official Model (Priority Processing)
@@ -137,7 +145,7 @@ export class UnifiedGenerationService {
     
     while (retries <= maxRetries) {
       try {
-        console.log(`🚀 API CALL: FLUX 1.1 Pro + LoRA weights + trigger word with priority processing`);
+        console.log(`🚀 OPTION A API CALL: FLUX 1.1 Pro + Personal LoRA weights + trigger word`);
         replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
           method: 'POST',
           headers: {
