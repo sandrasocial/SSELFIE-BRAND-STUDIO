@@ -153,7 +153,7 @@ export default function Maya() {
     setIsTyping(true);
 
     try {
-      const response = await apiRequest('/api/maya-chat', 'POST', {
+      const response = await apiRequest('/api/member-maya-chat', 'POST', {
         message: input.trim(),
         chatId: currentChatId,
         chatHistory: messages.map(msg => ({
