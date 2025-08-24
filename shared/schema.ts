@@ -336,6 +336,7 @@ export const userModels = pgTable("user_models", {
   replicateModelId: varchar("replicate_model_id"),
   replicateVersionId: varchar("replicate_version_id"), // The actual trained model version to use
   trainedModelPath: varchar("trained_model_path"), // sandrasocial/{modelName}
+  loraWeightsUrl: varchar("lora_weights_url"), // CRITICAL: LoRA weights URL for base model + LoRA approach
   triggerWord: varchar("trigger_word").notNull().unique(),
   trainingStatus: varchar("training_status").default('pending'), // pending, training, completed, failed, luxury_training, luxury_completed
   modelName: varchar("model_name"),

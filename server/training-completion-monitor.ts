@@ -49,6 +49,15 @@ export class TrainingCompletionMonitor {
           versionId = trainingData.version;
         }
         
+        // CRITICAL: Extract LoRA weights URL from training completion
+        let loraWeightsUrl = null;
+        if (trainingData.output && trainingData.output.weights) {
+          loraWeightsUrl = trainingData.output.weights;
+          console.log(`🎯 LORA WEIGHTS EXTRACTED: ${loraWeightsUrl}`);
+        } else {
+          console.log(`⚠️ No LoRA weights URL found in training output for user ${userId}`);
+        }
+        
         // CRITICAL: Extract and store the trigger word from existing model data
         const existingModel = await storage.getUserModelByUserId(userId);
         let triggerWord = existingModel?.triggerWord;
@@ -62,6 +71,7 @@ export class TrainingCompletionMonitor {
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
           replicateVersionId: versionId, // Store version ID only (universal format)
+          loraWeightsUrl: loraWeightsUrl, // CRITICAL: Store LoRA weights URL for base model + LoRA approach
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainedModelPath: paths.getUserModelPath(userId),
           modelType: 'flux-standard',
