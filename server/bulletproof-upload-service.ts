@@ -379,7 +379,7 @@ export class BulletproofUploadService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1500, // ✅ OPTION A: Research optimal 1500-2000 steps for LoRA quality
+            steps: 1500, // ✅ RESEARCH OPTIMAL: 1500-2000 steps for LoRA quality
             learning_rate: 4e-4, // 🎯 RESEARCH-PROVEN: 0.0004 works excellent for character/face training
             batch_size: 1,
             lora_rank: 32, // 🎯 RESEARCH-PROVEN: 32 for complex features and character training
@@ -388,8 +388,8 @@ export class BulletproofUploadService {
             autocaption: false,
             cache_latents_to_disk: false,
             caption_dropout_rate: 0.1 // 🎯 RESEARCH-PROVEN: 0.1 standard for face training (not too low)
-          }
-          // ✅ OPTION A: NO destination - outputs LoRA weights directly
+          },
+          destination: `sandrasocial/${modelName}` // 🚨 REQUIRED: Destination model for LoRA weights output
         })
       });
       
