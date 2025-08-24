@@ -36,6 +36,7 @@ export class ModelRetrainService {
       
       // Start new Replicate training using ostris/flux-dev-lora-trainer
       const trainingData = {
+        version: '26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2', // ostris/flux-dev-lora-trainer
         // ✅ OPTION A: NO destination - outputs LoRA weights directly
         input: {
           input_images: s3ZipUrl,
@@ -90,7 +91,7 @@ export class ModelRetrainService {
         trainingStatus: 'training',
         triggerWord: existingModel.triggerWord, // Keep existing trigger word
         trainedModelPath: `${process.env.REPLICATE_USERNAME || 'models'}/${newModelName}`,
-        modelType: 'flux-standard',
+        modelType: 'flux-lora-weights', // ✅ OPTION A: LoRA weights architecture
         updatedAt: new Date()
       });
       
