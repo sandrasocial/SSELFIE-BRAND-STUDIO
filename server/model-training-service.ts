@@ -37,8 +37,8 @@ export const GENERATION_SETTINGS = {
   output_format: "png", 
   output_quality: 90,
   lora_scale: 0.9,            // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
-  guidance: 2.6,              // 🔧 FLUX LORA OPTIMAL: Sweet spot for prompt following with natural generation
-  num_inference_steps: 40,    // 🔧 FLUX LORA OPTIMAL: Enough detail without diminishing returns
+  guidance: 5,                // 🔧 MAYA OPTIMAL: Higher guidance for better prompt following
+  num_inference_steps: 50,    // 🔧 MAYA OPTIMAL: More steps for higher quality results
   go_fast: false,
   megapixels: "1"
 };

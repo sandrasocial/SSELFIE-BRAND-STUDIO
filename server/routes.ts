@@ -1562,8 +1562,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         input: {
           prompt: finalPrompt,
           lora_scale: 0.9,
-          guidance_scale: 3.0,
-          num_inference_steps: 40,
+          guidance_scale: 5,
+          num_inference_steps: 50,
           num_outputs: 2,
           aspect_ratio: "3:4",
           output_format: "png",
