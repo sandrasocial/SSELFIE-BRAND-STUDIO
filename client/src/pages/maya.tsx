@@ -156,6 +156,10 @@ export default function Maya() {
       const response = await apiRequest('/api/maya-chat', 'POST', {
         message: input.trim(),
         chatId: currentChatId,
+        chatHistory: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
       });
 
       if (response.chatId && !currentChatId) {

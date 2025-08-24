@@ -1270,10 +1270,10 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
             model: 'claude-3-5-sonnet-20241022',
             max_tokens: 8000, // INTELLIGENT SCALING: Aligned with system-wide token optimization
             messages: [
-              ...chatHistory.map((msg: any) => ({
+              ...(chatHistory && Array.isArray(chatHistory) ? chatHistory.map((msg: any) => ({
                 role: msg.role === 'maya' ? 'assistant' : 'user',
                 content: msg.content
-              })),
+              })) : []),
               {
                 role: 'user',
                 content: message
