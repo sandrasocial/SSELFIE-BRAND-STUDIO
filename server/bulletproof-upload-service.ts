@@ -375,7 +375,7 @@ export class BulletproofUploadService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          version: '26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2', // ostris/flux-dev-lora-trainer
+          version: '4ffd32160efd92e956d39c5338a9b8fbafca58e03f791f6d8011f3e20e8ea6fa', // ostris/flux-dev-lora-trainer LATEST
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
