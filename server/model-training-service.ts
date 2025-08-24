@@ -151,28 +151,9 @@ export class ModelTrainingService {
       // Create the actual ZIP file for training
       const zipUrl = await this.createImageZip(selfieImages, userId);
       
-      // Create user-specific model first
-      const modelName = `${userId}-selfie-lora`;
-      const createModelResponse = await fetch('https://api.replicate.com/v1/models', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          owner: "sandrasocial",
-          name: modelName,
-          description: `SSELFIE AI model for user ${userId}`,
-          visibility: "private",
-          hardware: "gpu-t4"
-        })
-      });
+      // NO MODEL CREATION NEEDED: LoRA weights approach outputs .safetensors file directly
 
-      // Model might already exist, which is OK
-      if (!createModelResponse.ok && createModelResponse.status !== 422) {
-      }
-
-      // Start real Replicate training using the CORRECT model version
+      // Start FLUX LoRA training with BASE MODEL + WEIGHTS approach (OPTION A)
       const trainingResponse = await fetch('https://api.replicate.com/v1/models/ostris/flux-dev-lora-trainer/versions/26dce37af90b9d997eeb970d92e47de3064d46c300504ae376c75bef6a9022d2/trainings', {
         method: 'POST',
         headers: {
@@ -183,17 +164,17 @@ export class ModelTrainingService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1000, // SHANNON'S SUCCESS: 1000 steps = optimal balance (vs 1200 overtraining)
-            learning_rate: 0.0004, // SHANNON'S SUCCESS: 0.0004 = strong feature learning (vs 0.0001 too weak)
+            steps: 1500, // RESEARCH OPTIMAL: 1500-2000 steps for better quality (vs 1000)
+            learning_rate: 0.0004, // SHANNON'S SUCCESS: 0.0004 = strong feature learning
             batch_size: 1, // SHANNON'S SUCCESS: Single batch for precise training
             lora_rank: 32, // SHANNON'S SUCCESS: 32 for complex facial features
             resolution: "1024", // SHANNON'S SUCCESS: 1024x1024 ideal resolution
             optimizer: "adamw8bit", // SHANNON'S SUCCESS: Memory efficient optimizer
-            autocaption: false, // SHANNON'S SUCCESS: Disabled = pure trigger word association (vs true = diluted)
+            autocaption: false, // SHANNON'S SUCCESS: Disabled = pure trigger word association
             cache_latents_to_disk: false, // SHANNON'S SUCCESS: Memory optimization
-            caption_dropout_rate: 0.1 // SHANNON'S SUCCESS: 0.1 = better generalization (vs 0.05 = overfitting)
-          },
-          destination: `sandrasocial/${modelName}` // CRITICAL: This creates the runnable trained model
+            caption_dropout_rate: 0.1 // SHANNON'S SUCCESS: 0.1 = better generalization
+          }
+          // REMOVED: destination parameter - this outputs LoRA weights instead of destination model
         })
       });
 

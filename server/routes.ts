@@ -3390,6 +3390,67 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
     }
   });
 
+  // MIGRATION ROUTE: Migrate user from destination model to LoRA weights architecture
+  app.post('/api/migrate-to-lora/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      console.log(`🔄 MIGRATION: Starting LoRA migration for user ${userId}`);
+      
+      const userModel = await storage.getUserModelByUserId(userId);
+      
+      if (!userModel) {
+        return res.status(404).json({
+          success: false,
+          message: `No model found for user ${userId}`
+        });
+      }
+      
+      if (userModel.trainingStatus !== 'completed') {
+        return res.status(400).json({
+          success: false,
+          message: `User ${userId} model is not completed (status: ${userModel.trainingStatus})`
+        });
+      }
+      
+      // Check if user already has LoRA weights (already migrated)
+      if (userModel.loraWeightsUrl && userModel.modelType === 'flux-lora-weights') {
+        return res.json({
+          success: true,
+          message: `User ${userId} already migrated to LoRA weights architecture`
+        });
+      }
+      
+      console.log(`⚡ User ${userId} needs migration:`);
+      console.log(`   Current Model: ${userModel.replicateModelId}`);
+      console.log(`   Model Type: ${userModel.modelType}`);
+      console.log(`   LoRA Weights: ${userModel.loraWeightsUrl || 'None'}`);
+      
+      // Reset user to require retraining with new architecture
+      await storage.updateUserModel(userId, {
+        trainingStatus: 'pending',
+        replicateModelId: null,
+        replicateVersionId: null,
+        loraWeightsUrl: null,
+        modelType: 'flux-lora-weights', // Set new architecture type
+        updatedAt: new Date()
+      });
+      
+      console.log(`✅ User ${userId} migrated - ready for retraining with LoRA architecture`);
+      
+      res.json({
+        success: true,
+        message: `User ${userId} has been migrated. Please retrain your model to use the new high-quality architecture.`,
+        requiresRetraining: true
+      });
+      
+    } catch (error) {
+      console.error(`❌ Migration failed for user ${userId}:`, error);
+      res.status(500).json({
+        success: false,
+        message: `Migration failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      });
+    }
+  });
 
   // DEVELOPMENT BYPASS: Direct workspace access for testing
   if (process.env.NODE_ENV === 'development') {

@@ -52,62 +52,27 @@ export class TrainingCompletionMonitor {
           versionId = trainingData.version;
         }
         
-        // CRITICAL FIX: Comprehensive LoRA weights extraction
+        // OPTION A: Direct LoRA weights extraction from ostris/flux-dev-lora-trainer
         let loraWeightsUrl = null;
         
-        // Try multiple extraction paths based on actual Replicate API structure
+        console.log(`🔍 OPTION A EXTRACTION: Looking for LoRA weights in training output`);
+        console.log(`📋 Training Output Structure:`, JSON.stringify(trainingData.output, null, 2));
+        
         if (trainingData.output) {
-          // Path 1: Direct weights URL (most common)
+          // ostris/flux-dev-lora-trainer without destination outputs LoRA weights directly
           if (trainingData.output.weights) {
             loraWeightsUrl = trainingData.output.weights;
-            console.log(`🎯 LORA WEIGHTS EXTRACTED (output.weights): ${loraWeightsUrl}`);
+            console.log(`✅ LORA WEIGHTS FOUND (output.weights): ${loraWeightsUrl}`);
           }
-          // Path 2: Version URL extraction
-          else if (trainingData.output.version) {
-            const versionUrl = trainingData.output.version;
-            console.log(`🔍 Found version URL: ${versionUrl}`);
-            // Extract model name and version from URL like: https://replicate.com/sandrasocial/model-name:version_id
-            const versionMatch = versionUrl.match(/replicate\.com\/([^:]+):(.+)$/);
-            if (versionMatch) {
-              const modelPath = versionMatch[1];
-              const extractedVersionId = versionMatch[2];
-              versionId = extractedVersionId; // Update version ID
-              
-              // Fetch the version details to get weights URL
-              try {
-                const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelPath}/versions/${extractedVersionId}`, {
-                  headers: {
-                    'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-                    'Content-Type': 'application/json'
-                  }
-                });
-                
-                if (versionResponse.ok) {
-                  const versionData = await versionResponse.json();
-                  console.log(`📋 VERSION DATA:`, JSON.stringify(versionData, null, 2));
-                  
-                  if (versionData.files && versionData.files.weights) {
-                    loraWeightsUrl = versionData.files.weights;
-                    console.log(`🎯 LORA WEIGHTS EXTRACTED (version.files.weights): ${loraWeightsUrl}`);
-                  } else if (versionData.urls && versionData.urls.get) {
-                    loraWeightsUrl = versionData.urls.get;
-                    console.log(`🎯 LORA WEIGHTS EXTRACTED (version.urls.get): ${loraWeightsUrl}`);
-                  }
-                }
-              } catch (versionError) {
-                console.log(`⚠️ Error fetching version details: ${versionError.message}`);
-              }
-            }
+          else if (Array.isArray(trainingData.output) && trainingData.output.length > 0) {
+            // Sometimes weights are in array format
+            loraWeightsUrl = trainingData.output[0];
+            console.log(`✅ LORA WEIGHTS FOUND (output[0]): ${loraWeightsUrl}`);
           }
-          // Path 3: Alternative weight paths
-          else if (trainingData.output.model) {
-            loraWeightsUrl = trainingData.output.model;
-            console.log(`🎯 LORA WEIGHTS EXTRACTED (output.model): ${loraWeightsUrl}`);
-          }
-          // Path 4: URL format
-          else if (trainingData.urls && trainingData.urls.get) {
-            loraWeightsUrl = trainingData.urls.get;
-            console.log(`🎯 LORA WEIGHTS EXTRACTED (urls.get): ${loraWeightsUrl}`);
+          else if (typeof trainingData.output === 'string' && trainingData.output.includes('.safetensors')) {
+            // Direct URL string
+            loraWeightsUrl = trainingData.output;
+            console.log(`✅ LORA WEIGHTS FOUND (direct string): ${loraWeightsUrl}`);
           }
         }
         
@@ -126,31 +91,16 @@ export class TrainingCompletionMonitor {
           console.log(`🆔 Generated trigger word: ${triggerWord} for user ${userId}`);
         }
         
-        // CORRECT: Update model with destination model info (not LoRA weights)
-        let finalModelId = null;
-        let finalVersionId = versionId;
-        
-        // Extract final model info from training output
-        if (trainingData.output?.version) {
-          const versionUrl = trainingData.output.version;
-          console.log(`🔍 Training created destination model: ${versionUrl}`);
-          
-          // Extract model path from URL like: https://replicate.com/sandrasocial/model-name:version_id
-          const versionMatch = versionUrl.match(/replicate\.com\/([^:]+):(.+)$/);
-          if (versionMatch) {
-            finalModelId = versionMatch[1]; // e.g., "sandrasocial/42585527-selfie-lora"
-            finalVersionId = versionMatch[2]; // version ID
-            console.log(`✅ Extracted destination model: ${finalModelId}:${finalVersionId}`);
-          }
-        }
-
+        // OPTION A: Store LoRA weights URL and training metadata
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
-          replicateModelId: finalModelId || `sandrasocial/${userId}-selfie-lora`, // Destination model ID
-          replicateVersionId: finalVersionId, // Version ID of trained model
+          replicateModelId: replicateModelId, // Keep training ID for reference
+          replicateVersionId: versionId, // Training version
+          loraWeightsUrl: loraWeightsUrl, // CRITICAL: Store LoRA weights for generation
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainedModelPath: paths.getUserModelPath(userId),
-          modelType: 'flux-lora', // Updated to reflect LoRA training
+          modelType: 'flux-lora-weights', // NEW: Indicates base model + LoRA approach
+          completedAt: new Date(),
           updatedAt: new Date()
         });
 
