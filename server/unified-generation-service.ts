@@ -99,33 +99,52 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 LORA WEIGHTS: ${loraWeightsUrl || 'Not available - using fallback to custom model'}`);
     
-    // OPTIMIZED PARAMETERS FOR FLUX 1.1 PRO + LORA ARCHITECTURE
-    const requestBody = {
-      version: "black-forest-labs/flux-1.1-pro",
-      input: {
-        prompt: finalPrompt,
-        // CRITICAL: Use LoRA weights if available, otherwise fallback to custom model approach
-        ...(loraWeightsUrl ? {
+    // CRITICAL FIX: Always use FLUX 1.1 Pro to avoid queuing
+    // Use different request structures based on LoRA availability
+    let requestBody;
+    
+    if (loraWeightsUrl) {
+      // NEW ARCHITECTURE: FLUX 1.1 Pro + Individual LoRA weights (PRIORITY PROCESSING)
+      requestBody = {
+        version: "black-forest-labs/flux-1.1-pro",
+        input: {
+          prompt: finalPrompt,
           lora_weights: loraWeightsUrl,
-          lora_scale: 0.9              // Optimal facial accuracy with LoRA weights
-        } : {
-          // FALLBACK: Use custom model approach for users without LoRA weights
-          version: `${modelId}:${versionId}`,
-          lora_scale: 0.9
-        }),
-        megapixels: "1",              // Full resolution quality
-        num_outputs: 2,               // Always generate 2 options
-        aspect_ratio: "4:5",          // Portrait orientation (was 3:4)
-        output_format: "png",         // High quality format
-        guidance_scale: 5,            // Perfect balance for anatomy & style
-        output_quality: 95,           // Maximum quality
-        prompt_strength: 0.8,         // Strong prompt adherence
-        num_inference_steps: 50,      // Detailed generation process
-        go_fast: false,               // Quality over speed
-        disable_safety_checker: false,
-        seed: Math.floor(Math.random() * 1000000)
-      }
-    };
+          lora_scale: 0.9,              // Optimal facial accuracy with LoRA weights
+          megapixels: "1",              // Full resolution quality
+          num_outputs: 2,               // Always generate 2 options
+          aspect_ratio: "4:5",          // Portrait orientation
+          output_format: "png",         // High quality format
+          guidance_scale: 5,            // Perfect balance for anatomy & style
+          output_quality: 95,           // Maximum quality
+          prompt_strength: 0.8,         // Strong prompt adherence
+          num_inference_steps: 50,      // Detailed generation process
+          go_fast: false,               // Quality over speed
+          disable_safety_checker: false,
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+    } else {
+      // TEMPORARY FALLBACK: Still use FLUX 1.1 Pro but with trigger word for basic personalization
+      // This eliminates queuing while we migrate users to LoRA architecture
+      requestBody = {
+        version: "black-forest-labs/flux-1.1-pro",
+        input: {
+          prompt: finalPrompt,          // Includes trigger word for basic personalization
+          megapixels: "1",              // Full resolution quality
+          num_outputs: 2,               // Always generate 2 options
+          aspect_ratio: "4:5",          // Portrait orientation
+          output_format: "png",         // High quality format
+          guidance_scale: 5,            // Perfect balance for anatomy & style
+          output_quality: 95,           // Maximum quality
+          prompt_strength: 0.8,         // Strong prompt adherence
+          num_inference_steps: 50,      // Detailed generation process
+          go_fast: false,               // Quality over speed
+          disable_safety_checker: false,
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
+    }
     
     // Validate request
     const user = await storage.getUser(userId);
@@ -137,10 +156,9 @@ export class UnifiedGenerationService {
       model: modelId,
       versionId: versionId,
       fluxModel: "black-forest-labs/flux-1.1-pro",
-      loraWeights: loraWeightsUrl || 'fallback to custom model',
-      architecture: loraWeightsUrl ? 'FLUX 1.1 Pro + LoRA' : 'Custom Model Fallback',
+      loraWeights: loraWeightsUrl || 'Using trigger word for basic personalization',
+      architecture: loraWeightsUrl ? 'FLUX 1.1 Pro + LoRA (Priority)' : 'FLUX 1.1 Pro + Trigger (No Queue)',
       trigger: triggerWord,
-      lora_scale: requestBody.input.lora_scale,
       guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps
     });
