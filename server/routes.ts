@@ -1712,7 +1712,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const savedTracker = await storage.saveGenerationTracker(trackerData);
       console.log('📊 Maya: Created tracker:', savedTracker.id);
 
-      // Return immediately with trackerId for live frontend polling (working pattern from 2 days ago)
+      // Return immediately with predictionId for frontend polling 
       res.json({
         success: true,
         trackerId: savedTracker.id,
@@ -1727,6 +1727,99 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         success: false,
         message: "Failed to start image generation", 
         error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Maya polling endpoint - Check generation status
+  app.get('/api/check-generation/:predictionId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { predictionId } = req.params;
+      
+      console.log(`🔍 Maya polling: Checking prediction ${predictionId}`);
+      
+      // Get prediction status from Replicate
+      const replicateResponse = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+        },
+      });
+
+      if (!replicateResponse.ok) {
+        throw new Error(`Replicate API error: ${replicateResponse.status}`);
+      }
+
+      const prediction = await replicateResponse.json();
+      
+      if (prediction.status === 'succeeded' && prediction.output) {
+        // Migrate URLs to permanent storage
+        const { ImageStorageService } = await import('./image-storage-service');
+        const permanentUrls = await Promise.all(
+          prediction.output.map((url: string) => ImageStorageService.ensurePermanentStorage(url))
+        );
+        
+        console.log(`✅ Maya polling: Generation complete with ${permanentUrls.length} images`);
+        
+        res.json({
+          status: 'completed',
+          imageUrls: permanentUrls
+        });
+      } else if (prediction.status === 'failed') {
+        console.error(`❌ Maya polling: Generation failed - ${prediction.error}`);
+        res.json({
+          status: 'failed',
+          error: prediction.error || 'Generation failed'
+        });
+      } else {
+        // Still processing
+        res.json({
+          status: 'processing',
+          progress: prediction.status
+        });
+      }
+      
+    } catch (error) {
+      console.error('❌ Maya polling error:', error);
+      res.status(500).json({ 
+        status: 'failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Maya save image endpoint - Heart functionality
+  app.post('/api/save-image', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { imageUrl, source, prompt } = req.body;
+
+      if (!imageUrl) {
+        return res.status(400).json({ error: 'Image URL required' });
+      }
+
+      console.log(`💖 Maya save: User ${userId} saving image from ${source}`);
+      
+      // Use Maya's heart service to save to gallery
+      const { MayaChatPreviewService } = await import('./maya-chat-preview-service');
+      const savedImage = await MayaChatPreviewService.heartImageToGallery(
+        userId,
+        imageUrl,
+        prompt || 'Maya AI Generation',
+        'Maya Editorial'
+      );
+
+      console.log(`✅ Maya save: Image ${savedImage.id} saved to gallery`);
+      
+      res.json({
+        success: true,
+        message: 'Image saved to gallery',
+        imageId: savedImage.id
+      });
+      
+    } catch (error) {
+      console.error('❌ Maya save error:', error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : 'Failed to save image'
       });
     }
   });
