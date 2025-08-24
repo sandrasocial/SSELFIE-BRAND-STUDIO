@@ -1523,16 +1523,66 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       const { modelId, versionId, triggerWord } = modelValidation;
       
-      // Build enhanced prompt with trigger word and quality settings
+      // Build Maya's properly structured prompt with all required elements
       let finalPrompt = actualPrompt;
-      if (!finalPrompt.includes(triggerWord)) {
+      
+      // Replace [TRIGGERWORD] placeholder with actual user trigger word
+      if (finalPrompt.includes('[TRIGGERWORD]')) {
+        finalPrompt = finalPrompt.replace(/\[TRIGGERWORD\]/g, triggerWord);
+      } else if (!finalPrompt.includes(triggerWord)) {
+        // Fallback: prepend trigger word if not already included
         finalPrompt = `${triggerWord} ${finalPrompt}`;
       }
       
-      // Add basic photography enhancements  
-      if (!finalPrompt.includes('raw photo')) {
-        finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, ${finalPrompt}, professional photography`;
+      // Ensure proper realism keywords are present (avoid duplication)
+      const requiredKeywords = [
+        'raw photo',
+        'visible skin pores', 
+        'film grain',
+        'unretouched natural skin texture',
+        'subsurface scattering',
+        'photographed on film'
+      ];
+      
+      let hasAllKeywords = requiredKeywords.every(keyword => finalPrompt.includes(keyword));
+      
+      if (!hasAllKeywords) {
+        // Add missing realism keywords at the beginning
+        const existingKeywords = requiredKeywords.filter(keyword => finalPrompt.includes(keyword));
+        const missingKeywords = requiredKeywords.filter(keyword => !finalPrompt.includes(keyword));
+        
+        if (missingKeywords.length > 0) {
+          finalPrompt = `${missingKeywords.join(', ')}, ${finalPrompt}`;
+        }
       }
+      
+      // Add camera equipment rotation (if not already present)
+      const cameraEquipment = [
+        'shot on Canon EOS R5 with 85mm f/1.4 lens',
+        'shot on Sony A7R IV with 50mm f/1.2 lens', 
+        'shot on Leica Q2 with 28mm f/1.7 lens',
+        'shot on Fujifilm GFX 100S with 63mm f/2.8 lens'
+      ];
+      
+      const hasCamera = cameraEquipment.some(camera => finalPrompt.includes(camera.split(' with ')[0]));
+      if (!hasCamera) {
+        // Rotate camera equipment based on user ID for variety
+        const userIdHash = userId.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
+        const cameraIndex = Math.abs(userIdHash) % cameraEquipment.length;
+        const selectedCamera = cameraEquipment[cameraIndex];
+        
+        // Add camera equipment before final comma if present, otherwise at end
+        if (finalPrompt.includes(', professional photography')) {
+          finalPrompt = finalPrompt.replace(', professional photography', `, ${selectedCamera}, professional photography`);
+        } else {
+          finalPrompt = `${finalPrompt}, ${selectedCamera}`;
+        }
+      }
+      
+      console.log(`🎨 MAYA PROMPT PROCESSING:`);
+      console.log(`📝 Original: ${actualPrompt.substring(0, 100)}...`);
+      console.log(`🔑 Trigger Word: ${triggerWord}`);
+      console.log(`✨ Final Prompt: ${finalPrompt}`);
       
       // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use their validated trained models
       const modelVersion = `${modelId}:${versionId}`;
