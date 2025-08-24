@@ -16,13 +16,17 @@ export default function SSELFIEGallery() {
   // Fetch user's deliberately saved gallery images
   const { data: aiImages = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/gallery-images'],
-    enabled: isAuthenticated
+    enabled: isAuthenticated && !!user,
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Fetch user's favorites
   const { data: favoritesData } = useQuery<{ favorites: number[] }>({
     queryKey: ['/api/images/favorites'],
-    enabled: isAuthenticated
+    enabled: isAuthenticated && !!user,
+    retry: 3,
+    retryDelay: 1000
   });
 
   const favorites: number[] = favoritesData?.favorites || [];
