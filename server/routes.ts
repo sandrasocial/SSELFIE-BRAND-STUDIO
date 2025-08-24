@@ -1620,56 +1620,17 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         console.error(`🚨 MODEL CHECK FAILED:`, modelCheckError);
       }
       
-      // MAYA GENERATION: FLUX 1.1 Pro + LoRA Weights (Optimal Parameters)
-      console.log(`🎬 MAYA: Using FLUX 1.1 Pro base model with personal LoRA weights`);
+      // MAYA GENERATION: Individual Model with Optimized Parameters
+      console.log(`🎬 MAYA: Using individual trained model ${modelId}:${versionId} with optimized parameters`);
       
-      // Get user's personal LoRA weights
-      let loraWeightsUrl = userModel?.loraWeightsUrl;
-      
-      // Extract LoRA weights if not available
-      if (!loraWeightsUrl) {
-        console.log(`🔧 MAYA: Extracting LoRA weights for user ${userId}`);
-        
-        try {
-          const response = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
-            headers: {
-              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            const versionData = await response.json();
-            if (versionData.files?.weights) {
-              loraWeightsUrl = versionData.files.weights;
-            }
-            
-            if (loraWeightsUrl) {
-              await storage.updateUserModel(userId, {
-                loraWeightsUrl: loraWeightsUrl,
-                updatedAt: new Date()
-              });
-              console.log(`✅ MAYA: Extracted and saved LoRA weights: ${loraWeightsUrl}`);
-            }
-          }
-        } catch (error) {
-          console.error(`❌ MAYA: Error extracting LoRA weights:`, error);
-        }
-      }
-      
-      if (!loraWeightsUrl) {
-        throw new Error(`Maya requires LoRA weights for user ${userId}. Please train your model first at /train before generating images.`);
-      }
-      
-      // MAYA GENERATION: FLUX 1.1 Pro + Optimized LoRA Parameters
+      // MAYA GENERATION: Individual model with optimal generation parameters
       const requestBody = {
-        version: "black-forest-labs/flux-1.1-pro",
+        version: `${modelId}:${versionId}`,
         input: {
           model: `${modelId}:${versionId}`,
           prompt: finalPrompt,
-          lora_weights: loraWeightsUrl,
-          lora_scale: 0.85,                 // Optimal: 85% LoRA strength
-          extra_lora_scale: 1.0,            // Secondary LoRA scale
+          lora_scale: 0.85,                 // Optimal: 85% LoRA strength as requested
+          extra_lora_scale: 1.0,            // Secondary LoRA scale as requested
           guidance_scale: 5,                // Keep as requested  
           num_inference_steps: 50,          // Keep as requested
           num_outputs: 2,
@@ -1679,6 +1640,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           megapixels: "1",
           go_fast: false,
           disable_safety_checker: false,
+          prompt_strength: 0.8,             // Strong prompt adherence
           seed: Math.floor(Math.random() * 1000000)
         }
       };
