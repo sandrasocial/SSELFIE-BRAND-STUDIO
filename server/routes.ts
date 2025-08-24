@@ -2598,12 +2598,183 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         sql`SELECT * FROM ai_images WHERE user_id = ${userId} ORDER BY created_at DESC`
       );
       
-      console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
-      res.json(userImages);
+      console.log(`✅ Found ${userImages.rows.length} AI images for user ${userId}`);
+      res.json(userImages.rows);
       
     } catch (error) {
       console.error('❌ Error fetching AI images:', error);
       res.status(500).json({ message: "Failed to fetch AI images", error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+
+  // GALLERY API ENDPOINTS - MISSING IMPLEMENTATIONS
+  
+  // Get user's favorite image IDs
+  app.get('/api/images/favorites', isAuthenticated, async (req: any, res) => {
+    try {
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      console.log(`💖 Fetching favorites for user: ${user.id}`);
+      
+      // Import database and schema
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema');
+      const { eq, and } = await import('drizzle-orm');
+      
+      // Get all favorite images for this user
+      const favoriteImages = await db
+        .select({ id: aiImages.id })
+        .from(aiImages)
+        .where(and(
+          eq(aiImages.userId, user.id),
+          eq(aiImages.isFavorite, true)
+        ));
+      
+      const favoriteIds = favoriteImages.map(img => img.id);
+      console.log(`✅ Found ${favoriteIds.length} favorite images for user ${user.id}`);
+      
+      res.json({ favorites: favoriteIds });
+    } catch (error) {
+      console.error("Error fetching favorites:", error);
+      res.status(500).json({ message: "Failed to fetch favorites" });
+    }
+  });
+  
+  // Toggle favorite status for an image
+  app.post('/api/images/:imageId/favorite', isAuthenticated, async (req: any, res) => {
+    try {
+      const { imageId } = req.params;
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      console.log(`💖 Toggling favorite for image ${imageId} by user ${user.id}`);
+      
+      // Import database and schema
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema');
+      const { eq, and } = await import('drizzle-orm');
+      
+      // First, verify the image exists and belongs to this user
+      const [existingImage] = await db
+        .select()
+        .from(aiImages)
+        .where(and(
+          eq(aiImages.id, parseInt(imageId)),
+          eq(aiImages.userId, user.id)
+        ))
+        .limit(1);
+      
+      if (!existingImage) {
+        return res.status(404).json({ error: 'Image not found or does not belong to user' });
+      }
+      
+      // Toggle the favorite status
+      const newFavoriteStatus = !existingImage.isFavorite;
+      
+      const [updatedImage] = await db
+        .update(aiImages)
+        .set({ isFavorite: newFavoriteStatus })
+        .where(eq(aiImages.id, parseInt(imageId)))
+        .returning();
+      
+      console.log(`✅ Image ${imageId} favorite status changed to: ${newFavoriteStatus}`);
+      
+      res.json({
+        success: true,
+        imageId: parseInt(imageId),
+        isFavorite: newFavoriteStatus,
+        message: newFavoriteStatus ? 'Added to favorites' : 'Removed from favorites'
+      });
+      
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to toggle favorite",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+  // Delete an AI image
+  app.delete('/api/ai-images/:imageId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { imageId } = req.params;
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      console.log(`🗑️ Deleting image ${imageId} for user ${user.id}`);
+      
+      // Import database and schema
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema');
+      const { eq, and } = await import('drizzle-orm');
+      
+      // First, verify the image exists and belongs to this user
+      const [existingImage] = await db
+        .select()
+        .from(aiImages)
+        .where(and(
+          eq(aiImages.id, parseInt(imageId)),
+          eq(aiImages.userId, user.id)
+        ))
+        .limit(1);
+      
+      if (!existingImage) {
+        return res.status(404).json({ error: 'Image not found or does not belong to user' });
+      }
+      
+      // Delete the image from database
+      await db
+        .delete(aiImages)
+        .where(eq(aiImages.id, parseInt(imageId)));
+      
+      console.log(`✅ Successfully deleted image ${imageId} from gallery`);
+      
+      res.json({
+        success: true,
+        imageId: parseInt(imageId),
+        message: 'Image deleted successfully'
+      });
+      
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to delete image",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
