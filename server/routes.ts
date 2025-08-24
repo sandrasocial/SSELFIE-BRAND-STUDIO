@@ -3390,33 +3390,6 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
     }
   });
 
-  // MANUAL LORA FIX ENDPOINT - For emergency fixes
-  app.post('/api/manual-lora-fix/:userId', async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const { ManualLoraFix } = await import('./manual-lora-fix');
-      
-      const success = await ManualLoraFix.extractAndUpdateLoraWeights(userId);
-      
-      if (success) {
-        res.json({ 
-          success: true, 
-          message: `LoRA weights successfully extracted and updated for user ${userId}` 
-        });
-      } else {
-        res.status(400).json({ 
-          success: false, 
-          message: `Failed to extract LoRA weights for user ${userId}` 
-        });
-      }
-    } catch (error) {
-      console.error('Manual LoRA fix error:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Server error during manual LoRA fix' 
-      });
-    }
-  });
 
   // DEVELOPMENT BYPASS: Direct workspace access for testing
   if (process.env.NODE_ENV === 'development') {

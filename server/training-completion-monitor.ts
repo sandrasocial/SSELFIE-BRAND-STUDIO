@@ -39,23 +39,81 @@ export class TrainingCompletionMonitor {
 
       const trainingData = await response.json();
       console.log(`📊 Training ${replicateModelId} status: ${trainingData.status}`);
+      
+      // DEBUG: Log full training response for analysis
+      console.log(`🔍 TRAINING RESPONSE STRUCTURE:`, JSON.stringify(trainingData, null, 2));
 
       if (trainingData.status === 'succeeded') {
         console.log(`✅ Training completed! Updating database for user ${userId}`);
         
-        // Standard FLUX training completion - only one approach
+        // Standard FLUX training completion - extract version ID
         let versionId = null;
         if (trainingData.version) {
           versionId = trainingData.version;
         }
         
-        // CRITICAL: Extract LoRA weights URL from training completion
+        // CRITICAL FIX: Comprehensive LoRA weights extraction
         let loraWeightsUrl = null;
-        if (trainingData.output && trainingData.output.weights) {
-          loraWeightsUrl = trainingData.output.weights;
-          console.log(`🎯 LORA WEIGHTS EXTRACTED: ${loraWeightsUrl}`);
-        } else {
-          console.log(`⚠️ No LoRA weights URL found in training output for user ${userId}`);
+        
+        // Try multiple extraction paths based on actual Replicate API structure
+        if (trainingData.output) {
+          // Path 1: Direct weights URL (most common)
+          if (trainingData.output.weights) {
+            loraWeightsUrl = trainingData.output.weights;
+            console.log(`🎯 LORA WEIGHTS EXTRACTED (output.weights): ${loraWeightsUrl}`);
+          }
+          // Path 2: Version URL extraction
+          else if (trainingData.output.version) {
+            const versionUrl = trainingData.output.version;
+            console.log(`🔍 Found version URL: ${versionUrl}`);
+            // Extract model name and version from URL like: https://replicate.com/sandrasocial/model-name:version_id
+            const versionMatch = versionUrl.match(/replicate\.com\/([^:]+):(.+)$/);
+            if (versionMatch) {
+              const modelPath = versionMatch[1];
+              const extractedVersionId = versionMatch[2];
+              versionId = extractedVersionId; // Update version ID
+              
+              // Fetch the version details to get weights URL
+              try {
+                const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelPath}/versions/${extractedVersionId}`, {
+                  headers: {
+                    'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+                    'Content-Type': 'application/json'
+                  }
+                });
+                
+                if (versionResponse.ok) {
+                  const versionData = await versionResponse.json();
+                  console.log(`📋 VERSION DATA:`, JSON.stringify(versionData, null, 2));
+                  
+                  if (versionData.files && versionData.files.weights) {
+                    loraWeightsUrl = versionData.files.weights;
+                    console.log(`🎯 LORA WEIGHTS EXTRACTED (version.files.weights): ${loraWeightsUrl}`);
+                  } else if (versionData.urls && versionData.urls.get) {
+                    loraWeightsUrl = versionData.urls.get;
+                    console.log(`🎯 LORA WEIGHTS EXTRACTED (version.urls.get): ${loraWeightsUrl}`);
+                  }
+                }
+              } catch (versionError) {
+                console.log(`⚠️ Error fetching version details: ${versionError.message}`);
+              }
+            }
+          }
+          // Path 3: Alternative weight paths
+          else if (trainingData.output.model) {
+            loraWeightsUrl = trainingData.output.model;
+            console.log(`🎯 LORA WEIGHTS EXTRACTED (output.model): ${loraWeightsUrl}`);
+          }
+          // Path 4: URL format
+          else if (trainingData.urls && trainingData.urls.get) {
+            loraWeightsUrl = trainingData.urls.get;
+            console.log(`🎯 LORA WEIGHTS EXTRACTED (urls.get): ${loraWeightsUrl}`);
+          }
+        }
+        
+        if (!loraWeightsUrl) {
+          console.log(`⚠️ CRITICAL: No LoRA weights URL found in training output for user ${userId}`);
+          console.log(`📋 Training output structure:`, JSON.stringify(trainingData.output || {}, null, 2));
         }
         
         // CRITICAL: Extract and store the trigger word from existing model data
