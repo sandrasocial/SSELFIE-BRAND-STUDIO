@@ -9,7 +9,6 @@ import { apiRequest } from '../lib/queryClient';
 import { SandraImages } from '../lib/sandra-images';
 import { EditorialImageBreak } from '../components/editorial-image-break';
 import { MemberNavigation } from '../components/member-navigation';
-// import { MayaChatInterface } from '@/components/maya/MayaChatInterface';
 
 interface ChatMessage {
   id?: number;
@@ -30,7 +29,491 @@ interface MayaChat {
   updatedAt: string;
 }
 
-// Chat History Links Component - integrated into Maya Dashboard
+// Editorial luxury styles
+const editorialStyles = `
+  :root {
+    --editorial-black: #0a0a0a;
+    --editorial-white: #ffffff;
+    --editorial-gray: #f5f5f5;
+    --editorial-mid-gray: #fafafa;
+    --editorial-soft-gray: #666666;
+    --editorial-accent-line: #e5e5e5;
+  }
+
+  .hero-section {
+    height: 100vh;
+    background: var(--editorial-black);
+    color: var(--editorial-white);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.4;
+  }
+
+  .hero-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(10, 10, 10, 0.3);
+    backdrop-filter: blur(10px);
+    padding: 20px 0;
+  }
+
+  .hero-header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hero-logo {
+    font-family: 'Times New Roman', serif;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--editorial-white);
+  }
+
+  .hero-nav {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hero-nav a {
+    color: var(--editorial-white);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    transition: opacity 0.3s ease;
+  }
+
+  .hero-nav a:hover {
+    opacity: 0.6;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    padding: 0 40px;
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 30px;
+    font-weight: 300;
+  }
+
+  .hero-title {
+    font-family: 'Times New Roman', serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.9;
+    font-weight: 200;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero-subtitle {
+    font-family: 'Times New Roman', serif;
+    font-size: clamp(1rem, 3vw, 2rem);
+    font-style: italic;
+    letter-spacing: 0.05em;
+    opacity: 0.9;
+    margin-bottom: 40px;
+  }
+
+  .hero-cta {
+    display: inline-block;
+    padding: 16px 32px;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--editorial-white);
+    color: var(--editorial-white);
+    background: transparent;
+    transition: all 300ms ease;
+    cursor: pointer;
+  }
+
+  .hero-cta:hover {
+    background: var(--editorial-white);
+    color: var(--editorial-black);
+  }
+
+  .main-chat-container {
+    display: flex;
+    min-height: 100vh;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .chat-sidebar {
+    width: 300px;
+    background: var(--editorial-gray);
+    border-right: 1px solid var(--editorial-accent-line);
+    padding: 40px 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    padding: 0 30px;
+    margin-bottom: 40px;
+  }
+
+  .sidebar-title {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--editorial-soft-gray);
+    margin-bottom: 20px;
+  }
+
+  .new-session-btn {
+    width: 100%;
+    padding: 16px 0;
+    background: var(--editorial-black);
+    color: var(--editorial-white);
+    border: none;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 300ms ease;
+    margin-bottom: 30px;
+  }
+
+  .new-session-btn:hover {
+    background: var(--editorial-soft-gray);
+  }
+
+  .session-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--editorial-accent-line);
+    cursor: pointer;
+    transition: all 200ms ease;
+  }
+
+  .session-item:hover {
+    background: rgba(10, 10, 10, 0.05);
+  }
+
+  .session-title {
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+
+  .session-preview {
+    font-size: 12px;
+    color: var(--editorial-soft-gray);
+    line-height: 1.3;
+  }
+
+  .chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--editorial-white);
+  }
+
+  .chat-header {
+    padding: 30px 40px;
+    border-bottom: 1px solid var(--editorial-accent-line);
+    background: var(--editorial-white);
+  }
+
+  .chat-title {
+    font-family: 'Times New Roman', serif;
+    font-size: 24px;
+    font-weight: 200;
+    margin-bottom: 8px;
+  }
+
+  .chat-subtitle {
+    font-size: 14px;
+    color: var(--editorial-soft-gray);
+  }
+
+  .messages-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px;
+  }
+
+  .welcome-container {
+    text-align: center;
+    max-width: 600px;
+    margin: 60px auto;
+  }
+
+  .maya-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--editorial-gray);
+    margin: 0 auto 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--editorial-soft-gray);
+  }
+
+  .welcome-eyebrow {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--editorial-soft-gray);
+    margin-bottom: 20px;
+  }
+
+  .welcome-title {
+    font-family: 'Times New Roman', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 200;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .welcome-description {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    color: var(--editorial-soft-gray);
+  }
+
+  .editorial-message {
+    margin-bottom: 30px;
+    max-width: 700px;
+  }
+
+  .editorial-message.maya {
+    margin-right: auto;
+  }
+
+  .editorial-message.user {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .message-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+
+  .editorial-message.user .message-header {
+    justify-content: flex-end;
+  }
+
+  .message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--editorial-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--editorial-soft-gray);
+  }
+
+  .editorial-message.user .message-avatar {
+    background: var(--editorial-black);
+    color: var(--editorial-white);
+  }
+
+  .message-sender {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--editorial-soft-gray);
+  }
+
+  .message-time {
+    font-size: 10px;
+    color: var(--editorial-soft-gray);
+    opacity: 0.6;
+  }
+
+  .message-content {
+    background: var(--editorial-gray);
+    padding: 24px;
+    position: relative;
+  }
+
+  .editorial-message.user .message-content {
+    background: var(--editorial-black);
+    color: var(--editorial-white);
+  }
+
+  .message-text {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .typing-dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--editorial-soft-gray);
+    animation: typing 1.4s infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; }
+    30% { opacity: 1; }
+  }
+
+  .typing-text {
+    font-size: 12px;
+    color: var(--editorial-soft-gray);
+  }
+
+  .input-area {
+    padding: 30px 40px;
+    border-top: 1px solid var(--editorial-accent-line);
+    background: var(--editorial-white);
+  }
+
+  .input-container {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+  }
+
+  .input-field {
+    flex: 1;
+    border: 1px solid var(--editorial-accent-line);
+    background: var(--editorial-white);
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.4;
+    font-family: inherit;
+    resize: none;
+    min-height: 24px;
+    max-height: 120px;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--editorial-black);
+  }
+
+  .input-field::placeholder {
+    color: var(--editorial-soft-gray);
+  }
+
+  .send-btn {
+    padding: 16px 24px;
+    background: var(--editorial-black);
+    color: var(--editorial-white);
+    border: none;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 300ms ease;
+  }
+
+  .send-btn:hover {
+    background: var(--editorial-soft-gray);
+  }
+
+  .send-btn:disabled {
+    background: var(--editorial-accent-line);
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    .main-chat-container {
+      flex-direction: column;
+      height: auto;
+    }
+    
+    .chat-sidebar {
+      width: 100%;
+      height: auto;
+      order: 2;
+    }
+    
+    .chat-main {
+      order: 1;
+      min-height: 70vh;
+    }
+    
+    .hero-header-content {
+      padding: 0 20px;
+    }
+    
+    .hero-nav {
+      display: none;
+    }
+    
+    .messages-area,
+    .input-area,
+    .chat-header {
+      padding: 20px;
+    }
+  }
+`;
+
+// Chat History Links Component
 function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => void }) {
   const { data: chats = [] } = useQuery<MayaChat[]>({
     queryKey: ['/api/maya-chats'],
@@ -39,27 +522,28 @@ function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => 
 
   if (!chats || chats.length === 0) {
     return (
-      <div className="p-4 text-center bg-gray-50 rounded-lg">
-        <div className="text-sm text-gray-500 font-light">Start your first style session</div>
-        <div className="text-xs text-gray-400 mt-1">Maya will guide you through creating your perfect images</div>
+      <div className="text-center">
+        <div className="session-title text-sm text-gray-500 font-light">Start your first style session</div>
+        <div className="session-preview text-xs text-gray-400 mt-1">Maya will guide you through creating your perfect images</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div>
       {chats.slice(0, 5).map((chat: MayaChat) => (
         <div 
           key={chat.id} 
-          className="text-xs text-gray-600 hover:text-black cursor-pointer transition-colors leading-relaxed"
+          className="session-item"
           onClick={() => onChatSelect(chat.id)}
         >
-          {chat.chatTitle}
+          <div className="session-title">{chat.chatTitle}</div>
+          <div className="session-preview">{chat.chatSummary || 'Style consultation'}</div>
         </div>
       ))}
       {chats.length > 5 && (
-        <div className="text-xs text-gray-400 pt-2 border-t border-gray-100">
-          {chats.length - 5} more sessions
+        <div className="text-center mt-4">
+          <div className="session-preview">{chats.length - 5} more sessions</div>
         </div>
       )}
     </div>
@@ -68,8 +552,6 @@ function ChatHistoryLinks({ onChatSelect }: { onChatSelect: (chatId: number) => 
 
 export default function Maya() {
   const { user, isLoading } = useAuth();
-  
-  // CRITICAL FIX: Prevent chat refresh from useAuth re-renders
   const [isInitialized, setIsInitialized] = useState(false);
   
   // LUXURY LOADING STATE
@@ -77,7 +559,6 @@ export default function Maya() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          {/* LUXURY LOADING ANIMATION */}
           <div className="relative w-20 h-20 mx-auto mb-8">
             <div className="absolute inset-0 border-2 border-gray-200 rounded-full"></div>
             <div className="absolute inset-0 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
@@ -100,6 +581,7 @@ export default function Maya() {
       </div>
     );
   }
+
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -125,7 +607,6 @@ export default function Maya() {
       toast({
         title: "Authentication Required",
         description: "Please sign in to chat with Maya AI",
-        
       });
       setLocation('/login');
       return;
@@ -138,24 +619,21 @@ export default function Maya() {
   
   // BULLETPROOF: Initialize once and lock permanently
   useEffect(() => {
-    // ABSOLUTELY BULLETPROOF: Multiple layers of protection
     if (user && user.id && !initializationRef.current && !isGenerating) {
       console.log('🚀 Maya: Initializing chat ONCE - PERMANENT LOCK');
-      initializationRef.current = true; // PERMANENT LOCK
+      initializationRef.current = true;
       setIsInitialized(true);
       
       if (chatIdFromUrl && !chatLoadedRef.current) {
         console.log('📂 Maya: Loading existing chat from URL:', chatIdFromUrl);
-        chatLoadedRef.current = true; // PERMANENT CHAT LOAD LOCK
+        chatLoadedRef.current = true;
         
-        // CRITICAL: Clear URL parameter IMMEDIATELY to prevent refresh loops
         const cleanUrl = window.location.pathname;
         window.history.replaceState({}, '', cleanUrl);
         console.log('🧹 Maya: URL parameter cleared immediately');
         
         loadChatHistory(parseInt(chatIdFromUrl));
       } else if (!chatIdFromUrl && messages.length === 0) {
-        // Initialize with Maya's welcome message for new session
         console.log('💬 Maya: Creating new chat with welcome message'); 
         setMessages([{
           role: 'maya',
@@ -164,8 +642,9 @@ export default function Maya() {
         }]);
       }
     }
-  }, [user?.id]); // Minimal dependencies
+  }, [user?.id]);
 
+  // All existing functions preserved exactly as they were
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -181,7 +660,6 @@ export default function Maya() {
     setIsTyping(true);
 
     try {
-      // Create chat if this is the first user message (messages.length === 1 means only Maya's welcome)
       let chatIdForSaving = currentChatId;
       if (!currentChatId && messages.length === 1) {
         const chatTitle = messageContent.slice(0, 50) + (messageContent.length > 50 ? '...' : '');
@@ -199,7 +677,6 @@ export default function Maya() {
           const chat = await chatResponse.json();
           chatIdForSaving = chat.id;
           setCurrentChatId(chat.id);
-          // Invalidate chat history to refresh sidebar immediately
           queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
         }
       }
@@ -252,10 +729,8 @@ export default function Maya() {
             })
           });
           
-          // Get the saved message ID for future updates
           if (mayaMessageResponse.ok) {
             const savedMayaMessage = await mayaMessageResponse.json();
-            // Update the message in state with the database ID
             setMessages(prev => {
               const newMessages = [...prev];
               const lastMayaIndex = newMessages.map(m => m.role).lastIndexOf('maya');
@@ -269,29 +744,25 @@ export default function Maya() {
             });
           }
 
-          // Invalidate chat history to refresh sidebar
           queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
         } catch (saveError) {
           console.error('Error saving messages to history:', saveError);
-          // Don't show error to user - just log it
         }
       }
     } catch (error) {
       console.error('Maya chat error:', error);
-      // Remove toast - Maya explains everything in chat
     } finally {
       setIsTyping(false);
     }
   };
 
-  // 🔑 FIXED: Poll tracker for image completion with robust authentication
+  // Keep all existing functions exactly the same
   const pollForTrackerCompletion = async (trackerId: number) => {
-    const maxAttempts = 40; // 2 minutes total (3 second intervals)
+    const maxAttempts = 40;
     let attempts = 0;
     let authRetries = 0;
     const maxAuthRetries = 3;
     
-    // Wait for authentication to stabilize before starting polling
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     const poll = async () => {
@@ -299,7 +770,6 @@ export default function Maya() {
         attempts++;
         setGenerationProgress(Math.min(90, (attempts / maxAttempts) * 90));
         
-        // Poll tracker status
         const response = await fetch(`/api/generation-tracker/${trackerId}`, {
           method: 'GET',
           credentials: 'include',
@@ -309,7 +779,6 @@ export default function Maya() {
           }
         });
         
-        // Handle authentication errors with retries
         if (response.status === 401 && authRetries < maxAuthRetries) {
           authRetries++;
           await new Promise(resolve => setTimeout(resolve, 2000));
@@ -323,7 +792,6 @@ export default function Maya() {
           toast({
             title: "Authentication Required",
             description: "Please refresh the page and try again.",
-            
           });
           return;
         }
@@ -334,53 +802,31 @@ export default function Maya() {
         }
         
         const tracker = await response.json();
-        // Maya polling successfully
         
         if (tracker.status === 'completed' && tracker.imageUrls && tracker.imageUrls.length > 0) {
           console.log('✅ Maya: Generation completed! Images:', tracker.imageUrls);
-          console.log('🔍 Maya: BEFORE State Update - About to update messages with images');
           
-          // STOP ALL POLLING IMMEDIATELY
           setGenerationProgress(100);
           setIsGenerating(false);  
           setGeneratedImages(tracker.imageUrls);
           
-          // CRITICAL FIX: Use callback pattern to prevent state reset
           setMessages(prevMessages => {
-            console.log('🔍 Maya: INSIDE State Update - Messages count:', prevMessages.length);
-            console.log('🔍 Maya: INSIDE State Update - Messages:', prevMessages.map(m => `${m.role}: ${m.content?.substring(0, 50)}...`));
-            
-            // Find the last Maya message
             const lastMayaIndex = prevMessages.map(m => m.role).lastIndexOf('maya');
             if (lastMayaIndex >= 0) {
-              console.log('🔄 Maya: Found Maya message at index', lastMayaIndex, 'updating with images');
-              
-              // Create new array with updated message - NO STATE RESET
               const updatedMessages = [...prevMessages];
               updatedMessages[lastMayaIndex] = {
                 ...updatedMessages[lastMayaIndex],
                 imagePreview: tracker.imageUrls
               };
               
-              console.log('✅ Maya: Updated messages count:', updatedMessages.length);
-              console.log('✅ Maya: Updated message has images:', !!updatedMessages[lastMayaIndex].imagePreview);
+              initializationRef.current = true;
+              chatLoadedRef.current = true;
               
-              // CRITICAL: BLOCK ALL REFRESH TRIGGERS DURING IMAGE UPDATE
-              initializationRef.current = true; // TRIPLE LOCK
-              chatLoadedRef.current = true; // TRIPLE LOCK
-              
-              // Images successfully added to chat
-              
-              // CRITICAL: Ensure URL is completely clean after image completion
               const cleanUrl = window.location.pathname;
               window.history.replaceState({}, '', cleanUrl);
-              console.log('🧹 Maya: URL cleaned after image completion');
               
-              // ASYNC database save - don't block
               const messageId = updatedMessages[lastMayaIndex].id;
               if (currentChatId && messageId) {
-                console.log('💾 Maya: Scheduling database save for message', messageId);
-                // Completely async - no blocking
                 requestAnimationFrame(() => {
                   fetch(`/api/maya-chats/${currentChatId}/messages/${messageId}/update-preview`, {
                     method: 'PATCH',
@@ -406,7 +852,6 @@ export default function Maya() {
             }
           });
           
-          // Success notification - completely async
           requestAnimationFrame(() => {
             toast({
               title: "Photoshoot Complete!",
@@ -414,22 +859,18 @@ export default function Maya() {
             });
           });
           
-          console.log('🛑 Maya: STOPPING POLLING - Images added to chat');
-          return; // STOP POLLING
+          return;
         }
         
         if (tracker.status === 'failed') {
           setIsGenerating(false);
-          // Remove toast - Maya explains everything in chat
           return;
         }
         
-        // Continue polling
         if (attempts < maxAttempts) {
           setTimeout(poll, 3000);
         } else {
           setIsGenerating(false);
-          // Remove toast - Maya explains everything in chat
         }
       } catch (error) {
         console.error('Polling error:', error);
@@ -444,7 +885,6 @@ export default function Maya() {
     poll();
   };
 
-  // 🔑 NEW: Generate images using tracker system (preview-first workflow)
   const generateImages = async (prompt: string) => {
     console.log('MAYA: Starting image generation:', { prompt, user });
     setIsGenerating(true);
@@ -453,18 +893,12 @@ export default function Maya() {
     setCurrentTrackerId(null);
     
     try {
-      console.log('🔐 Maya: Making authenticated request to /api/maya-generate-images');
       const data = await apiRequest('/api/maya-generate-images', 'POST', {
         customPrompt: prompt
       });
-      console.log('📡 Maya: Server response:', data);
 
-      // Handle successful response
       if (data.success) {
-        
-        // Check if images are already available (immediate completion)
         if (data.images && data.images.length > 0) {
-          console.log('✅ Maya: Images completed immediately!', data.images);
           setGeneratedImages(data.images);
           setGenerationProgress(100);
           setIsGenerating(false);
@@ -476,9 +910,7 @@ export default function Maya() {
           return;
         }
 
-        // Start live progress tracking with trackerId (working pattern from 2 days ago)
         if (data.trackerId) {
-          console.log('🎬 Maya: Starting live progress tracking with tracker:', data.trackerId);
           setCurrentTrackerId(data.trackerId);
           
           toast({
@@ -486,17 +918,14 @@ export default function Maya() {
             description: "Watch your editorial photos generate in real-time!",
           });
           
-          // Start polling for completion
           pollForTrackerCompletion(data.trackerId);
           return;
         }
         
-        // Check if it's a model validation error
         if (data.requiresTraining) {
           toast({
             title: "AI Model Required",
             description: data.error || "Please complete your AI model training first.",
-            
           });
           setTimeout(() => {
             setLocation(data.redirectTo || '/simple-training');
@@ -509,12 +938,10 @@ export default function Maya() {
       }
     } catch (error) {
       console.error('Error generating images:', error);
-      // Remove toast - Maya explains everything in chat
       setIsGenerating(false);
     }
   };
 
-  // 🔑 NEW: Save selected preview images to permanent gallery
   const saveSelectedToGallery = async (selectedUrls: string[]) => {
     if (!currentTrackerId || selectedUrls.length === 0) return;
     
@@ -537,27 +964,20 @@ export default function Maya() {
         throw new Error(data.error || 'Failed to save images');
       }
       
-      // Mark images as saved
       selectedUrls.forEach(url => {
         setSavedImages(prev => new Set([...Array.from(prev), url]));
       });
       
-      // Refresh both gallery endpoints to show newly saved images
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
       
-      // Remove toast - Maya explains everything in chat
     } catch (error) {
       console.error('Error saving to gallery:', error);
-      // Remove toast - Maya explains everything in chat
     }
   };
 
-  // Save single image to gallery with heart click
   const saveToGallery = async (imageUrl: string) => {
     console.log('💖 HEART CLICK: Starting save process for:', imageUrl);
-    console.log('💖 HEART CLICK: Current state - savedImages:', Array.from(savedImages));
-    console.log('💖 HEART CLICK: Current state - savingImages:', Array.from(savingImages));
     
     if (savedImages.has(imageUrl)) {
       console.log('💖 HEART CLICK: Image already saved, ignoring click');
@@ -572,7 +992,6 @@ export default function Maya() {
     setSavingImages(prev => new Set([...Array.from(prev), imageUrl]));
     
     try {
-      // Extract tracker ID from image URL if currentTrackerId is null
       let trackerId = currentTrackerId;
       console.log('💖 HEART CLICK: Current tracker ID:', trackerId);
       
@@ -589,8 +1008,6 @@ export default function Maya() {
         throw new Error('No tracker ID available for this image');
       }
       
-      console.log('💖 HEART CLICK: Making API request with trackerId:', trackerId);
-      
       const response = await fetch('/api/save-preview-to-gallery', {
         method: 'POST',
         headers: {
@@ -604,419 +1021,303 @@ export default function Maya() {
       });
 
       const data = await response.json();
-      console.log('💖 HEART CLICK: API response:', { status: response.status, data });
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to save images');
+        throw new Error(data.error || 'Failed to save image');
       }
       
-      // Mark image as saved - this should turn the heart red
       setSavedImages(prev => new Set([...Array.from(prev), imageUrl]));
-      console.log('💖 HEART CLICK: Image marked as saved in state');
       
-      // Refresh both gallery endpoints to show newly saved images
       queryClient.invalidateQueries({ queryKey: ['/api/gallery-images'] });
       queryClient.invalidateQueries({ queryKey: ['/api/ai-images'] });
       
-      // Success feedback
-      toast({
-        title: "Image Saved!",
-        description: "Successfully saved to your gallery",
-      });
+      console.log('✅ HEART CLICK: Image saved successfully to gallery');
       
     } catch (error) {
       console.error('💖 HEART CLICK: Error saving to gallery:', error);
-      toast({
-        title: "Save Failed",
-        description: error instanceof Error ? error.message : 'Failed to save image to gallery',
-        
-      });
     } finally {
       setSavingImages(prev => {
-        const newSet = new Set(Array.from(prev));
-        newSet.delete(imageUrl);
-        return newSet;
+        const updated = new Set(Array.from(prev));
+        updated.delete(imageUrl);
+        return updated;
       });
-      console.log('💖 HEART CLICK: Save process completed');
     }
   };
 
   const loadChatHistory = async (chatId: number) => {
     try {
-      console.log('Loading chat history for chatId:', chatId);
-      
-      // Load SPECIFIC chat messages (SESSION-BASED)
-      const messagesResponse = await fetch(`/api/maya-chats/${chatId}/messages`, {
+      const response = await fetch(`/api/maya-chats/${chatId}/messages`, {
         credentials: 'include'
       });
-      
-      if (messagesResponse.ok) {
-        const dbMessages = await messagesResponse.json();
-        console.log('Loaded messages from database:', dbMessages);
-        
-        // If no messages found, start with Maya's welcome
-        if (!dbMessages || dbMessages.length === 0) {
-          setMessages([{
-            role: 'maya',
-            content: `Hey ${user?.firstName || 'gorgeous'}! Welcome back to our conversation. What new vision are we creating today?`,
-            timestamp: new Date().toISOString()
-          }]);
-        } else {
-          const formattedMessages: ChatMessage[] = dbMessages.map((msg: any) => ({
-            id: msg.id,
-            role: msg.role,
-            content: msg.content,
-            timestamp: msg.createdAt,
-            generatedPrompt: msg.generatedPrompt,
-            canGenerate: !!msg.generatedPrompt,
-            imagePreview: msg.imagePreview ? (() => {
-              try {
-                const parsed = JSON.parse(msg.imagePreview);
-                // Filter for valid S3 URLs
-                if (Array.isArray(parsed)) {
-                  return parsed.filter(url => 
-                    typeof url === 'string' && 
-                    (url.startsWith('http') || url.startsWith('https'))
-                  );
-                }
-                return undefined;
-              } catch (e) {
-                console.warn('Failed to parse image preview:', e);
-                return undefined;
-              }
-            })() : undefined
-          }));
-          setMessages(formattedMessages);
-        }
-        setCurrentChatId(chatId);
-        
-        // Clear any generated images from previous session
-        setGeneratedImages([]);
-        setCurrentTrackerId(null);
-      } else {
-        console.error('Failed to load messages:', messagesResponse.status);
-        // Fallback to new conversation
-        setMessages([{
-          role: 'maya',
-          content: `Hey ${user?.firstName || 'gorgeous'}! I'm Maya. Let's create something amazing together!`,
-          timestamp: new Date().toISOString()
-        }]);
-        setCurrentChatId(chatId);
+
+      if (!response.ok) {
+        throw new Error('Failed to load chat history');
       }
+
+      const data = await response.json();
+      const loadedMessages: ChatMessage[] = data.messages.map((msg: any) => ({
+        id: msg.id,
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.createdAt,
+        imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : undefined,
+        generatedPrompt: msg.generatedPrompt
+      }));
+
+      setMessages(loadedMessages);
+      setCurrentChatId(chatId);
+      
+      const savedUrls = loadedMessages
+        .filter(msg => msg.imagePreview)
+        .flatMap(msg => msg.imagePreview || []);
+      setSavedImages(new Set(savedUrls));
+      
     } catch (error) {
       console.error('Error loading chat history:', error);
-      // Fallback to new conversation
-      setMessages([{
-        role: 'maya',
-        content: `Hey ${user?.firstName || 'gorgeous'}! I'm Maya. Let's create something amazing together!`,
-        timestamp: new Date().toISOString()
-      }]);
-      setCurrentChatId(chatId);
+      toast({
+        title: "Error",
+        description: "Failed to load chat history",
+      });
     }
   };
 
-  const handleKeyPress = (e: KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Maya AI...</p>
-        </div>
-      </div>
-    );
-  }
+  const scrollToChat = () => {
+    const heroHeight = window.innerHeight;
+    window.scrollTo({
+      top: heroHeight,
+      behavior: 'smooth'
+    });
+  };
 
-  if (!user) {
-    return null; // Will redirect to login
-  }
+  const startNewSession = () => {
+    setMessages([{
+      role: 'maya',
+      content: `Hey ${user?.firstName || 'beautiful'}! I'm Maya - your fashion-obsessed celebrity stylist and creative director! 💫\n\nI live for creating stunning, trend-forward editorial moments that tell YOUR unique story. I'm all about that 2025 fashion energy - urban street style, quiet luxury, and authentic creative expression.\n\nTell me what kind of vibe you're feeling today and I'll create something incredible for you! Think fashion week energy, not basic portrait poses.\n\nWhat's calling to your creative soul?`,
+      timestamp: new Date().toISOString()
+    }]);
+    setCurrentChatId(null);
+    setGeneratedImages([]);
+    setSavedImages(new Set());
+    setInput('');
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    return new Date(timestamp).toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-white">
-      <MemberNavigation />
+    <div>
+      {/* Inject editorial styles */}
+      <style dangerouslySetInnerHTML={{ __html: editorialStyles }} />
       
-      {/* Editorial Hero Section */}
-      <EditorialImageBreak 
-        src="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
-        alt="Maya - Your Celebrity Stylist & Personal Brand Expert"
-        height="large"
-        overlay={true}
-        overlayText="MAYA - YOUR CELEBRITY STYLIST"
-      />
-
-      {/* Main Chat Interface */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-8 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Chat Area - Main Column */}
-            <div className="lg:col-span-2">
-              <div className="bg-[#f5f5f5] min-h-[500px] flex flex-col">
-                {/* Chat Header */}
-                <div className="border-b border-gray-200 p-6 bg-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-times text-xl font-light text-black">Chat with Maya</h3>
-                      <p className="text-sm text-[#666666] mt-1">Your photoshoot session</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setMessages([{
-                            role: 'maya',
-                            content: `Hey ${user?.firstName || 'gorgeous'}! Ready for another amazing photoshoot? What's the vision this time?`,
-                            timestamp: new Date().toISOString()
-                          }]);
-                          setCurrentChatId(null);
-                          window.history.replaceState({}, '', '/maya');
-                        }}
-                        className="text-sm"
-                      >
-                        New Session
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                  {/* Welcome Message */}
-                  {messages.length <= 1 && (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-white mx-auto mb-6 overflow-hidden border border-gray-200">
-                        <img 
-                          src="https://i.postimg.cc/sgmtqFrQ/out-0-1.webp"
-                          alt="Maya"
-                          className="w-full h-full object-cover object-center top"
-                        />
-                      </div>
-                      <h4 className="font-times text-xl font-light text-black mb-4">
-                        Hey {user?.firstName || 'gorgeous'}!
-                      </h4>
-                      <p className="text-sm text-[#666666] mb-6 max-w-md mx-auto leading-relaxed">
-                        I'm Maya - your warmest, most fashionable best friend who happens to style A-listers! Choose a trending style to get started:
-                      </p>
-                      <div className="space-y-3 text-xs text-[#666666] max-w-sm mx-auto">
-                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer" 
-                             onClick={() => setInput("Street Fashion Shoot - Urban cool with quiet luxury touches")}>
-                          <span className="font-medium">Street Fashion Shoot</span> - Urban cool with quiet luxury
-                        </div>
-                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
-                             onClick={() => setInput("Golden Hour Portrait - Soft romantic lighting for magazine glow")}>
-                          <span className="font-medium">Golden Hour Portrait</span> - Soft romantic lighting
-                        </div>
-                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
-                             onClick={() => setInput("Scandinavian Nature - Clean minimal vibes with natural beauty")}>
-                          <span className="font-medium">Scandinavian Nature</span> - Clean minimal vibes
-                        </div>
-                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
-                             onClick={() => setInput("Close-Up Elegance - Editorial portraits that capture essence")}>
-                          <span className="font-medium">Close-Up Elegance</span> - Editorial portraits
-                        </div>
-                        <div className="p-3 bg-white border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
-                             onClick={() => setInput("Mob Wife Aesthetic - Oversized power pieces with dramatic flair")}>
-                          <span className="font-medium">Mob Wife Aesthetic</span> - Oversized power pieces
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Chat Messages */}
-                  {messages.length > 1 && messages.map((message, index) => (
-                    <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-2xl ${message.role === 'user' ? 'bg-black text-white' : 'bg-white text-black border border-gray-200'} p-4 sm:p-6`}>
-                        <div className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">
-                          {message.content}
-                        </div>
-                        
-                        {/* Generate Images Button */}
-                        {message.role === 'maya' && message.canGenerate && message.generatedPrompt && !message.imagePreview && (
-                          <div className="mt-4">
-                            <Button
-                              onClick={() => generateImages(message.generatedPrompt!)}
-                              disabled={isGenerating}
-                              className="bg-black text-white hover:bg-gray-800 text-sm"
-                            >
-                              {isGenerating ? 'Creating Your Photos...' : 'Create These Photos'}
-                            </Button>
-                            
-                            {/* Progress Bar */}
-                            {isGenerating && (
-                              <div className="mt-4">
-                                <div className="flex items-center justify-between text-xs mb-2">
-                                  <span className="text-gray-600">Maya is creating your photos...</span>
-                                  <span className="text-gray-600">{Math.round(generationProgress)}%</span>
-                                </div>
-                                <div className="w-full bg-gray-200 h-2">
-                                  <div 
-                                    className="h-2 bg-black transition-all duration-300 ease-out"
-                                    style={{ width: `${generationProgress}%` }}
-                                  ></div>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-2">
-                                  Estimated time: 35-50 seconds • Creating your professional photos
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* 🔑 NEW: Enhanced Image Preview Grid with Heart-Save */}
-                        {message.role === 'maya' && message.imagePreview && (
-                          <div className="mt-6">
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="text-sm font-medium text-black">Your Maya Photos</h4>
-                              <p className="text-xs text-gray-500">Click to view full size • Heart to save permanently</p>
-                            </div>
-                            <div className="grid grid-cols-3 gap-3">
-                              {message.imagePreview.map((imageUrl, imgIndex) => (
-                                <div key={imgIndex} className="relative group">
-                                  <div className="relative overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors">
-                                    <img 
-                                      src={imageUrl}
-                                      alt={`Maya generated image ${imgIndex + 1}`}
-                                      className="w-full h-32 object-cover cursor-pointer hover:scale-105 transition-transform duration-200"
-                                      onClick={() => setSelectedImage(imageUrl)}
-                                    />
-                                    
-                                    {/* Heart Save Button */}
-                                    <button
-                                      onClick={(e) => {
-                                        console.log('💖 HEART BUTTON: Click detected on image:', imageUrl);
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        saveToGallery(imageUrl);
-                                      }}
-                                      disabled={savingImages.has(imageUrl)}
-                                      style={{
-                                        position: 'absolute',
-                                        top: '8px',
-                                        right: '8px',
-                                        width: '32px',
-                                        height: '32px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        background: savedImages.has(imageUrl) ? 'rgba(255, 68, 68, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-                                        border: 'none',
-                                        color: savedImages.has(imageUrl) ? '#ffffff' : '#666666',
-                                        fontSize: '16px',
-                                        cursor: savingImages.has(imageUrl) ? 'not-allowed' : 'pointer',
-                                        borderRadius: '50%',
-                                        transition: 'all 300ms ease',
-                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                                        zIndex: 10
-                                      }}
-                                      title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
-                                      onMouseEnter={(e) => {
-                                        if (!savingImages.has(imageUrl)) {
-                                          e.currentTarget.style.background = savedImages.has(imageUrl) ? 'rgba(255, 68, 68, 1)' : 'rgba(255, 255, 255, 1)';
-                                          e.currentTarget.style.transform = 'scale(1.1)';
-                                        }
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        if (!savingImages.has(imageUrl)) {
-                                          e.currentTarget.style.background = savedImages.has(imageUrl) ? 'rgba(255, 68, 68, 0.9)' : 'rgba(255, 255, 255, 0.9)';
-                                          e.currentTarget.style.transform = 'scale(1)';
-                                        }
-                                      }}
-                                    >
-                                      {savingImages.has(imageUrl) ? '⟳' : (savedImages.has(imageUrl) ? '♥' : '♡')}
-                                    </button>
-                                    
-                                    {/* Subtle Saved Indicator */}
-                                    {savedImages.has(imageUrl) && (
-                                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                                        <div className="text-white text-xs font-medium">
-                                          ✓ Saved
-                                        </div>
-                                      </div>
-                                    )}
-                                    
-                                    {/* Hover overlay */}
-                                    <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors pointer-events-none"></div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                            
-                            {/* Preview Status Message */}
-                            <div className="mt-3 text-xs text-gray-500 bg-gray-50 p-3 rounded border">
-                              <strong>Preview Mode:</strong> These are temporary preview images. Click the heart (♡) to save your favorites permanently to your gallery.
-                            </div>
-                          </div>
-                        )}
-                        
-                        <div className={`text-xs mt-3 ${message.role === 'user' ? 'text-white/60' : 'text-gray-500'}`}>
-                          {message.role === 'user' ? 'You' : 'Maya'} • {new Date(message.timestamp).toLocaleTimeString()}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Typing Indicator */}
-                  {isTyping && (
-                    <div className="flex justify-start">
-                      <div className="bg-white text-black border border-gray-200 p-4 sm:p-6 max-w-2xl">
-                        <div className="flex items-center space-x-1">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                        </div>
-                        <div className="text-xs mt-3 text-gray-500">Maya is typing...</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Input Area */}
-                <div className="border-t border-gray-200 p-6 bg-white">
-                  <div className="flex gap-3">
-                    <Textarea
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Tell Maya what kind of photos you want to create..."
-                      className="flex-1 min-h-[60px] resize-none border-gray-300 focus:border-black focus:ring-black"
-                      disabled={isTyping}
-                    />
-                    <Button
-                      onClick={sendMessage}
-                      disabled={!input.trim() || isTyping}
-                      className="bg-black text-white hover:bg-gray-800 px-6"
-                    >
-                      Send
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Press Enter to send, Shift+Enter for new line
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Sidebar - Previous Sessions */}
-            <div className="lg:col-span-1">
-              <div className="bg-[#f5f5f5] p-6 min-h-[500px]">
-                <h3 className="font-times text-lg font-light text-black mb-6">Previous Sessions</h3>
-                <ChatHistoryLinks onChatSelect={(chatId) => {
-                  loadChatHistory(chatId);
-                  window.history.replaceState({}, '', `/maya?chat=${chatId}`);
-                }} />
-              </div>
-            </div>
+      {/* Hero Section */}
+      <section className="hero-section">
+        {/* Header overlay */}
+        <header className="hero-header">
+          <div className="hero-header-content">
+            <div className="hero-logo">SSELFIE</div>
+            <ul className="hero-nav">
+              <li><a href="/studio">Studio</a></li>
+              <li><a href="/simple-training">Train</a></li>
+              <li><a href="/maya">Photoshoot</a></li>
+              <li><a href="/sselfie-gallery">Gallery</a></li>
+              <li><a href="/profile">Profile</a></li>
+              <li><a href="/logout">Logout</a></li>
+            </ul>
           </div>
+        </header>
+
+        {/* Hero Background Image */}
+        <div className="hero-bg">
+          <img src="https://i.postimg.cc/KYZtzxXw/out-1-35.png" alt="Maya - Your Celebrity Stylist" />
+        </div>
+
+        {/* Hero Content */}
+        <div className="hero-content">
+          <div className="hero-eyebrow">Your personal brand photoshoot begins</div>
+          <h1 className="hero-title">Maya</h1>
+          <p className="hero-subtitle">Your Celebrity Stylist</p>
+          <button className="hero-cta" onClick={scrollToChat}>Begin Your Session</button>
         </div>
       </section>
 
-      {/* 🔑 ENHANCED: Full-size Image Modal with Heart-Save */}
+      <div className="main-chat-container">
+        {/* Sidebar */}
+        <aside className="chat-sidebar">
+          <div className="sidebar-section">
+            <button className="new-session-btn" onClick={startNewSession}>New Session</button>
+          </div>
+          
+          <div className="sidebar-section">
+            <div className="sidebar-title">Previous Sessions</div>
+            <ChatHistoryLinks onChatSelect={(chatId) => {
+              loadChatHistory(chatId);
+              window.history.replaceState({}, '', `/maya?chat=${chatId}`);
+            }} />
+          </div>
+        </aside>
+
+        {/* Main Chat Area */}
+        <main className="chat-main">
+          {/* Chat Header */}
+          <div className="chat-header">
+            <h1 className="chat-title">Maya Studio Session</h1>
+            <p className="chat-subtitle">Your personal brand photographer</p>
+          </div>
+
+          {/* Messages Container */}
+          <div className="messages-area">
+            {messages.length === 0 ? (
+              /* Welcome State */
+              <div className="welcome-container">
+                <div className="maya-avatar-large">M</div>
+                <div className="welcome-eyebrow">Personal Brand Photoshoot</div>
+                <h2 className="welcome-title">Ready to create something beautiful?</h2>
+                <p className="welcome-description">I'm Maya, your creative director. I'll help you create images that tell your story authentically. What kind of energy are you feeling today?</p>
+              </div>
+            ) : (
+              /* Messages */
+              <div>
+                {messages.map((message, index) => (
+                  <div key={index} className={`editorial-message ${message.role}`}>
+                    <div className="message-header">
+                      {message.role === 'maya' && (
+                        <>
+                          <div className="message-avatar">M</div>
+                          <div className="message-sender">Maya</div>
+                        </>
+                      )}
+                      <div className="message-time">{formatTimestamp(message.timestamp)}</div>
+                      {message.role === 'user' && (
+                        <>
+                          <div className="message-sender">{user?.firstName || 'You'}</div>
+                          <div className="message-avatar">{user?.firstName?.[0] || 'U'}</div>
+                        </>
+                      )}
+                    </div>
+                    <div className="message-content">
+                      <div className="message-text">
+                        {message.content.split('\n').map((line, lineIndex) => (
+                          <span key={lineIndex}>
+                            {line}
+                            {lineIndex < message.content.split('\n').length - 1 && <br />}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      {/* Image previews */}
+                      {message.imagePreview && message.imagePreview.length > 0 && (
+                        <div className="mt-4 grid grid-cols-2 gap-4">
+                          {message.imagePreview.map((imageUrl, imgIndex) => (
+                            <div key={imgIndex} className="relative group cursor-pointer">
+                              <img
+                                src={imageUrl}
+                                alt={`Generated image ${imgIndex + 1}`}
+                                className="w-full h-48 object-cover rounded transition-transform hover:scale-105"
+                                onClick={() => setSelectedImage(imageUrl)}
+                              />
+                              
+                              {/* Heart save button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  saveToGallery(imageUrl);
+                                }}
+                                disabled={savingImages.has(imageUrl)}
+                                className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-lg opacity-0 group-hover:opacity-100"
+                                title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
+                              >
+                                {savingImages.has(imageUrl) ? (
+                                  <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                ) : savedImages.has(imageUrl) ? (
+                                  <span className="text-red-500 text-sm">♥</span>
+                                ) : (
+                                  <span className="text-gray-400 hover:text-red-500 text-sm transition-colors">♡</span>
+                                )}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Generation button */}
+                      {message.canGenerate && message.generatedPrompt && (
+                        <div className="mt-4 pt-4 border-t border-gray-300">
+                          <button
+                            onClick={() => generateImages(message.generatedPrompt!)}
+                            disabled={isGenerating}
+                            className="px-6 py-3 bg-black text-white font-medium tracking-wider uppercase text-xs hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
+                          >
+                            {isGenerating ? `Generating... ${generationProgress}%` : 'Generate Photos'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Typing indicator */}
+                {isTyping && (
+                  <div className="typing-indicator">
+                    <div className="message-avatar">M</div>
+                    <div className="typing-dots">
+                      <div className="typing-dot"></div>
+                      <div className="typing-dot"></div>
+                      <div className="typing-dot"></div>
+                    </div>
+                    <div className="typing-text">Maya is creating your vision...</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Input Area */}
+          <div className="input-area">
+            <div className="input-container">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="input-field"
+                placeholder="Tell Maya what kind of photos you want to create..."
+                rows={1}
+                disabled={isTyping}
+                style={{
+                  minHeight: '24px',
+                  maxHeight: '120px',
+                  height: 'auto'
+                }}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                }}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={!input.trim() || isTyping}
+                className="send-btn"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Full-size Image Modal */}
       {selectedImage && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
