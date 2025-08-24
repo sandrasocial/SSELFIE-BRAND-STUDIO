@@ -521,29 +521,26 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  // TEMPORARY DEV BYPASS: Allow real admin user access during OAuth fixes
+  // AUTOMATIC DEV BYPASS: Always use real admin user in development
   if (process.env.NODE_ENV === 'development') {
-    // Check for development admin bypass parameter
-    if (req.query.dev_admin === 'sandra' || req.headers['x-dev-admin'] === 'sandra') {
-      console.log('🔧 DEV BYPASS: Using real admin account during OAuth fix');
-      
-      // Use REAL admin user data from database (ID: 42585527, ssa@ssasocial.com)
-      const adminUser = {
-        claims: {
-          sub: '42585527', // Real Sandra admin user ID
-          email: 'ssa@ssasocial.com', // Real Sandra email
-          first_name: 'Sandra',
-          last_name: 'Sigurjonsdottir',
-          profile_image_url: null
-        },
-        expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
-      };
-      
-      // Set real user in request
-      req.user = adminUser;
-      console.log('✅ DEV BYPASS: Real admin session created for ssa@ssasocial.com');
-      return next();
-    }
+    console.log('🔧 AUTO DEV BYPASS: Using real admin account in development');
+    
+    // Use REAL admin user data from database (ID: 42585527, ssa@ssasocial.com)
+    const adminUser = {
+      claims: {
+        sub: '42585527', // Real Sandra admin user ID
+        email: 'ssa@ssasocial.com', // Real Sandra email
+        first_name: 'Sandra',
+        last_name: 'Sigurjonsdottir',
+        profile_image_url: null
+      },
+      expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+    };
+    
+    // Set real user in request
+    req.user = adminUser;
+    console.log('✅ AUTO DEV BYPASS: Real admin session created for ssa@ssasocial.com');
+    return next();
   }
 
   if (!(req as any).isAuthenticated || !(req as any).isAuthenticated() || !user) {
