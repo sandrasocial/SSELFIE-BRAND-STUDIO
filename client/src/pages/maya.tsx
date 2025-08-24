@@ -376,7 +376,6 @@ export default function Maya() {
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-top: 80px;
         }
         
         .hero-bg {
@@ -389,6 +388,7 @@ export default function Maya() {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          object-position: center 20%;
         }
         
         /* Hero Content */
@@ -968,7 +968,7 @@ export default function Maya() {
           }
           
           .hero {
-            margin-top: 60px;
+            margin-top: 0;
           }
         }
       ` }} />
@@ -1023,7 +1023,7 @@ export default function Maya() {
                 </div>
                 <div className="welcome-eyebrow">Personal Brand Photoshoot</div>
                 <h2 className="welcome-title">Ready to create something beautiful?</h2>
-                <p className="welcome-description">I'm Maya, your creative director. I'll help you create images that tell your story authentically. What kind of energy are you feeling today?</p>
+                <p className="welcome-description">Hey gorgeous! This is going to be SO good - I can already see your photos killing it on Instagram! I'm here to create that main character energy you've been craving. What vibe are we bringing today?</p>
                 
                 {/* Quick Style Selection */}
                 <div className="style-quickselect">
