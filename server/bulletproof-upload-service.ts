@@ -378,7 +378,7 @@ export class BulletproofUploadService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1000, // 🎯 RESEARCH-PROVEN: Community consensus for face training (1000-2000 optimal range)
+            steps: 1500, // 🎯 RESEARCH-PROVEN: Community consensus for face training (1000-2000 optimal range)
             learning_rate: 4e-4, // 🎯 RESEARCH-PROVEN: 0.0004 works excellent for character/face training
             batch_size: 1,
             lora_rank: 32, // 🎯 RESEARCH-PROVEN: 32 for complex features and character training

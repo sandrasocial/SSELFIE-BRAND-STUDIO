@@ -40,7 +40,7 @@ export class ModelRetrainService {
         input: {
           input_images: s3ZipUrl,
           trigger_word: existingModel.triggerWord, // Use existing trigger word
-          steps: 1000,                             // 🎯 RESEARCH-PROVEN: Community consensus for face training
+          steps: 1500,                             // 🎯 RESEARCH-PROVEN: Community consensus for face training
           learning_rate: 4e-4,                     // 🎯 RESEARCH-PROVEN: 0.0004 works excellent for character training
           batch_size: 1,
           lora_rank: 32,                           // 🎯 RESEARCH-PROVEN: 32 for complex features and character training
@@ -53,7 +53,7 @@ export class ModelRetrainService {
           wandb_project: "flux_train_replicate",
           wandb_save_interval: 100,
           save_every_n_epochs: 1,
-          max_train_steps: 1000,                   // 🎯 Updated to match steps
+          max_train_steps: 1500,                   // 🎯 Updated to match steps
           seed: 42
         }
       };
