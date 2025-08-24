@@ -126,14 +126,31 @@ export class TrainingCompletionMonitor {
           console.log(`🆔 Generated trigger word: ${triggerWord} for user ${userId}`);
         }
         
+        // CORRECT: Update model with destination model info (not LoRA weights)
+        let finalModelId = null;
+        let finalVersionId = versionId;
+        
+        // Extract final model info from training output
+        if (trainingData.output?.version) {
+          const versionUrl = trainingData.output.version;
+          console.log(`🔍 Training created destination model: ${versionUrl}`);
+          
+          // Extract model path from URL like: https://replicate.com/sandrasocial/model-name:version_id
+          const versionMatch = versionUrl.match(/replicate\.com\/([^:]+):(.+)$/);
+          if (versionMatch) {
+            finalModelId = versionMatch[1]; // e.g., "sandrasocial/42585527-selfie-lora"
+            finalVersionId = versionMatch[2]; // version ID
+            console.log(`✅ Extracted destination model: ${finalModelId}:${finalVersionId}`);
+          }
+        }
+
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
-          replicateVersionId: versionId, // Store version ID only (universal format)
-          loraWeightsUrl: loraWeightsUrl, // CRITICAL: Store LoRA weights URL for base model + LoRA approach
+          replicateModelId: finalModelId || `sandrasocial/${userId}-selfie-lora`, // Destination model ID
+          replicateVersionId: finalVersionId, // Version ID of trained model
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainedModelPath: paths.getUserModelPath(userId),
-          modelType: 'flux-standard',
-          // Keep replicateModelId as training ID for tracking purposes
+          modelType: 'flux-lora', // Updated to reflect LoRA training
           updatedAt: new Date()
         });
 

@@ -88,64 +88,15 @@ export class UnifiedGenerationService {
     
     console.log(`UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // CRITICAL: Use FLUX 1.1 Pro + Individual LoRA Weights Architecture
-    // This is the NEW approach: base model + user LoRA weights instead of custom models
-    console.log(`🔒 VERSION VALIDATION: Model: ${modelId}, Version: ${versionId}`);
-    console.log(`🚀 FLUX 1.1 PRO + LORA: Using base model with individual LoRA weights`);
+    // CORRECT FLUX LoRA ARCHITECTURE: Use the trained destination model directly
+    console.log(`🔒 TRAINED MODEL: Using destination model ${modelId}:${versionId}`);
+    console.log(`🚀 DIRECT MODEL USAGE: Running inference on trained FLUX LoRA model`);
     
-    // Get user LoRA weights URL (NEW ARCHITECTURE)
-    const userModel = await storage.getUserModelByUserId(userId);
-    const loraWeightsUrl = userModel?.loraWeightsUrl;
-    
-    console.log(`🎯 LORA WEIGHTS: ${loraWeightsUrl || 'Not available - using fallback to custom model'}`);
-    
-    // CRITICAL: Extract LoRA weights if not available
-    if (!loraWeightsUrl) {
-      console.log(`🔧 EXTRACTING LoRA weights for user ${userId} from model ${modelId}:${versionId}`);
-      
-      try {
-        const response = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (response.ok) {
-          const versionData = await response.json();
-          
-          // Extract LoRA weights from model files
-          if (versionData.files && versionData.files.weights) {
-            loraWeightsUrl = versionData.files.weights;
-          } else if (versionData.urls && versionData.urls.get) {
-            loraWeightsUrl = versionData.urls.get;
-          }
-          
-          // Update user model with extracted LoRA weights
-          if (loraWeightsUrl) {
-            await storage.updateUserModel(userId, {
-              loraWeightsUrl: loraWeightsUrl,
-              updatedAt: new Date()
-            });
-            console.log(`✅ EXTRACTED and saved LoRA weights: ${loraWeightsUrl}`);
-          }
-        }
-      } catch (error) {
-        console.error(`❌ Error extracting LoRA weights:`, error);
-      }
-    }
-    
-    // CRITICAL: ALWAYS require LoRA weights - users must train first!
-    if (!loraWeightsUrl) {
-      throw new Error(`LoRA weights required but not found for user ${userId}. Please train your model first at /train before generating images.`);
-    }
-    
-    // FLUX 1.1 Pro + LoRA Weights + Trigger Word (ALWAYS)
+    // Use the trained model directly - no LoRA weights needed!
     const requestBody = {
-      version: "black-forest-labs/flux-1.1-pro",
+      version: `${modelId}:${versionId}`,
       input: {
-        prompt: finalPrompt,           // ALWAYS includes trigger word
-        lora_weights: loraWeightsUrl,  // ALWAYS includes LoRA weights
+        prompt: finalPrompt,
         lora_scale: 0.9,               // Optimal facial accuracy with LoRA weights
         megapixels: "1",               // Full resolution quality
         num_outputs: 2,                // Always generate 2 options

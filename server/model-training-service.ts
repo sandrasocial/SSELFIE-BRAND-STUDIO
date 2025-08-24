@@ -193,9 +193,7 @@ export class ModelTrainingService {
             cache_latents_to_disk: false, // SHANNON'S SUCCESS: Memory optimization
             caption_dropout_rate: 0.1 // SHANNON'S SUCCESS: 0.1 = better generalization (vs 0.05 = overfitting)
           },
-          // PHASE 2 FIX: Remove hardcoded destination to prevent "training destination does not exist" error
-          // destination: `sandrasocial/${modelName}` // This requires special permissions
-          // Let Replicate auto-assign destination for new users
+          destination: `sandrasocial/${modelName}` // CRITICAL: This creates the runnable trained model
         })
       });
 
