@@ -1,0 +1,85 @@
+I can see the parameters are completly wrong and the prompts generated are not consistent to what I need maya to do. See pasted maya description: vs her prompt sent to replicate: raw photo, visible skin pores, film grain, unretouched natural skin texture, user42585527 ethereal golden light streaming through urban loft windows, woman in oversized cream silk button-down falling effortlessly off one shoulder paired with high-waist wide-leg trousers in pearl white, gentle wind-swept movement in hair, natural serene expression with slight smile, rays of sunset creating a honey-gold halo effect, dreamy bokeh background with city lights twinkling, professional photography Replit agent Report: Based on my comprehensive analysis of the Maya chat system architecture, here's what I found:
+
+Maya System Architecture Analysis
+
+Single Personality System ✅
+
+Unified Definition: One maya-personality.ts file defines Maya's complete identity, voice patterns, and expertise
+
+Celebrity Stylist Role: "Your warmest, most fashionable best friend who happens to style A-listers"
+
+2025 Fashion Expertise: Up-to-date trends from oversized everything to Y2K revival
+
+No Personality Conflicts: Single source of truth prevents inconsistencies
+
+Clear Admin vs Member Separation ✅
+
+Admin Maya: Accessed through /api/consulting-agents/maya - collection management and platform enhancement
+
+Member Maya: Dedicated chat interface at /maya - user-facing photo generation and styling
+
+Different Purposes: Admin Maya handles business operations, Member Maya serves customers
+
+No Functional Overlap: Clean separation prevents conflicts
+
+Complete Maya Workflow Mapping
+
+User Chat → Maya Personality → Prompt Architecture → User Model Validation → Replicate API → Image Generation → Chat Preview → Gallery Save
+
+Service Integration Analysis
+
+Core Components:
+
+maya-personality.ts: Single personality definition
+
+maya.tsx: Member chat interface
+
+maya-chat-preview-service.ts: Image preview management
+
+model-validation-service.ts: User-specific model enforcement
+
+generation-completion-monitor.ts: Real-time tracking
+
+MayaCollectionManager.tsx: Admin collection tools
+
+Image Generation Pipeline:
+
+User Model Validation: ModelValidationService.enforceUserModelRequirements()
+
+Trigger Word Integration: Automatic user${userId} injection
+
+Replicate Parameters: Consistent settings (lora_scale: 0.9, guidance_scale: 3.0, etc.) Needs to be num_inference_steps 50 and guidance_scale: 5 
+
+Live Progress Tracking: Real-time generation monitoring
+
+Chat System Features:
+
+Message Persistence: Full conversation history with image previews
+
+Heart/Save Functionality: Users can save favorite images to gallery
+
+Preview Management: Temporary chat previews before permanent saves
+
+No Architecture Conflicts Found ✅
+
+Clean API Routes: Separate endpoints for admin and member functions
+
+Consistent Parameters: Same Replicate settings across all implementations
+
+Single Database Schema: Unified data models for all Maya interactions
+
+Proper Authentication: Role-based access prevents unauthorized operations
+
+Key Strengths
+
+User-Specific Generation: Every image uses the user's trained model
+
+Comprehensive Tracking: Real-time monitoring of generation progress
+
+Seamless UX: Chat previews before gallery saves
+
+Fashion Expertise: 2025-current trend knowledge
+
+Clean Architecture: No duplicate services or conflicting implementations
+
+The Maya system demonstrates excellent architectural separation with a single personality driving both admin operations and member experiences. The image generation pipeline properly validates user models and maintains consistent quality standards across all interactions. 
