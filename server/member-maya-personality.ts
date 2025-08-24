@@ -197,44 +197,49 @@ function generateFullMayaResponse(styleAnalysis: any): { userMessage: string; te
 
   switch (category) {
     case 'editorial_luxury':
-      // TRUE EDITORIAL - Magazine-style photography with studio lighting and high fashion
-      const editorialStyles = [
-        {
-          styling: "architectural black blazer with statement gold jewelry",
-          lighting: "dramatic directional studio lighting with hard shadows",
-          mood: "powerful and sophisticated"
-        },
-        {
-          styling: "minimalist white silk shirt with precision tailoring",
-          lighting: "clean high-key studio lighting with soft fill",
-          mood: "elegant and refined"
-        },
-        {
-          styling: "structured leather jacket with geometric accessories",
-          lighting: "moody low-key lighting with rim light accent",
-          mood: "edgy and confident"
-        },
-        {
-          styling: "luxurious cashmere coat in neutral tones",
-          lighting: "soft beauty lighting with gradient background",
-          mood: "timeless and editorial"
-        },
-        {
-          styling: "avant-garde asymmetrical design piece",
-          lighting: "creative split lighting with dramatic contrast",
-          mood: "artistic and fashion-forward"
-        }
+      // MAYA'S DYNAMIC 2025 EDITORIAL EXPERTISE - Using her full fashion knowledge
+      const fashionTrends = [
+        "oversized cream blazer with quiet luxury details", "champagne silk slip dress layered over vintage band tee",
+        "structured coat meeting soft cashmere", "architectural black blazer with statement pieces",
+        "butter-soft leather jacket flowing like water", "minimalist white silk with precision tailoring"
       ];
       
-      const randomEditorial = editorialStyles[Math.floor(Math.random() * editorialStyles.length)];
+      const accessories = [
+        "chunky gold jewelry catching light", "silk scarf dancing in breeze", "vintage sunglasses reflecting confidence",
+        "statement earrings with geometric lines", "delicate chain necklaces layered perfectly", "leather belt with sculptural buckle"
+      ];
       
-      userMessage = `Creating your editorial luxury shoot right now! This is pure magazine sophistication - ${randomEditorial.mood} with high-fashion styling that will absolutely blow people away.
+      const hairMakeup = [
+        "slicked-back hair with shine, dewy skin glowing naturally", "hair moving in soft waves, barely-there makeup letting beauty breathe",
+        "effortless styling with windswept elegance", "natural texture embracing movement", "hair in polished perfection meeting soft romance"
+      ];
+      
+      const lightingPoetry = [
+        "honey-colored light spilling through windows", "shadows dancing across architectural features creating drama",
+        "rim lighting creating ethereal silhouette", "soft north-facing window light creating even glow", "dramatic directional light painting stories"
+      ];
+      
+      const cameraSpecs = [
+        "shot on Hasselblad X1D with medium format aesthetic", "captured on Leica Q2 with 28mm f/1.7 lens creating intimate depth",
+        "photographed with Canon R5 and 85mm f/1.2 for dreamy bokeh", "medium format quality with editorial precision"
+      ];
+      
+      const personalBrandOutcome = MEMBER_MAYA_PERSONALITY.expertise.personalBrandOutcomes[Math.floor(Math.random() * MEMBER_MAYA_PERSONALITY.expertise.personalBrandOutcomes.length)];
+      const voicePhrase = MEMBER_MAYA_PERSONALITY.voice.examples[Math.floor(Math.random() * MEMBER_MAYA_PERSONALITY.voice.examples.length)];
+      
+      const randomFashion = fashionTrends[Math.floor(Math.random() * fashionTrends.length)];
+      const randomAccessory = accessories[Math.floor(Math.random() * accessories.length)];
+      const randomHairMakeup = hairMakeup[Math.floor(Math.random() * hairMakeup.length)];
+      const randomLighting = lightingPoetry[Math.floor(Math.random() * lightingPoetry.length)];
+      const randomCamera = cameraSpecs[Math.floor(Math.random() * cameraSpecs.length)];
+      
+      userMessage = `${voicePhrase} I'm creating your editorial luxury shoot right now with that high-fashion magazine energy that screams sophisticated confidence!
 
-This is that Vogue-level editorial energy - professional studio lighting, luxury fashion pieces, and that powerful confident expression that makes you look like you own the room. Pure editorial perfection.
+This captures pure editorial perfection - we're talking about those "Black & White Magic" vibes with timeless sophistication that photographs like a dream. ${personalBrandOutcome}!
 
-These photos are going to be remarkable! The kind that make people stop scrolling and wonder who you are. Perfect for your personal brand - sophisticated, editorial, and absolutely unforgettable.`;
+Trust me on this one - this style is SO editorial luxury right now. You'll have that powerful confidence that makes people want to hire you or work with you. This is going to absolutely kill it! ✨`;
 
-      technicalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], elegant woman in professional studio setting wearing ${randomEditorial.styling}, ${randomEditorial.mood} editorial expression with direct confident gaze, ${randomEditorial.lighting}, high-fashion editorial photography, luxury fashion styling, detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy, shot on Hasselblad X2D with 90mm lens, clean studio background, professional editorial depth, luxury magazine aesthetic`;
+      technicalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], confident woman in minimalist studio space wearing ${randomFashion}, ${randomAccessory}, ${randomHairMakeup}, ${randomLighting}, high-fashion editorial photography with dramatic depth, thoughtful genuine gaze with editorial intensity, detailed hands with perfect fingers, natural hand positioning, well-formed feet, accurate anatomy, ${randomCamera}, luxury magazine aesthetic with cinematic bokeh, sophisticated editorial styling meeting personal brand power`;
       break;
       
     case 'professional_authoritative':
