@@ -1607,15 +1607,56 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         console.error(`🚨 MODEL CHECK FAILED:`, modelCheckError);
       }
       
+      // CRITICAL: Extract LoRA weights if not available  
+      let loraWeightsUrl = userModel?.loraWeightsUrl;
+      
+      if (!loraWeightsUrl) {
+        console.log(`🔧 MAYA EXTRACTING LoRA weights for user ${userId}`);
+        
+        try {
+          const response = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const versionData = await response.json();
+            if (versionData.files?.weights) {
+              loraWeightsUrl = versionData.files.weights;
+            } else if (versionData.urls?.get) {
+              loraWeightsUrl = versionData.urls.get;
+            }
+            
+            if (loraWeightsUrl) {
+              await storage.updateUserModel(userId, {
+                loraWeightsUrl: loraWeightsUrl,
+                updatedAt: new Date()
+              });
+              console.log(`✅ MAYA EXTRACTED and saved LoRA weights: ${loraWeightsUrl}`);
+            }
+          }
+        } catch (error) {
+          console.error(`❌ MAYA Error extracting LoRA weights:`, error);
+        }
+      }
+      
+      // CRITICAL: ALWAYS require LoRA weights - no fallbacks!
+      if (!loraWeightsUrl) {
+        throw new Error(`Maya requires LoRA weights for user ${userId}. Cannot generate without individual LoRA weights.`);
+      }
+      
       const requestBody = {
-        version: modelVersion,
+        version: "black-forest-labs/flux-1.1-pro",
         input: {
           prompt: finalPrompt,
+          lora_weights: loraWeightsUrl,
           lora_scale: 0.9,
           guidance_scale: 5,
           num_inference_steps: 50,
           num_outputs: 2,
-          aspect_ratio: "3:4",
+          aspect_ratio: "4:5",
           output_format: "png",
           output_quality: 95,
           go_fast: false,
@@ -2015,11 +2056,52 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const anatomyTerms = "detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy";
       const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}, ${anatomyTerms}`;
       
-      // OPTIMIZED PARAMETERS MATCHING UnifiedGenerationService (August 21, 2025)
+      // CRITICAL: Extract LoRA weights if not available  
+      let loraWeightsUrl = userModel?.loraWeightsUrl;
+      
+      if (!loraWeightsUrl) {
+        console.log(`🔧 SHANNON TEST EXTRACTING LoRA weights for user ${userId}`);
+        
+        try {
+          const response = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
+            headers: {
+              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const versionData = await response.json();
+            if (versionData.files?.weights) {
+              loraWeightsUrl = versionData.files.weights;
+            } else if (versionData.urls?.get) {
+              loraWeightsUrl = versionData.urls.get;
+            }
+            
+            if (loraWeightsUrl) {
+              await storage.updateUserModel(userId, {
+                loraWeightsUrl: loraWeightsUrl,
+                updatedAt: new Date()
+              });
+              console.log(`✅ SHANNON EXTRACTED and saved LoRA weights: ${loraWeightsUrl}`);
+            }
+          }
+        } catch (error) {
+          console.error(`❌ SHANNON Error extracting LoRA weights:`, error);
+        }
+      }
+      
+      // CRITICAL: ALWAYS require LoRA weights - no fallbacks!
+      if (!loraWeightsUrl) {
+        throw new Error(`Shannon test requires LoRA weights for user ${userId}. Cannot generate without individual LoRA weights.`);
+      }
+      
+      // OPTIMIZED PARAMETERS FOR FLUX 1.1 PRO + LORA ARCHITECTURE
       const requestBody = {
-        version: modelVersion,
+        version: "black-forest-labs/flux-1.1-pro",
         input: {
           prompt: finalPrompt,
+          lora_weights: loraWeightsUrl,
           lora_scale: 0.9,              // Optimal facial accuracy
           megapixels: "1",              // Full resolution quality
           num_outputs: 2,               // Always generate 2 options
@@ -2028,7 +2110,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
           guidance_scale: 5,            // Perfect balance for anatomy & style
           output_quality: 95,           // Maximum quality
           prompt_strength: 0.8,         // Strong prompt adherence
-          extra_lora_scale: 1,          // Enhanced model influence
           num_inference_steps: 50,      // Detailed generation process
           go_fast: false,               // Quality over speed
           disable_safety_checker: false,
@@ -2036,8 +2117,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         }
       };
       
-      console.log(`🚀 SHANNON TEST: Making direct Replicate call`);
-      console.log(`   Model: ${modelVersion}`);
+      console.log(`🚀 SHANNON TEST: FLUX 1.1 Pro + LoRA architecture`);
+      console.log(`   Base Model: black-forest-labs/flux-1.1-pro`);
+      console.log(`   LoRA Weights: ${loraWeightsUrl}`);
       console.log(`   Trigger: ${triggerWord}`);
       
       const replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
