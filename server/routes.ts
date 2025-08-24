@@ -18,6 +18,7 @@ import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
+import { registerMayaAIRoutes } from './routes/maya-ai-routes';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
@@ -415,6 +416,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Victoria website generator
   registerVictoriaWebsiteGenerator(app);
+  
+  // Register Member Maya routes (Revenue-critical customer styling)
+  registerMayaAIRoutes(app);
   
   // AGENT PROTOCOL ENFORCEMENT SYSTEM
   app.post('/api/agent-protocol/validate', async (req, res) => {

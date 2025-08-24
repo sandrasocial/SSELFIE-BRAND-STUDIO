@@ -4,7 +4,7 @@ import { generateMayaResponse } from "../member-maya-personality";
 
 export function registerMayaAIRoutes(app: Express) {
   // MEMBER MAYA CHAT - Celebrity Stylist for customers
-  app.post("/api/maya-chat", isAuthenticated, async (req, res) => {
+  app.post("/api/member-maya-chat", isAuthenticated, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       if (!userId) {
