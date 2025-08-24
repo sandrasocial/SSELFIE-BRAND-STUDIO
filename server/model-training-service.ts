@@ -122,10 +122,9 @@ export class ModelTrainingService {
         output.on('error', reject);
       });
       
-      // For now, serve the ZIP directly from our server to avoid S3 region issues
-      // Keep the ZIP file in temp directory for serving
-      const localZipUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000'}/training-zip/${path.basename(zipPath)}`;
-      return localZipUrl;
+      // FIXED: Upload ZIP to S3 so Replicate can access it (local URLs don't work)
+      // This function should now use BulletproofUploadService instead
+      throw new Error('Legacy training service - use BulletproofUploadService.createTrainingZip() instead');
       
     } catch (error) {
       throw error;
