@@ -69,8 +69,8 @@ export const MEMBER_MAYA_PERSONALITY = {
       "Use poetic, optimized prompt language", 
       "Vary shot types (close-up, half body, full scene)",
       "Connect fashion choices to personal brand story",
-      "Generate exactly 2 prompts per request",
-      "Explain to generate ONE prompt at a time (never combine both)"
+      "Create exactly 1 image description per request",
+      "Never use technical terms like 'prompt' or 'generate'"
     ]
   },
 
@@ -80,26 +80,27 @@ export const MEMBER_MAYA_PERSONALITY = {
       "Warm Greeting (best friend energy)",
       "Trend Insight (what's hot in 2025)", 
       "Story Connection (why this matters for their brand)",
-      "Two distinct prompts with clear generation guidance",
+      "One beautiful image description",
       "Encouraging Sign-off (confidence boost)"
     ],
     
     guidelines: {
       alwaysDo: [
         "Include current 2025 fashion trends",
-        "Use poetic, optimized prompt language",
+        "Use poetic, optimized language",
         "Vary shot types (close-up, half body, full scene)",
         "Connect fashion choices to personal brand story",
         "Be warm, encouraging, and friendly",
-        "Explain to generate ONE prompt at a time"
+        "Create only ONE image at a time"
       ],
       neverDo: [
+        "Use words like 'prompt' or 'generate' in conversation",
         "Use technical photography jargon in conversation",
         "Create corporate or stiff imagery", 
         "Ignore current fashion trends",
-        "Generate more or less than 2 prompts",
+        "Create more than 1 image description per response",
         "Be cold or impersonal",
-        "Tell users to combine prompts"
+        "Tell users to 'generate' or use technical terms"
       ]
     }
   },
@@ -173,53 +174,41 @@ function generateFullMayaResponse(styleAnalysis: any): { message: string; prompt
   let greeting = "Hey gorgeous! ";
   let trendInsight = "";
   let storyConnection = "";
-  let prompts: string[] = [];
-  let signOff = "You're going to look absolutely incredible! Pick one prompt to generate first, babe - then come back and try the other one! Each one needs its own generation to look perfect. ✨";
+  let imageDescription = "";
+  let signOff = "This is going to be absolutely stunning on you, babe! ✨";
 
   switch (category) {
     case 'business':
       greeting += "Let's create some serious CEO energy for you!";
       trendInsight = "The mob wife aesthetic is SO trending right now - think powerful, oversized pieces that say 'I own this room.'";
       storyConnection = "For your personal brand story, we're showing that perfect balance of strength and femininity.";
-      prompts = [
-        "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], confident woman in oversized cream blazer with quiet luxury elegance, natural minimal makeup with matte finish, soft window light creating gentle shadows across face, authentic contemplative expression, hair in natural textured waves, shot on Leica Q2 with 28mm f/1.7 lens, minimalist background, strength radiating through stillness",
-        "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], sophisticated woman in flowing neutral coat walking through modern minimalist space, morning light filtering through floor-to-ceiling windows, natural confident stride, quiet luxury aesthetic with Pinterest street style influence, hair in effortless waves moving naturally, authentic serene expression, story of success written in every step"
-      ];
+      imageDescription = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], confident woman in oversized cream blazer with quiet luxury elegance, natural minimal makeup with matte finish, soft window light creating gentle shadows across face, authentic contemplative expression, hair in natural textured waves, shot on Leica Q2 with 28mm f/1.7 lens, minimalist background, strength radiating through stillness";
       break;
       
     case 'casual':
       greeting += "Time for some effortless chic vibes!";
       trendInsight = "Pinterest street style is everything right now - that curated casual look that seems effortless but is absolutely perfect.";
       storyConnection = "This captures your authentic, approachable side while keeping you looking incredibly put-together.";
-      prompts = [
-        "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in oversized cream sweater and wide-leg jeans, coastal grandmother aesthetic with natural textures, golden hour lighting through cafe window, relaxed confident expression while reading, hair in effortless waves, shot on film with natural grain, authentic everyday luxury",
-        "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman walking through farmers market in flowing linen dress, dopamine dressing with soft colors, natural morning light creating gentle shadows, genuine smile while exploring, tousled hair moving naturally, candid lifestyle moment with Pinterest energy"
-      ];
+      imageDescription = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in oversized cream sweater and wide-leg jeans, coastal grandmother aesthetic with natural textures, golden hour lighting through cafe window, relaxed confident expression while reading, hair in effortless waves, shot on film with natural grain, authentic everyday luxury";
       break;
       
     case 'elegant':
       greeting += "Ready for some serious sophistication!";
       trendInsight = "Soft romanticism is having such a moment - flowing fabrics and dreamy textures that make you look like you stepped out of a fairytale.";
       storyConnection = "This shows your refined, feminine side with that touch of mystery that draws people in.";
-      prompts = [
-        "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in flowing silk slip dress with delicate gold jewelry, soft romanticism aesthetic with dreamy textures, ethereal window light creating luminous glow, serene contemplative expression, hair in gentle waves with natural movement, timeless elegance meets modern femininity",
-        "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], elegant woman in neo-preppy ensemble with modern collegiate touches, sophisticated color palette with unexpected details, studio lighting with soft shadows, confident yet approachable expression, perfectly styled hair with natural texture, luxury minimalism with personality"
-      ];
+      imageDescription = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in flowing silk slip dress with delicate gold jewelry, soft romanticism aesthetic with dreamy textures, ethereal window light creating luminous glow, serene contemplative expression, hair in gentle waves with natural movement, timeless elegance meets modern femininity";
       break;
       
     default: // versatile
       greeting += "Let's create something absolutely stunning that's totally YOU!";
       trendInsight = "The best looks right now mix different aesthetics - a little quiet luxury with some Pinterest street style energy.";
       storyConnection = "This captures your unique personality while keeping you on-trend and absolutely gorgeous.";
-      prompts = [
-        "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in perfectly tailored blazer with coquette details, mixing structured power with feminine touches, natural lighting creating soft definition, confident expression with hint of playfulness, hair styled with effortless perfection, modern femininity with edge",
-        "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in flowing textures with clean girl beauty aesthetic, natural minimal makeup highlighting authentic features, golden hour backlighting creating dreamy atmosphere, genuine serene smile, hair in natural waves catching light, effortless luxury that feels authentic"
-      ];
+      imageDescription = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [TRIGGERWORD], woman in perfectly tailored blazer with coquette details, mixing structured power with feminine touches, natural lighting creating soft definition, confident expression with hint of playfulness, hair styled with effortless perfection, modern femininity with edge";
   }
 
-  const fullMessage = `${greeting}\n\n${trendInsight} ${storyConnection}\n\nHere are your two shots, babe:\n\n**Close-up Power Portrait:** ${prompts[0]}\n\n**Full Scene Story:** ${prompts[1]}\n\n${signOff}`;
+  const fullMessage = `${greeting}\n\n${trendInsight} ${storyConnection}\n\n${imageDescription}\n\n${signOff}`;
   
-  return { message: fullMessage, prompts };
+  return { message: fullMessage, prompts: [imageDescription] };
 }
 
 function generateGeneralStylingAdvice(userMessage: string): string {
