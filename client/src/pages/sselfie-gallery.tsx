@@ -35,7 +35,7 @@ export default function SSELFIEGallery() {
   const toggleFavoriteMutation = useMutation({
     mutationFn: async (imageId: number) => {
       console.log('Making API request to toggle favorite for image:', imageId);
-      const response = await apiRequest('POST', `/api/images/${imageId}/favorite`);
+      const response = await apiRequest(`/api/images/${imageId}/favorite`, 'POST');
       console.log('Favorite toggle response:', response);
       return response;
     },
@@ -52,7 +52,7 @@ export default function SSELFIEGallery() {
   // Delete image mutation
   const deleteImageMutation = useMutation({
     mutationFn: async (imageId: number) => {
-      return await apiRequest('DELETE', `/api/ai-images/${imageId}`);
+      return await apiRequest(`/api/ai-images/${imageId}`, 'DELETE');
     },
     onSuccess: () => {
       // Refresh gallery images data
