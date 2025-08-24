@@ -567,10 +567,10 @@ export default function SimpleTraining() {
                   letterSpacing: '0.025em'
                 }}>
                   <div style={{ marginBottom: '8px', fontWeight: 400 }}>
-                    <strong>€67 Premium Training Experience</strong>
+                    <strong>Personal AI Model Training</strong>
                   </div>
                   <div>
-                    Professional-grade model • Face distortion prevention • Gallery-ready results
+                    High-quality personalization • Natural results • Gallery-ready photos
                   </div>
                 </div>
               </div>
@@ -1231,10 +1231,10 @@ export default function SimpleTraining() {
                   letterSpacing: '0.025em'
                 }}>
                   <div style={{ marginBottom: '8px', fontWeight: 500 }}>
-                    <strong>€67 Premium Training Experience</strong>
+                    <strong>Personal AI Model Training</strong>
                   </div>
                   <div style={{ opacity: 0.8 }}>
-                    Professional-grade AI model • 20-minute training • Face distortion prevention
+                    High-quality AI personalization • Individual model training • Natural results
                   </div>
                 </div>
               </div>

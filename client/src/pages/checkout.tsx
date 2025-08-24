@@ -244,7 +244,7 @@ export default function Checkout() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ 
-            amount: 67, // €67 for SSELFIE Studio
+            amount: 47, // $47 for SSELFIE Studio
             plan: plan,
             currency: 'usd'
           }),
