@@ -36,7 +36,7 @@ export class ModelRetrainService {
       
       // Start new Replicate training using ostris/flux-dev-lora-trainer
       const trainingData = {
-        version: 'ostris/flux-dev-lora-trainer:26dce37a', // CORRECT LATEST VERSION
+        version: '4ffd32160efd92e956d39c5338a9b8fbafca58e03f791f6d8011f3e20e8ea6fa', // ostris/flux-dev-lora-trainer LATEST
         destination: `sandrasocial/${newModelName}`, // 🚨 REQUIRED: Destination model for LoRA weights output
         input: {
           input_images: s3ZipUrl,
