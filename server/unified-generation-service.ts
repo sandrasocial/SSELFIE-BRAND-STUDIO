@@ -99,52 +99,67 @@ export class UnifiedGenerationService {
     
     console.log(`🎯 LORA WEIGHTS: ${loraWeightsUrl || 'Not available - using fallback to custom model'}`);
     
-    // CRITICAL FIX: Always use FLUX 1.1 Pro to avoid queuing
-    // Use different request structures based on LoRA availability
-    let requestBody;
-    
-    if (loraWeightsUrl) {
-      // NEW ARCHITECTURE: FLUX 1.1 Pro + Individual LoRA weights (PRIORITY PROCESSING)
-      requestBody = {
-        version: "black-forest-labs/flux-1.1-pro",
-        input: {
-          prompt: finalPrompt,
-          lora_weights: loraWeightsUrl,
-          lora_scale: 0.9,              // Optimal facial accuracy with LoRA weights
-          megapixels: "1",              // Full resolution quality
-          num_outputs: 2,               // Always generate 2 options
-          aspect_ratio: "4:5",          // Portrait orientation
-          output_format: "png",         // High quality format
-          guidance_scale: 5,            // Perfect balance for anatomy & style
-          output_quality: 95,           // Maximum quality
-          prompt_strength: 0.8,         // Strong prompt adherence
-          num_inference_steps: 50,      // Detailed generation process
-          go_fast: false,               // Quality over speed
-          disable_safety_checker: false,
-          seed: Math.floor(Math.random() * 1000000)
+    // CRITICAL: Extract LoRA weights if not available
+    if (!loraWeightsUrl) {
+      console.log(`🔧 EXTRACTING LoRA weights for user ${userId} from model ${modelId}:${versionId}`);
+      
+      try {
+        const response = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const versionData = await response.json();
+          
+          // Extract LoRA weights from model files
+          if (versionData.files && versionData.files.weights) {
+            loraWeightsUrl = versionData.files.weights;
+          } else if (versionData.urls && versionData.urls.get) {
+            loraWeightsUrl = versionData.urls.get;
+          }
+          
+          // Update user model with extracted LoRA weights
+          if (loraWeightsUrl) {
+            await storage.updateUserModel(userId, {
+              loraWeightsUrl: loraWeightsUrl,
+              updatedAt: new Date()
+            });
+            console.log(`✅ EXTRACTED and saved LoRA weights: ${loraWeightsUrl}`);
+          }
         }
-      };
-    } else {
-      // TEMPORARY FALLBACK: Still use FLUX 1.1 Pro but with trigger word for basic personalization
-      // This eliminates queuing while we migrate users to LoRA architecture
-      requestBody = {
-        version: "black-forest-labs/flux-1.1-pro",
-        input: {
-          prompt: finalPrompt,          // Includes trigger word for basic personalization
-          megapixels: "1",              // Full resolution quality
-          num_outputs: 2,               // Always generate 2 options
-          aspect_ratio: "4:5",          // Portrait orientation
-          output_format: "png",         // High quality format
-          guidance_scale: 5,            // Perfect balance for anatomy & style
-          output_quality: 95,           // Maximum quality
-          prompt_strength: 0.8,         // Strong prompt adherence
-          num_inference_steps: 50,      // Detailed generation process
-          go_fast: false,               // Quality over speed
-          disable_safety_checker: false,
-          seed: Math.floor(Math.random() * 1000000)
-        }
-      };
+      } catch (error) {
+        console.error(`❌ Error extracting LoRA weights:`, error);
+      }
     }
+    
+    // CRITICAL: ALWAYS require LoRA weights - no fallbacks!
+    if (!loraWeightsUrl) {
+      throw new Error(`LoRA weights required but not found for user ${userId}. Cannot generate without individual LoRA weights.`);
+    }
+    
+    // FLUX 1.1 Pro + LoRA Weights + Trigger Word (ALWAYS)
+    const requestBody = {
+      version: "black-forest-labs/flux-1.1-pro",
+      input: {
+        prompt: finalPrompt,           // ALWAYS includes trigger word
+        lora_weights: loraWeightsUrl,  // ALWAYS includes LoRA weights
+        lora_scale: 0.9,               // Optimal facial accuracy with LoRA weights
+        megapixels: "1",               // Full resolution quality
+        num_outputs: 2,                // Always generate 2 options
+        aspect_ratio: "4:5",           // Portrait orientation
+        output_format: "png",          // High quality format
+        guidance_scale: 5,             // Perfect balance for anatomy & style
+        output_quality: 95,            // Maximum quality
+        prompt_strength: 0.8,          // Strong prompt adherence
+        num_inference_steps: 50,       // Detailed generation process
+        go_fast: false,                // Quality over speed
+        disable_safety_checker: false,
+        seed: Math.floor(Math.random() * 1000000)
+      }
+    };
     
     // Validate request
     const user = await storage.getUser(userId);
@@ -156,9 +171,10 @@ export class UnifiedGenerationService {
       model: modelId,
       versionId: versionId,
       fluxModel: "black-forest-labs/flux-1.1-pro",
-      loraWeights: loraWeightsUrl || 'Using trigger word for basic personalization',
-      architecture: loraWeightsUrl ? 'FLUX 1.1 Pro + LoRA (Priority)' : 'FLUX 1.1 Pro + Trigger (No Queue)',
+      loraWeights: loraWeightsUrl,
+      architecture: 'FLUX 1.1 Pro + LoRA + Trigger (ALWAYS)',
       trigger: triggerWord,
+      lora_scale: requestBody.input.lora_scale,
       guidance_scale: requestBody.input.guidance_scale,
       steps: requestBody.input.num_inference_steps
     });
@@ -170,8 +186,7 @@ export class UnifiedGenerationService {
     
     while (retries <= maxRetries) {
       try {
-        const architecture = loraWeightsUrl ? 'FLUX 1.1 Pro + LoRA weights' : 'Custom model fallback';
-        console.log(`🚀 API CALL: ${architecture} with priority processing`);
+        console.log(`🚀 API CALL: FLUX 1.1 Pro + LoRA weights + trigger word with priority processing`);
         replicateResponse = await fetch('https://api.replicate.com/v1/predictions', {
           method: 'POST',
           headers: {
