@@ -1651,46 +1651,29 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         }
       }
       
-      // CRITICAL: Handle both LoRA weights and legacy trained models
-      let requestBody;
-      
-      if (loraWeightsUrl) {
-        // NEW ARCHITECTURE: Base model + LoRA weights
-        console.log(`🎯 MAYA: Using FLUX 1.1 Pro + LoRA weights architecture`);
-        requestBody = {
-          version: "black-forest-labs/flux-1.1-pro",
-          input: {
-            prompt: finalPrompt,
-            lora_weights: loraWeightsUrl,
-            lora_scale: 0.9,
-            guidance_scale: 5,
-            num_inference_steps: 50,
-            num_outputs: 2,
-            aspect_ratio: "4:5",
-            output_format: "png",
-            output_quality: 95,
-            go_fast: false,
-            disable_safety_checker: false,
-            megapixels: "1",
-            seed: Math.floor(Math.random() * 1000000)
-          }
-        };
-      } else {
-        // FALLBACK: Legacy trained model for users without LoRA weights
-        const legacyModelVersion = `${modelId}:${versionId}`;
-        console.log(`🔄 MAYA FALLBACK: Using legacy trained model: ${legacyModelVersion}`);
-        requestBody = {
-          version: legacyModelVersion,
-          input: {
-            prompt: finalPrompt,
-            num_outputs: 2,
-            aspect_ratio: "4:5", 
-            output_format: "png",
-            output_quality: 95,
-            seed: Math.floor(Math.random() * 1000000)
-          }
-        };
+      // CRITICAL: ALWAYS require LoRA weights - users must train first!
+      if (!loraWeightsUrl) {
+        throw new Error(`Maya requires LoRA weights for user ${userId}. Please train your model first at /train before generating images.`);
       }
+      
+      const requestBody = {
+        version: "black-forest-labs/flux-1.1-pro",
+        input: {
+          prompt: finalPrompt,
+          lora_weights: loraWeightsUrl,
+          lora_scale: 0.9,
+          guidance_scale: 5,
+          num_inference_steps: 50,
+          num_outputs: 2,
+          aspect_ratio: "4:5",
+          output_format: "png",
+          output_quality: 95,
+          go_fast: false,
+          disable_safety_checker: false,
+          megapixels: "1",
+          seed: Math.floor(Math.random() * 1000000)
+        }
+      };
 
       // Call Replicate API directly
       const response = await fetch('https://api.replicate.com/v1/predictions', {

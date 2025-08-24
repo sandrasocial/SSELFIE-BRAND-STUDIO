@@ -135,47 +135,31 @@ export class UnifiedGenerationService {
       }
     }
     
-    // CRITICAL: Handle both LoRA weights and legacy trained models
-    let requestBody;
-    
-    if (loraWeightsUrl) {
-      // NEW ARCHITECTURE: Base model + LoRA weights
-      console.log(`🎯 UNIFIED: Using FLUX 1.1 Pro + LoRA weights architecture`);
-      requestBody = {
-        version: "black-forest-labs/flux-1.1-pro",
-        input: {
-          prompt: finalPrompt,           // ALWAYS includes trigger word
-          lora_weights: loraWeightsUrl,  // LoRA weights for personalization
-          lora_scale: 0.9,               // Optimal facial accuracy with LoRA weights
-          megapixels: "1",               // Full resolution quality
-          num_outputs: 2,                // Always generate 2 options
-          aspect_ratio: "4:5",           // Portrait orientation
-          output_format: "png",          // High quality format
-          guidance_scale: 5,             // Perfect balance for anatomy & style
-          output_quality: 95,            // Maximum quality
-          prompt_strength: 0.8,          // Strong prompt adherence
-          num_inference_steps: 50,       // Detailed generation process
-          go_fast: false,                // Quality over speed
-          disable_safety_checker: false,
-          seed: Math.floor(Math.random() * 1000000)
-        }
-      };
-    } else {
-      // FALLBACK: Legacy trained model for users without LoRA weights
-      const legacyModelVersion = `${modelId}:${versionId}`;
-      console.log(`🔄 UNIFIED FALLBACK: Using legacy trained model: ${legacyModelVersion}`);
-      requestBody = {
-        version: legacyModelVersion,
-        input: {
-          prompt: finalPrompt,
-          num_outputs: 2,
-          aspect_ratio: "4:5",
-          output_format: "png",
-          output_quality: 95,
-          seed: Math.floor(Math.random() * 1000000)
-        }
-      };
+    // CRITICAL: ALWAYS require LoRA weights - users must train first!
+    if (!loraWeightsUrl) {
+      throw new Error(`LoRA weights required but not found for user ${userId}. Please train your model first at /train before generating images.`);
     }
+    
+    // FLUX 1.1 Pro + LoRA Weights + Trigger Word (ALWAYS)
+    const requestBody = {
+      version: "black-forest-labs/flux-1.1-pro",
+      input: {
+        prompt: finalPrompt,           // ALWAYS includes trigger word
+        lora_weights: loraWeightsUrl,  // ALWAYS includes LoRA weights
+        lora_scale: 0.9,               // Optimal facial accuracy with LoRA weights
+        megapixels: "1",               // Full resolution quality
+        num_outputs: 2,                // Always generate 2 options
+        aspect_ratio: "4:5",           // Portrait orientation
+        output_format: "png",          // High quality format
+        guidance_scale: 5,             // Perfect balance for anatomy & style
+        output_quality: 95,            // Maximum quality
+        prompt_strength: 0.8,          // Strong prompt adherence
+        num_inference_steps: 50,       // Detailed generation process
+        go_fast: false,                // Quality over speed
+        disable_safety_checker: false,
+        seed: Math.floor(Math.random() * 1000000)
+      }
+    };
     
     // Validate request
     const user = await storage.getUser(userId);
@@ -186,10 +170,13 @@ export class UnifiedGenerationService {
       userId: userId,
       model: modelId,
       versionId: versionId,
-      architecture: loraWeightsUrl ? 'FLUX 1.1 Pro + LoRA + Trigger' : 'Legacy Trained Model',
-      loraWeights: loraWeightsUrl || 'N/A (legacy model)',
+      fluxModel: "black-forest-labs/flux-1.1-pro",
+      loraWeights: loraWeightsUrl,
+      architecture: 'FLUX 1.1 Pro + LoRA + Trigger (ALWAYS)',
       trigger: triggerWord,
-      finalPrompt: finalPrompt.substring(0, 100) + '...'
+      lora_scale: requestBody.input.lora_scale,
+      guidance_scale: requestBody.input.guidance_scale,
+      steps: requestBody.input.num_inference_steps
     });
     
     // Call Replicate API with FLUX 1.1 Pro Official Model (Priority Processing)
