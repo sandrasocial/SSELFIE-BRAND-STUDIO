@@ -1928,19 +1928,26 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
       
+      console.log(`🔍 GALLERY DEBUG: authUserId: ${authUserId}, email: ${claims.email}`);
+      
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
+      console.log(`🔍 GALLERY DEBUG: Direct user lookup result: ${user ? `Found ${user.id}` : 'Not found'}`);
+      
       if (!user && claims.email) {
         user = await storage.getUserByEmail(claims.email);
+        console.log(`🔍 GALLERY DEBUG: Email user lookup result: ${user ? `Found ${user.id}` : 'Not found'}`);
       }
       
       if (!user) {
+        console.log(`❌ GALLERY DEBUG: No user found for authUserId: ${authUserId}, email: ${claims.email}`);
         return res.status(404).json({ error: 'User not found' });
       }
       
       console.log(`🖼️ Fetching gallery images for user: ${user.id}`);
       const aiImages = await storage.getAIImages(user.id);
       console.log(`✅ Found ${aiImages.length} gallery images for user ${user.id}`);
+      console.log(`🔍 GALLERY DEBUG: First few images: ${JSON.stringify(aiImages.slice(0, 2), null, 2)}`);
       
       res.json(aiImages);
     } catch (error) {
