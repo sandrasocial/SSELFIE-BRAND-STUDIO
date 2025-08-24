@@ -909,46 +909,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // 🗑️ Clean up failed training data and force restart
-  app.post('/api/restart-training', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user?.claims?.sub;
-      console.log(`🗑️ RESTART: User ${userId} requesting fresh training start`);
-      
-      // Verify user has access to retraining
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ 
-          success: false, 
-          message: 'User not found' 
-        });
-      }
-
-      const hasPaidPlan = ['pro', 'full-access', 'sselfie-studio'].includes(user.plan || '');
-      if (!hasPaidPlan) {
-        return res.status(403).json({ 
-          success: false, 
-          message: 'Upgrade to Pro plan to access AI model training' 
-        });
-      }
-
-      // Clean up any existing training data
-      await storage.deleteFailedTrainingData(userId);
-      
-      res.json({ 
-        success: true, 
-        message: 'Training data cleared - ready for fresh start',
-        canRetrain: true,
-        userPlan: user.plan
-      });
-    } catch (error) {
-      console.error('Error restarting training:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to clear training data' 
-      });
-    }
-  });
 
   // MISSING ENDPOINT: Training progress for real-time updates
   app.get('/api/training-progress/:requestId', isAuthenticated, async (req: any, res) => {
