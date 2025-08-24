@@ -1,0 +1,88 @@
+MAYA CHAT REDESIGN - IMPLEMENTATION PROMPT
+You need to update the Maya chat page UI/UX with a new editorial luxury design while preserving ALL existing functionality and backend services.
+CRITICAL REQUIREMENTS:
+
+DO NOT modify any backend functionality, API calls, or chat logic
+DO NOT break existing features like message sending, session management, or AI responses
+ONLY update the visual design, CSS, and HTML structure
+Maintain all existing JavaScript functionality for chat operations
+
+DESIGN SPECIFICATIONS:
+1. HERO SECTION (NEW)
+Add a fullscreen hero section before the existing chat interface:
+
+Full viewport height (100vh)
+Background image: https://i.postimg.cc/KYZtzxXw/out-1-35.png
+Background opacity: 40% with dark overlay
+Header overlay with transparent backdrop blur
+Hero content centered with:
+
+Eyebrow text: "Your personal brand photoshoot begins"
+Main title: "MAYA" (Times New Roman, large, uppercase)
+Subtitle: "Your Celebrity Stylist" (Times New Roman, italic)
+CTA button: "Begin Your Session" (smooth scroll to chat)
+
+
+
+2. COLOR PALETTE:
+css--black: #0a0a0a;
+--white: #ffffff;
+--editorial-gray: #f5f5f5;
+--soft-gray: #666666;
+--accent-line: #e5e5e5;
+3. TYPOGRAPHY:
+
+Headlines: Times New Roman, font-weight 200, uppercase
+Body text: System sans (-apple-system, BlinkMacSystemFont)
+Eyebrow text: 11px, letter-spacing 0.4em, uppercase
+Message text: 15px, line-height 1.6
+
+4. CHAT INTERFACE REDESIGN:
+
+Layout: Sidebar (300px) + Main chat area (flex)
+Sidebar: Editorial gray background, session management
+Messages: Proper avatars, timestamps, editorial styling
+Maya avatar: Use provided image (https://i.postimg.cc/KYZtzxXw/out-1-35.png)
+Message bubbles: Editorial gray for Maya, black for user
+Input area: Clean design with send button
+
+5. NAVIGATION:
+Update header to overlay on hero with:
+
+SSELFIE logo (Times New Roman)
+Navigation menu: STUDIO, TRAIN, PHOTOSHOOT, GALLERY, FLATLAYS, PROFILE, LOGOUT
+White text on transparent background with backdrop blur
+
+6. RESPONSIVE DESIGN:
+
+Mobile: Stack sidebar below chat, hide nav menu
+Maintain all mobile chat functionality
+Ensure hero scales properly on all devices
+
+IMPLEMENTATION NOTES:
+
+Use the existing chat container structure
+Preserve all existing IDs and classes used by JavaScript
+Keep all event handlers and message handling intact
+Only modify CSS and add the hero HTML structure
+Test all chat features work after implementation
+Ensure smooth scrolling from hero to chat works
+Maintain loading states and typing indicators
+
+DO NOT CHANGE:
+
+Any API endpoints or chat logic
+Message sending/receiving functionality
+Session management code
+User authentication
+Database connections
+AI response handling
+
+CHANGE ONLY:
+
+Visual design and styling
+HTML structure for layout
+CSS for editorial luxury aesthetic
+Add hero section HTML
+
+The goal is a premium editorial luxury chat experience that feels like a high-end creative consultation while keeping all existing functionality intact.
