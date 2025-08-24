@@ -174,8 +174,8 @@ export class ModelTrainingService {
             autocaption: false, // SHANNON'S SUCCESS: Disabled = pure trigger word association
             cache_latents_to_disk: false, // SHANNON'S SUCCESS: Memory optimization
             caption_dropout_rate: 0.1 // SHANNON'S SUCCESS: 0.1 = better generalization
-          }
-          // REMOVED: destination parameter - this outputs LoRA weights instead of destination model
+          },
+          destination: `sandrasocial/${userId}-selfie-lora-${Date.now()}` // 🚨 REQUIRED: Destination model for LoRA weights output
         })
       });
 
