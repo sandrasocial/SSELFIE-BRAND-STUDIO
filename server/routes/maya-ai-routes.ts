@@ -1,8 +1,41 @@
 import type { Express } from "express";
 import { isAuthenticated } from "../replitAuth";
+import { generateMayaResponse } from "../member-maya-personality";
 
 export function registerMayaAIRoutes(app: Express) {
-  // Maya AI Photography endpoint for website building context
+  // MEMBER MAYA CHAT - Celebrity Stylist for customers
+  app.post("/api/maya-chat", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { message, chatHistory } = req.body;
+
+      if (!message) {
+        return res.status(400).json({ error: "Message required" });
+      }
+
+      console.log(`🎨 MEMBER MAYA: Processing message for user ${userId}`);
+      
+      // Generate Maya's celebrity stylist response
+      const mayaResponse = generateMayaResponse(message, chatHistory || []);
+
+      res.json({
+        success: true,
+        message: mayaResponse.message,
+        canGenerate: mayaResponse.canGenerate,
+        generatedPrompt: mayaResponse.generatedPrompt
+      });
+
+    } catch (error) {
+      console.error("Member Maya chat error:", error);
+      res.status(500).json({ error: "Failed to process Maya chat request" });
+    }
+  });
+
+  // Maya AI Photography endpoint for website building context (BUILD feature)
   app.post("/api/maya-ai-photo", isAuthenticated, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
