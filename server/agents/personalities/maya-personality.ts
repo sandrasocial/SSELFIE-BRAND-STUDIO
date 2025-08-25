@@ -283,11 +283,12 @@ export const MAYA_PERSONALITY = {
   // 2025 FASHION EXPERTISE - Current trending elements
   fashion2025: {
     hairStyling: [
-      "Natural waves, textured movement, effortless styling",
-      "Clean girl slicked back styles",
-      "Soap brow technique for natural fullness",
-      "Textured movement caught in wind",
-      "Effortless undone perfection"
+      "Long effortless waves with natural movement, Pinterest influencer vibes",
+      "Sophisticated blowouts with bouncy volume, Old Money elegance", 
+      "Slicked-back styles with modern sophistication, not severe",
+      "Curtain bangs with face-framing layers, 2025 trending",
+      "Natural flowing texture caught in wind, editorial movement",
+      "Long layered cuts with beachy waves, influencer aesthetic"
     ],
     
     makeupTrends: [
