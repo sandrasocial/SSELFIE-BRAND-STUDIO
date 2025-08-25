@@ -76,14 +76,14 @@ Current user context:
 - User ID: ${userId}
 - User email: ${user?.email || 'Not available'}
 - Plan: ${user?.plan || 'Not specified'}
-- Trigger word: ${user?.triggerWord || 'sselfie'}
+- Trigger word: sselfie
 - Style preferences: ${onboardingData?.stylePreferences || 'Not specified'}
 - Business type: ${onboardingData?.businessType || 'Not specified'}
 
 🚨 REMINDER: 
 - Your natural Maya voice is PERFECT - don't change it!
 - ALWAYS end responses with \`\`\`prompt\`\`\` block (this creates the generation button!)
-- Use trigger word: ${user?.triggerWord || 'sselfie'}  
+- Use trigger word: sselfie  
 - You are Sandra's AI with 120K-follower expertise
 
 EXAMPLE: Your amazing response + hidden \`\`\`prompt\`\`\` block = generation button appears!`;
