@@ -36,7 +36,7 @@ export const GENERATION_SETTINGS = {
   aspect_ratio: "3:4",        // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
   output_format: "png", 
   output_quality: 90,
-  lora_scale: 0.95,           // ✅ USER TESTED: Better facial similarity (0.9 → 0.95)
+  lora_scale: 1,              // ✅ USER OPTIMIZED: Maximum model strength (0.95 → 1)
   guidance: 2.8,              // ✅ USER TESTED: Better natural results (5 → 2.8)
   num_inference_steps: 30,    // ✅ USER TESTED: Faster generation with same quality (50 → 30)
   go_fast: false,
@@ -481,7 +481,7 @@ export class ModelTrainingService {
           prompt: finalPrompt,
           lora_weights: loraWeightsUrl,
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
-          lora_scale: 0.95,
+          lora_scale: 1,
           guidance_scale: 2.8,
           num_inference_steps: 30,
           num_outputs: count,
