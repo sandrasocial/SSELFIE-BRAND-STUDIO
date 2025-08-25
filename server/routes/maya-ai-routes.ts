@@ -12,7 +12,7 @@ export function registerMayaAIRoutes(app: Express) {
         return res.status(401).json({ error: "Authentication required" });
       }
 
-      const { message, chatHistory } = req.body;
+      const { message, chatHistory, chatId } = req.body;
 
       if (!message) {
         return res.status(400).json({ error: "Message required" });
@@ -187,11 +187,80 @@ ${canGenerateImages ? `- Respond naturally as Maya, then add your expert \`\`\`p
         response = "I'm having trouble connecting to my fashion expertise right now! Could you try again in a moment? I'm so excited to help you create incredible photos that will absolutely kill it! ✨";
       }
 
+      // ENHANCED CHAT PERSISTENCE: Create/update chat session with categorization
+      let currentChatId = chatId;
+      let chatTitle = "New Maya Session";
+      let chatCategory = "general";
+
+      try {
+        // Auto-categorize based on message content and Maya's response
+        if (message.toLowerCase().includes('professional') || message.toLowerCase().includes('business') || response.toLowerCase().includes('blazer') || response.toLowerCase().includes('executive')) {
+          chatCategory = "Professional & Business";
+          chatTitle = "Professional Business Looks";
+        } else if (message.toLowerCase().includes('casual') || message.toLowerCase().includes('everyday') || response.toLowerCase().includes('denim') || response.toLowerCase().includes('effortless')) {
+          chatCategory = "Casual & Everyday";
+          chatTitle = "Everyday Casual Styling";
+        } else if (message.toLowerCase().includes('elegant') || message.toLowerCase().includes('luxury') || response.toLowerCase().includes('elegant') || response.toLowerCase().includes('sophisticated')) {
+          chatCategory = "Elegant & Luxury";
+          chatTitle = "Luxury Fashion Looks";
+        } else if (message.toLowerCase().includes('vacation') || message.toLowerCase().includes('tropical') || response.toLowerCase().includes('beach') || response.toLowerCase().includes('resort')) {
+          chatCategory = "Vacation & Travel";
+          chatTitle = "Travel & Vacation Style";
+        } else if (message.toLowerCase().includes('date') || message.toLowerCase().includes('evening') || response.toLowerCase().includes('romantic') || response.toLowerCase().includes('dinner')) {
+          chatCategory = "Date & Evening";
+          chatTitle = "Date Night & Evening";
+        } else if (canGenerate || response.includes('generate') || response.includes('create')) {
+          chatCategory = "Photo Generation";
+          chatTitle = "AI Photo Creation";
+        } else {
+          chatCategory = "Style Consultation";
+          chatTitle = "Style & Fashion Chat";
+        }
+
+        // Create new chat if none exists
+        if (!currentChatId) {
+          console.log(`💬 MAYA: Creating new chat session for user ${userId} - Category: ${chatCategory}`);
+          
+          const newChat = await storage.createMayaChat({
+            userId,
+            chatTitle,
+            chatSummary: `${chatCategory}: ${message.substring(0, 100)}...`
+          });
+          
+          currentChatId = newChat.id;
+          console.log(`✅ MAYA CHAT CREATED: ID ${currentChatId} - "${chatTitle}"`);
+        }
+
+        // Save user message to database
+        await storage.saveMayaChatMessage({
+          chatId: currentChatId,
+          role: 'user',
+          content: message
+        });
+
+        // Save Maya's response to database
+        await storage.saveMayaChatMessage({
+          chatId: currentChatId,
+          role: 'maya',
+          content: response,
+          generatedPrompt: canGenerate ? generatedPrompt : undefined
+        });
+
+        console.log(`💾 MAYA MESSAGES SAVED: Chat ${currentChatId} updated with new messages`);
+
+      } catch (error) {
+        console.error('❌ MAYA CHAT PERSISTENCE ERROR:', error);
+        // Continue without failing - chat will work but won't be saved
+      }
+
       res.json({
         success: true,
         message: response,
         canGenerate,
-        generatedPrompt: canGenerate ? generatedPrompt : undefined
+        generatedPrompt: canGenerate ? generatedPrompt : undefined,
+        chatId: currentChatId,
+        chatTitle,
+        chatCategory
       });
 
     } catch (error) {
