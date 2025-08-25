@@ -81,10 +81,12 @@ export class UnifiedGenerationService {
       .replace(/professional photography,?\s*/gi, '')
       .trim();
     
-    // UNIVERSAL MAYA PROMPT STRUCTURE FOR ALL USERS WITH ANATOMY FIXES
-    // Add anatomy-specific terms to prevent deformities
-    const anatomyTerms = "detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy";
-    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}, ${anatomyTerms}`;
+    // UNIVERSAL MAYA PROMPT STRUCTURE FOR ALL USERS WITH GENDER + ANATOMY FIXES
+    // CRITICAL: Always specify "woman" for female-focused service
+    // Add latest 2025 FLUX 1.1 Pro anatomy terms to prevent deformities
+    const genderSpecification = "woman";
+    const anatomyTerms = "anatomically correct, realistic proportions, five fingers on each hand, normal human proportions, well-formed hands, well-formed feet, accurate anatomy";
+    const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${genderSpecification}, ${cleanPrompt}, ${anatomyTerms}`;
     
     console.log(`UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
