@@ -378,15 +378,27 @@ export class BulletproofUploadService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1200, // ✅ USER REQUESTED: Reduced from 1500 for better balance
-            learning_rate: 4e-4, // 🎯 RESEARCH-PROVEN: 0.0004 works excellent for character/face training
+            steps: 1200, // OPTIMIZED: 1200 steps for identity vs styling balance
+            learning_rate: 0.0002, // OPTIMIZED: 0.0002 = balanced training speed vs stability
             batch_size: 1,
-            lora_rank: 32, // 🎯 RESEARCH-PROVEN: 32 for complex features and character training
-            resolution: "1024", // 🎯 RESEARCH-PROVEN: 1024x1024 ideal resolution
+            lora_rank: 32, // OPTIMIZED: 32 for complex facial features
+            resolution: "1024", // OPTIMIZED: 1024x1024 ideal resolution
             optimizer: "adamw8bit",
-            autocaption: true,             // ✅ USER REQUESTED: Enable context captions for better consistency
-            cache_latents_to_disk: false,
-            caption_dropout_rate: 0.1 // 🎯 RESEARCH-PROVEN: 0.1 standard for face training (not too low)
+            autocaption: true, // OPTIMIZED: FLUX works better with contextual captions
+            network_alpha: 16, // OPTIMIZED: Half of rank for training stability
+            rank_dropout: 0.2, // OPTIMIZED: Prevents overfitting, improves styling flexibility
+            module_dropout: 0.1, // OPTIMIZED: Additional overfitting prevention
+            mixed_precision: "fp16", // Optimized precision for FLUX
+            clip_skip: 1, // Standard FLUX setting
+            v2: false, // FLUX standard
+            network_dropout: 0, // Keep standard
+            prior_loss_weight: 1, // Keep standard
+            v_parameterization: false, // Keep standard
+            save_every_n_epochs: 1, // Keep standard
+            gradient_checkpointing: true, // Memory optimization
+            scale_v_pred_loss_like_noise_pred: false, // Keep standard
+            cache_latents_to_disk: false, // Memory optimization
+            caption_dropout_rate: 0.1 // OPTIMIZED: 0.1 = better generalization
           },
           destination: `sandrasocial/${modelName}`
         })
