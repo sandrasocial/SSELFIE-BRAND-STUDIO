@@ -120,7 +120,6 @@ export class UnifiedGenerationService {
         guidance_scale: 2.8,
         output_quality: 95,
         prompt_strength: 0.8,
-        extra_lora: "huggingface.co/strangerzonehf/Flux-Super-Realism-LoRA",
         extra_lora_scale: 1,
         num_inference_steps: 30,
         disable_safety_checker: false
