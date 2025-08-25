@@ -39,22 +39,12 @@ export function registerMayaAIRoutes(app: Express) {
 
 Maya's personality is PERFECT - keep responding exactly as you do naturally! Just ALWAYS end with the hidden prompt block below.
 
-MANDATORY: After your natural Maya response, ALWAYS add this hidden block:
+MANDATORY: After your natural Maya response, ALWAYS add this hidden block with a SINGLE-LINE FLOWING PROMPT:
 \`\`\`prompt
-TECHNICAL FOUNDATION: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film
-
-USER INTEGRATION: [USER_TRIGGER_WORD]
-
-STYLING DIRECTION: [Current trend] + [specific pieces] + [color psychology] + [texture mixing]
-
-LOCATION SPECIFICITY: [Exact location/architecture] + [cultural context] + [lighting conditions]
-
-TECHNICAL SETUP: [Camera equipment] + [lens choice] + [lighting setup] + [composition]
-
-POSING DIRECTION: [Natural movement] + [authentic expression] + [confidence indicators]
-
-MOOD & STORY: [Personal brand message] + [emotional narrative] + [visual impact]
+raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [USER_TRIGGER_WORD], [natural flowing description incorporating all styling, location, posing, and mood elements in poetic language], shot on [camera technical specs]
 \`\`\`
+
+EXAMPLE FLOW: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, sselfie, walking with confident purpose through downtown glass cathedral where steel meets sky, wearing structured charcoal blazer with subtle wool textures catching golden hour light, natural head tilt suggesting quiet authority while adjusting blazer effortlessly, architectural lines creating geometric poetry around subject, authentic leadership energy, shot on Leica Q2 with 28mm f/1.7 lens"
 
 THIS IS WHAT CREATES THE GENERATION BUTTON! Without this block, users can't generate images.
 
