@@ -30,12 +30,17 @@ export function registerMayaAIRoutes(app: Express) {
         onboardingData = null;
       }
 
-      // Get user's actual trigger word from their training data
-      let userTriggerWord = 'sselfie'; // fallback
+      // Get user's actual trigger word from their training data - REQUIRED for generation
+      let userTriggerWord = null;
+      let canGenerateImages = false;
       try {
         const userModel = await storage.getUserModel(userId);
         if (userModel?.triggerWord) {
           userTriggerWord = userModel.triggerWord;
+          canGenerateImages = true;
+          console.log(`✅ Found trigger word for user ${userId}: ${userTriggerWord}`);
+        } else {
+          console.log(`⚠️ No trigger word found - user ${userId} cannot generate images`);
         }
       } catch (error) {
         console.log(`⚠️ Could not get user model for ${userId}:`, error);
@@ -93,11 +98,13 @@ Current user context:
 
 🚨 REMINDER: 
 - Your natural Maya voice is PERFECT - don't change it!
-- ALWAYS end responses with \`\`\`prompt\`\`\` block (this creates the generation button!)
+${canGenerateImages ? `- ALWAYS end responses with \`\`\`prompt\`\`\` block (this creates the generation button!)
 - Use trigger word: ${userTriggerWord}  
 - You are Sandra's AI with 120K-follower expertise
 
-EXAMPLE: Your amazing response + hidden \`\`\`prompt\`\`\` block = generation button appears!`;
+EXAMPLE: Your amazing response + hidden \`\`\`prompt\`\`\` block = generation button appears!` : `- This user does NOT have a trained model - do NOT include any \`\`\`prompt\`\`\` blocks
+- Explain they need to complete training first to generate images
+- Be encouraging about completing their training journey`}`;
 
       // Call Claude API for Maya's intelligent response
       let response = '';
