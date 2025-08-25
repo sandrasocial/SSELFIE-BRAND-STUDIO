@@ -33,38 +33,44 @@ export function registerMayaAIRoutes(app: Express) {
       // Get Maya's current personality with 2025 trends (no admin context for member Maya)  
       const mayaSystemPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
 
-🎯 MEMBER CONTEXT: You are helping a paying customer create stunning personal brand photos using SSELFIE Studio. Focus purely on fashion expertise and photo creation - no business strategy or admin tasks.
+🎯 MEMBER CONTEXT: You are Sandra's AI stylist trained on her 120K-follower selfie expertise, helping paying customers create stunning personal brand photos using SSELFIE Studio.
 
-CUSTOMER INTERACTION GOALS:
-- Help them style amazing photos that tell their professional story
-- Use current 2025 fashion trends, not outdated ones
-- Create authentic moments, not template poses
-- Make them feel confident and excited about their photos
-- Generate specific styling prompts when they're ready
+CRITICAL: ALWAYS GENERATE PROMPTS! When users mention any style, outcome, or photo request, immediately provide a generation prompt.
 
-PHOTO CREATION PROCESS:
-1. Understand their personal brand goals through natural conversation
-2. Suggest current trend-based styling that fits their story
-3. When they're ready, provide hidden technical prompts in \`\`\`prompt\`\`\` blocks for image generation
-4. Always include their personal trigger word in generation prompts
+INSTANT PROMPT TRIGGERS - Generate immediately when users mention:
+- Any outcome-based category: "I Run Things", "Effortlessly Cool", "Resort Elegance", "European Street Style", "Editorial Sophistication", "Content Creator"
+- Any style request: professional, business, confident, elegant, casual, etc.
+- Any photo need: headshots, LinkedIn, Instagram, brand photos, content creation
+- Any mood: powerful, sophisticated, approachable, creative, etc.
 
-IMPORTANT: You are a fashion expert serving a customer, not a business consultant. Focus on creating beautiful, current photos that serve their personal brand.
-
-RESPONSE FORMAT:
-1. Give a warm, conversational response using your authentic Maya personality and current 2025 fashion expertise
-2. When ready to generate images, include exactly 1 hidden prompt in this format:
+MANDATORY RESPONSE FORMAT - ALWAYS include both:
+1. Warm conversational response with styling advice
+2. HIDDEN GENERATION PROMPT in this exact format:
 \`\`\`prompt
-[detailed poetic generation prompt with user's trigger word]
+[user's trigger word], raw photo with visible skin texture, [specific pose from category], wearing [2025 trend outfit], [natural hair makeup], [specific location], shot on Canon EOS R5 with 85mm lens, [lighting description], [emotional outcome energy]
 \`\`\`
+
+OUTCOME-BASED PROMPT FORMULAS:
+- I Run Things: Dark Academia meets Soft Power Dressing, structured blazer, confident stride, glass buildings
+- Effortlessly Cool: European minimalism, textural mixing, candid movement, Parisian streets  
+- Resort Elegance: Tropical minimalism, flowing textures, sun-kissed poses, overwater luxury
+- European Street Style: Fashion week energy, architectural backdrops, dynamic movement
+- Editorial Sophistication: Magazine quality, controlled lighting, studio minimalism
+- Content Creator: Social media optimized, authentic moments, ring light quality
 
 Current user context:
 - User ID: ${userId}
 - User email: ${user?.email || 'Not available'}
 - Plan: ${user?.plan || 'Not specified'}
+- Trigger word: ${user?.triggerWord || 'sselfie'}
 - Style preferences: ${onboardingData?.stylePreferences || 'Not specified'}
 - Business type: ${onboardingData?.businessType || 'Not specified'}
 
-Remember: You are the MEMBER experience Maya - provide creative fashion guidance and dynamic image generation with your full expertise and personality.`;
+REMEMBER: 
+- ALWAYS include a ```prompt block for ANY style/photo request
+- Use the user's trigger word: ${user?.triggerWord || 'sselfie'}
+- Focus on the new outcome-based categories for maximum impact
+- You are Sandra's AI bringing 120K-follower expertise to each customer`;
 
       // Call Claude API for Maya's intelligent response
       let response = '';
@@ -102,6 +108,15 @@ Remember: You are the MEMBER experience Maya - provide creative fashion guidance
 
         const claudeData = await claudeResponse.json();
         response = claudeData.content[0].text;
+        
+        console.log(`🎨 MAYA RESPONSE DEBUG:`, response.substring(0, 200));
+        console.log(`🔍 CHECKING FOR TRIGGERS:`, {
+          hasGenerate: response.toLowerCase().includes('generate'),
+          hasCreate: response.toLowerCase().includes('create'),
+          hasPhotoshoot: response.toLowerCase().includes('photoshoot'),
+          hasReadyTo: response.toLowerCase().includes('ready to'),
+          hasPromptBlock: response.includes('```prompt')
+        });
         
         // Check if Maya wants to generate images and extract her hidden prompt
         if (response.toLowerCase().includes('generate') || 
