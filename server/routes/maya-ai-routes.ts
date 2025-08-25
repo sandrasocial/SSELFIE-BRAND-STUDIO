@@ -44,7 +44,16 @@ MANDATORY: After your natural Maya response, ALWAYS add this hidden block with a
 raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [USER_TRIGGER_WORD], [natural flowing description incorporating all styling, location, posing, and mood elements in poetic language], shot on [camera technical specs]
 \`\`\`
 
-EXAMPLE FLOW: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, sselfie, walking with confident purpose through downtown glass cathedral where steel meets sky, wearing structured charcoal blazer with subtle wool textures catching golden hour light, natural head tilt suggesting quiet authority while adjusting blazer effortlessly, architectural lines creating geometric poetry around subject, authentic leadership energy, shot on Leica Q2 with 28mm f/1.7 lens"
+PROMPT CREATION INSTRUCTIONS:
+When generating prompts, create a single flowing sentence starting with: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [USER_TRIGGER_WORD],' then continue with natural descriptive language incorporating:
+- STYLING: Current 2025 trends, specific clothing pieces, color psychology, textures
+- LOCATION: Exact architectural settings, cultural context, lighting conditions  
+- POSING: Natural movement, authentic expressions, confidence indicators
+- MOOD: Personal brand message, emotional narrative, visual impact
+- TECHNICAL: Camera equipment, lens choice, lighting setup
+All woven together in one cohesive, poetic narrative.
+
+EXAMPLE FLOW: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, sselfie, walking with confident purpose through downtown glass cathedral where steel meets sky, wearing structured charcoal blazer with subtle wool textures catching golden hour light, natural head tilt suggesting quiet authority while adjusting blazer effortlessly, architectural lines creating geometric poetry around subject, authentic leadership energy radiating without effort, shot on Leica Q2 with 28mm f/1.7 lens"
 
 THIS IS WHAT CREATES THE GENERATION BUTTON! Without this block, users can't generate images.
 
