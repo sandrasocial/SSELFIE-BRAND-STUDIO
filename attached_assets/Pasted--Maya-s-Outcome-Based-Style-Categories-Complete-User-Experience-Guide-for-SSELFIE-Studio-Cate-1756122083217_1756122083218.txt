@@ -1,0 +1,155 @@
+# Maya's Outcome-Based Style Categories
+*Complete User Experience Guide for SSELFIE Studio*
+
+## Category Framework: "How do I want to feel?"
+
+### **1. I RUN THINGS**
+**Emotional Outcome**: Command respect without saying a word  
+**Visual Identity**: Dark Academia meets power dressing  
+**Key Elements**: 
+- Chunky turtlenecks with wool blazers in rich textures
+- Structured pieces in neutral tones - architectural silhouettes
+- Soft power dressing against Nordic architecture
+- Confident poses mid-stride or hands-on-hips power stances
+**Settings**: Glass buildings, modern Scandinavian architecture, urban sophistication
+**Perfect For**: LinkedIn headshots, speaking engagements, CEO energy
+**User Feels**: "I look like someone who makes decisions"
+
+### **2. EFFORTLESSLY COOL** 
+**Emotional Outcome**: Off-duty model energy - naturally stunning  
+**Visual Identity**: European minimalism meets understated luxury  
+**Key Elements**:
+- Textural storytelling - mixing silk with wool, leather with cashmere
+- Effortless luxury pieces in neutral palettes
+- Athletic luxury - high-end athleisure meets sophisticated
+- Natural movement poses, walking adjustments, genuine interactions
+**Settings**: Parisian café culture, architectural elegance, street style locations
+**Perfect For**: Instagram stories, personal brand building, everyday confidence
+**User Feels**: "I woke up like this (but make it editorial)"
+
+### **3. RESORT ELEGANCE**
+**Emotional Outcome**: Sophisticated vacation luxury meets editorial quality  
+**Visual Identity**: Tropical minimalism with overwater luxury  
+**Key Elements**:
+- Resort elegance in neutral minimalist palettes
+- Natural textures against stark beauty
+- Tropical minimalism with architectural precision
+- Sun-kissed poses by overwater luxury settings
+**Settings**: Maldives overwater villas, Bali rice terraces, tropical architecture
+**Perfect For**: Vacation content, lifestyle brand collaborations
+**User Feels**: "I belong at the world's most exclusive resorts"
+
+### **4. EUROPEAN STREET STYLE**
+**Emotional Outcome**: Effortless style authority - fashion week worthy  
+**Visual Identity**: Cultural sophistication meets architectural precision  
+**Key Elements**:
+- European minimalism with understated designer pieces
+- Japanese modern minimalism architectural backdrop
+- Cultural context styling - French, Italian, Nordic influences
+- Natural movement through specific European streets
+**Settings**: Renaissance architecture, fashion capital streets, cultural contexts
+**Perfect For**: Fashion week content, trend-setting posts, style inspiration
+**User Feels**: "People screenshot my outfits for style inspiration"
+
+### **5. EDITORIAL SOPHISTICATION**
+**Emotional Outcome**: Magazine-worthy elegance - editorial quality  
+**Visual Identity**: Professional editorial meets controlled luxury  
+**Key Elements**:
+- Editorial studio minimalism with controlled lighting
+- Cultural sophistication and architectural precision
+- Professional photography aesthetics with fashion mastery
+- Subtle confidence poses without forced performance
+**Settings**: Minimalist studio backdrops, architectural details, controlled environments
+**Perfect For**: Professional portfolios, magazine-worthy content, editorial projects
+**User Feels**: "This belongs in a fashion magazine"
+
+### **6. CONTENT CREATOR**
+**Emotional Outcome**: Social media optimized but authentically beautiful  
+**Visual Identity**: Behind-the-scenes meets editorial quality  
+**Key Elements**:
+- Current 2025 micro-trends styled naturally
+- Ring light optimized but never artificial looking
+- Genuine lifestyle moments elevated through styling
+- Approachable poses that feel relatable yet aspirational
+**Settings**: Home studios, brand collaboration spaces, lifestyle environments
+**Perfect For**: Sponsored content, brand partnerships, authentic storytelling
+**User Feels**: "My content looks professional but feels real"
+
+---
+
+## User Experience Flow
+
+### **Welcome State Enhancement**
+Instead of generic greeting, Maya should say:
+
+*"Ready to create images that stop people mid-scroll? I'm Maya - I've styled A-listers for Vogue and Harper's, and now I'm bringing that editorial expertise to your personal brand photography.*
+
+*Every photo should show the world who you're becoming. What story are we telling today?"*
+
+### **Category Selection Experience**
+Each category displays as:
+- **Large preview image** (using Sandra's model images)  
+- **Emotional headline** ("I Run Things", "Effortlessly Cool")
+- **One-line outcome** ("Command respect without saying a word")
+- **Visual style preview** (Moto boho, Cherry red power, etc.)
+
+### **Post-Selection Flow**
+Once user clicks category, Maya responds with:
+
+*"I'm seeing you [specific scenario] wearing [current trend details]. This is going to be the kind of photo where people ask 'who took this?'"*
+
+Then immediately provides hidden FLUX prompt for generation.
+
+---
+
+## Technical Implementation Notes
+
+### **FLUX Prompt Structure for Each Category**
+```
+[TRIGGER_WORD], raw photo with visible skin texture, [CATEGORY_SPECIFIC_POSE], wearing [2025_TREND_SPECIFIC_OUTFIT], [NATURAL_HAIR_MAKEUP], [CATEGORY_SETTING], shot on [TECHNICAL_CAMERA_SPECS], [LIGHTING_POETIC_DESCRIPTION], [EMOTIONAL_OUTCOME_ENERGY]
+```
+
+### **Category-Specific Prompt Elements**
+
+**I Run Things**: 
+- Poses: Confident stride, hands-on-hips, architectural poses
+- 2025 Elements: Cherry red statement pieces, structured blazers, architectural jewelry
+- Settings: Glass buildings, modern architecture, urban sophistication
+
+**Effortlessly Cool**:
+- Poses: Candid laughter, natural movement, relaxed confidence  
+- 2025 Elements: Moto boho combinations, leather with silk, minimal styling
+- Settings: Street style moments, natural light, coffee shop casual
+
+**Beach Club Ready**:
+- Poses: Poolside elegance, sun-kissed relaxation, sophisticated vacation
+- 2025 Elements: Satin over swimwear, cut-out one-pieces, flowing linen
+- Settings: Mediterranean terraces, infinity pools, beach club luxury
+
+**Street Style Star**:
+- Poses: Dynamic movement, trend-showing angles, urban confidence
+- 2025 Elements: Complete denim, dopamine colors, statement sneakers  
+- Settings: Fashion districts, architectural backdrops, urban streets
+
+**Date Night Confidence**:
+- Poses: Sultry elegance, magnetic presence, evening sophistication
+- 2025 Elements: Sheer layers, crystal fringe, built-in drama
+- Settings: Rooftop bars, city lights, elegant restaurants
+
+**Content Creator**:
+- Poses: Authentic moments, approachable confidence, lifestyle natural
+- 2025 Elements: Current micro-trends, social media optimized styling
+- Settings: Home studios, brand spaces, lifestyle environments
+
+---
+
+## Success Metrics
+
+Each category should make users think:
+1. **Recognition**: "That's exactly how I want to feel"  
+2. **Aspiration**: "I can see myself in that photo"
+3. **Outcome Clarity**: "This will help me achieve [specific goal]"
+4. **Trend Relevance**: "This feels current and Pinterest-worthy"
+5. **Authentic Connection**: "This matches my personality but elevated"
+
+The goal is transformation through authentic style elevation, not costume or character play.
