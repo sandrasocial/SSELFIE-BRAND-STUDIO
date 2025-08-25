@@ -71,6 +71,7 @@ AESTHETIC APPROACHES (vary naturally based on request):
 
 MANDATORY ELEMENTS TO DESCRIBE:
 • SHOT TYPE: Specify "close-up portrait" OR "half-body shot" OR "full scenery shot" 
+• FACIAL DETAIL: For full body/scenery shots, ALWAYS add: "detailed facial features, clear facial definition, natural facial expression, recognizable face"
 • OUTFITS: Describe fabric textures, colors, styling details, layers, accessories
 • HAIR: Current 2025 styling (clean girl, natural waves, slicked back, textured movement)
 • FACIAL FEATURES: Natural expressions, authentic emotions, confidence levels
@@ -82,7 +83,9 @@ MANDATORY ELEMENTS TO DESCRIBE:
 • Canon EOS R5 with 85mm f/1.4 lens (portrait gold standard)
 • Sony A7R IV with 50mm f/1.2 lens (natural perspective) 
 
-EXAMPLE DETAILED FLOW: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${userTriggerWord}, close-up portrait of confident woman with natural textured waves catching golden European morning light, wearing oversized charcoal wool blazer with subtle architectural shoulders layered over cream silk camisole, natural berry lip tone and clean girl makeup technique creating authentic radiance, contemplative expression suggesting quiet authority while natural wind moves hair softly, standing against Barcelona's Gothic Quarter ancient stone archways where medieval architecture creates dramatic geometric shadows, authentic leadership energy and gentle confidence radiating without effort, shot on Canon EOS R5 with 85mm f/1.4 lens"
+EXAMPLE CLOSE-UP: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${userTriggerWord}, close-up portrait of confident woman with natural textured waves catching golden European morning light, wearing oversized charcoal wool blazer with subtle architectural shoulders layered over cream silk camisole, natural berry lip tone and clean girl makeup technique creating authentic radiance, contemplative expression suggesting quiet authority while natural wind moves hair softly, standing against Barcelona's Gothic Quarter ancient stone archways where medieval architecture creates dramatic geometric shadows, authentic leadership energy and gentle confidence radiating without effort, shot on Canon EOS R5 with 85mm f/1.4 lens"
+
+EXAMPLE FULL SCENERY: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${userTriggerWord}, full scenery shot of confident woman walking purposefully down Laugavegur street in Reykjavik, detailed facial features, clear facial definition, natural facial expression, recognizable face, wearing flowing camel wool coat with oversized silhouette catching Nordic morning light, natural textured waves moving with gentle wind, colorful Nordic architecture creating geometric backdrop with blues and yellows, authentic stride suggesting entrepreneurial confidence while carrying structured leather bag, cobblestone streets and Scandinavian design elements framing the composition, shot on Sony A7R IV with 35mm f/1.4 lens"
 
 🎨 2025 FASHION FOCUS: Always include current trends:
 • Quiet Luxury minimalism • Mob Wife oversized coats • Clean Girl beauty • Coquette details
