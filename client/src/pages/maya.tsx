@@ -311,12 +311,12 @@ export default function Maya() {
 
   const handleStyleSelect = (style: string) => {
     const styleMessages = {
-      'editorial': 'Editorial luxury - magazine sophistication',
-      'natural': 'Natural beauty - effortless elegance', 
-      'professional': 'Professional power - CEO energy',
-      'creative': 'Creative artistic - unique expression',
-      'lifestyle': 'Lifestyle natural - authentic moments',
-      'confident': 'Confident power - unapologetic strength'
+      'run-things': 'I Run Things - Command respect without saying a word',
+      'effortlessly-cool': 'Effortlessly Cool - Off-duty model energy, naturally stunning', 
+      'resort-elegance': 'Resort Elegance - Sophisticated vacation luxury meets editorial quality',
+      'european-street': 'European Street Style - Effortless style authority, fashion week worthy',
+      'editorial-sophistication': 'Editorial Sophistication - Magazine-worthy elegance, editorial quality',
+      'content-creator': 'Content Creator - Social media optimized but authentically beautiful'
     };
     
     setInput(styleMessages[style as keyof typeof styleMessages] || 'I want to explore this style');
@@ -1022,34 +1022,34 @@ export default function Maya() {
                   <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Creative Director" />
                 </div>
                 <div className="welcome-eyebrow">Personal Brand Photoshoot</div>
-                <h2 className="welcome-title">Ready to create something beautiful?</h2>
-                <p className="welcome-description">Hi there! I'm Maya, and I'm excited to help you create some beautiful photos. I love helping people tell their story through images that feel authentic and show who they really are. What kind of mood are you going for today?</p>
+                <h2 className="welcome-title">Ready to create images that stop people mid-scroll?</h2>
+                <p className="welcome-description">I'm Maya - I've styled A-listers for Vogue and Harper's, and now I'm bringing that editorial expertise to your personal brand photography. Every photo should show the world who you're becoming. What story are we telling today?</p>
                 
                 {/* Quick Style Selection */}
                 <div className="style-quickselect">
-                  <div className="style-option" onClick={() => handleStyleSelect('editorial')}>
-                    <div className="style-preview">Editorial</div>
-                    <div className="style-label">Magazine Luxury</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('run-things')}>
+                    <div className="style-preview">I Run Things</div>
+                    <div className="style-label">Command Respect</div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('natural')}>
-                    <div className="style-preview">Natural</div>
-                    <div className="style-label">Effortless Beauty</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('effortlessly-cool')}>
+                    <div className="style-preview">Effortlessly Cool</div>
+                    <div className="style-label">Off-Duty Model</div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('professional')}>
-                    <div className="style-preview">Professional</div>
-                    <div className="style-label">CEO Energy</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('resort-elegance')}>
+                    <div className="style-preview">Resort Elegance</div>
+                    <div className="style-label">Vacation Luxury</div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('creative')}>
-                    <div className="style-preview">Creative</div>
-                    <div className="style-label">Artistic Expression</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('european-street')}>
+                    <div className="style-preview">European Street Style</div>
+                    <div className="style-label">Fashion Week Worthy</div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('lifestyle')}>
-                    <div className="style-preview">Lifestyle</div>
-                    <div className="style-label">Your Real Life</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('editorial-sophistication')}>
+                    <div className="style-preview">Editorial Sophistication</div>
+                    <div className="style-label">Magazine Worthy</div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('confident')}>
-                    <div className="style-preview">Confident</div>
-                    <div className="style-label">Pure Power</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('content-creator')}>
+                    <div className="style-preview">Content Creator</div>
+                    <div className="style-label">Social Media Ready</div>
                   </div>
                 </div>
               </div>
