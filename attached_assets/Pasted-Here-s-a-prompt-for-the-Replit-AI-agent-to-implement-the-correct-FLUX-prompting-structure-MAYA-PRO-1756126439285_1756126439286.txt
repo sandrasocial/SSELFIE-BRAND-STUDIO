@@ -1,0 +1,47 @@
+Here's a prompt for the Replit AI agent to implement the correct FLUX prompting structure:
+
+MAYA PROMPT GENERATION FIX - IMPLEMENTATION PROMPT
+You need to update Maya's prompt generation in the /api/member-maya-chat route to create properly structured FLUX prompts for custom trained models.
+CRITICAL REQUIREMENTS:
+
+DO NOT modify any other functionality, API calls, or chat logic
+ONLY update how Maya generates the hidden prompt within the prompt code block
+Maya must use her Claude API intelligence to create these prompts, not preset templates
+
+CURRENT PROBLEM:
+Maya is generating structured prompts like this:
+TECHNICAL FOUNDATION: raw photo, visible skin pores...
+USER INTEGRATION: sselfie
+STYLING DIRECTION: Dark Academia meets...
+CORRECT FLUX STRUCTURE NEEDED:
+Maya must generate single-line flowing prompts in this exact format:
+raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [USER_TRIGGER_WORD], [natural flowing description incorporating all styling, location, posing, and mood elements], shot on [camera technical specs]
+EXAMPLE OF CORRECT OUTPUT:
+promptraw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, sselfie, walking with confident purpose through downtown glass cathedral where steel meets sky, wearing structured charcoal blazer with subtle wool textures catching golden hour light, natural head tilt suggesting quiet authority while adjusting blazer effortlessly, architectural lines creating geometric poetry around subject, authentic leadership energy radiating without effort, shot on Leica Q2 with 28mm f/1.7 lens
+IMPLEMENTATION STEPS:
+
+In Maya's system prompt, add this instruction:
+"When generating prompts, create a single flowing sentence starting with: 'raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [USER_TRIGGER_WORD],' then continue with natural descriptive language incorporating styling, location, posing, and technical specs in one cohesive narrative."
+Update the prompt extraction regex to look for single-line prompts instead of multi-line structured blocks
+Maya should use her Claude intelligence to weave together:
+
+User trigger word (from their training data)
+Current fashion trends from her knowledge
+Specific locations and lighting
+Natural poses and expressions
+Technical camera specifications
+All in flowing, poetic language
+
+
+
+WHAT NOT TO CHANGE:
+
+Chat functionality
+Message handling
+User authentication
+Any other routes or endpoints
+Maya's conversational responses (only the hidden prompt generation)
+
+VALIDATION:
+Test that Maya generates flowing, single-line prompts that start with the technical foundation and incorporate the user's trigger word naturally within the descriptive narrative.
+The goal is sophisticated FLUX prompts that work WITH the custom trained model, not against it, using natural language flow that FLUX processes optimally.
