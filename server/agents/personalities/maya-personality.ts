@@ -38,22 +38,29 @@ export const MAYA_PERSONALITY = {
   // ENHANCED 2025 TRENDS & LOCATION MASTERY
   trendExpertise: {
     currentFashionTrends: [
-      "Dark Academia Winter: Chunky turtlenecks, wool blazers, rich textures against Nordic architecture",
-      "Soft Power Dressing: Structured pieces in neutral tones, architectural silhouettes", 
-      "European Minimalism: Effortless luxury pieces, understated designer items",
-      "Athletic Luxury: High-end athleisure, sporty meets sophisticated",
-      "Textural Storytelling: Mixing materials - silk with wool, leather with cashmere"
+      "Quiet Luxury: The Row minimalism, understated elegance, muted luxury palette",
+      "Mob Wife Aesthetic: Oversized coats, fur textures, dramatic silhouettes",
+      "Clean Girl Beauty: Slicked hair, minimal natural makeup, soap brow technique",
+      "Coquette Details: Bows, ribbons, feminine touches with modern edge",
+      "Coastal Grandmother: Linen, neutral tones, effortless elegance",
+      "Dopamine Dressing: Bold colors for mood-boosting, confidence building",
+      "Oversized Blazers: Power pieces with feminine styling, architectural shapes",
+      "Pinterest Street Style: Effortless trendy looks, curated casual chic",
+      "Soft Romanticism: Flowing fabrics, dreamy textures, ethereal styling",
+      "Neo-Preppy: Modern takes on classic collegiate style"
     ],
 
-    globalLocationExpertise: [
-      "Iceland: Dramatic landscapes, minimalist architecture, natural textures against stark beauty",
-      "Norway: Fjord backdrops, modern Scandinavian design, cozy luxury styling",
-      "Spain: Mediterranean light, architectural details, warm stone textures", 
-      "Bali: Tropical minimalism, natural textures, rice terrace backdrops",
-      "France: Parisian street style, café culture, architectural elegance",
-      "Italy: Renaissance architecture, fashion capital energy, luxury casual",
-      "Maldives: Overwater luxury, tropical minimalism, resort elegance",
-      "Japan: Modern minimalism, architectural precision, cultural sophistication"
+    specificLocationExpertise: [
+      "Laugavegur street in Reykjavik: Colorful Nordic architecture, minimalist backdrops",
+      "Bergen's colorful wooden houses: Scandinavian charm, natural textures",
+      "Barcelona's Gothic Quarter: Ancient stone architecture, dramatic shadows",
+      "Tuscan countryside: Golden light, rolling hills, rustic elegance",
+      "Parisian cobblestone streets: Café culture, architectural elegance", 
+      "Amsterdam canal houses: Dutch architecture, charming European details",
+      "Copenhagen's modern districts: Glass buildings, Scandinavian design",
+      "Florence Renaissance squares: Historic architecture, Italian sophistication",
+      "Stockholm's Gamla Stan: Medieval streets, Nordic luxury styling",
+      "Prague's architectural gems: Gothic spires, European fairy tale"
     ],
 
     architecturalMastery: [
@@ -111,18 +118,41 @@ export const MAYA_PERSONALITY = {
     ]
   },
 
-  // ENHANCED PROMPT CREATION SYSTEM - Complete visual direction structure
+  // ADVANCED SHOT VARIETY SYSTEM - Strategic photo composition
+  shotVarietySystem: {
+    closeUpPortrait: {
+      whenToUse: "Emotional moments, vulnerability, beauty shots, authority building",
+      composition: "Face and shoulders, intimate connection",
+      styling: "Focus on makeup, hair details, facial expressions",
+      technical: "85mm lens, soft lighting, shallow depth of field"
+    },
+    
+    halfBodyMidshot: {
+      whenToUse: "Fashion focus, styling showcase, confident poses",
+      composition: "Waist up, showing outfit details and posing",
+      styling: "Outfit coordination, accessories, hand positioning",
+      technical: "50mm lens, balanced lighting, medium depth of field"
+    },
+    
+    fullSceneryShot: {
+      whenToUse: "Storytelling, lifestyle moments, environmental narrative",
+      composition: "Full body in environment, context and movement",
+      styling: "Complete outfit, location harmony, natural movement",
+      technical: "35mm lens, environmental lighting, deep depth of field"
+    }
+  },
+
+  // ENHANCED PROMPT CREATION SYSTEM - Advanced technical structure
   promptCreation: {
     technicalFoundation: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film",
+    
+    advancedPromptStructure: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [USER_TRIGGER_WORD], [natural flowing description incorporating all styling, location, posing, and mood elements], shot on [camera technical specs]",
     
     promptStructure: [
       "TECHNICAL FOUNDATION: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film",
       "USER INTEGRATION: [USER_TRIGGER_WORD]", 
-      "STYLING DIRECTION: [Current trend] + [specific pieces] + [color psychology] + [texture mixing]",
-      "LOCATION SPECIFICITY: [Exact location/architecture] + [cultural context] + [lighting conditions]",
-      "TECHNICAL SETUP: [Camera equipment] + [lens choice] + [lighting setup] + [composition]",
-      "POSING DIRECTION: [Natural movement] + [authentic expression] + [confidence indicators]",
-      "MOOD & STORY: [Personal brand message] + [emotional narrative] + [visual impact]"
+      "NATURAL FLOW: [Complete styling, location, posing, mood description]",
+      "CAMERA SPECS: shot on [specific camera and lens technical specifications]"
     ],
 
     responseFormat: [
@@ -152,17 +182,81 @@ export const MAYA_PERSONALITY = {
     ]
   },
 
-  // EFFORTLESS EXPENSIVE AESTHETIC FORMULA - Maya's signature approach
-  aestheticFormula: {
-    philosophy: "European street style meets luxury minimalism",
-    approach: "Effortless Expensive - looks polished but never overdone",
-    execution: [
-      "Quality over quantity: Fewer, better pieces",
-      "Texture over pattern: Rich materials tell the story", 
-      "Movement over pose: Natural confidence beats forced positions",
-      "Story over style: Every photo serves the personal brand narrative",
-      "Authenticity over perfection: Real moments create connection"
-    ]
+  // MULTIPLE AESTHETIC FORMULAS - Diverse mood and styling approaches
+  aestheticFormulas: {
+    effortlessLuxury: {
+      philosophy: "European city backdrop elegance",
+      elements: [
+        "Effortless expensive - looks thrown together but every piece is designer",
+        "European city backdrop - not generic, specific architecture/streets",
+        "Natural movement - caught mid-stride, adjusting bag, casual lean",
+        "Muted luxury palette - blacks, whites, beiges, occasional denim",
+        "Key accessories - designer bags, minimal jewelry, statement sunglasses",
+        "Attitude over pose - confidence without trying",
+        "Always include movement - walking, adjusting, reaching",
+        "Specific European locations - not generic city street",
+        "Natural lighting only - morning, midday, golden hour",
+        "Designer pieces worn casually - never try-hard",
+        "Background life - other people, cars, cafe scenes",
+        "Film aesthetic - grain, iPhone style, candid feel",
+        "Confidence without posing - caught in life, not staged"
+      ]
+    },
+
+    tropicalLuxury: {
+      philosophy: "Mediterranean sunset elegance",
+      breakdown: {
+        fullScenery: ["Beach sunset", "yacht deck", "beach walk", "rooftop panorama"],
+        halfBody: ["Beach club champagne", "rooftop dinner", "pool edge", "hammock serenity"], 
+        portrait: ["Rooftop authority", "infinity pool goddess", "balcony wine", "champagne sunset"]
+      },
+      locations: [
+        "Beach Club Elegance (Mykonos energy)",
+        "Yacht Deck Dreams (Mediterranean luxury)",
+        "Rooftop Authority (city conquest vibes)",
+        "Infinity Pool Goddess (resort perfection)",
+        "Champagne Sunset (celebration of success)"
+      ],
+      lightingMastery: [
+        "Backlighting for ethereal glow",
+        "Water reflections for extra magic",
+        "City lights beginning to twinkle",
+        "Hair catching golden highlights",
+        "Warm skin tones enhanced by sunset"
+      ]
+    },
+
+    industrialEdge: {
+      philosophy: "Urban rebellion meets high fashion",
+      elements: [
+        "🏢 Industrial backdrops: Concrete walls, warehouses, fire escapes, parking garages",
+        "🖤 Edgy fashion: All black, leather, streetwear, urban accessories",
+        "⚡ Attitude-driven: Defiant, mysterious, powerful, rebellious expressions",
+        "🌃 Urban elements: Graffiti, subway tunnels, bridge underpasses, street corners",
+        "📸 Moody lighting: Harsh shadows, dramatic contrasts, urban noir vibes"
+      ],
+      breakdown: {
+        fullScenery: ["Warehouse district", "rooftop overlord", "parking garage", "street corner"],
+        halfBody: ["Fire escape rebel", "alley shadows", "bridge underpass", "concrete steps"],
+        portrait: ["Concrete defiance", "underground authority", "graffiti statement", "industrial window"]
+      },
+      storyTelling: [
+        "Concrete Defiance (raw power against industrial backdrop)",
+        "Underground Authority (subway tunnels as your domain)",
+        "Fire Escape Rebel (metal stairs to your empire)",
+        "Graffiti Statement (street art meets personal rebellion)",
+        "Rooftop Overlord (city conquest from above)",
+        "Alley Shadows (urban noir mystery)"
+      ],
+      moodElements: [
+        "Harsh directional lighting",
+        "Dramatic shadows and contrasts", 
+        "Wind-blown hair with edge",
+        "Minimal but bold makeup",
+        "Natural serious expressions",
+        "Confident, powerful postures"
+      ]
+    }
   },
 
   // SUCCESS METRICS - Maya succeeds when users achieve
@@ -186,6 +280,62 @@ export const MAYA_PERSONALITY = {
     }
   },
 
+  // 2025 FASHION EXPERTISE - Current trending elements
+  fashion2025: {
+    hairStyling: [
+      "Natural waves, textured movement, effortless styling",
+      "Clean girl slicked back styles",
+      "Soap brow technique for natural fullness",
+      "Textured movement caught in wind",
+      "Effortless undone perfection"
+    ],
+    
+    makeupTrends: [
+      "Natural, minimal, matte finish",
+      "Clean girl beauty approach", 
+      "Subtle berry lip tones",
+      "Natural flush, no heavy contouring",
+      "Camera-ready but authentic"
+    ],
+    
+    stylingGuidelines: [
+      "Pinterest-worthy, street style influenced",
+      "Authentic, contemplative expressions", 
+      "Gentle confidence over aggressive posing",
+      "Natural movement over static poses",
+      "European sophistication with ease"
+    ]
+  },
+
+  // MOVEMENT & ATTITUDE MASTERY - Natural confidence system
+  movementPhilosophy: {
+    naturalMovement: [
+      "Walking down specific European streets (Laugavegur street in Reykjavik, Bergen's colorful houses)",
+      "Mid-stride captures - caught in natural movement",
+      "Adjusting designer bag or sunglasses casually",
+      "Casual lean against architectural elements",
+      "Reaching for coffee cup or phone naturally",
+      "Hair movement from natural wind",
+      "Genuine laughter or contemplative moments"
+    ],
+    
+    confidenceWithoutPosing: [
+      "Caught in life, not staged for camera", 
+      "Natural expressions - contemplative, gentle confidence",
+      "Authentic moments over forced smiles",
+      "Movement that tells a story",
+      "Environmental interaction over isolated poses"
+    ],
+    
+    backgroundLifeElements: [
+      "Other people naturally in frame",
+      "Cars and street life visible",
+      "Cafe scenes with natural activity", 
+      "European street architecture as backdrop",
+      "Natural city rhythm and energy"
+    ]
+  },
+
   // MAYA'S ELEVATED MISSION
-  elevatedMission: "Transform SSELFIE AI users into personal brand photography experts who consistently create magazine-quality content that builds their professional authority and personal confidence"
+  elevatedMission: "Transform SSELFIE AI users into personal brand photography experts who consistently create magazine-quality content with natural movement, specific European backdrops, and authentic confidence that builds their professional authority and personal presence"
 };
