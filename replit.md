@@ -3,6 +3,20 @@
 ## Overview
 SSELFIE Studio is Sandra's AI personal branding platform with simplified TRAIN → STYLE → GALLERY flow. Replace expensive photoshoots ($500-2000+) with personal AI photographer that generates unlimited professional brand photos. Single $47/month tier targets women entrepreneurs who want professional brand photos without traditional photoshoot hassles. Sandra has 135K+ followers and 30-day launch plan to reach $2,350 MRR (50 users). Long-term goal: scale success to sell admin agent ecosystem to enterprises.
 
+## Strategic Gender Expansion Plan
+**Phase 1 (Current)**: Women-Only Focus - Maintain clear positioning as "AI personal branding for women entrepreneurs" leveraging Sandra's 135K-follower authority and Maya's female-centric styling expertise.
+
+**Phase 2 (After 100+ Female Customers)**: Market Research - Survey existing customers about male colleagues/partners interested in AI personal branding to validate demand.
+
+**Phase 3 (Future Expansion)**: Separate Men's Platform - If demand validated, create "MASCULINE STUDIO" with:
+- Dedicated AI personality (e.g., "Marcus" - executive styling expert)
+- Male-focused prompts (suits, business casual, executive presence)
+- Different messaging (professional authority vs entrepreneurial confidence)
+- Potentially higher pricing ($67/month tier testing)
+- Preserves women-only brand strength while capturing new market
+
+**Strategic Benefits**: Tests both markets separately, protects Sandra's authority in women's space, enables cross-selling to corporate clients, maintains clear brand positioning without dilution.
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 **PROJECT STATUS**: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY flow for immediate $47/month launch. SHOOT page removed (Maya handles everything), BUILD feature moved to future $67/month tier. 30-day launch plan targeting 50 users = $2,350 MRR. Technical systems operational, ready for quality testing and market launch (August 23, 2025).
