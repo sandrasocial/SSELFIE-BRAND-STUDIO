@@ -36,9 +36,9 @@ export const GENERATION_SETTINGS = {
   aspect_ratio: "3:4",        // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
   output_format: "png", 
   output_quality: 90,
-  lora_scale: 0.9,            // 🔧 FLUX LORA OPTIMAL: Strong enough to capture trained features without over-fitting
-  guidance: 5,                // 🔧 MAYA OPTIMAL: Higher guidance for better prompt following
-  num_inference_steps: 50,    // 🔧 MAYA OPTIMAL: More steps for higher quality results
+  lora_scale: 0.95,           // ✅ USER TESTED: Better facial similarity (0.9 → 0.95)
+  guidance: 2.8,              // ✅ USER TESTED: Better natural results (5 → 2.8)
+  num_inference_steps: 30,    // ✅ USER TESTED: Faster generation with same quality (50 → 30)
   go_fast: false,
   megapixels: "1"
 };
@@ -481,9 +481,9 @@ export class ModelTrainingService {
           prompt: finalPrompt,
           lora_weights: loraWeightsUrl,
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
-          lora_scale: 0.9,
-          guidance_scale: 5,
-          num_inference_steps: 50,
+          lora_scale: 0.95,
+          guidance_scale: 2.8,
+          num_inference_steps: 30,
           num_outputs: count,
           aspect_ratio: "4:5",
           output_format: "png",

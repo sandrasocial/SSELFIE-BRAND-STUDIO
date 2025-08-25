@@ -112,16 +112,16 @@ export class UnifiedGenerationService {
         model: "dev",
         prompt: finalPrompt,
         go_fast: false,
-        lora_scale: 0.9,
+        lora_scale: 0.95,
         megapixels: "1",
         num_outputs: 2,
         aspect_ratio: "3:4",
         output_format: "png",
-        guidance_scale: 5,
+        guidance_scale: 2.8,
         output_quality: 95,
         prompt_strength: 0.8,
         extra_lora_scale: 1,
-        num_inference_steps: 50,
+        num_inference_steps: 30,
         disable_safety_checker: false
       }
     };

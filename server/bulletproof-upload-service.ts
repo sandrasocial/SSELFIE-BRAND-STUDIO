@@ -378,13 +378,13 @@ export class BulletproofUploadService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1500, // 🎯 RESEARCH-PROVEN: Community consensus for face training (1000-2000 optimal range)
+            steps: 1200, // ✅ USER REQUESTED: Reduced from 1500 for better balance
             learning_rate: 4e-4, // 🎯 RESEARCH-PROVEN: 0.0004 works excellent for character/face training
             batch_size: 1,
             lora_rank: 32, // 🎯 RESEARCH-PROVEN: 32 for complex features and character training
             resolution: "1024", // 🎯 RESEARCH-PROVEN: 1024x1024 ideal resolution
             optimizer: "adamw8bit",
-            autocaption: false,
+            autocaption: true,             // ✅ USER REQUESTED: Enable context captions for better consistency
             cache_latents_to_disk: false,
             caption_dropout_rate: 0.1 // 🎯 RESEARCH-PROVEN: 0.1 standard for face training (not too low)
           },
