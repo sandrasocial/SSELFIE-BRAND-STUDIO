@@ -1160,6 +1160,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get Maya chats organized by category
+  app.get('/api/maya-chats/categorized', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      console.log('📂 Fetching categorized Maya chats for user:', userId);
+      
+      const categorizedChats = await storage.getMayaChatsByCategory(userId);
+      res.json(categorizedChats);
+      
+    } catch (error) {
+      console.error('❌ Error fetching categorized Maya chats:', error);
+      res.status(500).json({ 
+        message: "Failed to fetch categorized Maya chats", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   app.post('/api/maya-chats', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;

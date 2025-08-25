@@ -465,6 +465,8 @@ export const mayaChats = pgTable("maya_chats", {
   userId: varchar("user_id").notNull(),
   chatTitle: varchar("chat_title").notNull(),
   chatSummary: text("chat_summary"),
+  chatCategory: varchar("chat_category").default("Style Consultation"),
+  lastActivity: timestamp("last_activity").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

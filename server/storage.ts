@@ -1131,7 +1131,33 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(mayaChats)
       .where(eq(mayaChats.userId, userId))
-      .orderBy(desc(mayaChats.createdAt));
+      .orderBy(desc(mayaChats.lastActivity || mayaChats.createdAt));
+  }
+
+  // Get Maya chats by category for organized display
+  async getMayaChatsByCategory(userId: string): Promise<{ [key: string]: MayaChat[] }> {
+    const chats = await this.getMayaChats(userId);
+    
+    const categorizedChats: { [key: string]: MayaChat[] } = {
+      "Photo Generation": [],
+      "Professional & Business": [],
+      "Elegant & Luxury": [],
+      "Casual & Everyday": [],
+      "Date & Evening": [],
+      "Vacation & Travel": [],
+      "Style Consultation": []
+    };
+
+    chats.forEach(chat => {
+      const category = chat.chatCategory || "Style Consultation";
+      if (categorizedChats[category]) {
+        categorizedChats[category].push(chat);
+      } else {
+        categorizedChats["Style Consultation"].push(chat);
+      }
+    });
+
+    return categorizedChats;
   }
 
   async createMayaChat(data: InsertMayaChat): Promise<MayaChat> {
