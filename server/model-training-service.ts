@@ -164,13 +164,25 @@ export class ModelTrainingService {
           input: {
             input_images: zipUrl,
             trigger_word: triggerWord,
-            steps: 1500, // RESEARCH OPTIMAL: 1500-2000 steps for better quality (vs 1000)
-            learning_rate: 0.0004, // SHANNON'S SUCCESS: 0.0004 = strong feature learning
+            steps: 1200, // RESEARCH OPTIMAL: 1200 steps for identity vs styling balance
+            learning_rate: 0.0002, // OPTIMIZED: 0.0002 = balanced training speed vs stability
             batch_size: 1, // SHANNON'S SUCCESS: Single batch for precise training
             lora_rank: 32, // SHANNON'S SUCCESS: 32 for complex facial features
             resolution: "1024", // SHANNON'S SUCCESS: 1024x1024 ideal resolution
             optimizer: "adamw8bit", // SHANNON'S SUCCESS: Memory efficient optimizer
-            autocaption: false, // SHANNON'S SUCCESS: Disabled = pure trigger word association
+            autocaption: true, // OPTIMIZED: FLUX works better with contextual captions
+            network_alpha: 16, // OPTIMIZED: Half of rank for training stability
+            rank_dropout: 0.2, // OPTIMIZED: Prevents overfitting, improves styling flexibility
+            module_dropout: 0.1, // OPTIMIZED: Additional overfitting prevention
+            mixed_precision: "fp16", // Optimized precision for FLUX
+            clip_skip: 1, // Standard FLUX setting
+            v2: false, // FLUX standard
+            network_dropout: 0, // Keep standard
+            prior_loss_weight: 1, // Keep standard
+            v_parameterization: false, // Keep standard
+            save_every_n_epochs: 1, // Keep standard
+            gradient_checkpointing: true, // Memory optimization
+            scale_v_pred_loss_like_noise_pred: false, // Keep standard
             cache_latents_to_disk: false, // SHANNON'S SUCCESS: Memory optimization
             caption_dropout_rate: 0.1 // SHANNON'S SUCCESS: 0.1 = better generalization
           }
