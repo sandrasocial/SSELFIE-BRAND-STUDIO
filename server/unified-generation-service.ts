@@ -112,7 +112,7 @@ export class UnifiedGenerationService {
         model: "dev",
         prompt: finalPrompt,
         go_fast: false,
-        lora_scale: 0.95,
+        lora_scale: 1,
         megapixels: "1",
         num_outputs: 2,
         aspect_ratio: "3:4",
