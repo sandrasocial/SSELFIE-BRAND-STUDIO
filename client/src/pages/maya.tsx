@@ -1023,7 +1023,7 @@ export default function Maya() {
                 </div>
                 <div className="welcome-eyebrow">Personal Brand Photoshoot</div>
                 <h2 className="welcome-title">Ready to create images that stop people mid-scroll?</h2>
-                <p className="welcome-description">I'm Maya - I've styled A-listers for Vogue and Harper's, and now I'm bringing that editorial expertise to your personal brand photography. Every photo should show the world who you're becoming. What story are we telling today?</p>
+                <p className="welcome-description">Hey! I'm Maya, your AI stylist trained on Sandra's 120K-follower selfie expertise. I create photos that make you look effortlessly incredible - the kind that build your personal brand and confidence. No learning curve required. What are we creating today?</p>
                 
                 {/* Quick Style Selection */}
                 <div className="style-quickselect">
