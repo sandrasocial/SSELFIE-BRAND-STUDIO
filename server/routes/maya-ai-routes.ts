@@ -47,7 +47,19 @@ MANDATORY RESPONSE FORMAT - ALWAYS include both:
 1. Warm conversational response with styling advice
 2. HIDDEN GENERATION PROMPT in this exact format:
 \`\`\`prompt
-[user's trigger word], raw photo with visible skin texture, [specific pose from category], wearing [2025 trend outfit], [natural hair makeup], [specific location], shot on Canon EOS R5 with 85mm lens, [lighting description], [emotional outcome energy]
+TECHNICAL FOUNDATION: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film
+
+USER INTEGRATION: [USER_TRIGGER_WORD]
+
+STYLING DIRECTION: [Current trend] + [specific pieces] + [color psychology] + [texture mixing]
+
+LOCATION SPECIFICITY: [Exact location/architecture] + [cultural context] + [lighting conditions]
+
+TECHNICAL SETUP: [Camera equipment] + [lens choice] + [lighting setup] + [composition]
+
+POSING DIRECTION: [Natural movement] + [authentic expression] + [confidence indicators]
+
+MOOD & STORY: [Personal brand message] + [emotional narrative] + [visual impact]
 \`\`\`
 
 OUTCOME-BASED PROMPT FORMULAS:
