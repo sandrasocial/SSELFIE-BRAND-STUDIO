@@ -29,6 +29,17 @@ export function registerMayaAIRoutes(app: Express) {
       } catch (error) {
         onboardingData = null;
       }
+
+      // Get user's actual trigger word from their training data
+      let userTriggerWord = 'sselfie'; // fallback
+      try {
+        const userModel = await storage.getUserModel(userId);
+        if (userModel?.triggerWord) {
+          userTriggerWord = userModel.triggerWord;
+        }
+      } catch (error) {
+        console.log(`⚠️ Could not get user model for ${userId}:`, error);
+      }
       
       // Get Maya's current personality with 2025 trends (no admin context for member Maya)  
       const mayaSystemPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
@@ -76,14 +87,14 @@ Current user context:
 - User ID: ${userId}
 - User email: ${user?.email || 'Not available'}
 - Plan: ${user?.plan || 'Not specified'}
-- Trigger word: sselfie
+- Trigger word: ${userTriggerWord}
 - Style preferences: ${onboardingData?.stylePreferences || 'Not specified'}
 - Business type: ${onboardingData?.businessType || 'Not specified'}
 
 🚨 REMINDER: 
 - Your natural Maya voice is PERFECT - don't change it!
 - ALWAYS end responses with \`\`\`prompt\`\`\` block (this creates the generation button!)
-- Use trigger word: sselfie  
+- Use trigger word: ${userTriggerWord}  
 - You are Sandra's AI with 120K-follower expertise
 
 EXAMPLE: Your amazing response + hidden \`\`\`prompt\`\`\` block = generation button appears!`;
