@@ -186,16 +186,19 @@ export class ModelTrainingService {
       }
 
       
-      // ✅ CRITICAL FIX: Store training ID temporarily during training
-      // The replicateModelId will be updated to the final model version when training completes
+      // ✅ CRITICAL FIX: Store training ID in separate field, keep replicateModelId for final model path only
       console.log(`🔍 Storing training ID: ${trainingData.id} for user ${userId}`);
       await storage.updateUserModel(userId, {
-        replicateModelId: trainingData.id, // Temporary training ID - will be updated to model version on completion
+        trainingId: trainingData.id, // Store training ID in dedicated field
         triggerWord: triggerWord,
         trainingStatus: 'training',
-        trainingProgress: 0
+        trainingProgress: 0,
+        // Clear previous model data while training
+        replicateModelId: null,
+        replicateVersionId: null,
+        loraWeightsUrl: null
       });
-      console.log(`✅ Training ID stored successfully for user ${userId}`);
+      console.log(`✅ Training ID stored in dedicated field for user ${userId}`);
       
       
       return {
@@ -212,12 +215,16 @@ export class ModelTrainingService {
   static async checkTrainingStatus(userId: string): Promise<{ status: string; progress: number }> {
     try {
       const userModel = await storage.getUserModelByUserId(userId);
-      if (!userModel || !userModel.replicateModelId) {
+      if (!userModel || (!userModel.trainingId && !userModel.replicateModelId)) {
         throw new Error('No training found for user');
       }
       
+      // Use trainingId if available (new architecture), otherwise fallback to replicateModelId (legacy)
+      const trainingId = userModel.trainingId || userModel.replicateModelId;
+      console.log(`🔍 Checking training status for user ${userId}, trainingId: ${trainingId}`);
+      
       // Check REAL Replicate API training status
-      const trainingStatusResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
+      const trainingStatusResponse = await fetch(`https://api.replicate.com/v1/trainings/${trainingId}`, {
         headers: {
           'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
           'Content-Type': 'application/json'
@@ -257,29 +264,61 @@ export class ModelTrainingService {
         trainingProgress: progress
       };
       
-      // 🔒 CRITICAL FIX: Fetch actual trained model version ID when training succeeds
+      // 🔒 CRITICAL FIX: Extract final model data and LoRA weights when training completes
       if (status === 'completed') {
         try {
-          // Get the trained model's actual version ID from Replicate API
-          const modelName = `${userId}-selfie-lora`;
-          const modelResponse = await fetch(`https://api.replicate.com/v1/models/${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`, {
-            headers: {
-              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          });
+          console.log(`✅ TRAINING COMPLETED: Extracting model data and LoRA weights for user ${userId}`);
           
-          if (modelResponse.ok) {
-            const modelData = await modelResponse.json();
-            // Use the latest version ID from the trained model
-            if (modelData.latest_version?.id) {
-              updateData.replicateVersionId = modelData.latest_version.id;
-              updateData.replicateModelId = `${process.env.REPLICATE_USERNAME || 'models'}/${modelName}`; // Update to actual model name
+          // Extract model data and LoRA weights from completed training
+          if (trainingData.output) {
+            // Method 1: Direct weights from training output
+            if (trainingData.output.weights) {
+              updateData.loraWeightsUrl = trainingData.output.weights;
+              console.log(`✅ EXTRACTED LoRA weights from training output: ${trainingData.output.weights}`);
+            }
+            
+            // Method 2: Extract model path and version from training output
+            if (trainingData.output.version) {
+              const versionMatch = trainingData.output.version.match(/replicate\.com\/([^:]+):(.+)$/);
+              if (versionMatch) {
+                const modelPath = versionMatch[1];
+                const versionId = versionMatch[2];
+                
+                updateData.replicateModelId = modelPath;
+                updateData.replicateVersionId = versionId;
+                
+                console.log(`✅ EXTRACTED model path: ${modelPath}, version: ${versionId}`);
+                
+                // If no direct weights, try to fetch from version
+                if (!updateData.loraWeightsUrl) {
+                  const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelPath}/versions/${versionId}`, {
+                    headers: {
+                      'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+                      'Content-Type': 'application/json'
+                    }
+                  });
+                  
+                  if (versionResponse.ok) {
+                    const versionData = await versionResponse.json();
+                    if (versionData.files?.lora_weights) {
+                      updateData.loraWeightsUrl = versionData.files.lora_weights;
+                      console.log(`✅ EXTRACTED LoRA weights from version: ${versionData.files.lora_weights}`);
+                    } else if (versionData.files?.weights) {
+                      updateData.loraWeightsUrl = versionData.files.weights;
+                      console.log(`✅ EXTRACTED weights from version: ${versionData.files.weights}`);
+                    }
+                  }
+                }
+              }
             }
           }
+          
+          // Set completion timestamp
+          updateData.completedAt = new Date();
+          
         } catch (error) {
-          console.error('Failed to fetch trained model version:', error);
-          // Don't update replicateVersionId if we can't get the correct one
+          console.error('❌ Failed to extract model data from completed training:', error);
+          // Continue with status update even if extraction fails
         }
       }
       
@@ -419,80 +458,39 @@ export class ModelTrainingService {
         ? options.seed!
         : Math.floor(Math.random() * 1e9);
 
-      // CRITICAL: Extract LoRA weights if not available using comprehensive method
+      // CRITICAL: Extract LoRA weights if not available using proper API method
       let loraWeightsUrl = userModel?.loraWeightsUrl;
       
-      if (!loraWeightsUrl && userModel?.replicateModelId) {
+      if (!loraWeightsUrl) {
         console.log(`🔧 TRAINING SERVICE: Extracting LoRA weights for user ${userId}`);
         
         try {
-          // First try: Check the original training to get weights
-          const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
-            headers: {
-              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          });
+          // Use the proper extractLoRAWeights function
+          loraWeightsUrl = await this.extractLoRAWeights(userModel);
           
-          if (trainingResponse.ok) {
-            const trainingData = await trainingResponse.json();
-            
-            // Extract weights using the same comprehensive logic as the completion monitor
-            if (trainingData.output) {
-              if (trainingData.output.weights) {
-                loraWeightsUrl = trainingData.output.weights;
-                console.log(`🎯 EXTRACTED weights from training.output.weights: ${loraWeightsUrl}`);
-              } else if (trainingData.output.version) {
-                // Extract model path from version URL
-                const versionMatch = trainingData.output.version.match(/replicate\.com\/([^:]+):(.+)$/);
-                if (versionMatch) {
-                  const modelPath = versionMatch[1];
-                  const extractedVersionId = versionMatch[2];
-                  
-                  // Fetch version details
-                  const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelPath}/versions/${extractedVersionId}`, {
-                    headers: {
-                      'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-                      'Content-Type': 'application/json'
-                    }
-                  });
-                  
-                  if (versionResponse.ok) {
-                    const versionData = await versionResponse.json();
-                    if (versionData.files?.weights) {
-                      loraWeightsUrl = versionData.files.weights;
-                      console.log(`🎯 EXTRACTED weights from version.files.weights: ${loraWeightsUrl}`);
-                    }
-                  }
-                }
-              }
-            }
-            
-            // Save extracted weights to database
-            if (loraWeightsUrl) {
-              await storage.updateUserModel(userId, {
-                loraWeightsUrl: loraWeightsUrl,
-                updatedAt: new Date()
-              });
-              console.log(`✅ TRAINING SERVICE: Saved LoRA weights for user ${userId}: ${loraWeightsUrl}`);
-            }
+          if (loraWeightsUrl) {
+            // Update the user model with the extracted weights URL
+            await storage.updateUserModel(userId, { loraWeightsUrl });
+            console.log(`✅ WEIGHTS EXTRACTED AND SAVED: ${loraWeightsUrl}`);
           }
         } catch (error) {
-          console.error(`❌ TRAINING SERVICE: Error extracting LoRA weights for user ${userId}:`, error);
+          console.error(`❌ Failed to extract LoRA weights for user ${userId}:`, error);
+          // Don't throw error here - allow graceful fallback
         }
       }
       
-      // CRITICAL: ALWAYS require LoRA weights - no fallbacks!
+      // CRITICAL: Replace hard error with graceful fallback when loraWeightsUrl is null
       if (!loraWeightsUrl) {
-        throw new Error(`Training service requires LoRA weights for user ${userId}. Cannot generate without individual LoRA weights.`);
+        console.warn(`⚠️ WARNING: No LoRA weights available for user ${userId}. Attempting generation without LoRA weights.`);
+        console.log(`🔄 FALLBACK: Using base FLUX 1.1 Pro model without personalization for user ${userId}`);
       }
       
       // FLUX 1.1 Pro + LoRA architecture with optimal realistic settings
-      const requestBody = {
+      const requestBody: any = {
         version: "black-forest-labs/flux-1.1-pro",
         input: {
           prompt: finalPrompt,
-          lora_weights: loraWeightsUrl,
+          ...(loraWeightsUrl && { lora_weights: loraWeightsUrl }),
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
           lora_scale: merged.lora_scale ?? 1,
           guidance_scale: merged.guidance_scale ?? 2.8,
@@ -562,6 +560,123 @@ export class ModelTrainingService {
       
     } catch (error) {
       throw new Error(`Failed to generate images: ${error.message}`);
+    }
+  }
+
+  // CRITICAL: Proper LoRA weights extraction function implementation
+  static async extractLoRAWeights(userModel: any): Promise<string | null> {
+    if (!userModel) {
+      console.error('❌ extractLoRAWeights: No user model provided');
+      return null;
+    }
+
+    try {
+      // Try multiple extraction methods in order of priority
+      
+      // Method 1: Use trainingId if available (new architecture)
+      if (userModel.trainingId) {
+        console.log(`🔧 EXTRACT WEIGHTS: Method 1 - Using trainingId: ${userModel.trainingId}`);
+        
+        const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.trainingId}`, {
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (trainingResponse.ok) {
+          const trainingData = await trainingResponse.json();
+          
+          // Extract weights from training output
+          if (trainingData.output?.weights) {
+            console.log(`✅ WEIGHTS FOUND via trainingId: ${trainingData.output.weights}`);
+            return trainingData.output.weights;
+          }
+          
+          if (trainingData.output?.version) {
+            // Extract model path and version from version URL
+            const versionMatch = trainingData.output.version.match(/replicate\.com\/([^:]+):(.+)$/);
+            if (versionMatch) {
+              const modelPath = versionMatch[1];
+              const versionId = versionMatch[2];
+              
+              // Fetch version details to get weights
+              const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelPath}/versions/${versionId}`, {
+                headers: {
+                  'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+              
+              if (versionResponse.ok) {
+                const versionData = await versionResponse.json();
+                
+                if (versionData.files?.lora_weights) {
+                  console.log(`✅ WEIGHTS FOUND via version files: ${versionData.files.lora_weights}`);
+                  return versionData.files.lora_weights;
+                }
+                if (versionData.files?.weights) {
+                  console.log(`✅ WEIGHTS FOUND via version files: ${versionData.files.weights}`);
+                  return versionData.files.weights;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Method 2: Use replicateModelId and replicateVersionId if available (current architecture)
+      if (userModel.replicateModelId && userModel.replicateVersionId) {
+        console.log(`🔧 EXTRACT WEIGHTS: Method 2 - Using modelId: ${userModel.replicateModelId}, versionId: ${userModel.replicateVersionId}`);
+        
+        const versionResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}/versions/${userModel.replicateVersionId}`, {
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (versionResponse.ok) {
+          const versionData = await versionResponse.json();
+          
+          if (versionData.files?.lora_weights) {
+            console.log(`✅ WEIGHTS FOUND via model/version: ${versionData.files.lora_weights}`);
+            return versionData.files.lora_weights;
+          }
+          if (versionData.files?.weights) {
+            console.log(`✅ WEIGHTS FOUND via model/version: ${versionData.files.weights}`);
+            return versionData.files.weights;
+          }
+        }
+      }
+
+      // Method 3: Legacy fallback - try replicateModelId as training ID
+      if (userModel.replicateModelId) {
+        console.log(`🔧 EXTRACT WEIGHTS: Method 3 - Legacy fallback using replicateModelId as training ID: ${userModel.replicateModelId}`);
+        
+        const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (trainingResponse.ok) {
+          const trainingData = await trainingResponse.json();
+          
+          if (trainingData.output?.weights) {
+            console.log(`✅ WEIGHTS FOUND via legacy method: ${trainingData.output.weights}`);
+            return trainingData.output.weights;
+          }
+        }
+      }
+
+      console.error('❌ extractLoRAWeights: No valid weights URL found in any method');
+      return null;
+
+    } catch (error) {
+      console.error('❌ extractLoRAWeights error:', error);
+      return null;
     }
   }
 }

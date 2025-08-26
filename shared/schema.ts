@@ -333,7 +333,8 @@ export const selfieUploads = pgTable("selfie_uploads", {
 export const userModels = pgTable("user_models", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull().unique(), // One model per user
-  replicateModelId: varchar("replicate_model_id"),
+  trainingId: varchar("training_id"), // Replicate training ID (separate from model path)
+  replicateModelId: varchar("replicate_model_id"), // Final model path only (e.g., sandrasocial/user123-selfie-lora)
   replicateVersionId: varchar("replicate_version_id"), // The actual trained model version to use
   trainedModelPath: varchar("trained_model_path"), // sandrasocial/{modelName}
   loraWeightsUrl: varchar("lora_weights_url"), // CRITICAL: LoRA weights URL for base model + LoRA approach
