@@ -134,9 +134,12 @@ export class UnifiedGenerationService {
       }
     };
     
-    // Log what Replicate will receive
-    console.log("🚚 UNIFIED Replicate payload keys:", Object.keys(requestBody.input));
-    console.log("🎯 UNIFIED Using LoRA:", !!requestBody.input.lora_weights);
+    // Hard guard before Replicate API call
+    console.log("🚚 UnifiedGen payload keys:", Object.keys(requestBody.input));
+    if (!requestBody.input.lora_weights) {
+      console.error("⛔ UnifiedGen blocked: missing lora_weights");
+      throw new Error("BLOCKED: Missing lora_weights; refusing to run base FLUX.");
+    }
     
     // Validate request
     const user = await storage.getUser(userId);
