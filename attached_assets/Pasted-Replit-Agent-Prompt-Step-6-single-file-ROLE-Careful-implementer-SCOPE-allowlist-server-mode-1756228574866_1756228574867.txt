@@ -1,0 +1,68 @@
+Replit Agent Prompt — Step 6 (single file)
+ROLE: Careful implementer.
+SCOPE (allowlist): server/model-training-service.ts
+RULES:
+- Plan → Patch (unified diff) → wait for “APPROVED: APPLY PATCH” → Apply → run build
+- Only touch this file. No repo-wide formatting.
+TASK:
+- In generateUserImages(...), after the existing attempt to extract weights via /v1/trainings/{replicateModelId}, add a fallback:
+  If loraWeightsUrl is still missing AND userModel.replicateModelId looks like a model path (contains "/") AND replicateVersionId exists,
+  then GET /v1/models/{modelPath}/versions/{versionId} and use version.files.weights.
+- If found, save storage.updateUserModel({ loraWeightsUrl }).
+OUTPUT ORDER: PLAN → PATCH
+
+PATCH (unified diff)
+*** a/server/model-training-service.ts
+--- b/server/model-training-service.ts
+@@
+       // CRITICAL: Extract LoRA weights if not available using comprehensive method
+       let loraWeightsUrl = userModel?.loraWeightsUrl;
+ 
+       if (!loraWeightsUrl && userModel?.replicateModelId) {
+         console.log(`🔧 TRAINING SERVICE: Extracting LoRA weights for user ${userId}`);
+@@
+         } catch (error) {
+           console.error(`❌ TRAINING SERVICE: Error extracting LoRA weights for user ${userId}:`, error);
+         }
+       }
+ 
++      // 🔁 Fallback path: if we lost the trainingId and only have model path + version, extract from version files
++      if (!loraWeightsUrl && userModel?.replicateModelId?.includes('/') && userModel?.replicateVersionId) {
++        try {
++          const modelPath = userModel.replicateModelId; // e.g. "username/user123-selfie-lora"
++          const versionId = userModel.replicateVersionId;
++          console.log(`🔁 FALLBACK: Fetching weights from model version for user ${userId}: ${modelPath}:${versionId}`);
++          const versionResp = await fetch(`https://api.replicate.com/v1/models/${modelPath}/versions/${versionId}`, {
++            headers: {
++              'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
++              'Content-Type': 'application/json'
++            }
++          });
++          if (versionResp.ok) {
++            const versionData = await versionResp.json();
++            const possible = versionData?.files?.weights || versionData?.weights;
++            if (possible) {
++              loraWeightsUrl = possible;
++              await storage.updateUserModel(userId, {
++                loraWeightsUrl: loraWeightsUrl,
++                updatedAt: new Date()
++              });
++              console.log(`✅ FALLBACK: Saved LoRA weights for user ${userId}: ${loraWeightsUrl}`);
++            } else {
++              console.warn(`⚠️ FALLBACK: No weights field present in version data for user ${userId}`);
++            }
++          } else {
++            console.warn(`⚠️ FALLBACK: Version fetch failed ${versionResp.status} for user ${userId}`);
++          }
++        } catch (e) {
++          console.error(`❌ FALLBACK: Error fetching weights from model version for user ${userId}`, e);
++        }
++      }
++
+       // CRITICAL: ALWAYS require LoRA weights - no fallbacks!
+       if (!loraWeightsUrl) {
+         throw new Error(`Training service requires LoRA weights for user ${userId}. Cannot generate without individual LoRA weights.`);
+       }
+
+
+After apply: run npm run typecheck && npm run build

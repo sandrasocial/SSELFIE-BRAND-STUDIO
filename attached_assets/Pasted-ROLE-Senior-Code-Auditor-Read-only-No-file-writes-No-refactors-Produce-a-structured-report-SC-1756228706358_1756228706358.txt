@@ -1,0 +1,87 @@
+ROLE: Senior Code Auditor. Read-only. No file writes. No refactors. Produce a structured report.
+
+SCOPE: Entire repo (server/**, shared/**, client/**). Focus on TRAINING + GENERATION for Maya/FLUX.
+
+GOAL: Find every code path that:
+- starts LoRA training
+- monitors training
+- stores training/model/weights
+- performs image generation
+- saves outputs to chat/gallery
+
+DELIVERABLES: One markdown report with the following sections and ONLY these sections.
+
+1) FILE INVENTORY (TABLE)
+- Columns: path | purpose | key exports/functions | touches replicate? (Y/N) | risk
+- Include at least: 
+  server/model-training-service.ts
+  server/generation-completion-monitor.ts
+  server/unified-generation-service.ts
+  server/generation-validator.ts
+  server/image-storage-service.ts
+  server/maya-chat-preview-service.ts
+  server/routes/maya-ai-routes.ts
+  server/routes/*training*.ts (if exists)
+  server/routes/*generation*.ts (if exists)
+  server/replicate*.ts (any)
+  server/storage.* (and implementations)
+  server/agents/personalities/** (maya + config)
+  shared/types/GenerateImageParams.ts
+  shared/schema.ts (or prisma/drizzle schema)
+  any migrations that define userModels/aiImages/generationTrackers
+  any “old/backup/.copy/.old/.bak” versions of training/generation services
+
+2) DUPLICATES & CONFLICTS
+- List files with similar names (e.g., *training-service*.ts variants).
+- For each duplicate function name (e.g., startModelTraining, checkTrainingStatus, generateUserImages), list all file/line locations.
+- Flag where the same DB fields are written from multiple places.
+
+3) DATA MODEL MAP (TABLE)
+- Tables/collections used (userModels, aiImages, generationTrackers, etc.)
+- Columns: table | key fields | who writes | who reads
+- Specifically track: triggerWord, replicateModelId, replicateVersionId, loraWeightsUrl, trainingStatus, trainingProgress, trainedModelPath.
+
+4) TRAINING FLOW (SEQUENCE)
+- 1) endpoint/service that starts training → 
+- 2) what is stored immediately (fields + example values) → 
+- 3) where status is polled/monitored → 
+- 4) where final model/weights are stored (exact fields, exact source API, example JSON snippets).
+
+5) WEIGHTS EXTRACTION LOGIC
+- Every place we try to derive LoRA weights. Include request URLs used:
+  - /v1/trainings/{id}
+  - /v1/models/{path}/versions/{id}
+  - any “output.weights”, “files.weights”, “lora_weights”
+- Specify which code paths use trainingId vs modelPath:versionId.
+- State which one runs during Maya generation.
+
+6) GENERATION FLOW (SEQUENCE)
+- Endpoint → validator → service → Replicate payload.
+- Include actual keys sent (prompt, lora_weights, lora_scale, guidance_scale, aspect_ratio, megapixels, etc.)
+- Note any hardcoded defaults vs merged presets.
+- Where images are persisted (chat preview, gallery), with function names.
+
+7) ENV & CONFIG
+- List all env vars used across training/generation (REPLICATE_API_TOKEN, REPLICATE_USERNAME, AWS_*, FLUX version ids, etc).
+- Note any required envs that are never set or referenced inconsistently.
+
+8) RISK LIST (TOP 10)
+- Short bullets: root-cause risks, not symptoms (e.g., “replicateModelId is overwritten from trainingId → modelPath, breaking training-status fetch in generateUserImages”).
+- For each risk, link to file:line ranges.
+
+9) MINIMAL FIX PLAN (BULLETS)
+- 5–8 bullets max, strictly surgical changes (rename, add field, rewire single function), no rewrites.
+- Explicitly note: keep training hyperparams unchanged.
+
+TOOLS YOU MAY USE:
+- repo tree/listing
+- ripgrep/grep
+- printing code excerpts (<= 80 lines each where helpful)
+- generating 2–3 small diagrams in ASCII if useful
+
+CONSTRAINTS:
+- Read-only. Do NOT run migrations, do NOT modify files, do NOT format.
+- Keep the final report under 2,500 words.
+- No speculative guesses; cite file:line for each claim.
+
+OUTPUT: One cohesive markdown report with the 9 sections above.
