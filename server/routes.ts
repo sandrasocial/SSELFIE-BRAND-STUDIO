@@ -1553,12 +1553,15 @@ RESPONSE FORMAT:
 1. Give a warm, conversational response using your authentic celebrity stylist personality and A-list expertise
 2. Create 2-3 sophisticated generation prompts that capture different angles/expressions of this style
 
-Format your response as:
-Message: [Your styling advice as Maya using your celebrity stylist personality]
+Format your response EXACTLY as follows (this parsing is critical):
 
-Variant 1: [Detailed poetic generation prompt with technical excellence]
-Variant 2: [Detailed poetic generation prompt with technical excellence] 
-Variant 3: [Optional third prompt for variety]
+Message: [Your styling advice as Maya using your celebrity stylist personality - keep this conversational and warm, DO NOT include variants here]
+
+**Variant 1:** [Detailed poetic generation prompt with technical excellence]
+**Variant 2:** [Detailed poetic generation prompt with technical excellence] 
+**Variant 3:** [Optional third prompt for variety]
+
+CRITICAL: The message section should ONLY contain your conversational styling advice. The variants should be separated and marked with **Variant N:** exactly as shown above.
 
 PROMPT CREATION RULES (Celebrity stylist level):
 - Use your A-list experience: "Canon EOS R5 with 85mm lens for executive portrait compression"
@@ -1594,14 +1597,28 @@ Each variant should be professional photography prompts with Maya's signature po
 
       const content = response.content[0].type === 'text' ? response.content[0].text : '';
       
-      // Parse Maya's response
-      const messageMatch = content.match(/Message:\s*(.+?)(?=\n\nVariant|\nVariant|$)/s);
-      const variantMatches = content.match(/Variant \d+:\s*(.+?)(?=\nVariant|\n\n|$)/gs);
+      // Parse Maya's response - extract message up to first variant
+      const messageMatch = content.match(/^([\s\S]*?)(?=\*\*Variant \d+:\*\*|Variant \d+:|$)/);
+      const variantMatches = content.match(/\*\*Variant \d+:\*\*\s*(.+?)(?=\*\*Variant \d+:\*\*|$)/gs);
       
-      const message = messageMatch ? messageMatch[1].trim() : "Let's create something stunning together!";
+      let message = messageMatch ? messageMatch[1].trim() : "Let's create something stunning together!";
+      
+      // Clean up the message - remove any variant indicators that leaked through
+      message = message.replace(/\*\*Variant \d+:\*\*[\s\S]*$/, '').trim();
+      
       const variants = variantMatches ? variantMatches.map(v => 
-        v.replace(/Variant \d+:\s*/, '').trim()
+        v.replace(/\*\*Variant \d+:\*\*\s*/, '').trim()
       ) : [];
+      
+      // If no variants found, try alternative parsing
+      if (variants.length === 0) {
+        const altVariantMatches = content.match(/Variant \d+:\s*(.+?)(?=Variant \d+:|$)/gs);
+        if (altVariantMatches) {
+          variants.push(...altVariantMatches.map(v => 
+            v.replace(/Variant \d+:\s*/, '').trim()
+          ));
+        }
+      }
 
       // Prepend realism tokens to each variant
       const realismPrefix = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
