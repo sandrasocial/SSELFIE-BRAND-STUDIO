@@ -168,32 +168,21 @@ export class ModelValidationService {
   }
   
   /**
-   * CRITICAL: Enforces that user can generate - provides fallback for customer service
-   * For $47/month customers, allow demo generation with base FLUX model
+   * CRITICAL: Enforces that user can generate - throws error if not valid
+   * ZERO TOLERANCE for fallbacks - Users MUST train before generating
    */
   static async enforceUserModelRequirements(userId: string): Promise<{modelId: string, versionId: string, triggerWord: string}> {
     const validation = await this.validateAndCorrectUserModel(userId);
     
-    // If user has valid trained model, use it
-    if (validation.canGenerate) {
-      return {
-        modelId: validation.modelId!,
-        versionId: validation.versionId!,
-        triggerWord: validation.triggerWord!
-      };
+    // 🔒 ZERO TOLERANCE: NO FALLBACKS EVER
+    if (!validation.canGenerate) {
+      throw new Error(validation.errorMessage || 'Cannot generate images - individual trained model required');
     }
     
-    // 🎯 CUSTOMER SERVICE FALLBACK: Use base FLUX 1.1 Pro for demo/testing
-    // This allows Maya to work while training is in progress
-    console.log(`⚡ FALLBACK GENERATION: Using base FLUX 1.1 Pro for user ${userId} - ${validation.errorMessage}`);
-    
-    // Generate a temporary trigger word for consistency
-    const tempTriggerWord = `user${userId.replace(/[^a-zA-Z0-9]/g, '')}`;
-    
     return {
-      modelId: "black-forest-labs/flux-1.1-pro", // Base FLUX 1.1 Pro model
-      versionId: "818ac5ca-8c77-4a2c-b5e2-3b2c3b5de9c7", // Latest version ID
-      triggerWord: tempTriggerWord
+      modelId: validation.modelId!,
+      versionId: validation.versionId!,
+      triggerWord: validation.triggerWord!
     };
   }
   
