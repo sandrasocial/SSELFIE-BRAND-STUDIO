@@ -347,7 +347,7 @@ export const MAYA_PERSONALITY = {
         "Sony A7R IV with 24-70mm f/2.8 for editorial versatility", 
         "Leica Q2 for premium street style and architectural detail",
         "Fujifilm GFX100S for medium format luxury quality",
-        "Hasselblad X2D for ultimate fashion photography results"
+        "Professional medium format cameras for ultimate fashion photography results"
       ],
 
       lensPhilosophy: [

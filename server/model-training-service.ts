@@ -15,23 +15,7 @@ export const IMAGE_CATEGORIES = {
   creative: ['artistic', 'concept', 'avant-garde']
 } as const;
 
-export const PROMPT_TEMPLATES = {
-  editorial: {
-    lifestyle: "{trigger_word} woman working at luxury cafe, laptop open, designer coffee cup nearby, shot on Hasselblad X2D 100C with 90mm lens, natural window lighting, wearing oversized designer sweater, sophisticated work environment, marble table surface, environmental context, lifestyle photography not portrait, heavy 35mm film grain, matte skin finish, authentic skin texture, luxury materials, editorial lifestyle moment",
-    business: "{trigger_word} woman in boardroom meeting, leading discussion, head of conference table, shot on Canon EOS R5 with 85mm f/1.2L lens, professional window lighting, black power suit, modern luxury office environment, confident leadership presence, environmental context, lifestyle photography not portrait, pronounced film grain, natural skin texture, executive styling, commanding authority",
-    creative: "{trigger_word} woman in art studio, creative process, hands working on project, shot on Leica SL2 with 90mm APO-Summicron lens, natural creative lighting, artistic clothing, sophisticated workspace, environmental context, lifestyle photography not portrait, raw film negative quality, visible grain structure, authentic creative styling, artistic professional environment"
-  },
-  professional: {
-    workspace: "{trigger_word} woman at aesthetic desk setup, organized luxury workspace, natural work moment, shot on Nikon Z9 with 50mm f/1.2S lens, soft morning light, elegant work attire, modern office environment, environmental context, lifestyle photography not portrait, Kodak Portra 400 film aesthetic, matte complexion, professional luxury styling, sophisticated work setting",
-    conference: "{trigger_word} woman speaking at conference, audience in background, professional stage setting, shot on Sony A7R V with 85mm f/1.4 GM lens, dramatic stage lighting, sophisticated presentation attire, luxury venue environment, environmental context, lifestyle photography not portrait, analog film photography aesthetic, natural skin imperfections, executive presence, professional authority",
-    networking: "{trigger_word} woman at networking event, natural conversation, upscale business setting, shot on Fujifilm GFX100S with 110mm f/2 lens, ambient event lighting, professional cocktail attire, luxury venue atmosphere, environmental context, lifestyle photography not portrait, heavy film grain, pronounced texture, elegant networking styling, social business environment"
-  },
-  lifestyle: {
-    morning: "{trigger_word} woman morning routine, cozy luxury home setting, natural domestic light, shot on Leica Q2 with 28mm f/1.7 lens, soft golden hour lighting, elegant loungewear, luxury apartment environment, environmental context, lifestyle photography not portrait, film negative quality, authentic grain pattern, comfortable luxury styling, intimate home moment",
-    wellness: "{trigger_word} woman yoga practice, luxury apartment studio, morning sun streaming, shot on Canon R6 Mark II with 35mm f/1.8 lens, natural wellness lighting, sophisticated activewear, serene home environment, environmental context, lifestyle photography not portrait, visible grain structure, matte skin finish, wellness luxury styling, peaceful practice moment",
-    travel: "{trigger_word} woman at beachfront cafe, Mediterranean coastal setting, vacation lifestyle moment, shot on Hasselblad X2D with 90mm lens, golden hour ocean lighting, flowing designer resort wear, luxury coastal environment, environmental context, lifestyle photography not portrait, Kodak Portra 400 film aesthetic, natural skin texture, vacation luxury styling, coastal sophistication"
-  }
-};
+// REMOVED: Hardcoded PROMPT_TEMPLATES with camera equipment - Maya's personality now drives content
 
 export const GENERATION_SETTINGS = {
   aspect_ratio: "3:4",        // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
@@ -344,50 +328,8 @@ export class ModelTrainingService {
     return this.generateUserImages(userId, customPrompt, count);
   }
 
-  // Convert category/subcategory to professional prompt using templates
-  static getPromptFromCategorySubcategory(category: string, subcategory: string): string {
-    const categoryLower = category.toLowerCase();
-    const subcategoryLower = subcategory.toLowerCase();
-    
-    // Try to find exact match in PROMPT_TEMPLATES
-    if (PROMPT_TEMPLATES[categoryLower] && PROMPT_TEMPLATES[categoryLower][subcategoryLower]) {
-      return PROMPT_TEMPLATES[categoryLower][subcategoryLower];
-    }
-    
-    // Category mapping for common subcategories
-    const categoryMappings: Record<string, string> = {
-      'magazine cover': PROMPT_TEMPLATES.editorial.business,
-      'fashion': PROMPT_TEMPLATES.editorial.creative,
-      'business': PROMPT_TEMPLATES.editorial.business,
-      'working': PROMPT_TEMPLATES.lifestyle.morning,
-      'travel': PROMPT_TEMPLATES.lifestyle.travel,
-      'home': PROMPT_TEMPLATES.lifestyle.morning,
-      'social': PROMPT_TEMPLATES.professional.networking,
-      'headshot': PROMPT_TEMPLATES.professional.workspace,
-      'creative': PROMPT_TEMPLATES.editorial.creative,
-      'professional': PROMPT_TEMPLATES.professional.conference,
-      'yacht': PROMPT_TEMPLATES.lifestyle.travel,
-      'villa': PROMPT_TEMPLATES.lifestyle.morning,
-      'shopping': PROMPT_TEMPLATES.editorial.lifestyle,
-      'events': PROMPT_TEMPLATES.professional.networking
-    };
-    
-    return categoryMappings[subcategoryLower] || PROMPT_TEMPLATES.editorial.lifestyle;
-  }
-
-  // Generate images from category/subcategory (AI Generator usage)
-  static async generateUserImagesFromCategory(
-    userId: string,
-    category: string,
-    subcategory: string,
-    count: number = 4
-  ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
-    // Convert category/subcategory to professional prompt
-    const promptTemplate = this.getPromptFromCategorySubcategory(category, subcategory);
-    
-    // Use the custom prompt generation method
-    return this.generateUserImages(userId, promptTemplate, count);
-  }
+  // REMOVED: Category/subcategory prompt conversion functions - Maya's personality now drives content
+  // All prompt generation now flows through Maya's AI intelligence for personalized styling
 
   // REAL IMAGE GENERATION - NO SIMULATION
   static async generateUserImages(
@@ -436,15 +378,8 @@ export class ModelTrainingService {
         basePrompt = `${triggerWord} ${customPrompt}`;
       }
       
-      // REALISTIC FILM PHOTOGRAPHY ENHANCEMENT - Simplified for natural results
-      const filmEnhancement = "shot on Hasselblad X2D 100C with 90mm lens, natural 35mm film grain, authentic film photography, Kodak Portra 400 film stock, natural skin texture, analog photography aesthetic";
-      const fashionEnhancement = "wearing designer pieces, tailored clothing, luxury materials, sophisticated styling, elegant feminine fashion, high-end accessories, refined aesthetic";
-      const environmentalEnhancement = "full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment";
-      // Natural hair enhancement without AI terminology
-      let hairColorConsistency = "consistent hair color, natural hair tone, voluminous hair with movement, effortless hair styling, natural hair texture, healthy hair appearance";
-      const naturalLighting = "natural lighting, soft diffused light, authentic photographic lighting, professional film photography lighting";
-      
-      let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${naturalLighting}`;
+      // Personality-first: keep Maya's prompt, ensure trigger appears once and first
+      const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
 
       // ----- Merge generation parameters (defaults → preset → explicit overrides) -----
       const presetParams = options?.preset ? FLUX_PRESETS[options.preset] : {};
@@ -581,6 +516,24 @@ export class ModelTrainingService {
     } catch (error) {
       throw new Error(`Failed to generate images: ${error.message}`);
     }
+  }
+
+  // Ensure the LoRA trigger is the first token and not repeated; clean commas/spaces
+  static formatPrompt(prompt: string, triggerWord: string): string {
+    const clean = (prompt || "")
+      .replace(/\s+/g, " ")
+      .replace(/\s*,\s*/g, ", ")
+      .trim();
+
+    // remove all trigger occurrences (case insensitive)
+    const re = new RegExp(`\\b${triggerWord}\\b`, "gi");
+    const withoutAll = clean.replace(re, "").replace(/^,|,,/g, ",").replace(/\s+,/g, ", ").trim();
+
+    // prepend a single trigger
+    const composed = `${triggerWord}, ${withoutAll}`.replace(/,\s*,/g, ", ").replace(/\s+,/g, ", ").trim();
+
+    // final tidying: no trailing commas / double spaces
+    return composed.replace(/,\s*$/, "").replace(/\s{2,}/g, " ");
   }
 
   // CRITICAL: Proper LoRA weights extraction function implementation

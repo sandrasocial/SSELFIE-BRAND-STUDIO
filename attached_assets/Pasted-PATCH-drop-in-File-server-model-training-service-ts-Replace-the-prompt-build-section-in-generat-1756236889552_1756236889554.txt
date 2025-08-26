@@ -1,0 +1,64 @@
+PATCH (drop-in)
+
+File: server/model-training-service.ts
+
+Replace the prompt-build section in generateUserImages(...):
+
+// --- delete everything from here ---
+      // REALISTIC FILM PHOTOGRAPHY ENHANCEMENT ...
+      const filmEnhancement = "shot on Hasselblad X2D 100C with 90mm lens, natural 35mm film grain, authentic film photography, Kodak Portra 400 film stock, natural skin texture, analog photography aesthetic";
+      const fashionEnhancement = "wearing designer pieces, tailored clothing, luxury materials, sophisticated styling, elegant feminine fashion, high-end accessories, refined aesthetic";
+      const environmentalEnhancement = "full scene visible, environmental context, lifestyle photography not portrait, editorial lifestyle moment";
+      let hairColorConsistency = "consistent hair color, natural hair tone, voluminous hair with movement, effortless hair styling, natural hair texture, healthy hair appearance";
+      const naturalLighting = "natural lighting, soft diffused light, authentic photographic lighting, professional film photography lighting";
+      
+      let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${naturalLighting}`;
+// --- delete everything up to here ---
+
+
+with this:
+
+      // Personality-first: keep Maya’s prompt, ensure trigger appears once and first
+      const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
+
+
+Add this helper inside the class (e.g., just above extractLoRAWeights):
+
+  // Ensure the LoRA trigger is the first token and not repeated; clean commas/spaces
+  static formatPrompt(prompt: string, triggerWord: string): string {
+    const clean = (prompt || "")
+      .replace(/\s+/g, " ")
+      .replace(/\s*,\s*/g, ", ")
+      .trim();
+
+    // remove all trigger occurrences (case insensitive)
+    const re = new RegExp(`\\b${triggerWord}\\b`, "gi");
+    const withoutAll = clean.replace(re, "").replace(/^,|,,/g, ",").replace(/\s+,/g, ", ").trim();
+
+    // prepend a single trigger
+    const composed = `${triggerWord}, ${withoutAll}`.replace(/,\s*,/g, ", ").replace(/\s+,/g, ", ").trim();
+
+    // final tidying: no trailing commas / double spaces
+    return composed.replace(/,\s*$/, "").replace(/\s{2,}/g, " ");
+  }
+
+
+That’s it. No other logic, no camera/film/hair add-ons — Maya’s personality drives the content again.
+
+Also check (quick sweep)
+
+Ask Replit Agent to remove any other hidden add-ons:
+
+Find and report any hardcoded photography/style phrases that append to prompts
+Search for these substrings (case-insensitive) in the repo and show file+line:
+Hasselblad X2D, Kodak Portra 400, analog photography, full scene visible, lifestyle photography not portrait, natural 35mm film grain, professional film photography lighting, hair color, natural hair tone.
+
+If any appear in unified-generation-service.ts or other helpers, delete those append blocks the same way (keep only Maya’s prompt + single trigger).
+
+(Optional) tiny nudge in Maya’s system prompt
+
+In server/routes/maya-ai-routes.ts, add one line to the “PROMPT GENERATION MASTERY” section:
+
+“If the trigger word appears at the start of the prompt, do not repeat it elsewhere.”
+
+(This avoids Maya adding userXXXX again in the Subject block.)
