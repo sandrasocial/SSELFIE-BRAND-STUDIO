@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { storage } from './storage';
 import { ArchitectureValidator } from './architecture-validator';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { FLUX_PRESETS, UNIVERSAL_DEFAULT, type FluxPresetName } from './presets/flux';
 
 // Image categories and prompt templates
 export const IMAGE_CATEGORIES = {
@@ -353,7 +354,8 @@ export class ModelTrainingService {
   static async generateUserImages(
     userId: string,
     customPrompt: string,
-    count: number = 4
+    count: number = 4,
+    options?: { preset?: FluxPresetName; seed?: number; paramsOverride?: Partial<typeof GENERATION_SETTINGS> }
   ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
     
     try {
@@ -404,7 +406,18 @@ export class ModelTrainingService {
       const naturalLighting = "natural lighting, soft diffused light, authentic photographic lighting, professional film photography lighting";
       
       let finalPrompt = `${basePrompt}, ${hairColorConsistency}, ${filmEnhancement}, ${fashionEnhancement}, ${environmentalEnhancement}, ${naturalLighting}`;
-      
+
+      // ----- Merge generation parameters (defaults → preset → explicit overrides) -----
+      const presetParams = options?.preset ? FLUX_PRESETS[options.preset] : {};
+      const merged = {
+        ...UNIVERSAL_DEFAULT,
+        ...GENERATION_SETTINGS,
+        ...presetParams,
+        ...(options?.paramsOverride || {})
+      };
+      const seed = typeof options?.seed === 'number'
+        ? options.seed!
+        : Math.floor(Math.random() * 1e9);
 
       // CRITICAL: Extract LoRA weights if not available using comprehensive method
       let loraWeightsUrl = userModel?.loraWeightsUrl;
@@ -481,15 +494,16 @@ export class ModelTrainingService {
           prompt: finalPrompt,
           lora_weights: loraWeightsUrl,
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
-          lora_scale: 1,
-          guidance_scale: 2.8,
-          num_inference_steps: 30,
+          lora_scale: merged.lora_scale ?? 1,
+          guidance_scale: merged.guidance_scale ?? 2.8,
+          num_inference_steps: merged.num_inference_steps ?? 30,
           num_outputs: count,
-          aspect_ratio: "4:5",
-          output_format: "png",
-          output_quality: 95,
-          go_fast: false,
-          seed: Math.floor(Math.random() * 1000000)
+          aspect_ratio: (merged.aspect_ratio ?? "4:5"),
+          output_format: (merged.output_format ?? "png"),
+          output_quality: (merged.output_format === "jpg" ? ((merged as any).output_quality ?? 90) : undefined),
+          go_fast: (merged.go_fast ?? false),
+          megapixels: (merged.megapixels ?? "1"),
+          seed
         }
       };
       
