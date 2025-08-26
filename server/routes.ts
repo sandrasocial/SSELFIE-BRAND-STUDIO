@@ -1581,27 +1581,11 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         }
       }
       
-      // Add camera equipment rotation (if not already present)
-      const cameraEquipment = [
-        'shot on Canon EOS R5 with 85mm f/1.4 lens',
-        'shot on Sony A7R IV with 50mm f/1.2 lens', 
-        'shot on Leica Q2 with 28mm f/1.7 lens',
-        'shot on Fujifilm GFX 100S with 63mm f/2.8 lens'
-      ];
-      
-      const hasCamera = cameraEquipment.some(camera => finalPrompt.includes(camera.split(' with ')[0]));
-      if (!hasCamera) {
-        // Rotate camera equipment based on user ID for variety
-        const userIdHash = userId.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
-        const cameraIndex = Math.abs(userIdHash) % cameraEquipment.length;
-        const selectedCamera = cameraEquipment[cameraIndex];
-        
-        // Add camera equipment before final comma if present, otherwise at end
-        if (finalPrompt.includes(', professional photography')) {
-          finalPrompt = finalPrompt.replace(', professional photography', `, ${selectedCamera}, professional photography`);
-        } else {
-          finalPrompt = `${finalPrompt}, ${selectedCamera}`;
-        }
+      // MAYA CREATIVE FREEDOM: Only add camera specs if Maya hasn't included any
+      const hasCameraEquipment = /shot (?:on|with)|photographed (?:on|with)|camera|lens|f\/\d/i.test(finalPrompt);
+      if (!hasCameraEquipment && !finalPrompt.includes('professional')) {
+        // Maya forgot technical specs - add minimal professional mention
+        finalPrompt = `${finalPrompt}, professional photography`;
       }
       
       console.log(`🎨 MAYA PROMPT PROCESSING:`);

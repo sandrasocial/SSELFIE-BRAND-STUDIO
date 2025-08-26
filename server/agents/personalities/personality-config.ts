@@ -67,13 +67,18 @@ YOUR MISSION: ${personality.identity?.mission || personality.mission || 'Provide
 
 PERSONALITY & COMMUNICATION STYLE:
 ${personality.voice?.tone ? `- Voice: ${personality.voice.tone}` : ''}
-${personality.traits?.energy ? `- Energy: ${personality.traits.energy}` : ''}
+${personality.voice?.core ? `- Core Energy: ${personality.voice.core}` : ''}
+${personality.voice?.energy ? `- Energy: ${personality.voice.energy}` : ''}
+${personality.voice?.honesty ? `- Honesty: ${personality.voice.honesty}` : ''}
+${personality.voice?.warmth ? `- Warmth: ${personality.voice.warmth}` : ''}
+${personality.traits?.energy ? `- Traits Energy: ${personality.traits.energy}` : ''}
 ${personality.traits?.approach ? `- Approach: ${personality.traits.approach}` : ''}
 
 COMMUNICATION CHARACTERISTICS:
 ${personality.voice?.characteristics ? personality.voice.characteristics.map((c: string) => `- ${c}`).join('\n') : ''}
 
 NATURAL PHRASES YOU USE:
+${personality.voice?.examples ? personality.voice.examples.map((p: string) => `"${p}"`).join('\n') : ''}
 ${personality.voice?.samplePhrases ? personality.voice.samplePhrases.map((p: string) => `"${p}"`).join('\n') : ''}
 ${personality.voice?.analysisMode?.patterns ? `\nANALYSIS MODE PHRASES:\n${personality.voice.analysisMode.patterns.map((p: string) => `"${p}"`).join('\n')}` : ''}
 ${personality.voice?.executionMode?.patterns ? `\nEXECUTION MODE PHRASES:\n${personality.voice.executionMode.patterns.map((p: string) => `"${p}"`).join('\n')}` : ''}
@@ -84,6 +89,8 @@ ${personality.expertise?.specializations ? personality.expertise.specializations
 WORK STYLE:
 ${personality.workStyle?.approach ? `Approach: ${personality.workStyle.approach}` : ''}
 
+${this.buildSpecializedKnowledge(personality)}
+
 AUTONOMOUS WORK STYLE: You are a specialized expert who takes initiative. When given tasks or asked questions, you work autonomously using your tools to complete the work, not just discuss it. You execute real solutions, make actual changes, and solve problems directly.
 
 IMPORTANT: Always respond in your natural personality style using the voice patterns and phrases above. Maintain your character consistently throughout the conversation.
@@ -91,6 +98,66 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
 🎭 VOICE EXAMPLE: When analyzing, use phrases like the Analysis Mode patterns. When executing tasks, use Execution Mode patterns. Be authentic to your personality while working autonomously.`;
 
     return prompt;
+  }
+
+  /**
+   * MAYA SPECIALIZED KNOWLEDGE LOADER - Load her complete 2025 fashion intelligence
+   */
+  private static buildSpecializedKnowledge(personality: any): string {
+    if (personality.name !== 'Maya') {
+      return ''; // Only Maya needs specialized fashion knowledge
+    }
+
+    let knowledge = '\n🎨 MAYA\'S 2025 LUXURY FASHION INTELLIGENCE:\n';
+    
+    // Load Maya's current luxury trends
+    if (personality.currentLuxuryTrends) {
+      knowledge += '\nCURRENT 2025 LUXURY TRENDS:\n';
+      Object.entries(personality.currentLuxuryTrends).forEach(([category, trends]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        trends.forEach((trend: string) => knowledge += `- ${trend}\n`);
+      });
+    }
+
+    // Load Maya's styling formulas
+    if (personality.luxuryFormulas) {
+      knowledge += '\nLUXURY STYLING FORMULAS:\n';
+      Object.entries(personality.luxuryFormulas).forEach(([category, formulas]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        formulas.slice(0, 3).forEach((formula: string) => knowledge += `- ${formula}\n`);
+      });
+    }
+
+    // Load Maya's 2025 beauty trends
+    if (personality.luxuryBeauty) {
+      knowledge += '\n2025 LUXURY BEAUTY INTELLIGENCE:\n';
+      Object.entries(personality.luxuryBeauty).forEach(([category, trends]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        trends.slice(0, 2).forEach((trend: string) => knowledge += `- ${trend}\n`);
+      });
+    }
+
+    // Load Maya's luxury color mastery
+    if (personality.luxuryColors) {
+      knowledge += '\nLUXURY COLOR MASTERY:\n';
+      Object.entries(personality.luxuryColors).forEach(([category, colors]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        colors.slice(0, 2).forEach((color: string) => knowledge += `- ${color}\n`);
+      });
+    }
+
+    // Load Maya's editorial formulas with specific designer combinations
+    if (personality.editorialFormulas) {
+      knowledge += '\nEDITORIAL LUXURY FORMULAS (Specific Designer Combinations):\n';
+      Object.entries(personality.editorialFormulas).forEach(([category, formulas]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        formulas.slice(0, 2).forEach((formula: string) => knowledge += `- ${formula}\n`);
+      });
+    }
+
+    knowledge += '\n⚡ USE THIS COMPLETE FASHION INTELLIGENCE when creating prompts and styling advice. You have access to current 2025 luxury trends, specific designer combinations, and editorial-level styling formulas.\n';
+    
+    return knowledge;
   }
   
   /**
