@@ -593,10 +593,23 @@ export class ModelTrainingService {
         if (trainingResponse.ok) {
           const trainingData = await trainingResponse.json();
           
+          // DEBUG: Log the training response structure
+          console.log(`🔍 DETAILED TRAINING DATA:`, JSON.stringify(trainingData, null, 2));
+          console.log(`🔍 TRAINING DATA KEYS:`, Object.keys(trainingData));
+          if (trainingData.output) {
+            console.log(`🔍 TRAINING OUTPUT KEYS:`, Object.keys(trainingData.output));
+          }
+          
           // Extract weights from training output
           if (trainingData.output?.weights) {
             console.log(`✅ WEIGHTS FOUND via trainingId: ${trainingData.output.weights}`);
             return trainingData.output.weights;
+          }
+          
+          // Sometimes it's under different keys
+          if (trainingData.weights) {
+            console.log(`✅ WEIGHTS FOUND via trainingData.weights: ${trainingData.weights}`);
+            return trainingData.weights;
           }
           
           if (trainingData.output?.version) {
@@ -631,10 +644,44 @@ export class ModelTrainingService {
         }
       }
 
-      // Method 2: Use replicateModelId and replicateVersionId if available (current architecture)
+      // Method 2: Use replicateModelId and replicateVersionId if available (current architecture)  
       if (userModel.replicateModelId && userModel.replicateVersionId) {
         console.log(`🔧 EXTRACT WEIGHTS: Method 2 - Using modelId: ${userModel.replicateModelId}, versionId: ${userModel.replicateVersionId}`);
         
+        // First try: Get the actual model data (not the OpenAPI schema)
+        const modelResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}`, {
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (modelResponse.ok) {
+          const modelData = await modelResponse.json();
+          console.log(`🔍 DETAILED MODEL DATA:`, JSON.stringify(modelData, null, 2));
+          
+          // Check if model has versions and find our specific version
+          if (modelData.latest_version && modelData.latest_version.id === userModel.replicateVersionId) {
+            const versionData = modelData.latest_version;
+            
+            if (versionData.files?.weights) {
+              console.log(`✅ WEIGHTS FOUND via model latest_version: ${versionData.files.weights}`);
+              return versionData.files.weights;
+            }
+          }
+          
+          // Try to find the specific version in the versions array
+          if (modelData.versions) {
+            for (const version of modelData.versions) {
+              if (version.id === userModel.replicateVersionId && version.files?.weights) {
+                console.log(`✅ WEIGHTS FOUND via model versions array: ${version.files.weights}`);
+                return version.files.weights;
+              }
+            }
+          }
+        }
+        
+        // Second try: Direct version API call  
         const versionResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}/versions/${userModel.replicateVersionId}`, {
           headers: {
             'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
@@ -648,18 +695,17 @@ export class ModelTrainingService {
           // DEBUG: Log the actual response structure
           console.log(`🔍 DETAILED VERSION DATA:`, JSON.stringify(versionData, null, 2));
           console.log(`🔍 VERSION DATA KEYS:`, Object.keys(versionData));
-          if (versionData.files) {
-            console.log(`🔍 FILES KEYS:`, Object.keys(versionData.files));
-          }
           
-          if (versionData.files?.lora_weights) {
-            console.log(`✅ WEIGHTS FOUND via model/version: ${versionData.files.lora_weights}`);
-            return versionData.files.lora_weights;
-          }
+          // Look for weights in different possible locations
           if (versionData.files?.weights) {
-            console.log(`✅ WEIGHTS FOUND via model/version: ${versionData.files.weights}`);
+            console.log(`✅ WEIGHTS FOUND via version files.weights: ${versionData.files.weights}`);
             return versionData.files.weights;
           }
+          if (versionData.weights) {
+            console.log(`✅ WEIGHTS FOUND via version.weights: ${versionData.weights}`);
+            return versionData.weights;
+          }
+          
         } else {
           console.error(`❌ Version API call failed: ${versionResponse.status} ${versionResponse.statusText}`);
         }
