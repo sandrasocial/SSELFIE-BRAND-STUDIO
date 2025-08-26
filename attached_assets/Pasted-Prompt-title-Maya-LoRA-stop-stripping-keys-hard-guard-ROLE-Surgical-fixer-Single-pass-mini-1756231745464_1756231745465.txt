@@ -1,0 +1,85 @@
+Prompt title: “Maya LoRA: stop stripping keys + hard guard”
+
+ROLE: Surgical fixer. Single-pass, minimal edits. Make it impossible for /api/maya-generate-images to run without LoRA.
+
+SCOPE (allowlist):
+- server/routes/maya-ai-routes.ts
+- server/unified-generation-service.ts
+- server/model-training-service.ts
+
+PLAN:
+1) Add a HARD GUARD in both generation services to refuse requests if lora_weights is missing from the final Replicate payload.
+2) Expand any ALLOWLIST / pickKeys so it preserves LoRA and quality keys.
+3) Log payload keys right before POST so we can verify quickly.
+
+PATCH 1 — server/unified-generation-service.ts
+- Find where the Replicate requestBody is assembled (version + input).
+- BEFORE fetch(), insert:
+
+console.log("🚚 UnifiedGen payload keys:", Object.keys(requestBody.input));
+if (!requestBody.input.lora_weights) {
+  console.error("⛔ UnifiedGen blocked: missing lora_weights");
+  throw new Error("BLOCKED: Missing lora_weights; refusing to run base FLUX.");
+}
+
+- If there is a function like pick/whitelist (e.g., pickKeys, ALLOWED_INPUT_KEYS), ensure the final input keeps ALL of:
+[
+  "prompt",
+  "seed",
+  "aspect_ratio",
+  "output_format",
+  "output_quality",
+  "go_fast",
+  "megapixels",
+  "lora_weights",
+  "lora_scale",
+  "guidance_scale",
+  "num_inference_steps",
+  "negative_prompt"
+]
+Update the list accordingly (DO NOT remove any).
+
+PATCH 2 — server/model-training-service.ts
+- In generateUserImages(), right before POST to Replicate, log and guard:
+
+console.log("🚚 TrainingService payload keys:", Object.keys(requestBody.input));
+if (!requestBody.input.lora_weights) {
+  console.error("⛔ TrainingService blocked: missing lora_weights");
+  throw new Error(`BLOCKED: Missing lora_weights for user ${userId}`);
+}
+
+PATCH 3 — server/routes/maya-ai-routes.ts
+- Ensure /api/maya-generate-images calls exactly ONE generator (prefer ModelTrainingService.generateUserImages).
+- Immediately before calling it, validate the user model and log:
+
+const userModel = await storage.getUserModelByUserId(userId);
+console.log("🔎 Route model fields:", {
+  hasWeights: !!userModel?.loraWeightsUrl,
+  modelId: userModel?.replicateModelId,
+  versionId: userModel?.replicateVersionId
+});
+if (!userModel?.loraWeightsUrl) {
+  return res.status(422).json({ error: "Your model weights aren’t attached yet. Finish training or re-link weights." });
+}
+
+- Do NOT call any “fallback base” generator here. Fail fast.
+
+AFTER PATCH:
+- Build.
+- Start one gen from Maya.
+- Check Replicate → the newest prediction → Input → JSON must include: lora_weights, lora_scale, guidance_scale, num_inference_steps, output_quality, go_fast/megapixels if set.
+- If missing again, print the server logs “🚚 payload keys …” and paste them back to Sandra.
+
+Fast sanity checks (you can do these in 2 mins)
+
+Trigger a gen → open the latest prediction details.
+
+In Input → JSON, you MUST see:
+
+lora_weights: "https://...safetensors"
+
+lora_scale: 1
+
+guidance_scale, num_inference_steps, maybe negative_prompt, output_quality, etc.
+
+If you don’t, your route hit unified-generation-service (or another path) that still strips keys. The guards above will throw and stop that from happening, which is what we want. Silent base calls are banned.

@@ -479,10 +479,10 @@ export class ModelTrainingService {
         }
       }
       
-      // CRITICAL: Replace hard error with graceful fallback when loraWeightsUrl is null
+      // MANDATORY: Refuse to run without LoRA weights
       if (!loraWeightsUrl) {
-        console.warn(`⚠️ WARNING: No LoRA weights available for user ${userId}. Attempting generation without LoRA weights.`);
-        console.log(`🔄 FALLBACK: Using base FLUX 1.1 Pro model without personalization for user ${userId}`);
+        console.error(`🚨 TRAINING SERVICE: REFUSING GENERATION - No LoRA weights for user ${userId}`);
+        throw new Error(`BLOCKED: Missing lora_weights for user ${userId}`);
       }
       
       // FLUX 1.1 Pro + LoRA architecture with optimal realistic settings
@@ -490,7 +490,7 @@ export class ModelTrainingService {
         version: "black-forest-labs/flux-1.1-pro",
         input: {
           prompt: finalPrompt,
-          ...(loraWeightsUrl && { lora_weights: loraWeightsUrl }),
+          lora_weights: loraWeightsUrl, // MANDATORY - always present
           negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
           lora_scale: merged.lora_scale ?? 1,
           guidance_scale: merged.guidance_scale ?? 2.8,
@@ -505,6 +505,12 @@ export class ModelTrainingService {
         }
       };
       
+      // Hard guard before Replicate API call
+      console.log("🚚 TrainingService payload keys:", Object.keys(requestBody.input));
+      if (!requestBody.input.lora_weights) {
+        console.error("⛔ TrainingService blocked: missing lora_weights");
+        throw new Error(`BLOCKED: Missing lora_weights for user ${userId}`);
+      }
 
       const response = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
