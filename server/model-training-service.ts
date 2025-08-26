@@ -645,6 +645,13 @@ export class ModelTrainingService {
         if (versionResponse.ok) {
           const versionData = await versionResponse.json();
           
+          // DEBUG: Log the actual response structure
+          console.log(`🔍 DETAILED VERSION DATA:`, JSON.stringify(versionData, null, 2));
+          console.log(`🔍 VERSION DATA KEYS:`, Object.keys(versionData));
+          if (versionData.files) {
+            console.log(`🔍 FILES KEYS:`, Object.keys(versionData.files));
+          }
+          
           if (versionData.files?.lora_weights) {
             console.log(`✅ WEIGHTS FOUND via model/version: ${versionData.files.lora_weights}`);
             return versionData.files.lora_weights;
@@ -653,6 +660,8 @@ export class ModelTrainingService {
             console.log(`✅ WEIGHTS FOUND via model/version: ${versionData.files.weights}`);
             return versionData.files.weights;
           }
+        } else {
+          console.error(`❌ Version API call failed: ${versionResponse.status} ${versionResponse.statusText}`);
         }
       }
 
@@ -670,10 +679,19 @@ export class ModelTrainingService {
         if (trainingResponse.ok) {
           const trainingData = await trainingResponse.json();
           
+          // DEBUG: Log the actual training response structure
+          console.log(`🔍 DETAILED TRAINING DATA:`, JSON.stringify(trainingData, null, 2));
+          console.log(`🔍 TRAINING DATA KEYS:`, Object.keys(trainingData));
+          if (trainingData.output) {
+            console.log(`🔍 OUTPUT KEYS:`, Object.keys(trainingData.output));
+          }
+          
           if (trainingData.output?.weights) {
             console.log(`✅ WEIGHTS FOUND via legacy method: ${trainingData.output.weights}`);
             return trainingData.output.weights;
           }
+        } else {
+          console.error(`❌ Training API call failed: ${trainingResponse.status} ${trainingResponse.statusText}`);
         }
       }
 
