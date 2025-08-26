@@ -1,0 +1,79 @@
+1) Add Studio selection state (framing / category / moods)
+
+Where: near the other useState declarations.
+
+ADD:
+
+// === Studio Selections (NEW) ===
+type Framing = 'close-up' | 'half-body' | 'full-scene';
+type Category =
+  | 'Future CEO'
+  | 'Off-Duty Model'
+  | 'Social Queen'
+  | 'Date Night'
+  | 'Everyday Icon'
+  | 'Power Player';
+
+const [framing, setFraming] = useState<Framing | null>(null);
+const [category, setCategory] = useState<Category | null>(null);
+const [moods, setMoods] = useState<string[]>([]); // max 2
+
+const toggleMood = (m: string) =>
+  setMoods(prev =>
+    prev.includes(m)
+      ? prev.filter(x => x !== m)
+      : prev.length < 2
+        ? [...prev, m]
+        : prev
+  );
+
+2) Wire the 3 framing cards + category chips + mood chips
+
+Your UI already renders these controls. Just connect clicks to the new state.
+
+Framing cards (Close-Up / Half Body / Full Scene)
+Add onClick to set framing and a selected style (no CSS overhaul):
+
+{/* Example framing card */}
+<div
+  className="style-option"        // keep your class
+  onClick={() => setFraming('close-up')}
+  aria-pressed={framing === 'close-up'}
+  style={framing === 'close-up' ? { outline: '1px solid #0a0a0a' } : {}}
+>
+  {/* existing placeholder content */}
+</div>
+
+
+Repeat for 'half-body' and 'full-scene'.
+
+Category chips (Future CEO, Off-Duty Model, …)
+Where you render those buttons, add:
+
+<button
+  type="button"
+  onClick={() => setCategory('Future CEO')}
+  aria-pressed={category === 'Future CEO'}
+  style={category === 'Future CEO' ? { background: '#0a0a0a', color: '#fff' } : {}}
+>
+  FUTURE CEO
+</button>
+
+
+Repeat for the other 5 categories.
+
+Mood chips (max 2, Quiet Luxury / Cinematic / …)
+Where you render mood chips, swap the click to toggleMood(mood) and show selected state:
+
+<button
+  type="button"
+  onClick={() => toggleMood('Quiet Luxury')}
+  aria-pressed={moods.includes('Quiet Luxury')}
+  style={moods.includes('Quiet Luxury') ? { background: '#0a0a0a', color: '#fff' } : {}}
+>
+  QUIET LUXURY
+</button>
+
+
+Keep your current markup; just add these handlers + a light selected style.
+Do not move the preview component — leave it in the Studio header where it is.

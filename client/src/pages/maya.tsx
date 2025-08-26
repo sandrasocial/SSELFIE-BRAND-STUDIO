@@ -64,10 +64,31 @@ export default function Maya() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Studio Controls state
+  // === Studio Selections (NEW) ===
+  type Framing = 'close-up' | 'half-body' | 'full-scene';
+  type Category =
+    | 'Future CEO'
+    | 'Off-Duty Model'
+    | 'Social Queen'
+    | 'Date Night'
+    | 'Everyday Icon'
+    | 'Power Player';
+
+  const [framing, setFraming] = useState<Framing | null>(null);
+  const [category, setCategory] = useState<Category | null>(null);
+  const [moods, setMoods] = useState<string[]>([]); // max 2
+
+  const toggleMood = (m: string) =>
+    setMoods(prev =>
+      prev.includes(m)
+        ? prev.filter(x => x !== m)
+        : prev.length < 2
+          ? [...prev, m]
+          : prev
+    );
+
+  // Legacy state for backward compatibility
   const [scene, setScene] = useState<'close-up'|'half-body'|'full-scene'|null>(null);
-  const [category, setCategory] = useState<string|null>(null);
-  const [moods, setMoods] = useState<string[]>([]); // cap at 2
 
   // ===== Auth & initial =====
   useEffect(() => {
@@ -141,37 +162,26 @@ export default function Maya() {
 
   // Reset studio controls
   const resetControls = () => {
-    setScene(null);
+    setFraming(null);
     setCategory(null);
     setMoods([]);
+    setScene(null); // Legacy
   };
 
-  // Handle mood selection with max 2 limit
-  const toggleMood = (mood: string) => {
-    if (moods.includes(mood)) {
-      setMoods(moods.filter(m => m !== mood));
-    } else {
-      if (moods.length >= 2) {
-        // Drop the oldest if adding a 3rd
-        setMoods([moods[1], mood]);
-      } else {
-        setMoods([...moods, mood]);
-      }
-    }
-  };
+  // Removed duplicate toggleMood function
 
   // Compose action using studio controls
   async function composeWithMaya() {
-    if (isTyping || !scene) return;
+    if (isTyping || !framing) return;
 
     const brief = [
-      scene ? scene.replace('-', ' ') : '',
+      framing ? framing.replace('-', ' ') : '',
       category || '',
       moods.length ? moods.join(', ') : ''
     ].filter(Boolean).join(' • ');
 
     // Build natural message for Maya
-    const naturalMessage = `Maya, create a ${scene ?? ''} ${category ?? ''} look with ${moods.join(' and ') || 'your signature touch'}. Style outfit, light, camera and background to feel elevated and editorial.`;
+    const naturalMessage = `Maya, create a ${framing ?? ''} ${category ?? ''} look with ${moods.join(' and ') || 'your signature touch'}. Style outfit, light, camera and background to feel elevated and editorial.`;
     
     setInput(naturalMessage);
     await sendMessage();
@@ -589,8 +599,10 @@ export default function Maya() {
                 {(['close-up', 'half-body', 'full-scene'] as const).map((sceneType) => (
                   <div
                     key={sceneType}
-                    className={`scene-card ${scene === sceneType ? 'selected' : ''}`}
-                    onClick={() => setScene(sceneType)}
+                    className={`scene-card ${framing === sceneType ? 'selected' : ''}`}
+                    onClick={() => setFraming(sceneType)}
+                    aria-pressed={framing === sceneType}
+                    style={framing === sceneType ? { outline: '1px solid #0a0a0a' } : {}}
                   >
                     <div className="scene-image">
                       {/* Gray placeholder - replace with actual images later */}
@@ -611,17 +623,20 @@ export default function Maya() {
               </div>
 
               {/* Progressive Reveal: Category and Mood chips */}
-              {scene && (
+              {framing && (
                 <div className="controls-reveal">
                   {/* Category chips */}
                   <div className="category-section">
                     <div className="section-label">Category</div>
                     <div className="chip-row">
-                      {['Future CEO', 'Off-Duty Model', 'Social Queen', 'Date Night', 'Everyday Icon', 'Power Player'].map((cat) => (
+                      {(['Future CEO', 'Off-Duty Model', 'Social Queen', 'Date Night', 'Everyday Icon', 'Power Player'] as Category[]).map((cat) => (
                         <button
                           key={cat}
+                          type="button"
                           className={`chip ${category === cat ? 'selected' : ''}`}
                           onClick={() => setCategory(cat)}
+                          aria-pressed={category === cat}
+                          style={category === cat ? { background: '#0a0a0a', color: '#fff' } : {}}
                         >
                           {cat}
                         </button>
@@ -636,8 +651,11 @@ export default function Maya() {
                       {['Quiet Luxury', 'Cinematic', 'Natural Light', 'Studio Clean'].map((mood) => (
                         <button
                           key={mood}
+                          type="button"
                           className={`chip ${moods.includes(mood) ? 'selected' : ''}`}
                           onClick={() => toggleMood(mood)}
+                          aria-pressed={moods.includes(mood)}
+                          style={moods.includes(mood) ? { background: '#0a0a0a', color: '#fff' } : {}}
                         >
                           {mood}
                         </button>
@@ -649,13 +667,13 @@ export default function Maya() {
                   <div className="controls-actions">
                     <div className="selection-summary">
                       {[
-                        scene ? scene.replace('-', ' ') : '',
+                        framing ? framing.replace('-', ' ') : '',
                         category || '',
                         moods.length ? moods.join(', ') : ''
                       ].filter(Boolean).join(' • ')}
                     </div>
                     <div className="action-buttons">
-                      <button className="compose-btn" onClick={composeWithMaya} disabled={!scene || isTyping}>
+                      <button className="compose-btn" onClick={composeWithMaya} disabled={!framing || isTyping}>
                         Compose with Maya
                       </button>
                       <button className="reset-link" onClick={resetControls}>
@@ -698,7 +716,7 @@ export default function Maya() {
                     <div
                       key={label}
                       className="style-option"
-                      onClick={() => setCategory(label)}
+                      onClick={() => setCategory(label as Category)}
                       title={label}
                     >
                       <div className="style-preview">{label}</div>
@@ -747,8 +765,8 @@ export default function Maya() {
                         {/* If Maya has variants but no images yet, show subtle gray placeholders */}
                         {isMaya && message.variants && !message.imagePreview && (
                           <div className="image-grid" style={{ marginTop: 12 }}>
-                            <GrayTile ratio={scene === 'full-scene' ? '4 / 5' : '3 / 4'} />
-                            <GrayTile ratio={scene === 'full-scene' ? '4 / 5' : '3 / 4'} />
+                            <GrayTile ratio={framing === 'full-scene' ? '4 / 5' : '3 / 4'} />
+                            <GrayTile ratio={framing === 'full-scene' ? '4 / 5' : '3 / 4'} />
                           </div>
                         )}
 
