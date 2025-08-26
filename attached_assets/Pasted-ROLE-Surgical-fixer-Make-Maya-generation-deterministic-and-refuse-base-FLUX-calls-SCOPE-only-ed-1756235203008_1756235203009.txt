@@ -1,0 +1,102 @@
+ROLE: Surgical fixer. Make Maya generation deterministic and refuse base FLUX calls.
+
+SCOPE (only edit these):
+- server/routes/maya-ai-routes.ts
+- server/model-training-service.ts
+- server/unified-generation-service.ts (wrapper only, no direct Replicate payloads)
+
+GOALS:
+1) Route /api/maya-generate-images -> MUST call ModelTrainingService.generateUserImages(...) ONLY.
+2) In ModelTrainingService.generateUserImages():
+   - Prefer PACKAGED MODEL path by default (safest today).
+   - If we ever call base FLUX, REQUIRE lora_weights or throw.
+   - Log final payload keys before POST.
+3) unified-generation-service.ts becomes a thin wrapper that just delegates to ModelTrainingService (no payload building).
+4) Remove/expand any allowlist that strips keys from input.
+
+PATCH A — server/routes/maya-ai-routes.ts
+- Remove any import/usage of UnifiedGenerationService.
+- Add strict model check before calling service:
+
+const userModel = await storage.getUserModelByUserId(userId);
+if (!userModel) return res.status(422).json({ error: "No model for this user." });
+
+console.log("🔎 Maya route model:", {
+  modelId: userModel.replicateModelId,
+  versionId: userModel.replicateVersionId,
+  hasWeights: !!userModel.loraWeightsUrl
+});
+
+// Single call, no other code paths:
+const out = await ModelTrainingService.generateUserImages(userId, prompt, 4);
+return res.json({ predictionId: out.predictionId });
+
+PATCH B — server/model-training-service.ts (generateUserImages)
+1) Determine path:
+
+const usePackaged =
+  !!(userModel?.replicateModelId && userModel?.replicateVersionId) &&
+  process.env.MAYA_USE_PACKAGED !== "0"; // default true
+
+2) Build requestBody in two branches:
+
+if (usePackaged) {
+  const modelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+  requestBody = {
+    version: modelVersion,
+    input: {
+      prompt: finalPrompt,
+      aspect_ratio: "3:4",
+      output_format: "png",
+      output_quality: 95,
+      seed: Math.floor(Math.random() * 1e9)
+    }
+  };
+} else {
+  // Base FLUX + LoRA
+  if (!loraWeightsUrl) throw new Error("BLOCKED: Missing lora_weights; refusing base FLUX.");
+  requestBody = {
+    version: "black-forest-labs/flux-1.1-pro",
+    input: {
+      prompt: finalPrompt,
+      lora_weights: loraWeightsUrl,
+      lora_scale: 1,
+      guidance_scale: 2.8,
+      num_inference_steps: 30,
+      aspect_ratio: "3:4",
+      output_format: "png",
+      output_quality: 95,
+      seed: Math.floor(Math.random() * 1e9)
+    }
+  };
+}
+
+// Absolute guard (no silent base):
+if (requestBody.version.includes("flux-1.1-pro") && !requestBody.input.lora_weights) {
+  throw new Error("BLOCKED: would call base FLUX without lora_weights.");
+}
+
+console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input), "version:", requestBody.version);
+
+3) IMPORTANT: Do NOT use .tar as lora_weights. It must be a direct .safetensors URL if/when we use base FLUX.
+
+PATCH C — server/unified-generation-service.ts
+- Replace implementation with a passthrough:
+
+import { ModelTrainingService } from "./model-training-service";
+export async function generateImages({ userId, prompt, count = 4 }) {
+  return ModelTrainingService.generateUserImages(userId, prompt, count);
+}
+
+PATCH D — Remove/expand any ALLOWLIST that strips keys
+- Search project for pick/allow keys used for Replicate "input".
+- Ensure at minimum:
+  prompt, seed, aspect_ratio, output_format, output_quality, go_fast, megapixels,
+  lora_weights, lora_scale, guidance_scale, num_inference_steps, negative_prompt
+
+POST-DEPLOY VERIFICATION:
+1) Trigger Maya generation once.
+2) Open the latest prediction → Input → JSON.
+   - If using packaged model path, the top shows "Model: sandrasocial/....:version".
+   - If using base FLUX, JSON MUST include lora_weights (and guidance_scale, etc.).
+3) If you ever see "black-forest-labs/flux-1.1-pro" AND there’s no lora_weights, that request should have been BLOCKED. Check server log line "🚚 Replicate payload keys".

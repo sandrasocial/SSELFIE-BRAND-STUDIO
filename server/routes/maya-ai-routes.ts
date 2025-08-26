@@ -270,24 +270,32 @@ Remember: You're helping women see their future selves - the confident, successf
     try {
       const userId = (req.user as any)?.claims?.sub;
       if (!userId) return res.status(401).json({ error: "Authentication required" });
+      
+      // Strict model check before calling service
+      const userModel = await storage.getUserModelByUserId(userId);
+      if (!userModel) return res.status(422).json({ error: "No model for this user." });
+
+      console.log("🔎 Maya route model:", {
+        modelId: userModel.replicateModelId,
+        versionId: userModel.replicateVersionId,
+        hasWeights: !!userModel.loraWeightsUrl
+      });
+
       const { prompt, chatId, preset, seed, count } = req.body || {};
       if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
         return res.status(400).json({ error: "Prompt required" });
       }
+      
       const safeCount = Math.min(Math.max(parseInt(count ?? 2, 10) || 2, 1), 6);
-      const result = await ModelTrainingService.generateUserImages(
+      
+      // Single call, no other code paths:
+      const out = await ModelTrainingService.generateUserImages(
         userId,
         prompt.trim(),
         safeCount,
         { preset, seed }
       );
-      // Optionally: you can attach to chatId here later (saving previews), but we keep blast radius tiny.
-      return res.json({
-        success: true,
-        predictionId: result.predictionId,
-        images: result.images,
-        chatId: chatId ?? null
-      });
+      return res.json({ predictionId: out.predictionId });
     } catch (error: any) {
       console.error("Maya generate images error:", error);
       return res.status(400).json({ error: error?.message || "Failed to start generation" });
