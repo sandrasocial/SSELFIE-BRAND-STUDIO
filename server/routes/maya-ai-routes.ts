@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { isAuthenticated } from "../replitAuth";
 import { storage } from "../storage";
 import { PersonalityManager } from "../agents/personalities/personality-config";
+import { ModelTrainingService } from "../model-training-service";
 
 export function registerMayaAIRoutes(app: Express) {
   // MEMBER MAYA CHAT - AI-Powered Future Self Stylist for customers
@@ -261,6 +262,35 @@ Remember: You're helping women see their future selves - the confident, successf
     } catch (error) {
       console.error("Member Maya transformation chat error:", error);
       res.status(500).json({ error: "Failed to process Maya's transformation chat request" });
+    }
+  });
+
+  // Start a Maya image generation job (threads preset + seed to the service)
+  app.post("/api/maya-generate-images", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
+      const { prompt, chatId, preset, seed, count } = req.body || {};
+      if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
+        return res.status(400).json({ error: "Prompt required" });
+      }
+      const safeCount = Math.min(Math.max(parseInt(count ?? 2, 10) || 2, 1), 6);
+      const result = await ModelTrainingService.generateUserImages(
+        userId,
+        prompt.trim(),
+        safeCount,
+        { preset, seed }
+      );
+      // Optionally: you can attach to chatId here later (saving previews), but we keep blast radius tiny.
+      return res.json({
+        success: true,
+        predictionId: result.predictionId,
+        images: result.images,
+        chatId: chatId ?? null
+      });
+    } catch (error: any) {
+      console.error("Maya generate images error:", error);
+      return res.status(400).json({ error: error?.message || "Failed to start generation" });
     }
   });
 

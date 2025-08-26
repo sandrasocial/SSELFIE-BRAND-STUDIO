@@ -1,0 +1,75 @@
+Replit Agent Prompt — Step 4 (Routes)
+ROLE: Careful implementer.
+SCOPE (allowlist): server/routes/maya-ai-routes.ts
+RULES:
+- Plan → Patch (unified diff) → wait for “APPROVED: APPLY PATCH” → Apply → run build
+- Do NOT touch any other files. No repo-wide formatting.
+TASK:
+- Import ModelTrainingService.
+- Add POST /api/maya-generate-images route.
+- Read { prompt, chatId?, preset?, seed?, count? } from body.
+- Validate prompt; clamp count to 1..6 (default 2).
+- Call ModelTrainingService.generateUserImages(userId, prompt, count, { preset, seed }).
+- Return { success, predictionId, images }.
+- No changes to existing endpoints.
+OUTPUT ORDER: PLAN → PATCH
+
+PATCH (unified diff)
+*** a/server/routes/maya-ai-routes.ts
+--- b/server/routes/maya-ai-routes.ts
+@@
+ import type { Express } from "express";
+ import { isAuthenticated } from "../replitAuth";
+ import { storage } from "../storage";
+ import { PersonalityManager } from "../agents/personalities/personality-config";
++import { ModelTrainingService } from "../model-training-service";
+@@
+ export function registerMayaAIRoutes(app: Express) {
+@@
+   });
+ 
++  // Start a Maya image generation job (threads preset + seed to the service)
++  app.post("/api/maya-generate-images", isAuthenticated, async (req, res) => {
++    try {
++      const userId = (req.user as any)?.claims?.sub;
++      if (!userId) return res.status(401).json({ error: "Authentication required" });
++      const { prompt, chatId, preset, seed, count } = req.body || {};
++      if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
++        return res.status(400).json({ error: "Prompt required" });
++      }
++      const safeCount = Math.min(Math.max(parseInt(count ?? 2, 10) || 2, 1), 6);
++      const result = await ModelTrainingService.generateUserImages(
++        userId,
++        prompt.trim(),
++        safeCount,
++        { preset, seed }
++      );
++      // Optionally: you can attach to chatId here later (saving previews), but we keep blast radius tiny.
++      return res.json({
++        success: true,
++        predictionId: result.predictionId,
++        images: result.images,
++        chatId: chatId ?? null
++      });
++    } catch (error: any) {
++      console.error("Maya generate images error:", error);
++      return res.status(400).json({ error: error?.message || "Failed to start generation" });
++    }
++  });
++
+   // Maya AI Photography endpoint for website building context (BUILD feature)
+   app.post("/api/maya-ai-photo", isAuthenticated, async (req, res) => {
+
+Quick test checklist
+
+Build: npm run typecheck && npm run lint && npm run build
+
+Call (postman/curl):
+
+curl -X POST http://localhost:3000/api/maya-generate-images \
+ -H "Content-Type: application/json" \
+ --cookie "yourAuthCookieHere" \
+ -d '{"prompt":"user12345 raw photo ...","preset":"Editorial","seed":12345,"count":2}'
+
+
+Expect JSON with { success: true, predictionId, images: [...] } (route blocks until service returns, which is fine for v1).
