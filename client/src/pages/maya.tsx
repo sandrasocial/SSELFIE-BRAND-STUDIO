@@ -184,21 +184,19 @@ export default function Maya() {
 
     const pickedMoods = moods.slice(0, 2);
 
-    // Structured brief that Maya MUST honor
-    const structuredBrief =
-      `[MAYA_COMPOSE_BRIEF]
-framing: ${framing}
-category: ${category}
-moods: ${pickedMoods.join(', ') || 'none'}
-constraints: always include "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
-return_format: First a short pep-talk in Sandra's voice. Then on a new line: PROMPT: <exact prompt ready for the generator>.
-[/MAYA_COMPOSE_BRIEF]`;
+    // Convert to intent format for Maya's compose endpoint
+    const intent = {
+      framing: framing === 'close-up' ? 'close' : framing === 'half-body' ? 'half' : 'full',
+      style: category?.toLowerCase().replace(/\s+/g, '_') as Style,
+      vibe: pickedMoods.length > 0 ? pickedMoods[0].toLowerCase().replace(/\s+/g, '_') as Vibe : 'quiet_luxury'
+    };
+
+    console.log('🎨 Composing with Maya using intent:', intent);
 
     setIsTyping(true);
     try {
-      const response = await apiRequest('/api/maya-chat', 'POST', {
-        message: structuredBrief,
-        chatId: currentChatId,
+      const response = await apiRequest('/api/maya/compose', 'POST', {
+        intent,
         chatHistory: messages.map(({ role, content }) => ({ role, content }))
       });
 
@@ -206,8 +204,9 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
         role: 'maya',
         content: response.message,
         timestamp: new Date().toISOString(),
-        canGenerate: response.canGenerate,
-        generatedPrompt: response.generatedPrompt
+        canGenerate: response.variants && response.variants.length > 0,
+        variants: response.variants,
+        nextVariantIndex: 0
       };
 
       setMessages(prev => [...prev, mayaMessage]);
@@ -225,25 +224,43 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
     }
   };
 
-  // New Look function - same brief, new seed
-  const newLook = async (basePrompt: string) => {
+  // New Look function - uses next variant from the same compose response
+  const newLook = async (message: ChatMessage) => {
+    if (!message.variants || message.variants.length === 0) {
+      toast({
+        title: 'No variants available',
+        description: 'Please compose with Maya first to generate variations.'
+      });
+      return;
+    }
+
+    // Use next variant, cycling through available ones
+    const currentIndex = message.nextVariantIndex || 0;
+    const promptToUse = message.variants[currentIndex];
+    const nextIndex = (currentIndex + 1) % message.variants.length;
+
+    // Update the message with next variant index
+    setMessages(prev => prev.map(msg => 
+      msg === message ? { ...msg, nextVariantIndex: nextIndex } : msg
+    ));
+
     setSeed(String(Math.floor(Math.random() * 1_000_000_000)));
     setIsGenerating(true);
     setGenerationProgress(0);
-
+    
     try {
       const response = await apiRequest('/api/maya-generate-images', 'POST', {
-        prompt: basePrompt,
+        prompt: promptToUse,
         chatId: currentChatId,
       });
 
       if (!response.predictionId) throw new Error('Failed to start generation');
 
       await pollPrediction(response.predictionId, async (result) => {
-        // Find the message with this prompt and update its images
+        // Update this specific message with the new images
         setMessages((prev) => {
           const copy = [...prev];
-          const target = copy.find(msg => msg.generatedPrompt === basePrompt);
+          const target = copy.find(msg => msg === message);
           if (!target) return copy;
 
           target.imagePreview = result.imageUrls || [];
@@ -252,6 +269,11 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
 
         setIsGenerating(false);
         setGenerationProgress(100);
+        
+        toast({
+          title: 'New Look Complete',
+          description: `Variation ${currentIndex + 1} of ${message.variants.length} is ready!`
+        });
       });
     } catch (error) {
       console.error('Generation error:', error);
@@ -849,33 +871,31 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
                         )}
 
                         {/* New Look button */}
-                        {message.imagePreview && message.generatedPrompt && (
+                        {message.imagePreview && message.variants && message.variants.length > 0 && (
                           <div style={{ marginTop: 12 }}>
                             <button
-                              onClick={() => newLook(message.generatedPrompt!)}
+                              onClick={() => newLook(message)}
                               className="send-btn"
                               disabled={isGenerating}
                               style={{ padding: '10px 18px' }}
                             >
-                              {isGenerating ? 'Working…' : 'New Look'}
+                              {isGenerating ? 'Working…' : `New Look (${((message.nextVariantIndex || 0) % message.variants.length) + 1}/${message.variants.length})`}
                             </button>
                           </div>
                         )}
 
                         {/* Actions */}
-                        {isMaya && message.canGenerate && message.variants && (
+                        {isMaya && message.canGenerate && message.variants && message.variants.length > 0 && (
                           <div className="look-actions">
                             <button
                               className="look-btn"
-                              onClick={() => generateFromMessage(index)}
+                              onClick={() => generateImage(message.variants![0])}
                               disabled={isGenerating}
                             >
                               {isGenerating
                                 ? `Creating... ${generationProgress}%`
-                                : 'Create with Maya'}
+                                : 'Create Photos'}
                             </button>
-
-                            {/* Removed old New Look button - using new implementation above */}
                           </div>
                         )}
                       </div>
