@@ -1609,69 +1609,7 @@ Each variant should be professional photography prompts focusing on lighting, po
     }
   });
 
-  // Maya Chat alias - Ensure /api/maya-chat works  
-  app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user?.claims?.sub;
-      const { message, chatId, chatHistory } = req.body;
-      
-      console.log('🎬 Maya Chat (alias): Processing message for user:', userId);
-      
-      // Load Maya personality and create response
-      const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality');
-      const mayaPersonality = JSON.stringify(MAYA_PERSONALITY);
-      
-      const anthropic = await import('@anthropic-ai/sdk');
-      const client = new anthropic.default({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-      });
-
-      const context = chatHistory ? 
-        chatHistory.slice(-4).map((m: any) => `${m.role}: ${m.content}`).join('\n') : 
-        'Starting conversation.';
-
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
-        system: mayaPersonality,
-        messages: [
-          { 
-            role: 'user', 
-            content: `${context}\n\nUser: ${message}` 
-          }
-        ],
-      });
-
-      const mayaResponse = response.content[0].type === 'text' ? response.content[0].text : 'Hi there! How can I help you create stunning photos today?';
-      
-      // Create or use existing chat
-      let finalChatId = chatId;
-      if (!finalChatId && userId) {
-        try {
-          const newChat = await storage.createMayaChat({
-            userId,
-            chatTitle: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-            chatSummary: 'Personal brand styling session'
-          });
-          finalChatId = newChat.id;
-        } catch (error) {
-          console.error('Error creating chat:', error);
-        }
-      }
-
-      res.json({
-        message: mayaResponse,
-        chatId: finalChatId
-      });
-      
-    } catch (error) {
-      console.error('❌ Maya Chat alias error:', error);
-      res.status(500).json({ 
-        message: "Failed to process chat message", 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
+  // REMOVED DUPLICATE: Maya Chat alias that was conflicting with the main endpoint above
 
   // Maya Image Generation endpoint - Restored working version
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {

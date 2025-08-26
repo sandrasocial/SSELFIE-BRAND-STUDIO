@@ -17,6 +17,7 @@ interface ChatMessage {
   canGenerate?: boolean;        // shows the “Create with Maya” button
   variants?: string[];          // up to 3 generation prompts returned from /api/maya/compose
   nextVariantIndex?: number;    // which variant to use next when user clicks again
+  generatedPrompt?: string;     // the prompt Maya generated for "New Look" functionality
 }
 
 interface MayaChat {
@@ -195,7 +196,7 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
 
     setIsTyping(true);
     try {
-      const response = await apiRequest('/api/member-maya-chat', 'POST', {
+      const response = await apiRequest('/api/maya-chat', 'POST', {
         message: structuredBrief,
         chatId: currentChatId,
         chatHistory: messages.map(({ role, content }) => ({ role, content }))
