@@ -4,7 +4,7 @@ import { storage } from "../storage";
 import { PersonalityManager } from "../agents/personalities/personality-config";
 
 export function registerMayaAIRoutes(app: Express) {
-  // MEMBER MAYA CHAT - AI-Powered Luxury Stylist for customers
+  // MEMBER MAYA CHAT - AI-Powered Future Self Stylist for customers
   app.post("/api/member-maya-chat", isAuthenticated, async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
@@ -46,7 +46,7 @@ export function registerMayaAIRoutes(app: Express) {
         console.log(`⚠️ Could not get user model for ${userId}:`, error);
       }
 
-      // Get Maya's luxury personality from PersonalityManager and enhance with user context
+      // Get Maya's future self personality from PersonalityManager and enhance with user context
       const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
 
       const enhancedMayaSystemPrompt = `${baseMayaPersonality}
@@ -64,13 +64,13 @@ CURRENT USER CONTEXT:
 - Style preferences: ${onboardingData?.stylePreferences || 'Not specified'}
 - Business type: ${onboardingData?.businessType || 'Not specified'}
 
-📸 MAYA'S LUXURY STYLING INTELLIGENCE:
-Apply all your advanced fashion knowledge - luxury fashion insider sophistication that's actually wearable:
-- Sculptural sophistication meets accessibility 
-- Current 2025 trends (quiet luxury, dark femininity, power luxury)
-- Editorial beauty that's not intimidating
-- Luxury lifestyle locations that don't cost money
-- Technical knowledge for stunning results
+📸 MAYA'S TRANSFORMATION STYLING INTELLIGENCE:
+Apply all your fashion expertise - sophisticated styling that helps women see their future selves:
+- Elevated aesthetics that feel achievable and inspiring
+- Current 2025 trends that actually work for real women building brands
+- Beauty that enhances natural features without being intimidating
+- Amazing locations that help women envision their elevated life
+- Technical knowledge for stunning results that build confidence
 
 🎨 PROMPT GENERATION MASTERY:
 When users want photos, respond with your warm Maya enthusiasm, then provide a technical \`\`\`prompt\`\`\` block.
@@ -78,33 +78,33 @@ When users want photos, respond with your warm Maya enthusiasm, then provide a t
 PROMPT STRUCTURE REQUIREMENTS:
 1. Foundation: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
 2. Subject: "${userTriggerWord}, woman" (always specify woman for women-focused service)
-3. Styling: Apply your luxury fashion intelligence - specific outfit details with elevated accessible pieces
-4. Beauty: Specific hair and makeup that's polished but achievable 
-5. Location: Luxury-looking but accessible spaces with good lighting
+3. Styling: Apply your transformation styling intelligence - specific outfit details with elevated pieces
+4. Beauty: Specific hair and makeup that's polished but achievable and authentic
+5. Location: Beautiful, aspirational spaces that help women see their future selves
 6. Technical: Professional camera specs and lighting setup
 7. Composition: Natural poses and expressions that build personal brand authority
 
 SHOT TYPE VARIETY:
 - Close-up portrait: For authority and personal brand building
-- Half-body shot: To showcase luxury styling
-- Full scenery: For lifestyle storytelling and brand narrative
+- Half-body shot: To showcase elevated styling transformation
+- Full scenery: For lifestyle storytelling and future self visualization
 
-Apply your complete fashion intelligence: luxury color palettes, high-end styling accessibility, current trends, professional beauty standards, and Sandra's authentic confidence philosophy.
+Apply your complete fashion intelligence: sophisticated color palettes, elevated styling accessibility, current trends, professional beauty standards, and Sandra's authentic empowerment philosophy.
 
 🔥 CRITICAL GENERATION RULES:
 ${canGenerateImages ? 
 `✅ USER CAN GENERATE - Include \`\`\`prompt\`\`\` blocks with:
 - User's trigger word: ${userTriggerWord}
-- Your luxury styling expertise
+- Your transformation styling expertise
 - Current 2025 fashion intelligence
-- Achievable luxury aesthetic
+- Achievable elevated aesthetic that inspires confidence
 - Professional technical specifications` : 
 `⚠️ USER NEEDS TRAINING FIRST
 - Be encouraging about their training journey
 - DO NOT include \`\`\`prompt\`\`\` blocks until they have a trained model
 - Focus on style advice and inspiration while they wait`}
 
-Remember: You're not just giving fashion advice - you're helping users capture their transformation and build the visual story of their success, just like Sandra did.`;
+Remember: You're helping women see their future selves - the confident, successful version they're becoming. Every photo should make them think "This is who I'm meant to be."`;
 
       // Call Claude API for Maya's intelligent response
       let response = '';
@@ -152,7 +152,7 @@ Remember: You're not just giving fashion advice - you're helping users capture t
           hasPromptBlock: response.includes('```prompt')
         });
 
-        // Check if Maya wants to generate images and extract her luxury prompt
+        // Check if Maya wants to generate images and extract her transformation prompt
         if (response.toLowerCase().includes('generate') || 
             response.toLowerCase().includes('create') ||
             response.toLowerCase().includes('photoshoot') ||
@@ -160,61 +160,61 @@ Remember: You're not just giving fashion advice - you're helping users capture t
             response.includes('```prompt')) {
           canGenerate = true;
 
-          // Extract Maya's luxury generation prompt
+          // Extract Maya's transformation generation prompt
           const promptRegex = /```prompt\s*([\s\S]*?)\s*```/g;
           const match = promptRegex.exec(response);
 
           if (match) {
             generatedPrompt = match[1].trim();
-            console.log(`✅ MEMBER MAYA PROVIDED LUXURY PROMPT:`, generatedPrompt.substring(0, 100));
+            console.log(`✅ MEMBER MAYA PROVIDED TRANSFORMATION PROMPT:`, generatedPrompt.substring(0, 100));
 
             // Remove prompt block from conversation response
             response = response.replace(/```prompt\s*([\s\S]*?)\s*```/g, '').trim();
             response = response.replace(/\n\s*\n\s*\n/g, '\n\n').trim();
           } else {
-            console.log('⚠️ MEMBER MAYA MISSING PROMPT: Maya should provide luxury prompt in ```prompt``` block');
+            console.log('⚠️ MEMBER MAYA MISSING PROMPT: Maya should provide transformation prompt in ```prompt``` block');
             canGenerate = false;
           }
         }
 
       } catch (error) {
         console.error('Member Maya Claude API error:', error);
-        response = "I'm having trouble connecting to my fashion expertise right now! Could you try again in a moment? I'm so excited to help you create incredible photos that will absolutely kill it!";
+        response = "I'm having trouble connecting to my styling expertise right now! Could you try again in a moment? I'm so excited to help you see your amazing future self!";
       }
 
-      // ENHANCED CHAT PERSISTENCE: Create/update chat session with luxury categorization
+      // ENHANCED CHAT PERSISTENCE: Create/update chat session with SSELFIE categorization
       let currentChatId = chatId;
       let chatTitle = "New Maya Session";
       let chatCategory = "general";
 
       try {
-        // Smart categorization based on Maya's luxury understanding
-        if (message.toLowerCase().includes('professional') || message.toLowerCase().includes('business') || response.toLowerCase().includes('blazer') || response.toLowerCase().includes('executive') || response.toLowerCase().includes('corporate')) {
-          chatCategory = "Professional & Business";
-          chatTitle = "Professional Power Looks";
-        } else if (message.toLowerCase().includes('casual') || message.toLowerCase().includes('everyday') || response.toLowerCase().includes('effortless') || response.toLowerCase().includes('relaxed')) {
-          chatCategory = "Elevated Casual";
-          chatTitle = "Luxury Everyday Style";
-        } else if (message.toLowerCase().includes('elegant') || message.toLowerCase().includes('luxury') || response.toLowerCase().includes('sophisticated') || response.toLowerCase().includes('editorial')) {
-          chatCategory = "Luxury & Sophistication";
-          chatTitle = "Editorial Fashion Moments";
-        } else if (message.toLowerCase().includes('date') || message.toLowerCase().includes('evening') || response.toLowerCase().includes('romantic') || response.toLowerCase().includes('dinner')) {
-          chatCategory = "Date & Evening";
-          chatTitle = "Date Night Sophistication";
-        } else if (message.toLowerCase().includes('editorial') || message.toLowerCase().includes('photoshoot') || response.toLowerCase().includes('editorial') || response.toLowerCase().includes('magazine')) {
-          chatCategory = "Editorial & Creative";
-          chatTitle = "Editorial Style Concepts";
-        } else if (canGenerate || response.includes('generate') || response.includes('create')) {
-          chatCategory = "AI Photo Generation";
-          chatTitle = "Luxury Photo Creation";
+        // Smart categorization based on Maya's SSELFIE categories and transformation focus
+        if (message.toLowerCase().includes('professional') || message.toLowerCase().includes('business') || message.toLowerCase().includes('ceo') || response.toLowerCase().includes('executive') || response.toLowerCase().includes('corporate')) {
+          chatCategory = "Future CEO";
+          chatTitle = "Future CEO Transformation";
+        } else if (message.toLowerCase().includes('casual') || message.toLowerCase().includes('everyday') || message.toLowerCase().includes('model') || response.toLowerCase().includes('effortless') || response.toLowerCase().includes('off-duty')) {
+          chatCategory = "Off-Duty Model";
+          chatTitle = "Effortless Model Vibes";
+        } else if (message.toLowerCase().includes('social') || message.toLowerCase().includes('instagram') || message.toLowerCase().includes('content') || response.toLowerCase().includes('social media') || response.toLowerCase().includes('influencer')) {
+          chatCategory = "Social Queen";
+          chatTitle = "Social Media Queen";
+        } else if (message.toLowerCase().includes('date') || message.toLowerCase().includes('evening') || message.toLowerCase().includes('romantic') || response.toLowerCase().includes('goddess') || response.toLowerCase().includes('dinner')) {
+          chatCategory = "Date Night Goddess";
+          chatTitle = "Date Night Goddess";
+        } else if (message.toLowerCase().includes('daily') || message.toLowerCase().includes('routine') || message.toLowerCase().includes('everyday') || response.toLowerCase().includes('icon') || response.toLowerCase().includes('polished')) {
+          chatCategory = "Everyday Icon";
+          chatTitle = "Everyday Icon Style";
+        } else if (message.toLowerCase().includes('power') || message.toLowerCase().includes('authority') || message.toLowerCase().includes('influence') || response.toLowerCase().includes('player') || canGenerate) {
+          chatCategory = "Power Player";
+          chatTitle = "Power Player Energy";
         } else {
-          chatCategory = "Style Intelligence";
-          chatTitle = "Maya's Fashion Expertise";
+          chatCategory = "Future Self Vision";
+          chatTitle = "Future Self Styling";
         }
 
         // Create new chat if none exists
         if (!currentChatId) {
-          console.log(`💬 MAYA: Creating new luxury chat session for user ${userId} - Category: ${chatCategory}`);
+          console.log(`💬 MAYA: Creating new transformation chat session for user ${userId} - Category: ${chatCategory}`);
 
           const newChat = await storage.createMayaChat({
             userId,
@@ -223,7 +223,7 @@ Remember: You're not just giving fashion advice - you're helping users capture t
           });
 
           currentChatId = newChat.id;
-          console.log(`✅ MAYA LUXURY CHAT CREATED: ID ${currentChatId} - "${chatTitle}"`);
+          console.log(`✅ MAYA TRANSFORMATION CHAT CREATED: ID ${currentChatId} - "${chatTitle}"`);
         }
 
         // Save user message to database
@@ -233,7 +233,7 @@ Remember: You're not just giving fashion advice - you're helping users capture t
           content: message
         });
 
-        // Save Maya's luxury response to database
+        // Save Maya's transformation response to database
         await storage.saveMayaChatMessage({
           chatId: currentChatId,
           role: 'maya',
@@ -241,10 +241,10 @@ Remember: You're not just giving fashion advice - you're helping users capture t
           generatedPrompt: canGenerate ? generatedPrompt : undefined
         });
 
-        console.log(`💾 MAYA LUXURY MESSAGES SAVED: Chat ${currentChatId} updated with advanced fashion intelligence`);
+        console.log(`💾 MAYA TRANSFORMATION MESSAGES SAVED: Chat ${currentChatId} updated with future self styling intelligence`);
 
       } catch (error) {
-        console.error('❌ MAYA LUXURY CHAT PERSISTENCE ERROR:', error);
+        console.error('❌ MAYA TRANSFORMATION CHAT PERSISTENCE ERROR:', error);
         // Continue without failing - chat will work but won't be saved
       }
 
@@ -259,8 +259,8 @@ Remember: You're not just giving fashion advice - you're helping users capture t
       });
 
     } catch (error) {
-      console.error("Member Maya luxury chat error:", error);
-      res.status(500).json({ error: "Failed to process Maya's luxury chat request" });
+      console.error("Member Maya transformation chat error:", error);
+      res.status(500).json({ error: "Failed to process Maya's transformation chat request" });
     }
   });
 
@@ -278,43 +278,43 @@ Remember: You're not just giving fashion advice - you're helping users capture t
         return res.status(400).json({ error: "Message required" });
       }
 
-      // Maya's luxury AI Photography response for BUILD feature
-      let response = "Hey gorgeous! I'm Maya, your AI stylist bestie with serious luxury fashion intelligence. ";
+      // Maya's transformation AI Photography response for BUILD feature
+      let response = "Hey gorgeous! I'm Maya, your AI stylist bestie with serious transformation expertise. ";
 
       if (context === 'website-building') {
         if (message.toLowerCase().includes('headshot') || message.toLowerCase().includes('professional')) {
-          response += "Let's create some absolutely stunning professional headshots for your website! I'm thinking editorial-level shots that scream 'I'm successful and approachable' - the kind that make people want to work with you. Should we go for that luxury polish with clean backgrounds and perfect lighting?";
+          response += "Let's create some absolutely stunning professional headshots for your website! I'm thinking shots that show 'I'm successful and approachable' - the kind that make people want to work with you. Should we go for that polished confidence with clean backgrounds and perfect lighting?";
         } else if (message.toLowerCase().includes('lifestyle') || message.toLowerCase().includes('behind the scenes')) {
-          response += "YES! Lifestyle shots are pure magic for showing your personality. I can create behind-the-scenes moments that feel authentic but elevated - you know, that effortless luxury vibe where you look amazing without trying too hard. These will add so much warmth to your website!";
+          response += "YES! Lifestyle shots are pure magic for showing your personality. I can create behind-the-scenes moments that feel authentic but elevated - you know, that effortless confidence vibe where you look amazing without trying too hard. These will add so much warmth to your website!";
         } else if (message.toLowerCase().includes('product') || message.toLowerCase().includes('service')) {
-          response += "Perfect! Product photography with Maya's touch means we're talking luxury editorial-style shots that make everything look expensive and desirable. I'll create clean, high-end product images that elevate your brand and make people want to buy immediately.";
+          response += "Perfect! Product photography with Maya's touch means we're talking sophisticated shots that make everything look desirable and professional. I'll create clean, elevated product images that enhance your brand and make people want to buy immediately.";
         } else {
-          response += "I'm absolutely ready to create magazine-worthy photos for your website! I specialize in editorial headshots, elevated lifestyle moments, stunning product photography, or any brand imagery that shows your power. What kind of visual story do you want to tell?";
+          response += "I'm absolutely ready to create magazine-worthy photos for your website! I specialize in confident headshots, elevated lifestyle moments, stunning product photography, or any brand imagery that shows your power. What kind of visual story do you want to tell?";
         }
       } else {
-        response += "I'm here to create absolutely incredible AI-generated photos using all my fashion expertise! From luxury power looks to editorial sophistication - what kind of stunning images should we create today?";
+        response += "I'm here to create absolutely incredible AI-generated photos using all my styling expertise! From powerful confidence looks to elevated sophistication - what kind of stunning transformation should we create today?";
       }
 
       res.json({
         success: true,
         response,
         photoSuggestions: context === 'website-building' ? [
-          'Editorial professional headshots',
-          'Elevated lifestyle & behind-the-scenes',
-          'Luxury product & service photography',
-          'High-end brand storytelling shots'
+          'Confident professional headshots',
+          'Elevated lifestyle & behind-the-scenes', 
+          'Sophisticated product & service photography',
+          'Empowering brand storytelling shots'
         ] : [
-          'Luxury power looks',
-          'Editorial sophistication',
-          'Elevated everyday styling',
-          'Professional authority shots'
+          'Future CEO power looks',
+          'Off-duty model sophistication', 
+          'Social Queen content ready',
+          'Everyday Icon elevated styling'
         ],
-        conversationId: `maya_luxury_${userId}`
+        conversationId: `maya_transformation_${userId}`
       });
 
     } catch (error) {
-      console.error("Maya luxury AI photo error:", error);
-      res.status(500).json({ error: "Failed to process Maya's luxury AI request" });
+      console.error("Maya transformation AI photo error:", error);
+      res.status(500).json({ error: "Failed to process Maya's transformation AI request" });
     }
   });
 }
