@@ -64,12 +64,10 @@ export default function Maya() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Soft-intent (chips) local selection
-  const [intent, setIntent] = useState<Intent>({
-    framing: 'close',
-    style: 'future_ceo',
-    vibe: 'quiet_luxury',
-  });
+  // Studio Controls state
+  const [scene, setScene] = useState<'close-up'|'half-body'|'full-scene'|null>(null);
+  const [category, setCategory] = useState<string|null>(null);
+  const [moods, setMoods] = useState<string[]>([]); // cap at 2
 
   // ===== Auth & initial =====
   useEffect(() => {
@@ -141,6 +139,44 @@ export default function Maya() {
     window.history.replaceState({}, '', '/maya');
   }
 
+  // Reset studio controls
+  const resetControls = () => {
+    setScene(null);
+    setCategory(null);
+    setMoods([]);
+  };
+
+  // Handle mood selection with max 2 limit
+  const toggleMood = (mood: string) => {
+    if (moods.includes(mood)) {
+      setMoods(moods.filter(m => m !== mood));
+    } else {
+      if (moods.length >= 2) {
+        // Drop the oldest if adding a 3rd
+        setMoods([moods[1], mood]);
+      } else {
+        setMoods([...moods, mood]);
+      }
+    }
+  };
+
+  // Compose action using studio controls
+  async function composeWithMaya() {
+    if (isTyping || !scene) return;
+
+    const brief = [
+      scene ? scene.replace('-', ' ') : '',
+      category || '',
+      moods.length ? moods.join(', ') : ''
+    ].filter(Boolean).join(' • ');
+
+    // Build natural message for Maya
+    const naturalMessage = `Maya, create a ${scene ?? ''} ${category ?? ''} look with ${moods.join(' and ') || 'your signature touch'}. Style outfit, light, camera and background to feel elevated and editorial.`;
+    
+    setInput(naturalMessage);
+    await sendMessage();
+  }
+
   // ===== Basic user text → Maya chat (kept minimal) =====
   async function sendMessage() {
     if (!input.trim() || isTyping) return;
@@ -185,15 +221,14 @@ export default function Maya() {
 
   // ===== Compose flow (luxury soft-intent → Maya crafts variants) =====
   async function composeWithMaya(chosen?: Partial<Intent>) {
-    const finalIntent: Intent = { ...intent, ...(chosen || {}) };
-    setIntent(finalIntent);
+    // Function removed - using new studio controls instead
 
     // Show “typing” while composing
     setIsTyping(true);
 
     try {
       const response = await apiRequest('/api/maya/compose', 'POST', {
-        intent: finalIntent,
+        intent: { framing: 'close', style: 'future_ceo', vibe: 'quiet_luxury' },
         chatHistory: messages.slice(-6).map((m) => ({ role: m.role, content: m.content })),
       });
 
@@ -438,6 +473,35 @@ export default function Maya() {
         .look-btn.secondary { background:#777; }
         .look-btn:disabled { background:#bbb; cursor:not-allowed; }
 
+        /* Studio Controls */
+        .studio-controls { margin-top:20px; }
+        .scene-cards { display:flex; gap:16px; margin-bottom:20px; }
+        .scene-card { flex:1; min-width:120px; cursor:pointer; transition:all .3s ease; border:1px solid var(--accent-line); padding:12px; background:var(--white); }
+        .scene-card:hover { border-color:var(--black); transform:scale(1.02); }
+        .scene-card.selected { border-color:var(--black); background:var(--editorial-gray); }
+        .scene-image { margin-bottom:8px; }
+        .scene-label { font-size:11px; letter-spacing:.3em; text-transform:uppercase; text-align:center; color:var(--soft-gray); }
+        .scene-card.selected .scene-label { color:var(--black); }
+
+        .controls-reveal { margin-top:24px; animation:fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        
+        .category-section, .mood-section { margin-bottom:20px; }
+        .section-label { font-size:11px; font-weight:400; letter-spacing:.3em; text-transform:uppercase; color:var(--soft-gray); margin-bottom:12px; }
+        .chip-row { display:flex; gap:8px; flex-wrap:wrap; }
+        .chip { padding:8px 12px; font-size:11px; letter-spacing:.2em; text-transform:uppercase; border:1px solid var(--accent-line); background:var(--white); cursor:pointer; transition:all .25s ease; }
+        .chip:hover { border-color:var(--black); }
+        .chip.selected { background:var(--black); color:var(--white); border-color:var(--black); }
+
+        .controls-actions { display:flex; align-items:center; justify-content:space-between; margin-top:20px; padding-top:20px; border-top:1px solid var(--accent-line); }
+        .selection-summary { font-size:12px; color:var(--soft-gray); flex:1; }
+        .action-buttons { display:flex; gap:12px; align-items:center; }
+        .compose-btn { padding:10px 20px; font-size:11px; letter-spacing:.3em; text-transform:uppercase; background:var(--black); color:var(--white); border:none; cursor:pointer; transition:all .25s; }
+        .compose-btn:disabled { background:#ccc; cursor:not-allowed; }
+        .compose-btn:hover:not(:disabled) { background:var(--soft-gray); }
+        .reset-link { font-size:11px; color:var(--soft-gray); text-decoration:underline; cursor:pointer; transition:color .25s; }
+        .reset-link:hover { color:var(--black); }
+
         .image-grid { margin-top:16px; display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
         .image-item { position:relative; cursor:pointer; }
         .image-item img { width:100%; height:192px; object-fit:cover; transition:transform .2s ease; }
@@ -518,67 +582,89 @@ export default function Maya() {
             <h1 className="chat-title">Maya Studio</h1>
             <p className="chat-subtitle">Create photos that build your brand</p>
 
-            {/* Intent chips */}
-            <div className="intent-bar" aria-label="Quick Intent">
-              {/* Framing */}
-              {(['close', 'half', 'full'] as Framing[]).map((f) => (
-                <button
-                  key={f}
-                  className={`chip ${intent.framing === f ? 'active' : ''}`}
-                  onClick={() => setIntent({ ...intent, framing: f })}
-                  title={`Framing: ${f}`}
-                >
-                  {f === 'close' ? 'Close-Up' : f === 'half' ? 'Half Body' : 'Full Scene'}
-                </button>
-              ))}
-              {/* Style */}
-              {(
-                [
-                  ['future_ceo', 'Future CEO'],
-                  ['off_duty', 'Off-Duty Model'],
-                  ['social_queen', 'Social Queen'],
-                  ['date_night', 'Date Night'],
-                  ['everyday_icon', 'Everyday Icon'],
-                  ['power_player', 'Power Player'],
-                ] as [Style, string][]
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  className={`chip ${intent.style === key ? 'active' : ''}`}
-                  onClick={() => setIntent({ ...intent, style: key })}
-                  title={`Style: ${label}`}
-                >
-                  {label}
-                </button>
-              ))}
-              {/* Vibe */}
-              {(
-                [
-                  ['quiet_luxury', 'Quiet Luxury'],
-                  ['cinematic', 'Cinematic'],
-                  ['natural_light', 'Natural Light'],
-                  ['studio_clean', 'Studio Clean'],
-                ] as [Vibe, string][]
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  className={`chip ${intent.vibe === key ? 'active' : ''}`}
-                  onClick={() => setIntent({ ...intent, vibe: key })}
-                  title={`Vibe: ${label}`}
-                >
-                  {label}
-                </button>
-              ))}
+            {/* Studio Controls */}
+            <div className="studio-controls">
+              {/* Scene Cards */}
+              <div className="scene-cards">
+                {(['close-up', 'half-body', 'full-scene'] as const).map((sceneType) => (
+                  <div
+                    key={sceneType}
+                    className={`scene-card ${scene === sceneType ? 'selected' : ''}`}
+                    onClick={() => setScene(sceneType)}
+                  >
+                    <div className="scene-image">
+                      {/* Gray placeholder - replace with actual images later */}
+                      <div style={{ 
+                        width: '100%', 
+                        height: '80px', 
+                        background: '#f5f5f5', 
+                        border: '1px solid #e5e5e5',
+                        borderRadius: '4px'
+                      }} />
+                    </div>
+                    <div className="scene-label">
+                      {sceneType === 'close-up' ? 'Close-Up' : 
+                       sceneType === 'half-body' ? 'Half Body' : 'Full Scene'}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-              {/* Compose button */}
-              <button
-                className="chip"
-                onClick={() => composeWithMaya()}
-                title="Ask Maya to compose looks"
-                disabled={isTyping}
-              >
-                Compose Look
-              </button>
+              {/* Progressive Reveal: Category and Mood chips */}
+              {scene && (
+                <div className="controls-reveal">
+                  {/* Category chips */}
+                  <div className="category-section">
+                    <div className="section-label">Category</div>
+                    <div className="chip-row">
+                      {['Future CEO', 'Off-Duty Model', 'Social Queen', 'Date Night', 'Everyday Icon', 'Power Player'].map((cat) => (
+                        <button
+                          key={cat}
+                          className={`chip ${category === cat ? 'selected' : ''}`}
+                          onClick={() => setCategory(cat)}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Mood chips */}
+                  <div className="mood-section">
+                    <div className="section-label">Mood (max 2)</div>
+                    <div className="chip-row">
+                      {['Quiet Luxury', 'Cinematic', 'Natural Light', 'Studio Clean'].map((mood) => (
+                        <button
+                          key={mood}
+                          className={`chip ${moods.includes(mood) ? 'selected' : ''}`}
+                          onClick={() => toggleMood(mood)}
+                        >
+                          {mood}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Selection Summary and Actions */}
+                  <div className="controls-actions">
+                    <div className="selection-summary">
+                      {[
+                        scene ? scene.replace('-', ' ') : '',
+                        category || '',
+                        moods.length ? moods.join(', ') : ''
+                      ].filter(Boolean).join(' • ')}
+                    </div>
+                    <div className="action-buttons">
+                      <button className="compose-btn" onClick={composeWithMaya} disabled={!scene || isTyping}>
+                        Compose with Maya
+                      </button>
+                      <button className="reset-link" onClick={resetControls}>
+                        Reset
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -612,11 +698,11 @@ export default function Maya() {
                     <div
                       key={label}
                       className="style-option"
-                      onClick={() => composeWithMaya({ style })}
+                      onClick={() => setCategory(label)}
                       title={label}
                     >
                       <div className="style-preview">{label}</div>
-                      <div className="style-label">Compose with Maya</div>
+                      <div className="style-label">Choose Style</div>
                     </div>
                   ))}
                 </div>
@@ -661,8 +747,8 @@ export default function Maya() {
                         {/* If Maya has variants but no images yet, show subtle gray placeholders */}
                         {isMaya && message.variants && !message.imagePreview && (
                           <div className="image-grid" style={{ marginTop: 12 }}>
-                            <GrayTile ratio={intent.framing === 'full' ? '4 / 5' : '3 / 4'} />
-                            <GrayTile ratio={intent.framing === 'full' ? '4 / 5' : '3 / 4'} />
+                            <GrayTile ratio={scene === 'full-scene' ? '4 / 5' : '3 / 4'} />
+                            <GrayTile ratio={scene === 'full-scene' ? '4 / 5' : '3 / 4'} />
                           </div>
                         )}
 
