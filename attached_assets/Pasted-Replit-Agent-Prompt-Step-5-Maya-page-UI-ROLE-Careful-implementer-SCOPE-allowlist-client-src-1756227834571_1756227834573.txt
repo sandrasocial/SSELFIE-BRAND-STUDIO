@@ -1,0 +1,105 @@
+Replit Agent Prompt — Step 5 (Maya page UI)
+ROLE: Careful implementer.
+SCOPE (allowlist): client/src/pages/maya.tsx
+RULES:
+- Plan → Patch (unified diff) → wait for “APPROVED: APPLY PATCH” → Apply → run build
+- Do NOT touch any other files. No repo-wide formatting.
+TASK:
+- Add a preset selector (“Identity” | “Editorial” | “UltraPrompt” | “Fast”) and optional seed input to the chat header.
+- Thread `preset` and `seed` into POST /api/maya-generate-images.
+- Keep everything else identical.
+OUTPUT ORDER: PLAN → PATCH
+
+PATCH (unified diff)
+*** a/client/src/pages/maya.tsx
+--- b/client/src/pages/maya.tsx
+@@
+ import { MemberNavigation } from '../components/member-navigation';
+ 
+ interface ChatMessage {
+@@
+   updatedAt: string;
+ }
+ 
++type Preset = 'Identity' | 'Editorial' | 'UltraPrompt' | 'Fast';
++
+ export default function Maya() {
+   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+   const [, setLocation] = useLocation();
+   const { toast } = useToast();
+   const queryClient = useQueryClient();
+@@
+   const [isTyping, setIsTyping] = useState(false);
+   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
+ 
+   // UI state
+   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+   const [isGenerating, setIsGenerating] = useState(false);
+   const [generationProgress, setGenerationProgress] = useState(0);
+   const [savingImages, setSavingImages] = useState(new Set<string>());
+   const [savedImages, setSavedImages] = useState(new Set<string>());
+   const messagesEndRef = useRef<HTMLDivElement>(null);
++  // Generation controls
++  const [preset, setPreset] = useState<Preset>('Editorial');
++  const [seed, setSeed] = useState<string>(''); // empty = random
+ 
+@@
+-  const generateImages = async (prompt: string) => {
++  const generateImages = async (prompt: string) => {
+     if (isGenerating) return;
+ 
+     setIsGenerating(true);
+     setGenerationProgress(0);
+ 
+     try {
+-      const response = await apiRequest('/api/maya-generate-images', 'POST', {
+-        prompt,
+-        chatId: currentChatId
+-      });
++      const response = await apiRequest('/api/maya-generate-images', 'POST', {
++        prompt,
++        chatId: currentChatId,
++        preset,
++        seed: seed ? Number(seed) : undefined
++      });
+@@
+           <div className="chat-header">
+             <h1 className="chat-title">Maya Studio</h1>
+             <p className="chat-subtitle">Create photos that build your brand</p>
++            {/* Generation controls: preset + seed */}
++            <div style={{ marginTop: 16, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
++              <label style={{ fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666' }}>
++                Preset
++                <select
++                  value={preset}
++                  onChange={(e) => setPreset(e.target.value as Preset)}
++                  style={{ marginLeft: 8, padding: '8px 10px', border: '1px solid #e5e5e5', background: '#fff' }}
++                  disabled={isGenerating || isTyping}
++                >
++                  <option value="Identity">Identity</option>
++                  <option value="Editorial">Editorial</option>
++                  <option value="UltraPrompt">UltraPrompt</option>
++                  <option value="Fast">Fast</option>
++                </select>
++              </label>
++              <label style={{ fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666' }}>
++                Seed
++                <input
++                  type="number"
++                  placeholder="random"
++                  value={seed}
++                  onChange={(e) => setSeed(e.target.value)}
++                  style={{ marginLeft: 8, padding: '8px 10px', width: 140, border: '1px solid #e5e5e5', background: '#fff' }}
++                  disabled={isGenerating || isTyping}
++                />
++              </label>
++              <button
++                onClick={() => setSeed(String(Math.floor(Math.random() * 1_000_000_000)))}
++                disabled={isGenerating || isTyping}
++                style={{ padding: '8px 12px', border: '1px solid #e5e5e5', background: '#fff', cursor: 'pointer' }}
++                title="Randomize seed"
++              >
++                Randomize
++              </button>
++            </div>
+           </div>

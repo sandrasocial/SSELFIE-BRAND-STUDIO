@@ -29,6 +29,8 @@ interface MayaChat {
   updatedAt: string;
 }
 
+type Preset = 'Identity' | 'Editorial' | 'UltraPrompt' | 'Fast';
+
 export default function Maya() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
@@ -48,6 +50,9 @@ export default function Maya() {
   const [savingImages, setSavingImages] = useState(new Set<string>());
   const [savedImages, setSavedImages] = useState(new Set<string>());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Generation controls
+  const [preset, setPreset] = useState<Preset>('Editorial');
+  const [seed, setSeed] = useState<string>(''); // empty = random
 
   // Get current chat ID from URL
   useEffect(() => {
@@ -200,7 +205,9 @@ export default function Maya() {
     try {
       const response = await apiRequest('/api/maya-generate-images', 'POST', {
         prompt,
-        chatId: currentChatId
+        chatId: currentChatId,
+        preset,
+        seed: seed ? Number(seed) : undefined
       });
 
       if (response.predictionId) {
@@ -1009,6 +1016,42 @@ export default function Maya() {
           <div className="chat-header">
             <h1 className="chat-title">Maya Studio</h1>
             <p className="chat-subtitle">Create photos that build your brand</p>
+            {/* Generation controls: preset + seed */}
+            <div style={{ marginTop: 16, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <label style={{ fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666' }}>
+                Preset
+                <select
+                  value={preset}
+                  onChange={(e) => setPreset(e.target.value as Preset)}
+                  style={{ marginLeft: 8, padding: '8px 10px', border: '1px solid #e5e5e5', background: '#fff' }}
+                  disabled={isGenerating || isTyping}
+                >
+                  <option value="Identity">Identity</option>
+                  <option value="Editorial">Editorial</option>
+                  <option value="UltraPrompt">UltraPrompt</option>
+                  <option value="Fast">Fast</option>
+                </select>
+              </label>
+              <label style={{ fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666' }}>
+                Seed
+                <input
+                  type="number"
+                  placeholder="random"
+                  value={seed}
+                  onChange={(e) => setSeed(e.target.value)}
+                  style={{ marginLeft: 8, padding: '8px 10px', width: 140, border: '1px solid #e5e5e5', background: '#fff' }}
+                  disabled={isGenerating || isTyping}
+                />
+              </label>
+              <button
+                onClick={() => setSeed(String(Math.floor(Math.random() * 1_000_000_000)))}
+                disabled={isGenerating || isTyping}
+                style={{ padding: '8px 12px', border: '1px solid #e5e5e5', background: '#fff', cursor: 'pointer' }}
+                title="Randomize seed"
+              >
+                Randomize
+              </button>
+            </div>
           </div>
 
           {/* Messages Container */}
