@@ -648,7 +648,49 @@ export class ModelTrainingService {
       if (userModel.replicateModelId && userModel.replicateVersionId) {
         console.log(`🔧 EXTRACT WEIGHTS: Method 2 - Using modelId: ${userModel.replicateModelId}, versionId: ${userModel.replicateVersionId}`);
         
-        // First try: Get the actual model data (not the OpenAPI schema)
+        // First try: List model versions to get complete data
+        const versionsResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}/versions`, {
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (versionsResponse.ok) {
+          const versionsData = await versionsResponse.json();
+          console.log(`🔍 DETAILED VERSIONS DATA:`, JSON.stringify(versionsData, null, 2));
+          
+          // Look for our specific version in the results
+          if (versionsData.results) {
+            for (const version of versionsData.results) {
+              if (version.id === userModel.replicateVersionId) {
+                console.log(`🔍 FOUND MATCHING VERSION:`, JSON.stringify(version, null, 2));
+                
+                // Check various possible locations for weights
+                if (version.files?.weights) {
+                  console.log(`✅ WEIGHTS FOUND via versions list files.weights: ${version.files.weights}`);
+                  return version.files.weights;
+                }
+                if (version.weights) {
+                  console.log(`✅ WEIGHTS FOUND via versions list weights: ${version.weights}`);
+                  return version.weights;
+                }
+                if (version.files && Object.keys(version.files).length > 0) {
+                  console.log(`🔍 FILES AVAILABLE:`, Object.keys(version.files));
+                  // Try to find any .safetensors file
+                  for (const [key, value] of Object.entries(version.files)) {
+                    if (typeof value === 'string' && value.includes('.safetensors')) {
+                      console.log(`✅ WEIGHTS FOUND via safetensors file (${key}): ${value}`);
+                      return value;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // Second try: Get the model metadata 
         const modelResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}`, {
           headers: {
             'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
@@ -660,23 +702,13 @@ export class ModelTrainingService {
           const modelData = await modelResponse.json();
           console.log(`🔍 DETAILED MODEL DATA:`, JSON.stringify(modelData, null, 2));
           
-          // Check if model has versions and find our specific version
+          // Check if model has latest_version data
           if (modelData.latest_version && modelData.latest_version.id === userModel.replicateVersionId) {
             const versionData = modelData.latest_version;
             
             if (versionData.files?.weights) {
               console.log(`✅ WEIGHTS FOUND via model latest_version: ${versionData.files.weights}`);
               return versionData.files.weights;
-            }
-          }
-          
-          // Try to find the specific version in the versions array
-          if (modelData.versions) {
-            for (const version of modelData.versions) {
-              if (version.id === userModel.replicateVersionId && version.files?.weights) {
-                console.log(`✅ WEIGHTS FOUND via model versions array: ${version.files.weights}`);
-                return version.files.weights;
-              }
             }
           }
         }
@@ -711,9 +743,43 @@ export class ModelTrainingService {
         }
       }
 
-      // Method 3: Legacy fallback - try replicateModelId as training ID
+      // Method 3: Search trainings by model name to find associated training
+      console.log(`🔧 EXTRACT WEIGHTS: Method 3 - Searching trainings for model: ${userModel.replicateModelId}`);
+      
+      try {
+        const trainingsResponse = await fetch(`https://api.replicate.com/v1/trainings`, {
+          headers: {
+            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (trainingsResponse.ok) {
+          const trainingsData = await trainingsResponse.json();
+          console.log(`🔍 TRAININGS SEARCH - Found ${trainingsData.results?.length || 0} trainings`);
+          
+          if (trainingsData.results) {
+            for (const training of trainingsData.results) {
+              // Look for a training that matches our model
+              const modelName = userModel.replicateModelId.split('/')[1]; // Get just the model name part
+              if (training.output?.model && training.output.model.includes(modelName)) {
+                console.log(`🔍 FOUND MATCHING TRAINING:`, JSON.stringify(training, null, 2));
+                
+                if (training.output?.weights) {
+                  console.log(`✅ WEIGHTS FOUND via training search: ${training.output.weights}`);
+                  return training.output.weights;
+                }
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Training search failed:', error);
+      }
+
+      // Method 4: Legacy fallback - try replicateModelId as training ID
       if (userModel.replicateModelId) {
-        console.log(`🔧 EXTRACT WEIGHTS: Method 3 - Legacy fallback using replicateModelId as training ID: ${userModel.replicateModelId}`);
+        console.log(`🔧 EXTRACT WEIGHTS: Method 4 - Legacy fallback using replicateModelId as training ID: ${userModel.replicateModelId}`);
         
         const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
           headers: {
