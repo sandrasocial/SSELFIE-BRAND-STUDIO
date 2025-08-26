@@ -62,6 +62,7 @@ export default function Maya() {
   const [savingImages, setSavingImages] = useState(new Set<string>());
   const [savedImages, setSavedImages] = useState(new Set<string>());
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [seed, setSeed] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // === Studio Selections (NEW) ===
@@ -220,6 +221,42 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
       toast({ title: 'Maya is busy', description: String(err) });
     } finally {
       setIsTyping(false);
+    }
+  };
+
+  // New Look function - same brief, new seed
+  const newLook = async (basePrompt: string) => {
+    setSeed(String(Math.floor(Math.random() * 1_000_000_000)));
+    setIsGenerating(true);
+    setGenerationProgress(0);
+
+    try {
+      const response = await apiRequest('/api/maya-generate-images', 'POST', {
+        prompt: basePrompt,
+        chatId: currentChatId,
+      });
+
+      if (!response.predictionId) throw new Error('Failed to start generation');
+
+      await pollPrediction(response.predictionId, async (result) => {
+        // Find the message with this prompt and update its images
+        setMessages((prev) => {
+          const copy = [...prev];
+          const target = copy.find(msg => msg.generatedPrompt === basePrompt);
+          if (!target) return copy;
+
+          target.imagePreview = result.imageUrls || [];
+          return copy;
+        });
+
+        setIsGenerating(false);
+        setGenerationProgress(100);
+      });
+    } catch (error) {
+      console.error('Generation error:', error);
+      toast({ title: 'Generation Error', description: 'Failed to generate new look. Please try again.' });
+      setIsGenerating(false);
+      setGenerationProgress(0);
     }
   };
 
@@ -763,13 +800,7 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
                           ))}
                         </div>
 
-                        {/* If Maya has variants but no images yet, show subtle gray placeholders */}
-                        {isMaya && message.variants && !message.imagePreview && (
-                          <div className="image-grid" style={{ marginTop: 12 }}>
-                            <GrayTile ratio={framing === 'full-scene' ? '4 / 5' : '3 / 4'} />
-                            <GrayTile ratio={framing === 'full-scene' ? '4 / 5' : '3 / 4'} />
-                          </div>
-                        )}
+                        {/* Removed duplicate gray placeholders - keep only Studio preview */}
 
                         {/* Images */}
                         {message.imagePreview && message.imagePreview.length > 0 && (
@@ -816,6 +847,20 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
                           </div>
                         )}
 
+                        {/* New Look button */}
+                        {message.imagePreview && message.generatedPrompt && (
+                          <div style={{ marginTop: 12 }}>
+                            <button
+                              onClick={() => newLook(message.generatedPrompt!)}
+                              className="send-btn"
+                              disabled={isGenerating}
+                              style={{ padding: '10px 18px' }}
+                            >
+                              {isGenerating ? 'Working…' : 'New Look'}
+                            </button>
+                          </div>
+                        )}
+
                         {/* Actions */}
                         {isMaya && message.canGenerate && message.variants && (
                           <div className="look-actions">
@@ -829,15 +874,7 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
                                 : 'Create with Maya'}
                             </button>
 
-                            {/* Optionally let them ask Maya for totally new variants */}
-                            <button
-                              className="look-btn secondary"
-                              onClick={() => composeWithMaya()}
-                              disabled={isTyping || isGenerating}
-                              title="Ask Maya for a fresh direction"
-                            >
-                              New Look
-                            </button>
+                            {/* Removed old New Look button - using new implementation above */}
                           </div>
                         )}
                       </div>
