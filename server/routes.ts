@@ -1632,11 +1632,23 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Maya polling endpoint - Check generation status
-  app.get('/api/check-generation/:predictionId', isAuthenticated, async (req: any, res) => {
+  app.get('/api/check-generation/:predictionId', async (req: any, res) => {
     try {
       const { predictionId } = req.params;
       
-      console.log(`🔍 Maya polling: Checking prediction ${predictionId}`);
+      // Check authentication with debugging
+      const isAuth = req.isAuthenticated && req.isAuthenticated();
+      const user = req.user as any;
+      const userId = user?.claims?.sub;
+      
+      console.log(`🔍 Maya polling auth check: isAuth=${isAuth}, hasUser=${!!user}, userId=${userId}`);
+      
+      if (!isAuth || !user) {
+        console.log(`❌ Maya polling: Authentication failed for prediction ${predictionId}`);
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      console.log(`🔍 Maya polling: Checking prediction ${predictionId} for user ${userId}`);
       
       // Get prediction status from Replicate
       const replicateResponse = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
