@@ -1714,10 +1714,13 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const prediction = await replicateResponse.json();
       
       if (prediction.status === 'succeeded' && prediction.output) {
+        // Handle different output formats - could be array or single string
+        const outputUrls = Array.isArray(prediction.output) ? prediction.output : [prediction.output];
+        
         // Migrate URLs to permanent storage
         const { ImageStorageService } = await import('./image-storage-service');
         const permanentUrls = await Promise.all(
-          prediction.output.map((url: string) => ImageStorageService.ensurePermanentStorage(url))
+          outputUrls.map((url: string) => ImageStorageService.ensurePermanentStorage(url))
         );
         
         console.log(`✅ Maya polling: Generation complete with ${permanentUrls.length} images`);
