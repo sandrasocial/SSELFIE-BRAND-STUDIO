@@ -1,0 +1,76 @@
+SEARCH CHECKLIST (perform all):
+1) Find personality/config for Maya (look for “MAYA_PERSONALITY”, “Maya”, “stylist”, “prompt scaffold”).
+2) Find prompt builders (functions composing prompts; keywords: scaffold, composePrompt, buildPrompt, template).
+3) Find Replicate client usage (keywords: replicate, flux, lora_scale, guidance_scale, num_inference_steps, megapixels, aspect_ratio, seed, go_fast).
+4) Find presets/defaults (keywords: PRESET, DEFAULT, FLUX_PRESETS, UNIVERSAL_DEFAULT).
+5) Find API routes/handlers calling generation (e.g., /api/generate, serverless functions, routes/generate).
+6) Find TRAIN → STYLE → GALLERY glue (where generated images are saved/hearted; storage adapters, DB calls).
+7) Find type definitions/interfaces for generation payloads (TS types).
+8) Identify env vars involved (REPLICATE_API_TOKEN, model IDs, etc).
+
+DELIVERABLES (strictly follow this order):
+
+1) PLAN
+- Bulleted list of search steps you will run and why.
+- Confirm: “No file writes will be performed.”
+
+2) INVENTORY (table)
+For each relevant file:
+- path
+- purpose (1 sentence)
+- key exports (functions/types)
+- risk level if changed (low/medium/high)
+
+3) ARCHITECTURE MAP (markdown)
+- Data flow: USER → Maya chat → prompt build → generation API → storage/gallery.
+- Note where seed is set, where params are merged, and where LoRA trigger token enters the prompt.
+
+4) PARAMETER EXTRACTION (table)
+List current generation parameters and where each is sourced from:
+- guidance_scale
+- num_inference_steps
+- megapixels
+- aspect_ratio
+- lora_scale
+- go_fast
+- num_outputs
+- output_format / output_quality
+- seed (how chosen? fixed/random/user-specified?)
+- prompt_strength (if present; text2img vs img2img)
+For each: file path + line range + default value + any overrides.
+
+5) PROMPT SCHEMA
+- Show the current prompt scaffold/template as a code snippet (≤40 lines).
+- Specify whether LoRA trigger token is placed first.
+- Note any brand/style vocab that could cause prompt confusion.
+
+6) API ENDPOINTS & SIDE EFFECTS
+- List all endpoints/functions that kick off image generation.
+- For each, show:
+  - input payload shape (TS type if available)
+  - output shape (what gets saved/returned)
+  - side effects (DB writes, storage paths, gallery favorites, etc.)
+
+7) RISKS & GAPS
+- Top 5 risks if we integrate presets/picker (e.g., duplicate params, conflicting defaults).
+- Missing pieces (e.g., no single source of truth for defaults, scattered constants).
+- Any hardcoded values that should be centralized.
+
+8) RECOMMENDATIONS (no code changes yet)
+- Where to place `presets/flux.ts` and `maya/picker.ts`
+- Exact import paths you would add (but DO NOT add them)
+- Minimal patch plan (file-by-file) with estimated LoC per file.
+- Backout/rollback considerations.
+
+FORMAT:
+- Start with ### PLAN
+- Then ### INVENTORY (markdown table)
+- Then ### ARCHITECTURE MAP
+- Then ### PARAMETER EXTRACTION (table)
+- Then ### PROMPT SCHEMA (snippet)
+- Then ### API ENDPOINTS & SIDE EFFECTS
+- Then ### RISKS & GAPS
+- Then ### RECOMMENDATIONS
+
+END NOTE:
+Reconfirm you made ZERO file modifications. Await my approval before proposing any diffs.
