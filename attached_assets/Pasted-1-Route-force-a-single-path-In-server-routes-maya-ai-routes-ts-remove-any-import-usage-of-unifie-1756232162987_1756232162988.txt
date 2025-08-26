@@ -1,0 +1,81 @@
+1) Route: force a single path
+
+In server/routes/maya-ai-routes.ts, remove any import/usage of unified-generation-service. Call only ModelTrainingService.generateUserImages(...).
+
+// BEFORE (example)
+import { UnifiedGenerationService } from "../unified-generation-service";
+import { ModelTrainingService } from "../model-training-service";
+
+// AFTER
+import { ModelTrainingService } from "../model-training-service";
+
+
+In the POST /api/maya-generate-images handler:
+
+// Guard: refuse to run without weights
+const userModel = await storage.getUserModelByUserId(userId);
+if (!userModel?.loraWeightsUrl) {
+  return res.status(422).json({ error: "Your model weights aren’t attached yet." });
+}
+
+const { predictionId } = await ModelTrainingService.generateUserImages(
+  userId,
+  prompt,
+  4 // or your count
+  // (pass preset/seed if your signature supports it)
+);
+
+return res.json({ predictionId });
+
+2) Service: kill silent fallbacks, log payload keys
+
+In both services (so any stragglers are caught), right before calling Replicate:
+
+console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input));
+if (!requestBody.input.lora_weights) {
+  console.error("⛔ Blocked: missing lora_weights");
+  throw new Error("BLOCKED: Missing lora_weights; refusing base FLUX.");
+}
+
+3) If you keep unified-generation-service, make it a wrapper
+
+In server/unified-generation-service.ts:
+
+import { ModelTrainingService } from "./model-training-service";
+
+// single entry point; do NOT build your own payload here
+export async function generateImages(opts: {
+  userId: string; prompt: string; count?: number; preset?: string; seed?: number;
+}) {
+  return ModelTrainingService.generateUserImages(
+    opts.userId,
+    opts.prompt,
+    opts.count ?? 4,
+    // pass through preset/seed if your ModelTrainingService supports them
+  );
+}
+
+
+And add a feature flag so nobody accidentally routes Maya through it:
+
+export const MAYA_USE_UNIFIED = process.env.MAYA_USE_UNIFIED === "1"; // default false
+
+4) Expand any “allowlist” that strips keys
+
+Search for helpers like pickKeys, ALLOWED_INPUT_KEYS, etc. Make sure they include:
+
+prompt, seed, aspect_ratio, output_format, output_quality, go_fast, megapixels,
+lora_weights, lora_scale, guidance_scale, num_inference_steps, negative_prompt
+
+
+If you can’t find the helper quickly, the guard in step 2 will still protect you by hard-failing when weights are missing.
+
+5) One-time backfill of loraWeightsUrl (no retrain)
+
+Keep your auto-extraction, but also backfill if missing:
+
+If you have replicateModelId and replicateVersionId →
+GET /v1/models/{replicateModelId}/versions/{replicateVersionId} → save files.weights || files.lora_weights to loraWeightsUrl.
+
+Else if replicateModelId looks like a training ID →
+GET /v1/trainings/{trainingId} → save output.weights if present.
