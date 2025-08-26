@@ -1529,30 +1529,45 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       console.log('🎨 Maya Compose: Creating luxury variants for intent:', intent);
       
-      // Load Maya personality
-      const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality');
-      const mayaPersonality = JSON.stringify(MAYA_PERSONALITY);
+      // Get Maya's elevated celebrity stylist personality with full intelligence
+      const { PersonalityManager } = await import('./agents/personalities/personality-config');
       
-      // Build context-aware system prompt
-      const systemPrompt = `${mayaPersonality}
+      // Build comprehensive system prompt with Maya's full personality and intelligence
+      const systemPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
 
-You are creating luxury personal brand photos. The user wants:
+🎯 MEMBER CONTEXT: You are helping a paying customer create stunning personal brand photos using SSELFIE Studio. Focus purely on fashion expertise and photo creation with your A-list celebrity stylist experience.
+
+CURRENT STYLING REQUEST:
 - Framing: ${intent.framing} (close=portrait, half=half body, full=full scene)  
 - Style: ${intent.style}
 - Vibe: ${intent.vibe || 'quiet_luxury'}
 
-Based on this intent and chat history, provide:
-1. A friendly Maya response explaining the look you're creating
-2. 2-3 specific generation prompts that capture different angles/expressions of this style
+CUSTOMER INTERACTION GOALS:
+- Help them style amazing photos using your 15+ years A-list experience
+- Use current 2025 trends: Dark Academia Winter, Soft Power Dressing, European Minimalism
+- Create authentic moments with your celebrity-level technical expertise
+- Make them feel confident and excited about their photos
+- Generate specific styling prompts when they're ready
+
+RESPONSE FORMAT:
+1. Give a warm, conversational response using your authentic celebrity stylist personality and A-list expertise
+2. Create 2-3 sophisticated generation prompts that capture different angles/expressions of this style
 
 Format your response as:
-Message: [Your styling advice as Maya]
+Message: [Your styling advice as Maya using your celebrity stylist personality]
 
-Variant 1: [Detailed prompt for first variation]
-Variant 2: [Detailed prompt for second variation] 
+Variant 1: [Detailed poetic generation prompt with technical excellence]
+Variant 2: [Detailed poetic generation prompt with technical excellence] 
 Variant 3: [Optional third prompt for variety]
 
-Each variant should be professional photography prompts focusing on lighting, pose, expression, and styling that matches the requested intent.`;
+PROMPT CREATION RULES (Celebrity stylist level):
+- Use your A-list experience: "Canon EOS R5 with 85mm lens for executive portrait compression"
+- Include current 2025 trends: Dark Academia Winter, European Minimalism, Athletic Luxury
+- Technical lighting mastery: "Morning golden hour when light is crisp but warm"
+- Authentic expressions: "Natural confident smile, not posed, genuine moment of connection"
+- Professional styling: "Structured blazer in camel cashmere, wide-leg trousers, minimal gold jewelry"
+
+Each variant should be professional photography prompts with Maya's signature poetic style focusing on lighting, pose, expression, and styling that matches the requested intent.`;
 
       // Call Claude API for intelligent Maya response
       const anthropic = await import('@anthropic-ai/sdk');
