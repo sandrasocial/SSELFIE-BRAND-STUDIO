@@ -593,12 +593,7 @@ export class ModelTrainingService {
         if (trainingResponse.ok) {
           const trainingData = await trainingResponse.json();
           
-          // DEBUG: Log the training response structure
-          console.log(`🔍 DETAILED TRAINING DATA:`, JSON.stringify(trainingData, null, 2));
-          console.log(`🔍 TRAINING DATA KEYS:`, Object.keys(trainingData));
-          if (trainingData.output) {
-            console.log(`🔍 TRAINING OUTPUT KEYS:`, Object.keys(trainingData.output));
-          }
+          // Check for weights in training output
           
           // Extract weights from training output
           if (trainingData.output?.weights) {
@@ -658,29 +653,25 @@ export class ModelTrainingService {
         
         if (versionsResponse.ok) {
           const versionsData = await versionsResponse.json();
-          console.log(`🔍 DETAILED VERSIONS DATA:`, JSON.stringify(versionsData, null, 2));
           
           // Look for our specific version in the results
           if (versionsData.results) {
             for (const version of versionsData.results) {
               if (version.id === userModel.replicateVersionId) {
-                console.log(`🔍 FOUND MATCHING VERSION:`, JSON.stringify(version, null, 2));
-                
                 // Check various possible locations for weights
                 if (version.files?.weights) {
-                  console.log(`✅ WEIGHTS FOUND via versions list files.weights: ${version.files.weights}`);
+                  console.log(`✅ WEIGHTS FOUND via versions list: ${version.files.weights}`);
                   return version.files.weights;
                 }
                 if (version.weights) {
-                  console.log(`✅ WEIGHTS FOUND via versions list weights: ${version.weights}`);
+                  console.log(`✅ WEIGHTS FOUND via version weights: ${version.weights}`);
                   return version.weights;
                 }
                 if (version.files && Object.keys(version.files).length > 0) {
-                  console.log(`🔍 FILES AVAILABLE:`, Object.keys(version.files));
                   // Try to find any .safetensors file
                   for (const [key, value] of Object.entries(version.files)) {
                     if (typeof value === 'string' && value.includes('.safetensors')) {
-                      console.log(`✅ WEIGHTS FOUND via safetensors file (${key}): ${value}`);
+                      console.log(`✅ WEIGHTS FOUND via safetensors: ${value}`);
                       return value;
                     }
                   }
@@ -700,7 +691,6 @@ export class ModelTrainingService {
         
         if (modelResponse.ok) {
           const modelData = await modelResponse.json();
-          console.log(`🔍 DETAILED MODEL DATA:`, JSON.stringify(modelData, null, 2));
           
           // Check if model has latest_version data
           if (modelData.latest_version && modelData.latest_version.id === userModel.replicateVersionId) {
@@ -724,9 +714,7 @@ export class ModelTrainingService {
         if (versionResponse.ok) {
           const versionData = await versionResponse.json();
           
-          // DEBUG: Log the actual response structure
-          console.log(`🔍 DETAILED VERSION DATA:`, JSON.stringify(versionData, null, 2));
-          console.log(`🔍 VERSION DATA KEYS:`, Object.keys(versionData));
+          // Check for weights in version data
           
           // Look for weights in different possible locations
           if (versionData.files?.weights) {
@@ -756,15 +744,12 @@ export class ModelTrainingService {
         
         if (trainingsResponse.ok) {
           const trainingsData = await trainingsResponse.json();
-          console.log(`🔍 TRAININGS SEARCH - Found ${trainingsData.results?.length || 0} trainings`);
           
           if (trainingsData.results) {
             for (const training of trainingsData.results) {
               // Look for a training that matches our model
-              const modelName = userModel.replicateModelId.split('/')[1]; // Get just the model name part
+              const modelName = userModel.replicateModelId.split('/')[1];
               if (training.output?.model && training.output.model.includes(modelName)) {
-                console.log(`🔍 FOUND MATCHING TRAINING:`, JSON.stringify(training, null, 2));
-                
                 if (training.output?.weights) {
                   console.log(`✅ WEIGHTS FOUND via training search: ${training.output.weights}`);
                   return training.output.weights;
@@ -790,13 +775,6 @@ export class ModelTrainingService {
         
         if (trainingResponse.ok) {
           const trainingData = await trainingResponse.json();
-          
-          // DEBUG: Log the actual training response structure
-          console.log(`🔍 DETAILED TRAINING DATA:`, JSON.stringify(trainingData, null, 2));
-          console.log(`🔍 TRAINING DATA KEYS:`, Object.keys(trainingData));
-          if (trainingData.output) {
-            console.log(`🔍 OUTPUT KEYS:`, Object.keys(trainingData.output));
-          }
           
           if (trainingData.output?.weights) {
             console.log(`✅ WEIGHTS FOUND via legacy method: ${trainingData.output.weights}`);
