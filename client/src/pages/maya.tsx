@@ -14,7 +14,7 @@ interface ChatMessage {
   content: string;              // human-readable message (Maya reply or user text)
   timestamp: string;
   imagePreview?: string[];      // generated images (if any)
-  canGenerate?: boolean;        // shows the “Create with Maya” button
+  canGenerate?: boolean;        // shows the "Create with Maya" button
   variants?: string[];          // up to 3 generation prompts returned from /api/maya/compose
   nextVariantIndex?: number;    // which variant to use next when user clicks again
 }
@@ -64,7 +64,8 @@ export default function Maya() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Soft-intent (chips) local selection
+  // Editorial flow state
+  const [selectedFraming, setSelectedFraming] = useState<Framing | null>(null);
   const [intent, setIntent] = useState<Intent>({
     framing: 'close',
     style: 'future_ceo',
@@ -73,553 +74,364 @@ export default function Maya() {
 
   // ===== Auth & initial =====
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) setLocation('/');
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      setLocation('/');
+      return;
+    }
   }, [isAuthenticated, authLoading, setLocation]);
 
+  // ===== Auto-scroll =====
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const chatIdFromUrl = urlParams.get('chat');
-      if (chatIdFromUrl) {
-        const parsed = parseInt(chatIdFromUrl);
-        if (!isNaN(parsed)) {
-          setCurrentChatId(parsed);
-          loadChatHistory(parsed);
-        }
-      }
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, []);
+  }, [messages]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
-
-  // ===== Chat history links =====
-  const ChatHistoryLinks = ({ onChatSelect }: { onChatSelect: (chatId: number) => void }) => {
-    const { data: chats, isLoading } = useQuery<MayaChat[]>({
-      queryKey: ['/api/maya-chats'],
-      enabled: !!user,
-      staleTime: 30000,
-    });
-
-    if (isLoading) {
-      return <div className="session-item"><div className="session-title">Loading sessions...</div></div>;
+  // Format timestamp
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    
+    if (diffMinutes < 60) {
+      return `${diffMinutes}m ago`;
+    } else if (diffMinutes < 1440) {
+      return `${Math.floor(diffMinutes / 60)}h ago`;
+    } else {
+      return date.toLocaleDateString();
     }
-    if (!chats || chats.length === 0) {
-      return <div className="session-item"><div className="session-preview">No previous sessions</div></div>;
-    }
-
-    return (
-      <>
-        {chats.slice(0, 8).map((chat) => (
-          <div key={chat.id} className="session-item" onClick={() => onChatSelect(chat.id)}>
-            <div className="session-title">{chat.chatTitle}</div>
-            <div className="session-preview">{chat.chatSummary || 'Personal brand styling session'}</div>
-          </div>
-        ))}
-        {chats.length > 8 && <div className="more-sessions">{chats.length - 8} more sessions</div>}
-      </>
-    );
   };
 
-  async function loadChatHistory(chatId: number) {
-    try {
-      const response = await apiRequest(`/api/maya-chats/${chatId}/messages`);
-      if (response && Array.isArray(response)) {
-        setMessages(response);
-        setCurrentChatId(chatId);
-      }
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-      toast({ title: 'Error', description: 'Failed to load chat history' });
-    }
-  }
-
-  function startNewSession() {
-    setMessages([]);
-    setCurrentChatId(null);
-    window.history.replaceState({}, '', '/maya');
-  }
-
-  // ===== Basic user text → Maya chat (kept minimal) =====
-  async function sendMessage() {
-    if (!input.trim() || isTyping) return;
-
-    const userMessage: ChatMessage = {
-      role: 'user',
-      content: input.trim(),
-      timestamp: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+  // ===== Maya Compose =====
+  const composeWithMaya = async (intentOverrides: Partial<Intent> = {}) => {
+    const finalIntent = { ...intent, ...intentOverrides };
     setIsTyping(true);
-
-    try {
-      // NOTE: use the working endpoint. If your server uses /api/member-maya-chat, change here.
-      const response = await apiRequest('/api/maya-chat', 'POST', {
-        message: userMessage.content,
-        chatId: currentChatId,
-        chatHistory: messages.map((m) => ({ role: m.role, content: m.content })),
-      });
-
-      if (response.chatId && !currentChatId) {
-        setCurrentChatId(response.chatId);
-        window.history.replaceState({}, '', `/maya?chat=${response.chatId}`);
-      }
-
-      const mayaMessage: ChatMessage = {
-        role: 'maya',
-        content: response.message,
-        timestamp: new Date().toISOString(),
-        // do not auto-generate, we’ll offer “Create with Maya” when using compose flow
-      };
-      setMessages((prev) => [...prev, mayaMessage]);
-      queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
-    } catch (err) {
-      console.error('Error sending message:', err);
-      toast({ title: 'Error', description: 'Failed to send message. Please try again.' });
-    } finally {
-      setIsTyping(false);
-    }
-  }
-
-  // ===== Compose flow (luxury soft-intent → Maya crafts variants) =====
-  async function composeWithMaya(chosen?: Partial<Intent>) {
-    const finalIntent: Intent = { ...intent, ...(chosen || {}) };
-    setIntent(finalIntent);
-
-    // Show “typing” while composing
-    setIsTyping(true);
-
+    
     try {
       const response = await apiRequest('/api/maya/compose', 'POST', {
         intent: finalIntent,
-        chatHistory: messages.slice(-6).map((m) => ({ role: m.role, content: m.content })),
+        chatHistory: messages.slice(-6)
       });
-
-      const mayaMsg: ChatMessage = {
+      
+      const mayaMessage: ChatMessage = {
         role: 'maya',
-        content: response.message || "Let's create something beautiful.",
+        content: response.message || "I've created some stunning looks for you!",
         timestamp: new Date().toISOString(),
-        canGenerate: true,
         variants: response.variants || [],
-        nextVariantIndex: 0,
+        canGenerate: true,
+        nextVariantIndex: 0
       };
-
-      setMessages((prev) => [...prev, mayaMsg]);
-      // Optional: record it in chat list
-      queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
-    } catch (err: any) {
-      console.error('Compose error:', err);
+      
+      setMessages(prev => [...prev, mayaMessage]);
+      
+      // Reset to show conversation interface
+      setSelectedFraming(null);
+      
+    } catch (error: any) {
       toast({
-        title: 'Maya is busy',
-        description: err?.message || 'Could not compose looks. Please try again.',
+        title: "Maya Connection Error",
+        description: error?.message || "Failed to connect to Maya. Please try again.",
+        variant: "destructive"
       });
     } finally {
       setIsTyping(false);
     }
-  }
+  };
 
-  // ===== Generate (uses the next variant, then advances) =====
-  async function generateFromMessage(idx: number) {
-    const msg = messages[idx];
-    if (!msg?.variants || msg.nextVariantIndex === undefined) return;
-    if (isGenerating) return;
-
-    const useIndex = msg.nextVariantIndex;
-    const prompt = msg.variants[useIndex] || msg.variants[0];
-
+  // ===== Generate Images =====
+  const generateImages = async (message: ChatMessage, variantIndex = 0) => {
+    if (!message.variants?.[variantIndex]) return;
+    
     setIsGenerating(true);
     setGenerationProgress(0);
-
+    
     try {
+      const prompt = message.variants[variantIndex];
+      
       const response = await apiRequest('/api/maya-generate-images', 'POST', {
-        prompt,                      // server enforces realism + params
+        prompt,
         chatId: currentChatId,
+        messageId: message.id,
+        framing: intent.framing
       });
-
-      if (!response.predictionId) throw new Error('Failed to start generation');
-
-      await pollPrediction(response.predictionId, async (result) => {
-        // On completion, attach images to this message
-        setMessages((prev) => {
-          const copy = [...prev];
-          const target = copy[idx];
-          if (!target) return copy;
-
-          target.imagePreview = result.imageUrls || [];
-          target.canGenerate = (target.nextVariantIndex ?? 0) < (target.variants?.length ?? 0) - 1;
-          target.nextVariantIndex = Math.min((target.nextVariantIndex ?? 0) + 1, (target.variants?.length ?? 1) - 1);
-          return copy;
-        });
-
-        setIsGenerating(false);
-        setGenerationProgress(100);
+      
+      if (response.predictionId) {
+        pollForCompletion(response.predictionId, message);
+      }
+      
+    } catch (error: any) {
+      toast({
+        title: "Generation Error",
+        description: error?.message || "Failed to generate images",
+        variant: "destructive"
       });
-    } catch (error) {
-      console.error('Generation error:', error);
-      toast({ title: 'Generation Error', description: 'Failed to generate images. Please try again.' });
       setIsGenerating(false);
-      setGenerationProgress(0);
     }
-  }
+  };
 
-  async function pollPrediction(predictionId: string, onComplete: (result: any) => Promise<void>) {
-    let keepPolling = true;
-
-    const loop = async () => {
-      if (!keepPolling) return;
-
+  // ===== Poll for completion =====
+  const pollForCompletion = async (predictionId: string, message: ChatMessage) => {
+    const maxAttempts = 60;
+    let attempts = 0;
+    
+    const poll = async () => {
+      attempts++;
+      setGenerationProgress((attempts / maxAttempts) * 100);
+      
       try {
-        const statusResponse = await apiRequest(`/api/check-generation/${predictionId}`, 'GET');
-
-        if (statusResponse.status === 'completed' && statusResponse.imageUrls) {
-          keepPolling = false;
-          await onComplete(statusResponse);
-          return;
-        } else if (statusResponse.status === 'failed') {
-          keepPolling = false;
-          throw new Error(statusResponse.error || 'Generation failed');
+        const response = await apiRequest(`/api/check-generation/${predictionId}`, 'GET');
+        
+        if (response.status === 'completed' && response.imageUrls) {
+          // Update the message with images
+          setMessages(prev => prev.map(msg => 
+            msg === message ? {
+              ...msg,
+              imagePreview: response.imageUrls,
+              nextVariantIndex: ((message.nextVariantIndex || 0) + 1) % (message.variants?.length || 1)
+            } : msg
+          ));
+          
+          setIsGenerating(false);
+          setGenerationProgress(0);
+          
+          toast({
+            title: "Maya Created Your Photos!",
+            description: `Generated ${response.imageUrls.length} professional brand photos`,
+          });
+          
+        } else if (response.status === 'failed') {
+          throw new Error(response.error || 'Generation failed');
+        } else if (attempts < maxAttempts) {
+          setTimeout(poll, 2000);
         } else {
-          setGenerationProgress((p) => Math.min(90, p + 8));
-          setTimeout(loop, 1500);
+          throw new Error('Generation timeout');
         }
-      } catch (e) {
-        keepPolling = false;
-        throw e;
+        
+      } catch (error: any) {
+        setIsGenerating(false);
+        setGenerationProgress(0);
+        toast({
+          title: "Generation Failed", 
+          description: error.message,
+          variant: "destructive"
+        });
       }
     };
+    
+    poll();
+  };
 
-    setTimeout(loop, 1200);
-  }
-
-  // ===== Save to gallery (heart) =====
-  async function saveToGallery(imageUrl: string) {
-    if (savingImages.has(imageUrl) || savedImages.has(imageUrl)) return;
-    setSavingImages((prev) => new Set(prev).add(imageUrl));
-
+  // ===== Save Image =====
+  const saveImageToGallery = async (imageUrl: string) => {
+    setSavingImages(prev => new Set([...prev, imageUrl]));
+    
     try {
-      await apiRequest('/api/save-image', 'POST', {
-        imageUrl,
-        source: 'maya-chat',
+      await apiRequest('/api/save-to-gallery', 'POST', { imageUrl });
+      setSavedImages(prev => new Set([...prev, imageUrl]));
+      
+      toast({
+        title: "Saved to Gallery",
+        description: "Image saved to your personal gallery",
       });
-      setSavedImages((prev) => new Set(prev).add(imageUrl));
-      toast({ title: 'Saved!', description: 'Image added to your gallery' });
-    } catch (error) {
-      console.error('Save error:', error);
-      toast({ title: 'Error', description: 'Failed to save image' });
+      
+    } catch (error: any) {
+      toast({
+        title: "Save Failed",
+        description: error?.message || "Failed to save image",
+        variant: "destructive"
+      });
     } finally {
-      setSavingImages((prev) => {
-        const next = new Set(prev);
-        next.delete(imageUrl);
-        return next;
+      setSavingImages(prev => {
+        const updated = new Set(prev);
+        updated.delete(imageUrl);
+        return updated;
       });
     }
-  }
+  };
 
-  // ===== UI helpers =====
-  function handleKeyPress(e: KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  }
-
-  function formatTimestamp(ts: string) {
-    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function scrollToChat() {
-    const chatContainer = document.querySelector('.main-container');
-    chatContainer?.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  // ===== Visual placeholders (gray) for previews before images arrive =====
-  const GrayTile = ({ ratio = '4 / 5' }: { ratio?: string }) => (
-    <div
-      style={{
-        width: '100%',
+  // Gray tile component
+  const GrayTile = ({ ratio }: { ratio: string }) => (
+    <div 
+      className="gray-tile" 
+      style={{ 
         aspectRatio: ratio,
         background: '#f5f5f5',
-        border: '1px solid #e5e5e5',
+        borderRadius: '8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#999',
+        fontSize: '12px'
       }}
-    />
+    >
+      Generating...
+    </div>
   );
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-      </div>
-    );
+    return <div className="loading-screen">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   return (
-    <>
-      <MemberNavigation transparent={true} />
-
-      {/* Page styles – matches your Editorial Styleguide */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        * { margin:0; padding:0; box-sizing:border-box; }
-        :root {
-          --black:#0a0a0a; --white:#fff; --editorial-gray:#f5f5f5;
-          --mid-gray:#fafafa; --soft-gray:#666; --accent-line:#e5e5e5;
-        }
-        body {
-          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-          font-weight:300; color:var(--black); background:var(--white);
-          line-height:1.6; letter-spacing:-0.01em;
-        }
-        .hero { height:100vh; background:var(--black); color:var(--white);
-          position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-        .hero-bg { position:absolute; inset:0; opacity:.4; }
-        .hero-bg img { width:100%; height:100%; object-fit:cover; object-position:center 20%; }
-        .hero-content { position:relative; z-index:2; text-align:center; max-width:800px; padding:0 40px; }
-        .hero-eyebrow { font-size:11px; letter-spacing:.4em; text-transform:uppercase; color:rgba(255,255,255,.7); margin-bottom:30px; font-weight:300; }
-        .hero-title { font-family:'Times New Roman',serif; font-size:clamp(3rem,8vw,6rem); line-height:.9; font-weight:200; letter-spacing:.1em; text-transform:uppercase; margin-bottom:20px; color:var(--white); }
-        .hero-subtitle { font-family:'Times New Roman',serif; font-size:clamp(1rem,3vw,2rem); font-style:italic; letter-spacing:.05em; opacity:.9; margin-bottom:40px; }
-        .hero-cta { display:inline-block; padding:16px 32px; font-size:11px; font-weight:400; letter-spacing:.3em; text-transform:uppercase; text-decoration:none; border:1px solid var(--white); color:var(--white); background:transparent; transition:all 300ms ease; cursor:pointer; }
-        .hero-cta:hover { background:var(--white); color:var(--black); }
-
-        .main-container { display:flex; min-height:100vh; max-width:1400px; margin:0 auto; }
-        .sidebar { width:300px; background:var(--editorial-gray); border-right:1px solid var(--accent-line); padding:40px 0; overflow-y:auto; }
-        .sidebar-section { padding:0 30px; margin-bottom:40px; }
-        .sidebar-title { font-size:11px; font-weight:400; letter-spacing:.3em; text-transform:uppercase; color:var(--soft-gray); margin-bottom:20px; }
-        .new-session-btn { width:100%; padding:16px 0; background:var(--black); color:var(--white); border:none; font-size:11px; font-weight:400; letter-spacing:.3em; text-transform:uppercase; cursor:pointer; transition:all 300ms ease; margin-bottom:30px; }
-        .new-session-btn:hover { background:var(--soft-gray); }
-        .session-item { padding:12px 0; border-bottom:1px solid var(--accent-line); cursor:pointer; transition:all 200ms ease; }
-        .session-item:hover { background:rgba(10,10,10,0.05); }
-        .session-title { font-size:14px; font-weight:400; margin-bottom:4px; line-height:1.4; }
-        .session-preview { font-size:12px; color:var(--soft-gray); line-height:1.3; }
-        .more-sessions { color:var(--soft-gray); font-size:12px; text-align:center; padding:20px 0; }
-
-        .chat-area { flex:1; display:flex; flex-direction:column; background:var(--white); }
-        .chat-header { padding:30px 40px; border-bottom:1px solid var(--accent-line); background:var(--white); }
-        .chat-title { font-family:'Times New Roman',serif; font-size:24px; font-weight:200; margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em; }
-        .chat-subtitle { font-size:14px; color:var(--soft-gray); }
-
-        .intent-bar { margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; }
-        .chip { padding:10px 14px; font-size:11px; letter-spacing:.3em; text-transform:uppercase;
-          border:1px solid var(--accent-line); background:#fff; cursor:pointer; transition:all .25s ease; }
-        .chip.active, .chip:hover { border-color:var(--black); }
-
-        .messages-container { flex:1; overflow-y:auto; padding:40px; }
-        .welcome-state { text-align:center; max-width:620px; margin:60px auto; }
-        .maya-avatar { width:80px; height:80px; border-radius:50%; margin:0 auto 30px; overflow:hidden; border:2px solid var(--accent-line); }
-        .maya-avatar img { width:100%; height:100%; object-fit:cover; }
-        .welcome-eyebrow { font-size:11px; font-weight:400; letter-spacing:.4em; text-transform:uppercase; color:var(--soft-gray); margin-bottom:20px; }
-        .welcome-title { font-family:'Times New Roman',serif; font-size:clamp(2rem,4vw,3rem); font-weight:200; letter-spacing:-.01em; line-height:1; text-transform:uppercase; margin-bottom:16px; }
-        .welcome-description { font-size:16px; line-height:1.6; margin-bottom:28px; color:var(--soft-gray); }
-        .style-quickselect { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:28px; }
-        .style-option { aspect-ratio:1; background:var(--editorial-gray); border:1px solid var(--accent-line); cursor:pointer; transition:all .3s ease; position:relative; overflow:hidden; }
-        .style-option:hover { transform:scale(1.03); border-color:var(--black); }
-        .style-preview { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--soft-gray); }
-        .style-label { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(10,10,10,.75)); color:#fff; padding:14px 10px 10px; font-size:10px; letter-spacing:.2em; text-transform:uppercase; text-align:center; transform:translateY(100%); transition:transform .3s ease; }
-        .style-option:hover .style-label { transform:translateY(0); }
-
-        .message { margin-bottom:30px; max-width:700px; }
-        .message.maya { margin-right:auto; }
-        .message.user { margin-left:auto; text-align:right; }
-        .message-header { display:flex; align-items:center; margin-bottom:12px; gap:12px; }
-        .message.user .message-header { justify-content:flex-end; }
-        .message-avatar { width:32px; height:32px; border-radius:50%; background:var(--editorial-gray); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--soft-gray); overflow:hidden; }
-        .message-avatar img { width:100%; height:100%; object-fit:cover; }
-        .message.user .message-avatar { background:var(--black); color:var(--white); }
-        .message-sender { font-size:11px; font-weight:400; letter-spacing:.3em; text-transform:uppercase; color:var(--soft-gray); }
-        .message-time { font-size:10px; color:var(--soft-gray); opacity:.6; }
-        .message-content { background:var(--editorial-gray); padding:24px; position:relative; }
-        .message.user .message-content { background:var(--black); color:var(--white); }
-        .message-text { font-size:15px; line-height:1.6; }
-
-        .look-actions { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
-        .look-btn { padding:12px 20px; font-size:11px; letter-spacing:.3em; text-transform:uppercase; border:none; color:#fff; background:var(--black); cursor:pointer; transition:all .25s; }
-        .look-btn.secondary { background:#777; }
-        .look-btn:disabled { background:#bbb; cursor:not-allowed; }
-
-        .image-grid { margin-top:16px; display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
-        .image-item { position:relative; cursor:pointer; }
-        .image-item img { width:100%; height:192px; object-fit:cover; transition:transform .2s ease; }
-        .image-item:hover img { transform:scale(1.03); }
-        .save-btn { position:absolute; top:8px; right:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.9); border:1px solid #e5e5e5; border-radius:50%; transition:all .2s; backdrop-filter:blur(8px); opacity:0; }
-        .image-item:hover .save-btn { opacity:1; }
-        .save-btn:hover { background:#fff; border-color:#ccc; }
-
-        .typing-indicator { display:flex; align-items:center; gap:12px; margin-bottom:30px; }
-        .typing-dots { display:flex; gap:4px; }
-        .typing-dot { width:6px; height:6px; border-radius:50%; background:var(--soft-gray); animation:typing 1.4s infinite; }
-        .typing-dot:nth-child(2){ animation-delay:.2s; } .typing-dot:nth-child(3){ animation-delay:.4s; }
-        @keyframes typing { 0%,60%,100%{opacity:.3;} 30%{opacity:1;} }
-        .typing-text { font-size:12px; color:var(--soft-gray); }
-
-        .input-area { padding:30px 40px; border-top:1px solid var(--accent-line); background:#fff; }
-        .input-container { display:flex; gap:15px; align-items:flex-end; }
-        .input-field { flex:1; border:1px solid var(--accent-line); background:#fff; padding:16px 20px; font-size:14px; line-height:1.4; font-family:inherit; resize:none; min-height:24px; max-height:120px; }
-        .input-field:focus { outline:none; border-color:var(--black); }
-        .input-field::placeholder { color:var(--soft-gray); text-transform:uppercase; font-size:11px; letter-spacing:.3em; }
-        .send-btn { padding:16px 24px; background:var(--black); color:#fff; border:none; font-size:11px; font-weight:400; letter-spacing:.3em; text-transform:uppercase; cursor:pointer; transition:all .3s; }
-        .send-btn:hover { background:var(--soft-gray); }
-        .send-btn:disabled { background:var(--accent-line); cursor:not-allowed; }
-
-        @media (max-width:768px) {
-          .main-container { flex-direction:column; height:auto; }
-          .sidebar { width:100%; height:auto; order:2; }
-          .chat-area { order:1; min-height:70vh; }
-          .messages-container,.input-area,.chat-header { padding:20px; }
-          .style-quickselect { grid-template-columns:repeat(2,1fr); }
-        }
-      `,
-        }}
-      />
-
-      {/* Hero (unchanged) */}
-      <section className="hero">
-        <div className="hero-bg">
-          <img
-            src="https://i.postimg.cc/mkqSzq3M/out-1-20.png"
-            alt="Maya - Your Personal Brand Stylist"
-          />
-        </div>
-        <div className="hero-content">
-          <div className="hero-eyebrow">Professional photos, no photographer needed</div>
-          <h1 className="hero-title">Maya</h1>
-          <p className="hero-subtitle">Your Personal Brand Stylist</p>
-          <button className="hero-cta" onClick={scrollToChat}>
-            Start Creating
-          </button>
-        </div>
-      </section>
-
-      <div className="main-container">
-        {/* Sidebar */}
-        <aside className="sidebar">
-          <div className="sidebar-section">
-            <button className="new-session-btn" onClick={startNewSession}>
-              New Session
-            </button>
-          </div>
-
-          <div className="sidebar-section">
-            <div className="sidebar-title">Previous Sessions</div>
-            <ChatHistoryLinks
-              onChatSelect={(chatId) => {
-                loadChatHistory(chatId);
-                window.history.replaceState({}, '', `/maya?chat=${chatId}`);
-              }}
-            />
-          </div>
-        </aside>
-
-        {/* Chat Area */}
-        <main className="chat-area">
-          {/* Header with INTENT CHIPS (simple, luxe) */}
-          <div className="chat-header">
-            <h1 className="chat-title">Maya Studio</h1>
-            <p className="chat-subtitle">Create photos that build your brand</p>
-
-            {/* Intent chips */}
-            <div className="intent-bar" aria-label="Quick Intent">
-              {/* Framing */}
-              {(['close', 'half', 'full'] as Framing[]).map((f) => (
-                <button
-                  key={f}
-                  className={`chip ${intent.framing === f ? 'active' : ''}`}
-                  onClick={() => setIntent({ ...intent, framing: f })}
-                  title={`Framing: ${f}`}
-                >
-                  {f === 'close' ? 'Close-Up' : f === 'half' ? 'Half Body' : 'Full Scene'}
-                </button>
-              ))}
-              {/* Style */}
-              {(
-                [
-                  ['future_ceo', 'Future CEO'],
-                  ['off_duty', 'Off-Duty Model'],
-                  ['social_queen', 'Social Queen'],
-                  ['date_night', 'Date Night'],
-                  ['everyday_icon', 'Everyday Icon'],
-                  ['power_player', 'Power Player'],
-                ] as [Style, string][]
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  className={`chip ${intent.style === key ? 'active' : ''}`}
-                  onClick={() => setIntent({ ...intent, style: key })}
-                  title={`Style: ${label}`}
-                >
-                  {label}
-                </button>
-              ))}
-              {/* Vibe */}
-              {(
-                [
-                  ['quiet_luxury', 'Quiet Luxury'],
-                  ['cinematic', 'Cinematic'],
-                  ['natural_light', 'Natural Light'],
-                  ['studio_clean', 'Studio Clean'],
-                ] as [Vibe, string][]
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  className={`chip ${intent.vibe === key ? 'active' : ''}`}
-                  onClick={() => setIntent({ ...intent, vibe: key })}
-                  title={`Vibe: ${label}`}
-                >
-                  {label}
-                </button>
-              ))}
-
-              {/* Compose button */}
-              <button
-                className="chip"
-                onClick={() => composeWithMaya()}
-                title="Ask Maya to compose looks"
-                disabled={isTyping}
-              >
-                Compose Look
-              </button>
-            </div>
-          </div>
-
+    <div className="maya-page">
+      <MemberNavigation />
+      
+      <div className="maya-container">
+        <div className="maya-interface">
           {/* Messages */}
           <div className="messages-container">
             {messages.length === 0 ? (
-              <div className="welcome-state">
-                <div className="maya-avatar">
-                  <img
-                    src="https://i.postimg.cc/mkqSzq3M/out-1-20.png"
-                    alt="Maya - Your Personal Brand Stylist"
-                  />
+              <div className="editorial-welcome">
+                <div className="maya-hero">
+                  <div className="maya-avatar-editorial">
+                    <img
+                      src="https://i.postimg.cc/mkqSzq3M/out-1-20.png"
+                      alt="Maya - Your Personal Brand Stylist"
+                    />
+                  </div>
+                  <div className="hero-eyebrow">Personal Brand Photography</div>
+                  <h1 className="hero-title-main">Ready to look</h1>
+                  <h2 className="hero-title-sub">Incredible?</h2>
+                  <p className="hero-description">
+                    I'm Maya, your personal brand stylist. Select your framing, and I'll create sophisticated looks that tell your success story.
+                  </p>
                 </div>
-                <div className="welcome-eyebrow">Personal Brand Photos</div>
-                <h2 className="welcome-title">Ready to look incredible in every photo?</h2>
-                <p className="welcome-description">
-                  I’m Maya. Tap a few moods above and I’ll style you like a pro—outfit, light,
-                  camera, movement—then I’ll create it for you in one click.
-                </p>
 
-                {/* Quick “style” tiles (gray placeholders only) */}
-                <div className="style-quickselect">
-                  {([
-                    { label: 'Future CEO', style: 'future_ceo' as Style },
-                    { label: 'Off-Duty Model', style: 'off_duty' as Style },
-                    { label: 'Social Queen', style: 'social_queen' as Style },
-                    { label: 'Date Night', style: 'date_night' as Style },
-                    { label: 'Everyday Icon', style: 'everyday_icon' as Style },
-                    { label: 'Power Player', style: 'power_player' as Style },
-                  ]).map(({ label, style }) => (
-                    <div
-                      key={label}
-                      className="style-option"
-                      onClick={() => composeWithMaya({ style })}
-                      title={label}
-                    >
-                      <div className="style-preview">{label}</div>
-                      <div className="style-label">Compose with Maya</div>
+                {!selectedFraming ? (
+                  <div className="framing-cards">
+                    <div className="framing-grid">
+                      {[
+                        {
+                          framing: 'close' as Framing,
+                          title: 'Close-Up',
+                          subtitle: 'Portrait Focus',
+                          description: 'Intimate headshots that capture confidence and authority',
+                          image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=500&fit=crop&crop=face',
+                          aspect: '4/5'
+                        },
+                        {
+                          framing: 'half' as Framing,
+                          title: 'Half Body',
+                          subtitle: 'Fashion Forward',
+                          description: 'Show your style and presence with sophisticated styling',
+                          image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop&crop=entropy',
+                          aspect: '3/4'
+                        },
+                        {
+                          framing: 'full' as Framing,
+                          title: 'Full Scene',
+                          subtitle: 'Editorial Story',
+                          description: 'Complete environmental storytelling for your brand',
+                          image: 'https://images.unsplash.com/photo-1594736797933-d0bc62d1ba99?w=400&h=500&fit=crop&crop=entropy',
+                          aspect: '4/5'
+                        }
+                      ].map((card) => (
+                        <div
+                          key={card.framing}
+                          className="framing-card"
+                          onClick={() => {
+                            setSelectedFraming(card.framing);
+                            setIntent({ ...intent, framing: card.framing });
+                          }}
+                        >
+                          <div className="card-image-container">
+                            <img src={card.image} alt={card.title} />
+                            <div className="card-overlay">
+                              <div className="card-content">
+                                <div className="card-eyebrow">{card.subtitle}</div>
+                                <h3 className="card-title">{card.title}</h3>
+                                <p className="card-description">{card.description}</p>
+                                <div className="card-cta">Select Framing</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ) : (
+                  <div className="style-selection">
+                    <div className="selection-header">
+                      <button 
+                        className="back-button"
+                        onClick={() => setSelectedFraming(null)}
+                      >
+                        ← Back to Framing
+                      </button>
+                      <div className="selected-framing">
+                        <span className="selected-eyebrow">Selected</span>
+                        <h3 className="selected-title">
+                          {selectedFraming === 'close' && 'Close-Up Portrait'}
+                          {selectedFraming === 'half' && 'Half Body Fashion'}
+                          {selectedFraming === 'full' && 'Full Scene Editorial'}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <div className="luxury-categories">
+                      <div className="category-section">
+                        <h4 className="category-title">Style Persona</h4>
+                        <div className="category-grid">
+                          {([
+                            { key: 'future_ceo', label: 'Future CEO', desc: 'Executive presence and authority' },
+                            { key: 'off_duty', label: 'Off-Duty Model', desc: 'Effortless luxury and grace' },
+                            { key: 'social_queen', label: 'Social Queen', desc: 'Magnetic social confidence' },
+                            { key: 'date_night', label: 'Date Night', desc: 'Sophisticated evening allure' },
+                            { key: 'everyday_icon', label: 'Everyday Icon', desc: 'Elevated casual elegance' },
+                            { key: 'power_player', label: 'Power Player', desc: 'Industry leadership energy' },
+                          ] as { key: Style; label: string; desc: string }[]).map((style) => (
+                            <div
+                              key={style.key}
+                              className={`luxury-option ${intent.style === style.key ? 'selected' : ''}`}
+                              onClick={() => setIntent({ ...intent, style: style.key })}
+                            >
+                              <h5 className="option-title">{style.label}</h5>
+                              <p className="option-description">{style.desc}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="category-section">
+                        <h4 className="category-title">Mood & Atmosphere</h4>
+                        <div className="category-grid">
+                          {([
+                            { key: 'quiet_luxury', label: 'Quiet Luxury', desc: 'Understated sophistication' },
+                            { key: 'cinematic', label: 'Cinematic', desc: 'Dramatic editorial lighting' },
+                            { key: 'natural_light', label: 'Natural Light', desc: 'Authentic golden hour glow' },
+                            { key: 'studio_clean', label: 'Studio Clean', desc: 'Minimal professional aesthetic' },
+                          ] as { key: Vibe; label: string; desc: string }[]).map((vibe) => (
+                            <div
+                              key={vibe.key}
+                              className={`luxury-option ${intent.vibe === vibe.key ? 'selected' : ''}`}
+                              onClick={() => setIntent({ ...intent, vibe: vibe.key })}
+                            >
+                              <h5 className="option-title">{vibe.label}</h5>
+                              <p className="option-description">{vibe.desc}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="compose-section">
+                        <button
+                          className="luxury-compose-button"
+                          onClick={() => composeWithMaya()}
+                          disabled={isTyping}
+                        >
+                          <span className="button-text">Create with Maya</span>
+                          <span className="button-subtitle">Generate your professional brand photos</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div>
@@ -663,180 +475,511 @@ export default function Maya() {
                           <div className="image-grid" style={{ marginTop: 12 }}>
                             <GrayTile ratio={intent.framing === 'full' ? '4 / 5' : '3 / 4'} />
                             <GrayTile ratio={intent.framing === 'full' ? '4 / 5' : '3 / 4'} />
+                            <GrayTile ratio={intent.framing === 'full' ? '4 / 5' : '3 / 4'} />
                           </div>
                         )}
 
-                        {/* Images */}
+                        {/* Show real images if available */}
                         {message.imagePreview && message.imagePreview.length > 0 && (
-                          <div className="image-grid">
-                            {message.imagePreview.map((imageUrl, imgIndex) => (
-                              <div key={imgIndex} className="image-item">
-                                <img
-                                  src={imageUrl}
-                                  alt={`Generated ${imgIndex + 1}`}
-                                  onClick={() => setSelectedImage(imageUrl)}
+                          <div className="image-grid" style={{ marginTop: 12 }}>
+                            {message.imagePreview.map((url, idx) => (
+                              <div key={idx} className="image-item">
+                                <img 
+                                  src={url} 
+                                  alt={`Generated ${idx + 1}`}
+                                  onClick={() => setSelectedImage(url)}
+                                  style={{ cursor: 'pointer' }}
                                 />
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    saveToGallery(imageUrl);
-                                  }}
-                                  disabled={savingImages.has(imageUrl)}
-                                  className="save-btn"
-                                  title={
-                                    savedImages.has(imageUrl)
-                                      ? 'Saved to gallery'
-                                      : 'Save to gallery'
-                                  }
+                                  className="save-button"
+                                  onClick={() => saveImageToGallery(url)}
+                                  disabled={savingImages.has(url) || savedImages.has(url)}
                                 >
-                                  {savingImages.has(imageUrl) ? (
-                                    <div
-                                      style={{
-                                        width: 14,
-                                        height: 14,
-                                        border: '2px solid #999',
-                                        borderTopColor: 'transparent',
-                                        borderRadius: '50%',
-                                        animation: 'spin 1s linear infinite',
-                                      }}
-                                    />
-                                  ) : savedImages.has(imageUrl) ? (
-                                    <span style={{ color: '#ef4444', fontSize: 14 }}>♥</span>
-                                  ) : (
-                                    <span style={{ color: '#999', fontSize: 14 }}>♡</span>
-                                  )}
+                                  {savedImages.has(url) ? 'Saved' : savingImages.has(url) ? 'Saving...' : 'Save'}
                                 </button>
                               </div>
                             ))}
                           </div>
                         )}
 
-                        {/* Actions */}
-                        {isMaya && message.canGenerate && message.variants && (
-                          <div className="look-actions">
-                            <button
-                              className="look-btn"
-                              onClick={() => generateFromMessage(index)}
-                              disabled={isGenerating}
-                            >
-                              {isGenerating
-                                ? `Creating... ${generationProgress}%`
-                                : 'Create with Maya'}
-                            </button>
-
-                            {/* Optionally let them ask Maya for totally new variants */}
-                            <button
-                              className="look-btn secondary"
-                              onClick={() => composeWithMaya()}
-                              disabled={isTyping || isGenerating}
-                              title="Ask Maya for a fresh direction"
-                            >
-                              New Look
-                            </button>
-                          </div>
+                        {/* Generate button for Maya messages */}
+                        {isMaya && message.canGenerate && (
+                          <button
+                            className="generate-button"
+                            onClick={() => generateImages(message, message.nextVariantIndex || 0)}
+                            disabled={isGenerating}
+                            style={{ marginTop: 12 }}
+                          >
+                            {isGenerating ? `Generating... ${Math.round(generationProgress)}%` : 'Create with Maya'}
+                          </button>
                         )}
                       </div>
                     </div>
                   );
                 })}
-
-                {/* Typing indicator */}
-                {isTyping && (
-                  <div className="typing-indicator">
-                    <div className="message-avatar">
-                      <img
-                        src="https://i.postimg.cc/mkqSzq3M/out-1-20.png"
-                        alt="Maya"
-                      />
-                    </div>
-                    <div className="typing-dots">
-                      <div className="typing-dot"></div>
-                      <div className="typing-dot"></div>
-                      <div className="typing-dot"></div>
-                    </div>
-                    <div className="typing-text">Maya is styling your look...</div>
-                  </div>
-                )}
-
                 <div ref={messagesEndRef} />
               </div>
             )}
           </div>
-
-          {/* Input (kept, but simple) */}
-          <div className="input-area">
-            <div className="input-container">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyPress}
-                className="input-field"
-                placeholder="Tell Maya what kind of photos you want to create..."
-                rows={1}
-                disabled={isTyping}
-                style={{ minHeight: '24px', maxHeight: '120px', height: 'auto' }}
-                onInput={(e) => {
-                  const t = e.target as HTMLTextAreaElement;
-                  t.style.height = 'auto';
-                  t.style.height = Math.min(t.scrollHeight, 120) + 'px';
-                }}
-              />
-              <button onClick={sendMessage} disabled={!input.trim() || isTyping} className="send-btn">
-                Send
-              </button>
-            </div>
-          </div>
-        </main>
+        </div>
       </div>
 
-      {/* Image Modal */}
+      {/* Image preview modal */}
       {selectedImage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <div className="relative max-w-5xl max-h-full">
-            <img
-              src={selectedImage}
-              alt="Full size view"
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
-            <div className="absolute top-4 right-4 flex gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  saveToGallery(selectedImage);
-                }}
-                disabled={savingImages.has(selectedImage)}
-                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white border border-gray-200 hover:border-gray-300 rounded-full transition-all shadow-lg"
-                title={savedImages.has(selectedImage) ? 'Saved to gallery' : 'Save to gallery'}
-              >
-                {savingImages.has(selectedImage) ? (
-                  <div className="w-4 h-4 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                ) : savedImages.has(selectedImage) ? (
-                  <span className="text-red-500 text-lg">♥</span>
-                ) : (
-                  <span className="text-gray-400 hover:text-red-500 text-lg transition-colors">♡</span>
-                )}
-              </button>
-
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 hover:text-black rounded-full transition-all shadow-lg"
-                title="Close"
-              >
-                <span className="text-xl leading-none">×</span>
-              </button>
-            </div>
-
-            <div className="absolute bottom-4 left-4 bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
-              <div className="text-sm font-medium">Maya Personal Brand Photo</div>
-              <div className="text-xs text-white/80">Save to use for your content and brand</div>
-            </div>
+        <div className="image-modal" onClick={() => setSelectedImage(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <img src={selectedImage} alt="Full size preview" />
+            <button className="modal-close" onClick={() => setSelectedImage(null)}>×</button>
           </div>
         </div>
       )}
-    </>
+
+      <style>{`
+        /* Editorial Welcome Styles */
+        .editorial-welcome {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 60px 20px;
+        }
+
+        .maya-hero {
+          text-align: center;
+          margin-bottom: 80px;
+        }
+
+        .maya-avatar-editorial {
+          width: 120px;
+          height: 120px;
+          margin: 0 auto 40px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 2px solid #f5f5f5;
+        }
+
+        .maya-avatar-editorial img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .hero-eyebrow {
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.4em;
+          text-transform: uppercase;
+          color: #666;
+          margin-bottom: 24px;
+        }
+
+        .hero-title-main {
+          font-family: 'Times New Roman', serif;
+          font-size: clamp(3rem, 8vw, 6rem);
+          font-weight: 200;
+          letter-spacing: -0.01em;
+          line-height: 1;
+          text-transform: uppercase;
+          margin-bottom: 20px;
+        }
+
+        .hero-title-sub {
+          font-family: 'Times New Roman', serif;
+          font-size: clamp(2rem, 6vw, 4rem);
+          font-weight: 200;
+          letter-spacing: -0.01em;
+          line-height: 1;
+          text-transform: uppercase;
+          opacity: 0.7;
+          margin-bottom: 40px;
+        }
+
+        .hero-description {
+          font-size: 16px;
+          line-height: 1.6;
+          font-weight: 300;
+          max-width: 600px;
+          margin: 0 auto;
+          color: #666;
+        }
+
+        /* Framing Cards */
+        .framing-cards {
+          margin-top: 60px;
+        }
+
+        .framing-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 30px;
+          max-width: 1000px;
+          margin: 0 auto;
+        }
+
+        .framing-card {
+          position: relative;
+          background: #fff;
+          border-radius: 12px;
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 0.5s ease;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .framing-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-image-container {
+          position: relative;
+          aspect-ratio: 4/5;
+          overflow: hidden;
+        }
+
+        .card-image-container img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.5s ease;
+        }
+
+        .framing-card:hover .card-image-container img {
+          transform: scale(1.05);
+        }
+
+        .card-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to bottom, transparent 40%, rgba(10, 10, 10, 0.9) 100%);
+          opacity: 0;
+          transition: opacity 0.5s ease;
+          display: flex;
+          align-items: flex-end;
+          padding: 30px;
+        }
+
+        .framing-card:hover .card-overlay {
+          opacity: 1;
+        }
+
+        .card-content {
+          color: white;
+        }
+
+        .card-eyebrow {
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          opacity: 0.8;
+          margin-bottom: 8px;
+        }
+
+        .card-title {
+          font-family: 'Times New Roman', serif;
+          font-size: 28px;
+          font-weight: 300;
+          margin-bottom: 12px;
+          line-height: 1.2;
+        }
+
+        .card-description {
+          font-size: 14px;
+          line-height: 1.4;
+          opacity: 0.9;
+          margin-bottom: 20px;
+        }
+
+        .card-cta {
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          padding: 12px 24px;
+          border: 1px solid white;
+          display: inline-block;
+          transition: all 0.3s ease;
+        }
+
+        .card-cta:hover {
+          background: white;
+          color: #0a0a0a;
+        }
+
+        /* Style Selection */
+        .style-selection {
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        .selection-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 60px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid #e5e5e5;
+        }
+
+        .back-button {
+          font-size: 14px;
+          color: #666;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 8px 0;
+          transition: color 0.3s ease;
+        }
+
+        .back-button:hover {
+          color: #0a0a0a;
+        }
+
+        .selected-eyebrow {
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.4em;
+          text-transform: uppercase;
+          color: #666;
+          display: block;
+        }
+
+        .selected-title {
+          font-family: 'Times New Roman', serif;
+          font-size: 24px;
+          font-weight: 300;
+          margin-top: 4px;
+        }
+
+        /* Luxury Categories */
+        .luxury-categories {
+          space-y: 50px;
+        }
+
+        .category-section {
+          margin-bottom: 50px;
+        }
+
+        .category-title {
+          font-family: 'Times New Roman', serif;
+          font-size: 20px;
+          font-weight: 300;
+          margin-bottom: 30px;
+          text-align: center;
+        }
+
+        .category-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 20px;
+        }
+
+        .luxury-option {
+          padding: 24px;
+          border: 1px solid #e5e5e5;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-align: center;
+        }
+
+        .luxury-option:hover {
+          border-color: #0a0a0a;
+          background: #fafafa;
+        }
+
+        .luxury-option.selected {
+          background: #0a0a0a;
+          color: white;
+          border-color: #0a0a0a;
+        }
+
+        .option-title {
+          font-size: 14px;
+          font-weight: 500;
+          margin-bottom: 8px;
+        }
+
+        .option-description {
+          font-size: 12px;
+          opacity: 0.7;
+          line-height: 1.4;
+        }
+
+        /* Compose Section */
+        .compose-section {
+          text-align: center;
+          margin-top: 60px;
+        }
+
+        .luxury-compose-button {
+          background: #0a0a0a;
+          color: white;
+          border: none;
+          padding: 20px 40px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          min-width: 240px;
+        }
+
+        .luxury-compose-button:hover:not(:disabled) {
+          background: #333;
+          transform: translateY(-2px);
+        }
+
+        .luxury-compose-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .button-text {
+          font-size: 14px;
+          font-weight: 500;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          margin-bottom: 4px;
+        }
+
+        .button-subtitle {
+          font-size: 11px;
+          opacity: 0.8;
+        }
+
+        /* Message styles */
+        .message {
+          margin-bottom: 24px;
+          max-width: 800px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .message.maya {
+          margin-left: 0;
+        }
+
+        .message.user {
+          margin-right: 0;
+        }
+
+        .message-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 8px;
+        }
+
+        .message-avatar {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          overflow: hidden;
+          background: #f5f5f5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .message-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .message-sender {
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .message-time {
+          font-size: 12px;
+          color: #666;
+          margin-left: auto;
+        }
+
+        .message-content {
+          padding-left: 44px;
+        }
+
+        .message.user .message-content {
+          padding-left: 0;
+          padding-right: 44px;
+        }
+
+        .message-text {
+          font-size: 14px;
+          line-height: 1.6;
+        }
+
+        .image-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 12px;
+          margin-top: 16px;
+        }
+
+        .image-item {
+          position: relative;
+        }
+
+        .image-item img {
+          width: 100%;
+          border-radius: 8px;
+        }
+
+        .save-button {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: rgba(0,0,0,0.7);
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          cursor: pointer;
+        }
+
+        .generate-button {
+          background: #0a0a0a;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background 0.3s ease;
+        }
+
+        .generate-button:hover:not(:disabled) {
+          background: #333;
+        }
+
+        .generate-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .framing-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
+          
+          .selection-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+          }
+          
+          .category-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+    </div>
   );
 }
