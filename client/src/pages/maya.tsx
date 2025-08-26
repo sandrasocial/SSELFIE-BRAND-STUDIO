@@ -239,10 +239,13 @@ export default function Maya() {
     const promptToUse = message.variants[currentIndex];
     const nextIndex = (currentIndex + 1) % message.variants.length;
 
-    // Update the message with next variant index
-    setMessages(prev => prev.map(msg => 
-      msg === message ? { ...msg, nextVariantIndex: nextIndex } : msg
-    ));
+    // Update the message with next variant index using proper comparison
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === message.id || (msg.timestamp === message.timestamp && msg.role === message.role)) {
+        return { ...msg, nextVariantIndex: nextIndex };
+      }
+      return msg;
+    }));
 
     setSeed(String(Math.floor(Math.random() * 1_000_000_000)));
     setIsGenerating(true);
@@ -257,14 +260,17 @@ export default function Maya() {
       if (!response.predictionId) throw new Error('Failed to start generation');
 
       await pollPrediction(response.predictionId, async (result) => {
-        // Update this specific message with the new images
+        // Update this specific message with the new images using proper message ID matching
         setMessages((prev) => {
-          const copy = [...prev];
-          const target = copy.find(msg => msg === message);
-          if (!target) return copy;
-
-          target.imagePreview = result.imageUrls || [];
-          return copy;
+          return prev.map(msg => {
+            if (msg.id === message.id || (msg.timestamp === message.timestamp && msg.role === message.role)) {
+              return {
+                ...msg,
+                imagePreview: result.imageUrls || []
+              };
+            }
+            return msg;
+          });
         });
 
         setIsGenerating(false);
@@ -347,16 +353,19 @@ export default function Maya() {
       if (!response.predictionId) throw new Error('Failed to start generation');
 
       await pollPrediction(response.predictionId, async (result) => {
-        // On completion, attach images to this message
+        // On completion, attach images to this message using immutable updates
         setMessages((prev) => {
-          const copy = [...prev];
-          const target = copy[idx];
-          if (!target) return copy;
-
-          target.imagePreview = result.imageUrls || [];
-          target.canGenerate = (target.nextVariantIndex ?? 0) < (target.variants?.length ?? 0) - 1;
-          target.nextVariantIndex = Math.min((target.nextVariantIndex ?? 0) + 1, (target.variants?.length ?? 1) - 1);
-          return copy;
+          return prev.map((message, index) => {
+            if (index === idx) {
+              return {
+                ...message,
+                imagePreview: result.imageUrls || [],
+                canGenerate: (message.nextVariantIndex ?? 0) < (message.variants?.length ?? 0) - 1,
+                nextVariantIndex: Math.min((message.nextVariantIndex ?? 0) + 1, (message.variants?.length ?? 1) - 1)
+              };
+            }
+            return message;
+          });
         });
 
         setIsGenerating(false);
