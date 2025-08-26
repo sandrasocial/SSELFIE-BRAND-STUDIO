@@ -214,7 +214,9 @@ export default function Maya() {
         // Poll for completion
         const pollForImages = async () => {
           try {
-            const statusResponse = await apiRequest(`/api/check-generation/${response.predictionId}`);
+            const statusResponse = await fetch(`/api/check-generation/${response.predictionId}`, { 
+              credentials: 'include' 
+            }).then(res => res.json());
 
             if (statusResponse.status === 'completed' && statusResponse.imageUrls) {
               // Find the last Maya message and update it with images

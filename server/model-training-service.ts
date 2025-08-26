@@ -482,8 +482,16 @@ export class ModelTrainingService {
         throw new Error(`No prediction ID returned from Replicate API: ${JSON.stringify(prediction)}`);
       }
       
-      // For immediate testing, poll the prediction to get results
+      // FIX B: Return immediately for Maya chat flow to prevent double-polling
+      // Let the /api/check-generation route handle polling instead
+      if (process.env.MAYA_SYNC_PREDICTIONS !== '1') {
+        return { 
+          images: [], 
+          predictionId: prediction.id 
+        };
+      }
       
+      // Only poll for admin tools when MAYA_SYNC_PREDICTIONS=1
       // Wait for completion (polling)
       let attempts = 0;
       const maxAttempts = 30; // 5 minutes maximum
