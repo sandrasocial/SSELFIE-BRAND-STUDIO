@@ -1513,6 +1513,158 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+  // NEW: Maya Compose endpoint - Luxury intent-based styling
+  app.post('/api/maya/compose', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { intent, chatHistory } = req.body;
+      
+      console.log('🎨 Maya Compose: Creating luxury variants for intent:', intent);
+      
+      // Load Maya personality
+      const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality');
+      const mayaPersonality = JSON.stringify(MAYA_PERSONALITY);
+      
+      // Build context-aware system prompt
+      const systemPrompt = `${mayaPersonality}
+
+You are creating luxury personal brand photos. The user wants:
+- Framing: ${intent.framing} (close=portrait, half=half body, full=full scene)  
+- Style: ${intent.style}
+- Vibe: ${intent.vibe || 'quiet_luxury'}
+
+Based on this intent and chat history, provide:
+1. A friendly Maya response explaining the look you're creating
+2. 2-3 specific generation prompts that capture different angles/expressions of this style
+
+Format your response as:
+Message: [Your styling advice as Maya]
+
+Variant 1: [Detailed prompt for first variation]
+Variant 2: [Detailed prompt for second variation] 
+Variant 3: [Optional third prompt for variety]
+
+Each variant should be professional photography prompts focusing on lighting, pose, expression, and styling that matches the requested intent.`;
+
+      // Call Claude API for intelligent Maya response
+      const anthropic = await import('@anthropic-ai/sdk');
+      const client = new anthropic.default({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+      const chatMessages = chatHistory ? chatHistory.slice(-4) : [];
+      const contextMessage = chatMessages.length > 0 
+        ? `Recent conversation context: ${chatMessages.map(m => `${m.role}: ${m.content}`).join('\n')}`
+        : 'Starting new styling session.';
+
+      const response = await client.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [
+          { 
+            role: 'user', 
+            content: `${contextMessage}\n\nCreate variants for this styling intent: ${JSON.stringify(intent)}` 
+          }
+        ],
+      });
+
+      const content = response.content[0].type === 'text' ? response.content[0].text : '';
+      
+      // Parse Maya's response
+      const messageMatch = content.match(/Message:\s*(.+?)(?=\n\nVariant|\nVariant|$)/s);
+      const variantMatches = content.match(/Variant \d+:\s*(.+?)(?=\nVariant|\n\n|$)/gs);
+      
+      const message = messageMatch ? messageMatch[1].trim() : "Let's create something stunning together!";
+      const variants = variantMatches ? variantMatches.map(v => 
+        v.replace(/Variant \d+:\s*/, '').trim()
+      ) : [];
+
+      // Prepend realism tokens to each variant
+      const realismPrefix = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
+      const enhancedVariants = variants.map(variant => realismPrefix + variant);
+
+      console.log(`🎨 Maya Compose: Generated ${enhancedVariants.length} variants for user ${userId}`);
+
+      res.json({
+        message,
+        variants: enhancedVariants
+      });
+      
+    } catch (error) {
+      console.error('❌ Maya Compose error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to compose looks", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Maya Chat alias - Ensure /api/maya-chat works  
+  app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { message, chatId, chatHistory } = req.body;
+      
+      console.log('🎬 Maya Chat (alias): Processing message for user:', userId);
+      
+      // Load Maya personality and create response
+      const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality');
+      const mayaPersonality = JSON.stringify(MAYA_PERSONALITY);
+      
+      const anthropic = await import('@anthropic-ai/sdk');
+      const client = new anthropic.default({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+      const context = chatHistory ? 
+        chatHistory.slice(-4).map((m: any) => `${m.role}: ${m.content}`).join('\n') : 
+        'Starting conversation.';
+
+      const response = await client.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        system: mayaPersonality,
+        messages: [
+          { 
+            role: 'user', 
+            content: `${context}\n\nUser: ${message}` 
+          }
+        ],
+      });
+
+      const mayaResponse = response.content[0].type === 'text' ? response.content[0].text : 'Hi there! How can I help you create stunning photos today?';
+      
+      // Create or use existing chat
+      let finalChatId = chatId;
+      if (!finalChatId && userId) {
+        try {
+          const newChat = await storage.createMayaChat({
+            userId,
+            chatTitle: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
+            chatSummary: 'Personal brand styling session'
+          });
+          finalChatId = newChat.id;
+        } catch (error) {
+          console.error('Error creating chat:', error);
+        }
+      }
+
+      res.json({
+        message: mayaResponse,
+        chatId: finalChatId
+      });
+      
+    } catch (error) {
+      console.error('❌ Maya Chat alias error:', error);
+      res.status(500).json({ 
+        message: "Failed to process chat message", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Maya Image Generation endpoint - Restored working version
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
@@ -1659,7 +1811,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         // Migrate URLs to permanent storage
         const { ImageStorageService } = await import('./image-storage-service');
         const permanentUrls = await Promise.all(
-          outputUrls.map((url: string) => ImageStorageService.ensurePermanentStorage(url))
+          outputUrls.map((url: string) => ImageStorageService.ensurePermanentStorage(url, userId, 'maya-generation'))
         );
         
         console.log(`✅ Maya polling: Generation complete with ${permanentUrls.length} images`);
@@ -3442,6 +3594,7 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
       });
       
     } catch (error) {
+      const userId = req.user?.claims?.sub;
       console.error(`❌ Migration failed for user ${userId}:`, error);
       res.status(500).json({
         success: false,
