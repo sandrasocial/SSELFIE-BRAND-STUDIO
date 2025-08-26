@@ -13,6 +13,30 @@ import {
   type User 
 } from '../shared/schema';
 
+// Feature flag to prevent Maya from using this service
+export const MAYA_USE_UNIFIED = process.env.MAYA_USE_UNIFIED === "1"; // default false
+
+/**
+ * WRAPPER: Single entry point that calls ModelTrainingService
+ * DO NOT build payload here - delegate to ModelTrainingService
+ */
+export async function generateImages(opts: {
+  userId: string;
+  prompt: string; 
+  count?: number;
+  preset?: string;
+  seed?: number;
+}) {
+  const { ModelTrainingService } = await import('./model-training-service');
+  
+  return ModelTrainingService.generateUserImages(
+    opts.userId,
+    opts.prompt,
+    opts.count ?? 4
+    // TODO: pass through preset/seed if ModelTrainingService supports them
+  );
+}
+
 export interface UnifiedGenerationRequest {
   userId: string;
   prompt: string;

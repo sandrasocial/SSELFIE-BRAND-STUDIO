@@ -1593,102 +1593,30 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log(`🔑 Trigger Word: ${triggerWord}`);
       console.log(`✨ Final Prompt: ${finalPrompt}`);
       
-      // MANDATORY LORA WEIGHTS ENFORCEMENT: Maya must NEVER use base FLUX  
-      // Use existing userModel variable from line 1543
-      if (!userModel) {
-        return res.status(409).json({ 
+      // FORCE SINGLE PATH: Use only ModelTrainingService.generateUserImages
+      console.log(`🎯 MAYA: Forcing through ModelTrainingService.generateUserImages`);
+      
+      // Guard: refuse to run without weights
+      if (!userModel?.loraWeightsUrl) {
+        return res.status(422).json({ 
           success: false,
-          message: "No user model found. Please complete training first.",
-          error: "USER_MODEL_MISSING" 
-        });
-      }
-
-      // Extract LoRA weights if missing
-      if (!userModel.loraWeightsUrl) {
-        console.log(`🔧 MAYA: Extracting LoRA weights for user ${userId}...`);
-        const { ModelTrainingService } = await import('./model-training-service');
-        const extractedWeights = await ModelTrainingService.extractLoRAWeights(userModel);
-        
-        if (extractedWeights) {
-          await storage.updateUserModel(userId, { loraWeightsUrl: extractedWeights });
-          userModel.loraWeightsUrl = extractedWeights;
-          console.log(`✅ MAYA: LoRA weights extracted and saved: ${extractedWeights}`);
-        }
-      }
-
-      // MANDATORY: Refuse to run without LoRA weights
-      if (!userModel.loraWeightsUrl) {
-        console.error(`🚨 MAYA: REFUSING GENERATION - No LoRA weights for user ${userId}`);
-        return res.status(422).json({
-          success: false,
-          message: "Your personalized AI model isn't ready yet. Please finish training or contact support.",
+          message: "Your model weights aren't attached yet. Please finish training or contact support.",
           error: "LORA_WEIGHTS_MISSING"
         });
       }
-      
-      console.log(`🎯 MAYA: Using base FLUX 1.1 Pro + LoRA weights: ${userModel.loraWeightsUrl}`);
-      
-      // MAYA GENERATION: Base FLUX 1.1 Pro + LoRA weights (correct approach)
-      const requestBody = {
-        version: "black-forest-labs/flux-1.1-pro", // Base model
-        input: {
-          seed: Math.floor(Math.random() * 1000000),
-          prompt: finalPrompt,
-          lora_weights: userModel.loraWeightsUrl, // MANDATORY personalizing LoRA
-          lora_scale: 1,
-          guidance_scale: 2.8,
-          num_inference_steps: 30,
-          aspect_ratio: "3:4",
-          output_format: "png",
-          output_quality: 95,
-          go_fast: false,
-          megapixels: "1"
-        }
-      };
-      
-      // Log what Replicate will receive (for debugging)
-      console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input));
-      console.log("🎯 Using LoRA:", !!requestBody.input.lora_weights);
-      console.log("🔑 LoRA URL:", userModel.loraWeightsUrl.substring(0, 50) + "...");
 
-      // Call Replicate API directly
-      const response = await fetch('https://api.replicate.com/v1/predictions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('🚨 Replicate API error:', response.status, errorText);
-        throw new Error(`Replicate API error: ${response.status} - ${errorText}`);
-      }
-
-      const prediction = await response.json();
-      console.log('✅ Maya: Prediction started:', prediction.id);
-
-      // Create generation tracker for live progress monitoring
-      const trackerData: any = {
+      // Import and call ModelTrainingService directly
+      const { ModelTrainingService } = await import('./model-training-service');
+      const result = await ModelTrainingService.generateUserImages(
         userId,
-        predictionId: prediction.id,
-        prompt: finalPrompt,
-        style: 'Maya Editorial',
-        status: 'processing',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      const savedTracker = await storage.saveGenerationTracker(trackerData);
-      console.log('📊 Maya: Created tracker:', savedTracker.id);
+        finalPrompt,
+        2 // count
+      );
 
-      // Return immediately with predictionId for frontend polling 
+      // Return with predictionId for frontend polling
       res.json({
         success: true,
-        trackerId: savedTracker.id,
-        predictionId: prediction.id,
+        predictionId: result.predictionId,
         message: "Maya is creating your stunning editorial photos! Watch the magic happen...",
         status: 'processing'
       });
