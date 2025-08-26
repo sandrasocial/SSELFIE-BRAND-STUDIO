@@ -458,59 +458,73 @@ export class ModelTrainingService {
         ? options.seed!
         : Math.floor(Math.random() * 1e9);
 
-      // CRITICAL: Extract LoRA weights if not available using proper API method
+      // DETERMINISTIC PATH LOGIC: Prefer PACKAGED MODEL path by default (safest today)
+      const usePackaged = 
+        !!(userModel?.replicateModelId && userModel?.replicateVersionId) &&
+        process.env.MAYA_USE_PACKAGED !== "0"; // default true
+
+      let requestBody: any;
       let loraWeightsUrl = userModel?.loraWeightsUrl;
-      
-      if (!loraWeightsUrl) {
-        console.log(`🔧 TRAINING SERVICE: Extracting LoRA weights for user ${userId}`);
-        
-        try {
-          // Use the proper extractLoRAWeights function
-          loraWeightsUrl = await this.extractLoRAWeights(userModel);
-          
-          if (loraWeightsUrl) {
-            // Update the user model with the extracted weights URL
-            await storage.updateUserModel(userId, { loraWeightsUrl });
-            console.log(`✅ WEIGHTS EXTRACTED AND SAVED: ${loraWeightsUrl}`);
+
+      if (usePackaged) {
+        // PATH 1: PACKAGED MODEL (Preferred - safest today)
+        const modelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+        requestBody = {
+          version: modelVersion,
+          input: {
+            prompt: finalPrompt,
+            aspect_ratio: "3:4",
+            output_format: "png",
+            output_quality: 95,
+            seed: Math.floor(Math.random() * 1e9)
           }
-        } catch (error) {
-          console.error(`❌ Failed to extract LoRA weights for user ${userId}:`, error);
-          // Don't throw error here - allow graceful fallback
+        };
+      } else {
+        // PATH 2: Base FLUX + LoRA (requires LoRA weights extraction)
+        if (!loraWeightsUrl) {
+          console.log(`🔧 TRAINING SERVICE: Extracting LoRA weights for user ${userId}`);
+          
+          try {
+            // Use the proper extractLoRAWeights function
+            loraWeightsUrl = await this.extractLoRAWeights(userModel);
+            
+            if (loraWeightsUrl) {
+              // Update the user model with the extracted weights URL
+              await storage.updateUserModel(userId, { loraWeightsUrl });
+              console.log(`✅ WEIGHTS EXTRACTED AND SAVED: ${loraWeightsUrl}`);
+            }
+          } catch (error) {
+            console.error(`❌ Failed to extract LoRA weights for user ${userId}:`, error);
+          }
         }
-      }
-      
-      // MANDATORY: Refuse to run without LoRA weights
-      if (!loraWeightsUrl) {
-        console.error(`🚨 TRAINING SERVICE: REFUSING GENERATION - No LoRA weights for user ${userId}`);
-        throw new Error(`BLOCKED: Missing lora_weights for user ${userId}`);
-      }
-      
-      // FLUX 1.1 Pro + LoRA architecture with optimal realistic settings  
-      const requestBody: any = {
-        version: modelVersion, // Use the user's specific trained model
-        input: {
-          prompt: finalPrompt,
-          lora_weights: loraWeightsUrl, // MANDATORY - always present
-          negative_prompt: "portrait, headshot, passport photo, studio shot, centered face, isolated subject, corporate headshot, ID photo, school photo, posed, glossy skin, shiny skin, oily skin, plastic skin, overly polished, artificial lighting, fake appearance, heavily airbrushed, perfect skin, flawless complexion, heavy digital enhancement, strong beauty filter, unrealistic skin texture, synthetic appearance, smooth skin, airbrushed, retouched, magazine retouching, digital perfection, waxy skin, doll-like skin, porcelain skin, flawless makeup, heavy foundation, concealer, smooth face, perfect complexion, digital smoothing, beauty app filter, Instagram filter, snapchat filter, face tune, photoshop skin, shiny face, polished skin, reflective skin, wet skin, slick skin, lacquered skin, varnished skin, glossy finish, artificial shine, digital glow, skin blur, inconsistent hair color, wrong hair color, blonde hair, light hair, short hair, straight hair, flat hair, limp hair, greasy hair, stringy hair, unflattering hair, bad hair day, messy hair, unkempt hair, oily hair, lifeless hair, dull hair, damaged hair",
-          lora_scale: merged.lora_scale ?? 1,
-          guidance_scale: merged.guidance_scale ?? 2.8,
-          num_inference_steps: merged.num_inference_steps ?? 30,
-          num_outputs: count,
-          aspect_ratio: (merged.aspect_ratio ?? "4:5"),
-          output_format: (merged.output_format ?? "png"),
-          output_quality: (merged.output_format === "jpg" ? ((merged as any).output_quality ?? 90) : undefined),
-          go_fast: (merged.go_fast ?? false),
-          megapixels: (merged.megapixels ?? "1"),
-          seed
+
+        // MANDATORY: Refuse to run without LoRA weights
+        if (!loraWeightsUrl) {
+          throw new Error("BLOCKED: Missing lora_weights; refusing base FLUX.");
         }
-      };
-      
-      // Hard guard before Replicate API call
-      console.log("🚚 TrainingService payload keys:", Object.keys(requestBody.input));
-      if (!requestBody.input.lora_weights) {
-        console.error("⛔ TrainingService blocked: missing lora_weights");
-        throw new Error(`BLOCKED: Missing lora_weights for user ${userId}`);
+
+        requestBody = {
+          version: "black-forest-labs/flux-1.1-pro",
+          input: {
+            prompt: finalPrompt,
+            lora_weights: loraWeightsUrl,
+            lora_scale: 1,
+            guidance_scale: 2.8,
+            num_inference_steps: 30,
+            aspect_ratio: "3:4",
+            output_format: "png",
+            output_quality: 95,
+            seed: Math.floor(Math.random() * 1e9)
+          }
+        };
       }
+
+      // ABSOLUTE GUARD (no silent base):
+      if (requestBody.version.includes("flux-1.1-pro") && !requestBody.input.lora_weights) {
+        throw new Error("BLOCKED: would call base FLUX without lora_weights.");
+      }
+
+      console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input), "version:", requestBody.version);
 
       const response = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
