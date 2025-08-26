@@ -138,11 +138,12 @@ export class UnifiedGenerationService {
       throw new Error(`Missing loraWeightsUrl; refusing to run base FLUX for user ${userId}.`);
     }
     
-    console.log(`🎯 UNIFIED: Using FLUX 1.1 Pro + LoRA weights: ${userModel.loraWeightsUrl}`);
+    console.log(`🎯 UNIFIED: Using trained model ${modelVersion} + LoRA weights: ${userModel.loraWeightsUrl}`);
     
-    // CORRECT ARCHITECTURE: Base FLUX 1.1 Pro + LoRA weights
+    // CORRECT ARCHITECTURE: User's specific trained model + LoRA weights
+    const modelVersion = `${modelId}:${versionId}`;
     const requestBody = {
-      version: "black-forest-labs/flux-1.1-pro", // Base model
+      version: modelVersion, // Use the user's specific trained model
       input: {
         seed: Math.floor(Math.random() * 1000000),
         prompt: finalPrompt,

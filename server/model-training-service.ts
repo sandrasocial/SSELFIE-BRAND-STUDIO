@@ -485,9 +485,9 @@ export class ModelTrainingService {
         throw new Error(`BLOCKED: Missing lora_weights for user ${userId}`);
       }
       
-      // FLUX 1.1 Pro + LoRA architecture with optimal realistic settings
+      // FLUX 1.1 Pro + LoRA architecture with optimal realistic settings  
       const requestBody: any = {
-        version: "black-forest-labs/flux-1.1-pro",
+        version: modelVersion, // Use the user's specific trained model
         input: {
           prompt: finalPrompt,
           lora_weights: loraWeightsUrl, // MANDATORY - always present
