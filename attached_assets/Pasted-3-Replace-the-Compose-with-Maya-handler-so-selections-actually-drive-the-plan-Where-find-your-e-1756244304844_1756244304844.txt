@@ -1,0 +1,63 @@
+3) Replace the “Compose with Maya” handler so selections actually drive the plan
+
+Where: find your existing composeWithMaya function and replace the whole body with the code below (function name stays the same).
+
+REPLACE:
+
+const composeWithMaya = async () => {
+  if (!framing || !category) {
+    toast({
+      title: 'Choose a framing & category',
+      description: 'Pick Close-Up / Half Body / Full Scene and one category, then tap Compose.'
+    });
+    return;
+  }
+
+  const pickedMoods = moods.slice(0, 2);
+
+  // Structured brief that Maya MUST honor
+  const structuredBrief =
+    `[MAYA_COMPOSE_BRIEF]
+framing: ${framing}
+category: ${category}
+moods: ${pickedMoods.join(', ') || 'none'}
+constraints: always include "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+return_format: First a short pep-talk in Sandra’s voice. Then on a new line: PROMPT: <exact prompt ready for the generator>.
+[/MAYA_COMPOSE_BRIEF]`;
+
+  setIsTyping(true);
+  try {
+    const response = await apiRequest('/api/member-maya-chat', 'POST', {
+      message: structuredBrief,
+      chatId: currentChatId,
+      chatHistory: messages.map(({ role, content }) => ({ role, content }))
+    });
+
+    const mayaMessage: ChatMessage = {
+      role: 'maya',
+      content: response.message,
+      timestamp: new Date().toISOString(),
+      canGenerate: response.canGenerate,
+      generatedPrompt: response.generatedPrompt
+    };
+
+    setMessages(prev => [...prev, mayaMessage]);
+
+    if (response.chatId && !currentChatId) {
+      setCurrentChatId(response.chatId);
+      window.history.replaceState({}, '', `/maya?chat=${response.chatId}`);
+      queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
+    }
+  } catch (err) {
+    console.error('Compose error:', err);
+    toast({ title: 'Maya is busy', description: String(err) });
+  } finally {
+    setIsTyping(false);
+  }
+};
+
+
+Button wiring: ensure your “Compose with Maya” button calls composeWithMaya() (no other changes). Keep the Reset link/button and have it clear the selections:
+
+// Reset action (keep your existing control, just wire it)
+setFraming(null); setCategory(null); setMoods([]);

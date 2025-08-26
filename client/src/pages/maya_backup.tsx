@@ -265,6 +265,41 @@ return_format: First a short pep-talk in Sandra's voice. Then on a new line: PRO
     }
   }
 
+  // ===== Compose flow (luxury soft-intent → Maya crafts variants) =====
+  async function composeWithMaya(chosen?: Partial<Intent>) {
+    // Function removed - using new studio controls instead
+
+    // Show “typing” while composing
+    setIsTyping(true);
+
+    try {
+      const response = await apiRequest('/api/maya/compose', 'POST', {
+        intent: { framing: 'close', style: 'future_ceo', vibe: 'quiet_luxury' },
+        chatHistory: messages.slice(-6).map((m) => ({ role: m.role, content: m.content })),
+      });
+
+      const mayaMsg: ChatMessage = {
+        role: 'maya',
+        content: response.message || "Let's create something beautiful.",
+        timestamp: new Date().toISOString(),
+        canGenerate: true,
+        variants: response.variants || [],
+        nextVariantIndex: 0,
+      };
+
+      setMessages((prev) => [...prev, mayaMsg]);
+      // Optional: record it in chat list
+      queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
+    } catch (err: any) {
+      console.error('Compose error:', err);
+      toast({
+        title: 'Maya is busy',
+        description: err?.message || 'Could not compose looks. Please try again.',
+      });
+    } finally {
+      setIsTyping(false);
+    }
+  }
 
   // ===== Generate (uses the next variant, then advances) =====
   async function generateFromMessage(idx: number) {
