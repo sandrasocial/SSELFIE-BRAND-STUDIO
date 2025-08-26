@@ -1,0 +1,76 @@
+Goal: /api/maya-generate-images must always send lora_weights (and refuse to run if unavailable).
+
+1) Route guard (server/routes/maya-ai-routes.ts)
+
+Right before you call any generator, fetch the user model and enforce weights:
+
+// inside POST /api/maya-generate-images handler, before generation call
+const userModel = await storage.getUserModelByUserId(userId);
+if (!userModel) return res.status(409).json({ error: "No user model found" });
+
+if (!userModel.loraWeightsUrl) {
+  // Optional: try extraction once (small util you already have / planned)
+  // await ModelTrainingService.tryExtractWeights(userModel);
+}
+if (!userModel.loraWeightsUrl) {
+  return res.status(422).json({
+    error: "Your LoRA weights aren’t attached yet. Please finish training or re-link weights."
+  });
+}
+
+
+Then call the generator that passes weights (do not use a path that drops them):
+
+const { images, predictionId } = await ModelTrainingService.generateUserImages(
+  userId,
+  prompt, // Maya’s generated prompt
+  4,      // or your num outputs
+  // optional: pass preset + seed if your signature supports it now
+);
+return res.json({ predictionId });
+
+2) Force-inject LoRA in the unified service (in case something else calls it)
+
+Open server/unified-generation-service.ts and ensure the input always includes weights:
+
+const userModel = await storage.getUserModelByUserId(userId);
+if (!userModel?.loraWeightsUrl) {
+  throw new Error("Missing loraWeightsUrl; refusing to run base FLUX.");
+}
+
+const input = {
+  ...presetParams,
+  prompt,
+  lora_weights: userModel.loraWeightsUrl,
+  lora_scale: presetParams?.lora_scale ?? 1,
+  guidance_scale: presetParams?.guidance_scale ?? 2.8,
+  num_inference_steps: presetParams?.num_inference_steps ?? 30,
+  aspect_ratio: presetParams?.aspect_ratio ?? "3:4",
+  output_format: "png",
+  output_quality: 95,
+  go_fast: false,
+  seed,
+};
+
+
+Important: if you have a helper like pickKeys(...), expand its whitelist to include:
+lora_weights, lora_scale, guidance_scale, num_inference_steps, go_fast, megapixels, negative_prompt.
+
+Right now you’re clearly down-selecting to { seed, prompt, aspect_ratio, output_format } and losing the rest.
+
+3) Kill the “silent fallback”
+
+Anywhere you changed “hard error → graceful fallback,” revert to fail fast if weights are missing. Base FLUX should never run from Maya. It confuses users and burns $$ on non-personal images.
+
+Example in model-training-service.ts:
+
+if (!loraWeightsUrl) {
+  throw new Error(`Missing LoRA weights for user ${userId}`);
+}
+
+4) Log what Replicate will see (one line)
+
+Before posting to Replicate, log the exact input keys:
+
+console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input));
+console.log("🎯 Using LoRA:", !!requestBody.input.lora_weights);

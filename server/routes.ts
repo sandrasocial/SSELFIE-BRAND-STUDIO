@@ -1593,53 +1593,63 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log(`🔑 Trigger Word: ${triggerWord}`);
       console.log(`✨ Final Prompt: ${finalPrompt}`);
       
-      // UNIVERSAL INDIVIDUAL MODEL ARCHITECTURE: All users use their validated trained models
-      const modelVersion = `${modelId}:${versionId}`;
-      console.log(`🎬 Maya: Using model ${modelVersion}`);
-      
-      // CRITICAL TEST: Check if model exists on Replicate before generation
-      console.error(`🔍 PRE-GENERATION MODEL CHECK: Testing existence of ${modelId}`);
-      
-      try {
-        const modelCheckResponse = await fetch(`https://api.replicate.com/v1/models/${modelId}`, {
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-          }
+      // MANDATORY LORA WEIGHTS ENFORCEMENT: Maya must NEVER use base FLUX  
+      // Use existing userModel variable from line 1543
+      if (!userModel) {
+        return res.status(409).json({ 
+          success: false,
+          message: "No user model found. Please complete training first.",
+          error: "USER_MODEL_MISSING" 
         });
-        console.error(`🔍 MODEL CHECK RESULT: ${modelCheckResponse.status} - ${modelCheckResponse.ok ? 'EXISTS' : 'NOT FOUND'}`);
+      }
+
+      // Extract LoRA weights if missing
+      if (!userModel.loraWeightsUrl) {
+        console.log(`🔧 MAYA: Extracting LoRA weights for user ${userId}...`);
+        const { ModelTrainingService } = await import('./model-training-service');
+        const extractedWeights = await ModelTrainingService.extractLoRAWeights(userModel);
         
-        if (!modelCheckResponse.ok) {
-          const errorText = await modelCheckResponse.text();
-          console.error(`🚨 SHANNON'S MODEL NOT FOUND: ${errorText}`);
+        if (extractedWeights) {
+          await storage.updateUserModel(userId, { loraWeightsUrl: extractedWeights });
+          userModel.loraWeightsUrl = extractedWeights;
+          console.log(`✅ MAYA: LoRA weights extracted and saved: ${extractedWeights}`);
         }
-      } catch (modelCheckError) {
-        console.error(`🚨 MODEL CHECK FAILED:`, modelCheckError);
+      }
+
+      // MANDATORY: Refuse to run without LoRA weights
+      if (!userModel.loraWeightsUrl) {
+        console.error(`🚨 MAYA: REFUSING GENERATION - No LoRA weights for user ${userId}`);
+        return res.status(422).json({
+          success: false,
+          message: "Your personalized AI model isn't ready yet. Please finish training or contact support.",
+          error: "LORA_WEIGHTS_MISSING"
+        });
       }
       
-      // MAYA GENERATION: Individual Model with Optimized Parameters
-      console.log(`🎬 MAYA: Using individual trained model ${modelId}:${versionId} with optimized parameters`);
+      console.log(`🎯 MAYA: Using base FLUX 1.1 Pro + LoRA weights: ${userModel.loraWeightsUrl}`);
       
-      // MAYA GENERATION: Using YOUR exact parameter structure
+      // MAYA GENERATION: Base FLUX 1.1 Pro + LoRA weights (correct approach)
       const requestBody = {
-        version: `${modelId}:${versionId}`,
+        version: "black-forest-labs/flux-1.1-pro", // Base model
         input: {
           seed: Math.floor(Math.random() * 1000000),
-          model: "dev",
           prompt: finalPrompt,
-          go_fast: false,
+          lora_weights: userModel.loraWeightsUrl, // MANDATORY personalizing LoRA
           lora_scale: 1,
-          megapixels: "1",
-          num_outputs: 2,
+          guidance_scale: 2.8,
+          num_inference_steps: 30,
           aspect_ratio: "3:4",
           output_format: "png",
-          guidance_scale: 2.8,
           output_quality: 95,
-          prompt_strength: 0.8,
-          extra_lora_scale: 1,
-          num_inference_steps: 30,
-          disable_safety_checker: false
+          go_fast: false,
+          megapixels: "1"
         }
       };
+      
+      // Log what Replicate will receive (for debugging)
+      console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input));
+      console.log("🎯 Using LoRA:", !!requestBody.input.lora_weights);
+      console.log("🔑 LoRA URL:", userModel.loraWeightsUrl.substring(0, 50) + "...");
 
       // Call Replicate API directly
       const response = await fetch('https://api.replicate.com/v1/predictions', {

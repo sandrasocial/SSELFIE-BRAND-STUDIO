@@ -90,41 +90,53 @@ export class UnifiedGenerationService {
     
     console.log(`UNIFIED FINAL PROMPT: "${finalPrompt}"`);
     
-    // OPTION A: FLUX 1.1 Pro + Personal LoRA Weights Architecture
-    console.log(`🔒 BASE MODEL + LORA: Using FLUX 1.1 Pro with personal LoRA weights`);
-    
-    // Get user's personal LoRA weights
+    // MANDATORY LORA WEIGHTS ENFORCEMENT: NEVER use base FLUX
     const userModel = await storage.getUserModelByUserId(userId);
-    const loraWeightsUrl = userModel?.loraWeightsUrl;
+    if (!userModel) {
+      throw new Error(`UNIFIED: Missing user model for ${userId}`);
+    }
+
+    // Extract LoRA weights if missing
+    if (!userModel.loraWeightsUrl) {
+      console.log(`🔧 UNIFIED: Extracting LoRA weights for user ${userId}...`);
+      const { ModelTrainingService } = await import('./model-training-service');
+      const extractedWeights = await ModelTrainingService.extractLoRAWeights(userModel);
+      
+      if (extractedWeights) {
+        await storage.updateUserModel(userId, { loraWeightsUrl: extractedWeights });
+        userModel.loraWeightsUrl = extractedWeights;
+        console.log(`✅ UNIFIED: LoRA weights extracted: ${extractedWeights}`);
+      }
+    }
+
+    // MANDATORY: Refuse to run without LoRA weights
+    if (!userModel.loraWeightsUrl) {
+      throw new Error(`Missing loraWeightsUrl; refusing to run base FLUX for user ${userId}.`);
+    }
     
-    // INDIVIDUAL MODEL ARCHITECTURE: Use trained model directly
-    console.log(`🎬 UNIFIED: Using individual trained model (no separate LoRA weights required)`);
+    console.log(`🎯 UNIFIED: Using FLUX 1.1 Pro + LoRA weights: ${userModel.loraWeightsUrl}`);
     
-    // Skip LoRA check for individual models - they are complete models
-    
-    console.log(`🎯 INDIVIDUAL MODEL: ${modelId}:${versionId}`);
-    
-    // Use YOUR exact parameter structure
+    // CORRECT ARCHITECTURE: Base FLUX 1.1 Pro + LoRA weights
     const requestBody = {
-      version: `${modelId}:${versionId}`,
+      version: "black-forest-labs/flux-1.1-pro", // Base model
       input: {
         seed: Math.floor(Math.random() * 1000000),
-        model: "dev",
         prompt: finalPrompt,
-        go_fast: false,
+        lora_weights: userModel.loraWeightsUrl, // MANDATORY personalizing LoRA
         lora_scale: 1,
-        megapixels: "1",
-        num_outputs: 2,
+        guidance_scale: 2.8,
+        num_inference_steps: 30,
         aspect_ratio: "3:4",
         output_format: "png",
-        guidance_scale: 2.8,
         output_quality: 95,
-        prompt_strength: 0.8,
-        extra_lora_scale: 1,
-        num_inference_steps: 30,
-        disable_safety_checker: false
+        go_fast: false,
+        megapixels: "1"
       }
     };
+    
+    // Log what Replicate will receive
+    console.log("🚚 UNIFIED Replicate payload keys:", Object.keys(requestBody.input));
+    console.log("🎯 UNIFIED Using LoRA:", !!requestBody.input.lora_weights);
     
     // Validate request
     const user = await storage.getUser(userId);
