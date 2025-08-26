@@ -37,7 +37,7 @@ export const GENERATION_SETTINGS = {
   output_format: "png", 
   output_quality: 90,
   lora_scale: 1,              // ✅ USER OPTIMIZED: Maximum model strength (0.95 → 1)
-  guidance: 2.8,              // ✅ USER TESTED: Better natural results (5 → 2.8)
+  guidance_scale: 2.8,        // ✅ USER TESTED: Better natural results (5 → 2.8)
   num_inference_steps: 30,    // ✅ USER TESTED: Faster generation with same quality (50 → 30)
   go_fast: false,
   megapixels: "1"
