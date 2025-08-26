@@ -889,7 +889,7 @@ export default function Maya() {
                           <div className="look-actions">
                             <button
                               className="look-btn"
-                              onClick={() => generateImage(message.variants![0])}
+                              onClick={() => generateFromMessage(index)}
                               disabled={isGenerating}
                             >
                               {isGenerating
