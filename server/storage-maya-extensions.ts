@@ -220,43 +220,60 @@ export class MayaStorageExtensions {
   /**
    * Save user's onboarding data during discovery flow
    */
-  static async saveOnboardingData(userId: string, stepData: any, currentStep: number): Promise<boolean> {
+  static async saveOnboardingData(userId: string, stepData: any, step: number): Promise<boolean> {
     try {
-      console.log(`💾 Maya: Saving onboarding step ${currentStep} for user ${userId}`);
+      console.log(`🔥 CRITICAL FIX: Saving onboarding data for user ${userId}, step ${step}`);
       
-      // Check if record exists
-      const [existing] = await db
-        .select()
-        .from(onboardingData)
-        .where(eq(onboardingData.userId, userId))
-        .limit(1);
-      
-      const updateData = {
+      // Update personal brand data with current step
+      const personalBrandData = {
         userId,
-        currentStep,
-        ...stepData,
+        transformationStory: stepData.transformationStory || '',
+        currentSituation: stepData.currentSituation || '',
+        futureVision: stepData.futureVision || '',
+        businessGoals: stepData.businessGoals || '',
+        onboardingStep: step,
+        isCompleted: step === 6,
+        completedAt: step === 6 ? new Date() : null,
         updatedAt: new Date()
       };
-      
+
+      // FIXED: Check if user record exists, then update or insert
+      const [existing] = await db
+        .select()
+        .from(userPersonalBrand)
+        .where(eq(userPersonalBrand.userId, userId))
+        .limit(1);
+
       if (existing) {
         // Update existing record
         await db
-          .update(onboardingData)
-          .set(updateData)
-          .where(eq(onboardingData.userId, userId));
-        console.log(`✅ Maya: Updated onboarding data for user ${userId} step ${currentStep}`);
+          .update(userPersonalBrand)
+          .set({
+            transformationStory: personalBrandData.transformationStory,
+            currentSituation: personalBrandData.currentSituation,
+            futureVision: personalBrandData.futureVision,
+            businessGoals: personalBrandData.businessGoals,
+            onboardingStep: personalBrandData.onboardingStep,
+            isCompleted: personalBrandData.isCompleted,
+            completedAt: personalBrandData.completedAt,
+            updatedAt: personalBrandData.updatedAt
+          })
+          .where(eq(userPersonalBrand.userId, userId));
+        console.log(`📝 FIXED: Updated existing personal brand record for user ${userId}`);
       } else {
         // Insert new record
         await db
-          .insert(onboardingData)
-          .values(updateData);
-        console.log(`✅ Maya: Created onboarding data for user ${userId} step ${currentStep}`);
+          .insert(userPersonalBrand)
+          .values(personalBrandData);
+        console.log(`🆕 FIXED: Created new personal brand record for user ${userId}`);
       }
-      
+
+      console.log(`✅ FIXED: Onboarding data saved successfully for user ${userId}`);
       return true;
+      
     } catch (error) {
-      console.error('❌ Error saving onboarding data:', error);
-      return false;
+      console.error('🚨 CRITICAL ERROR: Failed to save onboarding data:', error);
+      throw error;
     }
   }
 
