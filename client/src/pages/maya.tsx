@@ -107,13 +107,19 @@ export default function Maya() {
   const checkOnboardingStatus = async () => {
     try {
       console.log('🔍 Maya: Checking onboarding status, auth state:', { isAuthenticated, authLoading });
-      const response = await apiRequest('/api/maya-onboarding/status');
-      console.log('✅ Maya: Onboarding status received:', response);
-      if (response?.status) {
-        setOnboardingStatus(response.status);
+      const response = await apiRequest('/api/maya-unified/status');
+      console.log('✅ Maya: Unified status received:', response);
+      if (response?.success) {
+        const status = {
+          isCompleted: response.onboardingComplete,
+          currentStep: 1, // Will be updated from chat history
+          progress: response.onboardingComplete ? 100 : 0,
+          hasStarted: true
+        };
+        setOnboardingStatus(status);
         
         // If not completed, start onboarding mode
-        if (!response.status.isCompleted) {
+        if (!response.onboardingComplete) {
           setIsOnboardingMode(true);
           initializeOnboarding();
         } else {
@@ -220,105 +226,67 @@ export default function Maya() {
     const messageToSend = messageContent || input.trim();
     if (!messageToSend || isTyping) return;
 
+    // Add user message to UI
     const userMessage: ChatMessage = {
       role: 'user',
       content: messageToSend,
       timestamp: new Date().toISOString(),
     };
-
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
 
     try {
-      let response;
+      // SINGLE MAYA ENDPOINT for all interactions
+      const response = await apiRequest('/api/maya-unified/chat', 'POST', {
+        message: messageToSend,
+        context: isOnboardingMode ? 'onboarding' : 'regular',
+        chatId: currentChatId,
+        onboardingStep: onboardingStatus?.currentStep
+      });
 
-      if (isOnboardingMode) {
-        // Use onboarding endpoint
-        response = await apiRequest('/api/maya-onboarding/conversation', 'POST', {
-          message: messageToSend,
-          step: onboardingStatus?.currentStep || 1
-        });
+      // Handle unified response
+      const mayaMessage: ChatMessage = {
+        role: 'maya',
+        content: response.message,
+        timestamp: new Date().toISOString(),
+        canGenerate: response.canGenerate,
+        generatedPrompt: response.generatedPrompt,
+        quickButtons: response.quickButtons
+      };
 
-        if (response?.maya_response) {
-          const mayaResponse = response.maya_response;
-          
-          const mayaMessage: ChatMessage = {
-            role: 'maya',
-            content: mayaResponse.message,
-            timestamp: new Date().toISOString(),
-            questions: mayaResponse.questions || [],
-            quickButtons: mayaResponse.quickButtons || [],
-            stepGuidance: mayaResponse.step_guidance,
-            isOnboarding: true
-          };
+      setMessages(prev => [...prev, mayaMessage]);
 
-          setMessages(prev => [...prev, mayaMessage]);
-
-          // Update onboarding progress
-          if (response.context) {
-            setOnboardingStatus(prev => ({
-              ...prev,
-              currentStep: response.context.onboarding_progress || prev?.currentStep || 1,
-              progress: mayaResponse.progress || prev?.progress || 0,
-              isCompleted: response.context.is_completed || false
-            }));
-          }
-
-          // Check if onboarding is complete
-          if (mayaResponse.next_action === 'complete_onboarding' || response.context?.is_completed) {
-            setTimeout(() => {
-              setIsOnboardingMode(false);
-              setOnboardingStatus(prev => ({ ...prev!, isCompleted: true }));
-              
-              // Add completion message
-              const completionMessage: ChatMessage = {
-                role: 'maya',
-                content: "Amazing! Now I know your story and can help you create photos that truly show your power. What kind of incredible photos should we create first?",
-                timestamp: new Date().toISOString(),
-                quickButtons: ["Professional Headshots", "Social Media Photos", "Website Photos", "Email & Marketing Photos", "Premium Brand Photos"]
-              };
-              setMessages(prev => [...prev, completionMessage]);
-            }, 2000);
-          }
+      // Update UI state based on response
+      if (response.mode === 'onboarding' && response.onboardingProgress) {
+        setOnboardingStatus(response.onboardingProgress);
+        
+        // Check if onboarding is complete
+        if (response.onboardingProgress.isComplete) {
+          setTimeout(() => {
+            setIsOnboardingMode(false);
+            setOnboardingStatus(prev => ({ ...prev!, isCompleted: true }));
+          }, 2000);
         }
-      } else {
-        // Use regular Maya endpoint
-        response = await apiRequest('/api/member-maya-chat', 'POST', {
-          message: messageToSend,
-          chatId: currentChatId,
-          chatHistory: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
-        });
-
-        if (response.chatId && !currentChatId) {
-          setCurrentChatId(response.chatId);
-          window.history.replaceState({}, '', `/maya?chat=${response.chatId}`);
-        }
-
-        const mayaMessage: ChatMessage = {
-          role: 'maya',
-          content: response.message,
-          timestamp: new Date().toISOString(),
-          canGenerate: response.canGenerate,
-          generatedPrompt: response.generatedPrompt,
-        };
-
-        setMessages(prev => [...prev, mayaMessage]);
-
-        // Invalidate chat list to refresh with new/updated chat
-        queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
       }
 
-    } catch (error) {
-      console.error('Error sending message:', error);
+      if (response.chatId && !currentChatId) {
+        setCurrentChatId(response.chatId);
+        window.history.replaceState({}, '', `/maya?chat=${response.chatId}`);
+      }
+
+      // Invalidate chat list to refresh with new/updated chat
+      queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
+
+    } catch (error: any) {
+      console.error('Maya chat error:', error);
+      
       const errorMessage: ChatMessage = {
         role: 'maya',
         content: "I'm having a little trouble connecting right now, but I'm still here with you! Could you try sharing that again? I'm so excited to help you on your journey.",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
+      
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
@@ -336,7 +304,7 @@ export default function Maya() {
     setGenerationProgress(0);
 
     try {
-      const response = await apiRequest('/api/maya-generate-images', 'POST', {
+      const response = await apiRequest('/api/maya-unified/generate', 'POST', {
         prompt,
         chatId: currentChatId,
         preset,
