@@ -422,126 +422,129 @@ function Maya() {
     }
   };
 
-  const generateImages = async (prompt: string, generationId?: string) => {
-    if (isOnboardingMode || !generationId) return; // No generation during onboarding or without ID
-
-    // CRITICAL FIX: Track this specific generation instead of global blocking
-    if (activeGenerations.has(generationId)) {
-      console.log('⚠️ GENERATION ALREADY ACTIVE:', generationId);
-      return;
-    }
+const generateImages = async (prompt: string, generationId?: string) => {
+  if (!generationId || activeGenerations.has(generationId)) {
+    console.log('Generation blocked - missing ID or already active:', generationId);
+    return;
+  }
+  
+  console.log('Starting Maya generation:', { prompt, generationId, preset, seed });
+  
+  setActiveGenerations(prev => new Set([...prev, generationId]));
+  
+  try {
+    // Call Maya's intelligent generation system
+    const response = await apiRequest('/api/maya/generate', 'POST', {
+      prompt,
+      chatId: currentChatId,
+      preset,
+      seed: seed ? Number(seed) : undefined,
+      count: 2 // Maya will intelligently adjust based on shot type
+    });
     
-    // Add to active generations
-    setActiveGenerations(prev => new Set([...prev, generationId]));
-    setIsGeneratingImage(true);
-    console.log('🚀 MULTIPLE GENERATIONS: Started generation', generationId);
-
-    try {
-      const response = await apiRequest('/api/maya/generate', 'POST', {
-        prompt,
-        chatId: currentChatId,
-        preset,
-        seed: seed ? Number(seed) : undefined
-      });
-
-      if (response.predictionId) {
-        console.log('🚀 GENERATION STARTED: Prediction ID:', response.predictionId, 'for generation:', generationId);
-        // Poll for completion
-        const pollForImages = async () => {
-          try {
-            console.log('🔄 POLLING: Checking generation status for prediction:', response.predictionId);
-            const statusResponse = await fetch(`/api/check-generation/${response.predictionId}`, { 
-              credentials: 'include' 
-            }).then(res => res.json());
+    console.log('Maya generation response:', response);
+    
+    if (response.success && response.predictionId) {
+      console.log('Starting polling for prediction:', response.predictionId);
+      
+      // Poll for Maya's generation completion
+      const pollForImages = async () => {
+        try {
+          const statusResponse = await fetch(`/api/maya/check-generation/${response.predictionId}`, { 
+            credentials: 'include' 
+          }).then(res => res.json());
+          
+          console.log('Maya generation status:', statusResponse.status);
+          
+          if (statusResponse.status === 'completed' && statusResponse.imageUrls) {
+            console.log('Maya generation complete! Images:', statusResponse.imageUrls.length);
             
-            console.log('📊 POLLING RESPONSE:', statusResponse.status, statusResponse.imageUrls?.length || 0, 'images');
-
-            if (statusResponse.status === 'completed' && statusResponse.imageUrls) {
-              // Find the SPECIFIC Maya message by generationId and update it with images
-              setMessages(prev => {
-                const newMessages = [...prev];
-                let messageFound = false;
-                
-                // Find by generationId
-                if (generationId) {
-                  for (let i = 0; i < newMessages.length; i++) {
-                    if (newMessages[i].role === 'maya' && newMessages[i].generationId === generationId && newMessages[i].canGenerate) {
-                      console.log('🖼️ POLLING SUCCESS: Found SPECIFIC Maya message by ID:', generationId, 'with', statusResponse.imageUrls.length, 'images');
-                      newMessages[i] = {
-                        ...newMessages[i],
-                        imagePreview: statusResponse.imageUrls,
-                        canGenerate: false
-                      };
-                      messageFound = true;
-                      break;
-                    }
+            // Update the specific Maya message with generated images
+            setMessages(prev => prev.map(msg => 
+              msg.generationId === generationId 
+                ? { 
+                    ...msg, 
+                    imagePreview: statusResponse.imageUrls, 
+                    canGenerate: false 
                   }
-                }
-                
-                if (!messageFound) {
-                  console.error('❌ POLLING: Could not find Maya message with generation ID:', generationId);
-                }
-                
-                return newMessages;
-              });
-              
-              // Remove from active generations
-              setActiveGenerations(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(generationId);
-                console.log('✅ MULTIPLE GENERATIONS: Completed generation', generationId, 'Remaining:', Array.from(newSet));
-                if (newSet.size === 0) setIsGeneratingImage(false);
-                return newSet;
-              });
-              
-            } else if (statusResponse.status === 'failed') {
-              console.error('❌ POLLING: Generation failed:', statusResponse.error);
-              // Remove from active generations on failure
-              setActiveGenerations(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(generationId);
-                if (newSet.size === 0) setIsGeneratingImage(false);
-                return newSet;
-              });
-              throw new Error(statusResponse.error || 'Generation failed');
-            } else {
-              // Still processing, continue polling
-              console.log('⏳ POLLING: Still processing generation:', generationId);
-              setTimeout(pollForImages, 2000);
-            }
-          } catch (pollError) {
-            console.error('Polling error:', pollError);
-            // Remove from active generations on error
+                : msg
+            ));
+            
+            // Remove from active generations
+            setActiveGenerations(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(generationId);
+              console.log('Maya generation completed, remaining active:', Array.from(newSet));
+              return newSet;
+            });
+            
+          } else if (statusResponse.status === 'failed') {
+            console.error('Maya generation failed:', statusResponse.error);
+            
+            // Update message with error state
+            setMessages(prev => prev.map(msg => 
+              msg.generationId === generationId 
+                ? { 
+                    ...msg, 
+                    content: msg.content + '\n\nSorry, generation failed. Let me try creating different photos for you!',
+                    canGenerate: false 
+                  }
+                : msg
+            ));
+            
             setActiveGenerations(prev => {
               const newSet = new Set(prev);
               newSet.delete(generationId);
               return newSet;
             });
-            throw pollError;
+            
+          } else {
+            // Still processing - continue polling
+            console.log('Maya still generating, polling again in 3 seconds...');
+            setTimeout(pollForImages, 3000);
           }
-        };
-
-        setTimeout(pollForImages, 2000);
-
-      } else {
-        throw new Error('Failed to start generation');
-      }
-
-    } catch (error) {
-      console.error('Generation error:', error);
-      toast({
-        title: "Generation Error",
-        description: "Failed to generate images. Please try again."
-      });
+        } catch (pollError) {
+          console.error('Maya polling error:', pollError);
+          setActiveGenerations(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(generationId);
+            return newSet;
+          });
+        }
+      };
       
-      // Remove from active generations on error
+      // Start polling after 3 seconds
+      setTimeout(pollForImages, 3000);
+      
+    } else {
+      console.error('Maya generation failed to start:', response);
       setActiveGenerations(prev => {
         const newSet = new Set(prev);
         newSet.delete(generationId);
         return newSet;
       });
     }
-  };
+    
+  } catch (error) {
+    console.error('Maya generation error:', error);
+    setActiveGenerations(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(generationId);
+      return newSet;
+    });
+    
+    // Show user-friendly error in chat
+    setMessages(prev => prev.map(msg => 
+      msg.generationId === generationId 
+        ? { 
+            ...msg, 
+            content: msg.content + '\n\nI had trouble generating those photos. Let me try a different approach - what specific style are you looking for?',
+            canGenerate: false 
+          }
+        : msg
+    ));
+  }
+};
 
   const saveToGallery = async (imageUrl: string) => {
     if (savingImages.has(imageUrl) || savedImages.has(imageUrl)) return;
