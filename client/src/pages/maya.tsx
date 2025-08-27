@@ -354,12 +354,12 @@ export default function Maya() {
     // This will be handled by Maya's generation system
     const prompt = `Create a professional photo concept: ${conceptName}`;
     
-    // Add a message indicating generation is starting
+    // Add a message indicating generation is starting - CRITICAL: canGenerate MUST be true for polling to find it
     const generatingMessage: ChatMessage = {
       role: 'maya',
       content: `Perfect choice! I'm creating your "${conceptName}" photos right now using all my styling expertise. This is going to look absolutely stunning!`,
       timestamp: new Date().toISOString(),
-      canGenerate: false
+      canGenerate: true  // CRITICAL: Must be true so polling can find this message to update with images
     };
     setMessages(prev => [...prev, generatingMessage]);
     
@@ -382,12 +382,16 @@ export default function Maya() {
       });
 
       if (response.predictionId) {
+        console.log('🚀 GENERATION STARTED: Prediction ID:', response.predictionId);
         // Poll for completion
         const pollForImages = async () => {
           try {
+            console.log('🔄 POLLING: Checking generation status for prediction:', response.predictionId);
             const statusResponse = await fetch(`/api/check-generation/${response.predictionId}`, { 
               credentials: 'include' 
             }).then(res => res.json());
+            
+            console.log('📊 POLLING RESPONSE:', statusResponse.status, statusResponse.imageUrls?.length || 0, 'images');
 
             if (statusResponse.status === 'completed' && statusResponse.imageUrls) {
               // Find the last Maya message and update it with images
@@ -395,6 +399,7 @@ export default function Maya() {
                 const newMessages = [...prev];
                 for (let i = newMessages.length - 1; i >= 0; i--) {
                   if (newMessages[i].role === 'maya' && newMessages[i].canGenerate) {
+                    console.log('🖼️ POLLING SUCCESS: Found Maya message to update with images:', statusResponse.imageUrls.length);
                     newMessages[i] = {
                       ...newMessages[i],
                       imagePreview: statusResponse.imageUrls,
@@ -408,10 +413,12 @@ export default function Maya() {
               setIsGenerating(false);
               setGenerationProgress(100);
             } else if (statusResponse.status === 'failed') {
+              console.error('❌ POLLING: Generation failed:', statusResponse.error);
               throw new Error(statusResponse.error || 'Generation failed');
             } else {
               // Still processing, update progress
               const progress = Math.min(90, generationProgress + 10);
+              console.log('⏳ POLLING: Still processing, progress:', progress + '%');
               setGenerationProgress(progress);
               setTimeout(pollForImages, 2000);
             }
