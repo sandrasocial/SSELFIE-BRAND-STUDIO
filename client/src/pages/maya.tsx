@@ -1222,7 +1222,7 @@ function Maya() {
           margin-top: 40px;
         }
 
-        /* Responsive */
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
           .path-selection-grid {
             grid-template-columns: 1fr;
@@ -1230,7 +1230,54 @@ function Maya() {
           }
           
           .card-overlay {
-            padding: 30px;
+            padding: clamp(20px, 5vw, 30px);
+          }
+
+          /* Touch-friendly buttons */
+          .quick-button {
+            min-height: 44px !important;
+            min-width: 120px !important;
+            padding: 12px 16px !important;
+            font-size: 13px !important;
+            margin: 4px !important;
+            touch-action: manipulation;
+          }
+
+          .send-btn {
+            min-height: 44px !important;
+            min-width: 60px !important;
+            touch-action: manipulation;
+          }
+
+          .input-field {
+            min-height: 44px !important;
+            font-size: 16px !important; /* Prevents zoom on iOS */
+            padding: 12px 16px !important;
+            touch-action: manipulation;
+          }
+
+          /* Image grid mobile optimization */
+          .image-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+
+          .save-btn {
+            width: 40px !important;
+            height: 40px !important;
+            opacity: 1 !important; /* Always visible on mobile */
+          }
+
+          /* Style quickselect mobile */
+          .style-quickselect {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+          }
+
+          .style-option {
+            min-height: 44px !important;
+            padding: 16px !important;
+            touch-action: manipulation;
           }
         }
 

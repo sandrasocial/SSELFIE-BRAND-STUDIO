@@ -208,15 +208,15 @@ function SSELFIEGallery() {
           overlay={0.4}
         />
         
-        {/* Gallery Statistics & Controls Section */}
+        {/* Gallery Statistics & Controls Section - Mobile Optimized */}
         <section style={{
-          padding: '80px 0 60px 0',
+          padding: 'clamp(40px, 8vw, 80px) 0 clamp(30px, 6vw, 60px) 0',
           background: '#ffffff'
         }}>
           <div style={{
             maxWidth: '1400px',
             margin: '0 auto',
-            padding: '0 6vw'
+            padding: '0 clamp(20px, 6vw, 6vw)'
           }}>
             <div style={{
               textAlign: 'center',
@@ -235,19 +235,20 @@ function SSELFIEGallery() {
               </p>
             </div>
             
-            {/* Gallery Stats - Centered Layout */}
+            {/* Gallery Stats - Centered Layout - Mobile Responsive */}
             <div style={{
               display: 'flex',
               justifyContent: 'center',
-              gap: '80px',
+              gap: 'clamp(40px, 10vw, 80px)',
               alignItems: 'center',
-              marginBottom: '60px',
-              flexWrap: 'wrap'
+              marginBottom: 'clamp(30px, 8vw, 60px)',
+              flexWrap: 'wrap',
+              padding: '0 20px'
             }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{
                   fontFamily: 'Times New Roman, serif',
-                  fontSize: '64px',
+                  fontSize: 'clamp(32px, 12vw, 64px)',
                   fontWeight: 200,
                   lineHeight: 1,
                   marginBottom: '8px'
@@ -267,7 +268,7 @@ function SSELFIEGallery() {
               <div style={{ textAlign: 'center' }}>
                 <div style={{
                   fontFamily: 'Times New Roman, serif',
-                  fontSize: '64px',
+                  fontSize: 'clamp(32px, 12vw, 64px)',
                   fontWeight: 200,
                   lineHeight: 1,
                   marginBottom: '8px'
@@ -288,9 +289,10 @@ function SSELFIEGallery() {
                 <button
                   onClick={downloadAllImages}
                   disabled={isDownloadingAll}
+                  className="touch-manipulation"
                   style={{
-                    padding: '16px 32px',
-                    fontSize: '11px',
+                    padding: 'clamp(14px, 3vw, 16px) clamp(24px, 6vw, 32px)',
+                    fontSize: 'clamp(10px, 2.5vw, 11px)',
                     fontWeight: 400,
                     letterSpacing: '0.3em',
                     textTransform: 'uppercase',
@@ -300,7 +302,8 @@ function SSELFIEGallery() {
                     background: 'transparent',
                     transition: 'all 300ms ease',
                     cursor: isDownloadingAll ? 'wait' : 'pointer',
-                    minWidth: '200px',
+                    minWidth: 'clamp(180px, 30vw, 200px)',
+                    minHeight: '44px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -478,8 +481,9 @@ function SSELFIEGallery() {
               {isLoading ? (
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                  gap: '30px'
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(250px, 40vw, 300px), 1fr))',
+                  gap: 'clamp(16px, 4vw, 30px)',
+                  padding: '0 20px'
                 }}>
                   {Array.from({ length: 6 }).map((_, index) => (
                     <div
@@ -497,8 +501,9 @@ function SSELFIEGallery() {
               ) : (
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                  gap: '30px'
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(250px, 40vw, 300px), 1fr))',
+                  gap: 'clamp(16px, 4vw, 30px)',
+                  padding: '0 20px'
                 }}>
                 {filteredImages.map((image, index) => (
                   <div
@@ -544,20 +549,26 @@ function SSELFIEGallery() {
                         e.stopPropagation();
                       }}
                       disabled={toggleFavoriteMutation.isPending}
+                      className="touch-manipulation"
                       style={{
                         position: 'absolute',
-                        top: '16px',
-                        right: '16px',
+                        top: 'clamp(12px, 3vw, 16px)',
+                        right: 'clamp(12px, 3vw, 16px)',
                         background: 'rgba(0, 0, 0, 0.6)',
                         border: 'none',
                         color: favorites.includes(image.id) ? '#ff4444' : '#ffffff',
-                        fontSize: '20px',
-                        padding: '8px 10px',
+                        fontSize: 'clamp(18px, 4vw, 20px)',
+                        padding: 'clamp(10px, 2.5vw, 12px)',
                         cursor: toggleFavoriteMutation.isPending ? 'wait' : 'pointer',
                         borderRadius: '50%',
                         transition: 'all 300ms ease',
                         backdropFilter: 'blur(10px)',
-                        zIndex: 10
+                        zIndex: 10,
+                        minWidth: '44px',
+                        minHeight: '44px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}
                       onMouseEnter={(e) => {
                         if (!toggleFavoriteMutation.isPending) {
@@ -634,17 +645,19 @@ function SSELFIEGallery() {
                                 downloadImage(image.imageUrl, `sselfie-${index + 1}.jpg`);
                               }}
                               disabled={downloadingImages.has(image.imageUrl)}
+                              className="touch-manipulation"
                               style={{
                                 background: 'rgba(255, 255, 255, 0.2)',
                                 border: '1px solid rgba(255, 255, 255, 0.3)',
                                 color: '#ffffff',
-                                padding: '8px 12px',
-                                fontSize: '10px',
+                                padding: 'clamp(8px, 2vw, 10px) clamp(10px, 3vw, 12px)',
+                                fontSize: 'clamp(9px, 2vw, 10px)',
                                 letterSpacing: '0.2em',
                                 textTransform: 'uppercase',
                                 cursor: downloadingImages.has(image.imageUrl) ? 'wait' : 'pointer',
                                 transition: 'all 300ms ease',
-                                minWidth: '80px',
+                                minWidth: 'clamp(70px, 15vw, 80px)',
+                                minHeight: '44px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -684,16 +697,19 @@ function SSELFIEGallery() {
                                 e.stopPropagation();
                                 deleteImage(image.id);
                               }}
+                              className="touch-manipulation"
                               style={{
                                 background: 'rgba(255, 68, 68, 0.2)',
                                 border: '1px solid rgba(255, 68, 68, 0.4)',
                                 color: '#ff4444',
-                                padding: '8px 12px',
-                                fontSize: '10px',
+                                padding: 'clamp(8px, 2vw, 10px) clamp(10px, 3vw, 12px)',
+                                fontSize: 'clamp(9px, 2vw, 10px)',
                                 letterSpacing: '0.2em',
                                 textTransform: 'uppercase',
                                 cursor: 'pointer',
-                                transition: 'all 300ms ease'
+                                transition: 'all 300ms ease',
+                                minHeight: '44px',
+                                minWidth: 'clamp(60px, 12vw, 70px)'
                               }}
                               onMouseEnter={(e) => {
                                 (e.target as HTMLButtonElement).style.background = '#ff4444';
