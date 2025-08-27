@@ -1319,22 +1319,22 @@ export default function Maya() {
                   </div>
                   <div className="welcome-eyebrow">Ready to start your brand photoshoot?</div>
                   <h2 className="welcome-title">Choose your path</h2>
-                  <p className="welcome-description">I'm Maya, Sandra's AI stylist with all her secrets from fashion week to building her empire. Let's create stunning professional photos that show your powerful future self.</p>
+                  <p className="welcome-description">Hey gorgeous! I'm Maya, Sandra's AI bestie with all her styling secrets from fashion week to building her empire. Let's create amazing photos together that show the world your powerful future self!</p>
 
                   {/* Editorial Image Cards */}
                   <div className="path-selection-grid">
                     <div className="editorial-card customize-card" onClick={() => handleWelcomeChoice('customize')}>
                       <div className="card-image">
-                        <img src="https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=600&h=400&fit=crop&crop=face" alt="Personal Brand Discovery" />
+                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756240155921.png" alt="Personal Brand Discovery" />
                         <div className="card-overlay">
                           <div className="card-content">
                             <div className="card-eyebrow">5-10 minutes</div>
                             <h3 className="card-title">CUSTOMIZE</h3>
-                            <p className="card-description">Let Maya learn your unique style, personal brand story, and transformation journey before creating your perfect photoshoot.</p>
+                            <p className="card-description">Let me get to know you first! I want to learn your unique style, your personal brand story, and your transformation journey before we create your perfect photos together.</p>
                             <div className="card-features">
-                              <div>→ Personalized styling based on your story</div>
-                              <div>→ Brand-aligned photo concepts</div>
-                              <div>→ Style preferences that last forever</div>
+                              <div>→ Photos that match your personality</div>
+                              <div>→ Brand photos that feel like YOU</div>
+                              <div>→ Your style preferences saved forever</div>
                             </div>
                           </div>
                         </div>
@@ -1343,16 +1343,16 @@ export default function Maya() {
 
                     <div className="editorial-card quickstart-card" onClick={() => handleWelcomeChoice('quickstart')}>
                       <div className="card-image">
-                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop&crop=face" alt="Instant Brand Photos" />
+                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756128420487.png" alt="Instant Brand Photos" />
                         <div className="card-overlay">
                           <div className="card-content">
                             <div className="card-eyebrow">Start immediately</div>
                             <h3 className="card-title">QUICK START</h3>
-                            <p className="card-description">Jump straight into creating professional brand photos. Maya will style you using her complete fashion week expertise.</p>
+                            <p className="card-description">Ready to jump right in? Let's create stunning professional photos right now! I'll use all my fashion week expertise to make you look absolutely amazing.</p>
                             <div className="card-features">
-                              <div>→ Professional photos right now</div>
-                              <div>→ Maya's expert styling applied</div>
-                              <div>→ Perfect for immediate needs</div>
+                              <div>→ Gorgeous photos created instantly</div>
+                              <div>→ My best styling secrets applied</div>
+                              <div>→ Perfect when you need photos now</div>
                             </div>
                           </div>
                         </div>
@@ -1361,7 +1361,7 @@ export default function Maya() {
                   </div>
 
                   <div className="welcome-note">
-                    You can always customize your preferences later in Maya's chat
+                    Don't worry - you can always tell me more about your style preferences later in our chat!
                   </div>
                 </div>
               ) : (
