@@ -65,6 +65,7 @@ export default function Maya() {
   const [savingImages, setSavingImages] = useState(new Set<string>());
   const [savedImages, setSavedImages] = useState(new Set<string>());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
   // Generation controls
   const [preset, setPreset] = useState<Preset>('Editorial');
   const [seed, setSeed] = useState<string>(''); // empty = random
@@ -78,7 +79,7 @@ export default function Maya() {
 
   // Get current chat ID from URL
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !isOnboardingMode) {
       const urlParams = new URLSearchParams(window.location.search);
       const chatIdFromUrl = urlParams.get('chat');
       if (chatIdFromUrl) {
@@ -89,7 +90,7 @@ export default function Maya() {
         }
       }
     }
-  }, []);
+  }, [isOnboardingMode]);
 
   // Auto-scroll to bottom when messages update
   useEffect(() => {
@@ -448,6 +449,8 @@ export default function Maya() {
   };
 
   const handleStyleSelect = (style: string) => {
+    if (isOnboardingMode) return;
+
     const styleMessages = {
       'future-ceo': 'Future CEO - Powerful, professional, ready to run the world',
       'off-duty-model': 'Off-Duty Model - Effortlessly stunning, casual but elevated', 
@@ -478,7 +481,7 @@ export default function Maya() {
       {/* Member Navigation */}
       <MemberNavigation transparent={true} />
 
-      {/* Maya Chat Interface - Copy Updates Only */}
+      {/* Maya Chat Interface */}
       <style dangerouslySetInnerHTML={{ __html: `
         * {
           margin: 0;
@@ -504,7 +507,7 @@ export default function Maya() {
           letter-spacing: -0.01em;
         }
 
-        /* Hero Section - Keep existing image hero */
+        /* Hero Section */
         .hero {
           height: 100vh;
           background: var(--black);
@@ -529,7 +532,6 @@ export default function Maya() {
           object-position: center 20%;
         }
 
-        /* Hero Content - Only text changes */
         .hero-content {
           position: relative;
           z-index: 2;
@@ -633,8 +635,13 @@ export default function Maya() {
           margin-bottom: 30px;
         }
 
-        .new-session-btn:hover {
+        .new-session-btn:hover:not(:disabled) {
           background: var(--soft-gray);
+        }
+
+        .new-session-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         .session-item {
@@ -666,6 +673,36 @@ export default function Maya() {
           font-size: 12px;
           text-align: center;
           padding: 20px 0;
+        }
+
+        /* Onboarding Progress */
+        .onboarding-progress {
+          padding: 20px 30px;
+          margin-bottom: 20px;
+          background: var(--white);
+          border: 1px solid var(--accent-line);
+        }
+
+        .progress-bar {
+          width: 100%;
+          height: 4px;
+          background: var(--accent-line);
+          border-radius: 2px;
+          overflow: hidden;
+          margin-bottom: 12px;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: var(--black);
+          transition: width 500ms ease;
+        }
+
+        .step-indicator {
+          font-size: 10px;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: var(--soft-gray);
         }
 
         /* Chat Area */
@@ -890,6 +927,62 @@ export default function Maya() {
           font-weight: 400;
         }
 
+        /* Quick Buttons */
+        .quick-buttons {
+          margin-top: 20px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .quick-button {
+          padding: 12px 16px;
+          background: transparent;
+          border: 1px solid var(--black);
+          color: var(--black);
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all 300ms ease;
+          font-family: inherit;
+        }
+
+        .quick-button:hover {
+          background: var(--black);
+          color: var(--white);
+        }
+
+        .quick-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        /* Follow-up Questions */
+        .follow-up-questions {
+          margin-top: 20px;
+          padding-top: 20px;
+          border-top: 1px solid var(--accent-line);
+        }
+
+        .questions-label {
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: var(--soft-gray);
+          margin-bottom: 12px;
+        }
+
+        .question-item {
+          font-size: 14px;
+          font-style: italic;
+          color: var(--soft-gray);
+          margin-bottom: 8px;
+          line-height: 1.4;
+        }
+
         /* Typing Indicator */
         .typing-indicator {
           display: flex;
@@ -1105,13 +1198,22 @@ export default function Maya() {
             grid-template-columns: repeat(2, 1fr);
           }
 
+          .quick-buttons {
+            flex-direction: column;
+          }
+
+          .quick-button {
+            width: 100%;
+            text-align: center;
+          }
+
           .hero {
             margin-top: 0;
           }
         }
       ` }} />
 
-      {/* Hero Section - Keep existing image hero, only text changes */}
+      {/* Hero Section */}
       <section className="hero">
         <div className="hero-bg">
           <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
@@ -1129,14 +1231,39 @@ export default function Maya() {
         {/* Sidebar */}
         <aside className="sidebar">
           <div className="sidebar-section">
-            <button className="new-session-btn" onClick={startNewSession}>New Session</button>
+            <button 
+              className="new-session-btn" 
+              onClick={startNewSession}
+              disabled={isOnboardingMode}
+            >
+              {isOnboardingMode ? 'Personal Brand Discovery' : 'New Session'}
+            </button>
           </div>
 
+          {/* Onboarding Progress */}
+          {isOnboardingMode && onboardingStatus && (
+            <div className="sidebar-section">
+              <div className="onboarding-progress">
+                <div className="progress-bar">
+                  <div 
+                    className="progress-fill" 
+                    style={{ width: `${onboardingStatus.progress || 0}%` }}
+                  />
+                </div>
+                <div className="step-indicator">Step {onboardingStatus.currentStep || 1} of 6</div>
+              </div>
+            </div>
+          )}
+
           <div className="sidebar-section">
-            <div className="sidebar-title">Previous Sessions</div>
+            <div className="sidebar-title">
+              {isOnboardingMode ? 'Getting To Know You' : 'Previous Sessions'}
+            </div>
             <ChatHistoryLinks onChatSelect={(chatId) => {
-              loadChatHistory(chatId);
-              window.history.replaceState({}, '', `/maya?chat=${chatId}`);
+              if (!isOnboardingMode) {
+                loadChatHistory(chatId);
+                window.history.replaceState({}, '', `/maya?chat=${chatId}`);
+              }
             }} />
           </div>
         </aside>
@@ -1145,50 +1272,60 @@ export default function Maya() {
         <main className="chat-area">
           {/* Chat Header */}
           <div className="chat-header">
-            <h1 className="chat-title">Maya Studio</h1>
-            <p className="chat-subtitle">Create photos that build your brand</p>
-            {/* Generation controls: preset + seed */}
-            <div style={{ marginTop: 16, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              <label style={{ fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666' }}>
-                Preset
-                <select
-                  value={preset}
-                  onChange={(e) => setPreset(e.target.value as Preset)}
-                  style={{ marginLeft: 8, padding: '8px 10px', border: '1px solid #e5e5e5', background: '#fff' }}
+            <h1 className="chat-title">
+              {isOnboardingMode ? 'Personal Brand Discovery' : 'Maya Studio'}
+            </h1>
+            <p className="chat-subtitle">
+              {isOnboardingMode 
+                ? 'Discovering your story and future self vision' 
+                : 'Create photos that build your brand'
+              }
+            </p>
+            
+            {/* Generation controls - only show when not in onboarding */}
+            {!isOnboardingMode && (
+              <div style={{ marginTop: 16, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                <label style={{ fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666' }}>
+                  Preset
+                  <select
+                    value={preset}
+                    onChange={(e) => setPreset(e.target.value as Preset)}
+                    style={{ marginLeft: 8, padding: '8px 10px', border: '1px solid #e5e5e5', background: '#fff' }}
+                    disabled={isGenerating || isTyping}
+                  >
+                    <option value="Identity">Identity</option>
+                    <option value="Editorial">Editorial</option>
+                    <option value="UltraPrompt">UltraPrompt</option>
+                    <option value="Fast">Fast</option>
+                  </select>
+                </label>
+                <label style={{ fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666' }}>
+                  Seed
+                  <input
+                    type="number"
+                    placeholder="random"
+                    value={seed}
+                    onChange={(e) => setSeed(e.target.value)}
+                    style={{ marginLeft: 8, padding: '8px 10px', width: 140, border: '1px solid #e5e5e5', background: '#fff' }}
+                    disabled={isGenerating || isTyping}
+                  />
+                </label>
+                <button
+                  onClick={() => setSeed(String(Math.floor(Math.random() * 1_000_000_000)))}
                   disabled={isGenerating || isTyping}
+                  style={{ padding: '8px 12px', border: '1px solid #e5e5e5', background: '#fff', cursor: 'pointer' }}
+                  title="Randomize seed"
                 >
-                  <option value="Identity">Identity</option>
-                  <option value="Editorial">Editorial</option>
-                  <option value="UltraPrompt">UltraPrompt</option>
-                  <option value="Fast">Fast</option>
-                </select>
-              </label>
-              <label style={{ fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666' }}>
-                Seed
-                <input
-                  type="number"
-                  placeholder="random"
-                  value={seed}
-                  onChange={(e) => setSeed(e.target.value)}
-                  style={{ marginLeft: 8, padding: '8px 10px', width: 140, border: '1px solid #e5e5e5', background: '#fff' }}
-                  disabled={isGenerating || isTyping}
-                />
-              </label>
-              <button
-                onClick={() => setSeed(String(Math.floor(Math.random() * 1_000_000_000)))}
-                disabled={isGenerating || isTyping}
-                style={{ padding: '8px 12px', border: '1px solid #e5e5e5', background: '#fff', cursor: 'pointer' }}
-                title="Randomize seed"
-              >
-                Randomize
-              </button>
-            </div>
+                  Randomize
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Messages Container */}
           <div className="messages-container">
-            {messages.length === 0 ? (
-              /* Welcome State */
+            {messages.length === 0 && !isOnboardingMode ? (
+              /* Welcome State - Regular Maya */
               <div className="welcome-state">
                 <div className="maya-avatar">
                   <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
@@ -1247,6 +1384,7 @@ export default function Maya() {
                         </>
                       )}
                     </div>
+                    
                     <div className="message-content">
                       <div className="message-text">
                         {message.content.split('\n').map((line, lineIndex) => (
@@ -1257,7 +1395,35 @@ export default function Maya() {
                         ))}
                       </div>
 
-                      {/* Image previews */}
+                      {/* Quick Buttons - for onboarding */}
+                      {message.quickButtons && message.quickButtons.length > 0 && (
+                        <div className="quick-buttons">
+                          {message.quickButtons.map((button, buttonIndex) => (
+                            <button
+                              key={buttonIndex}
+                              className="quick-button"
+                              onClick={() => handleQuickButton(button)}
+                              disabled={isTyping}
+                            >
+                              {button}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Follow-up Questions - for onboarding */}
+                      {message.questions && message.questions.length > 0 && (
+                        <div className="follow-up-questions">
+                          <div className="questions-label">Maya wants to know:</div>
+                          {message.questions.map((question, qIndex) => (
+                            <div key={qIndex} className="question-item">
+                              "{question}"
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Image previews - for regular Maya */}
                       {message.imagePreview && message.imagePreview.length > 0 && (
                         <div className="image-grid">
                           {message.imagePreview.map((imageUrl, imgIndex) => (
@@ -1291,8 +1457,8 @@ export default function Maya() {
                         </div>
                       )}
 
-                      {/* Generation button */}
-                      {message.canGenerate && message.generatedPrompt && (
+                      {/* Generation button - for regular Maya */}
+                      {message.canGenerate && message.generatedPrompt && !isOnboardingMode && (
                         <div className="generate-btn">
                           <button
                             onClick={() => generateImages(message.generatedPrompt!)}
@@ -1317,7 +1483,9 @@ export default function Maya() {
                       <div className="typing-dot"></div>
                       <div className="typing-dot"></div>
                     </div>
-                    <div className="typing-text">Maya is styling your look...</div>
+                    <div className="typing-text">
+                      {isOnboardingMode ? 'Maya is listening and thinking...' : 'Maya is styling your look...'}
+                    </div>
                   </div>
                 )}
                 <div ref={messagesEndRef} />
@@ -1333,7 +1501,11 @@ export default function Maya() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 className="input-field"
-                placeholder="Tell Maya what kind of photos you want to create..."
+                placeholder={
+                  isOnboardingMode 
+                    ? "Share your story with Maya..." 
+                    : "Tell Maya what kind of photos you want to create..."
+                }
                 rows={1}
                 disabled={isTyping}
                 style={{
@@ -1352,7 +1524,7 @@ export default function Maya() {
                 disabled={!input.trim() || isTyping}
                 className="send-btn"
               >
-                Send
+                {isOnboardingMode ? 'Share' : 'Send'}
               </button>
             </div>
           </div>
