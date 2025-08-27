@@ -6,8 +6,9 @@ import { MemberNavigation } from '../components/member-navigation';
 import { HeroFullBleed } from '../components/hero-full-bleed';
 import { SandraImages } from '../lib/sandra-images';
 import { apiRequest } from '../lib/queryClient';
+import ErrorBoundary from '../components/ErrorBoundary';
 
-export default function SSELFIEGallery() {
+function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
@@ -729,5 +730,13 @@ export default function SSELFIEGallery() {
           </div>
         </section>
       </div>
+  );
+}
+
+export default function SSELFIEGalleryWithErrorBoundary() {
+  return (
+    <ErrorBoundary>
+      <SSELFIEGallery />
+    </ErrorBoundary>
   );
 }

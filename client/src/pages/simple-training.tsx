@@ -6,8 +6,9 @@ import { Link } from 'wouter';
 import { useToast } from '../hooks/use-toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient';
+import ErrorBoundary from '../components/ErrorBoundary';
 
-export default function SimpleTraining() {
+function SimpleTraining() {
   // Always call hooks in the same order
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
@@ -1678,5 +1679,13 @@ export default function SimpleTraining() {
           }
         `}</style>
       </div>
+  );
+}
+
+export default function SimpleTrainingWithErrorBoundary() {
+  return (
+    <ErrorBoundary>
+      <SimpleTraining />
+    </ErrorBoundary>
   );
 }
