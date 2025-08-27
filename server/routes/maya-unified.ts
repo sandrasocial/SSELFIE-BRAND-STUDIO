@@ -281,12 +281,16 @@ Focus on understanding their business needs and connecting photos to practical a
       enhancement += `\n\n📸 GENERATION MODE:
 The user wants to create photos. Use your complete styling expertise to create detailed prompts that include their trigger word "${generationInfo.triggerWord}".
 
-Apply your professional styling knowledge:
-- Current 2025 luxury trends
-- Editorial styling formulas  
-- Professional photography techniques
-- Color intelligence and sophisticated combinations
-- Hair & makeup expertise from your fashion week background`;
+CRITICAL INSTRUCTION FOR GENERATION RESPONSES:
+- Always include detailed prompts in this format: **🎯 CONCEPT NAME**
+- Follow with a complete, detailed prompt using "${generationInfo.triggerWord}"
+- Include specific styling details: clothing, hair, makeup, lighting, setting
+- Apply your professional knowledge: 2025 luxury trends, editorial formulas, photography techniques
+- Be excited and enthusiastic about the concepts you're creating
+
+Example format:
+**🎯 EXECUTIVE POWER LOOK - OPTION 1: Modern Authority**
+A cinematic portrait of ${generationInfo.triggerWord} as a confident executive, wearing an impeccably tailored charcoal grey blazer...`;
       break;
 
     case 'quickstart':
@@ -360,16 +364,32 @@ async function processMayaResponse(response: string, context: string, userId: st
     response.toLowerCase().includes('generate') || 
     response.toLowerCase().includes('create') ||
     response.toLowerCase().includes('photoshoot') ||
-    response.includes('```prompt')
+    response.includes('```prompt') ||
+    response.includes('🎯') // Maya's embedded prompt indicator
   )) {
     processed.canGenerate = true;
 
-    // Extract prompt if provided
+    // CRITICAL FIX: Extract prompt from multiple formats
+    let extractedPrompt = null;
+    
+    // First try: Traditional ```prompt``` blocks
     const promptMatch = response.match(/```prompt\s*([\s\S]*?)\s*```/);
     if (promptMatch) {
-      processed.generatedPrompt = promptMatch[1].trim();
+      extractedPrompt = promptMatch[1].trim();
       // Remove prompt block from conversation response
       processed.message = processed.message.replace(/```prompt\s*([\s\S]*?)\s*```/g, '').trim();
+    } else {
+      // Second try: Maya's embedded prompt format (🎯 EXECUTIVE POWER LOOK)
+      const embeddedMatch = response.match(/\*\*🎯[^*]*\*\*\s*([\s\S]*?)(?=\*\*🎯|\*\*Generated|$)/);
+      if (embeddedMatch) {
+        extractedPrompt = embeddedMatch[1].trim();
+        console.log('🎯 MAYA UNIFIED: Extracted embedded prompt:', extractedPrompt);
+        // Don't remove embedded prompts from display - they're part of Maya's styling expertise
+      }
+    }
+    
+    if (extractedPrompt) {
+      processed.generatedPrompt = extractedPrompt;
     }
   }
 
