@@ -13,6 +13,14 @@ import { ModelTrainingService } from '../model-training-service';
 
 const router = Router();
 
+// PHASE 7: Environment Variables Validation
+if (!process.env.REPLICATE_API_TOKEN) {
+  console.error('🚨 CRITICAL: REPLICATE_API_TOKEN not configured - Image generation will fail');
+}
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.error('🚨 CRITICAL: ANTHROPIC_API_KEY not configured - Maya chat will fail');
+}
+
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions
 router.post('/chat', isAuthenticated, async (req, res) => {
   try {

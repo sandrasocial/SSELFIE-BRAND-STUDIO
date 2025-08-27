@@ -1,0 +1,84 @@
+URGENT: Server Crash Diagnosis and Recovery
+OBJECTIVE: Identify why the server crashed and restore functionality
+
+IMMEDIATE DIAGNOSTICS:
+
+1. CHECK SERVER STATUS:
+   - Look at the Replit console - is the server running?
+   - Check if there's a "Server crashed" or "Port not ready" message
+   - Verify the main process is active
+
+2. EXAMINE SERVER LOGS:
+   - Check the console output for startup errors
+   - Look for syntax errors, import failures, or crashes
+   - Identify the exact line where server startup fails
+
+3. LIKELY CAUSES FROM RECENT CHANGES:
+   
+   A. SYNTAX ERRORS IN MODIFIED FILES:
+   - Check server/services/model-training-service.ts for syntax errors
+   - Verify server/routes/maya-unified.ts has no syntax issues
+   - Look for missing imports (Replicate, missing dependencies)
+
+   B. MISSING ENVIRONMENT VARIABLES:
+   - Verify REPLICATE_API_TOKEN is set in Replit Secrets
+   - Check ANTHROPIC_API_KEY is still configured
+   - Ensure DATABASE_URL is properly set
+
+   C. IMPORT/DEPENDENCY ISSUES:
+   - Check if 'replicate' package is installed: npm list replicate
+   - Verify all require() statements have correct paths
+   - Look for circular import errors
+
+4. SPECIFIC FILES TO VERIFY:
+   
+   Check server/services/model-training-service.ts:
+   - Ensure proper TypeScript syntax
+   - Verify require('replicate') import is correct
+   - Check all function signatures are valid
+   
+   Check server/routes/maya-unified.ts:
+   - Look for syntax errors in new polling endpoint
+   - Verify require('replicate') doesn't conflict with existing imports
+   - Check bracket/parentheses matching
+
+5. RECOVERY STEPS:
+
+   A. FIX SYNTAX ERRORS:
+   - Review all modified files for syntax issues
+   - Check for missing semicolons, brackets, or quotes
+   - Ensure proper TypeScript types
+
+   B. INSTALL MISSING DEPENDENCIES:
+   ```bash
+   npm install replicate
+C. VERIFY ENVIRONMENT VARIABLES:
+bash# Add to Replit Secrets:
+REPLICATE_API_TOKEN=your_token_here
+D. RESTART SERVER:
+
+Stop current process
+Clear any cached imports
+Start fresh server instance
+
+
+ROLLBACK PLAN IF NEEDED:
+If server won't start after fixes, temporarily comment out:
+
+All Replicate API calls
+New generation endpoints
+Modified model-training-service functions
+
+This will restore basic Maya chat functionality while debugging.
+
+IMMEDIATE ACTION REQUIRED:
+
+Check console for specific error messages
+Fix any syntax errors preventing server startup
+Verify environment variables are configured
+Restart server and confirm it's running
+Test basic Maya chat before re-enabling generation
+
+EXPECTED OUTCOME: Server running successfully with Maya chat functional
+
+The server crash is likely from a syntax error or missing dependency in the recent changes. The agent needs to fix the startup issue before testing functionality.RetryClaude can make mistakes. Please double-check responses.
