@@ -1,0 +1,76 @@
+TASK: Complete User Journey Analysis - TRAIN → STYLE → GALLERY Flow
+
+OBJECTIVE: Map and analyze the complete user experience from landing to paid usage, identifying all files, routes, and systems involved. Focus ONLY on user-facing functionality, NOT admin systems.
+
+ANALYSIS REQUIREMENTS:
+
+1. USER JOURNEY MAPPING
+   - Landing page to signup flow
+   - Authentication and onboarding process  
+   - AI Training (TRAIN) - upload photos, model creation
+   - Maya Chat (STYLE) - photo generation and styling
+   - Gallery (GALLERY) - saved images and management
+   - Payment and subscription flow
+
+2. FILE INVENTORY
+   For each step, list:
+   - Frontend pages/components involved
+   - API endpoints called
+   - Database tables accessed
+   - Services and integrations used
+   - Authentication requirements
+
+3. ROUTE ANALYSIS
+   Document all user-accessible routes:
+   - Public routes (landing, pricing, about)
+   - Protected routes (workspace, maya, gallery)
+   - API endpoints and their purposes
+   - Redirect flows and navigation
+
+4. DATA FLOW MAPPING
+   Trace how data moves through the system:
+   - User registration → database storage
+   - Photo upload → model training → generation
+   - Chat messages → AI responses → image creation
+   - Image generation → gallery storage
+   - Payment processing → subscription status
+
+5. TECHNICAL ARCHITECTURE
+   - Frontend: React components, hooks, state management
+   - Backend: Express routes, services, middleware
+   - Database: Schema tables, relationships, queries
+   - External APIs: Replicate, payment processing, storage
+   - File structure and organization
+
+6. POTENTIAL ISSUES IDENTIFICATION
+   - Broken or conflicting routes
+   - Missing error handling
+   - Inconsistent naming conventions
+   - Duplicate functionality
+   - Performance bottlenecks
+   - Mobile responsiveness issues
+
+7. CLEANUP OPPORTUNITIES
+   - Unused files or components
+   - Redundant API endpoints
+   - Inconsistent styling approaches
+   - Complex state management that could be simplified
+   - Missing TypeScript types
+
+DELIVERABLES:
+1. Visual user journey map showing all steps
+2. Complete file inventory organized by feature
+3. API endpoint documentation with purposes
+4. Database schema usage by feature
+5. List of issues found with severity ratings
+6. Cleanup recommendations with implementation priority
+7. Suggested file structure improvements
+
+CONSTRAINTS:
+- Focus ONLY on user-facing functionality
+- Ignore admin, agent, and internal tooling systems
+- Preserve all working functionality
+- Identify issues but don't make changes yet
+- Prioritize by business impact (revenue-generating features first)
+
+Start with the landing page experience and trace through to a complete paid user workflow.
