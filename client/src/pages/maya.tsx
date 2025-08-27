@@ -67,6 +67,10 @@ export default function Maya() {
   const [savingImages, setSavingImages] = useState(new Set<string>());
   const [savedImages, setSavedImages] = useState(new Set<string>());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Smart button management - track clicked generation buttons per message
+  const [clickedButtons, setClickedButtons] = useState(new Map<number, Set<string>>());
+  
   // Generation controls
   const [preset, setPreset] = useState<Preset>('Editorial');
   const [seed, setSeed] = useState<string>(''); // empty = random
@@ -320,12 +324,23 @@ export default function Maya() {
     }
   };
 
-  const handleQuickButton = (buttonText: string) => {
-    // Check if this is a generation button
-    if (buttonText.startsWith('Generate ')) {
-      // Extract concept name and trigger generation
-      const conceptName = buttonText.replace('Generate ', '');
-      generateFromConcept(conceptName);
+  const handleQuickButton = (buttonText: string, messageIndex?: number) => {
+    // Check if this is a Maya-style generation button (contains emoji)
+    if (buttonText.includes('✨') || buttonText.includes('💫') || buttonText.includes('💗') || 
+        buttonText.includes('🔥') || buttonText.includes('🌟') || buttonText.includes('💎')) {
+      // Mark this button as clicked for this message
+      if (messageIndex !== undefined) {
+        setClickedButtons(prev => {
+          const newMap = new Map(prev);
+          const messageButtons = newMap.get(messageIndex) || new Set();
+          messageButtons.add(buttonText);
+          newMap.set(messageIndex, messageButtons);
+          return newMap;
+        });
+      }
+      
+      // Generate from concept name
+      generateFromConcept(buttonText);
     } else {
       // Regular chat message
       sendMessage(buttonText);
@@ -342,7 +357,7 @@ export default function Maya() {
     // Add a message indicating generation is starting
     const generatingMessage: ChatMessage = {
       role: 'maya',
-      content: `Perfect choice! I'm creating your "${conceptName}" photos right now using all my styling expertise. This is going to look absolutely stunning! ✨`,
+      content: `Perfect choice! I'm creating your "${conceptName}" photos right now using all my styling expertise. This is going to look absolutely stunning!`,
       timestamp: new Date().toISOString(),
       canGenerate: false
     };
@@ -1498,14 +1513,27 @@ export default function Maya() {
                         </div>
                       )}
 
-                      {/* Quick Buttons for Onboarding */}
+                      {/* Quick Buttons - Smart Management: Only show unclicked buttons */}
                       {message.quickButtons && message.quickButtons.length > 0 && (
                         <div className="quick-buttons">
-                          {message.quickButtons.map((button, buttonIndex) => (
+                          {message.quickButtons
+                            .filter(button => {
+                              // For generation buttons, only show if not clicked for this message
+                              const isGenerationButton = button.includes('✨') || button.includes('💫') || 
+                                                        button.includes('💗') || button.includes('🔥') || 
+                                                        button.includes('🌟') || button.includes('💎');
+                              if (isGenerationButton) {
+                                const messageButtons = clickedButtons.get(index) || new Set();
+                                return !messageButtons.has(button);
+                              }
+                              // Show all non-generation buttons
+                              return true;
+                            })
+                            .map((button, buttonIndex) => (
                             <button
                               key={buttonIndex}
                               className="quick-button"
-                              onClick={() => handleQuickButton(button)}
+                              onClick={() => handleQuickButton(button, index)}
                               disabled={isTyping}
                             >
                               {button}

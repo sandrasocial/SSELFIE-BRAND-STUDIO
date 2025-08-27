@@ -460,18 +460,23 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
   }
 }
 
-// Helper function to create detailed prompts from concept names
+// Helper function to create detailed prompts from Maya's creative concept names
 async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string): Promise<string> {
   const conceptMap: { [key: string]: string } = {
-    'Professional Confidence': `Professional portrait of ${triggerWord} in a chic blazer and silk camisole, standing confidently against a minimalist white wall, arms crossed with a warm smile, hair perfectly styled, subtle but polished makeup, soft studio lighting creating gentle shadows, shot from a slight low angle for empowerment, luxury fashion photography aesthetic`,
+    // Maya's Creative Button Names with Detailed Prompts
+    '✨ Boss Babe Energy': `Professional portrait of ${triggerWord} in a chic blazer and silk camisole, standing confidently against a minimalist white wall, arms crossed with a warm smile, hair perfectly styled, subtle but polished makeup, soft studio lighting creating gentle shadows, shot from a slight low angle for empowerment, luxury fashion photography aesthetic`,
     
-    'Social Media Ready': `Stylish woman ${triggerWord} sitting at a marble coffee table in a bright, modern café, wearing a cream cashmere sweater and gold jewelry, natural makeup with glowing skin, long hair styled in loose waves, holding a latte with beautiful foam art, soft natural lighting streaming through large windows, shot with a 50mm lens for that perfect shallow depth of field, editorial photography style`,
+    '💫 Coffee Shop Chic': `Stylish woman ${triggerWord} sitting at a marble coffee table in a bright, modern café, wearing a cream cashmere sweater and gold jewelry, natural makeup with glowing skin, long hair styled in loose waves, holding a latte with beautiful foam art, soft natural lighting streaming through large windows, shot with a 50mm lens for that perfect shallow depth of field, editorial photography style`,
     
-    'Lifestyle Guru Energy': `${triggerWord} in a flowing midi dress, sitting on a velvet accent chair in a beautifully styled living room with plants and books, natural sunlight creating a warm glow, relaxed but polished styling, candid laugh captured mid-moment, cozy yet sophisticated atmosphere, lifestyle photography with rich colors and textures`,
+    '💗 Lifestyle Goddess': `${triggerWord} in a flowing midi dress, sitting on a velvet accent chair in a beautifully styled living room with plants and books, natural sunlight creating a warm glow, relaxed but polished styling, candid laugh captured mid-moment, cozy yet sophisticated atmosphere, lifestyle photography with rich colors and textures`,
     
-    'Website Hero Image': `Professional business portrait of ${triggerWord} in elegant attire, standing in a modern office space with floor-to-ceiling windows, confident posture with hands on hips, sophisticated styling with tailored jacket, natural lighting creating soft shadows, shot with 85mm lens for professional headshot quality, luxury corporate photography aesthetic`,
+    '🔥 LinkedIn Queen': `Executive portrait of ${triggerWord} in a navy blazer and white blouse, sitting at a polished conference table, warm professional smile, hair styled in a sleek bob, minimal but sophisticated makeup, soft office lighting, shot against a blurred modern office background, professional headshot photography style`,
     
-    'LinkedIn Authority Photo': `Executive portrait of ${triggerWord} in a navy blazer and white blouse, sitting at a polished conference table, warm professional smile, hair styled in a sleek bob, minimal but sophisticated makeup, soft office lighting, shot against a blurred modern office background, professional headshot photography style`,
+    '🌟 Website Goddess': `Professional business portrait of ${triggerWord} in elegant attire, standing in a modern office space with floor-to-ceiling windows, confident posture with hands on hips, sophisticated styling with tailored jacket, natural lighting creating soft shadows, shot with 85mm lens for professional headshot quality, luxury corporate photography aesthetic`,
+    
+    '✨ Social Media Siren': `${triggerWord} in trendy casual wear, sitting on a velvet couch with perfect lighting, effortless waves in hair, natural glowing makeup, holding a phone in a candid moment, soft natural light creating that perfect Instagram glow, shot with portrait lens for social media perfection, lifestyle influencer aesthetic`,
+    
+    '💎 Executive Excellence': `Sophisticated portrait of ${triggerWord} in a tailored power suit, standing in a glass office with city views, confident stance with one hand on hip, sleek hair styled perfectly, professional makeup with bold lip color, dramatic lighting emphasizing power and authority, corporate luxury photography style`,
   };
   
   // Return specific prompt if concept matches, otherwise create a general professional prompt
