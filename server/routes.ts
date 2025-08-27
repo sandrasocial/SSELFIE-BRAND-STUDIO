@@ -18,8 +18,9 @@ import { whitelabelRoutes } from './routes/white-label-setup';
 import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
-import { registerMayaAIRoutes } from './routes/maya-ai-routes';
-import mayaOnboardingRoutes from './routes/maya-onboarding-routes';
+// PHASE 4: OLD MAYA ROUTES ARCHIVED (Comment out old fragmented routes)
+// import { registerMayaAIRoutes } from './routes/maya-ai-routes';
+// import mayaOnboardingRoutes from './routes/maya-onboarding-routes';
 import mayaUnifiedRouter from './routes/maya-unified';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
@@ -419,16 +420,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Victoria website generator
   registerVictoriaWebsiteGenerator(app);
   
-  // Register Member Maya routes (Revenue-critical customer styling)
-  registerMayaAIRoutes(app);
+  // PHASE 4: OLD MAYA ROUTES DISABLED (Fragmented system archived)
+  // registerMayaAIRoutes(app);
+  // app.use('/api/maya-onboarding', mayaOnboardingRoutes);
   
-  // PHASE 2: Maya Unified System - Single intelligent conversation system
-  app.use('/api/maya-unified', mayaUnifiedRouter);
-  console.log('✅ PHASE 2: Maya Unified System active at /api/maya-unified/*');
-  
-  // Register Maya Onboarding routes (Member personal brand discovery - ISOLATED from Admin Maya)
-  app.use('/api/maya-onboarding', mayaOnboardingRoutes);
-  console.log('✅ MEMBER MAYA ONBOARDING: Isolated onboarding system active at /api/maya-onboarding/*');
+  // MAYA UNIFIED SYSTEM - Single intelligent conversation system  
+  app.use('/api/maya', mayaUnifiedRouter);
+  console.log('✅ MAYA UNIFIED: Single intelligent system active at /api/maya/*');
   
   // AGENT PROTOCOL ENFORCEMENT SYSTEM
   app.post('/api/agent-protocol/validate', async (req, res) => {
