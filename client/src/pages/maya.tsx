@@ -72,6 +72,9 @@ export default function Maya() {
   // Smart button management - track clicked generation buttons per message
   const [clickedButtons, setClickedButtons] = useState(new Map<number, Set<string>>());
   
+  // Multiple generation tracking - track active generations by ID
+  const [activeGenerations, setActiveGenerations] = useState(new Set<string>());
+  
   // Generation controls
   const [preset, setPreset] = useState<Preset>('Editorial');
   const [seed, setSeed] = useState<string>(''); // empty = random
@@ -349,10 +352,14 @@ export default function Maya() {
   };
   
   const generateFromConcept = async (conceptName: string) => {
-    if (isGenerating) return;
-    
     // Generate unique message ID to track this specific generation
     const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // CRITICAL FIX: Allow multiple simultaneous generations - only check if this specific generation is already running
+    if (activeGenerations.has(messageId)) return;
+    
+    console.log('🎨 MAYA MULTIPLE GENERATIONS: Starting generation for concept:', conceptName, 'ID:', messageId);
+    console.log('📊 ACTIVE GENERATIONS:', Array.from(activeGenerations));
     
     try {
       // CRITICAL FIX: Use Maya's genuine Claude API intelligence instead of hardcoded template
@@ -399,10 +406,17 @@ export default function Maya() {
   };
 
   const generateImages = async (prompt: string, generationId?: string) => {
-    if (isGenerating || isOnboardingMode) return; // No generation during onboarding
+    if (isOnboardingMode || !generationId) return; // No generation during onboarding or without ID
 
-    setIsGenerating(true);
-    setGenerationProgress(0);
+    // CRITICAL FIX: Track this specific generation instead of global blocking
+    if (activeGenerations.has(generationId)) {
+      console.log('⚠️ GENERATION ALREADY ACTIVE:', generationId);
+      return;
+    }
+    
+    // Add to active generations
+    setActiveGenerations(prev => new Set([...prev, generationId]));
+    console.log('🚀 MULTIPLE GENERATIONS: Started generation', generationId);
 
     try {
       const response = await apiRequest('/api/maya/generate', 'POST', {
@@ -430,7 +444,7 @@ export default function Maya() {
                 const newMessages = [...prev];
                 let messageFound = false;
                 
-                // First try to find by generationId if provided
+                // Find by generationId
                 if (generationId) {
                   for (let i = 0; i < newMessages.length; i++) {
                     if (newMessages[i].role === 'maya' && newMessages[i].generationId === generationId && newMessages[i].canGenerate) {
@@ -446,38 +460,43 @@ export default function Maya() {
                   }
                 }
                 
-                // Fallback: find the most recent Maya message that can generate
                 if (!messageFound) {
-                  for (let i = newMessages.length - 1; i >= 0; i--) {
-                    if (newMessages[i].role === 'maya' && newMessages[i].canGenerate) {
-                      console.log('🖼️ POLLING SUCCESS: Found RECENT Maya message with', statusResponse.imageUrls.length, 'images');
-                      newMessages[i] = {
-                        ...newMessages[i],
-                        imagePreview: statusResponse.imageUrls,
-                        canGenerate: false
-                      };
-                      break;
-                    }
-                  }
+                  console.error('❌ POLLING: Could not find Maya message with generation ID:', generationId);
                 }
                 
                 return newMessages;
               });
-              setIsGenerating(false);
-              setGenerationProgress(100);
+              
+              // Remove from active generations
+              setActiveGenerations(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(generationId);
+                console.log('✅ MULTIPLE GENERATIONS: Completed generation', generationId, 'Remaining:', Array.from(newSet));
+                return newSet;
+              });
+              
             } else if (statusResponse.status === 'failed') {
               console.error('❌ POLLING: Generation failed:', statusResponse.error);
+              // Remove from active generations on failure
+              setActiveGenerations(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(generationId);
+                return newSet;
+              });
               throw new Error(statusResponse.error || 'Generation failed');
             } else {
-              // Still processing, update progress
-              const progress = Math.min(90, generationProgress + 10);
-              console.log('⏳ POLLING: Still processing, progress:', progress + '%');
-              setGenerationProgress(progress);
+              // Still processing, continue polling
+              console.log('⏳ POLLING: Still processing generation:', generationId);
               setTimeout(pollForImages, 2000);
             }
           } catch (pollError) {
             console.error('Polling error:', pollError);
-            setIsGenerating(false);
+            // Remove from active generations on error
+            setActiveGenerations(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(generationId);
+              return newSet;
+            });
             throw pollError;
           }
         };
@@ -494,8 +513,13 @@ export default function Maya() {
         title: "Generation Error",
         description: "Failed to generate images. Please try again."
       });
-      setIsGenerating(false);
-      setGenerationProgress(0);
+      
+      // Remove from active generations on error
+      setActiveGenerations(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(generationId);
+        return newSet;
+      });
     }
   };
 
