@@ -56,6 +56,8 @@ Preferred communication style: Simple, everyday language.
 
 **🚀 Maya Welcome Page with CUSTOMIZE/QUICK START Options COMPLETED (August 27, 2025)**: Implemented elegant dual-path user experience for new users. Welcome page presents two beautifully designed cards: CUSTOMIZE (5-10 min guided onboarding to learn user's story, style, and brand) and QUICK START (immediate photo generation using Maya's fashion week expertise). Zero risk implementation preserves all existing flows while dramatically improving UX for different user needs and time constraints.
 
+**🔧 Maya Generation Button Polling System FIXED (August 27, 2025)**: Resolved critical bug preventing generation buttons from working properly. The polling system was looking for Maya messages with `canGenerate: true` but `generateFromConcept` was creating messages with `canGenerate: false`. Fixed the logic and added comprehensive logging to ensure reliable image generation and display. Maya now uses her genuine Claude API intelligence to create styling concept names naturally without hardcoded suggestions.
+
 ## System Architecture
 
 ### Frontend Architecture
