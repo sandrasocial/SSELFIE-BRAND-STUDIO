@@ -241,8 +241,7 @@ export default function Maya() {
       const response = await apiRequest('/api/maya/chat', 'POST', {
         message: messageToSend,
         context: isOnboardingMode ? 'onboarding' : 'regular',
-        chatId: currentChatId,
-        onboardingStep: onboardingStatus?.currentStep
+        chatId: currentChatId
       });
 
       // Handle unified response

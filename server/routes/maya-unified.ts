@@ -21,7 +21,7 @@ router.post('/chat', isAuthenticated, async (req, res) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const { message, context = 'regular', chatId, onboardingStep } = req.body;
+    const { message, context = 'regular', chatId } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'Message required' });
@@ -41,8 +41,7 @@ router.post('/chat', isAuthenticated, async (req, res) => {
       baseMayaPersonality, 
       context, 
       userContext, 
-      generationInfo,
-      onboardingStep
+      generationInfo
     );
     
     // Single Claude API call with Maya's complete intelligence
@@ -118,9 +117,6 @@ router.post('/generate', isAuthenticated, async (req, res) => {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) return res.status(401).json({ error: 'Authentication required' });
     
-    const userModel = await storage.getUserModelByUserId(parseInt(userId));
-    if (!userModel) return res.status(422).json({ error: 'No model for this user.' });
-
     const { prompt, chatId, preset, seed, count } = req.body || {};
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt required' });
@@ -238,7 +234,7 @@ async function checkGenerationCapability(userId: string) {
   }
 }
 
-function enhancePromptForContext(baseMayaPersonality: string, context: string, userContext: any, generationInfo: any, onboardingStep?: number): string {
+function enhancePromptForContext(baseMayaPersonality: string, context: string, userContext: any, generationInfo: any): string {
   let enhancement = `\n\n🎯 CURRENT INTERACTION CONTEXT:
 - User: ${userContext.userInfo.email || 'Unknown'}
 - Plan: ${userContext.userInfo.plan || 'Not specified'}
@@ -252,7 +248,7 @@ function enhancePromptForContext(baseMayaPersonality: string, context: string, u
   // Context-specific enhancements using Maya's personality
   switch (context) {
     case 'onboarding':
-      enhancement += `\n\n📋 ONBOARDING MODE - STEP ${onboardingStep || 1}/6:
+      enhancement += `\n\n📋 ONBOARDING MODE:
 You're guiding this user through personal brand discovery. Use your styling expertise to help them understand their style preferences and photo needs.
 
 ONBOARDING CATEGORIES (use these exact names):
