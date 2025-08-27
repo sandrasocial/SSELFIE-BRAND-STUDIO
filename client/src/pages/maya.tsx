@@ -9,6 +9,7 @@ import { apiRequest } from '../lib/queryClient';
 import { SandraImages } from '../lib/sandra-images';
 import { EditorialImageBreak } from '../components/editorial-image-break';
 import { MemberNavigation } from '../components/member-navigation';
+import ErrorBoundary from '../components/ErrorBoundary';
 import '../maya-onboarding.css';
 
 interface ChatMessage {
@@ -44,7 +45,7 @@ interface OnboardingStatus {
 
 type Preset = 'Identity' | 'Editorial' | 'UltraPrompt' | 'Fast';
 
-export default function Maya() {
+function Maya() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -1775,5 +1776,13 @@ export default function Maya() {
         </div>
       )}
     </>
+  );
+}
+
+export default function MayaWithErrorBoundary() {
+  return (
+    <ErrorBoundary>
+      <Maya />
+    </ErrorBoundary>
   );
 }
