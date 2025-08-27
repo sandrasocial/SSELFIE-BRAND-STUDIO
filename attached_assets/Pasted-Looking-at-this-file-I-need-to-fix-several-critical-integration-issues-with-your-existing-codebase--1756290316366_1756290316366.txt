@@ -1,0 +1,43 @@
+Looking at this file, I need to fix several critical integration issues with your existing codebase:onboarding-conversation-service.tsCode ∙ Version 3       const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY || '',
+          'anthropic-veonboarding-conversation-service.tsCode ∙ Version 4         body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2000,
+          system: systemPrompt,
+          messages: [
+            {
+              role: 'user',
+              content: userMessage
+            }
+ Here's the corrected prompt for the Replit agent:
+
+PROMPT FOR REPLIT AGENT:
+Create server/services/onboarding-conversation-service.ts exactly as provided below. This service manages the 6-step Maya onboarding conversation flow.
+CRITICAL REQUIREMENTS:
+
+Place file at exactly server/services/onboarding-conversation-service.ts
+Do NOT modify any existing files
+Verify all import paths work with our current project structure
+Test that it compiles without TypeScript errors
+Requires the personal-brand-service.ts to be implemented first
+Will need maya-memory-service.ts to be implemented next (we'll do that after)
+
+TEMPORARY NOTE: This service references mayaMemoryService which we'll implement next. For now, the import will show an error - that's expected.
+The service provides:
+
+6-step Maya onboarding conversation management
+Integration with Claude API for Maya's responses
+Personal brand data extraction from conversations
+Progress tracking and step completion logic
+Uses your existing PersonalityManager patterns
+
+After creating, test that:
+
+All imports resolve correctly (except mayaMemoryService - expected error for now)
+TypeScript compilation passes (ignoring the maya-memory-service import error)
+PersonalityManager import works with your existing personality-config.ts
+
+Here's the complete file content:
