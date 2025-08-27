@@ -35,6 +35,32 @@ router.post('/chat', isAuthenticated, async (req, res) => {
     // Check generation capability
     const generationInfo = await checkGenerationCapability(userId);
     
+    // PHASE 5: Load personal brand context for personalized responses
+    let personalBrandContext = '';
+    try {
+      // Load user's personal brand context
+      const { MayaStorageExtensions } = await import('../storage-maya-extensions');
+      const mayaUserContext = await MayaStorageExtensions.getMayaUserContext(userId);
+      
+      if (mayaUserContext?.personalBrand) {
+        // Enhance Maya's prompt with personal brand data
+        personalBrandContext = `
+
+PERSONAL BRAND CONTEXT FOR THIS USER:
+- Transformation Story: ${mayaUserContext.personalBrand.transformationStory || 'Not provided'}
+- Current Situation: ${mayaUserContext.personalBrand.currentSituation || 'Not provided'}
+- Future Vision: ${mayaUserContext.personalBrand.futureVision || 'Not provided'}
+- Business Goals: ${mayaUserContext.personalBrand.businessGoals || 'Not provided'}
+- Onboarding Completed: ${mayaUserContext.personalBrand.isCompleted ? 'Yes' : 'No'}
+
+Use this context to provide personalized styling advice that aligns with their transformation journey.`;
+        
+        console.log(`🎯 MAYA MEMORY: Loaded personal brand context for user ${userId}`);
+      }
+    } catch (error) {
+      console.log('Personal brand context not available, proceeding with basic Maya');
+    }
+    
     // Build unified Maya prompt using PersonalityManager (the RIGHT way)
     const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
     const enhancedPrompt = enhancePromptForContext(
@@ -42,7 +68,7 @@ router.post('/chat', isAuthenticated, async (req, res) => {
       context, 
       userContext, 
       generationInfo
-    );
+    ) + personalBrandContext;
     
     // Single Claude API call with Maya's complete intelligence
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
