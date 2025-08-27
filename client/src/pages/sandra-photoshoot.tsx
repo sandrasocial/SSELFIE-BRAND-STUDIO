@@ -74,7 +74,7 @@ export default function MayaLandingPage() {
       title: 'View All Images',
       description: 'Browse your complete AI photo collection',
       image: SandraImages.editorial.laptop1,
-      route: '/gallery',
+      route: '/sselfie-gallery',
       category: 'Gallery'
     }
   ];
@@ -192,7 +192,7 @@ export default function MayaLandingPage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {imageCategories.map((category) => (
-              <Link key={category.name} href={`/gallery?category=${category.name.toLowerCase()}`}>
+              <Link key={category.name} href={`/sselfie-gallery?category=${category.name.toLowerCase()}`}>
                 <div className="group cursor-pointer">
                   <div className="aspect-square overflow-hidden bg-[#f5f5f5] mb-4">
                     <img 

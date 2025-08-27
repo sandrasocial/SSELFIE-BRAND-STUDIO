@@ -42,7 +42,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
   const navItems = [
     { path: '/ai-training', label: 'Train' },
     { path: '/maya', label: 'Style' },
-    { path: '/gallery', label: 'Gallery' },
+    { path: '/sselfie-gallery', label: 'Gallery' },
     { path: '/profile', label: 'Profile' },
   ];
 

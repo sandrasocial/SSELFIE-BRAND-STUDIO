@@ -384,7 +384,7 @@ export default function Workspace() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
               {/* Gallery Widget */}
-              <Link href="/gallery" className="group">
+              <Link href="/sselfie-gallery" className="group">
                 <div className="relative overflow-hidden bg-black" style={{ aspectRatio: '21/9' }}>
                   <img 
                     src="https://i.postimg.cc/Vk6M70XM/out-1-20.jpg"
