@@ -350,6 +350,11 @@ export class ModelTrainingService {
         throw new Error('USER_MODEL_NOT_TRAINED: User must train their AI model before generating images. Individual models required.');
       }
       
+      // Validate trigger word exists
+      if (!userModel.triggerWord) {
+        throw new Error('Model training incomplete - no trigger word available');
+      }
+      
       // GLOBAL FIX: Use full model:version format like other endpoints
       const fullModelVersion = userModel.replicateVersionId;
       
@@ -361,7 +366,7 @@ export class ModelTrainingService {
       // CRITICAL FIX: Use same format as Maya and unified service
       const modelVersion = `${userModel.replicateModelId}:${fullModelVersion}`;
       console.log(`🔒 MODEL TRAINING SERVICE VERSION VALIDATION: Model: ${userModel.replicateModelId}, Version: ${fullModelVersion}, Combined: ${modelVersion}`);
-      const triggerWord = userModel.triggerWord || `user${userId}`;
+      const triggerWord = userModel.triggerWord;
       
       
       // Handle prompt formatting and enhancement
@@ -381,14 +386,25 @@ export class ModelTrainingService {
       // Personality-first: keep Maya's prompt, ensure trigger appears once and first
       const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
 
-      // ----- Merge generation parameters (defaults → preset → explicit overrides) -----
+      // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION
+      const intelligentParams = this.getIntelligentParameters(finalPrompt, count);
+      console.log(`🎯 MAYA INTELLIGENCE: Using intelligent parameters for prompt: count=${intelligentParams.count}, guidance=${intelligentParams.guidance}, steps=${intelligentParams.steps}`);
+
+      // ----- Merge generation parameters (defaults → preset → explicit overrides → intelligent params) -----
       const presetParams = options?.preset ? FLUX_PRESETS[options.preset] : {};
       const merged = {
         ...UNIVERSAL_DEFAULT,
         ...GENERATION_SETTINGS,
         ...presetParams,
+        // Apply Maya's intelligent parameters
+        guidance_scale: intelligentParams.guidance,
+        num_inference_steps: intelligentParams.steps,
         ...(options?.paramsOverride || {})
       };
+      
+      // Use intelligent count unless explicitly overridden
+      const finalCount = options?.paramsOverride?.num_outputs || intelligentParams.count;
+      
       const seed = typeof options?.seed === 'number'
         ? options.seed!
         : Math.floor(Math.random() * 1e9);
@@ -408,10 +424,13 @@ export class ModelTrainingService {
           version: modelVersion,
           input: {
             prompt: finalPrompt,
+            num_outputs: finalCount,
+            // Maya's intelligent parameters are primarily for LoRA path
+            // Packaged models use their own optimized parameters
             aspect_ratio: "3:4",
-            output_format: "png",
+            output_format: "png", 
             output_quality: 95,
-            seed: Math.floor(Math.random() * 1e9)
+            seed: seed
           }
         };
       } else {
@@ -444,12 +463,14 @@ export class ModelTrainingService {
             prompt: finalPrompt,
             lora_weights: loraWeightsUrl,
             lora_scale: 1,
-            guidance_scale: 2.8,
-            num_inference_steps: 30,
+            // 🎯 MAYA'S INTELLIGENT PARAMETERS IN ACTION
+            num_outputs: finalCount,
+            guidance_scale: merged.guidance_scale,
+            num_inference_steps: merged.num_inference_steps,
             aspect_ratio: "3:4",
             output_format: "png",
             output_quality: 95,
-            seed: Math.floor(Math.random() * 1e9)
+            seed: seed
           }
         };
       }
@@ -767,5 +788,50 @@ export class ModelTrainingService {
       console.error('❌ extractLoRAWeights error:', error);
       return null;
     }
+  }
+
+  // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION - Based on shot type and prompt analysis
+  private static getIntelligentParameters(prompt: string, requestedCount: number) {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    // Maya's shot type intelligence based on lens philosophy and styling expertise
+    if (lowerPrompt.includes('close-up') || lowerPrompt.includes('portrait') || lowerPrompt.includes('headshot') || 
+        lowerPrompt.includes('close up') || lowerPrompt.includes('85mm lens')) {
+      // Close-up portraits: fewer images, higher quality, more guidance for precision
+      return { count: 2, guidance: 7.5, steps: 28 };
+    }
+    
+    if (lowerPrompt.includes('half-body') || lowerPrompt.includes('half body') || lowerPrompt.includes('waist up') ||
+        lowerPrompt.includes('50mm lens') || lowerPrompt.includes('fashion focus')) {
+      // Half-body shots: balanced approach with moderate parameters
+      return { count: 3, guidance: 7.0, steps: 25 };
+    }
+    
+    if (lowerPrompt.includes('full-body') || lowerPrompt.includes('full body') || lowerPrompt.includes('full scene') || 
+        lowerPrompt.includes('environmental') || lowerPrompt.includes('35mm lens') || lowerPrompt.includes('lifestyle moment')) {
+      // Full scene: more variety, less guidance for natural environments
+      return { count: 4, guidance: 6.5, steps: 22 };
+    }
+    
+    // Professional/business shots typically need fewer, higher quality images
+    if (lowerPrompt.includes('professional') || lowerPrompt.includes('business') || lowerPrompt.includes('linkedin') ||
+        lowerPrompt.includes('executive') || lowerPrompt.includes('corporate')) {
+      return { count: 2, guidance: 7.5, steps: 28 };
+    }
+    
+    // Social media content - balanced for multiple options
+    if (lowerPrompt.includes('social') || lowerPrompt.includes('instagram') || lowerPrompt.includes('content') ||
+        lowerPrompt.includes('influencer')) {
+      return { count: 3, guidance: 7.0, steps: 25 };
+    }
+    
+    // Luxury/editorial concepts - fewer, more refined images
+    if (lowerPrompt.includes('luxury') || lowerPrompt.includes('editorial') || lowerPrompt.includes('magazine') ||
+        lowerPrompt.includes('sophisticated') || lowerPrompt.includes('elegant')) {
+      return { count: 2, guidance: 7.5, steps: 28 };
+    }
+    
+    // Default intelligent settings - balanced approach
+    return { count: Math.min(requestedCount, 3), guidance: 7.0, steps: 25 };
   }
 }

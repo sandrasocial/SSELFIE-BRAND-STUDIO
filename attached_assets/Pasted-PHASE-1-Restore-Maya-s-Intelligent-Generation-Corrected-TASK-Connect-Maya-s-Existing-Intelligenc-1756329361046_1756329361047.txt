@@ -1,0 +1,132 @@
+PHASE 1: Restore Maya's Intelligent Generation (Corrected)
+TASK: Connect Maya's Existing Intelligence to Replicate API
+OBJECTIVE: Restore the sophisticated generation system that's already built
+
+SPECIFIC ACTIONS:
+
+1. Open `server/services/model-training-service.ts` 
+2. Find the `generateUserImages` function 
+3. Replace it with Maya's intelligent implementation:
+
+```typescript
+static async generateUserImages(
+  userId: string, 
+  prompt: string, 
+  count: number, 
+  options: { preset?: string; seed?: number } = {}
+): Promise<{ success: boolean; predictionId?: string; trackerId?: number }> {
+  
+  try {
+    // Validate user model with trigger word
+    const userModel = await storage.getUserModelByUserId(userId);
+    if (!userModel || !userModel.replicateVersionId) {
+      throw new Error("User model not found or incomplete");
+    }
+    if (!userModel.triggerWord) {
+      throw new Error("Model training incomplete - no trigger word available");
+    }
+
+    // Apply Maya's intelligent parameter selection
+    const intelligentParams = this.getIntelligentParameters(prompt, count);
+    
+    // Initialize Replicate
+    const Replicate = require('replicate');
+    const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+    
+    // Create generation with Maya's intelligence
+    const prediction = await replicate.predictions.create({
+      version: userModel.replicateVersionId,
+      input: {
+        prompt: prompt,
+        image: userModel.loraWeightsUrl,
+        trigger_word: userModel.triggerWord,
+        num_outputs: intelligentParams.count,
+        guidance_scale: intelligentParams.guidance,
+        num_inference_steps: intelligentParams.steps,
+        seed: options.seed || Math.floor(Math.random() * 1000000)
+      }
+    });
+    
+    // Create tracking record
+    const tracker = await storage.createGenerationTracker({
+      userId,
+      replicateId: prediction.id,
+      prompt,
+      status: 'processing',
+      createdAt: new Date()
+    });
+    
+    return { 
+      success: true, 
+      predictionId: prediction.id,
+      trackerId: tracker.id 
+    };
+    
+  } catch (error) {
+    console.error('Maya intelligent generation error:', error);
+    return { success: false };
+  }
+}
+
+// Maya's intelligent parameter selection (ADD THIS NEW METHOD)
+private static getIntelligentParameters(prompt: string, requestedCount: number) {
+  const lowerPrompt = prompt.toLowerCase();
+  
+  // Maya's shot type intelligence
+  if (lowerPrompt.includes('close-up') || lowerPrompt.includes('portrait') || lowerPrompt.includes('headshot')) {
+    return { count: 2, guidance: 7.5, steps: 28 }; // Close-up: fewer, higher quality
+  }
+  
+  if (lowerPrompt.includes('half-body') || lowerPrompt.includes('half body') || lowerPrompt.includes('waist up')) {
+    return { count: 3, guidance: 7.0, steps: 25 }; // Half-body: balanced
+  }
+  
+  if (lowerPrompt.includes('full-body') || lowerPrompt.includes('full body') || lowerPrompt.includes('full scene') || lowerPrompt.includes('environmental')) {
+    return { count: 4, guidance: 6.5, steps: 22 }; // Full scene: more variety
+  }
+  
+  // Professional/business shots typically need fewer, higher quality
+  if (lowerPrompt.includes('professional') || lowerPrompt.includes('business') || lowerPrompt.includes('linkedin')) {
+    return { count: 2, guidance: 7.5, steps: 28 };
+  }
+  
+  // Default intelligent settings
+  return { count: Math.min(requestedCount, 3), guidance: 7.0, steps: 25 };
+}
+
+Add the polling endpoint to server/routes/maya-unified.ts:
+
+typescript// Add this endpoint after the existing Maya endpoints
+app.get('/api/check-generation/:predictionId', async (req, res) => {
+  try {
+    const Replicate = require('replicate');
+    const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+    
+    const prediction = await replicate.predictions.get(req.params.predictionId);
+    
+    if (prediction.status === 'succeeded' && prediction.output) {
+      res.json({
+        status: 'completed',
+        imageUrls: Array.isArray(prediction.output) ? prediction.output : [prediction.output]
+      });
+    } else if (prediction.status === 'failed') {
+      res.json({ 
+        status: 'failed', 
+        error: prediction.error || 'Generation failed' 
+      });
+    } else {
+      res.json({ status: 'processing' });
+    }
+  } catch (error) {
+    console.error('Check generation error:', error);
+    res.status(500).json({ error: 'Status check failed' });
+  }
+});
+CONSTRAINTS:
+
+Use Maya's existing intelligent prompt system (already working)
+Apply shot-type parameter intelligence as specified
+Preserve all existing Maya personality and chat functionality
+Ensure REPLICATE_API_TOKEN environment variable exists
+
+EXPECTED OUTCOME: Maya's sophisticated intelligence finally connected to actual image generation

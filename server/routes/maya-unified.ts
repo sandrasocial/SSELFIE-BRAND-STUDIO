@@ -180,6 +180,61 @@ router.get('/status', isAuthenticated, async (req, res) => {
   }
 });
 
+// 🎯 MAYA'S INTELLIGENT GENERATION STATUS POLLING
+router.get('/check-generation/:predictionId', isAuthenticated, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.claims?.sub;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const predictionId = req.params.predictionId;
+    if (!predictionId) {
+      return res.status(400).json({ error: 'Prediction ID required' });
+    }
+
+    console.log(`🔍 MAYA POLLING: Checking generation status for prediction ${predictionId}`);
+
+    const Replicate = require('replicate');
+    const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
+    
+    const prediction = await replicate.predictions.get(predictionId);
+    
+    console.log(`📊 MAYA POLLING: Prediction status: ${prediction.status}`);
+    
+    if (prediction.status === 'succeeded' && prediction.output) {
+      const imageUrls = Array.isArray(prediction.output) ? prediction.output : [prediction.output];
+      console.log(`✅ MAYA GENERATION COMPLETE: ${imageUrls.length} images generated`);
+      
+      res.json({
+        status: 'completed',
+        imageUrls,
+        message: `Maya created ${imageUrls.length} stunning photo${imageUrls.length > 1 ? 's' : ''} for you!`
+      });
+    } else if (prediction.status === 'failed') {
+      console.error(`❌ MAYA GENERATION FAILED: ${prediction.error || 'Unknown error'}`);
+      res.json({ 
+        status: 'failed', 
+        error: prediction.error || 'Generation failed',
+        message: "I encountered an issue creating your photos. Let's try again with a different approach!"
+      });
+    } else {
+      // Still processing
+      res.json({ 
+        status: 'processing',
+        message: "I'm working on your photos right now! This usually takes 30-60 seconds..."
+      });
+    }
+    
+  } catch (error: any) {
+    console.error('Maya check generation error:', error);
+    res.status(500).json({ 
+      error: 'Status check failed',
+      message: "I'm having trouble checking on your photos right now. Let me try again!"
+    });
+  }
+});
+
 // HELPER FUNCTIONS
 
 async function getUnifiedUserContext(userId: string) {

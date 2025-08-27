@@ -1,0 +1,192 @@
+PHASE 2: Fix Frontend Generation Flow
+TASK: Connect Maya's Working Backend to Frontend Generation System
+OBJECTIVE: Update frontend to properly call Maya's restored intelligent generation system
+
+SPECIFIC ACTIONS:
+
+1. Open `client/src/pages/maya.tsx`
+
+2. Find the `generateImages` function (around lines 400-500)
+
+3. Replace the ENTIRE function with this corrected implementation:
+
+```typescript
+const generateImages = async (prompt: string, generationId?: string) => {
+  if (!generationId || activeGenerations.has(generationId)) {
+    console.log('Generation blocked - missing ID or already active:', generationId);
+    return;
+  }
+  
+  console.log('Starting Maya generation:', { prompt, generationId, preset, seed });
+  
+  setActiveGenerations(prev => new Set([...prev, generationId]));
+  
+  try {
+    // Call Maya's intelligent generation system
+    const response = await apiRequest('/api/maya/generate', 'POST', {
+      prompt,
+      chatId: currentChatId,
+      preset,
+      seed: seed ? Number(seed) : undefined,
+      count: 2 // Maya will intelligently adjust based on shot type
+    });
+    
+    console.log('Maya generation response:', response);
+    
+    if (response.success && response.predictionId) {
+      console.log('Starting polling for prediction:', response.predictionId);
+      
+      // Poll for Maya's generation completion
+      const pollForImages = async () => {
+        try {
+          const statusResponse = await fetch(`/api/check-generation/${response.predictionId}`, { 
+            credentials: 'include' 
+          }).then(res => res.json());
+          
+          console.log('Maya generation status:', statusResponse.status);
+          
+          if (statusResponse.status === 'completed' && statusResponse.imageUrls) {
+            console.log('Maya generation complete! Images:', statusResponse.imageUrls.length);
+            
+            // Update the specific Maya message with generated images
+            setMessages(prev => prev.map(msg => 
+              msg.generationId === generationId 
+                ? { 
+                    ...msg, 
+                    imagePreview: statusResponse.imageUrls, 
+                    canGenerate: false 
+                  }
+                : msg
+            ));
+            
+            // Remove from active generations
+            setActiveGenerations(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(generationId);
+              console.log('Maya generation completed, remaining active:', Array.from(newSet));
+              return newSet;
+            });
+            
+          } else if (statusResponse.status === 'failed') {
+            console.error('Maya generation failed:', statusResponse.error);
+            
+            // Update message with error state
+            setMessages(prev => prev.map(msg => 
+              msg.generationId === generationId 
+                ? { 
+                    ...msg, 
+                    content: msg.content + '\n\nSorry, generation failed. Let me try creating different photos for you!',
+                    canGenerate: false 
+                  }
+                : msg
+            ));
+            
+            setActiveGenerations(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(generationId);
+              return newSet;
+            });
+            
+          } else {
+            // Still processing - continue polling
+            console.log('Maya still generating, polling again in 3 seconds...');
+            setTimeout(pollForImages, 3000);
+          }
+        } catch (pollError) {
+          console.error('Maya polling error:', pollError);
+          setActiveGenerations(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(generationId);
+            return newSet;
+          });
+        }
+      };
+      
+      // Start polling after 3 seconds
+      setTimeout(pollForImages, 3000);
+      
+    } else {
+      console.error('Maya generation failed to start:', response);
+      setActiveGenerations(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(generationId);
+        return newSet;
+      });
+    }
+    
+  } catch (error) {
+    console.error('Maya generation error:', error);
+    setActiveGenerations(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(generationId);
+      return newSet;
+    });
+    
+    // Show user-friendly error in chat
+    setMessages(prev => prev.map(msg => 
+      msg.generationId === generationId 
+        ? { 
+            ...msg, 
+            content: msg.content + '\n\nI had trouble generating those photos. Let me try a different approach - what specific style are you looking for?',
+            canGenerate: false 
+          }
+        : msg
+    ));
+  }
+};
+
+Verify the generateFromConcept function calls the updated generateImages:
+
+Find this function (around lines 300-350) and ensure it calls generateImages correctly:
+typescript// This should already exist - just verify it's calling generateImages properly
+const generateFromConcept = async (conceptName: string) => {
+  const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  if (activeGenerations.has(messageId)) return;
+  
+  console.log('Maya concept generation:', conceptName, 'ID:', messageId);
+  
+  try {
+    // Get Maya's intelligent response for this concept
+    const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
+      message: `I want to generate photos for this concept: ${conceptName}. Please give me your excited, personalized response about creating these photos with your styling expertise. Include your detailed prompts.`,
+      chatId: currentChatId,
+      context: 'generation'
+    });
+    
+    // Create Maya message with generation capability
+    const generatingMessage: ChatMessage = {
+      role: 'maya',
+      content: mayaResponse?.message || `Creating your "${conceptName}" photos right now with my styling expertise!`,
+      timestamp: new Date().toISOString(),
+      canGenerate: true,
+      generationId: messageId
+    };
+    
+    setMessages(prev => [...prev, generatingMessage]);
+    
+    // Use Maya's extracted prompt if available
+    const prompt = mayaResponse?.generatedPrompt || `Create a professional photo concept: ${conceptName}`;
+    await generateImages(prompt, messageId);
+    
+  } catch (error) {
+    console.error('Maya concept generation error:', error);
+  }
+};
+CONSTRAINTS:
+
+Replace ONLY the generateImages function completely
+Verify generateFromConcept calls it correctly (don't modify if working)
+Keep all existing Maya chat functionality intact
+Preserve the polling mechanism but increase interval to 3 seconds for Replicate
+Add proper error handling and user feedback
+
+TESTING REQUIRED:
+
+Test Maya conversation flow still works
+Test generation buttons trigger image creation
+Verify images appear in chat after generation completes
+Check error messages are user-friendly
+Confirm multiple generations can run simultaneously
+
+EXPECTED OUTCOME: Maya's intelligent backend properly connected to frontend with working image generation and display
