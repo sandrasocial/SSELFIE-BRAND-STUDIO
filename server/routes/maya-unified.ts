@@ -124,9 +124,19 @@ router.post('/generate', isAuthenticated, async (req, res) => {
     
     const safeCount = Math.min(Math.max(parseInt(count ?? 2, 10) || 2, 1), 6);
     
+    // Get user context for trigger word
+    const generationInfo = await checkGenerationCapability(userId);
+    let finalPrompt = prompt.trim();
+    
+    // If this is a concept-based generation, enhance it with Maya's styling expertise
+    if (prompt.includes('Create a professional photo concept:')) {
+      const conceptName = prompt.replace('Create a professional photo concept: ', '').trim();
+      finalPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord);
+    }
+    
     const result = await ModelTrainingService.generateUserImages(
       userId,
-      prompt.trim(),
+      finalPrompt,
       safeCount,
       { preset, seed }
     );
@@ -275,18 +285,27 @@ Apply your professional styling knowledge:
 
     case 'quickstart':
       enhancement += `\n\n⚡ QUICK START MODE:
-The user chose Quick Start and wants to create photos immediately without onboarding discovery. Show them photo generation options right away using your fashion week expertise.
+The user chose Quick Start and wants to create photos immediately. Provide photo concept descriptions for them to choose from, NOT full prompts.
 
-IMMEDIATE PHOTO OPTIONS TO OFFER:
-- "Professional headshots" - LinkedIn authority and business credibility
-- "Social media photos" - Instagram stories and daily content
-- "Website hero images" - Homepage and about page photos  
-- "Email marketing photos" - Newsletter and personal connection
-- "Premium brand photos" - High-end collaborations and partnerships
+CRITICAL INSTRUCTIONS:
+- Offer 2-3 styled photo concepts with friendly descriptions
+- Use this EXACT format for generation buttons: QUICK_ACTIONS: Generate [Concept Name], Generate [Concept Name], Show more options
+- NEVER show the full prompt text with "${generationInfo.triggerWord}" in chat - keep that hidden
+- Be warm, excited, and confident about the concepts
+- Focus on describing the visual style and mood, not technical prompt details
 
-Skip all discovery questions. Use your complete styling knowledge to offer immediate photo concepts and generation options. Be excited and confident - they're ready to create stunning photos right now!
+EXAMPLE RESPONSE FORMAT:
+"I'm so excited to create stunning photos for you! Here are some amazing concepts:
 
-When they choose a photo type, immediately create detailed styling prompts using their trigger word "${generationInfo.triggerWord}".`;
+**Concept 1: Professional Confidence**
+[Beautiful description of the styling and mood]
+
+**Concept 2: Social Media Ready** 
+[Beautiful description of the styling and mood]
+
+QUICK_ACTIONS: Generate Professional Confidence, Generate Social Media Ready, Show more concepts"
+
+When they click generation buttons, the system will automatically create the detailed prompts using "${generationInfo.triggerWord}".`;
       break;
       
     default:
@@ -438,6 +457,24 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
     // Return existing chatId or 0 as fallback
     return chatId || 0;
   }
+}
+
+// Helper function to create detailed prompts from concept names
+async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string): Promise<string> {
+  const conceptMap: { [key: string]: string } = {
+    'Professional Confidence': `Professional portrait of ${triggerWord} in a chic blazer and silk camisole, standing confidently against a minimalist white wall, arms crossed with a warm smile, hair perfectly styled, subtle but polished makeup, soft studio lighting creating gentle shadows, shot from a slight low angle for empowerment, luxury fashion photography aesthetic`,
+    
+    'Social Media Ready': `Stylish woman ${triggerWord} sitting at a marble coffee table in a bright, modern café, wearing a cream cashmere sweater and gold jewelry, natural makeup with glowing skin, long hair styled in loose waves, holding a latte with beautiful foam art, soft natural lighting streaming through large windows, shot with a 50mm lens for that perfect shallow depth of field, editorial photography style`,
+    
+    'Lifestyle Guru Energy': `${triggerWord} in a flowing midi dress, sitting on a velvet accent chair in a beautifully styled living room with plants and books, natural sunlight creating a warm glow, relaxed but polished styling, candid laugh captured mid-moment, cozy yet sophisticated atmosphere, lifestyle photography with rich colors and textures`,
+    
+    'Website Hero Image': `Professional business portrait of ${triggerWord} in elegant attire, standing in a modern office space with floor-to-ceiling windows, confident posture with hands on hips, sophisticated styling with tailored jacket, natural lighting creating soft shadows, shot with 85mm lens for professional headshot quality, luxury corporate photography aesthetic`,
+    
+    'LinkedIn Authority Photo': `Executive portrait of ${triggerWord} in a navy blazer and white blouse, sitting at a polished conference table, warm professional smile, hair styled in a sleek bob, minimal but sophisticated makeup, soft office lighting, shot against a blurred modern office background, professional headshot photography style`,
+  };
+  
+  // Return specific prompt if concept matches, otherwise create a general professional prompt
+  return conceptMap[conceptName] || `Professional portrait of ${triggerWord} in elegant styling, sophisticated lighting, editorial photography quality`;
 }
 
 export default router;

@@ -321,7 +321,35 @@ export default function Maya() {
   };
 
   const handleQuickButton = (buttonText: string) => {
-    sendMessage(buttonText);
+    // Check if this is a generation button
+    if (buttonText.startsWith('Generate ')) {
+      // Extract concept name and trigger generation
+      const conceptName = buttonText.replace('Generate ', '');
+      generateFromConcept(conceptName);
+    } else {
+      // Regular chat message
+      sendMessage(buttonText);
+    }
+  };
+  
+  const generateFromConcept = async (conceptName: string) => {
+    if (isGenerating) return;
+    
+    // Create a prompt based on the concept name and trigger word
+    // This will be handled by Maya's generation system
+    const prompt = `Create a professional photo concept: ${conceptName}`;
+    
+    // Add a message indicating generation is starting
+    const generatingMessage: ChatMessage = {
+      role: 'maya',
+      content: `Perfect choice! I'm creating your "${conceptName}" photos right now using all my styling expertise. This is going to look absolutely stunning! ✨`,
+      timestamp: new Date().toISOString(),
+      canGenerate: false
+    };
+    setMessages(prev => [...prev, generatingMessage]);
+    
+    // Trigger actual generation
+    await generateImages(prompt);
   };
 
   const generateImages = async (prompt: string) => {
