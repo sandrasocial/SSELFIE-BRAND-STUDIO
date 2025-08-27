@@ -107,7 +107,7 @@ export default function Maya() {
   const checkOnboardingStatus = async () => {
     try {
       console.log('🔍 Maya: Checking onboarding status, auth state:', { isAuthenticated, authLoading });
-      const response = await apiRequest('/api/maya-unified/status');
+      const response = await apiRequest('/api/maya/status');
       console.log('✅ Maya: Unified status received:', response);
       if (response?.success) {
         const status = {
@@ -238,7 +238,7 @@ export default function Maya() {
 
     try {
       // SINGLE MAYA ENDPOINT for all interactions
-      const response = await apiRequest('/api/maya-unified/chat', 'POST', {
+      const response = await apiRequest('/api/maya/chat', 'POST', {
         message: messageToSend,
         context: isOnboardingMode ? 'onboarding' : 'regular',
         chatId: currentChatId,
@@ -304,7 +304,7 @@ export default function Maya() {
     setGenerationProgress(0);
 
     try {
-      const response = await apiRequest('/api/maya-unified/generate', 'POST', {
+      const response = await apiRequest('/api/maya/generate', 'POST', {
         prompt,
         chatId: currentChatId,
         preset,
