@@ -272,6 +272,22 @@ Apply your professional styling knowledge:
 - Color intelligence and sophisticated combinations
 - Hair & makeup expertise from your fashion week background`;
       break;
+
+    case 'quickstart':
+      enhancement += `\n\n⚡ QUICK START MODE:
+The user chose Quick Start and wants to create photos immediately without onboarding discovery. Show them photo generation options right away using your fashion week expertise.
+
+IMMEDIATE PHOTO OPTIONS TO OFFER:
+- "Professional headshots" - LinkedIn authority and business credibility
+- "Social media photos" - Instagram stories and daily content
+- "Website hero images" - Homepage and about page photos  
+- "Email marketing photos" - Newsletter and personal connection
+- "Premium brand photos" - High-end collaborations and partnerships
+
+Skip all discovery questions. Use your complete styling knowledge to offer immediate photo concepts and generation options. Be excited and confident - they're ready to create stunning photos right now!
+
+When they choose a photo type, immediately create detailed styling prompts using their trigger word "${generationInfo.triggerWord}".`;
+      break;
       
     default:
       enhancement += `\n\n💬 REGULAR CHAT MODE:
