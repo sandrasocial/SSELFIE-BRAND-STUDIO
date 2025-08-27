@@ -460,6 +460,50 @@ export const userLandingPages = pgTable("user_landing_pages", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Maya Personal Brand data for onboarding
+export const userPersonalBrand = pgTable("user_personal_brand", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  transformationStory: text("transformation_story"),
+  currentSituation: text("current_situation"),
+  strugglesStory: text("struggles_story"),
+  personalityTraits: jsonb("personality_traits"),
+  dreamOutcome: text("dream_outcome"),
+  futureVision: text("future_vision"),
+  businessGoals: text("business_goals"),
+  targetAudience: text("target_audience"),
+  valuesAndMission: text("values_and_mission"),
+  businessType: varchar("business_type"),
+  brandVision: text("brand_vision"),
+  uniqueValueProposition: text("unique_value_proposition"),
+  professionalGoals: text("professional_goals"),
+  photoUsageGoals: jsonb("photo_usage_goals"),
+  contentCreationGoals: text("content_creation_goals"),
+  professionalImageGoals: text("professional_image_goals"),
+  onboardingStep: integer("onboarding_step").default(1),
+  isCompleted: boolean("is_completed").default(false),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Maya Personal Memory data for personalized interactions
+export const mayaPersonalMemory = pgTable("maya_personal_memory", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  personalInsights: jsonb("personal_insights"),
+  ongoingGoals: jsonb("ongoing_goals"),
+  conversationStyle: jsonb("conversation_style"),
+  userFeedbackPatterns: jsonb("user_feedback_patterns"),
+  preferredTopics: jsonb("preferred_topics"),
+  personalizedStylingNotes: text("personalized_styling_notes"),
+  successfulPromptPatterns: jsonb("successful_prompt_patterns"),
+  lastMemoryUpdate: timestamp("last_memory_update").defaultNow(),
+  memoryVersion: integer("memory_version").default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Maya Chat History tables
 export const mayaChats = pgTable("maya_chats", {
   id: serial("id").primaryKey(),
@@ -504,6 +548,8 @@ export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ i
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
 
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertUserPersonalBrandSchema = createInsertSchema(userPersonalBrand).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertMayaPersonalMemorySchema = createInsertSchema(mayaPersonalMemory).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
 export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true });
@@ -527,6 +573,10 @@ export type User = typeof users.$inferSelect;
 // Website types
 export type Website = typeof websites.$inferSelect;
 export type InsertWebsite = typeof websites.$inferInsert;
+export type UserPersonalBrand = typeof userPersonalBrand.$inferSelect;
+export type InsertUserPersonalBrand = typeof userPersonalBrand.$inferInsert;
+export type MayaPersonalMemory = typeof mayaPersonalMemory.$inferSelect;
+export type InsertMayaPersonalMemory = typeof mayaPersonalMemory.$inferInsert;
 export type MayaChat = typeof mayaChats.$inferSelect;
 export type InsertMayaChat = typeof mayaChats.$inferInsert;
 export type MayaChatMessage = typeof mayaChatMessages.$inferSelect;

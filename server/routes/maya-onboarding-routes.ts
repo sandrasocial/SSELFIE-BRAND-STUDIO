@@ -108,6 +108,10 @@ router.post('/conversation', isAuthenticated, async (req, res) => {
 
     // Update Maya's memory with this conversation
     await updateMayaMemory(userId, message, parsedResponse, step);
+    
+    // Save onboarding data to database
+    const stepData = extractStepData(message, step);
+    await MayaStorageExtensions.saveOnboardingData(userId, stepData, step);
 
     res.json({
       success: true,
@@ -306,6 +310,33 @@ async function updateMayaMemory(userId: string, userMessage: string, mayaRespons
     console.error('Memory update error:', error);
     // Don't fail the main request if memory update fails
   }
+}
+
+function extractStepData(message: string, step: number): any {
+  // Extract meaningful data from user message based on step
+  const stepData: any = {};
+  
+  switch (step) {
+    case 1:
+      stepData.brandStory = message;
+      stepData.personalMission = message;
+      break;
+    case 2:
+      stepData.businessGoals = message;
+      stepData.targetAudience = message;
+      break;
+    case 3:
+      stepData.brandVoice = message;
+      stepData.stylePreferences = message;
+      break;
+    case 4:
+    case 5:
+    case 6:
+      // Later steps can be handled with specific extraction logic
+      break;
+  }
+  
+  return stepData;
 }
 
 function buildMayaPrompt(userMessage: string, step: number, userContext: any): string {
