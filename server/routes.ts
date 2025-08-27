@@ -233,7 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       "*.replit.dev *.replit.com https://js.stripe.com https://replit.com; " +
       "style-src 'self' 'unsafe-inline' *.googleapis.com *.gstatic.com; " +
       "img-src 'self' data: blob: https: *.replicate.com *.postimg.cc *.amazonaws.com; " +
-      "connect-src 'self' *.replit.dev *.replit.com *.replicate.com https://api.stripe.com " +
+      "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com https://api.stripe.com " +
       "https://api.replicate.com wss: ws:; " +
       "font-src 'self' *.googleapis.com *.gstatic.com data:; " +
       "frame-src 'self' https://js.stripe.com https://hooks.stripe.com;"
