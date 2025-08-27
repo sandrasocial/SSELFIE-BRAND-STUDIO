@@ -1,0 +1,49 @@
+🎯 IMPLEMENTATION PHASES (DO IN ORDER)
+PHASE 1: CRITICAL DATABASE FIX (MUST DO FIRST)
+File: server/storage-maya-extensions.ts
+Issue: saveOnboardingData() is not actually saving to database - 0 users have progress saved
+typescript// REPLACE the broken saveOnboardingData function with this FIXED version:
+
+async saveOnboardingData(userId: string, stepData: any, step: number): Promise<boolean> {
+  try {
+    console.log(`🔥 CRITICAL FIX: Saving onboarding data for user ${userId}, step ${step}`);
+    
+    // Update personal brand data with current step
+    const personalBrandData = {
+      userId,
+      transformationStory: stepData.transformationStory || '',
+      currentSituation: stepData.currentSituation || '',
+      futureVision: stepData.futureVision || '',
+      businessGoals: stepData.businessGoals || '',
+      onboardingStep: step,
+      isCompleted: step === 6,
+      completedAt: step === 6 ? new Date() : null,
+      updatedAt: new Date()
+    };
+
+    // FIXED: Actually save to database using proper Drizzle syntax
+    const result = await db.insert(userPersonalBrand)
+      .values(personalBrandData)
+      .onConflictDoUpdate({
+        target: userPersonalBrand.userId,
+        set: {
+          transformationStory: personalBrandData.transformationStory,
+          currentSituation: personalBrandData.currentSituation,
+          futureVision: personalBrandData.futureVision,
+          businessGoals: personalBrandData.businessGoals,
+          onboardingStep: personalBrandData.onboardingStep,
+          isCompleted: personalBrandData.isCompleted,
+          completedAt: personalBrandData.completedAt,
+          updatedAt: personalBrandData.updatedAt
+        }
+      });
+
+    console.log(`✅ FIXED: Onboarding data saved successfully for user ${userId}`);
+    return true;
+    
+  } catch (error) {
+    console.error('🚨 CRITICAL ERROR: Failed to save onboarding data:', error);
+    throw error;
+  }
+}
+TEST THIS IMMEDIATELY: Create a test user, run through onboarding, verify data saves to database.
