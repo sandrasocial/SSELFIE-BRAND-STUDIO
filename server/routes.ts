@@ -19,6 +19,7 @@ import path from 'path';
 import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 import { registerMayaAIRoutes } from './routes/maya-ai-routes';
+import mayaOnboardingRoutes from './routes/maya-onboarding-routes';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
@@ -419,6 +420,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Member Maya routes (Revenue-critical customer styling)
   registerMayaAIRoutes(app);
+  
+  // Register Maya Onboarding routes (Member personal brand discovery - ISOLATED from Admin Maya)
+  app.use('/api/maya-onboarding', mayaOnboardingRoutes);
+  console.log('✅ MEMBER MAYA ONBOARDING: Isolated onboarding system active at /api/maya-onboarding/*');
   
   // AGENT PROTOCOL ENFORCEMENT SYSTEM
   app.post('/api/agent-protocol/validate', async (req, res) => {
