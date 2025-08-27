@@ -194,7 +194,10 @@ function Router() {
 
 
       <Route path="/ai-generator" component={(props) => <ProtectedRoute component={AIGenerator} {...props} />} />
-      <Route path="/gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
+      {/* GALLERY ROUTES: Single route with redirect for old path */}
+      <Route path="/gallery">
+        <Redirect to="/sselfie-gallery" />
+      </Route>
       <Route path="/sselfie-gallery" component={(props) => <ProtectedRoute component={SSELFIEGallery} {...props} />} />
       <Route path="/profile" component={(props) => <ProtectedRoute component={Profile} {...props} />} />
       
