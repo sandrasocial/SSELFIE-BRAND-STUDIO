@@ -351,25 +351,51 @@ export default function Maya() {
   const generateFromConcept = async (conceptName: string) => {
     if (isGenerating) return;
     
-    // Create a prompt based on the concept name and trigger word
-    // This will be handled by Maya's generation system
-    const prompt = `Create a professional photo concept: ${conceptName}`;
-    
     // Generate unique message ID to track this specific generation
     const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Add a message indicating generation is starting - CRITICAL: canGenerate MUST be true for polling to find it
-    const generatingMessage: ChatMessage = {
-      role: 'maya',
-      content: `Perfect choice! I'm creating your "${conceptName}" photos right now using all my styling expertise. This is going to look absolutely stunning!`,
-      timestamp: new Date().toISOString(),
-      canGenerate: true,  // CRITICAL: Must be true so polling can find this message to update with images
-      generationId: messageId  // Unique ID to track this specific generation
-    };
-    setMessages(prev => [...prev, generatingMessage]);
-    
-    // Trigger actual generation with specific message ID
-    await generateImages(prompt, messageId);
+    try {
+      // CRITICAL FIX: Use Maya's genuine Claude API intelligence instead of hardcoded template
+      console.log('🎨 MAYA INTELLIGENCE: Getting authentic response for concept:', conceptName);
+      
+      // Call Maya's genuine intelligence for generation response
+      const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
+        message: `I want to generate photos for this concept: ${conceptName}. Please give me your excited, personalized response about creating these photos with your styling expertise.`,
+        chatId: currentChatId,
+        context: 'generation'
+      });
+      
+      // Create Maya message with her genuine response and generation capability
+      const generatingMessage: ChatMessage = {
+        role: 'maya',
+        content: mayaResponse.content, // Use Maya's REAL Claude API response
+        timestamp: new Date().toISOString(),
+        canGenerate: true,  // CRITICAL: Must be true so polling can find this message to update with images
+        generationId: messageId  // Unique ID to track this specific generation
+      };
+      setMessages(prev => [...prev, generatingMessage]);
+      
+      // Create the actual generation prompt
+      const prompt = `Create a professional photo concept: ${conceptName}`;
+      
+      // Trigger actual generation with specific message ID
+      await generateImages(prompt, messageId);
+      
+    } catch (error) {
+      console.error('❌ MAYA INTELLIGENCE ERROR:', error);
+      // Fallback to simple message if Maya's intelligence fails
+      const fallbackMessage: ChatMessage = {
+        role: 'maya',
+        content: `Exciting! Let me create your "${conceptName}" photos right now. This is going to look amazing!`,
+        timestamp: new Date().toISOString(),
+        canGenerate: true,
+        generationId: messageId
+      };
+      setMessages(prev => [...prev, fallbackMessage]);
+      
+      const prompt = `Create a professional photo concept: ${conceptName}`;
+      await generateImages(prompt, messageId);
+    }
   };
 
   const generateImages = async (prompt: string, generationId?: string) => {

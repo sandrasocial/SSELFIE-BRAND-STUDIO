@@ -1,80 +1,29 @@
 # SSELFIE Studio - AI Personal Branding Platform
 
 ## Overview
-SSELFIE Studio is Sandra's AI personal branding platform with simplified TRAIN → STYLE → GALLERY flow. Replace expensive photoshoots ($500-2000+) with personal AI photographer that generates unlimited professional brand photos. Single $47/month tier targets women entrepreneurs who want professional brand photos without traditional photoshoot hassles. Sandra has 135K+ followers and 30-day launch plan to reach $2,350 MRR (50 users). Long-term goal: scale success to sell admin agent ecosystem to enterprises.
-
-## Strategic Gender Expansion Plan
-**Phase 1 (Current)**: Women-Only Focus - Maintain clear positioning as "AI personal branding for women entrepreneurs" leveraging Sandra's 135K-follower authority and Maya's female-centric styling expertise.
-
-**Phase 2 (After 100+ Female Customers)**: Market Research - Survey existing customers about male colleagues/partners interested in AI personal branding to validate demand.
-
-**Phase 3 (Future Expansion)**: Separate Men's Platform - If demand validated, create "MASCULINE STUDIO" with:
-- Dedicated AI personality (e.g., "Marcus" - executive styling expert)
-- Male-focused prompts (suits, business casual, executive presence)
-- Different messaging (professional authority vs entrepreneurial confidence)
-- Potentially higher pricing ($67/month tier testing)
-- Preserves women-only brand strength while capturing new market
-
-**Strategic Benefits**: Tests both markets separately, protects Sandra's authority in women's space, enables cross-selling to corporate clients, maintains clear brand positioning without dilution.
+SSELFIE Studio is Sandra's AI personal branding platform, simplifying personal branding with a TRAIN → STYLE → GALLERY flow. It aims to replace expensive photoshoots by generating unlimited professional brand photos using AI. The platform targets women entrepreneurs with a single $47/month subscription, leveraging Sandra's 135K+ follower base for an initial launch goal of $2,350 MRR. Long-term, the vision is to scale this success to sell the underlying admin agent ecosystem to enterprises. A strategic plan is in place for potential future gender expansion (e.g., "MASCULINE STUDIO") while preserving the core "women-only" brand strength.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
-**PROJECT STATUS**: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY flow for immediate $47/month launch. SHOOT page removed (Maya handles everything), BUILD feature moved to future $67/month tier. 30-day launch plan targeting 50 users = $2,350 MRR. 
-
-**🎉 Maya Unified System COMPLETED (August 27, 2025)** - Complete 5-phase unification successfully deployed and tested:
-
-**Phase 1**: Database and schema corrections ✅
-**Phase 2**: Unified backend system with maya-unified.ts using PersonalityManager.getNaturalPrompt('maya') ✅  
-**Phase 3**: Frontend integration complete - Maya.tsx now uses single unified API system ✅
-**Phase 4**: Old routes disabled and archived - Clean unified system active at /api/maya/* ✅
-**Phase 5**: Comprehensive testing and validation - All functionality confirmed working ✅
-**Phase 6**: Code optimization and documentation cleanup - System optimized for production ✅
-
-**Maya Unification Success:**
-- ✅ ELIMINATED FRAGMENTATION: 4+ conflicting Maya endpoints unified into single /api/maya/* system
-- ✅ CONSISTENT PERSONALITY: Same Sandra-inspired Maya expertise across onboarding, chat, and generation
-- ✅ SEAMLESS TRANSITIONS: No more personality switches between different interaction modes
-- ✅ TECHNICAL VALIDATION: Authentication, chat history, generation pipeline all tested and working
-- ✅ USER EXPERIENCE: Smooth onboarding flow, consistent styling categories, unified voice throughout
-- ✅ PRODUCTION READY: Server running successfully, zero critical issues, comprehensive testing complete
-
-**Technical Architecture:**
-- Single unified endpoint system (/api/maya/*) replacing fragmented routes
-- PersonalityManager architecture with context enhancement for consistent Maya personality
-- Frontend simplified from multiple API calls to unified communication
-- 6-step discovery flow operational (Welcome → Current Situation → Future Vision → Business Context → Style Discovery → Photo Goals)
-- Backend services bridge created (MayaStorageExtensions connecting React to APIs)
-- Claude API personality integration confirmed working (maya-personality.ts with Sandra's expertise)  
-- Beautiful editorial styling system integrated and loading properly
-- Authentication and chat persistence validated through server logs
-- Image generation pipeline ready (LoRA weights + Replicate API connection confirmed)
-- Complete onboarding → chat → generation flow operational
-
-**🚀 MAYA UNIFIED SYSTEM LAUNCHED - Ready for immediate customer use and $47/month subscriptions**
-
-**🎯 Maya Intelligent Quick Actions COMPLETED (August 27, 2025)**: Eliminated jarring disconnect between Maya's intelligent responses and generic templated buttons. Maya now generates contextual, personalized quick action suggestions that match her conversational intelligence, creating seamless user experience from professional consultation to natural follow-up actions.
-
-**🚀 Maya Welcome Page with CUSTOMIZE/QUICK START Options COMPLETED (August 27, 2025)**: Implemented elegant dual-path user experience for new users. Welcome page presents two beautifully designed cards: CUSTOMIZE (5-10 min guided onboarding to learn user's story, style, and brand) and QUICK START (immediate photo generation using Maya's fashion week expertise). Zero risk implementation preserves all existing flows while dramatically improving UX for different user needs and time constraints.
-
-**🔧 Maya Generation Button Polling System FIXED (August 27, 2025)**: Resolved critical bug preventing generation buttons from working properly. The polling system was looking for Maya messages with `canGenerate: true` but `generateFromConcept` was creating messages with `canGenerate: false`. Fixed the logic and added comprehensive logging to ensure reliable image generation and display. Maya now uses her genuine Claude API intelligence to create styling concept names naturally without hardcoded suggestions.
+PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY flow for immediate $47/month launch. SHOOT page removed (Maya handles everything), BUILD feature moved to future $67/month tier. 30-day launch plan targeting 50 users = $2,350 MRR.
 
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: React 18 with TypeScript and Vite
-- **Routing**: Wouter
-- **UI Framework**: Radix UI components with shadcn/ui design system
+- **Framework**: React 18 with TypeScript and Vite.
+- **Routing**: Wouter.
+- **UI Framework**: Radix UI components with shadcn/ui design system.
 - **Styling**: Tailwind CSS, luxury brand color palette (editorial blacks, signature golds, premium grays), Times New Roman typography.
 - **State Management**: TanStack Query for server state, custom hooks for local state.
 - **PWA Support**: Progressive Web App features for mobile optimization.
 
 ### Backend Architecture
-- **Runtime**: Node.js with Express.js
-- **Language**: TypeScript with ES modules
+- **Runtime**: Node.js with Express.js.
+- **Language**: TypeScript with ES modules.
 - **API Design**: RESTful endpoints with agent-specific routing.
 - **Authentication**: Express sessions with role-based access control.
 - **File Operations**: Direct tool access for admin agents.
-- **Agent System**: Specialized AI agents with autonomous capabilities.
+- **Agent System**: Specialized AI agents with autonomous capabilities. A unified endpoint system (`/api/maya/*`) replaces fragmented routes, ensuring consistent Maya personality across all interactions via a `PersonalityManager`.
 
 ### Data Storage Solutions
 - **Primary Database**: PostgreSQL with Drizzle ORM.
@@ -90,35 +39,15 @@ Preferred communication style: Simple, everyday language.
 
 ### System Design Choices
 - Comprehensive separation between member revenue features and admin operational improvements.
-- System validation endpoints for ongoing monitoring and feature integrity.
-- Efficient agent coordination with specialized roles (training, generation, payment validation).
-- Strict CSS editing guidelines for application stability.
-- Real-time agent protocol validation to prevent duplicate work.
-- **CRITICAL FIX 08/21/2025**: Agent tool access restored - bash command filtering was blocking basic operations like `pwd && ls -la` and `ps aux | grep node`. Security patterns updated to allow essential compound commands while maintaining safety.
-- **ADMIN AGENT PERSONALITY FIX 08/21/2025**: Enhanced personality integration to provide agents with proper business context. Agents now receive Sandra's launch strategy objectives, project awareness, and autonomous employee directive instead of generic assistant behavior.
-- Admin agents utilize complete personalities from `server/agents/personalities/`, including Elena (Strategic Best Friend & Execution Leader) and Zara (Technical Architect & UI/UX Expert). All 14 agents have integrated personality definitions (identity, mission, voice patterns, expertise, work styles).
-- Database-connected memory for loading and persisting agent contexts and personality-driven interactions.
-- Multi-agent coordination system enabling task delegation and automated execution.
-- Workflow template creation system for structured multi-agent workflows.
+- AI agents leverage complete personalities from `server/agents/personalities/`, including Elena (Strategic Best Friend & Execution Leader) and Zara (Technical Architect & UI/UX Expert), integrated with database-connected memory for context persistence.
+- Multi-agent coordination system with task delegation, automated execution, and workflow templates.
 - Local processing engine for token optimization, handling pattern extraction, agent learning, session context updates, tool result processing, error validation, and intent classification.
-- Selective Claude API bypass system for token optimization on JSON tool calls while preserving full conversations.
-- Simplified filesystem search tool for clear project navigation.
-- Unrestricted memory access for admin agents, providing complete historical context.
-- Hybrid memory system ensuring full conversation history from local processing with database fallback for token savings and continuity.
-- Project protection rules implemented via AdminContextManager, safeguarding sensitive revenue systems and defining safe development zones.
-- Enhanced Path Intelligence integrated for conflict prevention.
-- Comprehensive Admin Agent Ecosystem Documentation created with visual agent connections, tool access matrix, and communication protocols.
-- Elena Delegation System expanded to track all 14 agents with capacity limits, specializations, and efficiency ratings.
-- Multi-agent workflow templates added for content creation, QA testing, and launch preparation with dependency management.
-- Architecture Protection Plan implemented to safeguard the $100M+ multi-agent system during continued development.
-- Architecture Guardian system created for automated monitoring and protection of critical files and systems.
-- Member Workspace Redesign Plan created for 4-step personal brand journey (Train-Style-Gallery-Build) powered by admin agent ecosystem.
-- Dual business model strategy: member subscriptions + agent ecosystem licensing for enterprise clients.
-- **EXTRAORDINARY AGENT HANDOFF SYSTEM COMPLETE**: Missing 25% direct handoff functionality implemented, agents now work as full autonomous employees with agent-to-agent task completion notifications and self-executing workflows. Train feature ready for $197/month beta launch.
-- **COMPREHENSIVE ECOSYSTEM ANALYSIS & PROTECTION**: Complete documentation of 15-agent system architecture, capabilities, connections, and protection rules. Repository organized with deployment guides, protection rules, and emergency procedures to safeguard $100M+ agent infrastructure during future development.
-- **ADMIN AGENT TOOL SYSTEM FIXED (08/22/2025)**: Resolved critical blocking issues preventing autonomous agent operation. Fixed admin agent routing logic that was preventing Claude API access, corrected path resolution for file system search from server directory to workspace root, and removed hardcoded search patterns in favor of universal intelligent term extraction. Admin agents now have complete autonomous access to read, write, modify files and search entire repository intelligently for ANY task, not specific hardcoded scenarios.
-- **REACT APP & CSS SYSTEM RESTORED (08/23/2025)**: Fixed critical styling issues where Tailwind utilities weren't loading. Root cause was Vite's PostCSS pipeline not processing Tailwind directives properly during build. Resolved by replacing broken build output with properly generated Tailwind CSS (110KB vs 8KB). React app now renders with complete styling including luxury editorial design, Times New Roman typography, and all utility classes (bg-white, text-white, flex, min-h-screen, etc.).
-- **MAYA ONBOARDING SYSTEM COMPLETED (08/27/2025)**: Full integration successfully completed with comprehensive testing validation. Created MayaStorageExtensions service bridging React frontend to backend APIs, fixed all TypeScript errors in route handlers, integrated complete personality system with Claude API (maya-personality.ts). Maya now processes complete 6-step discovery flow and transitions seamlessly to personality-driven chat with transformation prompt detection for image generation. Server logs confirm authentication, chat persistence, and image generation pipeline all operational. Editorial CSS styling system integrated. Complete onboarding → chat → generation flow validated and ready for launch.
+- Selective Claude API bypass for token optimization on JSON tool calls while preserving full conversations.
+- Project protection rules via `AdminContextManager` safeguard sensitive revenue systems and define safe development zones.
+- Enhanced Path Intelligence prevents conflicts.
+- An "Extraordinary Agent Handoff System" enables autonomous agent-to-agent task completion.
+- A "Comprehensive Ecosystem Analysis & Protection" framework documents the multi-agent system's architecture, capabilities, and protection rules.
+- The Maya system provides a 6-step discovery flow (Welcome → Current Situation → Future Vision → Business Context → Style Discovery → Photo Goals) and seamlessly transitions to personality-driven chat and image generation. Intelligent Quick Actions generate contextual suggestions, replacing generic templated buttons. A Welcome page offers "CUSTOMIZE" (guided onboarding) or "QUICK START" (immediate photo generation) options.
 
 ## External Dependencies
 
