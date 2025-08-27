@@ -20,6 +20,7 @@ import fs from 'fs';
 import { ModelRetrainService } from './retrain-model';
 import { registerMayaAIRoutes } from './routes/maya-ai-routes';
 import mayaOnboardingRoutes from './routes/maya-onboarding-routes';
+import mayaUnifiedRouter from './routes/maya-unified';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
@@ -420,6 +421,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Member Maya routes (Revenue-critical customer styling)
   registerMayaAIRoutes(app);
+  
+  // PHASE 2: Maya Unified System - Single intelligent conversation system
+  app.use('/api/maya-unified', mayaUnifiedRouter);
+  console.log('✅ PHASE 2: Maya Unified System active at /api/maya-unified/*');
   
   // Register Maya Onboarding routes (Member personal brand discovery - ISOLATED from Admin Maya)
   app.use('/api/maya-onboarding', mayaOnboardingRoutes);
