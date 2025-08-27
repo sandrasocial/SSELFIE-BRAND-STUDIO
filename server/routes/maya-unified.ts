@@ -132,12 +132,13 @@ Use this context to provide personalized styling advice that aligns with their t
   } catch (error) {
     console.error('Unified Maya error:', error);
     
-    // CRITICAL: Always return proper JSON, never HTML
+    // CRITICAL: Always return proper JSON with Maya's warm personality
     return res.status(200).json({ 
       success: false,
-      content: "I'm having trouble right now, but let me help you anyway! What kind of photos would you like to create?",
-      message: "I'm having trouble right now, but let me help you anyway! What kind of photos would you like to create?",
+      content: "Oh! I had a little hiccup there, but I'm still here to help you create amazing photos! Tell me what kind of shots you're dreaming of and I'll guide you through it step by step. What's your vision?",
+      message: "Oh! I had a little hiccup there, but I'm still here to help you create amazing photos! Tell me what kind of shots you're dreaming of and I'll guide you through it step by step. What's your vision?",
       canGenerate: false,
+      quickButtons: ["Professional headshots", "Creative lifestyle", "Business portraits", "Tell me what happened"],
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -158,6 +159,18 @@ router.post('/generate', isAuthenticated, async (req, res) => {
     
     // Get user context for trigger word
     const generationInfo = await checkGenerationCapability(userId);
+    
+    // Check if user can generate - provide Maya's friendly guidance if not
+    if (!generationInfo.canGenerate || !generationInfo.userModel || !generationInfo.triggerWord) {
+      return res.status(200).json({
+        success: false,
+        error: "I'd love to create photos for you, but it looks like your AI model isn't quite ready yet! Once you complete the training process with your selfies, I'll be able to create amazing personalized photos. Should we check on your training status?",
+        message: "I'd love to create photos for you, but it looks like your AI model isn't quite ready yet! Once you complete the training process with your selfies, I'll be able to create amazing personalized photos. Should we check on your training status?",
+        quickButtons: ["Check training status", "Learn about training", "Upload more photos", "Start training process"],
+        canGenerate: false
+      });
+    }
+    
     let finalPrompt = prompt.trim();
     
     // If this is a concept-based generation, enhance it with Maya's styling expertise
@@ -176,7 +189,13 @@ router.post('/generate', isAuthenticated, async (req, res) => {
     return res.json({ predictionId: result.predictionId });
   } catch (error: any) {
     console.error("Unified Maya generate error:", error);
-    return res.status(400).json({ error: error?.message || "Failed to start generation" });
+    return res.status(200).json({ 
+      success: false,
+      error: "Oops! Something went wonky when I tried to start creating your photos. Let me help you troubleshoot this - what specific type of photo are you trying to create? I'll make sure we get it working!",
+      message: "Oops! Something went wonky when I tried to start creating your photos. Let me help you troubleshoot this - what specific type of photo are you trying to create? I'll make sure we get it working!",
+      quickButtons: ["Try professional headshot", "Try lifestyle photo", "Check my training", "Tell me what's wrong"],
+      canGenerate: false 
+    });
   }
 });
 
@@ -202,7 +221,11 @@ router.get('/status', isAuthenticated, async (req, res) => {
 
   } catch (error) {
     console.error('Maya status error:', error);
-    res.status(500).json({ error: 'Failed to get Maya status' });
+    res.status(200).json({ 
+      success: false,
+      error: 'Status check failed',
+      message: "I'm having trouble checking your account status right now, but I'm still here to help! What would you like to create today?"
+    });
   }
 });
 
@@ -242,7 +265,7 @@ router.get('/check-generation/:predictionId', isAuthenticated, async (req, res) 
       res.json({ 
         status: 'failed', 
         error: prediction.error || 'Generation failed',
-        message: "I encountered an issue creating your photos. Let's try again with a different approach!"
+        message: "Oh no! I hit a snag while creating those photos. Don't worry though - let me try a completely different approach! What specific style or vibe are you going for? I'll make sure we nail it this time!"
       });
     } else {
       // Still processing
@@ -254,9 +277,10 @@ router.get('/check-generation/:predictionId', isAuthenticated, async (req, res) 
     
   } catch (error: any) {
     console.error('Maya check generation error:', error);
-    res.status(500).json({ 
+    res.status(200).json({ 
+      status: 'error',
       error: 'Status check failed',
-      message: "I'm having trouble checking on your photos right now. Let me try again!"
+      message: "I'm having a little trouble checking on your photos right now, but don't worry! Let me create something fresh for you instead. What kind of amazing photos would you love to see?"
     });
   }
 });
