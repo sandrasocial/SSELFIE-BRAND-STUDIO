@@ -161,7 +161,7 @@ export default function PaymentSuccess() {
               // Redirect to our branded login page
               window.location.href = '/login';
             }}
-            className="bg-[#0a0a0a] text-white px-8 py-4 text-xs uppercase tracking-wider hover:bg-[#333] transition-colors"
+            className="bg-[#0a0a0a] text-white hover:bg-[#333] transition-colors touch-manipulation px-8 py-4 min-h-[44px] text-xs uppercase tracking-wider flex items-center justify-center"
           >
             Begin Your Journey
           </button>

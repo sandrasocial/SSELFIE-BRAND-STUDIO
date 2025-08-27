@@ -1,0 +1,211 @@
+TASK: Complete Maya System Audit - Diagnose All Issues
+OBJECTIVE: Identify and document every problem in Maya's image generation and onboarding flow
+
+AUDIT SCOPE: Maya System End-to-End Analysis
+
+1. FILE INVENTORY AND STATUS CHECK
+   Analyze ALL Maya-related files and report their current state:
+
+   PRIMARY FILES:
+   - client/src/pages/maya.tsx (main component)
+   - server/routes/maya-unified.ts (API handler)
+   - server/routes/maya-ai-routes.ts (backup routes)
+   - server/services/maya-memory-service.ts
+   - server/storage-maya-extensions.ts
+   - client/src/maya-onboarding.css (styling)
+
+   BACKUP/LEGACY FILES:
+   - Any files with "maya" in the name
+   - Any unused or duplicate Maya components
+   - Old generation services or routes
+
+   FOR EACH FILE REPORT:
+   - File size and last modified date
+   - Key functions/exports present
+   - Dependencies and imports
+   - Any obvious errors or issues
+   - Whether file is actively used or legacy
+
+2. API ENDPOINT ANALYSIS
+   Document ALL Maya-related API endpoints:
+
+   CURRENT ENDPOINTS:
+   - /api/maya/status
+   - /api/maya/chat  
+   - /api/maya/generate
+   - /api/maya-chats (various)
+   - /api/maya-generate-images
+   - Any other maya-related endpoints
+
+   FOR EACH ENDPOINT ANALYZE:
+   - Request/response structure
+   - Authentication requirements
+   - Database operations performed
+   - External API calls (Claude, Replicate)
+   - Error handling implementation
+   - Whether endpoint is functioning or broken
+
+3. ONBOARDING FLOW AUDIT
+   Trace the complete onboarding experience:
+
+   STEP-BY-STEP ANALYSIS:
+   - Welcome page logic and routing
+   - Path selection (customize vs quickstart)
+   - Question flow and user input handling
+   - Data storage during onboarding
+   - Progress tracking implementation
+   - Completion detection and transition
+   - Database updates at each step
+
+   IDENTIFY ISSUES:
+   - Broken state transitions
+   - Missing error handling
+   - Incomplete data persistence
+   - UI/UX problems
+   - Mobile compatibility issues
+
+4. IMAGE GENERATION SYSTEM AUDIT
+   Analyze the complete generation pipeline:
+
+   GENERATION FLOW:
+   - User prompt processing
+   - Model validation and selection
+   - Replicate API integration
+   - Generation parameter handling (preset, seed, etc.)
+   - Polling mechanism for completion
+   - Image URL processing and storage
+   - Gallery save functionality
+
+   IDENTIFY PROBLEMS:
+   - Failed generation requests
+   - Stuck polling loops
+   - Missing image previews
+   - Broken save-to-gallery function
+   - Parameter validation issues
+   - Error recovery mechanisms
+
+5. CLAUDE AI INTEGRATION AUDIT
+   Examine Maya's AI personality and chat system:
+
+   CLAUDE INTEGRATION:
+   - Personality prompt configuration
+   - Context management and memory
+   - Response generation logic
+   - Quick button functionality
+   - Chat history persistence
+   - Session management
+
+   PROMPT ANALYSIS:
+   - Current Maya personality prompt
+   - Context injection methods
+   - Response formatting
+   - Generation trigger logic
+   - Error handling for AI responses
+
+6. DATABASE OPERATIONS AUDIT
+   Verify all database interactions:
+
+   TABLES INVOLVED:
+   - maya_chats and related tables
+   - User authentication/profiles
+   - Generation tracking tables
+   - Image storage references
+   - Onboarding data storage
+
+   CHECK FOR:
+   - Proper table relationships
+   - Data consistency issues
+   - Missing foreign key constraints
+   - Orphaned records
+   - Query performance problems
+
+7. AUTHENTICATION AND MIDDLEWARE AUDIT
+   Verify security and access control:
+
+   AUTHENTICATION FLOW:
+   - User session validation
+   - Protected route implementation
+   - API endpoint security
+   - User context passing
+   - Permission checking
+
+   MIDDLEWARE ANALYSIS:
+   - Request processing pipeline
+   - Error handling middleware
+   - Authentication middleware
+   - CORS configuration
+   - Rate limiting implementation
+
+8. USER EXPERIENCE ISSUE IDENTIFICATION
+   Document specific UX problems:
+
+   COMMON ISSUES TO CHECK:
+   - Page loading states
+   - Error message clarity  
+   - Mobile responsiveness
+   - Button functionality
+   - Form validation
+   - Navigation consistency
+   - Performance bottlenecks
+
+9. INTEGRATION POINTS AUDIT
+   Verify external service connections:
+
+   EXTERNAL SERVICES:
+   - Anthropic Claude API status
+   - Replicate API integration
+   - AWS S3 image storage
+   - Database connectivity
+   - Authentication provider
+
+10. ERROR LOGGING AND MONITORING
+    Check error handling and logging:
+
+    ERROR ANALYSIS:
+    - Server console logs for Maya endpoints
+    - Client-side error reporting
+    - Failed request tracking
+    - Generation failure patterns
+    - User complaint correlation
+
+DELIVERABLES REQUIRED:
+
+1. ISSUE PRIORITY MATRIX:
+   - Critical (breaks core functionality)
+   - High (impacts user experience)
+   - Medium (performance/polish)
+   - Low (cosmetic/technical debt)
+
+2. BROKEN FUNCTIONALITY LIST:
+   - Specific features not working
+   - Error messages users see
+   - Steps to reproduce issues
+   - Affected user scenarios
+
+3. TECHNICAL DEBT INVENTORY:
+   - Duplicate code/files
+   - Unused imports/functions
+   - Inconsistent patterns
+   - Missing TypeScript types
+
+4. IMMEDIATE ACTION PLAN:
+   - Critical fixes needed for basic functionality
+   - Order of operations for repairs
+   - Dependencies between fixes
+   - Testing requirements
+
+CONSTRAINTS:
+- DO NOT make any changes during audit
+- ONLY analyze and report findings
+- Include specific line numbers for code issues
+- Provide exact error messages found
+- Document current vs expected behavior
+
+TESTING APPROACH:
+- Test complete user journey manually
+- Check all API endpoints with sample requests
+- Verify database queries execute properly
+- Confirm external integrations work
+- Document any failures or unexpected behavior
+
+Start the audit and provide a comprehensive report of all findings.
