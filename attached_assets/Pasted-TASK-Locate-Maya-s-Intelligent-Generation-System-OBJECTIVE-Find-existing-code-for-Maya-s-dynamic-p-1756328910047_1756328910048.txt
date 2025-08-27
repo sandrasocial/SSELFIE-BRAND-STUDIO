@@ -1,0 +1,71 @@
+TASK: Locate Maya's Intelligent Generation System
+OBJECTIVE: Find existing code for Maya's dynamic prompting and parameter adjustment
+
+SEARCH FOR MAYA'S INTELLIGENCE:
+
+1. DYNAMIC PROMPTING SYSTEM
+   Search all Maya files for:
+   - Prompt enhancement/modification logic
+   - Close-up vs half-body vs full-scene detection
+   - Style-based prompt adjustments
+   - Maya's prompt engineering intelligence
+
+2. PARAMETER INTELLIGENCE
+   Look for code that adjusts:
+   - Image count based on shot type (close-up = 2, half-body = 3, full-scene = 4)
+   - Guidance scale adjustments per style
+   - Step count optimization
+   - Seed handling logic
+   - Preset-specific parameter sets
+
+3. MAYA'S GENERATION INTELLIGENCE FILES
+   Search specifically in:
+   - server/agents/personalities/maya-personality.ts
+   - server/services/ (any Maya-related services)
+   - server/routes/maya-unified.ts (look for commented/unused logic)
+   - Any files with "generation", "prompt", or "parameter" in the name
+
+4. LOOK FOR EXISTING PROMPT ENHANCEMENT
+   Find references to:
+   - "close up", "half body", "full scene"
+   - Style categories: Editorial, Business, Lifestyle, Luxury
+   - Prompt enhancement functions
+   - Parameter calculation logic
+   - Maya's styling expertise application
+
+5. CHECK FOR DISABLED/COMMENTED CODE
+   Look for:
+   - Commented-out generation logic
+   - TODO comments about prompting
+   - Disabled intelligent parameter selection
+   - References to shot type detection
+
+6. ANALYZE MAYA'S PERSONALITY FOR GENERATION LOGIC
+   In maya-personality.ts, look for:
+   - Generation-specific prompting rules
+   - Style expertise application
+   - Parameter selection intelligence
+   - Professional photography knowledge
+
+SPECIFIC SEARCH TARGETS:
+- Functions named: enhancePrompt, adjustParameters, selectPreset
+- Variables: shotType, imageCount, guidanceScale, steps
+- Comments containing: "close up", "parameters", "intelligent"
+- Code that processes Maya's styling decisions
+
+DELIVERABLES:
+1. Location of existing intelligent prompting system
+2. Current parameter adjustment logic (if any)
+3. Maya's shot type detection system
+4. Why the intelligence isn't being used in generation
+5. Complete code snippets of found intelligence
+6. Integration points where intelligence should connect to Replicate API
+
+CONSTRAINTS:
+- Search ALL Maya-related files thoroughly
+- Include exact file paths and line numbers
+- Copy complete functions/logic blocks found
+- Identify if code is active, commented, or disconnected
+
+EXPECTED FINDINGS:
+Maya's sophisticated generation intelligence that needs reconnection to the Replicate API calls.
