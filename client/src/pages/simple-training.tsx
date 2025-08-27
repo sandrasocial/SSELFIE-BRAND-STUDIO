@@ -928,9 +928,10 @@ function SimpleTraining() {
               <div style={{
                 display: 'flex',
                 justifyContent: 'center',
-                gap: '20px',
+                gap: 'clamp(12px, 3vw, 20px)',
                 flexWrap: 'wrap',
-                marginBottom: '40px'
+                marginBottom: '40px',
+                padding: '0 20px'
               }}>
                 <Link href="/maya">
                   <div style={{
@@ -1078,12 +1079,13 @@ function SimpleTraining() {
               style={{ display: 'none' }}
             />
 
-            {/* Upload Button */}
+            {/* Upload Button - Mobile Optimized */}
             <button
               onClick={() => fileInputRef.current?.click()}
+              className="touch-manipulation"
               style={{
-                padding: '16px 32px',
-                fontSize: '12px',
+                padding: 'clamp(16px, 4vw, 20px) clamp(24px, 6vw, 32px)',
+                fontSize: 'clamp(11px, 3vw, 12px)',
                 fontWeight: 400,
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
@@ -1093,7 +1095,11 @@ function SimpleTraining() {
                 background: 'transparent',
                 cursor: 'pointer',
                 transition: 'all 300ms ease',
-                marginBottom: '40px'
+                marginBottom: '40px',
+                minHeight: '44px',
+                minWidth: '200px',
+                width: '100%',
+                maxWidth: '320px'
               }}
               onMouseEnter={(e) => {
                 const target = e.target as HTMLElement;
@@ -1109,15 +1115,16 @@ function SimpleTraining() {
               + Select Photos to Upload
             </button>
 
-            {/* Uploaded Photos Preview */}
+            {/* Uploaded Photos Preview - Mobile Responsive */}
             {selfieImages.length > 0 && (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
-                gap: '12px',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(clamp(70px, 15vw, 100px), 1fr))',
+                gap: 'clamp(8px, 2vw, 12px)',
                 marginBottom: '40px',
                 maxWidth: '600px',
-                margin: '0 auto 40px auto'
+                margin: '0 auto 40px auto',
+                padding: '0 20px'
               }}>
                 {selfieImages.map((file, index) => (
                   <div key={index} style={{
@@ -1138,21 +1145,25 @@ function SimpleTraining() {
                     />
                     <button
                       onClick={() => removeImage(index)}
+                      className="touch-manipulation"
                       style={{
                         position: 'absolute',
                         top: '4px',
                         right: '4px',
-                        width: '20px',
-                        height: '20px',
+                        width: 'clamp(24px, 6vw, 28px)',
+                        height: 'clamp(24px, 6vw, 28px)',
+                        minWidth: '44px',
+                        minHeight: '44px',
                         background: 'rgba(0, 0, 0, 0.7)',
                         color: '#ffffff',
                         border: 'none',
                         borderRadius: '50%',
-                        fontSize: '12px',
+                        fontSize: 'clamp(12px, 3vw, 14px)',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        zIndex: 10
                       }}
                     >
                       ×
