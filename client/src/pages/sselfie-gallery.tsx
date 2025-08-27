@@ -76,50 +76,36 @@ function SSELFIEGallery() {
         return;
       }
       
-      // Try different approaches to handle CORS issues
-      try {
-        // First try: Direct fetch
-        const response = await fetch(imageUrl, {
-          mode: 'cors',
-          credentials: 'omit'
-        });
-        
-        if (response.ok) {
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-          return;
-        }
-      } catch (fetchError) {
-        console.log('Direct fetch failed, trying alternative method:', fetchError);
-      }
-      
-      // Fallback: Use a simple link approach for immediate download
+      // For S3 URLs, try to create a download link that works
       const link = document.createElement('a');
       link.href = imageUrl;
       link.download = filename;
+      
+      // Add proper attributes for CORS download
+      link.setAttribute('crossorigin', 'anonymous');
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
+      
+      // Temporarily add to DOM and trigger click
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
+      console.log(`Download initiated for: ${filename}`);
+      
     } catch (error) {
       console.error('Error downloading image:', error);
       // Show user-friendly error message
-      alert('Download failed. Please right-click the image and save it manually.');
+      alert('Download failed. Please right-click the image and select "Save image as..." to download manually.');
     } finally {
-      setDownloadingImages(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(imageUrl);
-        return newSet;
-      });
+      // Clear loading state after a short delay to show the loading animation briefly
+      setTimeout(() => {
+        setDownloadingImages(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(imageUrl);
+          return newSet;
+        });
+      }, 1000);
     }
   };
 
@@ -323,14 +309,14 @@ function SSELFIEGallery() {
                   }}
                   onMouseEnter={(e) => {
                     if (!isDownloadingAll) {
-                      e.target.style.background = '#0a0a0a';
-                      e.target.style.color = '#ffffff';
+                      (e.target as HTMLButtonElement).style.background = '#0a0a0a';
+                      (e.target as HTMLButtonElement).style.color = '#ffffff';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isDownloadingAll) {
-                      e.target.style.background = 'transparent';
-                      e.target.style.color = '#0a0a0a';
+                      (e.target as HTMLButtonElement).style.background = 'transparent';
+                      (e.target as HTMLButtonElement).style.color = '#0a0a0a';
                     }
                   }}
                 >
@@ -467,12 +453,12 @@ function SSELFIEGallery() {
                   transition: 'all 300ms ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.background = 'transparent';
-                  e.target.style.color = '#0a0a0a';
+                  (e.target as HTMLAnchorElement).style.background = 'transparent';
+                  (e.target as HTMLAnchorElement).style.color = '#0a0a0a';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = '#0a0a0a';
-                  e.target.style.color = '#ffffff';
+                  (e.target as HTMLAnchorElement).style.background = '#0a0a0a';
+                  (e.target as HTMLAnchorElement).style.color = '#ffffff';
                 }}
               >
                 Start Your First Photoshoot
@@ -536,10 +522,10 @@ function SSELFIEGallery() {
                         transition: 'transform 1000ms cubic-bezier(0.4, 0, 0.2, 1)'
                       }}
                       onMouseEnter={(e) => {
-                        e.target.style.transform = 'scale(1.05)';
+                        (e.target as HTMLImageElement).style.transform = 'scale(1.05)';
                       }}
                       onMouseLeave={(e) => {
-                        e.target.style.transform = 'scale(1)';
+                        (e.target as HTMLImageElement).style.transform = 'scale(1)';
                       }}
                     />
                     
@@ -575,14 +561,14 @@ function SSELFIEGallery() {
                       }}
                       onMouseEnter={(e) => {
                         if (!toggleFavoriteMutation.isPending) {
-                          e.target.style.background = 'rgba(0, 0, 0, 0.8)';
-                          e.target.style.transform = 'scale(1.1)';
+                          (e.target as HTMLButtonElement).style.background = 'rgba(0, 0, 0, 0.8)';
+                          (e.target as HTMLButtonElement).style.transform = 'scale(1.1)';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!toggleFavoriteMutation.isPending) {
-                          e.target.style.background = 'rgba(0, 0, 0, 0.6)';
-                          e.target.style.transform = 'scale(1)';
+                          (e.target as HTMLButtonElement).style.background = 'rgba(0, 0, 0, 0.6)';
+                          (e.target as HTMLButtonElement).style.transform = 'scale(1)';
                         }
                       }}
                     >
@@ -611,10 +597,10 @@ function SSELFIEGallery() {
                       padding: '30px'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.opacity = 1;
+                      e.currentTarget.style.opacity = '1';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.opacity = 0;
+                      e.currentTarget.style.opacity = '0';
                     }}>
                       <div style={{ width: '100%' }}>
                         <div style={{
@@ -666,14 +652,14 @@ function SSELFIEGallery() {
                               }}
                               onMouseEnter={(e) => {
                                 if (!downloadingImages.has(image.imageUrl)) {
-                                  e.target.style.background = '#ffffff';
-                                  e.target.style.color = '#0a0a0a';
+                                  (e.target as HTMLButtonElement).style.background = '#ffffff';
+                                  (e.target as HTMLButtonElement).style.color = '#0a0a0a';
                                 }
                               }}
                               onMouseLeave={(e) => {
                                 if (!downloadingImages.has(image.imageUrl)) {
-                                  e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                                  e.target.style.color = '#ffffff';
+                                  (e.target as HTMLButtonElement).style.background = 'rgba(255, 255, 255, 0.2)';
+                                  (e.target as HTMLButtonElement).style.color = '#ffffff';
                                 }
                               }}
                             >
@@ -710,12 +696,12 @@ function SSELFIEGallery() {
                                 transition: 'all 300ms ease'
                               }}
                               onMouseEnter={(e) => {
-                                e.target.style.background = '#ff4444';
-                                e.target.style.color = '#ffffff';
+                                (e.target as HTMLButtonElement).style.background = '#ff4444';
+                                (e.target as HTMLButtonElement).style.color = '#ffffff';
                               }}
                               onMouseLeave={(e) => {
-                                e.target.style.background = 'rgba(255, 68, 68, 0.2)';
-                                e.target.style.color = '#ff4444';
+                                (e.target as HTMLButtonElement).style.background = 'rgba(255, 68, 68, 0.2)';
+                                (e.target as HTMLButtonElement).style.color = '#ff4444';
                               }}
                             >
                               Delete
@@ -854,12 +840,12 @@ function SSELFIEGallery() {
                 transition: 'all 300ms ease'
               }}
               onMouseEnter={(e) => {
-                e.target.style.background = '#0a0a0a';
-                e.target.style.color = '#ffffff';
+                (e.target as HTMLAnchorElement).style.background = '#0a0a0a';
+                (e.target as HTMLAnchorElement).style.color = '#ffffff';
               }}
               onMouseLeave={(e) => {
-                e.target.style.background = 'transparent';
-                e.target.style.color = '#0a0a0a';
+                (e.target as HTMLAnchorElement).style.background = 'transparent';
+                (e.target as HTMLAnchorElement).style.color = '#0a0a0a';
               }}
             >
               Back to STUDIO
