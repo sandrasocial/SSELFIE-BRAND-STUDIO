@@ -403,7 +403,7 @@ export class ModelTrainingService {
       };
       
       // Use intelligent count unless explicitly overridden
-      const finalCount = options?.paramsOverride?.num_outputs || intelligentParams.count;
+      const finalCount = intelligentParams.count;
       
       const seed = typeof options?.seed === 'number'
         ? options.seed!
