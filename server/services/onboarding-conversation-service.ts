@@ -258,12 +258,30 @@ You MUST respond with valid JSON in this exact format:
 {
   "message": "Your warm, encouraging response to the user",
   "questions": ["Follow-up question 1", "Follow-up question 2"],
-  "quickButtons": ["Button option 1", "Button option 2", "Button option 3"],
+  "quickButtons": ["Contextual action 1", "Contextual action 2", "Contextual action 3"],
   "stepGuidance": "Brief guidance about this onboarding step",
   "nextAction": "continue",
   "currentStep": ${step.stepNumber},
   "progress": ${this.calculateProgress(context.currentStep, false)}
 }
+
+🎯 INTELLIGENT QUICK ACTIONS:
+For quickButtons, generate 3-4 contextual, personalized options based on:
+- What they just shared with you
+- Natural next steps in the conversation
+- Specific to their situation, NOT generic templates
+- Written conversationally, as if you're suggesting the next thing to explore
+
+Examples of GOOD quick actions:
+- "Tell me about your coaching business"
+- "I need LinkedIn authority photos" 
+- "Help me see my CEO future self"
+- "What about behind-the-scenes content"
+
+Examples of BAD quick actions (never use these):
+- Generic templates or category labels
+- Assumptions about personal situations
+- One-size-fits-all responses
 
 Remember: You're helping her see herself as the confident, successful woman she's becoming. Every conversation should leave her feeling more empowered and excited about her transformation journey.`;
   }
@@ -314,7 +332,7 @@ Remember: You're helping her see herself as the confident, successful woman she'
         return {
           message: parsedResponse.message || "I'm here to help you discover your amazing future self!",
           questions: Array.isArray(parsedResponse.questions) ? parsedResponse.questions : [],
-          quickButtons: Array.isArray(parsedResponse.quickButtons) ? parsedResponse.quickButtons : this.ONBOARDING_STEPS[context.currentStep].quickButtons,
+          quickButtons: Array.isArray(parsedResponse.quickButtons) ? parsedResponse.quickButtons : [],
           stepGuidance: parsedResponse.stepGuidance || this.ONBOARDING_STEPS[context.currentStep].description,
           nextAction: parsedResponse.nextAction || 'continue',
           currentStep: context.currentStep,
@@ -343,7 +361,7 @@ Remember: You're helping her see herself as the confident, successful woman she'
     return {
       message: message || "I'm here to help you see your amazing future self! Tell me more about your journey.",
       questions: step.questions.slice(0, 2),
-      quickButtons: step.quickButtons.slice(0, 4),
+      quickButtons: [], // No fallback templates - Maya should generate her own intelligent suggestions
       stepGuidance: step.description,
       nextAction: 'continue',
       currentStep: context.currentStep,
