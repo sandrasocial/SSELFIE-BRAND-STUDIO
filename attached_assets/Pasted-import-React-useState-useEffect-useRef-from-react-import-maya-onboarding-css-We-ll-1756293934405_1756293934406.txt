@@ -1,0 +1,388 @@
+import React, { useState, useEffect, useRef } from 'react';
+import './maya-onboarding.css'; // We'll create a separate CSS file
+
+interface OnboardingMessage {
+  role: 'user' | 'maya';
+  content: string;
+  timestamp: Date;
+  questions?: string[];
+  quickButtons?: string[];
+  stepGuidance?: string;
+}
+
+interface OnboardingStep {
+  stepNumber: number;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+}
+
+interface MayaOnboardingChatProps {
+  userId: string;
+  onComplete: () => void;
+}
+
+export const MayaOnboardingChat: React.FC<MayaOnboardingChatProps> = ({ userId, onComplete }) => {
+  const [messages, setMessages] = useState<OnboardingMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [progress, setProgress] = useState(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages update
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Initialize with Maya's welcome message
+  useEffect(() => {
+    const welcomeMessage: OnboardingMessage = {
+      role: 'maya',
+      content: "Hey gorgeous! I'm Maya - Sandra's AI bestie with all her styling secrets. I'm here to help you discover your personal brand and see your powerful future self. This journey is about YOU - your story, your dreams, your transformation. Ready to begin?",
+      timestamp: new Date(),
+      questions: ["Tell me, what brought you here today?", "What's your biggest challenge right now?"],
+      quickButtons: ["Starting over", "Building my brand", "Need confidence", "Feeling stuck"],
+      stepGuidance: "Let's start by getting to know your story and transformation journey"
+    };
+    setMessages([welcomeMessage]);
+  }, []);
+
+  const sendMessage = async (messageContent: string) => {
+    if (!messageContent.trim() || isTyping) return;
+
+    const userMessage: OnboardingMessage = {
+      role: 'user',
+      content: messageContent,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsTyping(true);
+
+    try {
+      const response = await fetch('/api/maya-onboarding/conversation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          message: messageContent,
+          step: currentStep
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to get Maya response');
+
+      const data = await response.json();
+      const mayaResponse = data.maya_response;
+
+      const mayaMessage: OnboardingMessage = {
+        role: 'maya',
+        content: mayaResponse.message,
+        timestamp: new Date(),
+        questions: mayaResponse.questions || [],
+        quickButtons: mayaResponse.quickButtons || [],
+        stepGuidance: mayaResponse.step_guidance
+      };
+
+      setMessages(prev => [...prev, mayaMessage]);
+      
+      // Update progress and step if Maya indicates progression
+      if (mayaResponse.next_action === 'complete_step') {
+        setCurrentStep(prev => Math.min(prev + 1, 6));
+      }
+      
+      setProgress(mayaResponse.progress || progress);
+
+      // Check if onboarding is complete
+      if (mayaResponse.next_action === 'complete_onboarding') {
+        setTimeout(onComplete, 2000);
+      }
+
+    } catch (error) {
+      console.error('Error in onboarding conversation:', error);
+      const errorMessage: OnboardingMessage = {
+        role: 'maya',
+        content: "I'm having a little trouble connecting right now, but I'm still here with you! Could you try sharing that again? I'm so excited to hear about your journey.",
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const handleQuickButton = (buttonText: string) => {
+    sendMessage(buttonText);
+  };
+
+  const handleInputSubmit = () => {
+    sendMessage(input);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleInputSubmit();
+    }
+  };
+
+  const formatTimestamp = (timestamp: Date) => {
+    return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <div className="maya-onboarding-chat">
+      {/* Progress Header */}
+      <div className="onboarding-progress">
+        <div className="progress-bar">
+          <div 
+            className="progress-fill" 
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="step-indicator">Step {currentStep} of 6</div>
+      </div>
+
+      {/* Messages Container */}
+      <div className="messages-container">
+        {messages.map((message, index) => (
+          <div key={index} className={`message ${message.role}`}>
+            <div className="message-header">
+              {message.role === 'maya' && (
+                <>
+                  <div className="message-avatar">
+                    <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya" />
+                  </div>
+                  <div className="message-sender">Maya</div>
+                </>
+              )}
+              <div className="message-time">{formatTimestamp(message.timestamp)}</div>
+              {message.role === 'user' && (
+                <>
+                  <div className="message-sender">You</div>
+                  <div className="message-avatar">U</div>
+                </>
+              )}
+            </div>
+            
+            <div className="message-content">
+              <div className="message-text">{message.content}</div>
+              
+              {/* Quick Buttons */}
+              {message.quickButtons && message.quickButtons.length > 0 && (
+                <div className="quick-buttons">
+                  {message.quickButtons.map((button, buttonIndex) => (
+                    <button
+                      key={buttonIndex}
+                      className="quick-button"
+                      onClick={() => handleQuickButton(button)}
+                      disabled={isTyping}
+                    >
+                      {button}
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              {/* Follow-up Questions */}
+              {message.questions && message.questions.length > 0 && (
+                <div className="follow-up-questions">
+                  <div className="questions-label">Maya wants to know:</div>
+                  {message.questions.map((question, qIndex) => (
+                    <div key={qIndex} className="question-item">
+                      "{question}"
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* Typing Indicator */}
+        {isTyping && (
+          <div className="typing-indicator">
+            <div className="message-avatar">
+              <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya" />
+            </div>
+            <div className="typing-dots">
+              <div className="typing-dot"></div>
+              <div className="typing-dot"></div>
+              <div className="typing-dot"></div>
+            </div>
+            <div className="typing-text">Maya is listening and thinking...</div>
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area */}
+      <div className="input-area">
+        <div className="input-container">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress}
+            className="input-field"
+            placeholder="Share your story with Maya..."
+            rows={1}
+            disabled={isTyping}
+            style={{
+              minHeight: '24px',
+              maxHeight: '120px',
+              resize: 'none'
+            }}
+            onInput={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              target.style.height = 'auto';
+              target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+            }}
+          />
+          <button
+            onClick={handleInputSubmit}
+            disabled={!input.trim() || isTyping}
+            className="send-btn"
+          >
+            Share
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Progress Tracking Component
+export const OnboardingProgress: React.FC<{
+  currentStep: number;
+  totalSteps: number;
+  completedSteps: number[];
+}> = ({ currentStep, totalSteps, completedSteps }) => {
+  const steps = [
+    { number: 1, title: "Welcome & Story", description: "Your transformation journey" },
+    { number: 2, title: "Current Situation", description: "Where you are today" },
+    { number: 3, title: "Future Vision", description: "Your powerful future self" },
+    { number: 4, title: "Business Goals", description: "Your professional world" },
+    { number: 5, title: "Style Identity", description: "Your visual preferences" },
+    { number: 6, title: "Photo Goals", description: "Your visual storytelling" }
+  ];
+
+  return (
+    <div className="progress-tracker">
+      <div className="progress-header">
+        <div className="progress-title">Personal Brand Discovery</div>
+        <div className="progress-subtitle">Building your Future Self Vision</div>
+      </div>
+      
+      <div className="steps-container">
+        {steps.map((step) => (
+          <div 
+            key={step.number} 
+            className={`step-item ${
+              completedSteps.includes(step.number) ? 'completed' : 
+              step.number === currentStep ? 'active' : 'pending'
+            }`}
+          >
+            <div className="step-number">
+              {completedSteps.includes(step.number) ? '✓' : step.number}
+            </div>
+            <div className="step-content">
+              <div className="step-title">{step.title}</div>
+              <div className="step-description">{step.description}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Main Onboarding Page Component
+export const MayaOnboardingPage: React.FC = () => {
+  const [onboardingStatus, setOnboardingStatus] = useState<{
+    currentStep: number;
+    isCompleted: boolean;
+    progress: number;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchOnboardingStatus();
+  }, []);
+
+  const fetchOnboardingStatus = async () => {
+    try {
+      const response = await fetch('/api/maya-onboarding/status', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setOnboardingStatus(data.status);
+      }
+    } catch (error) {
+      console.error('Error fetching onboarding status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOnboardingComplete = () => {
+    // Redirect to main Maya chat with completion message
+    window.location.href = '/maya?completed=true';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <div className="loading-text">Preparing your personal brand discovery...</div>
+      </div>
+    );
+  }
+
+  if (onboardingStatus?.isCompleted) {
+    return (
+      <div className="completion-container">
+        <div className="completion-content">
+          <div className="completion-icon">✨</div>
+          <h1 className="completion-title">Your Future Self Vision is Complete!</h1>
+          <p className="completion-description">
+            Maya now knows your story, dreams, and style. Ready to create amazing photos that show your power?
+          </p>
+          <button 
+            className="completion-btn"
+            onClick={() => window.location.href = '/maya'}
+          >
+            Start Creating with Maya
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="onboarding-layout">
+      <div className="onboarding-sidebar">
+        <OnboardingProgress
+          currentStep={onboardingStatus?.currentStep || 1}
+          totalSteps={6}
+          completedSteps={[]}
+        />
+      </div>
+      
+      <div className="onboarding-main">
+        <MayaOnboardingChat
+          userId="current-user"
+          onComplete={handleOnboardingComplete}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default MayaOnboardingPage;
