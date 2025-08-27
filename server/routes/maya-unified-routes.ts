@@ -138,9 +138,9 @@ async function gatherUserContext(userId: number) {
   console.log(`🔍 MAYA UNIFIED: Gathering complete context for user ${userId}`);
 
   const [user, onboardingData, userModel, memory] = await Promise.all([
-    storage.getUser(userId).catch(() => null),
-    storage.getOnboardingData(userId).catch(() => null), 
-    storage.getUserModel(userId).catch(() => null),
+    storage.getUser(parseInt(userId.toString())).catch(() => null),
+    storage.getOnboardingData(parseInt(userId.toString())).catch(() => null), 
+    storage.getUserModel(parseInt(userId.toString())).catch(() => null),
     MayaStorageExtensions.getMayaPersonalMemory(userId.toString()).catch(() => null)
   ]);
 
