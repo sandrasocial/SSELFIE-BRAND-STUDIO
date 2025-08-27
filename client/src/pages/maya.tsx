@@ -70,6 +70,9 @@ export default function Maya() {
   const [preset, setPreset] = useState<Preset>('Editorial');
   const [seed, setSeed] = useState<string>(''); // empty = random
 
+  // Welcome page state
+  const [showWelcome, setShowWelcome] = useState(false);
+
   // Check onboarding status on load
   useEffect(() => {
     if (isAuthenticated) {
@@ -118,10 +121,9 @@ export default function Maya() {
         };
         setOnboardingStatus(status);
         
-        // If not completed, start onboarding mode
+        // If not completed, show welcome page first
         if (!response.onboardingComplete) {
-          setIsOnboardingMode(true);
-          initializeOnboarding();
+          setShowWelcome(true);
         } else {
           // Load regular Maya with personal brand context
           setIsOnboardingMode(false);
@@ -146,6 +148,27 @@ export default function Maya() {
       isOnboarding: true
     };
     setMessages([welcomeMessage]);
+  };
+
+  const handleWelcomeChoice = (choice: 'customize' | 'quickstart') => {
+    setShowWelcome(false);
+    
+    if (choice === 'customize') {
+      // Start onboarding flow
+      setIsOnboardingMode(true);
+      initializeOnboarding();
+    } else {
+      // Quick start - go straight to image generation chat
+      setIsOnboardingMode(false);
+      const quickStartMessage: ChatMessage = {
+        role: 'maya',
+        content: "Perfect! I love your confidence - let's create some stunning brand photos right now! I'll style you based on my expertise from fashion week and magazine shoots. Tell me what kind of photos you need today and I'll create the perfect look for you.",
+        timestamp: new Date().toISOString(),
+        quickButtons: ["Professional headshots", "Social media photos", "Website hero image", "LinkedIn authority photo"],
+        canGenerate: true
+      };
+      setMessages([quickStartMessage]);
+    }
   };
 
   // Chat history component
@@ -439,6 +462,85 @@ export default function Maya() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // Welcome page for new users
+  if (showWelcome) {
+    return (
+      <div className="min-h-screen bg-white">
+        <MemberNavigation />
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          
+          {/* Welcome Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-black mb-4">
+              Ready to start your brand photoshoot?
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              I'm Maya, Sandra's AI stylist with all her secrets from fashion week to building her empire. 
+              Let's create stunning professional photos that show your powerful future self.
+            </p>
+          </div>
+
+          {/* Choice Cards */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            
+            {/* Customize Card */}
+            <div 
+              onClick={() => handleWelcomeChoice('customize')}
+              className="bg-white border-2 border-gray-200 rounded-lg p-8 cursor-pointer hover:border-black transition-all duration-200 hover:shadow-lg"
+            >
+              <div className="text-center">
+                <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-white text-2xl">✨</span>
+                </div>
+                <h3 className="text-2xl font-bold text-black mb-4">CUSTOMIZE</h3>
+                <p className="text-gray-600 mb-6">
+                  Let Maya learn your unique style, personal brand story, and transformation journey 
+                  before creating your perfect photoshoot. 
+                </p>
+                <p className="text-sm text-gray-500 mb-6">5-10 minutes</p>
+                <div className="text-black font-medium">
+                  → Personalized styling based on your story<br/>
+                  → Brand-aligned photo concepts<br/>
+                  → Style preferences that last forever
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Start Card */}
+            <div 
+              onClick={() => handleWelcomeChoice('quickstart')}
+              className="bg-black text-white rounded-lg p-8 cursor-pointer hover:bg-gray-900 transition-all duration-200 hover:shadow-lg"
+            >
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-black text-2xl">⚡</span>
+                </div>
+                <h3 className="text-2xl font-bold mb-4">QUICK START</h3>
+                <p className="text-gray-300 mb-6">
+                  Jump straight into creating professional brand photos. 
+                  Maya will style you using her complete fashion week expertise.
+                </p>
+                <p className="text-sm text-gray-400 mb-6">Start immediately</p>
+                <div className="text-white font-medium">
+                  → Professional photos right now<br/>
+                  → Maya's expert styling applied<br/>
+                  → Perfect for immediate needs
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom note */}
+          <div className="text-center mt-12">
+            <p className="text-gray-500">
+              You can always customize your preferences later in Maya's chat
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
