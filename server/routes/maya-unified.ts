@@ -125,7 +125,7 @@ router.post('/generate', isAuthenticated, async (req, res) => {
     const safeCount = Math.min(Math.max(parseInt(count ?? 2, 10) || 2, 1), 6);
     
     const result = await ModelTrainingService.generateUserImages(
-      parseInt(userId),
+      userId,
       prompt.trim(),
       safeCount,
       { preset, seed }
@@ -286,7 +286,19 @@ Provide styling consultation using your complete fashion expertise. Help them wi
     enhancement += `\nBUSINESS TYPE: ${userContext.onboarding.businessType}`;
   }
 
-  enhancement += `\n\n💫 REMEMBER: You're Sandra's AI bestie with all her styling secrets. Be warm, expert, and help them see their future self through amazing photos.`;
+  enhancement += `\n\n💫 REMEMBER: You're Sandra's AI bestie with all her styling secrets. Be warm, expert, and help them see their future self through amazing photos.
+
+🎯 INTELLIGENT QUICK ACTIONS:
+When appropriate, provide 2-4 contextual quick action options at the end of your response using this format:
+QUICK_ACTIONS: Action 1, Action 2, Action 3
+
+Make these actions:
+- Specific to the conversation context
+- Natural follow-ups to your response  
+- Personalized based on what they've shared
+- Written in a conversational way, not templated
+
+Example: If discussing professional headshots, instead of generic "BUILDING CONFIDENCE", use specific actions like "Show me CEO headshot examples", "I need approachable authority", "Something for my consulting business"`;
 
   return baseMayaPersonality + enhancement;
 }
@@ -300,6 +312,16 @@ async function processMayaResponse(response: string, context: string, userId: st
     quickButtons: [],
     chatCategory: 'General Styling'
   };
+
+  // FIRST: Extract Maya-generated quick actions
+  if (response.includes('QUICK_ACTIONS:')) {
+    const quickActionsMatch = response.match(/QUICK_ACTIONS:\s*(.*)/);
+    if (quickActionsMatch) {
+      processed.quickButtons = quickActionsMatch[1].split(',').map(s => s.trim());
+      // Remove the quick actions directive from the displayed message
+      processed.message = response.replace(/QUICK_ACTIONS:.*/, '').trim();
+    }
+  }
 
   // Check if Maya wants to generate images
   if (generationInfo.canGenerate && (
@@ -315,7 +337,7 @@ async function processMayaResponse(response: string, context: string, userId: st
     if (promptMatch) {
       processed.generatedPrompt = promptMatch[1].trim();
       // Remove prompt block from conversation response
-      processed.message = response.replace(/```prompt\s*([\s\S]*?)\s*```/g, '').trim();
+      processed.message = processed.message.replace(/```prompt\s*([\s\S]*?)\s*```/g, '').trim();
     }
   }
 
@@ -327,18 +349,24 @@ async function processMayaResponse(response: string, context: string, userId: st
         isComplete: true,
         currentStep: 6
       };
-      processed.quickButtons = ["Professional Headshots", "Social Media Photos", "Website Photos", "Email & Marketing Photos", "Premium Brand Photos"];
+      // Only use fallback if Maya didn't provide her own quick actions
+      if (processed.quickButtons.length === 0) {
+        processed.quickButtons = ["Professional Headshots", "Social Media Photos", "Website Photos", "Email & Marketing Photos", "Premium Brand Photos"];
+      }
     } else {
-      processed.quickButtons = getContextualQuickButtons(context, userContext.onboarding.currentStep);
+      // Only use templated buttons if Maya didn't generate her own
+      if (processed.quickButtons.length === 0) {
+        processed.quickButtons = getContextualQuickButtons(context, userContext.onboarding.currentStep);
+      }
     }
-  } else {
-    // Regular chat quick buttons based on content
-    if (response.toLowerCase().includes('headshot')) processed.chatCategory = 'Professional Headshots';
-    else if (response.toLowerCase().includes('social') || response.toLowerCase().includes('instagram')) processed.chatCategory = 'Social Media Photos';
-    else if (response.toLowerCase().includes('website')) processed.chatCategory = 'Website Photos';
-    else if (response.toLowerCase().includes('email') || response.toLowerCase().includes('newsletter')) processed.chatCategory = 'Email & Marketing Photos';
-    else if (response.toLowerCase().includes('premium') || response.toLowerCase().includes('luxury')) processed.chatCategory = 'Premium Brand Photos';
   }
+  
+  // Set chat category based on content
+  if (response.toLowerCase().includes('headshot')) processed.chatCategory = 'Professional Headshots';
+  else if (response.toLowerCase().includes('social') || response.toLowerCase().includes('instagram')) processed.chatCategory = 'Social Media Photos';
+  else if (response.toLowerCase().includes('website')) processed.chatCategory = 'Website Photos';
+  else if (response.toLowerCase().includes('email') || response.toLowerCase().includes('newsletter')) processed.chatCategory = 'Email & Marketing Photos';
+  else if (response.toLowerCase().includes('premium') || response.toLowerCase().includes('luxury')) processed.chatCategory = 'Premium Brand Photos';
 
   return processed;
 }
@@ -378,26 +406,17 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
     }
 
     // Save both messages
-    await storage.saveMayaMessage({
+    await storage.saveMayaChatMessage({
       chatId: currentChatId,
-      userId,
-      message: userMessage,
       role: 'user',
-      context
+      content: userMessage
     });
 
-    await storage.saveMayaMessage({
+    await storage.saveMayaChatMessage({
       chatId: currentChatId,
-      userId,
-      message: mayaResponse.message,
       role: 'maya',
-      context,
-      metadata: {
-        canGenerate: mayaResponse.canGenerate,
-        generatedPrompt: mayaResponse.generatedPrompt,
-        chatCategory: mayaResponse.chatCategory,
-        quickButtons: mayaResponse.quickButtons
-      }
+      content: mayaResponse.message,
+      generatedPrompt: mayaResponse.generatedPrompt
     });
 
     return currentChatId;
