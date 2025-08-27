@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import Anthropic from '@anthropic-ai/sdk';
-import { MayaStorageExtensions } from '../storage-maya-extensions.js';
+import { MayaStorageExtensions } from '../storage-maya-extensions';
 import { isAuthenticated } from '../replitAuth.js';
 
 const router = Router();
@@ -242,43 +242,7 @@ router.get('/status', isAuthenticated, async (req, res) => {
 
 // Helper Functions
 
-function buildMayaPrompt(userMessage: string, step: number, userContext: any): string {
-  let prompt = `User is in onboarding step ${step}/6.\n\n`;
-  
-  // Add context if available
-  if (userContext?.personalBrand) {
-    prompt += `CONTEXT ABOUT USER:\n`;
-    if (userContext.personalBrand.transformation_story) {
-      prompt += `- Transformation Story: ${userContext.personalBrand.transformation_story}\n`;
-    }
-    if (userContext.personalBrand.current_situation) {
-      prompt += `- Current Situation: ${userContext.personalBrand.current_situation}\n`;
-    }
-    if (userContext.personalBrand.future_vision) {
-      prompt += `- Future Vision: ${userContext.personalBrand.future_vision}\n`;
-    }
-    if (userContext.personalBrand.business_goals) {
-      prompt += `- Business Goals: ${userContext.personalBrand.business_goals}\n`;
-    }
-    prompt += `\n`;
-  }
 
-  // Add step-specific guidance
-  const stepGuidance = {
-    1: "WELCOME & STORY: Get to know their transformation journey. What brought them here? What's their story?",
-    2: "CURRENT SITUATION: Understand where they are today. What challenges are they facing? What's working?", 
-    3: "FUTURE VISION: Explore their dreams and goals. Who do they want to become? What's their vision?",
-    4: "BUSINESS CONTEXT: Understand their professional world. What do they do? Who do they serve?",
-    5: "STYLE DISCOVERY: Explore their visual preferences. What styles speak to them? What's their vibe?",
-    6: "PHOTO GOALS: Understand how they want to use their images. What's the purpose? How will this help them?"
-  };
-
-  prompt += `STEP ${step} FOCUS: ${stepGuidance[step] || 'Continue the conversation naturally.'}\n\n`;
-  prompt += `USER MESSAGE: "${userMessage}"\n\n`;
-  prompt += `Respond with encouraging guidance, thoughtful follow-up questions, and help them go deeper into this step of their journey.`;
-
-  return prompt;
-}
 
 async function updateMayaMemory(userId: string, userMessage: string, mayaResponse: any, step: number) {
   try {
@@ -288,13 +252,34 @@ async function updateMayaMemory(userId: string, userMessage: string, mayaRespons
     if (!memory) {
       memory = await MayaStorageExtensions.saveMayaPersonalMemory({
         userId,
-        personalInsights: {},
-        ongoingGoals: {},
+        personalInsights: {
+          coreMotivations: [],
+          transformationJourney: '',
+          strengthsIdentified: [],
+          growthAreas: [],
+          personalityNotes: '',
+          communicationStyle: ''
+        },
+        ongoingGoals: {
+          shortTermGoals: [],
+          longTermVision: [],
+          milestonesToCelebrate: [],
+          challengesToSupport: []
+        },
         preferredTopics: [],
-        conversationStyle: {},
+        conversationStyle: {
+          energyLevel: '',
+          supportType: '',
+          communicationTone: '',
+          motivationApproach: ''
+        },
         personalizedStylingNotes: '',
         successfulPromptPatterns: [],
-        userFeedbackPatterns: {}
+        userFeedbackPatterns: {
+          lovedElements: [],
+          dislikedElements: [],
+          requestPatterns: []
+        }
       });
     }
 
@@ -323,8 +308,44 @@ async function updateMayaMemory(userId: string, userMessage: string, mayaRespons
   }
 }
 
+function buildMayaPrompt(userMessage: string, step: number, userContext: any): string {
+  let prompt = `User is in onboarding step ${step}/6.\n\n`;
+  
+  // Add context if available
+  if (userContext?.personalBrand) {
+    prompt += `CONTEXT ABOUT USER:\n`;
+    if (userContext.personalBrand.transformation_story) {
+      prompt += `- Transformation Story: ${userContext.personalBrand.transformation_story}\n`;
+    }
+    if (userContext.personalBrand.current_situation) {
+      prompt += `- Current Situation: ${userContext.personalBrand.current_situation}\n`;
+    }
+    if (userContext.personalBrand.future_vision) {
+      prompt += `- Future Vision: ${userContext.personalBrand.future_vision}\n`;
+    }
+    if (userContext.personalBrand.business_goals) {
+      prompt += `- Business Goals: ${userContext.personalBrand.business_goals}\n`;
+    }
+    prompt += `\n`;
+  }
+
+  const stepGuidance = {
+    1: "WELCOME & STORY: Get to know their transformation journey. What brought them here? What's their story?",
+    2: "CURRENT SITUATION: Understand where they are today. What challenges are they facing? What's working?", 
+    3: "FUTURE VISION: Explore their dreams and goals. Who do they want to become? What's their vision?",
+    4: "BUSINESS CONTEXT: Understand their professional world. What do they do? Who do they serve?",
+    5: "STYLE DISCOVERY: Explore their visual preferences. What styles speak to them? What's their vibe?",
+    6: "PHOTO GOALS: Understand how they want to use their images. What's the purpose? How will this help them?"
+  };
+
+  prompt += `STEP ${step} FOCUS: ${stepGuidance[step] || 'Continue the conversation naturally.'}\n\n`;
+  prompt += `USER MESSAGE: "${userMessage}"\n\n`;
+  prompt += `Respond with encouraging guidance, thoughtful follow-up questions, and help them go deeper into this step of their journey.`;
+
+  return prompt;
+}
+
 function extractKeyTopics(message: string): string[] {
-  // Simple keyword extraction - could be enhanced with NLP
   const topics = [];
   const keywords = message.toLowerCase();
   
@@ -339,7 +360,6 @@ function extractKeyTopics(message: string): string[] {
 }
 
 function assessEmotionalTone(message: string): string {
-  // Simple sentiment analysis - could be enhanced
   const msg = message.toLowerCase();
   
   if (msg.includes('excited') || msg.includes('amazing') || msg.includes('love')) return 'positive';
@@ -355,7 +375,6 @@ function calculateProgress(userContext: any): number {
   const pb = userContext.personalBrand;
   let progress = 0;
   
-  // Each completed step adds to progress
   if (pb.transformationStory) progress += 15;
   if (pb.currentSituation) progress += 15;
   if (pb.futureVision) progress += 15;
