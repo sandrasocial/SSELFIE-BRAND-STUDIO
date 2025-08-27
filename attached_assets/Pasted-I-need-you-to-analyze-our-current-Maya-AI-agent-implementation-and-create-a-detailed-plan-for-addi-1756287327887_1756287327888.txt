@@ -1,0 +1,75 @@
+I need you to analyze our current Maya (AI agent) implementation and create a detailed plan for adding a personalized onboarding system.
+CURRENT CONTEXT:
+Maya is our AI styling agent that helps women generate professional selfies/portraits for personal branding. She has Sandra's real expertise (fashion week styling, editorial background, luxury aesthetics) and helps users see their "Future Self Vision."
+NEW REQUIREMENT:
+We want to add a conversational onboarding flow where Maya learns about each user's:
+
+Personal story & current situation
+Business/brand goals
+Style preferences
+Photo usage intentions
+Future self vision
+
+This gets stored in user memory so Maya always provides personalized responses and image generation based on their specific context.
+IMPLEMENTATION APPROACH:
+
+Warm, conversational onboarding (8-12 minutes max)
+Button + text input UI for easy interaction
+Simple user profile storage (not complex database initially)
+Maya references stored context in ALL future conversations
+Enhanced image generation using personal context
+
+WHAT I NEED FROM YOU:
+
+CURRENT MAYA ANALYSIS:
+
+List ALL files currently connected to Maya functionality
+Identify existing user storage/memory systems
+Map current conversation flow and image generation process
+Document existing personality/prompt systems
+
+
+IMPACT ASSESSMENT:
+
+What could break with new onboarding system?
+Which existing features need protection during implementation?
+Current user data that must be preserved
+
+
+CLEANUP REPORT:
+
+Files that need rewriting/refactoring
+Redundant or outdated code to remove
+Architecture improvements needed
+Database schema changes required
+
+
+IMPLEMENTATION PLAN:
+
+Step-by-step development phases
+Which files to modify vs create new
+Integration points with existing system
+Testing strategy to prevent breaks
+
+
+UX/UI REQUIREMENTS:
+
+New components needed for onboarding flow
+Existing UI elements to modify
+User journey flow requirements
+Button + text input interface specs
+
+
+
+DELIVERABLE:
+Comprehensive analysis document with:
+
+Current state inventory
+Required changes categorized by priority
+Step-by-step implementation roadmap
+Risk mitigation strategy
+Clean file structure recommendations
+
+GOAL:
+Add powerful onboarding without breaking existing Maya functionality, creating a seamless experience where Maya truly knows each user's story and provides deeply personalized styling advice and image generation.
+Please analyze thoroughly and provide detailed findings with specific file names and implementation steps.
