@@ -12,6 +12,8 @@ function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [downloadingImages, setDownloadingImages] = useState(new Set<string>());
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch user's deliberately saved gallery images
@@ -66,6 +68,8 @@ function SSELFIEGallery() {
 
   const downloadImage = async (imageUrl: string, filename: string) => {
     try {
+      setDownloadingImages(prev => new Set([...prev, imageUrl]));
+      
       // Skip broken or invalid URLs
       if (!imageUrl || !imageUrl.startsWith('http')) {
         console.log('Skipping invalid URL:', imageUrl);
@@ -89,19 +93,32 @@ function SSELFIEGallery() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading image:', error);
+    } finally {
+      setDownloadingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageUrl);
+        return newSet;
+      });
     }
   };
 
   const downloadAllImages = async () => {
-    const imagesToDownload = showFavoritesOnly ? 
-      aiImages.filter(img => favorites.includes(img.id)) : 
-      aiImages;
-      
-    for (let i = 0; i < imagesToDownload.length; i++) {
-      const image = imagesToDownload[i];
-      await downloadImage(image.imageUrl, `sselfie-${i + 1}.jpg`);
-      // Small delay between downloads
-      await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      setIsDownloadingAll(true);
+      const imagesToDownload = showFavoritesOnly ? 
+        aiImages.filter(img => favorites.includes(img.id)) : 
+        aiImages;
+        
+      for (let i = 0; i < imagesToDownload.length; i++) {
+        const image = imagesToDownload[i];
+        await downloadImage(image.imageUrl, `sselfie-${i + 1}.jpg`);
+        // Small delay between downloads
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    } catch (error) {
+      console.error('Error downloading all images:', error);
+    } finally {
+      setIsDownloadingAll(false);
     }
   };
 
@@ -263,6 +280,7 @@ function SSELFIEGallery() {
               {aiImages.length > 0 && (
                 <button
                   onClick={downloadAllImages}
+                  disabled={isDownloadingAll}
                   style={{
                     padding: '16px 32px',
                     fontSize: '11px',
@@ -274,18 +292,42 @@ function SSELFIEGallery() {
                     color: '#0a0a0a',
                     background: 'transparent',
                     transition: 'all 300ms ease',
-                    cursor: 'pointer'
+                    cursor: isDownloadingAll ? 'wait' : 'pointer',
+                    minWidth: '200px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    opacity: isDownloadingAll ? 0.7 : 1
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.background = '#0a0a0a';
-                    e.target.style.color = '#ffffff';
+                    if (!isDownloadingAll) {
+                      e.target.style.background = '#0a0a0a';
+                      e.target.style.color = '#ffffff';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.background = 'transparent';
-                    e.target.style.color = '#0a0a0a';
+                    if (!isDownloadingAll) {
+                      e.target.style.background = 'transparent';
+                      e.target.style.color = '#0a0a0a';
+                    }
                   }}
                 >
-                  Download All Photos
+                  {isDownloadingAll ? (
+                    <>
+                      <div style={{
+                        width: '16px',
+                        height: '16px',
+                        border: '2px solid rgba(10, 10, 10, 0.3)',
+                        borderTop: '2px solid #0a0a0a',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                      }} />
+                      <span>Downloading Photos...</span>
+                    </>
+                  ) : (
+                    'Download All Photos'
+                  )}
                 </button>
               )}
               
@@ -426,11 +468,31 @@ function SSELFIEGallery() {
               margin: '0 auto',
               padding: '0 6vw'
             }}>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '30px'
-              }}>
+              {isLoading ? (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                  gap: '30px'
+                }}>
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        aspectRatio: '3/4',
+                        background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+                        backgroundSize: '200% 100%',
+                        animation: 'shimmer 2s infinite',
+                        borderRadius: '4px'
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                  gap: '30px'
+                }}>
                 {filteredImages.map((image, index) => (
                   <div
                     key={image.id}
@@ -474,6 +536,7 @@ function SSELFIEGallery() {
                         e.preventDefault();
                         e.stopPropagation();
                       }}
+                      disabled={toggleFavoriteMutation.isPending}
                       style={{
                         position: 'absolute',
                         top: '16px',
@@ -483,22 +546,37 @@ function SSELFIEGallery() {
                         color: favorites.includes(image.id) ? '#ff4444' : '#ffffff',
                         fontSize: '20px',
                         padding: '8px 10px',
-                        cursor: 'pointer',
+                        cursor: toggleFavoriteMutation.isPending ? 'wait' : 'pointer',
                         borderRadius: '50%',
                         transition: 'all 300ms ease',
                         backdropFilter: 'blur(10px)',
                         zIndex: 10
                       }}
                       onMouseEnter={(e) => {
-                        e.target.style.background = 'rgba(0, 0, 0, 0.8)';
-                        e.target.style.transform = 'scale(1.1)';
+                        if (!toggleFavoriteMutation.isPending) {
+                          e.target.style.background = 'rgba(0, 0, 0, 0.8)';
+                          e.target.style.transform = 'scale(1.1)';
+                        }
                       }}
                       onMouseLeave={(e) => {
-                        e.target.style.background = 'rgba(0, 0, 0, 0.6)';
-                        e.target.style.transform = 'scale(1)';
+                        if (!toggleFavoriteMutation.isPending) {
+                          e.target.style.background = 'rgba(0, 0, 0, 0.6)';
+                          e.target.style.transform = 'scale(1)';
+                        }
                       }}
                     >
-                      {favorites.includes(image.id) ? '♥' : '♡'}
+                      {toggleFavoriteMutation.isPending ? (
+                        <div style={{
+                          width: '16px',
+                          height: '16px',
+                          border: '2px solid rgba(255, 255, 255, 0.3)',
+                          borderTop: '2px solid #ffffff',
+                          borderRadius: '50%',
+                          animation: 'spin 1s linear infinite'
+                        }} />
+                      ) : (
+                        favorites.includes(image.id) ? '♥' : '♡'
+                      )}
                     </button>
                     
                     <div style={{
@@ -548,6 +626,7 @@ function SSELFIEGallery() {
                                 e.stopPropagation();
                                 downloadImage(image.imageUrl, `sselfie-${index + 1}.jpg`);
                               }}
+                              disabled={downloadingImages.has(image.imageUrl)}
                               style={{
                                 background: 'rgba(255, 255, 255, 0.2)',
                                 border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -556,19 +635,42 @@ function SSELFIEGallery() {
                                 fontSize: '10px',
                                 letterSpacing: '0.2em',
                                 textTransform: 'uppercase',
-                                cursor: 'pointer',
-                                transition: 'all 300ms ease'
+                                cursor: downloadingImages.has(image.imageUrl) ? 'wait' : 'pointer',
+                                transition: 'all 300ms ease',
+                                minWidth: '80px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '4px'
                               }}
                               onMouseEnter={(e) => {
-                                e.target.style.background = '#ffffff';
-                                e.target.style.color = '#0a0a0a';
+                                if (!downloadingImages.has(image.imageUrl)) {
+                                  e.target.style.background = '#ffffff';
+                                  e.target.style.color = '#0a0a0a';
+                                }
                               }}
                               onMouseLeave={(e) => {
-                                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                                e.target.style.color = '#ffffff';
+                                if (!downloadingImages.has(image.imageUrl)) {
+                                  e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                                  e.target.style.color = '#ffffff';
+                                }
                               }}
                             >
-                              Download
+                              {downloadingImages.has(image.imageUrl) ? (
+                                <>
+                                  <div style={{
+                                    width: '12px',
+                                    height: '12px',
+                                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                                    borderTop: '2px solid #ffffff',
+                                    borderRadius: '50%',
+                                    animation: 'spin 1s linear infinite'
+                                  }} />
+                                  <span>...</span>
+                                </>
+                              ) : (
+                                'Download'
+                              )}
                             </button>
                             <button
                               onClick={(e) => {
@@ -603,7 +705,8 @@ function SSELFIEGallery() {
                     </div>
                   </div>
                 ))}
-              </div>
+                </div>
+              )}
             </div>
           </section>
         )}
@@ -656,6 +759,19 @@ function SSELFIEGallery() {
             </div>
           </div>
         )}
+
+        {/* CSS Animations */}
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+          }
+        `}</style>
 
         {/* Editorial Quote Section - Only show if user has images */}
         {aiImages.length > 0 && (
