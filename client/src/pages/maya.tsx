@@ -276,7 +276,7 @@ export default function Maya() {
                 role: 'maya',
                 content: "Amazing! Now I know your story and can help you create photos that truly show your power. What kind of incredible photos should we create first?",
                 timestamp: new Date().toISOString(),
-                quickButtons: ["Future CEO", "Off-Duty Model", "Social Queen", "Date Night Goddess", "Everyday Icon", "Power Player"]
+                quickButtons: ["Professional Headshots", "Social Media Photos", "Website Photos", "Email & Marketing Photos", "Premium Brand Photos"]
               };
               setMessages(prev => [...prev, completionMessage]);
             }, 2000);
@@ -453,12 +453,11 @@ export default function Maya() {
 
   const handleStyleSelect = (style: string) => {
     const styleMessages = {
-      'future-ceo': 'Future CEO - Powerful, professional, ready to run the world',
-      'off-duty-model': 'Off-Duty Model - Effortlessly stunning, casual but elevated', 
-      'social-queen': 'Social Queen - Instagram-ready, social media perfection',
-      'date-night-goddess': 'Date Night Goddess - Romantic, magnetic, unforgettable',
-      'everyday-icon': 'Everyday Icon - Polished daily life, elevated routine moments',
-      'power-player': 'Power Player - Authority, influence, making things happen'
+      'professional-headshots': 'I need professional headshots for LinkedIn and business credibility',
+      'social-media-photos': 'I want Instagram and social media photos that I actually want to post',
+      'website-photos': 'I need website photos for my homepage and brand storytelling',
+      'email-marketing-photos': 'I want warm, personal photos for email newsletters and connection',
+      'premium-brand-photos': 'I need premium brand photos for high-value collaborations'
     };
 
     setInput(styleMessages[style as keyof typeof styleMessages] || 'I want to explore this style');
@@ -1218,34 +1217,30 @@ export default function Maya() {
                   <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
                 </div>
                 <div className="welcome-eyebrow">Personal Brand Photos</div>
-                <h2 className="welcome-title">Ready to look incredible in every photo?</h2>
-                <p className="welcome-description">I'm Maya, your personal brand stylist. I've got Sandra's styling expertise from fashion week to building her empire. I'll help you create photos that show your power and build your brand. What should we create?</p>
+                <h2 className="welcome-title">What photos does your business need most?</h2>
+                <p className="welcome-description">I'm Maya, your personal brand stylist with Sandra's expertise from fashion week to building her empire. I'll help you create the exact photos you need for your business - from LinkedIn headshots to Instagram content to website images. What photos would make the biggest impact for you right now?</p>
 
                 {/* Style Quick-Select with SSELFIE categories */}
                 <div className="style-quickselect">
-                  <div className="style-option" onClick={() => handleStyleSelect('future-ceo')}>
-                    <div className="style-preview">Future CEO</div>
-                    <div className="style-label">Professional Power</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('professional-headshots')}>
+                    <div className="style-preview">Professional Headshots</div>
+                    <div className="style-label">LinkedIn & Business</div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('off-duty-model')}>
-                    <div className="style-preview">Off-Duty Model</div>
-                    <div className="style-label">Effortless Cool</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('social-media-photos')}>
+                    <div className="style-preview">Social Media Photos</div>
+                    <div className="style-label">Instagram & TikTok</div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('social-queen')}>
-                    <div className="style-preview">Social Queen</div>
-                    <div className="style-label">Content Ready</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('website-photos')}>
+                    <div className="style-preview">Website Photos</div>
+                    <div className="style-label">Homepage & About</div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('date-night-goddess')}>
-                    <div className="style-preview">Date Night Goddess</div>
-                    <div className="style-label">Magnetic Energy</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('email-marketing-photos')}>
+                    <div className="style-preview">Email & Marketing</div>
+                    <div className="style-label">Personal Connection</div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('everyday-icon')}>
-                    <div className="style-preview">Everyday Icon</div>
-                    <div className="style-label">Polished Daily</div>
-                  </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('power-player')}>
-                    <div className="style-preview">Power Player</div>
-                    <div className="style-label">Authority Energy</div>
+                  <div className="style-option" onClick={() => handleStyleSelect('premium-brand-photos')}>
+                    <div className="style-preview">Premium Brand Photos</div>
+                    <div className="style-label">High-Value Clients</div>
                   </div>
                 </div>
               </div>

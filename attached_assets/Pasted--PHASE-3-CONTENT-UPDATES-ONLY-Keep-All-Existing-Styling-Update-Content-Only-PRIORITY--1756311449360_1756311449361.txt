@@ -1,0 +1,150 @@
+# PHASE 3: CONTENT UPDATES ONLY
+## Keep All Existing Styling - Update Content Only
+
+### **PRIORITY**: Only implement after Phases 1 & 2 are working properly.
+
+---
+
+## **UPDATE 1: WELCOME SCREEN CATEGORIES**
+
+**File**: `client/src/pages/maya.tsx`
+
+**FIND** (around line 600):
+```tsx
+<div className="style-option" onClick={() => handleStyleSelect('future-ceo')}>
+  <div className="style-preview">Future CEO</div>
+  <div className="style-label">Professional Power</div>
+</div>
+<div className="style-option" onClick={() => handleStyleSelect('off-duty-model')}>
+  <div className="style-preview">Off-Duty Model</div>
+  <div className="style-label">Effortless Cool</div>
+</div>
+<div className="style-option" onClick={() => handleStyleSelect('social-queen')}>
+  <div className="style-preview">Social Queen</div>
+  <div className="style-label">Content Ready</div>
+</div>
+<div className="style-option" onClick={() => handleStyleSelect('date-night-goddess')}>
+  <div className="style-preview">Date Night Goddess</div>
+  <div className="style-label">Magnetic Energy</div>
+</div>
+<div className="style-option" onClick={() => handleStyleSelect('everyday-icon')}>
+  <div className="style-preview">Everyday Icon</div>
+  <div className="style-label">Polished Daily</div>
+</div>
+<div className="style-option" onClick={() => handleStyleSelect('power-player')}>
+  <div className="style-preview">Power Player</div>
+  <div className="style-label">Authority Energy</div>
+</div>
+```
+
+**REPLACE WITH**:
+```tsx
+<div className="style-option" onClick={() => handleStyleSelect('professional-headshots')}>
+  <div className="style-preview">Professional Headshots</div>
+  <div className="style-label">LinkedIn & Business</div>
+</div>
+<div className="style-option" onClick={() => handleStyleSelect('social-media-photos')}>
+  <div className="style-preview">Social Media Photos</div>
+  <div className="style-label">Instagram & TikTok</div>
+</div>
+<div className="style-option" onClick={() => handleStyleSelect('website-photos')}>
+  <div className="style-preview">Website Photos</div>
+  <div className="style-label">Homepage & About</div>
+</div>
+<div className="style-option" onClick={() => handleStyleSelect('email-marketing-photos')}>
+  <div className="style-preview">Email & Marketing</div>
+  <div className="style-label">Personal Connection</div>
+</div>
+<div className="style-option" onClick={() => handleStyleSelect('premium-brand-photos')}>
+  <div className="style-preview">Premium Brand Photos</div>
+  <div className="style-label">High-Value Clients</div>
+</div>
+```
+
+---
+
+## **UPDATE 2: CATEGORY MESSAGES**
+
+**FIND** (around line 200):
+```tsx
+const styleMessages = {
+  'future-ceo': 'Future CEO - Powerful, professional, ready to run the world',
+  'off-duty-model': 'Off-Duty Model - Effortlessly stunning, casual but elevated', 
+  'social-queen': 'Social Queen - Instagram-ready, social media perfection',
+  'date-night-goddess': 'Date Night Goddess - Romantic, magnetic, unforgettable',
+  'everyday-icon': 'Everyday Icon - Polished daily life, elevated routine moments',
+  'power-player': 'Power Player - Authority, influence, making things happen'
+};
+```
+
+**REPLACE WITH**:
+```tsx
+const styleMessages = {
+  'professional-headshots': 'I need professional headshots for LinkedIn and business credibility',
+  'social-media-photos': 'I want Instagram and social media photos that I actually want to post',
+  'website-photos': 'I need website photos for my homepage and brand storytelling',
+  'email-marketing-photos': 'I want warm, personal photos for email newsletters and connection',
+  'premium-brand-photos': 'I need premium brand photos for high-value collaborations'
+};
+```
+
+---
+
+## **UPDATE 3: WELCOME DESCRIPTION**
+
+**FIND** (around line 550):
+```tsx
+<p className="welcome-description">I'm Maya, your personal brand stylist. I've got Sandra's styling expertise from fashion week to building her empire. I'll help you create photos that show your power and build your brand. What should we create?</p>
+```
+
+**REPLACE WITH**:
+```tsx
+<p className="welcome-description">I'm Maya, your personal brand stylist with Sandra's expertise from fashion week to building her empire. I'll help you create the exact photos you need for your business - from LinkedIn headshots to Instagram content to website images. What photos would make the biggest impact for you right now?</p>
+```
+
+---
+
+## **UPDATE 4: ONBOARDING COMPLETION MESSAGE**
+
+**FIND** (around line 150):
+```tsx
+quickButtons: ["Future CEO", "Off-Duty Model", "Social Queen", "Date Night Goddess", "Everyday Icon", "Power Player"]
+```
+
+**REPLACE WITH**:
+```tsx
+quickButtons: ["Professional Headshots", "Social Media Photos", "Website Photos", "Email & Marketing Photos", "Premium Brand Photos"]
+```
+
+---
+
+## **UPDATE 5: WELCOME TITLE ADJUSTMENT**
+
+**FIND** (around line 530):
+```tsx
+<h2 className="welcome-title">Ready to look incredible in every photo?</h2>
+```
+
+**REPLACE WITH**:
+```tsx
+<h2 className="welcome-title">What photos does your business need most?</h2>
+```
+
+---
+
+**That's it. No styling changes, no new components, no CSS updates.**
+
+**Key Benefits:**
+- Keeps all existing editorial styling intact
+- Updates only the category names and messages
+- Maintains the same user experience flow
+- Aligns content with simplified business-focused approach
+- Quick implementation with minimal risk
+
+**Test After Changes:**
+- Category buttons work and send correct messages
+- Maya responds with appropriate photo creation prompts
+- Welcome screen messaging feels business-focused
+- Categories match between onboarding and regular chat
+
+This approach keeps your beautiful editorial design while updating the content to match our simplified, business-focused categories.
