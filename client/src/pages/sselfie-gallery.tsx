@@ -76,23 +76,44 @@ function SSELFIEGallery() {
         return;
       }
       
-      const response = await fetch(imageUrl);
-      if (!response.ok) {
-        console.log('Failed to download image:', response.status, imageUrl);
-        return;
+      // Try different approaches to handle CORS issues
+      try {
+        // First try: Direct fetch
+        const response = await fetch(imageUrl, {
+          mode: 'cors',
+          credentials: 'omit'
+        });
+        
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          return;
+        }
+      } catch (fetchError) {
+        console.log('Direct fetch failed, trying alternative method:', fetchError);
       }
       
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      // Fallback: Use a simple link approach for immediate download
       const link = document.createElement('a');
-      link.href = url;
+      link.href = imageUrl;
       link.download = filename;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      
     } catch (error) {
       console.error('Error downloading image:', error);
+      // Show user-friendly error message
+      alert('Download failed. Please right-click the image and save it manually.');
     } finally {
       setDownloadingImages(prev => {
         const newSet = new Set(prev);
