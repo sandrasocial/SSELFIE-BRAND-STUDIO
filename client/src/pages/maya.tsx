@@ -23,6 +23,7 @@ interface ChatMessage {
   questions?: string[];
   stepGuidance?: string;
   isOnboarding?: boolean;
+  generationId?: string; // Unique ID to track specific generation for polling
 }
 
 interface MayaChat {
@@ -354,20 +355,24 @@ export default function Maya() {
     // This will be handled by Maya's generation system
     const prompt = `Create a professional photo concept: ${conceptName}`;
     
+    // Generate unique message ID to track this specific generation
+    const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     // Add a message indicating generation is starting - CRITICAL: canGenerate MUST be true for polling to find it
     const generatingMessage: ChatMessage = {
       role: 'maya',
       content: `Perfect choice! I'm creating your "${conceptName}" photos right now using all my styling expertise. This is going to look absolutely stunning!`,
       timestamp: new Date().toISOString(),
-      canGenerate: true  // CRITICAL: Must be true so polling can find this message to update with images
+      canGenerate: true,  // CRITICAL: Must be true so polling can find this message to update with images
+      generationId: messageId  // Unique ID to track this specific generation
     };
     setMessages(prev => [...prev, generatingMessage]);
     
-    // Trigger actual generation
-    await generateImages(prompt);
+    // Trigger actual generation with specific message ID
+    await generateImages(prompt, messageId);
   };
 
-  const generateImages = async (prompt: string) => {
+  const generateImages = async (prompt: string, generationId?: string) => {
     if (isGenerating || isOnboardingMode) return; // No generation during onboarding
 
     setIsGenerating(true);
@@ -382,7 +387,7 @@ export default function Maya() {
       });
 
       if (response.predictionId) {
-        console.log('🚀 GENERATION STARTED: Prediction ID:', response.predictionId);
+        console.log('🚀 GENERATION STARTED: Prediction ID:', response.predictionId, 'for generation:', generationId);
         // Poll for completion
         const pollForImages = async () => {
           try {
@@ -394,20 +399,42 @@ export default function Maya() {
             console.log('📊 POLLING RESPONSE:', statusResponse.status, statusResponse.imageUrls?.length || 0, 'images');
 
             if (statusResponse.status === 'completed' && statusResponse.imageUrls) {
-              // Find the last Maya message and update it with images
+              // Find the SPECIFIC Maya message by generationId and update it with images
               setMessages(prev => {
                 const newMessages = [...prev];
-                for (let i = newMessages.length - 1; i >= 0; i--) {
-                  if (newMessages[i].role === 'maya' && newMessages[i].canGenerate) {
-                    console.log('🖼️ POLLING SUCCESS: Found Maya message to update with images:', statusResponse.imageUrls.length);
-                    newMessages[i] = {
-                      ...newMessages[i],
-                      imagePreview: statusResponse.imageUrls,
-                      canGenerate: false
-                    };
-                    break;
+                let messageFound = false;
+                
+                // First try to find by generationId if provided
+                if (generationId) {
+                  for (let i = 0; i < newMessages.length; i++) {
+                    if (newMessages[i].role === 'maya' && newMessages[i].generationId === generationId && newMessages[i].canGenerate) {
+                      console.log('🖼️ POLLING SUCCESS: Found SPECIFIC Maya message by ID:', generationId, 'with', statusResponse.imageUrls.length, 'images');
+                      newMessages[i] = {
+                        ...newMessages[i],
+                        imagePreview: statusResponse.imageUrls,
+                        canGenerate: false
+                      };
+                      messageFound = true;
+                      break;
+                    }
                   }
                 }
+                
+                // Fallback: find the most recent Maya message that can generate
+                if (!messageFound) {
+                  for (let i = newMessages.length - 1; i >= 0; i--) {
+                    if (newMessages[i].role === 'maya' && newMessages[i].canGenerate) {
+                      console.log('🖼️ POLLING SUCCESS: Found RECENT Maya message with', statusResponse.imageUrls.length, 'images');
+                      newMessages[i] = {
+                        ...newMessages[i],
+                        imagePreview: statusResponse.imageUrls,
+                        canGenerate: false
+                      };
+                      break;
+                    }
+                  }
+                }
+                
                 return newMessages;
               });
               setIsGenerating(false);
