@@ -362,15 +362,30 @@ export default function Maya() {
     console.log('📊 ACTIVE GENERATIONS:', Array.from(activeGenerations));
     
     try {
-      // CRITICAL FIX: Use Maya's genuine Claude API intelligence instead of hardcoded template
+      // CRITICAL FIX: Get Maya's intelligent response and extract her detailed prompts
       console.log('🎨 MAYA INTELLIGENCE: Getting authentic response for concept:', conceptName);
       
       // Call Maya's genuine intelligence for generation response
       const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
-        message: `I want to generate photos for this concept: ${conceptName}. Please give me your excited, personalized response about creating these photos with your styling expertise.`,
+        message: `I want to generate photos for this concept: ${conceptName}. Please give me your excited, personalized response about creating these photos with your styling expertise. Include your detailed prompts.`,
         chatId: currentChatId,
         context: 'generation'
       });
+      
+      // CRITICAL FIX: Extract Maya's detailed prompts from her response
+      let detailedPrompt = null;
+      if (mayaResponse?.generatedPrompt) {
+        detailedPrompt = mayaResponse.generatedPrompt;
+        console.log('🎯 EXTRACTED MAYA PROMPT:', detailedPrompt);
+      } else {
+        // Fallback: try to extract embedded prompts from Maya's response
+        const responseText = mayaResponse?.content || '';
+        const promptMatch = responseText.match(/\*\*🎯[^*]*\*\*\s*([\s\S]*?)(?=\*\*🎯|\*\*Generated|$)/);
+        if (promptMatch) {
+          detailedPrompt = promptMatch[1].trim();
+          console.log('🎯 EXTRACTED EMBEDDED PROMPT:', detailedPrompt);
+        }
+      }
       
       // Create Maya message with her genuine response and generation capability
       const generatingMessage: ChatMessage = {
@@ -382,8 +397,8 @@ export default function Maya() {
       };
       setMessages(prev => [...prev, generatingMessage]);
       
-      // Create the actual generation prompt
-      const prompt = `Create a professional photo concept: ${conceptName}`;
+      // CRITICAL FIX: Use Maya's detailed prompt if available, otherwise use concept-based generation
+      const prompt = detailedPrompt || `Create a professional photo concept: ${conceptName}`;
       
       // Trigger actual generation with specific message ID
       await generateImages(prompt, messageId);
