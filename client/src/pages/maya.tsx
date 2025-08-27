@@ -375,7 +375,7 @@ export default function Maya() {
       // Create Maya message with her genuine response and generation capability
       const generatingMessage: ChatMessage = {
         role: 'maya',
-        content: mayaResponse.content, // Use Maya's REAL Claude API response
+        content: mayaResponse?.content || `Exciting! Let me create your "${conceptName}" photos right now. This is going to look amazing!`, // Safe fallback
         timestamp: new Date().toISOString(),
         canGenerate: true,  // CRITICAL: Must be true so polling can find this message to update with images
         generationId: messageId  // Unique ID to track this specific generation
@@ -1555,12 +1555,12 @@ export default function Maya() {
                     </div>
                     <div className="message-content">
                       <div className="message-text">
-                        {message.content.split('\n').map((line, lineIndex) => (
+                        {message.content ? message.content.split('\n').map((line, lineIndex) => (
                           <span key={lineIndex}>
                             {line}
                             {lineIndex < message.content.split('\n').length - 1 && <br />}
                           </span>
-                        ))}
+                        )) : <span>Loading...</span>}
                       </div>
 
                       {/* Image previews */}

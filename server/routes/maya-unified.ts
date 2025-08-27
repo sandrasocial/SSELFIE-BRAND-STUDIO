@@ -92,9 +92,10 @@ router.post('/chat', isAuthenticated, async (req, res) => {
     
     res.json({
       success: true,
-      message: processedResponse.message,
+      content: processedResponse.message || processedResponse,  // CRITICAL: Frontend expects 'content' field
+      message: processedResponse.message || processedResponse,
       mode: context,
-      canGenerate: processedResponse.canGenerate,
+      canGenerate: processedResponse.canGenerate || false,
       generatedPrompt: processedResponse.generatedPrompt,
       onboardingProgress: processedResponse.onboardingProgress,
       chatId: savedChatId,
@@ -104,9 +105,14 @@ router.post('/chat', isAuthenticated, async (req, res) => {
 
   } catch (error) {
     console.error('Unified Maya error:', error);
-    res.status(500).json({ 
-      error: 'Failed to process Maya request',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    
+    // CRITICAL: Always return proper JSON, never HTML
+    return res.status(200).json({ 
+      success: false,
+      content: "I'm having trouble right now, but let me help you anyway! What kind of photos would you like to create?",
+      message: "I'm having trouble right now, but let me help you anyway! What kind of photos would you like to create?",
+      canGenerate: false,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
