@@ -181,9 +181,9 @@ export default function BrandOnboarding() {
         <div className="max-w-4xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <Link href="/photo-selection">
-              <Button variant="ghost" className="text-black hover:bg-gray-100">
+              <button className="text-black hover:bg-gray-100 touch-manipulation px-4 py-2 min-h-[44px] flex items-center justify-center text-sm font-medium transition-colors">
                 ‹ Back to Photos
-              </Button>
+              </button>
             </Link>
             <div className="text-center">
               <h1 className="text-2xl font-serif text-black">Brand Story</h1>
@@ -558,14 +558,13 @@ export default function BrandOnboarding() {
 
         {/* Navigation Buttons */}
         <div className="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">
-          <Button
-            variant="ghost"
+          <button
             onClick={handlePrevStep}
             disabled={currentStep === 1}
-            className="text-black hover:bg-gray-100"
+            className="text-black hover:bg-gray-100 touch-manipulation px-4 py-2 min-h-[44px] flex items-center justify-center text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ‹ Previous
-          </Button>
+          </button>
 
           <div className="text-center">
             <p className="text-sm text-gray-500 mb-2">
@@ -573,10 +572,10 @@ export default function BrandOnboarding() {
             </p>
           </div>
 
-          <Button
+          <button
             onClick={handleNextStep}
             disabled={!isStepComplete() || saveBrandDataMutation.isPending}
-            className="bg-black text-white hover:bg-gray-800"
+            className="bg-black text-white hover:bg-gray-800 touch-manipulation px-4 py-2 min-h-[44px] flex items-center justify-center text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saveBrandDataMutation.isPending ? (
               <div className="flex items-center">
@@ -588,7 +587,7 @@ export default function BrandOnboarding() {
             ) : (
               'Next ›'
             )}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

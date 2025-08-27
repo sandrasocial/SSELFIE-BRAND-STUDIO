@@ -934,30 +934,36 @@ function SimpleTraining() {
                 padding: '0 20px'
               }}>
                 <Link href="/maya">
-                  <div style={{
-                    display: 'inline-block',
-                    padding: '16px 32px',
-                    fontSize: '11px',
-                    fontWeight: 400,
-                    letterSpacing: '0.3em',
-                    textTransform: 'uppercase',
-                    textDecoration: 'none',
-                    border: '1px solid #ffffff',
-                    color: '#0a0a0a',
-                    background: '#ffffff',
-                    transition: 'all 300ms ease',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    const target = e.target as HTMLElement;
-                    target.style.background = 'transparent';
-                    target.style.color = '#ffffff';
-                  }}
-                  onMouseLeave={(e) => {
-                    const target = e.target as HTMLElement;
-                    target.style.background = '#ffffff';
-                    target.style.color = '#0a0a0a';
-                  }}
+                  <div 
+                    className="touch-manipulation"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 'clamp(12px, 3vw, 16px) clamp(24px, 6vw, 32px)',
+                      minHeight: '44px',
+                      fontSize: 'clamp(10px, 2.5vw, 11px)',
+                      fontWeight: 400,
+                      letterSpacing: '0.3em',
+                      textTransform: 'uppercase',
+                      textDecoration: 'none',
+                      border: '1px solid #ffffff',
+                      color: '#0a0a0a',
+                      background: '#ffffff',
+                      transition: 'all 300ms ease',
+                      cursor: 'pointer',
+                      userSelect: 'none'
+                    }}
+                    onMouseEnter={(e) => {
+                      const target = e.target as HTMLElement;
+                      target.style.background = 'transparent';
+                      target.style.color = '#ffffff';
+                    }}
+                    onMouseLeave={(e) => {
+                      const target = e.target as HTMLElement;
+                      target.style.background = '#ffffff';
+                      target.style.color = '#0a0a0a';
+                    }}
                   >
                     START AI PHOTOSHOOT
                   </div>
@@ -965,10 +971,14 @@ function SimpleTraining() {
 
                 <div 
                   onClick={() => setIsRetrainingMode(true)}
+                  className="touch-manipulation"
                   style={{
-                    display: 'inline-block',
-                    padding: '16px 32px',
-                    fontSize: '11px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 'clamp(12px, 3vw, 16px) clamp(24px, 6vw, 32px)',
+                    minHeight: '44px',
+                    fontSize: 'clamp(10px, 2.5vw, 11px)',
                     fontWeight: 400,
                     letterSpacing: '0.3em',
                     textTransform: 'uppercase',
@@ -977,7 +987,8 @@ function SimpleTraining() {
                     color: '#ffffff',
                     background: 'transparent',
                     transition: 'all 300ms ease',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    userSelect: 'none'
                   }}
                   onMouseEnter={(e) => {
                     const target = e.target as HTMLElement;
