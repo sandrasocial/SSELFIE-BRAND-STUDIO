@@ -351,7 +351,7 @@ async function processMayaResponse(response: string, context: string, userId: st
       };
       // Only use fallback if Maya didn't provide her own quick actions
       if (processed.quickButtons.length === 0) {
-        processed.quickButtons = ["Professional Headshots", "Social Media Photos", "Website Photos", "Email & Marketing Photos", "Premium Brand Photos"];
+        processed.quickButtons = ["Tell me more", "I'm ready", "What's next?"];
       }
     } else {
       // Only use templated buttons if Maya didn't generate her own
@@ -372,20 +372,17 @@ async function processMayaResponse(response: string, context: string, userId: st
 }
 
 function getContextualQuickButtons(context: string, step: number = 1): string[] {
+  // DEPRECATED: This function is only used as fallback when Maya doesn't generate her own intelligent quick actions
+  // Maya now generates contextual, personalized quick actions using her AI intelligence
+  // This fallback provides basic options only when Maya's system doesn't provide suggestions
+  
   if (context === 'onboarding') {
-    const onboardingButtons = {
-      1: ["Starting over like Sandra", "Building confidence", "Career transition", "Single mom life", "Business launch"],
-      2: ["Feeling invisible", "Need direction", "Building from scratch", "Confidence struggles", "Ready for change"],
-      3: ["Professional Headshots", "Social Media Photos", "Website Photos", "Email & Marketing Photos", "Premium Brand Photos"],
-      4: ["Editorial sophistication", "CEO power dressing", "Accessible luxury", "Modern classic"],
-      5: ["Social media authority", "Professional credibility", "Website storytelling", "Personal connection", "Premium positioning"],
-      6: ["Ready to create photos", "Let's start styling", "Show me my options"]
-    };
-    
-    return onboardingButtons[step as keyof typeof onboardingButtons] || [];
+    // Simple fallback options - Maya's AI will provide much better contextual suggestions
+    return ["Tell me more", "I'm interested", "What's next?"];
   }
   
-  return ["Professional Headshots", "Social Media Photos", "Website Photos", "Email & Marketing Photos", "Premium Brand Photos"];
+  // Basic fallback for regular chat - Maya's intelligence provides much better suggestions
+  return ["Tell me more", "Show me examples", "What do you recommend?"];
 }
 
 async function saveUnifiedConversation(userId: string, userMessage: string, mayaResponse: any, chatId: number | null, context: string): Promise<number> {
