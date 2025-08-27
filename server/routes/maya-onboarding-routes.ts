@@ -211,14 +211,32 @@ router.post('/update-profile', isAuthenticated, async (req, res) => {
   }
 });
 
+// Test route without auth first
+router.get('/test', async (req, res) => {
+  res.json({ message: 'Maya onboarding routes are working!' });
+});
+
 // Get Current Onboarding Status
 router.get('/status', isAuthenticated, async (req, res) => {
   try {
+    console.log('🔍 Maya Onboarding Status - Debug Info:', {
+      user: req.user ? 'Present' : 'Missing',
+      userClaims: (req.user as any)?.claims ? 'Present' : 'Missing',
+      isAuthenticated: (req as any).isAuthenticated ? (req as any).isAuthenticated() : 'Method missing',
+      sessionId: (req as any).session?.id || 'No session'
+    });
+
     const userId = (req.user as any)?.claims?.sub;
 
     if (!userId) {
+      console.error('❌ Maya Onboarding Status: No userId found', {
+        hasUser: !!req.user,
+        claims: (req.user as any)?.claims
+      });
       return res.status(401).json({ error: 'Authentication required' });
     }
+
+    console.log(`✅ Maya Onboarding Status: Processing for user ${userId}`);
 
     const userContext = await MayaStorageExtensions.getMayaUserContext(userId);
     const progress = calculateProgress(userContext);

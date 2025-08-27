@@ -106,7 +106,9 @@ export default function Maya() {
 
   const checkOnboardingStatus = async () => {
     try {
+      console.log('🔍 Maya: Checking onboarding status, auth state:', { isAuthenticated, authLoading });
       const response = await apiRequest('/api/maya-onboarding/status');
+      console.log('✅ Maya: Onboarding status received:', response);
       if (response?.status) {
         setOnboardingStatus(response.status);
         
@@ -121,6 +123,7 @@ export default function Maya() {
       }
     } catch (error) {
       // If onboarding endpoint doesn't exist, proceed with regular Maya
+      console.log('❌ Maya: Onboarding status error:', error);
       console.log('Onboarding system not available, proceeding with regular Maya');
       setIsOnboardingMode(false);
     }
