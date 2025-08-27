@@ -466,84 +466,7 @@ export default function Maya() {
     );
   }
 
-  // Welcome page for new users
-  if (showWelcome) {
-    return (
-      <div className="min-h-screen bg-white">
-        <MemberNavigation />
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          
-          {/* Welcome Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-black mb-4">
-              Ready to start your brand photoshoot?
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              I'm Maya, Sandra's AI stylist with all her secrets from fashion week to building her empire. 
-              Let's create stunning professional photos that show your powerful future self.
-            </p>
-          </div>
 
-          {/* Choice Cards */}
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            
-            {/* Customize Card */}
-            <div 
-              onClick={() => handleWelcomeChoice('customize')}
-              className="bg-white border-2 border-gray-200 rounded-lg p-8 cursor-pointer hover:border-black transition-all duration-200 hover:shadow-lg"
-            >
-              <div className="text-center">
-                <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-white text-2xl">✨</span>
-                </div>
-                <h3 className="text-2xl font-bold text-black mb-4">CUSTOMIZE</h3>
-                <p className="text-gray-600 mb-6">
-                  Let Maya learn your unique style, personal brand story, and transformation journey 
-                  before creating your perfect photoshoot. 
-                </p>
-                <p className="text-sm text-gray-500 mb-6">5-10 minutes</p>
-                <div className="text-black font-medium">
-                  → Personalized styling based on your story<br/>
-                  → Brand-aligned photo concepts<br/>
-                  → Style preferences that last forever
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Start Card */}
-            <div 
-              onClick={() => handleWelcomeChoice('quickstart')}
-              className="bg-black text-white rounded-lg p-8 cursor-pointer hover:bg-gray-900 transition-all duration-200 hover:shadow-lg"
-            >
-              <div className="text-center">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-black text-2xl">⚡</span>
-                </div>
-                <h3 className="text-2xl font-bold mb-4">QUICK START</h3>
-                <p className="text-gray-300 mb-6">
-                  Jump straight into creating professional brand photos. 
-                  Maya will style you using her complete fashion week expertise.
-                </p>
-                <p className="text-sm text-gray-400 mb-6">Start immediately</p>
-                <div className="text-white font-medium">
-                  → Professional photos right now<br/>
-                  → Maya's expert styling applied<br/>
-                  → Perfect for immediate needs
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom note */}
-          <div className="text-center mt-12">
-            <p className="text-gray-500">
-              You can always customize your preferences later in Maya's chat
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -1051,6 +974,114 @@ export default function Maya() {
           background: var(--soft-gray);
         }
 
+        /* Path Selection Cards - Editorial Style */
+        .path-selection-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 30px;
+          margin: 60px 0;
+          max-width: 800px;
+        }
+
+        .editorial-card {
+          position: relative;
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 500ms ease;
+          border: 1px solid var(--accent-line);
+        }
+
+        .card-image {
+          position: relative;
+          aspect-ratio: 4/5;
+          overflow: hidden;
+        }
+
+        .card-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 1000ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .editorial-card:hover .card-image img {
+          transform: scale(1.05);
+        }
+
+        .card-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to bottom, transparent 40%, rgba(10, 10, 10, 0.95) 100%);
+          display: flex;
+          align-items: flex-end;
+          padding: 40px;
+          opacity: 0;
+          transition: opacity 500ms ease;
+        }
+
+        .editorial-card:hover .card-overlay {
+          opacity: 1;
+        }
+
+        .card-content {
+          color: var(--white);
+        }
+
+        .card-eyebrow {
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.4em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.7);
+          margin-bottom: 12px;
+        }
+
+        .card-title {
+          font-family: 'Times New Roman', serif;
+          font-size: 24px;
+          font-weight: 200;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          margin-bottom: 16px;
+          line-height: 1;
+        }
+
+        .card-description {
+          font-size: 14px;
+          line-height: 1.5;
+          margin-bottom: 20px;
+          opacity: 0.9;
+        }
+
+        .card-features {
+          font-size: 12px;
+          line-height: 1.4;
+          opacity: 0.8;
+        }
+
+        .card-features div {
+          margin-bottom: 4px;
+        }
+
+        .welcome-note {
+          text-align: center;
+          font-size: 12px;
+          color: var(--soft-gray);
+          margin-top: 40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .path-selection-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
+          
+          .card-overlay {
+            padding: 30px;
+          }
+        }
+
         .send-btn:disabled {
           background: var(--accent-line);
           cursor: not-allowed;
@@ -1280,39 +1311,94 @@ export default function Maya() {
           {/* Messages Container */}
           <div className={`messages-container ${isOnboardingMode ? 'maya-onboarding-mode' : 'maya-photoshoot-mode'}`}>
             {messages.length === 0 ? (
-              /* Welcome State */
-              <div className="welcome-state">
-                <div className="maya-avatar">
-                  <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
-                </div>
-                <div className="welcome-eyebrow">Personal Brand Photos</div>
-                <h2 className="welcome-title">What photos does your business need most?</h2>
-                <p className="welcome-description">I'm Maya, your personal brand stylist with Sandra's expertise from fashion week to building her empire. I'll help you create the exact photos you need for your business - from LinkedIn headshots to Instagram content to website images. What photos would make the biggest impact for you right now?</p>
+              showWelcome ? (
+                /* Welcome Cards for New Users */
+                <div className="welcome-state">
+                  <div className="maya-avatar">
+                    <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
+                  </div>
+                  <div className="welcome-eyebrow">Ready to start your brand photoshoot?</div>
+                  <h2 className="welcome-title">Choose your path</h2>
+                  <p className="welcome-description">I'm Maya, Sandra's AI stylist with all her secrets from fashion week to building her empire. Let's create stunning professional photos that show your powerful future self.</p>
 
-                {/* Style Quick-Select with SSELFIE categories */}
-                <div className="style-quickselect">
-                  <div className="style-option" onClick={() => handleStyleSelect('professional-headshots')}>
-                    <div className="style-preview">Professional Headshots</div>
-                    <div className="style-label">LinkedIn & Business</div>
+                  {/* Editorial Image Cards */}
+                  <div className="path-selection-grid">
+                    <div className="editorial-card customize-card" onClick={() => handleWelcomeChoice('customize')}>
+                      <div className="card-image">
+                        <img src="https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=600&h=400&fit=crop&crop=face" alt="Personal Brand Discovery" />
+                        <div className="card-overlay">
+                          <div className="card-content">
+                            <div className="card-eyebrow">5-10 minutes</div>
+                            <h3 className="card-title">CUSTOMIZE</h3>
+                            <p className="card-description">Let Maya learn your unique style, personal brand story, and transformation journey before creating your perfect photoshoot.</p>
+                            <div className="card-features">
+                              <div>→ Personalized styling based on your story</div>
+                              <div>→ Brand-aligned photo concepts</div>
+                              <div>→ Style preferences that last forever</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="editorial-card quickstart-card" onClick={() => handleWelcomeChoice('quickstart')}>
+                      <div className="card-image">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop&crop=face" alt="Instant Brand Photos" />
+                        <div className="card-overlay">
+                          <div className="card-content">
+                            <div className="card-eyebrow">Start immediately</div>
+                            <h3 className="card-title">QUICK START</h3>
+                            <p className="card-description">Jump straight into creating professional brand photos. Maya will style you using her complete fashion week expertise.</p>
+                            <div className="card-features">
+                              <div>→ Professional photos right now</div>
+                              <div>→ Maya's expert styling applied</div>
+                              <div>→ Perfect for immediate needs</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('social-media-photos')}>
-                    <div className="style-preview">Social Media Photos</div>
-                    <div className="style-label">Instagram & TikTok</div>
-                  </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('website-photos')}>
-                    <div className="style-preview">Website Photos</div>
-                    <div className="style-label">Homepage & About</div>
-                  </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('email-marketing-photos')}>
-                    <div className="style-preview">Email & Marketing</div>
-                    <div className="style-label">Personal Connection</div>
-                  </div>
-                  <div className="style-option" onClick={() => handleStyleSelect('premium-brand-photos')}>
-                    <div className="style-preview">Premium Brand Photos</div>
-                    <div className="style-label">High-Value Clients</div>
+
+                  <div className="welcome-note">
+                    You can always customize your preferences later in Maya's chat
                   </div>
                 </div>
-              </div>
+              ) : (
+                /* Regular Maya Welcome State */
+                <div className="welcome-state">
+                  <div className="maya-avatar">
+                    <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
+                  </div>
+                  <div className="welcome-eyebrow">Personal Brand Photos</div>
+                  <h2 className="welcome-title">What photos does your business need most?</h2>
+                  <p className="welcome-description">I'm Maya, your personal brand stylist with Sandra's expertise from fashion week to building her empire. I'll help you create the exact photos you need for your business - from LinkedIn headshots to Instagram content to website images. What photos would make the biggest impact for you right now?</p>
+
+                  {/* Style Quick-Select with SSELFIE categories */}
+                  <div className="style-quickselect">
+                    <div className="style-option" onClick={() => handleStyleSelect('professional-headshots')}>
+                      <div className="style-preview">Professional Headshots</div>
+                      <div className="style-label">LinkedIn & Business</div>
+                    </div>
+                    <div className="style-option" onClick={() => handleStyleSelect('social-media-photos')}>
+                      <div className="style-preview">Social Media Photos</div>
+                      <div className="style-label">Instagram & TikTok</div>
+                    </div>
+                    <div className="style-option" onClick={() => handleStyleSelect('website-photos')}>
+                      <div className="style-preview">Website Photos</div>
+                      <div className="style-label">Homepage & About</div>
+                    </div>
+                    <div className="style-option" onClick={() => handleStyleSelect('email-marketing-photos')}>
+                      <div className="style-preview">Email & Marketing</div>
+                      <div className="style-label">Personal Connection</div>
+                    </div>
+                    <div className="style-option" onClick={() => handleStyleSelect('premium-brand-photos')}>
+                      <div className="style-preview">Premium Brand Photos</div>
+                      <div className="style-label">High-Value Clients</div>
+                    </div>
+                  </div>
+                </div>
+              )
             ) : (
               /* Messages */
               <div>
