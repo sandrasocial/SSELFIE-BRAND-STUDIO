@@ -47,7 +47,7 @@ export class OnboardingConversationService {
         "Tell me about where you are in your journey right now?",
         "What's your biggest challenge when it comes to feeling confident?"
       ],
-      quickButtons: ["Starting over", "Building my brand", "Need confidence", "Feeling stuck"]
+      quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
     
     2: {
@@ -60,7 +60,7 @@ export class OnboardingConversationService {
         "What challenges are you facing right now?",
         "What's working well for you, and what isn't?"
       ],
-      quickButtons: ["Single mom", "Career change", "Starting business", "Building confidence", "Need direction"]
+      quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
     
     3: {
@@ -73,7 +73,7 @@ export class OnboardingConversationService {
         "What would your life look like if you achieved your biggest dreams?",
         "Who is the woman you're becoming?"
       ],
-      quickButtons: ["CEO energy", "Thought leader", "Creative entrepreneur", "Confident mom", "Business owner"]
+      quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
     
     4: {
@@ -86,7 +86,7 @@ export class OnboardingConversationService {
         "Who do you serve or want to serve?",
         "What's your mission or what impact do you want to make?"
       ],
-      quickButtons: ["Coaching", "Consulting", "Creative services", "Online business", "Service provider", "Still exploring"]
+      quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
     
     5: {
@@ -99,7 +99,7 @@ export class OnboardingConversationService {
         "What styles or aesthetics speak to you?",
         "When you imagine your future self, what is she wearing?"
       ],
-      quickButtons: ["Professional & polished", "Creative & artistic", "Luxury & sophisticated", "Approachable & warm", "Bold & confident"]
+      quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
     
     6: {
@@ -112,7 +112,7 @@ export class OnboardingConversationService {
         "What story do you want your images to tell?",
         "How do you want people to feel when they see your photos?"
       ],
-      quickButtons: ["Social media", "Website", "Marketing materials", "Personal branding", "All of the above"]
+      quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     }
   };
 
