@@ -9,6 +9,7 @@ import { apiRequest } from '../lib/queryClient';
 import { SandraImages } from '../lib/sandra-images';
 import { EditorialImageBreak } from '../components/editorial-image-break';
 import { MemberNavigation } from '../components/member-navigation';
+import '../maya-onboarding.css';
 
 interface ChatMessage {
   id?: number;
@@ -1125,9 +1126,9 @@ export default function Maya() {
         </div>
       </section>
 
-      <div className="main-container">
+      <div className={`main-container maya-transition ${isOnboardingMode ? 'maya-onboarding-mode' : 'maya-photoshoot-mode'}`}>
         {/* Sidebar */}
-        <aside className="sidebar">
+        <aside className={`sidebar ${isOnboardingMode ? 'maya-onboarding-mode' : 'maya-photoshoot-mode'}`}>
           <div className="sidebar-section">
             <button className="new-session-btn" onClick={startNewSession}>New Session</button>
           </div>
@@ -1142,7 +1143,7 @@ export default function Maya() {
         </aside>
 
         {/* Main Chat Area */}
-        <main className="chat-area">
+        <main className={`chat-area chat-interface ${isOnboardingMode ? 'maya-onboarding-mode' : 'maya-photoshoot-mode'}`}>
           {/* Chat Header */}
           <div className="chat-header">
             <h1 className="chat-title">Maya Studio</h1>
@@ -1185,8 +1186,28 @@ export default function Maya() {
             </div>
           </div>
 
+          {/* Onboarding Progress Bar - Only shown in onboarding mode */}
+          {isOnboardingMode && (
+            <div className="onboarding-progress">
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill" 
+                  style={{ width: `${onboardingStatus?.progress || 0}%` }}
+                />
+              </div>
+              <div className="step-indicator">
+                Personal Brand Discovery - Step {onboardingStatus?.currentStep || 1} of 6
+              </div>
+            </div>
+          )}
+
+          {/* Mode Indicator */}
+          <div className={`maya-mode-indicator ${!isOnboardingMode ? 'hidden' : ''}`}>
+            {isOnboardingMode ? 'DISCOVERY MODE' : 'PHOTOSHOOT MODE'}
+          </div>
+
           {/* Messages Container */}
-          <div className="messages-container">
+          <div className={`messages-container ${isOnboardingMode ? 'maya-onboarding-mode' : 'maya-photoshoot-mode'}`}>
             {messages.length === 0 ? (
               /* Welcome State */
               <div className="welcome-state">
@@ -1291,6 +1312,34 @@ export default function Maya() {
                         </div>
                       )}
 
+                      {/* Quick Buttons for Onboarding */}
+                      {message.quickButtons && message.quickButtons.length > 0 && (
+                        <div className="quick-buttons">
+                          {message.quickButtons.map((button, buttonIndex) => (
+                            <button
+                              key={buttonIndex}
+                              className="quick-button"
+                              onClick={() => handleQuickButton(button)}
+                              disabled={isTyping}
+                            >
+                              {button}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Follow-up Questions for Onboarding */}
+                      {message.questions && message.questions.length > 0 && (
+                        <div className="follow-up-questions">
+                          <div className="questions-label">Maya wants to know:</div>
+                          {message.questions.map((question, qIndex) => (
+                            <div key={qIndex} className="question-item">
+                              "{question}"
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
                       {/* Generation button */}
                       {message.canGenerate && message.generatedPrompt && (
                         <div className="generate-btn">
@@ -1333,7 +1382,7 @@ export default function Maya() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 className="input-field"
-                placeholder="Tell Maya what kind of photos you want to create..."
+                placeholder={isOnboardingMode ? "Share your story with Maya..." : "Tell Maya what kind of photos you want to create..."}
                 rows={1}
                 disabled={isTyping}
                 style={{
@@ -1352,7 +1401,7 @@ export default function Maya() {
                 disabled={!input.trim() || isTyping}
                 className="send-btn"
               >
-                Send
+                {isOnboardingMode ? "Share" : "Send"}
               </button>
             </div>
           </div>
