@@ -21,6 +21,7 @@ function SimpleTraining() {
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<string>('');
   const [isRetrainingMode, setIsRetrainingMode] = useState(false);
   const [uploadErrors, setUploadErrors] = useState<string[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -221,12 +222,14 @@ function SimpleTraining() {
   // Start bulletproof model training mutation
   const startTraining = useMutation({
     mutationFn: async (images: string[]) => {
+      setIsUploadingImages(true);
       const response = await apiRequest('/api/start-model-training', 'POST', {
         selfieImages: images
       });
       return response;
     },
     onSuccess: (data: any) => {
+      setIsUploadingImages(false);
       if (data.success) {
         setIsTrainingStarted(true);
         setStartTime(new Date());
@@ -246,6 +249,7 @@ function SimpleTraining() {
       }
     },
     onError: (error: any) => {
+      setIsUploadingImages(false);
       console.error('Bulletproof training failed:', error);
       
       if (error.requiresRestart) {
@@ -1161,7 +1165,7 @@ function SimpleTraining() {
             {/* LUXURY START BUTTON */}
             <button
               onClick={handleStartTraining}
-              disabled={selfieImages.length < 10 || startTraining.isPending}
+              disabled={selfieImages.length < 10 || startTraining.isPending || isUploadingImages}
               style={{
                 padding: 'clamp(16px, 3vw, 20px) clamp(32px, 6vw, 48px)',
                 fontSize: 'clamp(12px, 3vw, 14px)',
@@ -1196,7 +1200,7 @@ function SimpleTraining() {
                 }
               }}
             >
-              {startTraining.isPending ? (
+              {(startTraining.isPending || isUploadingImages) ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
                   <div style={{
                     width: '16px',
@@ -1206,7 +1210,7 @@ function SimpleTraining() {
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }}></div>
-                  INITIATING TRAINING...
+                  PROCESSING YOUR PHOTOS...
                 </div>
               ) : selfieImages.length < 10 ? 
                 `Upload ${10 - selfieImages.length} More Photos` : 

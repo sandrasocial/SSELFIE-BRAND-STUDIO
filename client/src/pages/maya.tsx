@@ -54,6 +54,7 @@ function Maya() {
   // Core chat state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
 
@@ -432,6 +433,7 @@ function Maya() {
     
     // Add to active generations
     setActiveGenerations(prev => new Set([...prev, generationId]));
+    setIsGeneratingImage(true);
     console.log('🚀 MULTIPLE GENERATIONS: Started generation', generationId);
 
     try {
@@ -488,6 +490,7 @@ function Maya() {
                 const newSet = new Set(prev);
                 newSet.delete(generationId);
                 console.log('✅ MULTIPLE GENERATIONS: Completed generation', generationId, 'Remaining:', Array.from(newSet));
+                if (newSet.size === 0) setIsGeneratingImage(false);
                 return newSet;
               });
               
@@ -497,6 +500,7 @@ function Maya() {
               setActiveGenerations(prev => {
                 const newSet = new Set(prev);
                 newSet.delete(generationId);
+                if (newSet.size === 0) setIsGeneratingImage(false);
                 return newSet;
               });
               throw new Error(statusResponse.error || 'Generation failed');
@@ -1235,6 +1239,33 @@ function Maya() {
           cursor: not-allowed;
         }
 
+        /* Loading states */
+        .generation-loading {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin: 16px 0;
+          padding: 12px 16px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+          color: var(--soft-gray);
+          font-size: 14px;
+        }
+
+        .loading-spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          border-top: 2px solid var(--light-gold);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
         /* Image Grid */
         .image-grid {
           margin-top: 16px;
@@ -1579,6 +1610,14 @@ function Maya() {
                         )) : <span>Loading...</span>}
                       </div>
 
+                      {/* Loading state for image generation */}
+                      {message.role === 'maya' && message.canGenerate && activeGenerations.has(message.generationId || '') && (
+                        <div className="generation-loading">
+                          <div className="loading-spinner"></div>
+                          <span>Generating images...</span>
+                        </div>
+                      )}
+
                       {/* Image previews */}
                       {message.imagePreview && message.imagePreview.length > 0 && (
                         <div className="image-grid">
@@ -1634,7 +1673,7 @@ function Maya() {
                               key={buttonIndex}
                               className="quick-button"
                               onClick={() => handleQuickButton(button, index)}
-                              disabled={isTyping}
+                              disabled={isTyping || (isGeneratingImage && (button.includes('✨') || button.includes('💫') || button.includes('💗') || button.includes('🔥') || button.includes('🌟') || button.includes('💎')))}
                             >
                               {button}
                             </button>
@@ -1659,9 +1698,9 @@ function Maya() {
                         <div className="generate-btn">
                           <button
                             onClick={() => generateImages(message.generatedPrompt!)}
-                            disabled={isGenerating}
+                            disabled={isGenerating || isGeneratingImage}
                           >
-                            {isGenerating ? `Creating... ${generationProgress}%` : 'Create Photos'}
+                            {(isGenerating || isGeneratingImage) ? 'Creating Images...' : 'Create Photos'}
                           </button>
                         </div>
                       )}
