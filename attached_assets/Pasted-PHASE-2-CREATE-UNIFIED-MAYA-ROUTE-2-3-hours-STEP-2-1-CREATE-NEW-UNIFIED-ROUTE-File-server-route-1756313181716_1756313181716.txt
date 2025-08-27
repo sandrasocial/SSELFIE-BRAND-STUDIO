@@ -1,11 +1,7 @@
-/**
- * PHASE 2: UNIFIED MAYA ROUTE - Single Intelligent System
- * Uses PersonalityManager.getNaturalPrompt('maya') correctly
- * Context enhancement instead of different personalities
- * Single Claude call system handling all interactions
- */
-
-import { Router } from 'express';
+PHASE 2: CREATE UNIFIED MAYA ROUTE (2-3 hours)
+STEP 2.1: CREATE NEW UNIFIED ROUTE
+File: server/routes/maya-unified.ts
+typescriptimport { Router } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { storage } from '../storage';
 import { PersonalityManager } from '../agents/personalities/personality-config';
@@ -118,7 +114,7 @@ router.post('/generate', isAuthenticated, async (req, res) => {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) return res.status(401).json({ error: 'Authentication required' });
     
-    const userModel = await storage.getUserModelByUserId(parseInt(userId));
+    const userModel = await storage.getUserModelByUserId(userId);
     if (!userModel) return res.status(422).json({ error: 'No model for this user.' });
 
     const { prompt, chatId, preset, seed, count } = req.body || {};
@@ -129,7 +125,7 @@ router.post('/generate', isAuthenticated, async (req, res) => {
     const safeCount = Math.min(Math.max(parseInt(count ?? 2, 10) || 2, 1), 6);
     
     const result = await ModelTrainingService.generateUserImages(
-      parseInt(userId),
+      userId,
       prompt.trim(),
       safeCount,
       { preset, seed }
@@ -357,7 +353,6 @@ function getContextualQuickButtons(context: string, step: number = 1): string[] 
       5: ["Social media authority", "Professional credibility", "Website storytelling", "Personal connection", "Premium positioning"],
       6: ["Ready to create photos", "Let's start styling", "Show me my options"]
     };
-    
     return onboardingButtons[step as keyof typeof onboardingButtons] || [];
   }
   
@@ -382,34 +377,24 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
     }
 
     // Save both messages
-    await storage.saveMayaMessage({
+    await storage.saveMayaChatMessage({
       chatId: currentChatId,
-      userId,
-      message: userMessage,
       role: 'user',
-      context
+      content: userMessage
     });
 
-    await storage.saveMayaMessage({
+    await storage.saveMayaChatMessage({
       chatId: currentChatId,
-      userId,
-      message: mayaResponse.message,
       role: 'maya',
-      context,
-      metadata: {
-        canGenerate: mayaResponse.canGenerate,
-        generatedPrompt: mayaResponse.generatedPrompt,
-        chatCategory: mayaResponse.chatCategory,
-        quickButtons: mayaResponse.quickButtons
-      }
+      content: mayaResponse.message,
+      generatedPrompt: mayaResponse.generatedPrompt
     });
 
     return currentChatId;
   } catch (error) {
     console.error('Error saving unified conversation:', error);
-    // Return existing chatId or 0 as fallback
-    return chatId || 0;
+    throw error;
   }
 }
 
-export default router;
+export { router as mayaUnifiedRoutes };
