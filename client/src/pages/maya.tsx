@@ -58,6 +58,7 @@ export default function Maya() {
   // Onboarding state
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus | null>(null);
   const [isOnboardingMode, setIsOnboardingMode] = useState(false);
+  const [isQuickStartMode, setIsQuickStartMode] = useState(false);
 
   // UI state
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -156,10 +157,12 @@ export default function Maya() {
     if (choice === 'customize') {
       // Start onboarding flow
       setIsOnboardingMode(true);
+      setIsQuickStartMode(false);
       initializeOnboarding();
     } else {
       // Quick start - go straight to image generation chat
       setIsOnboardingMode(false);
+      setIsQuickStartMode(true);
       const quickStartMessage: ChatMessage = {
         role: 'maya',
         content: "Perfect! I love your confidence - let's create some stunning brand photos right now! I'll style you based on my expertise from fashion week and magazine shoots. Tell me what kind of photos you need today and I'll create the perfect look for you.",
@@ -242,6 +245,7 @@ export default function Maya() {
     
     setMessages([]);
     setCurrentChatId(null);
+    setIsQuickStartMode(false); // Reset quick start mode when starting new session
     window.history.replaceState({}, '', '/maya');
   };
 
@@ -261,9 +265,10 @@ export default function Maya() {
 
     try {
       // SINGLE MAYA ENDPOINT for all interactions
+      const context = isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'regular';
       const response = await apiRequest('/api/maya/chat', 'POST', {
         message: messageToSend,
-        context: isOnboardingMode ? 'onboarding' : 'regular',
+        context: context,
         chatId: currentChatId
       });
 
