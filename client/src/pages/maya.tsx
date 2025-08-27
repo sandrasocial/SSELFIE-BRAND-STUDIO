@@ -481,13 +481,14 @@ const generateImages = async (prompt: string, generationId?: string) => {
           } else if (statusResponse.status === 'failed') {
             console.error('Maya generation failed:', statusResponse.error);
             
-            // Update message with error state
+            // Update message with Maya's friendly error guidance
             setMessages(prev => prev.map(msg => 
               msg.generationId === generationId 
                 ? { 
                     ...msg, 
-                    content: msg.content + '\n\nSorry, generation failed. Let me try creating different photos for you!',
-                    canGenerate: false 
+                    content: msg.content + '\n\nOh no! I had a little hiccup creating those photos. Let me try a different approach - tell me specifically what style you\'re going for and I\'ll make sure we get the perfect shot this time! What\'s the vibe you want?',
+                    canGenerate: false,
+                    quickButtons: ["Professional headshot", "Editorial style", "Casual lifestyle", "Tell me more about the issue"]
                   }
                 : msg
             ));
@@ -510,6 +511,16 @@ const generateImages = async (prompt: string, generationId?: string) => {
             newSet.delete(generationId);
             return newSet;
           });
+          
+          // Add Maya's helpful polling error message
+          const errorMessage: ChatMessage = {
+            role: 'maya',
+            content: "I'm having trouble checking on your photos right now, but don't worry! Let me create something fresh for you instead. What kind of photos would you love to see?",
+            timestamp: new Date().toISOString(),
+            quickButtons: ["Professional headshot", "Creative lifestyle", "Business portrait", "Try a different concept"]
+          };
+          
+          setMessages(prev => [...prev, errorMessage]);
         }
       };
       
@@ -533,16 +544,15 @@ const generateImages = async (prompt: string, generationId?: string) => {
       return newSet;
     });
     
-    // Show user-friendly error in chat
-    setMessages(prev => prev.map(msg => 
-      msg.generationId === generationId 
-        ? { 
-            ...msg, 
-            content: msg.content + '\n\nI had trouble generating those photos. Let me try a different approach - what specific style are you looking for?',
-            canGenerate: false 
-          }
-        : msg
-    ));
+    // Show Maya's personality-driven error guidance
+    const errorMessage: ChatMessage = {
+      role: 'maya',
+      content: "Oh no! I had a little hiccup creating those photos. Let me try a different approach - tell me specifically what style you're going for and I'll make sure we get the perfect shot this time! What's the vibe you want?",
+      timestamp: new Date().toISOString(),
+      quickButtons: ["Professional headshot", "Editorial style", "Casual lifestyle", "Tell me more about the issue"]
+    };
+    
+    setMessages(prev => [...prev, errorMessage]);
   }
 };
 
@@ -565,8 +575,8 @@ const generateImages = async (prompt: string, generationId?: string) => {
     } catch (error) {
       console.error('Save error:', error);
       toast({
-        title: "Error",
-        description: "Failed to save image"
+        title: "Oops!",
+        description: "I couldn't save that photo to your gallery right now. Let me try again!"
       });
     } finally {
       setSavingImages(prev => {
