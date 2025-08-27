@@ -1238,14 +1238,6 @@ RESPONSE FORMAT:
 [detailed poetic generation prompt with technical excellence 2]
 \`\`\`
 
-STRUCTURED BRIEF HANDLING:
-When you receive a message containing [MAYA_COMPOSE_BRIEF], this means the user has made their Studio selections and wants you to create the photos. You MUST:
-1. Acknowledge their selections with enthusiasm and styling expertise
-2. ALWAYS include the 2 prompt blocks in your response 
-3. Use their exact framing, category, and moods in your prompts
-4. Include the realism constraints exactly as specified
-5. Set canGenerate=true by including words like "create", "generate", or "ready to"
-
 PROMPT CREATION RULES (Celebrity stylist level):
 - Use your A-list experience: "Canon EOS R5 with 85mm lens for executive portrait compression"
 - Include current 2025 trends: Dark Academia Winter, European Minimalism, Athletic Luxury
@@ -1521,128 +1513,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // NEW: Maya Compose endpoint - Luxury intent-based styling
-  app.post('/api/maya/compose', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user?.claims?.sub;
-      const { intent, chatHistory } = req.body;
-      
-      console.log('🎨 Maya Compose: Creating luxury variants for intent:', intent);
-      
-      // Get Maya's elevated celebrity stylist personality with full intelligence
-      const { PersonalityManager } = await import('./agents/personalities/personality-config');
-      
-      // Build comprehensive system prompt with Maya's full personality and intelligence
-      const systemPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
-
-🎯 MEMBER CONTEXT: You are helping a paying customer create stunning personal brand photos using SSELFIE Studio. Focus purely on fashion expertise and photo creation with your A-list celebrity stylist experience.
-
-CURRENT STYLING REQUEST:
-- Framing: ${intent.framing} (close=portrait, half=half body, full=full scene)  
-- Style: ${intent.style}
-- Vibe: ${intent.vibe || 'quiet_luxury'}
-
-CUSTOMER INTERACTION GOALS:
-- Help them style amazing photos using your 15+ years A-list experience
-- Use current 2025 trends: Dark Academia Winter, Soft Power Dressing, European Minimalism
-- Create authentic moments with your celebrity-level technical expertise
-- Make them feel confident and excited about their photos
-- Generate specific styling prompts when they're ready
-
-RESPONSE FORMAT:
-1. Give a warm, conversational response using your authentic celebrity stylist personality and A-list expertise
-2. Create 2-3 sophisticated generation prompts that capture different angles/expressions of this style
-
-Format your response EXACTLY as follows (this parsing is critical):
-
-Message: [Your styling advice as Maya using your celebrity stylist personality - keep this conversational and warm, DO NOT include variants here]
-
-**Variant 1:** [Detailed poetic generation prompt with technical excellence]
-**Variant 2:** [Detailed poetic generation prompt with technical excellence] 
-**Variant 3:** [Optional third prompt for variety]
-
-CRITICAL: The message section should ONLY contain your conversational styling advice. The variants should be separated and marked with **Variant N:** exactly as shown above.
-
-PROMPT CREATION RULES (Celebrity stylist level):
-- Use your A-list experience: "Canon EOS R5 with 85mm lens for executive portrait compression"
-- Include current 2025 trends: Dark Academia Winter, European Minimalism, Athletic Luxury
-- Technical lighting mastery: "Morning golden hour when light is crisp but warm"
-- Authentic expressions: "Natural confident smile, not posed, genuine moment of connection"
-- Professional styling: "Structured blazer in camel cashmere, wide-leg trousers, minimal gold jewelry"
-
-Each variant should be professional photography prompts with Maya's signature poetic style focusing on lighting, pose, expression, and styling that matches the requested intent.`;
-
-      // Call Claude API for intelligent Maya response
-      const anthropic = await import('@anthropic-ai/sdk');
-      const client = new anthropic.default({
-        apiKey: process.env.ANTHROPIC_API_KEY,
-      });
-
-      const chatMessages = chatHistory ? chatHistory.slice(-4) : [];
-      const contextMessage = chatMessages.length > 0 
-        ? `Recent conversation context: ${chatMessages.map(m => `${m.role}: ${m.content}`).join('\n')}`
-        : 'Starting new styling session.';
-
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: [
-          { 
-            role: 'user', 
-            content: `${contextMessage}\n\nCreate variants for this styling intent: ${JSON.stringify(intent)}` 
-          }
-        ],
-      });
-
-      const content = response.content[0].type === 'text' ? response.content[0].text : '';
-      
-      // Parse Maya's response - extract message up to first variant
-      const messageMatch = content.match(/^([\s\S]*?)(?=\*\*Variant \d+:\*\*|Variant \d+:|$)/);
-      const variantMatches = content.match(/\*\*Variant \d+:\*\*\s*(.+?)(?=\*\*Variant \d+:\*\*|$)/gs);
-      
-      let message = messageMatch ? messageMatch[1].trim() : "Let's create something stunning together!";
-      
-      // Clean up the message - remove any variant indicators that leaked through
-      message = message.replace(/\*\*Variant \d+:\*\*[\s\S]*$/, '').trim();
-      
-      const variants = variantMatches ? variantMatches.map(v => 
-        v.replace(/\*\*Variant \d+:\*\*\s*/, '').trim()
-      ) : [];
-      
-      // If no variants found, try alternative parsing
-      if (variants.length === 0) {
-        const altVariantMatches = content.match(/Variant \d+:\s*(.+?)(?=Variant \d+:|$)/gs);
-        if (altVariantMatches) {
-          variants.push(...altVariantMatches.map(v => 
-            v.replace(/Variant \d+:\s*/, '').trim()
-          ));
-        }
-      }
-
-      // Prepend realism tokens to each variant
-      const realismPrefix = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
-      const enhancedVariants = variants.map(variant => realismPrefix + variant);
-
-      console.log(`🎨 Maya Compose: Generated ${enhancedVariants.length} variants for user ${userId}`);
-
-      res.json({
-        message,
-        variants: enhancedVariants
-      });
-      
-    } catch (error) {
-      console.error('❌ Maya Compose error:', error);
-      res.status(500).json({ 
-        success: false,
-        message: "Failed to compose looks", 
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  // REMOVED DUPLICATE: Maya Chat alias that was conflicting with the main endpoint above
-
   // Maya Image Generation endpoint - Restored working version
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
@@ -1789,7 +1659,7 @@ Each variant should be professional photography prompts with Maya's signature po
         // Migrate URLs to permanent storage
         const { ImageStorageService } = await import('./image-storage-service');
         const permanentUrls = await Promise.all(
-          outputUrls.map((url: string) => ImageStorageService.ensurePermanentStorage(url, userId, 'maya-generation'))
+          outputUrls.map((url: string) => ImageStorageService.ensurePermanentStorage(url))
         );
         
         console.log(`✅ Maya polling: Generation complete with ${permanentUrls.length} images`);
@@ -3572,7 +3442,6 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
       });
       
     } catch (error) {
-      const userId = req.user?.claims?.sub;
       console.error(`❌ Migration failed for user ${userId}:`, error);
       res.status(500).json({
         success: false,
