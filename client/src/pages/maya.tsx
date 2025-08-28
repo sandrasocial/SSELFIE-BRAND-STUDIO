@@ -1555,54 +1555,7 @@ function Maya() {
             )}
           </div>
 
-          {/* Generation Controls */}
-          <div className="generation-controls" style={{
-            padding: '20px 40px',
-            borderTop: '1px solid var(--accent-line)',
-            background: 'var(--editorial-gray)',
-            display: 'flex',
-            gap: '20px',
-            alignItems: 'center',
-            fontSize: '12px'
-          }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ color: 'var(--soft-gray)', textTransform: 'uppercase', letterSpacing: '0.3em' }}>Style:</span>
-              <select 
-                value={preset} 
-                onChange={(e) => setPreset(e.target.value as Preset)}
-                style={{
-                  background: 'var(--white)',
-                  border: '1px solid var(--accent-line)',
-                  padding: '6px 12px',
-                  fontSize: '12px'
-                }}
-              >
-                <option value="Editorial">Editorial</option>
-                <option value="Identity">Identity</option>
-                <option value="UltraPrompt">Ultra Prompt</option>
-                <option value="Fast">Fast</option>
-              </select>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ color: 'var(--soft-gray)', textTransform: 'uppercase', letterSpacing: '0.3em' }}>Seed:</span>
-              <input 
-                type="number" 
-                value={seed} 
-                onChange={(e) => setSeed(e.target.value)}
-                placeholder="Random"
-                style={{
-                  background: 'var(--white)',
-                  border: '1px solid var(--accent-line)',
-                  padding: '6px 12px',
-                  fontSize: '12px',
-                  width: '100px'
-                }}
-              />
-            </label>
-            <span style={{ color: 'var(--soft-gray)', fontSize: '11px', marginLeft: 'auto' }}>
-              Customize your photo generation parameters
-            </span>
-          </div>
+
 
           {/* Input Area */}
           <div className="input-area">
