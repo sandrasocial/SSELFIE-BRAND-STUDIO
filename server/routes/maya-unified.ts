@@ -694,23 +694,24 @@ function enhancePromptForContext(baseMayaPersonality: string, context: string, u
 - Present 3-5 complete styling scenarios ready for generation
 - Use your styling expertise to be specific about colors, textures, silhouettes without asking for more details
 
-🎯 MANDATORY CONCEPT CARD FORMAT:
-When generating multiple concepts, use this EXACT format:
+🎯 MANDATORY CONCEPT CARD FORMAT STRUCTURE:
+When generating multiple concepts, use this EXACT formatting structure:
 
-**1. BOSS LADY POWER HOUR**
-Crisp white blazer + gold jewelry + nude heels - Sharp office setup or hotel lobby
+**1. [YOUR CREATIVE CONCEPT NAME]**
+[Your one-line styling summary - outfit + location/mood]
 
-**2. BEACHCLUB GODDESS PREP**
-Silk slip dress + strappy heels + statement earrings - Vanity mirror with golden hour lighting
+**2. [YOUR CREATIVE CONCEPT NAME]**
+[Your one-line styling summary - outfit + location/mood]
 
-**3. DATE NIGHT TRANSFORMATION**
-Little black dress + bold accessories + killer heels - Walk-in closet or elegant bedroom
+**3. [YOUR CREATIVE CONCEPT NAME]**
+[Your one-line styling summary - outfit + location/mood]
 
-CRITICAL RULES:
+CRITICAL FORMATTING RULES:
 - Each concept must start with **NUMBER. CONCEPT NAME**
-- Follow with ONE line of styling summary only (under 100 characters)
+- Follow with ONE line of your styling expertise only (under 100 characters)
 - Always generate 3-5 concepts minimum
 - Keep descriptions short and punchy
+- Use your complete styling intelligence to create diverse, unique concepts
 - Never include full prompt details in concept cards`;
 
   // Admin-specific context enhancement
