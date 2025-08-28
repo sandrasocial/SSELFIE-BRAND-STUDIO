@@ -172,14 +172,17 @@ export const useMayaGeneration = () => {
     setMessages: (updater: (prev: ChatMessage[]) => ChatMessage[]) => void,
     currentChatId: number | null
   ) => {
-    if (!generationId || activeGenerations.has(generationId)) {
-      console.log('Generation blocked - missing ID or already active:', generationId);
+    // Create unified generationId if not provided
+    const finalGenerationId = generationId || `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    if (activeGenerations.has(finalGenerationId)) {
+      console.log('Generation blocked - already active:', finalGenerationId);
       return;
     }
     
-    console.log('Starting Maya generation:', { prompt, generationId, preset, seed });
+    console.log('Starting Maya generation:', { prompt, finalGenerationId, preset, seed });
     
-    setActiveGenerations(prev => new Set([...prev, generationId]));
+    setActiveGenerations(prev => new Set([...prev, finalGenerationId]));
     
     try {
       // Call Maya's intelligent generation system with comprehensive error handling
@@ -198,12 +201,12 @@ export const useMayaGeneration = () => {
         
         // Add 30-second overall timeout for the entire generation process
         setTimeout(() => {
-          if (activeGenerations.has(generationId)) {
-            console.log('Maya: Overall generation timeout after 30 seconds for:', generationId);
+          if (activeGenerations.has(finalGenerationId)) {
+            console.log('Maya: Overall generation timeout after 30 seconds for:', finalGenerationId);
             
             setActiveGenerations(prev => {
               const newSet = new Set(prev);
-              newSet.delete(generationId);
+              newSet.delete(finalGenerationId);
               return newSet;
             });
             
@@ -220,7 +223,7 @@ export const useMayaGeneration = () => {
         // Poll for Maya's generation completion with enhanced error handling
         const pollForImages = async () => {
           try {
-            const statusResponse = await fetch(`/api/check-generation/${response.predictionId}?chatId=${currentChatId}&messageId=${generationId}`, { 
+            const statusResponse = await fetch(`/api/maya/check-generation/${response.predictionId}?chatId=${currentChatId}&messageId=${finalGenerationId}`, { 
               credentials: 'include' 
             }).then(res => {
               if (!res.ok) {
@@ -234,20 +237,20 @@ export const useMayaGeneration = () => {
             if (statusResponse.status === 'completed' && statusResponse.imageUrls && statusResponse.imageUrls.length > 0) {
               console.log('Maya generation complete! Updating message with images');
               
-              // Update the specific Maya message with generated images
-              setMessages(prev => prev.map(msg => 
-                msg.generationId === generationId 
-                  ? { 
-                      ...msg, 
-                      imagePreview: statusResponse.imageUrls, 
-                      canGenerate: false,
-                      content: msg.content + `\n\nHere are your styled photos! These turned out absolutely incredible! ✨\n\nReady for more? Let me create different vibes for you:`
-                    }
-                  : msg
-              ));
-              
-              // Add Maya's follow-up suggestions immediately for better flow
-              setTimeout(() => {
+              // Single batched update to prevent double rendering
+              setMessages(prev => {
+                const updatedMessages = prev.map(msg => 
+                  msg.generationId === finalGenerationId 
+                    ? { 
+                        ...msg, 
+                        imagePreview: statusResponse.imageUrls, 
+                        canGenerate: false,
+                        content: msg.content + `\n\nHere are your styled photos! These turned out absolutely incredible! ✨`
+                      }
+                    : msg
+                );
+                
+                // Add follow-up message immediately instead of setTimeout
                 const followUpMessage: ChatMessage = {
                   role: 'maya',
                   content: "Which style should we create next? I have so many more gorgeous concepts for you! 💫",
@@ -260,13 +263,14 @@ export const useMayaGeneration = () => {
                     "Show all categories"
                   ]
                 };
-                setMessages(prev => [...prev, followUpMessage]);
-              }, 500);
+                
+                return [...updatedMessages, followUpMessage];
+              });
               
               // Remove from active generations
               setActiveGenerations(prev => {
                 const newSet = new Set(prev);
-                newSet.delete(generationId);
+                newSet.delete(finalGenerationId);
                 return newSet;
               });
               
@@ -275,7 +279,7 @@ export const useMayaGeneration = () => {
               
               // Update message with Maya's friendly error guidance and retry option
               setMessages(prev => prev.map(msg => 
-                msg.generationId === generationId 
+                msg.generationId === finalGenerationId 
                   ? { 
                       ...msg, 
                       content: msg.content + '\n\nOh no! I had a little hiccup creating those photos. Let me try a different approach - tell me specifically what style you\'re going for and I\'ll make sure we get the perfect shot this time! What\'s the vibe you want?',
@@ -287,7 +291,7 @@ export const useMayaGeneration = () => {
               
               setActiveGenerations(prev => {
                 const newSet = new Set(prev);
-                newSet.delete(generationId);
+                newSet.delete(finalGenerationId);
                 return newSet;
               });
               
@@ -300,7 +304,7 @@ export const useMayaGeneration = () => {
             console.error('Maya polling error:', pollError);
             setActiveGenerations(prev => {
               const newSet = new Set(prev);
-              newSet.delete(generationId);
+              newSet.delete(finalGenerationId);
               return newSet;
             });
             
@@ -323,7 +327,7 @@ export const useMayaGeneration = () => {
         console.error('Maya generation failed to start:', response);
         setActiveGenerations(prev => {
           const newSet = new Set(prev);
-          newSet.delete(generationId);
+          newSet.delete(finalGenerationId);
           return newSet;
         });
         
@@ -341,7 +345,7 @@ export const useMayaGeneration = () => {
       console.error('Maya generation error:', error);
       setActiveGenerations(prev => {
         const newSet = new Set(prev);
-        newSet.delete(generationId);
+        newSet.delete(finalGenerationId);
         return newSet;
       });
       
