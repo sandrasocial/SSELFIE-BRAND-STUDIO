@@ -249,6 +249,7 @@ router.get('/check-generation/:predictionId', isAuthenticated, async (req, res) 
     }
 
     const predictionId = req.params.predictionId;
+    const { chatId, messageId } = req.query; // Get chatId and messageId from query params
     if (!predictionId) {
       return res.status(400).json({ error: 'Prediction ID required' });
     }
@@ -265,6 +266,29 @@ router.get('/check-generation/:predictionId', isAuthenticated, async (req, res) 
     if (prediction.status === 'succeeded' && prediction.output) {
       const imageUrls = Array.isArray(prediction.output) ? prediction.output : [prediction.output];
       console.log(`✅ MAYA GENERATION COMPLETE: ${imageUrls.length} images generated`);
+      
+      // 🔥 CRITICAL FIX: Save generated images to database for persistence
+      if (chatId && messageId) {
+        try {
+          console.log(`💾 MAYA PERSISTENCE: Saving ${imageUrls.length} images to database`);
+          
+          // Find the latest Maya message in this chat that can generate
+          const chatMessages = await storage.getMayaChatMessages(Number(chatId));
+          const latestMayaMessage = chatMessages
+            .filter(msg => msg.role === 'assistant' || msg.role === 'maya')
+            .reverse()[0]; // Get the most recent Maya message
+          
+          if (latestMayaMessage) {
+            await storage.updateMayaChatMessage(latestMayaMessage.id, {
+              imagePreview: JSON.stringify(imageUrls) // Store as JSON string
+            });
+            console.log(`✅ MAYA PERSISTENCE: Images saved to message ${latestMayaMessage.id}`);
+          }
+        } catch (persistError) {
+          console.error('Maya persistence error (non-blocking):', persistError);
+          // Don't fail the request if persistence fails
+        }
+      }
       
       res.json({
         status: 'completed',
@@ -639,5 +663,61 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
   // Default: Professional portrait with Maya's styling expertise
   return `Professional portrait of ${triggerWord} in elegant styling, sophisticated lighting, editorial photography quality, styled with Maya's fashion expertise and attention to luxury details`;
 }
+
+// 🔥 CRITICAL FIX: Chat History Loading with Image Persistence
+router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.claims?.sub;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const chatId = parseInt(req.params.chatId);
+    if (isNaN(chatId)) {
+      return res.status(400).json({ error: 'Valid chat ID required' });
+    }
+
+    console.log(`📖 MAYA CHAT HISTORY: Loading messages for chat ${chatId}`);
+
+    // Get chat messages from database
+    const messages = await storage.getMayaChatMessages(chatId);
+    
+    // Transform messages for frontend with proper image parsing
+    const transformedMessages = messages.map(msg => {
+      const transformedMsg: any = {
+        role: msg.role === 'assistant' ? 'maya' : msg.role, // Normalize role
+        content: msg.content,
+        timestamp: msg.createdAt,
+        generatedPrompt: msg.generatedPrompt
+      };
+
+      // 🔥 CRITICAL FIX: Parse stored JSON imagePreview back to array
+      if (msg.imagePreview) {
+        try {
+          const parsedImages = JSON.parse(msg.imagePreview);
+          if (Array.isArray(parsedImages) && parsedImages.length > 0) {
+            transformedMsg.imagePreview = parsedImages;
+            console.log(`🖼️ MAYA CHAT HISTORY: Loaded ${parsedImages.length} persisted images for message`);
+          }
+        } catch (parseError) {
+          console.error('Error parsing stored imagePreview:', parseError);
+          // If it's already an array (legacy format), use as-is
+          if (Array.isArray(msg.imagePreview)) {
+            transformedMsg.imagePreview = msg.imagePreview;
+          }
+        }
+      }
+
+      return transformedMsg;
+    });
+
+    console.log(`✅ MAYA CHAT HISTORY: Loaded ${transformedMessages.length} messages for chat ${chatId}`);
+    res.json(transformedMessages);
+
+  } catch (error) {
+    console.error('Maya chat history error:', error);
+    res.status(500).json({ error: 'Failed to load chat history' });
+  }
+});
 
 export default router;
