@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from './use-toast';
 import { apiRequest } from '../lib/queryClient';
 
@@ -27,9 +27,17 @@ export const useMayaGeneration = () => {
   const [savedImages, setSavedImages] = useState(new Set<string>());
   const [clickedButtons, setClickedButtons] = useState(new Map<number, Set<string>>());
   const [activeGenerations, setActiveGenerations] = useState(new Set<string>());
+  const [generationQueue, setGenerationQueue] = useState<Array<{id: string, priority: number}>>([]);
   const [preset, setPreset] = useState<Preset>('Editorial');
   const [seed, setSeed] = useState<string>('');
   const { toast } = useToast();
+
+  // Clear stale generations on mount
+  useEffect(() => {
+    console.log('Maya: Clearing any stale active generations on mount');
+    setActiveGenerations(new Set());
+    setGenerationQueue([]);
+  }, []);
 
   const generateFromConcept = async (
     conceptName: string, 
@@ -37,6 +45,19 @@ export const useMayaGeneration = () => {
     currentChatId: number | null
   ) => {
     const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Check generation queue - prevent multiple concurrent generations
+    if (activeGenerations.size > 0) {
+      console.log('Maya: Queueing generation, active generation in progress');
+      const queueMessage: ChatMessage = {
+        role: 'maya',
+        content: `I'm still working on your previous photos! Let me finish those first, then I'll create these "${conceptName}" photos next. Quality over speed - I want each set to be absolutely perfect! ✨`,
+        timestamp: new Date().toISOString(),
+        quickButtons: ["Cancel queue", "What's taking so long?", "Show me current progress"]
+      };
+      setMessages(prev => [...prev, queueMessage]);
+      return;
+    }
     
     if (activeGenerations.has(messageId)) return;
     
@@ -54,6 +75,29 @@ export const useMayaGeneration = () => {
       
       setMessages(prev => [...prev, generatingMessage]);
       
+      // Add 15-second timeout
+      setTimeout(() => {
+        if (activeGenerations.has(messageId)) {
+          console.log('Maya: Generation timeout after 15 seconds for:', messageId);
+          
+          // Clear stuck generation
+          setActiveGenerations(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(messageId);
+            return newSet;
+          });
+          
+          // Show Maya timeout message
+          const timeoutMessage: ChatMessage = {
+            role: 'maya',
+            content: "I had a little hiccup with that photo creation! Let me try a different approach. What specific style are you going for?",
+            timestamp: new Date().toISOString(),
+            quickButtons: ["Try again", "Different style", "Tell me the issue"]
+          };
+          setMessages(prev => [...prev, timeoutMessage]);
+        }
+      }, 15000);
+      
       // FIXED: Use Maya's dedicated concept generation approach
       // Clean up concept name (remove emojis and extra text) before sending to backend
       const cleanConceptName = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
@@ -68,12 +112,19 @@ export const useMayaGeneration = () => {
     } catch (error) {
       console.error('Maya concept generation error:', error);
       
-      // Show friendly error message
+      // Clear from active generations on error
+      setActiveGenerations(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(messageId);
+        return newSet;
+      });
+      
+      // Show friendly error message with retry
       const errorMessage: ChatMessage = {
         role: 'maya',
         content: `I had a little hiccup creating those "${conceptName}" photos, but I'm not giving up! Let me try a different approach. What specific style elements are you most excited about for this look?`,
         timestamp: new Date().toISOString(),
-        quickButtons: ["More luxury details", "Different lighting", "Try another concept", "Tell me the issue"]
+        quickButtons: [`Retry "${conceptName}"`, "Different lighting", "Try another concept", "Tell me the issue"]
       };
       
       setMessages(prev => [...prev, errorMessage]);
@@ -97,7 +148,7 @@ export const useMayaGeneration = () => {
     setActiveGenerations(prev => new Set([...prev, generationId]));
     
     try {
-      // Call Maya's intelligent generation system
+      // Call Maya's intelligent generation system with comprehensive error handling
       const response = await apiRequest('/api/maya/generate', 'POST', {
         prompt,
         chatId: currentChatId,
@@ -108,15 +159,41 @@ export const useMayaGeneration = () => {
       
       console.log('Maya generation response:', response);
       
-      if (response.predictionId) {  // Remove the success check since API only returns predictionId
+      if (response.predictionId) {
         console.log('Maya generation started successfully:', response.predictionId);
         
-        // Poll for Maya's generation completion
+        // Add 30-second overall timeout for the entire generation process
+        setTimeout(() => {
+          if (activeGenerations.has(generationId)) {
+            console.log('Maya: Overall generation timeout after 30 seconds for:', generationId);
+            
+            setActiveGenerations(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(generationId);
+              return newSet;
+            });
+            
+            const timeoutMessage: ChatMessage = {
+              role: 'maya',
+              content: "That photo creation took longer than expected! Don't worry - let me try a quicker approach. What style would you like me to focus on?",
+              timestamp: new Date().toISOString(),
+              quickButtons: ["Retry with different settings", "Simpler style", "Professional headshot", "Tell me what happened"]
+            };
+            setMessages(prev => [...prev, timeoutMessage]);
+          }
+        }, 30000);
+        
+        // Poll for Maya's generation completion with enhanced error handling
         const pollForImages = async () => {
           try {
             const statusResponse = await fetch(`/api/check-generation/${response.predictionId}?chatId=${currentChatId}&messageId=${generationId}`, { 
               credentials: 'include' 
-            }).then(res => res.json());
+            }).then(res => {
+              if (!res.ok) {
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+              }
+              return res.json();
+            });
             
             console.log('Maya polling status:', statusResponse.status, 'Images:', statusResponse.imageUrls?.length || 0);
             
@@ -162,14 +239,14 @@ export const useMayaGeneration = () => {
             } else if (statusResponse.status === 'failed') {
               console.error('Maya generation failed:', statusResponse.error);
               
-              // Update message with Maya's friendly error guidance
+              // Update message with Maya's friendly error guidance and retry option
               setMessages(prev => prev.map(msg => 
                 msg.generationId === generationId 
                   ? { 
                       ...msg, 
                       content: msg.content + '\n\nOh no! I had a little hiccup creating those photos. Let me try a different approach - tell me specifically what style you\'re going for and I\'ll make sure we get the perfect shot this time! What\'s the vibe you want?',
                       canGenerate: false,
-                      quickButtons: ["Professional headshot", "Editorial style", "Casual lifestyle", "Tell me more about the issue"]
+                      quickButtons: [`Retry "${conceptName || 'this concept'}"`, "Different style approach", "Professional headshot", "Tell me more about the issue"]
                     }
                   : msg
               ));
@@ -181,9 +258,9 @@ export const useMayaGeneration = () => {
               });
               
             } else {
-              // Still processing - continue polling with faster 1-second intervals
-              console.log('Maya still generating, polling again in 1 second...');
-              setTimeout(pollForImages, 1000);
+              // Still processing - continue polling with 2-second intervals
+              console.log('Maya still generating, polling again in 2 seconds...');
+              setTimeout(pollForImages, 2000);
             }
           } catch (pollError) {
             console.error('Maya polling error:', pollError);
@@ -193,20 +270,20 @@ export const useMayaGeneration = () => {
               return newSet;
             });
             
-            // Add Maya's helpful polling error message
+            // Add Maya's helpful polling error message with retry
             const errorMessage: ChatMessage = {
               role: 'maya',
               content: "I'm having trouble checking on your photos right now, but don't worry! Let me create something fresh for you instead. What kind of photos would you love to see?",
               timestamp: new Date().toISOString(),
-              quickButtons: ["Professional headshot", "Creative lifestyle", "Business portrait", "Try a different concept"]
+              quickButtons: [`Retry "${conceptName || 'last concept'}"`, "Professional headshot", "Creative lifestyle", "Try a different concept"]
             };
             
             setMessages(prev => [...prev, errorMessage]);
           }
         };
         
-        // Start polling immediately for better user experience
-        setTimeout(pollForImages, 500);
+        // Start polling after a brief delay for better user experience
+        setTimeout(pollForImages, 1000);
         
       } else {
         console.error('Maya generation failed to start:', response);
@@ -215,6 +292,15 @@ export const useMayaGeneration = () => {
           newSet.delete(generationId);
           return newSet;
         });
+        
+        // Add Maya's helpful startup error message
+        const startupErrorMessage: ChatMessage = {
+          role: 'maya',
+          content: "I couldn't start creating those photos right now, but I'm here to help! Let me try a different approach. What specific style are you looking for?",
+          timestamp: new Date().toISOString(),
+          quickButtons: [`Retry "${conceptName || 'this concept'}"`, "Different style", "Professional headshot", "Tell me the issue"]
+        };
+        setMessages(prev => [...prev, startupErrorMessage]);
       }
       
     } catch (error) {
@@ -225,12 +311,12 @@ export const useMayaGeneration = () => {
         return newSet;
       });
       
-      // Show Maya's personality-driven error guidance
+      // Show Maya's personality-driven error guidance with retry options
       const errorMessage: ChatMessage = {
         role: 'maya',
-        content: "Oh no! I had a little hiccup creating those photos. Let me try a different approach - tell me specifically what style you're going for and I'll make sure we get the perfect shot this time! What's the vibe you want?",
+        content: "Oh no! I had a technical hiccup creating those photos. Don't worry - I'm still here to help! Let me try a different approach. What specific style are you going for?",
         timestamp: new Date().toISOString(),
-        quickButtons: ["Professional headshot", "Editorial style", "Casual lifestyle", "Tell me more about the issue"]
+        quickButtons: [`Retry "${conceptName || 'this concept'}"`, "Professional headshot", "Editorial style", "Tell me more about the issue"]
       };
       
       setMessages(prev => [...prev, errorMessage]);
