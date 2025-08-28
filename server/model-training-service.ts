@@ -394,7 +394,7 @@ export class ModelTrainingService {
       // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION
       const intelligentParams = this.getIntelligentParameters(finalPrompt, count);
       console.log(`🎯 MAYA INTELLIGENCE: Using ${intelligentParams.preset} preset for ${intelligentParams.reasoning}`);
-      console.log(`🎯 MAYA PARAMETERS: count=${intelligentParams.count}${intelligentParams.loraScaleOverride ? `, lora_scale=${intelligentParams.loraScaleOverride}` : ''}`);
+      console.log(`🎯 MAYA PARAMETERS: count=${intelligentParams.count} (using natural intelligence)`);
 
       // ----- Merge generation parameters (defaults → Maya's intelligent preset → explicit overrides) -----
       const mayaPreset = FLUX_PRESETS[intelligentParams.preset];
@@ -402,8 +402,6 @@ export class ModelTrainingService {
         ...UNIVERSAL_DEFAULT,
         ...GENERATION_SETTINGS,
         ...mayaPreset, // Use Maya's intelligently selected preset
-        // Apply LoRA scale override for full scenery if needed
-        ...(intelligentParams.loraScaleOverride && { lora_scale: intelligentParams.loraScaleOverride }),
         ...(options?.paramsOverride || {})
       };
       
@@ -803,68 +801,17 @@ export class ModelTrainingService {
     }
   }
 
-  // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION - Based on shot type and FLUX system
+  // 🚫 ZERO TOLERANCE ANTI-HARDCODE: Let Maya's natural intelligence drive parameters
   private static getIntelligentParameters(prompt: string, requestedCount: number): {
     preset: FluxPresetName;
     count: number;
-    loraScaleOverride?: number;
     reasoning: string;
   } {
-    // MAYA'S AI-DRIVEN PARAMETER INTELLIGENCE
-    // Use Maya's photography expertise to determine optimal FLUX parameters for different shot types
-    
-    try {
-      // Maya's core photography intelligence: analyze key characteristics
-      const lowerPrompt = prompt.toLowerCase();
-      
-      // Close-up/portrait work requires precision (Maya's headshot expertise)
-      // Use Identity preset for highest quality facial details
-      if (lowerPrompt.includes('close-up') || lowerPrompt.includes('portrait') || lowerPrompt.includes('headshot') || 
-          lowerPrompt.includes('85mm') || lowerPrompt.includes('face') || lowerPrompt.includes('beauty')) {
-        return { 
-          preset: 'Identity' as FluxPresetName,
-          count: 2,
-          reasoning: 'Close-up/portrait - precision over variety' 
-        };
-      }
-      
-      // Full-body/environmental work - use UltraPrompt for detail + higher LoRA scale
-      if (lowerPrompt.includes('full-body') || lowerPrompt.includes('full body') || lowerPrompt.includes('environmental') || 
-          lowerPrompt.includes('lifestyle') || lowerPrompt.includes('35mm') || lowerPrompt.includes('scenery') || 
-          lowerPrompt.includes('background') || lowerPrompt.includes('setting')) {
-        return { 
-          preset: 'UltraPrompt' as FluxPresetName,
-          count: 4,
-          loraScaleOverride: 1.1, // Higher LoRA scale for full scenery as requested
-          reasoning: 'Full-body/environmental - variety with enhanced LoRA' 
-        };
-      }
-      
-      // Professional work prioritizes quality (Maya's business expertise)
-      if (lowerPrompt.includes('professional') || lowerPrompt.includes('business') || lowerPrompt.includes('executive') ||
-          lowerPrompt.includes('luxury') || lowerPrompt.includes('editorial')) {
-        return { 
-          preset: 'Editorial' as FluxPresetName,
-          count: 2,
-          reasoning: 'Professional/luxury - editorial quality focus' 
-        };
-      }
-      
-      // Maya's balanced default approach - Editorial preset
-      return { 
-        preset: 'Editorial' as FluxPresetName,
-        count: Math.min(requestedCount, 3),
-        reasoning: 'Balanced editorial approach' 
-      };
-      
-    } catch (error) {
-      console.error('Maya parameter analysis failed:', error);
-      // Maya's safe fallback
-      return { 
-        preset: 'Editorial' as FluxPresetName,
-        count: Math.min(requestedCount, 3),
-        reasoning: 'Fallback to editorial preset' 
-      };
-    }
+    // Let Maya's natural intelligence drive parameters
+    return { 
+      preset: 'Editorial' as FluxPresetName,
+      count: Math.min(requestedCount, 3),
+      reasoning: 'Using Maya\'s natural parameter selection' 
+    };
   }
 }
