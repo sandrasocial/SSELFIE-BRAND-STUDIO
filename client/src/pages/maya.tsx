@@ -101,8 +101,15 @@ function Maya() {
     setSeed,
     generateFromConcept,
     generateImages,
-    saveToGallery
-  } = useMayaGeneration();
+    saveToGallery,
+    generateFromSpecificConcept
+  } = useMayaGeneration(
+    messages,
+    setMessages,
+    currentChatId,
+    setIsTyping,
+    toast
+  );
 
   const {
     onboardingStatus,
@@ -1525,7 +1532,7 @@ function Maya() {
                                 {concept.description}
                               </p>
                               <button
-                                onClick={() => console.log('Generate concept:', concept.title)}
+                                onClick={() => generateFromSpecificConcept(concept.title, concept.id)}
                                 style={{
                                   padding: '12px 24px',
                                   background: 'var(--black)',
