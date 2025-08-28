@@ -19,6 +19,15 @@ import { trackMayaPerformance } from '../utils/webVitals';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import '../maya-onboarding.css';
 
+interface ConceptCard {
+  id: string;
+  title: string;
+  description: string;  
+  canGenerate: boolean;
+  isGenerating: boolean;
+  generatedImages?: string[];
+}
+
 interface ChatMessage {
   id?: number;
   role: 'user' | 'maya';
@@ -32,6 +41,7 @@ interface ChatMessage {
   stepGuidance?: string;
   isOnboarding?: boolean;
   generationId?: string; // Unique ID to track specific generation for polling
+  conceptCards?: ConceptCard[];
 }
 
 interface MayaChat {
