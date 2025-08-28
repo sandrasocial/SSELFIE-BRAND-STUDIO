@@ -21,6 +21,15 @@ const trackInteractionTiming = (event: string, startTime: number, success: boole
   });
 };
 
+interface ConceptCard {
+  id: string;
+  title: string;
+  description: string;  
+  canGenerate: boolean;
+  isGenerating: boolean;
+  generatedImages?: string[];
+}
+
 interface ChatMessage {
   id?: number;
   role: 'user' | 'maya';
@@ -34,6 +43,7 @@ interface ChatMessage {
   stepGuidance?: string;
   isOnboarding?: boolean;
   generationId?: string;
+  conceptCards?: ConceptCard[];
 }
 
 export const useMayaChat = () => {
