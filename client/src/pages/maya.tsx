@@ -381,10 +381,10 @@ function Maya() {
         context: 'generation'
       });
       
-      return response.content || response.message || `Creating your "${conceptName}" photos with my complete styling expertise! ✨`;
+      return response.content || response.message || `Working on your "${conceptName}" concept now! ✨`;
     } catch (error) {
       console.error('Failed to get Maya generation guidance:', error);
-      return `Creating your "${conceptName}" photos with my complete styling expertise! ✨`;
+      return `Working on your "${conceptName}" concept now! ✨`;
     }
   };
 
@@ -397,12 +397,12 @@ function Maya() {
       });
       
       return {
-        message: response.content || response.message || `Here are your "${conceptName}" photos! These turned out absolutely incredible! ✨`
+        message: response.content || response.message || `Your "${conceptName}" photos are ready! ✨`
       };
     } catch (error) {
       console.error('Failed to get Maya completion guidance:', error);
       return {
-        message: `Here are your "${conceptName}" photos! These turned out absolutely incredible! ✨`
+        message: `Your "${conceptName}" photos are ready! ✨`
       };
     }
   };
@@ -1794,7 +1794,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                       {message.role === 'maya' && message.canGenerate && activeGenerations.has(message.generationId || '') && (
                         <div className="generation-loading">
                           <div className="loading-spinner"></div>
-                          <span>Your photoshoot is being created...</span>
+                          <span>Working on your photos...</span>
                         </div>
                       )}
 
@@ -1880,7 +1880,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                             onClick={() => generateImages(message.generatedPrompt!)}
                             disabled={isGenerating || isGeneratingImage}
                           >
-                            {(isGenerating || isGeneratingImage) ? 'Creating your photos...' : 'Create Photos'}
+                            {(isGenerating || isGeneratingImage) ? 'Generating...' : 'Create Photos'}
                           </button>
                         </div>
                       )}
@@ -1899,7 +1899,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                       <div className="typing-dot"></div>
                       <div className="typing-dot"></div>
                     </div>
-                    <div className="typing-text">Maya is styling your look...</div>
+                    <div className="typing-text">Maya is thinking...</div>
                   </div>
                 )}
                 <div ref={messagesEndRef} />
