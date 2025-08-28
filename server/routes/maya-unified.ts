@@ -653,13 +653,13 @@ You are Maya's prompt generation system. Create a concise, professional photogra
 
 CRITICAL REQUIREMENTS:
 1. ALWAYS start with "${triggerWord}" as the very first word
-2. Keep the prompt under 150 words - concise but detailed
-3. Include only essential styling details: clothing, pose, lighting
-4. Use professional photography terminology
+2. Create a comprehensive, detailed prompt (300-500 words) showcasing your complete styling expertise
+3. Include ALL styling details: specific garments, colors, textures, hair, makeup, accessories, pose, lighting, setting, mood
+4. Use your professional fashion and photography knowledge extensively
 5. Return ONLY the prompt - no chat text, no explanations, no context
 
 EXAMPLE FORMAT:
-"${triggerWord} wearing a tailored navy blazer, confident smile, sitting at modern desk, professional lighting, 85mm lens, business portrait style"
+"${triggerWord} wearing an impeccably tailored charcoal grey blazer with subtle peak lapels, crisp white cotton poplin shirt with French cuffs, high-waisted wool trousers in matching charcoal with a perfectly pressed crease, delicate gold layered necklaces including a thin chain and geometric pendant, hair styled in a sleek low chignon with face-framing pieces, sophisticated makeup featuring a flawless base with subtle contouring, defined brows, neutral eyeshadow in warm taupes, precise black eyeliner, and a nude-pink lip with slight gloss, sitting confidently at a modern marble desk with brass details, one hand resting on the surface, direct eye contact with the camera, professional studio lighting with key light at 45 degrees creating subtle shadows, rim lighting to separate from background, shot with 85mm lens for natural facial proportions, modern office environment with floor-to-ceiling windows, contemporary furniture, and clean architectural lines"
 
 FORBIDDEN:
 - Do not include long descriptions or storytelling
@@ -678,12 +678,12 @@ Create a concise prompt for: "${conceptName}"`;
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 200, // Reduced to force concise prompts
+        max_tokens: 800, // Expanded to allow Maya's full styling intelligence
         system: mayaPromptPersonality,
         messages: [
           {
             role: 'user',
-            content: `Create a concise photography prompt for: "${conceptName}". Must start with "${triggerWord}" and be under 150 words.`
+            content: `Create a comprehensive, detailed photography prompt for: "${conceptName}". Must start with "${triggerWord}" and showcase your complete styling and photography expertise in 300-500 words.`
           }
         ]
       })
@@ -708,9 +708,10 @@ Create a concise prompt for: "${conceptName}"`;
       generatedPrompt = `${triggerWord} ${cleanPrompt}`;
     }
     
-    // Ensure prompt length is reasonable (under 200 characters for optimal Replicate performance)
-    if (generatedPrompt.length > 200) {
-      const essentialParts = generatedPrompt.split(',').slice(0, 4).join(','); // Take first 4 parts
+    // Allow comprehensive prompts - Maya's styling intelligence needs space to work
+    // Only trim if extremely long (over 1000 characters) to prevent API issues
+    if (generatedPrompt.length > 1000) {
+      const essentialParts = generatedPrompt.split(',').slice(0, 15).join(','); // Take more parts for detail
       generatedPrompt = essentialParts.endsWith(',') ? essentialParts.slice(0, -1) : essentialParts;
     }
     
