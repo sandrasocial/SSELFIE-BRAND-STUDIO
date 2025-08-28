@@ -10,6 +10,9 @@ import { SandraImages } from '../lib/sandra-images';
 import { EditorialImageBreak } from '../components/editorial-image-break';
 import { MemberNavigation } from '../components/member-navigation';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { useMayaChat } from '../hooks/useMayaChat';
+import { useMayaGeneration } from '../hooks/useMayaGeneration';
+import { useMayaOnboarding } from '../hooks/useMayaOnboarding';
 import '../maya-onboarding.css';
 
 interface ChatMessage {
@@ -51,38 +54,60 @@ function Maya() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Core chat state
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // Custom hooks for organized state management
+  const {
+    messages,
+    setMessages,
+    isTyping,
+    setIsTyping,
+    currentChatId,
+    setCurrentChatId,
+    sendMessage: sendChatMessage,
+    loadChatHistory
+  } = useMayaChat();
+
+  const {
+    isGeneratingImage,
+    setIsGeneratingImage,
+    isGenerating,
+    setIsGenerating,
+    generationProgress,
+    setGenerationProgress,
+    savingImages,
+    setSavingImages,
+    savedImages,
+    setSavedImages,
+    clickedButtons,
+    setClickedButtons,
+    activeGenerations,
+    setActiveGenerations,
+    preset,
+    setPreset,
+    seed,
+    setSeed,
+    generateFromConcept,
+    generateImages,
+    saveToGallery
+  } = useMayaGeneration();
+
+  const {
+    onboardingStatus,
+    setOnboardingStatus,
+    isOnboardingMode,
+    setIsOnboardingMode,
+    isQuickStartMode,
+    setIsQuickStartMode,
+    showWelcome,
+    setShowWelcome,
+    checkOnboardingStatus,
+    initializeOnboarding,
+    handleWelcomeChoice
+  } = useMayaOnboarding();
+
+  // Remaining local UI state
   const [input, setInput] = useState('');
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const [currentChatId, setCurrentChatId] = useState<number | null>(null);
-
-  // Onboarding state
-  const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus | null>(null);
-  const [isOnboardingMode, setIsOnboardingMode] = useState(false);
-  const [isQuickStartMode, setIsQuickStartMode] = useState(false);
-
-  // UI state
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationProgress, setGenerationProgress] = useState(0);
-  const [savingImages, setSavingImages] = useState(new Set<string>());
-  const [savedImages, setSavedImages] = useState(new Set<string>());
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  // Smart button management - track clicked generation buttons per message
-  const [clickedButtons, setClickedButtons] = useState(new Map<number, Set<string>>());
-  
-  // Multiple generation tracking - track active generations by ID
-  const [activeGenerations, setActiveGenerations] = useState(new Set<string>());
-  
-  // Generation controls
-  const [preset, setPreset] = useState<Preset>('Editorial');
-  const [seed, setSeed] = useState<string>(''); // empty = random
-
-  // Welcome page state
-  const [showWelcome, setShowWelcome] = useState(false);
 
   // Check onboarding status on load
   useEffect(() => {
@@ -118,71 +143,7 @@ function Maya() {
     }
   }, [isAuthenticated, authLoading, setLocation]);
 
-  const checkOnboardingStatus = async () => {
-    try {
-      console.log('🔍 Maya: Checking onboarding status, auth state:', { isAuthenticated, authLoading });
-      const response = await apiRequest('/api/maya/status');
-      console.log('✅ Maya: Unified status received:', response);
-      if (response?.success) {
-        const status = {
-          isCompleted: response.onboardingComplete,
-          currentStep: 1, // Will be updated from chat history
-          progress: response.onboardingComplete ? 100 : 0,
-          hasStarted: true
-        };
-        setOnboardingStatus(status);
-        
-        // If not completed, show welcome page first
-        if (!response.onboardingComplete) {
-          setShowWelcome(true);
-        } else {
-          // Load regular Maya with personal brand context
-          setIsOnboardingMode(false);
-        }
-      }
-    } catch (error) {
-      // If onboarding endpoint doesn't exist, proceed with regular Maya
-      console.log('❌ Maya: Onboarding status error:', error);
-      console.log('Onboarding system not available, proceeding with regular Maya');
-      setIsOnboardingMode(false);
-    }
-  };
 
-  const initializeOnboarding = () => {
-    const welcomeMessage: ChatMessage = {
-      role: 'maya',
-      content: "Hey gorgeous! I'm Maya - Sandra's AI bestie with all her styling secrets from fashion week to building her empire. Before we create amazing photos together, I want to get to know YOU - your story, your dreams, your transformation journey. This is about discovering your personal brand and seeing your powerful future self. Ready to begin?",
-      timestamp: new Date().toISOString(),
-      questions: ["What brought you here today?", "What's your biggest challenge when it comes to feeling confident?"],
-      quickButtons: ["Starting over", "Building my brand", "Need confidence", "Feeling stuck"],
-      stepGuidance: "Let's start by getting to know your transformation story",
-      isOnboarding: true
-    };
-    setMessages([welcomeMessage]);
-  };
-
-  const handleWelcomeChoice = (choice: 'customize' | 'quickstart') => {
-    setShowWelcome(false);
-    
-    if (choice === 'customize') {
-      // Start onboarding flow
-      setIsOnboardingMode(true);
-      setIsQuickStartMode(false);
-      initializeOnboarding();
-    } else {
-      // Quick start - go straight to image generation chat
-      setIsOnboardingMode(false);
-      setIsQuickStartMode(true);
-      const quickStartMessage: ChatMessage = {
-        role: 'maya',
-        content: "Perfect! I love your confidence - let's create some stunning brand photos right now! I'll style you based on my expertise from fashion week and magazine shoots. Tell me what kind of photos you need today and I'll create the perfect look for you.",
-        timestamp: new Date().toISOString(),
-        quickButtons: ["Business photos", "Lifestyle photos", "Story photos", "Instagram photos", "Travel photos", "Outfit photos", "GRWM photos", "Future self photos", "B&W photos", "Studio photoshoot"],
-        canGenerate: true
-      };
-      setMessages([quickStartMessage]);
-    }
-  };
 
   // Chat history component
   const ChatHistoryLinks = ({ onChatSelect }: { onChatSelect: (chatId: number) => void }) => {
@@ -234,21 +195,7 @@ function Maya() {
     );
   };
 
-  const loadChatHistory = async (chatId: number) => {
-    try {
-      const response = await apiRequest(`/api/maya-chats/${chatId}/messages`);
-      if (response && Array.isArray(response)) {
-        setMessages(response);
-        setCurrentChatId(chatId);
-      }
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load chat history"
-      });
-    }
-  };
+
 
   const startNewSession = () => {
     if (isOnboardingMode) return; // Can't start new session during onboarding
@@ -260,74 +207,7 @@ function Maya() {
   };
 
   const sendMessage = async (messageContent?: string) => {
-    const messageToSend = messageContent || input.trim();
-    if (!messageToSend || isTyping) return;
-
-    // Add user message to UI
-    const userMessage: ChatMessage = {
-      role: 'user',
-      content: messageToSend,
-      timestamp: new Date().toISOString(),
-    };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsTyping(true);
-
-    try {
-      // SINGLE MAYA ENDPOINT for all interactions
-      const context = isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'regular';
-      const response = await apiRequest('/api/maya/chat', 'POST', {
-        message: messageToSend,
-        context: context,
-        chatId: currentChatId
-      });
-
-      // Handle unified response
-      const mayaMessage: ChatMessage = {
-        role: 'maya',
-        content: response.message,
-        timestamp: new Date().toISOString(),
-        canGenerate: response.canGenerate,
-        generatedPrompt: response.generatedPrompt,
-        quickButtons: response.quickButtons
-      };
-
-      setMessages(prev => [...prev, mayaMessage]);
-
-      // Update UI state based on response
-      if (response.mode === 'onboarding' && response.onboardingProgress) {
-        setOnboardingStatus(response.onboardingProgress);
-        
-        // Check if onboarding is complete
-        if (response.onboardingProgress.isComplete) {
-          setTimeout(() => {
-            setIsOnboardingMode(false);
-            setOnboardingStatus(prev => ({ ...prev!, isCompleted: true }));
-          }, 2000);
-        }
-      }
-
-      if (response.chatId && !currentChatId) {
-        setCurrentChatId(response.chatId);
-        window.history.replaceState({}, '', `/maya?chat=${response.chatId}`);
-      }
-
-      // Invalidate chat list to refresh with new/updated chat
-      queryClient.invalidateQueries({ queryKey: ['/api/maya-chats'] });
-
-    } catch (error: any) {
-      console.error('Maya chat error:', error);
-      
-      const errorMessage: ChatMessage = {
-        role: 'maya',
-        content: "I'm having a little trouble connecting right now, but I'm still here with you! Could you try sharing that again? I'm so excited to help you on your journey.",
-        timestamp: new Date().toISOString(),
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsTyping(false);
-    }
+    await sendChatMessage(messageContent || '', input, setInput, isOnboardingMode, isQuickStartMode, setOnboardingStatus, setIsOnboardingMode);
   };
 
   const handleQuickButton = (buttonText: string, messageIndex?: number) => {
@@ -366,239 +246,18 @@ function Maya() {
       });
       
       // Generate images for this concept
-      generateFromConcept(buttonText);
+      generateFromConcept(buttonText, setMessages, currentChatId);
     } else {
       // Regular chat message
       sendMessage(buttonText);
     }
   };
   
-  const generateFromConcept = async (conceptName: string) => {
-    const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    if (activeGenerations.has(messageId)) return;
-    
-    console.log('Maya: Starting concept generation for:', conceptName, 'ID:', messageId);
-    
-    try {
-      // Create Maya message showing generation progress
-      const generatingMessage: ChatMessage = {
-        role: 'maya',
-        content: `Creating your "${conceptName}" photos right now! I'm applying all my styling expertise to make these absolutely stunning. You're going to love the results! ✨`,
-        timestamp: new Date().toISOString(),
-        canGenerate: true,
-        generationId: messageId
-      };
-      
-      setMessages(prev => [...prev, generatingMessage]);
-      
-      // FIXED: Use Maya's dedicated concept generation approach
-      // Clean up concept name (remove emojis and extra text) before sending to backend
-      const cleanConceptName = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
-      let finalPrompt = `Create a professional photo concept: ${cleanConceptName}`;
-      // The concept prompt will be processed by Maya's AI prompt generation in the backend
 
-      console.log('Maya: Starting concept generation for:', finalPrompt);
 
-      // Start image generation with concept prompt - Maya will handle the detailed prompt generation
-      await generateImages(finalPrompt, messageId, conceptName);
-      
-    } catch (error) {
-      console.error('Maya concept generation error:', error);
-      
-      // Show friendly error message
-      const errorMessage: ChatMessage = {
-        role: 'maya',
-        content: `I had a little hiccup creating those "${conceptName}" photos, but I'm not giving up! Let me try a different approach. What specific style elements are you most excited about for this look?`,
-        timestamp: new Date().toISOString(),
-        quickButtons: ["More luxury details", "Different lighting", "Try another concept", "Tell me the issue"]
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-    }
-  };
 
-const generateImages = async (prompt: string, generationId?: string, conceptName?: string) => {
-  if (!generationId || activeGenerations.has(generationId)) {
-    console.log('Generation blocked - missing ID or already active:', generationId);
-    return;
-  }
-  
-  console.log('Starting Maya generation:', { prompt, generationId, preset, seed });
-  
-  setActiveGenerations(prev => new Set([...prev, generationId]));
-  
-  try {
-    // Call Maya's intelligent generation system
-    const response = await apiRequest('/api/maya/generate', 'POST', {
-      prompt,
-      chatId: currentChatId,
-      preset,
-      seed: seed ? Number(seed) : undefined,
-      count: 2 // Maya will intelligently adjust based on shot type
-    });
-    
-    console.log('Maya generation response:', response);
-    
-    if (response.predictionId) {  // Remove the success check since API only returns predictionId
-      console.log('Maya generation started successfully:', response.predictionId);
-      
-      // Poll for Maya's generation completion
-      const pollForImages = async () => {
-        try {
-          const statusResponse = await fetch(`/api/check-generation/${response.predictionId}?chatId=${currentChatId}&messageId=${generationId}`, { 
-            credentials: 'include' 
-          }).then(res => res.json());
-          
-          console.log('Maya polling status:', statusResponse.status, 'Images:', statusResponse.imageUrls?.length || 0);
-          
-          if (statusResponse.status === 'completed' && statusResponse.imageUrls && statusResponse.imageUrls.length > 0) {
-            console.log('Maya generation complete! Updating message with images');
-            
-            // Update the specific Maya message with generated images
-            setMessages(prev => prev.map(msg => 
-              msg.generationId === generationId 
-                ? { 
-                    ...msg, 
-                    imagePreview: statusResponse.imageUrls, 
-                    canGenerate: false,
-                    content: msg.content + `\n\nHere are your styled photos! These turned out absolutely incredible! ✨\n\nReady for more? Let me create different vibes for you:`
-                  }
-                : msg
-            ));
-            
-            // Add Maya's follow-up suggestions immediately for better flow
-            setTimeout(() => {
-              const followUpMessage: ChatMessage = {
-                role: 'maya',
-                content: "Which style should we create next? I have so many more gorgeous concepts for you! 💫",
-                timestamp: new Date().toISOString(),
-                quickButtons: [
-                  "✨ Different lighting mood", 
-                  "🎬 New style category", 
-                  "💎 Elevated version", 
-                  "🌟 Surprise me Maya!",
-                  "Show all categories"
-                ]
-              };
-              setMessages(prev => [...prev, followUpMessage]);
-            }, 500);
-            
-            // Remove from active generations
-            setActiveGenerations(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(generationId);
-              return newSet;
-            });
-            
-          } else if (statusResponse.status === 'failed') {
-            console.error('Maya generation failed:', statusResponse.error);
-            
-            // Update message with Maya's friendly error guidance
-            setMessages(prev => prev.map(msg => 
-              msg.generationId === generationId 
-                ? { 
-                    ...msg, 
-                    content: msg.content + '\n\nOh no! I had a little hiccup creating those photos. Let me try a different approach - tell me specifically what style you\'re going for and I\'ll make sure we get the perfect shot this time! What\'s the vibe you want?',
-                    canGenerate: false,
-                    quickButtons: ["Professional headshot", "Editorial style", "Casual lifestyle", "Tell me more about the issue"]
-                  }
-                : msg
-            ));
-            
-            setActiveGenerations(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(generationId);
-              return newSet;
-            });
-            
-          } else {
-            // Still processing - continue polling with faster 1-second intervals
-            console.log('Maya still generating, polling again in 1 second...');
-            setTimeout(pollForImages, 1000);
-          }
-        } catch (pollError) {
-          console.error('Maya polling error:', pollError);
-          setActiveGenerations(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(generationId);
-            return newSet;
-          });
-          
-          // Add Maya's helpful polling error message
-          const errorMessage: ChatMessage = {
-            role: 'maya',
-            content: "I'm having trouble checking on your photos right now, but don't worry! Let me create something fresh for you instead. What kind of photos would you love to see?",
-            timestamp: new Date().toISOString(),
-            quickButtons: ["Professional headshot", "Creative lifestyle", "Business portrait", "Try a different concept"]
-          };
-          
-          setMessages(prev => [...prev, errorMessage]);
-        }
-      };
-      
-      // Start polling immediately for better user experience
-      setTimeout(pollForImages, 500);
-      
-    } else {
-      console.error('Maya generation failed to start:', response);
-      setActiveGenerations(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(generationId);
-        return newSet;
-      });
-    }
-    
-  } catch (error) {
-    console.error('Maya generation error:', error);
-    setActiveGenerations(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(generationId);
-      return newSet;
-    });
-    
-    // Show Maya's personality-driven error guidance
-    const errorMessage: ChatMessage = {
-      role: 'maya',
-      content: "Oh no! I had a little hiccup creating those photos. Let me try a different approach - tell me specifically what style you're going for and I'll make sure we get the perfect shot this time! What's the vibe you want?",
-      timestamp: new Date().toISOString(),
-      quickButtons: ["Professional headshot", "Editorial style", "Casual lifestyle", "Tell me more about the issue"]
-    };
-    
-    setMessages(prev => [...prev, errorMessage]);
-  }
-};
 
-  const saveToGallery = async (imageUrl: string) => {
-    if (savingImages.has(imageUrl) || savedImages.has(imageUrl)) return;
 
-    setSavingImages(prev => new Set(prev).add(imageUrl));
-
-    try {
-      await apiRequest('/api/save-image', 'POST', {
-        imageUrl,
-        source: 'maya-chat'
-      });
-
-      setSavedImages(prev => new Set(prev).add(imageUrl));
-      toast({
-        title: "Saved!",
-        description: "Image added to your gallery"
-      });
-    } catch (error) {
-      console.error('Save error:', error);
-      toast({
-        title: "Oops!",
-        description: "I couldn't save that photo to your gallery right now. Let me try again!"
-      });
-    } finally {
-      setSavingImages(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(imageUrl);
-        return newSet;
-      });
-    }
-  };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1576,7 +1235,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
 
                   {/* Editorial Image Cards */}
                   <div className="path-selection-grid">
-                    <div className="editorial-card customize-card" onClick={() => handleWelcomeChoice('customize')}>
+                    <div className="editorial-card customize-card" onClick={() => handleWelcomeChoice('customize', setMessages)}>
                       <div className="card-image">
                         <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756240155921.png" alt="Personal Brand Discovery" />
                         <div className="card-overlay">
@@ -1594,7 +1253,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                       </div>
                     </div>
 
-                    <div className="editorial-card quickstart-card" onClick={() => handleWelcomeChoice('quickstart')}>
+                    <div className="editorial-card quickstart-card" onClick={() => handleWelcomeChoice('quickstart', setMessages)}>
                       <div className="card-image">
                         <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756128420487.png" alt="Instant Brand Photos" />
                         <div className="card-overlay">
@@ -1791,7 +1450,10 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                       {message.canGenerate && message.generatedPrompt && (
                         <div className="generate-btn">
                           <button
-                            onClick={() => generateImages(message.generatedPrompt!)}
+                            onClick={() => {
+                              const generationId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                              generateImages(message.generatedPrompt!, generationId, undefined, setMessages, currentChatId);
+                            }}
                             disabled={isGenerating || isGeneratingImage}
                           >
                             {(isGenerating || isGeneratingImage) ? 'Creating your photos...' : 'Create Photos'}

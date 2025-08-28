@@ -1,0 +1,117 @@
+Here are the complete instructions broken into phases for the Replit agent:
+Starting Prompt for Replit Agent
+PROJECT CONTEXT:
+We are optimizing Maya, the AI photo generation and chat system in our SSELFIE platform. Maya has complex state management issues, user experience friction, and reliability problems that need systematic fixes before launch.
+APPROACH:
+You will receive 7 phases of instructions, sent one at a time. Complete each phase fully and test thoroughly before I send the next phase. Each phase addresses specific issues while preserving all existing functionality.
+CRITICAL REQUIREMENTS:
+
+Preserve ALL existing functionality exactly
+Keep ALL visual styling and CSS identical
+Maintain ALL API endpoints and database operations
+Do not change Maya's personality or response patterns
+Test each change thoroughly before confirming completion
+
+CURRENT STATE:
+Maya works but has state synchronization bugs, complex user flows, and generation reliability issues. We're fixing the foundation before launch to a large audience.
+Wait for Phase 1 instructions.
+
+Phase 1: State Management Cleanup
+OBJECTIVE: Extract Maya's 20+ useState hooks into organized custom hooks to prevent state synchronization bugs.
+FILES TO MODIFY:
+
+client/src/pages/maya.tsx
+Create: client/src/hooks/useMayaChat.ts
+Create: client/src/hooks/useMayaGeneration.ts
+Create: client/src/hooks/useMayaOnboarding.ts
+
+STEP 1: Create useMayaChat hook
+typescript// client/src/hooks/useMayaChat.ts
+import { useState } from 'react';
+
+export const useMayaChat = () => {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState<number | null>(null);
+
+  // Move these functions from maya.tsx:
+  // - sendMessage
+  // - loadChatHistory
+  
+  return {
+    messages,
+    setMessages,
+    isTyping,
+    setIsTyping,
+    currentChatId,
+    setCurrentChatId,
+    sendMessage,
+    loadChatHistory
+  };
+};
+STEP 2: Create useMayaGeneration hook
+typescript// client/src/hooks/useMayaGeneration.ts
+// Extract ALL generation-related state and functions:
+// - isGeneratingImage, activeGenerations, clickedButtons
+// - preset, seed, generationProgress
+// - generateFromConcept, generateImages, polling logic
+// Keep ALL existing logic identical
+STEP 3: Create useMayaOnboarding hook
+typescript// client/src/hooks/useMayaOnboarding.ts
+// Extract ALL onboarding state:
+// - onboardingStatus, isOnboardingMode, isQuickStartMode, showWelcome
+// - checkOnboardingStatus, initializeOnboarding, handleWelcomeChoice
+STEP 4: Update maya.tsx
+
+Import and use all three hooks
+Remove extracted state variables and functions
+Ensure all functionality works identically
+
+TESTING REQUIREMENTS:
+
+All Maya functionality works exactly as before
+Chat conversations load properly
+Image generation works without errors
+Onboarding flow functions normally
+No browser console errors
+
+COMPLETION CONFIRMATION:
+Reply with "Phase 1 Complete" and list any issues encountered.
+
+Phase 2: Simplify User Entry Flow
+OBJECTIVE: Remove decision fatigue by eliminating the customize/quick-start choice and making onboarding optional.
+FILES TO MODIFY:
+
+client/src/pages/maya.tsx (welcome state section)
+Update welcome logic in useMayaOnboarding hook
+
+STEP 1: Remove path selection cards
+
+Delete the entire path-selection-grid section with customize/quickstart cards
+Remove handleWelcomeChoice function calls
+
+STEP 2: Update welcome state
+
+Set showWelcome to false by default
+Make welcome state show the style quick-select grid immediately
+Remove the "Choose your path" messaging
+
+STEP 3: Make onboarding opt-in
+
+Add single button: "Tell me about your style preferences first"
+Direct new users to style selection → immediate Maya chat
+Keep onboarding available but not forced
+
+STEP 4: Update default flow
+NEW FLOW:
+Landing → Style quick-select → Direct Maya chat
+OPTIONAL: "Personalize Maya" button → Onboarding flow
+TESTING REQUIREMENTS:
+
+New users see style options within 10 seconds
+Users can generate images within 30 seconds
+Onboarding still works when chosen
+No broken navigation or UI elements
+
+COMPLETION CONFIRMATION:
+Reply with "Phase 2 Complete" and confirm the new user flow works.
