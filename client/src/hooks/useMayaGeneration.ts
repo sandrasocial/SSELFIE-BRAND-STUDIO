@@ -2,6 +2,24 @@ import { useState, useEffect } from 'react';
 import { useToast } from './use-toast';
 import { apiRequest } from '../lib/queryClient';
 
+// PHASE 7: Frontend Performance Tracking (shared with chat hook)
+const trackUserEvent = (event: string, data: any = {}) => {
+  console.log(`USER_EVENT_${event}`, {
+    ...data,
+    timestamp: Date.now(),
+    url: window.location.pathname
+  });
+};
+
+const trackInteractionTiming = (event: string, startTime: number, success: boolean) => {
+  console.log(`USER_INTERACTION_TIMING`, {
+    event,
+    duration: Date.now() - startTime,
+    success,
+    timestamp: Date.now()
+  });
+};
+
 interface ChatMessage {
   id?: number;
   role: 'user' | 'maya';
@@ -45,10 +63,26 @@ export const useMayaGeneration = () => {
     currentChatId: number | null
   ) => {
     const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const generationStartTime = Date.now(); // PHASE 7: Track generation performance
+    
+    // PHASE 7: Track concept generation start
+    trackUserEvent('CONCEPT_GENERATION_START', {
+      conceptName,
+      messageId,
+      currentChatId,
+      activeGenerations: activeGenerations.size
+    });
     
     // Check generation queue - prevent multiple concurrent generations
     if (activeGenerations.size > 0) {
       console.log('Maya: Queueing generation, active generation in progress');
+      
+      // PHASE 7: Track generation queue event
+      trackUserEvent('GENERATION_QUEUED', {
+        conceptName,
+        activeGenerations: activeGenerations.size
+      });
+      
       const queueMessage: ChatMessage = {
         role: 'maya',
         content: `I'm still working on your previous photos! Let me finish those first, then I'll create these "${conceptName}" photos next. Quality over speed - I want each set to be absolutely perfect! ✨`,
