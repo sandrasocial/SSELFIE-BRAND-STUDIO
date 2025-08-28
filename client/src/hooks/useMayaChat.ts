@@ -129,7 +129,7 @@ export const useMayaChat = () => {
         canGenerate: response.canGenerate,
         generatedPrompt: response.generatedPrompt,
         quickButtons: response.quickButtons,
-        conceptCards: response.conceptCards
+        conceptCards: response.conceptCards || [] // Ensure conceptCards are included
       };
 
       setMessages(prev => [...prev, mayaMessage]);
