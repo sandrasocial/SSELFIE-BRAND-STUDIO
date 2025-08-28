@@ -173,40 +173,64 @@ export const MAYA_PERSONALITY = {
 
   // SSELFIE STUDIO CATEGORIES - Simple starter options
   sselfieCategories: {
-    "Future CEO": {
-      description: "Powerful, professional, ready to run the world",
-      vibe: "Boardroom confidence meets approachable leadership",
-      styling: "Tailored pieces, structured silhouettes, investment accessories"
+    "Business Photos": {
+      description: "Professional, authoritative, business credibility",
+      vibe: "Executive presence with approachable confidence",
+      styling: "Tailored blazers, sophisticated silhouettes, premium business attire"
     },
 
-    "Off-Duty Model": {
-      description: "Effortlessly stunning, casual but elevated", 
-      vibe: "That 'I just threw this on' look that's actually perfect",
-      styling: "Comfortable luxury, perfect basics, minimal effort maximum impact"
+    "Lifestyle Photos": {
+      description: "Authentic, relatable, everyday elegance", 
+      vibe: "Effortlessly put-together in beautiful settings",
+      styling: "Elevated casual wear, comfortable luxury, natural sophistication"
     },
 
-    "Social Queen": {
-      description: "Instagram-ready, social media perfection",
+    "Story Photos": {
+      description: "Personal narrative, behind-the-scenes authenticity",
+      vibe: "Genuine moments that tell your brand story",
+      styling: "Relaxed but polished, candid elegance, storytelling fashion"
+    },
+
+    "Instagram Photos": {
+      description: "Social media perfection, engagement-ready content",
       vibe: "Content creator meets lifestyle influencer energy",
-      styling: "Trendy pieces, photo-optimized colors, shareable moments"
+      styling: "Trendy pieces, photo-optimized colors, shareable fashion moments"
     },
 
-    "Date Night Goddess": {
-      description: "Romantic, magnetic, unforgettable",
-      vibe: "Confident femininity that stops conversations",
-      styling: "Figure-flattering silhouettes, rich textures, statement details"
+    "Travel Photos": {
+      description: "Adventure meets sophistication, destination styling",
+      vibe: "Jet-set lifestyle with effortless travel chic",
+      styling: "Versatile pieces, travel-friendly luxury, destination-appropriate elegance"
     },
 
-    "Everyday Icon": {
-      description: "Polished daily life, elevated routine moments",
-      vibe: "Making grocery runs look like fashion shoots",
-      styling: "Elevated basics, comfortable luxury, effortless sophistication"
+    "Outfit Photos": {
+      description: "Fashion-forward styling, outfit inspiration content",
+      vibe: "Style influencer showcasing curated looks",
+      styling: "Statement pieces, trend-focused styling, fashion-forward combinations"
     },
 
-    "Power Player": {
-      description: "Authority, influence, making things happen",
-      vibe: "The woman everyone wants to know and work with",
-      styling: "Strong silhouettes, luxury details, commanding presence"
+    "GRWM Photos": {
+      description: "Get Ready With Me, transformation and process",
+      vibe: "Behind-the-scenes beauty and style preparation",
+      styling: "Beauty focus, styling process, transformation moments"
+    },
+
+    "Future Self Photos": {
+      description: "Aspirational imagery, vision board material",
+      vibe: "The elevated version of yourself you're becoming",
+      styling: "Aspirational luxury, goal-oriented styling, future vision fashion"
+    },
+
+    "B&W Photos": {
+      description: "Timeless, classic, editorial sophistication",
+      vibe: "Artistic elegance with timeless appeal",
+      styling: "Classic silhouettes, textural interest, dramatic lighting focus"
+    },
+
+    "Studio Photoshoot": {
+      description: "Professional studio session, controlled environment perfection",
+      vibe: "High-end editorial with professional lighting and backdrop",
+      styling: "Statement pieces, editorial fashion, studio-optimized styling"
     }
   },
 
