@@ -473,17 +473,23 @@ You're interacting with a paying subscriber (€47/month). Focus on their person
   // Context-specific enhancements using Maya's personality
   switch (context) {
     case 'onboarding':
-      enhancement += `\n\n📋 ONBOARDING MODE:
-You're guiding this user through personal brand discovery. Use your styling expertise to help them understand their style preferences and photo needs.
+      enhancement += `\n\n💫 CONVERSATIONAL DISCOVERY MODE:
+You're having a natural conversation to understand their personal brand journey. NO structured steps, forms, or progress indicators needed.
 
-ONBOARDING CATEGORIES (use these exact names):
-1. "Professional Headshots" - LinkedIn and business credibility
-2. "Social Media Photos" - Instagram, TikTok, and daily content  
-3. "Website Photos" - Homepage and brand storytelling
-4. "Email & Marketing Photos" - Newsletters and personal connection
-5. "Premium Brand Photos" - High-end collaborations and partnerships
+APPROACH:
+- Ask about their transformation journey in warm conversation
+- Extract business context naturally from their responses
+- Learn style preferences through genuine interest and dialogue
+- Let them skip between topics freely based on their interest
+- Save partial information gracefully without requiring completion
 
-Focus on understanding their business needs and connecting photos to practical applications.`;
+WHAT TO GATHER NATURALLY:
+- Their story: Where they're coming from, what's changing in their life
+- Their goals: Business dreams, personal transformation, confidence building  
+- Their style: What makes them feel powerful, colors they love, lifestyle they're building
+- Their vision: The future version of themselves they're creating
+
+Focus on making them feel heard and understood first, information gathering second.`;
       break;
       
     case 'generation':
@@ -609,24 +615,18 @@ async function processMayaResponse(response: string, context: string, userId: st
     }
   }
 
-  // Handle onboarding progression
+  // Handle conversational onboarding (no forced steps)
   if (context === 'onboarding') {
-    // Detect if onboarding should complete
-    if (response.toLowerCase().includes('complete') || response.toLowerCase().includes('ready to create')) {
+    // Natural completion detection - Maya decides when discovery is sufficient
+    if (response.toLowerCase().includes('ready to create') || 
+        response.toLowerCase().includes('let\'s create') ||
+        response.toLowerCase().includes('start generating')) {
       processed.onboardingProgress = {
         isComplete: true,
-        currentStep: 6
+        naturalTransition: true
       };
-      // Only use fallback if Maya didn't provide her own quick actions
-      if (processed.quickButtons.length === 0) {
-        processed.quickButtons = ["Tell me more", "I'm ready", "What's next?"];
-      }
-    } else {
-      // Only use templated buttons if Maya didn't generate her own
-      if (processed.quickButtons.length === 0) {
-        processed.quickButtons = getContextualQuickButtons(context, userContext.onboarding.currentStep);
-      }
     }
+    // No forced step progression - let conversation flow naturally
   }
   
   // Set chat category based on content
@@ -656,6 +656,11 @@ function getContextualQuickButtons(context: string, step: number = 1): string[] 
 async function saveUnifiedConversation(userId: string, userMessage: string, mayaResponse: any, chatId: number | null, context: string, userType: string = 'member', conversationId: string = ''): Promise<number> {
   try {
     let currentChatId = chatId;
+    
+    // PHASE 4: Natural data extraction from conversation (no step validation)
+    if (context === 'onboarding') {
+      await extractAndSaveNaturalOnboardingData(userId, userMessage, mayaResponse.message);
+    }
     
     // Create new chat if needed
     if (!currentChatId) {
@@ -690,6 +695,89 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
     console.error('Error saving unified conversation:', error);
     // Return existing chatId or 0 as fallback
     return chatId || 0;
+  }
+}
+
+// PHASE 4: Natural onboarding data extraction without step validation
+async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: string, mayaResponse: string) {
+  try {
+    // Check if storage extensions exist for personal brand data
+    const { MayaStorageExtensions } = await import('../storage-maya-extensions');
+    
+    // Natural language processing to extract data from conversation
+    const extractedData: any = {};
+    let hasNewData = false;
+    
+    // Extract transformation story from various conversation patterns
+    const storyPatterns = [
+      /(?:story|journey|background|started|began|transformation|experience|path)[^.]*?([^.]{10,200})/gi,
+      /(?:i'm|i am|i was|i have been)[^.]*?([^.]{20,200})/gi,
+      /(?:from|since|after|when)[^.]*?([^.]{15,150})/gi
+    ];
+    
+    for (const pattern of storyPatterns) {
+      const matches = userMessage.match(pattern);
+      if (matches && !extractedData.transformationStory) {
+        extractedData.transformationStory = matches[0].trim();
+        hasNewData = true;
+        break;
+      }
+    }
+    
+    // Extract business context and goals naturally
+    const businessPatterns = [
+      /(?:business|company|work|entrepreneur|coaching|consulting|brand|marketing)[^.]*?([^.]{15,150})/gi,
+      /(?:goal|want|need|building|creating|launching|growing)[^.]*?([^.]{15,150})/gi
+    ];
+    
+    for (const pattern of businessPatterns) {
+      const matches = userMessage.match(pattern);
+      if (matches && !extractedData.businessGoals) {
+        extractedData.businessGoals = matches[0].trim();
+        hasNewData = true;
+        break;
+      }
+    }
+    
+    // Extract future vision and aspirations
+    const visionPatterns = [
+      /(?:future|vision|dream|hope|want to be|becoming|see myself)[^.]*?([^.]{15,150})/gi,
+      /(?:CEO|leader|confident|successful|powerful)[^.]*?([^.]{10,100})/gi
+    ];
+    
+    for (const pattern of visionPatterns) {
+      const matches = userMessage.match(pattern);
+      if (matches && !extractedData.futureVision) {
+        extractedData.futureVision = matches[0].trim();
+        hasNewData = true;
+        break;
+      }
+    }
+    
+    // Extract style preferences from conversation
+    const stylePatterns = [
+      /(?:style|fashion|look|outfit|color|prefer|love|like)[^.]*?([^.]{10,100})/gi,
+      /(?:professional|casual|elegant|edgy|classic|modern)[^.]*?([^.]{10,80})/gi
+    ];
+    
+    for (const pattern of stylePatterns) {
+      const matches = userMessage.match(pattern);
+      if (matches && !extractedData.stylePreferences) {
+        extractedData.stylePreferences = matches[0].trim();
+        hasNewData = true;
+        break;
+      }
+    }
+    
+    // Save naturally extracted data if any new information was found
+    if (hasNewData) {
+      await MayaStorageExtensions.saveUserPersonalBrand(userId, extractedData);
+      console.log(`💫 MAYA NATURAL ONBOARDING: Saved conversation data for user ${userId}:`, 
+        Object.keys(extractedData).join(', '));
+    }
+    
+  } catch (error) {
+    console.log('Natural onboarding data extraction failed, continuing gracefully:', error);
   }
 }
 
