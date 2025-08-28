@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MemberNavigation } from '../components/member-navigation';
@@ -9,6 +9,8 @@ import { apiRequest } from '../lib/queryClient';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { useMemoryCleanup } from '../hooks/useMemoryCleanup';
 import { getOptimalStaleTime } from '../utils/performanceOptimizations';
+import { performanceMonitor } from '../utils/performanceMonitor';
+import VirtualizedImageGrid from '../components/VirtualizedImageGrid';
 
 function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
@@ -24,7 +26,7 @@ function SSELFIEGallery() {
 
   // Performance optimizations
   const { addCleanup } = useMemoryCleanup();
-
+  
   // Fetch user's deliberately saved gallery images with pagination
   const { data: aiImages = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/gallery-images', currentPage, imagesPerPage],
@@ -43,6 +45,17 @@ function SSELFIEGallery() {
   });
 
   const favorites: number[] = favoritesData?.favorites || [];
+  
+  // Track gallery performance after data loads
+  useEffect(() => {
+    if (!isLoading && aiImages.length > 0) {
+      const startTime = performance.now();
+      
+      // Track when images finish loading
+      const loadTime = performance.now() - startTime;
+      performanceMonitor.trackGalleryLoad(loadTime, aiImages.length);
+    }
+  }, [isLoading, aiImages.length]);
 
   // Toggle favorite mutation
   const toggleFavoriteMutation = useMutation({

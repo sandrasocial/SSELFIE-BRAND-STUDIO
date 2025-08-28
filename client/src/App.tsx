@@ -7,6 +7,8 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { useAuth } from "./hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
+import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations";
+import { optimizeRuntime } from "./utils/webVitals";
 
 // Core pages (loaded immediately)
 import EditorialLanding from "./pages/editorial-landing";
@@ -401,6 +403,11 @@ function App() {
       }
       
       console.log('SSELFIE Studio: Domain access validated, app ready');
+      
+      // Phase 4: Runtime performance optimizations
+      optimizeImageLoading();
+      enableServiceWorkerCaching();
+      optimizeRuntime();
     } catch (error) {
       console.error('Error in App initialization:', error);
     }
