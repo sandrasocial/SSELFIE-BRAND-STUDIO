@@ -207,7 +207,7 @@ Use this context to provide personalized styling advice that aligns with their t
       userId,
       userType,
       context,
-      responseLength: typeof (processedResponse.message || processedResponse) === 'string' ? (processedResponse.message || processedResponse).length : 0,
+      responseLength: typeof processedResponse.message === 'string' ? processedResponse.message.length : 0,
       hasQuickButtons: !!processedResponse.quickButtons?.length,
       canGenerate: processedResponse.canGenerate || false,
       hasGeneration: !!processedResponse.generatedPrompt
@@ -532,7 +532,7 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
         pollDuration: Date.now() - startTime
       });
       
-      logMayaAPI('/check-generation', startTime, false, new Error(prediction.error || 'Generation failed'));
+      logMayaAPI('/check-generation', startTime, false, new Error(String(prediction.error || 'Generation failed')));
       
       res.json({ 
         status: 'failed', 
