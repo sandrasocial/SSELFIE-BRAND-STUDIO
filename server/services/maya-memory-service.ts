@@ -295,6 +295,8 @@ export class MayaMemoryService {
 
   /**
    * Extract insights from a single message
+   * NOTE: This analyzes USER INPUT for memory - not for image generation prompts
+   * Maya's AI intelligence handles all prompt generation through Claude API
    */
   private extractInsightsFromMessage(message: string): Partial<MayaPersonalInsights> {
     const lowerMessage = message.toLowerCase();

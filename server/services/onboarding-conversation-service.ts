@@ -492,6 +492,8 @@ Remember: You're helping her see herself as the confident, successful woman she'
 
   /**
    * Extract insights from user message based on current step
+   * NOTE: This analyzes USER INPUT only - not for image generation prompts
+   * Maya's AI intelligence handles all prompt generation through Claude API
    */
   private extractStepInsights(stepNumber: number, message: string): any {
     const insights: any = {};
