@@ -1,0 +1,53 @@
+PHASE 1: Route Consolidation and Database Migration
+PHASE 1: Critical Infrastructure Cleanup
+OBJECTIVE: Consolidate duplicate routes and complete database migration
+PRIORITY: High - Required for launch stability
+
+SPECIFIC TASKS:
+
+1. ROUTE CONSOLIDATION:
+   a) In App.tsx or main routing file:
+      - Ensure /ai-training redirects to /simple-training
+      - Ensure /gallery redirects to /sselfie-gallery  
+      - Ensure /studio redirects to /workspace
+      - Remove any duplicate route definitions
+
+   b) Test redirects work properly:
+      - Navigate to /ai-training → should redirect to /simple-training
+      - Navigate to /gallery → should redirect to /sselfie-gallery
+      - Navigate to /studio → should redirect to /workspace
+
+2. DATABASE MIGRATION (aiImages → generatedImages):
+   a) Verify generatedImages table has all required fields:
+      - userId, category, subcategory, prompt, imageUrls, selectedUrl, saved
+   
+   b) Create migration script to:
+      - Copy data from aiImages to generatedImages where missing
+      - Ensure no data loss during migration
+      - Keep aiImages table intact as backup
+
+   c) Update API endpoints to use generatedImages:
+      - /api/gallery-images should query generatedImages table
+      - /api/ai-images should query generatedImages table
+      - Maintain backwards compatibility
+
+3. TESTING REQUIREMENTS:
+   - Complete user journey test: Landing → Training → Maya → Gallery
+   - Verify gallery displays all user images correctly
+   - Confirm image saving from Maya chat works
+   - Test image deletion functionality
+   - Check mobile gallery functionality
+
+CONSTRAINTS:
+- Do not modify core Maya AI functionality
+- Do not change payment processing
+- Do not alter training system logic
+- Maintain all existing user data
+
+EXPECTED OUTCOME:
+- Clean route structure with proper redirects
+- Unified database schema using generatedImages
+- All existing functionality preserved
+- No user-facing changes or disruptions
+
+Complete Phase 1 fully and test before requesting Phase 2.
