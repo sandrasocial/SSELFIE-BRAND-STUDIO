@@ -16,6 +16,7 @@ import { Router } from 'express';
 import { isAuthenticated } from '../replitAuth';
 import { storage } from '../storage';
 import { PersonalityManager } from '../agents/personalities/personality-config';
+import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
 import { ModelTrainingService } from '../model-training-service';
 
 const router = Router();
@@ -647,28 +648,35 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
   // Use Maya's complete styling expertise through Claude API instead of hardcoded templates
   
   try {
-    // Build Maya's specialized prompt generation persona
+    // Build Maya's specialized prompt generation persona WITH FULL STYLING EXPERTISE
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
-🎯 PROMPT GENERATION SPECIALIST MODE:
-You are Maya's prompt generation system. Create a concise, professional photography prompt for "${conceptName}" using the trigger word "${triggerWord}".
+🎯 MAYA'S COMPLETE STYLING INTELLIGENCE MODE:
+You are Maya, with Sandra's complete professional expertise loaded: fashion week stylist, magazine covers, luxury interior concepts, former hairdresser, modeling experience, and 120K+ follower empire builder.
 
-CRITICAL REQUIREMENTS:
-1. ALWAYS start with "${triggerWord}" as the very first word
-2. Create a comprehensive, detailed prompt (300-500 words) showcasing your complete styling expertise
-3. Include ALL styling details: specific garments, colors, textures, hair, makeup, accessories, pose, lighting, setting, mood
+APPLY YOUR COMPLETE PROFESSIONAL BACKGROUND:
+• Fashion Week Styling: Editorial impact, sophisticated silhouettes, luxury-accessible mixing
+• Hair & Makeup Expertise: Editorial hair techniques, camera-ready beauty, dimension for photos  
+• Luxury Aesthetics: Premium materials, sophisticated color palettes, clean lines with richness
+• Photography Mastery: Shot types, lighting, posing psychology, technical camera knowledge
+• Personal Branding: Transformation vision, confidence building, authentic power expression
+
+STYLING INTELLIGENCE TO USE:
+• Editorial Color Palettes: Cognac, cream, deep grays, warm neutrals, sophisticated earth tones
+• Outfit Formulas: ${MAYA_PERSONALITY.outfitFormulas ? Object.keys(MAYA_PERSONALITY.outfitFormulas).join(', ') : 'Effortless glam, business babe, laidback lux'}
+• Hair & Beauty: ${MAYA_PERSONALITY.hairAndBeauty ? 'Editorial hair techniques, sophisticated makeup finishes' : 'Editorial styling'}
+• Photography: ${MAYA_PERSONALITY.photographyExpertise ? 'Shot types, lighting mastery, posing psychology' : 'Professional photography knowledge'}
+• Locations: ${MAYA_PERSONALITY.photographyExpertise?.dreamDestinations?.slice(0,3).join(', ') || 'Luxury settings, architectural beauty, natural elegance'}
+
+CREATE DETAILED PROMPT FOR: "${conceptName}" 
+REQUIREMENTS:
+1. ALWAYS start with "${triggerWord}" as first word
+2. Apply your complete styling expertise (300-500 words)
+3. Include: specific garments, colors, textures, hair, makeup, accessories, pose, lighting, setting
 4. Use your professional fashion and photography knowledge extensively
-5. Return ONLY the prompt - no chat text, no explanations, no context
+5. Return ONLY the prompt - no conversational text
 
-Apply your complete styling knowledge from your personality - your sophisticated color intelligence, editorial palettes, hair and beauty expertise, sophisticated photo locations, and photography mastery. Use your understanding of luxury trends, editorial formulas, and personal branding to create the perfect prompt for this concept.
-
-FORBIDDEN:
-- Do not include Maya's conversational responses or chat language
-- Do not include explanations or descriptions about the prompt
-- Do not include "Trust me" or other personality text
-- Return ONLY the detailed photography prompt
-
-Create a comprehensive styling prompt for: "${conceptName}"`;
+Draw from your complete professional background and styling intelligence to create the perfect prompt.`;
 
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
