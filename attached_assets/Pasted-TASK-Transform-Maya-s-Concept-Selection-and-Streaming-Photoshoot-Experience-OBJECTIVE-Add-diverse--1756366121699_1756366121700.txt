@@ -1,0 +1,52 @@
+TASK: Transform Maya's Concept Selection and Streaming Photoshoot Experience
+OBJECTIVE: Add diverse style categories and immersive generation experience
+
+PART A: EXPAND CONCEPT CATEGORIES
+
+1. Open `client/src/pages/maya.tsx`
+
+2. Find Maya's welcome screen quick-select (around line 700-800) and replace the style options:
+
+```typescript
+<div className="style-quickselect">
+  <div className="style-option" onClick={() => handleStyleSelect('business-photos')}>
+    <div className="style-preview">Business</div>
+    <div className="style-label">Professional & LinkedIn</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('lifestyle-photos')}>
+    <div className="style-preview">Lifestyle</div>
+    <div className="style-label">Casual & Authentic</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('story-photos')}>
+    <div className="style-preview">Story</div>
+    <div className="style-label">Behind the Scenes</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('instagram-photos')}>
+    <div className="style-preview">Instagram</div>
+    <div className="style-label">Feed & Stories</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('travel-photos')}>
+    <div className="style-preview">Travel</div>
+    <div className="style-label">Destinations & Adventures</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('outfit-photos')}>
+    <div className="style-preview">Outfits</div>
+    <div className="style-label">Fashion & Style</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('grwm-photos')}>
+    <div className="style-preview">GRWM</div>
+    <div className="style-label">Get Ready With Me</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('future-self')}>
+    <div className="style-preview">Future Self</div>
+    <div className="style-label">Aspirational Vision</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('bw-photos')}>
+    <div className="style-preview">B&W</div>
+    <div className="style-label">Timeless & Artistic</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('studio-photoshoot')}>
+    <div className="style-preview">Studio</div>
+    <div className="style-label">Professional Shoot</div>
+  </div>
+</div>

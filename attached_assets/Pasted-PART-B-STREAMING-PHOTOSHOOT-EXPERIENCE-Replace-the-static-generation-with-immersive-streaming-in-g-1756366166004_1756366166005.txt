@@ -1,0 +1,95 @@
+PART B: STREAMING PHOTOSHOOT EXPERIENCE
+
+Replace the static generation with immersive streaming in generateFromConcept:
+
+typescriptconst generateFromConcept = async (conceptName: string) => {
+  const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  if (activeGenerations.has(messageId)) return;
+  
+  console.log('Maya: Starting immersive photoshoot for:', conceptName);
+  
+  try {
+    // Step 1: Initial excitement
+    const step1Message: ChatMessage = {
+      role: 'maya',
+      content: `OH MY GOD YES! ${conceptName} is going to be absolutely stunning! 🎬 Let me set up your personal photoshoot - this is going to be MAGAZINE WORTHY!`,
+      timestamp: new Date().toISOString(),
+      generationId: messageId
+    };
+    setMessages(prev => [...prev, step1Message]);
+    
+    // Step 2: Styling consultation (after 2 seconds)
+    setTimeout(() => {
+      const step2Message: ChatMessage = {
+        role: 'maya',
+        content: `✨ STYLING SESSION: I'm pulling together the perfect look - thinking luxe textures, perfect proportions, and colors that make your skin glow. My fashion week experience is kicking in and I'm seeing EXACTLY what you need...`,
+        timestamp: new Date().toISOString(),
+        generationId: messageId + '_styling'
+      };
+      setMessages(prev => [...prev, step2Message]);
+    }, 2000);
+    
+    // Step 3: Hair & Makeup (after 4 seconds)
+    setTimeout(() => {
+      const step3Message: ChatMessage = {
+        role: 'maya',
+        content: `💄 HAIR & MAKEUP: Sending you to my favorite glam team! We're going for that editorial glow - flawless but natural, hair styled to perfection. Think "I just stepped off a magazine cover" energy...`,
+        timestamp: new Date().toISOString(),
+        generationId: messageId + '_glam'
+      };
+      setMessages(prev => [...prev, step3Message]);
+    }, 4000);
+    
+    // Step 4: Lighting setup (after 6 seconds)
+    setTimeout(() => {
+      const step4Message: ChatMessage = {
+        role: 'maya',
+        content: `🎬 LIGHTING CREW: Setting up the most gorgeous lighting - we're talking golden hour magic, perfect shadows, that dreamy editorial quality. The camera is going to LOVE you in this light...`,
+        timestamp: new Date().toISOString(),
+        generationId: messageId + '_lighting'
+      };
+      setMessages(prev => [...prev, step4Message]);
+    }, 6000);
+    
+    // Step 5: Start actual generation (after 8 seconds)
+    setTimeout(async () => {
+      const step5Message: ChatMessage = {
+        role: 'maya',
+        content: `📸 CAMERA ROLLING: Creating your ${conceptName} photos right now! I can already tell these are going to be absolutely incredible - the kind of photos that make people stop scrolling and say "WHO IS SHE?!" ✨`,
+        timestamp: new Date().toISOString(),
+        canGenerate: true,
+        generationId: messageId
+      };
+      setMessages(prev => [...prev, step5Message]);
+      
+      // Get enhanced prompt and start generation
+      const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
+        message: `Create detailed professional prompts for this concept: ${conceptName}. Use diverse styling beyond just business - match the specific energy requested.`,
+        chatId: currentChatId,
+        context: 'generation'
+      });
+      
+      const prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
+      await generateImages(prompt, messageId);
+      
+    }, 8000);
+    
+  } catch (error) {
+    console.error('Maya photoshoot experience error:', error);
+  }
+};
+CONSTRAINTS:
+
+Don't break existing Maya chat functionality
+Keep the streaming messages optional (only during generation)
+Ensure polling still works for actual image generation
+Test that the immersive experience enhances rather than confuses
+
+EXPECTED OUTCOME:
+
+10 diverse style categories instead of 5 generic ones
+Maya creates different styling based on selected category (not just business)
+Immersive photoshoot experience with Maya narrating the process
+Users feel engaged during the 20-30 second generation time
+

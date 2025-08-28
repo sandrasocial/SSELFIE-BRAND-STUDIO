@@ -592,11 +592,16 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
 
   const handleStyleSelect = (style: string) => {
     const styleMessages = {
-      'professional-headshots': 'I need professional headshots for LinkedIn and business credibility',
-      'social-media-photos': 'I want Instagram and social media photos that I actually want to post',
-      'website-photos': 'I need website photos for my homepage and brand storytelling',
-      'email-marketing-photos': 'I want warm, personal photos for email newsletters and connection',
-      'premium-brand-photos': 'I need premium brand photos for high-value collaborations'
+      'business-photos': 'I need professional business photos for LinkedIn, networking, and credibility',
+      'lifestyle-photos': 'I want casual, authentic lifestyle photos that show my personality',
+      'story-photos': 'I need behind-the-scenes story photos that connect with my audience',
+      'instagram-photos': 'I want Instagram feed and story photos that get engagement',
+      'travel-photos': 'I need travel and destination photos for my adventures and experiences',
+      'outfit-photos': 'I want fashion and outfit photos to showcase my personal style',
+      'grwm-photos': 'I need Get Ready With Me photos for my morning and styling routines',
+      'future-self': 'I want aspirational vision photos of who I\'m becoming and my goals',
+      'bw-photos': 'I need timeless black and white artistic photos with classic elegance',
+      'studio-photoshoot': 'I want professional studio photos with perfect lighting and composition'
     };
 
     setInput(styleMessages[style as keyof typeof styleMessages] || 'I want to explore this style');
@@ -1599,25 +1604,45 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
 
                   {/* Style Quick-Select with SSELFIE categories */}
                   <div className="style-quickselect">
-                    <div className="style-option" onClick={() => handleStyleSelect('professional-headshots')}>
-                      <div className="style-preview">Professional Headshots</div>
-                      <div className="style-label">LinkedIn & Business</div>
+                    <div className="style-option" onClick={() => handleStyleSelect('business-photos')}>
+                      <div className="style-preview">Business</div>
+                      <div className="style-label">Professional & LinkedIn</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('social-media-photos')}>
-                      <div className="style-preview">Social Media Photos</div>
-                      <div className="style-label">Instagram & TikTok</div>
+                    <div className="style-option" onClick={() => handleStyleSelect('lifestyle-photos')}>
+                      <div className="style-preview">Lifestyle</div>
+                      <div className="style-label">Casual & Authentic</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('website-photos')}>
-                      <div className="style-preview">Website Photos</div>
-                      <div className="style-label">Homepage & About</div>
+                    <div className="style-option" onClick={() => handleStyleSelect('story-photos')}>
+                      <div className="style-preview">Story</div>
+                      <div className="style-label">Behind the Scenes</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('email-marketing-photos')}>
-                      <div className="style-preview">Email & Marketing</div>
-                      <div className="style-label">Personal Connection</div>
+                    <div className="style-option" onClick={() => handleStyleSelect('instagram-photos')}>
+                      <div className="style-preview">Instagram</div>
+                      <div className="style-label">Feed & Stories</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('premium-brand-photos')}>
-                      <div className="style-preview">Premium Brand Photos</div>
-                      <div className="style-label">High-Value Clients</div>
+                    <div className="style-option" onClick={() => handleStyleSelect('travel-photos')}>
+                      <div className="style-preview">Travel</div>
+                      <div className="style-label">Destinations & Adventures</div>
+                    </div>
+                    <div className="style-option" onClick={() => handleStyleSelect('outfit-photos')}>
+                      <div className="style-preview">Outfits</div>
+                      <div className="style-label">Fashion & Style</div>
+                    </div>
+                    <div className="style-option" onClick={() => handleStyleSelect('grwm-photos')}>
+                      <div className="style-preview">GRWM</div>
+                      <div className="style-label">Get Ready With Me</div>
+                    </div>
+                    <div className="style-option" onClick={() => handleStyleSelect('future-self')}>
+                      <div className="style-preview">Future Self</div>
+                      <div className="style-label">Aspirational Vision</div>
+                    </div>
+                    <div className="style-option" onClick={() => handleStyleSelect('bw-photos')}>
+                      <div className="style-preview">B&W</div>
+                      <div className="style-label">Timeless & Artistic</div>
+                    </div>
+                    <div className="style-option" onClick={() => handleStyleSelect('studio-photoshoot')}>
+                      <div className="style-preview">Studio</div>
+                      <div className="style-label">Professional Shoot</div>
                     </div>
                   </div>
                 </div>
