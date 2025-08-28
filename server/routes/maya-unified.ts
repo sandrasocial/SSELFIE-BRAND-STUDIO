@@ -702,14 +702,9 @@ Focus on making them feel heard and understood first, information gathering seco
       
     case 'generation':
       enhancement += `\n\n📸 GENERATION MODE:
-The user wants to create photos. Use your complete styling expertise to create detailed prompts that include their trigger word "${generationInfo.triggerWord}".
+The user wants to create photos. When creating images, include the user's trigger word "${generationInfo.triggerWord}" and apply your styling expertise naturally.
 
-When you want to generate images, share your styling vision naturally and end with a prompt block using this format:
-\`\`\`prompt
-${generationInfo.triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [YOUR COMPLETE STYLING VISION HERE]
-\`\`\`
-
-Apply your full professional expertise: fashion week experience, hair and beauty knowledge, photography mastery, and personal branding wisdom. Let your authentic styling intelligence create each unique concept based on the user's specific context and goals.`;
+Use your complete professional knowledge: fashion week experience, hair and beauty mastery, photography expertise, and personal branding wisdom. Let your authentic styling intelligence guide each unique concept based on the user's specific context and goals.`;
       break;
 
     case 'quickstart':
