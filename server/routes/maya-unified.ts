@@ -331,11 +331,21 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     let finalPrompt = prompt.trim();
     
-    // ZERO TOLERANCE ANTI-HARDCODE: Let Maya use her full AI intelligence for personal branding
-    // For ANY concept (not just hardcoded "professional"), enhance it with Maya's styling expertise
-    console.log(`🎯 MAYA CONCEPT DETECTED: "${prompt}" - Calling createDetailedPromptFromConcept with user context`);
-    finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId);
-    console.log(`✅ MAYA CONCEPT RESULT: Generated ${finalPrompt.length} character prompt`);
+    // CRITICAL FIX: Preserve user's selected concept directly instead of regenerating
+    // When user clicks a concept card, use their exact selection, not Maya's interpretation
+    if (conceptName && conceptName.length > 0) {
+      console.log(`🎯 MAYA CONCEPT PRESERVATION: Using user's selected concept "${conceptName}" directly`);
+      // Build prompt that preserves user's concept while adding technical requirements
+      const mandatoryTechParams = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
+      const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
+      finalPrompt = `${generationInfo.triggerWord}, ${mandatoryTechParams}, ${userConcept}, professional styling, beautiful lighting, personal branding photography`;
+      console.log(`✅ MAYA CONCEPT PRESERVED: User's "${userConcept}" concept maintained in final prompt`);
+    } else {
+      // Only use AI enhancement for custom prompts (not concept cards)
+      console.log(`🎯 MAYA CUSTOM PROMPT: "${prompt}" - Calling createDetailedPromptFromConcept with user context`);
+      finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId);
+      console.log(`✅ MAYA CUSTOM RESULT: Generated ${finalPrompt.length} character prompt`);
+    }
     
     // CRITICAL: Final validation to ensure trigger word is at the beginning
     if (!finalPrompt.startsWith(generationInfo.triggerWord)) {
