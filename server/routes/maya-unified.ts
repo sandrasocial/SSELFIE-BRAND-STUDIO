@@ -191,7 +191,9 @@ router.post('/generate', isAuthenticated, async (req, res) => {
     // If this is a concept-based generation, enhance it with Maya's styling expertise
     if (prompt.includes('Create a professional photo concept:')) {
       const conceptName = prompt.replace('Create a professional photo concept: ', '').trim();
+      console.log(`🎯 MAYA CONCEPT DETECTED: "${conceptName}" - Calling createDetailedPromptFromConcept`);
       finalPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord);
+      console.log(`✅ MAYA CONCEPT RESULT: Generated ${finalPrompt.length} character prompt`);
     }
     
     // CRITICAL: Final validation to ensure trigger word is at the beginning
@@ -714,15 +716,19 @@ Create a comprehensive styling prompt for: "${conceptName}"`;
       generatedPrompt = essentialParts.endsWith(',') ? essentialParts.slice(0, -1) : essentialParts;
     }
     
-    console.log(`🎯 MAYA AI PROMPT: Generated for "${conceptName}":`, generatedPrompt);
+    console.log(`🎯 MAYA AI PROMPT GENERATION SUCCESS for "${conceptName}":`, generatedPrompt.substring(0, 200) + '...');
+    console.log(`🎯 MAYA AI PROMPT LENGTH: ${generatedPrompt.length} characters`);
     
     return generatedPrompt;
     
   } catch (error) {
-    console.error('Maya AI prompt generation failed:', error);
+    console.error('🚨 MAYA AI PROMPT GENERATION FAILED:', error);
+    console.error('🚨 FALLING BACK TO EMERGENCY PROMPT - This should not happen!');
     
     // Emergency fallback - concise professional prompt with trigger word first
-    return `${triggerWord} wearing professional attire, confident pose, studio lighting, business portrait`;
+    const fallbackPrompt = `${triggerWord} wearing professional attire, confident pose, studio lighting, business portrait`;
+    console.log(`🚨 USING FALLBACK PROMPT:`, fallbackPrompt);
+    return fallbackPrompt;
   }
 }
 
