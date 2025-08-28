@@ -241,7 +241,7 @@ Use this context to provide personalized styling advice that aligns with their t
       content: "Oh! I had a little hiccup there, but I'm still here to help you create amazing photos! Tell me what kind of shots you're dreaming of and I'll guide you through it step by step. What's your vision?",
       message: "Oh! I had a little hiccup there, but I'm still here to help you create amazing photos! Tell me what kind of shots you're dreaming of and I'll guide you through it step by step. What's your vision?",
       canGenerate: false,
-      quickButtons: ["Professional headshots", "Creative lifestyle", "Business portraits", "Tell me what happened"],
+      quickButtons: ["Lifestyle photography", "Creative portraits", "Personal branding photos", "Tell me what happened"],
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -301,13 +301,11 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     let finalPrompt = prompt.trim();
     
-    // If this is a concept-based generation, enhance it with Maya's styling expertise
-    if (prompt.includes('Create a professional photo concept:')) {
-      const conceptName = prompt.replace('Create a professional photo concept: ', '').trim();
-      console.log(`🎯 MAYA CONCEPT DETECTED: "${conceptName}" - Calling createDetailedPromptFromConcept with user context`);
-      finalPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord, userId);
-      console.log(`✅ MAYA CONCEPT RESULT: Generated ${finalPrompt.length} character prompt`);
-    }
+    // ZERO TOLERANCE ANTI-HARDCODE: Let Maya use her full AI intelligence for personal branding
+    // For ANY concept (not just hardcoded "professional"), enhance it with Maya's styling expertise
+    console.log(`🎯 MAYA CONCEPT DETECTED: "${prompt}" - Calling createDetailedPromptFromConcept with user context`);
+    finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId);
+    console.log(`✅ MAYA CONCEPT RESULT: Generated ${finalPrompt.length} character prompt`);
     
     // CRITICAL: Final validation to ensure trigger word is at the beginning
     if (!finalPrompt.startsWith(generationInfo.triggerWord)) {
@@ -1138,10 +1136,10 @@ Showcase your professional styling vision in 300-500 words after the mandatory t
     console.error('🚨 MAYA AI PROMPT GENERATION FAILED:', error);
     console.error('🚨 FALLING BACK TO EMERGENCY PROMPT - This should not happen!');
     
-    // Emergency fallback - concise professional prompt with trigger word + mandatory tech params first
+    // ZERO TOLERANCE ANTI-HARDCODE: Emergency fallback respects user's concept without forcing business style
     const mandatoryTechParamsFallback = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
-    const fallbackPrompt = `${triggerWord}, ${mandatoryTechParamsFallback}, wearing professional attire, confident pose, studio lighting, business portrait`;
-    console.log(`🚨 USING FALLBACK PROMPT:`, fallbackPrompt);
+    const fallbackPrompt = `${triggerWord}, ${mandatoryTechParamsFallback}, ${conceptName}, natural confident expression, beautiful lighting, personal branding photography`;
+    console.log(`🚨 USING FALLBACK PROMPT (preserving user concept):`, fallbackPrompt);
     return fallbackPrompt;
   }
 }

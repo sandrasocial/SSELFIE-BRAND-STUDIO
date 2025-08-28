@@ -132,11 +132,11 @@ export const useMayaGeneration = () => {
         }
       }, 15000);
       
-      // FIXED: Use Maya's dedicated concept generation approach
-      // Clean up concept name (remove emojis and extra text) before sending to backend
+      // ZERO TOLERANCE ANTI-HARDCODE: Let Maya use her full intelligence for personal branding
+      // Clean up concept name (remove emojis and extra text) but preserve user intent
       const cleanConceptName = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
-      let finalPrompt = `Create a professional photo concept: ${cleanConceptName}`;
-      // The concept prompt will be processed by Maya's AI prompt generation in the backend
+      let finalPrompt = cleanConceptName; // Pure concept - let Maya decide style, not hardcoded "professional"
+      // Maya will analyze the concept and create appropriate personal branding imagery using her AI
 
       console.log('Maya: Starting concept generation for:', finalPrompt);
 
