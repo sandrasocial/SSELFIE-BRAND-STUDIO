@@ -491,14 +491,22 @@ Focus on understanding their business needs and connecting photos to practical a
 The user wants to create photos. Use your complete styling expertise to create detailed prompts that include their trigger word "${generationInfo.triggerWord}".
 
 CRITICAL INSTRUCTION FOR GENERATION RESPONSES:
-- Always include detailed prompts in this format: **🎯 CONCEPT NAME**
+- Naturally guide them that they can choose from your concepts OR describe exactly what they want
+- Always vary shot types in your concepts: Close-up (face/shoulders), Half-body (waist up), Full scenery (full body with environment)
+- Briefly describe each concept and clearly indicate the shot type
+- Always include detailed prompts in this format: **🎯 CONCEPT NAME (Shot Type)**
 - Follow with a complete, detailed prompt using "${generationInfo.triggerWord}"
 - Include specific styling details: clothing, hair, makeup, lighting, setting
 - Apply your professional knowledge: 2025 luxury trends, editorial formulas, photography techniques
 - Be excited and enthusiastic about the concepts you're creating
 
+SHOT TYPE VARIETY REQUIREMENT:
+- Ensure your concepts include close-up, half-body, and full scenery options
+- Mention shot type in concept names: "(close-up)", "(half-body)", "(full scenery)"
+- Match styling complexity to shot type (close-ups focus on face/hair, full scenery includes environment)
+
 Example format:
-**🎯 EXECUTIVE POWER LOOK - OPTION 1: Modern Authority**
+**🎯 EXECUTIVE POWER LOOK (Close-up headshot)**
 A cinematic portrait of ${generationInfo.triggerWord} as a confident executive, wearing an impeccably tailored charcoal grey blazer...`;
       break;
 
@@ -506,7 +514,10 @@ A cinematic portrait of ${generationInfo.triggerWord} as a confident executive, 
       enhancement += `\n\n⚡ QUICK START MODE:
 The user chose Quick Start and wants to create photos immediately. Use your styling expertise to create compelling photo concepts.
 
-CRITICAL INSTRUCTIONS:
+CRITICAL INSTRUCTIONS FOR USER GUIDANCE:
+- Naturally mention that they can choose from your concept suggestions OR tell you exactly what they're envisioning
+- Always vary shot types across your concepts: Close-up (face/shoulders), Half-body (waist up), Full scenery (full body with environment)
+- Briefly describe each concept and clearly indicate the shot type (close-up, half-body, or full scenery)
 - Generate 2-3 photo concepts based on your fashion expertise and styling knowledge
 - Create short, simple concept names or descriptions that capture the styling essence
 - Use emojis naturally in your creative concept names to make them feel warm and exciting
@@ -515,12 +526,23 @@ CRITICAL INSTRUCTIONS:
 - Be warm, excited, and use your natural styling voice
 - Each concept should reflect your genuine styling recommendations based on current trends and your expertise
 
+SHOT TYPE VARIETY REQUIREMENT:
+- Always include a mix of close-up, half-body, and full scenery concepts
+- Mention the shot type naturally in your concept descriptions
+- Example: "Executive Power (close-up headshot)" or "Coffee Shop Moment (half-body lifestyle)" or "City Boss (full scenery with urban backdrop)"
+
 When they click generation buttons, the system will automatically create the detailed prompts using "${generationInfo.triggerWord}".`;
       break;
       
     default:
       enhancement += `\n\n💬 REGULAR CHAT MODE:
-Provide styling consultation using your complete fashion expertise. Help them with styling questions, photo concepts, or personal brand development.`;
+Provide styling consultation using your complete fashion expertise. Help them with styling questions, photo concepts, or personal brand development.
+
+USER GUIDANCE PRINCIPLES:
+- When discussing photo concepts, naturally mention they can choose from your suggestions OR tell you exactly what they're envisioning
+- Always offer shot type variety: close-up (face/shoulders), half-body (waist up), full scenery (full body with environment)
+- Briefly describe concepts and indicate shot types when relevant
+- Be helpful in explaining how different shot types work for different purposes`;
   }
 
   if (userContext.onboarding.stylePreferences) {
@@ -542,8 +564,10 @@ Make these actions:
 - Natural follow-ups to your response  
 - Personalized based on what they've shared
 - Written in a conversational way, not templated
+- Include shot type variety when offering photo concepts
+- Briefly describe each concept with its shot type
 
-Example: If discussing professional headshots, instead of generic "BUILDING CONFIDENCE", use specific actions like "Show me CEO headshot examples", "I need approachable authority", "Something for my consulting business"`;
+Example: If discussing professional headshots, instead of generic "BUILDING CONFIDENCE", use specific actions like "CEO Power (close-up)", "Approachable Authority (half-body)", "Executive in Environment (full scenery)"`;
 
   return baseMayaPersonality + enhancement;
 }
@@ -738,11 +762,18 @@ STYLING INTELLIGENCE PRINCIPLES (NOT CONSTRAINTS):
 • Use your photography mastery to choose appropriate settings, lighting, and compositions for each concept
 • Select locations that enhance the specific concept - from urban power to natural serenity to luxury settings
 
+SHOT TYPE VARIETY INTELLIGENCE:
+• ALWAYS vary shot types intelligently: Close-up (face/shoulders focus), Half-body (waist up), Full scenery (full body with environment)
+• Match styling complexity to shot type: close-ups emphasize face/hair/expression, full scenery includes environment and full outfit
+• Consider the concept purpose: professional headshots work as close-ups, lifestyle concepts shine as half-body or full scenery
+• Use your photography expertise to choose the most impactful shot type for each specific concept
+
 CREATIVE VARIETY MANDATE:
 - Every prompt should feel fresh and unique to the specific concept
 - Avoid repeating the same color schemes, locations, or styling formulas
 - Let the concept drive the creative direction, not predetermined templates
 - Use your full professional expertise to create diverse, personalized styling
+- Intelligently vary shot types based on what would work best for each concept
 
 CREATE DETAILED PROMPT FOR: "${conceptName}" 
 REQUIREMENTS:
@@ -751,11 +782,13 @@ REQUIREMENTS:
 3. Apply your complete styling expertise (300-500 words) with CREATIVE VARIETY
 4. Include: specific garments, colors, textures, hair, makeup, accessories, pose, lighting, setting
 5. Use your professional fashion and photography knowledge extensively
-6. Return ONLY the prompt - no conversational text
-7. CRITICAL: Make this concept feel unique - vary colors, locations, and styling based on the specific concept
-8. Avoid repeating previous styling patterns - create fresh interpretations each time
+6. CRITICAL: Choose appropriate shot type - Close-up (face/shoulders), Half-body (waist up), or Full scenery (full body with environment)
+7. Match styling detail to shot type: close-ups focus on facial features/hair, full scenery includes complete environment
+8. Return ONLY the prompt - no conversational text
+9. CRITICAL: Make this concept feel unique - vary colors, locations, styling AND shot types based on the specific concept
+10. Avoid repeating previous styling patterns - create fresh interpretations each time
 
-MANDATORY FORMAT: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [YOUR CREATIVE STYLING VISION]"
+MANDATORY FORMAT: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [YOUR CREATIVE STYLING VISION WITH APPROPRIATE SHOT TYPE]"
 
 Interpret "${conceptName}" through your complete professional lens and create a unique, personalized styling vision that feels fresh and different from your previous work.
 
@@ -779,7 +812,12 @@ ${personalBrandContext}`;
 
 MANDATORY FORMAT: Start with "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film," then continue with your complete styling and photography expertise.
 
-Showcase your professional styling vision in 300-500 words after the mandatory technical parameters.`
+SHOT TYPE INTELLIGENCE: Choose the most impactful shot type for this specific concept:
+- Close-up (face/shoulders): Perfect for headshots, beauty focus, intimate portraits
+- Half-body (waist up): Great for lifestyle, business casual, showing outfit details
+- Full scenery (full body + environment): Ideal for lifestyle, environmental context, complete outfit showcase
+
+Showcase your professional styling vision in 300-500 words after the mandatory technical parameters, including appropriate shot type selection.`
           }
         ]
       })
