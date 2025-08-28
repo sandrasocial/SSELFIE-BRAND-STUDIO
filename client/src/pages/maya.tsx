@@ -373,94 +373,6 @@ function Maya() {
     }
   };
   
-  // Function to get Maya's intelligent guidance during generation
-  const getMayaGenerationGuidance = async (conceptName: string): Promise<string> => {
-    try {
-      const response = await apiRequest('/api/maya/chat', 'POST', {
-        message: `I'm starting to generate "${conceptName}" photos for the user. Please provide your excited, intelligent guidance about what you're creating and your styling expertise for this concept. Be warm and specific about the styling techniques you're applying.`,
-        context: 'generation'
-      });
-      
-      return response.content || response.message || `Creating your "${conceptName}" photos with my complete styling expertise! ✨`;
-    } catch (error) {
-      console.error('Failed to get Maya generation guidance:', error);
-      return `Creating your "${conceptName}" photos with my complete styling expertise! ✨`;
-    }
-  };
-
-  // Function to get Maya's intelligent completion response
-  const getMayaCompletionGuidance = async (conceptName: string, imageCount: number): Promise<{message: string}> => {
-    try {
-      const response = await apiRequest('/api/maya/chat', 'POST', {
-        message: `The "${conceptName}" photo generation just completed successfully with ${imageCount} gorgeous images! Please provide your excited reaction seeing the final results and your styling expertise that made them amazing. Be warm and celebratory about the success.`,
-        context: 'completion'
-      });
-      
-      return {
-        message: response.content || response.message || `Here are your "${conceptName}" photos! These turned out absolutely incredible! ✨`
-      };
-    } catch (error) {
-      console.error('Failed to get Maya completion guidance:', error);
-      return {
-        message: `Here are your "${conceptName}" photos! These turned out absolutely incredible! ✨`
-      };
-    }
-  };
-
-  // Function to get Maya's intelligent follow-up suggestions
-  const getMayaFollowUpSuggestions = async (): Promise<{content: string, quickButtons: string[]}> => {
-    try {
-      const response = await apiRequest('/api/maya/chat', 'POST', {
-        message: `The user just received their generated photos and they look amazing! Please suggest what styling concepts we should create next and provide your excited guidance. Use QUICK_ACTIONS format for concept buttons.`,
-        context: 'followup'
-      });
-      
-      return {
-        content: response.content || response.message || "Which style should we create next? I have so many more gorgeous concepts for you! 💫",
-        quickButtons: response.quickButtons || [
-          "✨ Different lighting mood", 
-          "🎬 New style category", 
-          "💎 Elevated version", 
-          "🌟 Surprise me Maya!",
-          "Show all categories"
-        ]
-      };
-    } catch (error) {
-      console.error('Failed to get Maya follow-up suggestions:', error);
-      return {
-        content: "Which style should we create next? I have so many more gorgeous concepts for you! 💫",
-        quickButtons: [
-          "✨ Different lighting mood", 
-          "🎬 New style category", 
-          "💎 Elevated version", 
-          "🌟 Surprise me Maya!",
-          "Show all categories"
-        ]
-      };
-    }
-  };
-
-  // Function to get Maya's intelligent error guidance
-  const getMayaErrorGuidance = async (conceptName: string): Promise<{message: string, quickButtons: string[]}> => {
-    try {
-      const response = await apiRequest('/api/maya/chat', 'POST', {
-        message: `The "${conceptName}" photo generation unfortunately failed with a technical error. Please provide your warm, supportive guidance to help the user try again with different approaches. Use QUICK_ACTIONS format for concept suggestions.`,
-        context: 'error'
-      });
-      
-      return {
-        message: response.content || response.message || `Oh no! I had a little hiccup creating those "${conceptName}" photos. Let me try a different approach - what specific style elements are you most excited about?`,
-        quickButtons: response.quickButtons || ["Professional headshot", "Editorial style", "Casual lifestyle", "Tell me more about the issue"]
-      };
-    } catch (error) {
-      console.error('Failed to get Maya error guidance:', error);
-      return {
-        message: `Oh no! I had a little hiccup creating those "${conceptName}" photos. Let me try a different approach - what specific style elements are you most excited about?`,
-        quickButtons: ["Professional headshot", "Editorial style", "Casual lifestyle", "Tell me more about the issue"]
-      };
-    }
-  };
-
   const generateFromConcept = async (conceptName: string) => {
     const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
@@ -469,10 +381,10 @@ function Maya() {
     console.log('Maya: Starting concept generation for:', conceptName, 'ID:', messageId);
     
     try {
-      // Create Maya message using her AI intelligence for generation guidance
+      // Create Maya message showing generation progress
       const generatingMessage: ChatMessage = {
         role: 'maya',
-        content: await getMayaGenerationGuidance(conceptName), // Get Maya's intelligent guidance
+        content: `Creating your "${conceptName}" photos right now! I'm applying all my styling expertise to make these absolutely stunning. You're going to love the results! ✨`,
         timestamp: new Date().toISOString(),
         canGenerate: true,
         generationId: messageId
@@ -543,28 +455,31 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
           if (statusResponse.status === 'completed' && statusResponse.imageUrls && statusResponse.imageUrls.length > 0) {
             console.log('Maya generation complete! Updating message with images');
             
-            // Update the specific Maya message with generated images - use Maya's intelligent completion response
-            const completionGuidance = await getMayaCompletionGuidance(conceptName, statusResponse.imageUrls.length);
-            
+            // Update the specific Maya message with generated images
             setMessages(prev => prev.map(msg => 
               msg.generationId === generationId 
                 ? { 
                     ...msg, 
                     imagePreview: statusResponse.imageUrls, 
                     canGenerate: false,
-                    content: completionGuidance.message
+                    content: msg.content + `\n\nHere are your styled photos! These turned out absolutely incredible! ✨\n\nReady for more? Let me create different vibes for you:`
                   }
                 : msg
             ));
             
-            // Add Maya's follow-up suggestions using her AI intelligence
-            setTimeout(async () => {
-              const followUpResponse = await getMayaFollowUpSuggestions();
+            // Add Maya's follow-up suggestions immediately for better flow
+            setTimeout(() => {
               const followUpMessage: ChatMessage = {
                 role: 'maya',
-                content: followUpResponse.content,
+                content: "Which style should we create next? I have so many more gorgeous concepts for you! 💫",
                 timestamp: new Date().toISOString(),
-                quickButtons: followUpResponse.quickButtons
+                quickButtons: [
+                  "✨ Different lighting mood", 
+                  "🎬 New style category", 
+                  "💎 Elevated version", 
+                  "🌟 Surprise me Maya!",
+                  "Show all categories"
+                ]
               };
               setMessages(prev => [...prev, followUpMessage]);
             }, 500);
@@ -579,15 +494,14 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
           } else if (statusResponse.status === 'failed') {
             console.error('Maya generation failed:', statusResponse.error);
             
-            // Update message with Maya's intelligent error guidance
-            const errorGuidance = await getMayaErrorGuidance(conceptName);
+            // Update message with Maya's friendly error guidance
             setMessages(prev => prev.map(msg => 
               msg.generationId === generationId 
                 ? { 
                     ...msg, 
-                    content: errorGuidance.message,
+                    content: msg.content + '\n\nOh no! I had a little hiccup creating those photos. Let me try a different approach - tell me specifically what style you\'re going for and I\'ll make sure we get the perfect shot this time! What\'s the vibe you want?',
                     canGenerate: false,
-                    quickButtons: errorGuidance.quickButtons
+                    quickButtons: ["Professional headshot", "Editorial style", "Casual lifestyle", "Tell me more about the issue"]
                   }
                 : msg
             ));
