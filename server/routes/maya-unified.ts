@@ -694,25 +694,21 @@ function enhancePromptForContext(baseMayaPersonality: string, context: string, u
 - Present 3-5 complete styling scenarios ready for generation
 - Use your styling expertise to be specific about colors, textures, silhouettes without asking for more details
 
-🎯 MANDATORY CONCEPT CARD FORMAT STRUCTURE:
-When generating multiple concepts, use this EXACT formatting structure:
+🎯 UNIVERSAL CONCEPT GENERATION RULES:
+When creating styling concepts, use your natural conversational style with clear concept presentation:
 
-**1. [YOUR CREATIVE CONCEPT NAME]**
-[Your one-line styling summary - outfit + location/mood]
+NATURAL FORMAT FLEXIBILITY:
+- Present concepts however feels most natural to the conversation flow
+- Use bold formatting (**Concept Name**) to make concepts easy to identify
+- Each concept should showcase your styling expertise with specific details
+- Generate 3-6 diverse concepts that demonstrate your complete professional range
+- Make each concept feel unique and personalized to the user's style journey
 
-**2. [YOUR CREATIVE CONCEPT NAME]**
-[Your one-line styling summary - outfit + location/mood]
-
-**3. [YOUR CREATIVE CONCEPT NAME]**
-[Your one-line styling summary - outfit + location/mood]
-
-CRITICAL FORMATTING RULES:
-- Each concept must start with **NUMBER. CONCEPT NAME**
-- Follow with ONE line of your styling expertise only (under 100 characters)
-- Always generate 3-5 concepts minimum
-- Keep descriptions short and punchy
-- Use your complete styling intelligence to create diverse, unique concepts
-- Never include full prompt details in concept cards`;
+STYLING INTELLIGENCE MANDATE:
+- Draw from your complete professional background for each concept
+- Create diverse combinations of colors, textures, settings, and styling approaches
+- Let each concept tell its own story rather than following templates
+- Use your fashion week, photography, and personal branding expertise authentically`;
 
   // Admin-specific context enhancement
   if (isAdmin) {
@@ -936,23 +932,20 @@ const parseConceptsFromResponse = (response: string): ConceptCard[] => {
   console.log('🎯 CONCEPT PARSING: Analyzing response length:', response.length);
   
   // MAYA'S NATURAL CONCEPT FORMATS - Parse ALL formats Maya naturally uses
-  // Format 1: **1. Concept Name**  (most common in Maya's responses)
-  // Format 2: **Concept Name**
-  // Format 3: ## emoji TYPE: NAME  (legacy format)
-  // Format 4: **emoji Concept Name**
+  // Universal patterns that work with ANY concept Maya creates
   
   const conceptPatterns = [
-    // Pattern 1: **1. Corner Office Queen** or **2. Digital Nomad Luxe**
+    // Pattern 1: **1. Any Concept Name** - numbered concepts
     /\*\*(\d+)\.\s*([^*\n]+)\*\*/g,
     
-    // Pattern 2: **Corner Office Queen** (standalone)
-    /\*\*([A-Z][^*\n]+)\*\*/g,
+    // Pattern 2: **Any Concept Name** - standalone bold concepts
+    /\*\*([^*\n]{3,})\*\*/g,
     
-    // Pattern 3: ## emoji TYPE: NAME (legacy)
-    /##\s*[^\s:]*\s*([^:]+):\s*([^#\n]+)/g,
+    // Pattern 3: ## Any Format: Name - legacy format with any prefix
+    /##\s*[^:]*:\s*([^#\n]+)/g,
     
-    // Pattern 4: **emoji Concept Name**
-    /\*\*[^\w]*([A-Z][^*\n]+)\*\*/g
+    // Pattern 4: Fallback for any **text** pattern
+    /\*\*([^*\n]{3,50})\*\*/g
   ];
   
   let conceptNumber = 1;
@@ -966,25 +959,31 @@ const parseConceptsFromResponse = (response: string): ConceptCard[] => {
     while ((match = pattern.exec(response)) !== null) {
       let conceptName = '';
       
-      // Handle different capture groups based on pattern
-      if (match[2]) {
-        // Format: **1. Name** or ## TYPE: NAME
+      // Handle different capture groups - always use the last non-empty match
+      if (match[2] && match[2].trim()) {
         conceptName = match[2].trim();
-      } else {
-        // Format: **Name** 
+      } else if (match[1] && match[1].trim()) {
         conceptName = match[1].trim();
+      } else {
+        continue; // Skip if no valid match
       }
       
-      // Clean up the concept name
+      // Clean up the concept name universally
       conceptName = conceptName
-        .replace(/^\d+\.\s*/, '') // Remove leading numbers
+        .replace(/^\d+\.\s*/, '') // Remove leading numbers like "1. "
         .replace(/\*\*/g, '') // Remove any remaining asterisks
+        .replace(/^[-•]\s*/, '') // Remove bullet points
+        .replace(/[""]/g, '"') // Normalize quotes
         .trim();
       
-      // Skip if we already found this concept or if it's too short/invalid
-      if (foundConcepts.has(conceptName.toLowerCase()) || 
-          conceptName.length < 3 || 
-          conceptName.length > 100) {
+      // Enhanced validation - must be a real concept name
+      const isValidConcept = conceptName.length >= 3 && 
+                            conceptName.length <= 100 &&
+                            !conceptName.match(/^(the|a|an|and|or|but|if|when|where)\s/i) && // Skip common words
+                            !conceptName.match(/^\d+$/) && // Skip plain numbers
+                            conceptName.match(/[a-zA-Z]/); // Must contain letters
+      
+      if (!isValidConcept || foundConcepts.has(conceptName.toLowerCase())) {
         continue;
       }
       
