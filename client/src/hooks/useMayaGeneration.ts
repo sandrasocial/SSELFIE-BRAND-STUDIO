@@ -244,34 +244,58 @@ export const useMayaGeneration = (
             if (statusResponse.status === 'completed' && statusResponse.imageUrls && statusResponse.imageUrls.length > 0) {
               console.log('Maya generation complete! Updating message with images');
               
+              // Check if this is a concept-specific generation
+              const isConceptGeneration = conceptTitle && statusResponse.conceptId;
+              
               // Single batched update to prevent double rendering
               setMessages(prev => {
-                const updatedMessages = prev.map(msg => 
-                  msg.generationId === finalGenerationId 
-                    ? { 
-                        ...msg, 
-                        imagePreview: statusResponse.imageUrls, 
-                        canGenerate: false,
-                        content: msg.content + `\n\nHere are your styled photos! These turned out absolutely incredible! ✨`
-                      }
-                    : msg
-                );
+                const updatedMessages = prev.map(msg => {
+                  if (msg.generationId === finalGenerationId) {
+                    // Update regular generation
+                    return { 
+                      ...msg, 
+                      imagePreview: statusResponse.imageUrls, 
+                      canGenerate: false,
+                      content: msg.content + `\n\nHere are your styled photos! These turned out absolutely incredible! ✨`
+                    };
+                  } else if (isConceptGeneration && msg.conceptCards) {
+                    // Update concept card with generated images
+                    return {
+                      ...msg,
+                      conceptCards: msg.conceptCards.map(concept => 
+                        concept.title === conceptTitle
+                          ? { 
+                              ...concept, 
+                              generatedImages: statusResponse.imageUrls,
+                              isLoading: false,
+                              isGenerating: false,
+                              hasGenerated: true 
+                            }
+                          : concept
+                      )
+                    };
+                  }
+                  return msg;
+                });
                 
-                // Add follow-up message immediately instead of setTimeout
-                const followUpMessage: ChatMessage = {
-                  role: 'maya',
-                  content: "Which style should we create next? I have so many more gorgeous concepts for you! 💫",
-                  timestamp: new Date().toISOString(),
-                  quickButtons: [
-                    "✨ Different lighting mood", 
-                    "🎬 New style category", 
-                    "💎 Elevated version", 
-                    "🌟 Surprise me Maya!",
-                    "Show all categories"
-                  ]
-                };
+                // Add follow-up message only for non-concept generations
+                if (!isConceptGeneration) {
+                  const followUpMessage: ChatMessage = {
+                    role: 'maya',
+                    content: "Which style should we create next? I have so many more gorgeous concepts for you! 💫",
+                    timestamp: new Date().toISOString(),
+                    quickButtons: [
+                      "✨ Different lighting mood", 
+                      "🎬 New style category", 
+                      "💎 Elevated version", 
+                      "🌟 Surprise me Maya!",
+                      "Show all categories"
+                    ]
+                  };
+                  return [...updatedMessages, followUpMessage];
+                }
                 
-                return [...updatedMessages, followUpMessage];
+                return updatedMessages;
               });
               
               // Remove from active generations
@@ -401,8 +425,37 @@ export const useMayaGeneration = (
 
   const generateFromSpecificConcept = async (conceptTitle: string, conceptId: string) => {
     console.log('Generating concept:', conceptTitle);
-    // Use existing generateImages function but with concept title as prompt
-    return await generateImages(conceptTitle, undefined, undefined, setMessages, currentChatId);
+    
+    // Update concept card to loading state
+    if (setMessages) {
+      setMessages((prev: any) => prev.map((msg: any) => ({
+        ...msg,
+        conceptCards: msg.conceptCards?.map((concept: any) => 
+          concept.id === conceptId 
+            ? { ...concept, isLoading: true, isGenerating: true }
+            : concept
+        )
+      })));
+    }
+    
+    try {
+      // Use existing generateImages function but with concept title as prompt
+      const result = await generateImages(conceptTitle, undefined, undefined, setMessages, currentChatId);
+      return result;
+    } catch (error) {
+      // Reset loading state on error
+      if (setMessages) {
+        setMessages((prev: any) => prev.map((msg: any) => ({
+          ...msg,
+          conceptCards: msg.conceptCards?.map((concept: any) => 
+            concept.id === conceptId 
+              ? { ...concept, isLoading: false, isGenerating: false }
+              : concept
+          )
+        })));
+      }
+      throw error;
+    }
   };
 
   return {

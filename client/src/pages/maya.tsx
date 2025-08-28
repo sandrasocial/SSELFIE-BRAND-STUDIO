@@ -1507,46 +1507,157 @@ function Maya() {
 
                       {/* Concept Cards */}
                       {message.conceptCards && (
-                        <div style={{marginTop: '24px', display: 'grid', gap: '20px'}}>
-                          {message.conceptCards.map(concept => (
-                            <div key={concept.id} style={{
-                              background: 'var(--editorial-gray)',
-                              padding: '24px',
-                              border: '1px solid var(--accent-line)'
-                            }}>
-                              <h4 style={{
-                                fontFamily: "'Times New Roman', serif",
-                                fontSize: '20px',
-                                fontWeight: '200',
-                                textTransform: 'uppercase',
-                                marginBottom: '8px'
+                        <div style={{marginTop: '24px'}}>
+                          <div style={{display: 'grid', gap: '20px'}}>
+                            {message.conceptCards.map(concept => (
+                              <div key={concept.id} style={{
+                                background: 'var(--editorial-gray)',
+                                padding: '24px',
+                                border: '1px solid var(--accent-line)'
                               }}>
-                                {concept.title}
-                              </h4>
-                              <p style={{
-                                fontSize: '14px',
-                                lineHeight: '1.5',
-                                color: 'var(--soft-gray)',
-                                marginBottom: '16px'
-                              }}>
-                                {concept.description}
-                              </p>
-                              <button
-                                onClick={() => generateFromSpecificConcept(concept.title, concept.id)}
-                                style={{
-                                  padding: '12px 24px',
-                                  background: 'var(--black)',
-                                  color: 'var(--white)',
-                                  border: 'none',
-                                  fontSize: '11px',
+                                <h4 style={{
+                                  fontFamily: "'Times New Roman', serif",
+                                  fontSize: '20px',
+                                  fontWeight: '200',
                                   textTransform: 'uppercase',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                Generate This Concept
-                              </button>
-                            </div>
-                          ))}
+                                  marginBottom: '8px'
+                                }}>
+                                  {concept.title}
+                                </h4>
+                                <p style={{
+                                  fontSize: '14px',
+                                  lineHeight: '1.5',
+                                  color: 'var(--soft-gray)',
+                                  marginBottom: '16px'
+                                }}>
+                                  {concept.description}
+                                </p>
+                                
+                                {/* Individual concept images */}
+                                {concept.generatedImages && concept.generatedImages.length > 0 && (
+                                  <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                                    gap: '12px',
+                                    marginBottom: '16px'
+                                  }}>
+                                    {concept.generatedImages.map((imageUrl, imgIndex) => (
+                                      <div key={imgIndex} style={{
+                                        position: 'relative',
+                                        aspectRatio: '1',
+                                        borderRadius: '4px',
+                                        overflow: 'hidden'
+                                      }}>
+                                        <img
+                                          src={imageUrl}
+                                          alt={`${concept.title} ${imgIndex + 1}`}
+                                          onClick={() => setSelectedImage(imageUrl)}
+                                          style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover',
+                                            cursor: 'pointer'
+                                          }}
+                                        />
+                                        {/* Save button for concept images */}
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            saveToGallery(imageUrl);
+                                          }}
+                                          disabled={savingImages.has(imageUrl)}
+                                          style={{
+                                            position: 'absolute',
+                                            top: '8px',
+                                            right: '8px',
+                                            background: 'rgba(0,0,0,0.7)',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '32px',
+                                            height: '32px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer'
+                                          }}
+                                          title={savedImages.has(imageUrl) ? 'Saved to gallery' : 'Save to gallery'}
+                                        >
+                                          {savingImages.has(imageUrl) ? (
+                                            <div style={{
+                                              width: '12px',
+                                              height: '12px',
+                                              border: '2px solid #fff',
+                                              borderTop: '2px solid transparent',
+                                              borderRadius: '50%',
+                                              animation: 'spin 1s linear infinite'
+                                            }}></div>
+                                          ) : savedImages.has(imageUrl) ? (
+                                            <span style={{ color: '#ef4444', fontSize: '14px' }}>♥</span>
+                                          ) : (
+                                            <span style={{ color: '#fff', fontSize: '14px' }}>♡</span>
+                                          )}
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                
+                                <button
+                                  onClick={() => generateFromSpecificConcept(concept.title, concept.id)}
+                                  disabled={concept.isLoading || activeGenerations.size > 0}
+                                  style={{
+                                    padding: '12px 24px',
+                                    background: concept.isLoading ? 'var(--soft-gray)' : 'var(--black)',
+                                    color: 'var(--white)',
+                                    border: 'none',
+                                    fontSize: '11px',
+                                    textTransform: 'uppercase',
+                                    cursor: concept.isLoading ? 'not-allowed' : 'pointer',
+                                    opacity: concept.isLoading ? 0.7 : 1
+                                  }}
+                                >
+                                  {concept.isLoading ? 'Generating...' : concept.hasGenerated ? 'Generate Again' : 'Generate This Concept'}
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Footer Actions */}
+                          <div style={{
+                            display: 'flex',
+                            gap: '12px',
+                            marginTop: '24px',
+                            justifyContent: 'center'
+                          }}>
+                            <button
+                              onClick={() => sendChatMessage('Create more concepts like these', input, setInput, setIsTyping, isOnboardingMode, isQuickStartMode)}
+                              style={{
+                                padding: '12px 24px',
+                                background: 'transparent',
+                                color: 'var(--black)',
+                                border: '1px solid var(--accent-line)',
+                                fontSize: '11px',
+                                textTransform: 'uppercase',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              More Concepts Like This
+                            </button>
+                            <button
+                              onClick={() => sendChatMessage('I want a completely new style direction', input, setInput, setIsTyping, isOnboardingMode, isQuickStartMode)}
+                              style={{
+                                padding: '12px 24px',
+                                background: 'transparent',
+                                color: 'var(--black)',
+                                border: '1px solid var(--accent-line)',
+                                fontSize: '11px',
+                                textTransform: 'uppercase',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              New Style Direction
+                            </button>
+                          </div>
                         </div>
                       )}
 
