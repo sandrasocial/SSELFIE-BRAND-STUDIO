@@ -1,0 +1,131 @@
+PHASE 3: Performance Optimization and Cleanup
+PHASE 3: Performance Optimization and Code Cleanup
+OBJECTIVE: Optimize system performance and remove technical debt
+PRIORITY: Medium - Improves user experience and maintainability
+
+SPECIFIC TASKS:
+
+1. QUERY OPTIMIZATION AND CACHING:
+   a) Frontend Query Optimization:
+      - Review TanStack Query configurations in Maya, Gallery, and Workspace
+      - Set appropriate staleTime for user data (5 minutes minimum)
+      - Implement proper query keys to prevent unnecessary refetches
+      - Add loading states where missing
+
+   b) Database Query Optimization:
+      - Review slow queries in gallery image loading
+      - Optimize Maya chat history queries with proper indexing
+      - Ensure user model queries are efficient
+      - Add query result caching where appropriate
+
+   c) API Response Optimization:
+      - Minimize payload sizes for large image lists
+      - Implement pagination for gallery with 20 items per page
+      - Compress API responses where possible
+      - Add proper HTTP caching headers
+
+2. BUNDLE SIZE OPTIMIZATION:
+   a) Remove Unused Imports:
+      - Scan all pages for unused React imports
+      - Remove unused utility functions and components
+      - Clean up legacy component imports
+      - Remove unused CSS classes and styles
+
+   b) Code Splitting Implementation:
+      - Lazy load Gallery page (not critical for initial load)
+      - Lazy load Training page (only needed after payment)
+      - Keep Maya and Workspace eagerly loaded (core features)
+      - Implement proper loading states for lazy components
+
+   c) Asset Optimization:
+      - Optimize image assets used in UI
+      - Minimize CSS bundle size
+      - Remove duplicate CSS rules
+      - Compress fonts and static assets
+
+3. MEMORY LEAK PREVENTION:
+   a) Maya Chat Cleanup:
+      - Ensure WebSocket connections are properly closed
+      - Clean up polling intervals when components unmount
+      - Remove event listeners on component cleanup
+      - Clear large image arrays when not needed
+
+   b) Training Process Cleanup:
+      - Stop status polling when user navigates away
+      - Clean up file upload progress tracking
+      - Clear temporary image previews from memory
+      - Ensure training monitors don't run indefinitely
+
+   c) Gallery Cleanup:
+      - Implement virtual scrolling for large image collections
+      - Unload non-visible images from memory
+      - Clean up image selection state
+      - Prevent memory accumulation in favorites
+
+4. COMPONENT CLEANUP AND STANDARDIZATION:
+   a) Remove Unused Components:
+      - Identify and remove legacy components
+      - Clean up archived admin components from member pages
+      - Remove duplicate utility components
+      - Consolidate similar functionality
+
+   b) Standardize Naming Conventions:
+      - Ensure component files use PascalCase
+      - Ensure utility files use kebab-case
+      - Standardize prop naming across components
+      - Fix inconsistent variable naming
+
+   c) TypeScript Improvements:
+      - Add proper types for API responses
+      - Fix any 'any' types with proper interfaces
+      - Add type safety for image URL handling
+      - Improve error type definitions
+
+5. DATABASE CLEANUP:
+   a) Complete aiImages Migration:
+      - Verify all data migrated to generatedImages
+      - Update remaining queries to use new schema
+      - Plan deprecation of legacy aiImages table
+      - Ensure no functionality relies on old schema
+
+   b) Index Optimization:
+      - Add missing indexes for frequent queries
+      - Review slow query performance
+      - Optimize user-based filtering indexes
+      - Add composite indexes where needed
+
+   c) Data Cleanup:
+      - Remove orphaned records if any exist
+      - Clean up test data from development
+      - Optimize storage of large text fields
+      - Implement data retention policies
+
+PERFORMANCE TESTING REQUIREMENTS:
+- Measure page load times before and after optimizations
+- Test gallery loading with 100+ images
+- Verify Maya chat responsiveness with long conversations
+- Check training page performance with multiple uploads
+- Monitor memory usage during extended sessions
+
+CLEANUP VALIDATION:
+- Ensure all removed code doesn't break functionality
+- Verify all imports resolve correctly
+- Test that component refactoring doesn't change behavior
+- Confirm database changes don't affect existing queries
+
+CONSTRAINTS:
+- Do not modify core business logic
+- Do not change user-facing functionality
+- Do not alter payment processing
+- Maintain backwards compatibility
+- Preserve all user data and settings
+
+EXPECTED OUTCOME:
+- Faster page load times across all routes
+- Reduced memory usage during extended sessions  
+- Cleaner, more maintainable codebase
+- Optimized database performance
+- Reduced bundle size and improved Core Web Vitals
+- No functional changes or user-facing differences
+
+Complete Phase 3 fully and measure performance improvements before requesting Phase 4.

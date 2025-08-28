@@ -13,6 +13,8 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import { useMayaChat } from '../hooks/useMayaChat';
 import { useMayaGeneration } from '../hooks/useMayaGeneration';
 import { useMayaOnboarding } from '../hooks/useMayaOnboarding';
+import { useMemoryCleanup } from '../hooks/useMemoryCleanup';
+import { throttle, debounce } from '../utils/performanceOptimizations';
 import '../maya-onboarding.css';
 
 interface ChatMessage {
@@ -106,6 +108,14 @@ function Maya() {
 
   // Remaining local UI state
   const [input, setInput] = useState('');
+  
+  // Performance optimizations
+  const { addCleanup } = useMemoryCleanup();
+  
+  // Throttled input handler for better performance
+  const throttledHandleInputChange = throttle((value: string) => {
+    setInput(value);
+  }, 100);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

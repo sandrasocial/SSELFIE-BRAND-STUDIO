@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from './use-toast';
 import { apiRequest } from '../lib/queryClient';
+import { useMemoryCleanup } from './useMemoryCleanup';
 
 // PHASE 7: Frontend Performance Tracking (shared with chat hook)
 const trackUserEvent = (event: string, data: any = {}) => {
@@ -49,6 +50,7 @@ export const useMayaGeneration = () => {
   const [preset, setPreset] = useState<Preset>('Editorial');
   const [seed, setSeed] = useState<string>('');
   const { toast } = useToast();
+  const { createTimeout, addCleanup } = useMemoryCleanup();
 
   // Clear stale generations on mount
   useEffect(() => {
