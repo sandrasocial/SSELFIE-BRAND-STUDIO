@@ -38,24 +38,29 @@ class PWAManager {
   }
 
   private async registerServiceWorker() {
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js');
         console.log('SSELFIE Studio: Service Worker registered', registration);
         
-        // Handle updates
+        // Handle updates - add error handling to prevent promise rejections
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                this.showUpdateAvailable();
+              try {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  this.showUpdateAvailable();
+                }
+              } catch (stateError) {
+                console.warn('SSELFIE Studio: Service Worker state change error', stateError);
               }
             });
           }
         });
       } catch (error) {
-        console.log('SSELFIE Studio: Service Worker registration failed', error);
+        console.warn('SSELFIE Studio: Service Worker registration failed (expected in dev)', error);
+        // Don't rethrow - just log and continue
       }
     }
   }
@@ -215,11 +220,16 @@ class PWAManager {
     console.log('SSELFIE Studio: PWA installation tracked');
     
     // Could send to analytics service here
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'pwa_install', {
-        event_category: 'engagement',
-        event_label: 'PWA installed'
-      });
+    try {
+      if (typeof (window as any).gtag !== 'undefined') {
+        (window as any).gtag('event', 'pwa_install', {
+          event_category: 'engagement',
+          event_label: 'PWA installed'
+        });
+      }
+    } catch (error) {
+      // Analytics tracking is optional
+      console.debug('Analytics tracking not available');
     }
   }
 
