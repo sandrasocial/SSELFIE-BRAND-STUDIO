@@ -658,16 +658,15 @@ CRITICAL REQUIREMENTS:
 4. Use your professional fashion and photography knowledge extensively
 5. Return ONLY the prompt - no chat text, no explanations, no context
 
-EXAMPLE FORMAT:
-"${triggerWord} wearing an impeccably tailored charcoal grey blazer with subtle peak lapels, crisp white cotton poplin shirt with French cuffs, high-waisted wool trousers in matching charcoal with a perfectly pressed crease, delicate gold layered necklaces including a thin chain and geometric pendant, hair styled in a sleek low chignon with face-framing pieces, sophisticated makeup featuring a flawless base with subtle contouring, defined brows, neutral eyeshadow in warm taupes, precise black eyeliner, and a nude-pink lip with slight gloss, sitting confidently at a modern marble desk with brass details, one hand resting on the surface, direct eye contact with the camera, professional studio lighting with key light at 45 degrees creating subtle shadows, rim lighting to separate from background, shot with 85mm lens for natural facial proportions, modern office environment with floor-to-ceiling windows, contemporary furniture, and clean architectural lines"
+Apply your complete styling knowledge from your personality - your sophisticated color intelligence, editorial palettes, hair and beauty expertise, sophisticated photo locations, and photography mastery. Use your understanding of luxury trends, editorial formulas, and personal branding to create the perfect prompt for this concept.
 
 FORBIDDEN:
-- Do not include long descriptions or storytelling
-- Do not include user conversation text
-- Do not include Maya's personality responses
-- Do not include "Trust me" or other Maya chat language
+- Do not include Maya's conversational responses or chat language
+- Do not include explanations or descriptions about the prompt
+- Do not include "Trust me" or other personality text
+- Return ONLY the detailed photography prompt
 
-Create a concise prompt for: "${conceptName}"`;
+Create a comprehensive styling prompt for: "${conceptName}"`;
 
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
