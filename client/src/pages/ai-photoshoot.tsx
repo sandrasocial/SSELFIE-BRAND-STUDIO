@@ -35,7 +35,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Truth on Paper',
         category: 'Emotional Release',
         description: 'Writing your way through the pain - where honesty becomes healing',
-        prompt: '[triggerword], woman writing her way through pain where honesty becomes healing, luxurious oversized cream cashmere sweater and premium leather journal, soft golden afternoon window light streaming through creating warm shadows, focused expression while processing emotions through words and finding truth on paper, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword] woman writing her way through pain where honesty becomes healing, luxurious oversized cream cashmere sweater and premium leather journal, soft golden afternoon window light streaming through creating warm shadows, focused expression while processing emotions through words and finding truth on paper'
       },
       {
         id: 'therapy-session-breakthrough',
@@ -63,7 +63,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Forest Healing',
         category: 'Nature Connection',
         description: 'When trees became your teachers - finding wisdom in ancient growth',
-        prompt: '[triggerword], woman walking slowly through forest where trees became her teachers, luxury earth-toned cashmere and wool layers perfect for nature connection, magical dappled golden sunlight filtering through ancient trees creating natural therapy, serene expression while connecting with nature and finding wisdom in ancient growth, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword] woman walking slowly through forest where trees became her teachers, luxury earth-toned cashmere and wool layers perfect for nature connection, magical dappled golden sunlight filtering through ancient trees creating natural therapy, serene expression while connecting with nature and finding wisdom in ancient growth'
       },
       {
         id: 'crying-release-moment',
@@ -84,7 +84,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Phoenix Rising',
         category: 'Transformation',
         description: 'The woman you became after the fire - stronger, wiser, unbreakable',
-        prompt: '[triggerword], woman who became stronger after the fire - the phoenix rising moment, flowing ethereal white silk dress perfect for transformation photography, magical golden hour backlighting in wheat field at sunset creating warm rim light, powerful yet serene expression with arms outstretched feeling freedom after becoming unbreakable, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword] woman who became stronger after the fire - the phoenix rising moment, flowing ethereal white silk dress perfect for transformation photography, magical golden hour backlighting in wheat field at sunset creating warm rim light, powerful yet serene expression with arms outstretched feeling freedom after becoming unbreakable'
       },
       {
         id: 'new-beginning-sunrise',

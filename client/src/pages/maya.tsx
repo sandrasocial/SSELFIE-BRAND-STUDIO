@@ -398,12 +398,13 @@ function Maya() {
           'Outfit photos': 'Fashion-forward style portrait, designer statement piece, salon-perfect styling, editorial makeup, professional studio lighting, clean backdrop, runway-inspired pose'
         };
         
+        // Note: These fallback prompts should start with trigger word, but this will be handled by the backend
         finalPrompt = conceptPrompts[conceptName] || `Professional portrait featuring elegant styling for ${conceptName}, detailed hair and makeup, perfect lighting, sophisticated setting`;
       }
 
-      // Add camera specifications for professional quality
-      const cameraSpecs = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
-      const enhancedPrompt = cameraSpecs + finalPrompt;
+      // CRITICAL FIX: Do not add camera specs prefix - Maya's prompt already starts with trigger word
+      // The trigger word MUST be the first word for proper LoRA training activation
+      const enhancedPrompt = finalPrompt;
 
       console.log('Maya: Using enhanced prompt:', enhancedPrompt);
 
