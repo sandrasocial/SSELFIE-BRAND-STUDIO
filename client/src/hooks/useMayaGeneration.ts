@@ -435,6 +435,93 @@ export const useMayaGeneration = (
     }
   };
 
+  // CRITICAL FIX: Concept-specific polling that updates the right concept card
+  const pollConceptGeneration = async (predictionId: string, conceptTitle: string, conceptId: string, messageId: string) => {
+    const maxAttempts = 100; // 5 minutes max
+    let attempts = 0;
+    
+    const poll = async () => {
+      try {
+        const statusResponse = await fetch(`/api/maya/check-generation/${predictionId}?chatId=${currentChatId}&messageId=${messageId}`, { 
+          credentials: 'include' 
+        });
+        
+        if (!statusResponse.ok) {
+          throw new Error(`Status check failed: ${statusResponse.status}`);
+        }
+        
+        const result = await statusResponse.json();
+        console.log(`Maya concept polling (${conceptTitle}):`, result.status, 'Images:', result.imageUrls?.length || 0);
+        
+        if (result.status === 'completed' && result.imageUrls && result.imageUrls.length > 0) {
+          console.log(`Maya concept "${conceptTitle}" generation complete!`);
+          
+          // Update the specific concept card with generated images
+          setMessages?.(prev => prev.map(msg => ({
+            ...msg,
+            conceptCards: msg.conceptCards?.map(concept => 
+              concept.id === conceptId 
+                ? { 
+                    ...concept, 
+                    generatedImages: result.imageUrls,
+                    isLoading: false,
+                    isGenerating: false,
+                    hasGenerated: true 
+                  }
+                : concept
+            )
+          })));
+          
+          // Remove from active generations
+          setActiveGenerations?.(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(predictionId);
+            return newSet;
+          });
+          
+          return;
+        } else if (result.status === 'failed') {
+          throw new Error(`Generation failed: ${result.error || 'Unknown error'}`);
+        }
+        
+        // Continue polling if still processing
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 3000); // Poll every 3 seconds
+        } else {
+          throw new Error('Generation timeout after 5 minutes');
+        }
+        
+      } catch (error) {
+        console.error(`Maya concept "${conceptTitle}" polling error:`, error);
+        
+        // Reset concept card state on error
+        setMessages?.(prev => prev.map(msg => ({
+          ...msg,
+          conceptCards: msg.conceptCards?.map(concept => 
+            concept.id === conceptId 
+              ? { ...concept, isLoading: false, isGenerating: false }
+              : concept
+          )
+        })));
+        
+        // Remove from active generations
+        setActiveGenerations?.(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(predictionId);
+          return newSet;
+        });
+        
+        toast?.({
+          title: "Generation Error",
+          description: `I had trouble creating the "${conceptTitle}" photos. Would you like to try again?`
+        });
+      }
+    };
+    
+    poll();
+  };
+
   const generateFromSpecificConcept = async (conceptTitle: string, conceptId: string) => {
     console.log('Generating concept:', conceptTitle);
     
@@ -451,9 +538,39 @@ export const useMayaGeneration = (
     }
     
     try {
-      // Use existing generateImages function but with concept title as prompt
-      const result = await generateImages(conceptTitle, undefined, undefined, setMessages, currentChatId);
-      return result;
+      // CRITICAL FIX: Pass concept information to backend properly
+      const response = await fetch('/api/maya/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          prompt: conceptTitle, 
+          conceptName: conceptTitle, // This ensures the backend knows it's a concept selection
+          chatId: currentChatId,
+          count: 2
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Generation failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success && result.predictionId) {
+        // Start polling for this specific concept generation
+        const messageId = `concept_generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Add to active generations
+        setActiveGenerations?.(prev => new Set(prev).add(result.predictionId));
+        
+        // Start polling with concept context
+        pollConceptGeneration(result.predictionId, conceptTitle, conceptId, messageId);
+        
+        return { predictionId: result.predictionId, messageId };
+      } else {
+        throw new Error(result.error || 'Generation failed');
+      }
     } catch (error) {
       // Reset loading state on error
       if (setMessages) {
