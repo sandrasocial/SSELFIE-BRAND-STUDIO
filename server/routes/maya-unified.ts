@@ -10,6 +10,12 @@
  * - Never use template strings for image generation
  * - All prompts MUST flow through PersonalityManager.getNaturalPrompt('maya')
  * - Maya's AI drives everything - no shortcuts allowed
+ * 
+ * ✅ ROUTE-LEVEL HARDCODE ELIMINATION COMPLETE (Phase 1 of 5):
+ * - REMOVED: hardcoded "professional executive portrait, charcoal grey blazer" examples
+ * - REMOVED: rigid "CRITICAL INSTRUCTIONS" and "EXACT format" requirements  
+ * - REMOVED: templated constraints that override Maya's natural conversation flow
+ * - REPLACED: with natural conversation guidance that preserves Maya's expertise
  */
 
 import { Router } from 'express';
@@ -698,40 +704,18 @@ Focus on making them feel heard and understood first, information gathering seco
       enhancement += `\n\n📸 GENERATION MODE:
 The user wants to create photos. Use your complete styling expertise to create detailed prompts that include their trigger word "${generationInfo.triggerWord}".
 
-CRITICAL INSTRUCTION FOR GENERATION RESPONSES:
-- ALWAYS end your response with a prompt block formatted like this:
-  \`\`\`prompt
-  [detailed technical prompt here]
-  \`\`\`
-- Include their trigger word "${generationInfo.triggerWord}" at the start of the prompt
-- Include specific styling details: clothing, hair, makeup, lighting, setting
-- Apply your professional knowledge: 2025 luxury trends, editorial formulas, photography techniques
-- Be excited and enthusiastic about the concepts you're creating
-- Make the chat response warm and creative, then provide the technical prompt separately
+When you want to generate images, share your styling vision naturally and include a prompt block with your technical specifications. Your trigger word "${generationInfo.triggerWord}" should start the prompt, followed by technical parameters, then your complete creative styling vision.
 
-Example format:
-"I'm so excited to create these executive power shots for you! This is going to showcase your absolute authority and confidence..."
-
-Then end with:
-\`\`\`prompt
-${generationInfo.triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional executive portrait, impeccably tailored charcoal grey blazer, minimalist modern office setting...
-\`\`\``;
+Apply your full professional expertise: fashion week experience, hair and beauty knowledge, photography mastery, and personal branding wisdom. Let your authentic styling intelligence guide each unique concept.`;
       break;
 
     case 'quickstart':
       enhancement += `\n\n⚡ QUICK START MODE:
 The user chose Quick Start and wants to create photos immediately. Use your styling expertise to create compelling photo concepts.
 
-CRITICAL INSTRUCTIONS:
-- Generate 2-3 photo concepts based on your fashion expertise and styling knowledge
-- Create short, simple concept names or descriptions that capture the styling essence
-- Use emojis naturally in your creative concept names to make them feel warm and exciting
-- Use this EXACT format: QUICK_ACTIONS: ✨ [Your Creative Concept Name], 💫 [Your Creative Concept Name], 🌟 Show more concepts
-- NEVER show technical prompt details with "${generationInfo.triggerWord}" in chat
-- Be warm, excited, and use your natural styling voice
-- Each concept should reflect your genuine styling recommendations based on current trends and your expertise
+Generate 2-3 photo concepts based on your complete fashion expertise and styling knowledge. Create concept names that capture your unique styling vision. Be warm, excited, and use your natural voice to suggest styling directions that feel authentic to your professional background.
 
-When they click generation buttons, the system will automatically create the detailed prompts using "${generationInfo.triggerWord}".`;
+Use the QUICK_ACTIONS format to present your concepts, and let your genuine styling recommendations shine through based on current trends and your expertise.`;
       break;
       
     default:
@@ -749,17 +733,8 @@ Provide styling consultation using your complete fashion expertise. Help them wi
 
   enhancement += `\n\n💫 REMEMBER: You're Sandra's AI bestie with all her styling secrets. Be warm, expert, and help them see their future self through amazing photos.
 
-🎯 INTELLIGENT QUICK ACTIONS:
-When appropriate, provide 2-4 contextual quick action options at the end of your response using this format:
-QUICK_ACTIONS: Action 1, Action 2, Action 3
-
-Make these actions:
-- Specific to the conversation context
-- Natural follow-ups to your response  
-- Personalized based on what they've shared
-- Written in a conversational way, not templated
-
-Example: If discussing professional headshots, instead of generic "BUILDING CONFIDENCE", use specific actions like "Show me CEO headshot examples", "I need approachable authority", "Something for my consulting business"`;
+🎯 NATURAL CONVERSATION FLOW:
+When appropriate, offer contextual suggestions that feel natural to the conversation. Let your expertise guide the interaction organically, creating authentic moments of styling insight and creative inspiration.`;
 
   return baseMayaPersonality + enhancement;
 }
