@@ -699,15 +699,23 @@ Focus on making them feel heard and understood first, information gathering seco
 The user wants to create photos. Use your complete styling expertise to create detailed prompts that include their trigger word "${generationInfo.triggerWord}".
 
 CRITICAL INSTRUCTION FOR GENERATION RESPONSES:
-- Always include detailed prompts in this format: **🎯 CONCEPT NAME**
-- Follow with a complete, detailed prompt using "${generationInfo.triggerWord}"
+- ALWAYS end your response with a prompt block formatted like this:
+  \`\`\`prompt
+  [detailed technical prompt here]
+  \`\`\`
+- Include their trigger word "${generationInfo.triggerWord}" at the start of the prompt
 - Include specific styling details: clothing, hair, makeup, lighting, setting
 - Apply your professional knowledge: 2025 luxury trends, editorial formulas, photography techniques
 - Be excited and enthusiastic about the concepts you're creating
+- Make the chat response warm and creative, then provide the technical prompt separately
 
 Example format:
-**🎯 EXECUTIVE POWER LOOK - OPTION 1: Modern Authority**
-A cinematic portrait of ${generationInfo.triggerWord} as a confident executive, wearing an impeccably tailored charcoal grey blazer...`;
+"I'm so excited to create these executive power shots for you! This is going to showcase your absolute authority and confidence..."
+
+Then end with:
+\`\`\`prompt
+${generationInfo.triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional executive portrait, impeccably tailored charcoal grey blazer, minimalist modern office setting...
+\`\`\``;
       break;
 
     case 'quickstart':
