@@ -623,45 +623,68 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
   }
 }
 
-// Helper function to create detailed prompts from Maya's AI-generated concept names
+// MAYA'S AI-DRIVEN PROMPT GENERATION - NO MORE HARDCODED TEMPLATES
 async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string): Promise<string> {
-  // Maya generates concept names using her AI intelligence and styling expertise
-  // Instead of hardcoded mapping, we analyze the concept name to create appropriate prompts
+  // Use Maya's complete styling expertise through Claude API instead of hardcoded templates
   
-  const lowerName = conceptName.toLowerCase();
-  
-  // Professional/Business concepts
-  if (lowerName.includes('boss') || lowerName.includes('ceo') || lowerName.includes('executive') || lowerName.includes('professional')) {
-    return `Professional portrait of ${triggerWord} in a chic blazer and silk camisole, standing confidently against a minimalist white wall, arms crossed with a warm smile, hair perfectly styled, subtle but polished makeup, soft studio lighting creating gentle shadows, shot from a slight low angle for empowerment, luxury fashion photography aesthetic`;
+  try {
+    // Build Maya's specialized prompt generation persona
+    const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
+
+🎯 PROMPT GENERATION SPECIALIST MODE:
+You are now acting as Maya's prompt generation system. Your job is to translate the concept "${conceptName}" into a detailed, professional photography prompt that uses the trigger word "${triggerWord}".
+
+CRITICAL REQUIREMENTS:
+1. Always start with "${triggerWord}" in the prompt
+2. Apply your complete styling expertise from 2025 fashion trends
+3. Include specific details: clothing, hair, makeup, lighting, pose, setting
+4. Use professional photography terminology
+5. Create prompts that would result in luxury, editorial-quality images
+6. Consider the concept's intended use (business, social media, website, etc.)
+7. Return ONLY the detailed prompt - no conversation, no explanations
+
+EXAMPLE FORMAT:
+"${triggerWord} in a tailored charcoal blazer and ivory silk blouse, standing confidently with arms crossed, warm professional smile, hair styled in a sleek low bun, subtle but polished makeup with defined brows and nude lip, soft studio lighting creating gentle shadows, shot from a slight low angle for empowerment, luxury fashion photography aesthetic, 85mm lens, professional headshot quality"
+
+Now create a detailed prompt for: "${conceptName}"`;
+
+    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY!,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: mayaPromptPersonality,
+        messages: [
+          {
+            role: 'user',
+            content: `Create a detailed photography prompt for: "${conceptName}"`
+          }
+        ]
+      })
+    });
+
+    if (!claudeResponse.ok) {
+      throw new Error(`Claude API error: ${claudeResponse.status}`);
+    }
+
+    const data = await claudeResponse.json();
+    const generatedPrompt = data.content[0].text.trim();
+    
+    console.log(`🎯 MAYA AI PROMPT: Generated for "${conceptName}":`, generatedPrompt.substring(0, 100) + '...');
+    
+    return generatedPrompt;
+    
+  } catch (error) {
+    console.error('Maya AI prompt generation failed:', error);
+    
+    // Emergency fallback - basic professional prompt with trigger word
+    return `${triggerWord} in professional attire, confident pose, expert styling, luxury photography aesthetic, high-quality portrait photography`;
   }
-  
-  // LinkedIn/Corporate concepts  
-  if (lowerName.includes('linkedin') || lowerName.includes('corporate') || lowerName.includes('business')) {
-    return `Executive portrait of ${triggerWord} in a navy blazer and white blouse, sitting at a polished conference table, warm professional smile, hair styled in a sleek bob, minimal but sophisticated makeup, soft office lighting, shot against a blurred modern office background, professional headshot photography style`;
-  }
-  
-  // Lifestyle/Casual concepts
-  if (lowerName.includes('lifestyle') || lowerName.includes('casual') || lowerName.includes('coffee') || lowerName.includes('chic')) {
-    return `Stylish woman ${triggerWord} sitting at a marble coffee table in a bright, modern café, wearing a cream cashmere sweater and gold jewelry, natural makeup with glowing skin, long hair styled in loose waves, holding a latte with beautiful foam art, soft natural lighting streaming through large windows, shot with a 50mm lens for that perfect shallow depth of field, editorial photography style`;
-  }
-  
-  // Social Media concepts
-  if (lowerName.includes('social') || lowerName.includes('instagram') || lowerName.includes('influencer') || lowerName.includes('content')) {
-    return `${triggerWord} in trendy casual wear, sitting on a velvet couch with perfect lighting, effortless waves in hair, natural glowing makeup, holding a phone in a candid moment, soft natural light creating that perfect Instagram glow, shot with portrait lens for social media perfection, lifestyle influencer aesthetic`;
-  }
-  
-  // Website/Brand concepts
-  if (lowerName.includes('website') || lowerName.includes('brand') || lowerName.includes('hero')) {
-    return `Professional business portrait of ${triggerWord} in elegant attire, standing in a modern office space with floor-to-ceiling windows, confident posture with hands on hips, sophisticated styling with tailored jacket, natural lighting creating soft shadows, shot with 85mm lens for professional headshot quality, luxury corporate photography aesthetic`;
-  }
-  
-  // Creative/Editorial concepts
-  if (lowerName.includes('editorial') || lowerName.includes('creative') || lowerName.includes('artistic') || lowerName.includes('goddess')) {
-    return `${triggerWord} in a flowing midi dress, sitting on a velvet accent chair in a beautifully styled living room with plants and books, natural sunlight creating a warm glow, relaxed but polished styling, candid laugh captured mid-moment, cozy yet sophisticated atmosphere, lifestyle photography with rich colors and textures`;
-  }
-  
-  // Default: Professional portrait with Maya's styling expertise
-  return `Professional portrait of ${triggerWord} in elegant styling, sophisticated lighting, editorial photography quality, styled with Maya's fashion expertise and attention to luxury details`;
 }
 
 // 🔥 CRITICAL FIX: Chat History Loading with Image Persistence
