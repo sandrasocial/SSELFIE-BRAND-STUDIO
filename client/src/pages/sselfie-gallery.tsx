@@ -7,6 +7,8 @@ import { HeroFullBleed } from '../components/hero-full-bleed';
 import { SandraImages } from '../lib/sandra-images';
 import { apiRequest } from '../lib/queryClient';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { useMemoryCleanup } from '../hooks/useMemoryCleanup';
+import { getOptimalStaleTime } from '../utils/performanceOptimizations';
 
 function SSELFIEGallery() {
   const { user, isAuthenticated } = useAuth();
@@ -16,20 +18,28 @@ function SSELFIEGallery() {
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const queryClient = useQueryClient();
 
-  // Fetch user's deliberately saved gallery images
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const imagesPerPage = 20;
+
+  // Performance optimizations
+  const { addCleanup } = useMemoryCleanup();
+
+  // Fetch user's deliberately saved gallery images with pagination
   const { data: aiImages = [], isLoading } = useQuery<any[]>({
-    queryKey: ['/api/gallery-images'],
+    queryKey: ['/api/gallery-images', currentPage, imagesPerPage],
     enabled: isAuthenticated && !!user,
-    retry: 3,
-    retryDelay: 1000
+    staleTime: getOptimalStaleTime('gallery'), // Optimized cache timing
+    gcTime: 5 * 60 * 1000, // 5 minutes garbage collection
+    refetchOnWindowFocus: false, // Prevent unnecessary refetches
   });
 
   // Fetch user's favorites
   const { data: favoritesData } = useQuery<{ favorites: number[] }>({
     queryKey: ['/api/images/favorites'],
     enabled: isAuthenticated && !!user,
-    retry: 3,
-    retryDelay: 1000
+    staleTime: getOptimalStaleTime('static'), // Longer cache for favorites
+    refetchOnWindowFocus: false, // Prevent unnecessary refetches
   });
 
   const favorites: number[] = favoritesData?.favorites || [];

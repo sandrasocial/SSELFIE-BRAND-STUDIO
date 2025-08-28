@@ -41,10 +41,14 @@ function SimpleTraining() {
     estimatedCompletionTime?: string;
     failureReason?: string;
     completedAt?: string;
+    canRetrain?: boolean;
+    needsTraining?: boolean;
   }>({
     queryKey: ['/api/user-model'],
     retry: false,
-    enabled: isAuthenticated // Only when authenticated
+    enabled: isAuthenticated, // Only when authenticated
+    staleTime: 30 * 1000, // 30 seconds for training status
+    refetchInterval: isTrainingStarted ? 5000 : false, // Poll every 5s during training
   });
 
   // Check training status for failures
@@ -54,7 +58,8 @@ function SimpleTraining() {
   }>({
     queryKey: ['/api/training-status'],
     retry: false,
-    enabled: isAuthenticated
+    enabled: isAuthenticated,
+    staleTime: 10 * 1000, // 10 seconds for training status
   });
 
   // Restart training mutation
