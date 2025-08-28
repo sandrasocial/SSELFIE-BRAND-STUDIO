@@ -922,7 +922,7 @@ function Maya() {
             padding: clamp(20px, 5vw, 30px);
           }
 
-          /* Touch-friendly buttons */
+          /* PHASE 6: Enhanced touch targets - Apple HIG compliant */
           .quick-button {
             min-height: 44px !important;
             min-width: 120px !important;
@@ -930,12 +930,14 @@ function Maya() {
             font-size: 13px !important;
             margin: 4px !important;
             touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
           }
 
           .send-btn {
             min-height: 44px !important;
             min-width: 60px !important;
             touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
           }
 
           .input-field {
@@ -943,18 +945,22 @@ function Maya() {
             font-size: 16px !important; /* Prevents zoom on iOS */
             padding: 12px 16px !important;
             touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
           }
 
-          /* Image grid mobile optimization */
+          /* PHASE 6: Image grid mobile optimization */
           .image-grid {
             grid-template-columns: 1fr !important;
             gap: 12px !important;
+            padding-bottom: 100px; /* Extra space for mobile interaction */
           }
 
           .save-btn {
-            width: 40px !important;
-            height: 40px !important;
+            width: 44px !important; /* Apple HIG minimum */
+            height: 44px !important;
             opacity: 1 !important; /* Always visible on mobile */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
           }
 
           /* Style quickselect mobile */
@@ -967,6 +973,111 @@ function Maya() {
             min-height: 44px !important;
             padding: 16px !important;
             touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+          }
+
+          /* PHASE 6: Keyboard handling for mobile */
+          .chat-container {
+            height: 100vh;
+            height: 100dvh; /* Use dynamic viewport height */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+          }
+
+          .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 16px 120px; /* Extra bottom padding for input area */
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+          }
+
+          .input-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid var(--accent-line);
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+          }
+
+          /* Prevent viewport jumping on focus */
+          .input-container {
+            padding: 16px;
+            min-height: 76px; /* Consistent height to prevent jumping */
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+          }
+
+          /* PHASE 6: Scroll behavior when keyboard appears */
+          .input-field:focus {
+            outline: none;
+            border-color: var(--black);
+          }
+
+          /* Ensure content is visible above keyboard */
+          @supports (-webkit-touch-callout: none) {
+            /* iOS Safari specific */
+            .input-area {
+              padding-bottom: max(16px, env(keyboard-inset-height, env(safe-area-inset-bottom)));
+            }
+          }
+
+          /* Generation buttons mobile */
+          .generate-btn button {
+            min-height: 44px !important;
+            padding: 16px 24px !important;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+          }
+
+          /* Preset controls mobile */
+          select, input[type="number"], button {
+            min-height: 44px !important;
+            padding: 12px 16px !important;
+            font-size: 16px !important; /* Prevents zoom */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+          }
+
+          /* Hero CTA mobile */
+          .hero-cta {
+            min-height: 44px !important;
+            padding: 16px 32px !important;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+          }
+
+          /* New session button mobile */
+          .new-session-btn {
+            min-height: 44px !important;
+            padding: 16px 0 !important;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+          }
+
+          /* PHASE 6: Image viewing optimizations */
+          .image-item img {
+            height: auto !important;
+            min-height: 200px;
+            max-height: 400px;
+          }
+
+          /* Touch feedback for all interactive elements */
+          button:active, .style-option:active, .quick-button:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+          }
+
+          /* Prevent text selection on buttons */
+          .quick-button, .style-option, button {
+            -webkit-user-select: none;
+            user-select: none;
           }
         }
 
