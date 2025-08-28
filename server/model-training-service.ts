@@ -393,17 +393,17 @@ export class ModelTrainingService {
 
       // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION
       const intelligentParams = this.getIntelligentParameters(finalPrompt, count);
-      console.log(`🎯 MAYA INTELLIGENCE: Using intelligent parameters for prompt: count=${intelligentParams.count}, guidance=${intelligentParams.guidance}, steps=${intelligentParams.steps}`);
+      console.log(`🎯 MAYA INTELLIGENCE: Using ${intelligentParams.preset} preset for ${intelligentParams.reasoning}`);
+      console.log(`🎯 MAYA PARAMETERS: count=${intelligentParams.count}${intelligentParams.loraScaleOverride ? `, lora_scale=${intelligentParams.loraScaleOverride}` : ''}`);
 
-      // ----- Merge generation parameters (defaults → preset → explicit overrides → intelligent params) -----
-      const presetParams = options?.preset ? FLUX_PRESETS[options.preset] : {};
+      // ----- Merge generation parameters (defaults → Maya's intelligent preset → explicit overrides) -----
+      const mayaPreset = FLUX_PRESETS[intelligentParams.preset];
       const merged = {
         ...UNIVERSAL_DEFAULT,
         ...GENERATION_SETTINGS,
-        ...presetParams,
-        // Apply Maya's intelligent parameters
-        guidance_scale: intelligentParams.guidance,
-        num_inference_steps: intelligentParams.steps,
+        ...mayaPreset, // Use Maya's intelligently selected preset
+        // Apply LoRA scale override for full scenery if needed
+        ...(intelligentParams.loraScaleOverride && { lora_scale: intelligentParams.loraScaleOverride }),
         ...(options?.paramsOverride || {})
       };
       
@@ -467,12 +467,13 @@ export class ModelTrainingService {
           input: {
             prompt: finalPrompt,
             lora_weights: loraWeightsUrl,
-            lora_scale: 1,
-            // 🎯 MAYA'S INTELLIGENT PARAMETERS IN ACTION
+            // 🎯 MAYA'S INTELLIGENT FLUX PARAMETERS IN ACTION
+            lora_scale: merged.lora_scale,
             num_outputs: finalCount,
             guidance_scale: merged.guidance_scale,
             num_inference_steps: merged.num_inference_steps,
-            aspect_ratio: "3:4",
+            aspect_ratio: merged.aspect_ratio,
+            megapixels: merged.megapixels,
             output_format: "png",
             output_quality: 95,
             seed: seed
@@ -795,68 +796,68 @@ export class ModelTrainingService {
     }
   }
 
-  // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION - Based on shot type and prompt analysis
-  private static getIntelligentParameters(prompt: string, requestedCount: number) {
+  // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION - Based on shot type and FLUX system
+  private static getIntelligentParameters(prompt: string, requestedCount: number): {
+    preset: FluxPresetName;
+    count: number;
+    loraScaleOverride?: number;
+    reasoning: string;
+  } {
     // MAYA'S AI-DRIVEN PARAMETER INTELLIGENCE
-    // Use Maya's photography expertise to determine optimal parameters for different shot types
+    // Use Maya's photography expertise to determine optimal FLUX parameters for different shot types
     
     try {
-      // Analyze prompt with Maya's photography intelligence
-      const analysisPrompt = `As Maya, analyze this photography prompt and determine the optimal technical parameters based on your professional expertise:
-
-PROMPT TO ANALYZE: "${prompt}"
-
-Based on your styling and photography knowledge, determine:
-1. Shot type (close-up/portrait, half-body, full-body, environmental)
-2. Photography complexity level (simple/moderate/complex)
-3. Quality priority (high precision vs variety)
-
-Return ONLY this exact JSON format:
-{
-  "count": 2-4,
-  "guidance": 6.5-7.5,
-  "steps": 22-28,
-  "reasoning": "brief explanation"
-}
-
-Guidelines:
-- Close-up/portrait/headshot: count=2, guidance=7.5, steps=28 (precision over variety)
-- Half-body/fashion: count=3, guidance=7.0, steps=25 (balanced approach)
-- Full-body/environmental: count=4, guidance=6.5, steps=22 (variety over precision)
-- Professional/luxury: count=2, guidance=7.5, steps=28 (high quality)
-- Social media: count=3, guidance=7.0, steps=25 (multiple options)`;
-
-      // For now, use intelligent defaults based on Maya's core principles
-      // This keeps the system functional while maintaining her expertise approach
-      
       // Maya's core photography intelligence: analyze key characteristics
       const lowerPrompt = prompt.toLowerCase();
       
       // Close-up/portrait work requires precision (Maya's headshot expertise)
+      // Use Identity preset for highest quality facial details
       if (lowerPrompt.includes('close-up') || lowerPrompt.includes('portrait') || lowerPrompt.includes('headshot') || 
-          lowerPrompt.includes('85mm') || lowerPrompt.includes('face')) {
-        return { count: 2, guidance: 7.5, steps: 28 }; // Precision over variety
+          lowerPrompt.includes('85mm') || lowerPrompt.includes('face') || lowerPrompt.includes('beauty')) {
+        return { 
+          preset: 'Identity' as FluxPresetName,
+          count: 2,
+          reasoning: 'Close-up/portrait - precision over variety' 
+        };
       }
       
-      // Full-body/environmental work allows more variety (Maya's lifestyle expertise)  
+      // Full-body/environmental work - use UltraPrompt for detail + higher LoRA scale
       if (lowerPrompt.includes('full-body') || lowerPrompt.includes('full body') || lowerPrompt.includes('environmental') || 
-          lowerPrompt.includes('lifestyle') || lowerPrompt.includes('35mm')) {
-        return { count: 4, guidance: 6.5, steps: 22 }; // Variety over precision
+          lowerPrompt.includes('lifestyle') || lowerPrompt.includes('35mm') || lowerPrompt.includes('scenery') || 
+          lowerPrompt.includes('background') || lowerPrompt.includes('setting')) {
+        return { 
+          preset: 'UltraPrompt' as FluxPresetName,
+          count: 4,
+          loraScaleOverride: 1.1, // Higher LoRA scale for full scenery as requested
+          reasoning: 'Full-body/environmental - variety with enhanced LoRA' 
+        };
       }
       
       // Professional work prioritizes quality (Maya's business expertise)
       if (lowerPrompt.includes('professional') || lowerPrompt.includes('business') || lowerPrompt.includes('executive') ||
           lowerPrompt.includes('luxury') || lowerPrompt.includes('editorial')) {
-        return { count: 2, guidance: 7.5, steps: 28 }; // High quality focus
+        return { 
+          preset: 'Editorial' as FluxPresetName,
+          count: 2,
+          reasoning: 'Professional/luxury - editorial quality focus' 
+        };
       }
       
-      // Maya's balanced default approach
-      return { count: Math.min(requestedCount, 3), guidance: 7.0, steps: 25 };
+      // Maya's balanced default approach - Editorial preset
+      return { 
+        preset: 'Editorial' as FluxPresetName,
+        count: Math.min(requestedCount, 3),
+        reasoning: 'Balanced editorial approach' 
+      };
       
     } catch (error) {
       console.error('Maya parameter analysis failed:', error);
       // Maya's safe fallback
-      return { count: Math.min(requestedCount, 3), guidance: 7.0, steps: 25 };
+      return { 
+        preset: 'Editorial' as FluxPresetName,
+        count: Math.min(requestedCount, 3),
+        reasoning: 'Fallback to editorial preset' 
+      };
     }
   }
 }
