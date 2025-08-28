@@ -692,7 +692,26 @@ function enhancePromptForContext(baseMayaPersonality: string, context: string, u
 - NO repetitive questions like "Tell me more about this vision" - use conversation history and create concepts
 - Each concept must include: outfit formula, hair/makeup, location, mood
 - Present 3-5 complete styling scenarios ready for generation
-- Use your styling expertise to be specific about colors, textures, silhouettes without asking for more details`;
+- Use your styling expertise to be specific about colors, textures, silhouettes without asking for more details
+
+🎯 MANDATORY CONCEPT CARD FORMAT:
+When generating multiple concepts, use this EXACT format:
+
+**1. BOSS LADY POWER HOUR**
+Crisp white blazer + gold jewelry + nude heels - Sharp office setup or hotel lobby
+
+**2. BEACHCLUB GODDESS PREP**
+Silk slip dress + strappy heels + statement earrings - Vanity mirror with golden hour lighting
+
+**3. DATE NIGHT TRANSFORMATION**
+Little black dress + bold accessories + killer heels - Walk-in closet or elegant bedroom
+
+CRITICAL RULES:
+- Each concept must start with **NUMBER. CONCEPT NAME**
+- Follow with ONE line of styling summary only (under 100 characters)
+- Always generate 3-5 concepts minimum
+- Keep descriptions short and punchy
+- Never include full prompt details in concept cards`;
 
   // Admin-specific context enhancement
   if (isAdmin) {
@@ -838,7 +857,38 @@ async function processMayaResponse(response: string, context: string, userId: st
     // Remove traditional canGenerate since we have concept cards
     processed.canGenerate = false;
     processed.generatedPrompt = null;
+    
+    // CRITICAL FIX: Remove concept card content from main message to prevent duplication
+    let cleanedMessage = response;
+    
+    // Remove numbered concept patterns from the main message
+    cleanedMessage = cleanedMessage.replace(/\*\*\d+\.\s*[^*]+\*\*\s*\n[^\n]*/g, '');
+    
+    // Remove any remaining concept headers
+    cleanedMessage = cleanedMessage.replace(/\*\*[A-Z\s]{10,50}\*\*\s*\n[^\n]*/g, '');
+    
+    // Clean up extra newlines and whitespace
+    cleanedMessage = cleanedMessage
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join('\n')
+      .trim();
+    
+    // Update the message to show only the intro/outro without concept details
+    if (cleanedMessage.length > 50) {
+      processed.message = cleanedMessage;
+    } else {
+      // If almost everything was removed, create a nice intro message
+      processed.message = `Oh my gosh, GRWM content is EVERYTHING right now! I'm absolutely buzzing with ideas for you! 
+
+Based on your luxurious lifestyle vision - the penthouse vibes, beachclub nights, and that powerful boss energy you're stepping into - let me give you some absolutely stunning GRWM concepts that are going to make your audience stop scrolling.
+
+Which of these is calling to you? I can already picture how incredible these are going to look! ✨`;
+    }
+    
     console.log('🎯 MAYA CONCEPT CARDS: Parsed', concepts.length, 'concepts from response');
+    console.log('🎯 MAYA CLEANUP: Cleaned message to prevent duplication');
   }
 
   // Handle conversational onboarding (no forced steps)
@@ -877,71 +927,60 @@ interface ConceptCard {
 const parseConceptsFromResponse = (response: string): ConceptCard[] => {
   const concepts: ConceptCard[] = [];
   
-  // Enhanced parsing for Maya's natural concept formatting
-  // Pattern 1: **1. CONCEPT NAME** or **CONCEPT NAME**
-  const numberedConceptRegex = /\*\*(\d+\.\s*)?([^*]+)\*\*\s*\n([\s\S]*?)(?=\*\*\d+\.|$)/g;
+  // Enhanced parsing for Maya's numbered concept format: **1. CONCEPT NAME**
+  const numberedConceptRegex = /\*\*(\d+)\.\s*([^*]+)\*\*\s*\n([^\n]*)/g;
   let match;
   
   while ((match = numberedConceptRegex.exec(response)) !== null) {
-    const [, number, title, content] = match;
+    const [, number, title, description] = match;
     
-    // Extract meaningful content before next concept or end
-    let description = content;
-    const nextConceptIndex = content.search(/\*\*\d+\./);
-    if (nextConceptIndex > 0) {
-      description = content.substring(0, nextConceptIndex);
-    }
+    // Clean up title and description
+    const cleanTitle = title.trim();
+    const cleanDescription = description.trim();
     
-    // Clean up description - remove excessive newlines and trim
-    description = description
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
-      .slice(0, 8) // Take first 8 meaningful lines
-      .join('\n')
-      .trim();
-    
-    if (title && description && description.length > 20) {
+    // Only add if we have both title and description
+    if (cleanTitle && cleanDescription && cleanDescription.length > 10) {
       concepts.push({
-        id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        title: title.trim(),
-        description: description,
+        id: `concept_${Date.now()}_${number}_${Math.random().toString(36).substr(2, 6)}`,
+        title: cleanTitle,
+        description: cleanDescription,
         canGenerate: true,
         isGenerating: false
       });
     }
   }
   
-  // If no numbered concepts found, try simple bold patterns
+  // If no numbered concepts found, try to find any bold concept patterns
   if (concepts.length === 0) {
-    const simpleConceptRegex = /\*\*([^*]+)\*\*(?:\s*\n)?([\s\S]*?)(?=\*\*[^*]+\*\*|$)/g;
-    while ((match = simpleConceptRegex.exec(response)) !== null) {
-      const [, title, content] = match;
+    console.log('🎯 CONCEPT PARSING: No numbered concepts found, trying fallback patterns');
+    
+    // Look for any **CONCEPT NAME** followed by description
+    const fallbackRegex = /\*\*([^*]{5,50})\*\*\s*\n([^\n*]{10,200})/g;
+    let fallbackMatch;
+    let conceptNumber = 1;
+    
+    while ((fallbackMatch = fallbackRegex.exec(response)) !== null) {
+      const [, title, description] = fallbackMatch;
       
-      // Skip if this looks like formatting rather than a concept
-      if (title.length < 50 && content.length > 20) {
-        const description = content
-          .split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0 && !line.startsWith('*'))
-          .slice(0, 6)
-          .join('\n')
-          .trim();
-          
-        if (description.length > 20) {
-          concepts.push({
-            id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            title: title.trim(),
-            description: description,
-            canGenerate: true,
-            isGenerating: false
-          });
-        }
+      // Skip if this looks like formatting (too long title)
+      if (title.length < 50 && description.length > 10 && description.length < 200) {
+        concepts.push({
+          id: `concept_fallback_${Date.now()}_${conceptNumber}_${Math.random().toString(36).substr(2, 6)}`,
+          title: title.trim(),
+          description: description.trim(),
+          canGenerate: true,
+          isGenerating: false
+        });
+        conceptNumber++;
       }
     }
   }
   
   console.log('🎯 CONCEPT PARSING: Found', concepts.length, 'concepts');
+  if (concepts.length > 0) {
+    console.log('🎯 CONCEPT DETAILS:', concepts.map(c => ({ title: c.title, desc: c.description.substring(0, 50) + '...' })));
+  }
+  
   return concepts.slice(0, 6); // Limit to 6 concepts max
 };
 
