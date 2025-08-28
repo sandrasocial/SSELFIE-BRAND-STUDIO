@@ -1150,7 +1150,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Maya Chat endpoints - Production ready
+  // LEGACY MAYA CHAT STORAGE ENDPOINTS - May be needed for backward compatibility
+  // NOTE: Main Maya interactions now use /api/maya/* unified system
   app.get('/api/maya-chats', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
@@ -1168,7 +1169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get Maya chats organized by category
+  // LEGACY: Get Maya chats organized by category
   app.get('/api/maya-chats/categorized', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
@@ -1209,7 +1210,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Maya Chat endpoint - MEMBER AGENT (Image Generation Guide)
+  // LEGACY MAYA ROUTE - DISABLED: Use unified Maya system at /api/maya/* instead
+  /*
   app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
@@ -1365,6 +1367,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
       res.status(500).json({ error: 'Failed to process Maya chat' });
     }
   });
+  */
 
   // Victoria Website Chat endpoint - MEMBER AGENT (Website Building Guide)
   app.post('/api/victoria-website-chat', isAuthenticated, async (req: any, res) => {
@@ -1457,7 +1460,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Maya Chat Messages endpoints
+  // LEGACY: Maya Chat Messages endpoints - May be needed for chat history
   app.get('/api/maya-chats/:chatId/messages', isAuthenticated, async (req: any, res) => {
     try {
       const { chatId } = req.params;
