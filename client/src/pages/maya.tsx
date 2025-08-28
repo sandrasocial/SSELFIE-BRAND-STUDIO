@@ -240,48 +240,20 @@ function Maya() {
   };
 
   const handleStyleSelect = (styleType: string) => {
-    // Send style selection as user message to Maya's AI system
-    const styleLabels: Record<string, string> = {
-      'business-photos': 'Business photos - Professional & Authority',
-      'lifestyle-photos': 'Lifestyle photos - Casual & Authentic', 
-      'story-photos': 'Story photos - Behind the Scenes',
-      'instagram-photos': 'Instagram photos - Feed & Stories',
-      'travel-photos': 'Travel photos - Adventures & Destinations',
-      'outfit-photos': 'Outfit photos - Fashion & Style',
-      'grwm-photos': 'GRWM photos - Get Ready With Me',
-      'future-self': 'Future Self photos - Aspirational Vision',
-      'bw-photos': 'B&W photos - Timeless & Artistic',
-      'studio-photoshoot': 'Studio photos - Professional Shoot'
-    };
-
-    const userMessage = styleLabels[styleType] || styleType;
-    sendMessage(userMessage);
+    // Let Maya's AI intelligently understand and respond to any style concept
+    // No hardcoded mappings - Maya will interpret and create concepts naturally
+    sendMessage(`I'm interested in ${styleType.replace('-', ' ')} style photos`);
   };
 
   const handleQuickButton = (buttonText: string, messageIndex?: number) => {
-    // Check if this is a Maya generation concept button 
-    // Look for emojis OR specific photo category keywords OR styling concepts
-    const isGenerationButton = 
-      buttonText.includes('✨') || buttonText.includes('💫') || 
-      buttonText.includes('💗') || buttonText.includes('🔥') || 
-      buttonText.includes('🌟') || buttonText.includes('💎') ||
-      buttonText.includes('🌅') || buttonText.includes('🏢') ||
-      buttonText.includes('💼') || buttonText.includes('🌊') ||
-      buttonText.includes('👑') || buttonText.includes('💃') ||
-      buttonText.includes('📸') || buttonText.includes('🎬') ||
-      // Also check for photo concept keywords
-      buttonText.toLowerCase().includes('lifestyle photos') ||
-      buttonText.toLowerCase().includes('portrait photography') ||
-      buttonText.toLowerCase().includes('creative lifestyle') ||
-      buttonText.toLowerCase().includes('personal branding') ||
-      buttonText.toLowerCase().includes('headshots') ||
-      buttonText.toLowerCase().includes('photos') ||
-      buttonText.toLowerCase().includes('look') ||
-      buttonText.toLowerCase().includes('style') ||
-      buttonText.toLowerCase().includes('shoot');
+    // Maya's intelligent concept detection - look for her concept cards or generation-ready responses
+    const message = messages[messageIndex || 0];
+    const isGenerationConcept = message?.conceptCards?.some(card => 
+      card.title === buttonText || buttonText.includes(card.title)
+    ) || message?.canGenerate;
     
-    if (isGenerationButton && messageIndex !== undefined) {
-      console.log('Maya: Generating images for concept:', buttonText);
+    if (isGenerationConcept && messageIndex !== undefined) {
+      console.log('Maya: Generating images for intelligent concept:', buttonText);
       
       // Mark button as clicked
       setClickedButtons(prev => {
@@ -292,10 +264,10 @@ function Maya() {
         return newMap;
       });
       
-      // Generate images for this concept
+      // Generate images for this concept using Maya's intelligence
       generateFromConcept(buttonText, setMessages, currentChatId);
     } else {
-      // Regular chat message
+      // Regular chat message - let Maya respond intelligently
       sendMessage(buttonText);
     }
   };
@@ -1630,7 +1602,7 @@ function Maya() {
                             justifyContent: 'center'
                           }}>
                             <button
-                              onClick={() => sendChatMessage('Create more concepts like these', input, setInput, setIsTyping, isOnboardingMode, isQuickStartMode)}
+                              onClick={() => sendChatMessage('Create more concepts like these', input, setInput, isOnboardingMode, isQuickStartMode, setOnboardingStatus, setIsOnboardingMode)}
                               style={{
                                 padding: '12px 24px',
                                 background: 'transparent',
@@ -1644,7 +1616,7 @@ function Maya() {
                               More Concepts Like This
                             </button>
                             <button
-                              onClick={() => sendChatMessage('I want a completely new style direction', input, setInput, setIsTyping, isOnboardingMode, isQuickStartMode)}
+                              onClick={() => sendChatMessage('I want a completely new style direction', input, setInput, isOnboardingMode, isQuickStartMode, setOnboardingStatus, setIsOnboardingMode)}
                               style={{
                                 padding: '12px 24px',
                                 background: 'transparent',
@@ -1666,11 +1638,11 @@ function Maya() {
                         <div className="quick-buttons">
                           {message.quickButtons
                             .filter(button => {
-                              // For generation buttons, only show if not clicked for this message
-                              const isGenerationButton = button.includes('✨') || button.includes('💫') || 
-                                                        button.includes('💗') || button.includes('🔥') || 
-                                                        button.includes('🌟') || button.includes('💎');
-                              if (isGenerationButton) {
+                              // Maya's intelligent filtering - check if this concept can be generated
+                              const isGenerationConcept = message.conceptCards?.some(card => 
+                                card.title === button || button.includes(card.title)
+                              ) || message.canGenerate;
+                              if (isGenerationConcept) {
                                 const messageButtons = clickedButtons.get(index) || new Set();
                                 return !messageButtons.has(button);
                               }
