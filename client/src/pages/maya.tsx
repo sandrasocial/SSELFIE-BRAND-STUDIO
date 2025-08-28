@@ -377,31 +377,31 @@ function Maya() {
       
       setMessages(prev => [...prev, generatingMessage]);
       
-      // Get Maya's intelligent response for detailed prompting
+      // OPTIMIZED: Single API call for detailed prompting
       const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
-        message: `Create detailed professional prompts for this concept: ${conceptName}. Use your fashion week expertise and styling knowledge.`,
+        message: `Create a detailed professional photography prompt for: ${conceptName}. Include specific clothing, hair, makeup, lighting, setting, and camera details. Make it comprehensive for stunning results.`,
         chatId: currentChatId,
         context: 'generation'
       });
 
-      // FIXED: Proper prompt extraction and enhancement
-      let finalPrompt;
-
-      if (mayaResponse?.generatedPrompt && mayaResponse.generatedPrompt.length > 50) {
-        // Maya provided a detailed prompt
-        finalPrompt = mayaResponse.generatedPrompt;
-      } else {
-        // Fallback: request specific detailed prompt from Maya
-        const detailedResponse = await apiRequest('/api/maya/chat', 'POST', {
-          message: `Give me a detailed photography prompt for: ${conceptName}. Include clothing, hair, makeup, lighting, setting, and camera details.`,
-          chatId: currentChatId,
-          context: 'generation'
-        });
+      // Extract prompt with enhanced fallbacks
+      let finalPrompt = mayaResponse?.generatedPrompt;
+      
+      if (!finalPrompt || finalPrompt.length < 50) {
+        // Enhanced fallback prompts for better results
+        const conceptPrompts: { [key: string]: string } = {
+          'Business photos': 'Professional corporate portrait, impeccable charcoal tailored blazer, sleek low chignon hairstyle, subtle power makeup emphasizing confident eyes, directional lighting from large office windows, modern glass conference room setting, authoritative confident pose',
+          'Lifestyle photos': 'Casual authentic lifestyle portrait, soft cashmere sweater in neutral tones, natural loose waves, fresh dewy makeup, golden hour window lighting, cozy modern living space, relaxed genuine smile',
+          'Story photos': 'Behind-the-scenes personal moment, comfortable designer knitwear, effortless messy bun, minimal natural makeup, soft ambient lighting, creative workspace background, authentic candid expression',
+          'Instagram photos': 'Stunning social media portrait, trendy statement blazer, perfectly styled beach waves, bold glamorous makeup, ring light setup, minimalist backdrop, engaging direct eye contact',
+          'Travel photos': 'Adventure travel portrait, sophisticated travel outfit, windswept natural hair, fresh outdoor makeup, natural landscape lighting, exotic destination backdrop, confident explorer pose',
+          'Outfit photos': 'Fashion-forward style portrait, designer statement piece, salon-perfect styling, editorial makeup, professional studio lighting, clean backdrop, runway-inspired pose'
+        };
         
-        finalPrompt = detailedResponse?.generatedPrompt || `A professional portrait featuring elegant styling for ${conceptName}`;
+        finalPrompt = conceptPrompts[conceptName] || `Professional portrait featuring elegant styling for ${conceptName}, detailed hair and makeup, perfect lighting, sophisticated setting`;
       }
 
-      // Add camera specifications
+      // Add camera specifications for professional quality
       const cameraSpecs = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
       const enhancedPrompt = cameraSpecs + finalPrompt;
 
@@ -474,7 +474,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                 : msg
             ));
             
-            // Add Maya's follow-up suggestions after 2 seconds
+            // Add Maya's follow-up suggestions immediately for better flow
             setTimeout(() => {
               const followUpMessage: ChatMessage = {
                 role: 'maya',
@@ -489,7 +489,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                 ]
               };
               setMessages(prev => [...prev, followUpMessage]);
-            }, 2000);
+            }, 500);
             
             // Remove from active generations
             setActiveGenerations(prev => {
@@ -520,9 +520,9 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
             });
             
           } else {
-            // Still processing - continue polling
-            console.log('Maya still generating, polling again in 3 seconds...');
-            setTimeout(pollForImages, 3000);
+            // Still processing - continue polling with faster 1-second intervals
+            console.log('Maya still generating, polling again in 1 second...');
+            setTimeout(pollForImages, 1000);
           }
         } catch (pollError) {
           console.error('Maya polling error:', pollError);
@@ -544,8 +544,8 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
         }
       };
       
-      // Start polling after 3 seconds
-      setTimeout(pollForImages, 3000);
+      // Start polling immediately for better user experience
+      setTimeout(pollForImages, 500);
       
     } else {
       console.error('Maya generation failed to start:', response);
