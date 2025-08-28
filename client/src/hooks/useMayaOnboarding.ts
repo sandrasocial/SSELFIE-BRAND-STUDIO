@@ -43,13 +43,9 @@ export const useMayaOnboarding = () => {
         };
         setOnboardingStatus(status);
         
-        // If not completed, show welcome page first
-        if (!response.onboardingComplete) {
-          setShowWelcome(true);
-        } else {
-          // Load regular Maya with personal brand context
-          setIsOnboardingMode(false);
-        }
+        // Always start with direct Maya interface - no welcome gate
+        setShowWelcome(false);
+        setIsOnboardingMode(false);
       }
     } catch (error) {
       // If onboarding endpoint doesn't exist, proceed with regular Maya
@@ -72,27 +68,11 @@ export const useMayaOnboarding = () => {
     setMessages([welcomeMessage]);
   };
 
-  const handleWelcomeChoice = (choice: 'customize' | 'quickstart', setMessages: (messages: ChatMessage[]) => void) => {
-    setShowWelcome(false);
-    
-    if (choice === 'customize') {
-      // Start onboarding flow
-      setIsOnboardingMode(true);
-      setIsQuickStartMode(false);
-      initializeOnboarding(setMessages);
-    } else {
-      // Quick start - go straight to image generation chat
-      setIsOnboardingMode(false);
-      setIsQuickStartMode(true);
-      const quickStartMessage: ChatMessage = {
-        role: 'maya',
-        content: "Perfect! I love your confidence - let's create some stunning brand photos right now! I'll style you based on my expertise from fashion week and magazine shoots. Tell me what kind of photos you need today and I'll create the perfect look for you.",
-        timestamp: new Date().toISOString(),
-        quickButtons: ["Business photos", "Lifestyle photos", "Story photos", "Instagram photos", "Travel photos", "Outfit photos", "GRWM photos", "Future self photos", "B&W photos", "Studio photoshoot"],
-        canGenerate: true
-      };
-      setMessages([quickStartMessage]);
-    }
+  const handlePersonalizationChoice = (setMessages: (messages: ChatMessage[]) => void) => {
+    // Start optional onboarding flow
+    setIsOnboardingMode(true);
+    setIsQuickStartMode(false);
+    initializeOnboarding(setMessages);
   };
 
   return {
@@ -106,6 +86,6 @@ export const useMayaOnboarding = () => {
     setShowWelcome,
     checkOnboardingStatus,
     initializeOnboarding,
-    handleWelcomeChoice
+    handlePersonalizationChoice
   };
 };
