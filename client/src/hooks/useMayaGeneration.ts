@@ -38,7 +38,13 @@ interface ChatMessage {
 
 type Preset = 'Identity' | 'Editorial' | 'UltraPrompt' | 'Fast';
 
-export const useMayaGeneration = () => {
+export const useMayaGeneration = (
+  messages?: any,
+  setMessages?: any,
+  currentChatId?: any,
+  setIsTyping?: any,
+  toast?: any
+) => {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -49,7 +55,6 @@ export const useMayaGeneration = () => {
   const [generationQueue, setGenerationQueue] = useState<Array<{id: string, priority: number}>>([]);
   const [preset, setPreset] = useState<Preset>('Editorial');
   const [seed, setSeed] = useState<string>('');
-  const { toast } = useToast();
   const { createTimeout, addCleanup } = useMemoryCleanup();
 
   // Clear stale generations on mount
@@ -394,6 +399,12 @@ export const useMayaGeneration = () => {
     }
   };
 
+  const generateFromSpecificConcept = async (conceptTitle: string, conceptId: string) => {
+    console.log('Generating concept:', conceptTitle);
+    // Use existing generateImages function but with concept title as prompt
+    return await generateImages(conceptTitle, undefined, undefined, setMessages, currentChatId);
+  };
+
   return {
     isGeneratingImage,
     setIsGeneratingImage,
@@ -415,6 +426,7 @@ export const useMayaGeneration = () => {
     setSeed,
     generateFromConcept,
     generateImages,
-    saveToGallery
+    saveToGallery,
+    generateFromSpecificConcept
   };
 };
