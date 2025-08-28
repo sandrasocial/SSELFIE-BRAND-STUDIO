@@ -28,6 +28,8 @@ interface ConceptCard {
   canGenerate: boolean;
   isGenerating: boolean;
   generatedImages?: string[];
+  isLoading?: boolean;
+  hasGenerated?: boolean;
 }
 
 interface ChatMessage {
