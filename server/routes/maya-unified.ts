@@ -822,6 +822,33 @@ async function processMayaResponse(response: string, context: string, userId: st
   return processed;
 }
 
+interface ConceptCard {
+  id: string;
+  title: string;
+  description: string;  
+  canGenerate: boolean;
+  isGenerating: boolean;
+  generatedImages?: string[];
+}
+
+const parseConceptsFromResponse = (response: string): ConceptCard[] => {
+  const conceptRegex = /\*Concept \d+: "([^"]+)"\*\s*([\s\S]*?)(?=\*Concept \d+:|$)/g;
+  const concepts: ConceptCard[] = [];
+  let match;
+  
+  while ((match = conceptRegex.exec(response)) !== null) {
+    const [, title, description] = match;
+    concepts.push({
+      id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      title: title.trim(),
+      description: description.trim(),
+      canGenerate: true,
+      isGenerating: false
+    });
+  }
+  return concepts;
+};
+
 function getContextualQuickButtons(context: string, step: number = 1): string[] {
   // DEPRECATED: This function is only used as fallback when Maya doesn't generate her own intelligent quick actions
   // Maya now generates contextual, personalized quick actions using her AI intelligence

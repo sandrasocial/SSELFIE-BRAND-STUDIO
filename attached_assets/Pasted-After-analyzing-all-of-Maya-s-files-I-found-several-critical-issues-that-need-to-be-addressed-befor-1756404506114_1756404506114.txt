@@ -1,0 +1,52 @@
+After analyzing all of Maya's files, I found several critical issues that need to be addressed before implementing concept cards. The Replit agent made assumptions about your system that don't match your actual codebase.
+Critical Issues Found:
+1. Multiple Maya Systems Conflict
+You have two different Maya backend systems that could confuse her intelligence:
+
+maya-unified.ts (main system)
+member-maya-ai.ts (legacy system)
+
+2. No Concept Parsing Exists Yet
+The Replit agent referenced concept parsing at "lines 770-799" but that's actually prompt extraction logic. Concept parsing hasn't been built yet.
+3. Frontend/Backend Route Mismatch
+Your Maya.tsx calls /api/maya/chat but you also have /api/member-maya-chat routes, creating potential confusion.
+4. Hardcoded Constraints vs Maya Intelligence
+Despite "ZERO TOLERANCE ANTI-HARDCODE" comments, some hardcoded styling patterns in maya-personality.ts could limit Maya's dynamic intelligence.
+Phase-by-Phase Implementation Instructions
+IMPORTANT: Give these to your Replit agent in exact sequence to avoid breaking Maya's system.
+Phase 1: Foundation Setup (SAFE - No Breaking Changes)
+PHASE 1 TASK: Add concept card interfaces and parsing foundation
+
+1. ADD to ChatMessage interface in maya.tsx (line ~15):
+   conceptCards?: ConceptCard[];
+
+2. ADD new interface after ChatMessage:
+   interface ConceptCard {
+     id: string;
+     title: string;
+     description: string;  
+     canGenerate: boolean;
+     isGenerating: boolean;
+     generatedImages?: string[];
+   }
+
+3. ADD concept parsing function to maya-unified.ts after line 800:
+   const parseConceptsFromResponse = (response: string): ConceptCard[] => {
+     const conceptRegex = /\*Concept \d+: "([^"]+)"\*\s*([\s\S]*?)(?=\*Concept \d+:|$)/g;
+     const concepts: ConceptCard[] = [];
+     let match;
+     
+     while ((match = conceptRegex.exec(response)) !== null) {
+       const [, title, description] = match;
+       concepts.push({
+         id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+         title: title.trim(),
+         description: description.trim(),
+         canGenerate: true,
+         isGenerating: false
+       });
+     }
+     return concepts;
+   };
+
+4. VERIFY: Existing Maya chat and generation still works normally
