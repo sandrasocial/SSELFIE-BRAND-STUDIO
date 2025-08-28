@@ -18,6 +18,8 @@ import { storage } from '../storage';
 import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
 import { ModelTrainingService } from '../model-training-service';
+import { adminContextDetection, getConversationId, type AdminContextRequest } from '../middleware/admin-context';
+import { trackMayaActivity } from '../services/maya-usage-isolation';
 
 const router = Router();
 
@@ -29,8 +31,8 @@ if (!process.env.ANTHROPIC_API_KEY) {
   console.error('🚨 CRITICAL: ANTHROPIC_API_KEY not configured - Maya chat will fail');
 }
 
-// UNIFIED MAYA ENDPOINT - Handles all Maya interactions
-router.post('/chat', isAuthenticated, async (req, res) => {
+// UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
+router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
@@ -43,7 +45,11 @@ router.post('/chat', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: 'Message required' });
     }
 
-    console.log(`🎨 UNIFIED MAYA: Processing ${context} message for user ${userId}`);
+    // Admin/Member context awareness
+    const userType = req.userType || 'member';
+    const conversationId = getConversationId(userId, req.isAdmin || false, chatId);
+    
+    console.log(`🎨 MAYA ${userType.toUpperCase()}: Processing ${context} message for ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
 
     // Get unified user context
     const userContext = await getUnifiedUserContext(userId);
@@ -77,13 +83,15 @@ Use this context to provide personalized styling advice that aligns with their t
       console.log('Personal brand context not available, proceeding with basic Maya');
     }
     
-    // Build unified Maya prompt using PersonalityManager (the RIGHT way)
+    // Build Maya prompt with admin/member context awareness
     const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
     const enhancedPrompt = enhancePromptForContext(
       baseMayaPersonality, 
       context, 
       userContext, 
-      generationInfo
+      generationInfo,
+      req.isAdmin || false,
+      userType
     ) + personalBrandContext;
     
     // Single Claude API call with Maya's complete intelligence
@@ -123,14 +131,23 @@ Use this context to provide personalized styling advice that aligns with their t
       generationInfo
     );
     
-    // Unified conversation storage
+    // Admin/Member aware conversation storage
     const savedChatId = await saveUnifiedConversation(
       userId, 
       message, 
       processedResponse, 
       chatId, 
-      context
+      context,
+      userType,
+      conversationId
     );
+
+    // Track Maya activity with admin/member separation
+    trackMayaActivity(userId, userType as 'admin' | 'member', conversationId, 'chat', {
+      context,
+      chatId: savedChatId,
+      hasGeneration: !!processedResponse.generatedPrompt
+    });
     
     res.json({
       success: true,
@@ -161,10 +178,19 @@ Use this context to provide personalized styling advice that aligns with their t
 });
 
 // Image generation through unified system
-router.post('/generate', isAuthenticated, async (req, res) => {
+router.post('/generate', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) return res.status(401).json({ error: 'Authentication required' });
+    
+    const userType = req.userType || 'member';
+    console.log(`🖼️ MAYA ${userType.toUpperCase()}: Image generation request from ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
+    
+    // Track generation activity with admin/member separation
+    trackMayaActivity(userId, userType as 'admin' | 'member', `maya_${userType}_${userId}`, 'generation', {
+      conceptName: req.body.conceptName || 'custom_generation',
+      timestamp: new Date()
+    });
     
     const { prompt, chatId, preset, seed, count } = req.body || {};
     if (!prompt) {
@@ -231,12 +257,15 @@ router.post('/generate', isAuthenticated, async (req, res) => {
 });
 
 // Unified status endpoint
-router.get('/status', isAuthenticated, async (req, res) => {
+router.get('/status', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'Authentication required' });
     }
+    
+    const userType = req.userType || 'member';
+    console.log(`📊 MAYA ${userType.toUpperCase()}: Status check from ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
 
     const userContext = await getUnifiedUserContext(userId);
     const generationInfo = await checkGenerationCapability(userId);
@@ -261,12 +290,15 @@ router.get('/status', isAuthenticated, async (req, res) => {
 });
 
 // 🎯 MAYA'S INTELLIGENT GENERATION STATUS POLLING
-router.get('/check-generation/:predictionId', isAuthenticated, async (req, res) => {
+router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'Authentication required' });
     }
+    
+    const userType = req.userType || 'member';
+    console.log(`🔄 MAYA ${userType.toUpperCase()}: Generation check from ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
 
     const predictionId = req.params.predictionId;
     const { chatId, messageId } = req.query; // Get chatId and messageId from query params
@@ -410,15 +442,32 @@ async function checkGenerationCapability(userId: string) {
   }
 }
 
-function enhancePromptForContext(baseMayaPersonality: string, context: string, userContext: any, generationInfo: any): string {
+function enhancePromptForContext(baseMayaPersonality: string, context: string, userContext: any, generationInfo: any, isAdmin: boolean = false, userType: string = 'member'): string {
   let enhancement = `\n\n🎯 CURRENT INTERACTION CONTEXT:
 - User: ${userContext.userInfo.email || 'Unknown'}
+- User Type: ${userType.toUpperCase()} ${isAdmin ? '(PLATFORM OWNER)' : '(SUBSCRIBER)'}
 - Plan: ${userContext.userInfo.plan || 'Not specified'}
 - Context: ${context}
 - Can Generate Images: ${generationInfo.canGenerate ? 'YES' : 'NO - needs training first'}`;
 
   if (generationInfo.triggerWord) {
     enhancement += `\n- Trigger Word: ${generationInfo.triggerWord}`;
+  }
+
+  // Admin-specific context enhancement
+  if (isAdmin) {
+    enhancement += `\n\n🎯 ADMIN PLATFORM CONTEXT:
+You're interacting with the platform owner (ssa@ssasocial.com). This is for platform content creation, business strategy, or system testing.
+- Provide enhanced business and platform insights
+- Can discuss platform development and strategy  
+- Focus on business content creation and marketing materials
+- Separate this interaction from member subscriber analytics`;
+  } else {
+    enhancement += `\n\n👤 MEMBER SUBSCRIBER CONTEXT:
+You're interacting with a paying subscriber (€47/month). Focus on their personal branding transformation journey.
+- Provide personalized styling expertise
+- Help them achieve their business transformation goals
+- Create content that supports their personal brand journey`;
   }
 
   // Context-specific enhancements using Maya's personality
@@ -604,18 +653,19 @@ function getContextualQuickButtons(context: string, step: number = 1): string[] 
   return ["Tell me more", "Show me examples", "What do you recommend?"];
 }
 
-async function saveUnifiedConversation(userId: string, userMessage: string, mayaResponse: any, chatId: number | null, context: string): Promise<number> {
+async function saveUnifiedConversation(userId: string, userMessage: string, mayaResponse: any, chatId: number | null, context: string, userType: string = 'member', conversationId: string = ''): Promise<number> {
   try {
     let currentChatId = chatId;
     
     // Create new chat if needed
     if (!currentChatId) {
+      const contextPrefix = userType === 'admin' ? '[ADMIN] ' : '';
       const chatTitle = context === 'onboarding' ? 'Personal Brand Discovery' : `${mayaResponse.chatCategory} Session`;
       const chatSummary = `${context}: ${userMessage.substring(0, 100)}...`;
       
       const newChat = await storage.createMayaChat({
         userId,
-        chatTitle,
+        chatTitle: contextPrefix + chatTitle,
         chatSummary
       });
       currentChatId = newChat.id;
