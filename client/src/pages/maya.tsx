@@ -177,7 +177,7 @@ function Maya() {
         role: 'maya',
         content: "Perfect! I love your confidence - let's create some stunning brand photos right now! I'll style you based on my expertise from fashion week and magazine shoots. Tell me what kind of photos you need today and I'll create the perfect look for you.",
         timestamp: new Date().toISOString(),
-        quickButtons: ["Professional headshots", "Social media photos", "Website hero image", "LinkedIn authority photo"],
+        quickButtons: ["Business photos", "Lifestyle photos", "Story photos", "Instagram photos", "Travel photos", "Outfit photos", "GRWM photos", "Future self photos", "B&W photos", "Studio photoshoot"],
         canGenerate: true
       };
       setMessages([quickStartMessage]);
