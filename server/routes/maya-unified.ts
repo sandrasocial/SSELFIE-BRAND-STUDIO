@@ -194,6 +194,16 @@ router.post('/generate', isAuthenticated, async (req, res) => {
       finalPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord);
     }
     
+    // CRITICAL: Final validation to ensure trigger word is at the beginning
+    if (!finalPrompt.startsWith(generationInfo.triggerWord)) {
+      console.log(`🚨 TRIGGER WORD FIX: Moving "${generationInfo.triggerWord}" to beginning of prompt`);
+      // Remove trigger word if it exists elsewhere and add it to the beginning
+      const cleanPrompt = finalPrompt.replace(new RegExp(generationInfo.triggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
+      finalPrompt = `${generationInfo.triggerWord} ${cleanPrompt}`;
+    }
+    
+    console.log(`🎯 MAYA UNIFIED: Final extracted prompt: ${finalPrompt.substring(0, 100)}...`);
+    
     const result = await ModelTrainingService.generateUserImages(
       userId,
       finalPrompt,
@@ -639,21 +649,25 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
 🎯 PROMPT GENERATION SPECIALIST MODE:
-You are now acting as Maya's prompt generation system. Your job is to translate the concept "${conceptName}" into a detailed, professional photography prompt that uses the trigger word "${triggerWord}".
+You are Maya's prompt generation system. Create a concise, professional photography prompt for "${conceptName}" using the trigger word "${triggerWord}".
 
 CRITICAL REQUIREMENTS:
-1. Always start with "${triggerWord}" in the prompt
-2. Apply your complete styling expertise from 2025 fashion trends
-3. Include specific details: clothing, hair, makeup, lighting, pose, setting
+1. ALWAYS start with "${triggerWord}" as the very first word
+2. Keep the prompt under 150 words - concise but detailed
+3. Include only essential styling details: clothing, pose, lighting
 4. Use professional photography terminology
-5. Create prompts that would result in luxury, editorial-quality images
-6. Consider the concept's intended use (business, social media, website, etc.)
-7. Return ONLY the detailed prompt - no conversation, no explanations
+5. Return ONLY the prompt - no chat text, no explanations, no context
 
 EXAMPLE FORMAT:
-"${triggerWord} in a tailored charcoal blazer and ivory silk blouse, standing confidently with arms crossed, warm professional smile, hair styled in a sleek low bun, subtle but polished makeup with defined brows and nude lip, soft studio lighting creating gentle shadows, shot from a slight low angle for empowerment, luxury fashion photography aesthetic, 85mm lens, professional headshot quality"
+"${triggerWord} wearing a tailored navy blazer, confident smile, sitting at modern desk, professional lighting, 85mm lens, business portrait style"
 
-Now create a detailed prompt for: "${conceptName}"`;
+FORBIDDEN:
+- Do not include long descriptions or storytelling
+- Do not include user conversation text
+- Do not include Maya's personality responses
+- Do not include "Trust me" or other Maya chat language
+
+Create a concise prompt for: "${conceptName}"`;
 
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -664,12 +678,12 @@ Now create a detailed prompt for: "${conceptName}"`;
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 200, // Reduced to force concise prompts
         system: mayaPromptPersonality,
         messages: [
           {
             role: 'user',
-            content: `Create a detailed photography prompt for: "${conceptName}"`
+            content: `Create a concise photography prompt for: "${conceptName}". Must start with "${triggerWord}" and be under 150 words.`
           }
         ]
       })
@@ -680,17 +694,35 @@ Now create a detailed prompt for: "${conceptName}"`;
     }
 
     const data = await claudeResponse.json();
-    const generatedPrompt = data.content[0].text.trim();
+    let generatedPrompt = data.content[0].text.trim();
     
-    console.log(`🎯 MAYA AI PROMPT: Generated for "${conceptName}":`, generatedPrompt.substring(0, 100) + '...');
+    // CRITICAL: Ensure trigger word is at the beginning
+    if (!generatedPrompt.startsWith(triggerWord)) {
+      // Extract just the essential prompt without Maya's chat language
+      const cleanPrompt = generatedPrompt
+        .replace(/^.*?(?=wearing|in|with|sitting|standing|at)/i, '') // Remove everything before main content
+        .replace(/Trust me.*$/i, '') // Remove Maya's personality text at end
+        .replace(/The.*(?:mood|aesthetic|energy).*$/i, '') // Remove descriptive endings
+        .trim();
+      
+      generatedPrompt = `${triggerWord} ${cleanPrompt}`;
+    }
+    
+    // Ensure prompt length is reasonable (under 200 characters for optimal Replicate performance)
+    if (generatedPrompt.length > 200) {
+      const essentialParts = generatedPrompt.split(',').slice(0, 4).join(','); // Take first 4 parts
+      generatedPrompt = essentialParts.endsWith(',') ? essentialParts.slice(0, -1) : essentialParts;
+    }
+    
+    console.log(`🎯 MAYA AI PROMPT: Generated for "${conceptName}":`, generatedPrompt);
     
     return generatedPrompt;
     
   } catch (error) {
     console.error('Maya AI prompt generation failed:', error);
     
-    // Emergency fallback - basic professional prompt with trigger word
-    return `${triggerWord} in professional attire, confident pose, expert styling, luxury photography aesthetic, high-quality portrait photography`;
+    // Emergency fallback - concise professional prompt with trigger word first
+    return `${triggerWord} wearing professional attire, confident pose, studio lighting, business portrait`;
   }
 }
 
