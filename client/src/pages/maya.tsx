@@ -363,46 +363,76 @@ function Maya() {
     
     if (activeGenerations.has(messageId)) return;
     
-    console.log('Maya: Starting concept generation for:', conceptName, 'ID:', messageId);
+    console.log('Maya: Starting immersive photoshoot for:', conceptName);
     
     try {
-      // Create Maya message showing generation progress
-      const generatingMessage: ChatMessage = {
+      // Step 1: Initial excitement
+      const step1Message: ChatMessage = {
         role: 'maya',
-        content: `Creating your "${conceptName}" photos right now! I'm applying all my styling expertise to make these absolutely stunning. You're going to love the results! ✨`,
+        content: `OH MY GOD YES! ${conceptName} is going to be absolutely stunning! 🎬 Let me set up your personal photoshoot - this is going to be MAGAZINE WORTHY!`,
         timestamp: new Date().toISOString(),
-        canGenerate: true,
         generationId: messageId
       };
+      setMessages(prev => [...prev, step1Message]);
       
-      setMessages(prev => [...prev, generatingMessage]);
+      // Step 2: Styling consultation (after 2 seconds)
+      setTimeout(() => {
+        const step2Message: ChatMessage = {
+          role: 'maya',
+          content: `✨ STYLING SESSION: I'm pulling together the perfect look - thinking luxe textures, perfect proportions, and colors that make your skin glow. My fashion week experience is kicking in and I'm seeing EXACTLY what you need...`,
+          timestamp: new Date().toISOString(),
+          generationId: messageId + '_styling'
+        };
+        setMessages(prev => [...prev, step2Message]);
+      }, 2000);
       
-      // Get Maya's intelligent response for detailed prompting
-      const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
-        message: `Create detailed professional prompts for this concept: ${conceptName}. Use your fashion week expertise and styling knowledge.`,
-        chatId: currentChatId,
-        context: 'generation'
-      });
+      // Step 3: Hair & Makeup (after 4 seconds)
+      setTimeout(() => {
+        const step3Message: ChatMessage = {
+          role: 'maya',
+          content: `💄 HAIR & MAKEUP: Sending you to my favorite glam team! We're going for that editorial glow - flawless but natural, hair styled to perfection. Think "I just stepped off a magazine cover" energy...`,
+          timestamp: new Date().toISOString(),
+          generationId: messageId + '_glam'
+        };
+        setMessages(prev => [...prev, step3Message]);
+      }, 4000);
       
-      // Use Maya's extracted prompt or create one from concept
-      const prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
-      console.log('Maya: Using prompt:', prompt);
+      // Step 4: Lighting setup (after 6 seconds)
+      setTimeout(() => {
+        const step4Message: ChatMessage = {
+          role: 'maya',
+          content: `🎬 LIGHTING CREW: Setting up the most gorgeous lighting - we're talking golden hour magic, perfect shadows, that dreamy editorial quality. The camera is going to LOVE you in this light...`,
+          timestamp: new Date().toISOString(),
+          generationId: messageId + '_lighting'
+        };
+        setMessages(prev => [...prev, step4Message]);
+      }, 6000);
       
-      // Start image generation
-      await generateImages(prompt, messageId);
+      // Step 5: Start actual generation (after 8 seconds)
+      setTimeout(async () => {
+        const step5Message: ChatMessage = {
+          role: 'maya',
+          content: `📸 CAMERA ROLLING: Creating your ${conceptName} photos right now! I can already tell these are going to be absolutely incredible - the kind of photos that make people stop scrolling and say "WHO IS SHE?!" ✨`,
+          timestamp: new Date().toISOString(),
+          canGenerate: true,
+          generationId: messageId
+        };
+        setMessages(prev => [...prev, step5Message]);
+        
+        // Get enhanced prompt and start generation
+        const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
+          message: `Create detailed professional prompts for this concept: ${conceptName}. Use diverse styling beyond just business - match the specific energy requested.`,
+          chatId: currentChatId,
+          context: 'generation'
+        });
+        
+        const prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
+        await generateImages(prompt, messageId);
+        
+      }, 8000);
       
     } catch (error) {
-      console.error('Maya concept generation error:', error);
-      
-      // Show friendly error message
-      const errorMessage: ChatMessage = {
-        role: 'maya',
-        content: `I had a little hiccup creating those "${conceptName}" photos, but I'm not giving up! Let me try a different approach. What specific style elements are you most excited about for this look?`,
-        timestamp: new Date().toISOString(),
-        quickButtons: ["More luxury details", "Different lighting", "Try another concept", "Tell me the issue"]
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
+      console.error('Maya photoshoot experience error:', error);
     }
   };
 
