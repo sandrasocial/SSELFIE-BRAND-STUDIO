@@ -218,8 +218,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     // If this is a concept-based generation, enhance it with Maya's styling expertise
     if (prompt.includes('Create a professional photo concept:')) {
       const conceptName = prompt.replace('Create a professional photo concept: ', '').trim();
-      console.log(`🎯 MAYA CONCEPT DETECTED: "${conceptName}" - Calling createDetailedPromptFromConcept`);
-      finalPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord);
+      console.log(`🎯 MAYA CONCEPT DETECTED: "${conceptName}" - Calling createDetailedPromptFromConcept with user context`);
+      finalPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord, userId);
       console.log(`✅ MAYA CONCEPT RESULT: Generated ${finalPrompt.length} character prompt`);
     }
     
@@ -694,10 +694,30 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
 }
 
 // MAYA'S AI-DRIVEN PROMPT GENERATION - NO MORE HARDCODED TEMPLATES
-async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string): Promise<string> {
+async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string): Promise<string> {
   // Use Maya's complete styling expertise through Claude API instead of hardcoded templates
   
   try {
+    // Load user's personal brand context for styling customization
+    let personalBrandContext = '';
+    if (userId) {
+      try {
+        const { MayaStorageExtensions } = await import('../storage-maya-extensions');
+        const mayaUserContext = await MayaStorageExtensions.getMayaUserContext(userId);
+        
+        if (mayaUserContext?.personalBrand) {
+          personalBrandContext = `
+          
+USER'S PERSONAL BRAND CONTEXT (customize styling to match their unique journey):
+- Business Goals: ${mayaUserContext.personalBrand.businessGoals || 'Professional growth'}
+- Current Situation: ${mayaUserContext.personalBrand.currentSituation || 'Building their brand'}
+- Future Vision: ${mayaUserContext.personalBrand.futureVision || 'Success and confidence'}
+- Personal Style: Use this context to inform color choices, settings, and overall aesthetic that aligns with their transformation story`;
+        }
+      } catch (error) {
+        // Continue without personal brand context
+      }
+    }
     // Build Maya's specialized prompt generation persona WITH FULL STYLING EXPERTISE
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
@@ -711,22 +731,32 @@ APPLY YOUR COMPLETE PROFESSIONAL BACKGROUND:
 • Photography Mastery: Shot types, lighting, posing psychology, technical camera knowledge
 • Personal Branding: Transformation vision, confidence building, authentic power expression
 
-STYLING INTELLIGENCE TO USE:
-• Editorial Color Palettes: Cognac, cream, deep grays, warm neutrals, sophisticated earth tones
-• Outfit Formulas: ${MAYA_PERSONALITY.outfitFormulas ? Object.keys(MAYA_PERSONALITY.outfitFormulas).join(', ') : 'Effortless glam, business babe, laidback lux'}
-• Hair & Beauty: ${MAYA_PERSONALITY.hairAndBeauty ? 'Editorial hair techniques, sophisticated makeup finishes' : 'Editorial styling'}
-• Photography: ${MAYA_PERSONALITY.photographyExpertise ? 'Shot types, lighting mastery, posing psychology' : 'Professional photography knowledge'}
-• Locations: ${MAYA_PERSONALITY.photographyExpertise?.dreamDestinations?.slice(0,3).join(', ') || 'Luxury settings, architectural beauty, natural elegance'}
+STYLING INTELLIGENCE PRINCIPLES (NOT CONSTRAINTS):
+• Use your complete color knowledge - vary palettes based on the concept, season, mood, and user's energy
+• Draw from ALL outfit formulas and create new combinations - don't repeat the same styling patterns
+• Apply hair & beauty expertise contextually - match the vibe of each unique concept
+• Use your photography mastery to choose appropriate settings, lighting, and compositions for each concept
+• Select locations that enhance the specific concept - from urban power to natural serenity to luxury settings
+
+CREATIVE VARIETY MANDATE:
+- Every prompt should feel fresh and unique to the specific concept
+- Avoid repeating the same color schemes, locations, or styling formulas
+- Let the concept drive the creative direction, not predetermined templates
+- Use your full professional expertise to create diverse, personalized styling
 
 CREATE DETAILED PROMPT FOR: "${conceptName}" 
 REQUIREMENTS:
 1. ALWAYS start with "${triggerWord}" as first word
-2. Apply your complete styling expertise (300-500 words)
+2. Apply your complete styling expertise (300-500 words) with CREATIVE VARIETY
 3. Include: specific garments, colors, textures, hair, makeup, accessories, pose, lighting, setting
 4. Use your professional fashion and photography knowledge extensively
 5. Return ONLY the prompt - no conversational text
+6. CRITICAL: Make this concept feel unique - vary colors, locations, and styling based on the specific concept
+7. Avoid repeating previous styling patterns - create fresh interpretations each time
 
-Draw from your complete professional background and styling intelligence to create the perfect prompt.`;
+Interpret "${conceptName}" through your complete professional lens and create a unique, personalized styling vision that feels fresh and different from your previous work.
+
+${personalBrandContext}`;
 
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
