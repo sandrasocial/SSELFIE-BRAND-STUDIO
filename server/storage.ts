@@ -406,7 +406,7 @@ export class DatabaseStorage implements IStorage {
   async updateGeneratedImage(id: number, data: Partial<GeneratedImage>): Promise<GeneratedImage> {
     const [updated] = await db
       .update(generatedImages)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data })
       .where(eq(generatedImages.id, id))
       .returning();
     return updated;
