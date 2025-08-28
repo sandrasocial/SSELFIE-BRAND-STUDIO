@@ -504,8 +504,15 @@ async function processMayaResponse(response: string, context: string, userId: st
       }
     }
     
+    // Third try: If no specific prompt found, check if entire response is a detailed prompt
+    if (!extractedPrompt && response.length > 100 && response.includes('portrait')) {
+      extractedPrompt = response;
+      console.log('🎯 MAYA UNIFIED: Using entire response as detailed prompt');
+    }
+    
     if (extractedPrompt) {
       processed.generatedPrompt = extractedPrompt;
+      console.log('🎯 MAYA UNIFIED: Final extracted prompt:', extractedPrompt.substring(0, 100) + '...');
     }
   }
 
