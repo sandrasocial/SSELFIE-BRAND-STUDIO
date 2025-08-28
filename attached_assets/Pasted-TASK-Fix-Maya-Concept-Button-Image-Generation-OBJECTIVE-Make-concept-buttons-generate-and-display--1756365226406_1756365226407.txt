@@ -1,0 +1,123 @@
+TASK: Fix Maya Concept Button Image Generation
+OBJECTIVE: Make concept buttons generate and display preview images when clicked
+
+SPECIFIC ACTIONS:
+
+1. Open `client/src/pages/maya.tsx`
+
+2. Find the `handleQuickButton` function (around line 250-300) and replace it with:
+
+```typescript
+const handleQuickButton = (buttonText: string, messageIndex?: number) => {
+  // Check if this is a Maya generation concept button (has emojis)
+  const isGenerationButton = buttonText.includes('✨') || buttonText.includes('💫') || 
+                           buttonText.includes('💗') || buttonText.includes('🔥') || 
+                           buttonText.includes('🌟') || buttonText.includes('💎') ||
+                           buttonText.includes('🌅') || buttonText.includes('🏢') ||
+                           buttonText.includes('💼') || buttonText.includes('🌊');
+  
+  if (isGenerationButton && messageIndex !== undefined) {
+    console.log('Maya: Generating images for concept:', buttonText);
+    
+    // Mark button as clicked
+    setClickedButtons(prev => {
+      const newMap = new Map(prev);
+      const messageButtons = newMap.get(messageIndex) || new Set();
+      messageButtons.add(buttonText);
+      newMap.set(messageIndex, messageButtons);
+      return newMap;
+    });
+    
+    // Generate images for this concept
+    generateFromConcept(buttonText);
+  } else {
+    // Regular chat message
+    sendMessage(buttonText);
+  }
+};
+
+Find the generateFromConcept function and replace it with:
+
+typescriptconst generateFromConcept = async (conceptName: string) => {
+  const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  if (activeGenerations.has(messageId)) return;
+  
+  console.log('Maya: Starting concept generation for:', conceptName, 'ID:', messageId);
+  
+  try {
+    // Create Maya message showing generation progress
+    const generatingMessage: ChatMessage = {
+      role: 'maya',
+      content: `Creating your "${conceptName}" photos right now! I'm applying all my styling expertise to make these absolutely stunning. You're going to love the results! ✨`,
+      timestamp: new Date().toISOString(),
+      canGenerate: true,
+      generationId: messageId
+    };
+    
+    setMessages(prev => [...prev, generatingMessage]);
+    
+    // Get Maya's intelligent response for detailed prompting
+    const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
+      message: `Create detailed professional prompts for this concept: ${conceptName}. Use your fashion week expertise and styling knowledge.`,
+      chatId: currentChatId,
+      context: 'generation'
+    });
+    
+    // Use Maya's extracted prompt or create one from concept
+    const prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
+    console.log('Maya: Using prompt:', prompt);
+    
+    // Start image generation
+    await generateImages(prompt, messageId);
+    
+  } catch (error) {
+    console.error('Maya concept generation error:', error);
+    
+    // Show friendly error message
+    const errorMessage: ChatMessage = {
+      role: 'maya',
+      content: `I had a little hiccup creating those "${conceptName}" photos, but I'm not giving up! Let me try a different approach. What specific style elements are you most excited about for this look?`,
+      timestamp: new Date().toISOString(),
+      quickButtons: ["More luxury details", "Different lighting", "Try another concept", "Tell me the issue"]
+    };
+    
+    setMessages(prev => [...prev, errorMessage]);
+  }
+};
+
+Verify the generateImages function has proper error handling:
+
+Find the line where images are updated in the polling section and ensure it looks like this:
+typescriptif (statusResponse.status === 'completed' && statusResponse.imageUrls) {
+  console.log('Maya generation complete! Images:', statusResponse.imageUrls.length);
+  
+  // Update the specific Maya message with generated images
+  setMessages(prev => prev.map(msg => 
+    msg.generationId === generationId 
+      ? { 
+          ...msg, 
+          imagePreview: statusResponse.imageUrls, 
+          canGenerate: false,
+          content: msg.content + `\n\nHere are your "${conceptName || 'styled'}" photos! I'm so excited about how these turned out - the styling is absolutely perfect for your brand! 💫`
+        }
+      : msg
+  ));
+
+Test the complete flow:
+
+Click a concept button like "🌅 GOLDEN HOUR GODDESS"
+Verify generation starts with Maya's progress message
+Check that images appear under the concept after generation
+Ensure users can save images to gallery
+
+
+
+CONSTRAINTS:
+
+Don't modify other Maya chat functionality
+Keep the concept button UI exactly as-is
+Preserve Maya's personality in all messages
+Ensure error handling is user-friendly
+
+EXPECTED OUTCOME: Concept buttons generate preview images that display under each concept, allowing users to see and save their favorite styles.

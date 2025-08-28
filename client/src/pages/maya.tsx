@@ -385,16 +385,11 @@ function Maya() {
       });
       
       // Use Maya's extracted prompt or create one from concept
-      let prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
-
-      // Add Maya's camera specifications for professional quality
-      const cameraSpecs = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
-      prompt = cameraSpecs + prompt;
-
-      console.log('Maya: Using enhanced prompt:', prompt);
+      const prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
+      console.log('Maya: Using prompt:', prompt);
       
       // Start image generation
-      await generateImages(prompt, messageId, conceptName);
+      await generateImages(prompt, messageId);
       
     } catch (error) {
       console.error('Maya concept generation error:', error);
@@ -455,7 +450,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                     ...msg, 
                     imagePreview: statusResponse.imageUrls, 
                     canGenerate: false,
-                    content: msg.content.replace('Creating your', 'Here are your') + ' Perfect styling! 💫'
+                    content: msg.content + `\n\nHere are your "${conceptName || 'styled'}" photos! I'm so excited about how these turned out - the styling is absolutely perfect for your brand! 💫`
                   }
                 : msg
             ));
