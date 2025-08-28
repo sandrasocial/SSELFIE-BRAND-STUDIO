@@ -363,76 +363,52 @@ function Maya() {
     
     if (activeGenerations.has(messageId)) return;
     
-    console.log('Maya: Starting immersive photoshoot for:', conceptName);
+    console.log('Maya: Starting concept generation for:', conceptName, 'ID:', messageId);
     
     try {
-      // Step 1: Initial excitement
-      const step1Message: ChatMessage = {
+      // Create Maya message showing generation progress
+      const generatingMessage: ChatMessage = {
         role: 'maya',
-        content: `OH MY GOD YES! ${conceptName} is going to be absolutely stunning! 🎬 Let me set up your personal photoshoot - this is going to be MAGAZINE WORTHY!`,
+        content: `Creating your "${conceptName}" photos right now! I'm applying all my styling expertise to make these absolutely stunning. You're going to love the results! ✨`,
         timestamp: new Date().toISOString(),
+        canGenerate: true,
         generationId: messageId
       };
-      setMessages(prev => [...prev, step1Message]);
       
-      // Step 2: Styling consultation (after 2 seconds)
-      setTimeout(() => {
-        const step2Message: ChatMessage = {
-          role: 'maya',
-          content: `✨ STYLING SESSION: I'm pulling together the perfect look - thinking luxe textures, perfect proportions, and colors that make your skin glow. My fashion week experience is kicking in and I'm seeing EXACTLY what you need...`,
-          timestamp: new Date().toISOString(),
-          generationId: messageId + '_styling'
-        };
-        setMessages(prev => [...prev, step2Message]);
-      }, 2000);
+      setMessages(prev => [...prev, generatingMessage]);
       
-      // Step 3: Hair & Makeup (after 4 seconds)
-      setTimeout(() => {
-        const step3Message: ChatMessage = {
-          role: 'maya',
-          content: `💄 HAIR & MAKEUP: Sending you to my favorite glam team! We're going for that editorial glow - flawless but natural, hair styled to perfection. Think "I just stepped off a magazine cover" energy...`,
-          timestamp: new Date().toISOString(),
-          generationId: messageId + '_glam'
-        };
-        setMessages(prev => [...prev, step3Message]);
-      }, 4000);
+      // Create enhanced prompt directly without API call to avoid rate limits
+      const conceptPrompts: { [key: string]: string } = {
+        'Business photos': 'Professional business portrait, confident corporate headshot, luxury office setting, impeccable styling',
+        'Lifestyle photos': 'Casual authentic lifestyle portrait, natural candid moment, relaxed confident pose, everyday elegance',
+        'Story photos': 'Behind-the-scenes personal moment, authentic storytelling portrait, genuine expression, narrative depth',
+        'Instagram photos': 'Stunning social media portrait, Instagram-ready styling, engaging eye contact, scroll-stopping quality',
+        'Travel photos': 'Adventure travel portrait, destination photography, wanderlust styling, exotic location backdrop',
+        'Outfit photos': 'Fashion-forward style portrait, outfit showcase, trend-setting look, personal style statement',
+        'GRWM photos': 'Get-ready process portrait, beauty routine moment, styling transformation, authentic preparation',
+        'Future self photos': 'Aspirational vision portrait, goal achievement styling, confident transformation, success embodiment',
+        'B&W photos': 'Timeless black and white portrait, classic artistic styling, dramatic lighting, editorial elegance',
+        'Studio photoshoot': 'Professional studio portrait, perfect lighting setup, magazine-quality styling, high-end production'
+      };
       
-      // Step 4: Lighting setup (after 6 seconds)
-      setTimeout(() => {
-        const step4Message: ChatMessage = {
-          role: 'maya',
-          content: `🎬 LIGHTING CREW: Setting up the most gorgeous lighting - we're talking golden hour magic, perfect shadows, that dreamy editorial quality. The camera is going to LOVE you in this light...`,
-          timestamp: new Date().toISOString(),
-          generationId: messageId + '_lighting'
-        };
-        setMessages(prev => [...prev, step4Message]);
-      }, 6000);
+      const prompt = conceptPrompts[conceptName] || `Professional photo concept: ${conceptName}`;
+      console.log('Maya: Using prompt:', prompt);
       
-      // Step 5: Start actual generation (after 8 seconds)
-      setTimeout(async () => {
-        const step5Message: ChatMessage = {
-          role: 'maya',
-          content: `📸 CAMERA ROLLING: Creating your ${conceptName} photos right now! I can already tell these are going to be absolutely incredible - the kind of photos that make people stop scrolling and say "WHO IS SHE?!" ✨`,
-          timestamp: new Date().toISOString(),
-          canGenerate: true,
-          generationId: messageId
-        };
-        setMessages(prev => [...prev, step5Message]);
-        
-        // Get enhanced prompt and start generation
-        const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
-          message: `Create detailed professional prompts for this concept: ${conceptName}. Use diverse styling beyond just business - match the specific energy requested.`,
-          chatId: currentChatId,
-          context: 'generation'
-        });
-        
-        const prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
-        await generateImages(prompt, messageId);
-        
-      }, 8000);
+      // Start image generation
+      await generateImages(prompt, messageId);
       
     } catch (error) {
-      console.error('Maya photoshoot experience error:', error);
+      console.error('Maya concept generation error:', error);
+      
+      // Show friendly error message
+      const errorMessage: ChatMessage = {
+        role: 'maya',
+        content: `I had a little hiccup creating those "${conceptName}" photos, but I'm not giving up! Let me try a different approach. What specific style elements are you most excited about for this look?`,
+        timestamp: new Date().toISOString(),
+        quickButtons: ["More luxury details", "Different lighting", "Try another concept", "Tell me the issue"]
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
     }
   };
 
