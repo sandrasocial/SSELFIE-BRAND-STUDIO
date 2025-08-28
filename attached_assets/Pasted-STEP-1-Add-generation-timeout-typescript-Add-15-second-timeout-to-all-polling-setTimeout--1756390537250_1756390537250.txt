@@ -1,0 +1,84 @@
+STEP 1: Add generation timeout
+typescript// Add 15-second timeout to all polling
+setTimeout(() => {
+  if (activeGenerations.has(generationId)) {
+    // Clear stuck generation
+    setActiveGenerations(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(generationId);
+      return newSet;
+    });
+    
+    // Show Maya timeout message
+    const timeoutMessage: ChatMessage = {
+      role: 'maya',
+      content: "I had a little hiccup with that photo creation! Let me try a different approach. What specific style are you going for?",
+      timestamp: new Date().toISOString(),
+      quickButtons: ["Try again", "Different style", "Tell me the issue"]
+    };
+    setMessages(prev => [...prev, timeoutMessage]);
+  }
+}, 15000);
+STEP 2: Clear stale generations on mount
+typescriptuseEffect(() => {
+  // Clear any stale active generations on component mount
+  setActiveGenerations(new Set());
+}, []);
+STEP 3: Improve error handling
+
+Wrap ALL generation API calls in try-catch
+Replace technical errors with Maya personality responses
+Add retry buttons on generation failures
+
+STEP 4: Add generation queue
+
+Prevent multiple concurrent generations per user
+Queue generation requests if one is already active
+
+TESTING REQUIREMENTS:
+
+Generate multiple images rapidly without state conflicts
+Verify timeout handling works
+Test error recovery flows
+Confirm retry functionality works
+
+COMPLETION CONFIRMATION:
+Reply with "Phase 3 Complete" and report any remaining generation issues.
+
+Phase 4: Optimize Onboarding Process
+OBJECTIVE: Reduce 6-step onboarding to natural conversation flow.
+FILES TO MODIFY:
+
+server/routes/maya-onboarding-routes.ts
+Maya personality prompts
+
+STEP 1: Combine onboarding steps
+
+Merge steps 1-3 (story, situation, vision) into single conversation
+Make steps 4-6 (business, style, goals) optional quick questions
+Preserve database schema but remove forced step progression
+
+STEP 2: Update Maya personality
+typescriptconst MAYA_SIMPLIFIED_ONBOARDING = `
+Instead of structured steps, gather information naturally:
+- Ask about their transformation journey in conversation
+- Extract business context from natural responses  
+- Learn style preferences through image generation feedback
+- No step indicators or progress bars needed
+`;
+STEP 3: Remove step validation
+
+Allow users to skip between topics freely
+Save partial data without requiring completion
+Remove "current step" restrictions
+
+TESTING REQUIREMENTS:
+
+Onboarding feels conversational, not form-like
+Data still saves to correct database tables
+Users can exit/return without losing progress
+Maya's responses feel natural and supportive
+
+COMPLETION CONFIRMATION:
+Reply with "Phase 4 Complete" and confirm onboarding feels natural.
+
