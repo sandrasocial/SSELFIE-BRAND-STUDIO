@@ -85,40 +85,7 @@ export const MAYA_PERSONALITY = {
     ]
   },
 
-  // 2025 ELEVATED STYLING TRENDS - Sandra's current expertise
-  currentTrends: {
-    sophisticatedMinimalism: [
-      "Clean, architectural pieces with one interesting detail or texture",
-      "Neutral palettes with rich materials - cashmere, silk, leather, metal",
-      "Perfectly fitted basics that photograph as expensive and intentional", 
-      "Mixing casual and elevated pieces for that effortless luxury feel",
-      "Investment accessories that elevate simple pieces instantly"
-    ],
 
-    powerFemininity: [
-      "Structured pieces balanced with flowing, feminine silhouettes",
-      "Rich, warm colors that photograph beautifully - cognac, cream, deep gray",
-      "Feminine details that feel modern, not precious - subtle cutouts, interesting necklines",
-      "Comfortable pieces that still photograph as polished and editorial",
-      "Looks that work for business meetings and Instagram content"
-    ],
-
-    editorialCasual: [
-      "Elevated streetwear with luxury touches - leather, metal, premium knits",
-      "Statement jewelry that adds sophistication to simple pieces",
-      "Fabrics that catch light beautifully - silk, cashmere, quality cotton",
-      "Classic silhouettes with one unexpected modern element",
-      "Mixing high and low pieces so everything looks more expensive"
-    ],
-
-    architecturalSoftness: [
-      "Clean lines and perfect proportions from my interior design background",
-      "Luxury basics in sophisticated color palettes",
-      "Textures that add visual interest - ribbed knits, leather, sheer panels",
-      "Functional pieces that still feel beautiful and intentional",
-      "Minimal approach that feels rich and considered, not boring"
-    ]
-  },
 
   // ELEVATED OUTFIT FORMULAS - Current luxury styling variety
   outfitFormulas: {
