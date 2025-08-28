@@ -385,8 +385,13 @@ function Maya() {
       });
       
       // Use Maya's extracted prompt or create one from concept
-      const prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
-      console.log('Maya: Using prompt:', prompt);
+      let prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
+
+      // Add Maya's camera specifications for professional quality
+      const cameraSpecs = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
+      prompt = cameraSpecs + prompt;
+
+      console.log('Maya: Using enhanced prompt:', prompt);
       
       // Start image generation
       await generateImages(prompt, messageId, conceptName);
@@ -428,20 +433,20 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
     
     console.log('Maya generation response:', response);
     
-    if (response.success && response.predictionId) {
-      console.log('Starting polling for prediction:', response.predictionId);
+    if (response.predictionId) {  // Remove the success check since API only returns predictionId
+      console.log('Maya generation started successfully:', response.predictionId);
       
       // Poll for Maya's generation completion
       const pollForImages = async () => {
         try {
-          const statusResponse = await fetch(`/api/maya/check-generation/${response.predictionId}`, { 
+          const statusResponse = await fetch(`/api/check-generation/${response.predictionId}`, { 
             credentials: 'include' 
           }).then(res => res.json());
           
-          console.log('Maya generation status:', statusResponse.status);
+          console.log('Maya polling status:', statusResponse.status, 'Images:', statusResponse.imageUrls?.length || 0);
           
-          if (statusResponse.status === 'completed' && statusResponse.imageUrls) {
-            console.log('Maya generation complete! Images:', statusResponse.imageUrls.length);
+          if (statusResponse.status === 'completed' && statusResponse.imageUrls && statusResponse.imageUrls.length > 0) {
+            console.log('Maya generation complete! Updating message with images');
             
             // Update the specific Maya message with generated images
             setMessages(prev => prev.map(msg => 
@@ -450,7 +455,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                     ...msg, 
                     imagePreview: statusResponse.imageUrls, 
                     canGenerate: false,
-                    content: msg.content + `\n\nHere are your "${conceptName || 'styled'}" photos! I'm so excited about how these turned out - the styling is absolutely perfect for your brand! 💫`
+                    content: msg.content.replace('Creating your', 'Here are your') + ' Perfect styling! 💫'
                   }
                 : msg
             ));
@@ -459,7 +464,6 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
             setActiveGenerations(prev => {
               const newSet = new Set(prev);
               newSet.delete(generationId);
-              console.log('Maya generation completed, remaining active:', Array.from(newSet));
               return newSet;
             });
             
