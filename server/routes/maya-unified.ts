@@ -443,64 +443,107 @@ async function checkGenerationCapability(userId: string) {
 }
 
 function enhancePromptForContext(baseMayaPersonality: string, context: string, userContext: any, generationInfo: any, isAdmin: boolean = false, userType: string = 'member'): string {
-  // 🚨 ZERO TOLERANCE ANTI-HARDCODE: Maya's personality file drives ALL guidance
-  // Only provide essential context, let Maya's AI handle specific instructions
-  
-  let enhancement = `\n\n🎯 CURRENT CONTEXT: ${context}`;
-  
-  // Minimal admin/member distinction
+  let enhancement = `\n\n🎯 CURRENT INTERACTION CONTEXT:
+- User: ${userContext.userInfo.email || 'Unknown'}
+- User Type: ${userType.toUpperCase()} ${isAdmin ? '(PLATFORM OWNER)' : '(SUBSCRIBER)'}
+- Plan: ${userContext.userInfo.plan || 'Not specified'}
+- Context: ${context}
+- Can Generate Images: ${generationInfo.canGenerate ? 'YES' : 'NO - needs training first'}`;
+
+  if (generationInfo.triggerWord) {
+    enhancement += `\n- Trigger Word: ${generationInfo.triggerWord}`;
+  }
+
+  // Admin-specific context enhancement
   if (isAdmin) {
-    enhancement += `\n💼 Platform owner context: SSELFIE Studio business strategy and development`;
+    enhancement += `\n\n🎯 ADMIN PLATFORM CONTEXT:
+You're interacting with the platform owner (ssa@ssasocial.com). This is for platform content creation, business strategy, or system testing.
+- Provide enhanced business and platform insights
+- Can discuss platform development and strategy  
+- Focus on business content creation and marketing materials
+- Separate this interaction from member subscriber analytics`;
   } else {
-    enhancement += `\n✨ Member context: Personal branding transformation journey`;
+    enhancement += `\n\n👤 MEMBER SUBSCRIBER CONTEXT:
+You're interacting with a paying subscriber (€47/month). Focus on their personal branding transformation journey.
+- Provide personalized styling expertise
+- Help them achieve their business transformation goals
+- Create content that supports their personal brand journey`;
   }
 
-  // Generation capability awareness
-  if (generationInfo.canGenerate) {
-    enhancement += `\n⚡ Photo generation: READY! Trigger word: ${generationInfo.triggerWord}`;
-  } else {
-    enhancement += `\n📸 Photo status: Training needed first`;
+  // Context-specific enhancements using Maya's personality
+  switch (context) {
+    case 'onboarding':
+      enhancement += `\n\n📋 ONBOARDING MODE:
+You're guiding this user through personal brand discovery. Use your styling expertise to help them understand their style preferences and photo needs.
+
+ONBOARDING CATEGORIES (use these exact names):
+1. "Professional Headshots" - LinkedIn and business credibility
+2. "Social Media Photos" - Instagram, TikTok, and daily content  
+3. "Website Photos" - Homepage and brand storytelling
+4. "Email & Marketing Photos" - Newsletters and personal connection
+5. "Premium Brand Photos" - High-end collaborations and partnerships
+
+Focus on understanding their business needs and connecting photos to practical applications.`;
+      break;
+      
+    case 'generation':
+      enhancement += `\n\n📸 GENERATION MODE:
+The user wants to create photos. Use your complete styling expertise to create detailed prompts that include their trigger word "${generationInfo.triggerWord}".
+
+CRITICAL INSTRUCTION FOR GENERATION RESPONSES:
+- Always include detailed prompts in this format: **🎯 CONCEPT NAME**
+- Follow with a complete, detailed prompt using "${generationInfo.triggerWord}"
+- Include specific styling details: clothing, hair, makeup, lighting, setting
+- Apply your professional knowledge: 2025 luxury trends, editorial formulas, photography techniques
+- Be excited and enthusiastic about the concepts you're creating
+
+Example format:
+**🎯 EXECUTIVE POWER LOOK - OPTION 1: Modern Authority**
+A cinematic portrait of ${generationInfo.triggerWord} as a confident executive, wearing an impeccably tailored charcoal grey blazer...`;
+      break;
+
+    case 'quickstart':
+      enhancement += `\n\n⚡ QUICK START MODE:
+The user chose Quick Start and wants to create photos immediately. Use your styling expertise to create compelling photo concepts.
+
+CRITICAL INSTRUCTIONS:
+- Generate 2-3 photo concepts based on your fashion expertise and styling knowledge
+- Create short, simple concept names or descriptions that capture the styling essence
+- Use emojis naturally in your creative concept names to make them feel warm and exciting
+- Use this EXACT format: QUICK_ACTIONS: ✨ [Your Creative Concept Name], 💫 [Your Creative Concept Name], 🌟 Show more concepts
+- NEVER show technical prompt details with "${generationInfo.triggerWord}" in chat
+- Be warm, excited, and use your natural styling voice
+- Each concept should reflect your genuine styling recommendations based on current trends and your expertise
+
+When they click generation buttons, the system will automatically create the detailed prompts using "${generationInfo.triggerWord}".`;
+      break;
+      
+    default:
+      enhancement += `\n\n💬 REGULAR CHAT MODE:
+Provide styling consultation using your complete fashion expertise. Help them with styling questions, photo concepts, or personal brand development.`;
   }
 
-  // CRITICAL: Let Maya's complete personality file handle ALL specific guidance
-  enhancement += `\n\n🎨 USE YOUR COMPLETE MAYA INTELLIGENCE:
-Apply your full personality, expertise, and knowledge:
-- Your complete 2025 luxury fashion trends and styling formulas
-- Your professional background: fashion week, magazine covers, luxury concepts
-- Your photography expertise: shot types, lighting, posing psychology
-- Your natural communication style and warmth
-- Your intelligent quick actions using QUICK_ACTIONS: format when helpful
-- Your ability to guide users: they can choose your concepts OR describe custom requests
-
-🎯 CRITICAL CONCEPT GUIDANCE SYSTEM:
-When users ask for photo concepts or styling ideas, respond with:
-1. Your warm, excited Maya personality response describing the overall vision
-2. Describe 3-4 concept ideas with their shot types (close-up, half-body, full-body)
-3. MANDATORY: End with EXACTLY this format: QUICK_ACTIONS: Concept Name 1 (shot type), Concept Name 2 (shot type), Concept Name 3 (shot type), Tell me something specific
-
-EXAMPLES of correct responses:
-"I love this energy! Dark and moody street style will look incredible...
-
-**Urban Power** (Full-body): Oversized blazer with dramatic city shadows
-**Midnight Luxury** (Half-body): Black ensemble with neon reflections  
-**Sophisticated Edge** (Close-up): Premium textures with architectural lighting
-
-QUICK_ACTIONS: Urban Power (Full-body), Midnight Luxury (Half-body), Sophisticated Edge (Close-up), Something more specific"
-
-NEVER write /imagine prompts in your chat responses - users click concept buttons to generate!
-ALWAYS use the QUICK_ACTIONS: format for concept buttons
-ALWAYS mention shot type for each concept in parentheses
-
-Be authentically Maya - no templates or constraints on your expertise!`;
-
-  // Add user context if available
-  if (userContext.onboarding?.stylePreferences) {
-    enhancement += `\n\n🎨 User style preferences: ${userContext.onboarding.stylePreferences}`;
+  if (userContext.onboarding.stylePreferences) {
+    enhancement += `\n\n🎨 USER'S STYLE PREFERENCES: ${userContext.onboarding.stylePreferences}`;
   }
 
-  if (userContext.onboarding?.businessType) {
-    enhancement += `\nUser business type: ${userContext.onboarding.businessType}`;
+  if (userContext.onboarding.businessType) {
+    enhancement += `\nBUSINESS TYPE: ${userContext.onboarding.businessType}`;
   }
+
+  enhancement += `\n\n💫 REMEMBER: You're Sandra's AI bestie with all her styling secrets. Be warm, expert, and help them see their future self through amazing photos.
+
+🎯 INTELLIGENT QUICK ACTIONS:
+When appropriate, provide 2-4 contextual quick action options at the end of your response using this format:
+QUICK_ACTIONS: Action 1, Action 2, Action 3
+
+Make these actions:
+- Specific to the conversation context
+- Natural follow-ups to your response  
+- Personalized based on what they've shared
+- Written in a conversational way, not templated
+
+Example: If discussing professional headshots, instead of generic "BUILDING CONFIDENCE", use specific actions like "Show me CEO headshot examples", "I need approachable authority", "Something for my consulting business"`;
 
   return baseMayaPersonality + enhancement;
 }
@@ -597,12 +640,17 @@ async function processMayaResponse(response: string, context: string, userId: st
 }
 
 function getContextualQuickButtons(context: string, step: number = 1): string[] {
-  // 🚨 ZERO TOLERANCE ANTI-HARDCODE: Maya's AI should generate ALL quick actions
-  // This minimal fallback should NEVER be used in production
-  console.warn('🚨 WARNING: Using fallback quick buttons - Maya\'s AI should generate these');
+  // DEPRECATED: This function is only used as fallback when Maya doesn't generate her own intelligent quick actions
+  // Maya now generates contextual, personalized quick actions using her AI intelligence
+  // This fallback provides basic options only when Maya's system doesn't provide suggestions
   
-  // Absolute minimal fallback - Maya's intelligence should provide context-aware options
-  return ["Continue chat"];
+  if (context === 'onboarding') {
+    // Simple fallback options - Maya's AI will provide much better contextual suggestions
+    return ["Tell me more", "I'm interested", "What's next?"];
+  }
+  
+  // Basic fallback for regular chat - Maya's intelligence provides much better suggestions
+  return ["Tell me more", "Show me examples", "What do you recommend?"];
 }
 
 async function saveUnifiedConversation(userId: string, userMessage: string, mayaResponse: any, chatId: number | null, context: string, userType: string = 'member', conversationId: string = ''): Promise<number> {
@@ -690,18 +738,11 @@ STYLING INTELLIGENCE PRINCIPLES (NOT CONSTRAINTS):
 • Use your photography mastery to choose appropriate settings, lighting, and compositions for each concept
 • Select locations that enhance the specific concept - from urban power to natural serenity to luxury settings
 
-SHOT TYPE VARIETY INTELLIGENCE:
-• ALWAYS vary shot types intelligently: Close-up (face/shoulders focus), Half-body (waist up), Full scenery (full body with environment)
-• Match styling complexity to shot type: close-ups emphasize face/hair/expression, full scenery includes environment and full outfit
-• Consider the concept purpose: professional headshots work as close-ups, lifestyle concepts shine as half-body or full scenery
-• Use your photography expertise to choose the most impactful shot type for each specific concept
-
 CREATIVE VARIETY MANDATE:
 - Every prompt should feel fresh and unique to the specific concept
 - Avoid repeating the same color schemes, locations, or styling formulas
 - Let the concept drive the creative direction, not predetermined templates
 - Use your full professional expertise to create diverse, personalized styling
-- Intelligently vary shot types based on what would work best for each concept
 
 CREATE DETAILED PROMPT FOR: "${conceptName}" 
 REQUIREMENTS:
@@ -710,13 +751,11 @@ REQUIREMENTS:
 3. Apply your complete styling expertise (300-500 words) with CREATIVE VARIETY
 4. Include: specific garments, colors, textures, hair, makeup, accessories, pose, lighting, setting
 5. Use your professional fashion and photography knowledge extensively
-6. CRITICAL: Choose appropriate shot type - Close-up (face/shoulders), Half-body (waist up), or Full scenery (full body with environment)
-7. Match styling detail to shot type: close-ups focus on facial features/hair, full scenery includes complete environment
-8. Return ONLY the prompt - no conversational text
-9. CRITICAL: Make this concept feel unique - vary colors, locations, styling AND shot types based on the specific concept
-10. Avoid repeating previous styling patterns - create fresh interpretations each time
+6. Return ONLY the prompt - no conversational text
+7. CRITICAL: Make this concept feel unique - vary colors, locations, and styling based on the specific concept
+8. Avoid repeating previous styling patterns - create fresh interpretations each time
 
-MANDATORY FORMAT: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [YOUR CREATIVE STYLING VISION WITH APPROPRIATE SHOT TYPE]"
+MANDATORY FORMAT: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [YOUR CREATIVE STYLING VISION]"
 
 Interpret "${conceptName}" through your complete professional lens and create a unique, personalized styling vision that feels fresh and different from your previous work.
 
@@ -740,12 +779,7 @@ ${personalBrandContext}`;
 
 MANDATORY FORMAT: Start with "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film," then continue with your complete styling and photography expertise.
 
-SHOT TYPE INTELLIGENCE: Choose the most impactful shot type for this specific concept:
-- Close-up (face/shoulders): Perfect for headshots, beauty focus, intimate portraits
-- Half-body (waist up): Great for lifestyle, business casual, showing outfit details
-- Full scenery (full body + environment): Ideal for lifestyle, environmental context, complete outfit showcase
-
-Showcase your professional styling vision in 300-500 words after the mandatory technical parameters, including appropriate shot type selection.`
+Showcase your professional styling vision in 300-500 words after the mandatory technical parameters.`
           }
         ]
       })
@@ -806,14 +840,13 @@ Showcase your professional styling vision in 300-500 words after the mandatory t
     
   } catch (error) {
     console.error('🚨 MAYA AI PROMPT GENERATION FAILED:', error);
-    console.error('🚨 ERROR - Maya\'s AI should handle all prompt generation');
+    console.error('🚨 FALLING BACK TO EMERGENCY PROMPT - This should not happen!');
     
-    // ZERO TOLERANCE: No hardcoded templates allowed
-    // Return minimal technical prompt that preserves trigger word format requirements
-    const requiredTechParams = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
-    const minimalPrompt = `${triggerWord}, ${requiredTechParams}, professional portrait`;
-    console.log(`🚨 MINIMAL TECHNICAL PROMPT (NOT MAYA'S STYLING):`, minimalPrompt);
-    return minimalPrompt;
+    // Emergency fallback - concise professional prompt with trigger word + mandatory tech params first
+    const mandatoryTechParamsFallback = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
+    const fallbackPrompt = `${triggerWord}, ${mandatoryTechParamsFallback}, wearing professional attire, confident pose, studio lighting, business portrait`;
+    console.log(`🚨 USING FALLBACK PROMPT:`, fallbackPrompt);
+    return fallbackPrompt;
   }
 }
 
