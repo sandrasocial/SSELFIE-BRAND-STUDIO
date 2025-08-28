@@ -21,6 +21,17 @@ const trackInteractionTiming = (event: string, startTime: number, success: boole
   });
 };
 
+interface ConceptCard {
+  id: string;
+  title: string;
+  description: string;  
+  canGenerate: boolean;
+  isGenerating: boolean;
+  isLoading?: boolean;
+  hasGenerated?: boolean;
+  generatedImages?: string[];
+}
+
 interface ChatMessage {
   id?: number;
   role: 'user' | 'maya';
@@ -34,6 +45,7 @@ interface ChatMessage {
   stepGuidance?: string;
   isOnboarding?: boolean;
   generationId?: string;
+  conceptCards?: ConceptCard[];
 }
 
 type Preset = 'Identity' | 'Editorial' | 'UltraPrompt' | 'Fast';
@@ -244,8 +256,8 @@ export const useMayaGeneration = (
             if (statusResponse.status === 'completed' && statusResponse.imageUrls && statusResponse.imageUrls.length > 0) {
               console.log('Maya generation complete! Updating message with images');
               
-              // Check if this is a concept-specific generation
-              const isConceptGeneration = conceptTitle && statusResponse.conceptId;
+              // Check if this is a concept-specific generation - use conceptName instead of undefined conceptTitle
+              const isConceptGeneration = conceptName && statusResponse.conceptId;
               
               // Single batched update to prevent double rendering
               setMessages(prev => {
@@ -259,11 +271,11 @@ export const useMayaGeneration = (
                       content: msg.content + `\n\nHere are your styled photos! These turned out absolutely incredible! ✨`
                     };
                   } else if (isConceptGeneration && msg.conceptCards) {
-                    // Update concept card with generated images
+                    // Update concept card with generated images - use conceptName instead of conceptTitle
                     return {
                       ...msg,
                       conceptCards: msg.conceptCards.map(concept => 
-                        concept.title === conceptTitle
+                        concept.title === conceptName || concept.title.includes(conceptName.split(' ')[0])
                           ? { 
                               ...concept, 
                               generatedImages: statusResponse.imageUrls,
