@@ -592,24 +592,20 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
 
   const handleStyleSelect = (style: string) => {
     const styleMessages = {
-      'business-photos': 'I need professional business photos for LinkedIn, networking, and credibility',
+      'business-photos': 'I need powerful business photos that show my authority and expertise',
       'lifestyle-photos': 'I want casual, authentic lifestyle photos that show my personality',
-      'story-photos': 'I need behind-the-scenes story photos that connect with my audience',
-      'instagram-photos': 'I want Instagram feed and story photos that get engagement',
-      'travel-photos': 'I need travel and destination photos for my adventures and experiences',
-      'outfit-photos': 'I want fashion and outfit photos to showcase my personal style',
-      'grwm-photos': 'I need Get Ready With Me photos for my morning and styling routines',
-      'future-self': 'I want aspirational vision photos of who I\'m becoming and my goals',
-      'bw-photos': 'I need timeless black and white artistic photos with classic elegance',
-      'studio-photoshoot': 'I want professional studio photos with perfect lighting and composition'
+      'story-photos': 'I need behind-the-scenes story content that shows my journey',
+      'instagram-photos': 'I want stunning Instagram content that stops the scroll',
+      'travel-photos': 'I need gorgeous travel photos that showcase my adventures',
+      'outfit-photos': 'I want fashion-forward outfit photos that inspire others',
+      'grwm-photos': 'I need "get ready with me" content showing my style process',
+      'future-self': 'I want aspirational photos of who I\'m becoming',
+      'bw-photos': 'I need timeless black and white artistic portraits',
+      'studio-photoshoot': 'I want professional studio photos with perfect lighting'
     };
 
     setInput(styleMessages[style as keyof typeof styleMessages] || 'I want to explore this style');
-
-    // Auto-send the message after a brief delay for visual feedback
-    setTimeout(() => {
-      sendMessage();
-    }, 300);
+    setTimeout(() => sendMessage(), 300);
   };
 
   if (authLoading) {
