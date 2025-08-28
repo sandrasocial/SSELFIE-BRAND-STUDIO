@@ -31,23 +31,70 @@ if (!process.env.ANTHROPIC_API_KEY) {
   console.error('🚨 CRITICAL: ANTHROPIC_API_KEY not configured - Maya chat will fail');
 }
 
+// PHASE 7: Performance Monitoring Utilities
+function logMayaPerformance(event: string, data: any) {
+  const timestamp = new Date().toISOString();
+  console.log(`MAYA_PERFORMANCE_${event}`, {
+    ...data,
+    timestamp
+  });
+}
+
+function logMayaGeneration(event: 'START' | 'COMPLETE' | 'FAILED', data: any) {
+  const timestamp = Date.now();
+  console.log(`MAYA_GENERATION_${event}`, {
+    ...data,
+    timestamp
+  });
+}
+
+function logMayaAPI(endpoint: string, startTime: number, success: boolean, error?: any) {
+  const duration = Date.now() - startTime;
+  console.log('MAYA_API_PERFORMANCE', {
+    endpoint,
+    duration,
+    success,
+    error: error?.message || null,
+    timestamp: Date.now()
+  });
+}
+
+function logUserAbandonment(event: 'ONBOARDING_ABANDON' | 'CHAT_ABANDON' | 'GENERATION_ABANDON', data: any) {
+  console.log(`MAYA_${event}`, {
+    ...data,
+    timestamp: Date.now()
+  });
+}
+
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
 router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now(); // PHASE 7: Track API performance
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
+      logMayaAPI('/chat', startTime, false, new Error('Authentication required'));
       return res.status(401).json({ error: 'Authentication required' });
     }
 
     const { message, context = 'regular', chatId } = req.body;
 
     if (!message) {
+      logMayaAPI('/chat', startTime, false, new Error('Message required'));
       return res.status(400).json({ error: 'Message required' });
     }
 
     // Admin/Member context awareness
     const userType = req.userType || 'member';
     const conversationId = getConversationId(userId, req.isAdmin || false, chatId);
+    
+    // PHASE 7: Log chat interaction
+    logMayaPerformance('CHAT_START', {
+      userId,
+      userType,
+      context,
+      messageLength: message.length,
+      isAdmin: req.isAdmin || false
+    });
     
     console.log(`🎨 MAYA ${userType.toUpperCase()}: Processing ${context} message for ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
 
@@ -149,6 +196,19 @@ Use this context to provide personalized styling advice that aligns with their t
       hasGeneration: !!processedResponse.generatedPrompt
     });
     
+    // PHASE 7: Log successful chat completion
+    logMayaPerformance('CHAT_COMPLETE', {
+      userId,
+      userType,
+      context,
+      responseLength: (processedResponse.message || processedResponse)?.length || 0,
+      hasQuickButtons: !!processedResponse.quickButtons?.length,
+      canGenerate: processedResponse.canGenerate || false,
+      hasGeneration: !!processedResponse.generatedPrompt
+    });
+    
+    logMayaAPI('/chat', startTime, true);
+    
     res.json({
       success: true,
       content: processedResponse.message || processedResponse,  // CRITICAL: Frontend expects 'content' field
@@ -165,6 +225,16 @@ Use this context to provide personalized styling advice that aligns with their t
   } catch (error) {
     console.error('Unified Maya error:', error);
     
+    // PHASE 7: Log chat error
+    logMayaPerformance('CHAT_ERROR', {
+      userId: userId || 'unknown',
+      userType: userType || 'member',
+      context: context || 'regular',
+      error: error.message
+    });
+    
+    logMayaAPI('/chat', startTime, false, error);
+    
     // CRITICAL: Always return proper JSON with Maya's warm personality
     return res.status(200).json({ 
       success: false,
@@ -179,11 +249,27 @@ Use this context to provide personalized styling advice that aligns with their t
 
 // Image generation through unified system
 router.post('/generate', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now(); // PHASE 7: Track generation performance
   try {
     const userId = (req.user as any)?.claims?.sub;
-    if (!userId) return res.status(401).json({ error: 'Authentication required' });
+    if (!userId) {
+      logMayaAPI('/generate', startTime, false, new Error('Authentication required'));
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     
     const userType = req.userType || 'member';
+    const { prompt, chatId, preset, seed, count, conceptName } = req.body || {};
+    
+    // PHASE 7: Log generation start
+    logMayaGeneration('START', {
+      userId,
+      userType,
+      concept: conceptName || 'custom',
+      prompt: prompt?.substring(0, 100) + '...', // Log truncated prompt for privacy
+      preset: preset || 'Identity',
+      count: count || 2
+    });
+    
     console.log(`🖼️ MAYA ${userType.toUpperCase()}: Image generation request from ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
     
     // Track generation activity with admin/member separation
@@ -192,8 +278,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       timestamp: new Date()
     });
     
-    const { prompt, chatId, preset, seed, count } = req.body || {};
     if (!prompt) {
+      logMayaAPI('/generate', startTime, false, new Error('Prompt required'));
       return res.status(400).json({ error: 'Prompt required' });
     }
     
@@ -240,12 +326,34 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       { preset, seed }
     );
     
+    // PHASE 7: Log successful generation start
+    logMayaGeneration('COMPLETE', {
+      userId,
+      userType,
+      predictionId: result.predictionId,
+      success: true,
+      duration: Date.now() - startTime
+    });
+    
+    logMayaAPI('/generate', startTime, true);
+
     return res.json({ 
       success: true,
       predictionId: result.predictionId
     });
   } catch (error: any) {
     console.error("Unified Maya generate error:", error);
+    
+    // PHASE 7: Log generation failure
+    logMayaGeneration('FAILED', {
+      userId,
+      userType,
+      error: error.message,
+      duration: Date.now() - startTime
+    });
+    
+    logMayaAPI('/generate', startTime, false, error);
+    
     return res.status(200).json({ 
       success: false,
       error: "Oops! Something went wonky when I tried to start creating your photos. Let me help you troubleshoot this - what specific type of photo are you trying to create? I'll make sure we get it working!",
@@ -258,9 +366,11 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
 
 // Unified status endpoint
 router.get('/status', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now(); // PHASE 7: Track status performance
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
+      logMayaAPI('/status', startTime, false, new Error('Authentication required'));
       return res.status(401).json({ error: 'Authentication required' });
     }
     
@@ -269,6 +379,17 @@ router.get('/status', isAuthenticated, adminContextDetection, async (req: AdminC
 
     const userContext = await getUnifiedUserContext(userId);
     const generationInfo = await checkGenerationCapability(userId);
+    
+    // PHASE 7: Log status check success
+    logMayaPerformance('STATUS_CHECK', {
+      userId,
+      userType,
+      onboardingComplete: userContext.onboardingComplete,
+      canGenerate: generationInfo.canGenerate,
+      hasModel: !!generationInfo.userModel
+    });
+    
+    logMayaAPI('/status', startTime, true);
     
     res.json({
       success: true,
@@ -281,6 +402,16 @@ router.get('/status', isAuthenticated, adminContextDetection, async (req: AdminC
 
   } catch (error) {
     console.error('Maya status error:', error);
+    
+    // PHASE 7: Log status error
+    logMayaPerformance('STATUS_ERROR', {
+      userId: (req.user as any)?.claims?.sub || 'unknown',
+      userType: req.userType || 'member',
+      error: error.message
+    });
+    
+    logMayaAPI('/status', startTime, false, error);
+    
     res.status(200).json({ 
       success: false,
       error: 'Status check failed',
@@ -291,9 +422,11 @@ router.get('/status', isAuthenticated, adminContextDetection, async (req: AdminC
 
 // 🎯 MAYA'S INTELLIGENT GENERATION STATUS POLLING
 router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now(); // PHASE 7: Track polling performance
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
+      logMayaAPI('/check-generation', startTime, false, new Error('Authentication required'));
       return res.status(401).json({ error: 'Authentication required' });
     }
     
@@ -342,6 +475,17 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
         }
       }
       
+      // PHASE 7: Log successful generation completion
+      logMayaPerformance('GENERATION_COMPLETE', {
+        userId,
+        userType,
+        predictionId,
+        imageCount: imageUrls.length,
+        pollDuration: Date.now() - startTime
+      });
+      
+      logMayaAPI('/check-generation', startTime, true);
+
       res.json({
         status: 'completed',
         imageUrls,
@@ -349,12 +493,35 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
       });
     } else if (prediction.status === 'failed') {
       console.error(`❌ MAYA GENERATION FAILED: ${prediction.error || 'Unknown error'}`);
+      
+      // PHASE 7: Log generation failure during polling
+      logMayaPerformance('GENERATION_POLL_FAILED', {
+        userId,
+        userType,
+        predictionId,
+        error: prediction.error || 'Unknown error',
+        pollDuration: Date.now() - startTime
+      });
+      
+      logMayaAPI('/check-generation', startTime, false, new Error(prediction.error || 'Generation failed'));
+      
       res.json({ 
         status: 'failed', 
         error: prediction.error || 'Generation failed',
         message: "Oh no! I hit a snag while creating those photos. Don't worry though - let me try a completely different approach! What specific style or vibe are you going for? I'll make sure we nail it this time!"
       });
     } else {
+      // PHASE 7: Log polling status
+      logMayaPerformance('GENERATION_POLL', {
+        userId,
+        userType,
+        predictionId,
+        status: prediction.status,
+        pollDuration: Date.now() - startTime
+      });
+      
+      logMayaAPI('/check-generation', startTime, true);
+      
       // Still processing
       res.json({ 
         status: 'processing',
@@ -364,6 +531,18 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
     
   } catch (error: any) {
     console.error('Maya check generation error:', error);
+    
+    // PHASE 7: Log polling error
+    logMayaPerformance('GENERATION_POLL_ERROR', {
+      userId: (req.user as any)?.claims?.sub || 'unknown',
+      userType: req.userType || 'member',
+      predictionId: req.params.predictionId,
+      error: error.message,
+      pollDuration: Date.now() - startTime
+    });
+    
+    logMayaAPI('/check-generation', startTime, false, error);
+    
     res.status(200).json({ 
       status: 'error',
       error: 'Status check failed',

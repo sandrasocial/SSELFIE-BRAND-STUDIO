@@ -3,6 +3,24 @@ import { useToast } from './use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient';
 
+// PHASE 7: Frontend Performance Tracking
+const trackUserEvent = (event: string, data: any = {}) => {
+  console.log(`USER_EVENT_${event}`, {
+    ...data,
+    timestamp: Date.now(),
+    url: window.location.pathname
+  });
+};
+
+const trackInteractionTiming = (event: string, startTime: number, success: boolean) => {
+  console.log(`USER_INTERACTION_TIMING`, {
+    event,
+    duration: Date.now() - startTime,
+    success,
+    timestamp: Date.now()
+  });
+};
+
 interface ChatMessage {
   id?: number;
   role: 'user' | 'maya';
@@ -52,6 +70,15 @@ export const useMayaChat = () => {
   ) => {
     const messageToSend = messageContent || input.trim();
     if (!messageToSend || isTyping) return;
+
+    // PHASE 7: Track user chat interaction
+    const chatStartTime = Date.now();
+    trackUserEvent('CHAT_MESSAGE_SENT', {
+      messageLength: messageToSend.length,
+      context: isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'regular',
+      isOnboarding: isOnboardingMode,
+      isQuickStart: isQuickStartMode
+    });
 
     // Add user message to UI
     const userMessage: ChatMessage = {
@@ -107,6 +134,13 @@ export const useMayaChat = () => {
 
     } catch (error: any) {
       console.error('Maya chat error:', error);
+      
+      // PHASE 7: Track chat error
+      trackInteractionTiming('CHAT_RESPONSE', chatStartTime, false);
+      trackUserEvent('CHAT_ERROR', {
+        error: error.message || 'Unknown error',
+        context: isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'regular'
+      });
       
       const errorMessage: ChatMessage = {
         role: 'maya',
