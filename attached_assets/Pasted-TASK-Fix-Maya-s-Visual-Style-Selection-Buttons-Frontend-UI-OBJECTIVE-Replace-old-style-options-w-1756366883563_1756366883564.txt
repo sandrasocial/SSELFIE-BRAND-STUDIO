@@ -1,0 +1,98 @@
+TASK: Fix Maya's Visual Style Selection Buttons (Frontend UI)
+OBJECTIVE: Replace old style options with new diverse categories in the welcome screen
+
+SPECIFIC ACTIONS:
+
+1. Open `client/src/pages/maya.tsx`
+
+2. Find the welcome screen section (around line 700-900) - look for this existing code:
+```typescript
+<div className="style-quickselect">
+  <div className="style-option" onClick={() => handleStyleSelect('professional-headshots')}>
+    <div className="style-preview">Professional Headshots</div>
+    <div className="style-label">LinkedIn & Business</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('social-media-photos')}>
+    <div className="style-preview">Social Media Photos</div>
+    <div className="style-label">Instagram & TikTok</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('website-photos')}>
+    <div className="style-preview">Website Photos</div>
+    <div className="style-label">Homepage & About</div>
+  </div>
+  // ... more old options
+</div>
+
+REPLACE THE ENTIRE style-quickselect div with this new code:
+
+typescript<div className="style-quickselect">
+  <div className="style-option" onClick={() => handleStyleSelect('business-photos')}>
+    <div className="style-preview">Business</div>
+    <div className="style-label">Professional & Authority</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('lifestyle-photos')}>
+    <div className="style-preview">Lifestyle</div>
+    <div className="style-label">Casual & Authentic</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('story-photos')}>
+    <div className="style-preview">Story</div>
+    <div className="style-label">Behind the Scenes</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('instagram-photos')}>
+    <div className="style-preview">Instagram</div>
+    <div className="style-label">Feed & Stories</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('travel-photos')}>
+    <div className="style-preview">Travel</div>
+    <div className="style-label">Adventures & Destinations</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('outfit-photos')}>
+    <div className="style-preview">Outfits</div>
+    <div className="style-label">Fashion & Style</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('grwm-photos')}>
+    <div className="style-preview">GRWM</div>
+    <div className="style-label">Get Ready With Me</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('future-self')}>
+    <div className="style-preview">Future Self</div>
+    <div className="style-label">Aspirational Vision</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('bw-photos')}>
+    <div className="style-preview">B&W</div>
+    <div className="style-label">Timeless & Artistic</div>
+  </div>
+  <div className="style-option" onClick={() => handleStyleSelect('studio-photoshoot')}>
+    <div className="style-preview">Studio</div>
+    <div className="style-label">Professional Shoot</div>
+  </div>
+</div>
+
+Also update the CSS to handle more style options. Find the .style-quickselect CSS rule and update it:
+
+css.style-quickselect {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+  .style-quickselect {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+CONSTRAINTS:
+
+Find the EXACT welcome screen section with style-quickselect
+Replace the ENTIRE div content, not just individual options
+Keep the CSS classes and onClick handlers exactly as specified
+Ensure mobile responsiveness with 2 columns on small screens
+
+EXPECTED OUTCOME:
+
+Users see 10 diverse style categories instead of 4 basic ones
+Categories match the enhanced messaging already implemented
+Maya responds with appropriate styling for each category
+

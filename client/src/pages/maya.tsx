@@ -1632,7 +1632,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                   <div className="style-quickselect">
                     <div className="style-option" onClick={() => handleStyleSelect('business-photos')}>
                       <div className="style-preview">Business</div>
-                      <div className="style-label">Professional & LinkedIn</div>
+                      <div className="style-label">Professional & Authority</div>
                     </div>
                     <div className="style-option" onClick={() => handleStyleSelect('lifestyle-photos')}>
                       <div className="style-preview">Lifestyle</div>
@@ -1648,7 +1648,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                     </div>
                     <div className="style-option" onClick={() => handleStyleSelect('travel-photos')}>
                       <div className="style-preview">Travel</div>
-                      <div className="style-label">Destinations & Adventures</div>
+                      <div className="style-label">Adventures & Destinations</div>
                     </div>
                     <div className="style-option" onClick={() => handleStyleSelect('outfit-photos')}>
                       <div className="style-preview">Outfits</div>
