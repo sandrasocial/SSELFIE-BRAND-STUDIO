@@ -23,13 +23,21 @@ export const optimizeImageLoading = () => {
 // Bundle optimization
 export const enableServiceWorkerCaching = () => {
   if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
-        console.log('SW registered: ', registration);
-      })
-      .catch(registrationError => {
-        console.log('SW registration failed: ', registrationError);
-      });
+    // Wrap in try-catch and add proper error handling to prevent unhandled promise rejections
+    try {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('SSELFIE Studio: Service Worker registered successfully', registration);
+          return registration;
+        })
+        .catch(registrationError => {
+          console.warn('SSELFIE Studio: Service Worker registration failed (expected in dev)', registrationError);
+          // Don't throw - just log and continue
+          return null;
+        });
+    } catch (error) {
+      console.warn('SSELFIE Studio: Service Worker not supported or failed to register', error);
+    }
   }
 };
 

@@ -140,9 +140,9 @@ function Router() {
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* LAUNCH COUNTDOWN */}
-      <Route path="/launch" component={(props) => (
+      <Route path="/launch" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <LaunchCountdown {...props} />
+          <LaunchCountdown />
         </Suspense>
       )} />
       
@@ -159,87 +159,87 @@ function Router() {
 
 
       {/* ALL OTHER LANDING PAGES ARCHIVED - ONLY EDITORIAL-LANDING.TSX IS USED */}
-      <Route path="/about" component={(props) => (
+      <Route path="/about" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <About {...props} />
+          <About />
         </Suspense>
       )} />
-      <Route path="/how-it-works" component={(props) => (
+      <Route path="/how-it-works" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <HowItWorks {...props} />
+          <HowItWorks />
         </Suspense>
       )} />
-      <Route path="/selfie-guide" component={(props) => (
+      <Route path="/selfie-guide" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <SelfieGuide {...props} />
+          <SelfieGuide />
         </Suspense>
       )} />
-      <Route path="/blog" component={(props) => (
+      <Route path="/blog" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <Blog {...props} />
+          <Blog />
         </Suspense>
       )} />
-      <Route path="/contact" component={(props) => (
+      <Route path="/contact" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <Contact {...props} />
+          <Contact />
         </Suspense>
       )} />
-      <Route path="/faq" component={(props) => (
+      <Route path="/faq" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <FAQ {...props} />
+          <FAQ />
         </Suspense>
       )} />
-      <Route path="/terms" component={(props) => (
+      <Route path="/terms" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <Terms {...props} />
+          <Terms />
         </Suspense>
       )} />
-      <Route path="/privacy" component={(props) => (
+      <Route path="/privacy" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <Privacy {...props} />
+          <Privacy />
         </Suspense>
       )} />
-      <Route path="/pricing" component={(props) => (
+      <Route path="/pricing" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <Pricing {...props} />
+          <Pricing />
         </Suspense>
       )} />
-      <Route path="/domain-help" component={(props) => (
+      <Route path="/domain-help" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <DomainHelp {...props} />
+          <DomainHelp />
         </Suspense>
       )} />
 
       {/* PAYMENT FLOW */}
-      <Route path="/checkout" component={(props) => (
+      <Route path="/checkout" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <Checkout {...props} />
+          <Checkout />
         </Suspense>
       )} />
-      <Route path="/simple-checkout" component={(props) => (
+      <Route path="/simple-checkout" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <SimpleCheckout {...props} />
+          <SimpleCheckout />
         </Suspense>
       )} />
 
-      <Route path="/thank-you" component={(props) => (
+      <Route path="/thank-you" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <ThankYou {...props} />
+          <ThankYou />
         </Suspense>
       )} />
-      <Route path="/payment-success" component={(props) => (
+      <Route path="/payment-success" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <PaymentSuccess {...props} />
+          <PaymentSuccess />
         </Suspense>
       )} />
-      <Route path="/auth-success" component={(props) => (
+      <Route path="/auth-success" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <AuthSuccess {...props} />
+          <AuthSuccess />
         </Suspense>
       )} />
-      <Route path="/switch-account" component={(props) => (
+      <Route path="/switch-account" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <SwitchAccount {...props} />
+          <SwitchAccount />
         </Suspense>
       )} />
 

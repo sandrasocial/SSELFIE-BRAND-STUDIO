@@ -18,6 +18,22 @@ if ((import.meta as any).hot) {
 // Make React globally available for debugging
 (window as any).React = React;
 
+// Add global error handlers to catch unhandled promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+  console.warn('SSELFIE Studio: Unhandled promise rejection caught:', event.reason);
+  // Prevent the default console.error that React shows
+  event.preventDefault();
+  
+  // Only log critical errors, ignore development-related rejections
+  if (event.reason && event.reason.message && !event.reason.message.includes('WebSocket') && !event.reason.message.includes('Service Worker')) {
+    console.error('Critical unhandled promise:', event.reason);
+  }
+});
+
+window.addEventListener('error', (event) => {
+  console.warn('SSELFIE Studio: Global error caught:', event.error);
+});
+
 // Force CSS reload for debugging
 console.log('CSS files loaded:', document.styleSheets.length);
 
