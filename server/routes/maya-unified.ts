@@ -862,18 +862,15 @@ async function processMayaResponse(response: string, context: string, userId: st
     // CRITICAL FIX: Remove concept card content from main message to prevent duplication
     let cleanedMessage = response;
     
-    // Remove Maya's detailed concept sections completely
-    // Pattern 1: ### Number. **CONCEPT** through to next ### or end
-    cleanedMessage = cleanedMessage.replace(/###\s*\d+\.\s*\*\*[^#]*?(?=###|\s*$)/gs, '');
+    // Remove Maya's GRWM concept sections completely
+    // Pattern: ## 🚀 GRWM: CONCEPT NAME through to next ## or end
+    cleanedMessage = cleanedMessage.replace(/##\s*[🚀✨💫🌟💎🔥⚡️💪👑]*\s*GRWM:[^#]*?(?=##\s*[🚀✨💫🌟💎🔥⚡️💪👑]*\s*GRWM:|\s*$)/gs, '');
     
-    // Pattern 2: **Number. CONCEPT** sections
-    cleanedMessage = cleanedMessage.replace(/\*\*\d+\.\s*[^*]+\*\*[\s\S]*?(?=\*\*\d+\.|\s*$)/g, '');
-    
-    // Pattern 3: Remove detailed formatting like **Outfit Formula**: etc.
-    cleanedMessage = cleanedMessage.replace(/\*\*(?:Outfit Formula|Hair\/Makeup|Location|Mood)\*\*:?[^\n]*/g, '');
+    // Remove any remaining concept formatting
+    cleanedMessage = cleanedMessage.replace(/\*\*(?:The Look|Setting|Vibe)\*\*:?[^\n]*/g, '');
     
     // Remove bullet points that contain concept details
-    cleanedMessage = cleanedMessage.replace(/^\s*[-*]\s*\*\*(?:Outfit Formula|Hair\/Makeup|Location|Mood)\*\*.*$/gm, '');
+    cleanedMessage = cleanedMessage.replace(/^\s*[-*]\s*\*\*(?:The Look|Setting|Vibe)\*\*.*$/gm, '');
     
     // Clean up extra newlines and whitespace
     cleanedMessage = cleanedMessage
@@ -937,69 +934,56 @@ const parseConceptsFromResponse = (response: string): ConceptCard[] => {
   
   console.log('🎯 CONCEPT PARSING: Analyzing response length:', response.length);
   
-  // Pattern 1: Maya's current format: ### 1. **CONCEPT NAME** or **1. CONCEPT NAME**
-  const patterns = [
-    // Current Maya format: ### 1. **CONCEPT NAME**
-    /###\s*(\d+)\.\s*\*\*([^*]+)\*\*/g,
-    // Alternative format: **1. CONCEPT NAME**
-    /\*\*(\d+)\.\s*([^*]+)\*\*/g,
-    // Simple numbered headers: ### 1. CONCEPT NAME
-    /###\s*(\d+)\.\s*([^#\n]+)/g
-  ];
+  // Maya's actual format: ## 🚀 GRWM: EMPIRE BUILDER MORNING or ## ✨ GRWM: BEACHCLUB GODDESS
+  const conceptHeaderRegex = /##\s*[🚀✨💫🌟💎🔥⚡️💪👑]*\s*GRWM:\s*([^#\n]+)/g;
+  let match;
+  let conceptNumber = 1;
   
-  for (const regex of patterns) {
-    regex.lastIndex = 0; // Reset regex
-    let match;
+  while ((match = conceptHeaderRegex.exec(response)) !== null) {
+    const [fullMatch, conceptName] = match;
+    const cleanTitle = conceptName.trim();
     
-    while ((match = regex.exec(response)) !== null) {
-      const [, number, title] = match;
-      const cleanTitle = title.trim();
+    if (cleanTitle && cleanTitle.length > 3) {
+      // Extract content from this concept until next ## or end
+      const conceptStart = match.index + fullMatch.length;
+      const nextConceptRegex = /##\s*[🚀✨💫🌟💎🔥⚡️💪👑]*\s*GRWM:/g;
+      nextConceptRegex.lastIndex = conceptStart;
+      const nextMatch = nextConceptRegex.exec(response);
       
-      if (cleanTitle && cleanTitle.length > 3 && cleanTitle.length < 100) {
-        // Extract content after this concept until next concept or end
-        const conceptStart = match.index + match[0].length;
-        const nextConceptRegex = new RegExp(`(###\\s*${parseInt(number) + 1}\\.|\\*\\*${parseInt(number) + 1}\\.)`, 'g');
-        nextConceptRegex.lastIndex = conceptStart;
-        const nextMatch = nextConceptRegex.exec(response);
-        
-        const conceptEnd = nextMatch ? nextMatch.index : response.length;
-        const conceptContent = response.substring(conceptStart, conceptEnd).trim();
-        
-        // Extract a clean, short description (first meaningful line)
+      const conceptEnd = nextMatch ? nextMatch.index : response.length;
+      const conceptContent = response.substring(conceptStart, conceptEnd).trim();
+      
+      // Extract a clean description from **The Look:** section
+      const lookMatch = conceptContent.match(/\*\*The Look:\*\*\s*([^\n*]+)/);
+      let description = '';
+      
+      if (lookMatch) {
+        description = lookMatch[1].trim();
+      } else {
+        // Fallback: get first substantial line
         const lines = conceptContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        let description = '';
-        
-        // Look for the first substantial line that's not formatting
-        for (const line of lines.slice(0, 5)) {
-          if (!line.startsWith('*') && !line.startsWith('-') && 
-              !line.includes('**Outfit Formula**') && 
-              !line.includes('**Hair/Makeup**') &&
-              line.length > 15 && line.length < 150) {
+        for (const line of lines.slice(0, 3)) {
+          if (!line.startsWith('*') && line.length > 20 && line.length < 150) {
             description = line;
             break;
           }
         }
-        
-        // If no good description found, create a simple one
-        if (!description && conceptContent.length > 20) {
-          description = `${cleanTitle} styling concept ready to generate`;
-        }
-        
-        if (description) {
-          concepts.push({
-            id: `concept_${Date.now()}_${number}_${Math.random().toString(36).substr(2, 6)}`,
-            title: cleanTitle,
-            description: description,
-            canGenerate: true,
-            isGenerating: false
-          });
-        }
       }
-    }
-    
-    if (concepts.length > 0) {
-      console.log(`🎯 CONCEPT PARSING: Found ${concepts.length} concepts using pattern ${patterns.indexOf(regex) + 1}`);
-      break; // Stop trying other patterns if we found concepts
+      
+      // If still no description, create a fallback
+      if (!description) {
+        description = `${cleanTitle} styling concept ready to generate`;
+      }
+      
+      concepts.push({
+        id: `concept_${Date.now()}_${conceptNumber}_${Math.random().toString(36).substr(2, 6)}`,
+        title: cleanTitle,
+        description: description,
+        canGenerate: true,
+        isGenerating: false
+      });
+      
+      conceptNumber++;
     }
   }
   
