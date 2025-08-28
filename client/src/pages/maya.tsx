@@ -1498,6 +1498,51 @@ function Maya() {
                         </div>
                       )}
 
+                      {/* Concept Cards */}
+                      {message.conceptCards && (
+                        <div style={{marginTop: '24px', display: 'grid', gap: '20px'}}>
+                          {message.conceptCards.map(concept => (
+                            <div key={concept.id} style={{
+                              background: 'var(--editorial-gray)',
+                              padding: '24px',
+                              border: '1px solid var(--accent-line)'
+                            }}>
+                              <h4 style={{
+                                fontFamily: "'Times New Roman', serif",
+                                fontSize: '20px',
+                                fontWeight: '200',
+                                textTransform: 'uppercase',
+                                marginBottom: '8px'
+                              }}>
+                                {concept.title}
+                              </h4>
+                              <p style={{
+                                fontSize: '14px',
+                                lineHeight: '1.5',
+                                color: 'var(--soft-gray)',
+                                marginBottom: '16px'
+                              }}>
+                                {concept.description}
+                              </p>
+                              <button
+                                onClick={() => console.log('Generate concept:', concept.title)}
+                                style={{
+                                  padding: '12px 24px',
+                                  background: 'var(--black)',
+                                  color: 'var(--white)',
+                                  border: 'none',
+                                  fontSize: '11px',
+                                  textTransform: 'uppercase',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Generate This Concept
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
                       {/* Quick Buttons - Smart Management: Only show unclicked buttons */}
                       {message.quickButtons && message.quickButtons.length > 0 && (
                         <div className="quick-buttons">
