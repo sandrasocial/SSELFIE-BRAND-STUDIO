@@ -241,11 +241,10 @@ function Maya() {
       buttonText.includes('👑') || buttonText.includes('💃') ||
       buttonText.includes('📸') || buttonText.includes('🎬') ||
       // Also check for photo concept keywords
-      buttonText.toLowerCase().includes('business photos') ||
       buttonText.toLowerCase().includes('lifestyle photos') ||
-      buttonText.toLowerCase().includes('professional headshots') ||
+      buttonText.toLowerCase().includes('portrait photography') ||
       buttonText.toLowerCase().includes('creative lifestyle') ||
-      buttonText.toLowerCase().includes('business portraits') ||
+      buttonText.toLowerCase().includes('personal branding') ||
       buttonText.toLowerCase().includes('headshots') ||
       buttonText.toLowerCase().includes('photos') ||
       buttonText.toLowerCase().includes('look') ||
