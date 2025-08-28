@@ -1,0 +1,81 @@
+TASK: Fix Maya Image Preview and Camera Specifications
+OBJECTIVE: Display generated images in chat and add proper camera technical details
+
+SPECIFIC ACTIONS:
+
+1. Open `client/src/pages/maya.tsx`
+
+2. Find the `generateImages` function and fix the response parsing (around line 415-430):
+
+Replace this section:
+```typescript
+if (response.success && response.predictionId) {
+With:
+typescriptif (response.predictionId) {  // Remove the success check since API only returns predictionId
+  console.log('Maya generation started successfully:', response.predictionId);
+
+In the same file, find where Maya creates prompts and enhance them with camera specs.
+
+In the generateFromConcept function, replace the prompt creation:
+typescript// Use Maya's extracted prompt or create one from concept
+let prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
+
+// Add Maya's camera specifications for professional quality
+const cameraSpecs = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
+prompt = cameraSpecs + prompt;
+
+console.log('Maya: Using enhanced prompt:', prompt);
+
+Fix the polling status check in the generateImages function:
+
+Find the polling section and update the success condition:
+typescriptconst pollForImages = async () => {
+  try {
+    const statusResponse = await fetch(`/api/check-generation/${response.predictionId}`, { 
+      credentials: 'include' 
+    }).then(res => res.json());
+    
+    console.log('Maya polling status:', statusResponse.status, 'Images:', statusResponse.imageUrls?.length || 0);
+    
+    if (statusResponse.status === 'completed' && statusResponse.imageUrls && statusResponse.imageUrls.length > 0) {
+      console.log('Maya generation complete! Updating message with images');
+      
+      // Update the specific Maya message with generated images
+      setMessages(prev => prev.map(msg => 
+        msg.generationId === generationId 
+          ? { 
+              ...msg, 
+              imagePreview: statusResponse.imageUrls, 
+              canGenerate: false,
+              content: msg.content.replace('Creating your', 'Here are your') + ' Perfect styling! 💫'
+            }
+          : msg
+      ));
+      
+      // Remove from active generations
+      setActiveGenerations(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(generationId);
+        return newSet;
+      });
+
+Also fix the server-side response format. In server/routes/maya-unified.ts, find the generation endpoint and ensure it returns consistent format:
+
+typescript// In the /api/maya/generate endpoint, make sure response includes success flag:
+res.json({ 
+  success: true,  // Add this line
+  predictionId: prediction.id,
+  trackerId: tracker.id 
+});
+CONSTRAINTS:
+
+Don't modify other chat functionality
+Keep Maya's personality in all responses
+Ensure camera specifications are added to all prompts
+Test that images appear in chat after generation
+
+EXPECTED OUTCOME:
+
+Generated images display in Maya chat under concept buttons
+All images have professional camera quality specifications
+Console logs show successful image loading

@@ -194,7 +194,11 @@ router.post('/generate', isAuthenticated, async (req, res) => {
       { preset, seed }
     );
     
-    return res.json({ predictionId: result.predictionId });
+    return res.json({ 
+      success: true,  // Add this line
+      predictionId: result.predictionId,
+      trackerId: result.trackerId 
+    });
   } catch (error: any) {
     console.error("Unified Maya generate error:", error);
     return res.status(200).json({ 
