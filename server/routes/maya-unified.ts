@@ -3,6 +3,13 @@
  * Uses PersonalityManager.getNaturalPrompt('maya') correctly
  * Context enhancement instead of different personalities
  * Single Claude call system handling all interactions
+ * 
+ * 🚨 ZERO TOLERANCE ANTI-HARDCODE POLICY:
+ * - Never implement hardcoded if/else prompt logic  
+ * - Never bypass Maya's Claude API intelligence
+ * - Never use template strings for image generation
+ * - All prompts MUST flow through PersonalityManager.getNaturalPrompt('maya')
+ * - Maya's AI drives everything - no shortcuts allowed
  */
 
 import { Router } from 'express';
