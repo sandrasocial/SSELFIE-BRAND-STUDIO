@@ -1702,7 +1702,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                       {message.role === 'maya' && message.canGenerate && activeGenerations.has(message.generationId || '') && (
                         <div className="generation-loading">
                           <div className="loading-spinner"></div>
-                          <span>Generating images...</span>
+                          <span>Your photoshoot is being created...</span>
                         </div>
                       )}
 
@@ -1788,7 +1788,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                             onClick={() => generateImages(message.generatedPrompt!)}
                             disabled={isGenerating || isGeneratingImage}
                           >
-                            {(isGenerating || isGeneratingImage) ? 'Creating Images...' : 'Create Photos'}
+                            {(isGenerating || isGeneratingImage) ? 'Creating your photos...' : 'Create Photos'}
                           </button>
                         </div>
                       )}
