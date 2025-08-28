@@ -453,7 +453,7 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
       // Poll for Maya's generation completion
       const pollForImages = async () => {
         try {
-          const statusResponse = await fetch(`/api/check-generation/${response.predictionId}`, { 
+          const statusResponse = await fetch(`/api/check-generation/${response.predictionId}?chatId=${currentChatId}&messageId=${generationId}`, { 
             credentials: 'include' 
           }).then(res => res.json());
           
