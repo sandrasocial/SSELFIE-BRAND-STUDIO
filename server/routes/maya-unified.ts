@@ -82,7 +82,7 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const { message, context = 'regular', chatId } = req.body;
+    const { message, context = 'regular', chatId, conversationHistory = [] } = req.body;
 
     if (!message) {
       logMayaAPI('/chat', startTime, false, new Error('Message required'));
@@ -103,6 +103,28 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     });
     
     console.log(`🎨 MAYA ${userType.toUpperCase()}: Processing ${context} message for ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
+
+    // CRITICAL FIX: Use frontend conversation history or load from database
+    let fullConversationHistory: any[] = conversationHistory || [];
+    
+    // If no frontend history but we have a chatId, load from database as backup
+    if (fullConversationHistory.length === 0 && chatId) {
+      try {
+        const chatMessages = await storage.getMayaChatMessages(Number(chatId));
+        // Transform to Claude API format, keeping last 10 messages for context
+        fullConversationHistory = chatMessages
+          .slice(-10)
+          .map(msg => ({
+            role: msg.role === 'assistant' || msg.role === 'maya' ? 'assistant' : 'user',
+            content: msg.content
+          }));
+        console.log(`📖 MAYA CONTEXT: Loaded ${fullConversationHistory.length} previous messages from database`);
+      } catch (error) {
+        console.log('No previous conversation history found, starting fresh');
+      }
+    } else if (fullConversationHistory.length > 0) {
+      console.log(`📖 MAYA CONTEXT: Using ${fullConversationHistory.length} messages from frontend`);
+    }
 
     // Get unified user context
     const userContext = await getUnifiedUserContext(userId);
@@ -160,6 +182,7 @@ Use this context to provide personalized styling advice that aligns with their t
         max_tokens: 8000,
         system: enhancedPrompt,
         messages: [
+          ...fullConversationHistory,
           {
             role: 'user',
             content: message
@@ -661,6 +684,14 @@ function enhancePromptForContext(baseMayaPersonality: string, context: string, u
   if (generationInfo.triggerWord) {
     enhancement += `\n- Trigger Word: ${generationInfo.triggerWord}`;
   }
+
+  // CRITICAL: Immediate concept generation rules
+  enhancement += `\n\n🚫 ZERO TOLERANCE: IMMEDIATE CONCEPT GENERATION REQUIRED
+- When user requests categories/concepts (like "Glam time before a night out at beachclubs"), generate specific styling concepts IMMEDIATELY
+- NO repetitive questions like "Tell me more about this vision" - use conversation history and create concepts
+- Each concept must include: outfit formula, hair/makeup, location, mood
+- Present 3-5 complete styling scenarios ready for generation
+- Use your styling expertise to be specific about colors, textures, silhouettes without asking for more details`;
 
   // Admin-specific context enhancement
   if (isAdmin) {

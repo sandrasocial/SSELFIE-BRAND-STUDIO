@@ -103,12 +103,22 @@ export const useMayaChat = () => {
     setIsTyping(true);
 
     try {
-      // SINGLE MAYA ENDPOINT for all interactions
+      // SINGLE MAYA ENDPOINT for all interactions with conversation history
       const context = isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'regular';
+      
+      // Build conversation history for context (last 8 messages to avoid token limits)
+      const conversationHistory = messages
+        .slice(-8)
+        .map(msg => ({
+          role: msg.role === 'maya' ? 'assistant' : 'user',
+          content: msg.content
+        }));
+      
       const response = await apiRequest('/api/maya/chat', 'POST', {
         message: messageToSend,
         context: context,
-        chatId: currentChatId
+        chatId: currentChatId,
+        conversationHistory: conversationHistory
       });
 
       // Handle unified response
