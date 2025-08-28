@@ -456,10 +456,27 @@ const generateImages = async (prompt: string, generationId?: string, conceptName
                     ...msg, 
                     imagePreview: statusResponse.imageUrls, 
                     canGenerate: false,
-                    content: msg.content + `\n\nHere are your "${conceptName || 'styled'}" photos! I'm so excited about how these turned out - the styling is absolutely perfect for your brand! 💫`
+                    content: msg.content + `\n\nHere are your styled photos! These turned out absolutely incredible! ✨\n\nReady for more? Let me create different vibes for you:`
                   }
                 : msg
             ));
+            
+            // Add Maya's follow-up suggestions after 2 seconds
+            setTimeout(() => {
+              const followUpMessage: ChatMessage = {
+                role: 'maya',
+                content: "Which style should we create next? I have so many more gorgeous concepts for you! 💫",
+                timestamp: new Date().toISOString(),
+                quickButtons: [
+                  "✨ Different lighting mood", 
+                  "🎬 New style category", 
+                  "💎 Elevated version", 
+                  "🌟 Surprise me Maya!",
+                  "Show all categories"
+                ]
+              };
+              setMessages(prev => [...prev, followUpMessage]);
+            }, 2000);
             
             // Remove from active generations
             setActiveGenerations(prev => {
