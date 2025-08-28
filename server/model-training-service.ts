@@ -554,7 +554,10 @@ export class ModelTrainingService {
   }
 
   // Ensure the LoRA trigger is the first token and not repeated; clean commas/spaces
+  // UPDATED: Now enforces mandatory technical parameters after trigger word
   static formatPrompt(prompt: string, triggerWord: string): string {
+    const mandatoryTechParams = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
+    
     const clean = (prompt || "")
       .replace(/\s+/g, " ")
       .replace(/\s*,\s*/g, ", ")
@@ -564,8 +567,12 @@ export class ModelTrainingService {
     const re = new RegExp(`\\b${triggerWord}\\b`, "gi");
     const withoutAll = clean.replace(re, "").replace(/^,|,,/g, ",").replace(/\s+,/g, ", ").trim();
 
-    // prepend a single trigger
-    const composed = `${triggerWord}, ${withoutAll}`.replace(/,\s*,/g, ", ").replace(/\s+,/g, ", ").trim();
+    // Remove mandatory tech params if they exist in the content to avoid duplication
+    const techParamsRegex = /raw photo,?\s*visible skin pores,?\s*film grain,?\s*unretouched natural skin texture,?\s*subsurface scattering,?\s*photographed on film,?\s*/gi;
+    const withoutTechParams = withoutAll.replace(techParamsRegex, "").replace(/^,\s*/, "").trim();
+
+    // prepend trigger word + mandatory tech params + content
+    const composed = `${triggerWord}, ${mandatoryTechParams}, ${withoutTechParams}`.replace(/,\s*,/g, ", ").replace(/\s+,/g, ", ").trim();
 
     // final tidying: no trailing commas / double spaces
     return composed.replace(/,\s*$/, "").replace(/\s{2,}/g, " ");

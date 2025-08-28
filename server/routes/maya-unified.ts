@@ -747,12 +747,15 @@ CREATIVE VARIETY MANDATE:
 CREATE DETAILED PROMPT FOR: "${conceptName}" 
 REQUIREMENTS:
 1. ALWAYS start with "${triggerWord}" as first word
-2. Apply your complete styling expertise (300-500 words) with CREATIVE VARIETY
-3. Include: specific garments, colors, textures, hair, makeup, accessories, pose, lighting, setting
-4. Use your professional fashion and photography knowledge extensively
-5. Return ONLY the prompt - no conversational text
-6. CRITICAL: Make this concept feel unique - vary colors, locations, and styling based on the specific concept
-7. Avoid repeating previous styling patterns - create fresh interpretations each time
+2. IMMEDIATELY follow with mandatory technical parameters: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+3. Apply your complete styling expertise (300-500 words) with CREATIVE VARIETY
+4. Include: specific garments, colors, textures, hair, makeup, accessories, pose, lighting, setting
+5. Use your professional fashion and photography knowledge extensively
+6. Return ONLY the prompt - no conversational text
+7. CRITICAL: Make this concept feel unique - vary colors, locations, and styling based on the specific concept
+8. Avoid repeating previous styling patterns - create fresh interpretations each time
+
+MANDATORY FORMAT: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [YOUR CREATIVE STYLING VISION]"
 
 Interpret "${conceptName}" through your complete professional lens and create a unique, personalized styling vision that feels fresh and different from your previous work.
 
@@ -772,7 +775,11 @@ ${personalBrandContext}`;
         messages: [
           {
             role: 'user',
-            content: `Create a comprehensive, detailed photography prompt for: "${conceptName}". Must start with "${triggerWord}" and showcase your complete styling and photography expertise in 300-500 words.`
+            content: `Create a comprehensive, detailed photography prompt for: "${conceptName}". 
+
+MANDATORY FORMAT: Start with "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film," then continue with your complete styling and photography expertise.
+
+Showcase your professional styling vision in 300-500 words after the mandatory technical parameters.`
           }
         ]
       })
@@ -785,7 +792,10 @@ ${personalBrandContext}`;
     const data = await claudeResponse.json();
     let generatedPrompt = data.content[0].text.trim();
     
-    // CRITICAL: Ensure trigger word is at the beginning
+    // CRITICAL: Ensure trigger word and mandatory technical parameters are at the beginning
+    const mandatoryTechParams = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
+    const requiredStart = `${triggerWord}, ${mandatoryTechParams}`;
+    
     if (!generatedPrompt.startsWith(triggerWord)) {
       // Extract just the essential prompt without Maya's chat language
       const cleanPrompt = generatedPrompt
@@ -794,7 +804,11 @@ ${personalBrandContext}`;
         .replace(/The.*(?:mood|aesthetic|energy).*$/i, '') // Remove descriptive endings
         .trim();
       
-      generatedPrompt = `${triggerWord} ${cleanPrompt}`;
+      generatedPrompt = `${requiredStart}, ${cleanPrompt}`;
+    } else if (!generatedPrompt.includes(mandatoryTechParams)) {
+      // Trigger word is present but mandatory tech parameters are missing
+      const afterTrigger = generatedPrompt.replace(triggerWord, '').replace(/^[,\s]+/, '');
+      generatedPrompt = `${requiredStart}, ${afterTrigger}`;
     }
     
     // Allow comprehensive prompts - Maya's styling intelligence needs space to work
@@ -806,6 +820,21 @@ ${personalBrandContext}`;
     
     console.log(`🎯 MAYA AI PROMPT GENERATION SUCCESS for "${conceptName}":`, generatedPrompt.substring(0, 200) + '...');
     console.log(`🎯 MAYA AI PROMPT LENGTH: ${generatedPrompt.length} characters`);
+    console.log(`🎯 MAYA PROMPT VALIDATION: Starts with trigger word: ${generatedPrompt.startsWith(triggerWord)}`);
+    console.log(`🎯 MAYA PROMPT VALIDATION: Contains mandatory tech params: ${generatedPrompt.includes('raw photo, visible skin pores')}`);
+    
+    // FINAL VALIDATION: Ensure format is exactly correct
+    if (!generatedPrompt.startsWith(`${triggerWord}, ${mandatoryTechParams}`)) {
+      console.log(`🚨 MAYA PROMPT FIX: Correcting format to ensure trigger word + tech params first`);
+      // Strip out any existing trigger word and tech params, then rebuild correctly
+      let cleanContent = generatedPrompt;
+      const triggerRegex = new RegExp(`^${triggerWord}[,\\s]*`, 'gi');
+      cleanContent = cleanContent.replace(triggerRegex, '');
+      const techParamsRegex = /raw photo,?\s*visible skin pores,?\s*film grain,?\s*unretouched natural skin texture,?\s*subsurface scattering,?\s*photographed on film,?\s*/gi;
+      cleanContent = cleanContent.replace(techParamsRegex, '').replace(/^[,\s]+/, '').trim();
+      
+      generatedPrompt = `${triggerWord}, ${mandatoryTechParams}, ${cleanContent}`;
+    }
     
     return generatedPrompt;
     
@@ -813,8 +842,9 @@ ${personalBrandContext}`;
     console.error('🚨 MAYA AI PROMPT GENERATION FAILED:', error);
     console.error('🚨 FALLING BACK TO EMERGENCY PROMPT - This should not happen!');
     
-    // Emergency fallback - concise professional prompt with trigger word first
-    const fallbackPrompt = `${triggerWord} wearing professional attire, confident pose, studio lighting, business portrait`;
+    // Emergency fallback - concise professional prompt with trigger word + mandatory tech params first
+    const mandatoryTechParamsFallback = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
+    const fallbackPrompt = `${triggerWord}, ${mandatoryTechParamsFallback}, wearing professional attire, confident pose, studio lighting, business portrait`;
     console.log(`🚨 USING FALLBACK PROMPT:`, fallbackPrompt);
     return fallbackPrompt;
   }
