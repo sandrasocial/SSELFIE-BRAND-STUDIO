@@ -935,69 +935,121 @@ const parseConceptsFromResponse = (response: string): ConceptCard[] => {
   
   console.log('🎯 CONCEPT PARSING: Analyzing response length:', response.length);
   
-  // ZERO TOLERANCE ANTI-HARDCODE: Maya's dynamic concept format - ANY type Maya creates
-  // Matches: ## [any emoji] [ANY CONCEPT TYPE]: CONCEPT NAME
-  // Examples: ## 🚀 GRWM: MORNING BOSS, ## ✨ OOTD: BEACH VIBES, ## 💼 OFFICE: POWER LOOK
-  const conceptHeaderRegex = /##\s*[^\s:]*\s*([^:]+):\s*([^#\n]+)/g;
-  let match;
-  let conceptNumber = 1;
+  // MAYA'S NATURAL CONCEPT FORMATS - Parse ALL formats Maya naturally uses
+  // Format 1: **1. Concept Name**  (most common in Maya's responses)
+  // Format 2: **Concept Name**
+  // Format 3: ## emoji TYPE: NAME  (legacy format)
+  // Format 4: **emoji Concept Name**
   
-  while ((match = conceptHeaderRegex.exec(response)) !== null) {
-    const [fullMatch, conceptType, conceptName] = match;
-    const cleanTitle = `${conceptType.trim()}: ${conceptName.trim()}`;
+  const conceptPatterns = [
+    // Pattern 1: **1. Corner Office Queen** or **2. Digital Nomad Luxe**
+    /\*\*(\d+)\.\s*([^*\n]+)\*\*/g,
     
-    if (cleanTitle && cleanTitle.length > 3) {
-      // Extract content from this concept until next ## or end
-      const conceptStart = match.index + fullMatch.length;
-      const nextConceptRegex = /##\s*[^\s:]*\s*[^:]+:/g;
+    // Pattern 2: **Corner Office Queen** (standalone)
+    /\*\*([A-Z][^*\n]+)\*\*/g,
+    
+    // Pattern 3: ## emoji TYPE: NAME (legacy)
+    /##\s*[^\s:]*\s*([^:]+):\s*([^#\n]+)/g,
+    
+    // Pattern 4: **emoji Concept Name**
+    /\*\*[^\w]*([A-Z][^*\n]+)\*\*/g
+  ];
+  
+  let conceptNumber = 1;
+  const foundConcepts = new Set(); // Prevent duplicates
+  
+  // Try each pattern
+  for (const pattern of conceptPatterns) {
+    pattern.lastIndex = 0; // Reset regex
+    let match;
+    
+    while ((match = pattern.exec(response)) !== null) {
+      let conceptName = '';
+      
+      // Handle different capture groups based on pattern
+      if (match[2]) {
+        // Format: **1. Name** or ## TYPE: NAME
+        conceptName = match[2].trim();
+      } else {
+        // Format: **Name** 
+        conceptName = match[1].trim();
+      }
+      
+      // Clean up the concept name
+      conceptName = conceptName
+        .replace(/^\d+\.\s*/, '') // Remove leading numbers
+        .replace(/\*\*/g, '') // Remove any remaining asterisks
+        .trim();
+      
+      // Skip if we already found this concept or if it's too short/invalid
+      if (foundConcepts.has(conceptName.toLowerCase()) || 
+          conceptName.length < 3 || 
+          conceptName.length > 100) {
+        continue;
+      }
+      
+      // Extract description from the content following this concept
+      const conceptStart = match.index + match[0].length;
+      const nextConceptRegex = /\*\*(?:\d+\.)?\s*[A-Z][^*\n]+\*\*/g;
       nextConceptRegex.lastIndex = conceptStart;
       const nextMatch = nextConceptRegex.exec(response);
       
       const conceptEnd = nextMatch ? nextMatch.index : response.length;
       const conceptContent = response.substring(conceptStart, conceptEnd).trim();
       
-      // Extract a clean description from **The Look:** section
-      const lookMatch = conceptContent.match(/\*\*The Look:\*\*\s*([^\n*]+)/);
+      // Extract description from various Maya formats
       let description = '';
       
-      if (lookMatch) {
-        description = lookMatch[1].trim();
-      } else {
-        // Fallback: get first substantial line
-        const lines = conceptContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        for (const line of lines.slice(0, 3)) {
-          if (!line.startsWith('*') && line.length > 20 && line.length < 150) {
-            description = line;
+      // Look for description patterns Maya uses
+      const descriptionPatterns = [
+        /^([^*\n]{20,150})/m, // First substantial line
+        /([A-Z][^.!?]*[.!?])/m, // First sentence
+        /^(.{20,150})/m // Any first line with substance
+      ];
+      
+      for (const descPattern of descriptionPatterns) {
+        const descMatch = conceptContent.match(descPattern);
+        if (descMatch) {
+          description = descMatch[1].trim();
+          if (description.length >= 20 && description.length <= 150) {
             break;
           }
         }
       }
       
-      // If still no description, create a fallback
-      if (!description) {
-        description = `${cleanTitle} styling concept ready to generate`;
+      // Fallback description if none found
+      if (!description || description.length < 10) {
+        description = `${conceptName} - Professional styling concept ready to generate`;
       }
       
+      foundConcepts.add(conceptName.toLowerCase());
       concepts.push({
         id: `concept_${Date.now()}_${conceptNumber}_${Math.random().toString(36).substr(2, 6)}`,
-        title: cleanTitle,
+        title: conceptName,
         description: description,
         canGenerate: true,
         isGenerating: false
       });
       
       conceptNumber++;
+      
+      // Limit to 6 concepts max
+      if (concepts.length >= 6) break;
     }
+    
+    // If we found concepts with this pattern, don't try other patterns to avoid duplicates
+    if (concepts.length > 0) break;
   }
   
   console.log('🎯 CONCEPT PARSING: Final count:', concepts.length);
   if (concepts.length > 0) {
-    console.log('🎯 CONCEPT DETAILS:', concepts.map(c => ({ title: c.title, desc: c.description })));
+    console.log('🎯 CONCEPT DETAILS:', concepts.map(c => ({ title: c.title, desc: c.description.substring(0, 50) + '...' })));
   } else {
     console.log('🎯 CONCEPT PARSING: No concepts found. Response preview:', response.substring(0, 500));
+    console.log('🎯 DEBUGGING: Full response for analysis:', response);
   }
   
-  return concepts.slice(0, 6); // Limit to 6 concepts max
+  return concepts;
 };
 
 function getContextualQuickButtons(context: string, step: number = 1): string[] {
