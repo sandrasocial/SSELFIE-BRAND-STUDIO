@@ -248,6 +248,7 @@ Use this context to provide personalized styling advice that aligns with their t
       onboardingProgress: processedResponse.onboardingProgress,
       chatId: savedChatId,
       quickButtons: processedResponse.quickButtons,
+      conceptCards: processedResponse.conceptCards || [], // CRITICAL: Include concept cards for frontend
       chatCategory: processedResponse.chatCategory
     });
 
@@ -830,16 +831,14 @@ async function processMayaResponse(response: string, context: string, userId: st
     }
   }
 
-  // NEW: Parse concepts into individual cards  
-  if (response.includes('*Concept')) {
-    const concepts = parseConceptsFromResponse(response);
-    if (concepts.length > 0) {
-      processed.conceptCards = concepts;
-      // Remove traditional canGenerate since we have concept cards
-      processed.canGenerate = false;
-      processed.generatedPrompt = null;
-      console.log('🎯 MAYA CONCEPT CARDS: Parsed', concepts.length, 'concepts from response');
-    }
+  // NEW: Parse concepts into individual cards - Enhanced for Maya's natural formatting
+  const concepts = parseConceptsFromResponse(response);
+  if (concepts.length > 0) {
+    processed.conceptCards = concepts;
+    // Remove traditional canGenerate since we have concept cards
+    processed.canGenerate = false;
+    processed.generatedPrompt = null;
+    console.log('🎯 MAYA CONCEPT CARDS: Parsed', concepts.length, 'concepts from response');
   }
 
   // Handle conversational onboarding (no forced steps)
@@ -876,21 +875,74 @@ interface ConceptCard {
 }
 
 const parseConceptsFromResponse = (response: string): ConceptCard[] => {
-  const conceptRegex = /\*Concept \d+: "([^"]+)"\*\s*([\s\S]*?)(?=\*Concept \d+:|$)/g;
   const concepts: ConceptCard[] = [];
+  
+  // Enhanced parsing for Maya's natural concept formatting
+  // Pattern 1: **1. CONCEPT NAME** or **CONCEPT NAME**
+  const numberedConceptRegex = /\*\*(\d+\.\s*)?([^*]+)\*\*\s*\n([\s\S]*?)(?=\*\*\d+\.|$)/g;
   let match;
   
-  while ((match = conceptRegex.exec(response)) !== null) {
-    const [, title, description] = match;
-    concepts.push({
-      id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      title: title.trim(),
-      description: description.trim(),
-      canGenerate: true,
-      isGenerating: false
-    });
+  while ((match = numberedConceptRegex.exec(response)) !== null) {
+    const [, number, title, content] = match;
+    
+    // Extract meaningful content before next concept or end
+    let description = content;
+    const nextConceptIndex = content.search(/\*\*\d+\./);
+    if (nextConceptIndex > 0) {
+      description = content.substring(0, nextConceptIndex);
+    }
+    
+    // Clean up description - remove excessive newlines and trim
+    description = description
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .slice(0, 8) // Take first 8 meaningful lines
+      .join('\n')
+      .trim();
+    
+    if (title && description && description.length > 20) {
+      concepts.push({
+        id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        title: title.trim(),
+        description: description,
+        canGenerate: true,
+        isGenerating: false
+      });
+    }
   }
-  return concepts;
+  
+  // If no numbered concepts found, try simple bold patterns
+  if (concepts.length === 0) {
+    const simpleConceptRegex = /\*\*([^*]+)\*\*(?:\s*\n)?([\s\S]*?)(?=\*\*[^*]+\*\*|$)/g;
+    while ((match = simpleConceptRegex.exec(response)) !== null) {
+      const [, title, content] = match;
+      
+      // Skip if this looks like formatting rather than a concept
+      if (title.length < 50 && content.length > 20) {
+        const description = content
+          .split('\n')
+          .map(line => line.trim())
+          .filter(line => line.length > 0 && !line.startsWith('*'))
+          .slice(0, 6)
+          .join('\n')
+          .trim();
+          
+        if (description.length > 20) {
+          concepts.push({
+            id: `concept_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            title: title.trim(),
+            description: description,
+            canGenerate: true,
+            isGenerating: false
+          });
+        }
+      }
+    }
+  }
+  
+  console.log('🎯 CONCEPT PARSING: Found', concepts.length, 'concepts');
+  return concepts.slice(0, 6); // Limit to 6 concepts max
 };
 
 function getContextualQuickButtons(context: string, step: number = 1): string[] {
