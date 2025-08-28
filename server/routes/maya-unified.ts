@@ -862,9 +862,10 @@ async function processMayaResponse(response: string, context: string, userId: st
     // CRITICAL FIX: Remove concept card content from main message to prevent duplication
     let cleanedMessage = response;
     
-    // Remove Maya's GRWM concept sections completely
-    // Pattern: ## 🚀 GRWM: CONCEPT NAME through to next ## or end
-    cleanedMessage = cleanedMessage.replace(/##\s*[🚀✨💫🌟💎🔥⚡️💪👑]*\s*GRWM:[^#]*?(?=##\s*[🚀✨💫🌟💎🔥⚡️💪👑]*\s*GRWM:|\s*$)/gs, '');
+    // ZERO TOLERANCE ANTI-HARDCODE: Remove Maya's concept sections completely - ANY format Maya uses
+    // Pattern: ## [any emoji] [ANY CONCEPT TYPE]: CONCEPT NAME through to next ## or end
+    // This allows Maya to create concepts for ANY style: GRWM, OOTD, TRAVEL, BUSINESS, etc.
+    cleanedMessage = cleanedMessage.replace(/##\s*[^\s:]*\s*[^:]+:[^#]*?(?=##\s*[^\s:]*\s*[^:]+:|\s*$)/gs, '');
     
     // Remove any remaining concept formatting
     cleanedMessage = cleanedMessage.replace(/\*\*(?:The Look|Setting|Vibe)\*\*:?[^\n]*/g, '');
@@ -885,11 +886,11 @@ async function processMayaResponse(response: string, context: string, userId: st
       processed.message = cleanedMessage;
     } else {
       // If almost everything was removed, create a nice intro message
-      processed.message = `Oh my gosh, GRWM content is EVERYTHING right now! I'm absolutely buzzing with ideas for you! 
+      processed.message = `Oh my gosh, I'm absolutely buzzing with ideas for you! 
 
-Based on your luxurious lifestyle vision - the penthouse vibes, beachclub nights, and that powerful boss energy you're stepping into - let me give you some absolutely stunning GRWM concepts that are going to make your audience stop scrolling.
+Based on your personal brand vision and the amazing energy you're bringing - let me give you some absolutely stunning concepts that are going to make your audience stop scrolling.
 
-Which of these is calling to you? I can already picture how incredible these are going to look! ✨`;
+Which of these is calling to you? I can already picture how incredible these are going to look!`;
     }
     
     console.log('🎯 MAYA CONCEPT CARDS: Parsed', concepts.length, 'concepts from response');
@@ -934,19 +935,21 @@ const parseConceptsFromResponse = (response: string): ConceptCard[] => {
   
   console.log('🎯 CONCEPT PARSING: Analyzing response length:', response.length);
   
-  // Maya's actual format: ## 🚀 GRWM: EMPIRE BUILDER MORNING or ## ✨ GRWM: BEACHCLUB GODDESS
-  const conceptHeaderRegex = /##\s*[🚀✨💫🌟💎🔥⚡️💪👑]*\s*GRWM:\s*([^#\n]+)/g;
+  // ZERO TOLERANCE ANTI-HARDCODE: Maya's dynamic concept format - ANY type Maya creates
+  // Matches: ## [any emoji] [ANY CONCEPT TYPE]: CONCEPT NAME
+  // Examples: ## 🚀 GRWM: MORNING BOSS, ## ✨ OOTD: BEACH VIBES, ## 💼 OFFICE: POWER LOOK
+  const conceptHeaderRegex = /##\s*[^\s:]*\s*([^:]+):\s*([^#\n]+)/g;
   let match;
   let conceptNumber = 1;
   
   while ((match = conceptHeaderRegex.exec(response)) !== null) {
-    const [fullMatch, conceptName] = match;
-    const cleanTitle = conceptName.trim();
+    const [fullMatch, conceptType, conceptName] = match;
+    const cleanTitle = `${conceptType.trim()}: ${conceptName.trim()}`;
     
     if (cleanTitle && cleanTitle.length > 3) {
       // Extract content from this concept until next ## or end
       const conceptStart = match.index + fullMatch.length;
-      const nextConceptRegex = /##\s*[🚀✨💫🌟💎🔥⚡️💪👑]*\s*GRWM:/g;
+      const nextConceptRegex = /##\s*[^\s:]*\s*[^:]+:/g;
       nextConceptRegex.lastIndex = conceptStart;
       const nextMatch = nextConceptRegex.exec(response);
       
