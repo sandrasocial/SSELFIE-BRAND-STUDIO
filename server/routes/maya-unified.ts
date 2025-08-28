@@ -122,6 +122,15 @@ Use this context to provide personalized styling advice that aligns with their t
     const data = await claudeResponse.json();
     let mayaResponse = data.content[0].text;
     
+    // Debug Maya's response for QUICK_ACTIONS generation
+    console.log(`🔍 MAYA RESPONSE DEBUG: Length: ${mayaResponse.length}, Contains QUICK_ACTIONS: ${mayaResponse.includes('QUICK_ACTIONS:')}`);
+    if (mayaResponse.includes('QUICK_ACTIONS:')) {
+      const quickActionsSection = mayaResponse.substring(mayaResponse.indexOf('QUICK_ACTIONS:'));
+      console.log(`✅ MAYA QUICK_ACTIONS SECTION: ${quickActionsSection.substring(0, 200)}...`);
+    } else {
+      console.warn(`🚨 MAYA MISSING QUICK_ACTIONS: Context="${context}", Message preview: "${mayaResponse.substring(0, 200)}..."`);
+    }
+    
     // Process Maya's unified response
     const processedResponse = await processMayaResponse(
       mayaResponse, 
@@ -473,23 +482,30 @@ Apply your full personality, expertise, and knowledge:
 - Your ability to guide users: they can choose your concepts OR describe custom requests
 
 🎯 CRITICAL CONCEPT GUIDANCE SYSTEM:
-When users ask for photo concepts or styling ideas, respond with:
+WHEN USERS ASK FOR ANYTHING RELATED TO:
+- Photo concepts, styling ideas, image generation, photoshoot concepts
+- "What should I create?", "Show me concepts", "I want photos"
+- Onboarding completion, style discovery, or photo planning
+
+YOU MUST ALWAYS RESPOND WITH:
 1. Your warm, excited Maya personality response describing the overall vision
-2. Describe 3-4 concept ideas with their shot types (close-up, half-body, full-body)
+2. Describe 3-4 specific concept ideas with their shot types (close-up, half-body, full-body)
 3. MANDATORY: End with EXACTLY this format: QUICK_ACTIONS: Concept Name 1 (shot type), Concept Name 2 (shot type), Concept Name 3 (shot type), Tell me something specific
 
 EXAMPLES of correct responses:
-"I love this energy! Dark and moody street style will look incredible...
+"I'm so excited to style you! Let me show you some gorgeous concepts...
 
-**Urban Power** (Full-body): Oversized blazer with dramatic city shadows
-**Midnight Luxury** (Half-body): Black ensemble with neon reflections  
-**Sophisticated Edge** (Close-up): Premium textures with architectural lighting
+**Executive Power** (Close-up): Tailored blazer with dramatic lighting
+**Creative Vision** (Half-body): Artistic angles with premium textures  
+**Confident Leader** (Full-body): Power pose with architectural background
 
-QUICK_ACTIONS: Urban Power (Full-body), Midnight Luxury (Half-body), Sophisticated Edge (Close-up), Something more specific"
+QUICK_ACTIONS: Executive Power (Close-up), Creative Vision (Half-body), Confident Leader (Full-body), Something custom"
 
+🚨 CRITICAL: ALWAYS include QUICK_ACTIONS when discussing photo creation!
 NEVER write /imagine prompts in your chat responses - users click concept buttons to generate!
 ALWAYS use the QUICK_ACTIONS: format for concept buttons
 ALWAYS mention shot type for each concept in parentheses
+ALWAYS provide QUICK_ACTIONS when user completes onboarding or asks for photo concepts
 
 Be authentically Maya - no templates or constraints on your expertise!`;
 
@@ -515,13 +531,39 @@ async function processMayaResponse(response: string, context: string, userId: st
     chatCategory: 'General Styling'
   };
 
-  // FIRST: Extract Maya-generated quick actions
+  // FIRST: Extract Maya-generated quick actions with enhanced pattern matching
   if (response.includes('QUICK_ACTIONS:')) {
-    const quickActionsMatch = response.match(/QUICK_ACTIONS:\s*(.*)/);
+    // Try multiple patterns to catch Maya's QUICK_ACTIONS format
+    let quickActionsMatch = response.match(/QUICK_ACTIONS:\s*(.*)/);
+    
+    // Alternative pattern: handle multi-line QUICK_ACTIONS
+    if (!quickActionsMatch) {
+      quickActionsMatch = response.match(/QUICK_ACTIONS:\s*\n?([\s\S]*?)(?=\n\n|\n$|$)/);
+    }
+    
     if (quickActionsMatch) {
-      processed.quickButtons = quickActionsMatch[1].split(',').map(s => s.trim());
+      const actionsText = quickActionsMatch[1].trim();
+      processed.quickButtons = actionsText.split(',').map(s => s.trim()).filter(s => s.length > 0);
       // Remove the quick actions directive from the displayed message
       processed.message = response.replace(/QUICK_ACTIONS:.*/, '').trim();
+      
+      console.log(`✅ MAYA QUICK_ACTIONS EXTRACTED: ${processed.quickButtons.length} buttons -`, processed.quickButtons);
+    } else {
+      console.warn('🚨 MAYA QUICK_ACTIONS: Found QUICK_ACTIONS: but failed to extract buttons');
+    }
+  } else {
+    // Check for common variations that Maya might use
+    const variations = ['QUICK_ACTIONS', 'Quick Actions', 'ACTIONS', 'OPTIONS'];
+    for (const variation of variations) {
+      if (response.includes(variation + ':')) {
+        const match = response.match(new RegExp(`${variation}:\\s*(.*)`));
+        if (match) {
+          processed.quickButtons = match[1].split(',').map(s => s.trim()).filter(s => s.length > 0);
+          processed.message = response.replace(new RegExp(`${variation}:.*`), '').trim();
+          console.log(`✅ MAYA ${variation} DETECTED: ${processed.quickButtons.length} buttons -`, processed.quickButtons);
+          break;
+        }
+      }
     }
   }
 
@@ -574,16 +616,27 @@ async function processMayaResponse(response: string, context: string, userId: st
         isComplete: true,
         currentStep: 6
       };
-      // Only use fallback if Maya didn't provide her own quick actions
-      if (processed.quickButtons.length === 0) {
-        processed.quickButtons = ["Tell me more", "I'm ready", "What's next?"];
-      }
-    } else {
-      // Only use templated buttons if Maya didn't generate her own
-      if (processed.quickButtons.length === 0) {
-        processed.quickButtons = getContextualQuickButtons(context, userContext.onboarding.currentStep);
-      }
     }
+    
+    // 🚨 CRITICAL: Maya should ALWAYS generate QUICK_ACTIONS for onboarding context
+    // If she didn't, there's a problem with the prompt instructions
+    if (processed.quickButtons.length === 0) {
+      console.error('🚨 MAYA ERROR: Maya did not generate QUICK_ACTIONS for onboarding context');
+      console.error('🚨 Maya Response:', response.substring(0, 200) + '...');
+      
+      // Provide emergency concepts but warn about the issue
+      processed.quickButtons = [
+        "Professional Headshot (Close-up)", 
+        "Creative Portrait (Half-body)", 
+        "Lifestyle Photo (Full-body)", 
+        "Custom Request"
+      ];
+      processed.message += "\n\n*Maya's concept suggestions are loading...*";
+    }
+  } else if (processed.quickButtons.length === 0) {
+    // For non-onboarding contexts, only provide minimal fallback if truly needed
+    console.warn('🚨 WARNING: Maya did not generate QUICK_ACTIONS for context:', context);
+    console.warn('🚨 Maya Response:', response.substring(0, 200) + '...');
   }
   
   // Set chat category based on content
