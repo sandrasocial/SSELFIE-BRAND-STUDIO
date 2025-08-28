@@ -211,29 +211,22 @@ function Maya() {
   };
 
   const handleStyleSelect = (styleType: string) => {
-    // Create a direct Maya chat message based on style selection
-    const styleMessages: Record<string, string> = {
-      'business-photos': "Perfect! I love that you're focused on building your professional authority. Let's create some stunning business photos that show your expertise and confidence. I'll style you with that perfect balance of approachable yet powerful - think boardroom ready but still authentically YOU. Tell me more about your business and I'll create the perfect professional brand photos!",
-      'lifestyle-photos': "Love this choice! Lifestyle photos are where we show the real, authentic you - the woman behind the business. I'll create beautiful casual moments that still feel polished and intentional. Think elevated everyday looks that make your audience connect with you on a deeper level. What's your lifestyle vibe?",
-      'story-photos': "Yes! Story photos are my absolute favorite - this is where we show your journey, your process, your behind-the-scenes magic. People connect with stories, not just pretty pictures. I'll create images that tell your transformation story and invite people into your world. What story do you want to tell?",
-      'instagram-photos': "Perfect choice! Instagram is all about that scroll-stopping visual impact. I'll create photos that perform beautifully in the feed and stories - the kind that make people pause, double-tap, and actually engage. Think editorial quality but optimized for social media. What's your Instagram aesthetic goals?",
-      'travel-photos': "Amazing! Travel content is so engaging because it shows your adventurous spirit and global mindset. I'll create stunning destination-inspired looks that capture that wanderlust energy while still being on-brand for your business. Where are you dreaming of going next?",
-      'outfit-photos': "Yes queen! Fashion and style content performs so well because everyone wants to know what you're wearing and how to recreate your looks. I'll create those outfit-of-the-day shots that inspire your audience while showcasing your personal style. What's your style personality?",
-      'grwm-photos': "Love this! GRWM content is so relatable and engaging - everyone wants to see the transformation process. I'll create beautiful getting-ready moments that feel intimate but still polished. Think morning routine meets magazine shoot. What's your morning vibe?",
-      'future-self': "This gives me chills! Future self photos are the most powerful because they help you (and your audience) visualize the transformation. I'll create aspirational images of who you're becoming - your next level self. This is manifestation through photography. Who is your future self?",
-      'bw-photos': "Such a sophisticated choice! Black and white photography is timeless and artistic - it strips away distractions and focuses on pure emotion and composition. I'll create those gallery-worthy shots that feel like fine art. B&W always elevates everything to a more luxurious level.",
-      'studio-photoshoot': "Professional studio vibes! This is where we create those high-end, controlled lighting masterpieces. Think magazine covers and brand campaigns. I'll give you that polished, editorial look with perfect lighting and composition. Ready for your close-up?"
+    // Send style selection as user message to Maya's AI system
+    const styleLabels: Record<string, string> = {
+      'business-photos': 'Business photos - Professional & Authority',
+      'lifestyle-photos': 'Lifestyle photos - Casual & Authentic', 
+      'story-photos': 'Story photos - Behind the Scenes',
+      'instagram-photos': 'Instagram photos - Feed & Stories',
+      'travel-photos': 'Travel photos - Adventures & Destinations',
+      'outfit-photos': 'Outfit photos - Fashion & Style',
+      'grwm-photos': 'GRWM photos - Get Ready With Me',
+      'future-self': 'Future Self photos - Aspirational Vision',
+      'bw-photos': 'B&W photos - Timeless & Artistic',
+      'studio-photoshoot': 'Studio photos - Professional Shoot'
     };
 
-    const quickStartMessage = {
-      role: 'maya' as const,
-      content: styleMessages[styleType] || "Perfect choice! Let's create some amazing photos for your brand. Tell me more about what you're envisioning and I'll bring it to life with my styling expertise.",
-      timestamp: new Date().toISOString(),
-      canGenerate: true,
-      quickButtons: ["Create photos now", "Tell me about your brand", "What would look best?", "I need help choosing", "Surprise me with your expertise"]
-    };
-
-    setMessages([quickStartMessage]);
+    const userMessage = styleLabels[styleType] || styleType;
+    sendMessage(userMessage);
   };
 
   const handleQuickButton = (buttonText: string, messageIndex?: number) => {
