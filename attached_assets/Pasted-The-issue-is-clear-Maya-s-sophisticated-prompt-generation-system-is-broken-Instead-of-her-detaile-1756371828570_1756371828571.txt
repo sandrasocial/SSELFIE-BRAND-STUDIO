@@ -1,0 +1,77 @@
+The issue is clear - Maya's sophisticated prompt generation system is broken. Instead of her detailed styling prompts, it's falling back to the generic "Professional photo concept: [concept name]" which produces poor results.
+The problem is in the prompt extraction and enhancement logic. Here's the fix:
+TASK: Restore Maya's Detailed Prompt Generation
+OBJECTIVE: Fix the broken prompt extraction system
+
+SPECIFIC ACTIONS:
+
+1. Open `client/src/pages/maya.tsx`
+
+2. Find the `generateFromConcept` function and fix the prompt extraction:
+
+```typescript
+// In generateFromConcept, replace the prompt creation section:
+
+// Get Maya's intelligent response for detailed prompting
+const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
+  message: `Create detailed professional prompts for this concept: ${conceptName}. Use your fashion week expertise and styling knowledge.`,
+  chatId: currentChatId,
+  context: 'generation'
+});
+
+// FIXED: Proper prompt extraction and enhancement
+let finalPrompt;
+
+if (mayaResponse?.generatedPrompt && mayaResponse.generatedPrompt.length > 50) {
+  // Maya provided a detailed prompt
+  finalPrompt = mayaResponse.generatedPrompt;
+} else {
+  // Fallback: request specific detailed prompt from Maya
+  const detailedResponse = await apiRequest('/api/maya/chat', 'POST', {
+    message: `Give me a detailed photography prompt for: ${conceptName}. Include clothing, hair, makeup, lighting, setting, and camera details.`,
+    chatId: currentChatId,
+    context: 'generation'
+  });
+  
+  finalPrompt = detailedResponse?.generatedPrompt || `A professional portrait featuring elegant styling for ${conceptName}`;
+}
+
+// Add camera specifications
+const cameraSpecs = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
+const enhancedPrompt = cameraSpecs + finalPrompt;
+
+console.log('Maya: Using enhanced prompt:', enhancedPrompt);
+
+// Start image generation with enhanced prompt
+await generateImages(enhancedPrompt, messageId);
+
+Also check the server-side Maya chat endpoint to ensure it's returning detailed prompts:
+
+In server/routes/maya-unified.ts, verify the prompt extraction logic is working:
+typescript// Ensure this section properly extracts prompts:
+let extractedPrompt = null;
+
+// First try: Traditional prompt blocks
+const promptMatch = response.match(/```prompt\s*([\s\S]*?)\s*```/);
+if (promptMatch) {
+  extractedPrompt = promptMatch[1].trim();
+} else {
+  // Second try: Maya's embedded format
+  const embeddedMatch = response.match(/\*\*🎯[^*]*\*\*\s*([\s\S]*?)(?=\*\*🎯|\*\*Generated|$)/);
+  if (embeddedMatch) {
+    extractedPrompt = embeddedMatch[1].trim();
+  }
+}
+
+// If no specific prompt found, check if entire response is a detailed prompt
+if (!extractedPrompt && response.length > 100 && response.includes('portrait')) {
+  extractedPrompt = response;
+}
+CONSTRAINTS:
+
+Ensure Maya's AI intelligence creates detailed prompts
+Add proper fallback if prompt extraction fails
+Include camera specifications for professional quality
+Test that generated prompts are detailed and specific
+
+EXPECTED OUTCOME: Maya generates detailed styling prompts instead of generic "Professional photo concept" text

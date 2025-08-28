@@ -377,25 +377,38 @@ function Maya() {
       
       setMessages(prev => [...prev, generatingMessage]);
       
-      // Create enhanced prompt directly without API call to avoid rate limits
-      const conceptPrompts: { [key: string]: string } = {
-        'Business photos': 'Professional business portrait, confident corporate headshot, luxury office setting, impeccable styling',
-        'Lifestyle photos': 'Casual authentic lifestyle portrait, natural candid moment, relaxed confident pose, everyday elegance',
-        'Story photos': 'Behind-the-scenes personal moment, authentic storytelling portrait, genuine expression, narrative depth',
-        'Instagram photos': 'Stunning social media portrait, Instagram-ready styling, engaging eye contact, scroll-stopping quality',
-        'Travel photos': 'Adventure travel portrait, destination photography, wanderlust styling, exotic location backdrop',
-        'Outfit photos': 'Fashion-forward style portrait, outfit showcase, trend-setting look, personal style statement',
-        'GRWM photos': 'Get-ready process portrait, beauty routine moment, styling transformation, authentic preparation',
-        'Future self photos': 'Aspirational vision portrait, goal achievement styling, confident transformation, success embodiment',
-        'B&W photos': 'Timeless black and white portrait, classic artistic styling, dramatic lighting, editorial elegance',
-        'Studio photoshoot': 'Professional studio portrait, perfect lighting setup, magazine-quality styling, high-end production'
-      };
-      
-      const prompt = conceptPrompts[conceptName] || `Professional photo concept: ${conceptName}`;
-      console.log('Maya: Using prompt:', prompt);
-      
-      // Start image generation
-      await generateImages(prompt, messageId);
+      // Get Maya's intelligent response for detailed prompting
+      const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
+        message: `Create detailed professional prompts for this concept: ${conceptName}. Use your fashion week expertise and styling knowledge.`,
+        chatId: currentChatId,
+        context: 'generation'
+      });
+
+      // FIXED: Proper prompt extraction and enhancement
+      let finalPrompt;
+
+      if (mayaResponse?.generatedPrompt && mayaResponse.generatedPrompt.length > 50) {
+        // Maya provided a detailed prompt
+        finalPrompt = mayaResponse.generatedPrompt;
+      } else {
+        // Fallback: request specific detailed prompt from Maya
+        const detailedResponse = await apiRequest('/api/maya/chat', 'POST', {
+          message: `Give me a detailed photography prompt for: ${conceptName}. Include clothing, hair, makeup, lighting, setting, and camera details.`,
+          chatId: currentChatId,
+          context: 'generation'
+        });
+        
+        finalPrompt = detailedResponse?.generatedPrompt || `A professional portrait featuring elegant styling for ${conceptName}`;
+      }
+
+      // Add camera specifications
+      const cameraSpecs = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ";
+      const enhancedPrompt = cameraSpecs + finalPrompt;
+
+      console.log('Maya: Using enhanced prompt:', enhancedPrompt);
+
+      // Start image generation with enhanced prompt
+      await generateImages(enhancedPrompt, messageId);
       
     } catch (error) {
       console.error('Maya concept generation error:', error);
