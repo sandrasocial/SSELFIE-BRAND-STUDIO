@@ -331,32 +331,15 @@ function Maya() {
   };
 
   const handleQuickButton = (buttonText: string, messageIndex?: number) => {
-    // Check if this is a Maya generation concept button 
-    // Look for emojis OR specific photo category keywords OR styling concepts
-    const isGenerationButton = 
-      buttonText.includes('✨') || buttonText.includes('💫') || 
-      buttonText.includes('💗') || buttonText.includes('🔥') || 
-      buttonText.includes('🌟') || buttonText.includes('💎') ||
-      buttonText.includes('🌅') || buttonText.includes('🏢') ||
-      buttonText.includes('💼') || buttonText.includes('🌊') ||
-      buttonText.includes('👑') || buttonText.includes('💃') ||
-      buttonText.includes('📸') || buttonText.includes('🎬') ||
-      // Also check for photo concept keywords
-      buttonText.toLowerCase().includes('business photos') ||
-      buttonText.toLowerCase().includes('lifestyle photos') ||
-      buttonText.toLowerCase().includes('professional headshots') ||
-      buttonText.toLowerCase().includes('creative lifestyle') ||
-      buttonText.toLowerCase().includes('business portraits') ||
-      buttonText.toLowerCase().includes('headshots') ||
-      buttonText.toLowerCase().includes('photos') ||
-      buttonText.toLowerCase().includes('look') ||
-      buttonText.toLowerCase().includes('style') ||
-      buttonText.toLowerCase().includes('shoot');
+    // Check if it's a SPECIFIC generation concept (with shot type in parentheses)
+    const isSpecificConcept = buttonText.includes('(Close-up)') || 
+                             buttonText.includes('(Half-body)') || 
+                             buttonText.includes('(Full-body)');
     
-    if (isGenerationButton && messageIndex !== undefined) {
-      console.log('Maya: Generating images for concept:', buttonText);
+    if (isSpecificConcept && messageIndex !== undefined) {
+      // This is a specific concept from Maya - start image generation
+      console.log('Maya: Generating images for specific concept:', buttonText);
       
-      // Mark button as clicked
       setClickedButtons(prev => {
         const newMap = new Map(prev);
         const messageButtons = newMap.get(messageIndex) || new Set();
@@ -365,11 +348,32 @@ function Maya() {
         return newMap;
       });
       
-      // Generate images for this concept
+      // Generate images for this specific concept
       generateFromConcept(buttonText);
     } else {
-      // Regular chat message
-      sendMessage(buttonText);
+      // Check if it's a general category that should ask Maya for concepts first
+      const isGeneralCategory = buttonText.toLowerCase().includes('instagram') || 
+                               buttonText.toLowerCase().includes('professional') || 
+                               buttonText.toLowerCase().includes('social media') || 
+                               buttonText.toLowerCase().includes('website') || 
+                               buttonText.toLowerCase().includes('email') || 
+                               buttonText.toLowerCase().includes('marketing') || 
+                               buttonText.toLowerCase().includes('premium') || 
+                               buttonText.toLowerCase().includes('brand') ||
+                               buttonText.toLowerCase().includes('photos') || 
+                               buttonText.toLowerCase().includes('headshots') ||
+                               buttonText.toLowerCase().includes('business') ||
+                               buttonText.toLowerCase().includes('lifestyle') ||
+                               buttonText.toLowerCase().includes('creative');
+      
+      if (isGeneralCategory) {
+        // Ask Maya to provide specific styling concepts for this category
+        const conceptRequest = `I'd love to see some ${buttonText.toLowerCase()} concepts! Show me your styling ideas and specific concepts I can choose from.`;
+        sendMessage(conceptRequest);
+      } else {
+        // Regular chat message
+        sendMessage(buttonText);
+      }
     }
   };
   
