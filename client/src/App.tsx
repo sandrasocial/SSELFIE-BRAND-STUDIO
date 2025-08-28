@@ -180,11 +180,15 @@ function Router() {
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
-      <Route path="/studio" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
+      <Route path="/studio">
+        <Redirect to="/workspace" />
+      </Route>
       <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
       
       {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
-      <Route path="/ai-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
+      <Route path="/ai-training">
+        <Redirect to="/simple-training" />
+      </Route>
       <Route path="/simple-training" component={(props) => <ProtectedRoute component={SimpleTraining} {...props} />} />
 
       <Route path="/ai-photoshoot" component={(props) => <ProtectedRoute component={AIPhotoshoot} {...props} />} />

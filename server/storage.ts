@@ -3,6 +3,7 @@ import {
   userProfiles,
   onboardingData,
   aiImages,
+  generatedImages,
   generationTrackers,
   userModels,
   selfieUploads,
@@ -24,6 +25,8 @@ import {
   type InsertOnboardingData,
   type AiImage,
   type InsertAiImage,
+  type GeneratedImage,
+  type InsertGeneratedImage,
   type GenerationTracker,
   type InsertGenerationTracker,
   type UserModel,
@@ -78,9 +81,14 @@ export interface IStorage {
   saveOnboardingData(data: InsertOnboardingData): Promise<OnboardingData>;
   updateOnboardingData(userId: string, data: Partial<OnboardingData>): Promise<OnboardingData>;
 
-  // AI Image operations (GALLERY ONLY - permanent S3 URLs)
+  // AI Image operations (GALLERY ONLY - permanent S3 URLs) - Legacy support
   getAIImages(userId: string): Promise<AiImage[]>;
   saveAIImage(data: InsertAiImage): Promise<AiImage>;
+
+  // Generated Images operations (NEW ENHANCED GALLERY - primary table)
+  getGeneratedImages(userId: string): Promise<GeneratedImage[]>;
+  saveGeneratedImage(data: InsertGeneratedImage): Promise<GeneratedImage>;
+  updateGeneratedImage(id: number, data: Partial<GeneratedImage>): Promise<GeneratedImage>;
 
   // Generation Tracker operations (TEMP PREVIEW ONLY - for Maya chat)
   createGenerationTracker(data: InsertGenerationTracker): Promise<GenerationTracker>;
@@ -377,6 +385,29 @@ export class DatabaseStorage implements IStorage {
       .update(aiImages)
       .set({ ...data })
       .where(eq(aiImages.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Generated Images operations (NEW ENHANCED GALLERY - primary table)
+  async getGeneratedImages(userId: string): Promise<GeneratedImage[]> {
+    return await db
+      .select()
+      .from(generatedImages)
+      .where(eq(generatedImages.userId, userId))
+      .orderBy(desc(generatedImages.createdAt));
+  }
+
+  async saveGeneratedImage(data: InsertGeneratedImage): Promise<GeneratedImage> {
+    const [saved] = await db.insert(generatedImages).values(data).returning();
+    return saved;
+  }
+
+  async updateGeneratedImage(id: number, data: Partial<GeneratedImage>): Promise<GeneratedImage> {
+    const [updated] = await db
+      .update(generatedImages)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(generatedImages.id, id))
       .returning();
     return updated;
   }

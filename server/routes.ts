@@ -1898,23 +1898,23 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         return res.status(403).json({ error: 'Unauthorized access to tracker' });
       }
       
-      // Save each selected image to gallery with permanent S3 storage
+      // Save each selected image to new generatedImages gallery with enhanced metadata
       const savedImages = [];
       
-      for (const imageUrl of selectedImageUrls) {
-        const galleryImage = await storage.saveAIImage({
-          userId: dbUserId,
-          imageUrl: imageUrl,
-          prompt: tracker.prompt || 'Maya Editorial Photoshoot',
-          style: 'editorial',
-          predictionId: tracker.predictionId || '',
-          generationStatus: 'completed',
-          createdAt: new Date(),
-          updatedAt: new Date()
-        } as any);
-        
-        savedImages.push(galleryImage);
-      }
+      // Create a single record with all selected images
+      const galleryImage = await storage.saveGeneratedImage({
+        userId: dbUserId,
+        category: tracker.style || 'Editorial',
+        subcategory: 'Professional',
+        prompt: tracker.prompt || 'Maya Editorial Photoshoot',
+        imageUrls: JSON.stringify(selectedImageUrls),
+        selectedUrl: selectedImageUrls[0], // First image as default selection
+        saved: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      savedImages.push(galleryImage);
       
       res.json({
         success: true,
@@ -1931,7 +1931,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Gallery images endpoint (alias for ai-images for compatibility)
+  // Gallery images endpoint - Enhanced to use generatedImages table with legacy support
   app.get('/api/gallery-images', isAuthenticated, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
@@ -1947,8 +1947,39 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         return res.status(404).json({ error: 'User not found' });
       }
       
-      const aiImages = await storage.getAIImages(user.id);
-      res.json(aiImages);
+      // Fetch from both tables for migration period
+      const [generatedImages, legacyAiImages] = await Promise.all([
+        storage.getGeneratedImages(user.id),
+        storage.getAIImages(user.id)
+      ]);
+      
+      // Combine and format response with enhanced generatedImages prioritized
+      const allImages = [
+        ...generatedImages.map(img => ({
+          id: img.id,
+          imageUrl: img.selectedUrl || (JSON.parse(img.imageUrls as string)?.[0]) || '',
+          imageUrls: JSON.parse(img.imageUrls as string) || [],
+          prompt: img.prompt,
+          category: img.category,
+          subcategory: img.subcategory,
+          saved: img.saved,
+          createdAt: img.createdAt,
+          source: 'generated' // Identify enhanced source
+        })),
+        ...legacyAiImages.map(img => ({
+          id: img.id,
+          imageUrl: img.imageUrl,
+          imageUrls: [img.imageUrl],
+          prompt: img.prompt,
+          category: img.style || 'Editorial',
+          subcategory: 'Professional',
+          saved: img.isSelected || img.isFavorite || false,
+          createdAt: img.createdAt,
+          source: 'legacy' // Identify legacy source
+        }))
+      ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      res.json(allImages);
     } catch (error) {
       console.error("Error fetching gallery images:", error);
       res.status(500).json({ message: "Failed to fetch gallery images" });
