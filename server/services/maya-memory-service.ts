@@ -195,6 +195,31 @@ export class MayaMemoryService {
   }
 
   /**
+   * Clear restrictive categorized memory data that limits Maya's intelligence
+   * 🚫 ZERO TOLERANCE ANTI-HARDCODE: Remove business/professional restrictions
+   */
+  async clearRestrictiveCategorizations(userId: string): Promise<void> {
+    try {
+      // Clear any cached insights with restrictive business/professional categorization
+      await storage.saveAgentMemory('maya', userId, {
+        personalInsights: {
+          emotionalState: [],
+          mentionedGoals: [], // Clear hardcoded 'business_growth', 'professional_photos' categorizations
+          styleHints: [], // Clear hardcoded 'professional', 'wants_professional' categorizations  
+          progressMarkers: [],
+          lastUpdated: new Date()
+        },
+        lastUpdated: new Date(),
+        clearedRestrictiveCategories: true // Flag to track cleanup
+      });
+      
+      console.log(`🧠 MAYA MEMORY CLEANUP: Cleared restrictive business/professional categorizations for user ${userId}`);
+    } catch (error) {
+      console.error('Failed to clear restrictive Maya categorizations:', error);
+    }
+  }
+
+  /**
    * Get Maya's conversation insights for admin/analytics
    */
   async getMayaConversationStats(userId: string): Promise<{
@@ -295,6 +320,7 @@ export class MayaMemoryService {
 
   /**
    * Extract insights from a single message
+   * 🚫 ZERO TOLERANCE ANTI-HARDCODE: Let Maya's intelligence detect user needs naturally
    * NOTE: This analyzes USER INPUT for memory - not for image generation prompts
    * Maya's AI intelligence handles all prompt generation through Claude API
    */
@@ -307,7 +333,7 @@ export class MayaMemoryService {
       progressMarkers: []
     };
 
-    // Emotional state detection
+    // Only extract emotional state for supportive conversation - no restrictive categorization
     if (lowerMessage.includes('confident') || lowerMessage.includes('empowered')) {
       insights.emotionalState!.push('confident');
     }
@@ -318,47 +344,28 @@ export class MayaMemoryService {
       insights.emotionalState!.push('motivated');
     }
 
-    // Goal detection
-    if (lowerMessage.includes('business') || lowerMessage.includes('entrepreneur')) {
-      insights.mentionedGoals!.push('business_growth');
-    }
-    if (lowerMessage.includes('brand') || lowerMessage.includes('personal brand')) {
-      insights.mentionedGoals!.push('brand_building');
-    }
-    if (lowerMessage.includes('photos') || lowerMessage.includes('images')) {
-      insights.mentionedGoals!.push('professional_photos');
-    }
-
-    // Style hints
-    if (lowerMessage.includes('professional') || lowerMessage.includes('corporate')) {
-      insights.styleHints!.push('professional');
-    }
-    if (lowerMessage.includes('creative') || lowerMessage.includes('artistic')) {
-      insights.styleHints!.push('creative');
-    }
-    if (lowerMessage.includes('luxury') || lowerMessage.includes('high-end')) {
-      insights.styleHints!.push('luxury');
-    }
+    // 🚫 REMOVED: Hardcoded goal/style categorization that limits Maya's intelligence
+    // Maya should detect user needs naturally through conversation, not keyword matching
+    // Personal branding through storytelling images encompasses ALL creative expression
 
     return insights;
   }
 
   /**
    * Extract style insights from image feedback
+   * 🚫 ZERO TOLERANCE ANTI-HARDCODE: Let Maya interpret feedback naturally
    */
   private async extractStyleInsights(userId: string, feedback: string): Promise<void> {
     const styleHints = [];
     const lowerFeedback = feedback.toLowerCase();
 
+    // Only capture general sentiment - let Maya interpret specific feedback through conversation
     if (lowerFeedback.includes('love') || lowerFeedback.includes('perfect')) {
       styleHints.push('positive_feedback');
     }
-    if (lowerFeedback.includes('more professional') || lowerFeedback.includes('business')) {
-      styleHints.push('wants_professional');
-    }
-    if (lowerFeedback.includes('softer') || lowerFeedback.includes('warmer')) {
-      styleHints.push('wants_approachable');
-    }
+    
+    // 🚫 REMOVED: Hardcoded style categorization that limits Maya's creative interpretation
+    // Maya should understand feedback context through natural conversation flow
 
     if (styleHints.length > 0) {
       await this.savePersonalInsights(userId, { styleHints });
