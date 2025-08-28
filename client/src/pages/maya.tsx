@@ -331,21 +331,26 @@ function Maya() {
   };
 
   const handleQuickButton = (buttonText: string, messageIndex?: number) => {
-    // Check if this is a Maya-style generation button (contains emoji)
-    if (buttonText.includes('✨') || buttonText.includes('💫') || buttonText.includes('💗') || 
-        buttonText.includes('🔥') || buttonText.includes('🌟') || buttonText.includes('💎')) {
-      // Mark this button as clicked for this message
-      if (messageIndex !== undefined) {
-        setClickedButtons(prev => {
-          const newMap = new Map(prev);
-          const messageButtons = newMap.get(messageIndex) || new Set();
-          messageButtons.add(buttonText);
-          newMap.set(messageIndex, messageButtons);
-          return newMap;
-        });
-      }
+    // Check if this is a Maya generation concept button (has emojis)
+    const isGenerationButton = buttonText.includes('✨') || buttonText.includes('💫') || 
+                             buttonText.includes('💗') || buttonText.includes('🔥') || 
+                             buttonText.includes('🌟') || buttonText.includes('💎') ||
+                             buttonText.includes('🌅') || buttonText.includes('🏢') ||
+                             buttonText.includes('💼') || buttonText.includes('🌊');
+    
+    if (isGenerationButton && messageIndex !== undefined) {
+      console.log('Maya: Generating images for concept:', buttonText);
       
-      // Generate from concept name
+      // Mark button as clicked
+      setClickedButtons(prev => {
+        const newMap = new Map(prev);
+        const messageButtons = newMap.get(messageIndex) || new Set();
+        messageButtons.add(buttonText);
+        newMap.set(messageIndex, messageButtons);
+        return newMap;
+      });
+      
+      // Generate images for this concept
       generateFromConcept(buttonText);
     } else {
       // Regular chat message
@@ -354,75 +359,54 @@ function Maya() {
   };
   
   const generateFromConcept = async (conceptName: string) => {
-    // Generate unique message ID to track this specific generation
     const messageId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // CRITICAL FIX: Allow multiple simultaneous generations - only check if this specific generation is already running
     if (activeGenerations.has(messageId)) return;
     
-    console.log('🎨 MAYA MULTIPLE GENERATIONS: Starting generation for concept:', conceptName, 'ID:', messageId);
-    console.log('📊 ACTIVE GENERATIONS:', Array.from(activeGenerations));
+    console.log('Maya: Starting concept generation for:', conceptName, 'ID:', messageId);
     
     try {
-      // CRITICAL FIX: Get Maya's intelligent response and extract her detailed prompts
-      console.log('🎨 MAYA INTELLIGENCE: Getting authentic response for concept:', conceptName);
-      
-      // Call Maya's genuine intelligence for generation response
-      const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
-        message: `I want to generate photos for this concept: ${conceptName}. Please give me your excited, personalized response about creating these photos with your styling expertise. Include your detailed prompts.`,
-        chatId: currentChatId,
-        context: 'generation'
-      });
-      
-      // CRITICAL FIX: Extract Maya's detailed prompts from her response
-      let detailedPrompt = null;
-      if (mayaResponse?.generatedPrompt) {
-        detailedPrompt = mayaResponse.generatedPrompt;
-        console.log('🎯 EXTRACTED MAYA PROMPT:', detailedPrompt);
-      } else {
-        // Fallback: try to extract embedded prompts from Maya's response
-        const responseText = mayaResponse?.content || '';
-        const promptMatch = responseText.match(/\*\*🎯[^*]*\*\*\s*([\s\S]*?)(?=\*\*🎯|\*\*Generated|$)/);
-        if (promptMatch) {
-          detailedPrompt = promptMatch[1].trim();
-          console.log('🎯 EXTRACTED EMBEDDED PROMPT:', detailedPrompt);
-        }
-      }
-      
-      // Create Maya message with her genuine response and generation capability
+      // Create Maya message showing generation progress
       const generatingMessage: ChatMessage = {
         role: 'maya',
-        content: mayaResponse?.content || `Exciting! Let me create your "${conceptName}" photos right now. This is going to look amazing!`, // Safe fallback
-        timestamp: new Date().toISOString(),
-        canGenerate: true,  // CRITICAL: Must be true so polling can find this message to update with images
-        generationId: messageId  // Unique ID to track this specific generation
-      };
-      setMessages(prev => [...prev, generatingMessage]);
-      
-      // CRITICAL FIX: Use Maya's detailed prompt if available, otherwise use concept-based generation
-      const prompt = detailedPrompt || `Create a professional photo concept: ${conceptName}`;
-      
-      // Trigger actual generation with specific message ID
-      await generateImages(prompt, messageId);
-      
-    } catch (error) {
-      console.error('❌ MAYA INTELLIGENCE ERROR:', error);
-      // Fallback to simple message if Maya's intelligence fails
-      const fallbackMessage: ChatMessage = {
-        role: 'maya',
-        content: `Exciting! Let me create your "${conceptName}" photos right now. This is going to look amazing!`,
+        content: `Creating your "${conceptName}" photos right now! I'm applying all my styling expertise to make these absolutely stunning. You're going to love the results! ✨`,
         timestamp: new Date().toISOString(),
         canGenerate: true,
         generationId: messageId
       };
-      setMessages(prev => [...prev, fallbackMessage]);
       
-      const prompt = `Create a professional photo concept: ${conceptName}`;
-      await generateImages(prompt, messageId);
+      setMessages(prev => [...prev, generatingMessage]);
+      
+      // Get Maya's intelligent response for detailed prompting
+      const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
+        message: `Create detailed professional prompts for this concept: ${conceptName}. Use your fashion week expertise and styling knowledge.`,
+        chatId: currentChatId,
+        context: 'generation'
+      });
+      
+      // Use Maya's extracted prompt or create one from concept
+      const prompt = mayaResponse?.generatedPrompt || `Professional photo concept: ${conceptName}`;
+      console.log('Maya: Using prompt:', prompt);
+      
+      // Start image generation
+      await generateImages(prompt, messageId, conceptName);
+      
+    } catch (error) {
+      console.error('Maya concept generation error:', error);
+      
+      // Show friendly error message
+      const errorMessage: ChatMessage = {
+        role: 'maya',
+        content: `I had a little hiccup creating those "${conceptName}" photos, but I'm not giving up! Let me try a different approach. What specific style elements are you most excited about for this look?`,
+        timestamp: new Date().toISOString(),
+        quickButtons: ["More luxury details", "Different lighting", "Try another concept", "Tell me the issue"]
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
     }
   };
 
-const generateImages = async (prompt: string, generationId?: string) => {
+const generateImages = async (prompt: string, generationId?: string, conceptName?: string) => {
   if (!generationId || activeGenerations.has(generationId)) {
     console.log('Generation blocked - missing ID or already active:', generationId);
     return;
@@ -465,7 +449,8 @@ const generateImages = async (prompt: string, generationId?: string) => {
                 ? { 
                     ...msg, 
                     imagePreview: statusResponse.imageUrls, 
-                    canGenerate: false 
+                    canGenerate: false,
+                    content: msg.content + `\n\nHere are your "${conceptName || 'styled'}" photos! I'm so excited about how these turned out - the styling is absolutely perfect for your brand! 💫`
                   }
                 : msg
             ));
