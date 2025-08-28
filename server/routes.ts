@@ -1667,7 +1667,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         // Migrate URLs to permanent storage
         const { ImageStorageService } = await import('./image-storage-service');
         const permanentUrls = await Promise.all(
-          outputUrls.map((url: string) => ImageStorageService.ensurePermanentStorage(url))
+          outputUrls.map((url: string) => ImageStorageService.ensurePermanentStorage(url, userId, 'maya_generation'))
         );
         
         console.log(`✅ Maya polling: Generation complete with ${permanentUrls.length} images`);
@@ -1909,9 +1909,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         prompt: tracker.prompt || 'Maya Editorial Photoshoot',
         imageUrls: JSON.stringify(selectedImageUrls),
         selectedUrl: selectedImageUrls[0], // First image as default selection
-        saved: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        saved: true
       });
       
       savedImages.push(galleryImage);
@@ -3481,7 +3479,7 @@ Format: [detailed luxurious scene/location], [specific 2025 fashion with texture
       });
       
     } catch (error) {
-      console.error(`❌ Migration failed for user ${userId}:`, error);
+      console.error(`❌ Migration failed for user ${req.params.userId}:`, error);
       res.status(500).json({
         success: false,
         message: `Migration failed: ${error instanceof Error ? error.message : 'Unknown error'}`
