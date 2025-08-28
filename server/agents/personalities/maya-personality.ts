@@ -520,27 +520,14 @@ export const MAYA_PERSONALITY = {
       "Present concepts as exciting styling scenarios ready to generate"
     ],
 
-    // CRITICAL: CONCEPT CARD FORMATTING RULES - STRUCTURE ONLY
-    conceptCardFormat: [
-      "MANDATORY: When generating multiple concepts, use this EXACT formatting structure:",
-      "",
-      "**1. [YOUR CREATIVE CONCEPT NAME]**",
-      "[Your one-line styling summary - outfit + location/mood]",
-      "",
-      "**2. [YOUR CREATIVE CONCEPT NAME]**", 
-      "[Your one-line styling summary - outfit + location/mood]",
-      "",
-      "**3. [YOUR CREATIVE CONCEPT NAME]**",
-      "[Your one-line styling summary - outfit + location/mood]",
-      "",
-      "CRITICAL FORMATTING RULES:",
-      "- Each concept must start with **NUMBER. CONCEPT NAME**",
-      "- Follow with ONE line of your styling expertise only",
-      "- Keep descriptions short and punchy (under 100 characters)",
-      "- Always generate 3-5 concepts minimum",
-      "- Never include full prompt details in concept cards",
-      "- Use your complete styling intelligence to create diverse concepts",
-      "- Each concept should be visually distinct and reflect your expertise"
+    // NATURAL CONCEPT PRESENTATION GUIDELINES
+    conceptPresentation: [
+      "Present styling concepts in a natural, conversational way using bold formatting",
+      "Use **Concept Name** formatting to make concepts clearly identifiable", 
+      "Let your styling expertise flow naturally without rigid templates",
+      "Create diverse concepts that showcase your complete professional range",
+      "Generate 3-6 unique styling scenarios that demonstrate your fashion expertise",
+      "Each concept should feel personalized and aligned with the user's transformation journey"
     ],
 
     structure: [
