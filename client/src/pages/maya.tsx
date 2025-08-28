@@ -101,7 +101,7 @@ function Maya() {
     setShowWelcome,
     checkOnboardingStatus,
     initializeOnboarding,
-    handleWelcomeChoice
+    handlePersonalizationChoice
   } = useMayaOnboarding();
 
   // Remaining local UI state
@@ -210,6 +210,32 @@ function Maya() {
     await sendChatMessage(messageContent || '', input, setInput, isOnboardingMode, isQuickStartMode, setOnboardingStatus, setIsOnboardingMode);
   };
 
+  const handleStyleSelect = (styleType: string) => {
+    // Create a direct Maya chat message based on style selection
+    const styleMessages: Record<string, string> = {
+      'business-photos': "Perfect! I love that you're focused on building your professional authority. Let's create some stunning business photos that show your expertise and confidence. I'll style you with that perfect balance of approachable yet powerful - think boardroom ready but still authentically YOU. Tell me more about your business and I'll create the perfect professional brand photos!",
+      'lifestyle-photos': "Love this choice! Lifestyle photos are where we show the real, authentic you - the woman behind the business. I'll create beautiful casual moments that still feel polished and intentional. Think elevated everyday looks that make your audience connect with you on a deeper level. What's your lifestyle vibe?",
+      'story-photos': "Yes! Story photos are my absolute favorite - this is where we show your journey, your process, your behind-the-scenes magic. People connect with stories, not just pretty pictures. I'll create images that tell your transformation story and invite people into your world. What story do you want to tell?",
+      'instagram-photos': "Perfect choice! Instagram is all about that scroll-stopping visual impact. I'll create photos that perform beautifully in the feed and stories - the kind that make people pause, double-tap, and actually engage. Think editorial quality but optimized for social media. What's your Instagram aesthetic goals?",
+      'travel-photos': "Amazing! Travel content is so engaging because it shows your adventurous spirit and global mindset. I'll create stunning destination-inspired looks that capture that wanderlust energy while still being on-brand for your business. Where are you dreaming of going next?",
+      'outfit-photos': "Yes queen! Fashion and style content performs so well because everyone wants to know what you're wearing and how to recreate your looks. I'll create those outfit-of-the-day shots that inspire your audience while showcasing your personal style. What's your style personality?",
+      'grwm-photos': "Love this! GRWM content is so relatable and engaging - everyone wants to see the transformation process. I'll create beautiful getting-ready moments that feel intimate but still polished. Think morning routine meets magazine shoot. What's your morning vibe?",
+      'future-self': "This gives me chills! Future self photos are the most powerful because they help you (and your audience) visualize the transformation. I'll create aspirational images of who you're becoming - your next level self. This is manifestation through photography. Who is your future self?",
+      'bw-photos': "Such a sophisticated choice! Black and white photography is timeless and artistic - it strips away distractions and focuses on pure emotion and composition. I'll create those gallery-worthy shots that feel like fine art. B&W always elevates everything to a more luxurious level.",
+      'studio-photoshoot': "Professional studio vibes! This is where we create those high-end, controlled lighting masterpieces. Think magazine covers and brand campaigns. I'll give you that polished, editorial look with perfect lighting and composition. Ready for your close-up?"
+    };
+
+    const quickStartMessage = {
+      role: 'maya' as const,
+      content: styleMessages[styleType] || "Perfect choice! Let's create some amazing photos for your brand. Tell me more about what you're envisioning and I'll bring it to life with my styling expertise.",
+      timestamp: new Date().toISOString(),
+      canGenerate: true,
+      quickButtons: ["Create photos now", "Tell me about your brand", "What would look best?", "I need help choosing", "Surprise me with your expertise"]
+    };
+
+    setMessages([quickStartMessage]);
+  };
+
   const handleQuickButton = (buttonText: string, messageIndex?: number) => {
     // Check if this is a Maya generation concept button 
     // Look for emojis OR specific photo category keywords OR styling concepts
@@ -278,23 +304,7 @@ function Maya() {
     chatContainer?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleStyleSelect = (style: string) => {
-    const styleMessages = {
-      'business-photos': 'I need powerful business photos that show my authority and expertise',
-      'lifestyle-photos': 'I want casual, authentic lifestyle photos that show my personality',
-      'story-photos': 'I need behind-the-scenes story content that shows my journey',
-      'instagram-photos': 'I want stunning Instagram content that stops the scroll',
-      'travel-photos': 'I need gorgeous travel photos that showcase my adventures',
-      'outfit-photos': 'I want fashion-forward outfit photos that inspire others',
-      'grwm-photos': 'I need "get ready with me" content showing my style process',
-      'future-self': 'I want aspirational photos of who I\'m becoming',
-      'bw-photos': 'I need timeless black and white artistic portraits',
-      'studio-photoshoot': 'I want professional studio photos with perfect lighting'
-    };
 
-    setInput(styleMessages[style as keyof typeof styleMessages] || 'I want to explore this style');
-    setTimeout(() => sendMessage(), 300);
-  };
 
   if (authLoading) {
     return (
@@ -1223,66 +1233,12 @@ function Maya() {
           {/* Messages Container */}
           <div className={`messages-container ${isOnboardingMode ? 'maya-onboarding-mode' : 'maya-photoshoot-mode'}`}>
             {messages.length === 0 ? (
-              showWelcome ? (
-                /* Welcome Cards for New Users */
-                <div className="welcome-state">
-                  <div className="maya-avatar">
-                    <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
-                  </div>
-                  <div className="welcome-eyebrow">Ready to start your brand photoshoot?</div>
-                  <h2 className="welcome-title">Choose your path</h2>
-                  <p className="welcome-description">Hey gorgeous! I'm Maya, Sandra's AI bestie with all her styling secrets from fashion week to building her empire. Let's create amazing photos together that show the world your powerful future self!</p>
-
-                  {/* Editorial Image Cards */}
-                  <div className="path-selection-grid">
-                    <div className="editorial-card customize-card" onClick={() => handleWelcomeChoice('customize', setMessages)}>
-                      <div className="card-image">
-                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756240155921.png" alt="Personal Brand Discovery" />
-                        <div className="card-overlay">
-                          <div className="card-content">
-                            <div className="card-eyebrow">5-10 minutes</div>
-                            <h3 className="card-title">CUSTOMIZE</h3>
-                            <p className="card-description">Let me get to know you first! I want to learn your unique style, your personal brand story, and your transformation journey before we create your perfect photos together.</p>
-                            <div className="card-features">
-                              <div>→ Photos that match your personality</div>
-                              <div>→ Brand photos that feel like YOU</div>
-                              <div>→ Your style preferences saved forever</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="editorial-card quickstart-card" onClick={() => handleWelcomeChoice('quickstart', setMessages)}>
-                      <div className="card-image">
-                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756128420487.png" alt="Instant Brand Photos" />
-                        <div className="card-overlay">
-                          <div className="card-content">
-                            <div className="card-eyebrow">Start immediately</div>
-                            <h3 className="card-title">QUICK START</h3>
-                            <p className="card-description">Ready to jump right in? Let's create stunning professional photos right now! I'll use all my fashion week expertise to make you look absolutely amazing.</p>
-                            <div className="card-features">
-                              <div>→ Gorgeous photos created instantly</div>
-                              <div>→ My best styling secrets applied</div>
-                              <div>→ Perfect when you need photos now</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="welcome-note">
-                    Don't worry - you can always tell me more about your style preferences later in our chat!
-                  </div>
+              /* Streamlined Maya Welcome State - Direct Style Selection */
+              <div className="welcome-state">
+                <div className="maya-avatar">
+                  <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
                 </div>
-              ) : (
-                /* Regular Maya Welcome State */
-                <div className="welcome-state">
-                  <div className="maya-avatar">
-                    <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
-                  </div>
-                  <div className="welcome-eyebrow">Personal Brand Photos</div>
+                <div className="welcome-eyebrow">Personal Brand Photos</div>
                   <h2 className="welcome-title">What photos does your business need most?</h2>
                   <p className="welcome-description">I'm Maya, your personal brand stylist with Sandra's expertise from fashion week to building her empire. I'll help you create the exact photos you need for your business - from LinkedIn headshots to Instagram content to website images. What photos would make the biggest impact for you right now?</p>
 
@@ -1329,9 +1285,21 @@ function Maya() {
                       <div className="style-label">Professional Shoot</div>
                     </div>
                   </div>
+                  
+                  {/* Optional Personalization Button */}
+                  <div className="personalization-cta">
+                    <button 
+                      className="personalize-button"
+                      onClick={() => handlePersonalizationChoice(setMessages)}
+                    >
+                      Tell me about your style preferences first
+                    </button>
+                    <div className="personalization-note">
+                      Or jump right in - I'll learn your style as we create photos together!
+                    </div>
+                  </div>
                 </div>
-              )
-            ) : (
+              ) : (
               /* Messages */
               <div>
                 {messages.map((message, index) => (
