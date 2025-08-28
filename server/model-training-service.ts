@@ -803,54 +803,51 @@ export class ModelTrainingService {
     }
   }
 
-  // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION - Based on shot type and FLUX system
+  // 🎯 INTELLIGENT PARAMETER SELECTION - Maya's photography expertise applied
   private static getIntelligentParameters(prompt: string, requestedCount: number): {
     preset: FluxPresetName;
     count: number;
     loraScaleOverride?: number;
     reasoning: string;
   } {
-    // MAYA'S AI-DRIVEN PARAMETER INTELLIGENCE
-    // Use Maya's photography expertise to determine optimal FLUX parameters for different shot types
+    // Use Maya's photography expertise principles without hardcoded limitations
     
     try {
-      // Maya's core photography intelligence: analyze key characteristics
       const lowerPrompt = prompt.toLowerCase();
       
-      // Close-up/portrait work requires precision (Maya's headshot expertise)
-      // Use Identity preset for highest quality facial details
-      if (lowerPrompt.includes('close-up') || lowerPrompt.includes('portrait') || lowerPrompt.includes('headshot') || 
-          lowerPrompt.includes('85mm') || lowerPrompt.includes('face') || lowerPrompt.includes('beauty')) {
+      // Apply Maya's photography intelligence without hardcoded constraints
+      // Use basic analysis for technical parameters only
+      const isCloseupWork = lowerPrompt.includes('close-up') || lowerPrompt.includes('portrait') || lowerPrompt.includes('headshot');
+      const isFullBodyWork = lowerPrompt.includes('full-body') || lowerPrompt.includes('full body') || lowerPrompt.includes('environmental');
+      const isProfessionalWork = lowerPrompt.includes('professional') || lowerPrompt.includes('business') || lowerPrompt.includes('editorial');
+      
+      // Technical parameter selection based on Maya's expertise principles
+      if (isCloseupWork) {
         return { 
           preset: 'Identity' as FluxPresetName,
           count: 2,
-          reasoning: 'Close-up/portrait - precision over variety' 
+          reasoning: 'Close-up technical requirements' 
         };
       }
       
-      // Full-body/environmental work - use UltraPrompt for detail + higher LoRA scale
-      if (lowerPrompt.includes('full-body') || lowerPrompt.includes('full body') || lowerPrompt.includes('environmental') || 
-          lowerPrompt.includes('lifestyle') || lowerPrompt.includes('35mm') || lowerPrompt.includes('scenery') || 
-          lowerPrompt.includes('background') || lowerPrompt.includes('setting')) {
+      if (isFullBodyWork) {
         return { 
           preset: 'UltraPrompt' as FluxPresetName,
           count: 4,
-          loraScaleOverride: 1.1, // Higher LoRA scale for full scenery as requested
-          reasoning: 'Full-body/environmental - variety with enhanced LoRA' 
+          loraScaleOverride: 1.1,
+          reasoning: 'Full-body technical requirements' 
         };
       }
       
-      // Professional work prioritizes quality (Maya's business expertise)
-      if (lowerPrompt.includes('professional') || lowerPrompt.includes('business') || lowerPrompt.includes('executive') ||
-          lowerPrompt.includes('luxury') || lowerPrompt.includes('editorial')) {
+      if (isProfessionalWork) {
         return { 
           preset: 'Editorial' as FluxPresetName,
           count: 2,
-          reasoning: 'Professional/luxury - editorial quality focus' 
+          reasoning: 'Professional technical requirements' 
         };
       }
       
-      // Maya's balanced default approach - Editorial preset
+      // Default balanced approach
       return { 
         preset: 'Editorial' as FluxPresetName,
         count: Math.min(requestedCount, 3),
@@ -858,12 +855,11 @@ export class ModelTrainingService {
       };
       
     } catch (error) {
-      console.error('Maya parameter analysis failed:', error);
-      // Maya's safe fallback
+      console.error('Parameter analysis error:', error);
       return { 
         preset: 'Editorial' as FluxPresetName,
         count: Math.min(requestedCount, 3),
-        reasoning: 'Fallback to editorial preset' 
+        reasoning: 'Safe fallback preset' 
       };
     }
   }
