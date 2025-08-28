@@ -15,6 +15,8 @@ import { useMayaGeneration } from '../hooks/useMayaGeneration';
 import { useMayaOnboarding } from '../hooks/useMayaOnboarding';
 import { useMemoryCleanup } from '../hooks/useMemoryCleanup';
 import { throttle, debounce } from '../utils/performanceOptimizations';
+import { trackMayaPerformance } from '../utils/webVitals';
+import { performanceMonitor } from '../utils/performanceMonitor';
 import '../maya-onboarding.css';
 
 interface ChatMessage {
