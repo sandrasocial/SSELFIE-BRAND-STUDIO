@@ -11,9 +11,8 @@
  */
 
 import { db } from '../db';
-import { agentSessionContexts, sessions, users } from '../shared/schema';
+import { agentSessionContexts, sessions, users } from '@shared/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { ConversationManager } from '../agents/core/ConversationManager';
 
 export interface AgentSessionContext {
   userId: string;
@@ -45,12 +44,18 @@ export class UnifiedSessionManager {
   }
 
   /**
-   * UNIFIED SESSION RESTORATION: Restore both Replit Auth and Agent contexts
+   * UNIFIED SESSION RESTORATION with transaction safety
+   * PHASE 5: Enhanced with database consistency
    */
   async restoreUserSession(userId: string, replitSessionId?: string): Promise<SessionRestoreData> {
     console.log(`🔄 RESTORING SESSION: User ${userId}, Replit session: ${replitSessionId ? 'active' : 'none'}`);
 
     try {
+      // Validate input
+      if (!userId || typeof userId !== 'string') {
+        throw new Error('Invalid userId for session restoration');
+      }
+
       // Check cache first
       const cacheKey = `${userId}-${replitSessionId || 'no-replit'}`;
       if (this.sessionCache.has(cacheKey)) {
@@ -58,21 +63,23 @@ export class UnifiedSessionManager {
         return this.sessionCache.get(cacheKey)!;
       }
 
-      // Validate Replit session
-      const replitSessionValid = await this.validateReplitSession(replitSessionId);
+      // STEP 1: Wrap session restoration in transaction for consistency
+      const sessionData = await db.transaction(async (tx) => {
+        // Validate Replit session
+        const replitSessionValid = await this.validateReplitSession(replitSessionId);
 
-      // Get user profile
-      const userProfile = await this.getUserProfile(userId);
+        // Get user profile with transaction
+        const userProfile = await this.getUserProfile(userId, tx);
 
-      // Restore agent session contexts
-      const agentContexts = await this.restoreAgentContexts(userId);
+        // Restore agent session contexts with transaction
+        const agentContexts = await this.restoreAgentContexts(userId, tx);
 
-      // Get last activity
-      const lastActivity = await this.getLastUserActivity(userId);
+        // Get last activity
+        const lastActivity = await this.getLastUserActivity(userId, tx);
 
-      const sessionData: SessionRestoreData = {
-        replitSessionValid,
-        agentContexts,
+        return {
+          replitSessionValid,
+          agentContexts,
         userProfile,
         lastActivity
       };
