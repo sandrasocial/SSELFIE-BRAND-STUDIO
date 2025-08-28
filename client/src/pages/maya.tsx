@@ -331,12 +331,27 @@ function Maya() {
   };
 
   const handleQuickButton = (buttonText: string, messageIndex?: number) => {
-    // Check if this is a Maya generation concept button (has emojis)
-    const isGenerationButton = buttonText.includes('✨') || buttonText.includes('💫') || 
-                             buttonText.includes('💗') || buttonText.includes('🔥') || 
-                             buttonText.includes('🌟') || buttonText.includes('💎') ||
-                             buttonText.includes('🌅') || buttonText.includes('🏢') ||
-                             buttonText.includes('💼') || buttonText.includes('🌊');
+    // Check if this is a Maya generation concept button 
+    // Look for emojis OR specific photo category keywords OR styling concepts
+    const isGenerationButton = 
+      buttonText.includes('✨') || buttonText.includes('💫') || 
+      buttonText.includes('💗') || buttonText.includes('🔥') || 
+      buttonText.includes('🌟') || buttonText.includes('💎') ||
+      buttonText.includes('🌅') || buttonText.includes('🏢') ||
+      buttonText.includes('💼') || buttonText.includes('🌊') ||
+      buttonText.includes('👑') || buttonText.includes('💃') ||
+      buttonText.includes('📸') || buttonText.includes('🎬') ||
+      // Also check for photo concept keywords
+      buttonText.toLowerCase().includes('business photos') ||
+      buttonText.toLowerCase().includes('lifestyle photos') ||
+      buttonText.toLowerCase().includes('professional headshots') ||
+      buttonText.toLowerCase().includes('creative lifestyle') ||
+      buttonText.toLowerCase().includes('business portraits') ||
+      buttonText.toLowerCase().includes('headshots') ||
+      buttonText.toLowerCase().includes('photos') ||
+      buttonText.toLowerCase().includes('look') ||
+      buttonText.toLowerCase().includes('style') ||
+      buttonText.toLowerCase().includes('shoot');
     
     if (isGenerationButton && messageIndex !== undefined) {
       console.log('Maya: Generating images for concept:', buttonText);
@@ -377,39 +392,16 @@ function Maya() {
       
       setMessages(prev => [...prev, generatingMessage]);
       
-      // OPTIMIZED: Single API call for detailed prompting
-      const mayaResponse = await apiRequest('/api/maya/chat', 'POST', {
-        message: `Create a detailed professional photography prompt for: ${conceptName}. Include specific clothing, hair, makeup, lighting, setting, and camera details. Make it comprehensive for stunning results.`,
-        chatId: currentChatId,
-        context: 'generation'
-      });
+      // FIXED: Use Maya's dedicated concept generation approach
+      // Clean up concept name (remove emojis and extra text) before sending to backend
+      const cleanConceptName = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
+      let finalPrompt = `Create a professional photo concept: ${cleanConceptName}`;
+      // The concept prompt will be processed by Maya's AI prompt generation in the backend
 
-      // Extract prompt with enhanced fallbacks
-      let finalPrompt = mayaResponse?.generatedPrompt;
-      
-      if (!finalPrompt || finalPrompt.length < 50) {
-        // Enhanced fallback prompts for better results
-        const conceptPrompts: { [key: string]: string } = {
-          'Business photos': 'Professional corporate portrait, impeccable charcoal tailored blazer, sleek low chignon hairstyle, subtle power makeup emphasizing confident eyes, directional lighting from large office windows, modern glass conference room setting, authoritative confident pose',
-          'Lifestyle photos': 'Casual authentic lifestyle portrait, soft cashmere sweater in neutral tones, natural loose waves, fresh dewy makeup, golden hour window lighting, cozy modern living space, relaxed genuine smile',
-          'Story photos': 'Behind-the-scenes personal moment, comfortable designer knitwear, effortless messy bun, minimal natural makeup, soft ambient lighting, creative workspace background, authentic candid expression',
-          'Instagram photos': 'Stunning social media portrait, trendy statement blazer, perfectly styled beach waves, bold glamorous makeup, ring light setup, minimalist backdrop, engaging direct eye contact',
-          'Travel photos': 'Adventure travel portrait, sophisticated travel outfit, windswept natural hair, fresh outdoor makeup, natural landscape lighting, exotic destination backdrop, confident explorer pose',
-          'Outfit photos': 'Fashion-forward style portrait, designer statement piece, salon-perfect styling, editorial makeup, professional studio lighting, clean backdrop, runway-inspired pose'
-        };
-        
-        // Note: These fallback prompts should start with trigger word, but this will be handled by the backend
-        finalPrompt = conceptPrompts[conceptName] || `Professional portrait featuring elegant styling for ${conceptName}, detailed hair and makeup, perfect lighting, sophisticated setting`;
-      }
+      console.log('Maya: Starting concept generation for:', finalPrompt);
 
-      // CRITICAL FIX: Do not add camera specs prefix - Maya's prompt already starts with trigger word
-      // The trigger word MUST be the first word for proper LoRA training activation
-      const enhancedPrompt = finalPrompt;
-
-      console.log('Maya: Using enhanced prompt:', enhancedPrompt);
-
-      // Start image generation with enhanced prompt
-      await generateImages(enhancedPrompt, messageId);
+      // Start image generation with concept prompt - Maya will handle the detailed prompt generation
+      await generateImages(finalPrompt, messageId, conceptName);
       
     } catch (error) {
       console.error('Maya concept generation error:', error);
