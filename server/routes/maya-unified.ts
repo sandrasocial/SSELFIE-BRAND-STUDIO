@@ -744,7 +744,8 @@ async function processMayaResponse(response: string, context: string, userId: st
     generatedPrompt: null,
     onboardingProgress: null,
     quickButtons: [],
-    chatCategory: 'General Styling'
+    chatCategory: 'General Styling',
+    conceptCards: []
   };
 
   // FIRST: Extract Maya-generated quick actions
@@ -795,6 +796,18 @@ async function processMayaResponse(response: string, context: string, userId: st
     if (extractedPrompt) {
       processed.generatedPrompt = extractedPrompt;
       console.log('🎯 MAYA UNIFIED: Final extracted prompt:', extractedPrompt.substring(0, 100) + '...');
+    }
+  }
+
+  // NEW: Parse concepts into individual cards  
+  if (response.includes('*Concept')) {
+    const concepts = parseConceptsFromResponse(response);
+    if (concepts.length > 0) {
+      processed.conceptCards = concepts;
+      // Remove traditional canGenerate since we have concept cards
+      processed.canGenerate = false;
+      processed.generatedPrompt = null;
+      console.log('🎯 MAYA CONCEPT CARDS: Parsed', concepts.length, 'concepts from response');
     }
   }
 

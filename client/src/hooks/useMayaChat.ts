@@ -106,7 +106,8 @@ export const useMayaChat = () => {
         timestamp: new Date().toISOString(),
         canGenerate: response.canGenerate,
         generatedPrompt: response.generatedPrompt,
-        quickButtons: response.quickButtons
+        quickButtons: response.quickButtons,
+        conceptCards: response.conceptCards
       };
 
       setMessages(prev => [...prev, mayaMessage]);
