@@ -201,7 +201,7 @@ Use this context to provide personalized styling advice that aligns with their t
       userId,
       userType,
       context,
-      responseLength: (processedResponse.message || processedResponse)?.length || 0,
+      responseLength: typeof (processedResponse.message || processedResponse) === 'string' ? (processedResponse.message || processedResponse).length : 0,
       hasQuickButtons: !!processedResponse.quickButtons?.length,
       canGenerate: processedResponse.canGenerate || false,
       hasGeneration: !!processedResponse.generatedPrompt
@@ -227,9 +227,9 @@ Use this context to provide personalized styling advice that aligns with their t
     
     // PHASE 7: Log chat error
     logMayaPerformance('CHAT_ERROR', {
-      userId: userId || 'unknown',
-      userType: userType || 'member',
-      context: context || 'regular',
+      userId: (req.user as any)?.claims?.sub || 'unknown',
+      userType: req.userType || 'member',
+      context: req.body?.context || 'regular',
       error: error.message
     });
     
@@ -346,8 +346,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     // PHASE 7: Log generation failure
     logMayaGeneration('FAILED', {
-      userId,
-      userType,
+      userId: (req.user as any)?.claims?.sub || 'unknown',
+      userType: req.userType || 'member',
       error: error.message,
       duration: Date.now() - startTime
     });
@@ -441,7 +441,7 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
 
     console.log(`🔍 MAYA POLLING: Checking generation status for prediction ${predictionId}`);
 
-    const Replicate = require('replicate');
+    const { default: Replicate } = await import('replicate');
     const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
     
     const prediction = await replicate.predictions.get(predictionId);
@@ -452,12 +452,36 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
       const imageUrls = Array.isArray(prediction.output) ? prediction.output : [prediction.output];
       console.log(`✅ MAYA GENERATION COMPLETE: ${imageUrls.length} images generated`);
       
-      // 🔥 CRITICAL FIX: Save generated images to database for persistence
+      // 🔥 CRITICAL FIX: Save generated images to database and start permanent migration
+      let finalImageUrls = imageUrls;
+      
       if (chatId && messageId) {
         try {
-          console.log(`💾 MAYA PERSISTENCE: Saving ${imageUrls.length} images to database`);
+          console.log(`💾 MAYA PERSISTENCE: Saving ${imageUrls.length} images to database and migrating to permanent storage`);
           
-          // Find the latest Maya message in this chat that can generate
+          // Step 1: Immediately migrate temporary URLs to permanent S3 storage
+          const { ImageStorageService } = await import('../image-storage-service');
+          const permanentUrls = [];
+          
+          for (const tempUrl of imageUrls) {
+            try {
+              const permanentUrl = await ImageStorageService.ensurePermanentStorage(
+                tempUrl, 
+                userId, 
+                `maya_${predictionId}_${permanentUrls.length}`
+              );
+              permanentUrls.push(permanentUrl);
+              console.log(`✅ MAYA MIGRATION: ${tempUrl} → ${permanentUrl}`);
+            } catch (migrationError) {
+              console.error(`⚠️ MAYA MIGRATION: Failed to migrate ${tempUrl}, using temporary URL:`, migrationError);
+              // Use temporary URL as fallback - migration monitor will retry later
+              permanentUrls.push(tempUrl);
+            }
+          }
+          
+          finalImageUrls = permanentUrls;
+          
+          // Step 2: Find the latest Maya message in this chat that can generate
           const chatMessages = await storage.getMayaChatMessages(Number(chatId));
           const latestMayaMessage = chatMessages
             .filter(msg => msg.role === 'assistant' || msg.role === 'maya')
@@ -465,13 +489,14 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
           
           if (latestMayaMessage) {
             await storage.updateMayaChatMessage(latestMayaMessage.id, {
-              imagePreview: JSON.stringify(imageUrls) // Store as JSON string
+              imagePreview: JSON.stringify(finalImageUrls) // Store permanent URLs as JSON string
             });
-            console.log(`✅ MAYA PERSISTENCE: Images saved to message ${latestMayaMessage.id}`);
+            console.log(`✅ MAYA PERSISTENCE: ${finalImageUrls.length} permanent images saved to message ${latestMayaMessage.id}`);
           }
         } catch (persistError) {
           console.error('Maya persistence error (non-blocking):', persistError);
-          // Don't fail the request if persistence fails
+          // Don't fail the request if persistence fails - use original URLs
+          finalImageUrls = imageUrls;
         }
       }
       
@@ -488,8 +513,8 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
 
       res.json({
         status: 'completed',
-        imageUrls,
-        message: `Maya created ${imageUrls.length} stunning photo${imageUrls.length > 1 ? 's' : ''} for you!`
+        imageUrls: finalImageUrls, // Return permanent URLs
+        message: `Maya created ${finalImageUrls.length} stunning photo${finalImageUrls.length > 1 ? 's' : ''} for you!`
       });
     } else if (prediction.status === 'failed') {
       console.error(`❌ MAYA GENERATION FAILED: ${prediction.error || 'Unknown error'}`);
@@ -950,7 +975,11 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
     
     // Save naturally extracted data if any new information was found
     if (hasNewData) {
-      await MayaStorageExtensions.saveUserPersonalBrand(userId, extractedData);
+      await MayaStorageExtensions.saveUserPersonalBrand({
+        ...extractedData,
+        userId,
+        updatedAt: new Date()
+      });
       console.log(`💫 MAYA NATURAL ONBOARDING: Saved conversation data for user ${userId}:`, 
         Object.keys(extractedData).join(', '));
     }
