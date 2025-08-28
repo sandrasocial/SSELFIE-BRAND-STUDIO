@@ -1498,7 +1498,7 @@ function Maya() {
                               key={buttonIndex}
                               className="quick-button"
                               onClick={() => handleQuickButton(button, index)}
-                              disabled={isTyping || (isGeneratingImage && (button.includes('✨') || button.includes('💫') || button.includes('💗') || button.includes('🔥') || button.includes('🌟') || button.includes('💎')))}
+                              disabled={activeGenerations.size > 0 && (button.includes('✨') || button.includes('💫') || button.includes('💗') || button.includes('🔥') || button.includes('🌟') || button.includes('💎'))}
                             >
                               {button}
                             </button>
@@ -1523,12 +1523,12 @@ function Maya() {
                         <div className="generate-btn">
                           <button
                             onClick={() => {
-                              const generationId = `generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                              generateImages(message.generatedPrompt!, generationId, undefined, setMessages, currentChatId);
+                              // Let generateImages create the ID to avoid conflicts
+                              generateImages(message.generatedPrompt!, undefined, undefined, setMessages, currentChatId);
                             }}
-                            disabled={isGenerating || isGeneratingImage}
+                            disabled={activeGenerations.size > 0}
                           >
-                            {(isGenerating || isGeneratingImage) ? 'Creating your photos...' : 'Create Photos'}
+                            {activeGenerations.size > 0 ? 'Creating your photos...' : 'Create Photos'}
                           </button>
                         </div>
                       )}
@@ -1555,6 +1555,55 @@ function Maya() {
             )}
           </div>
 
+          {/* Generation Controls */}
+          <div className="generation-controls" style={{
+            padding: '20px 40px',
+            borderTop: '1px solid var(--accent-line)',
+            background: 'var(--editorial-gray)',
+            display: 'flex',
+            gap: '20px',
+            alignItems: 'center',
+            fontSize: '12px'
+          }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: 'var(--soft-gray)', textTransform: 'uppercase', letterSpacing: '0.3em' }}>Style:</span>
+              <select 
+                value={preset} 
+                onChange={(e) => setPreset(e.target.value as Preset)}
+                style={{
+                  background: 'var(--white)',
+                  border: '1px solid var(--accent-line)',
+                  padding: '6px 12px',
+                  fontSize: '12px'
+                }}
+              >
+                <option value="Editorial">Editorial</option>
+                <option value="Identity">Identity</option>
+                <option value="UltraPrompt">Ultra Prompt</option>
+                <option value="Fast">Fast</option>
+              </select>
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: 'var(--soft-gray)', textTransform: 'uppercase', letterSpacing: '0.3em' }}>Seed:</span>
+              <input 
+                type="number" 
+                value={seed} 
+                onChange={(e) => setSeed(e.target.value)}
+                placeholder="Random"
+                style={{
+                  background: 'var(--white)',
+                  border: '1px solid var(--accent-line)',
+                  padding: '6px 12px',
+                  fontSize: '12px',
+                  width: '100px'
+                }}
+              />
+            </label>
+            <span style={{ color: 'var(--soft-gray)', fontSize: '11px', marginLeft: 'auto' }}>
+              Customize your photo generation parameters
+            </span>
+          </div>
+
           {/* Input Area */}
           <div className="input-area">
             <div className="input-container">
@@ -1565,7 +1614,7 @@ function Maya() {
                 className="input-field"
                 placeholder={isOnboardingMode ? "Share your story with Maya..." : "Tell Maya what kind of photos you want to create..."}
                 rows={1}
-                disabled={isTyping}
+                disabled={false}
                 style={{
                   minHeight: '24px',
                   maxHeight: '120px',
@@ -1579,7 +1628,7 @@ function Maya() {
               />
               <button
                 onClick={() => sendMessage()}
-                disabled={!input.trim() || isTyping}
+                disabled={!input.trim()}
                 className="send-btn"
               >
                 {isOnboardingMode ? "Share" : "Send"}
