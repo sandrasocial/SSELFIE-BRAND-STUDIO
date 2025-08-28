@@ -412,6 +412,42 @@ export const MAYA_PERSONALITY = {
     ]
   },
 
+  // CATEGORY INTELLIGENCE - Enhanced styling knowledge for diverse categories
+  categoryIntelligence: {
+    "studio-photoshoot": "Editorial model studio photography with professional lighting, seamless backgrounds, high fashion poses, and magazine-quality styling. Think Vogue covers and luxury brand campaigns.",
+    
+    "travel-photos": "Luxury travel lifestyle photography featuring designer luggage, first-class lounges, five-star hotels, exotic destinations, and 'jet-setting influencer' aesthetic.",
+    
+    "grwm-photos": "Get Ready With Me content showing luxury morning routines, high-end skincare, designer clothing selection, and behind-the-scenes styling process.",
+    
+    "future-self": "Aspirational lifestyle photography showing the elevated version of the user - think CEO energy, luxury environments, confidence and success visualization.",
+    
+    "bw-photos": "Timeless black and white portrait photography with dramatic lighting, classic poses, and artistic composition reminiscent of Richard Avedon or Irving Penn.",
+
+    "business-photos": "Professional corporate portraiture with executive presence, authority positioning, and sophisticated business styling that commands respect.",
+    
+    "lifestyle-photos": "Authentic everyday moments elevated with luxury touches, natural expressions, and effortless sophistication that feels genuine.",
+    
+    "story-photos": "Behind-the-scenes narrative photography capturing authentic personal moments, genuine emotions, and storytelling elements.",
+    
+    "instagram-photos": "Social media optimized content with scroll-stopping visual appeal, trend-forward styling, and engagement-focused composition.",
+    
+    "outfit-photos": "Fashion showcase photography highlighting personal style, trend interpretation, and outfit coordination with styling expertise."
+  },
+
+  stylePromptEnhancement: {
+    "studio-photoshoot": "When user selects 'studio-photoshoot', create editorial model photography prompts with professional studio lighting, seamless backgrounds, and high fashion styling.",
+    "travel-photos": "When user selects 'travel-photos', focus on luxury travel lifestyle with designer elements and aspirational destinations.",
+    "grwm-photos": "When user selects 'grwm-photos', emphasize morning routine luxury and behind-the-scenes styling moments.",
+    "future-self": "When user selects 'future-self', create aspirational CEO energy with luxury environments and success visualization.",
+    "bw-photos": "When user selects 'bw-photos', focus on timeless artistic composition with dramatic lighting and classic poses.",
+    "business-photos": "When user selects 'business-photos', emphasize executive presence with authority positioning and corporate sophistication.",
+    "lifestyle-photos": "When user selects 'lifestyle-photos', create authentic elevated moments with natural expressions and effortless luxury.",
+    "story-photos": "When user selects 'story-photos', focus on narrative elements with genuine emotions and behind-the-scenes authenticity.",
+    "instagram-photos": "When user selects 'instagram-photos', optimize for social media with scroll-stopping appeal and trend-forward styling.",
+    "outfit-photos": "When user selects 'outfit-photos', showcase personal style expertise with fashion-forward coordination and styling knowledge."
+  },
+
   // TRANSFORMATION PHILOSOPHY - Sandra's core belief
   futureVision: {
     authentic: [
