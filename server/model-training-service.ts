@@ -31,7 +31,7 @@ export const BASE_QUALITY_SETTINGS = {
   output_format: "png", 
   output_quality: 95,         // ✅ RESEARCH-OPTIMAL: 95 for professional quality
   go_fast: false,
-  megapixels: "1.5"           // ✅ RESEARCH-OPTIMAL: 1.5 sweet spot for quality/performance
+  megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25"
   // 🎯 NOTE: guidance_scale, num_inference_steps, lora_scale come from Maya's research-optimized settings
 };
 
@@ -407,11 +407,11 @@ export class ModelTrainingService {
       // ----- PHASE 1 FIX: Use Maya's optimized parameters (temporary fallback while fixing import) -----
       const shotType = this.determineShotTypeFromPrompt(finalPrompt);
       
-      // Maya's research-optimal fluxOptimization parameters (2025 quality standards)
+      // Maya's research-optimal fluxOptimization parameters (API-compliant)
       const mayaFluxParams = {
-        closeUpPortrait: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 1.0, megapixels: "1.5" },
-        halfBodyShot: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 0.9, megapixels: "1.5" },
-        fullScenery: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 0.9, megapixels: "2.0" }
+        closeUpPortrait: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 1.0, megapixels: "1" },
+        halfBodyShot: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 0.9, megapixels: "1" },
+        fullScenery: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 0.9, megapixels: "1" }
       }[shotType];
       
       console.log(`🎯 MAYA PERSONALITY INTELLIGENCE: Using ${shotType} parameters from Maya's fluxOptimization`);
@@ -509,7 +509,7 @@ export class ModelTrainingService {
       }
 
       console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input), "version:", requestBody.version);
-      console.log("🎯 MAYA QUALITY FIX: guidance_scale =", requestBody.input.guidance_scale, "steps =", requestBody.input.num_inference_steps, "megapixels =", requestBody.input.megapixels);
+      console.log("🎯 MAYA QUALITY PARAMS: guidance_scale =", requestBody.input.guidance_scale, "steps =", requestBody.input.num_inference_steps, "megapixels =", requestBody.input.megapixels, "(API-compliant)");
 
       const response = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
