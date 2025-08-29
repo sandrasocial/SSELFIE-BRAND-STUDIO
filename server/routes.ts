@@ -1998,6 +1998,90 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
+  // 🔄 ADMIN IMAGE MIGRATION: Restore admin user images to SSELFIE gallery
+  app.post('/api/admin/migrate-images-to-gallery', isAuthenticated, async (req: any, res) => {
+    try {
+      const authUserId = req.user.claims.sub;
+      const claims = req.user.claims;
+      
+      // Get the correct database user ID
+      let user = await storage.getUser(authUserId);
+      if (!user && claims.email) {
+        user = await storage.getUserByEmail(claims.email);
+      }
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      console.log(`🔄 ADMIN MIGRATION: Starting image migration for user ${user.id}`);
+      
+      // Get all un-hearted AI images and un-saved generated images
+      const [unheartedAiImages, unsavedGeneratedImages] = await Promise.all([
+        storage.getAIImages(user.id).then(imgs => 
+          imgs.filter(img => !img.isSelected && !img.isFavorite)
+        ),
+        storage.getGeneratedImages(user.id).then(imgs => 
+          imgs.filter(img => !img.saved)
+        )
+      ]);
+
+      console.log(`🔄 MIGRATION FOUND: ${unheartedAiImages.length} AI images + ${unsavedGeneratedImages.length} generated images to migrate`);
+
+      let migratedCount = 0;
+      const errors = [];
+
+      // Migrate AI images to "hearted" status (mark as favorites)
+      for (const aiImage of unheartedAiImages) {
+        try {
+          await storage.updateAIImage(aiImage.id, {
+            isSelected: true,
+            isFavorite: true
+          });
+          migratedCount++;
+          console.log(`✅ MIGRATED AI IMAGE: ${aiImage.id} → Gallery`);
+        } catch (error) {
+          errors.push(`AI Image ${aiImage.id}: ${error}`);
+          console.error(`❌ MIGRATION ERROR AI Image ${aiImage.id}:`, error);
+        }
+      }
+
+      // Migrate generated images to "saved" status
+      for (const genImage of unsavedGeneratedImages) {
+        try {
+          await storage.updateGeneratedImage(genImage.id, {
+            saved: true
+          });
+          migratedCount++;
+          console.log(`✅ MIGRATED GENERATED IMAGE: ${genImage.id} → Gallery`);
+        } catch (error) {
+          errors.push(`Generated Image ${genImage.id}: ${error}`);
+          console.error(`❌ MIGRATION ERROR Generated Image ${genImage.id}:`, error);
+        }
+      }
+
+      console.log(`🎉 MIGRATION COMPLETE: ${migratedCount} images migrated to gallery`);
+
+      res.json({
+        success: true,
+        message: `Successfully migrated ${migratedCount} admin images to your SSELFIE gallery`,
+        migrated: {
+          aiImages: unheartedAiImages.length,
+          generatedImages: unsavedGeneratedImages.length,
+          total: migratedCount
+        },
+        errors: errors.length > 0 ? errors : undefined
+      });
+
+    } catch (error) {
+      console.error('❌ ADMIN MIGRATION ERROR:', error);
+      res.status(500).json({ 
+        error: 'Failed to migrate admin images',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Auth user endpoint - Production ready with impersonation support and admin bypass
   // ========================================
   // CRITICAL MEMBER WORKSPACE APIs
