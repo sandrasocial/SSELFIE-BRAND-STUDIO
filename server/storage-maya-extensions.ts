@@ -13,6 +13,7 @@ import { eq } from 'drizzle-orm';
 interface MayaUserContext {
   userId: string;
   personalBrand?: {
+    name?: string;
     transformationStory?: string;
     currentSituation?: string;
     futureVision?: string;
@@ -212,6 +213,7 @@ export class MayaStorageExtensions {
       const context: MayaUserContext = {
         userId,
         personalBrand: {
+          name: personalBrandRecord?.name,
           transformationStory: personalBrandRecord?.transformationStory,
           currentSituation: personalBrandRecord?.currentSituation,
           futureVision: personalBrandRecord?.futureVision,

@@ -464,6 +464,10 @@ export const userLandingPages = pgTable("user_landing_pages", {
 export const userPersonalBrand = pgTable("user_personal_brand", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  
+  // Personal details
+  name: text("name"),
+  
   transformationStory: text("transformation_story"),
   currentSituation: text("current_situation"),
   strugglesStory: text("struggles_story"),
