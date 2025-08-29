@@ -47,10 +47,11 @@ Generated with your personal AI model using Sandra's proven settings
         style: category, // Use 'style' field instead of 'category'
         generationStatus: 'completed',
         predictionId: '', // Not needed for hearted images
-        
+        isSelected: true, // CRITICAL FIX: Mark as selected so it appears in gallery
+        isFavorite: true, // CRITICAL FIX: Mark as favorite so it appears in gallery
       });
 
-      console.log(`💖 MAYA HEART: Saved image ${galleryImage.id} to gallery for user ${userId}`);
+      console.log(`💖 MAYA HEART: Saved image ${galleryImage.id} to gallery for user ${userId} with selected/favorite flags`);
       return galleryImage;
       
     } catch (error) {
