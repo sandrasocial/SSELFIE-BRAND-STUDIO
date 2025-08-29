@@ -389,12 +389,25 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                   const contentData = JSON.parse(message.content);
                   if (contentData.conceptCards) {
                     for (const conceptCard of contentData.conceptCards) {
-                      // Enhanced matching: exact ID, exact title, or title contains concept name
+                      // Enhanced matching: exact ID, exact title, or fuzzy matching with key words
+                      const lowerConceptName = conceptName.toLowerCase();
+                      const lowerCardTitle = conceptCard.title.toLowerCase();
+                      
+                      // Extract key words for fuzzy matching
+                      const conceptWords = lowerConceptName.split(/\s+/).filter(word => word.length > 2);
+                      const cardWords = lowerCardTitle.split(/\s+/).filter(word => word.length > 2);
+                      
+                      // Count matching words for fuzzy matching
+                      const matchingWords = conceptWords.filter(word => 
+                        cardWords.some(cardWord => cardWord.includes(word) || word.includes(cardWord))
+                      ).length;
+                      
                       const isMatch = 
                         (conceptId && conceptCard.id === conceptId) ||
-                        conceptCard.title === conceptName ||
-                        conceptCard.title.toLowerCase().includes(conceptName.toLowerCase()) ||
-                        conceptName.toLowerCase().includes(conceptCard.title.toLowerCase());
+                        lowerCardTitle === lowerConceptName ||
+                        lowerCardTitle.includes(lowerConceptName) ||
+                        lowerConceptName.includes(lowerCardTitle) ||
+                        (matchingWords >= 2 && conceptWords.length >= 2); // At least 2 matching words
                       
                       if (isMatch && conceptCard.originalContext) {
                         originalContext = conceptCard.originalContext;
@@ -408,6 +421,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                         
                         console.log(`✅ MAYA CONTEXT FOUND: Retrieved "${conceptCard.title}" context (${originalContext.length} chars)`);
                         console.log(`🎯 MAYA CONTEXT PREVIEW: ${originalContext.substring(0, 200)}...`);
+                        console.log(`🔗 MAYA FUZZY MATCH: "${conceptName}" matched "${conceptCard.title}" (${matchingWords} matching words)`);
                         break;
                       }
                     }
