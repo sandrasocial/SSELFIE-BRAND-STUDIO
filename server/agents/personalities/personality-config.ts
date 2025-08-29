@@ -101,61 +101,97 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
   }
 
   /**
-   * MAYA SPECIALIZED KNOWLEDGE LOADER - Load her complete 2025 fashion intelligence
+   * MAYA SPECIALIZED KNOWLEDGE LOADER - Load her complete styling intelligence from actual properties
    */
   private static buildSpecializedKnowledge(personality: any): string {
     if (personality.name !== 'Maya') {
       return ''; // Only Maya needs specialized fashion knowledge
     }
 
-    let knowledge = '\n🎨 MAYA\'S 2025 LUXURY FASHION INTELLIGENCE:\n';
+    let knowledge = '\n🎨 MAYA\'S COMPLETE STYLING INTELLIGENCE:\n';
     
-    // Load Maya's current luxury trends
-    if (personality.currentLuxuryTrends) {
-      knowledge += '\nCURRENT 2025 LUXURY TRENDS:\n';
-      Object.entries(personality.currentLuxuryTrends).forEach(([category, trends]: [string, any]) => {
+    // Load Maya's ACTUAL outfit formulas (effortlessGlam, businessBabe, etc.)
+    if (personality.outfitFormulas) {
+      knowledge += '\nOUTFIT FORMULAS - Maya\'s Professional Styling Combinations:\n';
+      Object.entries(personality.outfitFormulas).forEach(([category, formulas]: [string, any]) => {
         knowledge += `${category.toUpperCase()}:\n`;
-        trends.forEach((trend: string) => knowledge += `- ${trend}\n`);
+        formulas.forEach((formula: string) => knowledge += `- ${formula}\n`);
       });
     }
 
-    // Load Maya's styling formulas
-    if (personality.luxuryFormulas) {
-      knowledge += '\nLUXURY STYLING FORMULAS:\n';
-      Object.entries(personality.luxuryFormulas).forEach(([category, formulas]: [string, any]) => {
+    // Load Maya's hair & beauty expertise
+    if (personality.hairAndBeauty) {
+      knowledge += '\nHAIR & BEAUTY EXPERTISE - Editorial Styling Knowledge:\n';
+      Object.entries(personality.hairAndBeauty).forEach(([category, techniques]: [string, any]) => {
         knowledge += `${category.toUpperCase()}:\n`;
-        formulas.slice(0, 3).forEach((formula: string) => knowledge += `- ${formula}\n`);
+        techniques.forEach((technique: string) => knowledge += `- ${technique}\n`);
       });
     }
 
-    // Load Maya's 2025 beauty trends
-    if (personality.luxuryBeauty) {
-      knowledge += '\n2025 LUXURY BEAUTY INTELLIGENCE:\n';
-      Object.entries(personality.luxuryBeauty).forEach(([category, trends]: [string, any]) => {
+    // Load Maya's sophisticated photo locations
+    if (personality.photoLocations) {
+      knowledge += '\nSOPHISTICATED PHOTO LOCATIONS - Editorial Quality Spaces:\n';
+      Object.entries(personality.photoLocations).forEach(([category, locations]: [string, any]) => {
         knowledge += `${category.toUpperCase()}:\n`;
-        trends.slice(0, 2).forEach((trend: string) => knowledge += `- ${trend}\n`);
+        locations.forEach((location: string) => knowledge += `- ${location}\n`);
       });
     }
 
-    // Load Maya's luxury color mastery
-    if (personality.luxuryColors) {
-      knowledge += '\nLUXURY COLOR MASTERY:\n';
-      Object.entries(personality.luxuryColors).forEach(([category, colors]: [string, any]) => {
+    // Load Maya's color intelligence
+    if (personality.colorIntelligence) {
+      knowledge += '\nCOLOR INTELLIGENCE - Editorial Palettes & Combinations:\n';
+      Object.entries(personality.colorIntelligence).forEach(([category, colors]: [string, any]) => {
         knowledge += `${category.toUpperCase()}:\n`;
-        colors.slice(0, 2).forEach((color: string) => knowledge += `- ${color}\n`);
+        colors.forEach((color: string) => knowledge += `- ${color}\n`);
       });
     }
 
-    // Load Maya's editorial formulas with specific designer combinations
-    if (personality.editorialFormulas) {
-      knowledge += '\nEDITORIAL LUXURY FORMULAS (Specific Designer Combinations):\n';
-      Object.entries(personality.editorialFormulas).forEach(([category, formulas]: [string, any]) => {
+    // Load Maya's photography expertise
+    if (personality.photographyExpertise) {
+      knowledge += '\nPHOTOGRAPHY EXPERTISE - Technical & Creative Mastery:\n';
+      Object.entries(personality.photographyExpertise).forEach(([category, expertise]: [string, any]) => {
         knowledge += `${category.toUpperCase()}:\n`;
-        formulas.slice(0, 2).forEach((formula: string) => knowledge += `- ${formula}\n`);
+        if (Array.isArray(expertise)) {
+          expertise.forEach((item: string) => knowledge += `- ${item}\n`);
+        } else if (typeof expertise === 'object') {
+          Object.entries(expertise).forEach(([subcat, items]: [string, any]) => {
+            knowledge += `  ${subcat.toUpperCase()}:\n`;
+            if (Array.isArray(items)) {
+              items.forEach((item: string) => knowledge += `  - ${item}\n`);
+            }
+          });
+        }
       });
     }
 
-    knowledge += '\n⚡ USE THIS COMPLETE FASHION INTELLIGENCE when creating prompts and styling advice. You have access to current 2025 luxury trends, specific designer combinations, and editorial-level styling formulas.\n';
+    // Load Maya's technical expertise for advanced prompt creation
+    if (personality.technicalExpertise) {
+      knowledge += '\nTECHNICAL EXPERTISE - Camera & Lighting Mastery:\n';
+      Object.entries(personality.technicalExpertise).forEach(([category, expertise]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        if (Array.isArray(expertise)) {
+          expertise.forEach((item: string) => knowledge += `- ${item}\n`);
+        } else if (typeof expertise === 'object') {
+          Object.entries(expertise).forEach(([subcat, items]: [string, any]) => {
+            knowledge += `  ${subcat.toUpperCase()}:\n`;
+            if (Array.isArray(items)) {
+              items.forEach((item: string) => knowledge += `  - ${item}\n`);
+            }
+          });
+        }
+      });
+    }
+
+    // Load Maya's professional background for styling context
+    if (personality.professionalBackground) {
+      knowledge += '\nPROFESSIONAL BACKGROUND - Real Industry Experience:\n';
+      Object.entries(personality.professionalBackground).forEach(([category, experience]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        experience.forEach((exp: string) => knowledge += `- ${exp}\n`);
+      });
+    }
+
+    knowledge += '\n⚡ CRITICAL: Use this COMPLETE styling intelligence when creating prompts. You have Maya\'s actual outfit formulas, editorial color palettes, sophisticated locations, hair/beauty expertise, photography mastery, and professional background. Apply this knowledge creatively to generate diverse, professional styling concepts.\n';
     
     return knowledge;
   }
