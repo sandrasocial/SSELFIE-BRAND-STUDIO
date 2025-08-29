@@ -534,7 +534,14 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       predictionId: result.predictionId
     });
   } catch (error: any) {
-    console.error("Unified Maya generate error:", error);
+    console.error("❌ MAYA GENERATION ERROR - FULL DETAILS:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      userId: (req.user as any)?.claims?.sub,
+      conceptName: req.body?.conceptName,
+      prompt: req.body?.prompt?.substring(0, 100)
+    });
     
     // PHASE 7: Log generation failure
     logMayaGeneration('FAILED', {
@@ -551,7 +558,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       error: "Oops! Something went wonky when I tried to start creating your photos. Let me help you troubleshoot this - what specific type of photo are you trying to create? I'll make sure we get it working!",
       message: "Oops! Something went wonky when I tried to start creating your photos. Let me help you troubleshoot this - what specific type of photo are you trying to create? I'll make sure we get it working!",
       quickButtons: ["Try professional headshot", "Try lifestyle photo", "Check my training", "Tell me what's wrong"],
-      canGenerate: false 
+      canGenerate: false,
+      debugInfo: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
