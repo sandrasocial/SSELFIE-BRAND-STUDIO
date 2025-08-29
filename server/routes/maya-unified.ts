@@ -374,16 +374,49 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         }
       }
       
+      // PHASE 1 FIX: Always use Maya's original context for consistency
+      let originalContext = '';
+      
+      // Extract original context from concept cards
+      if (conceptId) {
+        try {
+          const recentChats = await storage.getMayaChats(userId);
+          for (const chat of recentChats.slice(0, 5)) {
+            const messages = await storage.getMayaChatMessages(chat.id);
+            for (const message of messages) {
+              if (message.content && typeof message.content === 'string') {
+                try {
+                  const contentData = JSON.parse(message.content);
+                  if (contentData.conceptCards) {
+                    const conceptCard = contentData.conceptCards.find((c: any) => c.id === conceptId || c.title === conceptName);
+                    if (conceptCard && conceptCard.originalContext) {
+                      originalContext = conceptCard.originalContext;
+                      console.log(`🎯 MAYA ORIGINAL CONTEXT FOUND: Using Maya's original styling context for "${conceptName}"`);
+                      break;
+                    }
+                  }
+                } catch (parseError) {
+                  continue;
+                }
+              }
+            }
+            if (originalContext) break;
+          }
+        } catch (error) {
+          console.log(`⚠️ MAYA ORIGINAL CONTEXT LOOKUP FAILED:`, error);
+        }
+      }
+
       if (embeddedPrompt && embeddedPrompt.length > 50) {
         // Use Maya's pre-generated detailed prompt from concept creation
         finalPrompt = embeddedPrompt;
-        console.log(`✅ MAYA UNIFIED: Using embedded prompt (${finalPrompt.length} chars) from concept card`);
+        console.log(`✅ MAYA UNIFIED: Using embedded prompt (${finalPrompt.length} chars) with original context preserved`);
       } else {
-        // Generate new prompt using Maya's unified intelligence
-        console.log(`🎯 MAYA UNIFIED: Generating new prompt for "${conceptName}" using complete styling expertise`);
+        // Generate new prompt using Maya's unified intelligence WITH original context
+        console.log(`🎯 MAYA UNIFIED: Generating new prompt for "${conceptName}" using original Maya context`);
         const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
-        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId);
-        console.log(`✅ MAYA UNIFIED: Generated ${finalPrompt.length} character prompt with styling intelligence`);
+        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, originalContext);
+        console.log(`✅ MAYA UNIFIED: Generated ${finalPrompt.length} character prompt using original Maya context`);
       }
     } else {
       // All prompts get Maya's complete styling intelligence
@@ -1068,6 +1101,7 @@ interface ConceptCard {
   id: string;
   title: string;
   description: string;  // Short description for frontend display
+  originalContext: string;  // Maya's complete original styling context and reasoning
   fullPrompt?: string;  // Maya's complete detailed prompt ready for generation
   canGenerate: boolean;
   isGenerating: boolean;
@@ -1161,13 +1195,16 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       description = `${conceptName} styling concept with Maya's professional expertise`;
     }
     
-    // CRITICAL FIX: Generate embedded prompt immediately using Maya's intelligence
+    // PHASE 1 FIX: Store Maya's complete original concept context for consistency
+    const fullOriginalContext = `${conceptName}: ${conceptContent}`.trim();
+    
+    // CRITICAL FIX: Generate embedded prompt immediately using Maya's intelligence WITH original context
     let embeddedPrompt = '';
     if (userId) {
       try {
-        // Generate detailed prompt using Maya's styling intelligence
-        embeddedPrompt = await createDetailedPromptFromConcept(conceptName, '', userId, conceptContent);
-        console.log(`✅ EMBEDDED PROMPT GENERATED: ${embeddedPrompt.length} chars for "${conceptName}"`);
+        // Generate detailed prompt using Maya's styling intelligence with FULL original context
+        embeddedPrompt = await createDetailedPromptFromConcept(conceptName, '', userId, fullOriginalContext);
+        console.log(`✅ EMBEDDED PROMPT GENERATED: ${embeddedPrompt.length} chars for "${conceptName}" using original context`);
       } catch (error) {
         console.log(`⚠️ EMBEDDED PROMPT GENERATION FAILED for "${conceptName}":`, error);
       }
@@ -1177,6 +1214,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       id: `concept_${conceptNumber}_${Date.now()}`,
       title: conceptName,
       description: description,
+      originalContext: fullOriginalContext, // Maya's complete original styling context and reasoning
       fullPrompt: embeddedPrompt, // Maya's complete styling prompt ready for generation
       canGenerate: embeddedPrompt.length > 0,
       isGenerating: false,
@@ -1418,7 +1456,7 @@ MAYA'S EXPERT PROMPT ARCHITECTURE:
 - NO GENERIC STYLING - every element should demonstrate your complete professional mastery${personalBrandContext}
 
 CONCEPT TO DEVELOP: "${conceptName}"
-${originalConceptContext ? `ADDITIONAL CONTEXT: ${originalConceptContext}` : ''}
+ORIGINAL MAYA CONTEXT: "${originalConceptContext || 'No original context provided - use your complete professional styling expertise'}"
 
 CRITICAL INTELLIGENCE REQUIREMENTS:
 - NEVER use hardcoded outfit formulas from personality files
