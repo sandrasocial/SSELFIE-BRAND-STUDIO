@@ -42,6 +42,7 @@ export default function Profile() {
   });
 
   const [formData, setFormData] = useState({
+    name: (profile as any)?.name || '',
     transformationStory: (profile as any)?.transformationStory || '',
     currentSituation: (profile as any)?.currentSituation || '',
     futureVision: (profile as any)?.futureVision || '',
@@ -54,6 +55,7 @@ export default function Profile() {
   useEffect(() => {
     if (profile) {
       setFormData({
+        name: (profile as any).name || '',
         transformationStory: (profile as any).transformationStory || '',
         currentSituation: (profile as any).currentSituation || '',
         futureVision: (profile as any).futureVision || '',
@@ -240,6 +242,32 @@ export default function Profile() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-12">
+                  
+                  {/* Question 0: Your Name */}
+                  <div className="border-b border-[#f5f5f5] pb-8">
+                    <div className="mb-6">
+                      <h3 className="text-lg font-light text-[#0a0a0a] mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
+                        What should I call you, beautiful?
+                      </h3>
+                      <p className="text-sm text-[#666666]">
+                        Your name or what you'd like to be called so I can personalize our conversations
+                      </p>
+                    </div>
+                    
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        placeholder="What should I call you?"
+                        className="w-full border border-[#e5e5e5] px-4 py-3 text-sm focus:border-[#0a0a0a] focus:outline-none"
+                      />
+                    ) : (
+                      <div className="text-sm text-[#666666] py-3 italic">
+                        {formData.name || "I'd love to know what to call you..."}
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Question 1: Your Journey */}
                   <div className="border-b border-[#f5f5f5] pb-8">
