@@ -460,30 +460,22 @@ export const userLandingPages = pgTable("user_landing_pages", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Maya Personal Brand data for onboarding
+// Maya Personal Brand data for onboarding - SIMPLIFIED 8 FIELDS
 export const userPersonalBrand = pgTable("user_personal_brand", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   
-  // Personal details
+  // Personal details - 8 core fields only
   name: text("name"),
-  
   transformationStory: text("transformation_story"),
   currentSituation: text("current_situation"),
-  strugglesStory: text("struggles_story"),
-  personalityTraits: jsonb("personality_traits"),
-  dreamOutcome: text("dream_outcome"),
   futureVision: text("future_vision"),
   businessGoals: text("business_goals"),
-  targetAudience: text("target_audience"),
-  valuesAndMission: text("values_and_mission"),
   businessType: varchar("business_type"),
-  brandVision: text("brand_vision"),
-  uniqueValueProposition: text("unique_value_proposition"),
-  professionalGoals: text("professional_goals"),
-  photoUsageGoals: jsonb("photo_usage_goals"),
-  contentCreationGoals: text("content_creation_goals"),
-  professionalImageGoals: text("professional_image_goals"),
+  stylePreferences: text("style_preferences"),
+  photoGoals: text("photo_goals"),
+  
+  // System fields
   onboardingStep: integer("onboarding_step").default(1),
   isCompleted: boolean("is_completed").default(false),
   completedAt: timestamp("completed_at"),
