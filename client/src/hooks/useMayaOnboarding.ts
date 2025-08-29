@@ -31,9 +31,7 @@ export const useMayaOnboarding = () => {
 
   const checkOnboardingStatus = async () => {
     try {
-      console.log('🔍 Maya: Checking onboarding status');
       const response = await apiRequest('/api/maya/status');
-      console.log('✅ Maya: Unified status received:', response);
       if (response?.success) {
         const status = {
           isCompleted: response.onboardingComplete,
