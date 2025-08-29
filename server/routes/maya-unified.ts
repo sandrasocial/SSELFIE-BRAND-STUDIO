@@ -372,44 +372,82 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         originalContext = cachedContext.originalContext;
         console.log(`⚡ MAYA INSTANT CACHE: Retrieved Maya's context from memory for "${conceptName}" (${originalContext.length} chars)`);
       } else {
-        // FALLBACK: Fast context retrieval from database with optimized lookup
-        if (conceptId) {
-          try {
-            // Optimized lookup - limit to most recent chats only
-            const recentChats = await storage.getMayaChats(userId);
-            for (const chat of recentChats.slice(0, 2)) { // Reduced to 2 for maximum performance
-              const messages = await storage.getMayaChatMessages(chat.id);
-              // Reverse order for faster recent concept lookup
-              for (const message of messages.reverse()) {
-                if (message.content && typeof message.content === 'string') {
-                  try {
-                    const contentData = JSON.parse(message.content);
-                    if (contentData.conceptCards) {
-                      const conceptCard = contentData.conceptCards.find((c: any) => c.id === conceptId || c.title === conceptName);
-                      if (conceptCard && conceptCard.originalContext) {
+        // FALLBACK: Enhanced context retrieval from database with concept name matching
+        try {
+          console.log(`🔍 MAYA CONTEXT SEARCH: Looking for concept "${conceptName}" with ID "${conceptId}"`);
+          
+          // Get recent chats - expanded search for context retrieval
+          const recentChats = await storage.getMayaChats(userId);
+          
+          for (const chat of recentChats.slice(0, 5)) { // Increased to 5 chats for better context retrieval
+            const messages = await storage.getMayaChatMessages(chat.id);
+            
+            // Check both directions - recent messages first, then older
+            for (const message of messages) {
+              if (message.content && typeof message.content === 'string') {
+                try {
+                  // Check if content is JSON (stored concept cards)
+                  const contentData = JSON.parse(message.content);
+                  if (contentData.conceptCards) {
+                    for (const conceptCard of contentData.conceptCards) {
+                      // Enhanced matching: exact ID, exact title, or title contains concept name
+                      const isMatch = 
+                        (conceptId && conceptCard.id === conceptId) ||
+                        conceptCard.title === conceptName ||
+                        conceptCard.title.toLowerCase().includes(conceptName.toLowerCase()) ||
+                        conceptName.toLowerCase().includes(conceptCard.title.toLowerCase());
+                      
+                      if (isMatch && conceptCard.originalContext) {
                         originalContext = conceptCard.originalContext;
                         
-                        // PHASE 3: Cache the context for instant future access
+                        // Cache the context for future use
                         mayaContextCache.set(cacheKey, {
                           originalContext,
                           conceptName,
                           timestamp: Date.now()
                         });
                         
-                        console.log(`🚀 MAYA DATABASE CACHED: Retrieved and cached Maya's context for "${conceptName}" (${originalContext.length} chars)`);
+                        console.log(`✅ MAYA CONTEXT FOUND: Retrieved "${conceptCard.title}" context (${originalContext.length} chars)`);
+                        console.log(`🎯 MAYA CONTEXT PREVIEW: ${originalContext.substring(0, 200)}...`);
                         break;
                       }
                     }
-                  } catch (parseError) {
-                    continue;
+                  }
+                } catch (parseError) {
+                  // Check if it's raw concept content (alternative storage format)
+                  if (message.content.includes(conceptName) && message.content.length > 100) {
+                    // Extract concept context from raw message content
+                    const lines = message.content.split('\n');
+                    for (let i = 0; i < lines.length; i++) {
+                      if (lines[i].includes(conceptName)) {
+                        // Get concept context from this line and following lines
+                        const contextLines = [];
+                        for (let j = i; j < Math.min(i + 10, lines.length); j++) {
+                          if (lines[j].trim() && !lines[j].includes('*Generate') && !lines[j].includes('Click')) {
+                            contextLines.push(lines[j].trim());
+                          }
+                        }
+                        if (contextLines.length > 0) {
+                          originalContext = contextLines.join(' ').substring(0, 500);
+                          console.log(`💡 MAYA RAW CONTEXT FOUND: Extracted from message content (${originalContext.length} chars)`);
+                          break;
+                        }
+                      }
+                    }
                   }
                 }
               }
+              
               if (originalContext) break;
             }
-          } catch (error) {
-            console.log(`⚠️ MAYA CONTEXT RETRIEVAL FAILED:`, error);
+            if (originalContext) break;
           }
+          
+          if (!originalContext) {
+            console.log(`⚠️ MAYA CONTEXT NOT FOUND: No context found for "${conceptName}" in ${recentChats.length} recent chats`);
+          }
+        } catch (error) {
+          console.log(`❌ MAYA CONTEXT RETRIEVAL ERROR:`, error);
         }
       }
 
