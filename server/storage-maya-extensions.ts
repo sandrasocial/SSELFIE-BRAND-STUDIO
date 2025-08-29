@@ -17,6 +17,9 @@ interface MayaUserContext {
     currentSituation?: string;
     futureVision?: string;
     businessGoals?: string;
+    businessType?: string;
+    stylePreferences?: string;
+    photoGoals?: string;
     onboardingStep?: number;
     isCompleted?: boolean;
     completedAt?: Date;
@@ -63,12 +66,16 @@ interface MayaUserContext {
   };
 }
 
+// SIMPLIFIED PERSONAL BRAND DATA - 7 CORE FIELDS ONLY
 interface PersonalBrandData {
   userId: string;
-  transformationStory?: string;
-  currentSituation?: string;
-  futureVision?: string;
-  businessGoals?: string;
+  transformationStory?: string;    // "Tell us about your journey"
+  currentSituation?: string;       // "Where are you now?"
+  futureVision?: string;          // "Where do you want to be?"
+  businessGoals?: string;         // "What are your goals?"
+  businessType?: string;          // "What do you do?"
+  stylePreferences?: string;      // "Describe your style"
+  photoGoals?: string;           // "How will you use these photos?"
   onboardingStep?: number;
   isCompleted?: boolean;
   completedAt?: Date;
@@ -216,6 +223,7 @@ export class MayaStorageExtensions {
           currentSituation: personalBrandRecord?.currentSituation,
           futureVision: personalBrandRecord?.futureVision,
           businessGoals: personalBrandRecord?.businessGoals || onboardingRecord?.businessGoals,
+          businessType: personalBrandRecord?.businessType || onboardingRecord?.businessType,
           onboardingStep: personalBrandRecord?.onboardingStep || onboardingRecord?.currentStep || 1,
           isCompleted: personalBrandRecord?.isCompleted || onboardingRecord?.completed || false,
           completedAt: personalBrandRecord?.completedAt || onboardingRecord?.completedAt,
@@ -368,6 +376,9 @@ export class MayaStorageExtensions {
               currentSituation: personalBrandData.currentSituation,
               futureVision: personalBrandData.futureVision,
               businessGoals: personalBrandData.businessGoals,
+              businessType: personalBrandData.businessType,
+              stylePreferences: personalBrandData.stylePreferences,
+              photoGoals: personalBrandData.photoGoals,
               onboardingStep: personalBrandData.onboardingStep,
               isCompleted: personalBrandData.isCompleted,
               completedAt: personalBrandData.completedAt,

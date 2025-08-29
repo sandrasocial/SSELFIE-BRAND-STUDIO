@@ -1499,6 +1499,22 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
       }
     }
     
+    // Extract photo usage goals from conversation
+    const photoGoalPatterns = [
+      /(?:photos for|use photos|images for|pictures for)[^.]*?([^.]{10,100})/gi,
+      /(?:social media|website|marketing|linkedin|business cards)[^.]*?([^.]{10,80})/gi,
+      /(?:headshots|portraits|personal brand|professional image)[^.]*?([^.]{10,80})/gi
+    ];
+    
+    for (const pattern of photoGoalPatterns) {
+      const matches = userMessage.match(pattern);
+      if (matches && !extractedData.photoGoals) {
+        extractedData.photoGoals = matches[0].trim();
+        hasNewData = true;
+        break;
+      }
+    }
+    
     // Save naturally extracted data if any new information was found
     if (hasNewData) {
       await MayaStorageExtensions.saveUserPersonalBrand({
