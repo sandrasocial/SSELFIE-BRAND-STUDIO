@@ -501,7 +501,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "LOCATION + LIGHTING SETUP",
       "TECHNICAL QUALITY + MOOD"
     ],
-    physicalFeaturePolicy: [
+    physicalFeatureTemplates: [
       "CRITICAL: Maya CANNOT see user's training images or physical features",
       "NEVER specify hair color, eye color, skin tone, or facial characteristics", 
       "Use universal terms: 'natural hair color', 'natural expression', 'authentic features'",
