@@ -393,6 +393,13 @@ export class ModelTrainingService {
       // Personality-first: keep Maya's prompt, ensure trigger appears once and first
       const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
 
+      // DETERMINISTIC PATH LOGIC: Declare usePackaged early to avoid temporal dead zone issues
+      const usePackaged = Boolean(
+        userModel?.replicateModelId && 
+        userModel?.replicateVersionId && 
+        process.env.MAYA_USE_PACKAGED !== "0"
+      );
+
       // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER SELECTION WITH CATEGORY CONTEXT
       const categoryContext = options?.categoryContext;
       const intelligentParams = await this.getIntelligentParameters(finalPrompt, count, userId, categoryContext);
@@ -429,13 +436,6 @@ export class ModelTrainingService {
       const seed = typeof options?.seed === 'number'
         ? options.seed!
         : Math.floor(Math.random() * 1e9);
-
-      // DETERMINISTIC PATH LOGIC: Prefer PACKAGED MODEL path by default (safest today)
-      const usePackaged = Boolean(
-        userModel?.replicateModelId && 
-        userModel?.replicateVersionId && 
-        process.env.MAYA_USE_PACKAGED !== "0"
-      );
 
       console.log(`🎯 MAYA PATH SELECTION: usePackaged=${usePackaged} (affects parameter application)`);
 
