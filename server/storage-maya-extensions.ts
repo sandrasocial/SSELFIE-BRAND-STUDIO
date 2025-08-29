@@ -7,7 +7,7 @@
 import { storage } from './storage';
 import { personalBrandService } from './services/personal-brand-service';
 import { db } from './db';
-import { onboardingData, userPersonalBrand, mayaPersonalMemory } from '@shared/schema';
+import { userPersonalBrand, mayaPersonalMemory } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 
 interface MayaUserContext {
@@ -202,14 +202,7 @@ export class MayaStorageExtensions {
     try {
       console.log(`🔍 Maya: Getting user context for ${userId}`);
       
-      // Get real onboarding data from database
-      const [onboardingRecord] = await db
-        .select()
-        .from(onboardingData)
-        .where(eq(onboardingData.userId, userId))
-        .limit(1);
-      
-      // Get personal brand data if exists
+      // Get personal brand data from simplified user_personal_brand table
       const [personalBrandRecord] = await db
         .select()
         .from(userPersonalBrand)
@@ -219,15 +212,17 @@ export class MayaStorageExtensions {
       const context: MayaUserContext = {
         userId,
         personalBrand: {
-          transformationStory: personalBrandRecord?.transformationStory || onboardingRecord?.brandStory,
+          transformationStory: personalBrandRecord?.transformationStory,
           currentSituation: personalBrandRecord?.currentSituation,
           futureVision: personalBrandRecord?.futureVision,
-          businessGoals: personalBrandRecord?.businessGoals || onboardingRecord?.businessGoals,
-          businessType: personalBrandRecord?.businessType || onboardingRecord?.businessType,
-          onboardingStep: personalBrandRecord?.onboardingStep || onboardingRecord?.currentStep || 1,
-          isCompleted: personalBrandRecord?.isCompleted || onboardingRecord?.completed || false,
-          completedAt: personalBrandRecord?.completedAt || onboardingRecord?.completedAt,
-          updatedAt: personalBrandRecord?.updatedAt || onboardingRecord?.updatedAt || new Date()
+          businessGoals: personalBrandRecord?.businessGoals,
+          businessType: personalBrandRecord?.businessType,
+          stylePreferences: personalBrandRecord?.stylePreferences,
+          photoGoals: personalBrandRecord?.photoGoals,
+          onboardingStep: personalBrandRecord?.onboardingStep || 1,
+          isCompleted: personalBrandRecord?.isCompleted || false,
+          completedAt: personalBrandRecord?.completedAt,
+          updatedAt: personalBrandRecord?.updatedAt || new Date()
         }
       };
       
