@@ -579,6 +579,7 @@ export class ModelTrainingService {
   // 🎯 MAYA-SAFE PROMPT FORMATTING: Preserves Maya's creative content while ensuring proper technical structure
   static formatPrompt(prompt: string, triggerWord: string): string {
     const mandatoryTechParams = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
+    const anatomyEnhancement = "perfect hands, well-defined fingers, natural hand positioning, elegant gestures, professional anatomical accuracy";
     
     // Clean initial formatting but preserve content structure
     const clean = (prompt || "")
@@ -596,15 +597,19 @@ export class ModelTrainingService {
       if (clean.startsWith(triggerWord)) {
         // Maya's content already properly formatted - minimal processing
         const hasRequiredTech = clean.includes("raw photo") && clean.includes("film grain");
-        if (hasRequiredTech) {
+        const hasAnatomyEnhancement = clean.includes("perfect hands") || clean.includes("well-defined fingers");
+        if (hasRequiredTech && hasAnatomyEnhancement) {
           return clean; // Perfect - return as-is
         } else {
-          // Insert tech params right after trigger word, before Maya's content
-          return clean.replace(triggerWord, `${triggerWord}, ${mandatoryTechParams}`);
+          // Insert tech params and anatomy enhancement after trigger word
+          const enhancement = hasAnatomyEnhancement ? mandatoryTechParams : `${mandatoryTechParams}, ${anatomyEnhancement}`;
+          return clean.replace(triggerWord, `${triggerWord}, ${enhancement}`);
         }
       } else {
-        // Add trigger word and tech params at the beginning, preserve Maya's content
-        return `${triggerWord}, ${mandatoryTechParams}, ${clean}`;
+        // Add trigger word, tech params, and anatomy enhancement at the beginning, preserve Maya's content
+        const hasAnatomyEnhancement = clean.includes("perfect hands") || clean.includes("well-defined fingers");
+        const enhancement = hasAnatomyEnhancement ? mandatoryTechParams : `${mandatoryTechParams}, ${anatomyEnhancement}`;
+        return `${triggerWord}, ${enhancement}, ${clean}`;
       }
     }
 
@@ -617,8 +622,10 @@ export class ModelTrainingService {
     const techParamsRegex = /raw photo,?\s*visible skin pores,?\s*film grain,?\s*unretouched natural skin texture,?\s*subsurface scattering,?\s*photographed on film,?\s*/gi;
     const withoutTechParams = withoutAll.replace(techParamsRegex, "").replace(/^,\s*/, "").trim();
 
-    // Compose: trigger word + mandatory tech params + content
-    const composed = `${triggerWord}, ${mandatoryTechParams}, ${withoutTechParams}`.replace(/,\s*,/g, ", ").replace(/\s+,/g, ", ").trim();
+    // Compose: trigger word + mandatory tech params + anatomy enhancement + content
+    const hasAnatomyEnhancement = withoutTechParams.includes("perfect hands") || withoutTechParams.includes("well-defined fingers");
+    const enhancement = hasAnatomyEnhancement ? mandatoryTechParams : `${mandatoryTechParams}, ${anatomyEnhancement}`;
+    const composed = `${triggerWord}, ${enhancement}, ${withoutTechParams}`.replace(/,\s*,/g, ", ").replace(/\s+,/g, ", ").trim();
 
     // Final cleanup: no trailing commas / double spaces
     return composed.replace(/,\s*$/, "").replace(/\s{2,}/g, " ");

@@ -1599,7 +1599,15 @@ Let your styling intelligence flow naturally! Create unexpected, beautiful combi
 - Choose poses and settings that enhance the styling story
 - Include professional camera and lighting details that complement the aesthetic
 
-Express your creative vision authentically - no rigid formulas, just your intelligent styling expertise!`;
+ANATOMY EXCELLENCE (CRITICAL FOR PROFESSIONAL RESULTS):
+Always include these key elements for perfect anatomical rendering:
+- "perfect hands, well-defined fingers, natural hand positioning"
+- "elegant hand gestures, graceful finger placement" 
+- "professional hand styling, refined finger positioning"
+- "natural foot positioning, perfect proportions" (when feet are visible)
+- Choose poses that naturally showcase beautiful hand positioning (hands on hips, holding objects, resting gracefully)
+
+Express your creative vision authentically with flawless anatomical details!`;
 
     // Call Claude API for Maya's intelligent prompt generation
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
