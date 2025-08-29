@@ -35,7 +35,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Truth on Paper',
         category: 'Emotional Release',
         description: 'Writing your way through the pain - where honesty becomes healing',
-        prompt: '[triggerword] woman writing her way through pain where honesty becomes healing, luxurious oversized cream cashmere sweater and premium leather journal, soft golden afternoon window light streaming through creating warm shadows, focused expression while processing emotions through words and finding truth on paper'
+        prompt: '[triggerword] woman writing her way through pain where honesty becomes healing, luxurious cozy ensemble creating comfort while writing, soft golden afternoon window light streaming through creating warm shadows, focused expression while processing emotions through words and finding truth on paper'
       },
       {
         id: 'therapy-session-breakthrough',
@@ -114,7 +114,7 @@ const PROMPT_COLLECTIONS = {
         name: 'VOGUE Transformative Strength',
         category: 'Magazine Covers',
         description: "That moment when you realize your power. Hair perfectly swept, blazer on point, gaze that says everything.",
-        prompt: '[triggerword], woman realizing her power in that transformative strength moment, perfectly tailored black off-shoulder blazer with architectural lines and minimal gold jewelry, pure white seamless backdrop with beauty dish lighting creating editorial drama, piercing direct gaze that says everything while hair is swept perfectly over one shoulder, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman realizing her power in that transformative strength moment, perfectly tailored architectural ensemble creating editorial sophistication, pure white seamless backdrop with beauty dish lighting creating editorial drama, piercing direct gaze that says everything while hair is swept perfectly over one shoulder, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'elle-confidence-rebirth',
@@ -142,7 +142,7 @@ const PROMPT_COLLECTIONS = {
         name: 'COSMOPOLITAN Comeback',
         category: 'Magazine Covers',
         description: "Pure joy because you're winning at life. That real laugh, gorgeous hair, perfect blazer moment.",
-        prompt: '[triggerword], woman with pure joy because she is winning at life - the comeback celebration, black blazer over lace cami with statement earrings creating perfect power-feminine balance, bright white studio with strobe and softbox creating clean celebratory lighting, genuine laugh caught mid-moment with voluminous hair and expression lines visible, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman with pure joy because she is winning at life - the comeback celebration, elegant ensemble creating perfect power-feminine balance, bright white studio with strobe and softbox creating clean celebratory lighting, genuine laugh caught mid-moment with voluminous hair and expression lines visible, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'glamour-rising',
@@ -163,7 +163,7 @@ const PROMPT_COLLECTIONS = {
         name: 'TATLER Triumph',
         category: 'Magazine Covers',
         description: "Old Hollywood glamour meets modern power. Those waves, that velvet, pearls that whisper elegance.",
-        prompt: '[triggerword], woman embodying old Hollywood glamour meets modern power, black velvet blazer with pearl earrings creating timeless luxury elegance, rich navy backdrop with Rembrandt lighting adding dramatic sophistication, regal bearing with Hollywood waves showing triumph and mature beauty, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman embodying old Hollywood glamour meets modern power, luxurious ensemble creating timeless elegance, rich navy backdrop with Rembrandt lighting adding dramatic sophistication, regal bearing with Hollywood waves showing triumph and mature beauty, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'w-magazine-warrior',
@@ -177,14 +177,14 @@ const PROMPT_COLLECTIONS = {
         name: 'FORBES Founder',
         category: 'Magazine Covers',
         description: "The founder energy is real. Professional hair, perfect blazer, ready to change the world with your business.",
-        prompt: '[triggerword], woman with founder energy ready to change the world with her business, black blazer with white shirt and watch visible showing professional success, corporate gray backdrop with headshot lighting creating approachable CEO energy, professional hair and business portrait angle demonstrating leadership and vision, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman with founder energy ready to change the world with her business, professional executive ensemble showing business success, corporate gray backdrop with headshot lighting creating approachable CEO energy, professional hair and business portrait angle demonstrating leadership and vision, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'rock-bottom-truth',
         name: 'Rock Bottom Truth',
         category: 'Journey Story',
         description: "We all have those rock bottom moments. This is yours - raw, real, and the beginning of your comeback story.",
-        prompt: '[triggerword], woman at rock bottom - raw, real, and the beginning of her comeback story, oversized black sweater creating comfort during vulnerable moment while sitting on floor against white wall, morning window light creating natural shadows illuminating the authentic struggle, tired eyes visible with knees pulled up and disheveled hair showing true vulnerability, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman at rock bottom - raw, real, and the beginning of her comeback story, comfortable oversized ensemble creating comfort during vulnerable moment while sitting on floor against white wall, morning window light creating natural shadows illuminating the authentic struggle, tired eyes visible with knees pulled up and disheveled hair showing true vulnerability, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'first-brave-selfie',
@@ -221,28 +221,28 @@ const PROMPT_COLLECTIONS = {
         name: 'Copenhagen Commute',
         category: 'Urban Movement',
         description: 'Cycling through the city with effortless grace - sustainable luxury in motion',
-        prompt: '[triggerword], woman cycling through the city with effortless grace and sustainable luxury in motion, tailored wool coat and leather crossbody bag perfect for urban sophistication, natural daylight illuminating colorful Nordic Copenhagen buildings creating Scandinavian charm, confident expression while commuting with minimal gold jewelry and hair moving gently in breeze, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman cycling through the city with effortless grace and sustainable luxury in motion, sophisticated urban ensemble perfect for city sophistication, natural daylight illuminating colorful Nordic Copenhagen buildings creating Scandinavian charm, confident expression while commuting with elegant styling and hair moving gently in breeze, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'milan-fashion-walk',
         name: 'Milan Fashion District',
         category: 'Style in Motion',
         description: 'Walking through the fashion capital with innate style - where elegance meets everyday',
-        prompt: '[triggerword], woman walking through the fashion capital with innate style where elegance meets everyday, elevated basics with long camel coat and designer accessories showcasing Italian sophistication, golden hour lighting illuminating beautiful Italian architecture creating fashion district ambiance, purposeful stride with serene focused expression and effortlessly styled hair, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman walking through the fashion capital with innate style where elegance meets everyday, elevated ensemble showcasing Italian sophistication, golden hour lighting illuminating beautiful Italian architecture creating fashion district ambiance, purposeful stride with serene focused expression and effortlessly styled hair, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'london-crosswalk-moment',
         name: 'London Crosswalk',
         category: 'City Navigation',
         description: 'Navigating the city with quiet confidence - urban moments that feel cinematic',
-        prompt: '[triggerword], woman navigating the city with quiet confidence in urban moments that feel cinematic, classic trench coat with minimal scarf and leather boots creating British sophistication, overcast natural lighting illuminating classic British architecture during street crossing, determined expression while navigating crosswalk with hair moving in city breeze, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman navigating the city with quiet confidence in urban moments that feel cinematic, sophisticated British-inspired ensemble creating urban elegance, overcast natural lighting illuminating classic British architecture during street crossing, determined expression while navigating crosswalk with hair moving in city breeze, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'paris-metro-entrance',
         name: 'Parisian Metro',
         category: 'Transit Elegance',
         description: 'Even the mundane becomes elegant - French sophistication in everyday moments',
-        prompt: '[triggerword], woman where even the mundane becomes elegant with French sophistication in everyday moments, neutral turtleneck and tailored coat with minimal jewelry and structured bag showcasing Parisian chic, soft Paris lighting illuminating beautiful Art Nouveau metro entrance during elegant transit navigation, contemplative expression while moving through metro with natural confident posture, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman where even the mundane becomes elegant with French sophistication in everyday moments, Parisian chic ensemble showcasing effortless elegance, soft Paris lighting illuminating beautiful Art Nouveau metro entrance during elegant transit navigation, contemplative expression while moving through metro with natural confident posture, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'brooklyn-bridge-walk',
@@ -314,14 +314,14 @@ const PROMPT_COLLECTIONS = {
         name: 'Morning Coffee Ritual',
         category: 'Daily Moments',
         description: 'The quiet luxury of a perfect morning - simplicity elevated to art',
-        prompt: '[triggerword], woman experiencing the quiet luxury of a perfect morning where simplicity is elevated to art, oversized cream cashmere sweater creating cozy sophistication while holding ceramic mug, soft morning light streaming through sheer curtains illuminating minimal Scandinavian interior with natural wood, serene contemplative expression sitting in modern chair with effortless tousled hair during morning ritual, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman experiencing the quiet luxury of a perfect morning where simplicity is elevated to art, cozy sophisticated ensemble creating morning elegance while holding ceramic mug, soft morning light streaming through sheer curtains illuminating minimal Scandinavian interior with natural wood, serene contemplative expression sitting in modern chair with effortless tousled hair during morning ritual, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'parisian-cafe-afternoon',
         name: 'Café Afternoon',
         category: 'Urban Elegance',
         description: 'Lost in thought at your favorite café - where time moves differently',
-        prompt: '[triggerword], woman lost in thought at her favorite café where time moves differently, neutral turtleneck and tailored coat with minimal gold jewelry creating effortless Parisian sophistication, soft afternoon light filtering through large windows illuminating marble table with espresso and leather notebook, thoughtful distant gaze while observing Parisian street life through windows, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman lost in thought at her favorite café where time moves differently, effortless Parisian ensemble creating understated sophistication, soft afternoon light filtering through large windows illuminating marble table with espresso and leather notebook, thoughtful distant gaze while observing Parisian street life through windows, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'london-walk-golden-hour',
@@ -384,7 +384,7 @@ const PROMPT_COLLECTIONS = {
         name: 'Fresh Flowers',
         category: 'Weekend Rituals',
         description: 'Choosing flowers for your home - small luxuries that elevate everyday life',
-        prompt: '[triggerword], woman choosing flowers for her home with small luxuries that elevate everyday life, cream sweater with minimal jewelry and natural styling perfect for European market exploration, soft natural morning light illuminating white peonies and woven basket with beautiful blooms, gentle concentration while selecting flowers with discerning taste and appreciation for beauty, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
+        prompt: '[triggerword], woman choosing flowers for her home with small luxuries that elevate everyday life, natural sophisticated styling perfect for European market exploration, soft natural morning light illuminating white peonies and woven basket with beautiful blooms, gentle concentration while selecting flowers with discerning taste and appreciation for beauty, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film'
       },
       {
         id: 'cozy-reading-afternoon',
