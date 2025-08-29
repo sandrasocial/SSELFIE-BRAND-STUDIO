@@ -1248,17 +1248,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMayaChatMessages(chatId: number): Promise<MayaChatMessage[]> {
-    return await db
+    const messages = await db
       .select()
       .from(mayaChatMessages)
       .where(eq(mayaChatMessages.chatId, chatId))
       .orderBy(mayaChatMessages.createdAt);
+    
+    // Parse JSON fields for frontend compatibility
+    return messages.map(msg => ({
+      ...msg,
+      imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : null,
+      conceptCards: msg.conceptCards ? JSON.parse(msg.conceptCards) : null,
+      quickButtons: msg.quickButtons ? JSON.parse(msg.quickButtons) : null,
+    }));
   }
 
   // REMOVED: getAllMayaChatMessages method to prevent session mixing
   // Use getMayaChatMessages(chatId) for session-specific loading
 
   async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
+    console.log(`📝 MAYA MESSAGE: Saving ${data.role} message with concept cards: ${data.conceptCards ? 'YES' : 'NO'}`);
     const [message] = await db
       .insert(mayaChatMessages)
       .values(data)

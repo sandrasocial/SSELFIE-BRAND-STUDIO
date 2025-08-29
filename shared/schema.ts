@@ -519,6 +519,9 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
   content: text("content").notNull(),
   imagePreview: text("image_preview"), // JSON array of image URLs
   generatedPrompt: text("generated_prompt"),
+  conceptCards: text("concept_cards"), // JSON array of concept cards - CRITICAL FIX
+  quickButtons: text("quick_buttons"), // JSON array of quick action buttons
+  canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
   createdAt: timestamp("created_at").defaultNow(),
 });
 
