@@ -20,7 +20,7 @@ export const ROUTED_PAGES_MAPPING = {
     'workspace.tsx': { route: '/workspace', priority: 10, description: 'Main workspace - Steps 1-4' },
     'ai-training.tsx': { route: '/ai-training', priority: 10, description: 'Step 1: Train AI Model' },
     'maya.tsx': { route: '/maya', priority: 10, description: 'Step 2: Style with Maya AI' },
-    'ai-photoshoot.tsx': { route: '/ai-photoshoot', priority: 9, description: 'Step 3: AI Photoshoot (needs routing fix)' },
+
     'build.tsx': { route: '/build', priority: 9, description: 'Step 4: Build business (incomplete)' },
     'gallery.tsx': { route: '/gallery', priority: 8, description: 'User image gallery (not fully implemented)' },
     'flatlay-library.tsx': { route: '/flatlay-library', priority: 8, description: 'Flatlay image library' }
@@ -44,12 +44,12 @@ export const ALL_ROUTED_PAGES = [
 export const SEARCH_PRIORITY_GUIDE = {
   'user journey': ['editorial-landing.tsx', 'workspace.tsx', 'ai-training.tsx', 'maya.tsx'],
   'onboarding': ['editorial-landing.tsx', 'pricing.tsx', 'how-it-works.tsx', 'workspace.tsx'],
-  'workspace flow': ['workspace.tsx', 'ai-training.tsx', 'maya.tsx', 'ai-photoshoot.tsx', 'build.tsx'],
+  'workspace flow': ['workspace.tsx', 'ai-training.tsx', 'maya.tsx', 'build.tsx'],
   'landing experience': ['editorial-landing.tsx', 'about.tsx', 'pricing.tsx'],
   'member experience': ['workspace.tsx', 'ai-training.tsx', 'maya.tsx', 'gallery.tsx'],
   'admin functionality': ['admin-dashboard.tsx', 'admin-consulting-agents.tsx'],
   'authentication': ['login.tsx', 'auth-form.tsx', 'BrandedLoginButton.tsx'],
-  'ai features': ['maya.tsx', 'ai-training.tsx', 'ai-photoshoot.tsx'],
+  'ai features': ['maya.tsx', 'ai-training.tsx'],
   'business building': ['build.tsx', 'workspace.tsx', 'pricing.tsx']
 };
 
@@ -75,11 +75,6 @@ export function isRoutedPage(filename: string): boolean {
 
 // Get routing issues that need fixing
 export const ROUTING_ISSUES = {
-  'ai-photoshoot.tsx': {
-    issue: 'Not properly routed in workspace step 3',
-    solution: 'Add route to App.tsx and update workspace navigation',
-    priority: 'HIGH'
-  },
   'build.tsx': {
     issue: 'Step 4 incomplete implementation',
     solution: 'Complete build functionality and business setup',

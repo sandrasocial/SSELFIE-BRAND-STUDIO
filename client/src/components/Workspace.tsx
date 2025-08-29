@@ -54,7 +54,7 @@ export default function Workspace() {
         description: 'Okay, this part still gives me chills. You\'re about to see yourself the way others see you - confident, powerful, unstoppable. Get ready.',
         status: hasImages ? 'available' : 'upcoming',
         action: 'Generate Your Photos',
-        path: '/ai-photoshoot',
+        path: '/maya',
         sandraNote: 'The first time I saw my AI photos, I cried. Good tears.'
       },
       {

@@ -35,7 +35,7 @@ const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
 const SandraPhotoshoot = lazy(() => import("./pages/sandra-photoshoot"));
 const AIGenerator = lazy(() => import("./pages/ai-generator"));
-const AIPhotoshoot = lazy(() => import("./pages/ai-photoshoot"));
+
 const MarketingAutomation = lazy(() => import("./pages/marketing-automation"));
 
 // Admin pages - lazy loaded
@@ -261,11 +261,7 @@ function Router() {
         </Suspense>
       )} />
 
-      <Route path="/ai-photoshoot" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AIPhotoshoot} {...props} />
-        </Suspense>
-      )} />
+
       <Route path="/sandra-photoshoot" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={SandraPhotoshoot} {...props} />
