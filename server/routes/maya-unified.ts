@@ -372,158 +372,87 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     let finalPrompt = prompt.trim();
     
-    // CRITICAL FIX: Use embedded prompts from concept cards OR Maya's AI for custom prompts
-    // Concept cards have embedded prompts ready, custom prompts get Maya's full Claude API styling expertise
+    // CRITICAL FIX: Use dedicated context storage for perfect concept-to-image consistency
+    // Concept cards have embedded styling context, custom prompts get Maya's full Claude API expertise
     if (conceptName && conceptName.length > 0) {
-      // PHASE 3: Streamlined context retrieval using high-performance caching
+      // PRIORITY 1: Dedicated context retrieval from originalStylingContext field
       const conceptId = req.body.conceptId;
       let originalContext = '';
       
-      // PRIORITY 1: Instant context retrieval from memory cache
-      const cacheKey = `${userId}-${conceptId || conceptName}`;
-      const cachedContext = mayaContextCache.get(cacheKey);
-      
-      if (cachedContext && (Date.now() - cachedContext.timestamp < MAYA_CONTEXT_CACHE_TTL)) {
-        originalContext = cachedContext.originalContext;
-        console.log(`⚡ MAYA INSTANT CACHE: Retrieved Maya's context from memory for "${conceptName}" (${originalContext.length} chars)`);
-      } else {
-        // FALLBACK: Enhanced context retrieval from database with concept name matching
-        try {
-          console.log(`🔍 MAYA CONTEXT SEARCH: Looking for concept "${conceptName}" with ID "${conceptId}"`);
+      // ENHANCED: Direct database retrieval from dedicated context storage
+      try {
+        console.log(`🔍 MAYA DEDICATED CONTEXT: Looking for concept "${conceptName}" with ID "${conceptId}"`);
+        
+        // Get recent chats - search dedicated context fields first
+        const recentChats = await storage.getMayaChats(userId);
+        
+        for (const chat of recentChats.slice(0, 3)) { // Reduced to 3 for performance, using dedicated fields
+          const messages = await storage.getMayaChatMessages(chat.id);
           
-          // Get recent chats - expanded search for context retrieval
-          const recentChats = await storage.getMayaChats(userId);
-          
-          for (const chat of recentChats.slice(0, 5)) { // Increased to 5 chats for better context retrieval
-            const messages = await storage.getMayaChatMessages(chat.id);
-            
-            // Check both directions - recent messages first, then older
-            for (const message of messages) {
-              if (message.content && typeof message.content === 'string') {
-                try {
-                  // Check if content is JSON (Maya's complete response with concept cards)
-                  const contentData = JSON.parse(message.content);
-                  if (contentData.conceptCards && contentData.conceptCards.length > 0) {
-                    for (const conceptCard of contentData.conceptCards) {
-                      // Universal fuzzy matching for ALL concepts
-                      const lowerConceptName = conceptName.toLowerCase();
-                      const lowerCardTitle = conceptCard.title.toLowerCase();
-                      
-                      // Extract keywords (3+ chars) for intelligent matching
-                      const conceptWords = lowerConceptName.split(/\s+/).filter(word => word.length > 2);
-                      const cardWords = lowerCardTitle.split(/\s+/).filter(word => word.length > 2);
-                      
-                      // Advanced matching: partial word matching + stemming-like logic
-                      const matchingWords = conceptWords.filter(conceptWord => 
-                        cardWords.some(cardWord => {
-                          // Exact match or partial match (3+ chars)
-                          return cardWord === conceptWord || 
-                                 cardWord.includes(conceptWord) || 
-                                 conceptWord.includes(cardWord) ||
-                                 // Similar words (for beach/beachclub, etc)
-                                 (conceptWord.length > 3 && cardWord.length > 3 && 
-                                  (conceptWord.startsWith(cardWord.slice(0, 4)) || 
-                                   cardWord.startsWith(conceptWord.slice(0, 4))));
-                        })
-                      ).length;
-                      
-                      const isMatch = 
-                        (conceptId && conceptCard.id === conceptId) ||
-                        lowerCardTitle === lowerConceptName ||
-                        lowerCardTitle.includes(lowerConceptName) ||
-                        lowerConceptName.includes(lowerCardTitle) ||
-                        (matchingWords >= 1 && conceptWords.length >= 1); // Any meaningful word match
-                      
-                      if (isMatch && conceptCard.originalContext) {
-                        originalContext = conceptCard.originalContext;
-                        
-                        // Cache the context for future use
-                        mayaContextCache.set(cacheKey, {
-                          originalContext,
-                          conceptName,
-                          timestamp: Date.now()
-                        });
-                        
-                        console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
-                        console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
-                        console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
-                        break;
-                      }
-                    }
-                  }
-                } catch (parseError) {
-                  // FALLBACK: Search raw message content for concept mentions
-                  const lowerContent = message.content.toLowerCase();
-                  const lowerConceptName = conceptName.toLowerCase();
-                  
-                  // Extract key words from concept name for searching
-                  const conceptWords = lowerConceptName.split(/\s+/).filter(word => word.length > 3);
-                  
-                  // Check if message contains enough concept keywords
-                  const foundWords = conceptWords.filter(word => lowerContent.includes(word));
-                  
-                  if (foundWords.length >= 1 && message.content.length > 50) {
-                    // Extract relevant paragraph containing the concept
-                    const lines = message.content.split('\n');
-                    for (let i = 0; i < lines.length; i++) {
-                      const line = lines[i].toLowerCase();
-                      if (foundWords.some(word => line.includes(word))) {
-                        // Extract this paragraph and next few lines as context
-                        const contextLines = [];
-                        for (let j = Math.max(0, i-1); j < Math.min(i + 5, lines.length); j++) {
-                          if (lines[j].trim()) {
-                            contextLines.push(lines[j].trim());
-                          }
-                        }
-                        if (contextLines.length > 0) {
-                          originalContext = contextLines.join(' ').substring(0, 800);
-                          console.log(`💡 MAYA RAW EXTRACT: Found content for "${conceptName}" (${originalContext.length} chars)`);
-                          break;
-                        }
-                      }
-                    }
-                  }
+          // CRITICAL: Check originalStylingContext field first for exact consistency
+          for (const message of messages) {
+            if (message.originalStylingContext && 
+                (message.originalStylingContext.includes(conceptName) || 
+                 (conceptId && message.content && message.content.includes(conceptId)))) {
+              originalContext = message.originalStylingContext;
+              console.log(`🎯 MAYA DEDICATED CONTEXT: Found exact styling context (${originalContext.length} chars)`);
+              break;
+            }
+            // FALLBACK: Check conceptDescription field
+            if (!originalContext && message.conceptDescription && 
+                (message.conceptDescription.includes(conceptName) || 
+                 (conceptId && message.content && message.content.includes(conceptId)))) {
+              originalContext = message.conceptDescription;
+              console.log(`📋 MAYA CONCEPT DESCRIPTION: Using concept description as context (${originalContext.length} chars)`);
+              break;
+            }
+            // LEGACY FALLBACK: Check content field for backward compatibility
+            if (!originalContext && message.content && typeof message.content === 'string') {
+              // Include content search logic if needed for backward compatibility
+              if (message.content.includes(conceptName) || 
+                  (conceptId && message.content.includes(conceptId))) {
+                // Extract context from content if available
+                const contextMatch = message.content.match(new RegExp(`${conceptName}[^.]*\\.`, 'i'));
+                if (contextMatch) {
+                  originalContext = contextMatch[0];
+                  console.log(`📰 MAYA LEGACY FALLBACK: Using content-based context (${originalContext.length} chars)`);
                 }
-              }
-              
-              if (originalContext) break;
-            }
-            if (originalContext) break;
-          }
-          
-          if (!originalContext) {
-            console.log(`⚠️ MAYA CONTEXT NOT FOUND: No context found for "${conceptName}" in ${recentChats.length} recent chats`);
-            console.log(`🔍 MAYA SEARCH DEBUG: Searched chats with ${recentChats.length} total chats, conceptId: "${conceptId}"`);
-            // Log some message content for debugging
-            if (recentChats.length > 0) {
-              const firstChat = recentChats[0];
-              const messages = await storage.getMayaChatMessages(firstChat.id);
-              console.log(`🔍 MAYA DEBUG: First chat has ${messages.length} messages`);
-              const sampleMessage = messages.find(m => m.content && m.content.length > 50);
-              if (sampleMessage) {
-                console.log(`🔍 MAYA DEBUG SAMPLE: ${sampleMessage.content.substring(0, 100)}...`);
+                break;
               }
             }
           }
-        } catch (error) {
-          console.log(`❌ MAYA CONTEXT RETRIEVAL ERROR:`, error);
+          if (originalContext) break;
         }
+        
+        // Cache the retrieved context for performance
+        if (originalContext) {
+          const cacheKey = `${userId}-${conceptId || conceptName}`;
+          mayaContextCache.set(cacheKey, {
+            originalContext,
+            conceptName,
+            timestamp: Date.now()
+          });
+          console.log(`💾 MAYA CONTEXT CACHED: Stored for future use (${originalContext.length} chars)`);
+        }
+      } catch (error) {
+        console.log(`❌ MAYA DEDICATED CONTEXT ERROR:`, error);
+        // Continue with empty context - will use fallback generation
       }
 
-      // PHASE 3: Lazy generation using cached Maya context for perfect consistency
+      // PHASE 3: Lazy generation using retrieved Maya context for perfect consistency
       const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
       console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
       console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
-      
       // Check if context is empty and warn
       if (!originalContext || originalContext.length < 10) {
         console.log(`⚠️ MAYA EMPTY CONTEXT WARNING: No meaningful context found for "${conceptName}"`);
         console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
       }
       
-      // CRITICAL: Apply enhanced cleaning to originalContext before using it
-      const cleanedContext = cleanMayaPrompt(originalContext);
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext);
+      // CRITICAL: Preserve original styling context without aggressive cleaning
+      // Only minimal cleaning to remove conversation markers, preserve all styling intelligence
+      const preservedContext = originalContext.replace(/\*\*/g, '').replace(/Maya:/gi, '').trim();
+      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, preservedContext);
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt`);
       console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
@@ -1442,7 +1371,7 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
       content: userMessage
     });
 
-    // Save Maya response with proper field separation for historical loading
+    // Save Maya response with proper field separation and context preservation for historical loading
     await storage.saveMayaChatMessage({
       chatId: currentChatId,
       role: 'maya',
@@ -1450,7 +1379,11 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
       generatedPrompt: mayaResponse.generatedPrompt,
       conceptCards: mayaResponse.conceptCards ? JSON.stringify(mayaResponse.conceptCards) : null, // CRITICAL: Store concept cards in proper field
       quickButtons: mayaResponse.quickButtons ? JSON.stringify(mayaResponse.quickButtons) : null, // CRITICAL: Store quick buttons in proper field
-      canGenerate: mayaResponse.canGenerate || false // CRITICAL: Store generation capability flag
+      canGenerate: mayaResponse.canGenerate || false, // CRITICAL: Store generation capability flag
+      // CRITICAL FIX: Store original styling context for perfect consistency
+      originalStylingContext: mayaResponse.originalStylingContext || null,
+      conceptDescription: mayaResponse.conceptDescription || null,
+      stylingDetails: mayaResponse.stylingDetails ? JSON.stringify(mayaResponse.stylingDetails) : null,
     });
 
     return currentChatId;

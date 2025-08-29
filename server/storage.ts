@@ -1260,6 +1260,7 @@ export class DatabaseStorage implements IStorage {
       imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : null,
       conceptCards: msg.conceptCards ? JSON.parse(msg.conceptCards) : null,
       quickButtons: msg.quickButtons ? JSON.parse(msg.quickButtons) : null,
+      stylingDetails: msg.stylingDetails ? (typeof msg.stylingDetails === 'string' ? JSON.parse(msg.stylingDetails) : msg.stylingDetails) : null,
     }));
   }
 
@@ -1268,6 +1269,7 @@ export class DatabaseStorage implements IStorage {
 
   async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
     console.log(`📝 MAYA MESSAGE: Saving ${data.role} message with concept cards: ${data.conceptCards ? 'YES' : 'NO'}`);
+    console.log(`🎯 MAYA CONTEXT: Storing styling context: ${data.originalStylingContext ? 'YES' : 'NO'}`);
     const [message] = await db
       .insert(mayaChatMessages)
       .values(data)
