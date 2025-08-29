@@ -331,17 +331,17 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     let finalPrompt = prompt.trim();
     
-    // CRITICAL FIX: Preserve user's selected concept directly instead of regenerating
-    // When user clicks a concept card, use their exact selection, not Maya's interpretation
+    // CRITICAL FIX: Use Maya's AI intelligence for ALL prompts while preserving user intent
+    // Both concept cards AND custom prompts get Maya's full Claude API styling expertise
     if (conceptName && conceptName.length > 0) {
-      console.log(`🎯 MAYA CONCEPT PRESERVATION: Using user's selected concept "${conceptName}" directly`);
-      // Build prompt that preserves user's concept while adding technical requirements
-      const mandatoryTechParams = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
+      console.log(`🎯 MAYA CONCEPT ENHANCEMENT: Using Maya's AI to enhance user's selected concept "${conceptName}"`);
+      // Clean concept name for Maya's intelligent processing
       const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
-      finalPrompt = `${generationInfo.triggerWord}, ${mandatoryTechParams}, ${userConcept}, professional styling, beautiful lighting, personal branding photography`;
-      console.log(`✅ MAYA CONCEPT PRESERVED: User's "${userConcept}" concept maintained in final prompt`);
+      // Let Maya's Claude API intelligence create the detailed prompt based on the user's concept
+      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId);
+      console.log(`✅ MAYA CONCEPT ENHANCED: Maya's AI created ${finalPrompt.length} character detailed prompt for "${userConcept}"`);
     } else {
-      // Only use AI enhancement for custom prompts (not concept cards)
+      // Custom prompts also get Maya's full intelligence
       console.log(`🎯 MAYA CUSTOM PROMPT: "${prompt}" - Calling createDetailedPromptFromConcept with user context`);
       finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId);
       console.log(`✅ MAYA CUSTOM RESULT: Generated ${finalPrompt.length} character prompt`);
