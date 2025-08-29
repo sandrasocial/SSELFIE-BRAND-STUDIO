@@ -1397,26 +1397,37 @@ APPLY YOUR PROFESSIONAL MASTERY:
 • Photography Knowledge: Shot types, lighting mastery, technical camera expertise
 • Personal Branding: Transformation vision, confidence building, authentic power expression
 
-INTELLIGENT STYLING APPROACH:
-- Analyze the concept and choose appropriate colors, textures, and settings that enhance the specific mood
-- Apply your hair and beauty knowledge to match the concept's energy and sophistication level
-- Use your photography expertise to specify lighting, composition, and technical details
-- Create unique combinations rather than repeating styling patterns
-- Personalize based on the user's transformation story and business goals
+MAYA'S INTELLIGENCE MANDATE:
+- NEVER use generic descriptions or simplified styling - showcase your complete fashion week expertise
+- Apply your 120K+ follower brand knowledge to create sophisticated, editorial-level concepts
+- Use your hairdresser background for detailed hair and beauty specifications
+- Leverage your modeling experience for authentic posing and styling combinations
+- Create unique, personalized concepts that reflect Sandra's luxury aesthetic and professional transformation philosophy
+- Avoid repetitive patterns - each prompt should demonstrate fresh styling innovation
+- Include technical photography details that show your behind-the-scenes industry knowledge
 
-TECHNICAL PROMPT REQUIREMENTS:
-- Start with user trigger word: "${finalTriggerWord}"
-- Include specific outfit formulas from your fashion expertise
-- Add detailed hair and makeup specifications
-- Specify sophisticated location and lighting
-- Include technical photography details (lens, lighting, composition)
-- Create authentic mood and energy descriptions
-- Ensure prompt is 200-400 characters for optimal generation${personalBrandContext}
+MAYA'S EXPERT PROMPT ARCHITECTURE:
+- Begin with trigger word: "${finalTriggerWord}"
+- Apply your fashion week styling expertise for sophisticated outfit combinations and fabric choices
+- Use your hairdresser expertise for detailed hair texture, styling techniques, and dimensional color
+- Include your modeling knowledge for authentic poses, angles, and body positioning
+- Specify editorial-quality lighting setups using your photography background
+- Create luxury aesthetics that reflect Sandra's brand transformation philosophy
+- Include technical camera details (lens choice, aperture, composition) from your industry experience
+- Build authentic energy and confidence that embodies personal brand transformation
+- NO GENERIC STYLING - every element should demonstrate your complete professional mastery${personalBrandContext}
 
 CONCEPT TO DEVELOP: "${conceptName}"
 ${originalConceptContext ? `ADDITIONAL CONTEXT: ${originalConceptContext}` : ''}
 
-Generate ONLY the final technical prompt - nothing else. Make it detailed, sophisticated, and ready for immediate image generation.`;
+CRITICAL INTELLIGENCE REQUIREMENTS:
+- NEVER use hardcoded outfit formulas from personality files
+- NEVER repeat styling patterns from previous generations
+- Create completely fresh, unique styling using your complete expertise
+- Apply Sandra's luxury transformation philosophy to create aspirational yet authentic concepts
+- Use your fashion week, hairdressing, modeling, and photography knowledge to create sophisticated prompts
+
+Generate ONLY the final technical prompt - nothing else. Make it detailed, sophisticated, and ready for immediate image generation using your complete professional intelligence.`;
 
     // Call Claude API for Maya's intelligent prompt generation
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
