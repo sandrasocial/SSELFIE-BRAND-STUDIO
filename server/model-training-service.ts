@@ -341,7 +341,7 @@ export class ModelTrainingService {
     userId: string,
     customPrompt: string,
     count: number = 4,
-    options?: { preset?: FluxPresetName; seed?: number; paramsOverride?: Partial<typeof GENERATION_SETTINGS> }
+    options?: { preset?: FluxPresetName; seed?: number; paramsOverride?: Partial<typeof GENERATION_SETTINGS>; categoryContext?: string }
   ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
     
     try {
@@ -391,8 +391,9 @@ export class ModelTrainingService {
       // Personality-first: keep Maya's prompt, ensure trigger appears once and first
       const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
 
-      // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER SELECTION
-      const intelligentParams = await this.getIntelligentParameters(finalPrompt, count, userId);
+      // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER SELECTION WITH CATEGORY CONTEXT
+      const categoryContext = options?.categoryContext;
+      const intelligentParams = await this.getIntelligentParameters(finalPrompt, count, userId, categoryContext);
       console.log(`🎯 MAYA AI INTELLIGENCE: Using ${intelligentParams.preset} preset for ${intelligentParams.reasoning}`);
       console.log(`🎯 MAYA AI PARAMETERS: count=${intelligentParams.count} (Claude API-driven selection)`);
 
@@ -803,7 +804,7 @@ export class ModelTrainingService {
 
   // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER INTELLIGENCE
   // ZERO TOLERANCE ANTI-HARDCODE: Maya's AI chooses all parameters based on styling vision
-  private static async getIntelligentParameters(prompt: string, requestedCount: number, userId?: string): Promise<{
+  private static async getIntelligentParameters(prompt: string, requestedCount: number, userId?: string, categoryContext?: string): Promise<{
     preset: FluxPresetName;
     count: number;
     reasoning: string;
@@ -812,14 +813,23 @@ export class ModelTrainingService {
       // Import Maya's personality and Claude API connection
       const { PersonalityManager } = await import('./agents/personalities/personality-config');
       // Use Claude API service directly
-      const { callClaude } = await import('./services/claude-api-service-simple');
+      const { ClaudeApiServiceSimple } = await import('./services/claude-api-service-simple');
+      const claudeService = new ClaudeApiServiceSimple();
       
-      // MAYA'S PARAMETER INTELLIGENCE PROMPT
+      // MAYA'S PARAMETER INTELLIGENCE PROMPT WITH CATEGORY CONTEXT
+      const categoryGuidance = categoryContext ? `\n\n📸 USER'S CATEGORY REQUEST: ${categoryContext}
+STYLING FOCUS: Adapt your technical choices to match this category:
+- Business: Professional authority and credibility (often Identity preset)
+- Lifestyle: Elevated casual and authentic moments (Editorial or UltraPrompt)
+- GRWM: Morning routines and casual glam (Identity for close-ups)
+- Date Night: Evening sophistication and allure (Editorial for fashion)
+- Content Creator: Social media ready vibes (UltraPrompt for full-body)` : '';
+
       const mayaParameterPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
 
 🎯 MAYA'S TECHNICAL PARAMETER SELECTION:
 You're choosing the optimal technical parameters for generating this image prompt:
-"${prompt}"
+"${prompt}"${categoryGuidance}
 
 AVAILABLE PRESETS & THEIR STRENGTHS:
 • Identity: Perfect for close-up portraits and beauty shots (3:4 ratio, higher megapixels, strong LoRA)
@@ -842,8 +852,8 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
 
       console.log(`🎯 MAYA PARAMETER AI: Analyzing prompt for intelligent parameter selection`);
       
-      // Get Maya's AI-driven parameter selection
-      const mayaResponse = await callClaude(mayaParameterPrompt, []);
+      // Get Maya's AI-driven parameter selection using the correct method
+      const mayaResponse = await claudeService.sendMessage(mayaParameterPrompt, `parameter_selection_${Date.now()}`, 'maya', false);
       
       // Extract JSON from Maya's response
       let mayaChoice;
