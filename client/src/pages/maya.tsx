@@ -200,6 +200,8 @@ function Maya() {
       enabled: !!user && !isOnboardingMode,
       staleTime: 30000,
     });
+    
+    const [displayLimit, setDisplayLimit] = useState(8);
 
     if (isOnboardingMode) {
       return (
@@ -226,9 +228,20 @@ function Maya() {
       );
     }
 
+    const handleLoadMore = () => {
+      setDisplayLimit(prev => Math.min(prev + 10, chats.length));
+    };
+
+    const handleShowLess = () => {
+      setDisplayLimit(8);
+    };
+
+    const visibleChats = chats.slice(0, displayLimit);
+    const remainingCount = chats.length - displayLimit;
+
     return (
       <>
-        {chats.slice(0, 8).map((chat) => (
+        {visibleChats.map((chat) => (
           <div key={chat.id} className="session-item" onClick={() => onChatSelect(chat.id)}>
             <div className="session-title">{chat.chatTitle}</div>
             <div className="session-preview">
@@ -236,8 +249,15 @@ function Maya() {
             </div>
           </div>
         ))}
-        {chats.length > 8 && (
-          <div className="more-sessions">{chats.length - 8} more sessions</div>
+        {remainingCount > 0 && (
+          <div className="load-more-btn" onClick={handleLoadMore}>
+            Load {Math.min(remainingCount, 10)} more sessions
+          </div>
+        )}
+        {displayLimit > 8 && (
+          <div className="load-more-btn show-less" onClick={handleShowLess}>
+            Show less
+          </div>
         )}
       </>
     );
@@ -549,6 +569,32 @@ function Maya() {
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+        }
+
+        .load-more-btn {
+          padding: 16px 0;
+          text-align: center;
+          color: var(--soft-gray);
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          cursor: pointer;
+          border-top: 1px solid var(--accent-line);
+          margin-top: 10px;
+          transition: all 300ms ease;
+        }
+
+        .load-more-btn:hover {
+          color: var(--black);
+          transform: translateX(2px);
+        }
+
+        .load-more-btn.show-less {
+          border-top: none;
+          border-bottom: 1px solid var(--accent-line);
+          margin-top: 0;
+          margin-bottom: 10px;
         }
 
         .more-sessions {
