@@ -395,73 +395,32 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
           // When user clicks "Boss Babe Boardroom Ready", find the full detailed styling description
           for (const message of messages.slice().reverse()) { // Start with most recent
             if (message.role === 'maya' && message.content && typeof message.content === 'string') {
-              // ENHANCED: Multiple pattern matching for Maya's concept formats
-              console.log(`🔍 MAYA PATTERN SEARCH: Looking for "${conceptName}" in message (${message.content.length} chars)`);
-              console.log(`🔍 MAYA MESSAGE PREVIEW: ${message.content.substring(0, 500)}...`);
+              // SIMPLIFIED: Maya now formats correctly, use standard pattern matching
+              console.log(`🔍 MAYA CONCEPT SEARCH: Looking for "${conceptName}" in message (${message.content.length} chars)`);
               
-              // Pattern 1: Standard format **🎯 CATEGORY - NAME**
-              const standardPattern = /\*\*🎯\s*([^*]+?)\s*-\s*([^*]+?)\*\*\s*([^*]+?)(?=\*\*|$)/gs;
+              // Maya's trained format: **🎯 CATEGORY - NAME** followed by detailed styling description
+              const conceptPattern = /\*\*🎯\s*([^*]+?)\s*-\s*([^*]+?)\*\*\s*\n?([^*]+?)(?=\*\*|$)/gs;
               let conceptMatch;
               
-              while ((conceptMatch = standardPattern.exec(message.content)) !== null) {
-                const fullConceptTitle = conceptMatch[1].trim();
-                const conceptSubtitle = conceptMatch[2].trim();
+              while ((conceptMatch = conceptPattern.exec(message.content)) !== null) {
+                const category = conceptMatch[1].trim();
+                const conceptTitle = conceptMatch[2].trim();
                 const detailedDescription = conceptMatch[3].trim();
                 
-                const conceptKey = `${fullConceptTitle} ${conceptSubtitle}`.toLowerCase();
+                const fullTitle = `${category} ${conceptTitle}`.toLowerCase();
                 const searchKey = conceptName.toLowerCase()
                   .replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '')
                   .replace(/[^a-z0-9\s]/g, ' ')
                   .trim();
                 
-                if (conceptKey.includes(searchKey.slice(0, 15)) || searchKey.includes(fullConceptTitle.toLowerCase())) {
+                console.log(`🔍 COMPARING: "${fullTitle}" vs "${searchKey}"`);
+                
+                if (fullTitle.includes(searchKey.slice(0, 15)) || searchKey.includes(conceptTitle.toLowerCase()) || 
+                    conceptTitle.toLowerCase().includes(searchKey.slice(0, 10))) {
                   originalContext = detailedDescription;
-                  console.log(`🎯 MAYA STANDARD MATCH: Found detailed description for "${conceptName}" (${originalContext.length} chars)`);
+                  console.log(`🎯 MAYA CONCEPT MATCH: Found styling description for "${conceptName}" (${originalContext.length} chars)`);
+                  console.log(`🎨 STYLING PREVIEW: ${originalContext.substring(0, 200)}...`);
                   break;
-                }
-              }
-              
-              // Pattern 2: Flexible format **Concept Name**
-              if (!originalContext) {
-                const flexiblePattern = /\*\*([^*]+?)\*\*\s*([^*]+?)(?=\*\*|$)/gs;
-                
-                while ((conceptMatch = flexiblePattern.exec(message.content)) !== null) {
-                  const conceptTitle = conceptMatch[1].trim();
-                  const description = conceptMatch[2].trim();
-                  
-                  const searchKey = conceptName.toLowerCase()
-                    .replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '')
-                    .replace(/[^a-z0-9\s]/g, ' ')
-                    .trim();
-                  
-                  if (conceptTitle.toLowerCase().includes(searchKey.slice(0, 10)) || 
-                      searchKey.includes(conceptTitle.toLowerCase().slice(0, 10))) {
-                    originalContext = description;
-                    console.log(`🎯 MAYA FLEXIBLE MATCH: Found description for "${conceptName}" (${originalContext.length} chars)`);
-                    break;
-                  }
-                }
-              }
-              
-              // Pattern 3: Extract any styling description that matches concept keywords
-              if (!originalContext) {
-                const keywordSearchTerms = conceptName.toLowerCase()
-                  .replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '')
-                  .split(/\s+/)
-                  .filter(word => word.length > 3);
-                
-                const sentences = message.content.split(/[.!?]+/);
-                for (const sentence of sentences) {
-                  if (sentence.length > 80 && sentence.length < 400) {
-                    const sentenceLower = sentence.toLowerCase();
-                    const matchCount = keywordSearchTerms.filter(term => sentenceLower.includes(term)).length;
-                    
-                    if (matchCount >= 2 && sentenceLower.includes('wearing')) {
-                      originalContext = sentence.trim();
-                      console.log(`🎯 MAYA KEYWORD MATCH: Found styling description using keywords (${originalContext.length} chars)`);
-                      break;
-                    }
-                  }
                 }
               }
               
