@@ -1932,7 +1932,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Gallery images endpoint - Enhanced to use generatedImages table with legacy support
+  // 🔥 CRITICAL FIX: Gallery images endpoint - ONLY return user-hearted/saved images
   app.get('/api/gallery-images', isAuthenticated, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
@@ -1948,39 +1948,50 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         return res.status(404).json({ error: 'User not found' });
       }
       
-      // Fetch from both tables for migration period
-      const [generatedImages, legacyAiImages] = await Promise.all([
-        storage.getGeneratedImages(user.id),
-        storage.getAIImages(user.id)
+      console.log(`💖 GALLERY FETCH: Getting saved/hearted images for user ${user.id}`);
+      
+      // 🔥 FIX: Only fetch explicitly saved/hearted images (not all generated images)
+      const [savedGeneratedImages, heartedAiImages] = await Promise.all([
+        // Only get generated images that are explicitly marked as saved
+        storage.getGeneratedImages(user.id).then(imgs => 
+          imgs.filter(img => img.saved === true)
+        ),
+        // Only get AI images that are explicitly selected or favorited
+        storage.getAIImages(user.id).then(imgs => 
+          imgs.filter(img => img.isSelected === true || img.isFavorite === true)
+        )
       ]);
       
-      // Combine and format response with enhanced generatedImages prioritized
-      const allImages = [
-        ...generatedImages.map(img => ({
+      console.log(`💖 GALLERY RESULT: Found ${savedGeneratedImages.length} saved generated + ${heartedAiImages.length} hearted AI images`);
+      
+      // Combine ONLY deliberately saved images
+      const galleryImages = [
+        ...savedGeneratedImages.map(img => ({
           id: img.id,
           imageUrl: img.selectedUrl || (JSON.parse(img.imageUrls as string)?.[0]) || '',
           imageUrls: JSON.parse(img.imageUrls as string) || [],
           prompt: img.prompt,
           category: img.category,
           subcategory: img.subcategory,
-          saved: img.saved,
+          saved: true, // All images in gallery are saved by definition
           createdAt: img.createdAt,
           source: 'generated' // Identify enhanced source
         })),
-        ...legacyAiImages.map(img => ({
+        ...heartedAiImages.map(img => ({
           id: img.id,
           imageUrl: img.imageUrl,
           imageUrls: [img.imageUrl],
           prompt: img.prompt,
           category: img.style || 'Editorial',
           subcategory: 'Professional',
-          saved: img.isSelected || img.isFavorite || false,
+          saved: true, // All images in gallery are saved by definition
           createdAt: img.createdAt,
           source: 'legacy' // Identify legacy source
         }))
       ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       
-      res.json(allImages);
+      console.log(`✅ GALLERY RESPONSE: Returning ${galleryImages.length} deliberately saved images`);
+      res.json(galleryImages);
     } catch (error) {
       console.error("Error fetching gallery images:", error);
       res.status(500).json({ message: "Failed to fetch gallery images" });
