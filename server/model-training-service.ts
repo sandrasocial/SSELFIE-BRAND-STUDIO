@@ -410,7 +410,6 @@ export class ModelTrainingService {
       console.log(`🎯 MAYA PERSONALITY INTELLIGENCE: Using ${shotType} parameters from Maya's fluxOptimization`);
       console.log(`🎯 MAYA FLUX PARAMS: guidance_scale=${mayaFluxParams.guidance_scale}, steps=${mayaFluxParams.num_inference_steps}, lora_weight=${mayaFluxParams.lora_weight}`);
       console.log(`🎯 MAYA AI PARAMETERS: count=${intelligentParams.count} (Claude API-driven selection)`);
-      console.log(`🎯 MAYA PATH SELECTION: usePackaged=${usePackaged} (affects parameter application)`);
       
       // 🎯 MAYA'S INTELLIGENCE DRIVES ALL PARAMETERS - NO MORE CONFLICTS
       const merged = {
@@ -435,6 +434,8 @@ export class ModelTrainingService {
       const usePackaged = 
         !!(userModel?.replicateModelId && userModel?.replicateVersionId) &&
         process.env.MAYA_USE_PACKAGED !== "0"; // default true
+
+      console.log(`🎯 MAYA PATH SELECTION: usePackaged=${usePackaged} (affects parameter application)`);
 
       let requestBody: any;
       let loraWeightsUrl = userModel?.loraWeightsUrl;
