@@ -26,9 +26,9 @@ export function validateMayaPrompt(
   const issues: string[] = [];
   const suggestions: string[] = [];
   
-  // Word count analysis
+  // Word count analysis (2025 research-optimal range)
   const wordCount = prompt.split(/\s+/).filter(word => word.length > 0).length;
-  const targetRange = options.targetWordCount || { min: 50, max: 150 };
+  const targetRange = options.targetWordCount || { min: 100, max: 300 };
   
   if (wordCount < targetRange.min) {
     issues.push(`Prompt too short: ${wordCount} words (optimal: ${targetRange.min}-${targetRange.max})`);

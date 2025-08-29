@@ -32,6 +32,8 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
     - **LoRA Weights**: Research-optimal 0.9-1.0 (was 1.4-1.6) for natural, non-overexposed results
     - **Megapixels**: Enhanced to 1.5-2.0 (was 1.0) for higher resolution without quality artifacts
   - **Result**: Significantly improved image quality with better prompt adherence, natural user likeness, and professional detail rendering.
+- **Critical Physical Feature Fix (August 29, 2025)**: Identified and resolved major prompting issue where Maya was instructed to specify user's hair color, eye color, and facial features despite not having access to training images. Updated system prompts to eliminate all physical feature assumptions and rely exclusively on trained LoRA models for natural appearance representation. Added physical feature policy validation to prevent future issues.
+- **Research-Based Prompt Length Optimization (August 29, 2025)**: Updated optimal prompt length from 50-150 words to 100-300 words based on 2025 FLUX research showing T5 encoder can handle 512 tokens (≈380 words) with peak performance at 100-200 word range. Enhanced validation system to support longer, more detailed prompts for superior image generation quality.
 - **Complete Hardcode Elimination (August 29, 2025)**: Removed all remaining hardcoded styling guidance that was overriding Maya's natural intelligence:
   - **Eliminated**: All hardcoded physical feature assumptions (eye color, hair color, specific facial features) that Maya doesn't know about users
   - **Eliminated**: All hardcoded outfit descriptions (blazers, specific colors, fabric types) across all 16+ concept categories

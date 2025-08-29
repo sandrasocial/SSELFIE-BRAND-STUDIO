@@ -1585,16 +1585,18 @@ ${personalBrandContext}
 TECHNICAL MODE INSTRUCTIONS:
 Switch to pure technical output mode. Use your complete styling intelligence and fashion expertise, but output ONLY the technical description that FLUX needs to generate the image.
 
-OPTIMAL PROMPT LENGTH: Target 50-150 words for best FLUX performance
+OPTIMAL PROMPT LENGTH: Target 100-300 words for research-optimal FLUX performance
 FORMAT: Continuous descriptive text - no conversation, no explanations, no formatting, no ** or - markers
-START WITH: "${finalTriggerWord}, [shot_type] portrait, [specific physical features], raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+START WITH: "${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+
+CRITICAL PHYSICAL FEATURE RESTRICTION: NEVER specify hair color, eye color, skin tone, or facial features - you cannot see the user's training images. The LoRA model will handle all physical appearance naturally.
 
 REQUIRED STRUCTURE (in this exact order):
-1. PHYSICAL DETAILS: Include specific eye color, hair texture/color, facial features, skin tone, expression
-2. STYLING INTELLIGENCE: Your expert outfit choices (specific fabrics, colors, silhouettes, proportions)
+1. STYLING INTELLIGENCE: Your expert outfit choices (specific fabrics, colors, silhouettes, proportions, accessories)
+2. POSE & EXPRESSION: Professional poses, authentic expressions, body language
 3. CAMERA TECHNICAL: Professional camera model, lens (85mm for close-up, 50mm for half-body), aperture f/2.8, ISO settings
 4. ENVIRONMENT: Detailed location, lighting setup (natural window light, studio lighting, etc.)
-5. MOOD & QUALITY: Professional atmosphere, photorealistic quality
+5. MOOD & QUALITY: Professional atmosphere, photorealistic quality, editorial sophistication
 
 Output pure technical description that captures your styling vision for this concept.`;
 
@@ -1648,30 +1650,30 @@ Your styling expertise should guide the outfit choices, hair/makeup, and photogr
       }
     }
     
-    // PROMPT LENGTH VALIDATION (FLUX 1.1 Pro optimal: 50-150 words)
+    // RESEARCH-BASED PROMPT LENGTH VALIDATION (FLUX 1.1 Pro optimal: 100-300 words)
     const wordCount = generatedPrompt.split(/\s+/).length;
-    console.log(`🎯 MAYA PROMPT LENGTH: ${wordCount} words (optimal: 50-150)`);
+    console.log(`🎯 MAYA PROMPT LENGTH: ${wordCount} words (research-optimal: 100-300)`);
     
-    if (wordCount > 200) {
-      // Trim excessively long prompts while preserving core elements
+    if (wordCount > 400) {
+      // Trim extremely long prompts while preserving core elements
       const words = generatedPrompt.split(/\s+/);
-      const trimmedPrompt = words.slice(0, 150).join(' ');
-      console.log('⚠️ MAYA PROMPT TRIMMED: Reduced from', wordCount, 'to 150 words for optimal FLUX performance');
+      const trimmedPrompt = words.slice(0, 300).join(' ');
+      console.log('⚠️ MAYA PROMPT TRIMMED: Reduced from', wordCount, 'to 300 words for FLUX token limits');
       generatedPrompt = trimmedPrompt;
-    } else if (wordCount < 30) {
-      console.log('⚠️ MAYA PROMPT TOO SHORT: Adding detail for better FLUX results');
-      generatedPrompt += ', professional photography quality, detailed facial features, photorealistic, high resolution';
+    } else if (wordCount < 75) {
+      console.log('⚠️ MAYA PROMPT TOO SHORT: Adding technical detail for research-optimal length');
+      generatedPrompt += ', professional photography quality, detailed composition, natural lighting setup, photorealistic rendering, high resolution detail';
     }
     
     // Final validation - ensure prompt is FLUX-ready and trigger word consistent
     const finalPrompt = generatedPrompt.replace(/\s+/g, ' ').trim();
     
-    // COMPREHENSIVE VALIDATION WITH GENERATION VALIDATOR
+    // RESEARCH-BASED VALIDATION WITH GENERATION VALIDATOR
     const validationResult = validateMayaPrompt(finalPrompt, {
       triggerWord: finalTriggerWord,
-      targetWordCount: { min: 50, max: 150 },
+      targetWordCount: { min: 100, max: 300 },
       requiredElements: ['photography', 'professional'],
-      forbiddenElements: ['Maya', '**', '#']
+      forbiddenElements: ['Maya', '**', '#', 'brown eyes', 'blue eyes', 'green eyes', 'brown hair', 'blonde hair', 'black hair']
     });
     
     if (!validationResult.isValid) {
