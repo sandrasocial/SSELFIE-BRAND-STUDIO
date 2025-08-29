@@ -110,39 +110,76 @@ export function validateMayaPrompt(
 export function cleanMayaPrompt(prompt: string): string {
   let cleaned = prompt;
   
-  console.log('🎯 MAYA CONVERSATION EXTRACTION: Removing conversational content, preserving styling descriptions');
+  console.log('🎯 MAYA CONVERSATION EXTRACTION: Advanced cleaning with duplicate detection');
   
-  // AGGRESSIVE CONVERSATION REMOVAL: Maya's conversations are contaminating prompts
-  // Remove everything between asterisks - this is Maya's conversational content
+  // PHASE 1: REMOVE MAYA'S CONVERSATIONAL LEAD-INS
+  // Remove Maya's energy/concept introduction phrases that contaminate prompts
   cleaned = cleaned
-    // Remove Maya's conversational responses in asterisks
+    // Remove Maya's concept energy introductions (major issue from research)
+    .replace(/^[^.!?]*(?:major|MAJOR)\s+[""'][^""']*[""']\s+energy[^.!?]*[.!?]/gi, '')
+    .replace(/^[^.!?]*(?:let me create something|I'm creating something)[^.!?]*[.!?]/gi, '')
+    .replace(/^[^.!?]*(?:that shows your|showing your)[^.!?]*[.!?]/gi, '')
+    
+    // Remove conversational asterisk content - complete Maya responses
     .replace(/\*[^*]*\*/g, '')
-    // Remove conversational openings and closings
-    .replace(/^[^.!?]*(?:Oh honey|honey|babe|love|girl|gorgeous|stunning|incredible|amazing|perfect|absolutely|trust me|chef's kiss|I'm getting|getting major|major|giving me|energy from|is giving|something that shows)[^.!?]*[.!?]/gi, '')
+    
+    // Remove Maya's excited openings and personality responses
+    .replace(/^[^.!?]*(?:Oh honey|honey|babe|love|girl|gorgeous|stunning|incredible|amazing|perfect|absolutely|trust me|chef's kiss|I'm getting|getting major|giving me|energy from|is giving|something that shows)[^.!?]*[.!?]/gi, '')
     .replace(/[.!?]\s*(?:your empire-building era|this look says|you're ready to|and this look|ready to own)[^.!?]*[.!?]?$/gi, '.')
-    // Remove Maya's excited expressions
+    
+    // Remove Maya's style commentary that creates prompt contamination
     .replace(/(?:OMG|omg|Yes|YES|Amazing|AMAZING|Perfect|PERFECT|Stunning|STUNNING|Incredible|INCREDIBLE)!?\s*/gi, '')
-    // Remove Maya's style commentary and transformation language
-    .replace(/(?:this is giving me|I'm obsessing over|I can already see|we're talking about|I'm about to style)/gi, '')
-    // Remove transformation and comparison language that could create split images
+    .replace(/(?:this is giving me|I'm obsessing over|I can already see|we're talking about|I'm about to style|let me create)/gi, '')
+    
+    // Remove split image trigger language
     .replace(/(?:transformation|before and after|split|diptych|side.by.side|comparison|vs\.|versus)/gi, '')
     .replace(/(?:from .+ to .+|evolution from|journey from|transition from)/gi, '')
-    // Remove basic formatting
-    .replace(/\*\*[^*]+\*\*/g, '') // Remove **bold** markers
-    .replace(/#{1,6}\s+/g, '') // Remove markdown headers  
-    .replace(/[-•]\s+/g, '') // Remove bullet points
-    .replace(/^\s*[\-\*]\s+/gm, '') // Remove line-starting bullets
-    .replace(/\n\s*\n/g, ' ') // Replace double newlines with space
-    // Clean up artifacts
-    .replace(/\s+/g, ' ') // Normalize spaces
-    .replace(/^[\s,]+|[\s,]+$/g, '') // Remove leading/trailing spaces and commas
-    .replace(/,\s*,+/g, ', ') // Fix multiple commas
+    
+    // Remove formatting artifacts
+    .replace(/\*\*[^*]+\*\*/g, '') 
+    .replace(/#{1,6}\s+/g, '') 
+    .replace(/[-•]\s+/g, '') 
+    .replace(/^\s*[\-\*]\s+/gm, '') 
+    .replace(/\n\s*\n/g, ' ') 
+    .replace(/\s+/g, ' ') 
+    .replace(/^[\s,]+|[\s,]+$/g, '') 
+    .replace(/,\s*,+/g, ', ')
     .trim();
 
-  console.log(`🔍 BEFORE CLEANING: ${prompt.substring(0, 200)}...`);
-  console.log(`✅ AFTER CLEANING: ${cleaned.substring(0, 200)}...`);
+  console.log(`🔍 BEFORE CLEANING: ${prompt.substring(0, 150)}...`);
+  console.log(`✅ AFTER CLEANING: ${cleaned.substring(0, 150)}...`);
 
   return cleaned;
+}
+
+/**
+ * RESEARCH-BACKED: Detect if prompt already contains technical quality tags to prevent duplication
+ */
+export function hasTechnicalPrefix(prompt: string): boolean {
+  const technicalIndicators = [
+    'raw photo', 'visible skin pores', 'film grain', 'unretouched natural skin texture',
+    'subsurface scattering', 'photographed on film', 'professional photography',
+    'Canon EOS', 'Sony A7', 'Nikon Z', 'shot with', 'captured with'
+  ];
+  
+  return technicalIndicators.some(indicator => 
+    prompt.toLowerCase().includes(indicator.toLowerCase())
+  );
+}
+
+/**
+ * RESEARCH-BACKED: Add essential anatomy keywords for FLUX 1.1 Pro hand quality
+ */
+export function addAnatomyKeywords(prompt: string): string {
+  // Check if anatomy keywords already present
+  const hasAnatomyKeywords = /(?:beautiful hands|detailed fingers|anatomically correct|natural hand positioning)/i.test(prompt);
+  
+  if (!hasAnatomyKeywords) {
+    // Add research-backed anatomy keywords early in prompt for FLUX optimization
+    return `beautiful hands, detailed fingers, anatomically correct, ${prompt}`;
+  }
+  
+  return prompt;
 }
 
 /**

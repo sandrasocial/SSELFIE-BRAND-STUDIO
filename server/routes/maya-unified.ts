@@ -1585,19 +1585,22 @@ Use this context to customize styling choices that align with their unique trans
     // MAYA'S INTELLIGENT PROMPT EXTRACTION - PRESERVING HER STYLING EXPERTISE
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
-🎯 MAYA'S TECHNICAL PROMPT MODE:
-You are creating a FLUX 1.1 Pro image generation prompt. This is a technical task, NOT a conversation with the user.
+🎯 MAYA'S TECHNICAL PROMPT MODE - 2025 FLUX OPTIMIZATION:
+You are creating a FLUX 1.1 Pro image generation prompt. This is TECHNICAL PROMPT CREATION, not conversation.
 
 CONCEPT: "${conceptName}"
 CONTEXT: "${cleanOriginalContext}"
 ${personalBrandContext}
 
-CREATIVE FREEDOM INSTRUCTIONS:
-Use your complete styling intelligence and fashion expertise to create a unique, creative FLUX prompt. Express your full personality and creativity!
+RESEARCH-BACKED FLUX 1.1 PRO REQUIREMENTS:
+- Use NATURAL LANGUAGE descriptions (not keyword lists)
+- Focus on STYLING INTELLIGENCE and creative vision
+- Target 100-250 words for optimal FLUX performance
+- NO conversational language - pure styling description only
 
-OPTIMAL PROMPT LENGTH: Target 100-300 words for research-optimal FLUX performance
-FORMAT: Natural, descriptive text that captures your creative vision
-START WITH: "${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+CRITICAL TECHNICAL RULES:
+- NEVER add technical quality tags (raw photo, film grain, etc.) - system handles this automatically
+- NEVER specify hair color, eye color, skin tone, facial features - LoRA handles physical appearance
 
 CRITICAL IMAGE RESTRICTIONS:
 - NEVER specify hair color, eye color, skin tone, or facial features - the LoRA model handles all physical appearance
@@ -1657,23 +1660,40 @@ Let your creativity shine - use unexpected details, sophisticated combinations, 
     const data = await claudeResponse.json();
     let generatedPrompt = data.content[0].text.trim();
     
-    // INTELLIGENT PROMPT EXTRACTION - PRESERVE MAYA'S STYLING DECISIONS
-    // Use enhanced cleaning from generation validator
+    // RESEARCH-BACKED PROMPT OPTIMIZATION - NO DUPLICATES, PROPER STRUCTURE
+    // Phase 1: Clean Maya's conversational content while preserving styling intelligence
     generatedPrompt = cleanMayaPrompt(generatedPrompt);
     
-    // INTELLIGENT PROMPT VALIDATION - ENSURE MAYA'S EXPERTISE IS PRESERVED
-    // Ensure proper trigger word and technical format
+    // Phase 2: DUPLICATE DETECTION - Critical fix from research
+    const { hasTechnicalPrefix, addAnatomyKeywords } = await import('../generation-validator.js');
+    const alreadyHasTechnicalTags = hasTechnicalPrefix(generatedPrompt);
+    
+    console.log(`🔍 DUPLICATE DETECTION: Technical tags already present = ${alreadyHasTechnicalTags}`);
+    
+    // Phase 3: RESEARCH-BACKED PROMPT ASSEMBLY
     if (finalTriggerWord) {
       // Remove any existing trigger word occurrences to avoid duplication
-      const cleanPrompt = generatedPrompt.replace(new RegExp(finalTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
+      let cleanPrompt = generatedPrompt.replace(new RegExp(finalTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
       
-      // Build final prompt with required technical prefix + Maya's styling intelligence
-      if (cleanPrompt.length > 10) { // Ensure we have substantial content from Maya
-        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${cleanPrompt}`;
+      if (cleanPrompt.length > 10) { // Ensure substantial Maya content
+        
+        // RESEARCH FINDING: Add anatomy keywords early for FLUX hand quality
+        cleanPrompt = addAnatomyKeywords(cleanPrompt);
+        
+        if (alreadyHasTechnicalTags) {
+          // Maya's response already has technical tags - don't duplicate
+          console.log('✅ MAYA INTELLIGENCE: Using existing technical tags, no duplication');
+          generatedPrompt = `${finalTriggerWord}, ${cleanPrompt}`;
+        } else {
+          // Add technical prefix only if not present
+          console.log('📝 TECHNICAL PREFIX: Adding research-backed quality tags');
+          generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, ${cleanPrompt}`;
+        }
       } else {
-        // If Maya's response was too brief, request more detail
-        console.warn('Maya generated brief response, using fallback with concept name');
-        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${conceptName}, professional styling, sophisticated composition`;
+        // Fallback with anatomy keywords
+        console.warn('Maya generated brief response, using enhanced fallback');
+        const fallbackContent = addAnatomyKeywords(`${conceptName}, professional styling, sophisticated composition, natural lighting`);
+        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${fallbackContent}`;
       }
     }
     
