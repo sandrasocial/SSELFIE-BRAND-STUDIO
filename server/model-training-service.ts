@@ -394,15 +394,30 @@ export class ModelTrainingService {
       // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER SELECTION WITH CATEGORY CONTEXT
       const categoryContext = options?.categoryContext;
       const intelligentParams = await this.getIntelligentParameters(finalPrompt, count, userId, categoryContext);
-      console.log(`🎯 MAYA AI INTELLIGENCE: Using ${intelligentParams.preset} preset for ${intelligentParams.reasoning}`);
+      
+      // ----- PHASE 1 FIX: Use Maya's optimized parameters (temporary fallback while fixing import) -----
+      const shotType = this.determineShotTypeFromPrompt(finalPrompt);
+      
+      // Maya's fluxOptimization parameters (inline until import is fixed)
+      const mayaFluxParams = {
+        closeUpPortrait: { guidance_scale: 2.8, num_inference_steps: 30, lora_weight: 1.0 },
+        halfBodyShot: { guidance_scale: 2.6, num_inference_steps: 32, lora_weight: 1.1 },
+        fullScenery: { guidance_scale: 2.4, num_inference_steps: 35, lora_weight: 1.3 }
+      }[shotType];
+      
+      console.log(`🎯 MAYA PERSONALITY INTELLIGENCE: Using ${shotType} parameters from Maya's fluxOptimization`);
+      console.log(`🎯 MAYA FLUX PARAMS: guidance_scale=${mayaFluxParams.guidance_scale}, steps=${mayaFluxParams.num_inference_steps}, lora_weight=${mayaFluxParams.lora_weight}`);
       console.log(`🎯 MAYA AI PARAMETERS: count=${intelligentParams.count} (Claude API-driven selection)`);
-
-      // ----- Merge generation parameters (defaults → Maya's intelligent preset → explicit overrides) -----
-      const mayaPreset = FLUX_PRESETS[intelligentParams.preset];
+      
       const merged = {
         ...UNIVERSAL_DEFAULT,
         ...GENERATION_SETTINGS,
-        ...mayaPreset, // Use Maya's intelligently selected preset
+        // Use Maya's intelligent parameters from personality file
+        guidance_scale: mayaFluxParams.guidance_scale,
+        num_inference_steps: mayaFluxParams.num_inference_steps,
+        lora_scale: mayaFluxParams.lora_weight, // Note: personality file uses lora_weight, API expects lora_scale
+        aspect_ratio: "3:4", // Keep aspect ratio from preset for now
+        megapixels: "1.5",   // Keep megapixels from preset for now
         ...(options?.paramsOverride || {})
       };
       
@@ -800,6 +815,26 @@ export class ModelTrainingService {
       console.error('❌ extractLoRAWeights error:', error);
       return null;
     }
+  }
+
+  // PHASE 1 FIX: Determine shot type from prompt for Maya's personality parameters
+  private static determineShotTypeFromPrompt(prompt: string): 'closeUpPortrait' | 'halfBodyShot' | 'fullScenery' {
+    const promptLower = prompt.toLowerCase();
+    
+    // Close-up indicators
+    if (promptLower.includes('portrait') || promptLower.includes('headshot') || promptLower.includes('close-up') || 
+        promptLower.includes('face') || promptLower.includes('beauty') || promptLower.includes('makeup')) {
+      return 'closeUpPortrait';
+    }
+    
+    // Full scenery indicators  
+    if (promptLower.includes('full body') || promptLower.includes('environment') || promptLower.includes('landscape') ||
+        promptLower.includes('scenery') || promptLower.includes('location') || promptLower.includes('destination')) {
+      return 'fullScenery';
+    }
+    
+    // Default to half-body for most styling concepts
+    return 'halfBodyShot';
   }
 
   // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER INTELLIGENCE

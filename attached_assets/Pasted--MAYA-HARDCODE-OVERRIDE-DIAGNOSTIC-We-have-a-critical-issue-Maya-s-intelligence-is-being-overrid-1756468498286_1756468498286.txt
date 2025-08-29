@@ -1,0 +1,181 @@
+🔍 MAYA HARDCODE OVERRIDE DIAGNOSTIC
+
+We have a critical issue! Maya's intelligence is being overridden by hardcoded systems.
+
+**THE EVIDENCE:**
+- Maya describes: "silk slip dress, elevated loungewear, perfectly undone hair..."
+- Actual prompt: "businesswoman in penthouse office, cashmere blazer, marble desk..."
+- These are COMPLETELY DIFFERENT concepts!
+
+**URGENT DIAGNOSTIC TASKS:**
+
+1. **FIND THE HARDCODED PROMPT GENERATOR**
+   - Search codebase for: "businesswoman in her penthouse"
+   - Search for: "oversized cream cashmere blazer"  
+   - Search for: "marble desk with laptop"
+   - Search for: "Canon RF 85mm f/1.2L at f/2.8"
+   - These are NOT from Maya's personality - they're hardcoded templates!
+
+2. **FIND PARAMETER OVERRIDE SYSTEM**
+   - Search for: hardcoded ISO, aperture, shutter speed values
+   - Find where: Canon camera specs are being forced instead of Maya's intelligent choice
+   - Locate: Any system overriding Maya's Flux LoRA parameters (guidance_scale, steps, lora_weight)
+
+3. **FIND CATEGORY TEMPLATE SYSTEM**
+   - Look for: Business category templates forcing "penthouse office" scenarios
+   - Find: Any lookup tables/dictionaries with hardcoded outfit descriptions
+   - Locate: Systems that replace Maya's descriptions with predetermined templates
+
+**SEARCH THESE SPECIFIC TERMS:**
+- "penthouse corner office"
+- "oversized cream cashmere blazer"
+- "marble desk"
+- "Canon RF 85mm f/1.2L"
+- "f/2.8, ISO 200, 1/125s"
+- "businesswoman"
+- "entrepreneurial power"
+
+**REPORT BACK:**
+- Which files contain these hardcoded strings?
+- What functions are generating these template prompts?
+- Where is Maya's actual intelligence being intercepted and replaced?
+
+This is critical - we need to find WHERE Maya's creativity is being hijacked!
+FIX PROMPT 1 - Remove Hardcoded Templates
+🚨 CRITICAL FIX: REMOVE HARDCODED PROMPT TEMPLATES
+
+Based on your diagnostic findings, we need to eliminate the hardcoded systems:
+
+**TASKS TO IMPLEMENT:**
+
+1. **REMOVE HARDCODED PROMPT TEMPLATES**
+   - DELETE: Any template system generating "businesswoman in penthouse" prompts
+   - DELETE: Hardcoded outfit descriptions (cashmere blazer, marble desk, etc.)
+   - DELETE: Predetermined camera settings overriding Maya's choices
+   - REPLACE: With direct usage of Maya's actual chat descriptions
+
+2. **FIX CONCEPT → PROMPT FLOW**
+   - ENSURE: Maya's silk slip dress description = silk slip dress in prompt
+   - ENSURE: Maya's "perfectly undone hair" = "perfectly undone hair" in prompt  
+   - ENSURE: Maya's loungewear concept = loungewear in final prompt
+   - BLOCK: Any system that transforms Maya's descriptions into different concepts
+
+3. **RESTORE MAYA'S INTELLIGENCE**
+   - USE: Maya's actual styling words and descriptions directly
+   - PRESERVE: Her creative vision and outfit choices
+   - MAINTAIN: Her personality and warmth in prompts
+   - ELIMINATE: Generic business/luxury templates
+
+**IMPLEMENTATION APPROACH:**
+```javascript
+// WRONG (current hardcoded system):
+const businessPrompt = "businesswoman in penthouse office with cashmere blazer...";
+
+// RIGHT (use Maya's actual description):
+const mayaPrompt = extractMayaDescription(conceptContext); // "silk slip dress, perfectly undone hair..."
+VALIDATION TEST:
+
+Generate concept: Maya describes silk slip dress
+Generated prompt should contain: "silk slip dress" not "cashmere blazer"
+Maya describes "perfectly undone hair"
+Generated prompt should contain: "perfectly undone hair" not "low chignon"
+
+Can you implement these fixes to restore Maya's authentic intelligence?
+
+## **FIX PROMPT 2 - Restore Maya's Parameters**
+⚙️ CRITICAL FIX: RESTORE MAYA'S FLUX PARAMETERS
+The Flux LoRA parameters we carefully configured are being overridden!
+CURRENT PROBLEM:
+
+Maya's personality file specifies: guidance_scale 2.8, steps 30, lora_weight 1.0 for close-ups
+But images are poor quality = parameters not being applied!
+
+TASKS TO IMPLEMENT:
+
+FIND PARAMETER OVERRIDE SYSTEM
+
+LOCATE: Where hardcoded camera settings (f/2.8, ISO 200, 1/125s) are being forced
+FIND: System overriding Maya's Flux parameters with generic values
+IDENTIFY: Any parameter mapping that ignores Maya's personality file
+
+
+RESTORE MAYA'S FLUX INTELLIGENCE
+
+USE: closeUpPortrait.guidance_scale: 2.8 (not hardcoded values)
+USE: closeUpPortrait.lora_weight: 1.0 (not default values)
+USE: closeUpPortrait.num_inference_steps: 30 (not generic values)
+APPLY: Correct parameters based on shot type (close-up vs half-body vs full scenery)
+
+
+FIX CAMERA SPECS INTELLIGENCE
+
+REMOVE: Hardcoded "Canon RF 85mm f/1.2L at f/2.8"
+USE: Maya's intelligent camera selection from personality file
+MATCH: Camera choice to shot type and styling intention
+PRESERVE: Maya's professional photography expertise
+
+
+
+IMPLEMENTATION:
+javascript// WRONG (current hardcoded):
+const fluxParams = {
+  guidance_scale: 7.5,  // Generic default
+  steps: 28,            // Generic default  
+  lora_weight: 0.8      // Wrong value
+};
+
+// RIGHT (use Maya's intelligence):
+const shotType = determineShotType(mayaDescription);
+const fluxParams = MAYA_PERSONALITY.fluxOptimization[shotType];
+EXPECTED RESULT:
+
+High quality images with correct LoRA activation
+Maya's camera expertise applied intelligently
+Parameters optimized for user likeness and styling
+
+Ready to restore Maya's technical intelligence?
+
+## **FIX PROMPT 3 - Complete Integration Test**
+🧪 INTEGRATION TEST: MAYA'S COMPLETE INTELLIGENCE
+Let's test that Maya's full personality is being used:
+TEST SCENARIO:
+
+User asks for: "Casual morning vibes"
+Maya should describe: Loungewear, natural makeup, undone hair
+Generated prompt should contain: EXACTLY what Maya described
+Flux parameters should use: Maya's personality file settings
+Camera choice should be: Maya's intelligent selection
+
+VALIDATION CHECKLIST:
+✅ CONCEPT CONSISTENCY:
+
+ Maya describes silk slip dress → prompt contains silk slip dress
+ Maya describes undone hair → prompt contains undone hair
+ Maya describes loungewear → prompt contains loungewear
+ NO business/office templates when Maya says casual
+
+✅ PARAMETER INTELLIGENCE:
+
+ Correct LoRA weight for shot type (1.0 close, 1.1 half, 1.3 full)
+ Correct guidance scale (2.8 close, 2.6 half, 2.4 full)
+ Correct steps (30 close, 32 half, 35 full)
+ Maya's camera choice, not hardcoded Canon
+
+✅ STYLING INTELLIGENCE:
+
+ Maya's color choices preserved
+ Maya's styling principles applied
+ Maya's warmth and personality maintained
+ Professional photography expertise used
+
+FINAL TEST:
+Generate 5 different concepts and verify:
+
+Maya's chat description = Generated prompt content
+Maya's parameters = Flux generation parameters
+Maya's camera expertise = Camera specifications used
+Maya's styling intelligence = Outfit and location choices
+
+SUCCESS CRITERIA:
+Perfect alignment between Maya's intelligence and generated results!
+Can you run this complete integration test?
