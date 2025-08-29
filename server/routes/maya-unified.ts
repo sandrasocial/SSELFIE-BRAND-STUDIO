@@ -432,6 +432,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     // Get context for category detection - retrieve from cache if concept generation was used
     let contextForCategory = '';
     if (conceptName && conceptName.length > 0) {
+      const conceptId = req.body.conceptId; // Declare conceptId here for cache key
       const cacheKey = `${userId}-${conceptId || conceptName}`;
       const cachedContext = mayaContextCache.get(cacheKey);
       contextForCategory = cachedContext ? cachedContext.originalContext : '';
