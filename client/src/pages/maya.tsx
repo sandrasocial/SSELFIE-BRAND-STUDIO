@@ -1393,7 +1393,7 @@ function Maya() {
                 </div>
                 <div className="welcome-eyebrow">Personal Brand Photos</div>
                   <h2 className="welcome-title">What photos does your business need most?</h2>
-                  <p className="welcome-description">Hey beautiful! I'm Maya, and I'm here to create the exact photos that will transform your business. Whether you need those powerful LinkedIn headshots that scream authority, gorgeous Instagram content that stops the scroll, or website images that convert - I've got you covered. Tell me, what photos would make you feel absolutely unstoppable in your business right now?</p>
+                  <p className="welcome-description">Hey beautiful! I'm Maya, and I'm here to help you tell your story through stunning photos. Whether you need Instagram content that feels authentically you or personal brand photos that showcase your unique style - I've got you covered. What story do you want to tell?</p>
 
                   {/* Style Quick-Select with SSELFIE categories */}
                   <div className="style-quickselect">
