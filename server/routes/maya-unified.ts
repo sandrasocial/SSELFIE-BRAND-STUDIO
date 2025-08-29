@@ -1582,23 +1582,24 @@ CONCEPT: "${conceptName}"
 CONTEXT: "${cleanOriginalContext}"
 ${personalBrandContext}
 
-TECHNICAL MODE INSTRUCTIONS:
-Switch to pure technical output mode. Use your complete styling intelligence and fashion expertise, but output ONLY the technical description that FLUX needs to generate the image.
+CREATIVE FREEDOM INSTRUCTIONS:
+Use your complete styling intelligence and fashion expertise to create a unique, creative FLUX prompt. Express your full personality and creativity!
 
 OPTIMAL PROMPT LENGTH: Target 100-300 words for research-optimal FLUX performance
-FORMAT: Continuous descriptive text - no conversation, no explanations, no formatting, no ** or - markers
+FORMAT: Natural, descriptive text that captures your creative vision
 START WITH: "${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
 
 CRITICAL PHYSICAL FEATURE RESTRICTION: NEVER specify hair color, eye color, skin tone, or facial features - you cannot see the user's training images. The LoRA model will handle all physical appearance naturally.
 
-REQUIRED STRUCTURE (in this exact order):
-1. STYLING INTELLIGENCE: Your expert outfit choices (specific fabrics, colors, silhouettes, proportions, accessories)
-2. POSE & EXPRESSION: Professional poses, authentic expressions, body language
-3. CAMERA TECHNICAL: Professional camera model, lens (85mm for close-up, 50mm for half-body), aperture f/2.8, ISO settings
-4. ENVIRONMENT: Detailed location, lighting setup (natural window light, studio lighting, etc.)
-5. MOOD & QUALITY: Professional atmosphere, photorealistic quality, editorial sophistication
+CREATIVE STYLING APPROACH:
+Let your styling intelligence flow naturally! Create unexpected, beautiful combinations that showcase your expertise:
+- Use your fashion week knowledge for unique textures, unexpected color pairings, innovative silhouettes
+- Draw from current trends but add your signature twist 
+- Mix luxury with accessibility, structure with softness, classic with contemporary
+- Choose poses and settings that enhance the styling story
+- Include professional camera and lighting details that complement the aesthetic
 
-Output pure technical description that captures your styling vision for this concept.`;
+Express your creative vision authentically - no rigid formulas, just your intelligent styling expertise!`;
 
     // Call Claude API for Maya's intelligent prompt generation
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1614,11 +1615,11 @@ Output pure technical description that captures your styling vision for this con
         system: mayaPromptPersonality,
         messages: [{
           role: 'user',
-          content: `TECHNICAL PROMPT REQUEST: "${conceptName}"
+          content: `CREATIVE STYLING REQUEST: "${conceptName}"
 
-Use your styling intelligence to create a technical FLUX prompt. Output only the descriptive text - no conversation, no explanations, no formatting.
+Channel your complete styling expertise to create a beautiful, unique FLUX prompt that captures this concept perfectly. 
 
-Your styling expertise should guide the outfit choices, hair/makeup, and photography setup.`
+Let your creativity shine - use unexpected details, sophisticated combinations, and your signature approach to make this concept truly special. Output descriptive text that shows your full creative range.`
         }]
       })
     });
