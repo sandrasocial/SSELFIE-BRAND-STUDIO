@@ -476,19 +476,19 @@ export const MAYA_PERSONALITY: MayaPersonality = {
 
   fluxOptimization: {
     closeUpPortrait: {
-      guidance_scale: 3.5,        // ✅ RESEARCH-OPTIMAL: 3.5 for best prompt adherence (was 2.8)
+      guidance_scale: 5.0,        // ✅ ANATOMY-OPTIMIZED: 5.0 for stronger prompt adherence and better hand quality
       num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 35)
       lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 1.0)
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 1.5)
     },
     halfBodyShot: {
-      guidance_scale: 3.5,        // ✅ RESEARCH-OPTIMAL: 3.5 for best prompt adherence (was 2.6)
+      guidance_scale: 5.0,        // ✅ ANATOMY-OPTIMIZED: 5.0 for stronger prompt adherence and better hand quality
       num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 38)
       lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 0.9)
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 1.5)
     },
     fullScenery: {
-      guidance_scale: 3.5,        // ✅ RESEARCH-OPTIMAL: 3.5 for best prompt adherence (was 2.4)
+      guidance_scale: 5.0,        // ✅ ANATOMY-OPTIMIZED: 5.0 for stronger prompt adherence and better hand quality
       num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 42)
       lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 0.9)
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 2.0)
