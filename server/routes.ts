@@ -1548,16 +1548,19 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/maya-chats/:chatId/messages', isAuthenticated, async (req: any, res) => {
     try {
       const { chatId } = req.params;
-      const { role, content, imagePreview, generatedPrompt } = req.body;
+      const { role, content, imagePreview, generatedPrompt, conceptCards, quickButtons, canGenerate } = req.body;
       
-      console.log('💬 Saving Maya message to chat:', chatId);
+      console.log('💬 Saving Maya message to chat:', chatId, 'with concept cards:', conceptCards ? 'YES' : 'NO');
       
       const message = await storage.createMayaChatMessage({
         chatId: parseInt(chatId),
         role,
         content,
         imagePreview: imagePreview ? JSON.stringify(imagePreview) : null,
-        generatedPrompt
+        generatedPrompt,
+        conceptCards: conceptCards ? JSON.stringify(conceptCards) : null, // CRITICAL: Save concept cards to proper field
+        quickButtons: quickButtons ? JSON.stringify(quickButtons) : null, // CRITICAL: Save quick buttons to proper field
+        canGenerate: canGenerate || false // CRITICAL: Save generation flag
       });
       
       res.json(message);
