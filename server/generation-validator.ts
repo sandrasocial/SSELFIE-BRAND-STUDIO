@@ -110,24 +110,34 @@ export function validateMayaPrompt(
 export function cleanMayaPrompt(prompt: string): string {
   let cleaned = prompt;
   
-  // MINIMAL CLEANING: Preserve Maya's complete creative vision
-  // Only remove obvious conversation markers, keep all styling content
-  console.log('🎯 MAYA INTELLIGENCE PROTECTION: Minimal cleaning to preserve creative content');
+  console.log('🎯 MAYA CONVERSATION EXTRACTION: Removing conversational content, preserving styling descriptions');
   
-  // Only remove obvious non-styling conversational starters - keep all styling content intact
+  // AGGRESSIVE CONVERSATION REMOVAL: Maya's conversations are contaminating prompts
+  // Remove everything between asterisks - this is Maya's conversational content
   cleaned = cleaned
-    // Remove only explicit conversation markers
-    .replace(/^(Oh\s+)?(?:honey|babe|love),?\s*/gi, '')
-    .replace(/^(?:Absolutely|Perfect|Amazing|Stunning)!?\s*/gi, '')
-    .replace(/^(?:Trust me|Chef's kiss),?\s*/gi, '')
-    // Remove basic formatting markers only
+    // Remove Maya's conversational responses in asterisks
+    .replace(/\*[^*]*\*/g, '')
+    // Remove conversational openings and closings
+    .replace(/^[^.!?]*(?:Oh honey|honey|babe|love|girl|gorgeous|stunning|incredible|amazing|perfect|absolutely|trust me|chef's kiss|I'm getting|getting major|major|giving me|energy from|is giving|something that shows)[^.!?]*[.!?]/gi, '')
+    .replace(/[.!?]\s*(?:your empire-building era|this look says|you're ready to|and this look|ready to own)[^.!?]*[.!?]?$/gi, '.')
+    // Remove Maya's excited expressions
+    .replace(/(?:OMG|omg|Yes|YES|Amazing|AMAZING|Perfect|PERFECT|Stunning|STUNNING|Incredible|INCREDIBLE)!?\s*/gi, '')
+    // Remove Maya's style commentary
+    .replace(/(?:this is giving me|I'm obsessing over|I can already see|we're talking about|I'm about to style)/gi, '')
+    // Remove basic formatting
     .replace(/\*\*[^*]+\*\*/g, '') // Remove **bold** markers
     .replace(/#{1,6}\s+/g, '') // Remove markdown headers  
     .replace(/[-•]\s+/g, '') // Remove bullet points
     .replace(/^\s*[\-\*]\s+/gm, '') // Remove line-starting bullets
     .replace(/\n\s*\n/g, ' ') // Replace double newlines with space
+    // Clean up artifacts
     .replace(/\s+/g, ' ') // Normalize spaces
+    .replace(/^[\s,]+|[\s,]+$/g, '') // Remove leading/trailing spaces and commas
+    .replace(/,\s*,+/g, ', ') // Fix multiple commas
     .trim();
+
+  console.log(`🔍 BEFORE CLEANING: ${prompt.substring(0, 200)}...`);
+  console.log(`✅ AFTER CLEANING: ${cleaned.substring(0, 200)}...`);
 
   return cleaned;
 }

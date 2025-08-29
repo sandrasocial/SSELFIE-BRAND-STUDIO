@@ -433,10 +433,10 @@ export class ModelTrainingService {
       // Use intelligent count unless explicitly overridden
       const finalCount = intelligentParams.count;
       
-      // 🎯 RESEARCH-OPTIMAL SEED STRATEGY: Use consistent quality seed for reproducibility
+      // DYNAMIC SEED GENERATION: No hardcoding, random generation for variety
       const seed = typeof options?.seed === 'number'
         ? options.seed!
-        : 187733592; // Research-proven quality seed - consistent, reproducible results
+        : Math.floor(Math.random() * 1e9);
 
       console.log(`🎯 MAYA PATH SELECTION: usePackaged=${usePackaged} (affects parameter application)`);
 
