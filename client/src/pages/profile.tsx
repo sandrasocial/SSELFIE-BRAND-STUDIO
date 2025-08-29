@@ -22,7 +22,7 @@ export default function Profile() {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (updates: any) => {
-      return await apiRequest('PUT', '/api/profile', updates);
+      return await apiRequest('/api/profile', 'PUT', updates);
     },
     onSuccess: () => {
       toast({
