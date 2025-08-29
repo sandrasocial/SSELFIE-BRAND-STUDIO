@@ -140,7 +140,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Color psychology - rich neutrals that convey authority with strategic accent colors"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD], close-up business portrait, confident professional expression",
+        "[TRIGGER_WORD], close-up business portrait, natural professional expression",
         "Shot on Canon EOS R5, 85mm f/1.4 lens, f/2.8 aperture, ISO 400, natural window light with soft shadows",
         "Maya's intelligent styling choices based on concept and user's personal brand",
         "Professional environment with architectural lighting and sophisticated atmosphere",
@@ -159,11 +159,11 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Professional styling that translates across different business environments"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD], half-body professional portrait, sophisticated expression conveying expertise and warmth",
+        "[TRIGGER_WORD], half-body professional portrait, natural expression conveying expertise and warmth",
         "Shot on Sony A7R V, 50mm f/1.4 GM lens, f/2.8, shallow depth of field, professional lighting setup with key light and fill",
         "Maya's intelligent ensemble selection based on concept and personal style goals",
         "Contemporary professional environment, clean architectural lines, natural lighting, minimalist backdrop",
-        "Professional photography quality, raw photo aesthetic, natural skin texture, approachable authority presence"
+        "Professional photography quality, raw photo aesthetic, authentic features, approachable authority presence"
       ]
     },
 
@@ -181,7 +181,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "[TRIGGER_WORD], elevated lifestyle moment, effortless styling approach, shot with Nikon Z9, 35mm f/1.4 lens for environmental context",
         "Maya's intelligent elevated casual styling based on concept and lifestyle goals",
         "Beautiful lifestyle environment, natural lighting, curated living spaces, authentic moments",
-        "Lifestyle photography lighting, film grain, natural expressions, approachable elegance"
+        "Lifestyle photography lighting, film grain, natural expression, approachable elegance"
       ]
     },
 
@@ -199,7 +199,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "[TRIGGER_WORD], authentic casual moment, approachable styling excellence, shot with Canon R6 Mark II, 24-70mm f/2.8 zoom for versatile framing",
         "Maya's intelligent authentic styling approach based on concept and personal style",
         "Natural environment, home spaces, neighborhood settings, authentic lighting",
-        "Natural photography, soft lighting, genuine expressions, relatable energy"
+        "Natural photography, soft lighting, natural expression, relatable energy"
       ]
     },
 
@@ -217,7 +217,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "[TRIGGER_WORD], personal story moment, meaningful expression, shot with Sony FE 85mm f/1.8, intimate portrait setup for emotional connection",
         "Maya's thoughtful styling choices that reflect personal journey and authentic growth",
         "Meaningful location, personal significance, natural intimate lighting, storytelling environment",
-        "Emotional portrait lighting, natural expressions, authentic vulnerability, inspiring strength"
+        "Emotional portrait lighting, natural expression, authentic vulnerability, inspiring strength"
       ]
     },
 
@@ -504,12 +504,12 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     physicalFeaturePolicy: [
       "CRITICAL: Maya CANNOT see user's training images or physical features",
       "NEVER specify hair color, eye color, skin tone, or facial characteristics", 
+      "Use universal terms: 'natural hair color', 'natural expression', 'authentic features'",
       "Focus exclusively on styling, clothing, accessories, poses, and lighting",
-      "Let the trained LoRA model handle all physical representation naturally",
-      "Use [TRIGGER_WORD] and styling descriptions only - no physical assumptions"
+      "Let the trained LoRA model handle all physical representation naturally"
     ],
     cameraSpecifications: {
-      closeUp: "85mm f/1.4 lens, f/2.8 aperture, shallow depth of field, focus on eyes",
+      closeUp: "85mm f/1.4 lens, f/2.8 aperture, shallow depth of field, sharp focus",
       halfBody: "50mm f/1.2 lens, f/2.8 aperture, natural perspective, balanced composition", 
       fullBody: "35mm f/1.8 lens, f/4 aperture, full scene coverage, environmental context"
     },
@@ -521,8 +521,8 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "subsurface scattering",
       "photographed on film",
       "professional photography",
-      "sharp focus on eyes",
-      "detailed facial features",
+      "sharp focus",
+      "natural expression",
       "photorealistic",
       "high resolution",
       "DSLR quality"
@@ -591,15 +591,15 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     closeUpPortrait: {
       recommendedLenses: [
         "Canon RF 85mm f/1.2L USM - ultimate portrait sharpness with creamy bokeh",
-        "Sony FE 85mm f/1.4 GM - professional portrait quality with excellent eye tracking",
+        "Sony FE 85mm f/1.4 GM - professional portrait quality with excellent autofocus tracking",
         "Nikon Z 85mm f/1.8 S - sharp, fast, perfect for intimate portraits",
         "Sigma 85mm f/1.4 DG DN Art - exceptional sharpness and bokeh quality"
       ],
       cameraSettings: [
-        "Aperture: f/1.4 to f/2.8 for shallow depth of field and sharp eyes",
+        "Aperture: f/1.4 to f/2.8 for shallow depth of field and sharp focus",
         "ISO: 100-400 for clean image quality with minimal noise",
         "Shutter speed: 1/125s minimum for sharp handheld portraits",
-        "Focus mode: Single-point AF with eye detection for precise focus"
+        "Focus mode: Single-point AF with subject detection for precise focus"
       ],
       lightingSetup: [
         "Key light: large softbox at 45-degree angle for flattering facial modeling",
