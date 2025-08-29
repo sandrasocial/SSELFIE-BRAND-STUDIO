@@ -501,6 +501,11 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
 
 
+    // 🚨 CRITICAL MAYA PROMPT DEBUG: Log exact prompt being sent to FLUX
+    console.log(`🚨 MAYA PROMPT DEBUG: Sending to FLUX (${finalPrompt.length} chars):`);
+    console.log(`🎯 EXACT FLUX PROMPT: "${finalPrompt}"`);
+    console.log(`🔧 MAYA GENERATION CONFIG: seed=${seed}, categoryContext="${categoryContext}"`);
+    
     const result = await ModelTrainingService.generateUserImages(
       userId,
       finalPrompt,
