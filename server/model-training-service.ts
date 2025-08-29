@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { storage } from './storage';
 import { ArchitectureValidator } from './architecture-validator';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { FLUX_PRESETS, UNIVERSAL_DEFAULT, type FluxPresetName } from './presets/flux';
+
 
 // Image categories and prompt templates
 export const IMAGE_CATEGORIES = {
@@ -343,7 +343,7 @@ export class ModelTrainingService {
     userId: string,
     customPrompt: string,
     count: number = 4,
-    options?: { preset?: FluxPresetName; seed?: number; paramsOverride?: Partial<typeof BASE_QUALITY_SETTINGS>; categoryContext?: string }
+    options?: { seed?: number; paramsOverride?: Partial<typeof BASE_QUALITY_SETTINGS>; categoryContext?: string }
   ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
     
     try {
@@ -842,7 +842,6 @@ export class ModelTrainingService {
   // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER INTELLIGENCE
   // ZERO TOLERANCE ANTI-HARDCODE: Maya's AI chooses all parameters based on styling vision
   private static async getIntelligentParameters(prompt: string, requestedCount: number, userId?: string, categoryContext?: string): Promise<{
-    preset: FluxPresetName;
     count: number;
     reasoning: string;
   }> {
@@ -855,53 +854,50 @@ export class ModelTrainingService {
       
       // MAYA'S PARAMETER INTELLIGENCE PROMPT WITH CATEGORY CONTEXT
       const categoryGuidance = categoryContext ? `\n\n📸 USER'S CATEGORY REQUEST: ${categoryContext}
-STYLING FOCUS: Adapt your technical choices to match this SSELFIE Studio category:
-- Business: Professional authority and credibility (often Identity preset)
-- Professional & Authority: Leadership presence (Identity for portraits, Editorial for full-body)
-- Lifestyle: Elevated casual and authentic moments (Editorial or UltraPrompt)
-- Casual & Authentic: Natural, unguarded moments (Editorial for natural lighting)
-- Story: Narrative-driven imagery (UltraPrompt for environmental storytelling)
-- Behind the Scenes: Raw authenticity (Editorial for natural feel)
-- Instagram: Social media optimized (Identity for close-ups, UltraPrompt for full-body)
-- Feed & Stories: Platform-specific content (Identity or Editorial based on composition)
-- Travel: Adventure and destinations (UltraPrompt for location context)
-- Adventures & Destinations: Location-specific styling (UltraPrompt for environmental)
-- Outfits: Fashion-focused styling (Editorial for fashion detail)
-- Fashion & Style: Editorial fashion (Editorial preset for style focus)
-- GRWM: Morning routines and preparation (Identity for close-ups)
-- Get Ready With Me: Extended preparation content (Identity for intimate moments)
-- Future Self: Aspirational imagery (Editorial for elevated vision)
-- Aspirational Vision: Goals and transformation (Editorial or UltraPrompt)
-- B&W: Timeless artistic imagery (Editorial for artistic quality)
-- Timeless & Artistic: Classic enduring style (Editorial for sophistication)
-- Studio: Controlled professional environment (Identity or Editorial based on shot type)` : '';
+STYLING FOCUS: Adapt your creative choices to match this SSELFIE Studio category:
+- Business: Professional authority and credibility 
+- Professional & Authority: Leadership presence
+- Lifestyle: Elevated casual and authentic moments
+- Casual & Authentic: Natural, unguarded moments
+- Story: Narrative-driven imagery 
+- Behind the Scenes: Raw authenticity
+- Instagram: Social media optimized
+- Feed & Stories: Platform-specific content
+- Travel: Adventure and destinations
+- Adventures & Destinations: Location-specific styling
+- Outfits: Fashion-focused styling
+- Fashion & Style: Editorial fashion focus
+- GRWM: Morning routines and preparation
+- Get Ready With Me: Extended preparation content
+- Future Self: Aspirational imagery
+- Aspirational Vision: Goals and transformation
+- B&W: Timeless artistic imagery
+- Timeless & Artistic: Classic enduring style
+- Studio: Controlled professional environment` : '';
 
       const mayaParameterPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
 
-🎯 MAYA'S TECHNICAL PARAMETER SELECTION:
-You're choosing the optimal technical parameters for generating this image prompt:
+🎯 MAYA'S CREATIVE INTELLIGENCE:
+You're analyzing this image prompt for optimal generation:
 "${prompt}"${categoryGuidance}
 
-AVAILABLE PRESETS & THEIR STRENGTHS:
-• Identity: Perfect for close-up portraits and beauty shots (3:4 ratio, higher megapixels, strong LoRA)
-• Editorial: Balanced for fashion and artistic concepts (premium quality, editorial impact)
-• UltraPrompt: Best for full-body and environmental shots (9:16 ratio, maximum detail)
-• Fast: Quick generation for concepts and iterations (lower quality but faster)
-
 MAYA'S INTELLIGENT ANALYSIS:
-Based on your complete styling expertise, analyze this prompt and choose:
-1. The ideal preset that matches your creative vision
-2. Optimal image count (1-4 images based on concept complexity)
-3. Your reasoning as Maya (warm, confident, professional)
+Based on your complete styling expertise, analyze this prompt and determine:
+1. Optimal image count (1-4 images based on concept complexity and variation needs)
+2. Your reasoning as Maya (warm, confident, professional)
+
+Consider:
+- Simple concepts may need 1-2 images
+- Complex styling concepts benefit from 3-4 variations
+- User experience and variety preferences
 
 RESPOND EXACTLY IN THIS JSON FORMAT:
 {
-  "preset": "Identity|Editorial|UltraPrompt|Fast",
   "count": 1-4,
-  "reasoning": "Your warm Maya explanation of why these parameters perfect this styling vision"
+  "reasoning": "Your warm Maya explanation of why this image count perfects this styling vision"
 }`;
 
-      console.log(`🎯 MAYA PARAMETER AI: Analyzing prompt for intelligent parameter selection`);
+      console.log(`🎯 MAYA PARAMETER AI: Analyzing prompt for intelligent count selection`);
       
       // Get Maya's AI-driven parameter selection using the correct method
       const mayaResponse = await claudeService.sendMessage(mayaParameterPrompt, `parameter_selection_${Date.now()}`, 'maya', false);
@@ -916,36 +912,31 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
           throw new Error('No JSON found in Maya response');
         }
       } catch (parseError) {
-        console.log(`⚠️ MAYA PARAMETER PARSE FAILED, using Editorial default:`, parseError);
-        // Fallback to Editorial if Maya's response can't be parsed
+        console.log(`⚠️ MAYA PARAMETER PARSE FAILED, using default count:`, parseError);
+        // Fallback to intelligent count selection
         return {
-          preset: 'Editorial' as FluxPresetName,
           count: Math.min(requestedCount, 3),
-          reasoning: "Maya's styling intelligence applied with Editorial balance for sophisticated results"
+          reasoning: "Maya's styling intelligence applied for optimal results"
         };
       }
       
       // Validate Maya's choices
-      const validPresets: FluxPresetName[] = ['Identity', 'Editorial', 'UltraPrompt', 'Fast'];
-      const selectedPreset = validPresets.includes(mayaChoice.preset) ? mayaChoice.preset : 'Editorial';
       const selectedCount = Math.min(Math.max(mayaChoice.count || 2, 1), Math.min(requestedCount, 4));
       
-      console.log(`✅ MAYA PARAMETER AI: Selected ${selectedPreset} preset with ${selectedCount} images - ${mayaChoice.reasoning}`);
+      console.log(`✅ MAYA PARAMETER AI: Selected ${selectedCount} images - ${mayaChoice.reasoning}`);
       
       return {
-        preset: selectedPreset as FluxPresetName,
         count: selectedCount,
-        reasoning: mayaChoice.reasoning || "Maya's AI-driven parameter selection for optimal styling results"
+        reasoning: mayaChoice.reasoning || "Maya's AI-driven count selection for optimal styling results"
       };
       
     } catch (error) {
-      console.log(`⚠️ MAYA PARAMETER AI FAILED, using Editorial default:`, error);
+      console.log(`⚠️ MAYA PARAMETER AI FAILED, using default count:`, error);
       
       // Fallback that still respects Maya's intelligence
       return {
-        preset: 'Editorial' as FluxPresetName,
         count: Math.min(requestedCount, 3),
-        reasoning: "Maya's styling intelligence applied with Editorial sophistication (fallback mode)"
+        reasoning: "Maya's styling intelligence applied (fallback mode)"
       };
     }
   }
