@@ -45,19 +45,23 @@ interface FluxSettings {
     guidance_scale: number;
     num_inference_steps: number;
     lora_weight: number;
+    megapixels: string;
   };
   halfBodyShot: {
     guidance_scale: number;
     num_inference_steps: number;
     lora_weight: number;
+    megapixels: string;
   };
   fullScenery: {
     guidance_scale: number;
     num_inference_steps: number;
     lora_weight: number;
+    megapixels: string;
   };
   promptStructure: string[];
   qualityTags: string[];
+  negativePrompts: string[];
 }
 
 interface StylingIntelligence {
@@ -465,18 +469,21 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   fluxOptimization: {
     closeUpPortrait: {
       guidance_scale: 2.8,
-      num_inference_steps: 30,
-      lora_weight: 1.0
+      num_inference_steps: 35,    // ✅ INCREASED: 35 for better face quality (was 30)
+      lora_weight: 1.0,
+      megapixels: "1.6"           // ✅ ADDED: Higher resolution prevents blurriness
     },
     halfBodyShot: {
       guidance_scale: 2.6,
-      num_inference_steps: 32,
-      lora_weight: 1.1
+      num_inference_steps: 38,    // ✅ INCREASED: 38 for better body/outfit detail (was 32)
+      lora_weight: 1.1,
+      megapixels: "1.7"           // ✅ ADDED: Higher resolution for outfit completeness
     },
     fullScenery: {
       guidance_scale: 2.4,
-      num_inference_steps: 35,
-      lora_weight: 1.3
+      num_inference_steps: 42,    // ✅ INCREASED: 42 for complex scenery detail (was 35)
+      lora_weight: 1.3,
+      megapixels: "1.8"           // ✅ ADDED: Highest resolution for environmental detail
     },
     promptStructure: [
       "TRIGGER WORD FIRST - ALWAYS",
@@ -495,6 +502,13 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "sharp focus",
       "detailed",
       "realistic"
+    ],
+    negativePrompts: [
+      "extra fingers", "extra arms", "extra legs", "six fingers", "seven fingers",
+      "distorted hands", "bad anatomy", "malformed limbs", "bad proportions", 
+      "missing body parts", "deformed face", "blurry", "low quality", 
+      "cropped", "cut off", "incomplete outfit", "missing clothing parts",
+      "artificial looking", "plastic skin", "fake", "oversaturated"
     ]
   },
 

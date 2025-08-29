@@ -22,15 +22,17 @@ export const IMAGE_CATEGORIES = {
 // - No hardcoded if/else prompt generation logic allowed  
 // - Maya's AI personality drives every image generation decision
 
-export const GENERATION_SETTINGS = {
-  aspect_ratio: "3:4",        // 🔧 FLUX LORA OPTIMAL: Most natural for portraits
+// 🚨 REMOVED: Hardcoded GENERATION_SETTINGS that were overriding Maya's intelligence
+// Maya's personality file now drives ALL parameters for consistent, intelligent generation
+// NO MORE HARDCODED OVERRIDES - Maya's fluxOptimization has full control
+
+export const BASE_QUALITY_SETTINGS = {
+  aspect_ratio: "3:4",        // Default - Maya can override based on shot type
   output_format: "png", 
-  output_quality: 90,
-  lora_scale: 1,              // ✅ USER OPTIMIZED: Maximum model strength (0.95 → 1)
-  guidance_scale: 2.8,        // ✅ USER TESTED: Better natural results (5 → 2.8)
-  num_inference_steps: 30,    // ✅ USER TESTED: Faster generation with same quality (50 → 30)
+  output_quality: 95,         // ✅ INCREASED: 95 for professional quality (was 90)
   go_fast: false,
-  megapixels: "1"
+  megapixels: "1.5"           // ✅ INCREASED: 1.5 prevents blurriness (was 1.0)
+  // 🎯 NOTE: guidance_scale, num_inference_steps, lora_scale now come ONLY from Maya's intelligence
 };
 
 // 🔒 IMMUTABLE CORE ARCHITECTURE - TRAINING SERVICE
@@ -341,7 +343,7 @@ export class ModelTrainingService {
     userId: string,
     customPrompt: string,
     count: number = 4,
-    options?: { preset?: FluxPresetName; seed?: number; paramsOverride?: Partial<typeof GENERATION_SETTINGS>; categoryContext?: string }
+    options?: { preset?: FluxPresetName; seed?: number; paramsOverride?: Partial<typeof BASE_QUALITY_SETTINGS>; categoryContext?: string }
   ): Promise<{ images: string[]; generatedImageId?: number; predictionId?: string }> {
     
     try {
@@ -398,26 +400,26 @@ export class ModelTrainingService {
       // ----- PHASE 1 FIX: Use Maya's optimized parameters (temporary fallback while fixing import) -----
       const shotType = this.determineShotTypeFromPrompt(finalPrompt);
       
-      // Maya's fluxOptimization parameters (inline until import is fixed)
+      // Maya's enhanced fluxOptimization parameters (research-optimized for quality)
       const mayaFluxParams = {
-        closeUpPortrait: { guidance_scale: 2.8, num_inference_steps: 30, lora_weight: 1.0 },
-        halfBodyShot: { guidance_scale: 2.6, num_inference_steps: 32, lora_weight: 1.1 },
-        fullScenery: { guidance_scale: 2.4, num_inference_steps: 35, lora_weight: 1.3 }
+        closeUpPortrait: { guidance_scale: 2.8, num_inference_steps: 35, lora_weight: 1.0, megapixels: "1.6" },
+        halfBodyShot: { guidance_scale: 2.6, num_inference_steps: 38, lora_weight: 1.1, megapixels: "1.7" },
+        fullScenery: { guidance_scale: 2.4, num_inference_steps: 42, lora_weight: 1.3, megapixels: "1.8" }
       }[shotType];
       
       console.log(`🎯 MAYA PERSONALITY INTELLIGENCE: Using ${shotType} parameters from Maya's fluxOptimization`);
       console.log(`🎯 MAYA FLUX PARAMS: guidance_scale=${mayaFluxParams.guidance_scale}, steps=${mayaFluxParams.num_inference_steps}, lora_weight=${mayaFluxParams.lora_weight}`);
       console.log(`🎯 MAYA AI PARAMETERS: count=${intelligentParams.count} (Claude API-driven selection)`);
       
+      // 🎯 MAYA'S INTELLIGENCE DRIVES ALL PARAMETERS - NO MORE CONFLICTS
       const merged = {
-        ...UNIVERSAL_DEFAULT,
-        ...GENERATION_SETTINGS,
-        // Use Maya's intelligent parameters from personality file
+        ...BASE_QUALITY_SETTINGS,
+        // Maya's intelligent parameters from personality file have FULL CONTROL
         guidance_scale: mayaFluxParams.guidance_scale,
         num_inference_steps: mayaFluxParams.num_inference_steps,
         lora_scale: mayaFluxParams.lora_weight, // Note: personality file uses lora_weight, API expects lora_scale
-        aspect_ratio: "3:4", // Keep aspect ratio from preset for now
-        megapixels: "1.5",   // Keep megapixels from preset for now
+        megapixels: mayaFluxParams.megapixels,  // Maya's shot-specific resolution optimization
+        // Maya can override any parameter based on shot intelligence
         ...(options?.paramsOverride || {})
       };
       
