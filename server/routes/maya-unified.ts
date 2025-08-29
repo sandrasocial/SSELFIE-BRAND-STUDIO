@@ -401,31 +401,61 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     // CRITICAL FIX: Extract category context from user's request for Maya's intelligent parameter selection
     let categoryContext = '';
     
-    // Extract category from concept name or conversation context
+    // Extract category from concept name using actual SSELFIE Studio categories
     if (conceptName) {
       const conceptLower = conceptName.toLowerCase();
-      if (conceptLower.includes('business') || conceptLower.includes('professional') || conceptLower.includes('corporate')) {
+      if (conceptLower.includes('business') || conceptLower.includes('corporate')) {
         categoryContext = 'Business';
-      } else if (conceptLower.includes('lifestyle') || conceptLower.includes('coffee') || conceptLower.includes('casual')) {
+      } else if (conceptLower.includes('professional') || conceptLower.includes('authority') || conceptLower.includes('leadership')) {
+        categoryContext = 'Professional & Authority';
+      } else if (conceptLower.includes('lifestyle') || conceptLower.includes('coffee') || conceptLower.includes('everyday')) {
         categoryContext = 'Lifestyle';
+      } else if (conceptLower.includes('casual') || conceptLower.includes('authentic') || conceptLower.includes('natural')) {
+        categoryContext = 'Casual & Authentic';
+      } else if (conceptLower.includes('story') || conceptLower.includes('narrative') || conceptLower.includes('journey')) {
+        categoryContext = 'Story';
+      } else if (conceptLower.includes('behind') || conceptLower.includes('scenes') || conceptLower.includes('process')) {
+        categoryContext = 'Behind the Scenes';
+      } else if (conceptLower.includes('instagram') || conceptLower.includes('social media')) {
+        categoryContext = 'Instagram';
+      } else if (conceptLower.includes('feed') || conceptLower.includes('stories')) {
+        categoryContext = 'Feed & Stories';
+      } else if (conceptLower.includes('travel') || conceptLower.includes('destination')) {
+        categoryContext = 'Travel';
+      } else if (conceptLower.includes('adventure') || conceptLower.includes('explore')) {
+        categoryContext = 'Adventures & Destinations';
+      } else if (conceptLower.includes('outfit') || conceptLower.includes('fashion') || conceptLower.includes('style')) {
+        categoryContext = 'Fashion & Style';
       } else if (conceptLower.includes('grwm') || conceptLower.includes('get ready') || conceptLower.includes('morning')) {
         categoryContext = 'GRWM';
-      } else if (conceptLower.includes('date') || conceptLower.includes('night out') || conceptLower.includes('evening')) {
-        categoryContext = 'Date Night';
-      } else if (conceptLower.includes('content') || conceptLower.includes('creator') || conceptLower.includes('social')) {
-        categoryContext = 'Content Creator';
+      } else if (conceptLower.includes('future') || conceptLower.includes('aspirational') || conceptLower.includes('vision')) {
+        categoryContext = 'Future Self';
+      } else if (conceptLower.includes('b&w') || conceptLower.includes('black and white') || conceptLower.includes('timeless')) {
+        categoryContext = 'B&W';
+      } else if (conceptLower.includes('studio') || conceptLower.includes('controlled') || conceptLower.includes('professional lighting')) {
+        categoryContext = 'Studio';
       }
     }
     
-    // Fallback: analyze the final prompt for category clues
+    // Fallback: analyze the final prompt for category clues using actual categories
     if (!categoryContext) {
       const promptLower = finalPrompt.toLowerCase();
       if (promptLower.includes('office') || promptLower.includes('meeting') || promptLower.includes('corporate')) {
         categoryContext = 'Business';
-      } else if (promptLower.includes('kitchen') || promptLower.includes('coffee') || promptLower.includes('casual')) {
+      } else if (promptLower.includes('leadership') || promptLower.includes('executive') || promptLower.includes('authority')) {
+        categoryContext = 'Professional & Authority';
+      } else if (promptLower.includes('kitchen') || promptLower.includes('coffee') || promptLower.includes('home')) {
         categoryContext = 'Lifestyle';
+      } else if (promptLower.includes('relaxed') || promptLower.includes('natural') || promptLower.includes('authentic')) {
+        categoryContext = 'Casual & Authentic';
       } else if (promptLower.includes('pajama') || promptLower.includes('morning') || promptLower.includes('getting ready')) {
         categoryContext = 'GRWM';
+      } else if (promptLower.includes('travel') || promptLower.includes('destination') || promptLower.includes('location')) {
+        categoryContext = 'Travel';
+      } else if (promptLower.includes('fashion') || promptLower.includes('outfit') || promptLower.includes('style')) {
+        categoryContext = 'Fashion & Style';
+      } else if (promptLower.includes('studio') || promptLower.includes('controlled lighting')) {
+        categoryContext = 'Studio';
       }
     }
     

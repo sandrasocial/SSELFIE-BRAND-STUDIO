@@ -121,28 +121,44 @@ export const MAYA_PERSONALITY = {
       "Sheer dress + strategic undergarments + strappy shoes + arm candy"
     ],
 
-    lifestyleLux: [
+    casualAuthentic: [
       "Cashmere sweater + high-waisted jeans + ankle boots + layered necklaces",
       "Silk camisole + wide-leg trousers + mules + structured tote bag",
       "Ribbed midi dress + denim jacket + white sneakers + crossbody bag",
       "Linen blouse + matching pants + sandals + straw hat + gold jewelry",
-      "Cozy knit + leather leggings + UGG boots + coffee cup + oversized scarf"
+      "Cozy knit + leather leggings + comfortable boots + coffee cup + oversized scarf"
     ],
 
-    grwmVibes: [
+    grwmAuthentic: [
       "Silk pajama set + fuzzy slippers + messy bun + skincare routine",
       "Matching sweat set + bare face + coffee mug + morning light",
-      "Oversized tee + bike shorts + hair clips + makeup application",
+      "Oversized tee + bike shorts + hair clips + makeup application", 
       "Robe + towel turban + face mask + getting-ready energy",
       "Crop tank + high-waisted sweatpants + hair in curlers + casual glam prep"
     ],
 
-    contentCreator: [
-      "Trendy mini dress + platform boots + ring light setup + phone",
-      "Matching co-ord set + statement earrings + ring light + authentic energy",
-      "Vintage band tee + designer bag + candid laugh + natural lighting",
-      "Athleisure set + fresh face + water bottle + motivational energy",
-      "Silk top + gold jewelry + aesthetic flat lay + creative composition"
+    fashionForward: [
+      "Statement blazer + wide-leg trousers + pointed pumps + structured bag",
+      "Silk slip dress + leather jacket + ankle boots + layered jewelry",
+      "Cropped sweater + high-waisted skirt + knee-high boots + belt bag",
+      "Textured coat + fitted pants + heeled mules + minimal accessories",
+      "Structured dress + statement shoes + geometric jewelry + clutch"
+    ],
+
+    travelChic: [
+      "Linen blazer + matching shorts + canvas sneakers + straw hat",
+      "Maxi dress + denim jacket + sandals + crossbody bag",
+      "Silk scarf + white tee + wide-leg pants + comfortable flats",
+      "Lightweight sweater + flowing skirt + walking shoes + daypack",
+      "Travel coat + streamlined pants + slip-on shoes + compact bag"
+    ],
+
+    aspirationalElegance: [
+      "Silk midi dress + pointed heels + delicate jewelry + structured coat",
+      "Tailored trousers + silk blouse + loafers + leather tote",
+      "Knit dress + statement coat + ankle boots + sophisticated accessories",
+      "Wide-leg suit + camisole + pumps + minimal jewelry",
+      "Cashmere set + elegant flats + refined accessories + structured bag"
     ],
 
     streetStyleIcon: [
@@ -162,78 +178,120 @@ export const MAYA_PERSONALITY = {
     ]
   },
 
-  // SSELFIE STUDIO CATEGORIES - Simple starter options
+  // SSELFIE STUDIO CATEGORIES - Actual platform categories
   sselfieCategories: {
-    "Business Photos": {
+    "Business": {
       description: "Professional, authoritative, business credibility",
       vibe: "Executive presence with approachable confidence",
       styling: "Sophisticated silhouettes, elegant dresses, premium business attire, silk pieces, structured fits"
     },
 
-    "Lifestyle Photos": {
+    "Professional & Authority": {
+      description: "Leadership presence and professional expertise",
+      vibe: "Confident authority with warm approachability",
+      styling: "Power dressing, structured pieces, elevated professional wear, confident postures"
+    },
+
+    "Lifestyle": {
       description: "Authentic, relatable, everyday elegance", 
       vibe: "Effortlessly put-together in beautiful settings",
       styling: "Elevated casual wear, cozy knits, comfortable luxury, natural sophistication, coffee shop vibes"
     },
 
-    "GRWM Photos": {
+    "Casual & Authentic": {
+      description: "Natural, unguarded moments of genuine connection",
+      vibe: "Relaxed confidence and authentic personality",
+      styling: "Comfortable luxury, effortless pieces, natural textures, authentic expressions"
+    },
+
+    "Story": {
+      description: "Narrative-driven images that tell your journey",
+      vibe: "Emotional storytelling through visual moments",
+      styling: "Context-appropriate pieces that support the narrative, authentic emotions"
+    },
+
+    "Behind the Scenes": {
+      description: "Raw, authentic glimpses into your process",
+      vibe: "Unpolished authenticity and genuine work moments",
+      styling: "Working wardrobe, comfortable pieces, tools of your trade, natural lighting"
+    },
+
+    "Instagram": {
+      description: "Social media optimized content for feeds and stories",
+      vibe: "Platform-perfect with engaging visual appeal",
+      styling: "Trendy pieces, aesthetic coordination, social media ready styling"
+    },
+
+    "Feed & Stories": {
+      description: "Instagram-specific content formats and compositions",
+      vibe: "Social media savvy with authentic personality",
+      styling: "Story-friendly layouts, feed-worthy styling, platform-optimized looks"
+    },
+
+    "Travel": {
+      description: "Adventure and destination-inspired imagery",
+      vibe: "Wanderlust meets sophisticated exploration",
+      styling: "Travel-appropriate luxury, destination-inspired pieces, adventure-ready elegance"
+    },
+
+    "Adventures & Destinations": {
+      description: "Location-specific styling for travel content",
+      vibe: "Explorer confidence with destination glamour",
+      styling: "Climate-appropriate luxury, cultural sensitivity, adventure-ready sophistication"
+    },
+
+    "Outfits": {
+      description: "Fashion-focused styling and outfit coordination",
+      vibe: "Style expertise and fashion-forward confidence",
+      styling: "Trend-conscious pieces, color coordination, fashion-forward combinations"
+    },
+
+    "Fashion & Style": {
+      description: "Editorial fashion with personal style expression",
+      vibe: "Fashion authority with individual flair",
+      styling: "Editorial pieces, statement fashion, trend-setting combinations, style innovation"
+    },
+
+    "GRWM": {
       description: "Get ready with me content, morning routines, casual preparation",
       vibe: "Authentic getting-ready moments with casual glam energy",
       styling: "Silk pajamas, matching sweat sets, skincare routines, morning coffee, effortless beauty"
     },
 
-    "Lifestyle Content": {
-      description: "Social media ready lifestyle moments, authentic daily life",
-      vibe: "Content creator meets elevated everyday living",
-      styling: "Trendy casual pieces, aesthetic setups, natural lighting, authentic energy"
+    "Get Ready With Me": {
+      description: "Extended morning and preparation routines",
+      vibe: "Intimate preparation moments with casual authenticity",
+      styling: "Comfort wear, preparation essentials, morning light, authentic preparation"
     },
 
-    "Story Photos": {
-      description: "Personal narrative, behind-the-scenes authenticity",
-      vibe: "Genuine moments that tell your brand story",
-      styling: "Relaxed but polished, candid elegance, storytelling fashion"
+    "Future Self": {
+      description: "Aspirational imagery of goals and dreams",
+      vibe: "Confident vision of personal evolution",
+      styling: "Goal-aligned styling, aspirational pieces, future-focused confidence"
     },
 
-    "Instagram Photos": {
-      description: "Social media perfection, engagement-ready content",
-      vibe: "Content creator meets lifestyle influencer energy",
-      styling: "Trendy pieces, photo-optimized colors, shareable fashion moments"
+    "Aspirational Vision": {
+      description: "Images that embody future goals and transformation",
+      vibe: "Visionary confidence and elevated aspirations",
+      styling: "Elevated pieces that represent growth, transformation-appropriate styling"
     },
 
-    "Travel Photos": {
-      description: "Adventure meets sophistication, destination styling",
-      vibe: "Jet-set lifestyle with effortless travel chic",
-      styling: "Versatile pieces, travel-friendly luxury, destination-appropriate elegance"
+    "B&W": {
+      description: "Timeless black and white artistic imagery",
+      vibe: "Classic elegance with artistic sophistication",
+      styling: "Texture-focused pieces, classic silhouettes, timeless elegance, contrast-friendly styling"
     },
 
-    "Outfit Photos": {
-      description: "Fashion-forward styling, outfit inspiration content",
-      vibe: "Style influencer showcasing curated looks",
-      styling: "Statement pieces, trend-focused styling, fashion-forward combinations"
+    "Timeless & Artistic": {
+      description: "Classic, enduring imagery with artistic elements",
+      vibe: "Sophisticated artistry with timeless appeal",
+      styling: "Classic pieces, artistic elements, enduring style, sophisticated simplicity"
     },
 
-    "GRWM Photos": {
-      description: "Get Ready With Me, transformation and process",
-      vibe: "Behind-the-scenes beauty and style preparation",
-      styling: "Beauty focus, styling process, transformation moments"
-    },
-
-    "Future Self Photos": {
-      description: "Aspirational imagery, vision board material",
-      vibe: "The elevated version of yourself you're becoming",
-      styling: "Aspirational luxury, goal-oriented styling, future vision fashion"
-    },
-
-    "B&W Photos": {
-      description: "Timeless, classic, editorial sophistication",
-      vibe: "Artistic elegance with timeless appeal",
-      styling: "Classic silhouettes, textural interest, dramatic lighting focus"
-    },
-
-    "Studio Photoshoot": {
-      description: "Professional studio session, controlled environment perfection",
-      vibe: "High-end editorial with professional lighting and backdrop",
-      styling: "Statement pieces, editorial fashion, studio-optimized styling"
+    "Studio": {
+      description: "Controlled studio environment with professional lighting",
+      vibe: "Polished professionalism with creative control",
+      styling: "Studio-appropriate pieces, controlled lighting styling, professional polish"
     }
   },
 

@@ -818,12 +818,26 @@ export class ModelTrainingService {
       
       // MAYA'S PARAMETER INTELLIGENCE PROMPT WITH CATEGORY CONTEXT
       const categoryGuidance = categoryContext ? `\n\n📸 USER'S CATEGORY REQUEST: ${categoryContext}
-STYLING FOCUS: Adapt your technical choices to match this category:
+STYLING FOCUS: Adapt your technical choices to match this SSELFIE Studio category:
 - Business: Professional authority and credibility (often Identity preset)
+- Professional & Authority: Leadership presence (Identity for portraits, Editorial for full-body)
 - Lifestyle: Elevated casual and authentic moments (Editorial or UltraPrompt)
-- GRWM: Morning routines and casual glam (Identity for close-ups)
-- Date Night: Evening sophistication and allure (Editorial for fashion)
-- Content Creator: Social media ready vibes (UltraPrompt for full-body)` : '';
+- Casual & Authentic: Natural, unguarded moments (Editorial for natural lighting)
+- Story: Narrative-driven imagery (UltraPrompt for environmental storytelling)
+- Behind the Scenes: Raw authenticity (Editorial for natural feel)
+- Instagram: Social media optimized (Identity for close-ups, UltraPrompt for full-body)
+- Feed & Stories: Platform-specific content (Identity or Editorial based on composition)
+- Travel: Adventure and destinations (UltraPrompt for location context)
+- Adventures & Destinations: Location-specific styling (UltraPrompt for environmental)
+- Outfits: Fashion-focused styling (Editorial for fashion detail)
+- Fashion & Style: Editorial fashion (Editorial preset for style focus)
+- GRWM: Morning routines and preparation (Identity for close-ups)
+- Get Ready With Me: Extended preparation content (Identity for intimate moments)
+- Future Self: Aspirational imagery (Editorial for elevated vision)
+- Aspirational Vision: Goals and transformation (Editorial or UltraPrompt)
+- B&W: Timeless artistic imagery (Editorial for artistic quality)
+- Timeless & Artistic: Classic enduring style (Editorial for sophistication)
+- Studio: Controlled professional environment (Identity or Editorial based on shot type)` : '';
 
       const mayaParameterPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
 
