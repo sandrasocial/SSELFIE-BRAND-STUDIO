@@ -24,6 +24,7 @@ import { storage } from '../storage';
 import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
 import { ModelTrainingService } from '../model-training-service';
+import { validateMayaPrompt, cleanMayaPrompt } from '../generation-validator.js';
 import { adminContextDetection, getConversationId, type AdminContextRequest } from '../middleware/admin-context';
 import { trackMayaActivity } from '../services/maya-usage-isolation';
 
@@ -1575,7 +1576,7 @@ Use this context to customize styling choices that align with their unique trans
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
 🎯 MAYA'S TECHNICAL PROMPT MODE:
-You are creating a FLUX image generation prompt. This is a technical task, NOT a conversation with the user.
+You are creating a FLUX 1.1 Pro image generation prompt. This is a technical task, NOT a conversation with the user.
 
 CONCEPT: "${conceptName}"
 CONTEXT: "${cleanOriginalContext}"
@@ -1584,14 +1585,16 @@ ${personalBrandContext}
 TECHNICAL MODE INSTRUCTIONS:
 Switch to pure technical output mode. Use your complete styling intelligence and fashion expertise, but output ONLY the technical description that FLUX needs to generate the image.
 
-FORMAT: Continuous descriptive text - no conversation, no explanations, no formatting
-START WITH: "${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+OPTIMAL PROMPT LENGTH: Target 50-150 words for best FLUX performance
+FORMAT: Continuous descriptive text - no conversation, no explanations, no formatting, no ** or - markers
+START WITH: "${finalTriggerWord}, [shot_type] portrait, [specific physical features], raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
 
-Use your complete styling intelligence to describe:
-- Your intelligent outfit/styling choices (fabrics, colors, silhouettes)
-- Your expert hair and makeup decisions
-- Your professional photography setup recommendations
-- Your lighting and composition expertise
+REQUIRED STRUCTURE (in this exact order):
+1. PHYSICAL DETAILS: Include specific eye color, hair texture/color, facial features, skin tone, expression
+2. STYLING INTELLIGENCE: Your expert outfit choices (specific fabrics, colors, silhouettes, proportions)
+3. CAMERA TECHNICAL: Professional camera model, lens (85mm for close-up, 50mm for half-body), aperture f/2.8, ISO settings
+4. ENVIRONMENT: Detailed location, lighting setup (natural window light, studio lighting, etc.)
+5. MOOD & QUALITY: Professional atmosphere, photorealistic quality
 
 Output pure technical description that captures your styling vision for this concept.`;
 
@@ -1626,23 +1629,8 @@ Your styling expertise should guide the outfit choices, hair/makeup, and photogr
     let generatedPrompt = data.content[0].text.trim();
     
     // INTELLIGENT PROMPT EXTRACTION - PRESERVE MAYA'S STYLING DECISIONS
-    // Clean up formatting while preserving styling intelligence
-    generatedPrompt = generatedPrompt
-      // Remove conversation markers that contaminate FLUX
-      .replace(/\*\*[^*]+\*\*/g, '') // Remove **SECTION:** markers
-      .replace(/#{1,6}\s+/g, '') // Remove markdown headers  
-      .replace(/[-•]\s+/g, '') // Remove bullet points
-      .replace(/^\s*[\-\*]\s+/gm, '') // Remove line-starting bullets
-      .replace(/\n\s*\n/g, ' ') // Replace double newlines with space
-      .replace(/\s+/g, ' ') // Normalize spaces
-      // Remove conversation phrases that Maya might include
-      .replace(/(?:let me create|i'm creating|here's|this is|perfect|gorgeous|stunning)/gi, '')
-      .replace(/(?:trust me|chef's kiss|absolutely|incredible)/gi, '')
-      .replace(/(?:generating|concept|image)/gi, '')
-      // Clean up any remaining artifacts
-      .replace(/^[\s,]+/, '') // Remove leading spaces/commas
-      .replace(/[\s,]+$/, '') // Remove trailing spaces/commas
-      .trim();
+    // Use enhanced cleaning from generation validator
+    generatedPrompt = cleanMayaPrompt(generatedPrompt);
     
     // INTELLIGENT PROMPT VALIDATION - ENSURE MAYA'S EXPERTISE IS PRESERVED
     // Ensure proper trigger word and technical format
@@ -1660,9 +1648,40 @@ Your styling expertise should guide the outfit choices, hair/makeup, and photogr
       }
     }
     
-    // Final validation - ensure prompt is FLUX-ready
+    // PROMPT LENGTH VALIDATION (FLUX 1.1 Pro optimal: 50-150 words)
+    const wordCount = generatedPrompt.split(/\s+/).length;
+    console.log(`🎯 MAYA PROMPT LENGTH: ${wordCount} words (optimal: 50-150)`);
+    
+    if (wordCount > 200) {
+      // Trim excessively long prompts while preserving core elements
+      const words = generatedPrompt.split(/\s+/);
+      const trimmedPrompt = words.slice(0, 150).join(' ');
+      console.log('⚠️ MAYA PROMPT TRIMMED: Reduced from', wordCount, 'to 150 words for optimal FLUX performance');
+      generatedPrompt = trimmedPrompt;
+    } else if (wordCount < 30) {
+      console.log('⚠️ MAYA PROMPT TOO SHORT: Adding detail for better FLUX results');
+      generatedPrompt += ', professional photography quality, detailed facial features, photorealistic, high resolution';
+    }
+    
+    // Final validation - ensure prompt is FLUX-ready and trigger word consistent
     const finalPrompt = generatedPrompt.replace(/\s+/g, ' ').trim();
+    
+    // COMPREHENSIVE VALIDATION WITH GENERATION VALIDATOR
+    const validationResult = validateMayaPrompt(finalPrompt, {
+      triggerWord: finalTriggerWord,
+      targetWordCount: { min: 50, max: 150 },
+      requiredElements: ['photography', 'professional'],
+      forbiddenElements: ['Maya', '**', '#']
+    });
+    
+    if (!validationResult.isValid) {
+      console.warn(`⚠️ MAYA PROMPT VALIDATION ISSUES:`, validationResult.issues);
+      console.log(`💡 SUGGESTIONS:`, validationResult.suggestions);
+    }
+    
+    // FINAL VALIDATION LOGS
     console.log(`🎯 MAYA INTELLIGENT PROMPT: ${finalPrompt.substring(0, 150)}...`);
+    console.log(`✅ VALIDATION SUMMARY: ${validationResult.wordCount} words, trigger word: ${validationResult.hasValidTriggerWord ? 'OK' : 'ISSUE'}, overall: ${validationResult.isValid ? 'PASS' : 'ISSUES'}`);
     
     return finalPrompt;
     

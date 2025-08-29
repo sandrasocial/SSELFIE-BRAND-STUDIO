@@ -62,6 +62,12 @@ interface FluxSettings {
   promptStructure: string[];
   qualityTags: string[];
   negativePrompts: string[];
+  physicalFeatureTemplates?: string[];
+  cameraSpecifications?: {
+    closeUp: string;
+    halfBody: string;
+    fullBody: string;
+  };
 }
 
 interface StylingIntelligence {
@@ -134,10 +140,11 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Color psychology - rich neutrals that convey authority with strategic accent colors"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, executive business portrait, shot with Canon EOS R5, 85mm f/1.4 lens for close portraits, 50mm f/1.2 for half-body",
-        "Maya-styled power outfit based on current luxury trends and perfect proportions",
-        "Modern corporate environment, marble surfaces, architectural elements, floor-to-ceiling windows",
-        "Professional photography lighting, film grain, natural skin texture, confident executive energy"
+        "[TRIGGER_WORD], close-up business portrait, confident woman with [specific eye color], [distinctive facial features], professional makeup with defined brows and subtle lip color",
+        "Shot on Canon EOS R5, 85mm f/1.4 lens, f/2.8 aperture, ISO 400, natural window light with soft shadows",
+        "Maya-styled executive power outfit: structured blazer in rich navy or charcoal, premium fabric with subtle texture",
+        "Modern corporate office, marble surfaces, floor-to-ceiling windows, architectural lighting creating professional atmosphere",
+        "Raw photo quality, visible skin pores, film grain, natural skin texture, confident executive presence"
       ]
     },
 
@@ -152,10 +159,11 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Professional styling that translates across different business environments"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, professional industry expert, sophisticated styling, shot with Sony A7R V, 50mm f/1.4 GM lens for natural proportions",
-        "Maya-designed sophisticated look combining current trends with timeless appeal",
-        "Contemporary professional space, natural architectural lighting, clean modern lines",
-        "Professional portrait lighting, natural skin texture, approachable authority presence"
+        "[TRIGGER_WORD], half-body professional portrait, sophisticated woman with [hair texture/color], [eye color] eyes, natural expression conveying expertise and warmth",
+        "Shot on Sony A7R V, 50mm f/1.4 GM lens, f/2.8, shallow depth of field, professional lighting setup with key light and fill",
+        "Maya-designed sophisticated ensemble: tailored separates in coordinated tones, premium fabrics, expert proportions",
+        "Contemporary professional environment, clean architectural lines, natural lighting, minimalist backdrop",
+        "Professional photography quality, raw photo aesthetic, natural skin texture, approachable authority presence"
       ]
     },
 
@@ -493,15 +501,29 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "LOCATION + LIGHTING SETUP",
       "TECHNICAL QUALITY + MOOD"
     ],
+    physicalFeatureTemplates: [
+      "[TRIGGER_WORD], [shot_type] portrait, [age_description] woman with [hair_color] [hair_texture] hair, [eye_color] eyes, [distinctive_features]",
+      "Natural [skin_tone] skin tone, [facial_structure] facial structure, [expression_type] expression",
+      "[makeup_style] makeup with [specific_details], [eyebrow_description] eyebrows, [lip_description] lips"
+    ],
+    cameraSpecifications: {
+      closeUp: "85mm f/1.4 lens, f/2.8 aperture, shallow depth of field, focus on eyes",
+      halfBody: "50mm f/1.2 lens, f/2.8 aperture, natural perspective, balanced composition", 
+      fullBody: "35mm f/1.8 lens, f/4 aperture, full scene coverage, environmental context"
+    },
     qualityTags: [
       "raw photo",
-      "film grain", 
-      "natural skin texture",
-      "high quality",
+      "visible skin pores", 
+      "film grain",
+      "unretouched natural skin texture",
+      "subsurface scattering",
+      "photographed on film",
       "professional photography",
-      "sharp focus",
-      "detailed",
-      "realistic"
+      "sharp focus on eyes",
+      "detailed facial features",
+      "photorealistic",
+      "high resolution",
+      "DSLR quality"
     ],
     negativePrompts: [
       "extra fingers", "extra arms", "extra legs", "six fingers", "seven fingers",
