@@ -312,7 +312,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     }
     
     const userType = req.userType || 'member';
-    const { prompt, chatId, preset, seed, count, conceptName } = req.body || {};
+    const { prompt, chatId, seed, count, conceptName } = req.body || {};
     
     // PHASE 7: Log generation start
     logMayaGeneration('START', {
@@ -320,7 +320,6 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       userType,
       concept: conceptName || 'custom',
       prompt: prompt?.substring(0, 100) + '...', // Log truncated prompt for privacy
-      preset: preset || 'Identity',
       count: count || 2
     });
     
@@ -497,7 +496,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       userId,
       finalPrompt,
       safeCount,
-      { preset, seed, categoryContext }
+      { seed, categoryContext }
     );
     
     // PHASE 7: Log successful generation start
