@@ -391,7 +391,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                     const conceptCard = contentData.conceptCards.find((c: any) => c.id === conceptId || c.title === conceptName);
                     if (conceptCard && conceptCard.originalContext) {
                       originalContext = conceptCard.originalContext;
-                      console.log(`🎯 MAYA ORIGINAL CONTEXT FOUND: Using Maya's original styling context for "${conceptName}"`);
+                      console.log(`🎯 MAYA ORIGINAL CONTEXT FOUND: Using Maya's original styling context for "${conceptName}" (${originalContext.length} chars)`);
                       break;
                     }
                   }
@@ -416,13 +416,13 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log(`🎯 MAYA UNIFIED: Generating new prompt for "${conceptName}" using original Maya context`);
         const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
         finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, originalContext);
-        console.log(`✅ MAYA UNIFIED: Generated ${finalPrompt.length} character prompt using original Maya context`);
+        console.log(`✅ MAYA UNIFIED: Generated ${finalPrompt.length} character prompt using threaded Maya context`);
       }
     } else {
-      // All prompts get Maya's complete styling intelligence
-      console.log(`🎯 MAYA UNIFIED: Enhancing custom prompt "${prompt}" with styling expertise`);
-      finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId);
-      console.log(`✅ MAYA UNIFIED: Enhanced prompt to ${finalPrompt.length} characters with professional styling`);
+      // All prompts get Maya's complete styling intelligence with context threading
+      console.log(`🎯 MAYA UNIFIED: Enhancing custom prompt "${prompt}" with styling expertise and context threading`);
+      finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`);
+      console.log(`✅ MAYA UNIFIED: Enhanced prompt to ${finalPrompt.length} characters with threaded styling context`);
     }
     
     // CRITICAL: Final validation to ensure trigger word is at the beginning
@@ -435,68 +435,71 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     console.log(`🎯 MAYA UNIFIED: Final extracted prompt: ${finalPrompt.substring(0, 100)}...`);
     
-    // CRITICAL FIX: Extract category context from user's request for Maya's intelligent parameter selection
+    // PHASE 2 FIX: Let Maya's AI categorization take precedence, use pattern matching as fallback only
     let categoryContext = '';
     
-    // Extract category from concept name using actual SSELFIE Studio categories
-    if (conceptName) {
+    // PRIORITY 1: Extract Maya's intelligent category from original context if available
+    if (originalContext && originalContext.length > 0) {
+      const contextLower = originalContext.toLowerCase();
+      // Look for Maya's natural category assignments in her original context
+      if (contextLower.includes('business') || contextLower.includes('corporate') || contextLower.includes('executive')) {
+        categoryContext = 'Business';
+      } else if (contextLower.includes('professional') || contextLower.includes('authority') || contextLower.includes('leadership')) {
+        categoryContext = 'Professional & Authority';
+      } else if (contextLower.includes('lifestyle') || contextLower.includes('coffee') || contextLower.includes('everyday')) {
+        categoryContext = 'Lifestyle';
+      } else if (contextLower.includes('casual') || contextLower.includes('authentic') || contextLower.includes('natural')) {
+        categoryContext = 'Casual & Authentic';
+      } else if (contextLower.includes('story') || contextLower.includes('narrative') || contextLower.includes('journey')) {
+        categoryContext = 'Story';
+      } else if (contextLower.includes('behind') || contextLower.includes('scenes') || contextLower.includes('process')) {
+        categoryContext = 'Behind the Scenes';
+      } else if (contextLower.includes('instagram') || contextLower.includes('social media')) {
+        categoryContext = 'Instagram';
+      } else if (contextLower.includes('feed') || contextLower.includes('stories')) {
+        categoryContext = 'Feed & Stories';
+      } else if (contextLower.includes('travel') || contextLower.includes('destination')) {
+        categoryContext = 'Travel';
+      } else if (contextLower.includes('adventure') || contextLower.includes('explore')) {
+        categoryContext = 'Adventures & Destinations';
+      } else if (contextLower.includes('outfit') || contextLower.includes('fashion') || contextLower.includes('style')) {
+        categoryContext = 'Fashion & Style';
+      } else if (contextLower.includes('grwm') || contextLower.includes('get ready') || contextLower.includes('morning')) {
+        categoryContext = 'GRWM';
+      } else if (contextLower.includes('future') || contextLower.includes('aspirational') || contextLower.includes('vision')) {
+        categoryContext = 'Future Self';
+      } else if (contextLower.includes('b&w') || contextLower.includes('black and white') || contextLower.includes('timeless')) {
+        categoryContext = 'B&W';
+      } else if (contextLower.includes('studio') || contextLower.includes('controlled') || contextLower.includes('professional lighting')) {
+        categoryContext = 'Studio';
+      }
+      
+      if (categoryContext) {
+        console.log(`🎯 MAYA AI CATEGORY: "${categoryContext}" derived from Maya's original intelligence`);
+      }
+    }
+    
+    // FALLBACK: Pattern matching only if Maya's AI didn't provide clear categorization
+    if (!categoryContext && conceptName) {
       const conceptLower = conceptName.toLowerCase();
       if (conceptLower.includes('business') || conceptLower.includes('corporate')) {
         categoryContext = 'Business';
-      } else if (conceptLower.includes('professional') || conceptLower.includes('authority') || conceptLower.includes('leadership')) {
+      } else if (conceptLower.includes('professional') || conceptLower.includes('authority')) {
         categoryContext = 'Professional & Authority';
-      } else if (conceptLower.includes('lifestyle') || conceptLower.includes('coffee') || conceptLower.includes('everyday')) {
+      } else if (conceptLower.includes('lifestyle') || conceptLower.includes('coffee')) {
         categoryContext = 'Lifestyle';
-      } else if (conceptLower.includes('casual') || conceptLower.includes('authentic') || conceptLower.includes('natural')) {
+      } else if (conceptLower.includes('casual') || conceptLower.includes('authentic')) {
         categoryContext = 'Casual & Authentic';
-      } else if (conceptLower.includes('story') || conceptLower.includes('narrative') || conceptLower.includes('journey')) {
-        categoryContext = 'Story';
-      } else if (conceptLower.includes('behind') || conceptLower.includes('scenes') || conceptLower.includes('process')) {
-        categoryContext = 'Behind the Scenes';
-      } else if (conceptLower.includes('instagram') || conceptLower.includes('social media')) {
-        categoryContext = 'Instagram';
-      } else if (conceptLower.includes('feed') || conceptLower.includes('stories')) {
-        categoryContext = 'Feed & Stories';
       } else if (conceptLower.includes('travel') || conceptLower.includes('destination')) {
         categoryContext = 'Travel';
-      } else if (conceptLower.includes('adventure') || conceptLower.includes('explore')) {
-        categoryContext = 'Adventures & Destinations';
-      } else if (conceptLower.includes('outfit') || conceptLower.includes('fashion') || conceptLower.includes('style')) {
-        categoryContext = 'Fashion & Style';
-      } else if (conceptLower.includes('grwm') || conceptLower.includes('get ready') || conceptLower.includes('morning')) {
-        categoryContext = 'GRWM';
-      } else if (conceptLower.includes('future') || conceptLower.includes('aspirational') || conceptLower.includes('vision')) {
-        categoryContext = 'Future Self';
-      } else if (conceptLower.includes('b&w') || conceptLower.includes('black and white') || conceptLower.includes('timeless')) {
-        categoryContext = 'B&W';
-      } else if (conceptLower.includes('studio') || conceptLower.includes('controlled') || conceptLower.includes('professional lighting')) {
-        categoryContext = 'Studio';
+      } else if (conceptLower.includes('instagram') || conceptLower.includes('social media')) {
+        categoryContext = 'Instagram';
+      }
+      
+      if (categoryContext) {
+        console.log(`🎯 MAYA FALLBACK CATEGORY: "${categoryContext}" derived from pattern matching (Maya's AI categorization not detected)`);
       }
     }
-    
-    // Fallback: analyze the final prompt for category clues using actual categories
-    if (!categoryContext) {
-      const promptLower = finalPrompt.toLowerCase();
-      if (promptLower.includes('office') || promptLower.includes('meeting') || promptLower.includes('corporate')) {
-        categoryContext = 'Business';
-      } else if (promptLower.includes('leadership') || promptLower.includes('executive') || promptLower.includes('authority')) {
-        categoryContext = 'Professional & Authority';
-      } else if (promptLower.includes('kitchen') || promptLower.includes('coffee') || promptLower.includes('home')) {
-        categoryContext = 'Lifestyle';
-      } else if (promptLower.includes('relaxed') || promptLower.includes('natural') || promptLower.includes('authentic')) {
-        categoryContext = 'Casual & Authentic';
-      } else if (promptLower.includes('pajama') || promptLower.includes('morning') || promptLower.includes('getting ready')) {
-        categoryContext = 'GRWM';
-      } else if (promptLower.includes('travel') || promptLower.includes('destination') || promptLower.includes('location')) {
-        categoryContext = 'Travel';
-      } else if (promptLower.includes('fashion') || promptLower.includes('outfit') || promptLower.includes('style')) {
-        categoryContext = 'Fashion & Style';
-      } else if (promptLower.includes('studio') || promptLower.includes('controlled lighting')) {
-        categoryContext = 'Studio';
-      }
-    }
-    
-    console.log(`🎯 MAYA CATEGORY CONTEXT: "${categoryContext}" detected for intelligent parameter selection`);
     
     const result = await ModelTrainingService.generateUserImages(
       userId,
@@ -1202,9 +1205,14 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     let embeddedPrompt = '';
     if (userId) {
       try {
+        // PHASE 2: Context threading validation - ensure no context loss
+        if (!fullOriginalContext || fullOriginalContext.length < 10) {
+          console.log(`⚠️ CONTEXT VALIDATION WARNING: Minimal original context for "${conceptName}"`);
+        }
+        
         // Generate detailed prompt using Maya's styling intelligence with FULL original context
         embeddedPrompt = await createDetailedPromptFromConcept(conceptName, '', userId, fullOriginalContext);
-        console.log(`✅ EMBEDDED PROMPT GENERATED: ${embeddedPrompt.length} chars for "${conceptName}" using original context`);
+        console.log(`✅ EMBEDDED PROMPT GENERATED: ${embeddedPrompt.length} chars for "${conceptName}" using original context (${fullOriginalContext.length} chars)`);
       } catch (error) {
         console.log(`⚠️ EMBEDDED PROMPT GENERATION FAILED for "${conceptName}":`, error);
       }
@@ -1383,7 +1391,7 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
 }
 
 // MAYA'S AI-DRIVEN PROMPT GENERATION - NO MORE HARDCODED TEMPLATES
-async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalConceptContext?: string): Promise<string> {
+async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, mayaOriginalContext?: string): Promise<string> {
   // UNIFIED MAYA INTELLIGENCE: Use Maya's complete styling expertise to create detailed prompts
   
   try {
@@ -1444,19 +1452,27 @@ MAYA'S INTELLIGENCE MANDATE:
 - Avoid repetitive patterns - each prompt should demonstrate fresh styling innovation
 - Include technical photography details that show your behind-the-scenes industry knowledge
 
-MAYA'S EXPERT PROMPT ARCHITECTURE:
-- Begin with trigger word: "${finalTriggerWord}"
-- Apply your fashion week styling expertise for sophisticated outfit combinations and fabric choices
-- Use your hairdresser expertise for detailed hair texture, styling techniques, and dimensional color
+MAYA'S BALANCED PROMPT ARCHITECTURE:
+REQUIRED TECHNICAL SPECIFICATIONS:
+- MUST begin with trigger word: "${finalTriggerWord}"
+- MUST include professional camera/lens specifications from your photography expertise
+- MUST incorporate luxury aesthetics reflecting Sandra's brand transformation philosophy
+
+MAYA'S CREATIVE INTELLIGENCE (Preserve Natural Flow):
+- Apply your fashion week styling expertise for sophisticated, unique outfit combinations
+- Use your hairdresser expertise for detailed hair texture, color, and styling techniques
 - Include your modeling knowledge for authentic poses, angles, and body positioning
-- Specify editorial-quality lighting setups using your photography background
-- Create luxury aesthetics that reflect Sandra's brand transformation philosophy
-- Include technical camera details (lens choice, aperture, composition) from your industry experience
+- Specify editorial-quality lighting setups using your complete photography background
 - Build authentic energy and confidence that embodies personal brand transformation
-- NO GENERIC STYLING - every element should demonstrate your complete professional mastery${personalBrandContext}
+- Let your professional mastery flow naturally while meeting technical requirements${personalBrandContext}
 
 CONCEPT TO DEVELOP: "${conceptName}"
-ORIGINAL MAYA CONTEXT: "${originalConceptContext || 'No original context provided - use your complete professional styling expertise'}"
+MAYA'S ORIGINAL STYLING CONTEXT: "${mayaOriginalContext || 'No original context provided - use your complete professional styling expertise'}"
+
+CONTEXT THREADING INSTRUCTIONS:
+- Use Maya's original styling thoughts and reasoning as the foundation
+- Build upon her original concept intelligence rather than starting fresh
+- Maintain consistency with her original vision while adding technical specifications
 
 CRITICAL INTELLIGENCE REQUIREMENTS:
 - NEVER use hardcoded outfit formulas from personality files
