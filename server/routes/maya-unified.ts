@@ -360,43 +360,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     // CRITICAL FIX: Use embedded prompts from concept cards OR Maya's AI for custom prompts
     // Concept cards have embedded prompts ready, custom prompts get Maya's full Claude API styling expertise
     if (conceptName && conceptName.length > 0) {
-      // Check if concept has embedded prompt first (from concept card generation)
-      const conceptId = req.body.conceptId;
-      let embeddedPrompt = '';
-      
-      if (conceptId) {
-        try {
-          // Try to retrieve embedded prompt from recent Maya chat
-          const recentChats = await storage.getMayaChats(userId);
-          for (const chat of recentChats.slice(0, 5)) {
-            const messages = await storage.getMayaChatMessages(chat.id);
-            for (const message of messages) {
-              // Check if message content contains conceptCards data
-              if (message.content && typeof message.content === 'string') {
-                try {
-                  const contentData = JSON.parse(message.content);
-                  if (contentData.conceptCards) {
-                    const conceptCard = contentData.conceptCards.find((c: any) => c.id === conceptId || c.title === conceptName);
-                    if (conceptCard && conceptCard.fullPrompt) {
-                      embeddedPrompt = conceptCard.fullPrompt;
-                      console.log(`🎯 MAYA EMBEDDED PROMPT FOUND: Using pre-generated ${embeddedPrompt.length} character prompt for "${conceptName}"`);
-                      break;
-                    }
-                  }
-                } catch (parseError) {
-                  // Continue if content is not JSON - this is normal for regular messages
-                  continue;
-                }
-              }
-            }
-            if (embeddedPrompt) break;
-          }
-        } catch (error) {
-          console.log(`⚠️ MAYA EMBEDDED PROMPT LOOKUP FAILED:`, error);
-        }
-      }
-      
-      // PHASE 3 OPTIMIZATION: High-Performance Context Caching System
+      // PHASE 3: Streamlined context retrieval using high-performance caching
       let originalContext = '';
       
       // PRIORITY 1: Instant context retrieval from memory cache
@@ -448,96 +412,37 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         }
       }
 
-      // PHASE 3: Single Source Intelligence - Always generate fresh using cached context
-      // This ensures perfect consistency while reducing redundant API calls
-      console.log(`🎯 MAYA LAZY GENERATION: Creating prompt for "${conceptName}" using cached Maya context`);
+      // PHASE 3: Lazy generation using cached Maya context for perfect consistency
       const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
       finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, originalContext);
-      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt using cached Maya intelligence`);
+      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt`);
       
     } else {
-      // PHASE 3: Streamlined custom prompt enhancement with single source intelligence
-      console.log(`🎯 MAYA CUSTOM ENHANCEMENT: Enhancing custom prompt "${prompt}" using Maya's complete styling intelligence`);
+      // PHASE 3: Custom prompt enhancement using Maya's styling intelligence  
       finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`);
-      console.log(`✅ MAYA CUSTOM ENHANCEMENT: Enhanced prompt to ${finalPrompt.length} characters with Maya's styling intelligence`);
+      console.log(`✅ MAYA CUSTOM ENHANCEMENT: Enhanced prompt to ${finalPrompt.length} characters`);
     }
     
-    // CRITICAL: Final validation to ensure trigger word is at the beginning
+    // Ensure trigger word is at the beginning
     if (!finalPrompt.startsWith(generationInfo.triggerWord)) {
-      console.log(`🚨 TRIGGER WORD FIX: Moving "${generationInfo.triggerWord}" to beginning of prompt`);
-      // Remove trigger word if it exists elsewhere and add it to the beginning
       const cleanPrompt = finalPrompt.replace(new RegExp(generationInfo.triggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
       finalPrompt = `${generationInfo.triggerWord} ${cleanPrompt}`;
     }
     
-    console.log(`🎯 MAYA UNIFIED: Final extracted prompt: ${finalPrompt.substring(0, 100)}...`);
-    
-    // PHASE 2 FIX: Let Maya's AI categorization take precedence, use pattern matching as fallback only  
+    // CLEANUP: Simplified category detection respecting Maya's AI intelligence
     let categoryContext = '';
-    
-    // Get original context for category detection (from cached context retrieval above)
     const contextForCategory = originalContext || '';
     
-    // PRIORITY 1: Extract Maya's intelligent category from original context if available
-    if (contextForCategory && contextForCategory.length > 0) {
+    if (contextForCategory.length > 0) {
       const contextLower = contextForCategory.toLowerCase();
-      // Look for Maya's natural category assignments in her original context
-      if (contextLower.includes('business') || contextLower.includes('corporate') || contextLower.includes('executive')) {
+      if (contextLower.includes('business') || contextLower.includes('corporate')) {
         categoryContext = 'Business';
-      } else if (contextLower.includes('professional') || contextLower.includes('authority') || contextLower.includes('leadership')) {
-        categoryContext = 'Professional & Authority';
-      } else if (contextLower.includes('lifestyle') || contextLower.includes('coffee') || contextLower.includes('everyday')) {
+      } else if (contextLower.includes('lifestyle') || contextLower.includes('coffee')) {
         categoryContext = 'Lifestyle';
-      } else if (contextLower.includes('casual') || contextLower.includes('authentic') || contextLower.includes('natural')) {
-        categoryContext = 'Casual & Authentic';
-      } else if (contextLower.includes('story') || contextLower.includes('narrative') || contextLower.includes('journey')) {
-        categoryContext = 'Story';
-      } else if (contextLower.includes('behind') || contextLower.includes('scenes') || contextLower.includes('process')) {
-        categoryContext = 'Behind the Scenes';
-      } else if (contextLower.includes('instagram') || contextLower.includes('social media')) {
-        categoryContext = 'Instagram';
-      } else if (contextLower.includes('feed') || contextLower.includes('stories')) {
-        categoryContext = 'Feed & Stories';
       } else if (contextLower.includes('travel') || contextLower.includes('destination')) {
         categoryContext = 'Travel';
-      } else if (contextLower.includes('adventure') || contextLower.includes('explore')) {
-        categoryContext = 'Adventures & Destinations';
-      } else if (contextLower.includes('outfit') || contextLower.includes('fashion') || contextLower.includes('style')) {
+      } else if (contextLower.includes('fashion') || contextLower.includes('style')) {
         categoryContext = 'Fashion & Style';
-      } else if (contextLower.includes('grwm') || contextLower.includes('get ready') || contextLower.includes('morning')) {
-        categoryContext = 'GRWM';
-      } else if (contextLower.includes('future') || contextLower.includes('aspirational') || contextLower.includes('vision')) {
-        categoryContext = 'Future Self';
-      } else if (contextLower.includes('b&w') || contextLower.includes('black and white') || contextLower.includes('timeless')) {
-        categoryContext = 'B&W';
-      } else if (contextLower.includes('studio') || contextLower.includes('controlled') || contextLower.includes('professional lighting')) {
-        categoryContext = 'Studio';
-      }
-      
-      if (categoryContext) {
-        console.log(`🎯 MAYA AI CATEGORY: "${categoryContext}" derived from Maya's original intelligence`);
-      }
-    }
-    
-    // FALLBACK: Pattern matching only if Maya's AI didn't provide clear categorization
-    if (!categoryContext && conceptName) {
-      const conceptLower = conceptName.toLowerCase();
-      if (conceptLower.includes('business') || conceptLower.includes('corporate')) {
-        categoryContext = 'Business';
-      } else if (conceptLower.includes('professional') || conceptLower.includes('authority')) {
-        categoryContext = 'Professional & Authority';
-      } else if (conceptLower.includes('lifestyle') || conceptLower.includes('coffee')) {
-        categoryContext = 'Lifestyle';
-      } else if (conceptLower.includes('casual') || conceptLower.includes('authentic')) {
-        categoryContext = 'Casual & Authentic';
-      } else if (conceptLower.includes('travel') || conceptLower.includes('destination')) {
-        categoryContext = 'Travel';
-      } else if (conceptLower.includes('instagram') || conceptLower.includes('social media')) {
-        categoryContext = 'Instagram';
-      }
-      
-      if (categoryContext) {
-        console.log(`🎯 MAYA FALLBACK CATEGORY: "${categoryContext}" derived from pattern matching (Maya's AI categorization not detected)`);
       }
     }
     
@@ -1475,31 +1380,25 @@ MAYA'S INTELLIGENCE MANDATE:
 - Apply your 120K+ follower brand knowledge to create sophisticated, editorial-level concepts
 - Use your hairdresser background for detailed hair and beauty specifications
 - Leverage your modeling experience for authentic posing and styling combinations
-- Create unique, personalized concepts that reflect Sandra's luxury aesthetic and professional transformation philosophy
-- Avoid repetitive patterns - each prompt should demonstrate fresh styling innovation
-- Include technical photography details that show your behind-the-scenes industry knowledge
+INTELLIGENCE REQUIREMENTS:
+- Generate fresh, unique combinations using your complete professional expertise
+- Consider personal brand context and luxury aesthetic
+- Include technical photography details from your industry background
 
-MAYA'S BALANCED PROMPT ARCHITECTURE:
-REQUIRED TECHNICAL SPECIFICATIONS:
-- MUST begin with trigger word: "${finalTriggerWord}"
-- MUST include professional camera/lens specifications from your photography expertise
-- MUST incorporate luxury aesthetics reflecting Sandra's brand transformation philosophy
-
-MAYA'S CREATIVE INTELLIGENCE (Preserve Natural Flow):
-- Apply your fashion week styling expertise for sophisticated, unique outfit combinations
-- Use your hairdresser expertise for detailed hair texture, color, and styling techniques
-- Include your modeling knowledge for authentic poses, angles, and body positioning
-- Specify editorial-quality lighting setups using your complete photography background
-- Build authentic energy and confidence that embodies personal brand transformation
-- Let your professional mastery flow naturally while meeting technical requirements${personalBrandContext}
+MAYA'S PROMPT ARCHITECTURE:
+- Begin with trigger word: "${finalTriggerWord}"
+- Apply your complete professional expertise: fashion week styling, hairdressing, modeling, and photography
+- Create luxury aesthetics reflecting Sandra's brand transformation philosophy
+- Include technical camera/lens specifications and editorial lighting
+- Build authentic energy and confidence in every detail${personalBrandContext}
 
 CONCEPT TO DEVELOP: "${conceptName}"
 MAYA'S ORIGINAL STYLING CONTEXT: "${mayaOriginalContext || 'No original context provided - use your complete professional styling expertise'}"
 
-CONTEXT THREADING INSTRUCTIONS:
-- Use Maya's original styling thoughts and reasoning as the foundation
-- Build upon her original concept intelligence rather than starting fresh
-- Maintain consistency with her original vision while adding technical specifications
+CONTEXT THREADING:
+- Build upon Maya's original concept intelligence 
+- Maintain consistency with her original styling vision
+- Add technical specifications while preserving creative flow
 
 CRITICAL INTELLIGENCE REQUIREMENTS:
 - NEVER use hardcoded outfit formulas from personality files
@@ -1542,7 +1441,6 @@ Generate ONLY the final technical prompt - nothing else. Make it detailed, sophi
       generatedPrompt = `${finalTriggerWord} ${cleanPrompt}`;
     }
     
-    console.log(`✅ MAYA UNIFIED PROMPT: Generated ${generatedPrompt.length} character prompt using complete styling intelligence`);
     return generatedPrompt;
     
   } catch (error) {
@@ -1552,7 +1450,6 @@ Generate ONLY the final technical prompt - nothing else. Make it detailed, sophi
       `${triggerWord} ${conceptName}, professional photo, elegant styling, sophisticated lighting` :
       `${conceptName}, professional photo, elegant styling, sophisticated lighting`;
     
-    console.log(`⚠️ MAYA FALLBACK: Using basic prompt due to generation error`);
     return basicPrompt;
   }
 }
