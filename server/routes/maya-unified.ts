@@ -865,25 +865,52 @@ async function processMayaResponse(response: string, context: string, userId: st
     processed.canGenerate = false;
     processed.generatedPrompt = null;
     
-    // CRITICAL FIX: Remove concept card content from main message to prevent duplication
+    // CRITICAL FIX: Remove ALL concept card content from main message to prevent duplication
     let cleanedMessage = response;
     
-    // ZERO TOLERANCE ANTI-HARDCODE: Remove Maya's concept sections completely - ANY format Maya uses
-    // Pattern: ## [any emoji] [ANY CONCEPT TYPE]: CONCEPT NAME through to next ## or end
-    // This allows Maya to create concepts for ANY style: GRWM, OOTD, TRAVEL, BUSINESS, etc.
-    cleanedMessage = cleanedMessage.replace(/##\s*[^\s:]*\s*[^:]+:[^#]*?(?=##\s*[^\s:]*\s*[^:]+:|\s*$)/gs, '');
+    // COMPREHENSIVE CONCEPT REMOVAL: Remove all formats Maya uses for concepts
+    // This ensures concepts only appear as interactive cards, never duplicated in chat
     
-    // Remove any remaining concept formatting
-    cleanedMessage = cleanedMessage.replace(/\*\*(?:The Look|Setting|Vibe)\*\*:?[^\n]*/g, '');
+    // 1. Remove ALL bold concept titles that will be parsed as concept cards
+    // Pattern: **Any Concept Name** (that becomes a concept card)
+    const conceptTitles = concepts.map(c => c.title);
+    for (const title of conceptTitles) {
+      // Remove the exact concept title and everything until the next concept or end
+      const titleEscaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const conceptSectionRegex = new RegExp(`\\*\\*${titleEscaped}\\*\\*[\\s\\S]*?(?=\\*\\*(?:${conceptTitles.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\*\\*|$)`, 'gi');
+      cleanedMessage = cleanedMessage.replace(conceptSectionRegex, '');
+    }
     
-    // Remove bullet points that contain concept details
-    cleanedMessage = cleanedMessage.replace(/^\s*[-*]\s*\*\*(?:The Look|Setting|Vibe)\*\*.*$/gm, '');
+    // 2. Remove numbered concept patterns (**1. Concept Name**)
+    cleanedMessage = cleanedMessage.replace(/\*\*\d+\.\s*[^*\n]+\*\*[\s\S]*?(?=\*\*\d+\.|$)/g, '');
     
-    // Clean up extra newlines and whitespace
+    // 3. Remove standalone bold concept patterns
+    cleanedMessage = cleanedMessage.replace(/\*\*[^*\n]{3,50}\*\*[\s\S]*?(?=\*\*[^*\n]{3,50}\*\*|$)/g, '');
+    
+    // 4. Remove legacy ## format sections completely
+    cleanedMessage = cleanedMessage.replace(/##[^#]*?(?=##|$)/gs, '');
+    
+    // 5. Remove concept-related formatting phrases
+    cleanedMessage = cleanedMessage.replace(/\*\*(?:The Look|Setting|Vibe|Mood|Details|Style|Hair|Makeup|Location|Accessories|Outfit|Colors|Textures|Energy)\*\*:?[^\n]*/gi, '');
+    
+    // 6. Remove bullet points and descriptions typically found in concepts
+    cleanedMessage = cleanedMessage.replace(/^\s*[-*•]\s*.{10,200}/gm, '');
+    
+    // 7. Remove common concept description patterns
+    cleanedMessage = cleanedMessage.replace(/^[A-Z][^.!?]*[.!?]\s*(?=[A-Z]|$)/gm, '');
+    
+    // 8. Clean up the message structure
     cleanedMessage = cleanedMessage
       .split('\n')
       .map(line => line.trim())
-      .filter(line => line.length > 0 && !line.match(/^[-*#]+$/))
+      .filter(line => {
+        // Keep only meaningful intro/outro lines, remove concept fragments
+        return line.length > 0 && 
+               !line.match(/^[-*#•]+$/) && 
+               !line.match(/^\*\*/) && 
+               !line.match(/^[A-Z][^.]*\.$/) && // Remove short descriptive sentences
+               line.length > 15; // Remove very short fragments
+      })
       .join('\n')
       .trim();
     
