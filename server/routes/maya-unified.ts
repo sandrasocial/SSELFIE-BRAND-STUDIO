@@ -389,17 +389,26 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                   const contentData = JSON.parse(message.content);
                   if (contentData.conceptCards) {
                     for (const conceptCard of contentData.conceptCards) {
-                      // Enhanced matching: exact ID, exact title, or fuzzy matching with key words
+                      // Universal fuzzy matching for ALL concepts
                       const lowerConceptName = conceptName.toLowerCase();
                       const lowerCardTitle = conceptCard.title.toLowerCase();
                       
-                      // Extract key words for fuzzy matching
+                      // Extract keywords (3+ chars) for intelligent matching
                       const conceptWords = lowerConceptName.split(/\s+/).filter(word => word.length > 2);
                       const cardWords = lowerCardTitle.split(/\s+/).filter(word => word.length > 2);
                       
-                      // Count matching words for fuzzy matching
-                      const matchingWords = conceptWords.filter(word => 
-                        cardWords.some(cardWord => cardWord.includes(word) || word.includes(cardWord))
+                      // Advanced matching: partial word matching + stemming-like logic
+                      const matchingWords = conceptWords.filter(conceptWord => 
+                        cardWords.some(cardWord => {
+                          // Exact match or partial match (3+ chars)
+                          return cardWord === conceptWord || 
+                                 cardWord.includes(conceptWord) || 
+                                 conceptWord.includes(cardWord) ||
+                                 // Similar words (for beach/beachclub, etc)
+                                 (conceptWord.length > 3 && cardWord.length > 3 && 
+                                  (conceptWord.startsWith(cardWord.slice(0, 4)) || 
+                                   cardWord.startsWith(conceptWord.slice(0, 4))));
+                        })
                       ).length;
                       
                       const isMatch = 
@@ -407,7 +416,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                         lowerCardTitle === lowerConceptName ||
                         lowerCardTitle.includes(lowerConceptName) ||
                         lowerConceptName.includes(lowerCardTitle) ||
-                        (matchingWords >= 2 && conceptWords.length >= 2); // At least 2 matching words
+                        (matchingWords >= 1 && conceptWords.length >= 1); // Any meaningful word match
                       
                       if (isMatch && conceptCard.originalContext) {
                         originalContext = conceptCard.originalContext;
@@ -419,30 +428,39 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                           timestamp: Date.now()
                         });
                         
-                        console.log(`✅ MAYA CONTEXT FOUND: Retrieved "${conceptCard.title}" context (${originalContext.length} chars)`);
-                        console.log(`🎯 MAYA CONTEXT PREVIEW: ${originalContext.substring(0, 200)}...`);
-                        console.log(`🔗 MAYA FUZZY MATCH: "${conceptName}" matched "${conceptCard.title}" (${matchingWords} matching words)`);
+                        console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
+                        console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
                         break;
                       }
                     }
                   }
                 } catch (parseError) {
-                  // Check if it's raw concept content (alternative storage format)
-                  if (message.content.includes(conceptName) && message.content.length > 100) {
-                    // Extract concept context from raw message content
+                  // FALLBACK: Search raw message content for concept mentions
+                  const lowerContent = message.content.toLowerCase();
+                  const lowerConceptName = conceptName.toLowerCase();
+                  
+                  // Extract key words from concept name for searching
+                  const conceptWords = lowerConceptName.split(/\s+/).filter(word => word.length > 3);
+                  
+                  // Check if message contains enough concept keywords
+                  const foundWords = conceptWords.filter(word => lowerContent.includes(word));
+                  
+                  if (foundWords.length >= 1 && message.content.length > 50) {
+                    // Extract relevant paragraph containing the concept
                     const lines = message.content.split('\n');
                     for (let i = 0; i < lines.length; i++) {
-                      if (lines[i].includes(conceptName)) {
-                        // Get concept context from this line and following lines
+                      const line = lines[i].toLowerCase();
+                      if (foundWords.some(word => line.includes(word))) {
+                        // Extract this paragraph and next few lines as context
                         const contextLines = [];
-                        for (let j = i; j < Math.min(i + 10, lines.length); j++) {
-                          if (lines[j].trim() && !lines[j].includes('*Generate') && !lines[j].includes('Click')) {
+                        for (let j = Math.max(0, i-1); j < Math.min(i + 5, lines.length); j++) {
+                          if (lines[j].trim()) {
                             contextLines.push(lines[j].trim());
                           }
                         }
                         if (contextLines.length > 0) {
-                          originalContext = contextLines.join(' ').substring(0, 500);
-                          console.log(`💡 MAYA RAW CONTEXT FOUND: Extracted from message content (${originalContext.length} chars)`);
+                          originalContext = contextLines.join(' ').substring(0, 800);
+                          console.log(`💡 MAYA RAW EXTRACT: Found content for "${conceptName}" (${originalContext.length} chars)`);
                           break;
                         }
                       }
@@ -1509,86 +1527,28 @@ Use this context to customize styling choices that align with their unique trans
       }
     }
     
-    // 🎯 CRITICAL FIX: Extract only styling content from Maya's conversational response
-    let cleanOriginalContext = originalContext || '';
-    
-    if (cleanOriginalContext.length > 0) {
-      console.log(`🧹 MAYA CONTENT EXTRACTION: Processing ${cleanOriginalContext.length} chars`);
-      console.log(`📝 MAYA ORIGINAL CONTENT: ${cleanOriginalContext.substring(0, 300)}...`);
-      
-      // STEP 1: Try to extract structured content between **** markers first
-      const structuredMatch = cleanOriginalContext.match(/\*\*\*\*\s*(.*?)(?:\*\*Technical|This is giving|$)/s);
-      if (structuredMatch && structuredMatch[1].trim()) {
-        cleanOriginalContext = structuredMatch[1].trim();
-        console.log(`🎯 MAYA STRUCTURED EXTRACT: Found content between **** markers`);
-      } else {
-        // STEP 2: If no structured content, try to extract any meaningful styling content
-        console.log(`🔍 MAYA FALLBACK: No **** structure found, extracting styling content`);
-        
-        // Remove conversational parts but keep styling descriptions
-        cleanOriginalContext = cleanOriginalContext
-          .replace(/^[^:]*?(?=:)/s, '') // Remove everything before first colon (concept name)
-          .replace(/Oh honey[^.]*?\./gi, '') // Remove "Oh honey" sentences
-          .replace(/I'm so excited[^.]*?\./gi, '') // Remove excitement sentences
-          .replace(/Based on your[^.]*?\./gi, '') // Remove "based on your" sentences
-          .replace(/This is giving me[^.]*$/gi, '') // Remove ending excitement
-          .replace(/\*\*Technical Photography Specifications:\*\*[\s\S]*$/gi, '') // Remove tech specs
-          .trim();
-        
-        // If still empty, try to extract any content that mentions clothing/styling
-        if (!cleanOriginalContext || cleanOriginalContext.length < 20) {
-          const stylingMatch = originalContext.match(/(blazer|dress|top|pants|jacket|outfit|hair|makeup|accessories)[^.]*\./gi);
-          if (stylingMatch) {
-            cleanOriginalContext = stylingMatch.join(' ').trim();
-            console.log(`🎨 MAYA STYLING KEYWORDS: Extracted by keywords`);
-          }
-        }
-      }
-      
-      console.log(`✨ MAYA CLEAN EXTRACT: Cleaned to ${cleanOriginalContext.length} chars`);
-      console.log(`🎨 MAYA STYLING ONLY: ${cleanOriginalContext.substring(0, 200)}...`);
-      
-      // Safety check - if content is still empty or too short, use concept name
-      if (!cleanOriginalContext || cleanOriginalContext.length < 10) {
-        cleanOriginalContext = `${conceptName}: professional styling, sophisticated look, elegant details`;
-        console.log(`⚠️ MAYA FALLBACK: Using concept-based description`);
-      }
-    }
+    // Use original context as-is - Maya's responses are already properly formatted
+    const cleanOriginalContext = originalContext || '';
 
     // MAYA'S UNIFIED PROMPT GENERATION INTELLIGENCE
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
-🎯 MAYA'S TECHNICAL PROMPT GENERATION:
-You are Maya, Sandra's AI styling twin with complete fashion week expertise. Your task is to convert styling descriptions into clean technical prompts for FLUX image generation.
+🎯 MAYA'S STYLING INTELLIGENCE:
+You are Maya with Sandra's complete professional expertise. Extract the core styling elements from the provided context and create a clean, technical prompt for FLUX image generation.
 
-PROMPT GENERATION TASK:
-Convert the styling description for "${conceptName}" into a clean, technical prompt suitable for AI image generation.
+CONCEPT: "${conceptName}"
+MAYA'S CONTEXT: "${cleanOriginalContext}"
 
-STYLING CONTENT TO PROCESS: "${cleanOriginalContext}"
+TASK: Create a technical prompt that captures Maya's styling vision.
 
-IMPORTANT: If the styling content appears empty or minimal, create a professional concept based on the concept name "${conceptName}" using your fashion expertise.
+REQUIREMENTS:
+- Extract clothing, accessories, hair, makeup details
+- Remove conversational language 
+- Keep all specific styling choices (colors, materials, cuts)
+- Add photography specs
+- Start with trigger word: "${finalTriggerWord}"
 
-CONVERSION REQUIREMENTS:
-1. Extract ONLY clothing, accessories, hair, makeup, and styling details
-2. Remove all conversational language, greetings, and explanations  
-3. Convert to concise, technical description format
-4. Maintain all specific styling choices (colors, materials, silhouettes)
-5. Add basic photography specifications (lighting, camera angle)
-6. Ensure output starts with trigger word: "${finalTriggerWord}"
-
-OUTPUT FORMAT:
-- Start with: "${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
-- Follow with: Clean styling description (clothing, hair, makeup, accessories)
-- End with: Basic photography specs (lighting, angle, background)
-
-CRITICAL RULES:
-- NO conversational language ("Oh honey", "I'm excited", etc.)
-- NO explanations or backstory
-- ONLY styling and technical details
-- Keep all specific styling choices from the original
-- Maximum 300 characters for styling portion
-
-Generate a clean technical prompt suitable for FLUX image generation.`;
+Generate a clean technical prompt for image generation.`;
 
     // Call Claude API for Maya's intelligent prompt generation
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1604,11 +1564,11 @@ Generate a clean technical prompt suitable for FLUX image generation.`;
         system: mayaPromptPersonality,
         messages: [{
           role: 'user',
-          content: `Convert Maya's styling description to clean technical prompt for: "${conceptName}"
+          content: `Create technical prompt for: "${conceptName}"
 
-Styling Content: "${cleanOriginalContext}"
+Context: "${cleanOriginalContext}"
 
-Extract only styling details, remove conversational language, add basic photography specs.`
+Extract styling details and add photography specs.`
         }]
       })
     });
