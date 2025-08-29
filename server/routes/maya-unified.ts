@@ -1599,7 +1599,11 @@ OPTIMAL PROMPT LENGTH: Target 100-300 words for research-optimal FLUX performanc
 FORMAT: Natural, descriptive text that captures your creative vision
 START WITH: "${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
 
-CRITICAL PHYSICAL FEATURE RESTRICTION: NEVER specify hair color, eye color, skin tone, or facial features - you cannot see the user's training images. The LoRA model will handle all physical appearance naturally.
+CRITICAL IMAGE RESTRICTIONS:
+- NEVER specify hair color, eye color, skin tone, or facial features - the LoRA model handles all physical appearance
+- NEVER create split images, diptych, before/after, side-by-side, or comparison shots
+- NEVER include "transformation", "before and after", "split screen", "two images", or comparison elements  
+- ALWAYS generate single, cohesive images showing one complete moment/outfit
 
 CREATIVE STYLING APPROACH:
 Let your styling intelligence flow naturally! Create unexpected, beautiful combinations that showcase your expertise:
@@ -1716,8 +1720,8 @@ Let your creativity shine - use unexpected details, sophisticated combinations, 
     // DO NOT fall back to basic/generic prompts that override her expertise
     
     const intelligentFallback = triggerWord ? 
-      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${cleanOriginalContext || conceptName}, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression` :
-      `${cleanOriginalContext || conceptName}, raw photo, visible skin pores, film grain, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression`;
+      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${originalContext || conceptName}, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression` :
+      `${originalContext || conceptName}, raw photo, visible skin pores, film grain, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression`;
     
     console.log('🎯 MAYA INTELLIGENT FALLBACK: Preserving context and creativity despite API issue');
     return intelligentFallback;

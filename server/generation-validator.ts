@@ -122,8 +122,11 @@ export function cleanMayaPrompt(prompt: string): string {
     .replace(/[.!?]\s*(?:your empire-building era|this look says|you're ready to|and this look|ready to own)[^.!?]*[.!?]?$/gi, '.')
     // Remove Maya's excited expressions
     .replace(/(?:OMG|omg|Yes|YES|Amazing|AMAZING|Perfect|PERFECT|Stunning|STUNNING|Incredible|INCREDIBLE)!?\s*/gi, '')
-    // Remove Maya's style commentary
+    // Remove Maya's style commentary and transformation language
     .replace(/(?:this is giving me|I'm obsessing over|I can already see|we're talking about|I'm about to style)/gi, '')
+    // Remove transformation and comparison language that could create split images
+    .replace(/(?:transformation|before and after|split|diptych|side.by.side|comparison|vs\.|versus)/gi, '')
+    .replace(/(?:from .+ to .+|evolution from|journey from|transition from)/gi, '')
     // Remove basic formatting
     .replace(/\*\*[^*]+\*\*/g, '') // Remove **bold** markers
     .replace(/#{1,6}\s+/g, '') // Remove markdown headers  

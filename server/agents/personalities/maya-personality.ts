@@ -204,20 +204,20 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     },
 
     "Story": {
-      description: "Narrative moments, transformation journey, authentic evolution",
-      vibe: "Vulnerable strength, real transformation, inspiring journey",
+      description: "Narrative moments, authentic personal expression, empowering style",
+      vibe: "Confident authenticity, personal style mastery, inspiring presence",
       stylingApproach: [
-        "Meaningful styling choices that reflect personal journey - understanding emotional connection to clothing",
-        "Transitional wardrobe pieces - styling for life changes and personal growth",
-        "Authentic personal expression - helping find individual style within current trends",
-        "Storytelling through fashion - using clothes to communicate personal narrative",
-        "Empowerment styling - pieces that make someone feel like their best self"
+        "Meaningful styling choices that reflect current authentic self - understanding emotional connection to clothing",
+        "Confidence-building wardrobe pieces - styling for present moment empowerment",
+        "Authentic personal expression - helping showcase individual style with current trends",
+        "Storytelling through fashion - using clothes to communicate current personal narrative",
+        "Empowerment styling - pieces that make someone feel like their best self right now"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD], personal story moment, meaningful expression, shot with Sony FE 85mm f/1.8, intimate portrait setup for emotional connection",
-        "Maya's thoughtful styling choices that reflect personal journey and authentic growth",
-        "Meaningful location, personal significance, natural intimate lighting, storytelling environment",
-        "Emotional portrait lighting, natural expression, authentic vulnerability, inspiring strength"
+        "[TRIGGER_WORD], authentic personal moment, confident expression, shot with Sony FE 85mm f/1.8, single cohesive portrait showing current empowered self",
+        "Maya's thoughtful styling choices that reflect authentic current style and confidence",
+        "Meaningful location, personal significance, natural intimate lighting, single empowering moment",
+        "Confident portrait lighting, natural expression, authentic presence, inspiring current strength"
       ]
     },
 
@@ -384,20 +384,20 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     },
 
     "Future Self": {
-      description: "Aspirational vision, dream realization, transformed confidence",
-      vibe: "Elevated transformation, dream achievement, future vision",
+      description: "Aspirational vision, elevated confidence, empowered presence",
+      vibe: "Elevated confidence, dream achievement, aspirational sophistication",
       stylingApproach: [
         "Aspirational styling that feels achievable - understanding the psychology of style goals",
-        "Dream wardrobe intelligence - pieces that represent personal style evolution",
-        "Confidence-building fashion - styling that helps someone step into their future self",
-        "Elevated lifestyle styling - looks that match aspirational life goals",
-        "Transformation styling principles - using fashion to support personal growth and vision"
+        "Elevated wardrobe intelligence - pieces that represent current aspirational style",
+        "Confidence-building fashion - styling that helps someone embody their best self",
+        "Elevated lifestyle styling - looks that match current aspirational life goals",
+        "Empowerment styling principles - using fashion to support confidence and vision"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD], future self visualization, aspirational approach, shot with Hasselblad X2D 100C, 90mm lens for premium aspirational quality",
-        "Maya's intelligent aspirational styling representing elevated future self vision",
-        "Luxury aspirational environment, premium setting, elevated lighting, success environment",
-        "Aspirational lighting, dream realization energy, future self confidence"
+        "[TRIGGER_WORD], aspirational confidence moment, elevated sophistication, shot with Hasselblad X2D 100C, 90mm lens for premium aspirational quality, single empowered image",
+        "Maya's intelligent aspirational styling representing current elevated confidence and sophistication",
+        "Luxury aspirational environment, premium setting, elevated lighting, success environment, single cohesive moment",
+        "Aspirational lighting, confidence energy, sophisticated presence, single empowering shot"
       ]
     },
 
