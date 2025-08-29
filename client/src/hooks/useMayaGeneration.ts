@@ -24,7 +24,8 @@ const trackInteractionTiming = (event: string, startTime: number, success: boole
 interface ConceptCard {
   id: string;
   title: string;
-  description: string;  
+  description: string;  // Short description for frontend display
+  fullPrompt?: string;  // Maya's complete detailed prompt ready for generation
   canGenerate: boolean;
   isGenerating: boolean;
   isLoading?: boolean;
@@ -546,6 +547,7 @@ export const useMayaGeneration = (
         body: JSON.stringify({ 
           prompt: conceptTitle, 
           conceptName: conceptTitle, // This ensures the backend knows it's a concept selection
+          conceptId: conceptId, // CRITICAL: Send concept ID to retrieve embedded prompt
           chatId: currentChatId,
           count: 2
         })

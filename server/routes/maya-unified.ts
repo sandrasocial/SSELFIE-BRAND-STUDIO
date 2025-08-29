@@ -331,17 +331,58 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     let finalPrompt = prompt.trim();
     
-    // CRITICAL FIX: Use Maya's AI intelligence for ALL prompts while preserving user intent
-    // Both concept cards AND custom prompts get Maya's full Claude API styling expertise
+    // CRITICAL FIX: Use embedded prompts from concept cards OR Maya's AI for custom prompts
+    // Concept cards have embedded prompts ready, custom prompts get Maya's full Claude API styling expertise
     if (conceptName && conceptName.length > 0) {
-      console.log(`🎯 MAYA CONCEPT ENHANCEMENT: Using Maya's AI to enhance user's selected concept "${conceptName}"`);
-      // Clean concept name for Maya's intelligent processing
-      const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
-      // Let Maya's Claude API intelligence create the detailed prompt based on the user's concept
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId);
-      console.log(`✅ MAYA CONCEPT ENHANCED: Maya's AI created ${finalPrompt.length} character detailed prompt for "${userConcept}"`);
+      // Check if concept has embedded prompt first (from concept card generation)
+      const conceptId = req.body.conceptId;
+      let embeddedPrompt = '';
+      
+      if (conceptId) {
+        try {
+          // Try to retrieve embedded prompt from recent Maya chat
+          const recentChats = await storage.getMayaChats(userId);
+          for (const chat of recentChats.slice(0, 5)) {
+            const messages = await storage.getMayaChatMessages(chat.id);
+            for (const message of messages) {
+              // Check if message content contains conceptCards data
+              if (message.content && typeof message.content === 'string') {
+                try {
+                  const contentData = JSON.parse(message.content);
+                  if (contentData.conceptCards) {
+                    const conceptCard = contentData.conceptCards.find((c: any) => c.id === conceptId || c.title === conceptName);
+                    if (conceptCard && conceptCard.fullPrompt) {
+                      embeddedPrompt = conceptCard.fullPrompt;
+                      console.log(`🎯 MAYA EMBEDDED PROMPT FOUND: Using pre-generated ${embeddedPrompt.length} character prompt for "${conceptName}"`);
+                      break;
+                    }
+                  }
+                } catch (parseError) {
+                  // Continue if content is not JSON - this is normal for regular messages
+                  continue;
+                }
+              }
+            }
+            if (embeddedPrompt) break;
+          }
+        } catch (error) {
+          console.log(`⚠️ MAYA EMBEDDED PROMPT LOOKUP FAILED:`, error);
+        }
+      }
+      
+      if (embeddedPrompt) {
+        // Use Maya's pre-generated detailed prompt from concept creation
+        finalPrompt = embeddedPrompt;
+        console.log(`✅ MAYA CONCEPT READY: Using embedded prompt (${finalPrompt.length} chars) - no additional Claude API call needed`);
+      } else {
+        // Fallback: Generate new prompt if embedded prompt not found
+        console.log(`🎯 MAYA CONCEPT FALLBACK: Generating new prompt for "${conceptName}" (embedded prompt not found)`);
+        const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
+        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId);
+        console.log(`✅ MAYA CONCEPT FALLBACK COMPLETE: Generated ${finalPrompt.length} character prompt`);
+      }
     } else {
-      // Custom prompts also get Maya's full intelligence
+      // Custom prompts get Maya's full intelligence
       console.log(`🎯 MAYA CUSTOM PROMPT: "${prompt}" - Calling createDetailedPromptFromConcept with user context`);
       finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId);
       console.log(`✅ MAYA CUSTOM RESULT: Generated ${finalPrompt.length} character prompt`);
@@ -857,8 +898,8 @@ async function processMayaResponse(response: string, context: string, userId: st
     }
   }
 
-  // NEW: Parse concepts into individual cards - Enhanced for Maya's natural formatting
-  const concepts = parseConceptsFromResponse(response);
+  // NEW: Parse concepts into individual cards with embedded prompts - Enhanced for Maya's natural formatting
+  const concepts = await parseConceptsFromResponse(response, userId);
   if (concepts.length > 0) {
     processed.conceptCards = concepts;
     // Remove traditional canGenerate since we have concept cards
@@ -957,13 +998,14 @@ Which of these is calling to you? I can already picture how incredible these are
 interface ConceptCard {
   id: string;
   title: string;
-  description: string;  
+  description: string;  // Short description for frontend display
+  fullPrompt?: string;  // Maya's complete detailed prompt ready for generation
   canGenerate: boolean;
   isGenerating: boolean;
   generatedImages?: string[];
 }
 
-const parseConceptsFromResponse = (response: string): ConceptCard[] => {
+const parseConceptsFromResponse = async (response: string, userId?: string): Promise<ConceptCard[]> => {
   const concepts: ConceptCard[] = [];
   
   console.log('🎯 CONCEPT PARSING: Analyzing response length:', response.length);
@@ -1058,11 +1100,34 @@ const parseConceptsFromResponse = (response: string): ConceptCard[] => {
         description = `${conceptName} - Professional styling concept ready to generate`;
       }
       
+      // CRITICAL ENHANCEMENT: Generate Maya's complete detailed prompt for this specific concept
+      // This ensures concept cards have prompts ready without additional Claude API calls
+      let fullPrompt = '';
+      try {
+        // Extract trigger word for this user
+        const generationInfo = await checkGenerationCapability(userId || '');
+        if (generationInfo.canGenerate && generationInfo.triggerWord) {
+          console.log(`🎯 MAYA CONCEPT PROMPT: Generating detailed prompt for "${conceptName}" using Maya's original context`);
+          
+          // Use Maya's original concept content as context for detailed prompt generation
+          const conceptContext = conceptContent.substring(0, 500); // Maya's original styling vision
+          fullPrompt = await createDetailedPromptFromConcept(conceptName, generationInfo.triggerWord, userId, conceptContext);
+          
+          console.log(`✅ MAYA CONCEPT READY: "${conceptName}" has ${fullPrompt.length} character detailed prompt embedded`);
+        } else {
+          console.log(`⚠️ MAYA CONCEPT: User ${userId} cannot generate - concept will show but not generate`);
+        }
+      } catch (error) {
+        console.log(`⚠️ MAYA CONCEPT PROMPT GENERATION FAILED for "${conceptName}":`, error);
+        // Continue without embedded prompt - user can still try generation
+      }
+
       foundConcepts.add(conceptName.toLowerCase());
       concepts.push({
         id: `concept_${Date.now()}_${conceptNumber}_${Math.random().toString(36).substr(2, 6)}`,
         title: conceptName,
-        description: description,
+        description: description, // Short description for frontend display
+        fullPrompt: fullPrompt, // Maya's complete detailed prompt ready for immediate generation
         canGenerate: true,
         isGenerating: false
       });
@@ -1235,7 +1300,7 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
 }
 
 // MAYA'S AI-DRIVEN PROMPT GENERATION - NO MORE HARDCODED TEMPLATES
-async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string): Promise<string> {
+async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalConceptContext?: string): Promise<string> {
   // Use Maya's complete styling expertise through Claude API instead of hardcoded templates
   
   try {
@@ -1286,6 +1351,8 @@ CREATIVE VARIETY MANDATE:
 - Use your full professional expertise to create diverse, personalized styling
 
 CREATE DETAILED PROMPT FOR: "${conceptName}" 
+${originalConceptContext ? `PRESERVE YOUR ORIGINAL STYLING VISION: "${originalConceptContext}"` : ''}
+
 REQUIREMENTS:
 1. ALWAYS start with "${triggerWord}" as first word
 2. IMMEDIATELY follow with mandatory technical parameters: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
@@ -1293,12 +1360,12 @@ REQUIREMENTS:
 4. Include: specific garments, colors, textures, hair, makeup, accessories, pose, lighting, setting
 5. Use your professional fashion and photography knowledge extensively
 6. Return ONLY the prompt - no conversational text
-7. CRITICAL: Make this concept feel unique - vary colors, locations, and styling based on the specific concept
+7. CRITICAL: ${originalConceptContext ? 'Build upon your original concept vision while expanding the styling details' : 'Make this concept feel unique - vary colors, locations, and styling based on the specific concept'}
 8. Avoid repeating previous styling patterns - create fresh interpretations each time
 
 MANDATORY FORMAT: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, [YOUR CREATIVE STYLING VISION]"
 
-Interpret "${conceptName}" through your complete professional lens and create a unique, personalized styling vision that feels fresh and different from your previous work.
+${originalConceptContext ? `Enhance and expand your original "${conceptName}" concept: ${originalConceptContext}` : `Interpret "${conceptName}" through your complete professional lens and create a unique, personalized styling vision that feels fresh and different from your previous work.`}
 
 ${personalBrandContext}`;
 
