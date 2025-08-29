@@ -623,15 +623,72 @@ function Maya() {
           color: var(--soft-gray);
         }
 
-        /* Style Quick-Select */
-        .style-quickselect {
+        /* Style Quick-Select / Collection Grid */
+        .style-quickselect.collection-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 12px;
+          margin-bottom: 40px;
+        }
+
+        .collection-card {
+          aspect-ratio: 1;
+          background: var(--editorial-gray);
+          border: 1px solid var(--accent-line);
+          cursor: pointer;
+          transition: all 300ms ease;
+          position: relative;
+          overflow: hidden;
+          border-radius: 8px;
+        }
+
+        .collection-card:hover {
+          transform: scale(1.05);
+          border-color: var(--black);
+        }
+
+        .collection-image {
+          width: 100%;
+          height: 70%;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .collection-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 300ms ease;
+        }
+
+        .collection-card:hover .collection-image img {
+          transform: scale(1.1);
+        }
+
+        .collection-title {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: 8px;
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 0.15em;
+          text-align: center;
+          text-transform: uppercase;
+        }
+
+        /* Legacy style options for backwards compatibility */
+        .style-quickselect:not(.collection-grid) {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 15px;
           margin-bottom: 40px;
         }
 
-        .style-option {
+        .style-option:not(.collection-card) {
           aspect-ratio: 1;
           background: var(--editorial-gray);
           border: 1px solid var(--accent-line);
@@ -641,7 +698,7 @@ function Maya() {
           overflow: hidden;
         }
 
-        .style-option:hover {
+        .style-option:not(.collection-card):hover {
           transform: scale(1.05);
           border-color: var(--black);
         }
@@ -674,7 +731,7 @@ function Maya() {
           transition: transform 300ms ease;
         }
 
-        .style-option:hover .style-label {
+        .style-option:not(.collection-card):hover .style-label {
           transform: translateY(0);
         }
 
@@ -1021,13 +1078,30 @@ function Maya() {
             -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
           }
 
-          /* Style quickselect mobile */
-          .style-quickselect {
+          /* Collection grid mobile */
+          .style-quickselect.collection-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+          }
+
+          .collection-card {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+          }
+
+          .collection-title {
+            font-size: 9px !important;
+            padding: 6px !important;
+            letter-spacing: 0.1em !important;
+          }
+
+          /* Legacy style quickselect mobile */
+          .style-quickselect:not(.collection-grid) {
             grid-template-columns: 1fr !important;
             gap: 12px !important;
           }
 
-          .style-option {
+          .style-option:not(.collection-card) {
             min-height: 44px !important;
             padding: 16px !important;
             touch-action: manipulation;
@@ -1127,13 +1201,13 @@ function Maya() {
           }
 
           /* Touch feedback for all interactive elements */
-          button:active, .style-option:active, .quick-button:active {
+          button:active, .style-option:active, .collection-card:active, .quick-button:active {
             transform: scale(0.98);
             transition: transform 0.1s ease;
           }
 
           /* Prevent text selection on buttons */
-          .quick-button, .style-option, button {
+          .quick-button, .style-option, .collection-card, button {
             -webkit-user-select: none;
             user-select: none;
           }
@@ -1396,46 +1470,66 @@ function Maya() {
                   <p className="welcome-description">Hey beautiful! I'm Maya, and I'm here to help you tell your story through stunning photos. Whether you need Instagram content that feels authentically you or personal brand photos that showcase your unique style - I've got you covered. What story do you want to tell?</p>
 
                   {/* Style Quick-Select with SSELFIE categories */}
-                  <div className="style-quickselect">
-                    <div className="style-option" onClick={() => handleStyleSelect('business-photos')}>
-                      <div className="style-preview">Business</div>
-                      <div className="style-label">Professional & Authority</div>
+                  <div className="style-quickselect collection-grid">
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('business-photos')}>
+                      <div className="collection-image">
+                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png" alt="Business Photos" />
+                      </div>
+                      <div className="collection-title">B U S I N E S S</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('lifestyle-photos')}>
-                      <div className="style-preview">Lifestyle</div>
-                      <div className="style-label">Casual & Authentic</div>
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('lifestyle-photos')}>
+                      <div className="collection-image">
+                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_d0tjje9tk5rma0cryk09kp5s6g_1_1756452916650.png" alt="Lifestyle Photos" />
+                      </div>
+                      <div className="collection-title">L I F E S T Y L E</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('story-photos')}>
-                      <div className="style-preview">Story</div>
-                      <div className="style-label">Behind the Scenes</div>
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('story-photos')}>
+                      <div className="collection-image">
+                        <img src="https://i.postimg.cc/Y0XsXb6q/out-0-19.png" alt="Story Photos" />
+                      </div>
+                      <div className="collection-title">S T O R Y</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('instagram-photos')}>
-                      <div className="style-preview">Instagram</div>
-                      <div className="style-label">Feed & Stories</div>
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('instagram-photos')}>
+                      <div className="collection-image">
+                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756380874129.png" alt="Instagram Photos" />
+                      </div>
+                      <div className="collection-title">I N S T A G R A M</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('travel-photos')}>
-                      <div className="style-preview">Travel</div>
-                      <div className="style-label">Adventures & Destinations</div>
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('travel-photos')}>
+                      <div className="collection-image">
+                        <img src="https://i.postimg.cc/ydspswn8/out-0-31.png" alt="Travel Photos" />
+                      </div>
+                      <div className="collection-title">T R A V E L</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('outfit-photos')}>
-                      <div className="style-preview">Outfits</div>
-                      <div className="style-label">Fashion & Style</div>
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('outfit-photos')}>
+                      <div className="collection-image">
+                        <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Outfit Photos" />
+                      </div>
+                      <div className="collection-title">O U T F I T S</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('grwm-photos')}>
-                      <div className="style-preview">GRWM</div>
-                      <div className="style-label">Get Ready With Me</div>
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('grwm-photos')}>
+                      <div className="collection-image">
+                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_jyy0eanhb5rm80cryvkt2hsjy8_1_1756489058548.png" alt="GRWM Photos" />
+                      </div>
+                      <div className="collection-title">G R W M</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('future-self')}>
-                      <div className="style-preview">Future Self</div>
-                      <div className="style-label">Aspirational Vision</div>
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('future-self')}>
+                      <div className="collection-image">
+                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756128420487.png" alt="Future Self Photos" />
+                      </div>
+                      <div className="collection-title">F U T U R E  S E L F</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('bw-photos')}>
-                      <div className="style-preview">B&W</div>
-                      <div className="style-label">Timeless & Artistic</div>
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('bw-photos')}>
+                      <div className="collection-image">
+                        <img src="https://i.postimg.cc/9QPGCzky/out-1-34.png" alt="Black & White Photos" />
+                      </div>
+                      <div className="collection-title">B & W</div>
                     </div>
-                    <div className="style-option" onClick={() => handleStyleSelect('studio-photoshoot')}>
-                      <div className="style-preview">Studio</div>
-                      <div className="style-label">Professional Shoot</div>
+                    <div className="style-option collection-card" onClick={() => handleStyleSelect('studio-photoshoot')}>
+                      <div className="collection-image">
+                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya-generation_1756243428661.png" alt="Studio Photos" />
+                      </div>
+                      <div className="collection-title">S T U D I O</div>
                     </div>
                   </div>
                   
