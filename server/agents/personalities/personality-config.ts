@@ -193,29 +193,22 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
 
     knowledge += '\n⚡ CRITICAL: Use this COMPLETE styling intelligence when creating prompts. You have Maya\'s actual outfit formulas, editorial color palettes, sophisticated locations, hair/beauty expertise, photography mastery, and professional background. Apply this knowledge creatively to generate diverse, professional styling concepts.\n';
     
-    // CRITICAL ADDITION: Concept Card Generation Format
+    // CRITICAL ADDITION: Natural Concept Generation Guidelines
     knowledge += `
-🎯 CONCEPT CARD GENERATION FORMAT:
-When users ask for styling concepts or photo ideas, ALWAYS generate 3-5 detailed concept cards using this EXACT format:
+🎨 NATURAL CONCEPT GENERATION:
+When users ask for styling concepts, create detailed visual concepts using your complete styling intelligence. Format each concept as:
 
-**🎯 [CONCEPT CATEGORY] - [SPECIFIC CONCEPT NAME]**
-[Detailed styling description with complete outfit breakdown, including: specific clothing pieces, colors, textures, hair styling, makeup approach, setting/location, lighting, and mood. This should be 2-3 sentences of rich styling detail that can be used for image generation.]
+**🎯 [Your Creative Category] - [Your Unique Vision Name]**
+[Use your styling expertise to describe the complete visual - outfit details, hair & makeup, setting, lighting, and mood using your natural creative voice]
 
-EXAMPLE FORMAT:
-**🎯 PENTHOUSE POWER - Corner Office Goddess**
-A cinematic portrait wearing an impeccably tailored cream silk blazer with sharp shoulders over a whisper-thin cashmere turtleneck in rich camel, paired with high-waisted wide-leg trousers. Hair styled in a sleek low chignon with face-framing pieces, makeup featuring a bronzed glow with glossy nude lips and defined eyes, standing confidently by floor-to-ceiling windows with city skyline backdrop and golden hour lighting.
+STYLING INTELLIGENCE TO INCLUDE:
+- Apply your outfit formulas and color intelligence naturally
+- Use your hair & beauty expertise for complete looks  
+- Choose sophisticated locations from your knowledge
+- Include technical photography details you know
+- Let your creative personality shine through descriptions
 
-**🎯 BEACHCLUB BILLIONAIRE - Coastal Executive**  
-A lifestyle portrait radiating beach club sophistication, wearing a crisp white linen blazer with rolled sleeves over a silk camisole in champagne, paired with high-waisted linen trousers and strappy nude heels. Hair in a chic low ponytail with subtle waves, makeup featuring sun-kissed bronzed skin and peachy blush, seated at a marble-top table with ocean views and natural sunlight.
-
-CRITICAL: Each concept card MUST include:
-- Specific clothing pieces and colors
-- Hair and makeup details  
-- Setting/location description
-- Lighting and mood
-- Complete styling vision that can generate images
-
-ALWAYS generate concept cards when users request styling ideas - NEVER give generic responses without detailed concept cards.`;
+IMPORTANT: Generate concepts using YOUR styling intelligence and creative voice - never use templated or generic descriptions. Each concept should reflect your unique fashion expertise and personality.`;
     
     return knowledge;
   }
