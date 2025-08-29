@@ -856,24 +856,36 @@ export class ModelTrainingService {
     }
   }
 
-  // PHASE 1 FIX: Determine shot type from prompt for Maya's personality parameters
+  // MAYA'S INTELLIGENT SHOT TYPE DETECTION - LIBERATION FROM HARDCODED RESTRICTIONS
   private static determineShotTypeFromPrompt(prompt: string): 'closeUpPortrait' | 'halfBodyShot' | 'fullScenery' {
     const promptLower = prompt.toLowerCase();
     
-    // Close-up indicators
-    if (promptLower.includes('portrait') || promptLower.includes('headshot') || promptLower.includes('close-up') || 
-        promptLower.includes('face') || promptLower.includes('beauty') || promptLower.includes('makeup')) {
-      return 'closeUpPortrait';
-    }
-    
-    // Full scenery indicators  
-    if (promptLower.includes('full body') || promptLower.includes('environment') || promptLower.includes('landscape') ||
-        promptLower.includes('scenery') || promptLower.includes('location') || promptLower.includes('destination')) {
+    // Full-body/scenery indicators (prioritize dynamic shots)
+    if (promptLower.includes('full body') || promptLower.includes('full-body') || promptLower.includes('whole body') ||
+        promptLower.includes('outfit') || promptLower.includes('shoes') || promptLower.includes('walking') ||
+        promptLower.includes('standing') || promptLower.includes('sitting') || promptLower.includes('pose') ||
+        promptLower.includes('environment') || promptLower.includes('location') || promptLower.includes('setting') ||
+        promptLower.includes('background') || promptLower.includes('scenery') || promptLower.includes('lifestyle') ||
+        promptLower.includes('action') || promptLower.includes('movement') || promptLower.includes('street') ||
+        promptLower.includes('travel') || promptLower.includes('destination') || promptLower.includes('workspace')) {
       return 'fullScenery';
     }
     
-    // Default to half-body for most styling concepts
-    return 'halfBodyShot';
+    // Close-up portrait indicators (specific facial focus)
+    if (promptLower.includes('headshot') || promptLower.includes('close-up') || promptLower.includes('close up') ||
+        promptLower.includes('face') || promptLower.includes('beauty') || promptLower.includes('makeup') ||
+        promptLower.includes('facial') || promptLower.includes('expression only')) {
+      return 'closeUpPortrait';
+    }
+    
+    // Portrait indicators that could be half-body
+    if (promptLower.includes('portrait')) {
+      // If it's just "portrait" without specific close-up indicators, allow half-body
+      return 'halfBodyShot';
+    }
+    
+    // Default to full scenery to encourage dynamic, interesting shots over static portraits
+    return 'fullScenery';
   }
 
   // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER INTELLIGENCE

@@ -1056,7 +1056,7 @@ async function processMayaResponse(response: string, context: string, userId: st
     // Third try: Extract only styling descriptions, NEVER use conversational text
     if (!extractedPrompt) {
       // Look for detailed styling descriptions in Maya's response
-      const stylingPattern = /([A-Z][^.]*(?:blazer|dress|jeans|shirt|blouse|jacket|coat|pants|skirt|top|outfit|wearing|styled|tailored|leather|silk|cotton|wool|fabric|textured|patterned|colored|fitted|flowing|structured|hair|makeup|shot|camera|lighting|photograph)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/gi;
+      const stylingPattern = /([A-Z][^.]*(?:blazer|dress|jeans|shirt|blouse|jacket|coat|pants|skirt|top|outfit|wearing|styled|tailored|leather|silk|cotton|wool|fabric|textured|patterned|colored|fitted|flowing|structured|hair|makeup|shot|camera|lighting|photograph|full.body|half.body|standing|sitting|walking|pose|environment|location|setting)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/gi;
       const stylingMatches = response.match(stylingPattern);
       
       if (stylingMatches && stylingMatches.length > 0) {
@@ -1608,8 +1608,14 @@ Let your styling intelligence flow naturally! Create unexpected, beautiful combi
 - Use your fashion week knowledge for unique textures, unexpected color pairings, innovative silhouettes
 - Draw from current trends but add your signature twist 
 - Mix luxury with accessibility, structure with softness, classic with contemporary
-- Choose poses and settings that enhance the styling story
-- Include professional camera and lighting details that complement the aesthetic
+
+SHOT TYPE CREATIVE FREEDOM:
+YOU decide the best shot type based on the concept! Express your creative vision:
+- **Full-body shots**: Perfect for showcasing complete outfits, lifestyle moments, environmental storytelling
+- **Half-body shots**: Great for business looks, styling details, professional settings
+- **Close-up portraits**: Only when the concept specifically calls for facial focus or beauty shots
+
+Choose the framing that best tells the styling story. Include specific camera positioning and environmental details that enhance your creative vision.
 
 ANATOMY EXCELLENCE (CRITICAL FOR PROFESSIONAL RESULTS):
 Always include these key elements for perfect anatomical rendering:
