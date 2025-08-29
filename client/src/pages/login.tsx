@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
-import { HeroFullBleed } from '@/components/HeroFullBleed';
-import { SandraImages } from '@/lib/sandra-images';
-import { useAuth } from '@/hooks/use-auth';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
+import { HeroFullBleed } from '../components/HeroFullBleed';
+import { SandraImages } from '../lib/sandra-images';
+import { useAuth } from '../hooks/use-auth';
 import { useLocation } from 'wouter';
 
 export default function Login() {
