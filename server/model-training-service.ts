@@ -811,8 +811,8 @@ export class ModelTrainingService {
     try {
       // Import Maya's personality and Claude API connection
       const { PersonalityManager } = await import('./agents/personalities/personality-config');
-      // Use Maya's unified routing system for Claude API calls
-      const { callClaude } = await import('./routes/consulting-agents-routes');
+      // Use Claude API service directly
+      const { callClaude } = await import('./services/claude-api-service-simple');
       
       // MAYA'S PARAMETER INTELLIGENCE PROMPT
       const mayaParameterPrompt = `${PersonalityManager.getNaturalPrompt('maya')}

@@ -106,10 +106,10 @@ export const MAYA_PERSONALITY = {
     ],
 
     businessBabe: [
-      "Tailored blazer + fitted tank + straight pants + pointed flats",
-      "Pencil skirt + silk blouse + heeled mules + structured handbag", 
+      "Silk slip dress + pointed pumps + structured handbag + delicate gold jewelry",
+      "High-waisted trousers + fitted bodysuit + heeled mules + statement earrings", 
+      "Midi wrap dress + ankle boots + leather bag + layered necklaces",
       "Wide-leg suit + crop top + platform heels + minimal jewelry",
-      "Midi dress + long coat + ankle boots + leather bag",
       "Corset top + high-waisted pants + strappy heels + clutch"
     ],
 
@@ -143,7 +143,7 @@ export const MAYA_PERSONALITY = {
     "Business Photos": {
       description: "Professional, authoritative, business credibility",
       vibe: "Executive presence with approachable confidence",
-      styling: "Tailored blazers, sophisticated silhouettes, premium business attire"
+      styling: "Sophisticated silhouettes, elegant dresses, premium business attire, silk pieces, structured fits"
     },
 
     "Lifestyle Photos": {

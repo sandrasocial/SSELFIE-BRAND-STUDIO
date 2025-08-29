@@ -2990,7 +2990,7 @@ Rules:
 - Keep it sophisticated and editorial
 - Category context: ${category ? category.replace(/['"\\]/g, '').substring(0, 50) : 'general'} - ${subcategory ? subcategory.replace(/['"\\]/g, '').substring(0, 50) : 'standard'}
 
-Example: "minimalist rooftop terrace overlooking city skyline at golden hour, wearing architectural cashmere blazer in camel with wide-leg trousers, natural confident expression while reviewing documents, professional editorial lighting creating dramatic shadows"`
+Example: "minimalist rooftop terrace overlooking city skyline at golden hour, wearing sophisticated silk blouse in camel with wide-leg trousers, natural confident expression while reviewing documents, professional editorial lighting creating dramatic shadows"`
             }]
           })
         });
