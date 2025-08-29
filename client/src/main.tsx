@@ -20,17 +20,43 @@ if ((import.meta as any).hot) {
 
 // Add global error handlers to catch unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
-  console.warn('SSELFIE Studio: Unhandled promise rejection caught:', event.reason);
   // Prevent the default console.error that React shows
   event.preventDefault();
   
-  // Only log critical errors, ignore development-related rejections
-  if (event.reason && event.reason.message && !event.reason.message.includes('WebSocket') && !event.reason.message.includes('Service Worker')) {
-    console.error('Critical unhandled promise:', event.reason);
+  // Check if this is a WebSocket or development-related error
+  const isWebSocketError = event.reason && (
+    event.reason.message?.includes('WebSocket') ||
+    event.reason.message?.includes('websocket') ||
+    event.reason.message?.includes('HMR') ||
+    event.reason.message?.includes('Service Worker') ||
+    event.reason.toString().includes('WebSocket')
+  );
+  
+  if (isWebSocketError) {
+    // Silently ignore WebSocket/HMR errors - these are development only
+    return;
   }
+  
+  // Only log actual application errors
+  console.warn('SSELFIE Studio: Unhandled promise rejection caught:', event.reason);
 });
 
 window.addEventListener('error', (event) => {
+  // Check if this is a WebSocket or development-related error
+  const isWebSocketError = event.error && (
+    event.error.message?.includes('WebSocket') ||
+    event.error.message?.includes('websocket') ||
+    event.error.message?.includes('HMR') ||
+    event.error.toString().includes('WebSocket')
+  );
+  
+  if (isWebSocketError) {
+    // Silently ignore WebSocket/HMR errors - these are development only
+    event.preventDefault();
+    return;
+  }
+  
+  // Only log actual application errors
   console.warn('SSELFIE Studio: Global error caught:', event.error);
 });
 
