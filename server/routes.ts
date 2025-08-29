@@ -1640,34 +1640,19 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         finalPrompt = `${triggerWord} ${finalPrompt}`;
       }
       
-      // Ensure proper realism keywords are present (avoid duplication)
-      const requiredKeywords = [
-        'raw photo',
-        'visible skin pores', 
-        'film grain',
-        'unretouched natural skin texture',
-        'subsurface scattering',
-        'photographed on film'
-      ];
+      // MAYA INTELLIGENCE PROTECTION: Minimal technical requirements only
+      // Only ensure trigger word and basic tech params - let Maya handle everything else
+      const hasBasicTech = finalPrompt.includes('raw photo') && finalPrompt.includes('film grain');
       
-      let hasAllKeywords = requiredKeywords.every(keyword => finalPrompt.includes(keyword));
-      
-      if (!hasAllKeywords) {
-        // Add missing realism keywords at the beginning
-        const existingKeywords = requiredKeywords.filter(keyword => finalPrompt.includes(keyword));
-        const missingKeywords = requiredKeywords.filter(keyword => !finalPrompt.includes(keyword));
-        
-        if (missingKeywords.length > 0) {
-          finalPrompt = `${missingKeywords.join(', ')}, ${finalPrompt}`;
+      if (!hasBasicTech) {
+        // Only add essential tech params if completely missing
+        const essentialTech = 'raw photo, film grain, natural skin texture, photographed on film';
+        if (!finalPrompt.includes('raw photo')) {
+          finalPrompt = `${essentialTech}, ${finalPrompt}`;
         }
       }
       
-      // MAYA CREATIVE FREEDOM: Only add camera specs if Maya hasn't included any
-      const hasCameraEquipment = /shot (?:on|with)|photographed (?:on|with)|camera|lens|f\/\d/i.test(finalPrompt);
-      if (!hasCameraEquipment && !finalPrompt.includes('professional')) {
-        // Maya forgot technical specs - add minimal professional mention
-        finalPrompt = `${finalPrompt}, professional photography`;
-      }
+      // COMPLETE CREATIVE FREEDOM: Let Maya handle all camera specs, lighting, and styling decisions
       
       console.log(`🎨 MAYA PROMPT PROCESSING:`);
       console.log(`📝 Original: ${actualPrompt.substring(0, 100)}...`);

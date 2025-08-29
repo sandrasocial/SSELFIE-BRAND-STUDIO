@@ -547,20 +547,18 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       contextForCategory = cachedContext ? cachedContext.originalContext : '';
     }
     
-    // CLEANUP: Simplified category detection respecting Maya's AI intelligence
+    // MAYA INTELLIGENCE PROTECTION: Minimal category detection - let Maya decide styling approach
     let categoryContext = '';
     
+    // Only detect obvious categories - Maya's intelligence handles nuanced styling
     if (contextForCategory.length > 0) {
       const contextLower = contextForCategory.toLowerCase();
-      if (contextLower.includes('business') || contextLower.includes('corporate')) {
+      if (contextLower.includes('business') || contextLower.includes('corporate') || contextLower.includes('professional')) {
         categoryContext = 'Business';
-      } else if (contextLower.includes('lifestyle') || contextLower.includes('coffee')) {
+      } else if (contextLower.includes('lifestyle') || contextLower.includes('casual') || contextLower.includes('everyday')) {
         categoryContext = 'Lifestyle';
-      } else if (contextLower.includes('travel') || contextLower.includes('destination')) {
-        categoryContext = 'Travel';
-      } else if (contextLower.includes('fashion') || contextLower.includes('style')) {
-        categoryContext = 'Fashion & Style';
       }
+      // Remove overly specific category constraints - Maya's AI handles all styling decisions
     }
     
     const result = await ModelTrainingService.generateUserImages(
@@ -1714,12 +1712,15 @@ Let your creativity shine - use unexpected details, sophisticated combinations, 
     
   } catch (error) {
     console.error('Maya prompt generation error:', error);
-    // Fallback to basic prompt if Claude fails
-    const basicPrompt = triggerWord ? 
-      `${triggerWord} ${conceptName}, professional photo, elegant styling, sophisticated lighting` :
-      `${conceptName}, professional photo, elegant styling, sophisticated lighting`;
+    // 🚨 INTELLIGENCE PRESERVATION: If Claude API fails, use Maya's context and concept creatively
+    // DO NOT fall back to basic/generic prompts that override her expertise
     
-    return basicPrompt;
+    const intelligentFallback = triggerWord ? 
+      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${cleanOriginalContext || conceptName}, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression` :
+      `${cleanOriginalContext || conceptName}, raw photo, visible skin pores, film grain, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression`;
+    
+    console.log('🎯 MAYA INTELLIGENT FALLBACK: Preserving context and creativity despite API issue');
+    return intelligentFallback;
   }
 }
 
