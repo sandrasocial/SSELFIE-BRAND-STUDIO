@@ -1389,11 +1389,11 @@ function Maya() {
               /* Streamlined Maya Welcome State - Direct Style Selection */
               <div className="welcome-state">
                 <div className="maya-avatar">
-                  <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya - Your Personal Brand Stylist" />
+                  <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png" alt="Maya - Your Personal Brand Stylist" />
                 </div>
                 <div className="welcome-eyebrow">Personal Brand Photos</div>
                   <h2 className="welcome-title">What photos does your business need most?</h2>
-                  <p className="welcome-description">I'm Maya, your personal brand stylist with Sandra's expertise from fashion week to building her empire. I'll help you create the exact photos you need for your business - from LinkedIn headshots to Instagram content to website images. What photos would make the biggest impact for you right now?</p>
+                  <p className="welcome-description">Hey beautiful! I'm Maya, and I'm here to create the exact photos that will transform your business. Whether you need those powerful LinkedIn headshots that scream authority, gorgeous Instagram content that stops the scroll, or website images that convert - I've got you covered. Tell me, what photos would make you feel absolutely unstoppable in your business right now?</p>
 
                   {/* Style Quick-Select with SSELFIE categories */}
                   <div className="style-quickselect">
