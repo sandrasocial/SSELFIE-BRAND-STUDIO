@@ -626,30 +626,34 @@ function Maya() {
         /* Style Quick-Select / Collection Grid */
         .style-quickselect.collection-grid {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 12px;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
           margin-bottom: 40px;
+          max-width: 900px;
+          margin-left: auto;
+          margin-right: auto;
         }
 
         .collection-card {
           aspect-ratio: 1;
           background: var(--editorial-gray);
-          border: 1px solid var(--accent-line);
+          border: 2px solid var(--accent-line);
           cursor: pointer;
           transition: all 300ms ease;
           position: relative;
           overflow: hidden;
-          border-radius: 8px;
+          border-radius: 0;
         }
 
         .collection-card:hover {
-          transform: scale(1.05);
+          transform: translateY(-4px);
           border-color: var(--black);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
 
         .collection-image {
           width: 100%;
-          height: 70%;
+          height: 100%;
           overflow: hidden;
           position: relative;
         }
@@ -658,11 +662,12 @@ function Maya() {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          object-position: center 20%;
           transition: transform 300ms ease;
         }
 
         .collection-card:hover .collection-image img {
-          transform: scale(1.1);
+          transform: scale(1.05);
         }
 
         .collection-title {
@@ -670,14 +675,15 @@ function Maya() {
           bottom: 0;
           left: 0;
           right: 0;
-          background: rgba(0, 0, 0, 0.8);
+          background: linear-gradient(transparent, rgba(0, 0, 0, 0.7) 60%, rgba(0, 0, 0, 0.85));
           color: white;
-          padding: 8px;
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.15em;
+          padding: 40px 20px 20px;
+          font-size: 14px;
+          font-weight: 400;
+          letter-spacing: 0.25em;
           text-align: center;
           text-transform: uppercase;
+          font-family: 'Times New Roman', serif;
         }
 
         /* Legacy style options for backwards compatibility */
@@ -1081,7 +1087,10 @@ function Maya() {
           /* Collection grid mobile */
           .style-quickselect.collection-grid {
             grid-template-columns: repeat(2, 1fr) !important;
-            gap: 10px !important;
+            gap: 16px !important;
+            max-width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
           }
 
           .collection-card {
@@ -1090,9 +1099,9 @@ function Maya() {
           }
 
           .collection-title {
-            font-size: 9px !important;
-            padding: 6px !important;
-            letter-spacing: 0.1em !important;
+            font-size: 11px !important;
+            padding: 30px 16px 16px !important;
+            letter-spacing: 0.2em !important;
           }
 
           /* Legacy style quickselect mobile */
@@ -1525,12 +1534,7 @@ function Maya() {
                       </div>
                       <div className="collection-title">B & W</div>
                     </div>
-                    <div className="style-option collection-card" onClick={() => handleStyleSelect('studio-photoshoot')}>
-                      <div className="collection-image">
-                        <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya-generation_1756243428661.png" alt="Studio Photos" />
-                      </div>
-                      <div className="collection-title">S T U D I O</div>
-                    </div>
+
                   </div>
                   
                   {/* Optional Personalization Button */}
