@@ -210,7 +210,7 @@ export const useMayaGeneration = (
       const response = await apiRequest('/api/maya/generate', 'POST', {
         prompt,
         chatId: currentChatId,
-        count: 2 // Maya will intelligently adjust based on shot type and choose optimal parameters
+        count: 1 // Maya will intelligently adjust based on shot type and choose optimal parameters
       });
       
       console.log('Maya generation response:', response);
@@ -548,7 +548,7 @@ export const useMayaGeneration = (
           conceptName: conceptTitle, // This ensures the backend knows it's a concept selection
           conceptId: conceptId, // CRITICAL: Send concept ID to retrieve embedded prompt
           chatId: currentChatId,
-          count: 2
+          count: 1
         })
       });
 

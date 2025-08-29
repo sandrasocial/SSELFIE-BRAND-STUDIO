@@ -942,15 +942,15 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
         }
       } catch (parseError) {
         console.log(`⚠️ MAYA PARAMETER PARSE FAILED, using default count:`, parseError);
-        // Fallback to intelligent count selection
+        // Fallback to intelligent count selection - FORCE TO 1
         return {
-          count: Math.min(requestedCount, 3),
-          reasoning: "Maya's styling intelligence applied for optimal results"
+          count: 1, // Always generate 1 perfect image per concept
+          reasoning: "Maya's styling intelligence applied for optimal results - one perfect image per concept"
         };
       }
       
-      // Validate Maya's choices - DEFAULT TO 1 for focused styling
-      const selectedCount = Math.min(Math.max(mayaChoice.count || 1, 1), Math.min(requestedCount, 1));
+      // Validate Maya's choices - FORCE TO 1 for focused styling (user preference)
+      const selectedCount = 1; // Always generate 1 perfect image per concept
       
       console.log(`✅ MAYA PARAMETER AI: Selected ${selectedCount} images - ${mayaChoice.reasoning}`);
       
