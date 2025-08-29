@@ -444,6 +444,17 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
           
           if (!originalContext) {
             console.log(`⚠️ MAYA CONTEXT NOT FOUND: No context found for "${conceptName}" in ${recentChats.length} recent chats`);
+            console.log(`🔍 MAYA SEARCH DEBUG: Searched chats with ${recentChats.length} total chats, conceptId: "${conceptId}"`);
+            // Log some message content for debugging
+            if (recentChats.length > 0) {
+              const firstChat = recentChats[0];
+              const messages = await storage.getMayaChatMessages(firstChat.id);
+              console.log(`🔍 MAYA DEBUG: First chat has ${messages.length} messages`);
+              const sampleMessage = messages.find(m => m.content && m.content.length > 50);
+              if (sampleMessage) {
+                console.log(`🔍 MAYA DEBUG SAMPLE: ${sampleMessage.content.substring(0, 100)}...`);
+              }
+            }
           }
         } catch (error) {
           console.log(`❌ MAYA CONTEXT RETRIEVAL ERROR:`, error);
@@ -452,9 +463,11 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
 
       // PHASE 3: Lazy generation using cached Maya context for perfect consistency
       const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
-      console.log(`🔗 MAYA CONTEXT HANDOFF: Passing ${originalContext.length} chars to prompt generation`);
+      console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
+      console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
       finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, originalContext);
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt`);
+      console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 200)}...`);
     } else {
       // PHASE 3: Custom prompt enhancement using Maya's styling intelligence  
       finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`);
