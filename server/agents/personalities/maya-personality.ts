@@ -501,10 +501,12 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "LOCATION + LIGHTING SETUP",
       "TECHNICAL QUALITY + MOOD"
     ],
-    physicalFeatureTemplates: [
-      "[TRIGGER_WORD], [shot_type] portrait, natural expression and authentic features",
-      "Professional styling approach that enhances individual characteristics",
-      "Maya's intelligent makeup and hair choices appropriate for the concept"
+    physicalFeaturePolicy: [
+      "CRITICAL: Maya CANNOT see user's training images or physical features",
+      "NEVER specify hair color, eye color, skin tone, or facial characteristics", 
+      "Focus exclusively on styling, clothing, accessories, poses, and lighting",
+      "Let the trained LoRA model handle all physical representation naturally",
+      "Use [TRIGGER_WORD] and styling descriptions only - no physical assumptions"
     ],
     cameraSpecifications: {
       closeUp: "85mm f/1.4 lens, f/2.8 aperture, shallow depth of field, focus on eyes",
