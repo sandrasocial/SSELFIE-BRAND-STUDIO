@@ -801,17 +801,78 @@ export class ModelTrainingService {
     }
   }
 
-  // 🚫 ZERO TOLERANCE ANTI-HARDCODE: Let Maya's natural intelligence drive parameters
+  // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION: Using real styling expertise
   private static getIntelligentParameters(prompt: string, requestedCount: number): {
     preset: FluxPresetName;
     count: number;
     reasoning: string;
   } {
-    // Let Maya's natural intelligence drive parameters
-    return { 
+    const promptLower = prompt.toLowerCase();
+    
+    // CLOSE-UP PORTRAITS: Emotional intimacy, beauty focus
+    if (promptLower.includes('close-up') || promptLower.includes('portrait') || 
+        promptLower.includes('headshot') || promptLower.includes('face') ||
+        promptLower.includes('beauty') || promptLower.includes('intimate')) {
+      return {
+        preset: 'Portrait' as FluxPresetName,
+        count: Math.min(requestedCount, 4),
+        reasoning: 'Close-up portrait detected - using Portrait preset for beauty focus and facial detail'
+      };
+    }
+    
+    // LIFESTYLE & ENVIRONMENTAL: Full scenes, storytelling
+    if (promptLower.includes('lifestyle') || promptLower.includes('environment') ||
+        promptLower.includes('destination') || promptLower.includes('travel') ||
+        promptLower.includes('scene') || promptLower.includes('walking') ||
+        promptLower.includes('street') || promptLower.includes('outdoor')) {
+      return {
+        preset: 'Lifestyle' as FluxPresetName,
+        count: Math.min(requestedCount, 3),
+        reasoning: 'Lifestyle/environmental shot detected - using Lifestyle preset for natural storytelling'
+      };
+    }
+    
+    // BUSINESS & PROFESSIONAL: Corporate, executive presence
+    if (promptLower.includes('business') || promptLower.includes('professional') ||
+        promptLower.includes('executive') || promptLower.includes('corporate') ||
+        promptLower.includes('office') || promptLower.includes('meeting') ||
+        promptLower.includes('suit') || promptLower.includes('blazer')) {
+      return {
+        preset: 'Professional' as FluxPresetName,
+        count: Math.min(requestedCount, 3),
+        reasoning: 'Business/professional content detected - using Professional preset for executive presence'
+      };
+    }
+    
+    // CREATIVE & ARTISTIC: Editorial fashion, artistic expression
+    if (promptLower.includes('creative') || promptLower.includes('artistic') ||
+        promptLower.includes('editorial') || promptLower.includes('fashion') ||
+        promptLower.includes('dramatic') || promptLower.includes('avant-garde') ||
+        promptLower.includes('conceptual') || promptLower.includes('studio')) {
+      return {
+        preset: 'Editorial' as FluxPresetName,
+        count: Math.min(requestedCount, 3),
+        reasoning: 'Creative/editorial content detected - using Editorial preset for artistic impact'
+      };
+    }
+    
+    // GLAMOUR & LUXURY: High-end fashion, luxury settings
+    if (promptLower.includes('glam') || promptLower.includes('luxury') ||
+        promptLower.includes('elegant') || promptLower.includes('sophisticated') ||
+        promptLower.includes('evening') || promptLower.includes('gala') ||
+        promptLower.includes('red carpet') || promptLower.includes('champagne')) {
+      return {
+        preset: 'Glamour' as FluxPresetName,
+        count: Math.min(requestedCount, 3),
+        reasoning: 'Glamour/luxury content detected - using Glamour preset for high-end sophistication'
+      };
+    }
+    
+    // DEFAULT: Balanced editorial approach for general concepts
+    return {
       preset: 'Editorial' as FluxPresetName,
       count: Math.min(requestedCount, 3),
-      reasoning: 'Using Maya\'s natural parameter selection' 
+      reasoning: 'General styling concept - using Editorial preset for balanced sophistication'
     };
   }
 }
