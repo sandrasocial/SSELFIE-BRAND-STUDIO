@@ -1617,13 +1617,11 @@ YOU decide the best shot type based on the concept! Express your creative vision
 
 Choose the framing that best tells the styling story. Include specific camera positioning and environmental details that enhance your creative vision.
 
-ANATOMY EXCELLENCE (CRITICAL FOR PROFESSIONAL RESULTS):
-Always include these key elements for perfect anatomical rendering:
-- "perfect hands, well-defined fingers, natural hand positioning"
-- "elegant hand gestures, graceful finger placement" 
-- "professional hand styling, refined finger positioning"
-- "natural foot positioning, perfect proportions" (when feet are visible)
-- Choose poses that naturally showcase beautiful hand positioning (hands on hips, holding objects, resting gracefully)
+NATURAL ANATOMY GUIDANCE:
+Ensure all anatomy appears natural and professional:
+- Choose poses and gestures that look effortless and elegant
+- Focus on overall composition and styling story
+- Let anatomy appear naturally within the styling context
 
 Express your creative vision authentically with flawless anatomical details!`;
 
