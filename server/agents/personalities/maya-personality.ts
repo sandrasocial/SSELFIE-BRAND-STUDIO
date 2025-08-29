@@ -478,19 +478,19 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     closeUpPortrait: {
       guidance_scale: 3.5,        // ✅ RESEARCH-OPTIMAL: 3.5 for best prompt adherence (was 2.8)
       num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 35)
-      lora_weight: 1.0,           // ✅ RESEARCH-OPTIMAL: 1.0 for natural results (was 1.4)
+      lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 1.0)
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 1.5)
     },
     halfBodyShot: {
       guidance_scale: 3.5,        // ✅ RESEARCH-OPTIMAL: 3.5 for best prompt adherence (was 2.6)
       num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 38)
-      lora_weight: 0.9,           // ✅ RESEARCH-OPTIMAL: 0.9 for natural results (was 1.5)
+      lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 0.9)
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 1.5)
     },
     fullScenery: {
       guidance_scale: 3.5,        // ✅ RESEARCH-OPTIMAL: 3.5 for best prompt adherence (was 2.4)
       num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 42)
-      lora_weight: 0.9,           // ✅ RESEARCH-OPTIMAL: 0.9 for natural results (was 1.6)
+      lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 0.9)
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 2.0)
     },
     promptStructure: [
