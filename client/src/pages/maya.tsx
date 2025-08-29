@@ -165,10 +165,17 @@ function Maya() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Authentication check
+  // Authentication check with development bypass
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      setLocation('/');
+      console.log('Maya: User not authenticated');
+      // In development, allow testing via dev workspace
+      if (window.location.hostname.includes('replit.dev') || window.location.hostname === 'localhost') {
+        console.log('Maya: Development mode detected, redirecting to dev workspace');
+        window.location.href = '/dev-workspace';
+      } else {
+        window.location.href = '/api/login';
+      }
     }
   }, [isAuthenticated, authLoading, setLocation]);
 
@@ -303,6 +310,34 @@ function Maya() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // Show login prompt for unauthenticated users instead of redirecting immediately
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <h2 className="text-2xl font-serif mb-4">Maya Authentication Required</h2>
+          <p className="text-gray-600 mb-6">Please authenticate to access Maya, your personal brand stylist.</p>
+          <div className="space-y-4">
+            <button 
+              onClick={() => window.location.href = '/api/login'}
+              className="w-full bg-black text-white px-6 py-3 text-sm font-medium tracking-wider uppercase hover:bg-gray-800 transition-colors"
+            >
+              Login with Replit
+            </button>
+            {(window.location.hostname.includes('replit.dev') || window.location.hostname === 'localhost') && (
+              <button 
+                onClick={() => window.location.href = '/dev-workspace'}
+                className="w-full border border-gray-300 text-gray-700 px-6 py-3 text-sm font-medium tracking-wider uppercase hover:bg-gray-50 transition-colors"
+              >
+                Development Access
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
