@@ -1415,20 +1415,15 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
       content: userMessage
     });
 
-    // Save complete Maya response including concept cards with originalContext
-    const completeResponse = {
-      message: mayaResponse.message,
-      conceptCards: mayaResponse.conceptCards || [],
-      quickButtons: mayaResponse.quickButtons || [],
-      chatCategory: mayaResponse.chatCategory,
-      canGenerate: mayaResponse.canGenerate
-    };
-
+    // Save Maya response with proper field separation for historical loading
     await storage.saveMayaChatMessage({
       chatId: currentChatId,
       role: 'maya',
-      content: JSON.stringify(completeResponse),
-      generatedPrompt: mayaResponse.generatedPrompt
+      content: mayaResponse.message, // Store actual message content
+      generatedPrompt: mayaResponse.generatedPrompt,
+      conceptCards: mayaResponse.conceptCards ? JSON.stringify(mayaResponse.conceptCards) : null, // CRITICAL: Store concept cards in proper field
+      quickButtons: mayaResponse.quickButtons ? JSON.stringify(mayaResponse.quickButtons) : null, // CRITICAL: Store quick buttons in proper field
+      canGenerate: mayaResponse.canGenerate || false // CRITICAL: Store generation capability flag
     });
 
     return currentChatId;
