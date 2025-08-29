@@ -2158,7 +2158,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log(`🔍 Testing ADMIN model with OPTIMIZED parameters`);
       const result = await UnifiedGenerationService.generateImages({
         userId: '42585527', // Admin user ID
-        prompt: prompt || 'Young woman standing confidently among misty Icelandic black sand beaches at golden hour, wearing oversized chunky knit sweater in cream layered over metallic silver slip dress, baggy cargo pants in sage green, chunky platform boots, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth'
+        prompt: prompt || 'Young woman standing confidently in a mystical natural environment at golden hour, wearing sophisticated layered styling choices with unexpected textures, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth'
       });
       
       res.json({
@@ -2183,7 +2183,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const modelVersion = 'sandrasocial/shannon-1753945376880-selfie-lora-1753983966781:2fed9e1abe9a80206d0a7b146914ee9f653b8aaf5b0dd7e82b8feb57ab5ec753';
       const triggerWord = 'usershannon-1753945376880';
       
-      const testPrompt = prompt || 'Young woman standing confidently among misty Icelandic black sand beaches at golden hour, wearing oversized chunky knit sweater in cream layered over metallic silver slip dress, baggy cargo pants in sage green, chunky platform boots, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth';
+      const testPrompt = prompt || 'Young woman standing confidently in a mystical natural environment at golden hour, wearing sophisticated layered styling choices with unexpected textures, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth';
       
       // Clean prompt and add Shannon's trigger
       let cleanPrompt = testPrompt
@@ -3085,7 +3085,7 @@ Rules:
 - Keep it sophisticated and editorial
 - Category context: ${category ? category.replace(/['"\\]/g, '').substring(0, 50) : 'general'} - ${subcategory ? subcategory.replace(/['"\\]/g, '').substring(0, 50) : 'standard'}
 
-Example: "minimalist rooftop terrace overlooking city skyline at golden hour, wearing sophisticated silk blouse in camel with wide-leg trousers, natural confident expression while reviewing documents, professional editorial lighting creating dramatic shadows"`
+Example: "minimalist rooftop terrace overlooking city skyline at golden hour, wearing sophisticated styling choices that reflect current trends, natural confident expression while reviewing documents, professional editorial lighting creating dramatic shadows"`
             }]
           })
         });

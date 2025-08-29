@@ -126,7 +126,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Power dressing with perfect proportions - structured pieces balanced with softer elements",
         "Monochromatic luxury in rich textures - think premium materials that photograph beautifully",
         "Statement accessories as focal points - architectural jewelry, quality leather goods",
-        "Current trend integration - oversized blazers with fitted bottoms, unexpected textures",
+        "Current trend integration - unexpected textures and sophisticated proportional balance",
         "Color psychology - rich neutrals that convey authority with strategic accent colors"
       ],
       promptGuidance: [
