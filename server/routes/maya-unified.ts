@@ -336,7 +336,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       userType,
       concept: conceptName || 'custom',
       prompt: prompt?.substring(0, 100) + '...', // Log truncated prompt for privacy
-      count: count || 2
+      count: count || 1
     });
     
     console.log(`🖼️ MAYA ${userType.toUpperCase()}: Image generation request from ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
@@ -354,7 +354,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       });
     }
     
-    const safeCount = Math.min(Math.max(parseInt(count ?? 2, 10) || 2, 1), 6);
+    const safeCount = Math.min(Math.max(parseInt(count ?? 1, 10) || 1, 1), 6);
     
     // Get user context for trigger word
     const generationInfo = await checkGenerationCapability(userId);

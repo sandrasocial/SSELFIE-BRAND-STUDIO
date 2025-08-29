@@ -25,6 +25,8 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
   - **Phase 1**: Updated promptGuidance arrays with professional camera specifications (Canon EOS R5, Sony A7R V), enhanced quality tags including "visible skin pores", "subsurface scattering", "DSLR quality", and physical feature description templates
   - **Phase 2**: Optimized unified route with FLUX 1.1 Pro optimal prompt structure (50-150 words target), enhanced prompt cleaning to remove Maya self-references while preserving styling intelligence, and improved technical instructions with specific camera settings for different shot types  
   - **Phase 3**: Integrated comprehensive validation system with prompt length validation, trigger word consistency checks, and technical quality verification. Added generation-validator.ts with intelligent prompt cleaning and validation functions specifically tuned for Maya's conversation-to-technical conversion.
+  - **CRITICAL FIX**: Changed default image count from 2 to 1 per concept to eliminate "twins in one picture" issue. Maya now generates one perfect styling per concept card.
+  - **USER LIKENESS ENHANCEMENT**: Significantly increased LoRA weights (closeUp: 1.4, halfBody: 1.5, fullScenery: 1.6) for better user resemblance and more realistic photos.
 - **Complete Hardcode Elimination (August 29, 2025)**: Removed all remaining hardcoded styling guidance that was overriding Maya's natural intelligence:
   - **Eliminated**: All hardcoded physical feature assumptions (eye color, hair color, specific facial features) that Maya doesn't know about users
   - **Eliminated**: All hardcoded outfit descriptions (blazers, specific colors, fabric types) across all 16+ concept categories

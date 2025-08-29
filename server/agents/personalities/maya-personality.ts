@@ -478,20 +478,20 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     closeUpPortrait: {
       guidance_scale: 2.8,
       num_inference_steps: 35,    // ✅ INCREASED: 35 for better face quality (was 30)
-      lora_weight: 1.0,
-      megapixels: "1.6"           // ✅ ADDED: Higher resolution prevents blurriness
+      lora_weight: 1.4,           // ✅ INCREASED: 1.4 for better user likeness (was 1.0)
+      megapixels: "1"             // ✅ FIXED: API-compliant value (was 1.6)
     },
     halfBodyShot: {
       guidance_scale: 2.6,
       num_inference_steps: 38,    // ✅ INCREASED: 38 for better body/outfit detail (was 32)
-      lora_weight: 1.1,
-      megapixels: "1.7"           // ✅ ADDED: Higher resolution for outfit completeness
+      lora_weight: 1.5,           // ✅ INCREASED: 1.5 for better user likeness (was 1.1)
+      megapixels: "1"             // ✅ FIXED: API-compliant value (was 1.7)
     },
     fullScenery: {
       guidance_scale: 2.4,
       num_inference_steps: 42,    // ✅ INCREASED: 42 for complex scenery detail (was 35)
-      lora_weight: 1.3,
-      megapixels: "1.8"           // ✅ ADDED: Highest resolution for environmental detail
+      lora_weight: 1.6,           // ✅ INCREASED: 1.6 for better user likeness (was 1.3)
+      megapixels: "1"             // ✅ FIXED: API-compliant value (was 1.8)
     },
     promptStructure: [
       "TRIGGER WORD FIRST - ALWAYS",
