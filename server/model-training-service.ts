@@ -587,25 +587,40 @@ export class ModelTrainingService {
       .replace(/\s+/g, " ")
       .trim();
 
-    // 🚨 MAYA CONTENT PROTECTION: Check if this is Maya's creative content (contains styling descriptions)
-    const isMayaContent = clean.includes("Maya") || clean.includes("styling") || clean.includes("vision") || clean.includes("****");
+    // 🚨 CRITICAL MAYA CONTENT DETECTION: Check for styling descriptions using comprehensive indicators
+    const stylingIndicators = [
+      "wearing", "portrait", "blazer", "silk", "cashmere", "linen", "turtleneck", "trousers", "styled", 
+      "hair", "makeup", "chignon", "ponytail", "waves", "bronzed", "glossy", "nude", "lips",
+      "standing", "seated", "confident", "sophistication", "elegance", "luxurious", "editorial",
+      "lighting", "windows", "backdrop", "city", "skyline", "golden hour", "natural sunlight",
+      "marble", "ocean", "views", "beach", "club", "penthouse", "office", "executive"
+    ];
+    
+    const isMayaContent = stylingIndicators.some(indicator => 
+      clean.toLowerCase().includes(indicator.toLowerCase())
+    ) || clean.length > 100; // Any detailed description likely from Maya
+    
+    console.log(`🔍 PROMPT ANALYSIS: Length ${clean.length}, Maya indicators: ${stylingIndicators.filter(i => clean.toLowerCase().includes(i.toLowerCase())).join(', ')}`);
     
     if (isMayaContent) {
-      // SPECIAL HANDLING FOR MAYA'S CREATIVE CONTENT: Don't disrupt her styling descriptions
-      console.log(`🎨 MAYA CONTENT DETECTED: Protecting Maya's creative styling description`);
+      // SPECIAL HANDLING FOR MAYA'S CREATIVE CONTENT: Preserve all styling intelligence
+      console.log(`🎨 MAYA STYLING DETECTED: Preserving complete creative description`);
       
       // Check if prompt already starts with trigger word
       if (clean.startsWith(triggerWord)) {
         // Maya's content already properly formatted - minimal processing
         const hasRequiredTech = clean.includes("raw photo") && clean.includes("film grain");
         if (hasRequiredTech) {
+          console.log(`✅ MAYA PERFECT FORMAT: Prompt ready for generation`);
           return clean; // Perfect - return as-is
         } else {
           // Insert only tech params after trigger word
+          console.log(`🔧 MAYA TECH ADDITION: Adding technical parameters`);
           return clean.replace(triggerWord, `${triggerWord}, ${mandatoryTechParams}`);
         }
       } else {
         // Add trigger word and tech params at the beginning, preserve Maya's content
+        console.log(`🎯 MAYA FULL FORMAT: Adding trigger word and tech params to styling description`);
         return `${triggerWord}, ${mandatoryTechParams}, ${clean}`;
       }
     }
