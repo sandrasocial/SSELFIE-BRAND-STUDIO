@@ -108,29 +108,53 @@ export function validateMayaPrompt(
  * Enhanced prompt cleaning specifically for Maya's conversation-to-technical conversion
  */
 export function cleanMayaPrompt(prompt: string): string {
-  return prompt
+  let cleaned = prompt;
+  
+  // CRITICAL: Remove Maya's conversational responses that contaminate FLUX prompts
+  // Pattern 1: Remove everything before detailed styling descriptions
+  // Look for descriptive clothing/styling content and extract only that
+  const stylingMatch = cleaned.match(/([A-Z][^.]*(?:blazer|dress|jeans|shirt|blouse|jacket|coat|pants|skirt|top|outfit|wearing|styled|tailored|leather|silk|cotton|wool|fabric|textured|patterned|colored|fitted|flowing|structured)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/i);
+  
+  if (stylingMatch) {
+    cleaned = stylingMatch[0];
+    console.log('🎯 MAYA PROMPT EXTRACTION: Found styling description, using only that part');
+  } else {
+    // Fallback: aggressive conversational cleaning
+    cleaned = cleaned
+      // Remove Maya's conversational openings
+      .replace(/^[^.!?]*(?:Oh honey|honey|babe|love|girl|gorgeous|stunning|incredible|amazing|perfect|absolutely|trust me|chef's kiss)[^.!?]*[.!?]/gi, '')
+      .replace(/^[^.!?]*(?:I'm getting|getting major|major|giving me|energy from)[^.!?]*[.!?]/gi, '')
+      .replace(/^[^.!?]*(?:is giving|something that shows)[^.!?]*[.!?]/gi, '')
+      
+      // Remove concluding conversational phrases
+      .replace(/[.!?]\s*(?:your empire-building era|this look says|you're ready to)[^.!?]*[.!?]?$/gi, '.')
+      .replace(/[.!?]\s*(?:and this look|ready to own)[^.!?]*$/gi, '.')
+  }
+  
+  return cleaned
     // Remove conversation markers that contaminate FLUX
     .replace(/\*\*[^*]+\*\*/g, '') // Remove **SECTION:** markers
     .replace(/#{1,6}\s+/g, '') // Remove markdown headers  
     .replace(/[-•]\s+/g, '') // Remove bullet points
     .replace(/^\s*[\-\*]\s+/gm, '') // Remove line-starting bullets
     .replace(/\n\s*\n/g, ' ') // Replace double newlines with space
-    .replace(/\s+/g, ' ') // Normalize spaces
     
-    // Remove conversation phrases that Maya might include
+    // Remove remaining conversational phrases
     .replace(/(?:let me create|i'm creating|here's|this is|perfect|gorgeous|stunning)/gi, '')
-    .replace(/(?:trust me|chef's kiss|absolutely|incredible)/gi, '')
-    .replace(/(?:generating|concept|image)/gi, '')
+    .replace(/(?:trust me|chef's kiss|absolutely|incredible|amazing)/gi, '')
+    .replace(/(?:generating|concept|image|oh honey|honey|babe)/gi, '')
+    .replace(/(?:major|energy|giving me|is giving)/gi, '')
     
     // Enhanced cleaning for better FLUX compatibility
     .replace(/(?:maya.styled|maya.designed|maya.expert)/gi, '') // Remove Maya self-references
     .replace(/(?:intelligence|expertise|approach)/gi, '') // Remove meta-styling terms
-    .replace(/(?:vision|styling)/gi, '') // Remove styling meta-language
     
     // Clean up any remaining artifacts
+    .replace(/\s+/g, ' ') // Normalize spaces
     .replace(/^[\s,]+/, '') // Remove leading spaces/commas
     .replace(/[\s,]+$/, '') // Remove trailing spaces/commas
     .replace(/,\s*,/g, ', ') // Fix double commas
+    .replace(/^\.|^,/, '') // Remove leading punctuation
     .trim();
 }
 

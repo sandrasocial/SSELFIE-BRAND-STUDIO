@@ -24,7 +24,7 @@ import { storage } from '../storage';
 import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
 import { ModelTrainingService } from '../model-training-service';
-import { validateMayaPrompt, cleanMayaPrompt } from '../generation-validator.js';
+import { validateMayaPrompt, cleanMayaPrompt } from '../generation-validator';
 import { adminContextDetection, getConversationId, type AdminContextRequest } from '../middleware/admin-context';
 import { trackMayaActivity } from '../services/maya-usage-isolation';
 
@@ -521,7 +521,9 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
       }
       
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, originalContext);
+      // CRITICAL: Apply enhanced cleaning to originalContext before using it
+      const cleanedContext = cleanMayaPrompt(originalContext);
+      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext);
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt`);
       console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
@@ -1051,10 +1053,20 @@ async function processMayaResponse(response: string, context: string, userId: st
       }
     }
     
-    // Third try: If no specific prompt found, check if entire response is a detailed prompt
-    if (!extractedPrompt && response.length > 100 && response.includes('portrait')) {
-      extractedPrompt = response;
-      console.log('🎯 MAYA UNIFIED: Using entire response as detailed prompt');
+    // Third try: Extract only styling descriptions, NEVER use conversational text
+    if (!extractedPrompt) {
+      // Look for detailed styling descriptions in Maya's response
+      const stylingPattern = /([A-Z][^.]*(?:blazer|dress|jeans|shirt|blouse|jacket|coat|pants|skirt|top|outfit|wearing|styled|tailored|leather|silk|cotton|wool|fabric|textured|patterned|colored|fitted|flowing|structured|hair|makeup|shot|camera|lighting|photograph)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/gi;
+      const stylingMatches = response.match(stylingPattern);
+      
+      if (stylingMatches && stylingMatches.length > 0) {
+        // Join all styling descriptions, skip conversational parts
+        extractedPrompt = stylingMatches.join(' ').trim();
+        console.log('🎯 MAYA UNIFIED: Extracted styling-only content from response');
+      } else {
+        console.log('🎯 MAYA UNIFIED: No styling content found, skipping prompt extraction');
+        extractedPrompt = null;
+      }
     }
     
     if (extractedPrompt) {
