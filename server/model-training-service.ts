@@ -569,28 +569,51 @@ export class ModelTrainingService {
     }
   }
 
-  // Ensure the LoRA trigger is the first token and not repeated; clean commas/spaces
-  // UPDATED: Now enforces mandatory technical parameters after trigger word
+  // 🎯 MAYA-SAFE PROMPT FORMATTING: Preserves Maya's creative content while ensuring proper technical structure
   static formatPrompt(prompt: string, triggerWord: string): string {
     const mandatoryTechParams = "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film";
     
+    // Clean initial formatting but preserve content structure
     const clean = (prompt || "")
       .replace(/\s+/g, " ")
-      .replace(/\s*,\s*/g, ", ")
       .trim();
 
-    // remove all trigger occurrences (case insensitive)
+    // 🚨 MAYA CONTENT PROTECTION: Check if this is Maya's creative content (contains styling descriptions)
+    const isMayaContent = clean.includes("Maya") || clean.includes("styling") || clean.includes("vision") || clean.includes("****");
+    
+    if (isMayaContent) {
+      // SPECIAL HANDLING FOR MAYA'S CREATIVE CONTENT: Don't disrupt her styling descriptions
+      console.log(`🎨 MAYA CONTENT DETECTED: Protecting Maya's creative styling description`);
+      
+      // Check if prompt already starts with trigger word
+      if (clean.startsWith(triggerWord)) {
+        // Maya's content already properly formatted - minimal processing
+        const hasRequiredTech = clean.includes("raw photo") && clean.includes("film grain");
+        if (hasRequiredTech) {
+          return clean; // Perfect - return as-is
+        } else {
+          // Insert tech params right after trigger word, before Maya's content
+          return clean.replace(triggerWord, `${triggerWord}, ${mandatoryTechParams}`);
+        }
+      } else {
+        // Add trigger word and tech params at the beginning, preserve Maya's content
+        return `${triggerWord}, ${mandatoryTechParams}, ${clean}`;
+      }
+    }
+
+    // STANDARD PROCESSING FOR NON-MAYA CONTENT (simple prompts, legacy content)
+    // Remove all trigger occurrences (case insensitive)
     const re = new RegExp(`\\b${triggerWord}\\b`, "gi");
     const withoutAll = clean.replace(re, "").replace(/^,|,,/g, ",").replace(/\s+,/g, ", ").trim();
 
-    // Remove mandatory tech params if they exist in the content to avoid duplication
+    // Remove mandatory tech params if they exist to avoid duplication
     const techParamsRegex = /raw photo,?\s*visible skin pores,?\s*film grain,?\s*unretouched natural skin texture,?\s*subsurface scattering,?\s*photographed on film,?\s*/gi;
     const withoutTechParams = withoutAll.replace(techParamsRegex, "").replace(/^,\s*/, "").trim();
 
-    // prepend trigger word + mandatory tech params + content
+    // Compose: trigger word + mandatory tech params + content
     const composed = `${triggerWord}, ${mandatoryTechParams}, ${withoutTechParams}`.replace(/,\s*,/g, ", ").replace(/\s+,/g, ", ").trim();
 
-    // final tidying: no trailing commas / double spaces
+    // Final cleanup: no trailing commas / double spaces
     return composed.replace(/,\s*$/, "").replace(/\s{2,}/g, " ");
   }
 
