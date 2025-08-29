@@ -25,6 +25,7 @@ interface ConceptCard {
   id: string;
   title: string;
   description: string;  // Short description for frontend display
+  originalContext?: string;  // Maya's complete original styling context and reasoning
   fullPrompt?: string;  // Maya's complete detailed prompt ready for generation
   canGenerate: boolean;
   isGenerating: boolean;
