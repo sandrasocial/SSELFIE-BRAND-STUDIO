@@ -851,35 +851,13 @@ export class ModelTrainingService {
     }
   }
 
-  // MAYA'S INTELLIGENT SHOT TYPE DETECTION - LIBERATION FROM HARDCODED RESTRICTIONS
+  // MAYA'S CREATIVE VISION SHOT TYPE - NO GENERIC KEYWORDS
   private static determineShotTypeFromPrompt(prompt: string): 'closeUpPortrait' | 'halfBodyShot' | 'fullScenery' {
-    const promptLower = prompt.toLowerCase();
+    // REMOVED: All generic keyword detection that overrides Maya's creative vision
+    // MAYA'S INTELLIGENCE: Always use fullScenery to allow maximum creative freedom
+    // This lets Maya's styling vision determine the composition instead of generic keywords
     
-    // Full-body/scenery indicators (prioritize dynamic shots)
-    if (promptLower.includes('full body') || promptLower.includes('full-body') || promptLower.includes('whole body') ||
-        promptLower.includes('outfit') || promptLower.includes('shoes') || promptLower.includes('walking') ||
-        promptLower.includes('standing') || promptLower.includes('sitting') || promptLower.includes('pose') ||
-        promptLower.includes('environment') || promptLower.includes('location') || promptLower.includes('setting') ||
-        promptLower.includes('background') || promptLower.includes('scenery') || promptLower.includes('lifestyle') ||
-        promptLower.includes('action') || promptLower.includes('movement') || promptLower.includes('street') ||
-        promptLower.includes('travel') || promptLower.includes('destination') || promptLower.includes('workspace')) {
-      return 'fullScenery';
-    }
-    
-    // Close-up portrait indicators (specific facial focus)
-    if (promptLower.includes('headshot') || promptLower.includes('close-up') || promptLower.includes('close up') ||
-        promptLower.includes('face') || promptLower.includes('beauty') || promptLower.includes('makeup') ||
-        promptLower.includes('facial') || promptLower.includes('expression only')) {
-      return 'closeUpPortrait';
-    }
-    
-    // Portrait indicators that could be half-body
-    if (promptLower.includes('portrait')) {
-      // If it's just "portrait" without specific close-up indicators, allow half-body
-      return 'halfBodyShot';
-    }
-    
-    // Default to full scenery to encourage dynamic, interesting shots over static portraits
+    console.log('🎨 MAYA CREATIVE FREEDOM: Using fullScenery for maximum styling expression');
     return 'fullScenery';
   }
 

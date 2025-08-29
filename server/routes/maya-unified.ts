@@ -1497,216 +1497,34 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
   }
 }
 
-// MAYA'S AI-DRIVEN PROMPT GENERATION - NO MORE HARDCODED TEMPLATES
+// MAYA'S EXACT STYLING VISION PRESERVATION - NO PROMPT GENERATION OVERRIDES
 async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalContext?: string): Promise<string> {
-  // UNIFIED MAYA INTELLIGENCE: Use Maya's complete styling expertise to create detailed prompts
+  // 🎨 MAYA'S EXACT STYLING VISION PRESERVATION: Use her original context directly
+  // NEVER generate new prompts that override Maya's specific styling choices
   
-  try {
-    // Load user's personal brand context for personalized styling
-    let personalBrandContext = '';
-    let finalTriggerWord = triggerWord;
-    
-    if (userId) {
-      try {
-        // Get user's trigger word if not provided
-        if (!finalTriggerWord) {
-          const generationInfo = await checkGenerationCapability(userId);
-          finalTriggerWord = generationInfo.triggerWord || '';
-        }
-        
-        // Load personal brand context for styling customization
-        const { MayaStorageExtensions } = await import('../storage-maya-extensions');
-        const mayaUserContext = await MayaStorageExtensions.getMayaUserContext(userId);
-        
-        if (mayaUserContext?.personalBrand) {
-          personalBrandContext = `
-          
-USER'S PERSONAL BRAND CONTEXT:
-- Business Goals: ${mayaUserContext.personalBrand.businessGoals || 'Professional growth'}
-- Current Situation: ${mayaUserContext.personalBrand.currentSituation || 'Building their brand'}
-- Future Vision: ${mayaUserContext.personalBrand.futureVision || 'Success and confidence'}
-- Transformation Story: ${mayaUserContext.personalBrand.transformationStory || 'Personal evolution'}
-
-Use this context to customize styling choices that align with their unique transformation journey.`;
-        }
-      } catch (error) {
-        console.log('Personal brand context not available, using general styling approach');
-      }
-    }
-    
-    // Use original context as-is - Maya's responses are already properly formatted
-    const cleanOriginalContext = originalContext || '';
-
-    // MAYA'S INTELLIGENT PROMPT EXTRACTION - PRESERVING HER STYLING EXPERTISE
-    const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
-
-🎯 MAYA'S TECHNICAL PROMPT MODE - 2025 FLUX OPTIMIZATION:
-You are creating a FLUX 1.1 Pro image generation prompt. This is TECHNICAL PROMPT CREATION, not conversation.
-
-CONCEPT: "${conceptName}"
-CONTEXT: "${cleanOriginalContext}"
-${personalBrandContext}
-
-RESEARCH-BACKED FLUX 1.1 PRO REQUIREMENTS:
-- Use NATURAL LANGUAGE descriptions (not keyword lists)
-- Focus on STYLING INTELLIGENCE and creative vision
-- Target 100-250 words for optimal FLUX performance
-- NO conversational language - pure styling description only
-
-CRITICAL TECHNICAL RULES:
-- NEVER add technical quality tags (raw photo, film grain, etc.) - system handles this automatically
-- NEVER specify hair color, eye color, skin tone, facial features - LoRA handles physical appearance
-
-CRITICAL IMAGE RESTRICTIONS:
-- NEVER specify hair color, eye color, skin tone, or facial features - the LoRA model handles all physical appearance
-- NEVER create split images, diptych, before/after, side-by-side, or comparison shots
-- NEVER include "transformation", "before and after", "split screen", "two images", or comparison elements  
-- ALWAYS generate single, cohesive images showing one complete moment/outfit
-
-CREATIVE STYLING APPROACH:
-Let your styling intelligence flow naturally! Create unexpected, beautiful combinations that showcase your expertise:
-- Use your fashion week knowledge for unique textures, unexpected color pairings, innovative silhouettes
-- Draw from current trends but add your signature twist 
-- Mix luxury with accessibility, structure with softness, classic with contemporary
-
-SHOT TYPE CREATIVE FREEDOM:
-YOU decide the best shot type based on the concept! Express your creative vision:
-- **Full-body shots**: Perfect for showcasing complete outfits, lifestyle moments, environmental storytelling
-- **Half-body shots**: Great for business looks, styling details, professional settings
-- **Close-up portraits**: Only when the concept specifically calls for facial focus or beauty shots
-
-Choose the framing that best tells the styling story. Include specific camera positioning and environmental details that enhance your creative vision.
-
-NATURAL ANATOMY GUIDANCE:
-Ensure all anatomy appears natural and professional:
-- Choose poses and gestures that look effortless and elegant
-- Focus on overall composition and styling story
-- Let anatomy appear naturally within the styling context
-
-Express your creative vision authentically with flawless anatomical details!`;
-
-    // Call Claude API for Maya's intelligent prompt generation
-    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY!,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: mayaPromptPersonality,
-        messages: [{
-          role: 'user',
-          content: `CONTEXT PRESERVATION REQUEST: Transform this original styling concept into a FLUX prompt.
-
-ORIGINAL MAYA CONCEPT: "${conceptName}"
-ORIGINAL MAYA CONTEXT: "${cleanOriginalContext}"
-
-CRITICAL: Use your ORIGINAL styling intelligence and creative vision from the context above. 
-DO NOT create a new concept - transform your existing concept into a FLUX-ready prompt.
-
-Preserve your original styling choices, color palettes, textures, mood, and creative vision exactly as you originally described. Simply convert your existing styling intelligence into technical prompt format for image generation.
-
-Transform your existing concept, not create a new one.`
-        }]
-      })
-    });
-
-    if (!claudeResponse.ok) {
-      throw new Error(`Claude API error: ${claudeResponse.status}`);
-    }
-
-    const data = await claudeResponse.json();
-    let generatedPrompt = data.content[0].text.trim();
-    
-    // RESEARCH-BACKED PROMPT OPTIMIZATION - NO DUPLICATES, PROPER STRUCTURE
-    // Phase 1: Clean Maya's conversational content while preserving styling intelligence
-    generatedPrompt = cleanMayaPrompt(generatedPrompt);
-    
-    // Phase 2: DUPLICATE DETECTION - Critical fix from research
-    const { hasTechnicalPrefix, addAnatomyKeywords } = await import('../generation-validator.js');
-    const alreadyHasTechnicalTags = hasTechnicalPrefix(generatedPrompt);
-    
-    console.log(`🔍 DUPLICATE DETECTION: Technical tags already present = ${alreadyHasTechnicalTags}`);
-    
-    // Phase 3: RESEARCH-BACKED PROMPT ASSEMBLY
-    if (finalTriggerWord) {
-      // Remove any existing trigger word occurrences to avoid duplication
-      let cleanPrompt = generatedPrompt.replace(new RegExp(finalTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
-      
-      if (cleanPrompt.length > 10) { // Ensure substantial Maya content
-        
-        // RESEARCH FINDING: Add anatomy keywords early for FLUX hand quality
-        cleanPrompt = addAnatomyKeywords(cleanPrompt);
-        
-        if (alreadyHasTechnicalTags) {
-          // Maya's response already has technical tags - don't duplicate
-          console.log('✅ MAYA INTELLIGENCE: Using existing technical tags, no duplication');
-          generatedPrompt = `${finalTriggerWord}, ${cleanPrompt}`;
-        } else {
-          // Add technical prefix only if not present
-          console.log('📝 TECHNICAL PREFIX: Adding research-backed quality tags');
-          generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, ${cleanPrompt}`;
-        }
-      } else {
-        // Fallback with anatomy keywords
-        console.warn('Maya generated brief response, using enhanced fallback');
-        const fallbackContent = addAnatomyKeywords(`${conceptName}, professional styling, sophisticated composition, natural lighting`);
-        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${fallbackContent}`;
-      }
-    }
-    
-    // RESEARCH-BASED PROMPT LENGTH VALIDATION (FLUX 1.1 Pro optimal: 100-300 words)
-    const wordCount = generatedPrompt.split(/\s+/).length;
-    console.log(`🎯 MAYA PROMPT LENGTH: ${wordCount} words (research-optimal: 100-300)`);
-    
-    if (wordCount > 400) {
-      // Trim extremely long prompts while preserving core elements
-      const words = generatedPrompt.split(/\s+/);
-      const trimmedPrompt = words.slice(0, 300).join(' ');
-      console.log('⚠️ MAYA PROMPT TRIMMED: Reduced from', wordCount, 'to 300 words for FLUX token limits');
-      generatedPrompt = trimmedPrompt;
-    } else if (wordCount < 75) {
-      console.log('⚠️ MAYA PROMPT TOO SHORT: Adding technical detail for research-optimal length');
-      generatedPrompt += ', professional photography quality, detailed composition, natural lighting setup, photorealistic rendering, high resolution detail';
-    }
-    
-    // Final validation - ensure prompt is FLUX-ready and trigger word consistent
-    const finalPrompt = generatedPrompt.replace(/\s+/g, ' ').trim();
-    
-    // RESEARCH-BASED VALIDATION WITH GENERATION VALIDATOR
-    const validationResult = validateMayaPrompt(finalPrompt, {
-      triggerWord: finalTriggerWord,
-      targetWordCount: { min: 100, max: 300 },
-      requiredElements: ['photography', 'professional'],
-      forbiddenElements: ['Maya', '**', '#', 'brown eyes', 'blue eyes', 'green eyes', 'brown hair', 'blonde hair', 'black hair']
-    });
-    
-    if (!validationResult.isValid) {
-      console.warn(`⚠️ MAYA PROMPT VALIDATION ISSUES:`, validationResult.issues);
-      console.log(`💡 SUGGESTIONS:`, validationResult.suggestions);
-    }
-    
-    // FINAL VALIDATION LOGS
-    console.log(`🎯 MAYA INTELLIGENT PROMPT: ${finalPrompt.substring(0, 150)}...`);
-    console.log(`✅ VALIDATION SUMMARY: ${validationResult.wordCount} words, trigger word: ${validationResult.hasValidTriggerWord ? 'OK' : 'ISSUE'}, overall: ${validationResult.isValid ? 'PASS' : 'ISSUES'}`);
-    
-    return finalPrompt;
-    
-  } catch (error) {
-    console.error('Maya prompt generation error:', error);
-    // 🚨 INTELLIGENCE PRESERVATION: If Claude API fails, use Maya's context and concept creatively
-    // DO NOT fall back to basic/generic prompts that override her expertise
-    
-    const intelligentFallback = triggerWord ? 
-      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${originalContext || conceptName}, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression` :
-      `${originalContext || conceptName}, raw photo, visible skin pores, film grain, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression`;
-    
-    console.log('🎯 MAYA INTELLIGENT FALLBACK: Preserving context and creativity despite API issue');
-    return intelligentFallback;
+  console.log('🎯 MAYA STYLING PRESERVATION: Using her exact original styling context');
+  
+  // Maya's original context contains her complete styling vision - use it directly
+  const mayaExactVision = originalContext || conceptName;
+  
+  if (!mayaExactVision || mayaExactVision.trim().length === 0) {
+    console.log('⚠️ MAYA CONTEXT WARNING: No styling context available, using concept name');
+    const fallbackVision = triggerWord ? `${triggerWord}, ${conceptName}` : conceptName;
+    return fallbackVision;
   }
+  
+  // Clean only conversation markers, preserve ALL styling intelligence
+  const preservedStyling = cleanMayaPrompt(mayaExactVision);
+  
+  // Build final prompt with trigger word + Maya's preserved styling vision
+  const finalPrompt = triggerWord ? 
+    `${triggerWord}, ${preservedStyling}` : 
+    preservedStyling;
+  
+  console.log(`🎨 MAYA VISION PRESERVED: ${finalPrompt.length} characters of pure styling intelligence`);
+  console.log(`🔍 MAYA STYLING PREVIEW: ${finalPrompt.substring(0, 200)}...`);
+  
+  return finalPrompt;
 }
 
 // 🔥 CRITICAL FIX: Chat History Loading with Image Persistence
@@ -1734,13 +1552,13 @@ router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
     // Transform messages for frontend with proper image parsing
     const transformedMessages = messages.map(msg => {
       const transformedMsg: any = {
-        role: msg.role === 'assistant' ? 'maya' : msg.role, // Normalize role
+        role: msg.role === 'assistant' ? 'maya' : msg.role,
         content: msg.content,
         timestamp: msg.createdAt,
         generatedPrompt: msg.generatedPrompt
       };
 
-      // 🔥 CRITICAL FIX: Parse stored JSON imagePreview back to array
+      // Parse stored JSON imagePreview back to array
       if (msg.imagePreview) {
         try {
           const parsedImages = JSON.parse(msg.imagePreview);
@@ -1750,7 +1568,6 @@ router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
           }
         } catch (parseError) {
           console.error('Error parsing stored imagePreview:', parseError);
-          // If it's already an array (legacy format), use as-is
           if (Array.isArray(msg.imagePreview)) {
             transformedMsg.imagePreview = msg.imagePreview;
           }
@@ -1764,8 +1581,10 @@ router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
     res.json(transformedMessages);
 
   } catch (error) {
-    console.error('Maya chat history error:', error);
-    res.status(500).json({ error: 'Failed to load chat history' });
+    console.error(`❌ MAYA CHAT HISTORY ERROR: ${error}`);
+    res.status(500).json({ 
+      error: "Oh no, honey! I'm having trouble loading your styling conversation right now. This is so unlike me - let me try refreshing and we'll get back to creating your amazing photos together!" 
+    });
   }
 });
 
