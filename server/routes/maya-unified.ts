@@ -1558,22 +1558,25 @@ Use this context to customize styling choices that align with their unique trans
     // MAYA'S UNIFIED PROMPT GENERATION INTELLIGENCE
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
-🎯 MAYA'S STYLING INTELLIGENCE:
-You are Maya with Sandra's complete professional expertise. Extract the core styling elements from the provided context and create a clean, technical prompt for FLUX image generation.
+🎯 MAYA'S PROMPT GENERATION:
+Create a clean, technical prompt for FLUX image generation. NO formatting markers, NO section headers, NO markdown.
 
 CONCEPT: "${conceptName}"
-MAYA'S CONTEXT: "${cleanOriginalContext}"
+CONTEXT: "${cleanOriginalContext}"
 
-TASK: Create a technical prompt that captures Maya's styling vision.
+OUTPUT FORMAT REQUIREMENTS:
+- Start with: "${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+- Follow with styling details in flowing text format
+- Include photography specifications naturally
+- NO section headers (avoid **STYLING:**, **TECHNICAL:**, etc.)
+- NO bullet points or lists
+- NO markdown formatting
+- Keep everything as continuous descriptive text
 
-REQUIREMENTS:
-- Extract clothing, accessories, hair, makeup details
-- Remove conversational language 
-- Keep all specific styling choices (colors, materials, cuts)
-- Add photography specs
-- Start with trigger word: "${finalTriggerWord}"
+EXAMPLE GOOD OUTPUT:
+"${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, tailored black blazer with structured shoulders and peak lapels over crisp white silk blouse, statement silver chain necklace, sleek low chignon hairstyle, defined eyebrows and winged eyeliner, studio lighting with key light at 45-degree angle, neutral gray background, shallow depth of field, professional portrait composition"
 
-Generate a clean technical prompt for image generation.`;
+Generate a clean technical prompt with no formatting markers.`;
 
     // Call Claude API for Maya's intelligent prompt generation
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1589,11 +1592,11 @@ Generate a clean technical prompt for image generation.`;
         system: mayaPromptPersonality,
         messages: [{
           role: 'user',
-          content: `Create technical prompt for: "${conceptName}"
+          content: `Create a clean FLUX prompt for "${conceptName}" - NO formatting markers, NO section headers, just flowing descriptive text.
 
 Context: "${cleanOriginalContext}"
 
-Extract styling details and add photography specs.`
+Output: Clean technical prompt as continuous text.`
         }]
       })
     });
@@ -1605,10 +1608,19 @@ Extract styling details and add photography specs.`
     const data = await claudeResponse.json();
     let generatedPrompt = data.content[0].text.trim();
     
+    // Clean up any formatting markers that might slip through
+    generatedPrompt = generatedPrompt
+      .replace(/\*\*[^*]+\*\*/g, '') // Remove **SECTION:** markers
+      .replace(/#{1,6}\s+/g, '') // Remove markdown headers
+      .replace(/[-•]\s+/g, '') // Remove bullet points
+      .replace(/\n\s*\n/g, ' ') // Replace double newlines with space
+      .replace(/\s+/g, ' ') // Normalize spaces
+      .trim();
+    
     // Ensure trigger word is at the beginning
     if (finalTriggerWord && !generatedPrompt.startsWith(finalTriggerWord)) {
       const cleanPrompt = generatedPrompt.replace(new RegExp(finalTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
-      generatedPrompt = `${finalTriggerWord} ${cleanPrompt}`;
+      generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${cleanPrompt}`;
     }
     
     return generatedPrompt;
