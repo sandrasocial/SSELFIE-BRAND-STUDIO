@@ -113,7 +113,7 @@ export function cleanMayaPrompt(prompt: string): string {
   // CRITICAL: Remove Maya's conversational responses that contaminate FLUX prompts
   // Pattern 1: Remove everything before detailed styling descriptions
   // Look for descriptive clothing/styling content and extract only that
-  const stylingMatch = cleaned.match(/([A-Z][^.]*(?:blazer|dress|jeans|shirt|blouse|jacket|coat|pants|skirt|top|outfit|wearing|styled|tailored|leather|silk|cotton|wool|fabric|textured|patterned|colored|fitted|flowing|structured)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/i);
+  const stylingMatch = cleaned.match(/([A-Z][^.]*(?:blazer|dress|jeans|shirt|blouse|jacket|coat|pants|skirt|top|outfit|wearing|styled|tailored|leather|silk|cotton|wool|fabric|textured|patterned|colored|fitted|flowing|structured|full.body|half.body|standing|sitting|walking|pose|environment|location|setting)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/i);
   
   if (stylingMatch) {
     cleaned = stylingMatch[0];
