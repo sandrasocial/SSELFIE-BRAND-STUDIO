@@ -20,7 +20,6 @@ const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
 const SimpleTraining = lazy(() => import("./pages/simple-training"));
 const Profile = lazy(() => import("./pages/profile"));
 const Pricing = lazy(() => import("./pages/pricing"));
-const Onboarding = lazy(() => import("./pages/onboarding"));
 const About = lazy(() => import("./pages/about"));
 const Blog = lazy(() => import("./pages/blog"));
 const Contact = lazy(() => import("./pages/contact"));
@@ -52,7 +51,7 @@ const VictoriaChat = lazy(() => import("./pages/victoria-chat"));
 const VictoriaBuilder = lazy(() => import('./pages/victoria-builder'));
 const VictoriaPreview = lazy(() => import('./pages/victoria-preview'));
 const PhotoSelection = lazy(() => import("./pages/photo-selection"));
-const BrandOnboarding = lazy(() => import("./pages/brand-onboarding"));
+
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const Login = lazy(() => import("./pages/login"));
 const DomainHelp = lazy(() => import("./pages/domain-help"));
@@ -68,30 +67,16 @@ import { PageLoader } from "./components/PageLoader";
 
 // Removed duplicate photoshoot imports - using existing system
 
-// Smart Home component that routes based on onboarding status
+// Smart Home component - Always routes to workspace for authenticated users
 function SmartHome() {
   const [, setLocation] = useLocation();
-  const { data: onboardingData, isLoading } = useQuery({
-    queryKey: ['/api/onboarding'],
-    retry: false,
-  });
 
   // Always show STUDIO workspace as the home page for authenticated users
-  // Onboarding is only shown once via direct navigation after first login/payment
+  // Profile editing available directly via /profile route
   useEffect(() => {
-    if (!isLoading) {
-      setLocation('/workspace');
-    }
-  }, [isLoading, setLocation]);
+    setLocation('/workspace');
+  }, [setLocation]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-  
   return null;
 }
 
@@ -249,7 +234,7 @@ function Router() {
       <Route path="/studio">
         <Redirect to="/workspace" />
       </Route>
-      <Route path="/onboarding" component={(props) => <ProtectedRoute component={Onboarding} {...props} />} />
+
       
       {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
       <Route path="/ai-training">
@@ -315,11 +300,7 @@ function Router() {
           <ProtectedRoute component={PhotoSelection} {...props} />
         </Suspense>
       )} />
-      <Route path="/brand-onboarding" component={(props) => (
-        <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={BrandOnboarding} {...props} />
-        </Suspense>
-      )} />
+
       <Route path="/victoria-builder" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={VictoriaBuilder} {...props} />
