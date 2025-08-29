@@ -87,7 +87,7 @@ export default function CustomPhotoshootLibrary() {
     }, 1000);
     
     try {
-      // Use same pattern as working ai-photoshoot page
+      // Use same pattern as Maya page
       const response = await fetch('/api/generate-images', {
         method: 'POST',
         headers: {
@@ -464,7 +464,7 @@ export default function CustomPhotoshootLibrary() {
           </div>
         )}
 
-        {/* Generated Images Preview - Same style as ai-photoshoot */}
+        {/* Generated Images Preview - Same style as Maya */}
         {selectedImages.length > 0 && (
           <div className="mt-12 sm:mt-16">
             <div className="text-center mb-8 sm:mb-12">

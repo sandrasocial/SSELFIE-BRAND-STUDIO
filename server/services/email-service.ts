@@ -111,7 +111,7 @@ export async function sendTrainingCompleteEmail(userEmail: string, userName: str
       </div>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://sselfie.ai/ai-photoshoot" style="background: #0a0a0a; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px;">
+        <a href="https://sselfie.ai/maya" style="background: #0a0a0a; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px;">
           Create Your First Photos
         </a>
       </div>
