@@ -79,7 +79,9 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
       logMayaAPI('/chat', startTime, false, new Error('Authentication required'));
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ 
+        error: "Hey beautiful! I need to make sure you're logged in before we can start creating amazing photos together. Let's get you signed in so I can help you see your future self!" 
+      });
     }
 
     const { message, context = 'regular', chatId, conversationHistory = [] } = req.body;
@@ -310,7 +312,9 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     if (!prompt) {
       logMayaAPI('/generate', startTime, false, new Error('Prompt required'));
-      return res.status(400).json({ error: 'Prompt required' });
+      return res.status(400).json({ 
+        error: "I'm so excited to create something amazing for you! Just tell me what kind of photos you're dreaming of - business vibes? Lifestyle moments? Let's bring your vision to life!" 
+      });
     }
     
     const safeCount = Math.min(Math.max(parseInt(count ?? 2, 10) || 2, 1), 6);
@@ -513,7 +517,9 @@ router.get('/status', isAuthenticated, adminContextDetection, async (req: AdminC
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
       logMayaAPI('/status', startTime, false, new Error('Authentication required'));
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ 
+        error: "Hey gorgeous! I need to verify it's you before I can check your styling status. Let's get you signed in so I can see what amazing photos we can create!" 
+      });
     }
     
     const userType = req.userType || 'member';
@@ -1345,14 +1351,14 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
   try {
     // Load user's personal brand context for personalized styling
     let personalBrandContext = '';
-    let userTriggerWord = triggerWord;
+    let finalTriggerWord = triggerWord;
     
     if (userId) {
       try {
         // Get user's trigger word if not provided
-        if (!userTriggerWord) {
+        if (!finalTriggerWord) {
           const generationInfo = await checkGenerationCapability(userId);
-          userTriggerWord = generationInfo.triggerWord || '';
+          finalTriggerWord = generationInfo.triggerWord || '';
         }
         
         // Load personal brand context for styling customization
@@ -1399,7 +1405,7 @@ INTELLIGENT STYLING APPROACH:
 - Personalize based on the user's transformation story and business goals
 
 TECHNICAL PROMPT REQUIREMENTS:
-- Start with user trigger word: "${userTriggerWord}"
+- Start with user trigger word: "${finalTriggerWord}"
 - Include specific outfit formulas from your fashion expertise
 - Add detailed hair and makeup specifications
 - Specify sophisticated location and lighting
@@ -1439,9 +1445,9 @@ Generate ONLY the final technical prompt - nothing else. Make it detailed, sophi
     let generatedPrompt = data.content[0].text.trim();
     
     // Ensure trigger word is at the beginning
-    if (userTriggerWord && !generatedPrompt.startsWith(userTriggerWord)) {
-      const cleanPrompt = generatedPrompt.replace(new RegExp(userTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
-      generatedPrompt = `${userTriggerWord} ${cleanPrompt}`;
+    if (finalTriggerWord && !generatedPrompt.startsWith(finalTriggerWord)) {
+      const cleanPrompt = generatedPrompt.replace(new RegExp(finalTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
+      generatedPrompt = `${finalTriggerWord} ${cleanPrompt}`;
     }
     
     console.log(`✅ MAYA UNIFIED PROMPT: Generated ${generatedPrompt.length} character prompt using complete styling intelligence`);
@@ -1450,8 +1456,8 @@ Generate ONLY the final technical prompt - nothing else. Make it detailed, sophi
   } catch (error) {
     console.error('Maya prompt generation error:', error);
     // Fallback to basic prompt if Claude fails
-    const basicPrompt = userTriggerWord ? 
-      `${userTriggerWord} ${conceptName}, professional photo, elegant styling, sophisticated lighting` :
+    const basicPrompt = triggerWord ? 
+      `${triggerWord} ${conceptName}, professional photo, elegant styling, sophisticated lighting` :
       `${conceptName}, professional photo, elegant styling, sophisticated lighting`;
     
     console.log(`⚠️ MAYA FALLBACK: Using basic prompt due to generation error`);
@@ -1464,12 +1470,16 @@ router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ 
+        error: "I need to make sure it's really you before I can load your styling journey! Let's get you signed in so I can see all the amazing concepts we've created together." 
+      });
     }
 
     const chatId = parseInt(req.params.chatId);
     if (isNaN(chatId)) {
-      return res.status(400).json({ error: 'Valid chat ID required' });
+      return res.status(400).json({ 
+        error: "Something seems off with that chat link, babe! Let me help you navigate back to your styling conversations - I want to make sure we don't lose any of your amazing photo ideas!" 
+      });
     }
 
     console.log(`📖 MAYA CHAT HISTORY: Loading messages for chat ${chatId}`);
