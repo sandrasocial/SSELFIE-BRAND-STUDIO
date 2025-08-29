@@ -1392,7 +1392,7 @@ function Maya() {
                   <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png" alt="Maya - Your Personal Brand Stylist" />
                 </div>
                 <div className="welcome-eyebrow">Personal Brand Photos</div>
-                  <h2 className="welcome-title">What photos does your business need most?</h2>
+                  <h2 className="welcome-title">What story do you want to tell?</h2>
                   <p className="welcome-description">Hey beautiful! I'm Maya, and I'm here to help you tell your story through stunning photos. Whether you need Instagram content that feels authentically you or personal brand photos that showcase your unique style - I've got you covered. What story do you want to tell?</p>
 
                   {/* Style Quick-Select with SSELFIE categories */}
