@@ -410,6 +410,7 @@ export class ModelTrainingService {
       console.log(`🎯 MAYA PERSONALITY INTELLIGENCE: Using ${shotType} parameters from Maya's fluxOptimization`);
       console.log(`🎯 MAYA FLUX PARAMS: guidance_scale=${mayaFluxParams.guidance_scale}, steps=${mayaFluxParams.num_inference_steps}, lora_weight=${mayaFluxParams.lora_weight}`);
       console.log(`🎯 MAYA AI PARAMETERS: count=${intelligentParams.count} (Claude API-driven selection)`);
+      console.log(`🎯 MAYA PATH SELECTION: usePackaged=${usePackaged} (affects parameter application)`);
       
       // 🎯 MAYA'S INTELLIGENCE DRIVES ALL PARAMETERS - NO MORE CONFLICTS
       const merged = {
@@ -446,9 +447,11 @@ export class ModelTrainingService {
           input: {
             prompt: finalPrompt,
             num_outputs: finalCount,
-            // Maya's intelligent parameters are primarily for LoRA path
-            // Packaged models use their own optimized parameters
-            aspect_ratio: "3:4",
+            // 🎯 MAYA'S INTELLIGENT PARAMETERS APPLIED TO PACKAGED MODELS FOR HIGH QUALITY
+            guidance_scale: mayaFluxParams.guidance_scale,
+            num_inference_steps: mayaFluxParams.num_inference_steps,
+            aspect_ratio: merged.aspect_ratio,
+            megapixels: mayaFluxParams.megapixels,
             output_format: "png", 
             output_quality: 95,
             seed: seed
@@ -503,6 +506,7 @@ export class ModelTrainingService {
       }
 
       console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input), "version:", requestBody.version);
+      console.log("🎯 MAYA QUALITY FIX: guidance_scale =", requestBody.input.guidance_scale, "steps =", requestBody.input.num_inference_steps, "megapixels =", requestBody.input.megapixels);
 
       const response = await fetch('https://api.replicate.com/v1/predictions', {
         method: 'POST',
