@@ -431,9 +431,11 @@ export class ModelTrainingService {
         : Math.floor(Math.random() * 1e9);
 
       // DETERMINISTIC PATH LOGIC: Prefer PACKAGED MODEL path by default (safest today)
-      const usePackaged = 
-        !!(userModel?.replicateModelId && userModel?.replicateVersionId) &&
-        process.env.MAYA_USE_PACKAGED !== "0"; // default true
+      const usePackaged = Boolean(
+        userModel?.replicateModelId && 
+        userModel?.replicateVersionId && 
+        process.env.MAYA_USE_PACKAGED !== "0"
+      );
 
       console.log(`🎯 MAYA PATH SELECTION: usePackaged=${usePackaged} (affects parameter application)`);
 
