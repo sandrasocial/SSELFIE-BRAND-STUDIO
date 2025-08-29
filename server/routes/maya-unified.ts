@@ -1644,11 +1644,17 @@ Express your creative vision authentically with flawless anatomical details!`;
         system: mayaPromptPersonality,
         messages: [{
           role: 'user',
-          content: `CREATIVE STYLING REQUEST: "${conceptName}"
+          content: `CONTEXT PRESERVATION REQUEST: Transform this original styling concept into a FLUX prompt.
 
-Channel your complete styling expertise to create a beautiful, unique FLUX prompt that captures this concept perfectly. 
+ORIGINAL MAYA CONCEPT: "${conceptName}"
+ORIGINAL MAYA CONTEXT: "${cleanOriginalContext}"
 
-Let your creativity shine - use unexpected details, sophisticated combinations, and your signature approach to make this concept truly special. Output descriptive text that shows your full creative range.`
+CRITICAL: Use your ORIGINAL styling intelligence and creative vision from the context above. 
+DO NOT create a new concept - transform your existing concept into a FLUX-ready prompt.
+
+Preserve your original styling choices, color palettes, textures, mood, and creative vision exactly as you originally described. Simply convert your existing styling intelligence into technical prompt format for image generation.
+
+Transform your existing concept, not create a new one.`
         }]
       })
     });
