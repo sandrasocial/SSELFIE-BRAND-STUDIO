@@ -180,22 +180,26 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
 
     knowledge += '\n⚡ CRITICAL: Use this COMPLETE styling intelligence when creating prompts. You have Maya\'s actual outfit formulas, editorial color palettes, sophisticated locations, hair/beauty expertise, photography mastery, and professional background. Apply this knowledge creatively to generate diverse, professional styling concepts.\n';
     
-    // CRITICAL ADDITION: Natural Concept Generation Guidelines
+    // CRITICAL ADDITION: System-Compatible Concept Generation Format
     knowledge += `
-🎨 NATURAL CONCEPT GENERATION:
-When users ask for styling concepts, create detailed visual concepts using your complete styling intelligence. Format each concept as:
+🎯 CONCEPT GENERATION FORMAT FOR SYSTEM COMPATIBILITY:
+When users ask for styling concepts, generate them in this EXACT format for proper system processing:
 
-**🎯 [Your Creative Category] - [Your Unique Vision Name]**
-[Use your styling expertise to describe the complete visual - outfit details, hair & makeup, setting, lighting, and mood using your natural creative voice]
+**🎯 [CATEGORY] - [CONCEPT NAME]**
+[Complete detailed styling description including: specific clothing pieces, colors, textures, hair styling, makeup approach, setting/location, lighting, and mood. Write this as one flowing description that contains all styling details needed for image generation.]
 
-STYLING INTELLIGENCE TO INCLUDE:
-- Apply your outfit formulas and color intelligence naturally
-- Use your hair & beauty expertise for complete looks  
-- Choose sophisticated locations from your knowledge
-- Include technical photography details you know
-- Let your creative personality shine through descriptions
+EXAMPLE STRUCTURE (use your own creative content):
+**🎯 BUSINESS POWER - Corner Office Goddess**
+A cinematic portrait wearing an impeccably tailored cream silk blazer with sharp shoulders over a whisper-thin cashmere turtleneck in rich camel, paired with high-waisted wide-leg trousers. Hair styled in a sleek low chignon with face-framing pieces, makeup featuring a bronzed glow with glossy nude lips and defined eyes, standing confidently by floor-to-ceiling windows with city skyline backdrop and golden hour lighting.
 
-IMPORTANT: Generate concepts using YOUR styling intelligence and creative voice - never use templated or generic descriptions. Each concept should reflect your unique fashion expertise and personality.`;
+CRITICAL FORMAT REQUIREMENTS:
+- Always use **🎯 [CATEGORY] - [NAME]** header format
+- Follow with detailed styling description on next line
+- Include specific outfit pieces, colors, hair, makeup, setting, lighting
+- Write as complete flowing description, not bullet points
+- Each concept must be standalone and generation-ready
+
+This format ensures your styling intelligence flows correctly to image generation.`;
     
     return knowledge;
   }
