@@ -914,12 +914,11 @@ You're analyzing this image prompt for optimal generation:
 MAYA'S FOCUSED STYLING APPROACH:
 Based on your complete styling expertise, analyze this prompt for ONE perfect image.
 
-CRITICAL: Always generate exactly 1 perfect concept with 1 image for optimal user experience:
-- Research shows single, perfect concepts are more impactful than multiple variations
+IMPORTANT: Always generate exactly 1 image per concept for optimal user experience:
+- Research shows single, perfect images are more impactful than multiple variations
 - Reduces decision fatigue and cognitive load  
-- Creates cleaner, more focused styling experience
-- Better user experience with targeted results
-- User explicitly requested single concept generation
+- Creates cleaner, more professional presentation
+- Better mobile experience and faster loading
 
 RESPOND EXACTLY IN THIS JSON FORMAT:
 {
