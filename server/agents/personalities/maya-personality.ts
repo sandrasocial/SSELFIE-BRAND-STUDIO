@@ -140,11 +140,11 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Color psychology - rich neutrals that convey authority with strategic accent colors"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD], close-up business portrait, confident woman with [specific eye color], [distinctive facial features], professional makeup with defined brows and subtle lip color",
+        "[TRIGGER_WORD], close-up business portrait, confident professional expression",
         "Shot on Canon EOS R5, 85mm f/1.4 lens, f/2.8 aperture, ISO 400, natural window light with soft shadows",
-        "Maya-styled executive power outfit: structured blazer in rich navy or charcoal, premium fabric with subtle texture",
-        "Modern corporate office, marble surfaces, floor-to-ceiling windows, architectural lighting creating professional atmosphere",
-        "Raw photo quality, visible skin pores, film grain, natural skin texture, confident executive presence"
+        "Maya's intelligent styling choices based on concept and user's personal brand",
+        "Professional environment with architectural lighting and sophisticated atmosphere",
+        "Raw photo quality, visible skin pores, film grain, natural skin texture, confident presence"
       ]
     },
 
@@ -159,9 +159,9 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Professional styling that translates across different business environments"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD], half-body professional portrait, sophisticated woman with [hair texture/color], [eye color] eyes, natural expression conveying expertise and warmth",
+        "[TRIGGER_WORD], half-body professional portrait, sophisticated expression conveying expertise and warmth",
         "Shot on Sony A7R V, 50mm f/1.4 GM lens, f/2.8, shallow depth of field, professional lighting setup with key light and fill",
-        "Maya-designed sophisticated ensemble: tailored separates in coordinated tones, premium fabrics, expert proportions",
+        "Maya's intelligent ensemble selection based on concept and personal style goals",
         "Contemporary professional environment, clean architectural lines, natural lighting, minimalist backdrop",
         "Professional photography quality, raw photo aesthetic, natural skin texture, approachable authority presence"
       ]
@@ -178,8 +178,8 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Lifestyle-appropriate luxury - pieces that work for actual daily routines"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, elevated lifestyle moment, effortless luxury styling, shot with Nikon Z9, 35mm f/1.4 lens for environmental context",
-        "Maya-curated elevated casual look using current trend principles and comfort-focused luxury",
+        "[TRIGGER_WORD], elevated lifestyle moment, effortless styling approach, shot with Nikon Z9, 35mm f/1.4 lens for environmental context",
+        "Maya's intelligent elevated casual styling based on concept and lifestyle goals",
         "Beautiful lifestyle environment, natural lighting, curated living spaces, authentic moments",
         "Lifestyle photography lighting, film grain, natural expressions, approachable elegance"
       ]
@@ -196,10 +196,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Real-life appropriate styling - looks that work for actual daily activities"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, authentic casual moment, approachable styling excellence, shot with Canon R6 Mark II, 24-70mm f/2.8 zoom for versatile framing",
-        "Maya-styled authentic look mixing accessible and luxury elements with current trend intelligence",
+        "[TRIGGER_WORD], authentic casual moment, approachable styling excellence, shot with Canon R6 Mark II, 24-70mm f/2.8 zoom for versatile framing",
+        "Maya's intelligent authentic styling approach based on concept and personal style",
         "Natural environment, home spaces, neighborhood settings, authentic lighting",
-        "Natural photography, soft lighting, genuine expressions, relatable luxury energy"
+        "Natural photography, soft lighting, genuine expressions, relatable energy"
       ]
     },
 
@@ -214,8 +214,8 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Empowerment styling - pieces that make someone feel like their best self"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, personal story moment, meaningful styling choices, shot with Sony FE 85mm f/1.8, intimate portrait setup for emotional connection",
-        "Maya-designed authentic look that reflects personal journey and growth with thoughtful styling",
+        "[TRIGGER_WORD], personal story moment, meaningful expression, shot with Sony FE 85mm f/1.8, intimate portrait setup for emotional connection",
+        "Maya's thoughtful styling choices that reflect personal journey and authentic growth",
         "Meaningful location, personal significance, natural intimate lighting, storytelling environment",
         "Emotional portrait lighting, natural expressions, authentic vulnerability, inspiring strength"
       ]
@@ -232,8 +232,8 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Versatile pieces that transition from work to content creation seamlessly"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, authentic work moment, functional luxury styling, shot with Fujifilm X-T5, 23mm f/2 lens for natural documentary feel",
-        "Maya-styled productive work look balancing comfort and elevated style for real work life",
+        "[TRIGGER_WORD], authentic work moment, functional approach, shot with Fujifilm X-T5, 23mm f/2 lens for natural documentary feel",
+        "Maya's intelligent work styling balancing comfort and elevated style for productivity",
         "Authentic workspace, home office, creative environment, natural available lighting",
         "Documentary style lighting, authentic work energy, genuine productivity focus"
       ]
@@ -250,8 +250,8 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Social media color theory - understanding what palettes perform well on different platforms"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, social media content creation, engagement-optimized styling, shot with Canon EOS R5, 50mm f/1.2L for social media optimization",
-        "Maya-designed scroll-stopping look using current social trends and photo-optimized styling principles",
+        "[TRIGGER_WORD], social media content creation, engagement-optimized approach, shot with Canon EOS R5, 50mm f/1.2L for social media optimization",
+        "Maya's intelligent styling using current social trends and photo-optimized principles",
         "Instagram-worthy background, aesthetic locations, perfect social media lighting setup",
         "Social media optimized lighting, high engagement visual appeal, share-worthy energy"
       ]
@@ -268,8 +268,8 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Cohesive color story development - creating recognizable brand aesthetic through styling"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, content creation, brand-consistent styling strategy, shot with Sony A7 IV, 24-105mm f/4 for content creation versatility",
-        "Maya-curated brand-aligned look maintaining aesthetic consistency with engaging variety",
+        "[TRIGGER_WORD], content creation, brand-consistent approach, shot with Sony A7 IV, 24-105mm f/4 for content creation versatility",
+        "Maya's brand-aligned styling maintaining aesthetic consistency with engaging variety",
         "Brand-appropriate environment, consistent aesthetic elements, content-friendly lighting",
         "Content creation lighting setup, brand consistency, strategic authenticity"
       ]
@@ -286,10 +286,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Jet-set styling principles - effortless luxury that works across different environments"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, luxury travel moment, destination-appropriate sophisticated styling, shot with Leica Q2, 28mm lens for travel documentation and environmental context",
-        "Maya-designed jet-set look combining travel practicality with destination-specific luxury styling",
+        "[TRIGGER_WORD], luxury travel moment, destination-appropriate sophistication, shot with Leica Q2, 28mm lens for travel documentation and environmental context",
+        "Maya's intelligent jet-set styling combining travel practicality with destination-specific approach",
         "International destination, cultural landmark, natural travel lighting, sophisticated environment",
-        "Travel photography lighting, cultural respect, international sophistication, wanderlust luxury"
+        "Travel photography lighting, cultural respect, international sophistication, wanderlust energy"
       ]
     },
 
@@ -304,8 +304,8 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Adventure-appropriate proportions - understanding what works for active photography"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, adventure moment, functional luxury styling for exploration, shot with Sony FX3, 16-35mm f/2.8 lens for adventure documentation and movement",
-        "Maya-styled adventure-ready look balancing performance requirements with elevated aesthetic",
+        "[TRIGGER_WORD], adventure moment, functional approach for exploration, shot with Sony FX3, 16-35mm f/2.8 lens for adventure documentation and movement",
+        "Maya's adventure-ready styling balancing performance requirements with elevated aesthetic",
         "Dramatic landscape, adventure destination, natural outdoor lighting, exploration environment",
         "Adventure photography lighting, dynamic movement, fearless exploration energy"
       ]
@@ -322,10 +322,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Sartorial confidence building - creating looks that make someone feel like a fashion expert"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, fashion styling showcase, expert coordination mastery, shot with Phase One XF IQ4, 80mm lens for fashion editorial quality",
-        "Maya-coordinated fashion-forward look demonstrating advanced styling principles and trend intelligence",
+        "[TRIGGER_WORD], fashion styling showcase, expert coordination approach, shot with Phase One XF IQ4, 80mm lens for fashion editorial quality",
+        "Maya's intelligent fashion-forward styling demonstrating advanced principles and trend awareness",
         "Clean fashion environment, styling-focused background, professional fashion lighting",
-        "Fashion photography lighting, styling expertise, sartorial mastery, fashion confidence"
+        "Fashion photography lighting, styling expertise, sartorial confidence"
       ]
     },
 
@@ -340,10 +340,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Fashion authority development - building looks that establish credibility in style spaces"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, editorial fashion moment, style innovation and trendsetting mastery, shot with Fujifilm GFX100S, 63mm lens for medium format fashion editorial quality",
-        "Maya-designed cutting-edge look pushing fashion boundaries with editorial intelligence",
+        "[TRIGGER_WORD], editorial fashion moment, style innovation approach, shot with Fujifilm GFX100S, 63mm lens for medium format fashion editorial quality",
+        "Maya's cutting-edge styling pushing fashion boundaries with editorial intelligence",
         "High fashion environment, editorial lighting setup, fashion-worthy backdrop",
-        "Editorial fashion lighting, style innovation, trendsetting confidence, fashion authority"
+        "Editorial fashion lighting, style innovation, trendsetting confidence"
       ]
     },
 
@@ -358,8 +358,8 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Intimate styling moments - understanding personal preparation routines and preferences"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, getting ready moment, transformation process styling, shot with Canon EOS R8, 35mm f/1.8 lens for intimate preparation documentation",
-        "Maya-styled preparation look capturing authentic transformation journey with intimate styling",
+        "[TRIGGER_WORD], getting ready moment, transformation process, shot with Canon EOS R8, 35mm f/1.8 lens for intimate preparation documentation",
+        "Maya's intelligent preparation styling capturing authentic transformation journey",
         "Personal preparation space, bedroom, bathroom, intimate lighting, transformation environment",
         "Intimate preparation lighting, transformation magic, personal styling journey"
       ]
@@ -376,10 +376,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Teaching moment styling - using preparation time to demonstrate styling principles"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, GRWM content creation, educational styling process, shot with Sony FX30, 24mm f/1.4 lens for content creation and process documentation",
-        "Maya-guided preparation content showing intelligent styling decisions and beauty routine integration",
+        "[TRIGGER_WORD], GRWM content creation, educational process, shot with Sony FX30, 24mm f/1.4 lens for content creation and process documentation",
+        "Maya's preparation content showing intelligent styling decisions and beauty routine integration",
         "Content creation space, preparation environment, educational lighting, process-friendly setup",
-        "Content creation lighting, educational energy, styling expertise, beauty routine mastery"
+        "Content creation lighting, educational energy, styling expertise"
       ]
     },
 
@@ -394,10 +394,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Transformation styling principles - using fashion to support personal growth and vision"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, future self visualization, aspirational styling mastery, shot with Hasselblad X2D 100C, 90mm lens for premium aspirational quality",
-        "Maya-designed dream-state look representing elevated future self with aspirational styling intelligence",
+        "[TRIGGER_WORD], future self visualization, aspirational approach, shot with Hasselblad X2D 100C, 90mm lens for premium aspirational quality",
+        "Maya's intelligent aspirational styling representing elevated future self vision",
         "Luxury aspirational environment, premium setting, elevated lighting, success environment",
-        "Aspirational lighting, dream realization energy, future self confidence, elevated transformation"
+        "Aspirational lighting, dream realization energy, future self confidence"
       ]
     },
 
@@ -412,10 +412,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Aspirational accessibility - making dream looks achievable at different life stages"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, dream life moment, goal achievement styling excellence, shot with Canon EOS R1, 28-70mm f/2L lens for ultimate professional quality",
-        "Maya-curated success-level look representing achieved aspirations with intelligent goal-oriented styling",
+        "[TRIGGER_WORD], dream life moment, goal achievement approach, shot with Canon EOS R1, 28-70mm f/2L lens for ultimate professional quality",
+        "Maya's success-level styling representing achieved aspirations with intelligent goal-oriented approach",
         "Dream lifestyle environment, achievement setting, success lighting, aspirational backdrop",
-        "Dream life lighting, goal achievement energy, aspirational confidence, success visualization"
+        "Dream life lighting, goal achievement energy, aspirational confidence"
       ]
     },
 
@@ -430,10 +430,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Artistic fashion intelligence - styling for visual impact in monochromatic photography"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, timeless black and white portrait, classic sophistication styling, shot with Leica M11 Monochrom, 50mm Summilux lens for ultimate black and white quality",
-        "Maya-designed timeless look emphasizing texture, proportion, and classic elegance for monochrome",
+        "[TRIGGER_WORD], timeless black and white portrait, classic sophistication, shot with Leica M11 Monochrom, 50mm Summilux lens for ultimate black and white quality",
+        "Maya's timeless approach emphasizing texture, proportion, and classic elegance for monochrome",
         "Architectural environment, classic setting, dramatic black and white lighting, timeless backdrop",
-        "Classic black and white lighting, timeless elegance, artistic sophistication, monochrome mastery"
+        "Classic black and white lighting, timeless elegance, artistic sophistication"
       ]
     },
 
@@ -448,10 +448,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Artistic styling mathematics - understanding composition and visual impact in creative fashion"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, artistic creative moment, sophisticated artistic styling expression, shot with Pentax 645Z, 75mm lens for artistic medium format quality",
-        "Maya-created artistic look balancing creative expression with timeless sophistication",
+        "[TRIGGER_WORD], artistic creative moment, sophisticated artistic expression, shot with Pentax 645Z, 75mm lens for artistic medium format quality",
+        "Maya's artistic approach balancing creative expression with timeless sophistication",
         "Artistic environment, creative space, sophisticated artistic lighting, gallery-worthy setting",
-        "Artistic photography lighting, creative sophistication, timeless artistry, sophisticated creativity"
+        "Artistic photography lighting, creative sophistication, timeless artistry"
       ]
     },
 
@@ -466,10 +466,10 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Professional quality styling - creating looks that meet commercial photography standards"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD] woman, professional studio portrait, controlled lighting styling mastery, shot with Canon EOS R5C, 85mm f/1.2L lens with professional studio lighting setup",
-        "Maya-designed studio-optimized look created specifically for professional controlled lighting environment",
+        "[TRIGGER_WORD], professional studio portrait, controlled lighting approach, shot with Canon EOS R5C, 85mm f/1.2L lens with professional studio lighting setup",
+        "Maya's studio-optimized styling created specifically for professional controlled lighting environment",
         "Professional photography studio, controlled lighting setup, neutral backdrop, commercial environment",
-        "Professional studio lighting, controlled perfection, studio mastery, commercial quality excellence"
+        "Professional studio lighting, controlled perfection, commercial quality excellence"
       ]
     }
   },
@@ -502,9 +502,9 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "TECHNICAL QUALITY + MOOD"
     ],
     physicalFeatureTemplates: [
-      "[TRIGGER_WORD], [shot_type] portrait, [age_description] woman with [hair_color] [hair_texture] hair, [eye_color] eyes, [distinctive_features]",
-      "Natural [skin_tone] skin tone, [facial_structure] facial structure, [expression_type] expression",
-      "[makeup_style] makeup with [specific_details], [eyebrow_description] eyebrows, [lip_description] lips"
+      "[TRIGGER_WORD], [shot_type] portrait, natural expression and authentic features",
+      "Professional styling approach that enhances individual characteristics",
+      "Maya's intelligent makeup and hair choices appropriate for the concept"
     ],
     cameraSpecifications: {
       closeUp: "85mm f/1.4 lens, f/2.8 aperture, shallow depth of field, focus on eyes",
