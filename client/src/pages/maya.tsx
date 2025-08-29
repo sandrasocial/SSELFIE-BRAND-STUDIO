@@ -677,13 +677,19 @@ function Maya() {
           right: 0;
           background: linear-gradient(transparent, rgba(0, 0, 0, 0.7) 60%, rgba(0, 0, 0, 0.85));
           color: white;
-          padding: 40px 20px 20px;
-          font-size: 14px;
+          padding: 40px 16px 20px;
+          font-size: 12px;
           font-weight: 400;
-          letter-spacing: 0.25em;
+          letter-spacing: 0.2em;
           text-align: center;
           text-transform: uppercase;
           font-family: 'Times New Roman', serif;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
         }
 
         /* Legacy style options for backwards compatibility */
@@ -1099,9 +1105,12 @@ function Maya() {
           }
 
           .collection-title {
-            font-size: 11px !important;
-            padding: 30px 16px 16px !important;
-            letter-spacing: 0.2em !important;
+            font-size: 10px !important;
+            padding: 30px 12px 16px !important;
+            letter-spacing: 0.15em !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
           }
 
           /* Legacy style quickselect mobile */
@@ -1502,7 +1511,7 @@ function Maya() {
                       <div className="collection-image">
                         <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756380874129.png" alt="Instagram Photos" />
                       </div>
-                      <div className="collection-title">I N S T A G R A M</div>
+                      <div className="collection-title">I N S T A</div>
                     </div>
                     <div className="style-option collection-card" onClick={() => handleStyleSelect('travel-photos')}>
                       <div className="collection-image">
@@ -1526,7 +1535,7 @@ function Maya() {
                       <div className="collection-image">
                         <img src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756128420487.png" alt="Future Self Photos" />
                       </div>
-                      <div className="collection-title">F U T U R E  S E L F</div>
+                      <div className="collection-title">F U T U R E</div>
                     </div>
                     <div className="style-option collection-card" onClick={() => handleStyleSelect('bw-photos')}>
                       <div className="collection-image">
