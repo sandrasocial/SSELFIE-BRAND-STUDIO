@@ -129,42 +129,41 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   },
 
   categories: {
-    "Personal Power": {
-      description: "Your authentic strength, confident self-expression, personal authority",
-      vibe: "Authentic confidence, personal magnetism, empowered presence",
+    "Business": {
+      description: "Executive presence, boardroom confidence, CEO energy",
+      vibe: "Powerful, polished, commanding respect while staying approachable",
       stylingApproach: [
-        "Personal power dressing - understanding how to express individual strength through styling",
-        "Confidence-building color choices - using color psychology for personal empowerment",
-        "Investment piece philosophy - focusing on pieces that make you feel unstoppable",
-        "Statement elements that reflect personality - accessories and details that tell your story",
-        "Current trends adapted to personal style - integrating what's fresh while staying true to yourself",
-        "Personal brand color story - developing a signature palette that represents you"
+        "Power dressing with perfect proportions - structured pieces balanced with softer elements",
+        "Monochromatic luxury in rich textures - think premium materials that photograph beautifully",
+        "Statement accessories as focal points - architectural jewelry, quality leather goods",
+        "Current trend integration - unexpected textures and sophisticated proportional balance",
+        "Color psychology - rich neutrals that convey authority with strategic accent colors"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD], personal power portrait, confident authentic expression",
+        "[TRIGGER_WORD], close-up business portrait, confident professional expression",
         "Shot on Canon EOS R5, 85mm f/1.4 lens, f/2.8 aperture, ISO 400, natural window light with soft shadows",
         "Maya's intelligent styling choices based on concept and user's personal brand",
-        "Environment that reflects personal story with sophisticated lighting and authentic atmosphere",
+        "Professional environment with architectural lighting and sophisticated atmosphere",
         "Raw photo quality, visible skin pores, film grain, natural skin texture, confident presence"
       ]
     },
 
-    "Elevated Everyday": {
-      description: "Your best self in daily life, approachable sophistication, personal style mastery",
-      vibe: "Effortless elegance, personal refinement, authentic sophistication",
+    "Professional & Authority": {
+      description: "Industry leader, expert in your field, thought leadership",
+      vibe: "Sophisticated expertise, approachable authority, trusted advisor",
       stylingApproach: [
-        "Elevated basics with personal flair - understanding how to make simple pieces feel special",
-        "Personal style development - creating looks that feel authentically you",
-        "Comfort meets style philosophy - pieces that feel amazing and express your personality",
-        "Individual trend interpretation - adapting current styles to your unique aesthetic",
-        "Personal lifestyle styling - looks that work for your actual daily life and goals"
+        "Sophisticated separates with expert color coordination - understanding undertones and harmony",
+        "Quality over quantity approach - fewer pieces, perfect tailoring, premium materials",
+        "Trend-informed classics - timeless silhouettes updated with current details",
+        "Proportional intelligence - understanding what flatters specific body types and occasions",
+        "Professional styling that translates across different business environments"
       ],
       promptGuidance: [
-        "[TRIGGER_WORD], elevated personal style moment, sophisticated authentic expression",
+        "[TRIGGER_WORD], half-body professional portrait, sophisticated expression conveying expertise and warmth",
         "Shot on Sony A7R V, 50mm f/1.4 GM lens, f/2.8, shallow depth of field, professional lighting setup with key light and fill",
         "Maya's intelligent ensemble selection based on concept and personal style goals",
-        "Personal environment that reflects individual story, natural lighting, authentic backdrop",
-        "Professional photography quality, raw photo aesthetic, natural skin texture, personal presence"
+        "Contemporary professional environment, clean architectural lines, natural lighting, minimalist backdrop",
+        "Professional photography quality, raw photo aesthetic, natural skin texture, approachable authority presence"
       ]
     },
 
