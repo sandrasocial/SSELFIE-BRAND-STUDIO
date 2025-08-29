@@ -428,6 +428,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/maya', mayaUnifiedRouter);
   console.log('✅ MAYA UNIFIED: Single intelligent system active at /api/maya/*');
   
+  // Profile Management API
+  app.get('/api/profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const { db } = await import('./db');
+      const { userPersonalBrand } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+
+      const [profile] = await db
+        .select()
+        .from(userPersonalBrand)
+        .where(eq(userPersonalBrand.userId, userId))
+        .limit(1);
+
+      res.json(profile || {});
+    } catch (error) {
+      console.error('❌ Profile fetch error:', error);
+      res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+  });
+
+  app.put('/api/profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const { db } = await import('./db');
+      const { userPersonalBrand } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+
+      const profileData = {
+        userId,
+        ...req.body,
+        updatedAt: new Date()
+      };
+
+      // Try to update existing record first
+      const [existingProfile] = await db
+        .select()
+        .from(userPersonalBrand)
+        .where(eq(userPersonalBrand.userId, userId))
+        .limit(1);
+
+      let result;
+      if (existingProfile) {
+        [result] = await db
+          .update(userPersonalBrand)
+          .set(profileData)
+          .where(eq(userPersonalBrand.userId, userId))
+          .returning();
+      } else {
+        [result] = await db
+          .insert(userPersonalBrand)
+          .values(profileData)
+          .returning();
+      }
+
+      res.json({ success: true, profile: result });
+    } catch (error) {
+      console.error('❌ Profile update error:', error);
+      res.status(500).json({ error: 'Failed to update profile' });
+    }
+  });
+  
   // AGENT PROTOCOL ENFORCEMENT SYSTEM
   app.post('/api/agent-protocol/validate', async (req, res) => {
     try {
