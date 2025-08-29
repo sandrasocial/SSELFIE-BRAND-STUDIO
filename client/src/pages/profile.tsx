@@ -42,25 +42,25 @@ export default function Profile() {
   });
 
   const [formData, setFormData] = useState({
-    transformationStory: profile?.transformationStory || '',
-    currentSituation: profile?.currentSituation || '',
-    futureVision: profile?.futureVision || '',
-    businessGoals: profile?.businessGoals || '',
-    businessType: profile?.businessType || '',
-    stylePreferences: profile?.stylePreferences || '',
-    photoGoals: profile?.photoGoals || ''
+    transformationStory: (profile as any)?.transformationStory || '',
+    currentSituation: (profile as any)?.currentSituation || '',
+    futureVision: (profile as any)?.futureVision || '',
+    businessGoals: (profile as any)?.businessGoals || '',
+    businessType: (profile as any)?.businessType || '',
+    stylePreferences: (profile as any)?.stylePreferences || '',
+    photoGoals: (profile as any)?.photoGoals || ''
   });
 
   useEffect(() => {
     if (profile) {
       setFormData({
-        transformationStory: profile.transformationStory || '',
-        currentSituation: profile.currentSituation || '',
-        futureVision: profile.futureVision || '',
-        businessGoals: profile.businessGoals || '',
-        businessType: profile.businessType || '',
-        stylePreferences: profile.stylePreferences || '',
-        photoGoals: profile.photoGoals || ''
+        transformationStory: (profile as any).transformationStory || '',
+        currentSituation: (profile as any).currentSituation || '',
+        futureVision: (profile as any).futureVision || '',
+        businessGoals: (profile as any).businessGoals || '',
+        businessType: (profile as any).businessType || '',
+        stylePreferences: (profile as any).stylePreferences || '',
+        photoGoals: (profile as any).photoGoals || ''
       });
     }
   }, [profile]);
@@ -145,8 +145,8 @@ export default function Profile() {
           <p className="text-[#666666] mb-8">
             I'd love to get to know you better! Sign in so we can chat about your story and style.
           </p>
-
-            href="/login"
+          <a
+            href="/api/login"
             className="text-xs uppercase tracking-wider text-[#0a0a0a] border-b border-[#0a0a0a] pb-1"
           >
             Sign In
@@ -159,7 +159,7 @@ export default function Profile() {
   return (
       <div className="min-h-screen bg-white">
         <MemberNavigation />
-
+        
         {/* Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
           <div className="absolute inset-0 opacity-30">
@@ -169,7 +169,7 @@ export default function Profile() {
               className="w-full h-full object-cover object-center-top"
             />
           </div>
-
+          
           <div className="relative z-10 text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end min-h-screen pb-16 sm:pb-20">
             <div style={{
               fontSize: 'clamp(9px, 2vw, 11px)',
@@ -180,7 +180,7 @@ export default function Profile() {
             }}>
               Let's Get Personal
             </div>
-
+            
             <h1 style={{
               fontSize: 'clamp(3rem, 8vw, 8rem)',
               lineHeight: 0.9,
@@ -193,7 +193,7 @@ export default function Profile() {
             }}>
               YOUR STORY
             </h1>
-
+            
             <div style={{
               fontSize: 'clamp(9px, 2vw, 11px)',
               letterSpacing: 'clamp(0.3em, 0.8vw, 0.4em)',
@@ -240,7 +240,7 @@ export default function Profile() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-12">
-
+                  
                   {/* Question 1: Your Journey */}
                   <div className="border-b border-[#f5f5f5] pb-8">
                     <div className="mb-6">
@@ -251,7 +251,7 @@ export default function Profile() {
                         What's your transformation story? Where did you start, and what led you to where you are now?
                       </p>
                     </div>
-
+                    
                     {isEditing && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {suggestions.transformationStory.map((suggestion, index) => (
@@ -266,7 +266,7 @@ export default function Profile() {
                         ))}
                       </div>
                     )}
-
+                    
                     {isEditing ? (
                       <textarea
                         value={formData.transformationStory}
@@ -292,7 +292,7 @@ export default function Profile() {
                         What's happening in your life and business today? What stage are you at?
                       </p>
                     </div>
-
+                    
                     {isEditing && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {suggestions.currentSituation.map((suggestion, index) => (
@@ -307,7 +307,7 @@ export default function Profile() {
                         ))}
                       </div>
                     )}
-
+                    
                     {isEditing ? (
                       <textarea
                         value={formData.currentSituation}
@@ -333,7 +333,7 @@ export default function Profile() {
                         Close your eyes and imagine your future self living her best life. What does that look like?
                       </p>
                     </div>
-
+                    
                     {isEditing && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {suggestions.futureVision.map((suggestion, index) => (
@@ -348,7 +348,7 @@ export default function Profile() {
                         ))}
                       </div>
                     )}
-
+                    
                     {isEditing ? (
                       <textarea
                         value={formData.futureVision}
@@ -374,7 +374,7 @@ export default function Profile() {
                         What do you want to achieve? What would make you feel like you've truly made it?
                       </p>
                     </div>
-
+                    
                     {isEditing && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {suggestions.businessGoals.map((suggestion, index) => (
@@ -389,7 +389,7 @@ export default function Profile() {
                         ))}
                       </div>
                     )}
-
+                    
                     {isEditing ? (
                       <textarea
                         value={formData.businessGoals}
@@ -415,7 +415,7 @@ export default function Profile() {
                         Tell me about your business or what you're building. What industry are you in?
                       </p>
                     </div>
-
+                    
                     {isEditing && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {suggestions.businessType.map((suggestion, index) => (
@@ -430,7 +430,7 @@ export default function Profile() {
                         ))}
                       </div>
                     )}
-
+                    
                     {isEditing ? (
                       <input
                         type="text"
@@ -456,7 +456,7 @@ export default function Profile() {
                         How do you like to show up? What aesthetic makes you feel most like yourself?
                       </p>
                     </div>
-
+                    
                     {isEditing && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {suggestions.stylePreferences.map((suggestion, index) => (
@@ -471,7 +471,7 @@ export default function Profile() {
                         ))}
                       </div>
                     )}
-
+                    
                     {isEditing ? (
                       <textarea
                         value={formData.stylePreferences}
@@ -497,7 +497,7 @@ export default function Profile() {
                         What's your vision for these photos? Where will you share them and how will they help your goals?
                       </p>
                     </div>
-
+                    
                     {isEditing && (
                       <div className="flex flex-wrap gap-2 mb-4">
                         {suggestions.photoGoals.map((suggestion, index) => (
@@ -512,7 +512,7 @@ export default function Profile() {
                         ))}
                       </div>
                     )}
-
+                    
                     {isEditing ? (
                       <textarea
                         value={formData.photoGoals}
