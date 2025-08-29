@@ -1493,7 +1493,7 @@ function Maya() {
                       )}
 
                       {/* Image previews */}
-                      {message.imagePreview && message.imagePreview.length > 0 && (
+                      {message.imagePreview && Array.isArray(message.imagePreview) && message.imagePreview.length > 0 && (
                         <div className="image-grid">
                           {message.imagePreview.map((imageUrl, imgIndex) => (
                             <div key={imgIndex} className="image-item">

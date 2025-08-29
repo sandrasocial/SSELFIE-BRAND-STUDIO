@@ -1,0 +1,39 @@
+main.tsx:60 SSELFIE Studio: Global error caught: TypeError: message.imagePreview.map is not a function
+    at maya.tsx:1498:49
+    at Array.map (<anonymous>)
+    at Maya (maya.tsx:1458:27)
+
+maya.tsx:1498 Uncaught TypeError: message.imagePreview.map is not a function
+    at maya.tsx:1498:49
+    at Array.map (<anonymous>)
+    at Maya (maya.tsx:1458:27)
+main.tsx:60 SSELFIE Studio: Global error caught: TypeError: message.imagePreview.map is not a function
+    at maya.tsx:1498:49
+    at Array.map (<anonymous>)
+    at Maya (maya.tsx:1458:27)
+maya.tsx:1498 Uncaught TypeError: message.imagePreview.map is not a function
+    at maya.tsx:1498:49
+    at Array.map (<anonymous>)
+    at Maya (maya.tsx:1458:27)
+chunk-JVBN6TY4.js?v=ec91fa8e:14080 The above error occurred in the <Maya> component:
+
+    at Maya (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/pages/maya.tsx:37:7)
+    at ErrorBoundary (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/components/ErrorBoundary.tsx:7:5)
+    at MayaWithErrorBoundary
+    at ProtectedRoute (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/App.tsx?v=5ocwAujjQIDxX8WKKU71S:119:14)
+    at component
+    at Route (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ec91fa8e:279:16)
+    at div
+    at Router
+    at App (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/App.tsx?v=5ocwAujjQIDxX8WKKU71S:781:3)
+    at TooltipProvider (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/components/ui/tooltip.tsx:19:3)
+    at QueryClientProvider (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=ec91fa8e:2874:3)
+    at AppWithProvider
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+ErrorBoundary.tsx:23 Error caught by boundary: TypeError: message.imagePreview.map is not a function
+    at maya.tsx:1498:49
+    at Array.map (<anonymous>)
+    at Maya (maya.tsx:1458:27)
+ 
+Object
