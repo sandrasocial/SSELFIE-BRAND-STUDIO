@@ -453,6 +453,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
 
       // PHASE 3: Lazy generation using cached Maya context for perfect consistency
       const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
+      console.log(`🔗 MAYA CONTEXT HANDOFF: Passing ${originalContext.length} chars to prompt generation`);
       finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, originalContext);
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt`);
     } else {
@@ -1369,7 +1370,7 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
 }
 
 // MAYA'S AI-DRIVEN PROMPT GENERATION - NO MORE HARDCODED TEMPLATES
-async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, mayaOriginalContext?: string): Promise<string> {
+async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalContext?: string): Promise<string> {
   // UNIFIED MAYA INTELLIGENCE: Use Maya's complete styling expertise to create detailed prompts
   
   try {
@@ -1439,7 +1440,7 @@ MAYA'S PROMPT ARCHITECTURE:
 - Build authentic energy and confidence in every detail${personalBrandContext}
 
 CONCEPT TO DEVELOP: "${conceptName}"
-MAYA'S ORIGINAL STYLING CONTEXT: "${mayaOriginalContext || 'No original context provided - use your complete professional styling expertise'}"
+MAYA'S ORIGINAL STYLING CONTEXT: "${originalContext || 'No original context provided - use your complete professional styling expertise'}"
 
 CONTEXT THREADING:
 - Build upon Maya's original concept intelligence 
@@ -1455,7 +1456,7 @@ CRITICAL INTELLIGENCE REQUIREMENTS:
 
 PROMPT GENERATION MANDATE:
 1. Start with trigger word: "${finalTriggerWord}"
-2. Use Maya's EXACT styling description: "${mayaOriginalContext}"
+2. Use Maya's EXACT styling description: "${originalContext}"
 3. ADD technical photography details: camera specs, lighting, composition
 4. DO NOT change any styling elements from Maya's original concept
 5. Result: Maya's styling vision + professional photography technical specifications
@@ -1478,7 +1479,7 @@ Generate ONLY the enhanced technical prompt that preserves Maya's exact styling 
           role: 'user',
           content: `PRESERVE Maya's exact styling and add technical photography specifications for: "${conceptName}"
 
-Maya's Original Styling (MUST preserve exactly): "${mayaOriginalContext}"
+Maya's Original Styling (MUST preserve exactly): "${originalContext}"
 
 Add technical photography details while keeping Maya's styling descriptions unchanged.`
         }]
