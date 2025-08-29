@@ -66,7 +66,7 @@ export const useMayaGeneration = (
   const [clickedButtons, setClickedButtons] = useState(new Map<number, Set<string>>());
   const [activeGenerations, setActiveGenerations] = useState(new Set<string>());
   const [generationQueue, setGenerationQueue] = useState<Array<{id: string, priority: number}>>([]);
-  const [preset, setPreset] = useState<Preset>('Editorial');
+  // REMOVED: Preset selection - Maya's AI now handles all parameter selection automatically
   const [seed, setSeed] = useState<string>('');
   const { createTimeout, addCleanup } = useMemoryCleanup();
 
@@ -200,7 +200,7 @@ export const useMayaGeneration = (
       return;
     }
     
-    console.log('Starting Maya generation:', { prompt, finalGenerationId, preset, seed });
+    console.log('Starting Maya generation:', { prompt, finalGenerationId });
     
     setActiveGenerations(prev => new Set([...prev, finalGenerationId]));
     
@@ -209,9 +209,7 @@ export const useMayaGeneration = (
       const response = await apiRequest('/api/maya/generate', 'POST', {
         prompt,
         chatId: currentChatId,
-        preset,
-        seed: seed ? Number(seed) : undefined,
-        count: 2 // Maya will intelligently adjust based on shot type
+        count: 2 // Maya will intelligently adjust based on shot type and choose optimal parameters
       });
       
       console.log('Maya generation response:', response);
@@ -604,10 +602,7 @@ export const useMayaGeneration = (
     setClickedButtons,
     activeGenerations,
     setActiveGenerations,
-    preset,
-    setPreset,
-    seed,
-    setSeed,
+    // REMOVED: preset, setPreset, seed, setSeed - Maya AI handles all parameters
     generateFromConcept,
     generateImages,
     saveToGallery,

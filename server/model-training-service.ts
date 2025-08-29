@@ -391,10 +391,10 @@ export class ModelTrainingService {
       // Personality-first: keep Maya's prompt, ensure trigger appears once and first
       const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
 
-      // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION
-      const intelligentParams = this.getIntelligentParameters(finalPrompt, count);
-      console.log(`🎯 MAYA INTELLIGENCE: Using ${intelligentParams.preset} preset for ${intelligentParams.reasoning}`);
-      console.log(`🎯 MAYA PARAMETERS: count=${intelligentParams.count} (using natural intelligence)`);
+      // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER SELECTION
+      const intelligentParams = await this.getIntelligentParameters(finalPrompt, count, userId);
+      console.log(`🎯 MAYA AI INTELLIGENCE: Using ${intelligentParams.preset} preset for ${intelligentParams.reasoning}`);
+      console.log(`🎯 MAYA AI PARAMETERS: count=${intelligentParams.count} (Claude API-driven selection)`);
 
       // ----- Merge generation parameters (defaults → Maya's intelligent preset → explicit overrides) -----
       const mayaPreset = FLUX_PRESETS[intelligentParams.preset];
@@ -801,78 +801,91 @@ export class ModelTrainingService {
     }
   }
 
-  // 🎯 MAYA'S INTELLIGENT PARAMETER SELECTION: Using real styling expertise
-  private static getIntelligentParameters(prompt: string, requestedCount: number): {
+  // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER INTELLIGENCE
+  // ZERO TOLERANCE ANTI-HARDCODE: Maya's AI chooses all parameters based on styling vision
+  private static async getIntelligentParameters(prompt: string, requestedCount: number, userId?: string): Promise<{
     preset: FluxPresetName;
     count: number;
     reasoning: string;
-  } {
-    const promptLower = prompt.toLowerCase();
-    
-    // CLOSE-UP PORTRAITS: Emotional intimacy, beauty focus
-    if (promptLower.includes('close-up') || promptLower.includes('portrait') || 
-        promptLower.includes('headshot') || promptLower.includes('face') ||
-        promptLower.includes('beauty') || promptLower.includes('intimate')) {
+  }> {
+    try {
+      // Import Maya's personality and Claude API connection
+      const { PersonalityManager } = await import('./agents/personalities/personality-config');
+      // Use Maya's unified routing system for Claude API calls
+      const { callClaude } = await import('./routes/consulting-agents-routes');
+      
+      // MAYA'S PARAMETER INTELLIGENCE PROMPT
+      const mayaParameterPrompt = `${PersonalityManager.getNaturalPrompt('maya')}
+
+🎯 MAYA'S TECHNICAL PARAMETER SELECTION:
+You're choosing the optimal technical parameters for generating this image prompt:
+"${prompt}"
+
+AVAILABLE PRESETS & THEIR STRENGTHS:
+• Identity: Perfect for close-up portraits and beauty shots (3:4 ratio, higher megapixels, strong LoRA)
+• Editorial: Balanced for fashion and artistic concepts (premium quality, editorial impact)
+• UltraPrompt: Best for full-body and environmental shots (9:16 ratio, maximum detail)
+• Fast: Quick generation for concepts and iterations (lower quality but faster)
+
+MAYA'S INTELLIGENT ANALYSIS:
+Based on your complete styling expertise, analyze this prompt and choose:
+1. The ideal preset that matches your creative vision
+2. Optimal image count (1-4 images based on concept complexity)
+3. Your reasoning as Maya (warm, confident, professional)
+
+RESPOND EXACTLY IN THIS JSON FORMAT:
+{
+  "preset": "Identity|Editorial|UltraPrompt|Fast",
+  "count": 1-4,
+  "reasoning": "Your warm Maya explanation of why these parameters perfect this styling vision"
+}`;
+
+      console.log(`🎯 MAYA PARAMETER AI: Analyzing prompt for intelligent parameter selection`);
+      
+      // Get Maya's AI-driven parameter selection
+      const mayaResponse = await callClaude(mayaParameterPrompt, []);
+      
+      // Extract JSON from Maya's response
+      let mayaChoice;
+      try {
+        const jsonMatch = mayaResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          mayaChoice = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found in Maya response');
+        }
+      } catch (parseError) {
+        console.log(`⚠️ MAYA PARAMETER PARSE FAILED, using Editorial default:`, parseError);
+        // Fallback to Editorial if Maya's response can't be parsed
+        return {
+          preset: 'Editorial' as FluxPresetName,
+          count: Math.min(requestedCount, 3),
+          reasoning: "Maya's styling intelligence applied with Editorial balance for sophisticated results"
+        };
+      }
+      
+      // Validate Maya's choices
+      const validPresets: FluxPresetName[] = ['Identity', 'Editorial', 'UltraPrompt', 'Fast'];
+      const selectedPreset = validPresets.includes(mayaChoice.preset) ? mayaChoice.preset : 'Editorial';
+      const selectedCount = Math.min(Math.max(mayaChoice.count || 2, 1), Math.min(requestedCount, 4));
+      
+      console.log(`✅ MAYA PARAMETER AI: Selected ${selectedPreset} preset with ${selectedCount} images - ${mayaChoice.reasoning}`);
+      
       return {
-        preset: 'Portrait' as FluxPresetName,
-        count: Math.min(requestedCount, 4),
-        reasoning: 'Close-up portrait detected - using Portrait preset for beauty focus and facial detail'
+        preset: selectedPreset as FluxPresetName,
+        count: selectedCount,
+        reasoning: mayaChoice.reasoning || "Maya's AI-driven parameter selection for optimal styling results"
       };
-    }
-    
-    // LIFESTYLE & ENVIRONMENTAL: Full scenes, storytelling
-    if (promptLower.includes('lifestyle') || promptLower.includes('environment') ||
-        promptLower.includes('destination') || promptLower.includes('travel') ||
-        promptLower.includes('scene') || promptLower.includes('walking') ||
-        promptLower.includes('street') || promptLower.includes('outdoor')) {
-      return {
-        preset: 'Lifestyle' as FluxPresetName,
-        count: Math.min(requestedCount, 3),
-        reasoning: 'Lifestyle/environmental shot detected - using Lifestyle preset for natural storytelling'
-      };
-    }
-    
-    // BUSINESS & PROFESSIONAL: Corporate, executive presence
-    if (promptLower.includes('business') || promptLower.includes('professional') ||
-        promptLower.includes('executive') || promptLower.includes('corporate') ||
-        promptLower.includes('office') || promptLower.includes('meeting') ||
-        promptLower.includes('suit') || promptLower.includes('blazer')) {
-      return {
-        preset: 'Professional' as FluxPresetName,
-        count: Math.min(requestedCount, 3),
-        reasoning: 'Business/professional content detected - using Professional preset for executive presence'
-      };
-    }
-    
-    // CREATIVE & ARTISTIC: Editorial fashion, artistic expression
-    if (promptLower.includes('creative') || promptLower.includes('artistic') ||
-        promptLower.includes('editorial') || promptLower.includes('fashion') ||
-        promptLower.includes('dramatic') || promptLower.includes('avant-garde') ||
-        promptLower.includes('conceptual') || promptLower.includes('studio')) {
+      
+    } catch (error) {
+      console.log(`⚠️ MAYA PARAMETER AI FAILED, using Editorial default:`, error);
+      
+      // Fallback that still respects Maya's intelligence
       return {
         preset: 'Editorial' as FluxPresetName,
         count: Math.min(requestedCount, 3),
-        reasoning: 'Creative/editorial content detected - using Editorial preset for artistic impact'
+        reasoning: "Maya's styling intelligence applied with Editorial sophistication (fallback mode)"
       };
     }
-    
-    // GLAMOUR & LUXURY: High-end fashion, luxury settings
-    if (promptLower.includes('glam') || promptLower.includes('luxury') ||
-        promptLower.includes('elegant') || promptLower.includes('sophisticated') ||
-        promptLower.includes('evening') || promptLower.includes('gala') ||
-        promptLower.includes('red carpet') || promptLower.includes('champagne')) {
-      return {
-        preset: 'Glamour' as FluxPresetName,
-        count: Math.min(requestedCount, 3),
-        reasoning: 'Glamour/luxury content detected - using Glamour preset for high-end sophistication'
-      };
-    }
-    
-    // DEFAULT: Balanced editorial approach for general concepts
-    return {
-      preset: 'Editorial' as FluxPresetName,
-      count: Math.min(requestedCount, 3),
-      reasoning: 'General styling concept - using Editorial preset for balanced sophistication'
-    };
   }
 }
