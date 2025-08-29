@@ -1109,14 +1109,17 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   
   // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation
-  // Pattern: **Concept Name** followed by styling details
-  const conceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
+  // Pattern 1: Multiple **Concept Name** followed by styling details
+  // Pattern 2: Single concept with "Story Collection Preview:" or similar formats
+  const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
+  const singleConceptPattern = /\*\*([^*\n]+(?:Collection|Preview|Concept|Look|Style|Vibe)[^*\n]*)\*\*\s*\*([^*]+)\*/gs;
   
   let match;
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  while ((match = conceptPattern.exec(response)) !== null) {
+  // Try multi-concept pattern first
+  while ((match = multiConceptPattern.exec(response)) !== null) {
     let conceptName = match[1].trim();
     let conceptContent = match[2].trim();
     
@@ -1212,6 +1215,73 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     conceptNumber++;
     
     console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
+  }
+  
+  // If no multi-concepts found, try single concept pattern
+  if (concepts.length === 0) {
+    console.log('🎯 CONCEPT PARSING: No multi-concepts found, trying single concept detection...');
+    
+    // Look for single concept formats like "Story Collection Preview: Parisian Street Discovery"
+    const singleMatch = response.match(/\*\*([^*\n]*(?:Collection|Preview|Concept|Look|Style|Vibe|Story)[^*\n]*)\*\*\s*\*?([^*]*)/i);
+    
+    if (singleMatch) {
+      let conceptName = singleMatch[1].trim();
+      let conceptContent = singleMatch[2] || '';
+      
+      // Also look for italicized description after the concept name
+      const italicMatch = response.match(/\*([^*]+creating[^*]*)\*/i) || response.match(/\*([^*]+captures[^*]*)\*/i);
+      if (italicMatch) {
+        conceptContent = italicMatch[1].trim() + '\n' + conceptContent;
+      }
+      
+      // Extract the actual prompt if it exists
+      const promptMatch = response.match(/\*([^*]*woman[^*]*photography[^*]*)\*/i);
+      if (promptMatch) {
+        conceptContent += '\n\nGenerated Prompt: ' + promptMatch[1].trim();
+      }
+      
+      if (conceptName.length > 8 && conceptContent.length > 20) {
+        const concept: ConceptCard = {
+          id: `concept_single_${Date.now()}`,
+          title: conceptName,
+          description: italicMatch ? italicMatch[1].trim() : conceptContent.substring(0, 100) + '...',
+          originalContext: `${conceptName}: ${conceptContent}`.trim(),
+          fullPrompt: undefined,
+          canGenerate: true,
+          isGenerating: false,
+          generatedImages: []
+        };
+        
+        concepts.push(concept);
+        console.log(`🎯 SINGLE CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
+      }
+    }
+    
+    // If still no concepts, try a more general approach
+    if (concepts.length === 0) {
+      // Look for any bold concept-like titles
+      const generalMatch = response.match(/\*\*([^*\n]{15,100})\*\*/);
+      if (generalMatch) {
+        const conceptName = generalMatch[1].trim();
+        const conceptContent = response.substring(response.indexOf(conceptName) + conceptName.length, response.length).trim();
+        
+        if (conceptContent.length > 50) {
+          const concept: ConceptCard = {
+            id: `concept_general_${Date.now()}`,
+            title: conceptName,
+            description: conceptContent.substring(0, 120) + (conceptContent.length > 120 ? '...' : ''),
+            originalContext: `${conceptName}: ${conceptContent}`.trim(),
+            fullPrompt: undefined,
+            canGenerate: true,
+            isGenerating: false,
+            generatedImages: []
+          };
+          
+          concepts.push(concept);
+          console.log(`🎯 GENERAL CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
+        }
+      }
+    }
   }
   
   if (concepts.length === 0) {
