@@ -14,8 +14,9 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 - **Phase 2**: Unified context system with AI-first categorization respects Maya's intelligent styling decisions  
 - **Phase 3**: Performance optimization with lazy generation and memory caching reduces Claude API calls by ~50%
 - **System Cleanup**: Legacy code removal and production optimization completed
-- **Hardcode Elimination**: Complete audit identified and removed 25+ hardcoded fashion items (camel coat, blazer, silk camisole, cashmere, structured bag, etc.) that were overriding Maya's styling intelligence in ai-photoshoot.tsx and MayaCollectionManager.tsx
-- **Result**: Perfect consistency between Maya's concept descriptions and generated prompts with blazing performance. Maya now exercises full creative authority over styling decisions.
+- **Hardcode Elimination**: Complete audit identified and removed 25+ hardcoded fashion items (camel coat, blazer, silk camisole, cashmere, structured bag, etc.) that were overriding Maya's styling intelligence
+- **Gallery Duplicate Fix**: Resolved critical issue where ALL generated images appeared in gallery instead of only user-hearted images. Fixed `/api/gallery-images` endpoint to filter for explicitly saved images only.
+- **Result**: Perfect consistency between Maya's concept descriptions and generated prompts with blazing performance. Maya now exercises full creative authority, and the correct user journey is restored: Maya chat stores ALL images permanently, SSELFIE gallery only shows user-hearted favorites.
 
 ## System Architecture
 
