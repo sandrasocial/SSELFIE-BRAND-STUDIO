@@ -19,16 +19,31 @@ import { trackMayaPerformance } from '../utils/webVitals';
 import { performanceMonitor } from '../utils/performanceMonitor';
 import '../maya-onboarding.css';
 
-interface ConceptCard {
+// Maya-specific interface reflecting her SSELFIE Studio categories and styling expertise
+interface MayaConceptCard {
   id: string;
   title: string;
-  description: string;  
+  description: string;
+  category?: 'Business' | 'Professional & Authority' | 'Lifestyle' | 'Casual & Authentic' | 
+            'Story' | 'Behind the Scenes' | 'Instagram' | 'Feed & Stories' | 
+            'Travel' | 'Adventures & Destinations' | 'Outfits' | 'Fashion & Style' |
+            'GRWM' | 'Get Ready With Me' | 'Future Self' | 'Aspirational Vision' |
+            'B&W' | 'Timeless & Artistic' | 'Studio';
+  stylingExpertise?: {
+    outfitFormula?: string;
+    hairAndBeauty?: string;
+    colorPalette?: string;
+    location?: string;
+    mood?: string;
+  };
   canGenerate: boolean;
   isGenerating: boolean;
   generatedImages?: string[];
+  fullPrompt?: string; // Maya's complete AI-generated styling prompt
 }
 
-interface ChatMessage {
+// Maya-specific message interface reflecting her professional expertise
+interface MayaChatMessage {
   id?: number;
   role: 'user' | 'maya';
   content: string;
@@ -40,8 +55,14 @@ interface ChatMessage {
   questions?: string[];
   stepGuidance?: string;
   isOnboarding?: boolean;
-  generationId?: string; // Unique ID to track specific generation for polling
-  conceptCards?: ConceptCard[];
+  generationId?: string;
+  conceptCards?: MayaConceptCard[];
+  mayaPersonality?: {
+    isWarmEncouraging?: boolean;
+    isStylingExpert?: boolean;
+    usesPersonalBrandContext?: boolean;
+    includesSandrasExpertise?: boolean;
+  };
 }
 
 interface MayaChat {
@@ -68,7 +89,7 @@ function Maya() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Custom hooks for organized state management
+  // Maya-specific hooks for organized state management
   const {
     messages,
     setMessages,

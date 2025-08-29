@@ -38,7 +38,8 @@ interface ConceptCard {
   hasGenerated?: boolean;
 }
 
-interface ChatMessage {
+// Maya-specific message interface reflecting her professional expertise
+interface MayaChatMessage {
   id?: number;
   role: 'user' | 'maya';
   content: string;
@@ -52,10 +53,16 @@ interface ChatMessage {
   isOnboarding?: boolean;
   generationId?: string;
   conceptCards?: ConceptCard[];
+  mayaPersonality?: {
+    isWarmEncouraging?: boolean;
+    isStylingExpert?: boolean;
+    usesPersonalBrandContext?: boolean;
+    includesSandrasExpertise?: boolean;
+  };
 }
 
 export const useMayaChat = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<MayaChatMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
   const { toast } = useToast();
