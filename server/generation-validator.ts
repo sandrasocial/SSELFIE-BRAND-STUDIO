@@ -123,13 +123,13 @@ export function cleanMayaPrompt(prompt: string): string {
     // Remove conversational asterisk content - complete Maya responses
     .replace(/\*[^*]*\*/g, '')
     
-    // Remove Maya's excited openings and personality responses
-    .replace(/^[^.!?]*(?:Oh honey|honey|babe|love|girl|gorgeous|stunning|incredible|amazing|perfect|absolutely|trust me|chef's kiss|I'm getting|getting major|giving me|energy from|is giving|something that shows)[^.!?]*[.!?]/gi, '')
+    // Remove ONLY Maya's conversational openings, preserve specific styling descriptions
+    .replace(/^[^.!?]*(?:Oh honey|hey honey|babe|love|girl|trust me|chef's kiss|I'm getting|getting major|giving me|energy from)[^.!?]*[.!?]/gi, '')
     .replace(/[.!?]\s*(?:your empire-building era|this look says|you're ready to|and this look|ready to own)[^.!?]*[.!?]?$/gi, '.')
     
-    // Remove Maya's style commentary that creates prompt contamination
-    .replace(/(?:OMG|omg|Yes|YES|Amazing|AMAZING|Perfect|PERFECT|Stunning|STUNNING|Incredible|INCREDIBLE)!?\s*/gi, '')
-    .replace(/(?:this is giving me|I'm obsessing over|I can already see|we're talking about|I'm about to style|let me create)/gi, '')
+    // Remove ONLY generic exclamations, preserve color/styling adjectives like "gorgeous sage green"
+    .replace(/(?:OMG|omg|Yes|YES|Amazing|AMAZING|Perfect|PERFECT|Stunning|STUNNING|Incredible|INCREDIBLE)(?=!?\s*[A-Z])/gi, '')
+    .replace(/(?:this is giving me|I'm obsessing over|I can already see|we're talking about|I'm about to style|let me create)\s*/gi, '')
     
     // Remove split image trigger language
     .replace(/(?:transformation|before and after|split|diptych|side.by.side|comparison|vs\.|versus)/gi, '')
