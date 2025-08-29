@@ -361,6 +361,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     // Concept cards have embedded prompts ready, custom prompts get Maya's full Claude API styling expertise
     if (conceptName && conceptName.length > 0) {
       // PHASE 3: Streamlined context retrieval using high-performance caching
+      const conceptId = req.body.conceptId;
       let originalContext = '';
       
       // PRIORITY 1: Instant context retrieval from memory cache
@@ -416,7 +417,6 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
       finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, originalContext);
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt`);
-      
     } else {
       // PHASE 3: Custom prompt enhancement using Maya's styling intelligence  
       finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`);
@@ -429,9 +429,16 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       finalPrompt = `${generationInfo.triggerWord} ${cleanPrompt}`;
     }
     
+    // Get context for category detection - retrieve from cache if concept generation was used
+    let contextForCategory = '';
+    if (conceptName && conceptName.length > 0) {
+      const cacheKey = `${userId}-${conceptId || conceptName}`;
+      const cachedContext = mayaContextCache.get(cacheKey);
+      contextForCategory = cachedContext ? cachedContext.originalContext : '';
+    }
+    
     // CLEANUP: Simplified category detection respecting Maya's AI intelligence
     let categoryContext = '';
-    const contextForCategory = originalContext || '';
     
     if (contextForCategory.length > 0) {
       const contextLower = contextForCategory.toLowerCase();
@@ -1148,7 +1155,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     
     // PHASE 3 OPTIMIZATION: Lazy Generation - No upfront prompt generation
     // Store context for instant generation when user clicks, reducing Claude API calls by ~50%
-    console.log(`📦 MAYA CONTEXT CACHED: "${conceptName}" context cached (${fullOriginalContext.length} chars) for lazy generation`);
+    // PHASE 3: Context cached for lazy generation
     
     const concept: ConceptCard = {
       id: `concept_${conceptNumber}_${Date.now()}`,
@@ -1164,13 +1171,13 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     concepts.push(concept);
     conceptNumber++;
     
-    console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with ${embeddedPrompt ? embeddedPrompt.length : 0} char prompt`);
+    console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
   }
   
   if (concepts.length === 0) {
     console.log('🎯 CONCEPT PARSING: No styling concepts found in response');
   } else {
-    console.log(`✅ CONCEPT PARSING SUCCESS: Extracted ${concepts.length} styling concepts with embedded prompts`);
+    console.log(`✅ CONCEPT PARSING SUCCESS: Extracted ${concepts.length} styling concepts with cached context`);
   }
   
   return concepts;
