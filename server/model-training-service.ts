@@ -407,11 +407,11 @@ export class ModelTrainingService {
       // ----- PHASE 1 FIX: Use Maya's optimized parameters (temporary fallback while fixing import) -----
       const shotType = this.determineShotTypeFromPrompt(finalPrompt);
       
-      // Maya's optimized fluxOptimization parameters (user-tuned LoRA 1.1)
+      // Maya's anatomy-optimized fluxOptimization parameters (guidance 5.0 for better hand quality)
       const mayaFluxParams = {
-        closeUpPortrait: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" },
-        halfBodyShot: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" },
-        fullScenery: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" }
+        closeUpPortrait: { guidance_scale: 5.0, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" },
+        halfBodyShot: { guidance_scale: 5.0, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" },
+        fullScenery: { guidance_scale: 5.0, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" }
       }[shotType];
       
       console.log(`🎯 MAYA PERSONALITY INTELLIGENCE: Using ${shotType} parameters from Maya's fluxOptimization`);
