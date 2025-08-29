@@ -612,23 +612,40 @@ function Maya() {
           background: var(--white);
         }
 
-        /* Chat Header */
+        /* Chat Header - Editorial Style */
         .chat-header {
-          padding: 30px 40px;
+          padding: 60px 40px 40px;
           border-bottom: 1px solid var(--accent-line);
           background: var(--white);
+          position: relative;
+        }
+
+        .chat-eyebrow {
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.4em;
+          text-transform: uppercase;
+          color: var(--soft-gray);
+          margin-bottom: 24px;
         }
 
         .chat-title {
           font-family: 'Times New Roman', serif;
-          font-size: 24px;
+          font-size: clamp(2rem, 4vw, 3rem);
           font-weight: 200;
-          margin-bottom: 8px;
+          letter-spacing: -0.01em;
+          line-height: 1;
+          text-transform: uppercase;
+          margin-bottom: 16px;
+          color: var(--black);
         }
 
         .chat-subtitle {
-          font-size: 14px;
+          font-size: 16px;
           color: var(--soft-gray);
+          font-weight: 300;
+          line-height: 1.6;
+          max-width: 400px;
         }
 
         /* Messages Container */
@@ -638,20 +655,26 @@ function Maya() {
           padding: 40px;
         }
 
-        /* Welcome State */
+        /* Welcome State - Editorial Style */
         .welcome-state {
           text-align: center;
-          max-width: 600px;
-          margin: 60px auto;
+          max-width: 800px;
+          margin: 80px auto;
+          padding: 0 40px;
         }
 
         .maya-avatar {
-          width: 80px;
-          height: 80px;
+          width: 120px;
+          height: 120px;
           border-radius: 50%;
-          margin: 0 auto 30px;
+          margin: 0 auto 40px;
           overflow: hidden;
-          border: 2px solid var(--accent-line);
+          border: 1px solid var(--accent-line);
+          transition: all 300ms ease;
+        }
+
+        .maya-avatar:hover {
+          transform: scale(1.05);
         }
 
         .maya-avatar img {
@@ -666,24 +689,31 @@ function Maya() {
           letter-spacing: 0.4em;
           text-transform: uppercase;
           color: var(--soft-gray);
-          margin-bottom: 20px;
+          margin-bottom: 32px;
         }
 
         .welcome-title {
           font-family: 'Times New Roman', serif;
-          font-size: clamp(2rem, 4vw, 3rem);
+          font-size: clamp(2.5rem, 5vw, 4rem);
           font-weight: 200;
-          letter-spacing: -0.01em;
-          line-height: 1;
+          letter-spacing: -0.02em;
+          line-height: 1.1;
           text-transform: uppercase;
-          margin-bottom: 20px;
+          margin-bottom: 32px;
+          color: var(--black);
         }
 
         .welcome-description {
-          font-size: 16px;
+          font-size: 18px;
           line-height: 1.6;
-          margin-bottom: 40px;
+          margin-bottom: 60px;
           color: var(--soft-gray);
+          font-weight: 300;
+          letter-spacing: -0.01em;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
+          margin-bottom: 60px;
         }
 
         /* Style Quick-Select / Collection Grid */
@@ -929,23 +959,33 @@ function Maya() {
           color: var(--soft-gray);
         }
 
-        /* Input Area */
+        /* Input Area - Editorial Style */
         .input-area {
-          padding: 30px 40px;
+          padding: 40px;
           border-top: 1px solid var(--accent-line);
           background: var(--white);
         }
 
         .input-container {
           display: flex;
-          gap: 15px;
+          gap: 16px;
           align-items: flex-end;
+          max-width: 900px;
+          margin: 0 auto;
         }
 
         .input-field {
           flex: 1;
           border: 1px solid var(--accent-line);
           background: var(--white);
+          padding: 20px 24px;
+          border-radius: 4px;
+          font-size: 16px;
+          font-family: inherit;
+          font-weight: 300;
+          letter-spacing: -0.01em;
+          line-height: 1.5;
+          transition: all 300ms ease;
           padding: 16px 20px;
           font-size: 14px;
           line-height: 1.4;
@@ -958,31 +998,41 @@ function Maya() {
         .input-field:focus {
           outline: none;
           border-color: var(--black);
+          background: var(--mid-gray);
         }
 
         .input-field::placeholder {
           color: var(--soft-gray);
-          text-transform: uppercase;
-          font-size: 11px;
-          letter-spacing: 0.3em;
+          font-weight: 300;
         }
 
-        .send-btn {
-          padding: 16px 24px;
+        .send-button {
+          padding: 20px 32px;
           background: var(--black);
           color: var(--white);
           border: none;
+          border-radius: 4px;
           font-size: 11px;
           font-weight: 400;
           letter-spacing: 0.3em;
           text-transform: uppercase;
           cursor: pointer;
           transition: all 300ms ease;
+          min-width: 120px;
+          min-height: 60px;
         }
 
-        .send-btn:hover {
-          background: var(--soft-gray);
+        .send-button:hover:not(:disabled) {
+          background: #333;
+          transform: translateY(-1px);
         }
+
+        .send-button:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+
+
 
         /* Path Selection Cards - Editorial Style */
         .path-selection-grid {
@@ -1513,6 +1563,7 @@ function Maya() {
         <main className={`chat-area chat-interface ${isOnboardingMode ? 'maya-onboarding-mode' : 'maya-photoshoot-mode'}`}>
           {/* Chat Header */}
           <div className="chat-header">
+            <div className="chat-eyebrow">Personal Brand Photography</div>
             <h1 className="chat-title">Maya Studio</h1>
             <p className="chat-subtitle">Create photos that build your brand</p>
             {/* REMOVED: Manual preset/seed controls - Maya's AI handles all technical parameters automatically */}
@@ -1957,7 +2008,7 @@ function Maya() {
               <button
                 onClick={() => sendMessage()}
                 disabled={!input.trim()}
-                className="send-btn"
+                className="send-button"
               >
                 {isOnboardingMode ? "Share" : "Send"}
               </button>
