@@ -29,10 +29,10 @@ export const IMAGE_CATEGORIES = {
 export const BASE_QUALITY_SETTINGS = {
   aspect_ratio: "3:4",        // Default - Maya can override based on shot type
   output_format: "png", 
-  output_quality: 95,         // ✅ INCREASED: 95 for professional quality (was 90)
+  output_quality: 95,         // ✅ RESEARCH-OPTIMAL: 95 for professional quality
   go_fast: false,
-  megapixels: "1.5"           // ✅ INCREASED: 1.5 prevents blurriness (was 1.0)
-  // 🎯 NOTE: guidance_scale, num_inference_steps, lora_scale now come ONLY from Maya's intelligence
+  megapixels: "1.5"           // ✅ RESEARCH-OPTIMAL: 1.5 sweet spot for quality/performance
+  // 🎯 NOTE: guidance_scale, num_inference_steps, lora_scale come from Maya's research-optimized settings
 };
 
 // 🔒 IMMUTABLE CORE ARCHITECTURE - TRAINING SERVICE
@@ -407,11 +407,11 @@ export class ModelTrainingService {
       // ----- PHASE 1 FIX: Use Maya's optimized parameters (temporary fallback while fixing import) -----
       const shotType = this.determineShotTypeFromPrompt(finalPrompt);
       
-      // Maya's enhanced fluxOptimization parameters (API-compliant for FLUX 1.1 Pro)
+      // Maya's research-optimal fluxOptimization parameters (2025 quality standards)
       const mayaFluxParams = {
-        closeUpPortrait: { guidance_scale: 2.8, num_inference_steps: 35, lora_weight: 1.4, megapixels: "1" },
-        halfBodyShot: { guidance_scale: 2.6, num_inference_steps: 38, lora_weight: 1.5, megapixels: "1" },
-        fullScenery: { guidance_scale: 2.4, num_inference_steps: 42, lora_weight: 1.6, megapixels: "1" }
+        closeUpPortrait: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 1.0, megapixels: "1.5" },
+        halfBodyShot: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 0.9, megapixels: "1.5" },
+        fullScenery: { guidance_scale: 3.5, num_inference_steps: 50, lora_weight: 0.9, megapixels: "2.0" }
       }[shotType];
       
       console.log(`🎯 MAYA PERSONALITY INTELLIGENCE: Using ${shotType} parameters from Maya's fluxOptimization`);

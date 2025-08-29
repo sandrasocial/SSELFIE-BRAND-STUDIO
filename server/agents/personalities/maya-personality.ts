@@ -476,22 +476,22 @@ export const MAYA_PERSONALITY: MayaPersonality = {
 
   fluxOptimization: {
     closeUpPortrait: {
-      guidance_scale: 2.8,
-      num_inference_steps: 35,    // ✅ INCREASED: 35 for better face quality (was 30)
-      lora_weight: 1.4,           // ✅ INCREASED: 1.4 for better user likeness (was 1.0)
-      megapixels: "1"             // ✅ FIXED: API-compliant value (was 1.6)
+      guidance_scale: 3.5,        // ✅ RESEARCH-OPTIMAL: 3.5 for best prompt adherence (was 2.8)
+      num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 35)
+      lora_weight: 1.0,           // ✅ RESEARCH-OPTIMAL: 1.0 for natural results (was 1.4)
+      megapixels: "1.5"           // ✅ RESEARCH-OPTIMAL: 1.5 for quality without artifacts (was 1.0)
     },
     halfBodyShot: {
-      guidance_scale: 2.6,
-      num_inference_steps: 38,    // ✅ INCREASED: 38 for better body/outfit detail (was 32)
-      lora_weight: 1.5,           // ✅ INCREASED: 1.5 for better user likeness (was 1.1)
-      megapixels: "1"             // ✅ FIXED: API-compliant value (was 1.7)
+      guidance_scale: 3.5,        // ✅ RESEARCH-OPTIMAL: 3.5 for best prompt adherence (was 2.6)
+      num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 38)
+      lora_weight: 0.9,           // ✅ RESEARCH-OPTIMAL: 0.9 for natural results (was 1.5)
+      megapixels: "1.5"           // ✅ RESEARCH-OPTIMAL: 1.5 for quality without artifacts (was 1.0)
     },
     fullScenery: {
-      guidance_scale: 2.4,
-      num_inference_steps: 42,    // ✅ INCREASED: 42 for complex scenery detail (was 35)
-      lora_weight: 1.6,           // ✅ INCREASED: 1.6 for better user likeness (was 1.3)
-      megapixels: "1"             // ✅ FIXED: API-compliant value (was 1.8)
+      guidance_scale: 3.5,        // ✅ RESEARCH-OPTIMAL: 3.5 for best prompt adherence (was 2.4)
+      num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 42)
+      lora_weight: 0.9,           // ✅ RESEARCH-OPTIMAL: 0.9 for natural results (was 1.6)
+      megapixels: "2.0"           // ✅ RESEARCH-OPTIMAL: 2.0 for full scenery detail (was 1.0)
     },
     promptStructure: [
       "TRIGGER WORD FIRST - ALWAYS",

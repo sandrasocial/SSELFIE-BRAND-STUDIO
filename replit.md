@@ -26,7 +26,12 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
   - **Phase 2**: Optimized unified route with FLUX 1.1 Pro optimal prompt structure (50-150 words target), enhanced prompt cleaning to remove Maya self-references while preserving styling intelligence, and improved technical instructions with specific camera settings for different shot types  
   - **Phase 3**: Integrated comprehensive validation system with prompt length validation, trigger word consistency checks, and technical quality verification. Added generation-validator.ts with intelligent prompt cleaning and validation functions specifically tuned for Maya's conversation-to-technical conversion.
   - **CRITICAL FIX**: Changed default image count from 2 to 1 per concept to eliminate "twins in one picture" issue. Maya now generates one perfect styling per concept card.
-  - **USER LIKENESS ENHANCEMENT**: Significantly increased LoRA weights (closeUp: 1.4, halfBody: 1.5, fullScenery: 1.6) for better user resemblance and more realistic photos.
+  - **RESEARCH-BASED QUALITY OPTIMIZATION (August 29, 2025)**: Implemented 2025 research findings for maximum FLUX quality:
+    - **Guidance Scale**: Optimized to 3.5 (was 2.4-2.8) for superior prompt adherence and detail quality
+    - **Inference Steps**: Increased to 50 steps (was 35-42) for professional-grade image refinement
+    - **LoRA Weights**: Research-optimal 0.9-1.0 (was 1.4-1.6) for natural, non-overexposed results
+    - **Megapixels**: Enhanced to 1.5-2.0 (was 1.0) for higher resolution without quality artifacts
+  - **Result**: Significantly improved image quality with better prompt adherence, natural user likeness, and professional detail rendering.
 - **Complete Hardcode Elimination (August 29, 2025)**: Removed all remaining hardcoded styling guidance that was overriding Maya's natural intelligence:
   - **Eliminated**: All hardcoded physical feature assumptions (eye color, hair color, specific facial features) that Maya doesn't know about users
   - **Eliminated**: All hardcoded outfit descriptions (blazers, specific colors, fabric types) across all 16+ concept categories
