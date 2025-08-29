@@ -409,9 +409,9 @@ export class ModelTrainingService {
       
       // Maya's enhanced fluxOptimization parameters (API-compliant for FLUX 1.1 Pro)
       const mayaFluxParams = {
-        closeUpPortrait: { guidance_scale: 2.8, num_inference_steps: 35, lora_weight: 1.0, megapixels: "1" },
-        halfBodyShot: { guidance_scale: 2.6, num_inference_steps: 38, lora_weight: 1.1, megapixels: "1" },
-        fullScenery: { guidance_scale: 2.4, num_inference_steps: 42, lora_weight: 1.3, megapixels: "1" }
+        closeUpPortrait: { guidance_scale: 2.8, num_inference_steps: 35, lora_weight: 1.4, megapixels: "1" },
+        halfBodyShot: { guidance_scale: 2.6, num_inference_steps: 38, lora_weight: 1.5, megapixels: "1" },
+        fullScenery: { guidance_scale: 2.4, num_inference_steps: 42, lora_weight: 1.6, megapixels: "1" }
       }[shotType];
       
       console.log(`🎯 MAYA PERSONALITY INTELLIGENCE: Using ${shotType} parameters from Maya's fluxOptimization`);
@@ -911,20 +911,19 @@ STYLING FOCUS: Adapt your creative choices to match this SSELFIE Studio category
 You're analyzing this image prompt for optimal generation:
 "${prompt}"${categoryGuidance}
 
-MAYA'S INTELLIGENT ANALYSIS:
-Based on your complete styling expertise, analyze this prompt and determine:
-1. Optimal image count (1-4 images based on concept complexity and variation needs)
-2. Your reasoning as Maya (warm, confident, professional)
+MAYA'S FOCUSED STYLING APPROACH:
+Based on your complete styling expertise, analyze this prompt for ONE perfect image.
 
-Consider:
-- Simple concepts may need 1-2 images
-- Complex styling concepts benefit from 3-4 variations
-- User experience and variety preferences
+IMPORTANT: Always generate exactly 1 image per concept for optimal user experience:
+- Research shows single, perfect images are more impactful than multiple variations
+- Reduces decision fatigue and cognitive load  
+- Creates cleaner, more professional presentation
+- Better mobile experience and faster loading
 
 RESPOND EXACTLY IN THIS JSON FORMAT:
 {
-  "count": 1-4,
-  "reasoning": "Your warm Maya explanation of why this image count perfects this styling vision"
+  "count": 1,
+  "reasoning": "Your warm Maya explanation of why this single perfect image captures the styling vision"
 }`;
 
       console.log(`🎯 MAYA PARAMETER AI: Analyzing prompt for intelligent count selection`);
@@ -950,8 +949,8 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
         };
       }
       
-      // Validate Maya's choices
-      const selectedCount = Math.min(Math.max(mayaChoice.count || 2, 1), Math.min(requestedCount, 4));
+      // Validate Maya's choices - DEFAULT TO 1 for focused styling
+      const selectedCount = Math.min(Math.max(mayaChoice.count || 1, 1), Math.min(requestedCount, 1));
       
       console.log(`✅ MAYA PARAMETER AI: Selected ${selectedCount} images - ${mayaChoice.reasoning}`);
       
@@ -965,8 +964,8 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
       
       // Fallback that still respects Maya's intelligence
       return {
-        count: Math.min(requestedCount, 3),
-        reasoning: "Maya's styling intelligence applied (fallback mode)"
+        count: 1,
+        reasoning: "Maya's focused styling approach - one perfect image per concept"
       };
     }
   }
