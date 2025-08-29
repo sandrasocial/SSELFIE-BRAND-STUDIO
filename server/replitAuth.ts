@@ -201,9 +201,25 @@ export async function setupAuth(app: Express) {
   
   passport.deserializeUser((user: any, cb) => {
     try {
+      // CRITICAL FIX: Properly deserialize user from session data
+      console.log('🔍 DESERIALIZING USER:', JSON.stringify(user, null, 2));
+      
+      // If user is already in the correct format, use it
+      if (user && user.claims) {
+        cb(null, user);
+        return;
+      }
+      
+      // If user is null or invalid, fail authentication
+      if (!user) {
+        console.log('❌ DESERIALIZE: No user data');
+        cb(null, false);
+        return;
+      }
+      
       cb(null, user);
     } catch (error) {
-      console.error('Passport deserialize error:', error);
+      console.error('❌ Passport deserialize error:', error);
       cb(null, false); // Continue without user instead of throwing
     }
   });
@@ -459,10 +475,27 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  // DEBUGGING: Add detailed logging to identify the issue
+  console.log('🔍 AUTH CHECK:', {
+    hasIsAuthenticatedFunction: typeof (req as any).isAuthenticated === 'function',
+    isAuthenticatedResult: (req as any).isAuthenticated ? (req as any).isAuthenticated() : 'function_missing',
+    hasUser: !!req.user,
+    userEmail: (req.user as any)?.claims?.email || 'no_email',
+    sessionId: (req as any).sessionID,
+    sessionData: req.session ? Object.keys(req.session) : 'no_session',
+    cookieHeader: req.headers.cookie,
+    url: req.url
+  });
+
   const user = req.user as any;
 
-
   if (!(req as any).isAuthenticated || !(req as any).isAuthenticated() || !user) {
+    console.log('❌ AUTH FAILED:', {
+      hasFunction: !!(req as any).isAuthenticated,
+      functionResult: (req as any).isAuthenticated ? (req as any).isAuthenticated() : 'N/A',
+      hasUser: !!user,
+      url: req.url
+    });
     return res.status(401).json({ message: "Unauthorized" });
   }
 
