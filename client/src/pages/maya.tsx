@@ -127,6 +127,7 @@ function Maya() {
 
   // Remaining local UI state
   const [input, setInput] = useState('');
+  const [showCategorySelection, setShowCategorySelection] = useState(false);
   
   // Performance optimizations
   const { addCleanup } = useMemoryCleanup();
@@ -1616,7 +1617,7 @@ function Maya() {
                               More Concepts Like This
                             </button>
                             <button
-                              onClick={() => sendChatMessage('I want a completely new style direction', input, setInput, isOnboardingMode, isQuickStartMode, setOnboardingStatus, setIsOnboardingMode)}
+                              onClick={() => setShowCategorySelection(true)}
                               style={{
                                 padding: '12px 24px',
                                 background: 'transparent',
@@ -1628,6 +1629,121 @@ function Maya() {
                               }}
                             >
                               New Style Direction
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Category Selection Modal - Triggered by "New Style Direction" */}
+                      {showCategorySelection && index === messages.length - 1 && (
+                        <div style={{
+                          position: 'fixed',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'rgba(255, 255, 255, 0.95)',
+                          backdropFilter: 'blur(8px)',
+                          zIndex: 1000,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          padding: '40px 20px'
+                        }}>
+                          <div style={{
+                            maxWidth: '800px',
+                            width: '100%',
+                            textAlign: 'center'
+                          }}>
+                            <div className="maya-avatar" style={{ marginBottom: '20px' }}>
+                              <img src="https://i.postimg.cc/mkqSzq3M/out-1-20.png" alt="Maya" style={{ width: '80px', height: '80px', borderRadius: '50%' }} />
+                            </div>
+                            <h2 style={{ 
+                              fontFamily: 'Times New Roman, serif', 
+                              fontSize: '32px', 
+                              marginBottom: '16px',
+                              fontWeight: '200',
+                              letterSpacing: '0.1em',
+                              textTransform: 'uppercase' 
+                            }}>
+                              What photos does your business need most?
+                            </h2>
+                            <p style={{ 
+                              fontSize: '16px', 
+                              lineHeight: '1.6', 
+                              marginBottom: '40px',
+                              color: '#666',
+                              maxWidth: '600px',
+                              margin: '0 auto 40px'
+                            }}>
+                              Let's explore a completely new style direction for your brand photos.
+                            </p>
+
+                            {/* Style Categories */}
+                            <div className="style-quickselect" style={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                              gap: '16px',
+                              marginBottom: '40px'
+                            }}>
+                              <div className="style-option" onClick={() => { handleStyleSelect('business-photos'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">Business</div>
+                                <div className="style-label">Professional & Authority</div>
+                              </div>
+                              <div className="style-option" onClick={() => { handleStyleSelect('lifestyle-photos'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">Lifestyle</div>
+                                <div className="style-label">Casual & Authentic</div>
+                              </div>
+                              <div className="style-option" onClick={() => { handleStyleSelect('story-photos'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">Story</div>
+                                <div className="style-label">Behind the Scenes</div>
+                              </div>
+                              <div className="style-option" onClick={() => { handleStyleSelect('instagram-photos'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">Instagram</div>
+                                <div className="style-label">Feed & Stories</div>
+                              </div>
+                              <div className="style-option" onClick={() => { handleStyleSelect('travel-photos'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">Travel</div>
+                                <div className="style-label">Adventures & Destinations</div>
+                              </div>
+                              <div className="style-option" onClick={() => { handleStyleSelect('outfit-photos'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">Outfits</div>
+                                <div className="style-label">Fashion & Style</div>
+                              </div>
+                              <div className="style-option" onClick={() => { handleStyleSelect('grwm-photos'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">GRWM</div>
+                                <div className="style-label">Get Ready With Me</div>
+                              </div>
+                              <div className="style-option" onClick={() => { handleStyleSelect('future-self'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">Future Self</div>
+                                <div className="style-label">Aspirational Vision</div>
+                              </div>
+                              <div className="style-option" onClick={() => { handleStyleSelect('bw-photos'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">B&W</div>
+                                <div className="style-label">Timeless & Artistic</div>
+                              </div>
+                              <div className="style-option" onClick={() => { handleStyleSelect('studio-photoshoot'); setShowCategorySelection(false); }}>
+                                <div className="style-preview">Studio</div>
+                                <div className="style-label">Professional Shoot</div>
+                              </div>
+                            </div>
+
+                            {/* Close Button */}
+                            <button
+                              onClick={() => setShowCategorySelection(false)}
+                              style={{
+                                padding: '12px 24px',
+                                background: 'transparent',
+                                color: 'var(--black)',
+                                border: '1px solid var(--accent-line)',
+                                fontSize: '11px',
+                                textTransform: 'uppercase',
+                                cursor: 'pointer',
+                                marginTop: '20px'
+                              }}
+                            >
+                              Cancel
                             </button>
                           </div>
                         </div>
