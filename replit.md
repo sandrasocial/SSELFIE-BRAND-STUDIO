@@ -25,6 +25,11 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
   - **Phase 1**: Updated promptGuidance arrays with professional camera specifications (Canon EOS R5, Sony A7R V), enhanced quality tags including "visible skin pores", "subsurface scattering", "DSLR quality", and physical feature description templates
   - **Phase 2**: Optimized unified route with FLUX 1.1 Pro optimal prompt structure (50-150 words target), enhanced prompt cleaning to remove Maya self-references while preserving styling intelligence, and improved technical instructions with specific camera settings for different shot types  
   - **Phase 3**: Integrated comprehensive validation system with prompt length validation, trigger word consistency checks, and technical quality verification. Added generation-validator.ts with intelligent prompt cleaning and validation functions specifically tuned for Maya's conversation-to-technical conversion.
+- **Complete Hardcode Elimination (August 29, 2025)**: Removed all remaining hardcoded styling guidance that was overriding Maya's natural intelligence:
+  - **Eliminated**: All hardcoded physical feature assumptions (eye color, hair color, specific facial features) that Maya doesn't know about users
+  - **Eliminated**: All hardcoded outfit descriptions (blazers, specific colors, fabric types) across all 16+ concept categories
+  - **Preserved**: Technical camera specifications, lighting setups, and photography quality parameters that enhance FLUX generation
+  - **Result**: Maya now uses pure AI intelligence for all styling decisions while maintaining optimal technical prompting structure for FLUX 1.1 Pro
 - **Result**: Perfect consistency between Maya's concept descriptions and generated prompts with blazing performance. Maya now exercises full creative authority with research-optimized FLUX prompting, and the correct user journey is restored: Maya chat stores ALL images permanently, SSELFIE gallery only shows user-hearted favorites. FLUX now receives clean technical prompts while preserving Maya's styling intelligence. Database is now simplified for clean 7-field profile questionnaire while maintaining Maya's complete conversational AI capabilities.
 
 ## System Architecture
