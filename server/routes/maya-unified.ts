@@ -1136,20 +1136,50 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   
-  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation
-  // Pattern 1: Multiple **Concept Name** followed by styling details
-  // Pattern 2: Single concept with "Story Collection Preview:" or similar formats
-  const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
-  const singleConceptPattern = /\*\*([^*\n]+(?:Collection|Preview|Concept|Look|Style|Vibe)[^*\n]*)\*\*\s*\*([^*]+)\*/gs;
+  // SYSTEM-COMPATIBLE CONCEPT DETECTION: Maya's trained format **🎯 CATEGORY - NAME**
+  // This matches the exact format Maya is trained to generate in personality-config.ts
+  const mayaConceptPattern = /\*\*🎯\s*([^-*]+?)\s*-\s*([^*]+?)\*\*\s*\n?([^*]+?)(?=\*\*🎯|$)/gs;
+  const fallbackPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   
   let match;
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  // Try multi-concept pattern first
-  while ((match = multiConceptPattern.exec(response)) !== null) {
-    let conceptName = match[1].trim();
-    let conceptContent = match[2].trim();
+  // Try Maya's trained pattern first: **🎯 CATEGORY - NAME**
+  console.log('🎯 MAYA PARSING: Looking for trained format **🎯 CATEGORY - NAME**');
+  while ((match = mayaConceptPattern.exec(response)) !== null) {
+    const category = match[1].trim();
+    const conceptName = match[2].trim();
+    let conceptContent = match[3].trim();
+    
+    const fullConceptName = `${category} - ${conceptName}`;
+    console.log(`🎯 MAYA CONCEPT FOUND: "${fullConceptName}" with ${conceptContent.length} chars of styling content`);
+    
+    // Store Maya's complete styling description as originalContext
+    const fullOriginalContext = conceptContent; // Maya's detailed styling description
+    
+    const concept: ConceptCard = {
+      id: `concept_${conceptNumber}_${Date.now()}`,
+      title: fullConceptName,
+      description: conceptContent.length > 150 ? conceptContent.substring(0, 150) + '...' : conceptContent,
+      originalContext: fullOriginalContext, // Maya's complete styling intelligence  
+      fullPrompt: undefined, // Generated on-demand
+      canGenerate: true,
+      isGenerating: false,
+      generatedImages: []
+    };
+    
+    concepts.push(concept);
+    conceptNumber++;
+    console.log(`✅ MAYA CONCEPT STORED: "${fullConceptName}" with full styling context`);
+  }
+  
+  // Fallback to general pattern if no trained format found
+  if (concepts.length === 0) {
+    console.log('🎯 MAYA PARSING: No trained format found, trying fallback pattern');
+    while ((match = fallbackPattern.exec(response)) !== null) {
+      let conceptName = match[1].trim();
+      let conceptContent = match[2].trim();
     
     // Clean up concept name
     conceptName = conceptName
@@ -1243,6 +1273,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     conceptNumber++;
     
     console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
+  }
   }
   
   // If no multi-concepts found, try single concept pattern
