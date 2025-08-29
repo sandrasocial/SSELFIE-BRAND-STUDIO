@@ -1488,62 +1488,65 @@ Use this context to customize styling choices that align with their unique trans
       }
     }
     
+    // 🎯 CRITICAL FIX: Extract only styling content from Maya's conversational response
+    let cleanOriginalContext = originalContext || '';
+    
+    if (cleanOriginalContext.length > 0) {
+      // Extract ONLY the styling description from Maya's chat, removing conversational parts
+      console.log(`🧹 MAYA CONTENT EXTRACTION: Processing ${cleanOriginalContext.length} chars`);
+      
+      // Remove Maya's conversational greetings and excitement
+      cleanOriginalContext = cleanOriginalContext
+        .replace(/^[^*]*?(?=\*\*\*\*)/s, '') // Remove everything before first ****
+        .replace(/Oh honey[^*]*?(?=\*\*\*\*)/gi, '') // Remove "Oh honey" introductions
+        .replace(/I'm so excited[^*]*?(?=\*\*\*\*)/gi, '') // Remove excitement phrases
+        .replace(/Based on your[^*]*?(?=\*\*\*\*)/gi, '') // Remove "based on your" parts
+        .replace(/This is giving me[^*]*$/gi, '') // Remove ending excitement
+        .replace(/\*\*Technical Photography Specifications:\*\*[\s\S]*$/gi, '') // Remove tech specs if present
+        .trim();
+      
+      // If we have structured content between **** markers, extract it
+      const structuredMatch = cleanOriginalContext.match(/\*\*\*\*\s*(.*?)(?:\*\*Technical|$)/s);
+      if (structuredMatch) {
+        cleanOriginalContext = structuredMatch[1].trim();
+      }
+      
+      console.log(`✨ MAYA CLEAN EXTRACT: Cleaned to ${cleanOriginalContext.length} chars`);
+      console.log(`🎨 MAYA STYLING ONLY: ${cleanOriginalContext.substring(0, 200)}...`);
+    }
+
     // MAYA'S UNIFIED PROMPT GENERATION INTELLIGENCE
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
-🎯 MAYA'S UNIFIED STYLING INTELLIGENCE:
-You are Maya with Sandra's complete professional expertise: fashion week stylist, magazine covers, luxury aesthetics, former hairdresser, modeling experience, and 120K+ follower empire.
+🎯 MAYA'S TECHNICAL PROMPT GENERATION:
+You are Maya, Sandra's AI styling twin with complete fashion week expertise. Your task is to convert styling descriptions into clean technical prompts for FLUX image generation.
 
 PROMPT GENERATION TASK:
-Create a detailed, technical prompt for generating "${conceptName}" that showcases your complete styling expertise.
+Convert the styling description for "${conceptName}" into a clean, technical prompt suitable for AI image generation.
 
-APPLY YOUR PROFESSIONAL MASTERY:
-• Fashion Week Experience: Editorial impact, sophisticated silhouettes, luxury-accessible combinations
-• Hair & Beauty Expertise: Editorial techniques, camera-ready styling, photographic dimension
-• Luxury Aesthetics: Premium materials, sophisticated palettes, clean lines with visual richness
-• Photography Knowledge: Shot types, lighting mastery, technical camera expertise
-• Personal Branding: Transformation vision, confidence building, authentic power expression
+STYLING CONTENT TO PROCESS: "${cleanOriginalContext}"
 
-MAYA'S INTELLIGENCE MANDATE:
-- NEVER use generic descriptions or simplified styling - showcase your complete fashion week expertise
-- Apply your 120K+ follower brand knowledge to create sophisticated, editorial-level concepts
-- Use your hairdresser background for detailed hair and beauty specifications
-- Leverage your modeling experience for authentic posing and styling combinations
-INTELLIGENCE REQUIREMENTS:
-- Generate fresh, unique combinations using your complete professional expertise
-- Consider personal brand context and luxury aesthetic
-- Include technical photography details from your industry background
+CONVERSION REQUIREMENTS:
+1. Extract ONLY clothing, accessories, hair, makeup, and styling details
+2. Remove all conversational language, greetings, and explanations  
+3. Convert to concise, technical description format
+4. Maintain all specific styling choices (colors, materials, silhouettes)
+5. Add basic photography specifications (lighting, camera angle)
+6. Ensure output starts with trigger word: "${finalTriggerWord}"
 
-MAYA'S PROMPT ARCHITECTURE:
-- Begin with trigger word: "${finalTriggerWord}"
-- Apply your complete professional expertise: fashion week styling, hairdressing, modeling, and photography
-- Create luxury aesthetics reflecting Sandra's brand transformation philosophy
-- Include technical camera/lens specifications and editorial lighting
-- Build authentic energy and confidence in every detail${personalBrandContext}
+OUTPUT FORMAT:
+- Start with: "${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+- Follow with: Clean styling description (clothing, hair, makeup, accessories)
+- End with: Basic photography specs (lighting, angle, background)
 
-CONCEPT TO DEVELOP: "${conceptName}"
-MAYA'S ORIGINAL STYLING CONTEXT: "${originalContext || 'No original context provided - use your complete professional styling expertise'}"
+CRITICAL RULES:
+- NO conversational language ("Oh honey", "I'm excited", etc.)
+- NO explanations or backstory
+- ONLY styling and technical details
+- Keep all specific styling choices from the original
+- Maximum 300 characters for styling portion
 
-CONTEXT THREADING:
-- Build upon Maya's original concept intelligence 
-- Maintain consistency with her original styling vision
-- Add technical specifications while preserving creative flow
-
-CRITICAL INTELLIGENCE REQUIREMENTS:
-- PRESERVE Maya's original styling descriptions EXACTLY as written
-- ADD ONLY technical photography specifications (camera, lighting, composition)
-- NEVER change or replace Maya's styling choices, outfits, or aesthetic descriptions
-- Use Maya's exact styling as the foundation and enhance with technical details only
-- Maintain PERFECT consistency between Maya's concept descriptions and final prompts
-
-PROMPT GENERATION MANDATE:
-1. Start with trigger word: "${finalTriggerWord}"
-2. Use Maya's EXACT styling description: "${originalContext}"
-3. ADD technical photography details: camera specs, lighting, composition
-4. DO NOT change any styling elements from Maya's original concept
-5. Result: Maya's styling vision + professional photography technical specifications
-
-Generate ONLY the enhanced technical prompt that preserves Maya's exact styling while adding camera/lighting details.`;
+Generate a clean technical prompt suitable for FLUX image generation.`;
 
     // Call Claude API for Maya's intelligent prompt generation
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1559,11 +1562,11 @@ Generate ONLY the enhanced technical prompt that preserves Maya's exact styling 
         system: mayaPromptPersonality,
         messages: [{
           role: 'user',
-          content: `PRESERVE Maya's exact styling and add technical photography specifications for: "${conceptName}"
+          content: `Convert Maya's styling description to clean technical prompt for: "${conceptName}"
 
-Maya's Original Styling (MUST preserve exactly): "${originalContext}"
+Styling Content: "${cleanOriginalContext}"
 
-Add technical photography details while keeping Maya's styling descriptions unchanged.`
+Extract only styling details, remove conversational language, add basic photography specs.`
         }]
       })
     });
