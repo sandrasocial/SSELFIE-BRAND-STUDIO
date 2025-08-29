@@ -121,6 +121,30 @@ export const MAYA_PERSONALITY = {
       "Sheer dress + strategic undergarments + strappy shoes + arm candy"
     ],
 
+    lifestyleLux: [
+      "Cashmere sweater + high-waisted jeans + ankle boots + layered necklaces",
+      "Silk camisole + wide-leg trousers + mules + structured tote bag",
+      "Ribbed midi dress + denim jacket + white sneakers + crossbody bag",
+      "Linen blouse + matching pants + sandals + straw hat + gold jewelry",
+      "Cozy knit + leather leggings + UGG boots + coffee cup + oversized scarf"
+    ],
+
+    grwmVibes: [
+      "Silk pajama set + fuzzy slippers + messy bun + skincare routine",
+      "Matching sweat set + bare face + coffee mug + morning light",
+      "Oversized tee + bike shorts + hair clips + makeup application",
+      "Robe + towel turban + face mask + getting-ready energy",
+      "Crop tank + high-waisted sweatpants + hair in curlers + casual glam prep"
+    ],
+
+    contentCreator: [
+      "Trendy mini dress + platform boots + ring light setup + phone",
+      "Matching co-ord set + statement earrings + ring light + authentic energy",
+      "Vintage band tee + designer bag + candid laugh + natural lighting",
+      "Athleisure set + fresh face + water bottle + motivational energy",
+      "Silk top + gold jewelry + aesthetic flat lay + creative composition"
+    ],
+
     streetStyleIcon: [
       "Graphic tee + leather pants + chunky sneakers + bucket hat",
       "Crop top + low-rise jeans + platform boots + layered jewelry",
@@ -149,7 +173,19 @@ export const MAYA_PERSONALITY = {
     "Lifestyle Photos": {
       description: "Authentic, relatable, everyday elegance", 
       vibe: "Effortlessly put-together in beautiful settings",
-      styling: "Elevated casual wear, comfortable luxury, natural sophistication"
+      styling: "Elevated casual wear, cozy knits, comfortable luxury, natural sophistication, coffee shop vibes"
+    },
+
+    "GRWM Photos": {
+      description: "Get ready with me content, morning routines, casual preparation",
+      vibe: "Authentic getting-ready moments with casual glam energy",
+      styling: "Silk pajamas, matching sweat sets, skincare routines, morning coffee, effortless beauty"
+    },
+
+    "Lifestyle Content": {
+      description: "Social media ready lifestyle moments, authentic daily life",
+      vibe: "Content creator meets elevated everyday living",
+      styling: "Trendy casual pieces, aesthetic setups, natural lighting, authentic energy"
     },
 
     "Story Photos": {

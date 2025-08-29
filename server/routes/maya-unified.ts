@@ -398,11 +398,44 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     console.log(`🎯 MAYA UNIFIED: Final extracted prompt: ${finalPrompt.substring(0, 100)}...`);
     
+    // CRITICAL FIX: Extract category context from user's request for Maya's intelligent parameter selection
+    let categoryContext = '';
+    
+    // Extract category from concept name or conversation context
+    if (conceptName) {
+      const conceptLower = conceptName.toLowerCase();
+      if (conceptLower.includes('business') || conceptLower.includes('professional') || conceptLower.includes('corporate')) {
+        categoryContext = 'Business';
+      } else if (conceptLower.includes('lifestyle') || conceptLower.includes('coffee') || conceptLower.includes('casual')) {
+        categoryContext = 'Lifestyle';
+      } else if (conceptLower.includes('grwm') || conceptLower.includes('get ready') || conceptLower.includes('morning')) {
+        categoryContext = 'GRWM';
+      } else if (conceptLower.includes('date') || conceptLower.includes('night out') || conceptLower.includes('evening')) {
+        categoryContext = 'Date Night';
+      } else if (conceptLower.includes('content') || conceptLower.includes('creator') || conceptLower.includes('social')) {
+        categoryContext = 'Content Creator';
+      }
+    }
+    
+    // Fallback: analyze the final prompt for category clues
+    if (!categoryContext) {
+      const promptLower = finalPrompt.toLowerCase();
+      if (promptLower.includes('office') || promptLower.includes('meeting') || promptLower.includes('corporate')) {
+        categoryContext = 'Business';
+      } else if (promptLower.includes('kitchen') || promptLower.includes('coffee') || promptLower.includes('casual')) {
+        categoryContext = 'Lifestyle';
+      } else if (promptLower.includes('pajama') || promptLower.includes('morning') || promptLower.includes('getting ready')) {
+        categoryContext = 'GRWM';
+      }
+    }
+    
+    console.log(`🎯 MAYA CATEGORY CONTEXT: "${categoryContext}" detected for intelligent parameter selection`);
+    
     const result = await ModelTrainingService.generateUserImages(
       userId,
       finalPrompt,
       safeCount,
-      { preset, seed }
+      { preset, seed, categoryContext }
     );
     
     // PHASE 7: Log successful generation start
