@@ -138,10 +138,25 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
         // Transform to Claude API format, keeping last 10 messages for context
         fullConversationHistory = chatMessages
           .slice(-10)
-          .map(msg => ({
-            role: msg.role === 'assistant' || msg.role === 'maya' ? 'assistant' : 'user',
-            content: msg.content
-          }));
+          .map(msg => {
+            let content = msg.content;
+            
+            // If Maya's message is stored as JSON, extract just the message text for Claude
+            if (msg.role === 'maya' && msg.content.startsWith('{')) {
+              try {
+                const parsedContent = JSON.parse(msg.content);
+                content = parsedContent.message || msg.content;
+              } catch {
+                // Keep original content if parsing fails
+                content = msg.content;
+              }
+            }
+            
+            return {
+              role: msg.role === 'assistant' || msg.role === 'maya' ? 'assistant' : 'user',
+              content
+            };
+          });
         console.log(`📖 MAYA CONTEXT: Loaded ${fullConversationHistory.length} previous messages from database`);
       } catch (error) {
         console.log('No previous conversation history found, starting fresh');
@@ -385,9 +400,9 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
             for (const message of messages) {
               if (message.content && typeof message.content === 'string') {
                 try {
-                  // Check if content is JSON (stored concept cards)
+                  // Check if content is JSON (Maya's complete response with concept cards)
                   const contentData = JSON.parse(message.content);
-                  if (contentData.conceptCards) {
+                  if (contentData.conceptCards && contentData.conceptCards.length > 0) {
                     for (const conceptCard of contentData.conceptCards) {
                       // Universal fuzzy matching for ALL concepts
                       const lowerConceptName = conceptName.toLowerCase();
@@ -430,6 +445,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                         
                         console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
                         console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
+                        console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
                         break;
                       }
                     }
@@ -1388,10 +1404,19 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
       content: userMessage
     });
 
+    // Save complete Maya response including concept cards with originalContext
+    const completeResponse = {
+      message: mayaResponse.message,
+      conceptCards: mayaResponse.conceptCards || [],
+      quickButtons: mayaResponse.quickButtons || [],
+      chatCategory: mayaResponse.chatCategory,
+      canGenerate: mayaResponse.canGenerate
+    };
+
     await storage.saveMayaChatMessage({
       chatId: currentChatId,
       role: 'maya',
-      content: mayaResponse.message,
+      content: JSON.stringify(completeResponse),
       generatedPrompt: mayaResponse.generatedPrompt
     });
 
