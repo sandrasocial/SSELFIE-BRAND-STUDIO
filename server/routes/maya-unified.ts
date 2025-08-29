@@ -465,9 +465,16 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
       console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
       console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
+      
+      // Check if context is empty and warn
+      if (!originalContext || originalContext.length < 10) {
+        console.log(`⚠️ MAYA EMPTY CONTEXT WARNING: No meaningful context found for "${conceptName}"`);
+        console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
+      }
+      
       finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, originalContext);
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt`);
-      console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 200)}...`);
+      console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
       // PHASE 3: Custom prompt enhancement using Maya's styling intelligence  
       finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`);
@@ -1492,27 +1499,46 @@ Use this context to customize styling choices that align with their unique trans
     let cleanOriginalContext = originalContext || '';
     
     if (cleanOriginalContext.length > 0) {
-      // Extract ONLY the styling description from Maya's chat, removing conversational parts
       console.log(`🧹 MAYA CONTENT EXTRACTION: Processing ${cleanOriginalContext.length} chars`);
+      console.log(`📝 MAYA ORIGINAL CONTENT: ${cleanOriginalContext.substring(0, 300)}...`);
       
-      // Remove Maya's conversational greetings and excitement
-      cleanOriginalContext = cleanOriginalContext
-        .replace(/^[^*]*?(?=\*\*\*\*)/s, '') // Remove everything before first ****
-        .replace(/Oh honey[^*]*?(?=\*\*\*\*)/gi, '') // Remove "Oh honey" introductions
-        .replace(/I'm so excited[^*]*?(?=\*\*\*\*)/gi, '') // Remove excitement phrases
-        .replace(/Based on your[^*]*?(?=\*\*\*\*)/gi, '') // Remove "based on your" parts
-        .replace(/This is giving me[^*]*$/gi, '') // Remove ending excitement
-        .replace(/\*\*Technical Photography Specifications:\*\*[\s\S]*$/gi, '') // Remove tech specs if present
-        .trim();
-      
-      // If we have structured content between **** markers, extract it
-      const structuredMatch = cleanOriginalContext.match(/\*\*\*\*\s*(.*?)(?:\*\*Technical|$)/s);
-      if (structuredMatch) {
+      // STEP 1: Try to extract structured content between **** markers first
+      const structuredMatch = cleanOriginalContext.match(/\*\*\*\*\s*(.*?)(?:\*\*Technical|This is giving|$)/s);
+      if (structuredMatch && structuredMatch[1].trim()) {
         cleanOriginalContext = structuredMatch[1].trim();
+        console.log(`🎯 MAYA STRUCTURED EXTRACT: Found content between **** markers`);
+      } else {
+        // STEP 2: If no structured content, try to extract any meaningful styling content
+        console.log(`🔍 MAYA FALLBACK: No **** structure found, extracting styling content`);
+        
+        // Remove conversational parts but keep styling descriptions
+        cleanOriginalContext = cleanOriginalContext
+          .replace(/^[^:]*?(?=:)/s, '') // Remove everything before first colon (concept name)
+          .replace(/Oh honey[^.]*?\./gi, '') // Remove "Oh honey" sentences
+          .replace(/I'm so excited[^.]*?\./gi, '') // Remove excitement sentences
+          .replace(/Based on your[^.]*?\./gi, '') // Remove "based on your" sentences
+          .replace(/This is giving me[^.]*$/gi, '') // Remove ending excitement
+          .replace(/\*\*Technical Photography Specifications:\*\*[\s\S]*$/gi, '') // Remove tech specs
+          .trim();
+        
+        // If still empty, try to extract any content that mentions clothing/styling
+        if (!cleanOriginalContext || cleanOriginalContext.length < 20) {
+          const stylingMatch = originalContext.match(/(blazer|dress|top|pants|jacket|outfit|hair|makeup|accessories)[^.]*\./gi);
+          if (stylingMatch) {
+            cleanOriginalContext = stylingMatch.join(' ').trim();
+            console.log(`🎨 MAYA STYLING KEYWORDS: Extracted by keywords`);
+          }
+        }
       }
       
       console.log(`✨ MAYA CLEAN EXTRACT: Cleaned to ${cleanOriginalContext.length} chars`);
       console.log(`🎨 MAYA STYLING ONLY: ${cleanOriginalContext.substring(0, 200)}...`);
+      
+      // Safety check - if content is still empty or too short, use concept name
+      if (!cleanOriginalContext || cleanOriginalContext.length < 10) {
+        cleanOriginalContext = `${conceptName}: professional styling, sophisticated look, elegant details`;
+        console.log(`⚠️ MAYA FALLBACK: Using concept-based description`);
+      }
     }
 
     // MAYA'S UNIFIED PROMPT GENERATION INTELLIGENCE
@@ -1525,6 +1551,8 @@ PROMPT GENERATION TASK:
 Convert the styling description for "${conceptName}" into a clean, technical prompt suitable for AI image generation.
 
 STYLING CONTENT TO PROCESS: "${cleanOriginalContext}"
+
+IMPORTANT: If the styling content appears empty or minimal, create a professional concept based on the concept name "${conceptName}" using your fashion expertise.
 
 CONVERSION REQUIREMENTS:
 1. Extract ONLY clothing, accessories, hair, makeup, and styling details
