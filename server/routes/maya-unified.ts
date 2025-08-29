@@ -456,7 +456,6 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       // PHASE 3: Lazy generation using retrieved Maya context for perfect consistency
       const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
       console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
-      console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
       if (!originalContext || originalContext.length < 10) {
         console.log(`⚠️ MAYA CONTEXT: No styling context found for "${conceptName}"`);
       }
