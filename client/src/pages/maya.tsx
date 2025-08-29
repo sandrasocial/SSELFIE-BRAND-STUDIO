@@ -948,6 +948,27 @@ function Maya() {
           margin-top: 40px;
         }
 
+        /* Profile Card Section */
+        .profile-card-section {
+          padding: 40px 20px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+
+        .profile-card-container {
+          display: flex;
+          justify-content: center;
+        }
+
+        .profile-card {
+          max-width: 400px;
+          width: 100%;
+        }
+
+        .profile-card .card-image {
+          aspect-ratio: 4/5;
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
           .path-selection-grid {
@@ -1288,6 +1309,32 @@ function Maya() {
           <h1 className="hero-title">Maya</h1>
           <p className="hero-subtitle">Your Personal Brand Stylist</p>
           <button className="hero-cta" onClick={scrollToChat}>Start Creating</button>
+        </div>
+      </section>
+
+      {/* Profile Card - Editorial Style */}
+      <section className="profile-card-section">
+        <div className="profile-card-container">
+          <div 
+            className="editorial-card profile-card"
+            onClick={() => setLocation('/profile')}
+          >
+            <div className="card-image">
+              <img 
+                src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png" 
+                alt="Complete your profile with Maya"
+              />
+            </div>
+            <div className="card-overlay">
+              <div className="card-content">
+                <div className="card-eyebrow">P R O F I L E</div>
+                <div className="card-title">Tell me your story, beautiful</div>
+                <div className="card-description">
+                  Complete your profile so I can customize every photoshoot to match your unique style and business goals perfectly.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
