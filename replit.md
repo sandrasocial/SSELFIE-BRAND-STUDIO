@@ -16,7 +16,8 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 - **System Cleanup**: Legacy code removal and production optimization completed
 - **Hardcode Elimination**: Complete audit identified and removed 25+ hardcoded fashion items (camel coat, blazer, silk camisole, cashmere, structured bag, etc.) that were overriding Maya's styling intelligence
 - **Gallery Duplicate Fix**: Resolved critical issue where ALL generated images appeared in gallery instead of only user-hearted images. Fixed `/api/gallery-images` endpoint to filter for explicitly saved images only.
-- **Result**: Perfect consistency between Maya's concept descriptions and generated prompts with blazing performance. Maya now exercises full creative authority, and the correct user journey is restored: Maya chat stores ALL images permanently, SSELFIE gallery only shows user-hearted favorites.
+- **FLUX Prompt Quality Fix**: Fixed critical image quality issue caused by prompt contamination. Maya's conversational formatting (**, -, headers) was being sent to FLUX instead of clean technical prompts. Implemented intelligent prompt extraction that preserves Maya's complete styling expertise while ensuring FLUX receives clean descriptive text. NO hardcoding added - Maya's AI intelligence drives all styling decisions.
+- **Result**: Perfect consistency between Maya's concept descriptions and generated prompts with blazing performance. Maya now exercises full creative authority, and the correct user journey is restored: Maya chat stores ALL images permanently, SSELFIE gallery only shows user-hearted favorites. FLUX now receives clean technical prompts while preserving Maya's styling intelligence.
 
 ## System Architecture
 
