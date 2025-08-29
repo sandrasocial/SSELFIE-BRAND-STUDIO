@@ -238,13 +238,7 @@ Use this context to provide personalized styling advice that aligns with their t
     const data = await claudeResponse.json();
     let mayaResponse = data.content[0].text;
     
-    // 🚨 CRITICAL DEBUG: Check Claude API response for contamination
-    if (mayaResponse && mayaResponse.includes("Boss Babe")) {
-      console.log(`🚨 CLAUDE CONTAMINATION: Claude API returned Boss Babe content!`);
-      console.log(`🚨 CLAUDE RESPONSE: ${mayaResponse.substring(0, 500)}...`);
-      console.log(`🚨 USER MESSAGE: ${message}`);
-      console.log(`🚨 CONTEXT: ${context}`);
-    }
+
     
     // Process Maya's unified response
     const processedResponse = await processMayaResponse(
@@ -397,37 +391,49 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         for (const chat of recentChats.slice(0, 3)) { // Reduced to 3 for performance, using dedicated fields
           const messages = await storage.getMayaChatMessages(chat.id);
           
-          // CRITICAL: Check originalStylingContext field first for exact consistency
-          for (const message of messages) {
-            if (message.originalStylingContext && 
-                (message.originalStylingContext.includes(conceptName) || 
-                 (conceptId && message.content && message.content.includes(conceptId)))) {
-              originalContext = message.originalStylingContext;
-              console.log(`🎯 MAYA DEDICATED CONTEXT: Found exact styling context (${originalContext.length} chars)`);
-              break;
-            }
-            // FALLBACK: Check conceptDescription field
-            if (!originalContext && message.conceptDescription && 
-                (message.conceptDescription.includes(conceptName) || 
-                 (conceptId && message.content && message.content.includes(conceptId)))) {
-              originalContext = message.conceptDescription;
-              console.log(`📋 MAYA CONCEPT DESCRIPTION: Using concept description as context (${originalContext.length} chars)`);
-              break;
-            }
-            // LEGACY FALLBACK: Check content field for backward compatibility
-            if (!originalContext && message.content && typeof message.content === 'string') {
-              // Include content search logic if needed for backward compatibility
-              if (message.content.includes(conceptName) || 
-                  (conceptId && message.content.includes(conceptId))) {
-                // Extract context from content if available
-                const contextMatch = message.content.match(new RegExp(`${conceptName}[^.]*\\.`, 'i'));
-                if (contextMatch) {
-                  originalContext = contextMatch[0];
-                  console.log(`📰 MAYA LEGACY FALLBACK: Using content-based context (${originalContext.length} chars)`);
+          // CRITICAL FIX: Look for Maya's complete detailed styling descriptions in message content
+          // When user clicks "Boss Babe Boardroom Ready", find the full detailed styling description
+          for (const message of messages.slice().reverse()) { // Start with most recent
+            if (message.role === 'maya' && message.content && typeof message.content === 'string') {
+              // Parse concept cards from Maya's message to find matching detailed description
+              const conceptPattern = /\*\*🎯\s*([^*]+?)\s*-\s*([^*]+?)\*\*\s*\n([^*]+?)(?=\*\*|$)/gs;
+              let conceptMatch;
+              
+              while ((conceptMatch = conceptPattern.exec(message.content)) !== null) {
+                const fullConceptTitle = conceptMatch[1].trim(); // "PENTHOUSE POWER"
+                const conceptSubtitle = conceptMatch[2].trim(); // "OPTION 1: Corner Office Goddess"
+                const detailedDescription = conceptMatch[3].trim(); // The full Maya description
+                
+                // Check if this matches the concept the user clicked (flexible matching)
+                const conceptKey = `${fullConceptTitle} ${conceptSubtitle}`.toLowerCase();
+                const searchKey = conceptName.toLowerCase()
+                  .replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '')
+                  .replace(/[^a-z0-9\s]/g, ' ')
+                  .trim();
+                
+                if (conceptKey.includes(searchKey.slice(0, 15)) || searchKey.includes(fullConceptTitle.toLowerCase())) {
+                  originalContext = detailedDescription;
+                  console.log(`🎯 MAYA STYLING MATCH: Found detailed description for "${conceptName}" (${originalContext.length} chars)`);
+                  console.log(`🎨 MAYA CONTEXT PREVIEW: ${originalContext.substring(0, 200)}...`);
+                  break;
                 }
-                break;
+              }
+              
+              // FALLBACK: If no structured concept found, look for the concept in regular content
+              if (!originalContext && message.content.length > 100) {
+                // Extract Maya's styling descriptions that contain concept-related keywords
+                const lines = message.content.split('\n');
+                for (const line of lines) {
+                  if (line.length > 50 && line.includes('wearing') && line.includes('portrait')) {
+                    originalContext = line.trim();
+                    console.log(`📝 MAYA STYLING FALLBACK: Using line-based context (${originalContext.length} chars)`);
+                    break;
+                  }
+                }
               }
             }
+            
+            if (originalContext) break;
           }
           if (originalContext) break;
         }
@@ -451,49 +457,14 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
       console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
       console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
-      // 🚨 CRITICAL DEBUGGING: Trace context preservation failure
       if (!originalContext || originalContext.length < 10) {
-        console.log(`⚠️ MAYA EMPTY CONTEXT WARNING: No meaningful context found for "${conceptName}"`);
-        console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
-        // Debug: Get recent chats for investigation
-        const debugChats = await storage.getMayaChats(userId);
-        console.log(`🔍 MAYA CONTEXT DEBUG: Recent chats checked: ${debugChats.length}`);
-        
-        // Debug: Log all recent chat messages to see what's actually stored
-        for (let i = 0; i < Math.min(debugChats.length, 2); i++) {
-          const chat = debugChats[i];
-          const messages = await storage.getMayaChatMessages(chat.id);
-          console.log(`🔍 MAYA DEBUG CHAT ${i}: ${messages.length} messages`);
-          for (const msg of messages.slice(-3)) {
-            console.log(`🔍 MAYA DEBUG MSG: role=${msg.role}, contentLength=${msg.content?.length || 0}, originalStylingContext=${msg.originalStylingContext?.length || 0}, conceptDescription=${msg.conceptDescription?.length || 0}`);
-            if (msg.content && typeof msg.content === 'string' && msg.content.includes(conceptName.substring(0, 15))) {
-              console.log(`🔍 MAYA DEBUG MATCH: Found concept in content: ${msg.content.substring(0, 200)}...`);
-            }
-            if (msg.originalStylingContext) {
-              console.log(`🔍 MAYA DEBUG ORIGINAL: ${msg.originalStylingContext.substring(0, 100)}...`);
-            }
-          }
-        }
+        console.log(`⚠️ MAYA CONTEXT: No styling context found for "${conceptName}"`);
       }
       
       // CRITICAL: Preserve original styling context without aggressive cleaning
       // Only minimal cleaning to remove conversation markers, preserve all styling intelligence
       const preservedContext = originalContext.replace(/\*\*/g, '').replace(/Maya:/gi, '').trim();
-      // 🚨 CRITICAL DEBUG: Log exact values before prompt generation
-      console.log(`🔍 MAYA DEBUG INPUTS: userConcept="${userConcept}", preservedContext.length=${preservedContext.length}`);
-      console.log(`🔍 MAYA DEBUG PRESERVED: ${preservedContext.substring(0, 200)}...`);
-      
       finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, preservedContext);
-      
-      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt`);
-      console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
-      
-      // 🚨 CRITICAL DEBUG: Check if finalPrompt contains unexpected content
-      if (finalPrompt.includes("Boss Babe") || finalPrompt.includes("Boardroom")) {
-        console.log(`🚨 MAYA CONTAMINATION DETECTED: finalPrompt contains hardcoded content!`);
-        console.log(`🚨 CONTAMINATED PROMPT: ${finalPrompt}`);
-        console.log(`🚨 INVESTIGATION: userConcept="${userConcept}", preservedContext="${preservedContext}"`);
-      }
     } else {
       // PHASE 3: Custom prompt enhancement using Maya's styling intelligence  
       finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`);
@@ -529,14 +500,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       // Remove overly specific category constraints - Maya's AI handles all styling decisions
     }
     
-    // 🚨 CRITICAL DEBUG: Log prompt being sent to ModelTrainingService
-    console.log(`🔍 MAYA FINAL HANDOFF: Sending to ModelTrainingService with prompt length=${finalPrompt.length}`);
-    console.log(`🔍 MAYA FINAL HANDOFF: First 400 chars: ${finalPrompt.substring(0, 400)}...`);
-    
-    if (finalPrompt.includes("Boss Babe")) {
-      console.log(`🚨 CONTAMINATION DETECTED: About to send contaminated prompt to ModelTrainingService!`);
-      console.log(`🚨 FULL CONTAMINATED PROMPT: ${finalPrompt}`);
-    }
+
 
     const result = await ModelTrainingService.generateUserImages(
       userId,
@@ -1551,15 +1515,6 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
   // NEVER generate new prompts that override Maya's specific styling choices
   
   console.log('🎯 MAYA STYLING PRESERVATION: Using her exact original styling context');
-  console.log(`🔍 MAYA PRESERVATION DEBUG: conceptName="${conceptName}", triggerWord="${triggerWord}", originalContext="${originalContext || 'EMPTY'}"`);
-  
-  // 🚨 CRITICAL DEBUG: Check inputs for contamination
-  if (conceptName && conceptName.includes("Boss Babe")) {
-    console.log(`🚨 CONTAMINATION AT INPUT: conceptName contains Boss Babe: "${conceptName}"`);
-  }
-  if (originalContext && originalContext.includes("Boss Babe")) {
-    console.log(`🚨 CONTAMINATION AT INPUT: originalContext contains Boss Babe: "${originalContext}"`);
-  }
   
   // Maya's original context contains her complete styling vision - use it directly
   const mayaExactVision = originalContext || conceptName;
@@ -1579,14 +1534,6 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
     preservedStyling;
   
   console.log(`🎨 MAYA VISION PRESERVED: ${finalPrompt.length} characters of pure styling intelligence`);
-  console.log(`🔍 MAYA STYLING PREVIEW: ${finalPrompt.substring(0, 200)}...`);
-  
-  // 🚨 CRITICAL DEBUG: Check output for contamination
-  if (finalPrompt.includes("Boss Babe")) {
-    console.log(`🚨 CONTAMINATION AT OUTPUT: finalPrompt contains Boss Babe!`);
-    console.log(`🚨 FULL CONTAMINATED PROMPT: ${finalPrompt}`);
-    console.log(`🚨 INPUT ANALYSIS: conceptName="${conceptName}", originalContext="${originalContext}", preservedStyling="${preservedStyling}"`);
-  }
   
   return finalPrompt;
 }
