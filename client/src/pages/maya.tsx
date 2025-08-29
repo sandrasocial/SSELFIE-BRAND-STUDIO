@@ -470,8 +470,8 @@ function Maya() {
 
         /* Left Sidebar */
         .sidebar {
-          width: 300px;
-          background: var(--editorial-gray);
+          width: 280px;
+          background: var(--white);
           border-right: 1px solid var(--accent-line);
           padding: 40px 0;
           overflow-y: auto;
@@ -479,24 +479,26 @@ function Maya() {
 
         .sidebar-section {
           padding: 0 30px;
-          margin-bottom: 40px;
+          margin-bottom: 50px;
         }
 
         .sidebar-title {
+          font-family: 'Times New Roman', serif;
           font-size: 11px;
           font-weight: 400;
-          letter-spacing: 0.3em;
+          letter-spacing: 0.4em;
           text-transform: uppercase;
           color: var(--soft-gray);
-          margin-bottom: 20px;
+          margin-bottom: 30px;
         }
 
         .new-session-btn {
           width: 100%;
-          padding: 16px 0;
+          padding: 16px 24px;
           background: var(--black);
           color: var(--white);
-          border: none;
+          border: 1px solid var(--black);
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
           font-size: 11px;
           font-weight: 400;
           letter-spacing: 0.3em;
@@ -507,31 +509,46 @@ function Maya() {
         }
 
         .new-session-btn:hover {
-          background: var(--soft-gray);
+          background: var(--white);
+          color: var(--black);
         }
 
         .session-item {
-          padding: 12px 0;
+          padding: 20px 0;
           border-bottom: 1px solid var(--accent-line);
           cursor: pointer;
-          transition: all 200ms ease;
+          transition: all 300ms ease;
+          position: relative;
         }
 
         .session-item:hover {
-          background: rgba(10, 10, 10, 0.05);
+          transform: translateX(4px);
+        }
+
+        .session-item:last-child {
+          border-bottom: none;
         }
 
         .session-title {
-          font-size: 14px;
+          font-family: 'Times New Roman', serif;
+          font-size: 15px;
           font-weight: 400;
-          margin-bottom: 4px;
-          line-height: 1.4;
+          margin-bottom: 8px;
+          color: var(--black);
+          line-height: 1.2;
+          letter-spacing: -0.01em;
         }
 
         .session-preview {
-          font-size: 12px;
+          font-size: 11px;
           color: var(--soft-gray);
-          line-height: 1.3;
+          line-height: 1.5;
+          font-weight: 300;
+          letter-spacing: 0.01em;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
 
         .more-sessions {

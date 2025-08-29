@@ -1396,9 +1396,36 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
     
     // Create new chat if needed
     if (!currentChatId) {
-      const contextPrefix = userType === 'admin' ? '[ADMIN] ' : '';
-      const chatTitle = context === 'onboarding' ? 'Personal Brand Discovery' : `${mayaResponse.chatCategory} Session`;
-      const chatSummary = `${context}: ${userMessage.substring(0, 100)}...`;
+      // Generate intelligent chat titles based on user intent and Maya's response
+      let chatTitle = 'Personal Brand Photos';
+      
+      if (context === 'onboarding') {
+        chatTitle = 'Personal Brand Discovery';
+      } else {
+        // Analyze user message for specific styling intent
+        const lowerMessage = userMessage.toLowerCase();
+        if (lowerMessage.includes('business') || lowerMessage.includes('professional') || lowerMessage.includes('corporate')) {
+          chatTitle = 'Business Professional Shoot';
+        } else if (lowerMessage.includes('lifestyle') || lowerMessage.includes('casual') || lowerMessage.includes('everyday')) {
+          chatTitle = 'Lifestyle Brand Session';
+        } else if (lowerMessage.includes('instagram') || lowerMessage.includes('social media') || lowerMessage.includes('insta')) {
+          chatTitle = 'Instagram Content Creation';
+        } else if (lowerMessage.includes('headshot') || lowerMessage.includes('portrait')) {
+          chatTitle = 'Professional Headshots';
+        } else if (lowerMessage.includes('travel') || lowerMessage.includes('vacation')) {
+          chatTitle = 'Travel Brand Photos';
+        } else if (lowerMessage.includes('outfit') || lowerMessage.includes('fashion') || lowerMessage.includes('style')) {
+          chatTitle = 'Fashion & Style Session';
+        } else if (lowerMessage.includes('story') || lowerMessage.includes('brand story')) {
+          chatTitle = 'Brand Storytelling Shoot';
+        } else if (mayaResponse.chatCategory && mayaResponse.chatCategory !== 'general') {
+          chatTitle = `${mayaResponse.chatCategory} Brand Photos`;
+        }
+      }
+      
+      // Only add admin prefix for platform owner's development sessions
+      const contextPrefix = userType === 'admin' ? '[DEV] ' : '';
+      const chatSummary = userMessage.length > 100 ? `${userMessage.substring(0, 100)}...` : userMessage;
       
       const newChat = await storage.createMayaChat({
         userId,
