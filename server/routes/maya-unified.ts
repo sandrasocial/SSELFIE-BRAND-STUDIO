@@ -1409,13 +1409,20 @@ CONTEXT THREADING:
 - Add technical specifications while preserving creative flow
 
 CRITICAL INTELLIGENCE REQUIREMENTS:
-- NEVER use hardcoded outfit formulas from personality files
-- NEVER repeat styling patterns from previous generations
-- Create completely fresh, unique styling using your complete expertise
-- Apply Sandra's luxury transformation philosophy to create aspirational yet authentic concepts
-- Use your fashion week, hairdressing, modeling, and photography knowledge to create sophisticated prompts
+- PRESERVE Maya's original styling descriptions EXACTLY as written
+- ADD ONLY technical photography specifications (camera, lighting, composition)
+- NEVER change or replace Maya's styling choices, outfits, or aesthetic descriptions
+- Use Maya's exact styling as the foundation and enhance with technical details only
+- Maintain PERFECT consistency between Maya's concept descriptions and final prompts
 
-Generate ONLY the final technical prompt - nothing else. Make it detailed, sophisticated, and ready for immediate image generation using your complete professional intelligence.`;
+PROMPT GENERATION MANDATE:
+1. Start with trigger word: "${finalTriggerWord}"
+2. Use Maya's EXACT styling description: "${mayaOriginalContext}"
+3. ADD technical photography details: camera specs, lighting, composition
+4. DO NOT change any styling elements from Maya's original concept
+5. Result: Maya's styling vision + professional photography technical specifications
+
+Generate ONLY the enhanced technical prompt that preserves Maya's exact styling while adding camera/lighting details.`;
 
     // Call Claude API for Maya's intelligent prompt generation
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1431,7 +1438,11 @@ Generate ONLY the final technical prompt - nothing else. Make it detailed, sophi
         system: mayaPromptPersonality,
         messages: [{
           role: 'user',
-          content: `Create a detailed technical prompt for: "${conceptName}"`
+          content: `PRESERVE Maya's exact styling and add technical photography specifications for: "${conceptName}"
+
+Maya's Original Styling (MUST preserve exactly): "${mayaOriginalContext}"
+
+Add technical photography details while keeping Maya's styling descriptions unchanged.`
         }]
       })
     });
