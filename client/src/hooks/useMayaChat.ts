@@ -3,22 +3,28 @@ import { useToast } from './use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../lib/queryClient';
 
-// PHASE 7: Frontend Performance Tracking
+// PHASE 7: Frontend Performance Tracking - Production optimized
 const trackUserEvent = (event: string, data: any = {}) => {
-  console.log(`USER_EVENT_${event}`, {
-    ...data,
-    timestamp: Date.now(),
-    url: window.location.pathname
-  });
+  // Only track critical user events in production
+  if (event === 'CHAT_ERROR' || event === 'GENERATION_ERROR') {
+    console.log(`USER_EVENT_${event}`, {
+      ...data,
+      timestamp: Date.now(),
+      url: window.location.pathname
+    });
+  }
 };
 
 const trackInteractionTiming = (event: string, startTime: number, success: boolean) => {
-  console.log(`USER_INTERACTION_TIMING`, {
-    event,
-    duration: Date.now() - startTime,
-    success,
-    timestamp: Date.now()
-  });
+  // Only track timing for critical interactions
+  if (!success || Date.now() - startTime > 5000) {
+    console.log(`USER_INTERACTION_TIMING`, {
+      event,
+      duration: Date.now() - startTime,
+      success,
+      timestamp: Date.now()
+    });
+  }
 };
 
 interface ConceptCard {

@@ -72,7 +72,7 @@ export const useMayaGeneration = (
 
   // Clear stale generations on mount
   useEffect(() => {
-    console.log('Maya: Clearing any stale active generations on mount');
+    // Clear stale generations silently
     setActiveGenerations(new Set());
     setGenerationQueue([]);
   }, []);
