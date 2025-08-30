@@ -207,7 +207,31 @@ Use this context to provide personalized styling advice that aligns with their t
       generationInfo,
       req.isAdmin || false,
       userType
-    ) + personalBrandContext;
+    ) + personalBrandContext + `
+
+✨ CRITICAL: EMOJI STYLING SYSTEM FOR CONCEPT TITLES
+When creating concept cards, include styling emojis in titles to communicate approach:
+✨ = Glamorous elegance, luxury styling
+💫 = Dreamy sophistication, ethereal beauty
+🔥 = Bold confidence, power styling  
+🌟 = Star quality, elevated luxury
+💎 = High-end refinement, precious luxury
+🌅 = Natural beauty, organic sophistication
+🏢 = Business authority, professional power
+💼 = Executive elegance, corporate chic
+🌊 = Flowing grace, fluid movements
+👑 = Regal sophistication, queen energy
+💃 = Dynamic energy, movement, dance
+📸 = Photo-ready perfection, camera-optimized
+🎬 = Cinematic drama, storytelling
+
+EXAMPLES:
+"🏢 The Executive Power Player" (for business looks)
+"✨ Glamorous Dinner Party Queen" (for luxury evening)
+"🔥 Bold Conference Commander" (for confident professional)
+"💫 Dreamy Lifestyle Goddess" (for ethereal casual)
+
+CRITICAL: These emojis communicate styling approaches to the generation system - they must be preserved in concept titles!`;
     
     // 🎨 MAYA CONCEPT CREATION - API CALL #1
     console.log('🎨 MAYA CONCEPT CREATION - API CALL #1');
