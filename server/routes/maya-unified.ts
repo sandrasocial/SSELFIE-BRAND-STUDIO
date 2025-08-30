@@ -1286,18 +1286,36 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       }
     }
     
-    // Create meaningful description from content
+    // CRITICAL FIX: Use Maya's intelligent styling descriptions instead of truncated content
     if (!description && conceptContent.length > 10) {
-      const firstSentence = conceptContent.split('.')[0];
-      if (firstSentence && firstSentence.length > 10 && firstSentence.length < 150) {
-        description = firstSentence + '.';
+      // First try to extract Maya's sophisticated styling descriptions
+      const stylingWords = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy'];
+      const sentences = conceptContent.split(/[.!?]+/).filter(s => s.trim().length > 10);
+      
+      // Find sentences with Maya's styling intelligence
+      const stylingDescription = sentences.find(sentence => {
+        const lowerSentence = sentence.toLowerCase();
+        return stylingWords.some(word => lowerSentence.includes(word)) && 
+               sentence.trim().length >= 20 && 
+               sentence.trim().length <= 150;
+      });
+      
+      if (stylingDescription) {
+        description = stylingDescription.trim() + (stylingDescription.endsWith('.') ? '' : '.');
+        console.log(`🎨 MAYA INTELLIGENCE: Using styling description - "${description}"`);
       } else {
-        description = conceptContent.substring(0, 120) + (conceptContent.length > 120 ? '...' : '');
+        // Fallback: First meaningful sentence (not truncated content)
+        const firstSentence = sentences[0];
+        if (firstSentence && firstSentence.length > 15 && firstSentence.length < 150) {
+          description = firstSentence.trim() + (firstSentence.endsWith('.') ? '' : '.');
+        } else {
+          description = `${conceptName} - Maya's sophisticated styling concept`;
+        }
       }
     }
     
     if (!description) {
-      description = `${conceptName} styling concept with Maya's professional expertise`;
+      description = `${conceptName} - Maya's professional styling vision`;
     }
     
     // PHASE 1 & 2: Store Maya's complete original concept context for consistency
@@ -1376,7 +1394,30 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
           const concept: ConceptCard = {
             id: `concept_general_${Date.now()}`,
             title: conceptName,
-            description: conceptContent.substring(0, 120) + (conceptContent.length > 120 ? '...' : ''),
+            description: (() => {
+              // Use Maya's intelligent styling description instead of truncated content
+              const stylingWords = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy'];
+              const sentences = conceptContent.split(/[.!?]+/).filter(s => s.trim().length > 10);
+              
+              const stylingDescription = sentences.find(sentence => {
+                const lowerSentence = sentence.toLowerCase();
+                return stylingWords.some(word => lowerSentence.includes(word)) && 
+                       sentence.trim().length >= 20 && 
+                       sentence.trim().length <= 150;
+              });
+              
+              if (stylingDescription) {
+                console.log(`🎨 MAYA INTELLIGENCE: General concept using styling description`);
+                return stylingDescription.trim() + (stylingDescription.endsWith('.') ? '' : '.');
+              } else {
+                const firstSentence = sentences[0];
+                if (firstSentence && firstSentence.length > 15 && firstSentence.length < 150) {
+                  return firstSentence.trim() + (firstSentence.endsWith('.') ? '' : '.');
+                } else {
+                  return `${conceptName} - Maya's sophisticated styling vision`;
+                }
+              }
+            })(),
             originalContext: `${conceptName}: ${conceptContent}`.trim(),
             fullPrompt: undefined,
             canGenerate: true,
