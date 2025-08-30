@@ -32,12 +32,17 @@ const router = Router();
 
 // PHASE 3: Performance Optimization - Maya Context Caching System  
 // Reduces Claude API calls by ~50% while maintaining perfect consistency
+// 🧹 CACHE CLEARED FOR DIVERSE STYLING - Ensures fresh, non-repetitive styling patterns
 const mayaContextCache = new Map<string, { 
   originalContext: string, 
   conceptName: string,
   timestamp: number 
 }>();
 const MAYA_CONTEXT_CACHE_TTL = 10 * 60 * 1000; // 10 minutes for context reuse
+
+// 🧹 IMMEDIATE CACHE CLEAR: Remove all cached styling patterns to eliminate repetitive blazer/camel/wool styling
+mayaContextCache.clear();
+console.log('🧹 MAYA CACHE CLEARED: Removed all cached styling patterns for fresh, diverse concepts');
 
 // PHASE 3: Cache cleanup utility
 function cleanupMayaContextCache() {
@@ -1194,8 +1199,8 @@ async function processMayaResponse(response: string, context: string, userId: st
     
     // Third try: Extract only styling descriptions, NEVER use conversational text
     if (!extractedPrompt) {
-      // Look for detailed styling descriptions in Maya's response
-      const stylingPattern = /([A-Z][^.]*(?:blazer|dress|jeans|shirt|blouse|jacket|coat|pants|skirt|top|outfit|wearing|styled|tailored|leather|silk|cotton|wool|fabric|textured|patterned|colored|fitted|flowing|structured|hair|makeup|shot|camera|lighting|photograph|full.body|half.body|standing|sitting|walking|pose|environment|location|setting)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/gi;
+      // Look for detailed styling descriptions in Maya's response - DIVERSE PATTERN MATCHING
+      const stylingPattern = /([A-Z][^.]*(?:wearing|styled|tailored|textured|patterned|colored|fitted|flowing|structured|photographed|shot|camera|lighting|full.body|half.body|standing|sitting|walking|pose|environment|location|setting)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/gi;
       const stylingMatches = response.match(stylingPattern);
       
       if (stylingMatches && stylingMatches.length > 0) {
@@ -1423,9 +1428,9 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
         const clean = sentence.trim().toLowerCase();
         const isStyleContent = clean.includes('👗 styling:') || clean.includes('styling:') || 
                                (clean.length >= 30 && clean.length <= 200 && 
-                                (clean.includes('blazer') || clean.includes('dress') || clean.includes('jumpsuit') ||
-                                 clean.includes('gown') || clean.includes('silhouette') || clean.includes('silk') ||
-                                 clean.includes('velvet') || clean.includes('paired with') || clean.includes('neckline')));
+                                (clean.includes('wearing') || clean.includes('styled') || clean.includes('textured') ||
+                                 clean.includes('flowing') || clean.includes('silhouette') || clean.includes('paired with') ||
+                                 clean.includes('layered') || clean.includes('finished with') || clean.includes('complemented by')));
         const isTechnical = clean.includes('shot on') || clean.includes('85mm') || clean.includes('f/2.8') ||
                            clean.includes('lens') || clean.includes('lighting') || clean.includes('technical:');
         return isStyleContent && !isTechnical;
@@ -1937,10 +1942,12 @@ CRITICAL IMAGE RESTRICTIONS:
 - ALWAYS generate single, cohesive images showing one complete moment/outfit
 
 CREATIVE STYLING APPROACH:
-Let your styling intelligence flow naturally! Create unexpected, beautiful combinations that showcase your expertise:
-- Use your fashion week knowledge for unique textures, unexpected color pairings, innovative silhouettes
-- Draw from current trends but add your signature twist 
-- Mix luxury with accessibility, structure with softness, classic with contemporary
+Let your styling intelligence flow naturally! Create completely diverse, unexpected combinations that showcase your expertise:
+- AVOID repetitive styling patterns - vary colors, textures, silhouettes, and styling formulas
+- Create UNIQUE fashion combinations for each request - no repeated blazer/camel/wool patterns
+- Use your fashion week knowledge for innovative textures, surprising color pairings, diverse silhouettes
+- Draw from ALL fashion categories: streetwear, avant-garde, bohemian, minimalist, maximalist, romantic
+- Mix luxury with accessibility, structure with softness, classic with contemporary, casual with formal
 
 SHOT TYPE CREATIVE FREEDOM:
 YOU decide the best shot type based on the concept! Express your creative vision:
