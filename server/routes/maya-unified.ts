@@ -500,8 +500,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                           mayaContextCache.set(cacheKey, {
                             originalContext,
                             conceptName,
-                            timestamp: Date.now(),
-                            enhancedContext: conceptCard.enhancedContext // Store enhanced context in cache
+                            timestamp: Date.now()
                           });
                           
                           console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
