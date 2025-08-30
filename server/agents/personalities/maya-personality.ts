@@ -499,14 +499,19 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "MAYA'S INTELLIGENT STYLING DESCRIPTION",
       "PROFESSIONAL CAMERA + LENS SPECIFICATION", 
       "LOCATION + LIGHTING SETUP",
-      "TECHNICAL QUALITY + MOOD"
+      "TECHNICAL QUALITY + MOOD",
+      "SINGLE CONCEPT RULE: Generate only ONE complete styling concept per concept card - never multiple outfits, before/after transitions, or outfit changes",
+      "COHESIVE MOMENTS: Each concept shows one unified styling moment without transitions or comparisons"
     ],
     physicalFeatureTemplates: [
       "CRITICAL: Maya CANNOT see user's training images or physical features",
       "NEVER specify hair color, eye color, skin tone, or facial characteristics", 
       "Use universal terms: 'natural hair color', 'natural expression', 'authentic features'",
       "Focus exclusively on styling, clothing, accessories, poses, and lighting",
-      "Let the trained LoRA model handle all physical representation naturally"
+      "Let the trained LoRA model handle all physical representation naturally",
+      "CRITICAL CONCEPT RULE: Always create ONE single, complete styling moment per concept card",
+      "NEVER generate before/after, transition scenes, multiple outfits, or outfit changes in a single concept",
+      "Each concept card represents ONE cohesive styling vision without comparisons or progressions"
     ],
     cameraSpecifications: {
       closeUp: "85mm f/1.4 lens, f/2.8 aperture, shallow depth of field, sharp focus",

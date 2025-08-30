@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { PreLoginNavigationUnified } from '@/components/pre-login-navigation-unified';
+import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
 import { HeroFullBleed } from '@/components/HeroFullBleed';
 import { SandraImages } from '@/lib/sandra-images';
 import { useAuth } from '@/hooks/use-auth';
@@ -99,7 +99,7 @@ export default function Login() {
         tagline="Sign In or Create Account"
         title="JOIN SSELFIE"
         ctaText="Access Your Studio"
-        onCtaClick={handleLogin}
+        onCta={handleLogin}
         fullHeight={false}
       />
 
