@@ -153,10 +153,10 @@ export const useMayaGeneration = (
         }
       }, 15000);
       
-      // ZERO TOLERANCE ANTI-HARDCODE: Let Maya use her full intelligence for personal branding
-      // Clean up concept name (remove emojis and extra text) but preserve user intent
-      const cleanConceptName = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
-      let finalPrompt = cleanConceptName; // Pure concept - let Maya decide style, not hardcoded "professional"
+      // CRITICAL FIX: Keep Maya's emojis for styling identification - don't strip them!
+      // Maya uses emojis to communicate styling approaches to the backend
+      // Emojis like ✨💫🔥 are part of Maya's intelligent styling system
+      let finalPrompt = conceptName; // Keep the full concept name with emojis for proper styling identification
       // Maya will analyze the concept and create appropriate personal branding imagery using her AI
 
       console.log('Maya: Starting concept generation for:', finalPrompt);
