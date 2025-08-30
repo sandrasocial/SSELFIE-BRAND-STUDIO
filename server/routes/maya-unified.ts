@@ -238,6 +238,10 @@ Use this context to provide personalized styling advice that aligns with their t
     const data = await claudeResponse.json();
     let mayaResponse = data.content[0].text;
     
+    // PHASE 1 DEBUG: Log Maya's actual response to user
+    console.log('🎯 MAYA USER RESPONSE (what user sees):');
+    console.log(mayaResponse);
+    
     // Process Maya's unified response
     const processedResponse = await processMayaResponse(
       mayaResponse, 
@@ -1603,15 +1607,28 @@ Use this context to customize styling choices that align with their unique trans
     
     // Use original context as-is - Maya's responses are already properly formatted
     const cleanOriginalContext = originalContext || '';
+    
+    // PHASE 1 DEBUG: Log context being sent to concept generation
+    console.log('🔍 CONTEXT BEING SENT TO CONCEPT GENERATION:');
+    console.log(cleanOriginalContext);
 
     // MAYA'S INTELLIGENT PROMPT EXTRACTION - CATEGORY-AWARE STYLING
     let categorySpecificGuidance = '';
+    const detectedCategory = category || 'General';
+    
+    // PHASE 1 DEBUG: Log category detection
+    console.log('📝 CATEGORY DETECTED:', detectedCategory);
+    console.log('🎨 MAYA STYLING CONTEXT INPUT:', originalContext);
+    
     if (category) {
       console.log(`🎨 MAYA CATEGORY TARGETING: Using ${category} specific styling approaches`);
       categorySpecificGuidance = `
 
 🎯 CATEGORY-SPECIFIC STYLING FOCUS: ${category.toUpperCase()}
 CRITICAL: Use your ${category} styling approaches loaded in your personality. Reference the specific styling techniques, outfit formulas, and aesthetic principles for this category.`;
+      
+      // PHASE 1 DEBUG: Log category guidance
+      console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
     }
 
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
@@ -1705,6 +1722,10 @@ GENERATE: Natural styling description that flows directly after the technical pr
     const data = await claudeResponse.json();
     let generatedPrompt = data.content[0].text.trim();
     
+    // PHASE 1 DEBUG: Log raw Maya prompt response
+    console.log('⚡ RAW MAYA PROMPT RESPONSE:');
+    console.log(generatedPrompt);
+    
     // RESEARCH-BACKED PROMPT OPTIMIZATION - NO DUPLICATES, PROPER STRUCTURE
     // Phase 1: Clean Maya's conversational content while preserving styling intelligence
     generatedPrompt = cleanMayaPrompt(generatedPrompt);
@@ -1741,6 +1762,10 @@ GENERATE: Natural styling description that flows directly after the technical pr
         generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${fallbackContent}`;
       }
     }
+    
+    // PHASE 1 DEBUG: Log final cleaned prompt
+    console.log('✨ FINAL CLEANED PROMPT:');
+    console.log(generatedPrompt);
     
     // RESEARCH-BASED PROMPT LENGTH VALIDATION (FLUX 1.1 Pro optimal: 100-300 words)
     const wordCount = generatedPrompt.split(/\s+/).length;
