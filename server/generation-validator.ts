@@ -131,15 +131,21 @@ export function cleanMayaPrompt(prompt: string): string {
     .replace(/(?:OMG|omg|Yes|YES|Amazing|AMAZING|Perfect|PERFECT|Stunning|STUNNING|Incredible|INCREDIBLE)!?\s*/gi, '')
     .replace(/(?:this is giving me|I'm obsessing over|I can already see|we're talking about|I'm about to style|let me create)/gi, '')
     
+    // ENHANCED: Remove additional conversational elements
+    .replace(/I can help you.*?(?=\w)/gi, '')
+    .replace(/Here's.*?(?=\w)/gi, '')
+    
     // PROMPT FLOW CLEANUP: Remove formatting interruptions
-    .replace(/FLUX\s*1\.1\s*PRO\s*STYLING\s*PROMPT:\s*/gi, '')
-    .replace(/\[Shot\s*type:\s*[^\]]*\]/gi, '')
-    .replace(/\[Environment:\s*[^\]]*\]/gi, '')
-    .replace(/\[Lighting:\s*[^\]]*\]/gi, '')
-    .replace(/\[Camera:\s*[^\]]*\]/gi, '')
-    .replace(/\[Mood:\s*[^\]]*\]/gi, '')
-    .replace(/\[Style:\s*[^\]]*\]/gi, '')
-    .replace(/\[[^\]]*:\s*[^\]]*\]/gi, '') // Catch any other bracketed annotations
+    .replace(/FLUX\s+1\.1\s+PRO\s+STYLING\s+PROMPT:\s*/gi, '')
+    .replace(/\[Shot\s*type:.*?\]/gi, '')
+    .replace(/\[Environment:.*?\]/gi, '')
+    .replace(/\[Styling\s*focus:.*?\]/gi, '')
+    .replace(/\[Mood:.*?\]/gi, '')
+    .replace(/\[Camera:.*?\]/gi, '')
+    .replace(/\[Lighting:.*?\]/gi, '')
+    .replace(/\[Style:.*?\]/gi, '')
+    // Remove any remaining bracketed annotations (but preserve trigger word placeholders)
+    .replace(/\[(?!TRIGGER)[A-Za-z\s]+:.*?\]/gi, '')
     
     // Remove split image trigger language
     .replace(/(?:transformation|before and after|split|diptych|side.by.side|comparison|vs\.|versus)/gi, '')
