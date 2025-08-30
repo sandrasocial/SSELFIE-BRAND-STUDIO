@@ -376,6 +376,13 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     let finalPrompt = prompt.trim();
     
+    // TASK 3 DEBUG: Log which generation path is being taken
+    console.log(`🚧 TASK 3 GENERATION PATH DEBUG:`);
+    console.log(`📝 PROMPT: "${prompt}"`);
+    console.log(`🏷️ CONCEPT NAME: "${conceptName}" (length: ${conceptName?.length || 0})`);
+    console.log(`📋 CONCEPT ID: "${req.body.conceptId}"`);
+    console.log(`🔀 WILL USE: ${conceptName && conceptName.length > 0 ? 'CONCEPT CARD PATH' : 'CUSTOM PROMPT PATH'}`);
+
     // CRITICAL FIX: Use embedded prompts from concept cards OR Maya's AI for custom prompts
     // Concept cards have embedded prompts ready, custom prompts get Maya's full Claude API styling expertise
     if (conceptName && conceptName.length > 0) {
@@ -540,8 +547,17 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         detectedCategory = 'Instagram';
       }
       
+      // TASK 3 DEBUG: Log exactly what context Maya receives
+      console.log(`🔍 TASK 3 DEBUG - CONTEXT FLOW:`);
+      console.log(`📝 USER REQUEST: "${prompt}"`);
+      console.log(`🏷️ CONCEPT NAME: "${conceptName}"`);
+      console.log(`📋 ORIGINAL CONTEXT (first 300 chars): "${originalContext.substring(0, 300)}"`);
+      console.log(`🎯 DETECTED CATEGORY: "${detectedCategory}"`);
+      
       // CRITICAL: Apply enhanced cleaning to originalContext before using it
       const cleanedContext = cleanMayaPrompt(originalContext);
+      console.log(`🧹 CLEANED CONTEXT (first 300 chars): "${cleanedContext.substring(0, 300)}"`);
+      
       finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory);
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
       console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
