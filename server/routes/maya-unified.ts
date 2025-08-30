@@ -1620,6 +1620,15 @@ Use this context to customize styling choices that align with their unique trans
     console.log('📝 CATEGORY DETECTED:', detectedCategory);
     console.log('🎨 MAYA STYLING CONTEXT INPUT:', originalContext);
     
+    // PHASE 2 DEBUG: Check Maya's Instagram category loading
+    console.log('🔍 CHECKING MAYA INSTAGRAM CATEGORY:');
+    const mayaPersonalityForDebug = MAYA_PERSONALITY;
+    if (mayaPersonalityForDebug.categories?.Instagram) {
+      console.log('Instagram stylingApproach:', mayaPersonalityForDebug.categories.Instagram.stylingApproach);
+    } else {
+      console.log('❌ Instagram category NOT FOUND in Maya personality');
+    }
+    
     if (category) {
       console.log(`🎨 MAYA CATEGORY TARGETING: Using ${category} specific styling approaches`);
       categorySpecificGuidance = `
