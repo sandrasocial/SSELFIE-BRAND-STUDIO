@@ -1,0 +1,42 @@
+MAYA PROMPT FLOW CLEANUP - IMPLEMENTATION INSTRUCTIONS
+PROBLEM ANALYSIS
+Maya's prompts contain formatting interruptions that break the natural flow:
+
+"FLUX 1.1 PRO STYLING PROMPT:" text
+Bracketed annotations: [Shot type: ] [Environment: ] etc.
+Template formatting disrupting clean prompt generation
+
+IMPLEMENTATION STRATEGY
+Multi-layered approach: Fix source instructions + enhance cleaning functions as safety net.
+
+TASK 1: UPDATE MAYA'S SYSTEM INSTRUCTIONS
+File to Modify
+server/routes/maya-unified.ts
+Location
+Find the Claude API call in createDetailedPromptFromConcept function (around line 1680).
+Current Issue
+Look for instructions that tell Maya to add formatting elements like:
+typescript"Format your response with [Shot type:], [Environment:] sections"
+"Include FLUX 1.1 PRO STYLING PROMPT: prefix"
+Required Changes
+Find this section in the Claude API call:
+typescriptcontent: `CONTEXT PRESERVATION REQUEST: Transform this original styling concept into a FLUX prompt.
+Replace the entire prompt instruction with this clean version:
+typescriptcontent: `GENERATE CLEAN FLUX PROMPT: Transform this styling concept into a natural, flowing image generation prompt.
+
+ORIGINAL CONCEPT: "${conceptName}"
+ORIGINAL CONTEXT: "${cleanOriginalContext}"
+${categorySpecificGuidance}
+
+REQUIREMENTS:
+- Generate ONE continuous, natural-flowing prompt description
+- NO formatting elements like "FLUX 1.1 PRO STYLING PROMPT:" 
+- NO bracketed annotations like [Shot type:] or [Environment:]
+- START directly with styling description after technical tags
+- Use natural, descriptive language throughout
+- Include specific styling details from your personality knowledge
+- End naturally without template formatting
+
+TECHNICAL PREFIX (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
+
+GENERATE: Natural styling description that flows directly after the technical prefix.`
