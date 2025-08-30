@@ -209,6 +209,12 @@ Use this context to provide personalized styling advice that aligns with their t
       userType
     ) + personalBrandContext;
     
+    // 🎨 MAYA CONCEPT CREATION - API CALL #1
+    console.log('🎨 MAYA CONCEPT CREATION - API CALL #1');
+    console.log('Call ID: CONCEPT-' + Date.now());
+    console.log('Context: Creating concept descriptions');
+    console.log('Expected Output: Concept cards with styling descriptions');
+    
     // Single Claude API call with Maya's complete intelligence
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1804,6 +1810,13 @@ GENERATE: Natural styling description that flows directly after the technical pr
     console.log('🚀 SENDING TO CLAUDE API:');
     console.log(JSON.stringify(claudeRequest, null, 2));
 
+    // 🚀 MAYA PROMPT GENERATION - API CALL #2  
+    console.log('🚀 MAYA PROMPT GENERATION - API CALL #2');
+    console.log('Call ID: PROMPT-' + Date.now());
+    console.log('Context: Generating image prompts from concept');
+    console.log('Original Context Preserved:', !!cleanOriginalContext && cleanOriginalContext.length > 10);
+    console.log('Original Context Length:', cleanOriginalContext?.length || 0);
+    
     // Call Claude API for Maya's intelligent prompt generation
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
