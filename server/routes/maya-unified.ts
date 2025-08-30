@@ -243,6 +243,17 @@ Use this context to provide personalized styling advice that aligns with their t
 
     const data = await claudeResponse.json();
     let mayaResponse = data.content[0].text;
+
+    // ENHANCED CONTEXT PRESERVATION: Capture complete Maya context for API Call #2
+    const enhancedContext = {
+      originalMayaResponse: mayaResponse,
+      conversationHistory: fullConversationHistory.slice(-3), // Last 3 exchanges for context
+      userPersonalBrand: extractPersonalBrandContext(message),
+      categoryContext: context,
+      stylingReasoning: extractStylingReasoning(mayaResponse),
+      systemPrompt: enhancedPrompt, // Same system prompt used in API Call #1
+      timestamp: Date.now()
+    };
     
     // PHASE 1 DEBUG: Log Maya's actual response to user
     console.log('🎯 MAYA USER RESPONSE (what user sees):');
@@ -256,6 +267,14 @@ Use this context to provide personalized styling advice that aligns with their t
       userContext,
       generationInfo
     );
+
+    // ENHANCED CONTEXT PRESERVATION: Store in concept cards for API Call #2
+    if (processedResponse.conceptCards && processedResponse.conceptCards.length > 0) {
+      processedResponse.conceptCards.forEach(concept => {
+        concept.enhancedContext = enhancedContext;
+        console.log(`💾 ENHANCED CONTEXT STORED: Concept "${concept.title}" with complete Maya context (${enhancedContext.originalMayaResponse.length} chars)`);
+      });
+    }
     
     // Admin/Member aware conversation storage
     const savedChatId = await saveUnifiedConversation(
@@ -456,11 +475,12 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                       if (isMatch && conceptCard.originalContext) {
                         originalContext = conceptCard.originalContext;
                         
-                        // Cache the context for future use
+                        // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
                         mayaContextCache.set(cacheKey, {
                           originalContext,
                           conceptName,
-                          timestamp: Date.now()
+                          timestamp: Date.now(),
+                          enhancedContext: conceptCard.enhancedContext // Store enhanced context in cache
                         });
                         
                         console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
@@ -568,7 +588,17 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       
       // TASK 4: Pipeline confirmation logs
       console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory);
+      // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
+      let retrievedEnhancedContext = null;
+      const enhancedContextCache = mayaContextCache.get(cacheKey);
+      if (enhancedContextCache && enhancedContextCache.enhancedContext) {
+        retrievedEnhancedContext = enhancedContextCache.enhancedContext;
+        console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
+      } else {
+        console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
+      }
+      
+      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
       console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
       console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
@@ -576,7 +606,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     } else {
       // PHASE 3: Custom prompt enhancement using Maya's styling intelligence
       console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called (custom path)');
-      finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`);
+      finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`, undefined, undefined);
       console.log('🎨 MAYA STYLED PROMPT (custom):', finalPrompt.substring(0, 300));
       console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation (custom)');
       console.log(`✅ MAYA CUSTOM ENHANCEMENT: Enhanced prompt to ${finalPrompt.length} characters`);
@@ -1036,6 +1066,39 @@ When appropriate, offer contextual suggestions that feel natural to the conversa
   return baseMayaPersonality + enhancement;
 }
 
+// ENHANCED CONTEXT PRESERVATION: Supporting functions
+function extractPersonalBrandContext(userMessage: string): string {
+  // Extract user's personal brand indicators from their request
+  const brandKeywords = ['entrepreneur', 'CEO', 'creative', 'influencer', 'professional', 'business', 'startup', 'coach', 'consultant'];
+  const personalStyle = ['minimalist', 'bold', 'elegant', 'edgy', 'sophisticated', 'modern', 'classic', 'luxury'];
+  
+  const lowerMessage = userMessage.toLowerCase();
+  const foundBrand = brandKeywords.find(keyword => lowerMessage.includes(keyword));
+  const foundStyle = personalStyle.find(style => lowerMessage.includes(style));
+  
+  return `Brand focus: ${foundBrand || 'general professional'}, Style preference: ${foundStyle || 'versatile'}, Context: ${userMessage.substring(0, 200)}`;
+}
+
+function extractStylingReasoning(mayaResponse: string): string {
+  // Extract Maya's reasoning about why she chose specific styling
+  // Look for reasoning patterns in her response
+  const reasoningPatterns = [
+    /(?:because|since|for|to create).*?(?:\.|!|\?)/gi,
+    /(?:this creates|this conveys|this ensures).*?(?:\.|!|\?)/gi,
+    /(?:perfect for|ideal for|great for).*?(?:\.|!|\?)/gi
+  ];
+  
+  let reasoning = '';
+  for (const pattern of reasoningPatterns) {
+    const matches = mayaResponse.match(pattern);
+    if (matches) {
+      reasoning += matches.join(' ');
+    }
+  }
+  
+  return reasoning || 'Styling chosen for category appropriateness, visual impact, and personal branding effectiveness.';
+}
+
 async function processMayaResponse(response: string, context: string, userId: string, userContext: any, generationInfo: any) {
   let processed = {
     message: response,
@@ -1214,6 +1277,7 @@ interface ConceptCard {
   canGenerate: boolean;
   isGenerating: boolean;
   generatedImages?: string[];
+  enhancedContext?: any; // ENHANCED CONTEXT PRESERVATION: Complete Maya context from API Call #1
 }
 
 const parseConceptsFromResponse = async (response: string, userId?: string): Promise<ConceptCard[]> => {
@@ -1641,7 +1705,7 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
 }
 
 // MAYA'S AI-DRIVEN PROMPT GENERATION - CATEGORY-AWARE STYLING
-async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalContext?: string, category?: string): Promise<string> {
+async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalContext?: string, category?: string, enhancedMayaContext?: any): Promise<string> {
   // ✅ MAYA INTELLIGENCE PRESERVATION: Ensures old concept cards maintain Maya's styling expertise
   // This function applies Maya's full intelligence to both fresh requests and stored concept cards
   console.log(`🎨 MAYA INTELLIGENCE ACTIVATION: Processing "${conceptName}" with preserved context (${originalContext?.length || 0} chars)`);
@@ -1783,11 +1847,23 @@ Express your creative vision authentically with flawless anatomical details!`;
 ORIGINAL CONCEPT: "${conceptName}"
 
 ${cleanOriginalContext && cleanOriginalContext.length > 10 ? 
-  `✅ PRESERVED MAYA CONTEXT: This user clicked on a previously created concept card. This is Maya's original styling vision that MUST be preserved and enhanced:
+  `✅ COMPLETE MAYA CONTEXT RESTORATION:
 
-"${cleanOriginalContext}"
+ORIGINAL CONVERSATION CONTEXT:
+${enhancedMayaContext?.conversationHistory?.map(msg => `${msg.role}: ${msg.content?.substring(0, 200)}...`).join('\n') || 'No conversation history available'}
 
-CRITICAL: Use this original context as your foundation. Build upon Maya's previous styling intelligence while enhancing it with your current expertise. Do NOT replace this vision - enhance and refine it.` : 
+MAYA'S ORIGINAL STYLING VISION:
+${enhancedMayaContext?.originalMayaResponse?.substring(0, 1000) || cleanOriginalContext}
+
+MAYA'S STYLING REASONING:
+${enhancedMayaContext?.stylingReasoning || 'Styling chosen for category appropriateness and visual impact'}
+
+USER'S PERSONAL BRAND CONTEXT:
+${enhancedMayaContext?.userPersonalBrand || 'General personal branding focus'}
+
+CATEGORY CONTEXT: ${enhancedMayaContext?.categoryContext || category || 'General'}
+
+CRITICAL INSTRUCTION: You created this concept in a previous conversation. Use your EXACT original styling vision as the foundation. Do not create new styling - enhance and refine what you already created while maintaining complete consistency with your original concept.` : 
   '🆕 FRESH CREATION: No previous context available. Create an original styling vision using your full intelligence.'}
 
 ${categorySpecificGuidance || ''}
@@ -1825,7 +1901,17 @@ GENERATE: Natural styling description that flows directly after the technical pr
         'x-api-key': process.env.ANTHROPIC_API_KEY!,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify(claudeRequest)
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 8000,
+        // ENHANCED: Use same system prompt as concept creation for consistency
+        system: enhancedMayaContext?.systemPrompt || mayaPromptPersonality,
+        messages: [
+          // Include conversation history for context continuity
+          ...(enhancedMayaContext?.conversationHistory || []),
+          claudeRequest.messages[0]
+        ]
+      })
     });
 
     if (!claudeResponse.ok) {
