@@ -634,7 +634,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       }
 
       // PHASE 3: Lazy generation using cached Maya context for perfect consistency
-      const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
+      // CRITICAL FIX: PRESERVE emojis in concept names - they're essential for styling communication
+      const userConcept = conceptName; // Keep emojis intact for styling system
       console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
       console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
       
