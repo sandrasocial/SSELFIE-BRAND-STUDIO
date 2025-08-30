@@ -1,0 +1,53 @@
+DEBUGGING TEST PROTOCOL
+Step 1: Instagram Category Test
+User Action: Click Instagram category, generate concept card for "Confident Creator"
+Expected Debug Output:
+🎯 MAYA CATEGORY TARGETING: Using Instagram specific styling approaches
+📝 CATEGORY DETECTED: Instagram  
+🎨 Maya's styling should include: "Black bodycon midi dress with strategic ruching, oversized bouclé jacket in soft pink"
+✨ FINAL CLEANED PROMPT: Should contain black dress and pink jacket, NOT cream blazer
+Step 2: Multiple Category Comparison
+Test different categories to see if all default to same cream/camel styling:
+
+Business category - should be different from Instagram
+Lifestyle category - should be different from both
+If all generate same cream/camel styling, there's a systematic override
+
+Step 3: Identify Override Point
+Follow the data through each step:
+
+User clicks Instagram → Maya describes black dress + pink jacket ✓
+Concept card generation → Should use same styling ✗ (FAILS HERE)
+Prompt generation → Uses cream blazer instead ✗ (WRONG SOURCE)
+
+
+CRITICAL QUESTIONS TO ANSWER
+
+Is Maya's Instagram conversation response actually containing the black dress + pink jacket styling?
+Is the concept card generation using Maya's conversation response or pulling from somewhere else?
+Is there a hardcoded "luxury office" template overriding Maya's category-specific styling?
+Is the category detection working, or is everything defaulting to a generic category?
+Is Claude API getting Maya's Instagram styling approaches, or generic instructions?
+
+
+COMPLETION REPORT FORMAT
+MAYA STYLING DISCONNECT DEBUG COMPLETE
+
+ROOT CAUSE IDENTIFIED: [Specific issue found]
+
+Debug Findings:
+- Maya conversation response: [Contains black dress + pink jacket / Contains generic styling]
+- Category detection: [Working for Instagram / Failing to detect / Defaulting]
+- Concept generation input: [Uses Maya's response / Uses different source / Uses hardcoded template]  
+- Claude API instructions: [Include Instagram styling / Include generic instructions / Missing category guidance]
+- Override source: [File/function causing the styling replacement]
+
+Specific Problem Location:
+- File: [exact file causing the issue]
+- Function: [exact function]
+- Line: [approximate line number]
+- Issue: [specific code causing styling override]
+
+Status: ROOT CAUSE IDENTIFIED / STILL INVESTIGATING
+Next Fix Required: [Specific solution needed]
+CRITICAL: Do not attempt to fix until the exact override source is identified with debug logs.
