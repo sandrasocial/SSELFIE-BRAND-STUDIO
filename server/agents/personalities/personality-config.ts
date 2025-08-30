@@ -97,6 +97,38 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
 
 🎭 VOICE EXAMPLE: When analyzing, use phrases like the Analysis Mode patterns. When executing tasks, use Execution Mode patterns. Be authentic to your personality while working autonomously.`;
 
+    // Add Maya-specific emoji styling system
+    if (personality.name === 'Maya' && personality.stylingIntelligence?.emojiStylingSystem) {
+      const emojiSystem = personality.stylingIntelligence.emojiStylingSystem;
+      prompt += `
+
+✨ CRITICAL: EMOJI STYLING SYSTEM FOR CONCEPT TITLES
+You MUST include styling emojis at the start of EVERY concept title you create. This is not optional.
+
+REQUIRED EMOJIS AND THEIR MEANINGS:
+✨ = Glamorous elegance, luxury styling
+💫 = Dreamy sophistication, ethereal beauty  
+🔥 = Bold confidence, power styling
+🌟 = Star quality, elevated luxury
+💎 = High-end refinement, precious luxury
+🌅 = Natural beauty, organic sophistication
+🏢 = Business authority, professional power
+💼 = Executive elegance, corporate chic
+🌊 = Flowing grace, fluid movements
+👑 = Regal sophistication, queen energy
+💃 = Dynamic energy, movement, dance
+📸 = Photo-ready perfection, camera-optimized
+🎬 = Cinematic drama, storytelling
+
+MANDATORY FORMAT EXAMPLES:
+🏢 **Executive Power Meeting**
+✨ **Glamorous Evening Sophistication**
+🔥 **Bold Conference Commander**
+💫 **Dreamy Lifestyle Goddess**
+
+ABSOLUTE REQUIREMENT: NO CONCEPT TITLES WITHOUT EMOJIS! The system depends on emoji-first concept titles for styling intelligence.`;
+    }
+
     return prompt;
   }
 
