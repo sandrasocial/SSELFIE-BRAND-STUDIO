@@ -265,11 +265,13 @@ FORMAT EACH CONCEPT AS:
 
 CRITICAL REQUIREMENT: Every concept title MUST start with an emoji! Examples:
 📸 **Content Creator Coffee Sessions**
-🏢 **Executive Meeting Mastery**
+🏢 **Executive Meeting Mastery**  
 ✨ **Glamorous Evening Networking**
 💼 **Professional Power Presentation**
 
 NEVER format concepts without emojis - the system depends on emoji-first concept titles!
+
+ABSOLUTE REQUIREMENT: START EVERY CONCEPT WITH AN EMOJI. NO EXCEPTIONS!
 
 FLUX_PROMPT: [Technical FLUX prompt - natural language, 100-250 words, no conversational elements]
 
@@ -310,6 +312,11 @@ This single call creates concept cards with embedded prompts, eliminating dual A
       systemPrompt: enhancedPrompt, // Same system prompt used in API Call #1
       timestamp: Date.now()
     };
+    
+    // CRITICAL DEBUG: Log Maya's raw response to check for emojis
+    console.log('🔍 MAYA RAW RESPONSE FROM CLAUDE API:');
+    console.log(mayaResponse.substring(0, 500) + '...');
+    console.log('🔍 EMOJI CHECK: Contains emojis?', /[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/.test(mayaResponse));
     
     // PHASE 1 DEBUG: Log Maya's actual response to user
     console.log('🎯 MAYA USER RESPONSE (what user sees):');
