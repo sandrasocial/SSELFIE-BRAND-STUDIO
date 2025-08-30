@@ -945,17 +945,59 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
       // Get Maya's AI-driven parameter selection using the correct method
       const mayaResponse = await claudeService.sendMessage(mayaParameterPrompt, `parameter_selection_${Date.now()}`, 'maya', false);
       
-      // Extract JSON from Maya's response
+      // Extract JSON from Maya's response with comprehensive parsing  
       let mayaChoice;
       try {
-        const jsonMatch = mayaResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          mayaChoice = JSON.parse(jsonMatch[0]);
-        } else {
-          throw new Error('No JSON found in Maya response');
+        // COMPREHENSIVE APPROACH: Maya's response might have the JSON with extra text
+        // Look for the most complete JSON object in the response
+        let jsonString = '';
+        
+        // Try multiple strategies to extract valid JSON
+        const strategies = [
+          // Strategy 1: Look for complete JSON block
+          () => {
+            const match = mayaResponse.match(/\{[^{}]*"count"[^{}]*"reasoning"[^{}]*\}/);
+            return match ? match[0] : null;
+          },
+          // Strategy 2: Look for any JSON-like structure
+          () => {
+            const match = mayaResponse.match(/\{[\s\S]*\}/);
+            return match ? match[0] : null;
+          },
+          // Strategy 3: Manually construct if we find count and reasoning
+          () => {
+            const countMatch = mayaResponse.match(/"count":\s*(\d+)/);
+            const reasoningMatch = mayaResponse.match(/"reasoning":\s*"([^"]+)"/);
+            if (countMatch && reasoningMatch) {
+              return `{"count": ${countMatch[1]}, "reasoning": "${reasoningMatch[1]}"}`;
+            }
+            return null;
+          }
+        ];
+        
+        // Try each strategy
+        for (let i = 0; i < strategies.length; i++) {
+          const result = strategies[i]();
+          if (result) {
+            jsonString = result;
+            console.log(`🎯 MAYA JSON: Strategy ${i + 1} succeeded`);
+            break;
+          }
         }
+        
+        if (!jsonString) {
+          throw new Error('No valid JSON found with any strategy');
+        }
+        
+        // Now parse the extracted JSON
+        console.log(`🧹 MAYA JSON EXTRACTED:`, jsonString.substring(0, 200));
+        mayaChoice = JSON.parse(jsonString);
+        console.log(`✅ MAYA JSON PARSE: Success!`);
+        
       } catch (parseError) {
         console.log(`⚠️ MAYA PARAMETER PARSE FAILED, using default count:`, parseError);
+        console.log(`📝 MAYA RESPONSE DEBUG (first 300 chars):`, mayaResponse.substring(0, 300));
+        
         // Fallback to intelligent count selection - FORCE TO 1
         return {
           count: 1, // Always generate 1 perfect image per concept
