@@ -117,7 +117,7 @@ function Maya() {
     activeGenerations,
     setActiveGenerations,
     // REMOVED: preset, setPreset, seed, setSeed - Maya AI handles parameters
-    // generateFromConcept - REMOVED: legacy function eliminated
+    generateFromConcept,
     generateImages,
     saveToGallery,
     generateFromSpecificConcept
@@ -303,10 +303,8 @@ function Maya() {
         return newMap;
       });
       
-      // SINGLE API CALL ARCHITECTURE: Use concept-specific generation only
-      // Legacy generateFromConcept removed - all generation now uses embedded FLUX prompts
-      console.log('LEGACY CODE ELIMINATED: generateFromConcept call removed for clean architecture');
-      sendMessage(buttonText); // Convert to regular chat message for Maya to handle
+      // Generate images for this concept using Maya's intelligence
+      generateFromConcept(buttonText, setMessages, currentChatId);
     } else {
       // Regular chat message - let Maya respond intelligently
       sendMessage(buttonText);
@@ -1926,7 +1924,7 @@ function Maya() {
                               key={buttonIndex}
                               className="quick-button"
                               onClick={() => handleQuickButton(button, index)}
-                              disabled={activeGenerations.size > 0 && button.includes('Generate')}
+                              disabled={activeGenerations.size > 0 && (button.includes('✨') || button.includes('💫') || button.includes('💗') || button.includes('🔥') || button.includes('🌟') || button.includes('💎'))}
                             >
                               {button}
                             </button>
