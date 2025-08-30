@@ -373,13 +373,14 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     }
     
     let finalPrompt = prompt.trim();
+    let originalContext = '';
+    let preservedContext = '';
     
     // CRITICAL FIX: Use dedicated context storage for perfect concept-to-image consistency
     // Concept cards have embedded styling context, custom prompts get Maya's full Claude API expertise
     if (conceptName && conceptName.length > 0) {
       // PRIORITY 1: Dedicated context retrieval from originalStylingContext field
       const conceptId = req.body.conceptId;
-      let originalContext = '';
       
       // ENHANCED: Direct database retrieval from dedicated context storage
       try {
@@ -399,7 +400,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
               console.log(`🔍 MAYA CONCEPT SEARCH: Looking for "${conceptName}" in message (${message.content.length} chars)`);
               
               // Maya's trained format: **🎯 CATEGORY - NAME** followed by detailed styling description
-              const conceptPattern = /\*\*🎯\s*([^*]+?)\s*-\s*([^*]+?)\*\*\s*\n?([^*]+?)(?=\*\*|$)/gs;
+              // ENHANCED PATTERN: More flexible matching to capture Maya's styling descriptions
+              const conceptPattern = /\*\*🎯\s*([^*]+?)\s*-\s*([^*]+?)\*\*\s*([\s\S]+?)(?=\*\*🎯|$)/gs;
               let conceptMatch;
               
               while ((conceptMatch = conceptPattern.exec(message.content)) !== null) {
@@ -420,6 +422,11 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                   originalContext = detailedDescription;
                   console.log(`🎯 MAYA CONCEPT MATCH: Found styling description for "${conceptName}" (${originalContext.length} chars)`);
                   console.log(`🎨 STYLING PREVIEW: ${originalContext.substring(0, 200)}...`);
+                  console.log(`🔍 FULL MATCH DETAILS:`);
+                  console.log(`   Category: "${category}"`);
+                  console.log(`   Title: "${conceptTitle}"`);
+                  console.log(`   Full Description Length: ${detailedDescription.length}`);
+                  console.log(`   Raw Description: ${detailedDescription.substring(0, 300)}...`);
                   break;
                 }
               }
@@ -465,9 +472,9 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log(`⚠️ MAYA CONTEXT: No styling context found for "${conceptName}"`);
       }
       
-      // CRITICAL: Preserve original styling context without aggressive cleaning
-      // Only minimal cleaning to remove conversation markers, preserve all styling intelligence
-      const preservedContext = originalContext.replace(/\*\*/g, '').replace(/Maya:/gi, '').trim();
+      // CRITICAL: Preserve original styling context - minimal cleaning only
+      // Remove only conversation markers, keep ALL styling descriptions
+      preservedContext = originalContext.replace(/Maya:/gi, '').trim();
       finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, preservedContext);
     } else {
       // PHASE 3: Custom prompt enhancement using Maya's styling intelligence  
@@ -510,6 +517,13 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     console.log(`🚨 MAYA PROMPT DEBUG: Sending to FLUX (${finalPrompt.length} chars):`);
     console.log(`🎯 EXACT FLUX PROMPT: "${finalPrompt}"`);
     console.log(`🔧 MAYA GENERATION CONFIG: seed=${seed}, categoryContext="${categoryContext}"`);
+    
+    // 🔍 ADDITIONAL DEBUG: Track the prompt transformation pipeline
+    console.log(`📊 PROMPT TRANSFORMATION PIPELINE:`);
+    console.log(`   Original Concept Name: "${conceptName || 'N/A'}"`);
+    console.log(`   Extracted Context Length: ${originalContext?.length || 0} chars`);
+    console.log(`   Preserved Context Length: ${preservedContext?.length || 0} chars`);
+    console.log(`   Final Prompt Length: ${finalPrompt.length} chars`);
     
     const result = await ModelTrainingService.generateUserImages(
       userId,
