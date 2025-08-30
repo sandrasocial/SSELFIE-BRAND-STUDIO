@@ -522,10 +522,6 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
   conceptCards: text("concept_cards"), // JSON array of concept cards - CRITICAL FIX
   quickButtons: text("quick_buttons"), // JSON array of quick action buttons
   canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
-  // CRITICAL FIX: Add dedicated context preservation fields
-  originalStylingContext: text("original_styling_context"), // Maya's original styling description for exact reproduction
-  conceptDescription: text("concept_description"), // Display description shown in concept cards
-  stylingDetails: jsonb("styling_details"), // Structured styling metadata for consistency
   createdAt: timestamp("created_at").defaultNow(),
 });
 
