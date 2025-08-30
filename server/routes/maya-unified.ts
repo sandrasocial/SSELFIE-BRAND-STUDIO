@@ -558,12 +558,19 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       const cleanedContext = cleanMayaPrompt(originalContext);
       console.log(`🧹 CLEANED CONTEXT (first 300 chars): "${cleanedContext.substring(0, 300)}"`);
       
+      // TASK 4: Pipeline confirmation logs
+      console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
       finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory);
+      console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
+      console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
       console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
-      // PHASE 3: Custom prompt enhancement using Maya's styling intelligence  
+      // PHASE 3: Custom prompt enhancement using Maya's styling intelligence
+      console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called (custom path)');
       finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`);
+      console.log('🎨 MAYA STYLED PROMPT (custom):', finalPrompt.substring(0, 300));
+      console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation (custom)');
       console.log(`✅ MAYA CUSTOM ENHANCEMENT: Enhanced prompt to ${finalPrompt.length} characters`);
     }
     
