@@ -1688,21 +1688,14 @@ Ensure all anatomy appears natural and professional:
 
 Express your creative vision authentically with flawless anatomical details!`;
 
-    // Call Claude API for Maya's intelligent prompt generation
-    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY!,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 1000,
-        system: mayaPromptPersonality,
-        messages: [{
-          role: 'user',
-          content: `GENERATE CLEAN FLUX PROMPT: Transform this styling concept into a natural, flowing image generation prompt.
+    // PHASE 3 DEBUG: Log complete Claude API request
+    const claudeRequest = {
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 1000,
+      system: mayaPromptPersonality,
+      messages: [{
+        role: 'user',
+        content: `GENERATE CLEAN FLUX PROMPT: Transform this styling concept into a natural, flowing image generation prompt.
 
 ORIGINAL CONCEPT: "${conceptName}"
 ORIGINAL CONTEXT: "${cleanOriginalContext}"
@@ -1720,8 +1713,21 @@ REQUIREMENTS:
 TECHNICAL PREFIX (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
 
 GENERATE: Natural styling description that flows directly after the technical prefix.`
-        }]
-      })
+      }]
+    };
+    
+    console.log('🚀 SENDING TO CLAUDE API:');
+    console.log(JSON.stringify(claudeRequest, null, 2));
+
+    // Call Claude API for Maya's intelligent prompt generation
+    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY!,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify(claudeRequest)
     });
 
     if (!claudeResponse.ok) {
@@ -1730,6 +1736,10 @@ GENERATE: Natural styling description that flows directly after the technical pr
 
     const data = await claudeResponse.json();
     let generatedPrompt = data.content[0].text.trim();
+    
+    // PHASE 3 DEBUG: Log Claude's complete raw response
+    console.log('📥 CLAUDE RAW RESPONSE:');
+    console.log(JSON.stringify(data, null, 2));
     
     // PHASE 1 DEBUG: Log raw Maya prompt response
     console.log('⚡ RAW MAYA PROMPT RESPONSE:');
