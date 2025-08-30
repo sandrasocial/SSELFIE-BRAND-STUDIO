@@ -1,0 +1,194 @@
+IMPLEMENTATION TASK
+File to Modify
+server/agents/personalities/maya-personality.ts
+Location
+Find the fluxOptimization section (approximately line 600-650).
+Current Parameters (TO BE UPDATED)
+typescriptfluxOptimization: {
+  closeUpPortrait: {
+    guidance_scale: 5,        // CHANGE TO: 2.8
+    num_inference_steps: 50,  // CHANGE TO: 40
+    lora_weight: 1.1,         // KEEP
+    megapixels: "1"          // KEEP
+  },
+  halfBodyShot: {
+    guidance_scale: 5,        // KEEP
+    num_inference_steps: 50,  // KEEP
+    lora_weight: 1.1,         // KEEP
+    megapixels: "1"          // KEEP
+  },
+  fullScenery: {
+    guidance_scale: 5,        // KEEP
+    num_inference_steps: 50,  // KEEP
+    lora_weight: 1.1,         // KEEP
+    megapixels: "1"          // KEEP
+  }
+}
+Required Changes
+STEP 1: Update closeUpPortrait parameters
+typescriptcloseUpPortrait: {
+  guidance_scale: 2.8,      // CHANGED: Lower for realistic portraits
+  num_inference_steps: 40,  // CHANGED: Reduced for natural features
+  lora_weight: 1.1,         // UNCHANGED
+  megapixels: "1"          // UNCHANGED
+},
+STEP 2: Verify halfBodyShot parameters remain
+typescripthalfBodyShot: {
+  guidance_scale: 5,        // UNCHANGED: Higher for styling detail
+  num_inference_steps: 50,  // UNCHANGED: Full steps for outfit accuracy
+  lora_weight: 1.1,         // UNCHANGED
+  megapixels: "1"          // UNCHANGED
+},
+STEP 3: Verify fullScenery parameters remain
+typescriptfullScenery: {
+  guidance_scale: 5,        // UNCHANGED: Higher for scene composition
+  num_inference_steps: 50,  // UNCHANGED: Full steps for environmental detail
+  lora_weight: 1.1,         // UNCHANGED
+  megapixels: "1"          // UNCHANGED
+}
+
+SYSTEM CONSISTENCY VERIFICATION
+Step 4: Check Other Files for Parameter References
+Search the entire codebase for FLUX parameter references that need consistency updates:
+Files to Check:
+
+server/generation-validator.ts
+server/unified-generation-service.ts
+client/src/hooks/useMayaGeneration.ts
+Any test files containing FLUX parameters
+Any configuration files with hardcoded parameters
+
+Search Commands:
+bash# Search for guidance_scale references
+grep -r "guidance_scale" server/ client/
+grep -r "num_inference_steps" server/ client/
+grep -r "3.5\|2.8\|40\|50" server/ client/ --include="*.ts" --include="*.js"
+Step 5: Validate generation-validator.ts
+File: server/generation-validator.ts
+Check for:
+
+Hardcoded guidance_scale values that don't match new parameters
+Parameter validation ranges that might reject new values
+Expected parameter combinations in validation logic
+
+Example issues to find:
+typescript// BAD: Hardcoded validation that rejects our new parameters
+if (params.guidance_scale < 3.0) {
+  throw new Error('guidance_scale too low');
+}
+
+// BAD: Hardcoded parameters overriding Maya's settings
+const defaultParams = {
+  guidance_scale: 5,  // This would override closeUp setting
+  num_inference_steps: 50
+};
+Step 6: Check unified-generation-service.ts
+File: server/unified-generation-service.ts
+Verify:
+
+No hardcoded FLUX parameters overriding Maya's settings
+Parameter passing preserves Maya's shot-type specific values
+No validation logic conflicting with new parameter ranges
+
+Step 7: Check Frontend Hooks
+File: client/src/hooks/useMayaGeneration.ts
+Ensure:
+
+No frontend parameter overrides
+No hardcoded default values
+Proper parameter forwarding from Maya's personality
+
+Step 8: Search for Parameter Conflicts
+Look for any files containing:
+
+Hardcoded guidance_scale: 5 that should use Maya's dynamic values
+Fixed num_inference_steps: 50 that should vary by shot type
+Parameter validation that might reject guidance_scale: 2.8
+Default parameter objects that override Maya's settings
+
+
+CONSISTENCY FIX PROTOCOL
+If Conflicts Found:
+Type 1: Hardcoded Parameter Override
+Problem: Other files setting fixed parameters instead of using Maya's values
+Fix: Remove hardcoded values, ensure Maya's parameters flow through
+Type 2: Validation Rejection
+Problem: Validation logic rejecting guidance_scale: 2.8 as too low
+Fix: Update validation ranges to accept new parameter values
+Type 3: Default Parameter Fallback
+Problem: Systems falling back to defaults instead of Maya's shot-specific values
+Fix: Ensure Maya's parameters take precedence over defaults
+Implementation Fixes:
+If generation-validator.ts has issues:
+typescript// BEFORE (problematic):
+const minGuidanceScale = 3.0;
+
+// AFTER (corrected):
+const minGuidanceScale = 2.5; // Allow Maya's 2.8 for closeUp
+If unified-generation-service.ts overrides parameters:
+typescript// BEFORE (problematic):
+const fluxParams = {
+  guidance_scale: 5, // Always uses 5
+  num_inference_steps: 50
+};
+
+// AFTER (corrected):  
+const fluxParams = mayaPersonality.fluxOptimization[shotType];
+
+EXPANDED SUCCESS CRITERIA
+Technical Verification:
+
+ closeUpPortrait parameters updated to 2.8/40
+ halfBodyShot parameters remain 5/50
+ fullScenery parameters remain 5/50
+ All lora_weight values are 1.1
+ No syntax or compilation errors
+ Server starts successfully
+
+System Consistency Verification:
+
+ generation-validator.ts accepts new parameter ranges
+ unified-generation-service.ts uses Maya's parameters (no overrides)
+ Frontend hooks don't override Maya's settings
+ No hardcoded parameters conflicting with Maya's values
+ All validation logic updated for new parameter ranges
+
+Quality Verification:
+
+ Close-up portraits use 2.8/40 parameters (more realistic)
+ Half-body shots use 5/50 parameters (detailed styling)
+ Full scenery shots use 5/50 parameters (environmental detail)
+ Shot type detection working correctly
+ No parameter override warnings in logs
+
+
+EXPANDED COMPLETION REPORT FORMAT
+FLUX PARAMETERS UPDATE & SYSTEM CONSISTENCY CHECK COMPLETE
+
+PRIMARY FILE MODIFIED:
+- server/agents/personalities/maya-personality.ts
+
+SYSTEM CONSISTENCY CHECKS:
+- server/generation-validator.ts: CONSISTENT/FIXED/ISSUES
+- server/unified-generation-service.ts: CONSISTENT/FIXED/ISSUES  
+- client/src/hooks/useMayaGeneration.ts: CONSISTENT/FIXED/ISSUES
+- [Other files checked]: CONSISTENT/FIXED/ISSUES
+
+CONFLICTS FOUND & RESOLVED:
+- [List any parameter conflicts discovered]
+- [Actions taken to resolve conflicts]
+
+PARAMETER VERIFICATION:
+- closeUpPortrait: 2.8/40 ✓
+- halfBodyShot: 5/50 ✓
+- fullScenery: 5/50 ✓
+
+SYSTEM INTEGRATION TEST:
+- Close-up generation: WORKING/ISSUES
+- Half-body generation: WORKING/ISSUES
+- Full scenery generation: WORKING/ISSUES
+- Parameter flow integrity: VERIFIED/ISSUES
+
+Status: SUCCESS / PARTIAL SUCCESS / ISSUES FOUND
+Remaining Issues: [List any unresolved problems]
+Report completion only after ALL system consistency checks verified.
