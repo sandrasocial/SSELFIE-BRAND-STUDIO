@@ -409,7 +409,7 @@ export class ModelTrainingService {
       
       // Maya's anatomy-optimized fluxOptimization parameters (guidance 5.0 for better hand quality)
       const mayaFluxParams = {
-        closeUpPortrait: { guidance_scale: 5.0, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" },
+        closeUpPortrait: { guidance_scale: 2.8, num_inference_steps: 40, lora_weight: 1.1, megapixels: "1" },
         halfBodyShot: { guidance_scale: 5.0, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" },
         fullScenery: { guidance_scale: 5.0, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" }
       }[shotType];
