@@ -1009,23 +1009,36 @@ function enhancePromptForContext(baseMayaPersonality: string, context: string, u
 - Use your styling expertise to be specific about colors, textures, silhouettes without asking for more details
 
 🎯 SINGLE API CALL CONCEPT GENERATION - COMPLETE STYLING SYSTEM:
-When creating styling concepts, you must generate BOTH the user-facing descriptions AND ready-to-use FLUX prompts in one response:
+When creating styling concepts, you MUST generate BOTH the user-facing descriptions AND ready-to-use FLUX prompts in one response.
+
+CRITICAL: Always include FLUX_PROMPT for every concept you create!
 
 REQUIRED FORMAT FOR EACH CONCEPT:
 **[Concept Name]**
 [Your natural styling description for the user - be warm and conversational]
 
-FLUX_PROMPT: [TRIGGER_WORD], [complete technical FLUX prompt ready for image generation]
+FLUX_PROMPT: ${generationInfo.triggerWord || '[TRIGGER_WORD]'}, [complete detailed styling prompt describing exactly what you envisioned in your concept description - be specific about outfit, colors, textures, pose, setting, mood - this must match your concept description exactly]
+
+EXAMPLE CORRECT FORMAT:
+**Morning Coffee Elegance**
+Picture this - you're having that golden hour coffee moment, but make it luxury! This is all about approachable sophistication that photographs beautifully.
+
+FLUX_PROMPT: ${generationInfo.triggerWord || '[TRIGGER_WORD]'}, elegant woman in cream cashmere sweater and camel trench coat, holding steaming coffee cup in modern kitchen with marble countertops, soft morning light streaming through windows, relaxed confident pose, luxurious casual styling, warm golden hour lighting, lifestyle photography
 
 NATURAL FORMAT FLEXIBILITY:
-- Present concepts however feels most natural to the conversation flow
+- Present concepts however feels most natural to the conversation flow  
 - Use bold formatting (**Concept Name**) to make concepts easy to identify
 - Each concept should showcase your styling expertise with specific details
 - Generate 3-6 diverse concepts that demonstrate your complete professional range
 - Make each concept feel unique and personalized to the user's style journey
+- MOST IMPORTANT: Every single concept must include a FLUX_PROMPT that matches your description
 
 FLUX PROMPT GENERATION RULES:
-- Start each FLUX prompt with the user's trigger word (if available)
+- Start each FLUX prompt with the user's trigger word
+- Be extremely specific about styling details (exact colors, fabrics, accessories)
+- Include pose, setting, lighting, and mood that matches your concept description
+- Make the FLUX prompt describe exactly what you described to the user
+- Use natural flowing language, not just keywords
 - Include professional photography technical details
 - Integrate Maya's styling vision: outfit details, colors, textures, accessories
 - Add quality tags: "raw photo, visible skin pores, film grain, professional photography"
@@ -1337,7 +1350,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   // ENHANCED CONCEPT DETECTION: Look for Maya's new format with embedded FLUX prompts
   // New Pattern: **Concept Name** + description + FLUX_PROMPT: [prompt]
   // Legacy Pattern: **Concept Name** followed by styling details (backward compatibility)
-  const singleCallPattern = /\*\*([^*\n]{5,80})\*\*([^]*?)(?:FLUX_PROMPT:\s*([^]*?)(?=\*\*[^*\n]{5,80}\*\*|$)|(?=\*\*[^*\n]{5,80}\*\*|$))/gs;
+  const singleCallPattern = /\*\*([^*\n]{5,80})\*\*([^]*?)(?:FLUX_PROMPT:\s*([^]*?)(?=\*\*[^*\n]{5,80}\*\*|FLUX_PROMPT:|$)|(?=\*\*[^*\n]{5,80}\*\*|$))/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   const singleConceptPattern = /\*\*([^*\n]+(?:Collection|Preview|Concept|Look|Style|Vibe)[^*\n]*)\*\*\s*\*([^*]+)\*/gs;
   
@@ -1357,6 +1370,38 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
     if (fluxPrompt) {
       console.log(`🚀 FLUX PROMPT FOUND: ${fluxPrompt.substring(0, 100)}...`);
+      console.log(`🚀 FLUX PROMPT LENGTH: ${fluxPrompt.length} characters`);
+    } else {
+      console.log(`❌ NO FLUX PROMPT FOUND - Will fall back to dual API call system`);
+      
+      // FALLBACK: If Maya didn't generate FLUX_PROMPT, create one from her concept content
+      if (conceptContent && conceptContent.length > 50) {
+        // Extract Maya's styling vision and convert it to a FLUX prompt
+        const stylingElements = [];
+        const lowerContent = conceptContent.toLowerCase();
+        
+        // Extract styling details from Maya's concept content
+        if (lowerContent.includes('wear') || lowerContent.includes('outfit')) {
+          const outfitMatch = conceptContent.match(/(?:wearing?|outfit|styled in)[^.!?]*[.!?]/i);
+          if (outfitMatch) stylingElements.push(outfitMatch[0].replace(/^(?:wearing?|outfit|styled in)\s*/i, ''));
+        }
+        
+        if (lowerContent.includes('setting') || lowerContent.includes('location') || lowerContent.includes('environment')) {
+          const settingMatch = conceptContent.match(/(?:setting|location|environment)[^.!?]*[.!?]/i);
+          if (settingMatch) stylingElements.push(settingMatch[0]);
+        }
+        
+        if (lowerContent.includes('mood') || lowerContent.includes('vibe') || lowerContent.includes('energy')) {
+          const moodMatch = conceptContent.match(/(?:mood|vibe|energy)[^.!?]*[.!?]/i);
+          if (moodMatch) stylingElements.push(moodMatch[0]);
+        }
+        
+        // Create a basic FLUX prompt from concept content if we have styling elements
+        if (stylingElements.length > 0) {
+          fluxPrompt = `${userId ? (await checkGenerationCapability(userId)).triggerWord || 'woman' : 'woman'}, ${stylingElements.join(', ').toLowerCase()}, professional photography, elegant styling`;
+          console.log(`🔄 GENERATED FALLBACK FLUX PROMPT: ${fluxPrompt.substring(0, 100)}...`);
+        }
+      }
     }
     
     // Clean up concept name - ENHANCED to handle Maya's formatting
