@@ -1926,7 +1926,7 @@ function Maya() {
                               key={buttonIndex}
                               className="quick-button"
                               onClick={() => handleQuickButton(button, index)}
-                              disabled={activeGenerations.size > 0 && (button.includes('✨') || button.includes('💫') || button.includes('💗') || button.includes('🔥') || button.includes('🌟') || button.includes('💎'))}
+                              disabled={activeGenerations.size > 0 && button.includes('Generate')}
                             >
                               {button}
                             </button>

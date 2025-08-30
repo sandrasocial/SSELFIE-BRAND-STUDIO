@@ -571,7 +571,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       }
 
       // PHASE 3: Lazy generation using cached Maya context for perfect consistency
-      const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
+      // MAYA PERSONALITY PRESERVATION: Keep concept name exactly as Maya created it
+      const userConcept = conceptName; // Maya's intelligent concept names preserved
       console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
       console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
       
