@@ -123,8 +123,8 @@ export function cleanMayaPrompt(prompt: string): string {
     .replace(/^(?:Oh honey,?\s*|Hey babe,?\s*|Girl,?\s*|Trust me,?\s*)/gi, '')
     .replace(/^(?:I'm getting|I can see|This is giving me)\s+/gi, '')
     
-    // Remove concept card formatting ONLY if it's clearly a title format
-    .replace(/\*\*🎯\s*[^*]*\*\*\s*/g, '') // Remove concept card titles like "**🎯 BUSINESS BOSS - Power Meeting**"
+    // CRITICAL FIX: DO NOT remove concept card content - only remove empty title lines
+    // Keep Maya's styling intelligence intact
     
     // Remove transformation language that triggers split images
     .replace(/(?:transformation|before and after|split|diptych|side.by.side|comparison)/gi, '')
@@ -137,7 +137,7 @@ export function cleanMayaPrompt(prompt: string): string {
   // CRITICAL: If cleaning removed too much content (>80%), return original to preserve Maya's styling
   if (cleaned.length < prompt.length * 0.2) {
     console.log('⚠️ MAYA STYLING RECOVERY: Cleaning removed too much content, using original');
-    cleaned = prompt.replace(/\*\*🎯\s*[^*]*\*\*\s*/g, '').trim();
+    cleaned = prompt.trim(); // Keep original content, Maya's styling is precious
   }
 
   console.log(`🔍 BEFORE CLEANING: ${prompt.substring(0, 200)}...`);
