@@ -1309,9 +1309,11 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   
-  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation
-  // Pattern 1: Multiple **Concept Name** followed by styling details
-  // Pattern 2: Single concept with "Story Collection Preview:" or similar formats
+  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation with emojis
+  // Pattern 1: Emoji + concept name (e.g., "📸 THE POWER PLAYER CASUAL")
+  // Pattern 2: Traditional **Concept Name** format
+  // Pattern 3: Single concept with "Story Collection Preview:" or similar formats
+  const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*([A-Z][A-Z\s]{7,50})\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]\s*[A-Z]|$)/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   const singleConceptPattern = /\*\*([^*\n]+(?:Collection|Preview|Concept|Look|Style|Vibe)[^*\n]*)\*\*\s*\*([^*]+)\*/gs;
   
@@ -1319,10 +1321,50 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  // Try multi-concept pattern first
-  while ((match = multiConceptPattern.exec(response)) !== null) {
-    let conceptName = match[1].trim();
-    let conceptContent = match[2].trim();
+  // Try emoji concept pattern first (Maya's new format)
+  while ((match = emojiConceptPattern.exec(response)) !== null) {
+    const emoji = match[1];
+    let conceptName = match[2].trim();
+    let conceptContent = match[3].trim();
+    
+    // Include emoji in the concept name for styling identification
+    conceptName = `${emoji} ${conceptName}`;
+    
+    console.log(`✨ EMOJI CONCEPT DEBUG: "${conceptName}"`);
+    console.log(`📝 CONCEPT CONTENT: "${conceptContent}"`);
+    console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
+    
+    // Enhanced validation for emoji-based styling concepts
+    const isStyleConcept = conceptName.length >= 8 && 
+                          conceptName.length <= 80 &&
+                          conceptName.match(/[a-zA-Z]/) &&
+                          conceptContent.length > 50; // Ensure substantial content
+    
+    if (isStyleConcept && !foundConcepts.has(conceptName)) {
+      foundConcepts.add(conceptName);
+      
+      // Enhanced description extraction for Maya's new emoji format
+      const description = conceptContent.substring(0, 120).trim() + (conceptContent.length > 120 ? '...' : '');
+      
+      console.log(`✅ EMOJI CONCEPT EXTRACTED: "${conceptName}" (${description.length} chars)`);
+      
+      concepts.push({
+        id: `concept_${conceptNumber++}`,
+        title: conceptName,
+        description: description,
+        originalContext: conceptContent.substring(0, 500),
+        canGenerate: true,
+        isGenerating: false
+      });
+    }
+  }
+  
+  // Try multi-concept pattern if no emoji concepts found
+  if (concepts.length === 0) {
+    multiConceptPattern.lastIndex = 0; // Reset regex
+    while ((match = multiConceptPattern.exec(response)) !== null) {
+      let conceptName = match[1].trim();
+      let conceptContent = match[2].trim();
     
     // DEBUG: Log what Maya actually provided for concept content
     console.log(`🎯 MAYA CONCEPT DEBUG: "${conceptName}"`);
@@ -1366,240 +1408,51 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     foundConcepts.add(conceptName.toLowerCase());
     
     // Extract styling elements from concept content
-    let description = '';
-    let outfit = '';
-    let setting = '';
-    let mood = '';
-    
-    // Parse Maya's styling descriptions
-    const lines = conceptContent.split('\n').filter(line => line.trim());
-    for (const line of lines) {
-      const cleanLine = line.trim();
-      if (cleanLine.length > 20 && cleanLine.length < 200) {
-        if (!description && cleanLine.includes('.')) {
-          description = cleanLine;
-        } else if (cleanLine.toLowerCase().includes('outfit') || cleanLine.toLowerCase().includes('wear')) {
-          outfit = cleanLine;
-        } else if (cleanLine.toLowerCase().includes('setting') || cleanLine.toLowerCase().includes('location')) {
-          setting = cleanLine;
-        } else if (cleanLine.toLowerCase().includes('mood') || cleanLine.toLowerCase().includes('vibe')) {
-          mood = cleanLine;
-        }
-      }
+    let description = conceptContent.substring(0, 120).trim();
+    if (description.length >= 120) {
+      description += '...';
     }
     
-    // CRITICAL FIX: Extract Maya's actual styling intelligence from concept content
-    if (!description && conceptContent.length > 10) {
-      // ENHANCED: Look for Maya's actual styling descriptions in the concept content
-      const sentences = conceptContent.split(/[.!?]+/).filter(s => s.trim().length > 15);
-      
-      // Priority 1: Find Maya's STYLING content (avoid technical photography details)
-      let bestDescription = sentences.find(sentence => {
-        const clean = sentence.trim().toLowerCase();
-        const isStyleContent = clean.includes('👗 styling:') || clean.includes('styling:') || 
-                               (clean.length >= 30 && clean.length <= 200 && 
-                                (clean.includes('blazer') || clean.includes('dress') || clean.includes('jumpsuit') ||
-                                 clean.includes('gown') || clean.includes('silhouette') || clean.includes('silk') ||
-                                 clean.includes('velvet') || clean.includes('paired with') || clean.includes('neckline')));
-        const isTechnical = clean.includes('shot on') || clean.includes('85mm') || clean.includes('f/2.8') ||
-                           clean.includes('lens') || clean.includes('lighting') || clean.includes('technical:');
-        return isStyleContent && !isTechnical;
-      });
-      
-      console.log(`🎨 PRIORITY 1 RESULT: ${bestDescription ? `"${bestDescription.trim()}"` : 'None found'}`);
-      
-      // Priority 2: Find Maya's beauty/styling descriptions (💄 BEAUTY:)
-      if (!bestDescription) {
-        bestDescription = sentences.find(sentence => {
-          const clean = sentence.trim().toLowerCase();
-          const isBeautyContent = clean.includes('💄 beauty:') || clean.includes('beauty:') ||
-                                 (clean.length >= 25 && clean.length <= 180 && 
-                                  (clean.includes('smokey') || clean.includes('glossy') || clean.includes('romantic') ||
-                                   clean.includes('hair') || clean.includes('makeup') || clean.includes('lip') ||
-                                   clean.includes('eye') || clean.includes('waves') || clean.includes('updo')));
-          const isTechnical = clean.includes('shot') || clean.includes('mm') || clean.includes('lighting');
-          return isBeautyContent && !isTechnical;
-        });
-      }
-      
-      // Priority 3: Find Maya's emotional styling language (but avoid technical)
-      if (!bestDescription) {
-        const stylingWords = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy', 'striking', 'commanding', 'refined'];
-        bestDescription = sentences.find(sentence => {
-          const clean = sentence.trim().toLowerCase();
-          const hasStyleWords = stylingWords.some(word => clean.includes(word));
-          const isTechnical = clean.includes('shot') || clean.includes('mm') || clean.includes('lighting') || clean.includes('lens');
-          return clean.length >= 25 && clean.length <= 180 && hasStyleWords && !isTechnical;
-        });
-      }
-      
-      // Priority 4: Use first substantial NON-TECHNICAL sentence from concept content
-      if (!bestDescription && sentences.length > 0) {
-        bestDescription = sentences.find(s => {
-          const clean = s.trim().toLowerCase();
-          const isTechnical = clean.includes('shot') || clean.includes('mm') || clean.includes('lens') || clean.includes('lighting');
-          return s.trim().length >= 20 && s.trim().length <= 150 && !isTechnical;
-        }) || sentences.find(s => s.trim().length >= 20 && s.trim().length <= 150);
-      }
-      
-      if (bestDescription) {
-        description = bestDescription.trim() + (bestDescription.trim().endsWith('.') ? '' : '.');
-        console.log(`🎨 MAYA STYLING EXTRACTED: "${description}"`);
-      } else {
-        // Final fallback: Create intelligent description from concept name and available content
-        const contentSnippet = conceptContent.substring(0, 80).trim();
-        description = contentSnippet.length > 20 ? 
-          `${contentSnippet}${contentSnippet.endsWith('.') ? '' : '...'}` :
-          `Sophisticated ${conceptName.toLowerCase()} styling concept with elevated personal branding focus.`;
-        console.log(`🎨 MAYA FALLBACK: Generated description from available content`);
-      }
-    }
+    console.log(`✅ CONCEPT EXTRACTED: "${conceptName}" (${description.length} chars)`);
     
-    // ENHANCED FALLBACK: Use Maya's response context when no specific description found
-    if (!description) {
-      // Try to extract from the full response around this concept
-      const conceptIndex = response.indexOf(conceptName);
-      if (conceptIndex !== -1) {
-        const contextBefore = response.substring(Math.max(0, conceptIndex - 200), conceptIndex);
-        const contextAfter = response.substring(conceptIndex + conceptName.length, Math.min(response.length, conceptIndex + conceptName.length + 200));
-        const fullContext = (contextBefore + conceptName + contextAfter).trim();
-        
-        const contextSentences = fullContext.split(/[.!?]+/).filter(s => s.trim().length > 20);
-        const contextDescription = contextSentences.find(s => 
-          s.toLowerCase().includes(conceptName.toLowerCase().split(' ')[0]) && 
-          s.trim().length >= 30 && s.trim().length <= 150
-        );
-        
-        if (contextDescription) {
-          description = contextDescription.trim() + (contextDescription.trim().endsWith('.') ? '' : '.');
-          console.log(`🎨 MAYA CONTEXT EXTRACTED: "${description}"`);
-        } else {
-          description = `Elevated ${conceptName.toLowerCase()} with sophisticated personal branding focus and professional styling details.`;
-        }
-      } else {
-        description = `Elevated ${conceptName.toLowerCase()} with sophisticated personal branding focus and professional styling details.`;
-      }
-    }
-    
-    // PHASE 1 & 2: Store Maya's complete original concept context for consistency
-    const fullOriginalContext = `${conceptName}: ${conceptContent}`.trim();
-    
-    // PHASE 3 OPTIMIZATION: Lazy Generation - No upfront prompt generation
-    // Store context for instant generation when user clicks, reducing Claude API calls by ~50%
-    // PHASE 3: Context cached for lazy generation
-    
-    const concept: ConceptCard = {
-      id: `concept_${conceptNumber}_${Date.now()}`,
+    concepts.push({
+      id: `concept_${conceptNumber++}`,
       title: conceptName,
       description: description,
-      originalContext: fullOriginalContext, // Maya's complete original styling context and reasoning - CACHED
-      fullPrompt: undefined, // PHASE 3: No upfront generation - generated on-demand for performance
-      canGenerate: true, // Always can generate if we have original context
-      isGenerating: false,
-      generatedImages: []
-    };
-    
-    concepts.push(concept);
-    conceptNumber++;
-    
-    console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
+      originalContext: conceptContent.substring(0, 500),
+      canGenerate: true,
+      isGenerating: false
+    });
+    }
   }
   
-  // If no multi-concepts found, try single concept pattern
+  // Try single concept pattern if still no concepts found
   if (concepts.length === 0) {
-    console.log('🎯 CONCEPT PARSING: No multi-concepts found, trying single concept detection...');
-    
-    // Look for single concept formats like "Story Collection Preview: Parisian Street Discovery"
-    const singleMatch = response.match(/\*\*([^*\n]*(?:Collection|Preview|Concept|Look|Style|Vibe|Story)[^*\n]*)\*\*\s*\*?([^*]*)/i);
-    
-    if (singleMatch) {
-      let conceptName = singleMatch[1].trim();
-      let conceptContent = singleMatch[2] || '';
+    singleConceptPattern.lastIndex = 0; // Reset regex
+    while ((match = singleConceptPattern.exec(response)) !== null) {
+      let conceptName = match[1].trim();
+      let conceptContent = match[2].trim();
       
-      // Also look for italicized description after the concept name
-      const italicMatch = response.match(/\*([^*]+creating[^*]*)\*/i) || response.match(/\*([^*]+captures[^*]*)\*/i);
-      if (italicMatch) {
-        conceptContent = italicMatch[1].trim() + '\n' + conceptContent;
-      }
+      console.log(`🎯 SINGLE CONCEPT DEBUG: "${conceptName}"`);
       
-      // Extract the actual prompt if it exists
-      const promptMatch = response.match(/\*([^*]*woman[^*]*photography[^*]*)\*/i);
-      if (promptMatch) {
-        conceptContent += '\n\nGenerated Prompt: ' + promptMatch[1].trim();
-      }
-      
-      if (conceptName.length > 8 && conceptContent.length > 20) {
-        const concept: ConceptCard = {
-          id: `concept_single_${Date.now()}`,
+      if (conceptName.length >= 8 && !foundConcepts.has(conceptName.toLowerCase())) {
+        foundConcepts.add(conceptName.toLowerCase());
+        
+        const description = conceptContent.substring(0, 120).trim() + (conceptContent.length > 120 ? '...' : '');
+        
+        concepts.push({
+          id: `concept_${conceptNumber++}`,
           title: conceptName,
-          description: italicMatch ? italicMatch[1].trim() : conceptContent.substring(0, 100) + '...',
-          originalContext: `${conceptName}: ${conceptContent}`.trim(),
-          fullPrompt: undefined,
+          description: description,
+          originalContext: conceptContent.substring(0, 500),
           canGenerate: true,
-          isGenerating: false,
-          generatedImages: []
-        };
-        
-        concepts.push(concept);
-        console.log(`🎯 SINGLE CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
-      }
-    }
-    
-    // If still no concepts, try a more general approach
-    if (concepts.length === 0) {
-      // Look for any bold concept-like titles
-      const generalMatch = response.match(/\*\*([^*\n]{15,100})\*\*/);
-      if (generalMatch) {
-        const conceptName = generalMatch[1].trim();
-        const conceptContent = response.substring(response.indexOf(conceptName) + conceptName.length, response.length).trim();
-        
-        if (conceptContent.length > 50) {
-          const concept: ConceptCard = {
-            id: `concept_general_${Date.now()}`,
-            title: conceptName,
-            description: (() => {
-              // Use Maya's intelligent styling description instead of truncated content
-              const stylingWords = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy'];
-              const sentences = conceptContent.split(/[.!?]+/).filter(s => s.trim().length > 10);
-              
-              const stylingDescription = sentences.find(sentence => {
-                const lowerSentence = sentence.toLowerCase();
-                return stylingWords.some(word => lowerSentence.includes(word)) && 
-                       sentence.trim().length >= 20 && 
-                       sentence.trim().length <= 150;
-              });
-              
-              if (stylingDescription) {
-                console.log(`🎨 MAYA INTELLIGENCE: General concept using styling description`);
-                return stylingDescription.trim() + (stylingDescription.endsWith('.') ? '' : '.');
-              } else {
-                const firstSentence = sentences[0];
-                if (firstSentence && firstSentence.length > 15 && firstSentence.length < 150) {
-                  return firstSentence.trim() + (firstSentence.endsWith('.') ? '' : '.');
-                } else {
-                  return `${conceptName} - Maya's sophisticated styling vision`;
-                }
-              }
-            })(),
-            originalContext: `${conceptName}: ${conceptContent}`.trim(),
-            fullPrompt: undefined,
-            canGenerate: true,
-            isGenerating: false,
-            generatedImages: []
-          };
-          
-          concepts.push(concept);
-          console.log(`🎯 GENERAL CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
-        }
+          isGenerating: false
+        });
       }
     }
   }
   
-  if (concepts.length === 0) {
-    console.log('🎯 CONCEPT PARSING: No styling concepts found in response');
-  } else {
-    console.log(`✅ CONCEPT PARSING SUCCESS: Extracted ${concepts.length} styling concepts with cached context`);
-  }
+  console.log(`🎯 CONCEPT PARSING: Found ${concepts.length} styling concepts`);
   
   return concepts;
 };
