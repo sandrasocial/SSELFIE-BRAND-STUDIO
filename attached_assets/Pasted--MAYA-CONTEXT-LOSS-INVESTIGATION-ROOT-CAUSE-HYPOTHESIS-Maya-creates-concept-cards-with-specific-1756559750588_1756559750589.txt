@@ -1,0 +1,217 @@
+# MAYA CONTEXT LOSS INVESTIGATION
+
+## ROOT CAUSE HYPOTHESIS
+Maya creates concept cards with specific styling, but when users click "GENERATE THIS CONCEPT," the system makes a NEW Claude API call without the original styling context, causing Maya to generate different styling.
+
+**The Flow:**
+1. Maya API Call #1: Creates "Black turtleneck dress, oversized camel coat"
+2. User clicks concept card
+3. Maya API Call #2: Generates "ivory silk blazer" (no memory of Call #1)
+
+---
+
+## TASK 1: TRACE DUAL API CALLS
+
+### Step 1.1: Add API Call Tracking
+**Add unique identifiers to trace separate Claude API calls:**
+
+```typescript
+// In concept card generation
+console.log('🎨 MAYA CONCEPT CREATION - API CALL #1');
+console.log('Call ID: CONCEPT-' + Date.now());
+console.log('Context: Creating concept descriptions');
+console.log('Expected Output: Black turtleneck dress, camel coat');
+
+// In image prompt generation (createDetailedPromptFromConcept)
+console.log('🚀 MAYA PROMPT GENERATION - API CALL #2');
+console.log('Call ID: PROMPT-' + Date.now());
+console.log('Context: Generating image prompts');
+console.log('Expected Output: Should match concept styling');
+```
+
+### Step 1.2: Verify Separate API Calls
+**Check if concept creation and prompt generation are separate Claude calls:**
+
+**Search for all Claude API calls:**
+```bash
+grep -r "claude-sonnet\|anthropic.*api\|messages.*api" server/ --include="*.ts"
+grep -r "api.anthropic\|Claude.*API" server/ --include="*.ts"
+```
+
+**Expected Finding:** Two different functions making Claude API calls
+- Concept card creation function
+- Image prompt generation function
+
+---
+
+## TASK 2: INVESTIGATE CONTEXT PRESERVATION
+
+### Step 2.1: Check Context Passing
+**When user clicks concept card, what data is passed to prompt generation?**
+
+```typescript
+// In concept card click handler
+console.log('📱 CONCEPT CARD CLICKED:');
+console.log('Concept Name:', conceptName);
+console.log('Original Styling Context:', originalStylingContext);
+console.log('Data Passed to Generation:', dataPassedToGeneration);
+
+// In prompt generation function
+console.log('📥 PROMPT GENERATION RECEIVES:');
+console.log('Input Data:', inputData);
+console.log('Has Original Styling Context:', !!originalStylingContext);
+```
+
+### Step 2.2: Trace Context Loss Point
+**Find where original styling context gets lost:**
+
+```typescript
+// Track context through the pipeline
+console.log('🔍 CONTEXT TRACE:');
+console.log('Step 1 - Concept Created:', originalConceptStyling);
+console.log('Step 2 - User Clicks Card:', contextAvailableOnClick);
+console.log('Step 3 - Generation Input:', contextPassedToGeneration);
+console.log('Step 4 - Maya Receives:', contextMayaReceives);
+```
+
+---
+
+## TASK 3: IDENTIFY THE DISCONNECT
+
+### Step 3.1: Compare API Call Contexts
+**Verify if both calls have the same context:**
+
+**API Call #1 (Concept Creation):**
+```typescript
+const conceptCall = {
+  model: "claude-sonnet-4-20250514",
+  messages: [
+    {
+      role: "user",
+      content: `Create concept cards for Instagram category...`
+    }
+  ]
+};
+console.log('🎨 CONCEPT API CALL:', JSON.stringify(conceptCall, null, 2));
+```
+
+**API Call #2 (Prompt Generation):**
+```typescript
+const promptCall = {
+  model: "claude-sonnet-4-20250514", 
+  messages: [
+    {
+      role: "user",
+      content: `Generate image prompt for: ${conceptName}`
+    }
+  ]
+};
+console.log('🚀 PROMPT API CALL:', JSON.stringify(promptCall, null, 2));
+```
+
+### Step 3.2: Check for Context Preservation
+**Verify if original styling is included in prompt generation:**
+
+```typescript
+// In createDetailedPromptFromConcept
+console.log('🔍 ORIGINAL CONTEXT CHECK:');
+console.log('Original Maya Description:', originalMayaDescription);
+console.log('Is Original Styling Included:', originalStyling ? 'YES' : 'NO');
+console.log('Context Being Sent to Maya:', contextSentToMaya);
+```
+
+---
+
+## TASK 4: TEST CONTEXT PRESERVATION
+
+### Step 4.1: End-to-End Context Test
+**Trace a complete user journey:**
+
+1. **Generate Concepts:** "Create Instagram content concepts"
+2. **Capture Output:** "Black turtleneck dress, oversized camel coat"
+3. **Click Concept:** User clicks "TECH CEO CHIC" 
+4. **Trace Input:** What data reaches prompt generation?
+5. **Compare Output:** Does generated prompt match original concept?
+
+### Step 4.2: Context Preservation Verification
+**Add logging to verify context flow:**
+
+```typescript
+// When concept is created
+const originalContext = {
+  conceptName: "TECH CEO CHIC",
+  originalStyling: "Black turtleneck dress, oversized camel coat",
+  category: "Instagram",
+  timestamp: Date.now()
+};
+console.log('💾 STORING ORIGINAL CONTEXT:', originalContext);
+
+// When concept is clicked
+console.log('📤 RETRIEVING ORIGINAL CONTEXT:', storedContext);
+console.log('🔄 CONTEXT PRESERVATION:', storedContext.originalStyling);
+```
+
+---
+
+## EXPECTED FINDINGS
+
+### Scenario A: Dual API Calls Without Context (Most Likely)
+**Evidence:** Two separate Claude API calls, second call doesn't include first call's output
+**Fix:** Pass original styling context to prompt generation
+**Complexity:** Moderate - requires context storage and retrieval
+
+### Scenario B: Context Lost in Data Pipeline
+**Evidence:** Context exists but gets lost between concept click and prompt generation
+**Fix:** Fix data pipeline to preserve context
+**Complexity:** Simple - fix data passing
+
+### Scenario C: Maya Generating Variations by Design  
+**Evidence:** Maya intentionally creates styling variations
+**Fix:** Instruct Maya to maintain consistency when generating prompts for existing concepts
+**Complexity:** Simple - update Maya's instructions
+
+---
+
+## SUCCESS CRITERIA
+
+**API Call Investigation:**
+- [ ] Number of Claude API calls identified
+- [ ] Concept creation vs prompt generation calls traced
+- [ ] Context preservation between calls verified
+
+**Context Flow Verification:**
+- [ ] Original styling context tracked through pipeline
+- [ ] Context loss point identified (if exists)
+- [ ] Data passed between concept click and generation documented
+
+**Consistency Testing:**
+- [ ] Same styling appears in concept description and generated prompt
+- [ ] Maya maintains context between creation and generation
+- [ ] User expectations aligned with generated output
+
+---
+
+## COMPLETION REPORT FORMAT
+
+```
+MAYA CONTEXT LOSS INVESTIGATION COMPLETE
+
+API Call Structure:
+- Number of Claude API calls: [1 / 2 / Multiple]
+- Concept creation: [Separate API call / Same call as generation]
+- Prompt generation: [Separate API call / Integrated call]
+
+Context Preservation:
+- Original styling context: [Preserved / Lost / Partially preserved]
+- Context loss point: [Between calls / In data pipeline / No loss identified]
+- Data passed to generation: [Complete context / Partial context / No context]
+
+Root Cause:
+- Issue: [Dual API calls without context / Context pipeline failure / Other]
+- Evidence: [Specific log output showing context loss]
+- Fix Required: [Context preservation / Pipeline fix / Instructions update]
+
+Status: CONTEXT LOSS IDENTIFIED / STILL INVESTIGATING
+```
+
+**Focus: Confirm if there are two separate Claude API calls and whether original styling context is preserved between them.**
