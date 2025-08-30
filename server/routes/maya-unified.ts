@@ -626,6 +626,9 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
           const personalityContext = personalityService.createPersonalityContext('maya', true);
           
           // Generate fresh concept with FLUX_PROMPT format
+          // Import Claude API service
+          const { claudeSimpleAPI } = await import('../services/claude-api-service-simple');
+          
           const claudeRequest = await claudeSimpleAPI(`Create a single concept card for "${conceptName}" using the exact FLUX_PROMPT format. This must include the complete concept description AND embedded FLUX_PROMPT line.
 
 REQUIRED FORMAT:
