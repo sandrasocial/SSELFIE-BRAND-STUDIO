@@ -117,7 +117,7 @@ function Maya() {
     activeGenerations,
     setActiveGenerations,
     // REMOVED: preset, setPreset, seed, setSeed - Maya AI handles parameters
-    generateFromConcept,
+    // generateFromConcept - REMOVED: legacy function eliminated
     generateImages,
     saveToGallery,
     generateFromSpecificConcept
@@ -303,8 +303,10 @@ function Maya() {
         return newMap;
       });
       
-      // Generate images for this concept using Maya's intelligence
-      generateFromConcept(buttonText, setMessages, currentChatId);
+      // SINGLE API CALL ARCHITECTURE: Use concept-specific generation only
+      // Legacy generateFromConcept removed - all generation now uses embedded FLUX prompts
+      console.log('LEGACY CODE ELIMINATED: generateFromConcept call removed for clean architecture');
+      sendMessage(buttonText); // Convert to regular chat message for Maya to handle
     } else {
       // Regular chat message - let Maya respond intelligently
       sendMessage(buttonText);
