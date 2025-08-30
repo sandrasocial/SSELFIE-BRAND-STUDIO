@@ -1,0 +1,196 @@
+# MAYA DOWNSTREAM OVERRIDE INVESTIGATION
+
+## NEW ROOT CAUSE HYPOTHESIS
+`createDetailedPromptFromConcept()` IS being called correctly, but `ModelTrainingService.generateUserImages()` may be applying its own prompt processing that overrides Maya's intelligent styling.
+
+---
+
+## TASK 2: INVESTIGATE MODELTRAININGSERVICE OVERRIDE
+
+### Step 2.1: Check Debug Log Placement
+**First, verify our debug logs are in the right location:**
+
+**In `createDetailedPromptFromConcept` function, confirm logs are placed BEFORE any return statements:**
+
+```typescript
+// Debug logs should be HERE (after Maya's response, before return)
+console.log('📝 CATEGORY DETECTED:', detectedCategory);
+console.log('🎨 MAYA STYLING CONTEXT INPUT:', originalContext);
+console.log('⚡ RAW MAYA PROMPT RESPONSE:');
+console.log(rawMayaResponse);
+console.log('✨ FINAL CLEANED PROMPT:');
+console.log(cleanedFinalPrompt);
+
+return cleanedFinalPrompt; // Return should be AFTER debug logs
+```
+
+**If logs are placed AFTER return statements or inside try/catch blocks that exit early, they won't execute.**
+
+### Step 2.2: Trace ModelTrainingService Processing
+**Investigate what `ModelTrainingService.generateUserImages()` does to Maya's styled prompt:**
+
+**Find and examine:**
+- `server/model-training-service.ts`
+- Look for `generateUserImages()` function
+- Check if it modifies the prompt parameter before image generation
+
+**Search for prompt processing in ModelTrainingService:**
+```bash
+grep -r "prompt.*processing\|modify.*prompt\|format.*prompt" server/model-training-service.ts
+grep -r "default.*prompt\|template.*prompt\|override" server/model-training-service.ts
+```
+
+### Step 2.3: Add Logging to ModelTrainingService
+**Add debug logs in `generateUserImages()` to trace prompt handling:**
+
+```typescript
+// At the start of generateUserImages function
+console.log('🏭 MODEL TRAINING SERVICE INPUT PROMPT:');
+console.log(finalPrompt); // This should contain Maya's black dress + pink jacket
+
+// Before any prompt modifications (if they exist)
+console.log('🔧 PROMPT BEFORE PROCESSING:', originalPrompt);
+
+// After any prompt modifications (if they exist)  
+console.log('🎯 PROMPT AFTER PROCESSING:', processedPrompt);
+
+// Before sending to actual image generation
+console.log('🚀 FINAL PROMPT SENT TO IMAGE GENERATION:');
+console.log(actualGenerationPrompt);
+```
+
+---
+
+## TASK 3: IDENTIFY PROMPT OVERRIDE MECHANISMS
+
+### Step 3.1: Check for Template Systems
+**Look for systems that might be applying default templates:**
+
+**Search for hardcoded styling templates:**
+```bash
+# Look for cream/camel styling templates
+grep -r "cream.*blazer\|camel.*trouser\|champagne.*camisole" server/
+grep -r "floor-to-ceiling windows\|metropolitan skyline\|minimalist white desk" server/
+```
+
+### Step 3.2: Check for Prompt Sanitization/Cleaning
+**Look for functions that might be over-cleaning Maya's prompts:**
+
+**Search for additional cleaning functions:**
+```bash
+grep -r "sanitize.*prompt\|clean.*prompt\|normalize.*prompt" server/
+grep -r "remove.*styling\|strip.*description" server/
+```
+
+### Step 3.3: Check for Default Prompt Injection
+**Look for systems that inject default styling when prompt is deemed insufficient:**
+
+```bash
+grep -r "default.*styling\|fallback.*prompt\|insufficient.*prompt" server/
+grep -r "minimum.*length\|prompt.*too.*short" server/
+```
+
+---
+
+## TASK 4: TRACE THE COMPLETE PROMPT JOURNEY
+
+### Step 4.1: Add Sequential Tracking
+**Add a unique identifier to track Maya's prompt through the entire system:**
+
+```typescript
+// In createDetailedPromptFromConcept
+const promptId = `MAYA-${Date.now()}`;
+console.log(`🔍 [${promptId}] MAYA CREATES STYLED PROMPT:`, cleanedFinalPrompt);
+
+// In ModelTrainingService.generateUserImages
+console.log(`🔍 [${promptId}] RECEIVED IN MODEL SERVICE:`, finalPrompt);
+
+// Before final image generation
+console.log(`🔍 [${promptId}] SENT TO IMAGE GEN:`, actualPrompt);
+```
+
+### Step 4.2: Verify Prompt Integrity
+**Check if Maya's specific styling survives the journey:**
+
+**Maya should create:** "black bodycon midi dress + pink bouclé jacket"
+**ModelTrainingService should receive:** Same styling description
+**Image generation should use:** Same styling description
+
+**If any step shows different content, that's where the override occurs.**
+
+---
+
+## EXPECTED INVESTIGATION OUTCOMES
+
+### Scenario A: Debug Logs Missing (Most Likely)
+**Cause:** Debug logs placed incorrectly or after early returns
+**Solution:** Move debug logs to correct execution points
+
+### Scenario B: ModelTrainingService Override
+**Cause:** `generateUserImages()` applies its own prompt formatting
+**Solution:** Modify ModelTrainingService to preserve Maya's styling
+
+### Scenario C: Prompt Cleaning Over-Aggressive  
+**Cause:** Cleaning functions removing Maya's styling descriptions
+**Solution:** Update cleaning logic to preserve styling content
+
+### Scenario D: Template System Override
+**Cause:** Default templates injected regardless of Maya's intelligence
+**Solution:** Disable template injection when Maya provides styling
+
+---
+
+## DEBUGGING TEST PROTOCOL
+
+### Instagram Category Test (Extended):
+1. **User Action:** Select Instagram category, click "Confident Creator" concept
+2. **Expected Sequence:**
+   ```
+   🎨 MAYA CREATES: black bodycon midi dress + pink bouclé jacket
+   🏭 MODEL SERVICE RECEIVES: same styling
+   🚀 IMAGE GENERATION USES: same styling
+   ```
+3. **If Override Occurs:**
+   ```
+   🎨 MAYA CREATES: black dress + pink jacket
+   🏭 MODEL SERVICE RECEIVES: cream blazer + camel pants ← OVERRIDE POINT
+   ```
+
+---
+
+## SUCCESS CRITERIA
+
+**Debug Execution:**
+- [ ] All debug logs appear in console output
+- [ ] Prompt journey traceable from Maya → ModelTrainingService → Image Generation
+- [ ] No logs missing due to early returns or incorrect placement
+
+**Override Identification:**
+- [ ] Exact point where styling changes from Maya's description to generic template
+- [ ] Function/system responsible for the override identified
+- [ ] Evidence of what's causing cream blazer + camel pants substitution
+
+## COMPLETION REPORT FORMAT
+
+```
+MAYA DOWNSTREAM OVERRIDE INVESTIGATION COMPLETE
+
+Debug Log Status:
+- createDetailedPromptFromConcept logs: APPEARING / MISSING
+- ModelTrainingService logs: APPEARING / MISSING  
+- Complete prompt journey tracked: YES / NO
+
+Override Point Identified:
+- Location: [File/Function where styling changes]
+- Mechanism: [Template injection / Prompt cleaning / Default fallback / Other]
+- Evidence: [Log output showing styling transformation]
+
+Maya's Prompt Journey:
+- Created by Maya: [black dress + pink jacket / generic styling]
+- Received by ModelService: [same / different styling]
+- Sent to Image Generation: [same / different styling]
+
+Root Cause: [Specific system overriding Maya's intelligence]
+```
+
+**Focus on finding WHERE Maya's "black dress + pink jacket" becomes "cream blazer + camel pants"**
