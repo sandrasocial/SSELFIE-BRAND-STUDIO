@@ -1,4 +1,4 @@
-import React, { ComponentType, useEffect, lazy, Suspense } from 'react';
+import React, { ComponentType, useEffect, lazy, Suspense, startTransition } from 'react';
 import { Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -319,10 +319,26 @@ function Router() {
 
       
       {/* SANDRA'S ADMIN SYSTEM - UNIFIED ROUTING */}
-      <Route path="/admin" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
-      <Route path="/admin/business-overview" component={(props) => <ProtectedRoute component={AdminBusinessOverview} {...props} />} />
-      <Route path="/admin/consulting-agents" component={(props) => <ProtectedRoute component={AdminConsultingAgents} {...props} />} />
-      <Route path="/admin/subscriber-import" component={(props) => <ProtectedRoute component={AdminSubscriberImport} {...props} />} />
+      <Route path="/admin" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={AdminConsultingAgents} {...props} />
+        </Suspense>
+      )} />
+      <Route path="/admin/business-overview" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={AdminBusinessOverview} {...props} />
+        </Suspense>
+      )} />
+      <Route path="/admin/consulting-agents" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={AdminConsultingAgents} {...props} />
+        </Suspense>
+      )} />
+      <Route path="/admin/subscriber-import" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={AdminSubscriberImport} {...props} />
+        </Suspense>
+      )} />
 
 
 
@@ -331,7 +347,11 @@ function Router() {
       {/* Legacy agent routes removed - use /admin/consulting-agents instead */}
       
       {/* ADMIN MARKETING AUTOMATION */}
-      <Route path="/marketing-automation" component={(props) => <ProtectedRoute component={MarketingAutomation} {...props} />} />
+      <Route path="/marketing-automation" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={MarketingAutomation} {...props} />
+        </Suspense>
+      )} />
       
 
       {/* Test routes removed - all test files archived */}
