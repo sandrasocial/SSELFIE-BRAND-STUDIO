@@ -617,13 +617,15 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log('💰 COST SAVINGS: ~50% reduction in Claude API usage');
         console.log(`🎨 EMBEDDED PROMPT: ${finalPrompt.substring(0, 300)}...`);
       } else {
-        // LEGACY FALLBACK: Old concept card without embedded FLUX prompt - generate from concept name
-        console.log(`🔄 LEGACY CONCEPT: "${conceptName}" missing embedded FLUX prompt - generating from concept name`);
-        console.log(`💡 FALLBACK STRATEGY: Using concept name "${conceptName}" as base for direct generation`);
-        
-        // Use the cleaned concept name directly as the styling prompt
-        finalPrompt = userConcept;
-        console.log(`🎨 LEGACY FALLBACK: Using concept name as prompt: "${finalPrompt}"`);
+        // ERROR: New concept card missing embedded FLUX prompt - Maya generation failure
+        console.error(`❌ CRITICAL: NEW concept "${conceptName}" missing embedded FLUX prompt!`);
+        console.error(`This indicates Maya is NOT generating proper FLUX_PROMPT format in single API call`);
+        console.error(`INVESTIGATION NEEDED: Maya's personality system is failing to embed FLUX prompts`);
+        return res.status(500).json({
+          success: false,
+          error: "Maya didn't generate the expected styling format. Let me create a fresh concept for you!",
+          quickButtons: ["Create new concept", "Try different style"]
+        });
       }
     } else {
       // Custom prompt: Use prompt directly with trigger word
