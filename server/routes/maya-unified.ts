@@ -521,10 +521,25 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
       }
       
+      // PHASE 3A: Detect category from context for targeted styling
+      let detectedCategory = '';
+      const contextLower = originalContext.toLowerCase();
+      if (contextLower.includes('business') || contextLower.includes('corporate') || contextLower.includes('executive') || contextLower.includes('professional')) {
+        detectedCategory = 'Business';
+      } else if (contextLower.includes('lifestyle') || contextLower.includes('elevated everyday') || contextLower.includes('effortless')) {
+        detectedCategory = 'Lifestyle';
+      } else if (contextLower.includes('casual') || contextLower.includes('authentic') || contextLower.includes('real moments')) {
+        detectedCategory = 'Casual & Authentic';
+      } else if (contextLower.includes('travel') || contextLower.includes('jet-set') || contextLower.includes('destination')) {
+        detectedCategory = 'Travel';
+      } else if (contextLower.includes('instagram') || contextLower.includes('social media') || contextLower.includes('feed')) {
+        detectedCategory = 'Instagram';
+      }
+      
       // CRITICAL: Apply enhanced cleaning to originalContext before using it
       const cleanedContext = cleanMayaPrompt(originalContext);
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext);
-      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt`);
+      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory);
+      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
       console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
       // PHASE 3: Custom prompt enhancement using Maya's styling intelligence  
@@ -538,34 +553,14 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       finalPrompt = `${generationInfo.triggerWord} ${cleanPrompt}`;
     }
     
-    // Get context for category detection - retrieve from cache if concept generation was used
-    let contextForCategory = '';
-    if (conceptName && conceptName.length > 0) {
-      const conceptId = req.body.conceptId; // Declare conceptId here for cache key
-      const cacheKey = `${userId}-${conceptId || conceptName}`;
-      const cachedContext = mayaContextCache.get(cacheKey);
-      contextForCategory = cachedContext ? cachedContext.originalContext : '';
-    }
-    
-    // MAYA INTELLIGENCE PROTECTION: Minimal category detection - let Maya decide styling approach
-    let categoryContext = '';
-    
-    // Only detect obvious categories - Maya's intelligence handles nuanced styling
-    if (contextForCategory.length > 0) {
-      const contextLower = contextForCategory.toLowerCase();
-      if (contextLower.includes('business') || contextLower.includes('corporate') || contextLower.includes('professional')) {
-        categoryContext = 'Business';
-      } else if (contextLower.includes('lifestyle') || contextLower.includes('casual') || contextLower.includes('everyday')) {
-        categoryContext = 'Lifestyle';
-      }
-      // Remove overly specific category constraints - Maya's AI handles all styling decisions
-    }
+    // Category detection is now handled directly in createDetailedPromptFromConcept function
+    // This eliminates redundant category detection and ensures consistency
     
     const result = await ModelTrainingService.generateUserImages(
       userId,
       finalPrompt,
       safeCount,
-      { seed, categoryContext }
+      { seed }
     );
     
     // PHASE 7: Log successful generation start
@@ -1564,9 +1559,9 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
   }
 }
 
-// MAYA'S AI-DRIVEN PROMPT GENERATION - NO MORE HARDCODED TEMPLATES
-async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalContext?: string): Promise<string> {
-  // UNIFIED MAYA INTELLIGENCE: Use Maya's complete styling expertise to create detailed prompts
+// MAYA'S AI-DRIVEN PROMPT GENERATION - CATEGORY-AWARE STYLING
+async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalContext?: string, category?: string): Promise<string> {
+  // UNIFIED MAYA INTELLIGENCE: Use Maya's complete styling expertise with category-specific approaches
   
   try {
     // Load user's personal brand context for personalized styling
@@ -1604,7 +1599,16 @@ Use this context to customize styling choices that align with their unique trans
     // Use original context as-is - Maya's responses are already properly formatted
     const cleanOriginalContext = originalContext || '';
 
-    // MAYA'S INTELLIGENT PROMPT EXTRACTION - PRESERVING HER STYLING EXPERTISE
+    // MAYA'S INTELLIGENT PROMPT EXTRACTION - CATEGORY-AWARE STYLING
+    let categorySpecificGuidance = '';
+    if (category) {
+      console.log(`🎨 MAYA CATEGORY TARGETING: Using ${category} specific styling approaches`);
+      categorySpecificGuidance = `
+
+🎯 CATEGORY-SPECIFIC STYLING FOCUS: ${category.toUpperCase()}
+CRITICAL: Use your ${category} styling approaches loaded in your personality. Reference the specific styling techniques, outfit formulas, and aesthetic principles for this category.`;
+    }
+
     const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
 🎯 MAYA'S TECHNICAL PROMPT MODE - 2025 FLUX OPTIMIZATION:
@@ -1613,6 +1617,7 @@ You are creating a FLUX 1.1 Pro image generation prompt. This is TECHNICAL PROMP
 CONCEPT: "${conceptName}"
 CONTEXT: "${cleanOriginalContext}"
 ${personalBrandContext}
+${categorySpecificGuidance}
 
 RESEARCH-BACKED FLUX 1.1 PRO REQUIREMENTS:
 - Use NATURAL LANGUAGE descriptions (not keyword lists)

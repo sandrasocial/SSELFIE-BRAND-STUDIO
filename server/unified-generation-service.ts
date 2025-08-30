@@ -23,7 +23,7 @@ export async function generateImages(opts: {
     opts.userId,
     opts.prompt,
     opts.count ?? 4,
-    { preset: opts.preset as any, seed: opts.seed }
+    { seed: opts.seed }
   );
 }
 
