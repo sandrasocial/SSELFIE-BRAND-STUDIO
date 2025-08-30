@@ -110,38 +110,44 @@ export function validateMayaPrompt(
 export function cleanMayaPrompt(prompt: string): string {
   let cleaned = prompt;
   
-  console.log('🎯 MAYA STYLING PRESERVATION: Minimal cleaning to preserve styling intelligence');
+  console.log('🎯 MAYA CONVERSATION EXTRACTION: Advanced cleaning with duplicate detection');
   
-  // MINIMAL CLEANING: Only remove obvious conversational markers while preserving ALL styling content
+  // PHASE 1: REMOVE MAYA'S CONVERSATIONAL LEAD-INS
+  // Remove Maya's energy/concept introduction phrases that contaminate prompts
   cleaned = cleaned
-    // Remove ONLY explicit Maya chat markers - preserve styling descriptions
-    .replace(/\*adjusts.*?\*/gi, '') // Remove Maya's action descriptions like "*adjusts blazer*"
-    .replace(/\*[^*]*love[^*]*\*/gi, '') // Remove expressions like "*chef's kiss*"
-    .replace(/\*[^*]*excited[^*]*\*/gi, '') // Remove excitement expressions
+    // Remove Maya's concept energy introductions (major issue from research)
+    .replace(/^[^.!?]*(?:major|MAJOR)\s+[""'][^""']*[""']\s+energy[^.!?]*[.!?]/gi, '')
+    .replace(/^[^.!?]*(?:let me create something|I'm creating something)[^.!?]*[.!?]/gi, '')
+    .replace(/^[^.!?]*(?:that shows your|showing your)[^.!?]*[.!?]/gi, '')
     
-    // Remove ONLY pure conversational openings - preserve styling adjectives
-    .replace(/^(?:Oh honey,?\s*|Hey babe,?\s*|Girl,?\s*|Trust me,?\s*)/gi, '')
-    .replace(/^(?:I'm getting|I can see|This is giving me)\s+/gi, '')
+    // Remove conversational asterisk content - complete Maya responses
+    .replace(/\*[^*]*\*/g, '')
     
-    // CRITICAL FIX: DO NOT remove concept card content - only remove empty title lines
-    // Keep Maya's styling intelligence intact
+    // Remove Maya's excited openings and personality responses
+    .replace(/^[^.!?]*(?:Oh honey|honey|babe|love|girl|gorgeous|stunning|incredible|amazing|perfect|absolutely|trust me|chef's kiss|I'm getting|getting major|giving me|energy from|is giving|something that shows)[^.!?]*[.!?]/gi, '')
+    .replace(/[.!?]\s*(?:your empire-building era|this look says|you're ready to|and this look|ready to own)[^.!?]*[.!?]?$/gi, '.')
     
-    // Remove transformation language that triggers split images
-    .replace(/(?:transformation|before and after|split|diptych|side.by.side|comparison)/gi, '')
+    // Remove Maya's style commentary that creates prompt contamination
+    .replace(/(?:OMG|omg|Yes|YES|Amazing|AMAZING|Perfect|PERFECT|Stunning|STUNNING|Incredible|INCREDIBLE)!?\s*/gi, '')
+    .replace(/(?:this is giving me|I'm obsessing over|I can already see|we're talking about|I'm about to style|let me create)/gi, '')
     
-    // Basic cleanup - preserve styling content
-    .replace(/\n\s*\n/g, ' ') // Multiple line breaks to single space
-    .replace(/\s+/g, ' ') // Multiple spaces to single space
+    // Remove split image trigger language
+    .replace(/(?:transformation|before and after|split|diptych|side.by.side|comparison|vs\.|versus)/gi, '')
+    .replace(/(?:from .+ to .+|evolution from|journey from|transition from)/gi, '')
+    
+    // Remove formatting artifacts
+    .replace(/\*\*[^*]+\*\*/g, '') 
+    .replace(/#{1,6}\s+/g, '') 
+    .replace(/[-•]\s+/g, '') 
+    .replace(/^\s*[\-\*]\s+/gm, '') 
+    .replace(/\n\s*\n/g, ' ') 
+    .replace(/\s+/g, ' ') 
+    .replace(/^[\s,]+|[\s,]+$/g, '') 
+    .replace(/,\s*,+/g, ', ')
     .trim();
 
-  // CRITICAL: If cleaning removed too much content (>80%), return original to preserve Maya's styling
-  if (cleaned.length < prompt.length * 0.2) {
-    console.log('⚠️ MAYA STYLING RECOVERY: Cleaning removed too much content, using original');
-    cleaned = prompt.trim(); // Keep original content, Maya's styling is precious
-  }
-
-  console.log(`🔍 BEFORE CLEANING: ${prompt.substring(0, 200)}...`);
-  console.log(`✅ AFTER CLEANING: ${cleaned.substring(0, 200)}...`);
+  console.log(`🔍 BEFORE CLEANING: ${prompt.substring(0, 150)}...`);
+  console.log(`✅ AFTER CLEANING: ${cleaned.substring(0, 150)}...`);
 
   return cleaned;
 }

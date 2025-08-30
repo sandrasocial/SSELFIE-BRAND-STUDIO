@@ -110,43 +110,43 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
 
     let knowledge = '\n🎨 MAYA\'S COMPLETE STYLING INTELLIGENCE:\n';
     
-    // Load Maya's ACTUAL styling intelligence from her personality structure
-    if (personality.stylingIntelligence) {
-      knowledge += '\nSTYLING INTELLIGENCE - Maya\'s Core Fashion Expertise:\n';
-      const si = personality.stylingIntelligence;
-      
-      if (si.coreExpertise) {
-        knowledge += 'CORE EXPERTISE:\n';
-        si.coreExpertise.forEach((exp: string) => knowledge += `- ${exp}\n`);
-      }
-      
-      if (si.trendAnalysis) {
-        knowledge += 'TREND ANALYSIS:\n';
-        si.trendAnalysis.forEach((trend: string) => knowledge += `- ${trend}\n`);
-      }
-      
-      if (si.colorTheory) {
-        knowledge += 'COLOR THEORY:\n';
-        si.colorTheory.forEach((color: string) => knowledge += `- ${color}\n`);
-      }
-      
-      if (si.proportionPrinciples) {
-        knowledge += 'PROPORTION PRINCIPLES:\n';
-        si.proportionPrinciples.forEach((principle: string) => knowledge += `- ${principle}\n`);
-      }
-      
-      if (si.occasionMapping) {
-        knowledge += 'OCCASION MAPPING:\n';
-        si.occasionMapping.forEach((occasion: string) => knowledge += `- ${occasion}\n`);
-      }
-      
-      if (si.luxuryAesthetics) {
-        knowledge += 'LUXURY AESTHETICS:\n';
-        si.luxuryAesthetics.forEach((aesthetic: string) => knowledge += `- ${aesthetic}\n`);
-      }
+    // Load Maya's ACTUAL outfit formulas (effortlessGlam, businessBabe, etc.)
+    if (personality.outfitFormulas) {
+      knowledge += '\nOUTFIT FORMULAS - Maya\'s Professional Styling Combinations:\n';
+      Object.entries(personality.outfitFormulas).forEach(([category, formulas]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        formulas.forEach((formula: string) => knowledge += `- ${formula}\n`);
+      });
     }
 
-    // Load Maya's photography expertise for technical mastery
+    // Load Maya's hair & beauty expertise
+    if (personality.hairAndBeauty) {
+      knowledge += '\nHAIR & BEAUTY EXPERTISE - Editorial Styling Knowledge:\n';
+      Object.entries(personality.hairAndBeauty).forEach(([category, techniques]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        techniques.forEach((technique: string) => knowledge += `- ${technique}\n`);
+      });
+    }
+
+    // Load Maya's sophisticated photo locations
+    if (personality.photoLocations) {
+      knowledge += '\nSOPHISTICATED PHOTO LOCATIONS - Editorial Quality Spaces:\n';
+      Object.entries(personality.photoLocations).forEach(([category, locations]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        locations.forEach((location: string) => knowledge += `- ${location}\n`);
+      });
+    }
+
+    // Load Maya's color intelligence
+    if (personality.colorIntelligence) {
+      knowledge += '\nCOLOR INTELLIGENCE - Editorial Palettes & Combinations:\n';
+      Object.entries(personality.colorIntelligence).forEach(([category, colors]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        colors.forEach((color: string) => knowledge += `- ${color}\n`);
+      });
+    }
+
+    // Load Maya's photography expertise
     if (personality.photographyExpertise) {
       knowledge += '\nPHOTOGRAPHY EXPERTISE - Technical & Creative Mastery:\n';
       Object.entries(personality.photographyExpertise).forEach(([category, expertise]: [string, any]) => {
@@ -164,42 +164,34 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
       });
     }
 
-    // Load Maya's photo categories for styling context
-    if (personality.categories) {
-      knowledge += '\nPHOTO CATEGORIES - Specialized Styling Approaches:\n';
-      Object.entries(personality.categories).forEach(([category, config]: [string, any]) => {
+    // Load Maya's technical expertise for advanced prompt creation
+    if (personality.technicalExpertise) {
+      knowledge += '\nTECHNICAL EXPERTISE - Camera & Lighting Mastery:\n';
+      Object.entries(personality.technicalExpertise).forEach(([category, expertise]: [string, any]) => {
         knowledge += `${category.toUpperCase()}:\n`;
-        knowledge += `  Description: ${config.description}\n`;
-        knowledge += `  Vibe: ${config.vibe}\n`;
-        if (config.stylingApproach) {
-          knowledge += `  Styling Approach:\n`;
-          config.stylingApproach.forEach((approach: string) => knowledge += `    - ${approach}\n`);
+        if (Array.isArray(expertise)) {
+          expertise.forEach((item: string) => knowledge += `- ${item}\n`);
+        } else if (typeof expertise === 'object') {
+          Object.entries(expertise).forEach(([subcat, items]: [string, any]) => {
+            knowledge += `  ${subcat.toUpperCase()}:\n`;
+            if (Array.isArray(items)) {
+              items.forEach((item: string) => knowledge += `  - ${item}\n`);
+            }
+          });
         }
       });
     }
 
+    // Load Maya's professional background for styling context
+    if (personality.professionalBackground) {
+      knowledge += '\nPROFESSIONAL BACKGROUND - Real Industry Experience:\n';
+      Object.entries(personality.professionalBackground).forEach(([category, experience]: [string, any]) => {
+        knowledge += `${category.toUpperCase()}:\n`;
+        experience.forEach((exp: string) => knowledge += `- ${exp}\n`);
+      });
+    }
+
     knowledge += '\n⚡ CRITICAL: Use this COMPLETE styling intelligence when creating prompts. You have Maya\'s actual outfit formulas, editorial color palettes, sophisticated locations, hair/beauty expertise, photography mastery, and professional background. Apply this knowledge creatively to generate diverse, professional styling concepts.\n';
-    
-    // CRITICAL ADDITION: System-Compatible Concept Generation Format
-    knowledge += `
-🎯 CONCEPT GENERATION FORMAT FOR SYSTEM COMPATIBILITY:
-When users ask for styling concepts, generate them in this EXACT format for proper system processing:
-
-**🎯 [CATEGORY] - [CONCEPT NAME]**
-[Complete detailed styling description including: specific clothing pieces, colors, textures, hair styling, makeup approach, setting/location, lighting, and mood. Write this as one flowing description that contains all styling details needed for image generation.]
-
-EXAMPLE STRUCTURE (use your own creative content):
-**🎯 BUSINESS POWER - Corner Office Goddess**
-A cinematic portrait wearing an impeccably tailored cream silk blazer with sharp shoulders over a whisper-thin cashmere turtleneck in rich camel, paired with high-waisted wide-leg trousers. Hair styled in a sleek low chignon with face-framing pieces, makeup featuring a bronzed glow with glossy nude lips and defined eyes, standing confidently by floor-to-ceiling windows with city skyline backdrop and golden hour lighting.
-
-CRITICAL FORMAT REQUIREMENTS:
-- Always use **🎯 [CATEGORY] - [NAME]** header format
-- Follow with detailed styling description on next line
-- Include specific outfit pieces, colors, hair, makeup, setting, lighting
-- Write as complete flowing description, not bullet points
-- Each concept must be standalone and generation-ready
-
-This format ensures your styling intelligence flows correctly to image generation.`;
     
     return knowledge;
   }
