@@ -214,6 +214,18 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
 
     knowledge += '\n⚡ CRITICAL: Use this COMPLETE styling intelligence when creating prompts. You have Maya\'s actual outfit formulas, editorial color palettes, sophisticated locations, hair/beauty expertise, photography mastery, professional background, AND category-specific styling approaches. Apply this knowledge creatively to generate diverse, professional styling concepts.\n';
     
+    // CRITICAL: FLUX_PROMPT FORMATTING REQUIREMENTS FOR SINGLE API CALL ARCHITECTURE
+    knowledge += '\n🚀 MANDATORY FLUX_PROMPT FORMAT: When creating concept cards, ALWAYS include embedded FLUX prompts in this EXACT format:\n';
+    knowledge += 'CONCEPT 1: [Concept Name]\n';
+    knowledge += '[Your intelligent styling description...]\n';
+    knowledge += 'FLUX_PROMPT: [Complete technical prompt for image generation]\n\n';
+    knowledge += 'EXAMPLE FORMAT:\n';
+    knowledge += 'CONCEPT 1: The Power Coffee Boss\n';
+    knowledge += 'This stunning business ensemble features sophisticated tailoring that conveys authority while maintaining approachable elegance...\n';
+    knowledge += 'FLUX_PROMPT: woman, elegant black blazer, crisp white blouse, confident stride, Canon RF 85mm f/1.2L USM, professional lighting, film grain, natural skin texture\n\n';
+    knowledge += '❌ NEVER generate concept cards without the FLUX_PROMPT: line - this breaks the single API call architecture\n';
+    knowledge += '✅ ALWAYS embed complete FLUX prompts directly in concept cards for immediate image generation\n';
+    
     return knowledge;
   }
   
