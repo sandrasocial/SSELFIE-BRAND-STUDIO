@@ -376,22 +376,34 @@ export class ModelTrainingService {
       const triggerWord = userModel.triggerWord;
       
       
+      // TASK 2: Add debugging to trace prompt processing
+      const promptId = `MAYA-${Date.now()}`;
+      console.log(`🔍 [${promptId}] MODEL TRAINING SERVICE ENTRY:`);
+      console.log(`🏭 RECEIVED PROMPT FROM MAYA: "${customPrompt.substring(0, 300)}"`);
+      
       // Handle prompt formatting and enhancement
       let basePrompt;
       
       if (customPrompt.includes('{trigger_word}')) {
         // Legacy prompt format with placeholder
         basePrompt = customPrompt.replace('{trigger_word}', triggerWord);
+        console.log(`🔧 [${promptId}] LEGACY FORMAT: Replaced trigger word placeholder`);
       } else if (customPrompt.startsWith(triggerWord)) {
         // Sandra's custom prompts already start with trigger word - use as-is
         basePrompt = customPrompt;
+        console.log(`✅ [${promptId}] TRIGGER WORD PRESENT: Using Maya's prompt as-is`);
       } else {
         // Add trigger word to beginning if not present
         basePrompt = `${triggerWord} ${customPrompt}`;
+        console.log(`🔧 [${promptId}] ADDING TRIGGER: Prepended "${triggerWord}"`);
       }
+      
+      console.log(`🎯 [${promptId}] BASE PROMPT: "${basePrompt.substring(0, 300)}"`);
       
       // Personality-first: keep Maya's prompt, ensure trigger appears once and first
       const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
+      console.log(`🚀 [${promptId}] AFTER formatPrompt(): "${finalPrompt.substring(0, 300)}"`);
+      console.log(`🔍 [${promptId}] CHECKING: Does this contain Maya's styling? ${finalPrompt.includes('black') && finalPrompt.includes('pink') ? 'YES - MAYA STYLING PRESERVED' : 'NO - MAYA STYLING LOST'}`);
 
       // DETERMINISTIC PATH LOGIC: Declare usePackaged early to avoid temporal dead zone issues
       const usePackaged = Boolean(
@@ -401,8 +413,13 @@ export class ModelTrainingService {
       );
 
       // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER SELECTION WITH CATEGORY CONTEXT
+      console.log(`🔍 [${promptId}] ABOUT TO CALL getIntelligentParameters`);
       const categoryContext = options?.categoryContext;
       const intelligentParams = await this.getIntelligentParameters(finalPrompt, count, userId, categoryContext);
+      console.log(`✅ [${promptId}] getIntelligentParameters COMPLETED`);
+      console.log(`🎯 [${promptId}] INTELLIGENT PARAMS: count=${intelligentParams.count}, reasoning="${intelligentParams.reasoning?.substring(0, 100)}"`);
+      console.log(`🔍 [${promptId}] FINAL PROMPT TO REPLICATE: "${finalPrompt.substring(0, 300)}"`);
+      console.log(`🔍 [${promptId}] CONTAINS MAYA'S STYLING? ${finalPrompt.toLowerCase().includes('black') || finalPrompt.toLowerCase().includes('pink') ? 'YES - FOUND BLACK/PINK' : 'NO - MAYA STYLING MISSING'}`);
       
       // ----- PHASE 1 FIX: Use Maya's optimized parameters (temporary fallback while fixing import) -----
       const shotType = this.determineShotTypeFromPrompt(finalPrompt);
