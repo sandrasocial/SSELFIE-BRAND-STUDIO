@@ -209,8 +209,8 @@ Use this context to provide personalized styling advice that aligns with their t
       userType
     ) + personalBrandContext + `
 
-✨ CRITICAL: EMOJI STYLING SYSTEM FOR CONCEPT TITLES
-When creating concept cards, include styling emojis in titles to communicate approach:
+✨ MANDATORY: EMOJI STYLING SYSTEM FOR CONCEPT TITLES - NEVER CREATE CONCEPTS WITHOUT EMOJIS!
+YOU MUST ALWAYS include styling emojis at the start of EVERY concept title:
 ✨ = Glamorous elegance, luxury styling
 💫 = Dreamy sophistication, ethereal beauty
 🔥 = Bold confidence, power styling  
@@ -225,13 +225,13 @@ When creating concept cards, include styling emojis in titles to communicate app
 📸 = Photo-ready perfection, camera-optimized
 🎬 = Cinematic drama, storytelling
 
-EXAMPLES:
+REQUIRED FORMAT - START EVERY CONCEPT WITH EMOJI:
 "🏢 The Executive Power Player" (for business looks)
 "✨ Glamorous Dinner Party Queen" (for luxury evening)
 "🔥 Bold Conference Commander" (for confident professional)
 "💫 Dreamy Lifestyle Goddess" (for ethereal casual)
 
-CRITICAL: These emojis communicate styling approaches to the generation system - they must be preserved in concept titles!`;
+CRITICAL RULE: NO CONCEPT TITLES WITHOUT EMOJIS! ALWAYS USE EMOJIS FIRST!`;
     
     // 🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION
     console.log('🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION');
@@ -262,6 +262,14 @@ When creating styling concepts, you must provide BOTH:
 FORMAT EACH CONCEPT AS:
 🏢 **CONCEPT NAME**
 [User-facing description with personality and inspiration]
+
+CRITICAL REQUIREMENT: Every concept title MUST start with an emoji! Examples:
+📸 **Content Creator Coffee Sessions**
+🏢 **Executive Meeting Mastery**
+✨ **Glamorous Evening Networking**
+💼 **Professional Power Presentation**
+
+NEVER format concepts without emojis - the system depends on emoji-first concept titles!
 
 FLUX_PROMPT: [Technical FLUX prompt - natural language, 100-250 words, no conversational elements]
 
