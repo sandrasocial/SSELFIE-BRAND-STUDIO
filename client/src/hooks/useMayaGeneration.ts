@@ -447,6 +447,17 @@ export const useMayaGeneration = (
         });
         
         if (!statusResponse.ok) {
+          // Handle authentication errors gracefully
+          if (statusResponse.status === 401) {
+            console.log(`Maya concept "${conceptTitle}" polling stopped - authentication expired`);
+            // Don't throw error for auth issues - just stop polling
+            setActiveGenerations?.(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(predictionId);
+              return newSet;
+            });
+            return;
+          }
           throw new Error(`Status check failed: ${statusResponse.status}`);
         }
         
@@ -494,6 +505,18 @@ export const useMayaGeneration = (
         
       } catch (error) {
         console.error(`Maya concept "${conceptTitle}" polling error:`, error);
+        
+        // Handle authentication errors gracefully without showing error toast
+        if (error.message.includes('401') || error.message.includes('Authentication')) {
+          console.log(`Maya concept "${conceptTitle}" polling stopped - authentication expired`);
+          // Just remove from active generations, don't show error to user
+          setActiveGenerations?.(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(predictionId);
+            return newSet;
+          });
+          return;
+        }
         
         // Reset concept card state on error
         setMessages?.(prev => prev.map(msg => ({
