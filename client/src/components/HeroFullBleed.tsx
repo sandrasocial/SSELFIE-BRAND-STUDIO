@@ -6,6 +6,7 @@ interface HeroFullBleedProps {
   subtitle?: string;
   ctaText?: string;
   ctaLink?: string;
+  onCta?: () => void;
   overlay?: number;
   alignment?: 'left' | 'center';
   fullHeight?: boolean;
@@ -18,11 +19,18 @@ export const HeroFullBleed: FC<HeroFullBleedProps> = ({
   subtitle,
   ctaText,
   ctaLink,
+  onCta,
   overlay = 0.4,
   alignment = 'center',
   fullHeight = true
 }) => {
   const handleCTAClick = (e: MouseEvent) => {
+    if (onCta) {
+      e.preventDefault();
+      onCta();
+      return;
+    }
+    
     if (ctaLink?.startsWith('#')) {
       e.preventDefault();
       const element = document.querySelector(ctaLink);
@@ -71,9 +79,9 @@ export const HeroFullBleed: FC<HeroFullBleedProps> = ({
           )}
           
           {/* CTA */}
-          {ctaText && ctaLink && (
+          {ctaText && (ctaLink || onCta) && (
             <a 
-              href={ctaLink}
+              href={ctaLink || '#'}
               onClick={handleCTAClick}
               className="editorial-cta"
             >
