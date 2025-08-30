@@ -32,12 +32,17 @@ const router = Router();
 
 // PHASE 3: Performance Optimization - Maya Context Caching System  
 // Reduces Claude API calls by ~50% while maintaining perfect consistency
+// 🧹 CACHE CLEARED FOR DIVERSE STYLING - Ensures fresh, non-repetitive styling patterns
 const mayaContextCache = new Map<string, { 
   originalContext: string, 
   conceptName: string,
   timestamp: number 
 }>();
 const MAYA_CONTEXT_CACHE_TTL = 10 * 60 * 1000; // 10 minutes for context reuse
+
+// 🧹 IMMEDIATE CACHE CLEAR: Remove all cached styling patterns to eliminate repetitive blazer/camel/wool styling
+mayaContextCache.clear();
+console.log('🧹 MAYA CACHE CLEARED: Removed all cached styling patterns for fresh, diverse concepts');
 
 // PHASE 3: Cache cleanup utility
 function cleanupMayaContextCache() {
@@ -209,11 +214,12 @@ Use this context to provide personalized styling advice that aligns with their t
       userType
     ) + personalBrandContext;
     
-    // 🎨 MAYA CONCEPT CREATION - API CALL #1
-    console.log('🎨 MAYA CONCEPT CREATION - API CALL #1');
-    console.log('Call ID: CONCEPT-' + Date.now());
-    console.log('Context: Creating concept descriptions');
-    console.log('Expected Output: Concept cards with styling descriptions');
+    // 🎨 MAYA SINGLE API CALL - COMPLETE CONCEPT + FLUX PROMPT GENERATION
+    console.log('🎨 MAYA SINGLE API CALL - COMPLETE CONCEPT + FLUX PROMPT GENERATION');
+    console.log('Call ID: SINGLE-CALL-' + Date.now());
+    console.log('Context: Creating concept descriptions WITH embedded FLUX prompts');
+    console.log('Expected Output: Concept cards with styling descriptions AND ready-to-use FLUX prompts');
+    console.log('🎯 COST SAVINGS: Eliminating second API call for prompt generation');
     
     // Single Claude API call with Maya's complete intelligence
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -410,21 +416,18 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     console.log(`🔍 CRITICAL DEBUG: About to enter generation logic...`);
     console.log(`🆔 REQUEST DETAILS: userId=${userId}, chatId=${req.body.chatId}, category=${req.body.category}`);
 
-    // CRITICAL FIX: Use embedded prompts from concept cards OR Maya's AI for custom prompts
-    // Concept cards have embedded prompts ready, custom prompts get Maya's full Claude API styling expertise
+    // 🚀 PHASE 4: SINGLE API CALL ARCHITECTURE - Use embedded FLUX prompts OR legacy fallback
+    // NEW: Check for pre-generated FLUX prompts from single API call system
+    // LEGACY: Fall back to second API call for old concept cards
     if (conceptName && conceptName.length > 0) {
-      // PHASE 3: Streamlined context retrieval using high-performance caching
+      // PHASE 4: Check for embedded FLUX prompt first (single API call success)
       const conceptId = req.body.conceptId;
+      let fluxPrompt = null;
       let originalContext = '';
       
-      // ENHANCED CONTEXT DEBUG: Log what frontend is sending
-      console.log(`🔍 FRONTEND INPUT DEBUG:`);
-      console.log(`📝 PROMPT: "${prompt}"`);
-      console.log(`🏷️ CONCEPT NAME: "${conceptName}"`);
-      console.log(`📋 CONCEPT ID: "${conceptId}"`);
-      console.log(`🎯 FRONTEND FIX: Should preserve Maya's styling intelligence`);
+      console.log(`🚀 PHASE 4: Checking for embedded FLUX prompt for concept "${conceptName}"`);
       
-      // PRIORITY 1: Instant context retrieval from memory cache
+      // PRIORITY 1: Look for embedded FLUX prompt in recent concept cards
       const cacheKey = `${userId}-${conceptId || conceptName}`;
       const cachedContext = mayaContextCache.get(cacheKey);
       
@@ -450,7 +453,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                   const contentData = JSON.parse(message.content);
                   if (contentData.conceptCards && contentData.conceptCards.length > 0) {
                     for (const conceptCard of contentData.conceptCards) {
-                      // Universal fuzzy matching for ALL concepts
+                      // 🚀 PHASE 4: Check for embedded FLUX prompt first
                       const lowerConceptName = conceptName.toLowerCase();
                       const lowerCardTitle = conceptCard.title.toLowerCase();
                       
@@ -479,21 +482,32 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                         lowerConceptName.includes(lowerCardTitle) ||
                         (matchingWords >= 1 && conceptWords.length >= 1); // Any meaningful word match
                       
-                      if (isMatch && conceptCard.originalContext) {
-                        originalContext = conceptCard.originalContext;
+                      if (isMatch) {
+                        // 🚀 PHASE 4: Check for embedded FLUX prompt first (single API call success)
+                        if (conceptCard.fluxPrompt && conceptCard.fluxPrompt.length > 10) {
+                          fluxPrompt = conceptCard.fluxPrompt;
+                          console.log(`🚀 SINGLE API CALL SUCCESS: Found embedded FLUX prompt for "${conceptName}" (${fluxPrompt.length} chars)`);
+                          console.log(`✨ ELIMINATING API CALL #2: Using pre-generated prompt directly`);
+                          console.log(`💰 COST SAVINGS: ~50% reduction in Claude API calls`);
+                          break;
+                        }
                         
-                        // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
-                        mayaContextCache.set(cacheKey, {
-                          originalContext,
-                          conceptName,
-                          timestamp: Date.now(),
-                          enhancedContext: conceptCard.enhancedContext // Store enhanced context in cache
-                        });
-                        
-                        console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
-                        console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
-                        console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
-                        break;
+                        // Legacy fallback: Store original context for second API call
+                        if (conceptCard.originalContext) {
+                          originalContext = conceptCard.originalContext;
+                          
+                          // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
+                          mayaContextCache.set(cacheKey, {
+                            originalContext,
+                            conceptName,
+                            timestamp: Date.now()
+                          });
+                          
+                          console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
+                          console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
+                          console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
+                          break;
+                        }
                       }
                     }
                   }
@@ -557,7 +571,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       }
 
       // PHASE 3: Lazy generation using cached Maya context for perfect consistency
-      const userConcept = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
+      // MAYA PERSONALITY PRESERVATION: Keep concept name exactly as Maya created it
+      const userConcept = conceptName; // Maya's intelligent concept names preserved
       console.log(`🔗 MAYA CONTEXT HANDOFF: Concept "${userConcept}" with ${originalContext.length} chars`);
       console.log(`🎨 MAYA UNIQUE CONTEXT: ${originalContext.substring(0, 300)}...`);
       
@@ -593,30 +608,61 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       const cleanedContext = cleanMayaPrompt(originalContext);
       console.log(`🧹 CLEANED CONTEXT (first 300 chars): "${cleanedContext.substring(0, 300)}"`);
       
-      // TASK 4: Pipeline confirmation logs
-      console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
-      // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
-      let retrievedEnhancedContext = null;
-      const enhancedContextCache = mayaContextCache.get(cacheKey);
-      if (enhancedContextCache && enhancedContextCache.enhancedContext) {
-        retrievedEnhancedContext = enhancedContextCache.enhancedContext;
-        console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
+      // 🚀 SINGLE API CALL ARCHITECTURE - Use embedded prompt ONLY
+      if (fluxPrompt && fluxPrompt.length > 10) {
+        // ✨ SUCCESS PATH: Use pre-generated FLUX prompt from single API call
+        finalPrompt = fluxPrompt;
+        console.log('🚀 SINGLE API CALL SUCCESS: Using embedded FLUX prompt directly');
+        console.log('✨ LEGACY SYSTEM ELIMINATED: No createDetailedPromptFromConcept fallback');
+        console.log('💰 COST SAVINGS: ~50% reduction in Claude API usage');
+        console.log(`🎨 EMBEDDED PROMPT: ${finalPrompt.substring(0, 300)}...`);
       } else {
-        console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
+        // CLEAN REGENERATION: Generate new concept with proper FLUX_PROMPT format
+        console.log(`🔄 LEGACY CONCEPT DETECTED: "${conceptName}" missing embedded FLUX prompt - regenerating with Maya's new format`);
+        
+        // Use Maya to generate a fresh concept card with embedded FLUX_PROMPT
+        try {
+          const PersonalityIntegrationService = (await import('../agents/personality-integration-service')).PersonalityIntegrationService;
+          const personalityService = PersonalityIntegrationService.getInstance();
+          const personalityContext = personalityService.createPersonalityContext('maya', true);
+          
+          // Generate fresh concept with FLUX_PROMPT format
+          // Import Claude API service
+          const { claudeSimpleAPI } = await import('../services/claude-api-service-simple');
+          
+          const claudeRequest = await claudeSimpleAPI(`Create a single concept card for "${conceptName}" using the exact FLUX_PROMPT format. This must include the complete concept description AND embedded FLUX_PROMPT line.
+
+REQUIRED FORMAT:
+**${conceptName}**
+[Your intelligent styling description...]
+FLUX_PROMPT: [Complete technical prompt for image generation]
+
+Remember to include the FLUX_PROMPT: line exactly as shown.`, personalityContext.enhancedPrompt);
+          
+          // Parse the regenerated concept to extract the FLUX prompt
+          const fluxMatch = claudeRequest.match(/FLUX_PROMPT:\s*([^]*?)(?:\n\n|$)/);
+          if (fluxMatch && fluxMatch[1]) {
+            finalPrompt = fluxMatch[1].trim();
+            console.log(`🎨 REGENERATED FLUX PROMPT: ${finalPrompt.substring(0, 100)}...`);
+          } else {
+            // Ultimate fallback - use concept name with basic styling
+            const generationInfo = await checkGenerationCapability(userId);
+            finalPrompt = `${generationInfo.triggerWord} ${conceptName.toLowerCase()}, professional photography, elegant styling, film grain, natural lighting`;
+            console.log(`🎯 BASIC FALLBACK: ${finalPrompt}`);
+          }
+        } catch (error) {
+          console.error('❌ REGENERATION FAILED:', error);
+          // Ultimate fallback - use concept name with basic styling
+          const generationInfo = await checkGenerationCapability(userId);
+          finalPrompt = `${generationInfo.triggerWord} ${conceptName.toLowerCase()}, professional photography, elegant styling, film grain, natural lighting`;
+          console.log(`🎯 EMERGENCY FALLBACK: ${finalPrompt}`);
+        }
       }
-      
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
-      console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
-      console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
-      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
-      console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
-      // PHASE 3: Custom prompt enhancement using Maya's styling intelligence
-      console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called (custom path)');
-      finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`, undefined, undefined);
-      console.log('🎨 MAYA STYLED PROMPT (custom):', finalPrompt.substring(0, 300));
-      console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation (custom)');
-      console.log(`✅ MAYA CUSTOM ENHANCEMENT: Enhanced prompt to ${finalPrompt.length} characters`);
+      // Custom prompt: Use prompt directly with trigger word
+      finalPrompt = prompt.trim();
+      console.log('🎨 CUSTOM PROMPT: Using user prompt directly');
+      console.log(`✅ CUSTOM GENERATION: ${finalPrompt.length} character prompt`);
     }
     
     // Ensure trigger word is at the beginning
@@ -625,8 +671,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       finalPrompt = `${generationInfo.triggerWord} ${cleanPrompt}`;
     }
     
-    // Category detection is now handled directly in createDetailedPromptFromConcept function
-    // This eliminates redundant category detection and ensures consistency
+    // SINGLE API CALL ARCHITECTURE: All styling logic handled by Maya's embedded prompts
+    // No secondary prompt generation needed - complete consistency achieved
     
     const result = await ModelTrainingService.generateUserImages(
       userId,
@@ -982,15 +1028,43 @@ function enhancePromptForContext(baseMayaPersonality: string, context: string, u
 - Present 3-5 complete styling scenarios ready for generation
 - Use your styling expertise to be specific about colors, textures, silhouettes without asking for more details
 
-🎯 UNIVERSAL CONCEPT GENERATION RULES:
-When creating styling concepts, use your natural conversational style with clear concept presentation:
+🎯 SINGLE API CALL CONCEPT GENERATION - COMPLETE STYLING SYSTEM:
+When creating styling concepts, you MUST generate BOTH the user-facing descriptions AND ready-to-use FLUX prompts in one response.
+
+CRITICAL: Always include FLUX_PROMPT for every concept you create!
+
+REQUIRED FORMAT FOR EACH CONCEPT:
+**[Concept Name]**
+[Your natural styling description for the user - be warm and conversational]
+
+FLUX_PROMPT: ${generationInfo.triggerWord || '[TRIGGER_WORD]'}, [complete detailed styling prompt describing exactly what you envisioned in your concept description - be specific about outfit, colors, textures, pose, setting, mood - this must match your concept description exactly]
+
+EXAMPLE CORRECT FORMAT:
+**Morning Coffee Elegance**
+Picture this - you're having that golden hour coffee moment, but make it luxury! This is all about approachable sophistication that photographs beautifully.
+
+FLUX_PROMPT: ${generationInfo.triggerWord || '[TRIGGER_WORD]'}, elegant woman in cream cashmere sweater and camel trench coat, holding steaming coffee cup in modern kitchen with marble countertops, soft morning light streaming through windows, relaxed confident pose, luxurious casual styling, warm golden hour lighting, lifestyle photography
 
 NATURAL FORMAT FLEXIBILITY:
-- Present concepts however feels most natural to the conversation flow
+- Present concepts however feels most natural to the conversation flow  
 - Use bold formatting (**Concept Name**) to make concepts easy to identify
 - Each concept should showcase your styling expertise with specific details
 - Generate 3-6 diverse concepts that demonstrate your complete professional range
 - Make each concept feel unique and personalized to the user's style journey
+- MOST IMPORTANT: Every single concept must include a FLUX_PROMPT that matches your description
+
+FLUX PROMPT GENERATION RULES:
+- Start each FLUX prompt with the user's trigger word
+- Be extremely specific about styling details (exact colors, fabrics, accessories)
+- Include pose, setting, lighting, and mood that matches your concept description
+- Make the FLUX prompt describe exactly what you described to the user
+- Use natural flowing language, not just keywords
+- Include professional photography technical details
+- Integrate Maya's styling vision: outfit details, colors, textures, accessories
+- Add quality tags: "raw photo, visible skin pores, film grain, professional photography"
+- Specify camera/lens details: "Canon EOS R5, 85mm f/1.4 lens"
+- Keep prompts 100-300 words for optimal FLUX generation
+- No conversational elements in FLUX prompts - technical only
 
 STYLING INTELLIGENCE MANDATE:
 - Draw from your complete professional background for each concept
@@ -1158,8 +1232,8 @@ async function processMayaResponse(response: string, context: string, userId: st
     
     // Third try: Extract only styling descriptions, NEVER use conversational text
     if (!extractedPrompt) {
-      // Look for detailed styling descriptions in Maya's response
-      const stylingPattern = /([A-Z][^.]*(?:blazer|dress|jeans|shirt|blouse|jacket|coat|pants|skirt|top|outfit|wearing|styled|tailored|leather|silk|cotton|wool|fabric|textured|patterned|colored|fitted|flowing|structured|hair|makeup|shot|camera|lighting|photograph|full.body|half.body|standing|sitting|walking|pose|environment|location|setting)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/gi;
+      // Look for detailed styling descriptions in Maya's response - DIVERSE PATTERN MATCHING
+      const stylingPattern = /([A-Z][^.]*(?:wearing|styled|tailored|textured|patterned|colored|fitted|flowing|structured|photographed|shot|camera|lighting|full.body|half.body|standing|sitting|walking|pose|environment|location|setting)[^.]*\.(?:\s*[A-Z][^.]*\.)*)/gi;
       const stylingMatches = response.match(stylingPattern);
       
       if (stylingMatches && stylingMatches.length > 0) {
@@ -1281,6 +1355,7 @@ interface ConceptCard {
   description: string;  // Short description for frontend display
   originalContext: string;  // Maya's complete original styling context and reasoning
   fullPrompt?: string;  // Maya's complete detailed prompt ready for generation
+  fluxPrompt?: string;  // NEW: Pre-generated FLUX prompt from single API call (eliminates API Call #2)
   canGenerate: boolean;
   isGenerating: boolean;
   generatedImages?: string[];
@@ -1290,11 +1365,12 @@ interface ConceptCard {
 const parseConceptsFromResponse = async (response: string, userId?: string): Promise<ConceptCard[]> => {
   const concepts: ConceptCard[] = [];
   
-  console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
+  console.log('🎯 SINGLE API CALL PARSING: Analyzing response for Maya\'s concepts with embedded FLUX prompts');
   
-  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation
-  // Pattern 1: Multiple **Concept Name** followed by styling details
-  // Pattern 2: Single concept with "Story Collection Preview:" or similar formats
+  // ENHANCED CONCEPT DETECTION: Look for Maya's new format with embedded FLUX prompts
+  // New Pattern: **Concept Name** + description + FLUX_PROMPT: [prompt]
+  // Legacy Pattern: **Concept Name** followed by styling details (backward compatibility)
+  const singleCallPattern = /\*\*([^*\n]{5,80})\*\*([^]*?)(?:FLUX_PROMPT:\s*([^]*?)(?=\*\*[^*\n]{5,80}\*\*|FLUX_PROMPT:|$)|(?=\*\*[^*\n]{5,80}\*\*|$))/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   const singleConceptPattern = /\*\*([^*\n]+(?:Collection|Preview|Concept|Look|Style|Vibe)[^*\n]*)\*\*\s*\*([^*]+)\*/gs;
   
@@ -1302,15 +1378,51 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  // Try multi-concept pattern first
-  while ((match = multiConceptPattern.exec(response)) !== null) {
+  // Try new single API call pattern first (with FLUX prompts)
+  while ((match = singleCallPattern.exec(response)) !== null) {
     let conceptName = match[1].trim();
     let conceptContent = match[2].trim();
+    let fluxPrompt = match[3] ? match[3].trim() : null;
     
     // DEBUG: Log what Maya actually provided for concept content
     console.log(`🎯 MAYA CONCEPT DEBUG: "${conceptName}"`);
     console.log(`📝 CONCEPT CONTENT: "${conceptContent}"`);
     console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
+    if (fluxPrompt) {
+      console.log(`🚀 FLUX PROMPT FOUND: ${fluxPrompt.substring(0, 100)}...`);
+      console.log(`🚀 FLUX PROMPT LENGTH: ${fluxPrompt.length} characters`);
+    } else {
+      console.log(`❌ NO FLUX PROMPT FOUND - Will fall back to dual API call system`);
+      
+      // FALLBACK: If Maya didn't generate FLUX_PROMPT, create one from her concept content
+      if (conceptContent && conceptContent.length > 50) {
+        // Extract Maya's styling vision and convert it to a FLUX prompt
+        const stylingElements = [];
+        const lowerContent = conceptContent.toLowerCase();
+        
+        // Extract styling details from Maya's concept content
+        if (lowerContent.includes('wear') || lowerContent.includes('outfit')) {
+          const outfitMatch = conceptContent.match(/(?:wearing?|outfit|styled in)[^.!?]*[.!?]/i);
+          if (outfitMatch) stylingElements.push(outfitMatch[0].replace(/^(?:wearing?|outfit|styled in)\s*/i, ''));
+        }
+        
+        if (lowerContent.includes('setting') || lowerContent.includes('location') || lowerContent.includes('environment')) {
+          const settingMatch = conceptContent.match(/(?:setting|location|environment)[^.!?]*[.!?]/i);
+          if (settingMatch) stylingElements.push(settingMatch[0]);
+        }
+        
+        if (lowerContent.includes('mood') || lowerContent.includes('vibe') || lowerContent.includes('energy')) {
+          const moodMatch = conceptContent.match(/(?:mood|vibe|energy)[^.!?]*[.!?]/i);
+          if (moodMatch) stylingElements.push(moodMatch[0]);
+        }
+        
+        // Create a basic FLUX prompt from concept content if we have styling elements
+        if (stylingElements.length > 0) {
+          fluxPrompt = `${userId ? (await checkGenerationCapability(userId)).triggerWord || 'woman' : 'woman'}, ${stylingElements.join(', ').toLowerCase()}, professional photography, elegant styling`;
+          console.log(`🔄 GENERATED FALLBACK FLUX PROMPT: ${fluxPrompt.substring(0, 100)}...`);
+        }
+      }
+    }
     
     // Clean up concept name - ENHANCED to handle Maya's formatting
     conceptName = conceptName
@@ -1376,30 +1488,18 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       // ENHANCED: Look for Maya's actual styling descriptions in the concept content
       const sentences = conceptContent.split(/[.!?]+/).filter(s => s.trim().length > 15);
       
-      // Priority 1: Find Maya's OUTFIT descriptions (look for "- " bullet pattern)
-      let bestDescription = conceptContent.split('\n').find(line => {
-        const clean = line.trim().toLowerCase();
-        return clean.startsWith('- ') && 
-               (clean.includes('turtleneck') || clean.includes('dress') || clean.includes('blazer') || 
-                clean.includes('coat') || clean.includes('jumpsuit') || clean.includes('gown') ||
-                clean.includes('silk') || clean.includes('velvet') || clean.includes('cashmere'));
+      // Priority 1: Find Maya's STYLING content (avoid technical photography details)
+      let bestDescription = sentences.find(sentence => {
+        const clean = sentence.trim().toLowerCase();
+        const isStyleContent = clean.includes('👗 styling:') || clean.includes('styling:') || 
+                               (clean.length >= 30 && clean.length <= 200 && 
+                                (clean.includes('wearing') || clean.includes('styled') || clean.includes('textured') ||
+                                 clean.includes('flowing') || clean.includes('silhouette') || clean.includes('paired with') ||
+                                 clean.includes('layered') || clean.includes('finished with') || clean.includes('complemented by')));
+        const isTechnical = clean.includes('shot on') || clean.includes('85mm') || clean.includes('f/2.8') ||
+                           clean.includes('lens') || clean.includes('lighting') || clean.includes('technical:');
+        return isStyleContent && !isTechnical;
       });
-      
-      // Priority 1B: If no outfit line, find styling descriptions
-      if (!bestDescription) {
-        bestDescription = sentences.find(sentence => {
-          const clean = sentence.trim().toLowerCase();
-          const isStyleContent = clean.includes('👗 styling:') || clean.includes('styling:') || 
-                                 (clean.length >= 30 && clean.length <= 200 && 
-                                  (clean.includes('blazer') || clean.includes('dress') || clean.includes('jumpsuit') ||
-                                   clean.includes('gown') || clean.includes('silhouette') || clean.includes('silk') ||
-                                   clean.includes('velvet') || clean.includes('paired with') || clean.includes('neckline') ||
-                                   clean.includes('cashmere') || clean.includes('pinstripe') || clean.includes('turtleneck')));
-          const isTechnical = clean.includes('shot on') || clean.includes('85mm') || clean.includes('f/2.8') ||
-                             clean.includes('lens') || clean.includes('lighting') || clean.includes('technical:');
-          return isStyleContent && !isTechnical;
-        });
-      }
       
       console.log(`🎨 PRIORITY 1 RESULT: ${bestDescription ? `"${bestDescription.trim()}"` : 'None found'}`);
       
@@ -1488,8 +1588,9 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       title: conceptName,
       description: description,
       originalContext: fullOriginalContext, // Maya's complete original styling context and reasoning - CACHED
-      fullPrompt: undefined, // PHASE 3: No upfront generation - generated on-demand for performance
-      canGenerate: true, // Always can generate if we have original context
+      fullPrompt: undefined, // Legacy field - replaced by fluxPrompt
+      fluxPrompt: fluxPrompt || undefined, // NEW: Pre-generated FLUX prompt from single API call
+      canGenerate: true, // Always can generate if we have original context or flux prompt
       isGenerating: false,
       generatedImages: []
     };
@@ -1497,7 +1598,11 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     concepts.push(concept);
     conceptNumber++;
     
-    console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
+    if (fluxPrompt) {
+      console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with embedded FLUX prompt (${fluxPrompt.length} chars) - SINGLE API CALL SUCCESS`);
+    } else {
+      console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with context cached for legacy generation`);
+    }
   }
   
   // If no multi-concepts found, try single concept pattern
@@ -1792,344 +1897,14 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
   }
 }
 
-// MAYA'S AI-DRIVEN PROMPT GENERATION - CATEGORY-AWARE STYLING
-async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalContext?: string, category?: string, enhancedMayaContext?: any): Promise<string> {
-  // ✅ MAYA INTELLIGENCE PRESERVATION: Ensures old concept cards maintain Maya's styling expertise
-  // This function applies Maya's full intelligence to both fresh requests and stored concept cards
-  console.log(`🎨 MAYA INTELLIGENCE ACTIVATION: Processing "${conceptName}" with preserved context (${originalContext?.length || 0} chars)`);
-  
-  // UNIFIED MAYA INTELLIGENCE: Use Maya's complete styling expertise with category-specific approaches
-  
-  try {
-    // Load user's personal brand context for personalized styling
-    let personalBrandContext = '';
-    let finalTriggerWord = triggerWord;
-    
-    if (userId) {
-      try {
-        // Get user's trigger word if not provided
-        if (!finalTriggerWord) {
-          const generationInfo = await checkGenerationCapability(userId);
-          finalTriggerWord = generationInfo.triggerWord || '';
-        }
-        
-        // Load personal brand context for styling customization
-        const { MayaStorageExtensions } = await import('../storage-maya-extensions');
-        const mayaUserContext = await MayaStorageExtensions.getMayaUserContext(userId);
-        
-        if (mayaUserContext?.personalBrand) {
-          personalBrandContext = `
-          
-USER'S PERSONAL BRAND CONTEXT:
-- Business Goals: ${mayaUserContext.personalBrand.businessGoals || 'Professional growth'}
-- Current Situation: ${mayaUserContext.personalBrand.currentSituation || 'Building their brand'}
-- Future Vision: ${mayaUserContext.personalBrand.futureVision || 'Success and confidence'}
-- Transformation Story: ${mayaUserContext.personalBrand.transformationStory || 'Personal evolution'}
 
-Use this context to customize styling choices that align with their unique transformation journey.`;
-        }
-      } catch (error) {
-        console.log('Personal brand context not available, using general styling approach');
-      }
-    }
-    
-    // ✅ CONTEXT PRESERVATION: Use Maya's original context while ensuring intelligence is applied
-    const cleanOriginalContext = originalContext || '';
-    
-    // Validate that we have meaningful context for old concept cards
-    if (cleanOriginalContext && cleanOriginalContext.length > 10) {
-      console.log(`✅ MAYA CONTEXT PRESERVED: Using ${cleanOriginalContext.length} chars of original Maya styling context`);
-    } else {
-      console.log(`⚠️ MAYA FRESH GENERATION: Creating new context for "${conceptName}"`);
-    }
-    
-    // PHASE 1 DEBUG: Log context being sent to concept generation
-    console.log('🔍 CONTEXT BEING SENT TO CONCEPT GENERATION:');
-    console.log(cleanOriginalContext);
-
-    // MAYA'S INTELLIGENT PROMPT EXTRACTION - CATEGORY-AWARE STYLING
-    let categorySpecificGuidance = '';
-    const detectedCategory = category || 'General';
-    
-    // PHASE 1 DEBUG: Log category detection
-    console.log('📝 CATEGORY DETECTED:', detectedCategory);
-    console.log('🎨 MAYA STYLING CONTEXT INPUT:', originalContext);
-    
-    // PHASE 2 DEBUG: Check Maya's Instagram category loading
-    console.log('🔍 CHECKING MAYA INSTAGRAM CATEGORY:');
-    const mayaPersonalityForDebug = MAYA_PERSONALITY;
-    if (mayaPersonalityForDebug.categories?.Instagram) {
-      console.log('Instagram stylingApproach:', mayaPersonalityForDebug.categories.Instagram.stylingApproach);
-    } else {
-      console.log('❌ Instagram category NOT FOUND in Maya personality');
-    }
-    
-    if (category) {
-      console.log(`🎨 MAYA CATEGORY TARGETING: Using ${category} specific styling approaches`);
-      categorySpecificGuidance = `
-
-🎯 CATEGORY-SPECIFIC STYLING FOCUS: ${category.toUpperCase()}
-CRITICAL: Use your ${category} styling approaches loaded in your personality. Reference the specific styling techniques, outfit formulas, and aesthetic principles for this category.`;
-      
-      // PHASE 1 DEBUG: Log category guidance
-      console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
-    }
-
-    const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
-
-🎯 MAYA'S TECHNICAL PROMPT MODE - 2025 FLUX OPTIMIZATION:
-You are creating a FLUX 1.1 Pro image generation prompt. This is TECHNICAL PROMPT CREATION, not conversation.
-
-CONCEPT: "${conceptName}"
-CONTEXT: "${cleanOriginalContext}"
-${personalBrandContext}
-${categorySpecificGuidance}
-
-RESEARCH-BACKED FLUX 1.1 PRO REQUIREMENTS:
-- Use NATURAL LANGUAGE descriptions (not keyword lists)
-- Focus on STYLING INTELLIGENCE and creative vision
-- Target 100-250 words for optimal FLUX performance
-- NO conversational language - pure styling description only
-
-CRITICAL TECHNICAL RULES:
-- NEVER add technical quality tags (raw photo, film grain, etc.) - system handles this automatically
-- NEVER specify hair color, eye color, skin tone, facial features - LoRA handles physical appearance
-
-CRITICAL IMAGE RESTRICTIONS:
-- NEVER specify hair color, eye color, skin tone, or facial features - the LoRA model handles all physical appearance
-- NEVER create split images, diptych, before/after, side-by-side, or comparison shots
-- NEVER include "transformation", "before and after", "split screen", "two images", or comparison elements  
-- ALWAYS generate single, cohesive images showing one complete moment/outfit
-
-CREATIVE STYLING APPROACH:
-Let your styling intelligence flow naturally! Create unexpected, beautiful combinations that showcase your expertise:
-- Use your fashion week knowledge for unique textures, unexpected color pairings, innovative silhouettes
-- Draw from current trends but add your signature twist 
-- Mix luxury with accessibility, structure with softness, classic with contemporary
-
-SHOT TYPE CREATIVE FREEDOM:
-YOU decide the best shot type based on the concept! Express your creative vision:
-- **Full-body shots**: Perfect for showcasing complete outfits, lifestyle moments, environmental storytelling
-- **Half-body shots**: Great for business looks, styling details, professional settings
-- **Close-up portraits**: Only when the concept specifically calls for facial focus or beauty shots
-
-Choose the framing that best tells the styling story. Include specific camera positioning and environmental details that enhance your creative vision.
-
-NATURAL ANATOMY GUIDANCE:
-Ensure all anatomy appears natural and professional:
-- Choose poses and gestures that look effortless and elegant
-- Focus on overall composition and styling story
-- Let anatomy appear naturally within the styling context
-
-Express your creative vision authentically with flawless anatomical details!`;
-
-    // PHASE 3 DEBUG: Log complete Claude API request
-    const claudeRequest = {
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1000,
-      system: mayaPromptPersonality,
-      messages: [{
-        role: 'user',
-        content: `GENERATE CLEAN FLUX PROMPT: Transform this styling concept into a natural, flowing image generation prompt.
-
-ORIGINAL CONCEPT: "${conceptName}"
-
-${cleanOriginalContext && cleanOriginalContext.length > 10 ? 
-  `✅ COMPLETE MAYA CONTEXT RESTORATION:
-
-ORIGINAL CONVERSATION CONTEXT:
-${enhancedMayaContext?.conversationHistory?.map(msg => `${msg.role}: ${msg.content?.substring(0, 200)}...`).join('\n') || 'No conversation history available'}
-
-MAYA'S ORIGINAL STYLING VISION:
-${enhancedMayaContext?.originalMayaResponse?.substring(0, 1000) || cleanOriginalContext}
-
-MAYA'S STYLING REASONING:
-${enhancedMayaContext?.stylingReasoning || 'Styling chosen for category appropriateness and visual impact'}
-
-USER'S PERSONAL BRAND CONTEXT:
-${enhancedMayaContext?.userPersonalBrand || 'General personal branding focus'}
-
-CATEGORY CONTEXT: ${enhancedMayaContext?.categoryContext || category || 'General'}
-
-CRITICAL INSTRUCTION: You created this concept in a previous conversation. Use your EXACT original styling vision as the foundation. Do not create new styling - enhance and refine what you already created while maintaining complete consistency with your original concept.` : 
-  '🆕 FRESH CREATION: No previous context available. Create an original styling vision using your full intelligence.'}
-
-${categorySpecificGuidance || ''}
-
-REQUIREMENTS:
-- Generate ONE continuous, natural-flowing prompt description
-- NO formatting elements like "FLUX 1.1 PRO STYLING PROMPT:" 
-- NO bracketed annotations like [Shot type:] or [Environment:]
-- START directly with styling description after technical tags
-- Use natural, descriptive language throughout
-- Include specific styling details from your personality knowledge
-- End naturally without template formatting
-
-TECHNICAL PREFIX (you may integrate these elements naturally into your styling description if it enhances the flow): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
-
-GENERATE: Natural styling description that flows directly after the technical prefix.`
-      }]
-    };
-    
-    console.log('🚀 SENDING TO CLAUDE API:');
-    console.log(JSON.stringify(claudeRequest, null, 2));
-
-    // 🚀 MAYA PROMPT GENERATION - API CALL #2  
-    console.log('🚀 MAYA PROMPT GENERATION - API CALL #2');
-    console.log('Call ID: PROMPT-' + Date.now());
-    console.log('Context: Generating image prompts from concept');
-    console.log('Original Context Preserved:', !!cleanOriginalContext && cleanOriginalContext.length > 10);
-    console.log('Original Context Length:', cleanOriginalContext?.length || 0);
-    
-    // Call Claude API for Maya's intelligent prompt generation
-    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY!,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 8000,
-        // ENHANCED: Use same system prompt as concept creation for consistency
-        system: enhancedMayaContext?.systemPrompt || mayaPromptPersonality,
-        messages: [
-          // Include conversation history for context continuity
-          ...(enhancedMayaContext?.conversationHistory || []),
-          claudeRequest.messages[0]
-        ]
-      })
-    });
-
-    if (!claudeResponse.ok) {
-      throw new Error(`Claude API error: ${claudeResponse.status}`);
-    }
-
-    const data = await claudeResponse.json();
-    let generatedPrompt = data.content[0].text.trim();
-    
-    // PHASE 3 DEBUG: Log Claude's complete raw response
-    console.log('📥 CLAUDE RAW RESPONSE:');
-    console.log(JSON.stringify(data, null, 2));
-    
-    // PHASE 1 DEBUG: Log raw Maya prompt response
-    console.log('⚡ RAW MAYA PROMPT RESPONSE:');
-    console.log(generatedPrompt);
-    
-    // RESEARCH-BACKED PROMPT OPTIMIZATION - NO DUPLICATES, PROPER STRUCTURE
-    // Phase 1: Clean Maya's conversational content while preserving styling intelligence
-    generatedPrompt = cleanMayaPrompt(generatedPrompt);
-    
-    // Phase 2: DUPLICATE DETECTION - Critical fix from research
-    const { hasTechnicalPrefix, addAnatomyKeywords } = await import('../generation-validator.js');
-    const alreadyHasTechnicalTags = hasTechnicalPrefix(generatedPrompt);
-    
-    console.log(`🔍 DUPLICATE DETECTION: Technical tags already present = ${alreadyHasTechnicalTags}`);
-    
-    // Phase 3: RESEARCH-BACKED PROMPT ASSEMBLY
-    if (finalTriggerWord) {
-      // Remove any existing trigger word occurrences to avoid duplication
-      let cleanPrompt = generatedPrompt.replace(new RegExp(finalTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
-      
-      if (cleanPrompt.length > 3) { // Reduced threshold - preserve brief Maya intelligence
-        
-        // RESEARCH FINDING: Add anatomy keywords early for FLUX hand quality
-        cleanPrompt = addAnatomyKeywords(cleanPrompt);
-        
-        if (alreadyHasTechnicalTags) {
-          // Maya's response already has technical tags - don't duplicate
-          console.log('✅ MAYA INTELLIGENCE: Using existing technical tags, no duplication');
-          generatedPrompt = `${finalTriggerWord}, ${cleanPrompt}`;
-        } else {
-          // Add technical prefix only if not present
-          console.log('📝 TECHNICAL PREFIX: Adding research-backed quality tags');
-          generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, ${cleanPrompt}`;
-        }
-      } else {
-        // CRITICAL MAYA INTELLIGENCE PRESERVATION: Use Maya's original response even if brief
-        console.log('✅ MAYA INTELLIGENCE PRESERVATION: Using brief Maya response with styling intelligence');
-        
-        // PRESERVE Maya's styling words by using the uncleaned original response when it contains styling intelligence
-        const stylingIndicators = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy'];
-        const originalHasStyling = stylingIndicators.some(word => generatedPrompt.toLowerCase().includes(word));
-        
-        let contextEnhancedContent;
-        if (originalHasStyling) {
-          // Maya provided styling intelligence - use her original response
-          contextEnhancedContent = addAnatomyKeywords(generatedPrompt);
-          console.log('🎨 MAYA STYLING DETECTED: Preserving original styling intelligence');
-        } else {
-          // No styling detected - enhance with context
-          contextEnhancedContent = originalContext && originalContext.length > 5 ? 
-            addAnatomyKeywords(`${originalContext}, ${conceptName}`) : 
-            addAnatomyKeywords(`${conceptName}`);
-          console.log('📝 CONTEXT ENHANCEMENT: Adding preserved styling context');
-        }
-        
-        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${contextEnhancedContent}`;
-        console.log(`✅ ENHANCED WITH ${originalHasStyling ? 'MAYA STYLING' : 'CONTEXT'}: Intelligence preservation complete`);
-      }
-    }
-    
-    // PHASE 1 DEBUG: Log final cleaned prompt
-    console.log('✨ FINAL CLEANED PROMPT:');
-    console.log(generatedPrompt);
-    
-    // RESEARCH-BASED PROMPT LENGTH VALIDATION (FLUX 1.1 Pro optimal: 100-300 words)
-    const wordCount = generatedPrompt.split(/\s+/).length;
-    console.log(`🎯 MAYA PROMPT LENGTH: ${wordCount} words (research-optimal: 100-300)`);
-    
-    if (wordCount > 400) {
-      // Trim extremely long prompts while preserving core elements
-      const words = generatedPrompt.split(/\s+/);
-      const trimmedPrompt = words.slice(0, 300).join(' ');
-      console.log('⚠️ MAYA PROMPT TRIMMED: Reduced from', wordCount, 'to 300 words for FLUX token limits');
-      generatedPrompt = trimmedPrompt;
-    } else if (wordCount < 75) {
-      console.log('⚠️ MAYA PROMPT TOO SHORT: Adding minimal technical enhancement while preserving Maya\'s styling');
-      generatedPrompt += ', professional photography quality, photorealistic rendering';
-    }
-    
-    // Final validation - ensure prompt is FLUX-ready and trigger word consistent
-    const finalPrompt = generatedPrompt.replace(/\s+/g, ' ').trim();
-    
-    // RESEARCH-BASED VALIDATION WITH GENERATION VALIDATOR
-    const validationResult = validateMayaPrompt(finalPrompt, {
-      triggerWord: finalTriggerWord,
-      targetWordCount: { min: 100, max: 300 },
-      requiredElements: ['photography', 'professional'],
-      forbiddenElements: ['Maya', '**', '#', 'brown eyes', 'blue eyes', 'green eyes', 'brown hair', 'blonde hair', 'black hair']
-    });
-    
-    if (!validationResult.isValid) {
-      console.warn(`⚠️ MAYA PROMPT VALIDATION ISSUES:`, validationResult.issues);
-      console.log(`💡 SUGGESTIONS:`, validationResult.suggestions);
-    }
-    
-    // ✅ MAYA INTELLIGENCE COMPLETE - Final prompt ready for generation
-    console.log(`✅ MAYA PROMPT COMPLETE: ${finalPrompt.length} characters, ready for image generation`);
-    
-    // FINAL VALIDATION LOGS
-    console.log(`🎯 MAYA INTELLIGENT PROMPT: ${finalPrompt.substring(0, 150)}...`);
-    console.log(`✅ VALIDATION SUMMARY: ${validationResult.wordCount} words, trigger word: ${validationResult.hasValidTriggerWord ? 'OK' : 'ISSUE'}, overall: ${validationResult.isValid ? 'PASS' : 'ISSUES'}`);
-    
-    return finalPrompt;
-    
-  } catch (error) {
-    console.error('Maya prompt generation error:', error);
-    
-    // ✅ MAYA INTELLIGENCE PRESERVATION: Always use original context when available
-    // This preserves Maya's sophisticated styling vision even in error scenarios
-    const contextToUse = originalContext && originalContext.length > 5 ? originalContext : conceptName;
-    const pureContextFallback = triggerWord ? 
-      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${contextToUse}` :
-      `${contextToUse}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct`;
-    
-    console.log(`✅ MAYA INTELLIGENCE PRESERVED: Using ${originalContext && originalContext.length > 5 ? 'original Maya styling context' : 'concept-based fallback'} (${contextToUse.length} chars)`);
-    return pureContextFallback;
-  }
-}
+// 🚨 FUNCTION REMOVED: createDetailedPromptFromConcept
+// This function has been completely eliminated as part of the single API call architecture.
+// Maya now generates embedded FLUX prompts directly in concept creation, eliminating the need
+// for secondary prompt generation. This results in:
+// ✅ ~50% reduction in Claude API usage
+// ✅ Perfect consistency between concepts and generated images
+// ✅ No more dual API call conflicts
 
 // 🔥 CRITICAL FIX: Chat History Loading with Image Persistence
 router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {

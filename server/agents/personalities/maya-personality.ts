@@ -483,15 +483,15 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     },
     halfBodyShot: {
       guidance_scale: 5.0,        // ✅ ANATOMY-OPTIMIZED: 5.0 for stronger prompt adherence and better hand quality
-      num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 38)
-      lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 0.9)
-      megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 1.5)
+      num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality
+      lora_weight: 1.2,           // ✅ UPDATED: 1.2 for enhanced personal styling in half-body shots
+      megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25"
     },
     fullScenery: {
-      guidance_scale: 5.0,        // ✅ ANATOMY-OPTIMIZED: 5.0 for stronger prompt adherence and better hand quality
-      num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 42)
-      lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 0.9)
-      megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 2.0)
+      guidance_scale: 5.0,        // ✅ CREATIVE-OPTIMIZED: 5.0 for maintaining style in complex scenes
+      num_inference_steps: 50,    // ✅ QUALITY-DRIVEN: 50 steps for detailed full-scene generation
+      lora_weight: 1.3,           // ✅ UPDATED: 1.3 for maximum personal brand consistency in full scenery
+      megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25"
     },
     promptStructure: [
       "TRIGGER WORD FIRST - ALWAYS",

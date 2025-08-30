@@ -1,0 +1,99 @@
+client:772 [vite] failed to connect to websocket (Error: WebSocket closed without opened.). 
+connect @ client:772Understand this error
+client:809 [vite] Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (client:424:30)
+error @ client:809Understand this error
+client:424 Uncaught (in promise) Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (client:424:30)Understand this error
+chunk-JVBN6TY4.js?v=72b7a163:21609 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+main.tsx:7 SSELFIE Studio: Main.tsx loading...
+main.tsx:8 SSELFIE Studio: Root element found: true
+main.tsx:12 Disabling HMR to prevent connection issues
+main.tsx:64 CSS files loaded: 2
+main.tsx:70 SSELFIE Studio: App rendered successfully
+App.tsx:413 SSELFIE Studio: App rendering...
+use-auth.ts:14 🔍 Auth check: Making request to /api/auth/user
+App.tsx:91 ProtectedRoute state: Object
+App.tsx:378 SSELFIE Studio: App initializing...
+App.tsx:402 SSELFIE Studio: Domain access validated, app ready
+use-auth.ts:28 🔍 Auth check: Response status: 200
+use-auth.ts:54 ✅ Auth check: User authenticated: ssa@ssasocial.com
+App.tsx:91 ProtectedRoute state: Object
+main.tsx:60 SSELFIE Studio: Global error caught: ReferenceError: generateImages is not defined
+    at useMayaGeneration (useMayaGeneration.ts:309:5)
+    at Maya (maya.tsx:124:7)
+    at renderWithHooks (chunk-JVBN6TY4.js?v=72b7a163:11596:26)
+    at mountIndeterminateComponent (chunk-JVBN6TY4.js?v=72b7a163:14974:21)
+    at beginWork (chunk-JVBN6TY4.js?v=72b7a163:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-JVBN6TY4.js?v=72b7a163:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-JVBN6TY4.js?v=72b7a163:3705:24)
+    at invokeGuardedCallback (chunk-JVBN6TY4.js?v=72b7a163:3739:39)
+    at beginWork$1 (chunk-JVBN6TY4.js?v=72b7a163:19818:15)
+    at performUnitOfWork (chunk-JVBN6TY4.js?v=72b7a163:19251:20)
+(anonymous) @ main.tsx:60Understand this warning
+useMayaGeneration.ts:309 Uncaught ReferenceError: generateImages is not defined
+    at useMayaGeneration (useMayaGeneration.ts:309:5)
+    at Maya (maya.tsx:124:7)
+    at renderWithHooks (chunk-JVBN6TY4.js?v=72b7a163:11596:26)
+    at mountIndeterminateComponent (chunk-JVBN6TY4.js?v=72b7a163:14974:21)
+    at beginWork (chunk-JVBN6TY4.js?v=72b7a163:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-JVBN6TY4.js?v=72b7a163:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-JVBN6TY4.js?v=72b7a163:3705:24)
+    at invokeGuardedCallback (chunk-JVBN6TY4.js?v=72b7a163:3739:39)
+    at beginWork$1 (chunk-JVBN6TY4.js?v=72b7a163:19818:15)
+    at performUnitOfWork (chunk-JVBN6TY4.js?v=72b7a163:19251:20)Understand this error
+main.tsx:60 SSELFIE Studio: Global error caught: ReferenceError: generateImages is not defined
+    at useMayaGeneration (useMayaGeneration.ts:309:5)
+    at Maya (maya.tsx:124:7)
+    at renderWithHooks (chunk-JVBN6TY4.js?v=72b7a163:11596:26)
+    at mountIndeterminateComponent (chunk-JVBN6TY4.js?v=72b7a163:14974:21)
+    at beginWork (chunk-JVBN6TY4.js?v=72b7a163:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-JVBN6TY4.js?v=72b7a163:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-JVBN6TY4.js?v=72b7a163:3705:24)
+    at invokeGuardedCallback (chunk-JVBN6TY4.js?v=72b7a163:3739:39)
+    at beginWork$1 (chunk-JVBN6TY4.js?v=72b7a163:19818:15)
+    at performUnitOfWork (chunk-JVBN6TY4.js?v=72b7a163:19251:20)
+(anonymous) @ main.tsx:60Understand this warning
+useMayaGeneration.ts:309 Uncaught ReferenceError: generateImages is not defined
+    at useMayaGeneration (useMayaGeneration.ts:309:5)
+    at Maya (maya.tsx:124:7)
+    at renderWithHooks (chunk-JVBN6TY4.js?v=72b7a163:11596:26)
+    at mountIndeterminateComponent (chunk-JVBN6TY4.js?v=72b7a163:14974:21)
+    at beginWork (chunk-JVBN6TY4.js?v=72b7a163:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-JVBN6TY4.js?v=72b7a163:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-JVBN6TY4.js?v=72b7a163:3705:24)
+    at invokeGuardedCallback (chunk-JVBN6TY4.js?v=72b7a163:3739:39)
+    at beginWork$1 (chunk-JVBN6TY4.js?v=72b7a163:19818:15)
+    at performUnitOfWork (chunk-JVBN6TY4.js?v=72b7a163:19251:20)Understand this error
+chunk-JVBN6TY4.js?v=72b7a163:14080 The above error occurred in the <Maya> component:
+
+    at Maya (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/pages/maya.tsx:37:7)
+    at ErrorBoundary (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/components/ErrorBoundary.tsx:7:5)
+    at MayaWithErrorBoundary
+    at ProtectedRoute (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/App.tsx?v=nGgjQynLWAX-KdMT0bVH3:119:14)
+    at component
+    at Route (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=72b7a163:279:16)
+    at div
+    at Router
+    at App (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/App.tsx?v=nGgjQynLWAX-KdMT0bVH3:821:3)
+    at TooltipProvider (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/components/ui/tooltip.tsx:19:3)
+    at QueryClientProvider (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=72b7a163:2874:3)
+    at AppWithProvider
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-JVBN6TY4.js?v=72b7a163:14080Understand this error
+ErrorBoundary.tsx:23 Error caught by boundary: ReferenceError: generateImages is not defined
+    at useMayaGeneration (useMayaGeneration.ts:309:5)
+    at Maya (maya.tsx:124:7)
+    at renderWithHooks (chunk-JVBN6TY4.js?v=72b7a163:11596:26)
+    at mountIndeterminateComponent (chunk-JVBN6TY4.js?v=72b7a163:14974:21)
+    at beginWork (chunk-JVBN6TY4.js?v=72b7a163:15962:22)
+    at beginWork$1 (chunk-JVBN6TY4.js?v=72b7a163:19806:22)
+    at performUnitOfWork (chunk-JVBN6TY4.js?v=72b7a163:19251:20)
+    at workLoopSync (chunk-JVBN6TY4.js?v=72b7a163:19190:13)
+    at renderRootSync (chunk-JVBN6TY4.js?v=72b7a163:19169:15)
+    at recoverFromConcurrentError (chunk-JVBN6TY4.js?v=72b7a163:18786:28) Object
+componentDidCatch @ ErrorBoundary.tsx:23Understand this error
+App.tsx:91 ProtectedRoute state: Object
+2client:809 [vite] Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (client:424:30)
