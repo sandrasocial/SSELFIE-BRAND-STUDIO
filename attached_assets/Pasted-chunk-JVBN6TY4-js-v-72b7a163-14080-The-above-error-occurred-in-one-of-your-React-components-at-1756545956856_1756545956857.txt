@@ -1,0 +1,54 @@
+chunk-JVBN6TY4.js?v=72b7a163:14080 The above error occurred in one of your React components:
+
+    at Lazy
+    at ProtectedRoute (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/App.tsx?v=CB-kfsBe1fjxdzbvgJsLo:119:14)
+    at component
+    at Route (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=72b7a163:279:16)
+    at div
+    at Router
+    at App (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/App.tsx?v=CB-kfsBe1fjxdzbvgJsLo:781:3)
+    at TooltipProvider (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/components/ui/tooltip.tsx:19:3)
+    at QueryClientProvider (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=72b7a163:2874:3)
+    at AppWithProvider
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-JVBN6TY4.js?v=72b7a163:14080
+update.callback @ chunk-JVBN6TY4.js?v=72b7a163:14100
+callCallback @ chunk-JVBN6TY4.js?v=72b7a163:11296
+commitUpdateQueue @ chunk-JVBN6TY4.js?v=72b7a163:11313
+commitLayoutEffectOnFiber @ chunk-JVBN6TY4.js?v=72b7a163:17141
+commitLayoutMountEffects_complete @ chunk-JVBN6TY4.js?v=72b7a163:18030
+commitLayoutEffects_begin @ chunk-JVBN6TY4.js?v=72b7a163:18019
+commitLayoutEffects @ chunk-JVBN6TY4.js?v=72b7a163:17970
+commitRootImpl @ chunk-JVBN6TY4.js?v=72b7a163:19406
+commitRoot @ chunk-JVBN6TY4.js?v=72b7a163:19330
+performSyncWorkOnRoot @ chunk-JVBN6TY4.js?v=72b7a163:18948
+flushSyncCallbacks @ chunk-JVBN6TY4.js?v=72b7a163:9166
+(anonymous) @ chunk-JVBN6TY4.js?v=72b7a163:18677Understand this error
+main.tsx:60 SSELFIE Studio: Global error caught: Error: A component suspended while responding to synchronous input. This will cause the UI to be replaced with a loading indicator. To fix, updates that suspend should be wrapped with startTransition.
+    at throwException (chunk-JVBN6TY4.js?v=72b7a163:14261:43)
+    at handleError (chunk-JVBN6TY4.js?v=72b7a163:19087:15)
+    at renderRootSync (chunk-JVBN6TY4.js?v=72b7a163:19172:15)
+    at recoverFromConcurrentError (chunk-JVBN6TY4.js?v=72b7a163:18786:28)
+    at performSyncWorkOnRoot (chunk-JVBN6TY4.js?v=72b7a163:18932:28)
+    at flushSyncCallbacks (chunk-JVBN6TY4.js?v=72b7a163:9166:30)
+    at chunk-JVBN6TY4.js?v=72b7a163:18677:21
+(anonymous) @ main.tsx:60Understand this warning
+chunk-JVBN6TY4.js?v=72b7a163:14261 Uncaught Error: A component suspended while responding to synchronous input. This will cause the UI to be replaced with a loading indicator. To fix, updates that suspend should be wrapped with startTransition.
+    at throwException (chunk-JVBN6TY4.js?v=72b7a163:14261:43)
+    at handleError (chunk-JVBN6TY4.js?v=72b7a163:19087:15)
+    at renderRootSync (chunk-JVBN6TY4.js?v=72b7a163:19172:15)
+    at recoverFromConcurrentError (chunk-JVBN6TY4.js?v=72b7a163:18786:28)
+    at performSyncWorkOnRoot (chunk-JVBN6TY4.js?v=72b7a163:18932:28)
+    at flushSyncCallbacks (chunk-JVBN6TY4.js?v=72b7a163:9166:30)
+    at chunk-JVBN6TY4.js?v=72b7a163:18677:21
+throwException @ chunk-JVBN6TY4.js?v=72b7a163:14261
+handleError @ chunk-JVBN6TY4.js?v=72b7a163:19087
+renderRootSync @ chunk-JVBN6TY4.js?v=72b7a163:19172
+recoverFromConcurrentError @ chunk-JVBN6TY4.js?v=72b7a163:18786
+performSyncWorkOnRoot @ chunk-JVBN6TY4.js?v=72b7a163:18932
+flushSyncCallbacks @ chunk-JVBN6TY4.js?v=72b7a163:9166
+(anonymous) @ chunk-JVBN6TY4.js?v=72b7a163:18677Understand this error
+client:809 [vite] Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (client:424:30)
