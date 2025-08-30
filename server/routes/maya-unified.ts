@@ -1595,6 +1595,10 @@ async function extractAndSaveNaturalOnboardingData(userId: string, userMessage: 
 
 // MAYA'S AI-DRIVEN PROMPT GENERATION - CATEGORY-AWARE STYLING
 async function createDetailedPromptFromConcept(conceptName: string, triggerWord: string, userId?: string, originalContext?: string, category?: string): Promise<string> {
+  // ✅ MAYA INTELLIGENCE PRESERVATION: Ensures old concept cards maintain Maya's styling expertise
+  // This function applies Maya's full intelligence to both fresh requests and stored concept cards
+  console.log(`🎨 MAYA INTELLIGENCE ACTIVATION: Processing "${conceptName}" with preserved context (${originalContext?.length || 0} chars)`);
+  
   // UNIFIED MAYA INTELLIGENCE: Use Maya's complete styling expertise with category-specific approaches
   
   try {
@@ -1630,8 +1634,15 @@ Use this context to customize styling choices that align with their unique trans
       }
     }
     
-    // Use original context as-is - Maya's responses are already properly formatted
+    // ✅ CONTEXT PRESERVATION: Use Maya's original context while ensuring intelligence is applied
     const cleanOriginalContext = originalContext || '';
+    
+    // Validate that we have meaningful context for old concept cards
+    if (cleanOriginalContext && cleanOriginalContext.length > 10) {
+      console.log(`✅ MAYA CONTEXT PRESERVED: Using ${cleanOriginalContext.length} chars of original Maya styling context`);
+    } else {
+      console.log(`⚠️ MAYA FRESH GENERATION: Creating new context for "${conceptName}"`);
+    }
     
     // PHASE 1 DEBUG: Log context being sent to concept generation
     console.log('🔍 CONTEXT BEING SENT TO CONCEPT GENERATION:');
@@ -1723,7 +1734,15 @@ Express your creative vision authentically with flawless anatomical details!`;
         content: `GENERATE CLEAN FLUX PROMPT: Transform this styling concept into a natural, flowing image generation prompt.
 
 ORIGINAL CONCEPT: "${conceptName}"
-ORIGINAL CONTEXT: "${cleanOriginalContext}"
+
+${cleanOriginalContext && cleanOriginalContext.length > 10 ? 
+  `✅ PRESERVED MAYA CONTEXT: This user clicked on a previously created concept card. This is Maya's original styling vision that MUST be preserved and enhanced:
+
+"${cleanOriginalContext}"
+
+CRITICAL: Use this original context as your foundation. Build upon Maya's previous styling intelligence while enhancing it with your current expertise. Do NOT replace this vision - enhance and refine it.` : 
+  '🆕 FRESH CREATION: No previous context available. Create an original styling vision using your full intelligence.'}
+
 ${categorySpecificGuidance || ''}
 
 REQUIREMENTS:

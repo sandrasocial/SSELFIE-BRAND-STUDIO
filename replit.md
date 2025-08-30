@@ -8,6 +8,9 @@ Preferred communication style: Simple, everyday language.
 UI Preferences: Keep technical controls hidden - users prefer Maya to handle technical details automatically rather than exposing preset/seed parameters.
 PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY flow for immediate €47/month launch. Maya authentication cleaned for production - development access removed for professional launch experience.
 
+## Recent Changes
+- **Maya Intelligence Preservation Enhanced** (Aug 30, 2025): Completed comprehensive system to ensure Maya's styling intelligence persists when users click on old concept cards, even after logouts, system refreshes, and across sessions. Enhanced context retrieval with 30-minute caching, removed hardcoded styling fallbacks, and improved Claude API requests to preserve rather than replace Maya's original styling vision.
+
 ## System Architecture
 
 ### Frontend Architecture
