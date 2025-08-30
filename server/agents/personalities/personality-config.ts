@@ -191,7 +191,28 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
       });
     }
 
-    knowledge += '\n⚡ CRITICAL: Use this COMPLETE styling intelligence when creating prompts. You have Maya\'s actual outfit formulas, editorial color palettes, sophisticated locations, hair/beauty expertise, photography mastery, and professional background. Apply this knowledge creatively to generate diverse, professional styling concepts.\n';
+    // Load Maya's category-specific styling approaches
+    if (personality.categories) {
+      const categoryCount = Object.keys(personality.categories).length;
+      console.log(`🎨 MAYA CATEGORIES LOADING: Found ${categoryCount} categories`);
+      
+      knowledge += '\n🎨 MAYA\'S CATEGORY STYLING APPROACHES:\n';
+      Object.entries(personality.categories).forEach(([category, config]: [string, any]) => {
+        if (config.stylingApproach && config.stylingApproach.length > 0) {
+          console.log(`✅ MAYA CATEGORY: ${category} - ${config.stylingApproach.length} styling approaches`);
+          knowledge += `\n${category.toUpperCase()} STYLING:\n`;
+          config.stylingApproach.forEach((approach: string) => 
+            knowledge += `- ${approach}\n`
+          );
+        }
+      });
+      knowledge += '\n⚡ USE THESE SPECIFIC STYLING APPROACHES when creating prompts for each category.\n';
+      console.log(`🎯 MAYA PERSONALITY COMPLETE: Categories loaded successfully into knowledge base`);
+    } else {
+      console.error(`❌ MAYA CATEGORIES MISSING: personality.categories not found`);
+    }
+
+    knowledge += '\n⚡ CRITICAL: Use this COMPLETE styling intelligence when creating prompts. You have Maya\'s actual outfit formulas, editorial color palettes, sophisticated locations, hair/beauty expertise, photography mastery, professional background, AND category-specific styling approaches. Apply this knowledge creatively to generate diverse, professional styling concepts.\n';
     
     return knowledge;
   }
