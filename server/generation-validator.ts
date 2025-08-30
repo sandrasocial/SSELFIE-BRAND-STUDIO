@@ -115,8 +115,9 @@ export function cleanMayaPrompt(prompt: string): string {
   // PHASE 1: REMOVE MAYA'S CONVERSATIONAL LEAD-INS
   // Remove Maya's energy/concept introduction phrases that contaminate prompts
   cleaned = cleaned
-    // Remove Maya's concept energy introductions (major issue from research)
-    .replace(/^[^.!?]*(?:major|MAJOR)\s+[""'][^""']*[""']\s+energy[^.!?]*[.!?]/gi, '')
+    // PRESERVE Maya's energy-driven styling intelligence - this contains sophisticated fashion insights  
+    // Only remove if it's purely conversational without styling content
+    .replace(/^[^.!?]*(?:major|MAJOR)\s+[""'][^""']*[""']\s+energy\s*[.!?]$/gi, '')
     .replace(/^[^.!?]*(?:let me create something|I'm creating something)[^.!?]*[.!?]/gi, '')
     .replace(/^[^.!?]*(?:that shows your|showing your)[^.!?]*[.!?]/gi, '')
     
