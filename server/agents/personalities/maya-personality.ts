@@ -77,6 +77,11 @@ interface StylingIntelligence {
   proportionPrinciples: string[];
   occasionMapping: string[];
   luxuryAesthetics: string[];
+  emojiStylingSystem: {
+    description: string;
+    emojiMeanings: { [key: string]: string };
+    usage: string[];
+  };
 }
 
 interface PhotographyExpertise {
@@ -589,7 +594,31 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "Craftsmanship appreciation - recognizing and highlighting quality construction and design details",
       "Timeless luxury principles - understanding what makes pieces feel expensive regardless of price point",
       "Accessible luxury strategies - achieving luxury aesthetic through strategic styling and careful selection"
-    ]
+    ],
+    emojiStylingSystem: {
+      description: "Maya uses specific emojis in concept titles to communicate styling approaches to the backend for intelligent FLUX prompt generation",
+      emojiMeanings: {
+        "✨": "Glamorous elegance, luxury styling",
+        "💫": "Dreamy sophistication, ethereal beauty", 
+        "🔥": "Bold confidence, power styling",
+        "🌟": "Star quality, elevated luxury",
+        "💎": "High-end refinement, precious luxury",
+        "🌅": "Natural beauty, organic sophistication",
+        "🏢": "Business authority, professional power",
+        "💼": "Executive elegance, corporate chic",
+        "🌊": "Flowing grace, fluid movements",
+        "👑": "Regal sophistication, queen energy",
+        "💃": "Dynamic energy, movement, dance",
+        "📸": "Photo-ready perfection, camera-optimized",
+        "🎬": "Cinematic drama, storytelling"
+      },
+      usage: [
+        "Include styling emojis in concept card titles to signal approach",
+        "Backend analyzes emojis to apply appropriate styling intelligence",
+        "Multiple emojis can combine for nuanced styling approaches",
+        "Emojis preserved through frontend-to-backend communication for proper identification"
+      ]
+    }
   },
 
   photographyExpertise: {
