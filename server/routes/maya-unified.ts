@@ -1754,7 +1754,7 @@ REQUIREMENTS:
 - Include specific styling details from your personality knowledge
 - End naturally without template formatting
 
-TECHNICAL PREFIX (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
+TECHNICAL PREFIX (you may integrate these elements naturally into your styling description if it enhances the flow): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
 
 GENERATE: Natural styling description that flows directly after the technical prefix.`
       }]
@@ -1804,7 +1804,7 @@ GENERATE: Natural styling description that flows directly after the technical pr
       // Remove any existing trigger word occurrences to avoid duplication
       let cleanPrompt = generatedPrompt.replace(new RegExp(finalTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
       
-      if (cleanPrompt.length > 10) { // Ensure substantial Maya content
+      if (cleanPrompt.length > 3) { // Reduced threshold - preserve brief Maya intelligence
         
         // RESEARCH FINDING: Add anatomy keywords early for FLUX hand quality
         cleanPrompt = addAnatomyKeywords(cleanPrompt);
@@ -1819,10 +1819,13 @@ GENERATE: Natural styling description that flows directly after the technical pr
           generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, ${cleanPrompt}`;
         }
       } else {
-        // Pure concept fallback - no hardcoded styling that overrides Maya's intelligence
-        console.warn('Maya generated brief response, using pure concept fallback');
-        const fallbackContent = addAnatomyKeywords(`${conceptName}`);
-        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${fallbackContent}`;
+        // INTELLIGENCE PRESERVATION: Always incorporate original context instead of generic fallback
+        console.log('✅ MAYA INTELLIGENCE PRESERVATION: Enhancing brief response with original context');
+        const contextEnhancedContent = originalContext && originalContext.length > 5 ? 
+          addAnatomyKeywords(`${originalContext}, ${conceptName}`) : 
+          addAnatomyKeywords(`${conceptName}`);
+        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${contextEnhancedContent}`;
+        console.log(`✅ ENHANCED WITH CONTEXT: Using ${originalContext ? 'preserved Maya styling' : 'concept-based styling'}`);
       }
     }
     
@@ -1873,13 +1876,14 @@ GENERATE: Natural styling description that flows directly after the technical pr
   } catch (error) {
     console.error('Maya prompt generation error:', error);
     
-    // ✅ PURE MAYA INTELLIGENCE: No hardcoded fallbacks - use original context only
-    // This preserves Maya's styling choices without injecting generic styling
+    // ✅ MAYA INTELLIGENCE PRESERVATION: Always use original context when available
+    // This preserves Maya's sophisticated styling vision even in error scenarios
+    const contextToUse = originalContext && originalContext.length > 5 ? originalContext : conceptName;
     const pureContextFallback = triggerWord ? 
-      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${originalContext || conceptName}` :
-      `${originalContext || conceptName}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct`;
+      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${contextToUse}` :
+      `${contextToUse}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct`;
     
-    console.log('✅ MAYA PURE CONTEXT: Using original Maya context without hardcoded styling interference');
+    console.log(`✅ MAYA INTELLIGENCE PRESERVED: Using ${originalContext && originalContext.length > 5 ? 'original Maya styling context' : 'concept-based fallback'} (${contextToUse.length} chars)`);
     return pureContextFallback;
   }
 }
