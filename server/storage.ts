@@ -1258,7 +1258,7 @@ export class DatabaseStorage implements IStorage {
     return messages.map(msg => ({
       ...msg,
       imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : null,
-      conceptCards: msg.conceptCards ? JSON.parse(msg.conceptCards) : null,
+      conceptCards: msg.conceptCards ? msg.conceptCards : null, // ENHANCED: conceptCards now stored as JSONB
       quickButtons: msg.quickButtons ? JSON.parse(msg.quickButtons) : null,
     }));
   }

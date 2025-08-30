@@ -1588,7 +1588,7 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
       role: 'maya',
       content: mayaResponse.message, // Store actual message content
       generatedPrompt: mayaResponse.generatedPrompt,
-      conceptCards: mayaResponse.conceptCards ? JSON.stringify(mayaResponse.conceptCards) : null, // CRITICAL: Store concept cards in proper field
+      conceptCards: mayaResponse.conceptCards, // ENHANCED: Store concept cards as JSONB directly
       quickButtons: mayaResponse.quickButtons ? JSON.stringify(mayaResponse.quickButtons) : null, // CRITICAL: Store quick buttons in proper field
       canGenerate: mayaResponse.canGenerate || false // CRITICAL: Store generation capability flag
     });
@@ -2088,6 +2088,21 @@ router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
           if (Array.isArray(msg.imagePreview)) {
             transformedMsg.imagePreview = msg.imagePreview;
           }
+        }
+      }
+
+      // 🔥 CRITICAL FIX: Parse concept cards for frontend display
+      if (msg.conceptCards) {
+        try {
+          if (typeof msg.conceptCards === 'string') {
+            transformedMsg.conceptCards = JSON.parse(msg.conceptCards);
+          } else {
+            transformedMsg.conceptCards = msg.conceptCards; // Already parsed JSONB
+          }
+          console.log(`🎯 MAYA CHAT HISTORY: Loaded ${transformedMsg.conceptCards?.length || 0} concept cards for message`);
+        } catch (parseError) {
+          console.error('Error parsing stored conceptCards:', parseError);
+          transformedMsg.conceptCards = null;
         }
       }
 
