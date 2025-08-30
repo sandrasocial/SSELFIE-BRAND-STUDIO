@@ -664,26 +664,20 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       
       // TASK 4: Pipeline confirmation logs
       console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
-      // SINGLE API CALL: Check if concept already has embedded FLUX prompt
-      const embeddedPrompt = userConcept.fullPrompt;
-      if (embeddedPrompt && embeddedPrompt.trim().length > 50) {
-        console.log(`⚡ SINGLE API CALL SUCCESS: Using embedded FLUX prompt (${embeddedPrompt.length} chars)`);
-        console.log(`🎯 EMBEDDED PROMPT PREVIEW: "${embeddedPrompt.substring(0, 200)}..."`);
-        finalPrompt = embeddedPrompt;
+      // CRITICAL FIX: Remove duplicate embedded prompt check - already handled earlier in code
+      // The embedded prompt check at line 530 already handles single API call logic
+      console.log(`⚠️ PROCEEDING WITH DUAL API: Using traditional generation (single API already checked earlier)`);
+      // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
+      let retrievedEnhancedContext = null;
+      const enhancedContextCache = mayaContextCache.get(cacheKey);
+      if (enhancedContextCache && enhancedContextCache.enhancedContext) {
+        retrievedEnhancedContext = enhancedContextCache.enhancedContext;
+        console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
       } else {
-        console.log(`⚠️ FALLBACK TO DUAL API: No embedded prompt found, using traditional generation`);
-        // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
-        let retrievedEnhancedContext = null;
-        const enhancedContextCache = mayaContextCache.get(cacheKey);
-        if (enhancedContextCache && enhancedContextCache.enhancedContext) {
-          retrievedEnhancedContext = enhancedContextCache.enhancedContext;
-          console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
-        } else {
-          console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
-        }
-        
-        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
+        console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
       }
+      
+      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
       console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
       console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
