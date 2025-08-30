@@ -402,8 +402,7 @@ export class ModelTrainingService {
       
       // Personality-first: keep Maya's prompt, ensure trigger appears once and first
       const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
-      console.log(`🚀 [${promptId}] AFTER formatPrompt(): "${finalPrompt.substring(0, 300)}"`);
-      console.log(`🔍 [${promptId}] CHECKING: Does this contain Maya's styling? ${finalPrompt.includes('black') && finalPrompt.includes('pink') ? 'YES - MAYA STYLING PRESERVED' : 'NO - MAYA STYLING LOST'}`);
+      console.log(`🚀 [${promptId}] PROMPT FORMATTED: ${finalPrompt.length} characters ready for generation`);
 
       // DETERMINISTIC PATH LOGIC: Declare usePackaged early to avoid temporal dead zone issues
       const usePackaged = Boolean(
@@ -418,8 +417,7 @@ export class ModelTrainingService {
       const intelligentParams = await this.getIntelligentParameters(finalPrompt, count, userId, categoryContext);
       console.log(`✅ [${promptId}] getIntelligentParameters COMPLETED`);
       console.log(`🎯 [${promptId}] INTELLIGENT PARAMS: count=${intelligentParams.count}, reasoning="${intelligentParams.reasoning?.substring(0, 100)}"`);
-      console.log(`🔍 [${promptId}] FINAL PROMPT TO REPLICATE: "${finalPrompt.substring(0, 300)}"`);
-      console.log(`🔍 [${promptId}] CONTAINS MAYA'S STYLING? ${finalPrompt.toLowerCase().includes('black') || finalPrompt.toLowerCase().includes('pink') ? 'YES - FOUND BLACK/PINK' : 'NO - MAYA STYLING MISSING'}`);
+      console.log(`🔍 [${promptId}] FINAL PROMPT: ${finalPrompt.length} characters processed`);
       
       // ----- PHASE 1 FIX: Use Maya's optimized parameters (temporary fallback while fixing import) -----
       const shotType = this.determineShotTypeFromPrompt(finalPrompt);

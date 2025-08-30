@@ -1800,10 +1800,10 @@ GENERATE: Natural styling description that flows directly after the technical pr
           generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, ${cleanPrompt}`;
         }
       } else {
-        // Fallback with anatomy keywords
-        console.warn('Maya generated brief response, using enhanced fallback');
-        const fallbackContent = addAnatomyKeywords(`${conceptName}, professional styling, sophisticated composition, natural lighting`);
-        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${fallbackContent}`;
+        // Pure concept fallback - no hardcoded styling that overrides Maya's intelligence
+        console.warn('Maya generated brief response, using pure concept fallback');
+        const fallbackContent = addAnatomyKeywords(`${conceptName}`);
+        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${fallbackContent}`;
       }
     }
     
@@ -1822,8 +1822,8 @@ GENERATE: Natural styling description that flows directly after the technical pr
       console.log('⚠️ MAYA PROMPT TRIMMED: Reduced from', wordCount, 'to 300 words for FLUX token limits');
       generatedPrompt = trimmedPrompt;
     } else if (wordCount < 75) {
-      console.log('⚠️ MAYA PROMPT TOO SHORT: Adding technical detail for research-optimal length');
-      generatedPrompt += ', professional photography quality, detailed composition, natural lighting setup, photorealistic rendering, high resolution detail';
+      console.log('⚠️ MAYA PROMPT TOO SHORT: Adding minimal technical enhancement while preserving Maya\'s styling');
+      generatedPrompt += ', professional photography quality, photorealistic rendering';
     }
     
     // Final validation - ensure prompt is FLUX-ready and trigger word consistent
@@ -1842,12 +1842,8 @@ GENERATE: Natural styling description that flows directly after the technical pr
       console.log(`💡 SUGGESTIONS:`, validationResult.suggestions);
     }
     
-    // TASK 2: DEBUG BEFORE RETURN - CHECK MAYA'S STYLING PRESERVATION
-    const promptId = `MAYA-CREATED-${Date.now()}`;
-    console.log(`🎨 [${promptId}] MAYA FINAL CREATION: "${finalPrompt.substring(0, 300)}"`);
-    console.log(`🔍 [${promptId}] STYLING CHECK: Contains black dress? ${finalPrompt.toLowerCase().includes('black') ? 'YES' : 'NO'}`);
-    console.log(`🔍 [${promptId}] STYLING CHECK: Contains pink jacket? ${finalPrompt.toLowerCase().includes('pink') ? 'YES' : 'NO'}`);
-    console.log(`✅ [${promptId}] MAYA INTELLIGENCE STATUS: ${finalPrompt.toLowerCase().includes('black') && finalPrompt.toLowerCase().includes('pink') ? 'STYLING PRESERVED' : 'STYLING MISSING'}`);
+    // ✅ MAYA INTELLIGENCE COMPLETE - Final prompt ready for generation
+    console.log(`✅ MAYA PROMPT COMPLETE: ${finalPrompt.length} characters, ready for image generation`);
     
     // FINAL VALIDATION LOGS
     console.log(`🎯 MAYA INTELLIGENT PROMPT: ${finalPrompt.substring(0, 150)}...`);
@@ -1857,15 +1853,15 @@ GENERATE: Natural styling description that flows directly after the technical pr
     
   } catch (error) {
     console.error('Maya prompt generation error:', error);
-    // 🚨 INTELLIGENCE PRESERVATION: If Claude API fails, use Maya's context and concept creatively
-    // DO NOT fall back to basic/generic prompts that override her expertise
     
-    const intelligentFallback = triggerWord ? 
-      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${originalContext || conceptName}, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression` :
-      `${originalContext || conceptName}, raw photo, visible skin pores, film grain, professional styling with creative flair, sophisticated composition, natural lighting, elegant pose and expression`;
+    // ✅ PURE MAYA INTELLIGENCE: No hardcoded fallbacks - use original context only
+    // This preserves Maya's styling choices without injecting generic styling
+    const pureContextFallback = triggerWord ? 
+      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${originalContext || conceptName}` :
+      `${originalContext || conceptName}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct`;
     
-    console.log('🎯 MAYA INTELLIGENT FALLBACK: Preserving context and creativity despite API issue');
-    return intelligentFallback;
+    console.log('✅ MAYA PURE CONTEXT: Using original Maya context without hardcoded styling interference');
+    return pureContextFallback;
   }
 }
 
