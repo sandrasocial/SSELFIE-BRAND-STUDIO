@@ -209,11 +209,12 @@ Use this context to provide personalized styling advice that aligns with their t
       userType
     ) + personalBrandContext;
     
-    // 🎨 MAYA CONCEPT CREATION - API CALL #1
-    console.log('🎨 MAYA CONCEPT CREATION - API CALL #1');
-    console.log('Call ID: CONCEPT-' + Date.now());
-    console.log('Context: Creating concept descriptions');
-    console.log('Expected Output: Concept cards with styling descriptions');
+    // 🎨 MAYA SINGLE API CALL - COMPLETE CONCEPT + FLUX PROMPT GENERATION
+    console.log('🎨 MAYA SINGLE API CALL - COMPLETE CONCEPT + FLUX PROMPT GENERATION');
+    console.log('Call ID: SINGLE-CALL-' + Date.now());
+    console.log('Context: Creating concept descriptions WITH embedded FLUX prompts');
+    console.log('Expected Output: Concept cards with styling descriptions AND ready-to-use FLUX prompts');
+    console.log('🎯 COST SAVINGS: Eliminating second API call for prompt generation');
     
     // Single Claude API call with Maya's complete intelligence
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -410,14 +411,18 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     console.log(`🔍 CRITICAL DEBUG: About to enter generation logic...`);
     console.log(`🆔 REQUEST DETAILS: userId=${userId}, chatId=${req.body.chatId}, category=${req.body.category}`);
 
-    // CRITICAL FIX: Use embedded prompts from concept cards OR Maya's AI for custom prompts
-    // Concept cards have embedded prompts ready, custom prompts get Maya's full Claude API styling expertise
+    // 🚀 PHASE 4: SINGLE API CALL ARCHITECTURE - Use embedded FLUX prompts OR legacy fallback
+    // NEW: Check for pre-generated FLUX prompts from single API call system
+    // LEGACY: Fall back to second API call for old concept cards
     if (conceptName && conceptName.length > 0) {
-      // PHASE 3: Streamlined context retrieval using high-performance caching
+      // PHASE 4: Check for embedded FLUX prompt first (single API call success)
       const conceptId = req.body.conceptId;
+      let fluxPrompt = null;
       let originalContext = '';
       
-      // PRIORITY 1: Instant context retrieval from memory cache
+      console.log(`🚀 PHASE 4: Checking for embedded FLUX prompt for concept "${conceptName}"`);
+      
+      // PRIORITY 1: Look for embedded FLUX prompt in recent concept cards
       const cacheKey = `${userId}-${conceptId || conceptName}`;
       const cachedContext = mayaContextCache.get(cacheKey);
       
@@ -443,7 +448,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                   const contentData = JSON.parse(message.content);
                   if (contentData.conceptCards && contentData.conceptCards.length > 0) {
                     for (const conceptCard of contentData.conceptCards) {
-                      // Universal fuzzy matching for ALL concepts
+                      // 🚀 PHASE 4: Check for embedded FLUX prompt first
                       const lowerConceptName = conceptName.toLowerCase();
                       const lowerCardTitle = conceptCard.title.toLowerCase();
                       
@@ -472,21 +477,33 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                         lowerConceptName.includes(lowerCardTitle) ||
                         (matchingWords >= 1 && conceptWords.length >= 1); // Any meaningful word match
                       
-                      if (isMatch && conceptCard.originalContext) {
-                        originalContext = conceptCard.originalContext;
+                      if (isMatch) {
+                        // 🚀 PHASE 4: Check for embedded FLUX prompt first (single API call success)
+                        if (conceptCard.fluxPrompt && conceptCard.fluxPrompt.length > 10) {
+                          fluxPrompt = conceptCard.fluxPrompt;
+                          console.log(`🚀 SINGLE API CALL SUCCESS: Found embedded FLUX prompt for "${conceptName}" (${fluxPrompt.length} chars)`);
+                          console.log(`✨ ELIMINATING API CALL #2: Using pre-generated prompt directly`);
+                          console.log(`💰 COST SAVINGS: ~50% reduction in Claude API calls`);
+                          break;
+                        }
                         
-                        // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
-                        mayaContextCache.set(cacheKey, {
-                          originalContext,
-                          conceptName,
-                          timestamp: Date.now(),
-                          enhancedContext: conceptCard.enhancedContext // Store enhanced context in cache
-                        });
-                        
-                        console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
-                        console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
-                        console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
-                        break;
+                        // Legacy fallback: Store original context for second API call
+                        if (conceptCard.originalContext) {
+                          originalContext = conceptCard.originalContext;
+                          
+                          // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
+                          mayaContextCache.set(cacheKey, {
+                            originalContext,
+                            conceptName,
+                            timestamp: Date.now(),
+                            enhancedContext: conceptCard.enhancedContext // Store enhanced context in cache
+                          });
+                          
+                          console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
+                          console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
+                          console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
+                          break;
+                        }
                       }
                     }
                   }
@@ -586,23 +603,34 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       const cleanedContext = cleanMayaPrompt(originalContext);
       console.log(`🧹 CLEANED CONTEXT (first 300 chars): "${cleanedContext.substring(0, 300)}"`);
       
-      // TASK 4: Pipeline confirmation logs
-      console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
-      // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
-      let retrievedEnhancedContext = null;
-      const enhancedContextCache = mayaContextCache.get(cacheKey);
-      if (enhancedContextCache && enhancedContextCache.enhancedContext) {
-        retrievedEnhancedContext = enhancedContextCache.enhancedContext;
-        console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
+      // 🚀 PHASE 4: SINGLE API CALL ARCHITECTURE - Use embedded prompt or fallback
+      if (fluxPrompt && fluxPrompt.length > 10) {
+        // ✨ SUCCESS PATH: Use pre-generated FLUX prompt from single API call
+        finalPrompt = fluxPrompt;
+        console.log('🚀 SINGLE API CALL SUCCESS: Using embedded FLUX prompt directly');
+        console.log('✨ API CALL #2 ELIMINATED: No createDetailedPromptFromConcept needed');
+        console.log('💰 COST SAVINGS: ~50% reduction in Claude API usage');
+        console.log(`🎨 EMBEDDED PROMPT: ${finalPrompt.substring(0, 300)}...`);
       } else {
-        console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
+        // Legacy fallback: Use original dual API call system for old concept cards
+        console.log('🔗 LEGACY FALLBACK: createDetailedPromptFromConcept called for old concept card');
+        
+        // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
+        let retrievedEnhancedContext = null;
+        const enhancedContextCache = mayaContextCache.get(cacheKey);
+        if (enhancedContextCache && enhancedContextCache.enhancedContext) {
+          retrievedEnhancedContext = enhancedContextCache.enhancedContext;
+          console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
+        } else {
+          console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
+        }
+        
+        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
+        console.log('🎨 MAYA STYLED PROMPT (legacy):', finalPrompt.substring(0, 300));
+        console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation (legacy)');
+        console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
+        console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
       }
-      
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
-      console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
-      console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
-      console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
-      console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
       // PHASE 3: Custom prompt enhancement using Maya's styling intelligence
       console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called (custom path)');
@@ -975,8 +1003,14 @@ function enhancePromptForContext(baseMayaPersonality: string, context: string, u
 - Present 3-5 complete styling scenarios ready for generation
 - Use your styling expertise to be specific about colors, textures, silhouettes without asking for more details
 
-🎯 UNIVERSAL CONCEPT GENERATION RULES:
-When creating styling concepts, use your natural conversational style with clear concept presentation:
+🎯 SINGLE API CALL CONCEPT GENERATION - COMPLETE STYLING SYSTEM:
+When creating styling concepts, you must generate BOTH the user-facing descriptions AND ready-to-use FLUX prompts in one response:
+
+REQUIRED FORMAT FOR EACH CONCEPT:
+**[Concept Name]**
+[Your natural styling description for the user - be warm and conversational]
+
+FLUX_PROMPT: [TRIGGER_WORD], [complete technical FLUX prompt ready for image generation]
 
 NATURAL FORMAT FLEXIBILITY:
 - Present concepts however feels most natural to the conversation flow
@@ -984,6 +1018,15 @@ NATURAL FORMAT FLEXIBILITY:
 - Each concept should showcase your styling expertise with specific details
 - Generate 3-6 diverse concepts that demonstrate your complete professional range
 - Make each concept feel unique and personalized to the user's style journey
+
+FLUX PROMPT GENERATION RULES:
+- Start each FLUX prompt with the user's trigger word (if available)
+- Include professional photography technical details
+- Integrate Maya's styling vision: outfit details, colors, textures, accessories
+- Add quality tags: "raw photo, visible skin pores, film grain, professional photography"
+- Specify camera/lens details: "Canon EOS R5, 85mm f/1.4 lens"
+- Keep prompts 100-300 words for optimal FLUX generation
+- No conversational elements in FLUX prompts - technical only
 
 STYLING INTELLIGENCE MANDATE:
 - Draw from your complete professional background for each concept
@@ -1274,6 +1317,7 @@ interface ConceptCard {
   description: string;  // Short description for frontend display
   originalContext: string;  // Maya's complete original styling context and reasoning
   fullPrompt?: string;  // Maya's complete detailed prompt ready for generation
+  fluxPrompt?: string;  // NEW: Pre-generated FLUX prompt from single API call (eliminates API Call #2)
   canGenerate: boolean;
   isGenerating: boolean;
   generatedImages?: string[];
@@ -1283,11 +1327,12 @@ interface ConceptCard {
 const parseConceptsFromResponse = async (response: string, userId?: string): Promise<ConceptCard[]> => {
   const concepts: ConceptCard[] = [];
   
-  console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
+  console.log('🎯 SINGLE API CALL PARSING: Analyzing response for Maya\'s concepts with embedded FLUX prompts');
   
-  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation
-  // Pattern 1: Multiple **Concept Name** followed by styling details
-  // Pattern 2: Single concept with "Story Collection Preview:" or similar formats
+  // ENHANCED CONCEPT DETECTION: Look for Maya's new format with embedded FLUX prompts
+  // New Pattern: **Concept Name** + description + FLUX_PROMPT: [prompt]
+  // Legacy Pattern: **Concept Name** followed by styling details (backward compatibility)
+  const singleCallPattern = /\*\*([^*\n]{5,80})\*\*([^]*?)(?:FLUX_PROMPT:\s*([^]*?)(?=\*\*[^*\n]{5,80}\*\*|$)|(?=\*\*[^*\n]{5,80}\*\*|$))/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   const singleConceptPattern = /\*\*([^*\n]+(?:Collection|Preview|Concept|Look|Style|Vibe)[^*\n]*)\*\*\s*\*([^*]+)\*/gs;
   
@@ -1295,15 +1340,19 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  // Try multi-concept pattern first
-  while ((match = multiConceptPattern.exec(response)) !== null) {
+  // Try new single API call pattern first (with FLUX prompts)
+  while ((match = singleCallPattern.exec(response)) !== null) {
     let conceptName = match[1].trim();
     let conceptContent = match[2].trim();
+    let fluxPrompt = match[3] ? match[3].trim() : null;
     
     // DEBUG: Log what Maya actually provided for concept content
     console.log(`🎯 MAYA CONCEPT DEBUG: "${conceptName}"`);
     console.log(`📝 CONCEPT CONTENT: "${conceptContent}"`);
     console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
+    if (fluxPrompt) {
+      console.log(`🚀 FLUX PROMPT FOUND: ${fluxPrompt.substring(0, 100)}...`);
+    }
     
     // Clean up concept name - ENHANCED to handle Maya's formatting
     conceptName = conceptName
@@ -1469,8 +1518,9 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       title: conceptName,
       description: description,
       originalContext: fullOriginalContext, // Maya's complete original styling context and reasoning - CACHED
-      fullPrompt: undefined, // PHASE 3: No upfront generation - generated on-demand for performance
-      canGenerate: true, // Always can generate if we have original context
+      fullPrompt: undefined, // Legacy field - replaced by fluxPrompt
+      fluxPrompt: fluxPrompt || undefined, // NEW: Pre-generated FLUX prompt from single API call
+      canGenerate: true, // Always can generate if we have original context or flux prompt
       isGenerating: false,
       generatedImages: []
     };
@@ -1478,7 +1528,11 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     concepts.push(concept);
     conceptNumber++;
     
-    console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with context cached for lazy generation`);
+    if (fluxPrompt) {
+      console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with embedded FLUX prompt (${fluxPrompt.length} chars) - SINGLE API CALL SUCCESS`);
+    } else {
+      console.log(`🎯 CONCEPT EXTRACTED: "${conceptName}" with context cached for legacy generation`);
+    }
   }
   
   // If no multi-concepts found, try single concept pattern
