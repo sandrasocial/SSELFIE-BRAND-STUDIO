@@ -1676,17 +1676,24 @@ Express your creative vision authentically with flawless anatomical details!`;
         system: mayaPromptPersonality,
         messages: [{
           role: 'user',
-          content: `CONTEXT PRESERVATION REQUEST: Transform this original styling concept into a FLUX prompt.
+          content: `GENERATE CLEAN FLUX PROMPT: Transform this styling concept into a natural, flowing image generation prompt.
 
-ORIGINAL MAYA CONCEPT: "${conceptName}"
-ORIGINAL MAYA CONTEXT: "${cleanOriginalContext}"
+ORIGINAL CONCEPT: "${conceptName}"
+ORIGINAL CONTEXT: "${cleanOriginalContext}"
+${categorySpecificGuidance || ''}
 
-CRITICAL: Use your ORIGINAL styling intelligence and creative vision from the context above. 
-DO NOT create a new concept - transform your existing concept into a FLUX-ready prompt.
+REQUIREMENTS:
+- Generate ONE continuous, natural-flowing prompt description
+- NO formatting elements like "FLUX 1.1 PRO STYLING PROMPT:" 
+- NO bracketed annotations like [Shot type:] or [Environment:]
+- START directly with styling description after technical tags
+- Use natural, descriptive language throughout
+- Include specific styling details from your personality knowledge
+- End naturally without template formatting
 
-Preserve your original styling choices, color palettes, textures, mood, and creative vision exactly as you originally described. Simply convert your existing styling intelligence into technical prompt format for image generation.
+TECHNICAL PREFIX (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
 
-Transform your existing concept, not create a new one.`
+GENERATE: Natural styling description that flows directly after the technical prefix.`
         }]
       })
     });
