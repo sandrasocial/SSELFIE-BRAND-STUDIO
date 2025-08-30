@@ -1300,11 +1300,19 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     let conceptName = match[1].trim();
     let conceptContent = match[2].trim();
     
-    // Clean up concept name
+    // DEBUG: Log what Maya actually provided for concept content
+    console.log(`🎯 MAYA CONCEPT DEBUG: "${conceptName}"`);
+    console.log(`📝 CONCEPT CONTENT: "${conceptContent}"`);
+    console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
+    
+    // Clean up concept name - ENHANCED to handle Maya's formatting
     conceptName = conceptName
+      .replace(/^CONCEPT\s*\d+:\s*/i, '') // Remove "CONCEPT 1:" style prefixes
       .replace(/^\d+\.\s*/, '') // Remove leading numbers
       .replace(/[""]/g, '"') // Normalize quotes
       .trim();
+      
+    console.log(`🎯 CLEANED CONCEPT NAME: "${conceptName}"`);
     
     // Enhanced validation for styling concepts
     const isStyleConcept = conceptName.length >= 8 && 
@@ -1356,36 +1364,75 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       }
     }
     
-    // CRITICAL FIX: Use Maya's intelligent styling descriptions instead of truncated content
+    // CRITICAL FIX: Extract Maya's actual styling intelligence from concept content
     if (!description && conceptContent.length > 10) {
-      // First try to extract Maya's sophisticated styling descriptions
-      const stylingWords = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy'];
-      const sentences = conceptContent.split(/[.!?]+/).filter(s => s.trim().length > 10);
+      // ENHANCED: Look for Maya's actual styling descriptions in the concept content
+      const sentences = conceptContent.split(/[.!?]+/).filter(s => s.trim().length > 15);
       
-      // Find sentences with Maya's styling intelligence
-      const stylingDescription = sentences.find(sentence => {
-        const lowerSentence = sentence.toLowerCase();
-        return stylingWords.some(word => lowerSentence.includes(word)) && 
-               sentence.trim().length >= 20 && 
-               sentence.trim().length <= 150;
+      // Priority 1: Find sentences with Maya's detailed styling descriptions
+      let bestDescription = sentences.find(sentence => {
+        const clean = sentence.trim().toLowerCase();
+        return clean.length >= 30 && clean.length <= 200 && 
+               (clean.includes('blazer') || clean.includes('dress') || clean.includes('jumpsuit') ||
+                clean.includes('trousers') || clean.includes('jacket') || clean.includes('outfit') || 
+                clean.includes('silk') || clean.includes('paired with') || clean.includes('wearing') ||
+                clean.includes('styled in') || clean.includes('hair') || clean.includes('makeup'));
       });
       
-      if (stylingDescription) {
-        description = stylingDescription.trim() + (stylingDescription.endsWith('.') ? '' : '.');
-        console.log(`🎨 MAYA INTELLIGENCE: Using styling description - "${description}"`);
+      console.log(`🎨 PRIORITY 1 RESULT: ${bestDescription ? `"${bestDescription.trim()}"` : 'None found'}`);
+      
+      // Priority 2: Find sentences with Maya's emotional styling language
+      if (!bestDescription) {
+        const stylingWords = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy', 'striking', 'commanding', 'refined'];
+        bestDescription = sentences.find(sentence => {
+          const clean = sentence.trim().toLowerCase();
+          return clean.length >= 25 && clean.length <= 180 && 
+                 stylingWords.some(word => clean.includes(word));
+        });
+      }
+      
+      // Priority 3: Use first substantial sentence from concept content
+      if (!bestDescription && sentences.length > 0) {
+        bestDescription = sentences.find(s => s.trim().length >= 20 && s.trim().length <= 150) || sentences[0];
+      }
+      
+      if (bestDescription) {
+        description = bestDescription.trim() + (bestDescription.trim().endsWith('.') ? '' : '.');
+        console.log(`🎨 MAYA STYLING EXTRACTED: "${description}"`);
       } else {
-        // Fallback: First meaningful sentence (not truncated content)
-        const firstSentence = sentences[0];
-        if (firstSentence && firstSentence.length > 15 && firstSentence.length < 150) {
-          description = firstSentence.trim() + (firstSentence.endsWith('.') ? '' : '.');
-        } else {
-          description = `${conceptName} - Maya's sophisticated styling concept`;
-        }
+        // Final fallback: Create intelligent description from concept name and available content
+        const contentSnippet = conceptContent.substring(0, 80).trim();
+        description = contentSnippet.length > 20 ? 
+          `${contentSnippet}${contentSnippet.endsWith('.') ? '' : '...'}` :
+          `Sophisticated ${conceptName.toLowerCase()} styling concept with elevated personal branding focus.`;
+        console.log(`🎨 MAYA FALLBACK: Generated description from available content`);
       }
     }
     
+    // ENHANCED FALLBACK: Use Maya's response context when no specific description found
     if (!description) {
-      description = `${conceptName} - Maya's professional styling vision`;
+      // Try to extract from the full response around this concept
+      const conceptIndex = response.indexOf(conceptName);
+      if (conceptIndex !== -1) {
+        const contextBefore = response.substring(Math.max(0, conceptIndex - 200), conceptIndex);
+        const contextAfter = response.substring(conceptIndex + conceptName.length, Math.min(response.length, conceptIndex + conceptName.length + 200));
+        const fullContext = (contextBefore + conceptName + contextAfter).trim();
+        
+        const contextSentences = fullContext.split(/[.!?]+/).filter(s => s.trim().length > 20);
+        const contextDescription = contextSentences.find(s => 
+          s.toLowerCase().includes(conceptName.toLowerCase().split(' ')[0]) && 
+          s.trim().length >= 30 && s.trim().length <= 150
+        );
+        
+        if (contextDescription) {
+          description = contextDescription.trim() + (contextDescription.trim().endsWith('.') ? '' : '.');
+          console.log(`🎨 MAYA CONTEXT EXTRACTED: "${description}"`);
+        } else {
+          description = `Elevated ${conceptName.toLowerCase()} with sophisticated personal branding focus and professional styling details.`;
+        }
+      } else {
+        description = `Elevated ${conceptName.toLowerCase()} with sophisticated personal branding focus and professional styling details.`;
+      }
     }
     
     // PHASE 1 & 2: Store Maya's complete original concept context for consistency
