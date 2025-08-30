@@ -233,11 +233,11 @@ EXAMPLES:
 
 CRITICAL: These emojis communicate styling approaches to the generation system - they must be preserved in concept titles!`;
     
-    // 🎨 MAYA CONCEPT CREATION - API CALL #1
-    console.log('🎨 MAYA CONCEPT CREATION - API CALL #1');
-    console.log('Call ID: CONCEPT-' + Date.now());
-    console.log('Context: Creating concept descriptions');
-    console.log('Expected Output: Concept cards with styling descriptions');
+    // 🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION
+    console.log('🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION');
+    console.log('Call ID: UNIFIED-' + Date.now());
+    console.log('Context: Creating concept descriptions WITH embedded prompts');
+    console.log('Expected Output: Concept cards with styling descriptions AND FLUX-ready prompts');
     
     // Single Claude API call with Maya's complete intelligence
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -250,7 +250,31 @@ CRITICAL: These emojis communicate styling approaches to the generation system -
       body: JSON.stringify({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 8000,
-        system: enhancedPrompt,
+        system: enhancedPrompt + `
+
+🚀 CRITICAL SINGLE API CALL ENHANCEMENT - DUAL OUTPUT MODE:
+
+When creating styling concepts, you must provide BOTH:
+
+1. **USER-FACING CONCEPT DESCRIPTION** (conversational, inspiring)
+2. **EMBEDDED FLUX PROMPT** (technical, generation-ready)
+
+FORMAT EACH CONCEPT AS:
+🏢 **CONCEPT NAME**
+[User-facing description with personality and inspiration]
+
+FLUX_PROMPT: [Technical FLUX prompt - natural language, 100-250 words, no conversational elements]
+
+TECHNICAL PROMPT RULES FOR FLUX_PROMPT:
+- Use natural language (not keywords)
+- NO conversational phrases ("Oh honey", "I'm seeing", etc.)  
+- NO technical tags (raw photo, film grain) - system adds these
+- NO hair/eye color specifications - LoRA handles appearance
+- Include outfit details, location, mood, lighting, poses
+- Target 100-250 words for optimal FLUX performance
+- Start directly with styling description
+
+This single call creates concept cards with embedded prompts, eliminating dual API inconsistencies.`,
         messages: [
           ...fullConversationHistory,
           {
@@ -612,17 +636,26 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       
       // TASK 4: Pipeline confirmation logs
       console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
-      // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
-      let retrievedEnhancedContext = null;
-      const enhancedContextCache = mayaContextCache.get(cacheKey);
-      if (enhancedContextCache && enhancedContextCache.enhancedContext) {
-        retrievedEnhancedContext = enhancedContextCache.enhancedContext;
-        console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
+      // SINGLE API CALL: Check if concept already has embedded FLUX prompt
+      const embeddedPrompt = userConcept.fullPrompt;
+      if (embeddedPrompt && embeddedPrompt.trim().length > 50) {
+        console.log(`⚡ SINGLE API CALL SUCCESS: Using embedded FLUX prompt (${embeddedPrompt.length} chars)`);
+        console.log(`🎯 EMBEDDED PROMPT PREVIEW: "${embeddedPrompt.substring(0, 200)}..."`);
+        finalPrompt = embeddedPrompt;
       } else {
-        console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
+        console.log(`⚠️ FALLBACK TO DUAL API: No embedded prompt found, using traditional generation`);
+        // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
+        let retrievedEnhancedContext = null;
+        const enhancedContextCache = mayaContextCache.get(cacheKey);
+        if (enhancedContextCache && enhancedContextCache.enhancedContext) {
+          retrievedEnhancedContext = enhancedContextCache.enhancedContext;
+          console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
+        } else {
+          console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
+        }
+        
+        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
       }
-      
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
       console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
       console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
@@ -1344,16 +1377,24 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     if (isStyleConcept && !foundConcepts.has(conceptName)) {
       foundConcepts.add(conceptName);
       
-      // Enhanced description extraction for Maya's new emoji format
-      const description = conceptContent.substring(0, 120).trim() + (conceptContent.length > 120 ? '...' : '');
+      // SINGLE API CALL: Extract embedded FLUX prompt from concept content
+      const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
+      const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
       
-      console.log(`✅ EMOJI CONCEPT EXTRACTED: "${conceptName}" (${description.length} chars)`);
+      // Extract user-facing description (everything before FLUX_PROMPT)
+      const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
+      const description = userDescription.substring(0, 120).trim() + (userDescription.length > 120 ? '...' : '');
+      
+      console.log(`✅ SINGLE API CONCEPT EXTRACTED: "${conceptName}"`);
+      console.log(`📝 USER DESCRIPTION: ${description.length} chars`);
+      console.log(`⚡ EMBEDDED FLUX PROMPT: ${embeddedFluxPrompt ? 'FOUND' : 'NOT FOUND'} (${embeddedFluxPrompt?.length || 0} chars)`);
       
       concepts.push({
         id: `concept_${conceptNumber++}`,
         title: conceptName,
         description: description,
-        originalContext: conceptContent.substring(0, 500),
+        originalContext: userDescription.substring(0, 500),
+        fullPrompt: embeddedFluxPrompt, // SINGLE API CALL: Store embedded prompt
         canGenerate: true,
         isGenerating: false
       });
