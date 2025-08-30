@@ -617,14 +617,13 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log('💰 COST SAVINGS: ~50% reduction in Claude API usage');
         console.log(`🎨 EMBEDDED PROMPT: ${finalPrompt.substring(0, 300)}...`);
       } else {
-        // ERROR: Concept card without embedded FLUX prompt should not happen
-        console.error(`❌ CRITICAL ERROR: Concept "${conceptName}" found without embedded FLUX prompt!`);
-        console.error(`This indicates Maya is not generating proper FLUX_PROMPT format`);
-        return res.status(500).json({
-          success: false,
-          error: "I encountered an issue with this concept. Let me create a fresh one for you! What kind of photo are you looking for?",
-          quickButtons: ["Create new concept", "Try different style", "Start over"]
-        });
+        // LEGACY FALLBACK: Old concept card without embedded FLUX prompt - generate from concept name
+        console.log(`🔄 LEGACY CONCEPT: "${conceptName}" missing embedded FLUX prompt - generating from concept name`);
+        console.log(`💡 FALLBACK STRATEGY: Using concept name "${conceptName}" as base for direct generation`);
+        
+        // Use the cleaned concept name directly as the styling prompt
+        finalPrompt = userConcept;
+        console.log(`🎨 LEGACY FALLBACK: Using concept name as prompt: "${finalPrompt}"`);
       }
     } else {
       // Custom prompt: Use prompt directly with trigger word
