@@ -382,6 +382,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     console.log(`🏷️ CONCEPT NAME: "${conceptName}" (length: ${conceptName?.length || 0})`);
     console.log(`📋 CONCEPT ID: "${req.body.conceptId}"`);
     console.log(`🔀 WILL USE: ${conceptName && conceptName.length > 0 ? 'CONCEPT CARD PATH' : 'CUSTOM PROMPT PATH'}`);
+    console.log(`🔍 CRITICAL DEBUG: About to enter generation logic...`);
+    console.log(`🆔 REQUEST DETAILS: userId=${userId}, chatId=${req.body.chatId}, category=${req.body.category}`);
 
     // CRITICAL FIX: Use embedded prompts from concept cards OR Maya's AI for custom prompts
     // Concept cards have embedded prompts ready, custom prompts get Maya's full Claude API styling expertise
@@ -1839,6 +1841,13 @@ GENERATE: Natural styling description that flows directly after the technical pr
       console.warn(`⚠️ MAYA PROMPT VALIDATION ISSUES:`, validationResult.issues);
       console.log(`💡 SUGGESTIONS:`, validationResult.suggestions);
     }
+    
+    // TASK 2: DEBUG BEFORE RETURN - CHECK MAYA'S STYLING PRESERVATION
+    const promptId = `MAYA-CREATED-${Date.now()}`;
+    console.log(`🎨 [${promptId}] MAYA FINAL CREATION: "${finalPrompt.substring(0, 300)}"`);
+    console.log(`🔍 [${promptId}] STYLING CHECK: Contains black dress? ${finalPrompt.toLowerCase().includes('black') ? 'YES' : 'NO'}`);
+    console.log(`🔍 [${promptId}] STYLING CHECK: Contains pink jacket? ${finalPrompt.toLowerCase().includes('pink') ? 'YES' : 'NO'}`);
+    console.log(`✅ [${promptId}] MAYA INTELLIGENCE STATUS: ${finalPrompt.toLowerCase().includes('black') && finalPrompt.toLowerCase().includes('pink') ? 'STYLING PRESERVED' : 'STYLING MISSING'}`);
     
     // FINAL VALIDATION LOGS
     console.log(`🎯 MAYA INTELLIGENT PROMPT: ${finalPrompt.substring(0, 150)}...`);
