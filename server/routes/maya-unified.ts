@@ -1369,31 +1369,53 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       // ENHANCED: Look for Maya's actual styling descriptions in the concept content
       const sentences = conceptContent.split(/[.!?]+/).filter(s => s.trim().length > 15);
       
-      // Priority 1: Find sentences with Maya's detailed styling descriptions
+      // Priority 1: Find Maya's STYLING content (avoid technical photography details)
       let bestDescription = sentences.find(sentence => {
         const clean = sentence.trim().toLowerCase();
-        return clean.length >= 30 && clean.length <= 200 && 
-               (clean.includes('blazer') || clean.includes('dress') || clean.includes('jumpsuit') ||
-                clean.includes('trousers') || clean.includes('jacket') || clean.includes('outfit') || 
-                clean.includes('silk') || clean.includes('paired with') || clean.includes('wearing') ||
-                clean.includes('styled in') || clean.includes('hair') || clean.includes('makeup'));
+        const isStyleContent = clean.includes('👗 styling:') || clean.includes('styling:') || 
+                               (clean.length >= 30 && clean.length <= 200 && 
+                                (clean.includes('blazer') || clean.includes('dress') || clean.includes('jumpsuit') ||
+                                 clean.includes('gown') || clean.includes('silhouette') || clean.includes('silk') ||
+                                 clean.includes('velvet') || clean.includes('paired with') || clean.includes('neckline')));
+        const isTechnical = clean.includes('shot on') || clean.includes('85mm') || clean.includes('f/2.8') ||
+                           clean.includes('lens') || clean.includes('lighting') || clean.includes('technical:');
+        return isStyleContent && !isTechnical;
       });
       
       console.log(`🎨 PRIORITY 1 RESULT: ${bestDescription ? `"${bestDescription.trim()}"` : 'None found'}`);
       
-      // Priority 2: Find sentences with Maya's emotional styling language
+      // Priority 2: Find Maya's beauty/styling descriptions (💄 BEAUTY:)
+      if (!bestDescription) {
+        bestDescription = sentences.find(sentence => {
+          const clean = sentence.trim().toLowerCase();
+          const isBeautyContent = clean.includes('💄 beauty:') || clean.includes('beauty:') ||
+                                 (clean.length >= 25 && clean.length <= 180 && 
+                                  (clean.includes('smokey') || clean.includes('glossy') || clean.includes('romantic') ||
+                                   clean.includes('hair') || clean.includes('makeup') || clean.includes('lip') ||
+                                   clean.includes('eye') || clean.includes('waves') || clean.includes('updo')));
+          const isTechnical = clean.includes('shot') || clean.includes('mm') || clean.includes('lighting');
+          return isBeautyContent && !isTechnical;
+        });
+      }
+      
+      // Priority 3: Find Maya's emotional styling language (but avoid technical)
       if (!bestDescription) {
         const stylingWords = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy', 'striking', 'commanding', 'refined'];
         bestDescription = sentences.find(sentence => {
           const clean = sentence.trim().toLowerCase();
-          return clean.length >= 25 && clean.length <= 180 && 
-                 stylingWords.some(word => clean.includes(word));
+          const hasStyleWords = stylingWords.some(word => clean.includes(word));
+          const isTechnical = clean.includes('shot') || clean.includes('mm') || clean.includes('lighting') || clean.includes('lens');
+          return clean.length >= 25 && clean.length <= 180 && hasStyleWords && !isTechnical;
         });
       }
       
-      // Priority 3: Use first substantial sentence from concept content
+      // Priority 4: Use first substantial NON-TECHNICAL sentence from concept content
       if (!bestDescription && sentences.length > 0) {
-        bestDescription = sentences.find(s => s.trim().length >= 20 && s.trim().length <= 150) || sentences[0];
+        bestDescription = sentences.find(s => {
+          const clean = s.trim().toLowerCase();
+          const isTechnical = clean.includes('shot') || clean.includes('mm') || clean.includes('lens') || clean.includes('lighting');
+          return s.trim().length >= 20 && s.trim().length <= 150 && !isTechnical;
+        }) || sentences.find(s => s.trim().length >= 20 && s.trim().length <= 150);
       }
       
       if (bestDescription) {
