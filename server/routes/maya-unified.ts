@@ -523,6 +523,33 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                       if (isMatch && conceptCard.originalContext) {
                         originalContext = conceptCard.originalContext;
                         
+                        // CRITICAL: Check if concept has embedded fullPrompt from single API call
+                        if (conceptCard.fullPrompt) {
+                          console.log(`🚀 SINGLE API CALL SUCCESS: Found embedded fullPrompt for "${conceptName}" (${conceptCard.fullPrompt.length} chars)`);
+                          console.log(`🎯 EMBEDDED PROMPT: ${conceptCard.fullPrompt.substring(0, 200)}...`);
+                          
+                          // Use the embedded prompt directly and skip dual API call
+                          const cleanedPrompt = cleanMayaPrompt(conceptCard.fullPrompt);
+                          console.log(`🎯 USING EMBEDDED PROMPT: Single API call consistency achieved`);
+                          
+                          // Generate images using the embedded prompt
+                          try {
+                            const result = await ModelTrainingService.generateUserImages(
+                              userId,
+                              cleanedPrompt,
+                              count,
+                              userType === 'admin'
+                            );
+                            
+                            console.log(`✅ SINGLE API GENERATION: Images generated using embedded prompt`);
+                            return res.json(result);
+                          } catch (error) {
+                            console.error(`❌ SINGLE API GENERATION ERROR:`, error);
+                            // Fall through to dual API call as backup
+                            console.log(`🔄 FALLBACK: Using dual API call due to generation error`);
+                          }
+                        }
+                        
                         // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
                         mayaContextCache.set(cacheKey, {
                           originalContext,
@@ -534,6 +561,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                         console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
                         console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
                         console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
+                        console.log(`⚠️ FALLBACK: No embedded fullPrompt found, using dual API call approach`);
                         break;
                       }
                     }
