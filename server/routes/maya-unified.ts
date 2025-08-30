@@ -665,8 +665,13 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
+      console.log('🔒 MAYA POLLING: Authentication required for generation check');
       logMayaAPI('/check-generation', startTime, false, new Error('Authentication required'));
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ 
+        error: 'Authentication required',
+        status: 'auth_error',
+        message: 'Session expired during polling'
+      });
     }
     
     const userType = req.userType || 'member';
