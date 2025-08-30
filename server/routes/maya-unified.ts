@@ -616,15 +616,43 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log('💰 COST SAVINGS: ~50% reduction in Claude API usage');
         console.log(`🎨 EMBEDDED PROMPT: ${finalPrompt.substring(0, 300)}...`);
       } else {
-        // ERROR: New concept card missing embedded FLUX prompt - Maya generation failure
-        console.error(`❌ CRITICAL: NEW concept "${conceptName}" missing embedded FLUX prompt!`);
-        console.error(`This indicates Maya is NOT generating proper FLUX_PROMPT format in single API call`);
-        console.error(`INVESTIGATION NEEDED: Maya's personality system is failing to embed FLUX prompts`);
-        return res.status(500).json({
-          success: false,
-          error: "Maya didn't generate the expected styling format. Let me create a fresh concept for you!",
-          quickButtons: ["Create new concept", "Try different style"]
-        });
+        // CLEAN REGENERATION: Generate new concept with proper FLUX_PROMPT format
+        console.log(`🔄 LEGACY CONCEPT DETECTED: "${conceptName}" missing embedded FLUX prompt - regenerating with Maya's new format`);
+        
+        // Use Maya to generate a fresh concept card with embedded FLUX_PROMPT
+        try {
+          const PersonalityIntegrationService = (await import('../agents/personality-integration-service')).PersonalityIntegrationService;
+          const personalityService = PersonalityIntegrationService.getInstance();
+          const personalityContext = personalityService.createPersonalityContext('maya', true);
+          
+          // Generate fresh concept with FLUX_PROMPT format
+          const claudeRequest = await claudeSimpleAPI(`Create a single concept card for "${conceptName}" using the exact FLUX_PROMPT format. This must include the complete concept description AND embedded FLUX_PROMPT line.
+
+REQUIRED FORMAT:
+**${conceptName}**
+[Your intelligent styling description...]
+FLUX_PROMPT: [Complete technical prompt for image generation]
+
+Remember to include the FLUX_PROMPT: line exactly as shown.`, personalityContext.enhancedPrompt);
+          
+          // Parse the regenerated concept to extract the FLUX prompt
+          const fluxMatch = claudeRequest.match(/FLUX_PROMPT:\s*([^]*?)(?:\n\n|$)/);
+          if (fluxMatch && fluxMatch[1]) {
+            finalPrompt = fluxMatch[1].trim();
+            console.log(`🎨 REGENERATED FLUX PROMPT: ${finalPrompt.substring(0, 100)}...`);
+          } else {
+            // Ultimate fallback - use concept name with basic styling
+            const generationInfo = await checkGenerationCapability(userId);
+            finalPrompt = `${generationInfo.triggerWord} ${conceptName.toLowerCase()}, professional photography, elegant styling, film grain, natural lighting`;
+            console.log(`🎯 BASIC FALLBACK: ${finalPrompt}`);
+          }
+        } catch (error) {
+          console.error('❌ REGENERATION FAILED:', error);
+          // Ultimate fallback - use concept name with basic styling
+          const generationInfo = await checkGenerationCapability(userId);
+          finalPrompt = `${generationInfo.triggerWord} ${conceptName.toLowerCase()}, professional photography, elegant styling, film grain, natural lighting`;
+          console.log(`🎯 EMERGENCY FALLBACK: ${finalPrompt}`);
+        }
       }
     } else {
       // Custom prompt: Use prompt directly with trigger word
