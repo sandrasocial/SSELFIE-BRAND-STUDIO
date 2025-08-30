@@ -1254,13 +1254,28 @@ export class DatabaseStorage implements IStorage {
       .where(eq(mayaChatMessages.chatId, chatId))
       .orderBy(mayaChatMessages.createdAt);
     
-    // Parse JSON fields for frontend compatibility
-    return messages.map(msg => ({
-      ...msg,
-      imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : null,
-      conceptCards: msg.conceptCards ? msg.conceptCards : null, // ENHANCED: conceptCards now stored as JSONB
-      quickButtons: msg.quickButtons ? JSON.parse(msg.quickButtons) : null,
-    }));
+    // Parse JSON fields for frontend compatibility and verify fullPrompt preservation
+    return messages.map(msg => {
+      const processedMsg = {
+        ...msg,
+        imagePreview: msg.imagePreview ? JSON.parse(msg.imagePreview) : null,
+        conceptCards: msg.conceptCards ? msg.conceptCards : null, // ENHANCED: conceptCards stored as JSONB with fullPrompt preserved
+        quickButtons: msg.quickButtons ? JSON.parse(msg.quickButtons) : null,
+      };
+      
+      // CRITICAL: Verify fullPrompt field preservation in retrieved concept cards
+      if (processedMsg.conceptCards && Array.isArray(processedMsg.conceptCards)) {
+        const conceptsWithPrompts = processedMsg.conceptCards.filter((card: any) => card.fullPrompt);
+        if (conceptsWithPrompts.length > 0) {
+          console.log(`💾 DATABASE RETRIEVAL: Retrieved ${conceptsWithPrompts.length} concept cards with preserved fullPrompt fields`);
+          conceptsWithPrompts.forEach((card: any, index: number) => {
+            console.log(`  📋 Retrieved concept ${index + 1}: "${card.title}" - fullPrompt: ${card.fullPrompt?.length || 0} chars`);
+          });
+        }
+      }
+      
+      return processedMsg;
+    });
   }
 
   // REMOVED: getAllMayaChatMessages method to prevent session mixing
@@ -1268,6 +1283,18 @@ export class DatabaseStorage implements IStorage {
 
   async createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
     console.log(`📝 MAYA MESSAGE: Saving ${data.role} message with concept cards: ${data.conceptCards ? 'YES' : 'NO'}`);
+    
+    // CRITICAL: Ensure fullPrompt field is preserved in concept cards
+    if (data.conceptCards && Array.isArray(data.conceptCards)) {
+      const conceptsWithPrompts = data.conceptCards.filter((card: any) => card.fullPrompt);
+      if (conceptsWithPrompts.length > 0) {
+        console.log(`💾 DATABASE STORAGE: Preserving ${conceptsWithPrompts.length} concept cards with embedded fullPrompt fields`);
+        conceptsWithPrompts.forEach((card: any, index: number) => {
+          console.log(`  📋 Concept ${index + 1}: "${card.title}" - fullPrompt: ${card.fullPrompt?.length || 0} chars`);
+        });
+      }
+    }
+    
     const [message] = await db
       .insert(mayaChatMessages)
       .values(data)
