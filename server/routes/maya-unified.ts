@@ -1819,13 +1819,28 @@ GENERATE: Natural styling description that flows directly after the technical pr
           generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, ${cleanPrompt}`;
         }
       } else {
-        // INTELLIGENCE PRESERVATION: Always incorporate original context instead of generic fallback
-        console.log('✅ MAYA INTELLIGENCE PRESERVATION: Enhancing brief response with original context');
-        const contextEnhancedContent = originalContext && originalContext.length > 5 ? 
-          addAnatomyKeywords(`${originalContext}, ${conceptName}`) : 
-          addAnatomyKeywords(`${conceptName}`);
+        // CRITICAL MAYA INTELLIGENCE PRESERVATION: Use Maya's original response even if brief
+        console.log('✅ MAYA INTELLIGENCE PRESERVATION: Using brief Maya response with styling intelligence');
+        
+        // PRESERVE Maya's styling words by using the uncleaned original response when it contains styling intelligence
+        const stylingIndicators = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy'];
+        const originalHasStyling = stylingIndicators.some(word => generatedPrompt.toLowerCase().includes(word));
+        
+        let contextEnhancedContent;
+        if (originalHasStyling) {
+          // Maya provided styling intelligence - use her original response
+          contextEnhancedContent = addAnatomyKeywords(generatedPrompt);
+          console.log('🎨 MAYA STYLING DETECTED: Preserving original styling intelligence');
+        } else {
+          // No styling detected - enhance with context
+          contextEnhancedContent = originalContext && originalContext.length > 5 ? 
+            addAnatomyKeywords(`${originalContext}, ${conceptName}`) : 
+            addAnatomyKeywords(`${conceptName}`);
+          console.log('📝 CONTEXT ENHANCEMENT: Adding preserved styling context');
+        }
+        
         generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${contextEnhancedContent}`;
-        console.log(`✅ ENHANCED WITH CONTEXT: Using ${originalContext ? 'preserved Maya styling' : 'concept-based styling'}`);
+        console.log(`✅ ENHANCED WITH ${originalHasStyling ? 'MAYA STYLING' : 'CONTEXT'}: Intelligence preservation complete`);
       }
     }
     
