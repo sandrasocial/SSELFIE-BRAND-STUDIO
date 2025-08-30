@@ -417,6 +417,13 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       const conceptId = req.body.conceptId;
       let originalContext = '';
       
+      // ENHANCED CONTEXT DEBUG: Log what frontend is sending
+      console.log(`🔍 FRONTEND INPUT DEBUG:`);
+      console.log(`📝 PROMPT: "${prompt}"`);
+      console.log(`🏷️ CONCEPT NAME: "${conceptName}"`);
+      console.log(`📋 CONCEPT ID: "${conceptId}"`);
+      console.log(`🎯 FRONTEND FIX: Should preserve Maya's styling intelligence`);
+      
       // PRIORITY 1: Instant context retrieval from memory cache
       const cacheKey = `${userId}-${conceptId || conceptName}`;
       const cachedContext = mayaContextCache.get(cacheKey);
@@ -1369,18 +1376,30 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       // ENHANCED: Look for Maya's actual styling descriptions in the concept content
       const sentences = conceptContent.split(/[.!?]+/).filter(s => s.trim().length > 15);
       
-      // Priority 1: Find Maya's STYLING content (avoid technical photography details)
-      let bestDescription = sentences.find(sentence => {
-        const clean = sentence.trim().toLowerCase();
-        const isStyleContent = clean.includes('👗 styling:') || clean.includes('styling:') || 
-                               (clean.length >= 30 && clean.length <= 200 && 
-                                (clean.includes('blazer') || clean.includes('dress') || clean.includes('jumpsuit') ||
-                                 clean.includes('gown') || clean.includes('silhouette') || clean.includes('silk') ||
-                                 clean.includes('velvet') || clean.includes('paired with') || clean.includes('neckline')));
-        const isTechnical = clean.includes('shot on') || clean.includes('85mm') || clean.includes('f/2.8') ||
-                           clean.includes('lens') || clean.includes('lighting') || clean.includes('technical:');
-        return isStyleContent && !isTechnical;
+      // Priority 1: Find Maya's OUTFIT descriptions (look for "- " bullet pattern)
+      let bestDescription = conceptContent.split('\n').find(line => {
+        const clean = line.trim().toLowerCase();
+        return clean.startsWith('- ') && 
+               (clean.includes('turtleneck') || clean.includes('dress') || clean.includes('blazer') || 
+                clean.includes('coat') || clean.includes('jumpsuit') || clean.includes('gown') ||
+                clean.includes('silk') || clean.includes('velvet') || clean.includes('cashmere'));
       });
+      
+      // Priority 1B: If no outfit line, find styling descriptions
+      if (!bestDescription) {
+        bestDescription = sentences.find(sentence => {
+          const clean = sentence.trim().toLowerCase();
+          const isStyleContent = clean.includes('👗 styling:') || clean.includes('styling:') || 
+                                 (clean.length >= 30 && clean.length <= 200 && 
+                                  (clean.includes('blazer') || clean.includes('dress') || clean.includes('jumpsuit') ||
+                                   clean.includes('gown') || clean.includes('silhouette') || clean.includes('silk') ||
+                                   clean.includes('velvet') || clean.includes('paired with') || clean.includes('neckline') ||
+                                   clean.includes('cashmere') || clean.includes('pinstripe') || clean.includes('turtleneck')));
+          const isTechnical = clean.includes('shot on') || clean.includes('85mm') || clean.includes('f/2.8') ||
+                             clean.includes('lens') || clean.includes('lighting') || clean.includes('technical:');
+          return isStyleContent && !isTechnical;
+        });
+      }
       
       console.log(`🎨 PRIORITY 1 RESULT: ${bestDescription ? `"${bestDescription.trim()}"` : 'None found'}`);
       

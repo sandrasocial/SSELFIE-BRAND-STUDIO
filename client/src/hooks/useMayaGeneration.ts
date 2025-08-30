@@ -153,13 +153,13 @@ export const useMayaGeneration = (
         }
       }, 15000);
       
-      // ZERO TOLERANCE ANTI-HARDCODE: Let Maya use her full intelligence for personal branding
-      // Clean up concept name (remove emojis and extra text) but preserve user intent
-      const cleanConceptName = conceptName.replace(/[✨💫💗🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/g, '').trim();
-      let finalPrompt = cleanConceptName; // Pure concept - let Maya decide style, not hardcoded "professional"
+      // CRITICAL FIX: Use Maya's complete styling context instead of stripping to concept names
+      // This preserves Maya's intelligent styling descriptions for consistent image generation
+      let finalPrompt = conceptName; // Keep Maya's complete concept context - backend will use pre-generated prompts
       // Maya will analyze the concept and create appropriate personal branding imagery using her AI
 
-      console.log('Maya: Starting concept generation for:', finalPrompt);
+      console.log('🎯 MAYA PROMPT BEING USED:', finalPrompt);
+      console.log('🎯 SHOULD BE MAYA STYLING, NOT CONCEPT NAME');
 
       // Start image generation with concept prompt - Maya will handle the detailed prompt generation
       await generateImages(finalPrompt, messageId, conceptName, setMessages, currentChatId);
@@ -567,11 +567,11 @@ export const useMayaGeneration = (
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ 
-          prompt: conceptTitle, 
-          conceptName: conceptTitle, // This ensures the backend knows it's a concept selection
-          conceptId: conceptId, // CRITICAL: Send concept ID to retrieve embedded prompt
+          conceptName: conceptTitle,  // Concept name for identification
+          conceptId: conceptId,       // CRITICAL: Backend uses this to get Maya's pre-generated styling
           chatId: currentChatId,
           count: 1
+          // DON'T send generic prompt - let backend use Maya's pre-generated styling intelligence
         })
       });
 
