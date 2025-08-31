@@ -1,5 +1,6 @@
-// Maya Generation Validator - Ensure FLUX 1.1 Pro Optimal Performance
-// This validator ensures Maya's intelligent prompts are properly formatted for FLUX generation
+// ✅ MAYA PURE INTELLIGENCE: This entire validation system has been eliminated
+// Maya's intelligence supersedes all generic validation and enhancement systems
+// Keeping file for potential future admin tools only - no longer used in Maya pipeline
 
 export interface ValidationResult {
   isValid: boolean;

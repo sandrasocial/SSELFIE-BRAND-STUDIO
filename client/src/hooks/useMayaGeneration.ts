@@ -50,7 +50,7 @@ interface ChatMessage {
   conceptCards?: ConceptCard[];
 }
 
-type Preset = 'Identity' | 'Editorial' | 'UltraPrompt' | 'Fast';
+// ✅ REMOVED: Preset system - Maya's intelligence controls all generation modes
 
 export const useMayaGeneration = (
   messages?: any,
