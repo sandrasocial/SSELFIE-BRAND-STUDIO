@@ -706,23 +706,32 @@ FORMAT EXAMPLE FOR MULTIPLE CONCEPTS:
 🏢 **THE LUXURY BOARDROOM QUEEN**
 This stunning business ensemble features sophisticated tailoring that conveys authority while maintaining approachable elegance. Picture yourself in a perfectly fitted blazer in rich navy or charcoal, paired with a silk blouse in cream or soft blush.
 
-FLUX_PROMPT: Professional businesswoman in sophisticated navy blazer, cream silk blouse, perfect tailoring, executive presence, luxury boardroom setting, professional makeup, sleek hair styling, confident posture, elegant jewelry, refined lighting, high-end photography, corporate chic aesthetic, modern office environment, authoritative yet approachable, premium quality, editorial fashion photography
+FLUX_PROMPT: Professional businesswoman sits confidently in a luxury boardroom wearing a sophisticated navy blazer and cream silk blouse. Shot with 85mm lens at f/2.0, shallow depth of field creates stunning portrait depth. Natural skin texture, elegant jewelry, and refined lighting showcase her authoritative yet approachable executive presence in this high-end editorial photography.
 
 ✨ **THE CONFIDENT CREATIVE DIRECTOR**
 A sophisticated creative look featuring an oversized blazer in warm camel paired with wide-leg trousers in cream. The styling emphasizes architectural silhouettes and luxurious textures.
 
-FLUX_PROMPT: Creative professional woman in oversized camel blazer, cream wide-leg trousers, architectural styling, luxury textures, creative studio setting, natural makeup, effortless hair, confident stance, minimal jewelry, soft natural lighting, high-end fashion photography, creative director aesthetic, modern workspace, sophisticated casual
+FLUX_PROMPT: Creative director poses naturally in her modern workspace wearing an oversized camel blazer paired with cream wide-leg trousers. Photographed with 50mm lens at f/2.2, the architectural styling emphasizes luxury textures and sophisticated casual elegance. Soft natural lighting illuminates her effortless hair and natural makeup for this high-end fashion portrait.
 
-MANDATORY: Use your emoji styling system (🏢💼✨🔥🌟👑 etc.) to communicate styling approaches. Each concept MUST have its own FLUX_PROMPT line. Create 3-5 concepts per response for variety.`,
+MANDATORY: Use your emoji styling system (🏢💼✨🔥🌟👑 etc.) to communicate styling approaches. Each concept MUST have its own FLUX_PROMPT line. Create 3-5 concepts per response for variety.
+
+FLUX PROMPT QUALITY STANDARDS:
+- Use natural sentences, not keyword lists
+- Follow Subject → Action → Style → Context structure
+- Include specific camera/lens details (85mm f/2.0, shallow depth of field)
+- Write 30-80 words for optimal generation
+- Always include "natural skin texture" for realism
+- Use positive phrasing only (describe what you want, not what you don't want)`,
     requirements: [
       "Create 3-5 different concept cards per response for variety",
       "Use your emoji styling system in concept titles (🏢💼✨🔥🌟👑💃📸 etc.)",
-      "Include detailed styling elements (clothing, colors, textures, fit)",
-      "Specify professional makeup and hair styling approach", 
-      "Describe setting and environment that matches the concept",
-      "Include lighting and photography quality descriptors",
-      "Add overall aesthetic and mood descriptors",
-      "Ensure 150+ characters for comprehensive generation guidance",
+      "FLUX_PROMPT must use natural sentence structure, not tag lists",
+      "Follow Subject → Action → Style → Context format for optimal results",
+      "Include specific camera/lens details for photography authenticity",
+      "Always include 'natural skin texture' for realistic results",
+      "Use positive phrasing only - describe what you want",
+      "Keep FLUX prompts 30-80 words for optimal generation",
+      "Include professional lighting descriptions in natural language",
       "FLUX_PROMPT must be the last line of each concept",
       "Leave blank line between concepts for clear separation"
     ]
