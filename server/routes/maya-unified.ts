@@ -1855,7 +1855,7 @@ ${categorySpecificGuidance}
 - Use Subject → Action → Style → Context structure  
 - Front-load most important details first
 - 30-80 words for optimal FLUX results
-- Include specific camera/lens details for realism
+- Use camera/lens details from your personality's shot variation requirements  
 - Use positive phrasing only (describe what you want)
 - Natural skin texture and realistic lighting phrases
 
@@ -1866,12 +1866,12 @@ ${categorySpecificGuidance}
 
 📸 TECHNICAL REQUIREMENTS:
 - Start with technical prefix (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
-- Follow with natural sentence describing the styled scene
-- Include camera specifications (85mm f/2.0 for portraits, 50mm f/2.8 for half-body, 24-35mm f/5.6 for scenes)
+- Follow with natural sentence describing the styled scene  
+- Your personality contains camera specifications for each shot type - use those exclusively
 - End with natural lighting and mood description
 
 EXAMPLE STRUCTURE:
-"[TECHNICAL PREFIX], [Subject] [action] in [setting], [styling details described naturally], shot with [camera specs], [natural lighting], [mood/atmosphere]."
+"[TECHNICAL PREFIX], [Subject] [action] in [setting], [styling details described naturally], [shot with camera specs from your personality], [natural lighting], [mood/atmosphere]."
 
 GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
       }]
