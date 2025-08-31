@@ -1,0 +1,90 @@
+Step 1.1: Enhance Maya's Consolidated Personality
+File: server/agents/personalities/personality-config.ts
+Find the buildSpecializedKnowledge function and ADD this FLUX intelligence:
+typescript// ADD to Maya's specialized knowledge (after existing content):
+
+knowledge += '\n🎯 FLUX PROMPT OPTIMIZATION MASTERY:\n';
+knowledge += 'CRITICAL PROMPT STRUCTURE: Use natural sentences, not tag lists\n';
+knowledge += 'OPTIMAL FORMAT: Subject → Action → Style → Context (front-load key details)\n';
+knowledge += 'PROMPT LENGTH: 30-80 words for optimal results (medium length)\n';
+knowledge += 'SENTENCE FLOW: Write like describing a real photo, not listing keywords\n';
+knowledge += 'POSITIVE PHRASING ONLY: Describe what you want, never what you don\'t want\n';
+
+knowledge += '\n📸 SHOT-SPECIFIC TECHNICAL INTELLIGENCE:\n';
+knowledge += 'CLOSE-UP PORTRAITS: 85mm lens, f/1.8-f/2.8, shallow depth of field, natural skin texture\n';
+knowledge += 'HALF-BODY SHOTS: 50-85mm lens, f/2.2-f/3.5, face crisp with environment context\n';
+knowledge += 'FULL SCENES: 24-35mm lens, f/4-f/8, environmental context with sharp details\n';
+
+knowledge += '\n✨ REALISM ENHANCEMENT RULES:\n';
+knowledge += 'INCLUDE: Specific lens details (85mm, f/2.0) for photography authenticity\n';
+knowledge += 'LIGHTING: Natural descriptions (soft window light, golden hour, natural daylight)\n';
+knowledge += 'SKIN/TEXTURE: Always include "natural skin texture" for realistic results\n';
+knowledge += 'COMPOSITION: Use photography terms (shallow depth of field, editorial composition)\n';
+
+knowledge += '\n🎨 MAYA\'S FLUX PROMPT FORMULA:\n';
+knowledge += 'START: [TRIGGER_WORD], [technical quality tags],\n';
+knowledge += 'THEN: Natural sentence describing subject and action\n';
+knowledge += 'ADD: Specific styling details in flowing description\n';
+knowledge += 'INCLUDE: Camera/lens specifications for realism\n';
+knowledge += 'END: Lighting and mood in natural language\n';
+knowledge += 'TOTAL: 30-80 words after technical prefix\n';
+Step 1.2: Add Shot Type Detection Intelligence
+ADD shot-type specific guidance:
+typescriptknowledge += '\n📊 SHOT TYPE OPTIMIZATION:\n';
+knowledge += 'CLOSE-UP PORTRAIT: Focus on facial expression, eye contact, beauty details\n';
+knowledge += 'HALF-BODY: Include pose, outfit details, background context\n';
+knowledge += 'FULL SCENE: Environmental storytelling, action, atmospheric mood\n';
+knowledge += 'AUTO-DETECT: Choose optimal technical specs based on styling approach\n';
+
+TASK 2: ENHANCE PROMPT GENERATION LOGIC
+Step 2.1: Update createDetailedPromptFromConcept Function
+File: server/routes/maya-unified.ts
+Find createDetailedPromptFromConcept function and enhance the Maya API call instructions:
+typescript// FIND the Claude API call and UPDATE the prompt instruction:
+
+const claudeRequest = {
+  model: "claude-3-5-sonnet-20241022",
+  max_tokens: 2000,
+  messages: [
+    {
+      role: "user",
+      content: `GENERATE OPTIMIZED FLUX PROMPT: Transform this styling concept into a natural, flowing FLUX image generation prompt.
+
+CONCEPT: "${conceptName}"
+STYLING CONTEXT: "${cleanOriginalContext}"
+${categorySpecificGuidance}
+
+🎯 FLUX OPTIMIZATION REQUIREMENTS:
+- Write in NATURAL SENTENCES, not tag lists
+- Use Subject → Action → Style → Context structure  
+- Front-load most important details first
+- 30-80 words for optimal FLUX results
+- Include specific camera/lens details for realism
+- Use positive phrasing only (describe what you want)
+- Natural skin texture and realistic lighting phrases
+
+📸 TECHNICAL REQUIREMENTS:
+- Start with technical prefix (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
+- Follow with natural sentence describing the styled scene
+- Include camera specifications (85mm f/2.0 for portraits, 50mm f/2.8 for half-body, 24-35mm f/5.6 for scenes)
+- End with natural lighting and mood description
+
+EXAMPLE STRUCTURE:
+"[TECHNICAL PREFIX], [Subject] [action] in [setting], [styling details described naturally], shot with [camera specs], [natural lighting], [mood/atmosphere]."
+
+GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
+    }
+  ]
+});
+Step 2.2: Add Shot Type Intelligence to Category Detection
+Enhance category detection to include shot type guidance:
+typescript// FIND category detection logic and ADD shot type hints:
+
+if (contextLower.includes('business') || contextLower.includes('corporate')) {
+  detectedCategory = 'Business';
+  categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Business styling typically works best with half-body or close-up shots to show professional attire and confident expression.';
+} else if (contextLower.includes('lifestyle') || contextLower.includes('elevated everyday')) {
+  detectedCategory = 'Lifestyle';
+  categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Lifestyle concepts work beautifully as full scene environmental shots or relaxed half-body poses.';
+}
+// ... continue for other categories
