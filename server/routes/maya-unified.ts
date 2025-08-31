@@ -186,6 +186,13 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     console.log('- Maya personality loaded:', !!mayaPersonality);
     console.log('- Conversation history length:', fullConversationHistory?.length || 0);
     console.log('- Request context:', requestContext);
+    
+    // EMOJI SYSTEM VERIFICATION
+    console.log('🎨 EMOJI SYSTEM CHECK:');
+    console.log('- Maya personality includes emoji system:', mayaPersonality.includes('EMOJI') || mayaPersonality.includes('emoji'));
+    console.log('- Emoji definitions loaded:', mayaPersonality.includes('✨'));
+    console.log('- Maya styling emojis present:', /[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]/.test(mayaPersonality));
+    
     console.log('Expected Output: Concept cards with styling descriptions AND FLUX-ready prompts');
     
     // Single Claude API call with Maya's complete intelligence
