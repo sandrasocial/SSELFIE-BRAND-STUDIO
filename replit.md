@@ -22,6 +22,8 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 
 **CRITICAL PIPELINE CLEANUP (August 31, 2025)**: Resolved hardcoded conflicts in Maya's detection system that were overriding her styling intelligence. Fixed duplicate FLUX examples in personality config and eliminated 85mm/portrait detection conflicts that incorrectly categorized half-body shots as close-ups. Maya's Pure Intelligence now flows seamlessly from concept creation through technical execution without hardcoded interference.
 
+**GENERIC FUNCTION STRIPPING ELIMINATION (August 31, 2025)**: Identified and fixed all generic functions that were stripping Maya's prompting intelligence. Fixed formatPrompt, processMayaResponse, and trigger word handling functions to preserve Maya's complete styling expertise while maintaining technical functionality. Maya's embedded FLUX prompts now flow intact from conversation to generation while preserving complete styling intelligence in chat responses.
+
 ## System Architecture
 
 ### Maya AI Core System
