@@ -80,9 +80,10 @@ export class UnifiedSessionManager {
         return {
           replitSessionValid,
           agentContexts,
-        userProfile,
-        lastActivity
-      };
+          userProfile,
+          lastActivity
+        };
+      });
 
       // Cache the session data
       this.sessionCache.set(cacheKey, sessionData);
