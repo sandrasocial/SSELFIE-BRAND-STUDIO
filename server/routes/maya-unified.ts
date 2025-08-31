@@ -662,6 +662,14 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
       // CRITICAL AUDIT: Check for embedded prompt in concept
       const conceptCard = await storage.getMayaConceptById(conceptId);
+      
+      // 📤 CONCEPT RETRIEVAL DEBUG: Log retrieval process
+      console.log('📤 CONCEPT RETRIEVAL DEBUG:');
+      console.log('- Retrieving concept:', conceptName);
+      console.log('- Concept ID:', conceptId);
+      console.log('- Retrieved concept:', !!conceptCard);
+      console.log('- Retrieved fullPrompt:', !!conceptCard?.fullPrompt);
+      
       console.log(`🔍 SINGLE API CALL AUDIT: Concept "${conceptName}"`);
       console.log(`- ConceptCard found: ${!!conceptCard}`);
       console.log(`- Has fullPrompt: ${!!conceptCard?.fullPrompt}`);
@@ -1544,6 +1552,22 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
       quickButtons: mayaResponse.quickButtons ? JSON.stringify(mayaResponse.quickButtons) : null, // CRITICAL: Store quick buttons in proper field
       canGenerate: mayaResponse.canGenerate || false // CRITICAL: Store generation capability flag
     });
+
+    // 💾 CONCEPT STORAGE DEBUG: Log what's being stored to database
+    if (mayaResponse.conceptCards && mayaResponse.conceptCards.length > 0) {
+      console.log('💾 CONCEPT STORAGE DEBUG:');
+      console.log('- Storing concepts to database/cache');
+      console.log('- Number of concepts:', mayaResponse.conceptCards.length);
+      mayaResponse.conceptCards.forEach((concept, i) => {
+        console.log(`  Concept ${i}: ${concept.title} - fullPrompt: ${!!concept.fullPrompt}`);
+        console.log(`  - FullPrompt length: ${concept.fullPrompt?.length || 0} characters`);
+        console.log(`  - Has originalContext: ${!!concept.originalContext}`);
+        console.log(`  - Concept ID: ${concept.id}`);
+        if (concept.fullPrompt) {
+          console.log(`  - FullPrompt preview: ${concept.fullPrompt.substring(0, 100)}...`);
+        }
+      });
+    }
 
     return currentChatId;
   } catch (error) {
