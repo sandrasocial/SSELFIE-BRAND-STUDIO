@@ -506,7 +506,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                           console.log('- FullPrompt preview:', conceptCard.fullPrompt.substring(0, 100));
                           
                           // Use the embedded prompt directly and skip dual API call
-                          const cleanedPrompt = cleanMayaPrompt(conceptCard.fullPrompt);
+                          const cleanedPrompt = conceptCard.fullPrompt;
                           console.log(`🎯 USING EMBEDDED PROMPT: Single API call consistency achieved`);
                           
                           // Generate images using the embedded prompt
@@ -515,7 +515,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                               userId,
                               cleanedPrompt,
                               count,
-                              userType === 'admin'
+                              { categoryContext: detectedCategory }
                             );
                             
                             console.log(`✅ SINGLE API GENERATION: Images generated using embedded prompt`);
@@ -557,7 +557,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                           originalContext,
                           conceptName,
                           timestamp: Date.now(),
-                          enhancedContext: conceptCard.enhancedContext // Store enhanced context in cache
+                          // Enhanced context removed - using original context only
                         });
                         
                         console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
@@ -662,7 +662,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       console.log(`🎯 DETECTED CATEGORY: "${detectedCategory}"`);
       
       // CRITICAL: Apply enhanced cleaning to originalContext before using it
-      const cleanedContext = cleanMayaPrompt(originalContext);
+      const cleanedContext = originalContext;
       console.log(`🧹 CLEANED CONTEXT (first 300 chars): "${cleanedContext.substring(0, 300)}"`);
       
       // TASK 4: Pipeline confirmation logs
@@ -696,8 +696,8 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
       let retrievedEnhancedContext = null;
       const enhancedContextCache = mayaContextCache.get(cacheKey);
-      if (enhancedContextCache && enhancedContextCache.enhancedContext) {
-        retrievedEnhancedContext = enhancedContextCache.enhancedContext;
+      if (enhancedContextCache) {
+        retrievedEnhancedContext = enhancedContextCache.originalContext;
         console.log(`✅ ENHANCED CONTEXT RETRIEVED: Maya's complete context available for API Call #2`);
       } else {
         console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
@@ -1439,6 +1439,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   
   // Try single concept pattern if still no concepts found
   if (concepts.length === 0) {
+    const singleConceptPattern = /(?:^|\n)([🎯✨💼🌟💫🏆][^:\n]+):\s*((?:[^\n]|\n(?![🎯✨💼🌟💫🏆]))+)/gm;
     singleConceptPattern.lastIndex = 0; // Reset regex
     while ((match = singleConceptPattern.exec(response)) !== null) {
       let conceptName = match[1].trim();
