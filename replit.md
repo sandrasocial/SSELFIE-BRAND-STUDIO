@@ -9,7 +9,14 @@ UI Preferences: Keep technical controls hidden - users prefer Maya to handle tec
 PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY flow for immediate €47/month launch. Maya authentication cleaned for production - development access removed for professional launch experience.
 
 ## Recent Critical Update (August 31, 2025)
-**MAYA PURE INTELLIGENCE ACHIEVED + CONCEPT GENERATION SUCCESS**: Complete elimination of all 8 interference levels that were constraining Maya's creative control. Maya now has complete authority over all image generation parameters, shot types, quality settings, and artistic decisions without any generic system overrides or validation constraints.
+**MAYA FLUX INTELLIGENCE ENHANCEMENT COMPLETE**: Maya's prompt generation system has been upgraded with comprehensive FLUX optimization knowledge including natural language examples, anti-pattern guidance, and shot-specific technical intelligence. The system now guides Maya to create optimal FLUX prompts with 30-80 word natural sentence structure instead of tag lists.
+
+**ENHANCED FEATURES**:
+- Natural language prompt examples for close-up, half-body, and full scene shots
+- Anti-pattern guidance to avoid common FLUX mistakes (tag soup, negative prompts, generic terms)
+- Success patterns emphasizing natural flow, positive phrasing, specific camera specs
+- Shot type intelligence automatically selecting optimal camera settings based on styling approach
+- Category-aware shot type hints for business, lifestyle, travel, and Instagram concepts
 
 **BREAKTHROUGH SOLUTION**: Rather than building complex parsing systems that strip Maya's intelligence, we trained Maya to naturally format her responses in a way the system can use. Maya now generates 3-5 concept card variations with embedded FLUX prompts while retaining 100% of her styling intelligence. This eliminates the concept parsing interference while maintaining full functionality.
 
