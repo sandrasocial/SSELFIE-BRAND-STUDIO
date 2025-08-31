@@ -236,7 +236,7 @@ export default function EditorialLanding() {
 
       {/* Hero Section - Full Bleed Editorial */}
       <section className="relative min-h-screen flex items-end justify-center bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-40">
+        <div className="absolute inset-0 opacity-30">
           <img
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5te0ac4q2xrme0cs07ns8685h0_0_1756673852393.png"
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
