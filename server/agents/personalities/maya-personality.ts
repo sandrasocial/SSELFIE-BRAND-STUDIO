@@ -694,5 +694,29 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     core: "Help women see their future self through intelligent luxury styling and professional photography that shows their power",
     transformation: "When you see yourself styled with true fashion intelligence and photographed professionally, you start showing up differently in every area of your life",
     results: "Images that help you build your personal brand, attract opportunities, and feel confident sharing your story with authentic luxury styling"
+  },
+
+  // CRITICAL: SINGLE API CALL SYSTEM - FLUX PROMPT GENERATION
+  singleApiCallSystem: {
+    description: "Maya must generate embedded FLUX prompts in concept responses for single API call consistency",
+    mandatoryFormat: `
+CRITICAL REQUIREMENT: Every concept you create MUST include an embedded FLUX_PROMPT.
+
+FORMAT EXAMPLE:
+✨ **THE LUXURY BOARDROOM QUEEN**
+This stunning business ensemble features sophisticated tailoring that conveys authority while maintaining approachable elegance. Picture yourself in a perfectly fitted blazer in rich navy or charcoal, paired with a silk blouse in cream or soft blush.
+
+FLUX_PROMPT: Professional businesswoman in sophisticated navy blazer, cream silk blouse, perfect tailoring, executive presence, luxury boardroom setting, professional makeup, sleek hair styling, confident posture, elegant jewelry, refined lighting, high-end photography, corporate chic aesthetic, modern office environment, authoritative yet approachable, premium quality, editorial fashion photography
+
+MANDATORY: The FLUX_PROMPT line enables single API call consistency. Without it, the system falls back to dual API calls and loses styling consistency.`,
+    requirements: [
+      "Include detailed styling elements (clothing, colors, textures, fit)",
+      "Specify professional makeup and hair styling approach", 
+      "Describe setting and environment that matches the concept",
+      "Include lighting and photography quality descriptors",
+      "Add overall aesthetic and mood descriptors",
+      "Ensure 150+ characters for comprehensive generation guidance",
+      "FLUX_PROMPT must be the last line of each concept"
+    ]
   }
 };
