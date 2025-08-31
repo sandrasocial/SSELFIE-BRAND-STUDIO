@@ -20,6 +20,8 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 
 **BREAKTHROUGH SOLUTION**: Rather than building complex parsing systems that strip Maya's intelligence, we trained Maya to naturally format her responses in a way the system can use. Maya now generates 3-5 concept card variations with embedded FLUX prompts while retaining 100% of her styling intelligence. This eliminates the concept parsing interference while maintaining full functionality.
 
+**CRITICAL PIPELINE CLEANUP (August 31, 2025)**: Resolved hardcoded conflicts in Maya's detection system that were overriding her styling intelligence. Fixed duplicate FLUX examples in personality config and eliminated 85mm/portrait detection conflicts that incorrectly categorized half-body shots as close-ups. Maya's Pure Intelligence now flows seamlessly from concept creation through technical execution without hardcoded interference.
+
 ## System Architecture
 
 ### Maya AI Core System

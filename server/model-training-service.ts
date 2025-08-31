@@ -430,7 +430,7 @@ export class ModelTrainingService {
       let detectedShotType = 'default';
       let aspectRatio = "4:5"; // Default IG-friendly ratio
       
-      if (promptLower.includes('close-up') || promptLower.includes('portrait') || promptLower.includes('headshot') || promptLower.includes('85mm') || promptLower.includes('f/1.8') || promptLower.includes('f/2.0')) {
+      if (promptLower.includes('close-up') || promptLower.includes('headshot') || promptLower.includes('f/1.8') || promptLower.includes('f/2.0')) {
         // CLOSE-UP PORTRAIT: Lower guidance for more realistic close-up portraits
         fluxParams = {
           guidance_scale: 2.8,
@@ -440,7 +440,7 @@ export class ModelTrainingService {
         aspectRatio = "4:5"; // IG-friendly close-up portrait ratio
         detectedShotType = 'closeUpPortrait';
         console.log(`📸 FLUX OPTIMIZATION: Close-up portrait detected - using guidance_scale: 2.8, steps: 40, aspect_ratio: 4:5`);
-      } else if (promptLower.includes('half-body') || promptLower.includes('three-quarter') || promptLower.includes('50mm') || promptLower.includes('85mm') || promptLower.includes('f/2.2') || promptLower.includes('f/2.8')) {
+      } else if (promptLower.includes('half-body') || promptLower.includes('three-quarter') || promptLower.includes('portrait') || promptLower.includes('50mm') || promptLower.includes('85mm') || promptLower.includes('f/2.2') || promptLower.includes('f/2.8')) {
         // HALF-BODY SHOT: Higher guidance for detailed styling showcase
         fluxParams = {
           guidance_scale: 5,
