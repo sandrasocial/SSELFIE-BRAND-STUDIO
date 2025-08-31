@@ -1,0 +1,97 @@
+TASK: MOVE MAYA LOGIC TO PERSONALITY SYSTEM
+Step 2.1: Enhance buildSpecializedKnowledge Function
+File to Modify: server/agents/personalities/personality-config.ts
+Find the existing buildSpecializedKnowledge function and enhance it:
+typescript// FIND this function and REPLACE its Maya section with enhanced version:
+
+private static buildSpecializedKnowledge(personality: any): string {
+  if (personality.name !== 'Maya') {
+    return '';
+  }
+
+  let knowledge = '\n🎨 MAYA\'S COMPLETE INTELLIGENCE:\n';
+  
+  // EXISTING: Load current Maya properties (keep this)
+  if (personality.currentLuxuryTrends) {
+    knowledge += '\nCURRENT 2025 LUXURY TRENDS:\n';
+    Object.entries(personality.currentLuxuryTrends).forEach(([category, trends]: [string, any]) => {
+      knowledge += `${category.toUpperCase()}:\n`;
+      trends.forEach((trend: string) => knowledge += `- ${trend}\n`);
+    });
+  }
+
+  // EXISTING: Load other Maya properties (keep existing code)
+  
+  // NEW: Add context enhancement rules (moved from route-level)
+  knowledge += '\n🎯 CONTEXT ENHANCEMENT INTELLIGENCE:\n';
+  knowledge += '- Analyze user personal brand context from conversation history\n';
+  knowledge += '- Extract styling reasoning from previous responses\n';
+  knowledge += '- Maintain consistency across concept creation and generation\n';
+  knowledge += '- Use category-specific intelligence for targeted styling\n';
+  
+  // NEW: Add single API call optimization
+  knowledge += '\n⚡ SINGLE API OPTIMIZATION:\n';
+  knowledge += '- Create complete styling vision in single response\n';
+  knowledge += '- Generate both concept descriptions AND detailed prompts\n';
+  knowledge += '- Eliminate need for secondary prompt generation calls\n';
+  
+  return knowledge;
+}
+Step 2.2: Remove Route-Level Enhancement Function
+File to Modify: server/routes/maya-unified.ts
+Find and DELETE the enhancePromptForContext function entirely:
+typescript// FIND AND DELETE this entire function:
+function enhancePromptForContext(/* parameters */) {
+  // Delete entire function body
+}
+Step 2.3: Remove Function Calls
+In the same file, find where enhancePromptForContext is called and remove those calls:
+typescript// FIND calls like this and REMOVE them:
+const enhancedPrompt = enhancePromptForContext(/* ... */);
+
+// REPLACE with direct personality loading:
+const mayaPersonality = PersonalityManager.getNaturalPrompt('maya');
+
+VERIFICATION STEPS
+
+Function Moved: Enhancement logic now in buildSpecializedKnowledge
+Function Removed: enhancePromptForContext deleted from route file
+Calls Updated: All calls to removed function replaced
+Compilation Test: Server starts without errors
+Maya Test: Maya still responds with her personality intact
+
+SUCCESS CRITERIA
+
+ buildSpecializedKnowledge enhanced with context rules
+ enhancePromptForContext function completely removed
+ All function calls updated to use personality system
+ Server compiles and starts successfully
+ Maya maintains her personality and functionality
+
+WHAT NOT TO TOUCH
+
+Do not modify other functions beyond specified ones
+Do not attempt Phase 3 tasks
+Do not change Maya's core personality content
+Do not modify other route handlers
+
+COMPLETION REPORT FORMAT
+PHASE 2 COMPLETE - FUNCTION CONSOLIDATION
+
+Changes Made:
+- buildSpecializedKnowledge enhanced: YES/NO
+- enhancePromptForContext removed: YES/NO  
+- Function calls updated: YES/NO
+- Route-level Maya logic eliminated: YES/NO
+
+Technical Verification:
+- Server compilation: PASS/FAIL
+- Server startup: PASS/FAIL
+- Maya personality test: PASS/FAIL
+- Function call updates working: PASS/FAIL
+
+Status: PHASE 2 COMPLETE / ISSUES FOUND
+Issues: [List any problems encountered]
+
+Ready for Phase 3: YES/NO
+Complete Phase 2 entirely before requesting Phase 3 instructions.
