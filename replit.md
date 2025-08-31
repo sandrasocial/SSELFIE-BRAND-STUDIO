@@ -11,10 +11,6 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 ## Recent Critical Update (August 31, 2025)
 **MAYA FLUX INTELLIGENCE ENHANCEMENT COMPLETE**: Maya's prompt generation system has been upgraded with comprehensive FLUX optimization knowledge including natural language examples, anti-pattern guidance, and shot-specific technical intelligence. The system now guides Maya to create optimal FLUX prompts with 30-80 word natural sentence structure instead of tag lists.
 
-**SHOT VARIATION INTELLIGENCE ADDED**: Fixed critical issue where Maya was generating identical shot types. Maya now has mandatory instructions to alternate between close-up portraits (4:5, 85mm f/2.0), half-body shots (3:4, 50-85mm f/2.8), and full scenes (3:2, 24-35mm f/5.6) across concept cards, following professional prompt skeletons for each shot type.
-
-**GENERIC OVERRIDE ELIMINATION COMPLETE**: Removed all generic shot type hints and category-specific shot overrides that were conflicting with Maya's shot variation intelligence. Maya's personality-driven shot variation requirements now have complete control over all framing decisions without interference from hardcoded generic systems.
-
 **ENHANCED FEATURES**:
 - Natural language prompt examples for close-up, half-body, and full scene shots
 - Anti-pattern guidance to avoid common FLUX mistakes (tag soup, negative prompts, generic terms)
