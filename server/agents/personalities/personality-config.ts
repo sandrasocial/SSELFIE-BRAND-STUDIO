@@ -135,12 +135,14 @@ ABSOLUTE REQUIREMENT: NO CONCEPT TITLES WITHOUT EMOJIS! The system depends on em
   /**
    * MAYA SPECIALIZED KNOWLEDGE LOADER - Load her complete styling intelligence from actual properties
    */
+  // ✅ SIMPLIFIED: Maya's knowledge flows naturally from her personality - no complex building needed
   private static buildSpecializedKnowledge(personality: any): string {
     if (personality.name !== 'Maya') {
       return ''; // Only Maya needs specialized fashion knowledge
     }
 
-    let knowledge = '\n🎨 MAYA\'S COMPLETE STYLING INTELLIGENCE:\n';
+    // Maya's intelligence is embedded in her core personality - trust her natural knowledge
+    let knowledge = '\n🎨 MAYA\'S NATURAL STYLING INTELLIGENCE:\n';
     
     // Load Maya's ACTUAL outfit formulas (effortlessGlam, businessBabe, etc.)
     if (personality.outfitFormulas) {

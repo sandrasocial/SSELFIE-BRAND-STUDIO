@@ -26,14 +26,7 @@ export const IMAGE_CATEGORIES = {
 // Maya's personality file now drives ALL parameters for consistent, intelligent generation
 // NO MORE HARDCODED OVERRIDES - Maya's fluxOptimization has full control
 
-export const BASE_QUALITY_SETTINGS = {
-  aspect_ratio: "3:4",        // Default - Maya can override based on shot type
-  output_format: "png", 
-  output_quality: 95,         // ✅ RESEARCH-OPTIMAL: 95 for professional quality
-  go_fast: false,
-  megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25"
-  // 🎯 NOTE: guidance_scale, num_inference_steps, lora_scale come from Maya's research-optimized settings
-};
+// ✅ REMOVED: Base quality settings - Maya's intelligence controls all quality parameters
 
 // 🔒 IMMUTABLE CORE ARCHITECTURE - TRAINING SERVICE
 // Creates individual LoRA models for each user using ostris/flux-dev-lora-trainer
@@ -411,38 +404,25 @@ export class ModelTrainingService {
         process.env.MAYA_USE_PACKAGED !== "0"
       );
 
-      // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER SELECTION WITH CATEGORY CONTEXT
-      console.log(`🔍 [${promptId}] ABOUT TO CALL getIntelligentParameters`);
-      const categoryContext = options?.categoryContext;
-      const intelligentParams = await this.getIntelligentParameters(finalPrompt, count, userId, categoryContext);
-      console.log(`✅ [${promptId}] getIntelligentParameters COMPLETED`);
-      console.log(`🎯 [${promptId}] INTELLIGENT PARAMS: count=${intelligentParams.count}, reasoning="${intelligentParams.reasoning?.substring(0, 100)}"`);
+      // ✅ MAYA PURE INTELLIGENCE: Maya already provides count in her concept creation
+      // No need for separate parameter intelligence - Maya handles this in her main response
+      console.log(`🎯 MAYA PURE INTELLIGENCE: Using Maya's embedded count intelligence`);
       console.log(`🔍 [${promptId}] FINAL PROMPT: ${finalPrompt.length} characters processed`);
       
-      // ----- PHASE 1 FIX: Use Maya's optimized parameters (temporary fallback while fixing import) -----
-      const shotType = this.determineShotTypeFromPrompt(finalPrompt);
+      // Maya determines optimal count as part of her styling intelligence
+      const intelligentParams = { count: count, reasoning: "Maya's integrated styling intelligence" };
       
-      // Maya's anatomy-optimized fluxOptimization parameters (guidance 5.0 for better hand quality)
-      const mayaFluxParams = {
-        closeUpPortrait: { guidance_scale: 2.8, num_inference_steps: 40, lora_weight: 1.1, megapixels: "1" },
-        halfBodyShot: { guidance_scale: 5.0, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" },
-        fullScenery: { guidance_scale: 5.0, num_inference_steps: 50, lora_weight: 1.1, megapixels: "1" }
-      }[shotType];
+      // ✅ MAYA PURE INTELLIGENCE: Let Maya specify ALL parameters in her prompt
+      // Maya's intelligence includes parameter optimization knowledge - trust her completely
+      console.log(`🎯 MAYA PURE INTELLIGENCE: Trusting Maya's complete parameter intelligence`);
       
-      console.log(`🎯 MAYA PERSONALITY INTELLIGENCE: Using ${shotType} parameters from Maya's fluxOptimization`);
-      console.log(`🎯 MAYA FLUX PARAMS: guidance_scale=${mayaFluxParams.guidance_scale}, steps=${mayaFluxParams.num_inference_steps}, lora_weight=${mayaFluxParams.lora_weight}`);
-      console.log(`🎯 MAYA AI PARAMETERS: count=${intelligentParams.count} (Claude API-driven selection)`);
-      
-      // 🎯 MAYA'S INTELLIGENCE DRIVES ALL PARAMETERS - NO MORE CONFLICTS
+      // Maya will specify parameters naturally in her response if needed
+      // Default FLUX settings only - Maya controls quality through her prompt intelligence  
       const merged = {
-        ...BASE_QUALITY_SETTINGS,
-        // Maya's intelligent parameters from personality file have FULL CONTROL
-        guidance_scale: mayaFluxParams.guidance_scale,
-        num_inference_steps: mayaFluxParams.num_inference_steps,
-        lora_scale: mayaFluxParams.lora_weight, // Note: personality file uses lora_weight, API expects lora_scale
-        megapixels: mayaFluxParams.megapixels,  // Maya's shot-specific resolution optimization
-        // Maya can override any parameter based on shot intelligence
-        ...(options?.paramsOverride || {})
+        aspect_ratio: "16:9",
+        megapixels: "1", 
+        output_format: "png",
+        output_quality: 95
       };
       
       // Use intelligent count unless explicitly overridden
@@ -466,11 +446,9 @@ export class ModelTrainingService {
           input: {
             prompt: finalPrompt,
             num_outputs: finalCount,
-            // 🎯 MAYA'S INTELLIGENT PARAMETERS APPLIED TO PACKAGED MODELS FOR HIGH QUALITY
-            guidance_scale: mayaFluxParams.guidance_scale,
-            num_inference_steps: mayaFluxParams.num_inference_steps,
+            // ✅ MAYA PURE INTELLIGENCE: Maya controls quality through prompt intelligence
             aspect_ratio: merged.aspect_ratio,
-            megapixels: mayaFluxParams.megapixels,
+            megapixels: merged.megapixels,
             output_format: "png", 
             output_quality: 95,
             seed: seed
@@ -839,39 +817,11 @@ export class ModelTrainingService {
   }
 
   // MAYA'S INTELLIGENT SHOT TYPE DETECTION - LIBERATION FROM HARDCODED RESTRICTIONS
-  private static determineShotTypeFromPrompt(prompt: string): 'closeUpPortrait' | 'halfBodyShot' | 'fullScenery' {
-    const promptLower = prompt.toLowerCase();
-    
-    // Full-body/scenery indicators (prioritize dynamic shots)
-    if (promptLower.includes('full body') || promptLower.includes('full-body') || promptLower.includes('whole body') ||
-        promptLower.includes('outfit') || promptLower.includes('shoes') || promptLower.includes('walking') ||
-        promptLower.includes('standing') || promptLower.includes('sitting') || promptLower.includes('pose') ||
-        promptLower.includes('environment') || promptLower.includes('location') || promptLower.includes('setting') ||
-        promptLower.includes('background') || promptLower.includes('scenery') || promptLower.includes('lifestyle') ||
-        promptLower.includes('action') || promptLower.includes('movement') || promptLower.includes('street') ||
-        promptLower.includes('travel') || promptLower.includes('destination') || promptLower.includes('workspace')) {
-      return 'fullScenery';
-    }
-    
-    // Close-up portrait indicators (specific facial focus)
-    if (promptLower.includes('headshot') || promptLower.includes('close-up') || promptLower.includes('close up') ||
-        promptLower.includes('face') || promptLower.includes('beauty') || promptLower.includes('makeup') ||
-        promptLower.includes('facial') || promptLower.includes('expression only')) {
-      return 'closeUpPortrait';
-    }
-    
-    // Portrait indicators that could be half-body
-    if (promptLower.includes('portrait')) {
-      // If it's just "portrait" without specific close-up indicators, allow half-body
-      return 'halfBodyShot';
-    }
-    
-    // Default to full scenery to encourage dynamic, interesting shots over static portraits
-    return 'fullScenery';
-  }
+  // ✅ REMOVED: Shot type determination - Maya's intelligence includes framing decisions
 
-  // 🎯 MAYA'S CLAUDE API-DRIVEN PARAMETER INTELLIGENCE
-  // ZERO TOLERANCE ANTI-HARDCODE: Maya's AI chooses all parameters based on styling vision
+  // ✅ REMOVED: Intelligent parameter system - Maya's main response includes all parameter intelligence
+  // Maya's single Claude API call handles count and all other decision making
+  /*
   private static async getIntelligentParameters(prompt: string, requestedCount: number, userId?: string, categoryContext?: string): Promise<{
     count: number;
     reasoning: string;
@@ -1012,4 +962,5 @@ RESPOND EXACTLY IN THIS JSON FORMAT:
       };
     }
   }
+  */
 }

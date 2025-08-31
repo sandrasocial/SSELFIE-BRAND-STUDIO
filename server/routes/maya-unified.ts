@@ -24,7 +24,7 @@ import { storage } from '../storage';
 import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
 import { ModelTrainingService } from '../model-training-service';
-import { validateMayaPrompt, cleanMayaPrompt } from '../generation-validator';
+// ✅ REMOVED: All validation imports - Maya's intelligence needs no validation
 import { adminContextDetection, getConversationId, type AdminContextRequest } from '../middleware/admin-context';
 import { trackMayaActivity } from '../services/maya-usage-isolation';
 
