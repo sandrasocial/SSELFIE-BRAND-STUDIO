@@ -4,12 +4,28 @@ import { SandraImages } from "../lib/sandra-images";
 import { EmailCaptureModal } from "../components/email-capture-modal";
 import { GlobalFooter } from "../components/global-footer";
 import { useToast } from "../hooks/use-toast";
+import { PreLoginNavigationUnified } from "../components/pre-login-navigation-unified";
+import { HeroFullBleed } from "../components/hero-full-bleed";
 
 export default function Pricing() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  // Check for success parameter from payment completion
+  const urlParams = new URLSearchParams(window.location.search);
+  const success = urlParams.get('success');
+  const completedPlan = urlParams.get('plan');
+
+  // Scroll effect for navigation
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // SEO Meta Tags and Performance Optimization
   useEffect(() => {
@@ -96,158 +112,40 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Editorial Navigation - Same as Landing Page */}
-      <nav className="fixed top-0 w-full z-50 bg-black text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="flex items-center justify-between">
-            <button 
-              onClick={() => setLocation("/")}
-              className="font-serif text-xl font-light tracking-wide text-white hover:opacity-70 transition-opacity duration-300"
-            >
-              SSELFIE
-            </button>
-            <div className="hidden md:flex items-center space-x-6 lg:space-x-10">
-              <button 
-                onClick={() => setLocation("/about")}
-                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                About
-              </button>
+    <div className="min-h-screen bg-white"
+         itemScope 
+         itemType="https://schema.org/WebPage">
+      {/* Standardized Navigation */}
+      <PreLoginNavigationUnified />
 
-              <button 
-                onClick={() => setLocation("/pricing")}
-                className="text-xs uppercase tracking-[0.4em] text-white border-b border-white/50 pb-1"
-              >
-                Pricing
-              </button>
-              <button 
-                onClick={() => setLocation("/blog")}
-                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                Blog
-              </button>
-              <button
-                onClick={() => setLocation('/login')}
-                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                Login
-              </button>
-              <button 
-                onClick={() => setLocation("/contact")}
-                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-              >
-                Contact
-              </button>
+      {/* Hero Section */}
+      <HeroFullBleed
+        backgroundImage="https://i.postimg.cc/HsrPfn0G/out-2-26.png"
+        tagline="Investment in the woman you're becoming"
+        title="PRICING"
+        ctaText="Choose Your Plan"
+        onCtaClick={() => {}} // Scroll to pricing section
+        fullHeight={false}
+      />
+
+      {/* Main Content */}
+      <main className="py-16 sm:py-24 md:py-32">
+        {/* Success Message */}
+        {success && (
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+            <div className="bg-gray-50 border p-6 text-center">
+              <div className="text-black text-sm uppercase tracking-wider mb-2">
+                PAYMENT SUCCESSFUL
+              </div>
+              <h3 className="text-xl font-light text-black mb-2 font-serif">
+                Welcome to SSELFIE Studio!
+              </h3>
+              <p className="text-gray-600">
+                Your {completedPlan === 'sselfie-studio' ? 'SSELFIE Studio' : 'SSELFIE Studio'} access is now active. Check your email for next steps.
+              </p>
             </div>
-            
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              MENU
-            </button>
-            
-            <button
-              onClick={() => handleGetStarted()}
-              className="hidden md:block px-6 py-3 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
-            >
-              Start €47
-            </button>
           </div>
-        </div>
-      </nav>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-sm md:hidden">
-          <div className="flex flex-col items-center justify-center min-h-screen space-y-12">
-            <button 
-              onClick={() => { setLocation("/about"); setMobileMenuOpen(false); }}
-              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              About
-            </button>
-
-            <button 
-              onClick={() => { setLocation("/pricing"); setMobileMenuOpen(false); }}
-              className="text-sm uppercase tracking-[0.4em] text-white border-b border-white/50 pb-1"
-            >
-              Pricing
-            </button>
-            <button 
-              onClick={() => { setLocation("/blog"); setMobileMenuOpen(false); }}
-              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              Blog
-            </button>
-            <button
-              onClick={() => { setLocation('/login'); setMobileMenuOpen(false); }}
-              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              Login
-            </button>
-            <button 
-              onClick={() => { setLocation("/contact"); setMobileMenuOpen(false); }}
-              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              Contact
-            </button>
-            <button
-              onClick={() => { handleGetStarted(); setMobileMenuOpen(false); }}
-              className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
-            >
-              Start €47
-            </button>
-            
-            {/* Close Button */}
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              className="absolute top-8 right-8 text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Hero Section - Editorial Style */}
-      <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <img
-            src={SandraImages.editorial.thinking}
-            alt="Sandra Sigurjónsdóttir - SSELFIE Studio Personal Brand Investment"
-            className="w-full h-full object-cover object-center"
-            loading="eager"
-            fetchpriority="high"
-          />
-        </div>
-        
-        <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8">
-          <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
-            INVESTMENT IN THE WOMAN YOU'RE BECOMING
-          </p>
-          
-          <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[8rem] font-extralight text-white tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.5em] mb-8 sm:mb-12 leading-none">
-            €47
-          </h1>
-          
-          <p className="text-sm sm:text-base md:text-lg uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/80 mb-8 sm:mb-12 font-light max-w-2xl mx-auto leading-relaxed">
-            Personal Brand Studio<br className="hidden sm:block" />
-            <span className="sm:hidden"> </span>Monthly Subscription
-          </p>
-          
-          <button
-            onClick={() => handleGetStarted()}
-            className="group inline-block"
-          >
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 group-hover:border-white group-hover:tracking-[0.3em] sm:group-hover:tracking-[0.35em] transition-all duration-300">
-              Start Your Journey
-            </span>
-          </button>
-        </div>
-      </section>
+        )}
 
       {/* What's Included - Editorial Style */}
       <section className="py-20 sm:py-32 lg:py-40 bg-white">
