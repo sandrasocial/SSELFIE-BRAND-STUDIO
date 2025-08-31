@@ -141,7 +141,7 @@ export const PortfolioSection = () => {
         </div>
       </div>
 
-      <style jsx="true">{`
+      <style>{`
         /* Portfolio Section */
         .portfolio-section {
           padding: 0;
@@ -164,13 +164,13 @@ export const PortfolioSection = () => {
           text-transform: uppercase;
           color: #666;
           margin-bottom: 48px;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
         }
         
         .portfolio-title {
           font-size: clamp(60px, 8vw, 120px);
           line-height: 0.9;
-          font-family: 'Times New Roman, serif';
+          font-family: 'Times New Roman', serif;
           font-weight: 300;
           color: #0a0a0a;
         }
@@ -201,7 +201,7 @@ export const PortfolioSection = () => {
           max-width: 600px;
           margin-left: auto;
           margin-right: auto;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
           color: #0a0a0a;
         }
         
@@ -210,7 +210,7 @@ export const PortfolioSection = () => {
           font-style: italic;
           opacity: 0.6;
           margin-top: 24px;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
           color: #0a0a0a;
         }
         
@@ -325,13 +325,13 @@ export const PortfolioSection = () => {
           opacity: 0.8;
           display: block;
           margin-bottom: 16px;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
         }
         
         .story-title {
           font-size: 48px;
           margin-bottom: 8px;
-          font-family: 'Times New Roman, serif';
+          font-family: 'Times New Roman', serif;
           font-weight: 300;
         }
         
@@ -339,7 +339,7 @@ export const PortfolioSection = () => {
           font-size: 14px;
           opacity: 0.8;
           letter-spacing: 0.05em;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
         }
         
         /* Text Overlay */
@@ -369,7 +369,7 @@ export const PortfolioSection = () => {
           top: 20px;
           right: 20px;
           transition: all 0.6s ease;
-          font-family: 'Times New Roman, serif';
+          font-family: 'Times New Roman', serif;
         }
         
         .grid-item:hover .overlay-number {
@@ -383,7 +383,7 @@ export const PortfolioSection = () => {
           line-height: 1.2;
           transform: translateY(20px);
           transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-          font-family: 'Times New Roman, serif';
+          font-family: 'Times New Roman', serif;
           font-weight: 300;
         }
         
@@ -401,7 +401,7 @@ export const PortfolioSection = () => {
           font-size: 72px;
           line-height: 1;
           margin-bottom: 8px;
-          font-family: 'Times New Roman, serif';
+          font-family: 'Times New Roman', serif;
           font-weight: 300;
         }
         
@@ -409,7 +409,7 @@ export const PortfolioSection = () => {
           font-size: 16px;
           margin-bottom: 16px;
           opacity: 0.8;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
         }
         
         .block-label {
@@ -417,7 +417,7 @@ export const PortfolioSection = () => {
           letter-spacing: 0.3em;
           text-transform: uppercase;
           opacity: 0.6;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
         }
         
         /* Split Content */
@@ -457,7 +457,7 @@ export const PortfolioSection = () => {
           transform: translateY(10px);
           opacity: 0.9;
           transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-          font-family: 'Times New Roman, serif';
+          font-family: 'Times New Roman', serif;
           font-weight: 300;
         }
         
@@ -470,7 +470,7 @@ export const PortfolioSection = () => {
           font-size: 12px;
           letter-spacing: 0.1em;
           opacity: 0.7;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
         }
         
         /* Vertical Text */
@@ -488,7 +488,7 @@ export const PortfolioSection = () => {
           text-transform: uppercase;
           color: #ffffff;
           opacity: 0.8;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
         }
         
         /* Editorial Overlay */
@@ -506,14 +506,14 @@ export const PortfolioSection = () => {
           font-size: 72px;
           line-height: 0.9;
           margin-bottom: 16px;
-          font-family: 'Times New Roman, serif';
+          font-family: 'Times New Roman', serif;
           font-weight: 300;
         }
         
         .editorial-subtitle {
           font-size: 16px;
           opacity: 0.8;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
         }
         
         /* Portfolio CTA */
@@ -541,7 +541,7 @@ export const PortfolioSection = () => {
           color: #0a0a0a;
           border-bottom: 1px solid #0a0a0a;
           padding-bottom: 2px;
-          font-family: 'Inter, system-ui, sans-serif';
+          font-family: Inter, system-ui, sans-serif;
           font-weight: 300;
         }
         
