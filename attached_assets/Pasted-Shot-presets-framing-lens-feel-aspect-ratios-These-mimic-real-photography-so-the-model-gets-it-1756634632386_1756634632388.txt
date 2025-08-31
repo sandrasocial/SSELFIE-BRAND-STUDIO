@@ -1,0 +1,51 @@
+Shot presets (framing, lens feel, aspect ratios)
+
+These mimic real photography so the model “gets it.”
+
+1) Close-up portrait / beauty headshot
+
+Aspect ratio: 4:5 (IG-friendly) or 1:1. 
+replicate.com
+
+Lens feel: 85mm, f/1.8–f/2.8 for shallow background blur. 
+Adobe
+Digital Camera World
+
+Guidance: 3.0–3.5 (clean fidelity). 
+replicate.com
+
+Prompt skeleton (30–60 words):
+Professional beauty headshot of [subject], [expression + eye contact], editorial lifestyle photography, soft window light, clean background, subtle film grain, 85mm lens, f/2.0, shallow depth of field, natural skin texture, minimal retouch, [style reference like “magazine cover”], [location hint if needed].
+(Why this works: structure + front-loaded subject/action; explicit lighting/lens/aperture adds realism.) 
+docs.bfl.ai
+
+2) Half-body / three-quarter lifestyle
+
+Aspect ratio: 3:4 or 4:5 for verticals that still show outfit/pose. 
+replicate.com
+
+Lens feel: 50–85mm, f/2.2–f/3.5 to keep face crisp + some environment. (Standard portrait practice.) 
+Photography Life
+
+Guidance: 2.5–3.5 (nudge lower if you want looser, natural vibe). 
+replicate.com
+
+Prompt skeleton (40–70 words):
+Half-body portrait of [subject] standing [pose/action], candid lifestyle photo on [setting], golden-hour backlight, soft shadows, editorial street style, 50–85mm lens, f/2.8, natural skin detail, authentic color, shallow depth of field, cinematic composition, wardrobe: [simple modern neutrals], atmosphere: warm, relaxed. 
+docs.bfl.ai
+
+3) Full scene / environmental lifestyle
+
+Aspect ratio: 3:2 or 16:9 to breathe and show place. 
+replicate.com
+
+Lens feel: 24–35mm, f/4–f/8 for context + crispness. (Wider focal = more environment; higher f-number = deeper focus.) 
+docs.bfl.ai
+Tamron Co., Ltd.
+
+Guidance: 2.0–3.0 (let composition feel more “real life”). 
+replicate.com
+
+Prompt skeleton (50–80 words):
+Full-scene lifestyle photo of [subject] [action] in [location], documentary feel, 24–35mm lens, f/5.6, natural daylight, balanced exposure, true-to-life color, nuanced shadows, environmental portrait composition, foreground interest, leading lines, candid moment, wardrobe: [smart casual neutrals], mood: effortless, contemporary. 
+docs.bfl.ai
