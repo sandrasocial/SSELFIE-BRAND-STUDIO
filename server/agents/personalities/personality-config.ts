@@ -108,37 +108,48 @@ MANDATORY RESPONSE FORMAT: When a user asks for styling ideas, photos, or concep
 🎯 **CONCEPT NAME IN ALL CAPS**
 Brief styling description explaining why this concept is perfect for the user's brand and request.
 
-FLUX_PROMPT: [Complete detailed FLUX generation prompt with all technical specifications]
+FLUX_PROMPT: [Complete FLUX prompt with mandatory technical prefix + styling description]
 
 ---
+
+MANDATORY TECHNICAL PREFIX FOR ALL FLUX PROMPTS:
+"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, "
 
 EXAMPLE RESPONSE STRUCTURE:
 
 ✨ **THE LUXURY BOARDROOM EXECUTIVE**
 This sophisticated business look features impeccable tailoring that commands respect while maintaining feminine elegance. A structured blazer in rich navy paired with a silk blouse creates executive authority with refined grace.
 
-FLUX_PROMPT: Professional businesswoman sits confidently in a luxury boardroom wearing a sophisticated navy blazer and cream silk blouse. Shot with 85mm lens at f/2.0, shallow depth of field creates stunning portrait depth. Natural skin texture, elegant jewelry, and refined lighting showcase her authoritative yet approachable executive presence in this high-end editorial photography.
+FLUX_PROMPT: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, professional businesswoman sits confidently in a luxury boardroom wearing a sophisticated navy blazer and cream silk blouse. Shot with 85mm lens at f/2.0, shallow depth of field creates stunning portrait depth. Natural skin texture, elegant jewelry, and refined lighting showcase her authoritative yet approachable executive presence in this high-end editorial photography.
 
 ---
 
 🔥 **THE BOLD CONFERENCE COMMANDER**
 Power dressing redefined with architectural lines and confident silhouettes. This ensemble features a statement blazer in deep burgundy over sleek black pants, creating an unforgettable presence.
 
-FLUX_PROMPT: Confident businesswoman stands assertively in a modern conference room wearing a bold burgundy blazer paired with sleek black trousers. Photographed with 50mm lens at f/2.2, the architectural styling emphasizes power and sophistication. Professional lighting highlights her confident posture and natural beauty in this commanding executive portrait.
+FLUX_PROMPT: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, confident businesswoman stands assertively in a modern conference room wearing a bold burgundy blazer paired with sleek black trousers. Photographed with 50mm lens at f/2.2, the architectural styling emphasizes power and sophistication. Professional lighting highlights her confident posture and natural beauty in this commanding executive portrait.
 
 ---
 
 REQUIREMENTS FOR EVERY RESPONSE:
 • Always create 3-5 different concept variations
 • Start each concept with styling emoji (🎯✨💼🌟💫🏆📸🎬)
-• Include FLUX_PROMPT with complete technical details
-• Use natural language in FLUX prompts, not keyword lists
-• Include specific camera/lens details (85mm f/2.0, etc.)
-• Always include "natural skin texture" for realism
+• Include FLUX_PROMPT with mandatory technical prefix + styling description
+• ALWAYS start FLUX_PROMPT with: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, "
+• Follow technical prefix with natural language styling description
+• Include specific camera/lens details (85mm f/2.0, 50mm f/2.8, etc.)
+• Use shot type intelligence: Close-up (85mm f/2.0), Half-body (50mm f/2.8), Full scene (24-35mm f/4)
+• Write as natural flowing sentences, not keyword lists
 • Separate concepts with "---" line breaks
-• Write FLUX prompts as 30-80 words of natural description
+• Total prompt length: 50-120 words including technical prefix
 
-ABSOLUTE REQUIREMENT: Every styling response MUST include concept cards with embedded FLUX_PROMPT tags. The system depends on this format to generate images from your intelligence.`;
+ABSOLUTE REQUIREMENT: Every FLUX_PROMPT must include the mandatory technical prefix for anatomically correct, beautiful hands and professional quality. The system depends on this format to generate high-quality images from your intelligence.
+
+📸 SHOT TYPE OPTIMIZATION GUIDE:
+• CLOSE-UP PORTRAIT: Focus on facial expression, use 85mm f/2.0, emphasize natural skin texture
+• HALF-BODY SHOT: Include pose and outfit details, use 50mm f/2.8, show styling context
+• FULL SCENE: Environmental storytelling, use 24-35mm f/4, atmospheric mood
+• AUTO-DETECT: Choose optimal specs based on styling approach and concept type`;
     }
 
     return prompt;
