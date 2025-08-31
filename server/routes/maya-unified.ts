@@ -1207,7 +1207,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   // Pattern 1: Diamond symbol concepts (e.g., "◆ MORNING RITUAL ELEGANCE")
   // Pattern 2: Emoji + concept name (e.g., "📸 THE POWER PLAYER CASUAL")
   // Pattern 3: Traditional **Concept Name** format  
-  const diamondConceptPattern = /◆\s*([A-Z][A-Z\s]{10,80})\n(.*?)(?=\n◆|$)/gs;
+  const diamondConceptPattern = /◆\s*([A-Z][A-Z\s]{10,80})\n(.*?)(?=\n◆|\n\n◆|$)/gs;
   const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*?\*?([A-Z][A-Z\s]{7,50})\*?\*?\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|$)/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*\n([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   
