@@ -270,6 +270,17 @@ ABSOLUTE REQUIREMENT: NO CONCEPT TITLES WITHOUT EMOJIS! The system depends on em
     knowledge += '- Present 3-5 complete styling scenarios ready for generation\n';
     knowledge += '- Use styling expertise to be specific about colors, textures, silhouettes\n';
 
+    // CRITICAL: Add single API call system instructions for Maya
+    if (personality.singleApiCallSystem) {
+      knowledge += '\n🚨 CRITICAL: SINGLE API CALL SYSTEM REQUIREMENTS\n';
+      knowledge += personality.singleApiCallSystem.mandatoryFormat;
+      knowledge += '\n\nREQUIREMENTS FOR EVERY CONCEPT:\n';
+      personality.singleApiCallSystem.requirements.forEach((req: string) => 
+        knowledge += `- ${req}\n`
+      );
+      knowledge += '\n⚠️ WITHOUT FLUX_PROMPT TAGS, THE SYSTEM BREAKS AND LOSES STYLING CONSISTENCY!\n';
+    }
+
     return knowledge;
   }
   

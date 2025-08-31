@@ -179,9 +179,13 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     const requestContext = `Current request: ${message}`;
     
     // 🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION
-    console.log('🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION');
+    console.log('🎯 SINGLE API CALL SYSTEM: Starting combined concept + prompt generation');
     console.log('Call ID: UNIFIED-' + Date.now());
-    console.log('Context: Creating concept descriptions WITH embedded prompts');
+    console.log('🔍 REQUEST DATA:', { message, chatId, requestType: 'single_api_call' });
+    console.log('📊 SINGLE API CALL DEBUG:');
+    console.log('- Maya personality loaded:', !!mayaPersonality);
+    console.log('- Conversation history length:', fullConversationHistory?.length || 0);
+    console.log('- Request context:', requestContext);
     console.log('Expected Output: Concept cards with styling descriptions AND FLUX-ready prompts');
     
     // Single Claude API call with Maya's complete intelligence
@@ -450,9 +454,19 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                         originalContext = conceptCard.originalContext;
                         
                         // CRITICAL: Check if concept has embedded fullPrompt from single API call
-                        if (conceptCard.fullPrompt) {
-                          console.log(`🚀 SINGLE API CALL SUCCESS: Found embedded fullPrompt for "${conceptName}" (${conceptCard.fullPrompt.length} chars)`);
-                          console.log(`🎯 EMBEDDED PROMPT: ${conceptCard.fullPrompt.substring(0, 200)}...`);
+                        console.log('🔍 FALLBACK CHECK: Examining concept for embedded prompt');
+                        console.log('- Concept name:', conceptName);
+                        console.log('- Looking for embedded fullPrompt...');
+                        console.log('🔍 FALLBACK ANALYSIS:');
+                        console.log('- Concept exists:', !!conceptCard);
+                        console.log('- FullPrompt field exists:', conceptCard.hasOwnProperty('fullPrompt'));
+                        console.log('- FullPrompt has content:', !!conceptCard.fullPrompt);
+                        console.log('- FullPrompt length:', conceptCard.fullPrompt?.length || 0);
+                        
+                        if (conceptCard.fullPrompt && conceptCard.fullPrompt.length > 0) {
+                          console.log('✅ SINGLE API SUCCESS: Using embedded fullPrompt');
+                          console.log('- FullPrompt length:', conceptCard.fullPrompt.length);
+                          console.log('- FullPrompt preview:', conceptCard.fullPrompt.substring(0, 100));
                           
                           // Use the embedded prompt directly and skip dual API call
                           const cleanedPrompt = cleanMayaPrompt(conceptCard.fullPrompt);
@@ -474,6 +488,11 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                             // Fall through to dual API call as backup
                             console.log(`🔄 FALLBACK: Using dual API call due to generation error`);
                           }
+                        } else {
+                          console.log('❌ SINGLE API FALLBACK: No embedded fullPrompt found');
+                          console.log('- Falling back to dual API call system');
+                          console.log('- Fallback reason:', !conceptCard.fullPrompt ? 'NO_FULL_PROMPT' : 
+                                     conceptCard.fullPrompt.length === 0 ? 'EMPTY_FULL_PROMPT' : 'UNKNOWN');
                         }
                         
                         // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
@@ -487,7 +506,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                         console.log(`✅ MAYA CONTEXT FOUND: "${conceptName}" → "${conceptCard.title}" (${originalContext.length} chars)`);
                         console.log(`🎯 MAYA CONTEXT: ${originalContext.substring(0, 150)}...`);
                         console.log(`💾 MAYA STORAGE: Context retrieved from structured database storage`);
-                        console.log(`⚠️ FALLBACK: No embedded fullPrompt found, using dual API call approach`);
+                        // This message now handled above in the else block
                         break;
                       }
                     }
@@ -1127,6 +1146,18 @@ Which of these is calling to you? I can already picture how incredible these are
     }
     
     console.log('🎯 MAYA CONCEPT CARDS: Parsed', concepts.length, 'concepts from response');
+    
+    // DEBUG: Log all created concepts for single API call debugging
+    concepts.forEach((concept, index) => {
+      console.log(`🎨 CONCEPT ${index + 1} CREATION:`);
+      console.log(`- Name: ${concept.title}`);
+      console.log(`- Has fullPrompt: ${!!concept.fullPrompt}`);
+      console.log(`- FullPrompt length: ${concept.fullPrompt?.length || 0} characters`);
+      if (concept.fullPrompt) {
+        console.log(`- FullPrompt preview: ${concept.fullPrompt.substring(0, 100)}...`);
+      }
+    });
+    
     console.log('🎯 MAYA CLEANUP: Cleaned message to prevent duplication');
   }
 
@@ -1217,8 +1248,11 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       console.log(`✅ SINGLE API CONCEPT EXTRACTED: "${conceptName}"`);
       console.log(`📝 USER DESCRIPTION: ${description.length} chars`);
       console.log(`⚡ EMBEDDED FLUX PROMPT: ${embeddedFluxPrompt ? 'FOUND' : 'NOT FOUND'} (${embeddedFluxPrompt?.length || 0} chars)`);
+      if (embeddedFluxPrompt) {
+        console.log(`🎯 EMBEDDED PROMPT PREVIEW: ${embeddedFluxPrompt.substring(0, 100)}...`);
+      }
       
-      concepts.push({
+      const conceptCard = {
         id: `concept_${conceptNumber++}`,
         title: conceptName,
         description: description,
@@ -1226,7 +1260,17 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
         fullPrompt: embeddedFluxPrompt, // SINGLE API CALL: Store embedded prompt
         canGenerate: true,
         isGenerating: false
+      };
+      
+      // DEBUG: Log complete concept structure
+      console.log(`💾 CONCEPT STORAGE DEBUG:`, {
+        title: conceptCard.title,
+        hasFullPrompt: !!conceptCard.fullPrompt,
+        fullPromptLength: conceptCard.fullPrompt?.length || 0,
+        descriptionLength: conceptCard.description.length
       });
+      
+      concepts.push(conceptCard);
     }
   }
   
