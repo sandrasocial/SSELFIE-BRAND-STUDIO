@@ -1271,66 +1271,6 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   }
   
   // Try multi-concept pattern if no emoji concepts found
-  while ((match = emojiConceptPattern.exec(response)) !== null) {
-    const emoji = match[1];
-    let conceptName = match[2].trim();
-    let conceptContent = match[3].trim();
-    
-    // Clean the concept name first, then add emoji for styling identification
-    conceptName = conceptName.replace(/\*\*/g, '').trim();
-    conceptName = `${emoji} ${conceptName}`;
-    
-    console.log(`✨ EMOJI CONCEPT DEBUG: "${conceptName}"`);
-    console.log(`📝 CONCEPT CONTENT: "${conceptContent}"`);
-    console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
-    
-    // Enhanced validation for emoji-based styling concepts
-    const isStyleConcept = conceptName.length >= 8 && 
-                          conceptName.length <= 80 &&
-                          conceptName.match(/[a-zA-Z]/) &&
-                          conceptContent.length > 50; // Ensure substantial content
-    
-    if (isStyleConcept && !foundConcepts.has(conceptName)) {
-      foundConcepts.add(conceptName);
-      
-      // SINGLE API CALL: Extract embedded FLUX prompt from concept content
-      const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
-      const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
-      
-      // Extract user-facing description (everything before FLUX_PROMPT)
-      const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
-      const description = userDescription.substring(0, 120).trim() + (userDescription.length > 120 ? '...' : '');
-      
-      console.log(`✅ SINGLE API CONCEPT EXTRACTED: "${conceptName}"`);
-      console.log(`📝 USER DESCRIPTION: ${description.length} chars`);
-      console.log(`⚡ EMBEDDED FLUX PROMPT: ${embeddedFluxPrompt ? 'FOUND' : 'NOT FOUND'} (${embeddedFluxPrompt?.length || 0} chars)`);
-      if (embeddedFluxPrompt) {
-        console.log(`🎯 EMBEDDED PROMPT PREVIEW: ${embeddedFluxPrompt.substring(0, 100)}...`);
-      }
-      
-      const conceptCard = {
-        id: `concept_${conceptNumber++}`,
-        title: conceptName,
-        description: description,
-        originalContext: userDescription.substring(0, 500),
-        fullPrompt: embeddedFluxPrompt, // SINGLE API CALL: Store embedded prompt
-        canGenerate: true,
-        isGenerating: false
-      };
-      
-      // DEBUG: Log complete concept structure
-      console.log(`💾 CONCEPT STORAGE DEBUG:`, {
-        title: conceptCard.title,
-        hasFullPrompt: !!conceptCard.fullPrompt,
-        fullPromptLength: conceptCard.fullPrompt?.length || 0,
-        descriptionLength: conceptCard.description.length
-      });
-      
-      concepts.push(conceptCard);
-    }
-  }
-  
-  // Try multi-concept pattern if no emoji concepts found
   if (concepts.length === 0) {
     console.log('🔍 NO EMOJI CONCEPTS FOUND - Trying multi-concept pattern');
     multiConceptPattern.lastIndex = 0; // Reset regex
