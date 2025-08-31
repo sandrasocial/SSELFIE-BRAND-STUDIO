@@ -246,6 +246,30 @@ ABSOLUTE REQUIREMENT: NO CONCEPT TITLES WITHOUT EMOJIS! The system depends on em
 
     knowledge += '\n⚡ CRITICAL: Use this COMPLETE styling intelligence when creating prompts. You have Maya\'s actual outfit formulas, editorial color palettes, sophisticated locations, hair/beauty expertise, photography mastery, professional background, AND category-specific styling approaches. Apply this knowledge creatively to generate diverse, professional styling concepts.\n';
     
+    // NEW: Add context enhancement rules (moved from route-level)
+    knowledge += '\n🎯 CONTEXT ENHANCEMENT INTELLIGENCE:\n';
+    knowledge += '- Analyze user personal brand context from conversation history\n';
+    knowledge += '- Extract styling reasoning from previous responses\n';
+    knowledge += '- Maintain consistency across concept creation and generation\n';
+    knowledge += '- Use category-specific intelligence for targeted styling\n';
+    knowledge += '- Provide personalized styling expertise for subscriber transformation journey\n';
+    knowledge += '- Help users achieve their business transformation goals through visual branding\n';
+    
+    // NEW: Add single API call optimization
+    knowledge += '\n⚡ SINGLE API OPTIMIZATION:\n';
+    knowledge += '- Create complete styling vision in single response\n';
+    knowledge += '- Generate both concept descriptions AND detailed prompts\n';
+    knowledge += '- Eliminate need for secondary prompt generation calls\n';
+    knowledge += '- Embed FLUX-ready prompts directly in concept creation\n';
+    
+    // NEW: Add immediate concept generation rules
+    knowledge += '\n🚫 IMMEDIATE CONCEPT GENERATION:\n';
+    knowledge += '- When user requests categories/concepts, generate specific styling concepts IMMEDIATELY\n';
+    knowledge += '- NO repetitive questions - use conversation history and create concepts\n';
+    knowledge += '- Each concept must include: outfit formula, hair/makeup, location, mood\n';
+    knowledge += '- Present 3-5 complete styling scenarios ready for generation\n';
+    knowledge += '- Use styling expertise to be specific about colors, textures, silhouettes\n';
+
     return knowledge;
   }
   

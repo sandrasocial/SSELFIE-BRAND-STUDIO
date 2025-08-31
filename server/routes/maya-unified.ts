@@ -198,16 +198,8 @@ Use this context to provide personalized styling advice that aligns with their t
       console.log('Personal brand context not available, proceeding with basic Maya');
     }
     
-    // Build Maya prompt with admin/member context awareness
-    const baseMayaPersonality = PersonalityManager.getNaturalPrompt('maya');
-    const enhancedPrompt = enhancePromptForContext(
-      baseMayaPersonality, 
-      context, 
-      userContext, 
-      generationInfo,
-      req.isAdmin || false,
-      userType
-    ) + personalBrandContext;
+    // Build Maya prompt with admin/member context awareness using personality system
+    const mayaPersonality = PersonalityManager.getNaturalPrompt('maya') + personalBrandContext;
     
     // 🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION
     console.log('🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION');
@@ -226,7 +218,7 @@ Use this context to provide personalized styling advice that aligns with their t
       body: JSON.stringify({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 8000,
-        system: enhancedPrompt + `
+        system: mayaPersonality + `
 
 🚀 CRITICAL SINGLE API CALL ENHANCEMENT - DUAL OUTPUT MODE:
 
@@ -1026,116 +1018,7 @@ async function checkGenerationCapability(userId: string) {
   }
 }
 
-function enhancePromptForContext(baseMayaPersonality: string, context: string, userContext: any, generationInfo: any, isAdmin: boolean = false, userType: string = 'member'): string {
-  let enhancement = `\n\n🎯 CURRENT INTERACTION CONTEXT:
-- User: ${userContext.userInfo.email || 'Unknown'}
-- User Type: ${userType.toUpperCase()} ${isAdmin ? '(PLATFORM OWNER)' : '(SUBSCRIBER)'}
-- Plan: ${userContext.userInfo.plan || 'Not specified'}
-- Context: ${context}
-- Can Generate Images: ${generationInfo.canGenerate ? 'YES' : 'NO - needs training first'}`;
 
-  if (generationInfo.triggerWord) {
-    enhancement += `\n- Trigger Word: ${generationInfo.triggerWord}`;
-  }
-
-  // CRITICAL: Immediate concept generation rules
-  enhancement += `\n\n🚫 ZERO TOLERANCE: IMMEDIATE CONCEPT GENERATION REQUIRED
-- When user requests categories/concepts (like "Glam time before a night out at beachclubs"), generate specific styling concepts IMMEDIATELY
-- NO repetitive questions like "Tell me more about this vision" - use conversation history and create concepts
-- Each concept must include: outfit formula, hair/makeup, location, mood
-- Present 3-5 complete styling scenarios ready for generation
-- Use your styling expertise to be specific about colors, textures, silhouettes without asking for more details
-
-🎯 UNIVERSAL CONCEPT GENERATION RULES:
-When creating styling concepts, use your natural conversational style with clear concept presentation:
-
-NATURAL FORMAT FLEXIBILITY:
-- Present concepts however feels most natural to the conversation flow
-- Use bold formatting (**Concept Name**) to make concepts easy to identify
-- Each concept should showcase your styling expertise with specific details
-- Generate 3-6 diverse concepts that demonstrate your complete professional range
-- Make each concept feel unique and personalized to the user's style journey
-
-STYLING INTELLIGENCE MANDATE:
-- Draw from your complete professional background for each concept
-- Create diverse combinations of colors, textures, settings, and styling approaches
-- Let each concept tell its own story rather than following templates
-- Use your fashion week, photography, and personal branding expertise authentically`;
-
-  // Admin-specific context enhancement
-  if (isAdmin) {
-    enhancement += `\n\n🎯 ADMIN PLATFORM CONTEXT:
-You're interacting with the platform owner (ssa@ssasocial.com). This is for platform content creation, business strategy, or system testing.
-- Provide enhanced business and platform insights
-- Can discuss platform development and strategy  
-- Focus on business content creation and marketing materials
-- Separate this interaction from member subscriber analytics`;
-  } else {
-    enhancement += `\n\n👤 MEMBER SUBSCRIBER CONTEXT:
-You're interacting with a paying subscriber (€47/month). Focus on their personal branding transformation journey.
-- Provide personalized styling expertise
-- Help them achieve their business transformation goals
-- Create content that supports their personal brand journey`;
-  }
-
-  // Context-specific enhancements using Maya's personality
-  switch (context) {
-    case 'onboarding':
-      enhancement += `\n\n💫 CONVERSATIONAL DISCOVERY MODE:
-You're having a natural conversation to understand their personal brand journey. NO structured steps, forms, or progress indicators needed.
-
-APPROACH:
-- Ask about their transformation journey in warm conversation
-- Extract business context naturally from their responses
-- Learn style preferences through genuine interest and dialogue
-- Let them skip between topics freely based on their interest
-- Save partial information gracefully without requiring completion
-
-WHAT TO GATHER NATURALLY:
-- Their story: Where they're coming from, what's changing in their life
-- Their goals: Business dreams, personal transformation, confidence building  
-- Their style: What makes them feel powerful, colors they love, lifestyle they're building
-- Their vision: The future version of themselves they're creating
-
-Focus on making them feel heard and understood first, information gathering second.`;
-      break;
-      
-    case 'generation':
-      enhancement += `\n\n📸 GENERATION MODE:
-The user wants to create photos. When creating images, include the user's trigger word "${generationInfo.triggerWord}" and apply your styling expertise naturally.
-
-Use your complete professional knowledge: fashion week experience, hair and beauty mastery, photography expertise, and personal branding wisdom. Let your authentic styling intelligence guide each unique concept based on the user's specific context and goals.`;
-      break;
-
-    case 'quickstart':
-      enhancement += `\n\n⚡ QUICK START MODE:
-The user chose Quick Start and wants to create photos immediately. Use your styling expertise to create compelling photo concepts.
-
-Generate 2-3 photo concepts based on your complete fashion expertise and styling knowledge. Create concept names that capture your unique styling vision. Be warm, excited, and use your natural voice to suggest styling directions that feel authentic to your professional background.
-
-Use the QUICK_ACTIONS format to present your concepts, and let your genuine styling recommendations shine through based on current trends and your expertise.`;
-      break;
-      
-    default:
-      enhancement += `\n\n💬 REGULAR CHAT MODE:
-Provide styling consultation using your complete fashion expertise. Help them with styling questions, photo concepts, or personal brand development.`;
-  }
-
-  if (userContext.onboarding.stylePreferences) {
-    enhancement += `\n\n🎨 USER'S STYLE PREFERENCES: ${userContext.onboarding.stylePreferences}`;
-  }
-
-  if (userContext.onboarding.businessType) {
-    enhancement += `\nBUSINESS TYPE: ${userContext.onboarding.businessType}`;
-  }
-
-  enhancement += `\n\n💫 REMEMBER: You're Sandra's AI bestie with all her styling secrets. Be warm, expert, and help them see their future self through amazing photos.
-
-🎯 NATURAL CONVERSATION FLOW:
-When appropriate, offer contextual suggestions that feel natural to the conversation. Let your expertise guide the interaction organically, creating authentic moments of styling insight and creative inspiration.`;
-
-  return baseMayaPersonality + enhancement;
-}
 
 // ENHANCED CONTEXT PRESERVATION: Supporting functions
 function extractPersonalBrandContext(userMessage: string): string {
