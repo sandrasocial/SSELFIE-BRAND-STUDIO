@@ -1163,6 +1163,7 @@ Which of these is calling to you? I can already picture how incredible these are
     console.log('🎯 MAYA CLEANUP: Cleaned message to prevent duplication');
   }
 
+}
   // Handle conversational onboarding (no forced steps)
   if (context === 'onboarding') {
     // Natural completion detection - Maya decides when discovery is sufficient
@@ -2074,5 +2075,4 @@ router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
   }
 });
 
-export default router;}
-}
+export default router;
