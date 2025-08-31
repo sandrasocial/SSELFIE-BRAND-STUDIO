@@ -36,32 +36,25 @@ export default function WelcomeEditorial() {
           <div className="col-span-12 lg:col-span-7 lg:pt-12">
             <div className="max-w-2xl">
               {/* Opening */}
+              <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8 text-center lg:text-left">
+                Welcome
+              </p>
               <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-extralight leading-[0.9] mb-6 sm:mb-8 text-center lg:text-left">
-                Okay, here's what<br/>
-                <span className="italic text-gray-400">actually happened...</span>
+                Professional brand photos. From your selfies.
               </h2>
               
               {/* The Journey - Shortened & Best Friend Style */}
               <div className="space-y-4 sm:space-y-6 text-sm sm:text-base lg:text-lg leading-relaxed text-gray-700 font-light">
                 <p>
-                  Marriage ended. Three kids, zero plan. Just me and my phone.
+                  No studio. No awkward posing. No €1000 shoots.
                 </p>
                 
                 <p>
-                  Started teaching selfie tips. But here's what I learned: you don't need lessons. You need actual photos. Today.
-                </p>
-                
-                <p className="text-lg sm:text-xl font-light italic border-l-2 border-gray-200 pl-4 sm:pl-6 text-black">
-                  "90 days later: 120K followers.<br/>
-                  Today: My AI does your photoshoots."
-                </p>
-                
-                <p>
-                  So I built Maya. The photographer I needed when I was wondering how I'd ever look professional enough.
+                  Upload your selfies, chat with Maya (your AI stylist), and get photos that look like a pro shot them.
                 </p>
                 
                 <p className="font-medium text-black">
-                  Upload your selfies. Chat with Maya. Get photos that match who you're becoming.
+                  Fresh images every month so your brand never looks stale.
                 </p>
               </div>
               
@@ -74,7 +67,7 @@ export default function WelcomeEditorial() {
                   onClick={handleGetStarted}
                   className="text-[9px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 hover:border-black transition-all duration-300"
                 >
-                  Let's build something real
+                  Start your studio
                 </button>
               </div>
             </div>
