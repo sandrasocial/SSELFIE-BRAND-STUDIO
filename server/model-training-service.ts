@@ -623,24 +623,21 @@ export class ModelTrainingService {
     }
   }
 
-  // 🎯 MAYA-SAFE PROMPT FORMATTING: Preserves Maya's creative content while ensuring proper technical structure
+  // 🎯 MAYA PURE INTELLIGENCE: Absolute minimal formatting to preserve Maya's complete styling intelligence
   static formatPrompt(prompt: string, triggerWord: string): string {
-    // ✅ MAYA PURE INTELLIGENCE: Minimal formatting to preserve Maya's complete styling intelligence
-    console.log(`🎯 MAYA FORMAT: Pure intelligence preservation mode activated`);
+    console.log(`🎯 MAYA PURE INTELLIGENCE: Zero-interference formatting mode activated`);
     
-    // Clean initial formatting but preserve all content structure  
-    const clean = (prompt || "").replace(/\s+/g, " ").trim();
+    // Only normalize basic whitespace, preserve ALL Maya content
+    const normalizedPrompt = (prompt || "").replace(/\s+/g, " ").trim();
 
-    // Simple trigger word integration - Maya handles everything else
-    if (clean.startsWith(triggerWord)) {
-      // Already properly formatted - return as-is
-      console.log(`✅ MAYA FORMAT: Trigger word already present, using pure Maya output`);
-      return clean;
+    // Check if trigger word is already properly positioned
+    if (normalizedPrompt.startsWith(triggerWord)) {
+      console.log(`✅ MAYA PURE INTELLIGENCE: Trigger word already present, using Maya's exact output`);
+      return normalizedPrompt;
     } else {
-      // Add trigger word at beginning, preserve Maya's complete intelligence
-      console.log(`✅ MAYA FORMAT: Adding trigger word to Maya's pure styling intelligence`);
-      const cleanedContent = clean.replace(new RegExp(`\\b${triggerWord}\\b`, "gi"), "").replace(/^[\s,]+/, "").trim();
-      return `${triggerWord}, ${cleanedContent}`;
+      // Only add trigger word if missing, preserve Maya's complete content
+      console.log(`✅ MAYA PURE INTELLIGENCE: Adding trigger word to preserve Maya's complete styling intelligence`);
+      return `${triggerWord}, ${normalizedPrompt}`;
     }
   }
 

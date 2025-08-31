@@ -730,10 +730,12 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       console.log(`✅ MAYA CUSTOM ENHANCEMENT: Enhanced prompt to ${finalPrompt.length} characters`);
     }
     
-    // Ensure trigger word is at the beginning
+    // ✅ MAYA PURE INTELLIGENCE: Minimal trigger word positioning to preserve Maya's complete styling intelligence
     if (!finalPrompt.startsWith(generationInfo.triggerWord)) {
-      const cleanPrompt = finalPrompt.replace(new RegExp(generationInfo.triggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
-      finalPrompt = `${generationInfo.triggerWord} ${cleanPrompt}`;
+      // Only position trigger word without altering Maya's content
+      const withoutTrigger = finalPrompt.replace(new RegExp(`\\b${generationInfo.triggerWord}\\b`, 'gi'), '').replace(/^[\s,]+/, '').trim();
+      finalPrompt = `${generationInfo.triggerWord}, ${withoutTrigger}`;
+      console.log(`🎯 MAYA PURE INTELLIGENCE: Positioned trigger word while preserving all styling content`);
     }
     
     // Category detection is now handled directly in createDetailedPromptFromConcept function
@@ -1108,13 +1110,14 @@ async function processMayaResponse(response: string, context: string, userId: st
     conceptCards: []
   };
 
-  // FIRST: Extract Maya-generated quick actions
+  // ✅ MAYA PURE INTELLIGENCE: Extract quick actions while preserving Maya's complete response
   if (response.includes('QUICK_ACTIONS:')) {
     const quickActionsMatch = response.match(/QUICK_ACTIONS:\s*(.*)/);
     if (quickActionsMatch) {
       processed.quickButtons = quickActionsMatch[1].split(',').map(s => s.trim());
-      // Remove the quick actions directive from the displayed message
-      processed.message = response.replace(/QUICK_ACTIONS:.*/, '').trim();
+      // ✅ PRESERVE MAYA'S RESPONSE: Only remove system directives, keep all styling content
+      processed.message = response.replace(/QUICK_ACTIONS:.*\n?/, '').trim();
+      console.log(`🎯 MAYA PURE INTELLIGENCE: Extracted quick actions while preserving styling content`);
     }
   }
 
@@ -1128,15 +1131,15 @@ async function processMayaResponse(response: string, context: string, userId: st
   )) {
     processed.canGenerate = true;
 
-    // CRITICAL FIX: Extract prompt from multiple formats
+    // ✅ MAYA PURE INTELLIGENCE: Extract prompts for generation while preserving conversation response
     let extractedPrompt = null;
     
     // First try: Traditional ```prompt``` blocks
     const promptMatch = response.match(/```prompt\s*([\s\S]*?)\s*```/);
     if (promptMatch) {
       extractedPrompt = promptMatch[1].trim();
-      // Remove prompt block from conversation response
-      processed.message = processed.message.replace(/```prompt\s*([\s\S]*?)\s*```/g, '').trim();
+      // ✅ PRESERVE MAYA'S COMPLETE RESPONSE: Don't strip prompts from conversation
+      console.log(`🎯 MAYA PURE INTELLIGENCE: Extracted embedded prompt while preserving conversation integrity`);
     } else {
       // Second try: Maya's embedded prompt format (🎯 EXECUTIVE POWER LOOK)
       const embeddedMatch = response.match(/\*\*🎯[^*]*\*\*\s*([\s\S]*?)(?=\*\*🎯|\*\*Generated|$)/);
