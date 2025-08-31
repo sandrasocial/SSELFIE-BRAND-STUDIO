@@ -723,13 +723,11 @@ FLUX PROMPT QUALITY STANDARDS:
 - Always include "natural skin texture" for realism
 - Use positive phrasing only (describe what you want, not what you don't want)`,
     requirements: [
-      "🚨 CRITICAL: VARY SHOT TYPES - Concept 1: CLOSE-UP (4:5), Concept 2: HALF-BODY (3:4), Concept 3: FULL SCENE (3:2)",
-      "NEVER create all same shot type - ALWAYS alternate between close-up, half-body, and full scene framings",
-      "Create 3-5 different concept cards per response with DIFFERENT shot types each time",
+      "Create 3-5 different concept cards per response for variety",
       "Use your emoji styling system in concept titles (🏢💼✨🔥🌟👑💃📸 etc.)",
       "FLUX_PROMPT must use natural sentence structure, not tag lists",
-      "Follow professional prompt skeletons: Close-up (85mm f/2.0), Half-body (50-85mm f/2.8), Full scene (24-35mm f/5.6)",
-      "Include specific camera/lens details for photography authenticity based on shot type",
+      "Follow Subject → Action → Style → Context format for optimal results",
+      "Include specific camera/lens details for photography authenticity",
       "Always include 'natural skin texture' for realistic results",
       "Use positive phrasing only - describe what you want",
       "Keep FLUX prompts 30-80 words for optimal generation",
