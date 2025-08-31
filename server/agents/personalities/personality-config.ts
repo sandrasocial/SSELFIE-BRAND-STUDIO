@@ -328,27 +328,22 @@ ABSOLUTE REQUIREMENT: Every FLUX_PROMPT must include the mandatory technical pre
     knowledge += 'FULL SCENE: Environmental storytelling, action, atmospheric mood\n';
     knowledge += 'AUTO-DETECT: Choose optimal technical specs based on styling approach\n';
 
-    knowledge += '\n📝 FLUX PROMPT EXAMPLES (Natural Structure):\n';
-    knowledge += 'CLOSE-UP BUSINESS: "Professional headshot of confident entrepreneur in tailored blazer, direct eye contact with subtle smile, soft window lighting creating gentle shadows, shot with 85mm lens f/2.0, natural skin texture, editorial magazine style, clean modern office background."\n';
-    knowledge += 'HALF-BODY LIFESTYLE: "Lifestyle portrait of woman in elegant cashmere sweater holding coffee cup, relaxed posture on sun-drenched terrace, golden hour backlighting, shot with 50mm lens f/2.8, soft background blur, authentic color palette, contemporary editorial mood."\n';
-    knowledge += 'FULL SCENE TRAVEL: "Environmental portrait of stylish traveler walking through cobblestone street, flowing movement captured mid-stride, natural daylight with warm shadows, shot with 28mm lens f/5.6, architectural leading lines, documentary composition, effortless wanderlust atmosphere."\n';
+    knowledge += '\n🎯 CRITICAL: SHOT VARIATION REQUIREMENTS\n';
+    knowledge += 'ALWAYS CREATE VARIETY ACROSS CONCEPT CARDS:\n';
+    knowledge += '- Concept 1: CLOSE-UP PORTRAIT (4:5 aspect) - Professional beauty headshot with eye contact\n';
+    knowledge += '- Concept 2: HALF-BODY SHOT (3:4 aspect) - Lifestyle portrait showing pose and styling\n';
+    knowledge += '- Concept 3: FULL SCENE (3:2 aspect) - Environmental lifestyle with complete context\n';
+    knowledge += '- Concept 4: ROTATE BACK TO CLOSE-UP or choose best for styling story\n';
+    knowledge += '- Concept 5: ROTATE TO HALF-BODY or choose best for creative vision\n';
+    knowledge += '\n🚨 NEVER CREATE ALL SAME SHOT TYPE - ALWAYS VARY THE FRAMING!\n';
 
-    knowledge += '\n❌ AVOID THESE FLUX MISTAKES:\n';
-    knowledge += 'NO TAG SOUP: Avoid comma-separated keyword lists\n';
-    knowledge += 'NO NEGATIVE PROMPTS: Never use "no crowd, no blur" - describe what you want\n';
-    knowledge += 'NO OVERLY LONG: Keep core description 30-80 words after technical prefix\n';
-    knowledge += 'NO GENERIC TERMS: Use specific photography language instead of vague descriptors\n';
-
-    knowledge += '\n✅ FLUX SUCCESS PATTERNS:\n';
-    knowledge += 'NATURAL FLOW: "Woman in silk dress walking through garden..." not "woman, silk dress, garden, walking"\n';
-    knowledge += 'POSITIVE PHRASING: "quiet morning street" not "no crowded street"\n';
-    knowledge += 'SPECIFIC CAMERA: "shot with 85mm lens f/2.0" not "professional camera"\n';
-    knowledge += 'REALISTIC LIGHTING: "soft window light" not "good lighting"\n';
-
-    knowledge += '\n📝 FLUX PROMPT EXAMPLES (Natural Structure):\n';
-    knowledge += 'CLOSE-UP BUSINESS: "Professional headshot of confident entrepreneur in tailored blazer, direct eye contact with subtle smile, soft window lighting creating gentle shadows, shot with 85mm lens f/2.0, natural skin texture, editorial magazine style, clean modern office background."\n';
-    knowledge += 'HALF-BODY LIFESTYLE: "Lifestyle portrait of woman in elegant cashmere sweater holding coffee cup, relaxed posture on sun-drenched terrace, golden hour backlighting, shot with 50mm lens f/2.8, soft background blur, authentic color palette, contemporary editorial mood."\n';
-    knowledge += 'FULL SCENE TRAVEL: "Environmental portrait of stylish traveler walking through cobblestone street, flowing movement captured mid-stride, natural daylight with warm shadows, shot with 28mm lens f/5.6, architectural leading lines, documentary composition, effortless wanderlust atmosphere."\n';
+    knowledge += '\n📝 PROFESSIONAL PROMPT SKELETONS (Follow These Exact Structures):\n';
+    knowledge += '1. CLOSE-UP PORTRAIT (4:5 aspect, 30-60 words):\n';
+    knowledge += '"Professional beauty headshot of [subject], [expression + eye contact], editorial lifestyle photography, soft window light, clean background, subtle film grain, 85mm lens, f/2.0, shallow depth of field, natural skin texture, minimal retouch, [style reference], [location hint if needed]"\n';
+    knowledge += '\n2. HALF-BODY LIFESTYLE (3:4 or 4:5 aspect, 40-70 words):\n';
+    knowledge += '"Half-body portrait of [subject] standing [pose/action], candid lifestyle photo on [setting], golden-hour backlight, soft shadows, editorial street style, 50-85mm lens, f/2.8, natural skin detail, authentic color, shallow depth of field, cinematic composition, wardrobe: [modern neutrals], atmosphere: warm, relaxed"\n';
+    knowledge += '\n3. FULL SCENE ENVIRONMENTAL (3:2 or 16:9 aspect, 50-80 words):\n'; 
+    knowledge += '"Full-scene lifestyle photo of [subject] [action] in [location], documentary feel, 24-35mm lens, f/5.6, natural daylight, balanced exposure, true-to-life color, nuanced shadows, environmental portrait composition, foreground interest, leading lines, candid moment, wardrobe: [smart casual neutrals], mood: effortless, contemporary"\n';
 
     knowledge += '\n❌ AVOID THESE FLUX MISTAKES:\n';
     knowledge += 'NO TAG SOUP: Avoid comma-separated keyword lists\n';

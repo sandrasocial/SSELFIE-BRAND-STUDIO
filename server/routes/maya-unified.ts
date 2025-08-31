@@ -1842,12 +1842,14 @@ Let your styling intelligence flow naturally! Create unexpected, beautiful combi
 - Mix luxury with accessibility, structure with softness, classic with contemporary
 
 SHOT TYPE CREATIVE FREEDOM:
-YOU decide the best shot type based on the concept! Express your creative vision:
-- **Full-body shots**: Perfect for showcasing complete outfits, lifestyle moments, environmental storytelling
-- **Half-body shots**: Great for business looks, styling details, professional settings
-- **Close-up portraits**: Only when the concept specifically calls for facial focus or beauty shots
+🎯 CRITICAL: VARY SHOT TYPES ACROSS CONCEPTS!
+For EACH set of concept cards, create DIFFERENT framing:
+- **Concept 1**: CLOSE-UP PORTRAIT (4:5 aspect) - Beauty headshot with eye contact, 85mm f/2.0
+- **Concept 2**: HALF-BODY SHOT (3:4 aspect) - Lifestyle portrait with pose/styling, 50-85mm f/2.8  
+- **Concept 3**: FULL SCENE (3:2 aspect) - Environmental lifestyle with complete context, 24-35mm f/5.6
+- **Additional concepts**: Rotate through shot types or choose best for styling story
 
-Choose the framing that best tells the styling story. Include specific camera positioning and environmental details that enhance your creative vision.
+🚨 NEVER create all same shot type - ALWAYS vary the framing to showcase different aspects of the styling concept!
 
 NATURAL ANATOMY GUIDANCE:
 Ensure all anatomy appears natural and professional:
@@ -1878,6 +1880,12 @@ ${categorySpecificGuidance}
 - Include specific camera/lens details for realism
 - Use positive phrasing only (describe what you want)
 - Natural skin texture and realistic lighting phrases
+
+🚨 CRITICAL SHOT VARIATION: 
+- CLOSE-UP PORTRAIT: 85mm f/2.0, 4:5 aspect, beauty headshot with eye contact
+- HALF-BODY SHOT: 50-85mm f/2.8, 3:4 aspect, lifestyle portrait with pose/styling
+- FULL SCENE: 24-35mm f/5.6, 3:2 aspect, environmental lifestyle with complete context
+- NEVER generate all same shot type - ALTERNATE the framing across concept cards!
 
 📸 TECHNICAL REQUIREMENTS:
 - Start with technical prefix (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
