@@ -147,6 +147,7 @@ export interface IStorage {
   createMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>;
   saveMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage>; // CRITICAL FIX: Missing method
   updateMayaChatMessage(messageId: number, updates: Partial<{ imagePreview: string; generatedPrompt: string }>): Promise<void>;
+  getMayaConceptById(conceptId: string): Promise<any | undefined>; // CRITICAL FIX: Add missing concept retrieval method
 
   // Photo selections operations
   savePhotoSelections(data: InsertPhotoSelection): Promise<PhotoSelection>;
@@ -1305,6 +1306,32 @@ export class DatabaseStorage implements IStorage {
   // CRITICAL FIX: Missing saveMayaChatMessage method causing GenerationCompletionMonitor failure
   async saveMayaChatMessage(data: InsertMayaChatMessage): Promise<MayaChatMessage> {
     return this.createMayaChatMessage(data);
+  }
+
+  // CRITICAL FIX: Add missing getMayaConceptById method for generation system
+  async getMayaConceptById(conceptId: string): Promise<any | undefined> {
+    console.log(`🔍 CONCEPT RETRIEVAL: Searching for concept ID "${conceptId}"`);
+    
+    // Search through Maya chat messages for concept cards with matching ID
+    const messages = await db
+      .select()
+      .from(mayaChatMessages)
+      .where(eq(mayaChatMessages.role, 'maya'))
+      .orderBy(desc(mayaChatMessages.createdAt));
+    
+    // Look through each message's conceptCards for the matching conceptId
+    for (const message of messages) {
+      if (message.conceptCards && Array.isArray(message.conceptCards)) {
+        const conceptCard = message.conceptCards.find((card: any) => card.id === conceptId);
+        if (conceptCard) {
+          console.log(`✅ CONCEPT FOUND: "${conceptCard.title}" with fullPrompt: ${!!conceptCard.fullPrompt} (${conceptCard.fullPrompt?.length || 0} chars)`);
+          return conceptCard;
+        }
+      }
+    }
+    
+    console.log(`⚠️ CONCEPT NOT FOUND: No concept found with ID "${conceptId}"`);
+    return undefined;
   }
 
 
