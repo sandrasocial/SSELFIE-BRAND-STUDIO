@@ -223,6 +223,7 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
       conversationHistory: fullConversationHistory.slice(-3), // Last 3 exchanges for context
       userPersonalBrand: message.substring(0, 200), // Simple context extraction
       categoryContext: context,
+      requestId: 'UNIFIED-' + Date.now(), // Track single API call requests
       stylingReasoning: extractStylingReasoning(mayaResponse),
       systemPrompt: mayaPersonality, // Same system prompt used
       timestamp: Date.now()
@@ -245,6 +246,20 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
       userContext,
       generationInfo
     );
+    
+    // CRITICAL DEBUG: Check concept fullPrompt population after processing
+    console.log(`🎨 POST-PROCESSING CONCEPTS: Found ${processedResponse.conceptCards?.length || 0} concept cards`);
+    if (processedResponse.conceptCards) {
+      processedResponse.conceptCards.forEach((concept, index) => {
+        console.log(`🎨 POST-PROCESSING CONCEPT ${index + 1}:`);
+        console.log(`- Name: ${concept.title}`);
+        console.log(`- Has fullPrompt: ${!!concept.fullPrompt}`);
+        console.log(`- FullPrompt length: ${concept.fullPrompt?.length || 0} characters`);
+        if (concept.fullPrompt) {
+          console.log(`- FullPrompt preview: ${concept.fullPrompt.substring(0, 100)}...`);
+        }
+      });
+    }
 
     // ENHANCED CONTEXT PRESERVATION: Store in concept cards for API Call #2
     if (processedResponse.conceptCards && processedResponse.conceptCards.length > 0) {
@@ -610,9 +625,24 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       
       // TASK 4: Pipeline confirmation logs
       console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called');
-      // CRITICAL FIX: Remove duplicate embedded prompt check - already handled earlier in code
-      // The embedded prompt check at line 530 already handles single API call logic
-      console.log(`⚠️ PROCEEDING WITH DUAL API: Using traditional generation (single API already checked earlier)`);
+      // CRITICAL AUDIT: Check for embedded prompt in concept
+      const conceptCard = await storage.getMayaConceptById(conceptId);
+      console.log(`🔍 SINGLE API CALL AUDIT: Concept "${conceptName}"`);
+      console.log(`- ConceptCard found: ${!!conceptCard}`);
+      console.log(`- Has fullPrompt: ${!!conceptCard?.fullPrompt}`);
+      console.log(`- FullPrompt length: ${conceptCard?.fullPrompt?.length || 0} characters`);
+      
+      if (conceptCard?.fullPrompt && conceptCard.fullPrompt.length > 50) {
+        console.log(`✅ SINGLE API CALL SUCCESS: Using embedded prompt from concept creation`);
+        console.log(`🎯 EMBEDDED PROMPT PREVIEW: ${conceptCard.fullPrompt.substring(0, 150)}...`);
+        finalPrompt = conceptCard.fullPrompt;
+        
+        // Skip dual API call - we have embedded prompt
+        console.log(`🚀 SKIPPING DUAL API CALL: Using single API call embedded prompt`);
+      } else {
+        console.log(`⚠️ SINGLE API CALL FALLBACK: No embedded prompt found, using dual API call`);
+        console.log(`🔍 DEBUG INFO: conceptId=${conceptId}, conceptName=${conceptName}`);
+      }
       // ENHANCED CONTEXT PRESERVATION: Retrieve enhanced context for API Call #2
       let retrievedEnhancedContext = null;
       const enhancedContextCache = mayaContextCache.get(cacheKey);
@@ -623,7 +653,13 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
       }
       
-      finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
+      if (!finalPrompt) {
+        // Only call dual API if we don't have embedded prompt
+        finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
+        console.log('🔄 DUAL API CALL: Generated new prompt via createDetailedPromptFromConcept');
+      } else {
+        console.log('✅ SINGLE API CALL: Using embedded prompt, skipping createDetailedPromptFromConcept');
+      }
       console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
       console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
