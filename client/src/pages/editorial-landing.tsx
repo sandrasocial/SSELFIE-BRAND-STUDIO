@@ -262,30 +262,32 @@ export default function EditorialLanding() {
           
           <button
             onClick={() => handleGetStarted()}
-            className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
+            className="group inline-block"
           >
-            START €47
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 group-hover:border-white group-hover:tracking-[0.3em] sm:group-hover:tracking-[0.35em] transition-all duration-300">
+              Begin Your Journey €47
+            </span>
           </button>
         </div>
       </section>
 
       {/* EDITORIAL QUOTE - Sandra's Voice */}
-      <section className="py-32 bg-white">
-        <div className="max-w-[1600px] mx-auto px-8 lg:px-16">
-          <div className="grid grid-cols-12 gap-8">
+      <section className="py-16 sm:py-24 lg:py-32 bg-white">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
+          <div className="grid grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
             <div className="col-span-12 lg:col-span-2 lg:col-start-2">
-              <div className="h-[1px] w-full bg-gray-200 mb-8"></div>
-              <p className="text-[10px] tracking-[0.5em] uppercase text-gray-400">
+              <div className="h-[1px] w-full bg-gray-200 mb-4 sm:mb-6 lg:mb-8"></div>
+              <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 text-center lg:text-left">
                 The Truth
               </p>
             </div>
             <div className="col-span-12 lg:col-span-7">
-              <blockquote className="font-serif text-[clamp(2rem,5vw,4.5rem)] leading-[0.95] font-thin text-black">
+              <blockquote className="font-serif text-[clamp(1.5rem,5vw,4.5rem)] leading-[0.95] font-thin text-black text-center lg:text-left px-4 sm:px-0">
                 <span className="italic">I went from</span> teaching selfies <span className="italic">to building AI</span> that creates them for you. Because honestly? You don't have time to learn angles. <span className="italic">You need photos now.</span>
               </blockquote>
-              <div className="mt-12 flex items-center gap-6">
-                <div className="w-20 h-[1px] bg-gray-300"></div>
-                <p className="text-[10px] tracking-[0.5em] uppercase text-gray-500">
+              <div className="mt-8 sm:mt-10 lg:mt-12 flex items-center justify-center lg:justify-start gap-4 sm:gap-6">
+                <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
+                <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500">
                   Sandra Sigurjónsdóttir, 120K followers
                 </p>
               </div>
@@ -298,14 +300,14 @@ export default function EditorialLanding() {
       <WelcomeEditorial />
 
       {/* FEATURES - Editorial Spread */}
-      <section className="py-32 bg-black text-white">
-        <div className="max-w-[1800px] mx-auto px-8 lg:px-16">
-          <div className="grid grid-cols-12 gap-8 mb-24">
-            <div className="col-span-12 lg:col-span-8 lg:col-start-3">
-              <p className="text-[10px] tracking-[0.5em] uppercase text-white/40 mb-8">
+      <section className="py-16 sm:py-24 lg:py-32 bg-black text-white">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16">
+          <div className="grid grid-cols-12 gap-4 sm:gap-8 mb-12 sm:mb-16 lg:mb-24">
+            <div className="col-span-12 lg:col-span-8 lg:col-start-3 text-center lg:text-left">
+              <p className="text-[9px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/40 mb-4 sm:mb-6 lg:mb-8">
                 The Method
               </p>
-              <h2 className="font-serif text-[clamp(3rem,7vw,6rem)] leading-[0.85] font-thin">
+              <h2 className="font-serif text-[clamp(2rem,7vw,6rem)] leading-[0.85] font-thin px-4 sm:px-0">
                 Transform selfies<br/>
                 <span className="italic text-white/60">into professional</span><br/>
                 brand photos
@@ -316,33 +318,33 @@ export default function EditorialLanding() {
           {/* Feature Cards - Magazine Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* AI Photoshoot */}
-            <div className="border border-white/10 p-12 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700">
-              <div className="flex justify-between items-start mb-8">
-                <span className="text-[100px] font-serif font-thin opacity-10 leading-none">01</span>
-                <span className="text-[10px] tracking-[0.4em] uppercase opacity-50 mt-4">
+            <div className="border border-white/10 p-6 sm:p-10 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700">
+              <div className="flex justify-between items-start mb-6 sm:mb-8">
+                <span className="text-[60px] sm:text-[80px] lg:text-[100px] font-serif font-thin opacity-10 leading-none">01</span>
+                <span className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.3em] sm:tracking-[0.4em] uppercase opacity-50 mt-2 sm:mt-4">
                   Feature
                 </span>
               </div>
-              <h3 className="font-serif text-3xl font-thin mb-6 -mt-20">
+              <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl font-thin mb-4 sm:mb-6 -mt-12 sm:-mt-16 lg:-mt-20">
                 AI Photoshoot
               </h3>
-              <p className="text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100">
+              <p className="text-xs sm:text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100">
                 Upload your phone selfies, get photos that look like you hired a fancy photographer. No studio required.
               </p>
             </div>
             
             {/* Maya AI */}
-            <div className="border border-white/10 p-12 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700">
-              <div className="flex justify-between items-start mb-8">
-                <span className="text-[100px] font-serif font-thin opacity-10 leading-none">02</span>
-                <span className="text-[10px] tracking-[0.4em] uppercase opacity-50 mt-4">
+            <div className="border border-white/10 p-6 sm:p-10 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700">
+              <div className="flex justify-between items-start mb-6 sm:mb-8">
+                <span className="text-[60px] sm:text-[80px] lg:text-[100px] font-serif font-thin opacity-10 leading-none">02</span>
+                <span className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.3em] sm:tracking-[0.4em] uppercase opacity-50 mt-2 sm:mt-4">
                   Feature
                 </span>
               </div>
-              <h3 className="font-serif text-3xl font-thin mb-6 -mt-20">
+              <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl font-thin mb-4 sm:mb-6 -mt-12 sm:-mt-16 lg:-mt-20">
                 Maya AI Photographer
               </h3>
-              <p className="text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100">
+              <p className="text-xs sm:text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100">
                 Chat with Maya to create perfect brand photoshoots. She knows exactly how to style you and generate photos that look professional.
               </p>
             </div>
@@ -351,24 +353,24 @@ export default function EditorialLanding() {
       </section>
 
       {/* PRICING - Editorial Minimalism */}
-      <section className="relative py-32 bg-white">
-        <div className="max-w-[1400px] mx-auto px-8 lg:px-16">
-          <div className="grid grid-cols-12 gap-8">
+      <section className="relative py-16 sm:py-24 lg:py-32 bg-white">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-16">
+          <div className="grid grid-cols-12 gap-6 lg:gap-8">
             {/* Left Side - Price Statement */}
-            <div className="col-span-12 lg:col-span-5">
-              <div className="sticky top-32">
-                <p className="text-[10px] tracking-[0.5em] uppercase text-gray-400 mb-8">
+            <div className="col-span-12 lg:col-span-5 text-center lg:text-left">
+              <div className="lg:sticky lg:top-32">
+                <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8">
                   Investment
                 </p>
-                <div className="mb-8">
-                  <span className="font-serif text-[clamp(6rem,12vw,10rem)] leading-[0.8] font-thin">€47</span>
-                  <span className="text-sm font-light text-gray-500 ml-4">per month</span>
+                <div className="mb-6 sm:mb-8">
+                  <span className="font-serif text-[clamp(4rem,12vw,10rem)] leading-[0.8] font-thin">€47</span>
+                  <span className="text-xs sm:text-sm font-light text-gray-500 ml-2 sm:ml-4">per month</span>
                 </div>
                 <button
                   onClick={() => handleGetStarted()}
                   className="group"
                 >
-                  <span className="text-[11px] tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-2 group-hover:border-black transition-all duration-300">
+                  <span className="text-[9px] sm:text-[10px] lg:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 group-hover:border-black transition-all duration-300">
                     Start Your Journey
                   </span>
                 </button>
@@ -376,44 +378,44 @@ export default function EditorialLanding() {
             </div>
             
             {/* Right Side - Details */}
-            <div className="col-span-12 lg:col-span-6 lg:col-start-7">
-              <h3 className="font-serif text-4xl font-thin mb-12">
+            <div className="col-span-12 lg:col-span-6 lg:col-start-7 mt-8 lg:mt-0">
+              <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-thin mb-8 sm:mb-10 lg:mb-12 text-center lg:text-left">
                 Personal Brand<br/>
                 <span className="italic text-gray-400">Studio</span>
               </h3>
               
-              <div className="space-y-8 mb-12">
-                <div className="flex items-start gap-6 group">
-                  <span className="text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
+              <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-10 lg:mb-12">
+                <div className="flex items-start gap-4 sm:gap-6 group">
+                  <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
                   <div>
-                    <h4 className="text-sm font-light mb-2">Your trained personal AI model</h4>
-                    <p className="text-xs text-gray-500">Personalized to your unique features</p>
+                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Your trained personal AI model</h4>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Personalized to your unique features</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-6 group">
-                  <span className="text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
+                <div className="flex items-start gap-4 sm:gap-6 group">
+                  <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
                   <div>
-                    <h4 className="text-sm font-light mb-2">100 monthly professional photos</h4>
-                    <p className="text-xs text-gray-500">Fresh content every month</p>
+                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">100 monthly professional photos</h4>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Fresh content every month</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-6 group">
-                  <span className="text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
+                <div className="flex items-start gap-4 sm:gap-6 group">
+                  <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
                   <div>
-                    <h4 className="text-sm font-light mb-2">Maya AI photographer access</h4>
-                    <p className="text-xs text-gray-500">Your personal styling assistant</p>
+                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Maya AI photographer access</h4>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Your personal styling assistant</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-6 group">
-                  <span className="text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
+                <div className="flex items-start gap-4 sm:gap-6 group">
+                  <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
                   <div>
-                    <h4 className="text-sm font-light mb-2">Personal brand photo gallery</h4>
-                    <p className="text-xs text-gray-500">Organized and ready to use</p>
+                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Personal brand photo gallery</h4>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Organized and ready to use</p>
                   </div>
                 </div>
               </div>
               
-              <p className="text-xs text-gray-400">
+              <p className="text-[10px] sm:text-xs text-gray-400 text-center lg:text-left">
                 Cancel anytime. No photographer required.
               </p>
             </div>
@@ -422,14 +424,14 @@ export default function EditorialLanding() {
       </section>
 
       {/* PORTFOLIO SECTION */}
-      <section className="py-32 bg-gray-50">
-        <div className="max-w-[1800px] mx-auto px-8 lg:px-16">
-          <div className="grid grid-cols-12 gap-8 mb-20">
-            <div className="col-span-12 lg:col-span-6 lg:col-start-2">
-              <p className="text-[10px] tracking-[0.5em] uppercase text-gray-400 mb-6">
+      <section className="py-16 sm:py-24 lg:py-32 bg-gray-50">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16">
+          <div className="grid grid-cols-12 gap-4 sm:gap-6 lg:gap-8 mb-12 sm:mb-16 lg:mb-20">
+            <div className="col-span-12 lg:col-span-6 lg:col-start-2 text-center lg:text-left">
+              <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-4 sm:mb-6">
                 Portfolio
               </p>
-              <h2 className="font-serif text-[clamp(3rem,6vw,5rem)] leading-[0.9] font-thin text-black">
+              <h2 className="font-serif text-[clamp(2rem,6vw,5rem)] leading-[0.9] font-thin text-black px-4 sm:px-0">
                 Real results from<br/>
                 <span className="italic">my personal brand</span>
               </h2>
@@ -441,24 +443,24 @@ export default function EditorialLanding() {
       </section>
 
       {/* TESTIMONIAL - Editorial Style */}
-      <section className="py-32 bg-gray-50">
-        <div className="max-w-[1600px] mx-auto px-8 lg:px-16">
-          <div className="grid grid-cols-12 gap-8">
+      <section className="py-16 sm:py-24 lg:py-32 bg-gray-50">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
+          <div className="grid grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
             <div className="col-span-12 lg:col-span-8 lg:col-start-3">
               <div className="text-center">
-                <p className="text-[10px] tracking-[0.5em] uppercase text-gray-400 mb-12">
+                <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-8 sm:mb-10 lg:mb-12">
                   Testimonial
                 </p>
-                <blockquote className="font-serif text-[clamp(1.5rem,4vw,3rem)] leading-[1.2] font-thin italic text-gray-900 mb-12">
+                <blockquote className="font-serif text-[clamp(1.2rem,4vw,3rem)] leading-[1.2] font-thin italic text-gray-900 mb-8 sm:mb-10 lg:mb-12 px-4">
                   "I thought I knew what I was doing, but Sandra's system completely changed how I show up online. 
                   The AI photos don't look AI - they look like me, but the version of me I've always wanted to be."
                 </blockquote>
-                <div className="flex items-center justify-center gap-6">
-                  <div className="w-20 h-[1px] bg-gray-300"></div>
-                  <p className="text-[10px] tracking-[0.5em] uppercase text-gray-500">
+                <div className="flex items-center justify-center gap-4 sm:gap-6">
+                  <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
+                  <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500">
                     Elena M., Life Coach
                   </p>
-                  <div className="w-20 h-[1px] bg-gray-300"></div>
+                  <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
                 </div>
               </div>
             </div>
@@ -467,37 +469,31 @@ export default function EditorialLanding() {
       </section>
 
       {/* FINAL CTA - Sandra's Mission */}
-      <section className="relative py-40 bg-black text-white overflow-hidden">
+      <section className="relative py-20 sm:py-32 lg:py-40 bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] border border-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] border border-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+          <div className="absolute top-0 right-0 w-[400px] sm:w-[600px] lg:w-[800px] h-[400px] sm:h-[600px] lg:h-[800px] border border-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-[300px] sm:w-[500px] lg:w-[600px] h-[300px] sm:h-[500px] lg:h-[600px] border border-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
         </div>
         
-        <div className="relative max-w-[1200px] mx-auto px-8 lg:px-16 text-center">
-          <blockquote className="font-serif text-[clamp(2.5rem,6vw,5rem)] leading-[0.9] font-thin italic mb-16">
+        <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 lg:px-16 text-center">
+          <blockquote className="font-serif text-[clamp(1.8rem,6vw,5rem)] leading-[0.9] font-thin italic mb-8 sm:mb-12 lg:mb-16 px-4">
             "Your phone.<br />
             <span className="not-italic text-white/60">My strategy.</span><br />
             Your empire."
           </blockquote>
           
-          <p className="text-sm text-white/60 mb-12 max-w-md mx-auto">
+          <p className="text-sm sm:text-base text-white/60 mb-8 sm:mb-10 lg:mb-12 max-w-lg mx-auto px-4">
             From single mom with zero plan to 120K followers. 
             I built the AI photographer I needed. Now she's yours.
           </p>
           
           <button
             onClick={() => handleGetStarted()}
-            className="relative group overflow-hidden"
+            className="border border-white/20 px-8 sm:px-12 lg:px-14 py-4 sm:py-5 lg:py-6 hover:bg-white hover:text-black transition-all duration-700 group"
           >
-            <div className="px-14 py-6 border border-white/20">
-              <span className="relative z-10 text-[11px] tracking-[0.5em] uppercase font-light">
-                Start Today €47
-              </span>
-              <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
-              <span className="absolute inset-0 flex items-center justify-center text-[11px] tracking-[0.5em] uppercase text-black font-light opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-300">
-                Start Today €47
-              </span>
-            </div>
+            <span className="text-[10px] sm:text-[11px] tracking-[0.4em] sm:tracking-[0.5em] uppercase font-light text-white group-hover:text-black transition-colors duration-700">
+              Start Today €47
+            </span>
           </button>
         </div>
       </section>
