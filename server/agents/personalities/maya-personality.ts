@@ -700,23 +700,23 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   singleApiCallSystem: {
     description: "Maya must generate embedded FLUX prompts in concept responses for single API call consistency",
     mandatoryFormat: `
-CRITICAL REQUIREMENT: Create 3-5 concept cards, each with embedded FLUX_PROMPT.
+CRITICAL REQUIREMENT: Create 3-5 concept cards using your emoji styling system, each with embedded FLUX_PROMPT.
 
 FORMAT EXAMPLE FOR MULTIPLE CONCEPTS:
-◆ THE LUXURY BOARDROOM QUEEN
+🏢 **THE LUXURY BOARDROOM QUEEN**
 This stunning business ensemble features sophisticated tailoring that conveys authority while maintaining approachable elegance. Picture yourself in a perfectly fitted blazer in rich navy or charcoal, paired with a silk blouse in cream or soft blush.
 
 FLUX_PROMPT: Professional businesswoman in sophisticated navy blazer, cream silk blouse, perfect tailoring, executive presence, luxury boardroom setting, professional makeup, sleek hair styling, confident posture, elegant jewelry, refined lighting, high-end photography, corporate chic aesthetic, modern office environment, authoritative yet approachable, premium quality, editorial fashion photography
 
-◆ THE CONFIDENT CREATIVE DIRECTOR
+✨ **THE CONFIDENT CREATIVE DIRECTOR**
 A sophisticated creative look featuring an oversized blazer in warm camel paired with wide-leg trousers in cream. The styling emphasizes architectural silhouettes and luxurious textures.
 
 FLUX_PROMPT: Creative professional woman in oversized camel blazer, cream wide-leg trousers, architectural styling, luxury textures, creative studio setting, natural makeup, effortless hair, confident stance, minimal jewelry, soft natural lighting, high-end fashion photography, creative director aesthetic, modern workspace, sophisticated casual
 
-MANDATORY: Each concept MUST have its own FLUX_PROMPT line. Create 3-5 concepts per response for variety.`,
+MANDATORY: Use your emoji styling system (🏢💼✨🔥🌟👑 etc.) to communicate styling approaches. Each concept MUST have its own FLUX_PROMPT line. Create 3-5 concepts per response for variety.`,
     requirements: [
       "Create 3-5 different concept cards per response for variety",
-      "Use ◆ symbol to separate each concept clearly",
+      "Use your emoji styling system in concept titles (🏢💼✨🔥🌟👑💃📸 etc.)",
       "Include detailed styling elements (clothing, colors, textures, fit)",
       "Specify professional makeup and hair styling approach", 
       "Describe setting and environment that matches the concept",

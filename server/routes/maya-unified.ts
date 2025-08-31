@@ -1203,27 +1203,28 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   console.log('📝 RAW RESPONSE PREVIEW:', response.substring(0, 500).replace(/\n/g, '\\n'));
   
-  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation
-  // Pattern 1: Diamond symbol concepts (e.g., "◆ MORNING RITUAL ELEGANCE")
-  // Pattern 2: Emoji + concept name (e.g., "📸 THE POWER PLAYER CASUAL")
-  // Pattern 3: Traditional **Concept Name** format  
-  const diamondConceptPattern = /◆\s*([A-Z][A-Z\s]{10,80})\n(.*?)(?=\n◆|\n\n◆|$)/gs;
-  const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*?\*?([A-Z][A-Z\s]{7,50})\*?\*?\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|$)/gs;
+  // ENHANCED CONCEPT DETECTION: Maya's emoji styling system
+  // Pattern 1: Emoji + **Concept Name** (e.g., "🏢 **THE POWER PLAYER CASUAL**")
+  // Pattern 2: Traditional **Concept Name** format (fallback)
+  const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*\*([^*\n]{8,50})\*\*\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|\n\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|$)/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*\n([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   
   let match;
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  // Try diamond concept pattern first (Maya's current format)
-  console.log('🔍 TRYING DIAMOND CONCEPT PATTERN...');
-  while ((match = diamondConceptPattern.exec(response)) !== null) {
-    let conceptName = match[1].trim();
-    let conceptContent = match[2].trim();
+  // Try Maya's emoji concept pattern first
+  console.log('🔍 TRYING MAYA EMOJI CONCEPT PATTERN...');
+  while ((match = emojiConceptPattern.exec(response)) !== null) {
+    const emoji = match[1];
+    let conceptName = match[2].trim();
+    let conceptContent = match[3].trim();
     
-    conceptName = `◆ ${conceptName}`;
+    // Clean the concept name first, then add emoji for styling identification
+    conceptName = conceptName.replace(/\*\*/g, '').trim();
+    conceptName = `${emoji} ${conceptName}`;
     
-    console.log(`◆ DIAMOND CONCEPT DEBUG: "${conceptName}"`);
+    console.log(`${emoji} EMOJI CONCEPT DEBUG: "${conceptName}"`);
     console.log(`📝 CONCEPT CONTENT: "${conceptContent.substring(0, 200)}..."`);
     console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
     
@@ -1234,7 +1235,13 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     // Extract user-facing description (everything before FLUX_PROMPT)
     const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
     
-    if (conceptName.length >= 8 && !foundConcepts.has(conceptName) && userDescription.length > 20) {
+    // Enhanced validation for emoji-based styling concepts
+    const isStyleConcept = conceptName.length >= 8 && 
+                          conceptName.length <= 80 &&
+                          conceptName.match(/[a-zA-Z]/) &&
+                          userDescription.length > 20; // Ensure substantial content
+    
+    if (isStyleConcept && !foundConcepts.has(conceptName)) {
       foundConcepts.add(conceptName);
       
       let description = userDescription.substring(0, 120).trim();
@@ -1247,22 +1254,23 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
         title: conceptName,
         description: description,
         originalContext: userDescription.substring(0, 500),
-        fullPrompt: embeddedFluxPrompt,
+        fullPrompt: embeddedFluxPrompt, // SINGLE API CALL: Store embedded prompt
         canGenerate: true,
         isGenerating: false
       };
       
-      console.log(`💾 DIAMOND CONCEPT STORED:`, {
+      console.log(`💾 EMOJI CONCEPT STORED:`, {
         title: conceptCard.title,
         hasFullPrompt: !!conceptCard.fullPrompt,
-        fullPromptLength: conceptCard.fullPrompt?.length || 0
+        fullPromptLength: conceptCard.fullPrompt?.length || 0,
+        emojiUsed: emoji
       });
       
       concepts.push(conceptCard);
     }
   }
   
-  // Try emoji concept pattern if no diamond concepts found
+  // Try multi-concept pattern if no emoji concepts found
   while ((match = emojiConceptPattern.exec(response)) !== null) {
     const emoji = match[1];
     let conceptName = match[2].trim();
@@ -1322,9 +1330,9 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     }
   }
   
-  // Try multi-concept pattern if no concepts found
+  // Try multi-concept pattern if no emoji concepts found
   if (concepts.length === 0) {
-    console.log('🔍 NO DIAMOND/EMOJI CONCEPTS FOUND - Trying multi-concept pattern');
+    console.log('🔍 NO EMOJI CONCEPTS FOUND - Trying multi-concept pattern');
     multiConceptPattern.lastIndex = 0; // Reset regex
     while ((match = multiConceptPattern.exec(response)) !== null) {
       let conceptName = match[1].trim();
