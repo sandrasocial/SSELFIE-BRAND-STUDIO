@@ -639,19 +639,26 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
       }
       
-      // PHASE 3A: Detect category from context for targeted styling
+      // PHASE 3A: Detect category from context for targeted styling with shot type intelligence
       let detectedCategory = '';
+      let categorySpecificGuidance = '';
       const contextLower = originalContext.toLowerCase();
+      
       if (contextLower.includes('business') || contextLower.includes('corporate') || contextLower.includes('executive') || contextLower.includes('professional')) {
         detectedCategory = 'Business';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Business styling typically works best with half-body or close-up shots to show professional attire and confident expression.';
       } else if (contextLower.includes('lifestyle') || contextLower.includes('elevated everyday') || contextLower.includes('effortless')) {
         detectedCategory = 'Lifestyle';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Lifestyle concepts work beautifully as full scene environmental shots or relaxed half-body poses.';
       } else if (contextLower.includes('casual') || contextLower.includes('authentic') || contextLower.includes('real moments')) {
         detectedCategory = 'Casual & Authentic';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Casual styling benefits from natural environmental shots that capture authentic moments and relaxed poses.';
       } else if (contextLower.includes('travel') || contextLower.includes('jet-set') || contextLower.includes('destination')) {
         detectedCategory = 'Travel';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Travel concepts shine with environmental storytelling - full scene shots that capture location and outfit together.';
       } else if (contextLower.includes('instagram') || contextLower.includes('social media') || contextLower.includes('feed')) {
         detectedCategory = 'Instagram';
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Instagram concepts work well with dynamic half-body shots or engaging environmental scenes for social media appeal.';
       }
       
       // TASK 3 DEBUG: Log exactly what context Maya receives
@@ -1861,51 +1868,25 @@ Express your creative vision authentically with flawless anatomical details!`;
 
 CONCEPT: "${conceptName}"
 STYLING CONTEXT: "${cleanOriginalContext}"
+${categorySpecificGuidance}
 
-${cleanOriginalContext && cleanOriginalContext.length > 10 ? 
-  `✅ COMPLETE MAYA CONTEXT RESTORATION:
-
-ORIGINAL CONVERSATION CONTEXT:
-${enhancedMayaContext?.conversationHistory?.map(msg => `${msg.role}: ${msg.content?.substring(0, 200)}...`).join('\n') || 'No conversation history available'}
-
-MAYA'S ORIGINAL STYLING VISION:
-${enhancedMayaContext?.originalMayaResponse?.substring(0, 1000) || cleanOriginalContext}
-
-MAYA'S STYLING REASONING:
-${enhancedMayaContext?.stylingReasoning || 'Styling chosen for category appropriateness and visual impact'}
-
-USER'S PERSONAL BRAND CONTEXT:
-${enhancedMayaContext?.userPersonalBrand || 'General personal branding focus'}
-
-CATEGORY CONTEXT: ${enhancedMayaContext?.categoryContext || category || 'General'}
-
-CRITICAL INSTRUCTION: You created this concept in a previous conversation. Use your EXACT original styling vision as the foundation. Do not create new styling - enhance and refine what you already created while maintaining complete consistency with your original concept.` : 
-  '🆕 FRESH CREATION: No previous context available. Create an original styling vision using your full intelligence.'}
-
-${categorySpecificGuidance || ''}
-
-🎯 ENHANCED FLUX PROMPT REQUIREMENTS:
-- Write in NATURAL SENTENCES with sophisticated styling detail
-- Expand your original concept into a comprehensive 150+ word FLUX prompt
-- Use Subject → Detailed Action → Complete Styling Vision → Setting → Technical Details → Mood structure  
-- Include ALL styling details from your concept (outfits, colors, textures, accessories)
+🎯 FLUX OPTIMIZATION REQUIREMENTS:
+- Write in NATURAL SENTENCES, not tag lists
+- Use Subject → Action → Style → Context structure  
+- Front-load most important details first
+- 30-80 words for optimal FLUX results
 - Include specific camera/lens details for realism
 - Use positive phrasing only (describe what you want)
 - Natural skin texture and realistic lighting phrases
-- PRESERVE your original styling intelligence - don't simplify
 
 📸 TECHNICAL REQUIREMENTS:
-- Start with technical prefix: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
-- Include anatomical accuracy naturally in the description: "beautiful hands, detailed fingers, anatomically correct"
-- Follow with detailed styling vision that captures the sophisticated concept fully
+- Start with technical prefix (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
+- Follow with natural sentence describing the styled scene
 - Include camera specifications (85mm f/2.0 for portraits, 50mm f/2.8 for half-body, 24-35mm f/5.6 for scenes)
 - End with natural lighting and mood description
-- MINIMUM 150 words to capture complete styling vision
 
-ENHANCED EXAMPLE STRUCTURE:
-"[TECHNICAL PREFIX], [Subject] [detailed action] in [specific setting], wearing [complete outfit description with colors, textures, fit details], [accessories and styling elements], [pose and expression details], shot with [specific camera and lens at f-stop], [detailed lighting setup], [mood and atmosphere], beautiful hands, detailed fingers, anatomically correct, [final styling touches]."
-
-CRITICAL: Your response should be a complete, sophisticated FLUX prompt that captures your complete styling vision. Include ALL technical requirements, anatomical details, styling elements, and camera specifications naturally within your response. This will be used DIRECTLY for image generation without any modifications or enhancements.
+EXAMPLE STRUCTURE:
+"[TECHNICAL PREFIX], [Subject] [action] in [setting], [styling details described naturally], shot with [camera specs], [natural lighting], [mood/atmosphere]."
 
 GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
       }]
