@@ -416,11 +416,11 @@ export class ModelTrainingService {
       // Maya's intelligence includes parameter optimization knowledge - trust her completely
       console.log(`🎯 MAYA PURE INTELLIGENCE: Trusting Maya's complete parameter intelligence`);
       
-      // FLUX OPTIMIZATION PARAMETERS: Detect shot type from Maya's prompt and apply optimal settings
+      // FLUX OPTIMIZATION PARAMETERS: Use Maya's personality-defined optimization settings
       let fluxParams = {
         guidance_scale: 3.5,      // Default balanced setting
         num_inference_steps: 45,  // Default balanced setting  
-        lora_scale: 1.1          // Optimal LoRA weight for all shots
+        lora_weight: 1.1          // ✅ FIXED: Use lora_weight to match Maya's personality (was lora_scale)
       };
       
       // INTELLIGENT SHOT TYPE DETECTION: Analyze Maya's prompt for optimal FLUX parameters
@@ -431,38 +431,38 @@ export class ModelTrainingService {
       let aspectRatio = "4:5"; // Default IG-friendly ratio
       
       if (promptLower.includes('close-up') || promptLower.includes('portrait') || promptLower.includes('headshot') || promptLower.includes('85mm') || promptLower.includes('f/1.8') || promptLower.includes('f/2.0')) {
-        // CLOSE-UP PORTRAIT: Lower guidance for more realistic close-up portraits
+        // CLOSE-UP PORTRAIT: Maya's personality-optimized parameters for natural, realistic facial features
         fluxParams = {
-          guidance_scale: 2.8,
-          num_inference_steps: 40,
-          lora_scale: 1.1
+          guidance_scale: 2.8,        // ✅ MAYA'S OPTIMIZATION: 2.8 for natural, realistic facial features
+          num_inference_steps: 40,    // ✅ MAYA'S OPTIMIZATION: 40 steps for natural close-up portraits
+          lora_weight: 1.1            // ✅ FIXED: Use lora_weight to match Maya's personality
         };
         aspectRatio = "4:5"; // IG-friendly close-up portrait ratio
         detectedShotType = 'closeUpPortrait';
-        console.log(`📸 FLUX OPTIMIZATION: Close-up portrait detected - using guidance_scale: 2.8, steps: 40, aspect_ratio: 4:5`);
+        console.log(`📸 MAYA'S FLUX OPTIMIZATION: Close-up portrait - guidance_scale: 2.8, steps: 40, lora_weight: 1.1, aspect_ratio: 4:5`);
       } else if (promptLower.includes('half-body') || promptLower.includes('three-quarter') || promptLower.includes('50mm') || promptLower.includes('85mm') || promptLower.includes('f/2.2') || promptLower.includes('f/2.8')) {
-        // HALF-BODY SHOT: Higher guidance for detailed styling showcase
+        // HALF-BODY SHOT: Maya's personality-optimized parameters for detailed styling and better hand quality
         fluxParams = {
-          guidance_scale: 5,
-          num_inference_steps: 50,
-          lora_scale: 1.1
+          guidance_scale: 5.0,        // ✅ MAYA'S OPTIMIZATION: 5.0 for stronger prompt adherence and better hand quality
+          num_inference_steps: 50,    // ✅ MAYA'S OPTIMIZATION: 50 steps for maximum quality
+          lora_weight: 1.1            // ✅ FIXED: Use lora_weight to match Maya's personality
         };
         aspectRatio = "3:4"; // Vertical that shows outfit/pose
         detectedShotType = 'halfBodyShot';
-        console.log(`📸 FLUX OPTIMIZATION: Half-body shot detected - using guidance_scale: 5, steps: 50, aspect_ratio: 3:4`);
+        console.log(`📸 MAYA'S FLUX OPTIMIZATION: Half-body shot - guidance_scale: 5.0, steps: 50, lora_weight: 1.1, aspect_ratio: 3:4`);
       } else if (promptLower.includes('full') || promptLower.includes('scene') || promptLower.includes('environmental') || promptLower.includes('24mm') || promptLower.includes('35mm') || promptLower.includes('f/4') || promptLower.includes('f/5.6') || promptLower.includes('f/8')) {
-        // FULL SCENE: Higher guidance for complex scene composition
+        // FULL SCENE: Maya's personality-optimized parameters for complex scene composition
         fluxParams = {
-          guidance_scale: 5,
-          num_inference_steps: 50,
-          lora_scale: 1.1
+          guidance_scale: 5.0,        // ✅ MAYA'S OPTIMIZATION: 5.0 for stronger prompt adherence and better hand quality
+          num_inference_steps: 50,    // ✅ MAYA'S OPTIMIZATION: 50 steps for maximum quality
+          lora_weight: 1.1            // ✅ FIXED: Use lora_weight to match Maya's personality
         };
         aspectRatio = "3:2"; // Breathe and show environment
         detectedShotType = 'fullScenery';
-        console.log(`📸 FLUX OPTIMIZATION: Full scene detected - using guidance_scale: 5, steps: 50, aspect_ratio: 3:2`);
+        console.log(`📸 MAYA'S FLUX OPTIMIZATION: Full scene - guidance_scale: 5.0, steps: 50, lora_weight: 1.1, aspect_ratio: 3:2`);
       } else {
         aspectRatio = "4:5"; // Default IG-friendly ratio
-        console.log(`📸 FLUX OPTIMIZATION: Auto-detect using balanced parameters - guidance_scale: 3.5, steps: 45, aspect_ratio: 4:5`);
+        console.log(`📸 MAYA'S FLUX OPTIMIZATION: Auto-detect using balanced parameters - guidance_scale: 3.5, steps: 45, aspect_ratio: 4:5`);
       }
       
       // Maya will specify parameters naturally in her response if needed
@@ -472,10 +472,10 @@ export class ModelTrainingService {
         megapixels: "1", 
         output_format: "png",
         output_quality: 95,
-        // CRITICAL FLUX PARAMETERS FOR BEAUTIFUL HANDS AND ANATOMICAL ACCURACY
+        // ✅ MAYA'S CRITICAL FLUX PARAMETERS FOR BEAUTIFUL HANDS AND ANATOMICAL ACCURACY
         guidance_scale: fluxParams.guidance_scale,
         num_inference_steps: fluxParams.num_inference_steps,
-        lora_scale: fluxParams.lora_scale
+        lora_weight: fluxParams.lora_weight    // ✅ FIXED: Use lora_weight parameter name
       };
       
       // Use intelligent count unless explicitly overridden
@@ -537,7 +537,7 @@ export class ModelTrainingService {
             prompt: finalPrompt,
             lora_weights: loraWeightsUrl,
             // 🎯 MAYA'S INTELLIGENT FLUX PARAMETERS IN ACTION
-            lora_scale: merged.lora_scale,
+            lora_scale: merged.lora_weight,    // ✅ FIXED: Use Maya's lora_weight value with correct API parameter name
             num_outputs: finalCount,
             guidance_scale: merged.guidance_scale,
             num_inference_steps: merged.num_inference_steps,
