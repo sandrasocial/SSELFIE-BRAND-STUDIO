@@ -1078,7 +1078,7 @@ async function processMayaResponse(response: string, context: string, userId: st
 
   // NEW: Parse concepts into individual cards with embedded prompts - Enhanced for Maya's natural formatting
   const concepts = await parseConceptsFromResponse(response, userId);
-  if (concepts && concepts.length > 0) {
+  if (concepts.length > 0) {
     processed.conceptCards = concepts;
     // Remove traditional canGenerate since we have concept cards
     processed.canGenerate = false;
@@ -1092,14 +1092,12 @@ async function processMayaResponse(response: string, context: string, userId: st
     
     // 1. Remove ALL bold concept titles that will be parsed as concept cards
     // Pattern: **Any Concept Name** (that becomes a concept card)
-    const conceptTitles = concepts.map(c => c?.title).filter(Boolean);
+    const conceptTitles = concepts.map(c => c.title);
     for (const title of conceptTitles) {
-      if (title && typeof title === 'string') {
-        // Remove the exact concept title and everything until the next concept or end
-        const titleEscaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const conceptSectionRegex = new RegExp(`\\*\\*${titleEscaped}\\*\\*[\\s\\S]*?(?=\\*\\*(?:${conceptTitles.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\*\\*|$)`, 'gi');
-        cleanedMessage = cleanedMessage.replace(conceptSectionRegex, '');
-      }
+      // Remove the exact concept title and everything until the next concept or end
+      const titleEscaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const conceptSectionRegex = new RegExp(`\\*\\*${titleEscaped}\\*\\*[\\s\\S]*?(?=\\*\\*(?:${conceptTitles.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\*\\*|$)`, 'gi');
+      cleanedMessage = cleanedMessage.replace(conceptSectionRegex, '');
     }
     
     // 2. Remove numbered concept patterns (**1. Concept Name**)
@@ -1163,7 +1161,6 @@ Which of these is calling to you? I can already picture how incredible these are
     console.log('🎯 MAYA CLEANUP: Cleaned message to prevent duplication');
   }
 
-}
   // Handle conversational onboarding (no forced steps)
   if (context === 'onboarding') {
     // Natural completion detection - Maya decides when discovery is sufficient
@@ -1205,106 +1202,20 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   
-  // ENHANCED CONCEPT DETECTION: Handle Maya's actual response format
-  // Maya generates: **The Concept Name** followed by description and FLUX_PROMPT
-  
-  // PRIMARY: Pattern for Maya's standard format: **Concept Name** + description + FLUX_PROMPT
-  const mayaStandardPattern = /\*\*([^*\n]+)\*\*\s*\n(.*?)(?=\*\*[^*\n]+\*\*|$)/gs;
-  
-  // BACKUP: Original patterns for other formats
-  const fluxInlinePattern = /FLUX_PROMPT:\s*([^💫]*?)([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*([^*\n]+)\*\s*([^FLUX_PROMPT]*?)(?=FLUX_PROMPT:|$)/gs;
+  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation with emojis
+  // Pattern 1: Emoji + concept name (e.g., "📸 THE POWER PLAYER CASUAL")
+  // Pattern 2: Traditional **Concept Name** format
+  // Pattern 3: Single concept with "Story Collection Preview:" or similar formats
   const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*?\*?([A-Z][A-Z\s]{7,50})\*?\*?\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|$)/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
+  const singleConceptPattern = /\*\*([^*\n]+(?:Collection|Preview|Concept|Look|Style|Vibe)[^*\n]*)\*\*\s*\*([^*]+)\*/gs;
   
   let match;
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  console.log('🔍 MAYA RESPONSE ANALYSIS:', response.substring(0, 200));
-  
-  // Try Maya's standard pattern first: **Concept Name** + description + FLUX_PROMPT
-  while ((match = mayaStandardPattern.exec(response)) !== null) {
-    let conceptName = match[1].trim();
-    let conceptContent = match[2].trim();
-    
-    console.log(`🎯 MAYA STANDARD CONCEPT DEBUG: "${conceptName}"`);
-    console.log(`📝 CONCEPT CONTENT: "${conceptContent.substring(0, 100)}..."`);
-    
-    // SINGLE API CALL: Extract embedded FLUX prompt from concept content
-    const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
-    const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
-    
-    // Extract user-facing description (everything before FLUX_PROMPT)
-    const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
-    
-    console.log(`⚡ EMBEDDED FLUX PROMPT: ${embeddedFluxPrompt ? 'FOUND' : 'NOT FOUND'} (${embeddedFluxPrompt?.length || 0} chars)`);
-    
-    // Enhanced validation for styling concepts
-    const isStyleConcept = conceptName.length >= 8 && 
-                          conceptName.length <= 100 &&
-                          conceptName.match(/[a-zA-Z]/) &&
-                          userDescription.length > 20; // Ensure substantial content
-    
-    if (isStyleConcept && !foundConcepts.has(conceptName)) {
-      foundConcepts.add(conceptName);
-      
-      const description = userDescription.substring(0, 120).trim() + (userDescription.length > 120 ? '...' : '');
-      
-      const conceptCard: ConceptCard = {
-        id: `concept_${conceptNumber++}`,
-        title: conceptName,
-        description: description,
-        originalContext: userDescription.substring(0, 500),
-        fullPrompt: embeddedFluxPrompt, // SINGLE API CALL: Store embedded prompt
-        canGenerate: true,
-        isGenerating: false
-      };
-      
-      console.log(`✅ MAYA STANDARD CONCEPT EXTRACTED: "${conceptName}"`);
-      console.log(`📝 USER DESCRIPTION: ${description.length} chars`);
-      console.log(`⚡ FULL PROMPT LENGTH: ${embeddedFluxPrompt?.length || 0} chars`);
-      
-      concepts.push(conceptCard);
-    }
-  }
-  
-  // Try FLUX inline pattern if no standard concepts found
-  while ((match = fluxInlinePattern.exec(response)) !== null) {
-    const firstFluxPrompt = match[1].trim();
-    const emoji = match[2];
-    const conceptName = match[3].trim();
-    const conceptDescription = match[4].trim();
-    
-    const fullConceptName = `${emoji} ${conceptName}`;
-    
-    console.log(`🎯 FLUX INLINE CONCEPT DEBUG: "${fullConceptName}"`);
-    console.log(`📝 FIRST FLUX PROMPT: "${firstFluxPrompt.substring(0, 100)}..."`);
-    console.log(`📝 CONCEPT DESCRIPTION: "${conceptDescription.substring(0, 100)}..."`);
-    
-    if (fullConceptName.length >= 8 && !foundConcepts.has(fullConceptName)) {
-      foundConcepts.add(fullConceptName);
-      
-      const description = conceptDescription.substring(0, 120).trim() + (conceptDescription.length > 120 ? '...' : '');
-      
-      const conceptCard: ConceptCard = {
-        id: `concept_${conceptNumber++}`,
-        title: fullConceptName,
-        description: description,
-        originalContext: `${conceptDescription.substring(0, 500)}`,
-        fullPrompt: firstFluxPrompt, // Use the FLUX prompt that appeared before this concept
-        canGenerate: true,
-        isGenerating: false
-      };
-      
-      console.log(`✅ FLUX INLINE CONCEPT EXTRACTED: "${fullConceptName}"`);
-      concepts.push(conceptCard);
-    }
-  }
-  
-  // Try emoji concept pattern if still no concepts found
-  if (concepts.length === 0) {
-    emojiConceptPattern.lastIndex = 0; // Reset regex  
-    while ((match = emojiConceptPattern.exec(response)) !== null) {
+  // Try emoji concept pattern first (Maya's new format)
+  while ((match = emojiConceptPattern.exec(response)) !== null) {
     const emoji = match[1];
     let conceptName = match[2].trim();
     let conceptContent = match[3].trim();
@@ -1363,7 +1274,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     }
   }
   
-  // Try multi-concept pattern if still no concepts found
+  // Try multi-concept pattern if no emoji concepts found
   if (concepts.length === 0) {
     multiConceptPattern.lastIndex = 0; // Reset regex
     while ((match = multiConceptPattern.exec(response)) !== null) {
@@ -1443,7 +1354,42 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     }
   }
   
-  // Log final concept count
+  // Try single concept pattern if still no concepts found
+  if (concepts.length === 0) {
+    singleConceptPattern.lastIndex = 0; // Reset regex
+    while ((match = singleConceptPattern.exec(response)) !== null) {
+      let conceptName = match[1].trim();
+      let conceptContent = match[2].trim();
+      
+      // SINGLE API CALL: Extract embedded FLUX prompt from concept content
+      const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
+      const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
+      
+      // Extract user-facing description (everything before FLUX_PROMPT)
+      const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
+      conceptContent = userDescription; // Update conceptContent to exclude FLUX_PROMPT
+      
+      console.log(`🎯 SINGLE CONCEPT DEBUG: "${conceptName}"`);
+      console.log(`⚡ EMBEDDED FLUX PROMPT: ${embeddedFluxPrompt ? 'FOUND' : 'NOT FOUND'}`);
+      
+      if (conceptName.length >= 8 && !foundConcepts.has(conceptName.toLowerCase())) {
+        foundConcepts.add(conceptName.toLowerCase());
+        
+        const description = conceptContent.substring(0, 120).trim() + (conceptContent.length > 120 ? '...' : '');
+        
+        concepts.push({
+          id: `concept_${conceptNumber++}`,
+          title: conceptName,
+          description: description,
+          originalContext: conceptContent.substring(0, 500),
+          fullPrompt: embeddedFluxPrompt, // SINGLE API CALL: Store embedded prompt
+          canGenerate: true,
+          isGenerating: false
+        });
+      }
+    }
+  }
+  
   console.log(`🎯 CONCEPT PARSING: Found ${concepts.length} styling concepts`);
   
   return concepts;
@@ -1998,9 +1944,7 @@ GENERATE: Natural styling description that flows directly after the technical pr
   }
 }
 
-// Test the fixed Maya concept parsing system
-
-// 🔥 CRITICAL FIX: Chat History Loading with Image Persistence  
+// 🔥 CRITICAL FIX: Chat History Loading with Image Persistence
 router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;

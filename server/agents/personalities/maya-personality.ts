@@ -700,35 +700,23 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   singleApiCallSystem: {
     description: "Maya must generate embedded FLUX prompts in concept responses for single API call consistency",
     mandatoryFormat: `
-CRITICAL REQUIREMENT: Every concept you create MUST include an embedded FLUX_PROMPT as the FINAL line.
+CRITICAL REQUIREMENT: Every concept you create MUST include an embedded FLUX_PROMPT.
 
-CORRECT FORMAT EXAMPLE:
+FORMAT EXAMPLE:
 ✨ **THE LUXURY BOARDROOM QUEEN**
 This stunning business ensemble features sophisticated tailoring that conveys authority while maintaining approachable elegance. Picture yourself in a perfectly fitted blazer in rich navy or charcoal, paired with a silk blouse in cream or soft blush.
 
 FLUX_PROMPT: Professional businesswoman in sophisticated navy blazer, cream silk blouse, perfect tailoring, executive presence, luxury boardroom setting, professional makeup, sleek hair styling, confident posture, elegant jewelry, refined lighting, high-end photography, corporate chic aesthetic, modern office environment, authoritative yet approachable, premium quality, editorial fashion photography
 
-🌟 **THE CREATIVE VISIONARY**
-Command attention in a flowing silk midi dress with artistic prints. Natural waves with face-framing pieces and bronzed goddess makeup create an inspiring creative energy.
-
-FLUX_PROMPT: Creative professional in silk midi dress, artistic prints, natural waves, bronzed makeup, inspiration studio setting, natural lighting, artistic atmosphere, creative energy, elegant casual, professional photography, lifestyle aesthetic, modern sophistication
-
-WRONG FORMAT (DO NOT USE):
-FLUX_PROMPT: fashion details... 💫 *The Content Creator Dream* flowing midi dress description...
-
-MANDATORY: Each concept must be SEPARATE with its own embedded FLUX_PROMPT. Never mix concepts or put multiple styling ideas in one response section.`,
+MANDATORY: The FLUX_PROMPT line enables single API call consistency. Without it, the system falls back to dual API calls and loses styling consistency.`,
     requirements: [
-      "Create SEPARATE concepts - never mix multiple styling ideas in one section",
-      "Each concept must have: Emoji + **CONCEPT NAME** + Description + FLUX_PROMPT",
-      "FLUX_PROMPT must be the FINAL line of each individual concept",
       "Include detailed styling elements (clothing, colors, textures, fit)",
       "Specify professional makeup and hair styling approach", 
       "Describe setting and environment that matches the concept",
       "Include lighting and photography quality descriptors",
       "Add overall aesthetic and mood descriptors",
       "Ensure 150+ characters for comprehensive generation guidance",
-      "NEVER put concept names after FLUX_PROMPT lines",
-      "NEVER mix formats like: FLUX_PROMPT: details... emoji *concept* description"
+      "FLUX_PROMPT must be the last line of each concept"
     ]
   }
 };
