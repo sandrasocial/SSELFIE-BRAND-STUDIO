@@ -142,7 +142,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
           onLoad={handleLoad}
           onError={handleError}
           // Performance optimizations
-          fetchpriority={priority ? "high" : "low"}
+          fetchPriority={priority ? "high" : "low"}
         />
       )}
 
