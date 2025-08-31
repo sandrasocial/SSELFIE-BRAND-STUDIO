@@ -1280,13 +1280,22 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     while ((match = multiConceptPattern.exec(response)) !== null) {
       let conceptName = match[1].trim();
       let conceptContent = match[2].trim();
+      
+      // SINGLE API CALL: Extract embedded FLUX prompt from concept content
+      const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
+      const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
+      
+      // Extract user-facing description (everything before FLUX_PROMPT)
+      const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
+      conceptContent = userDescription; // Update conceptContent to exclude FLUX_PROMPT
     
-    // DEBUG: Log what Maya actually provided for concept content
-    console.log(`🎯 MAYA CONCEPT DEBUG: "${conceptName}"`);
-    console.log(`📝 CONCEPT CONTENT: "${conceptContent}"`);
-    console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
-    
-    // Clean up concept name - ENHANCED to handle Maya's formatting
+      // DEBUG: Log what Maya actually provided for concept content
+      console.log(`🎯 MAYA CONCEPT DEBUG: "${conceptName}"`);
+      console.log(`📝 CONCEPT CONTENT: "${conceptContent}"`);
+      console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
+      console.log(`⚡ EMBEDDED FLUX PROMPT: ${embeddedFluxPrompt ? 'FOUND' : 'NOT FOUND'} (${embeddedFluxPrompt?.length || 0} chars)`);
+      
+      // Clean up concept name - ENHANCED to handle Maya's formatting
     conceptName = conceptName
       .replace(/^CONCEPT\s*\d+:\s*/i, '') // Remove "CONCEPT 1:" style prefixes
       .replace(/^\d+\.\s*/, '') // Remove leading numbers
@@ -1329,12 +1338,16 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     }
     
     console.log(`✅ CONCEPT EXTRACTED: "${conceptName}" (${description.length} chars)`);
+    if (embeddedFluxPrompt) {
+      console.log(`🎯 WITH EMBEDDED PROMPT: ${embeddedFluxPrompt.substring(0, 100)}...`);
+    }
     
     concepts.push({
       id: `concept_${conceptNumber++}`,
       title: conceptName,
       description: description,
       originalContext: conceptContent.substring(0, 500),
+      fullPrompt: embeddedFluxPrompt, // SINGLE API CALL: Store embedded prompt
       canGenerate: true,
       isGenerating: false
     });
@@ -1348,7 +1361,16 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       let conceptName = match[1].trim();
       let conceptContent = match[2].trim();
       
+      // SINGLE API CALL: Extract embedded FLUX prompt from concept content
+      const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
+      const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
+      
+      // Extract user-facing description (everything before FLUX_PROMPT)
+      const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
+      conceptContent = userDescription; // Update conceptContent to exclude FLUX_PROMPT
+      
       console.log(`🎯 SINGLE CONCEPT DEBUG: "${conceptName}"`);
+      console.log(`⚡ EMBEDDED FLUX PROMPT: ${embeddedFluxPrompt ? 'FOUND' : 'NOT FOUND'}`);
       
       if (conceptName.length >= 8 && !foundConcepts.has(conceptName.toLowerCase())) {
         foundConcepts.add(conceptName.toLowerCase());
@@ -1360,6 +1382,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
           title: conceptName,
           description: description,
           originalContext: conceptContent.substring(0, 500),
+          fullPrompt: embeddedFluxPrompt, // SINGLE API CALL: Store embedded prompt
           canGenerate: true,
           isGenerating: false
         });
