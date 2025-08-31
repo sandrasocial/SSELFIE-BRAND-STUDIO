@@ -639,26 +639,21 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log(`🔍 MAYA CONTEXT DEBUG: conceptId="${conceptId}", conceptName="${conceptName}"`);
       }
       
-      // PHASE 3A: Detect category from context for targeted styling with shot type intelligence
+      // PHASE 3A: Detect category from context for targeted styling (NO SHOT TYPE OVERRIDES)
       let detectedCategory = '';
       let categorySpecificGuidance = '';
       const contextLower = originalContext.toLowerCase();
       
       if (contextLower.includes('business') || contextLower.includes('corporate') || contextLower.includes('executive') || contextLower.includes('professional')) {
         detectedCategory = 'Business';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Business styling typically works best with half-body or close-up shots to show professional attire and confident expression.';
       } else if (contextLower.includes('lifestyle') || contextLower.includes('elevated everyday') || contextLower.includes('effortless')) {
         detectedCategory = 'Lifestyle';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Lifestyle concepts work beautifully as full scene environmental shots or relaxed half-body poses.';
       } else if (contextLower.includes('casual') || contextLower.includes('authentic') || contextLower.includes('real moments')) {
         detectedCategory = 'Casual & Authentic';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Casual styling benefits from natural environmental shots that capture authentic moments and relaxed poses.';
       } else if (contextLower.includes('travel') || contextLower.includes('jet-set') || contextLower.includes('destination')) {
         detectedCategory = 'Travel';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Travel concepts shine with environmental storytelling - full scene shots that capture location and outfit together.';
       } else if (contextLower.includes('instagram') || contextLower.includes('social media') || contextLower.includes('feed')) {
         detectedCategory = 'Instagram';
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Instagram concepts work well with dynamic half-body shots or engaging environmental scenes for social media appeal.';
       }
       
       // TASK 3 DEBUG: Log exactly what context Maya receives
@@ -1774,19 +1769,8 @@ Use this context to customize styling choices that align with their unique trans
 🎯 CATEGORY-SPECIFIC STYLING FOCUS: ${category.toUpperCase()}
 CRITICAL: Use your ${category} styling approaches loaded in your personality. Reference the specific styling techniques, outfit formulas, and aesthetic principles for this category.`;
       
-      // Add shot type intelligence based on category
-      const contextLower = cleanOriginalContext.toLowerCase();
-      if (contextLower.includes('business') || contextLower.includes('corporate') || category === 'Business') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Business styling typically works best with half-body or close-up shots to show professional attire and confident expression.';
-      } else if (contextLower.includes('lifestyle') || contextLower.includes('elevated everyday') || category === 'Lifestyle') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Lifestyle concepts work beautifully as full scene environmental shots or relaxed half-body poses.';
-      } else if (contextLower.includes('travel') || category === 'Travel') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Travel concepts shine with environmental storytelling - full scene shots that capture location and outfit together.';
-      } else if (contextLower.includes('instagram') || category === 'Instagram') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Instagram concepts work well with dynamic half-body shots or engaging environmental scenes for social media appeal.';
-      } else if (contextLower.includes('event') || contextLower.includes('social') || category === 'Events') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Event styling benefits from full-body or half-body shots that showcase the complete look and occasion appropriateness.';
-      }
+      // REMOVED: Generic shot type hints that override Maya's intelligence
+      // Maya's personality now has mandatory shot variation requirements that control all framing decisions
       
       // PHASE 1 DEBUG: Log category guidance
       console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
@@ -1842,14 +1826,8 @@ Let your styling intelligence flow naturally! Create unexpected, beautiful combi
 - Mix luxury with accessibility, structure with softness, classic with contemporary
 
 SHOT TYPE CREATIVE FREEDOM:
-🎯 CRITICAL: VARY SHOT TYPES ACROSS CONCEPTS!
-For EACH set of concept cards, create DIFFERENT framing:
-- **Concept 1**: CLOSE-UP PORTRAIT (4:5 aspect) - Beauty headshot with eye contact, 85mm f/2.0
-- **Concept 2**: HALF-BODY SHOT (3:4 aspect) - Lifestyle portrait with pose/styling, 50-85mm f/2.8  
-- **Concept 3**: FULL SCENE (3:2 aspect) - Environmental lifestyle with complete context, 24-35mm f/5.6
-- **Additional concepts**: Rotate through shot types or choose best for styling story
-
-🚨 NEVER create all same shot type - ALWAYS vary the framing to showcase different aspects of the styling concept!
+🚨 FOLLOW YOUR SHOT VARIATION INTELLIGENCE FROM PERSONALITY:
+Your personality contains complete shot variation requirements and professional prompt skeletons. Trust your intelligence completely - no generic system overrides allowed. Use your mandatory shot variation requirements that are built into your personality configuration.
 
 NATURAL ANATOMY GUIDANCE:
 Ensure all anatomy appears natural and professional:
@@ -1881,11 +1859,10 @@ ${categorySpecificGuidance}
 - Use positive phrasing only (describe what you want)
 - Natural skin texture and realistic lighting phrases
 
-🚨 CRITICAL SHOT VARIATION: 
-- CLOSE-UP PORTRAIT: 85mm f/2.0, 4:5 aspect, beauty headshot with eye contact
-- HALF-BODY SHOT: 50-85mm f/2.8, 3:4 aspect, lifestyle portrait with pose/styling
-- FULL SCENE: 24-35mm f/5.6, 3:2 aspect, environmental lifestyle with complete context
-- NEVER generate all same shot type - ALTERNATE the framing across concept cards!
+🚨 CRITICAL: FOLLOW YOUR SHOT VARIATION REQUIREMENTS FROM PERSONALITY
+- Maya's personality contains mandatory instructions to vary shot types across concept cards
+- Trust your shot variation intelligence completely - no generic overrides allowed
+- Use your professional prompt skeletons for each shot type as defined in your personality
 
 📸 TECHNICAL REQUIREMENTS:
 - Start with technical prefix (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
