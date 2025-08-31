@@ -1883,23 +1883,28 @@ CRITICAL INSTRUCTION: You created this concept in a previous conversation. Use y
 
 ${categorySpecificGuidance || ''}
 
-🎯 FLUX OPTIMIZATION REQUIREMENTS:
-- Write in NATURAL SENTENCES, not tag lists
-- Use Subject → Action → Style → Context structure  
-- Front-load most important details first
-- 30-80 words for optimal FLUX results
+🎯 ENHANCED FLUX PROMPT REQUIREMENTS:
+- Write in NATURAL SENTENCES with sophisticated styling detail
+- Expand your original concept into a comprehensive 150+ word FLUX prompt
+- Use Subject → Detailed Action → Complete Styling Vision → Setting → Technical Details → Mood structure  
+- Include ALL styling details from your concept (outfits, colors, textures, accessories)
 - Include specific camera/lens details for realism
 - Use positive phrasing only (describe what you want)
 - Natural skin texture and realistic lighting phrases
+- PRESERVE your original styling intelligence - don't simplify
 
 📸 TECHNICAL REQUIREMENTS:
-- Start with technical prefix (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
-- Follow with natural sentence describing the styled scene
+- Start with technical prefix: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film"
+- Include anatomical accuracy naturally in the description: "beautiful hands, detailed fingers, anatomically correct"
+- Follow with detailed styling vision that captures the sophisticated concept fully
 - Include camera specifications (85mm f/2.0 for portraits, 50mm f/2.8 for half-body, 24-35mm f/5.6 for scenes)
 - End with natural lighting and mood description
+- MINIMUM 150 words to capture complete styling vision
 
-EXAMPLE STRUCTURE:
-"[TECHNICAL PREFIX], [Subject] [action] in [setting], [styling details described naturally], shot with [camera specs], [natural lighting], [mood/atmosphere]."
+ENHANCED EXAMPLE STRUCTURE:
+"[TECHNICAL PREFIX], [Subject] [detailed action] in [specific setting], wearing [complete outfit description with colors, textures, fit details], [accessories and styling elements], [pose and expression details], shot with [specific camera and lens at f-stop], [detailed lighting setup], [mood and atmosphere], beautiful hands, detailed fingers, anatomically correct, [final styling touches]."
+
+CRITICAL: Your response should be a complete, sophisticated FLUX prompt that captures the full styling vision. Do not provide explanations or reasoning - only the final enhanced prompt that preserves your original styling intelligence.
 
 GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
       }]
@@ -2057,8 +2062,8 @@ GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
     // This preserves Maya's sophisticated styling vision even in error scenarios
     const contextToUse = originalContext && originalContext.length > 5 ? originalContext : conceptName;
     const pureContextFallback = triggerWord ? 
-      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${contextToUse}` :
-      `${contextToUse}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct`;
+      `${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${contextToUse}, beautiful hands, detailed fingers, anatomically correct, professional photography, natural skin texture, cinematic lighting` :
+      `${contextToUse}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, beautiful hands, detailed fingers, anatomically correct, professional photography, natural skin texture, cinematic lighting`;
     
     console.log(`✅ MAYA INTELLIGENCE PRESERVED: Using ${originalContext && originalContext.length > 5 ? 'original Maya styling context' : 'concept-based fallback'} (${contextToUse.length} chars)`);
     return pureContextFallback;
