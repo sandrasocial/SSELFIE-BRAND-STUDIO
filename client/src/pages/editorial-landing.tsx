@@ -117,148 +117,155 @@ export default function EditorialLanding() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* MINIMALIST NAVIGATION - Ultra Clean */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500`}>
-        <div className="max-w-[1920px] mx-auto px-6 md:px-12 lg:px-20 py-6 lg:py-8">
+      {/* Navigation */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            {/* Logo - Minimalist */}
             <button 
               onClick={() => setLocation("/")}
-              className="relative group"
+              className="font-serif text-xl font-light tracking-wide text-white hover:opacity-70 transition-opacity duration-300"
             >
-              <span className="text-2xl lg:text-3xl font-extralight text-white tracking-[0.3em] transition-all duration-300 group-hover:tracking-[0.35em]">
-                SSELFIE
-              </span>
-              <span className="absolute -bottom-1 right-0 text-[8px] tracking-[0.3em] text-white/40 uppercase">
-                studio
-              </span>
+              SSELFIE
             </button>
-            
-            {/* Desktop Navigation - Hidden for Ultimate Minimalism */}
-            <div className="hidden lg:flex items-center gap-10">
-              <button
-                onClick={() => handleGetStarted()}
-                className="text-[10px] tracking-[0.4em] uppercase text-white font-light hover:text-white/70 transition-colors duration-300"
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-10">
+              <button 
+                onClick={() => setLocation("/about")}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
               >
-                Begin Journey
+                About
+              </button>
+
+              <button 
+                onClick={() => setLocation("/pricing")}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              >
+                Pricing
               </button>
               <button 
-                onClick={() => setLocation("/login")}
-                className="text-[10px] tracking-[0.4em] uppercase text-white/60 font-light hover:text-white transition-colors duration-300"
+                onClick={() => setLocation("/blog")}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              >
+                Blog
+              </button>
+              <button
+                onClick={() => setLocation('/login')}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
               >
                 Login
               </button>
+              <button 
+                onClick={() => setLocation("/contact")}
+                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              >
+                Contact
+              </button>
             </div>
             
-            {/* Mobile Menu Icon - Minimal */}
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden w-6 h-6 flex flex-col justify-center gap-1.5"
+              className="md:hidden text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
             >
-              <span className={`block w-full h-[1px] bg-white transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-[3.5px]' : ''}`}></span>
-              <span className={`block w-full h-[1px] bg-white transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
-              <span className={`block w-full h-[1px] bg-white transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-[3.5px]' : ''}`}></span>
+              MENU
+            </button>
+            
+            <button
+              onClick={() => handleGetStarted()}
+              className="hidden md:block px-6 py-3 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
+            >
+              Start €47
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu - Editorial Fullscreen */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[60] bg-black">
-          <div className="flex flex-col items-center justify-center min-h-screen">
-            <div className="space-y-8">
-              <button 
-                onClick={() => { setLocation("/about"); setMobileMenuOpen(false); }}
-                className="block text-center text-2xl font-serif font-thin text-white hover:italic transition-all duration-300"
-              >
-                About
-              </button>
-              <button 
-                onClick={() => { setLocation("/pricing"); setMobileMenuOpen(false); }}
-                className="block text-center text-2xl font-serif font-thin text-white hover:italic transition-all duration-300"
-              >
-                Pricing
-              </button>
-              <button 
-                onClick={() => { setLocation("/blog"); setMobileMenuOpen(false); }}
-                className="block text-center text-2xl font-serif font-thin text-white hover:italic transition-all duration-300"
-              >
-                Blog
-              </button>
-              <button
-                onClick={() => { setLocation('/login'); setMobileMenuOpen(false); }}
-                className="block text-center text-2xl font-serif font-thin text-white hover:italic transition-all duration-300"
-              >
-                Login
-              </button>
-              <button 
-                onClick={() => { setLocation("/contact"); setMobileMenuOpen(false); }}
-                className="block text-center text-2xl font-serif font-thin text-white hover:italic transition-all duration-300"
-              >
-                Contact
-              </button>
-            </div>
+        <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-sm md:hidden">
+          <div className="flex flex-col items-center justify-center min-h-screen space-y-12">
+            <button 
+              onClick={() => { setLocation("/about"); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              About
+            </button>
+
+            <button 
+              onClick={() => { setLocation("/pricing"); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Pricing
+            </button>
+            <button 
+              onClick={() => { setLocation("/blog"); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Blog
+            </button>
+            <button
+              onClick={() => { setLocation('/login'); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Login
+            </button>
+            <button 
+              onClick={() => { setLocation("/contact"); setMobileMenuOpen(false); }}
+              className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Contact
+            </button>
             <button
               onClick={() => { handleGetStarted(); setMobileMenuOpen(false); }}
-              className="mt-16 px-12 py-5 border border-white text-white text-[11px] tracking-[0.4em] uppercase hover:bg-white hover:text-black transition-all duration-300"
+              className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
             >
-              Begin Your Journey
+              Start €47
+            </button>
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute top-8 right-8 text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+            >
+              Close
             </button>
           </div>
         </div>
       )}
 
-      {/* HERO - Elevated Magazine Cover */}
-      <section className="relative h-screen flex items-center">
-        <div className="absolute inset-0">
+      {/* Hero Section - Full Bleed Editorial */}
+      <section className="relative min-h-screen flex items-end justify-center bg-black text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-40">
           <img
             src={SandraImages.hero.homepage}
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
             loading="eager"
             fetchPriority="high"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/80"></div>
         </div>
         
-        <div className="relative z-10 w-full">
-          <div className="max-w-[1920px] mx-auto px-6 md:px-12 lg:px-20">
-            <div className="space-y-8">
-              {/* Small Tagline */}
-              <p className="text-[9px] tracking-[0.6em] uppercase text-white/40 font-light">
-                Single mom. Three kids. Zero plan. 120K followers.
-              </p>
-              
-              {/* Massive Typography */}
-              <div className="relative">
-                <h1 className="font-serif">
-                  <span className="block text-[clamp(7rem,20vw,18rem)] leading-[0.75] font-extralight text-white tracking-[0.05em]">
-                    SSELFIE
-                  </span>
-                  <span className="block text-[clamp(1.5rem,5vw,4rem)] leading-[0.75] font-extralight text-white/50 italic tracking-[0.3em] ml-[8%] -mt-6">
-                    studio
-                  </span>
-                </h1>
-              </div>
-              
-              {/* Subheadline */}
-              <div className="max-w-2xl">
-                <p className="text-lg md:text-xl lg:text-2xl font-extralight text-white/90 leading-relaxed">
-                  I replaced my photographer with AI.<br className="hidden md:block"/>
-                  Now you can too.
-                </p>
-                <div className="mt-8 flex items-center gap-4">
-                  <button
-                    onClick={() => handleGetStarted()}
-                    className="text-[10px] tracking-[0.5em] uppercase text-white font-light pb-2 border-b border-white/20 hover:border-white transition-all duration-500"
-                  >
-                    Begin Your Journey €47
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Hero Content - Positioned Lower */}
+        <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 md:pb-24">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
+            IT STARTS WITH YOUR SELFIES
+          </p>
+          
+          <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight text-white tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.5em] mb-2 sm:mb-4 leading-none">
+            SSELFIE
+          </h1>
+          
+          <p className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-8 sm:mb-10 font-light">
+            STUDIO
+          </p>
+          
+          <button
+            onClick={() => handleGetStarted()}
+            className="inline-block text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 hover:border-white hover:tracking-[0.3em] sm:hover:tracking-[0.35em] transition-all duration-300"
+          >
+            START €47
+          </button>
         </div>
       </section>
 
@@ -343,119 +350,154 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* Pricing Section - Editorial Layout */}
-      <section className="py-16 sm:py-24 md:py-32 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16 md:mb-20">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
-              Choose Your Journey
+      {/* PRICING - Editorial Minimalism */}
+      <section className="relative py-32 bg-white">
+        <div className="max-w-[1400px] mx-auto px-8 lg:px-16">
+          <div className="grid grid-cols-12 gap-8">
+            {/* Left Side - Price Statement */}
+            <div className="col-span-12 lg:col-span-5">
+              <div className="sticky top-32">
+                <p className="text-[10px] tracking-[0.5em] uppercase text-gray-400 mb-8">
+                  Investment
+                </p>
+                <div className="mb-8">
+                  <span className="font-serif text-[clamp(6rem,12vw,10rem)] leading-[0.8] font-thin">€47</span>
+                  <span className="text-sm font-light text-gray-500 ml-4">per month</span>
+                </div>
+                <button
+                  onClick={() => handleGetStarted()}
+                  className="group"
+                >
+                  <span className="text-[11px] tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-2 group-hover:border-black transition-all duration-300">
+                    Start Your Journey
+                  </span>
+                </button>
+              </div>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-black px-4">
-              Simple. Powerful.
-            </h2>
-          </div>
-
-          <div className="max-w-md mx-auto">
-            {/* PERSONAL BRAND STUDIO - SINGLE TIER */}
-            <div className="bg-black text-white p-8 sm:p-10 md:p-12 text-center relative">
-              <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
-                <div className="bg-white text-black px-4 sm:px-6 py-1 sm:py-2 text-xs uppercase tracking-[0.3em]">
-                  Launch Special
+            
+            {/* Right Side - Details */}
+            <div className="col-span-12 lg:col-span-6 lg:col-start-7">
+              <h3 className="font-serif text-4xl font-thin mb-12">
+                Personal Brand<br/>
+                <span className="italic text-gray-400">Studio</span>
+              </h3>
+              
+              <div className="space-y-8 mb-12">
+                <div className="flex items-start gap-6 group">
+                  <span className="text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
+                  <div>
+                    <h4 className="text-sm font-light mb-2">Your trained personal AI model</h4>
+                    <p className="text-xs text-gray-500">Personalized to your unique features</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-6 group">
+                  <span className="text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
+                  <div>
+                    <h4 className="text-sm font-light mb-2">100 monthly professional photos</h4>
+                    <p className="text-xs text-gray-500">Fresh content every month</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-6 group">
+                  <span className="text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
+                  <div>
+                    <h4 className="text-sm font-light mb-2">Maya AI photographer access</h4>
+                    <p className="text-xs text-gray-500">Your personal styling assistant</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-6 group">
+                  <span className="text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
+                  <div>
+                    <h4 className="text-sm font-light mb-2">Personal brand photo gallery</h4>
+                    <p className="text-xs text-gray-500">Organized and ready to use</p>
+                  </div>
                 </div>
               </div>
               
-              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6">Personal Brand Studio</h3>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">€47<span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span></div>
-              
-              <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
-                <div className="flex items-start">
-                  <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Your trained personal AI model</span>
-                </div>
-                <div className="flex items-start">
-                  <span className="text-white mr-3">•</span>
-                  <span className="text-sm">100 monthly professional photos</span>
-                </div>
-                <div className="flex items-start">
-                  <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Maya AI photographer access</span>
-                </div>
-                <div className="flex items-start">
-                  <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Personal brand photo gallery</span>
-                </div>
-                <div className="flex items-start">
-                  <span className="text-white mr-3">•</span>
-                  <span className="text-sm">Cancel anytime</span>
-                </div>
-              </div>
-              
-              <button
-                onClick={() => handleGetStarted()}
-                className="w-full py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
-              >
-                Start Personal Brand Studio
-              </button>
+              <p className="text-xs text-gray-400">
+                Cancel anytime. No photographer required.
+              </p>
             </div>
-          </div>
-          
-          <div className="text-center mt-8 sm:mt-10 md:mt-12">
-            <p className="text-sm text-gray-500 px-4">
-              Never pay for another photoshoot. Your personal AI photographer available 24/7.
-            </p>
           </div>
         </div>
       </section>
 
-      {/* Portfolio Gallery Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16 md:mb-20">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
-              My AI Portfolio
+      {/* PORTFOLIO SECTION */}
+      <section className="py-32 bg-gray-50">
+        <div className="max-w-[1800px] mx-auto px-8 lg:px-16">
+          <div className="grid grid-cols-12 gap-8 mb-20">
+            <div className="col-span-12 lg:col-span-6 lg:col-start-2">
+              <p className="text-[10px] tracking-[0.5em] uppercase text-gray-400 mb-6">
+                Portfolio
+              </p>
+              <h2 className="font-serif text-[clamp(3rem,6vw,5rem)] leading-[0.9] font-thin text-black">
+                Real results from<br/>
+                <span className="italic">my personal brand</span>
+              </h2>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-black px-4">
-              Real results from<br />my personal brand
-            </h2>
           </div>
           
           <PortfolioSection />
         </div>
       </section>
 
-      {/* Testimonial Section */}
-      <section className="py-16 sm:py-24 md:py-32 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
-            Real Stories
-          </div>
-          
-          <blockquote className="font-serif text-xl sm:text-2xl md:text-3xl font-light italic text-black leading-tight mb-6 sm:mb-8 px-4">
-            "I thought I knew what I was doing, but Sandra's system completely changed how I show up online. 
-            The AI photos don't look AI - they look like me, but the version of me I've always wanted to be."
-          </blockquote>
-          
-          <div className="text-sm text-gray-600 uppercase tracking-wide">
-            — ELENA M., LIFE COACH
+      {/* TESTIMONIAL - Editorial Style */}
+      <section className="py-32 bg-gray-50">
+        <div className="max-w-[1600px] mx-auto px-8 lg:px-16">
+          <div className="grid grid-cols-12 gap-8">
+            <div className="col-span-12 lg:col-span-8 lg:col-start-3">
+              <div className="text-center">
+                <p className="text-[10px] tracking-[0.5em] uppercase text-gray-400 mb-12">
+                  Testimonial
+                </p>
+                <blockquote className="font-serif text-[clamp(1.5rem,4vw,3rem)] leading-[1.2] font-thin italic text-gray-900 mb-12">
+                  "I thought I knew what I was doing, but Sandra's system completely changed how I show up online. 
+                  The AI photos don't look AI - they look like me, but the version of me I've always wanted to be."
+                </blockquote>
+                <div className="flex items-center justify-center gap-6">
+                  <div className="w-20 h-[1px] bg-gray-300"></div>
+                  <p className="text-[10px] tracking-[0.5em] uppercase text-gray-500">
+                    Elena M., Life Coach
+                  </p>
+                  <div className="w-20 h-[1px] bg-gray-300"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-
-
-      {/* Quote Section - Editorial */}
-      <section className="py-32 bg-black text-white text-center">
-        <div className="max-w-4xl mx-auto px-8">
-          <blockquote className="font-serif text-3xl md:text-4xl lg:text-5xl font-light italic leading-tight mb-12">
-            "When you show up as her?<br />
-            Everything changes."
+      {/* FINAL CTA - Sandra's Mission */}
+      <section className="relative py-40 bg-black text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-[800px] h-[800px] border border-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] border border-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+        </div>
+        
+        <div className="relative max-w-[1200px] mx-auto px-8 lg:px-16 text-center">
+          <blockquote className="font-serif text-[clamp(2.5rem,6vw,5rem)] leading-[0.9] font-thin italic mb-16">
+            "Your phone.<br />
+            <span className="not-italic text-white/60">My strategy.</span><br />
+            Your empire."
           </blockquote>
+          
+          <p className="text-sm text-white/60 mb-12 max-w-md mx-auto">
+            From single mom with zero plan to 120K followers. 
+            I built the AI photographer I needed. Now she's yours.
+          </p>
           
           <button
             onClick={() => handleGetStarted()}
-            className="inline-block px-12 py-6 bg-white text-black text-xs uppercase tracking-[0.3em] hover:bg-gray-100 transition-all duration-300"
+            className="relative group overflow-hidden"
           >
-            Start Personal Brand Studio €47
+            <div className="px-14 py-6 border border-white/20">
+              <span className="relative z-10 text-[11px] tracking-[0.5em] uppercase font-light">
+                Start Today €47
+              </span>
+              <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
+              <span className="absolute inset-0 flex items-center justify-center text-[11px] tracking-[0.5em] uppercase text-black font-light opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-300">
+                Start Today €47
+              </span>
+            </div>
           </button>
         </div>
       </section>
