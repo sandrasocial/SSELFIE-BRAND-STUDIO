@@ -172,34 +172,11 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     // Check generation capability
     const generationInfo = await checkGenerationCapability(userId);
     
-    // PHASE 5: Load personal brand context for personalized responses
-    let personalBrandContext = '';
-    try {
-      // Load user's personal brand context
-      const { MayaStorageExtensions } = await import('../storage-maya-extensions');
-      const mayaUserContext = await MayaStorageExtensions.getMayaUserContext(userId);
-      
-      if (mayaUserContext?.personalBrand) {
-        // Enhance Maya's prompt with personal brand data
-        personalBrandContext = `
-
-PERSONAL BRAND CONTEXT FOR THIS USER:
-- Transformation Story: ${mayaUserContext.personalBrand.transformationStory || 'Not provided'}
-- Current Situation: ${mayaUserContext.personalBrand.currentSituation || 'Not provided'}
-- Future Vision: ${mayaUserContext.personalBrand.futureVision || 'Not provided'}
-- Business Goals: ${mayaUserContext.personalBrand.businessGoals || 'Not provided'}
-- Onboarding Completed: ${mayaUserContext.personalBrand.isCompleted ? 'Yes' : 'No'}
-
-Use this context to provide personalized styling advice that aligns with their transformation journey.`;
-        
-        console.log(`🎯 MAYA MEMORY: Loaded personal brand context for user ${userId}`);
-      }
-    } catch (error) {
-      console.log('Personal brand context not available, proceeding with basic Maya');
-    }
+    // SIMPLE: Single personality load with all intelligence from consolidated system
+    const mayaPersonality = PersonalityManager.getNaturalPrompt('maya');
     
-    // Build Maya prompt with admin/member context awareness using personality system
-    const mayaPersonality = PersonalityManager.getNaturalPrompt('maya') + personalBrandContext;
+    // Add only essential request context
+    const requestContext = `Current request: ${message}`;
     
     // 🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION
     console.log('🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION');
@@ -218,46 +195,12 @@ Use this context to provide personalized styling advice that aligns with their t
       body: JSON.stringify({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 8000,
-        system: mayaPersonality + `
-
-🚀 CRITICAL SINGLE API CALL ENHANCEMENT - DUAL OUTPUT MODE:
-
-When creating styling concepts, you must provide BOTH:
-
-1. **USER-FACING CONCEPT DESCRIPTION** (conversational, inspiring)
-2. **EMBEDDED FLUX PROMPT** (technical, generation-ready)
-
-FORMAT EACH CONCEPT AS:
-🏢 **CONCEPT NAME**
-[User-facing description with personality and inspiration]
-
-CRITICAL REQUIREMENT: Every concept title MUST start with an emoji! Examples:
-📸 **Content Creator Coffee Sessions**
-🏢 **Executive Meeting Mastery**  
-✨ **Glamorous Evening Networking**
-💼 **Professional Power Presentation**
-
-NEVER format concepts without emojis - the system depends on emoji-first concept titles!
-
-ABSOLUTE REQUIREMENT: START EVERY CONCEPT WITH AN EMOJI. NO EXCEPTIONS!
-
-FLUX_PROMPT: [Technical FLUX prompt - natural language, 100-250 words, no conversational elements]
-
-TECHNICAL PROMPT RULES FOR FLUX_PROMPT:
-- Use natural language (not keywords)
-- NO conversational phrases ("Oh honey", "I'm seeing", etc.)  
-- NO technical tags (raw photo, film grain) - system adds these
-- NO hair/eye color specifications - LoRA handles appearance
-- Include outfit details, location, mood, lighting, poses
-- Target 100-250 words for optimal FLUX performance
-- Start directly with styling description
-
-This single call creates concept cards with embedded prompts, eliminating dual API inconsistencies.`,
+        system: mayaPersonality, // Contains ALL Maya intelligence from consolidated personality system
         messages: [
           ...fullConversationHistory,
           {
             role: 'user',
-            content: message
+            content: requestContext
           }
         ]
       })
@@ -270,14 +213,14 @@ This single call creates concept cards with embedded prompts, eliminating dual A
     const data = await claudeResponse.json();
     let mayaResponse = data.content[0].text;
 
-    // ENHANCED CONTEXT PRESERVATION: Capture complete Maya context for API Call #2
+    // SIMPLIFIED CONTEXT PRESERVATION: Essential context only
     const enhancedContext = {
       originalMayaResponse: mayaResponse,
       conversationHistory: fullConversationHistory.slice(-3), // Last 3 exchanges for context
-      userPersonalBrand: extractPersonalBrandContext(message),
+      userPersonalBrand: message.substring(0, 200), // Simple context extraction
       categoryContext: context,
       stylingReasoning: extractStylingReasoning(mayaResponse),
-      systemPrompt: enhancedPrompt, // Same system prompt used in API Call #1
+      systemPrompt: mayaPersonality, // Same system prompt used
       timestamp: Date.now()
     };
     
@@ -1020,18 +963,7 @@ async function checkGenerationCapability(userId: string) {
 
 
 
-// ENHANCED CONTEXT PRESERVATION: Supporting functions
-function extractPersonalBrandContext(userMessage: string): string {
-  // Extract user's personal brand indicators from their request
-  const brandKeywords = ['entrepreneur', 'CEO', 'creative', 'influencer', 'professional', 'business', 'startup', 'coach', 'consultant'];
-  const personalStyle = ['minimalist', 'bold', 'elegant', 'edgy', 'sophisticated', 'modern', 'classic', 'luxury'];
-  
-  const lowerMessage = userMessage.toLowerCase();
-  const foundBrand = brandKeywords.find(keyword => lowerMessage.includes(keyword));
-  const foundStyle = personalStyle.find(style => lowerMessage.includes(style));
-  
-  return `Brand focus: ${foundBrand || 'general professional'}, Style preference: ${foundStyle || 'versatile'}, Context: ${userMessage.substring(0, 200)}`;
-}
+// SIMPLIFIED CONTEXT PRESERVATION: Supporting functions
 
 function extractStylingReasoning(mayaResponse: string): string {
   // Extract Maya's reasoning about why she chose specific styling
