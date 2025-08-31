@@ -1201,20 +1201,68 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   const concepts: ConceptCard[] = [];
   
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
+  console.log('📝 RAW RESPONSE PREVIEW:', response.substring(0, 500).replace(/\n/g, '\\n'));
   
-  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation with emojis
-  // Pattern 1: Emoji + concept name (e.g., "📸 THE POWER PLAYER CASUAL")
-  // Pattern 2: Traditional **Concept Name** format
-  // Pattern 3: Single concept with "Story Collection Preview:" or similar formats
+  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation
+  // Pattern 1: Diamond symbol concepts (e.g., "◆ MORNING RITUAL ELEGANCE")
+  // Pattern 2: Emoji + concept name (e.g., "📸 THE POWER PLAYER CASUAL")
+  // Pattern 3: Traditional **Concept Name** format  
+  const diamondConceptPattern = /◆\s*([A-Z][A-Z\s]{10,80})\n(.*?)(?=\n◆|$)/gs;
   const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*?\*?([A-Z][A-Z\s]{7,50})\*?\*?\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|$)/gs;
-  const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
-  const singleConceptPattern = /\*\*([^*\n]+(?:Collection|Preview|Concept|Look|Style|Vibe)[^*\n]*)\*\*\s*\*([^*]+)\*/gs;
+  const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*\n([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   
   let match;
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  // Try emoji concept pattern first (Maya's new format)
+  // Try diamond concept pattern first (Maya's current format)
+  console.log('🔍 TRYING DIAMOND CONCEPT PATTERN...');
+  while ((match = diamondConceptPattern.exec(response)) !== null) {
+    let conceptName = match[1].trim();
+    let conceptContent = match[2].trim();
+    
+    conceptName = `◆ ${conceptName}`;
+    
+    console.log(`◆ DIAMOND CONCEPT DEBUG: "${conceptName}"`);
+    console.log(`📝 CONCEPT CONTENT: "${conceptContent.substring(0, 200)}..."`);
+    console.log(`📏 CONTENT LENGTH: ${conceptContent.length} characters`);
+    
+    // SINGLE API CALL: Extract embedded FLUX prompt from concept content
+    const fluxPromptMatch = conceptContent.match(/FLUX_PROMPT:\s*(.*?)(?=\n|$)/s);
+    const embeddedFluxPrompt = fluxPromptMatch ? fluxPromptMatch[1].trim() : null;
+    
+    // Extract user-facing description (everything before FLUX_PROMPT)
+    const userDescription = conceptContent.split('FLUX_PROMPT:')[0].trim();
+    
+    if (conceptName.length >= 8 && !foundConcepts.has(conceptName) && userDescription.length > 20) {
+      foundConcepts.add(conceptName);
+      
+      let description = userDescription.substring(0, 120).trim();
+      if (description.length >= 120) {
+        description += '...';
+      }
+      
+      const conceptCard = {
+        id: `concept_${conceptNumber++}`,
+        title: conceptName,
+        description: description,
+        originalContext: userDescription.substring(0, 500),
+        fullPrompt: embeddedFluxPrompt,
+        canGenerate: true,
+        isGenerating: false
+      };
+      
+      console.log(`💾 DIAMOND CONCEPT STORED:`, {
+        title: conceptCard.title,
+        hasFullPrompt: !!conceptCard.fullPrompt,
+        fullPromptLength: conceptCard.fullPrompt?.length || 0
+      });
+      
+      concepts.push(conceptCard);
+    }
+  }
+  
+  // Try emoji concept pattern if no diamond concepts found
   while ((match = emojiConceptPattern.exec(response)) !== null) {
     const emoji = match[1];
     let conceptName = match[2].trim();
@@ -1274,8 +1322,9 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     }
   }
   
-  // Try multi-concept pattern if no emoji concepts found
+  // Try multi-concept pattern if no concepts found
   if (concepts.length === 0) {
+    console.log('🔍 NO DIAMOND/EMOJI CONCEPTS FOUND - Trying multi-concept pattern');
     multiConceptPattern.lastIndex = 0; // Reset regex
     while ((match = multiConceptPattern.exec(response)) !== null) {
       let conceptName = match[1].trim();
