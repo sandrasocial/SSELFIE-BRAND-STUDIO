@@ -97,36 +97,48 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
 
 🎭 VOICE EXAMPLE: When analyzing, use phrases like the Analysis Mode patterns. When executing tasks, use Execution Mode patterns. Be authentic to your personality while working autonomously.`;
 
-    // Add Maya-specific emoji styling system
-    if (personality.name === 'Maya' && personality.stylingIntelligence?.emojiStylingSystem) {
-      const emojiSystem = personality.stylingIntelligence.emojiStylingSystem;
+    // Add Maya-specific concept generation training
+    if (personality.name === 'Maya') {
       prompt += `
 
-✨ CRITICAL: EMOJI STYLING SYSTEM FOR CONCEPT TITLES
-You MUST include styling emojis at the start of EVERY concept title you create. This is not optional.
+🎯 CRITICAL: CONCEPT CARD GENERATION TRAINING
 
-REQUIRED EMOJIS AND THEIR MEANINGS:
-✨ = Glamorous elegance, luxury styling
-💫 = Dreamy sophistication, ethereal beauty  
-🔥 = Bold confidence, power styling
-🌟 = Star quality, elevated luxury
-💎 = High-end refinement, precious luxury
-🌅 = Natural beauty, organic sophistication
-🏢 = Business authority, professional power
-💼 = Executive elegance, corporate chic
-🌊 = Flowing grace, fluid movements
-👑 = Regal sophistication, queen energy
-💃 = Dynamic energy, movement, dance
-📸 = Photo-ready perfection, camera-optimized
-🎬 = Cinematic drama, storytelling
+MANDATORY RESPONSE FORMAT: When a user asks for styling ideas, photos, or concepts, you MUST create exactly 3-5 concept cards using this exact format:
 
-MANDATORY FORMAT EXAMPLES:
-🏢 **Executive Power Meeting**
-✨ **Glamorous Evening Sophistication**
-🔥 **Bold Conference Commander**
-💫 **Dreamy Lifestyle Goddess**
+🎯 **CONCEPT NAME IN ALL CAPS**
+Brief styling description explaining why this concept is perfect for the user's brand and request.
 
-ABSOLUTE REQUIREMENT: NO CONCEPT TITLES WITHOUT EMOJIS! The system depends on emoji-first concept titles for styling intelligence.`;
+FLUX_PROMPT: [Complete detailed FLUX generation prompt with all technical specifications]
+
+---
+
+EXAMPLE RESPONSE STRUCTURE:
+
+✨ **THE LUXURY BOARDROOM EXECUTIVE**
+This sophisticated business look features impeccable tailoring that commands respect while maintaining feminine elegance. A structured blazer in rich navy paired with a silk blouse creates executive authority with refined grace.
+
+FLUX_PROMPT: Professional businesswoman sits confidently in a luxury boardroom wearing a sophisticated navy blazer and cream silk blouse. Shot with 85mm lens at f/2.0, shallow depth of field creates stunning portrait depth. Natural skin texture, elegant jewelry, and refined lighting showcase her authoritative yet approachable executive presence in this high-end editorial photography.
+
+---
+
+🔥 **THE BOLD CONFERENCE COMMANDER**
+Power dressing redefined with architectural lines and confident silhouettes. This ensemble features a statement blazer in deep burgundy over sleek black pants, creating an unforgettable presence.
+
+FLUX_PROMPT: Confident businesswoman stands assertively in a modern conference room wearing a bold burgundy blazer paired with sleek black trousers. Photographed with 50mm lens at f/2.2, the architectural styling emphasizes power and sophistication. Professional lighting highlights her confident posture and natural beauty in this commanding executive portrait.
+
+---
+
+REQUIREMENTS FOR EVERY RESPONSE:
+• Always create 3-5 different concept variations
+• Start each concept with styling emoji (🎯✨💼🌟💫🏆📸🎬)
+• Include FLUX_PROMPT with complete technical details
+• Use natural language in FLUX prompts, not keyword lists
+• Include specific camera/lens details (85mm f/2.0, etc.)
+• Always include "natural skin texture" for realism
+• Separate concepts with "---" line breaks
+• Write FLUX prompts as 30-80 words of natural description
+
+ABSOLUTE REQUIREMENT: Every styling response MUST include concept cards with embedded FLUX_PROMPT tags. The system depends on this format to generate images from your intelligence.`;
     }
 
     return prompt;
