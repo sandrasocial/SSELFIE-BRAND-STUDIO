@@ -1724,6 +1724,20 @@ Use this context to customize styling choices that align with their unique trans
 🎯 CATEGORY-SPECIFIC STYLING FOCUS: ${category.toUpperCase()}
 CRITICAL: Use your ${category} styling approaches loaded in your personality. Reference the specific styling techniques, outfit formulas, and aesthetic principles for this category.`;
       
+      // Add shot type intelligence based on category
+      const contextLower = cleanOriginalContext.toLowerCase();
+      if (contextLower.includes('business') || contextLower.includes('corporate') || category === 'Business') {
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Business styling typically works best with half-body or close-up shots to show professional attire and confident expression.';
+      } else if (contextLower.includes('lifestyle') || contextLower.includes('elevated everyday') || category === 'Lifestyle') {
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Lifestyle concepts work beautifully as full scene environmental shots or relaxed half-body poses.';
+      } else if (contextLower.includes('travel') || category === 'Travel') {
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Travel concepts shine with environmental storytelling - full scene shots that capture location and outfit together.';
+      } else if (contextLower.includes('instagram') || category === 'Instagram') {
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Instagram concepts work well with dynamic half-body shots or engaging environmental scenes for social media appeal.';
+      } else if (contextLower.includes('event') || contextLower.includes('social') || category === 'Events') {
+        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Event styling benefits from full-body or half-body shots that showcase the complete look and occasion appropriateness.';
+      }
+      
       // PHASE 1 DEBUG: Log category guidance
       console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
     }
@@ -1800,9 +1814,10 @@ Express your creative vision authentically with flawless anatomical details!`;
       system: mayaPromptPersonality,
       messages: [{
         role: 'user',
-        content: `GENERATE CLEAN FLUX PROMPT: Transform this styling concept into a natural, flowing image generation prompt.
+        content: `GENERATE OPTIMIZED FLUX PROMPT: Transform this styling concept into a natural, flowing FLUX image generation prompt.
 
-ORIGINAL CONCEPT: "${conceptName}"
+CONCEPT: "${conceptName}"
+STYLING CONTEXT: "${cleanOriginalContext}"
 
 ${cleanOriginalContext && cleanOriginalContext.length > 10 ? 
   `✅ COMPLETE MAYA CONTEXT RESTORATION:
@@ -1826,18 +1841,25 @@ CRITICAL INSTRUCTION: You created this concept in a previous conversation. Use y
 
 ${categorySpecificGuidance || ''}
 
-REQUIREMENTS:
-- Generate ONE continuous, natural-flowing prompt description
-- NO formatting elements like "FLUX 1.1 PRO STYLING PROMPT:" 
-- NO bracketed annotations like [Shot type:] or [Environment:]
-- START directly with styling description after technical tags
-- Use natural, descriptive language throughout
-- Include specific styling details from your personality knowledge
-- End naturally without template formatting
+🎯 FLUX OPTIMIZATION REQUIREMENTS:
+- Write in NATURAL SENTENCES, not tag lists
+- Use Subject → Action → Style → Context structure  
+- Front-load most important details first
+- 30-80 words for optimal FLUX results
+- Include specific camera/lens details for realism
+- Use positive phrasing only (describe what you want)
+- Natural skin texture and realistic lighting phrases
 
-TECHNICAL PREFIX (you may integrate these elements naturally into your styling description if it enhances the flow): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
+📸 TECHNICAL REQUIREMENTS:
+- Start with technical prefix (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
+- Follow with natural sentence describing the styled scene
+- Include camera specifications (85mm f/2.0 for portraits, 50mm f/2.8 for half-body, 24-35mm f/5.6 for scenes)
+- End with natural lighting and mood description
 
-GENERATE: Natural styling description that flows directly after the technical prefix.`
+EXAMPLE STRUCTURE:
+"[TECHNICAL PREFIX], [Subject] [action] in [setting], [styling details described naturally], shot with [camera specs], [natural lighting], [mood/atmosphere]."
+
+GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
       }]
     };
     
