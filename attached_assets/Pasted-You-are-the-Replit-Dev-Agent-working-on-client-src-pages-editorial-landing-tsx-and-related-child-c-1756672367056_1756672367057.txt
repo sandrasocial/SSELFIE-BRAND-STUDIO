@@ -1,0 +1,98 @@
+You are the Replit Dev Agent working on `client/src/pages/editorial-landing.tsx` and related child components.
+
+GOAL
+Update copy ONLY across existing sections. Do NOT change layout, classes, or component structure. Do NOT modify the hero section text at all. Keep Tailwind classes as-is unless absolutely necessary for text wrapping. Preserve event handlers and routing.
+
+FILES IN SCOPE
+- client/src/pages/editorial-landing.tsx
+- client/src/components/welcome-editorial.tsx  (or the file that exports <WelcomeEditorial />)
+- client/src/components/portfolio-section.tsx (headings only are updated in the parent page)
+- client/src/components/global-footer.tsx (NO changes unless copy appears there)
+- client/src/components/email-capture-modal.tsx (NO changes)
+- client/src/components/inline-email-capture.tsx (NO changes)
+
+CHANGES
+
+1) SEO META (IN editorial-landing.tsx useEffect):
+- Keep meta tag creation logic.
+- Replace `meta[name="description"]` content with:
+  "Turn selfies into professional brand photos with AI. €47/month personal brand studio: your trained model, up to 100 monthly images, and Maya—your AI stylist."
+- Replace keywords to:
+  "AI personal branding, AI headshots, professional photos from selfies, personal brand photos, AI photographer, brand studio"
+- Replace OG and Twitter description with:
+  "Professional brand photos from your selfies. €47/month. No photographer, no awkwardness—just you, looking like a pro."
+
+DO NOT change the document title.
+
+2) EDITORIAL QUOTE SECTION (The Truth) IN editorial-landing.tsx:
+Replace the <blockquote> inner text with:
+"I went from teaching selfies to building the AI that creates them for you. Because real talk? You don’t have time for angles or waiting on edits. You need photos now—so your brand can move."
+Replace the byline with:
+"Sandra Sigurjónsdóttir, built from scratch"
+
+3) WELCOMEEDITORIAL CONTENT:
+Open the component that renders <WelcomeEditorial /> and replace its INTERNAL copy as follows (keep its layout):
+- Section label: "Welcome"
+- Headline: "Professional brand photos. From your selfies."
+- Body (three short lines, separate <p> tags if needed):
+  "No studio. No awkward posing. No €1000 shoots."
+  "Upload your selfies, chat with Maya (your AI stylist), and get photos that look like a pro shot them."
+  "Fresh images every month so your brand never looks stale."
+- CTA label (if present): "Start your studio"
+
+4) FEATURES SECTION (The Method) IN editorial-landing.tsx:
+- Keep section label "The Method".
+- Replace h2 with:
+  Line 1: "Turn your selfies into brand photos that sell."
+  Line 2: "Simple. Fast. On your terms."
+- Feature card 01:
+  Title: "AI Photoshoot"
+  Body: "Upload 10–20 selfies. Get a full set of images that look professionally shot—without a studio, lights, or stress."
+- Feature card 02:
+  Title: "Maya, your AI stylist"
+  Body: "Tell Maya the vibe: “power CEO,” “coffee shop founder,” “launch day.” She styles the shoot and delivers ready-to-post photos."
+
+5) PRICING SECTION (Investment) IN editorial-landing.tsx:
+- Right column heading remains two-line: "Personal Brand" with italic "Studio".
+- Replace bullets with:
+  • "Your trained personal AI model" — sub: "Keeps your look consistent across shoots."
+  • "Up to 100 new photos monthly" — sub: "Fresh content for socials, site, launches."
+  • "Maya AI stylist access" — sub: "Describe the vibe—get the set."
+  • "Private brand gallery" — sub: "Save favorites. Download fast."
+- Replace footnote with:
+  "Cancel anytime. Your selfies stay private."
+
+6) PORTFOLIO SECTION HEADING IN editorial-landing.tsx:
+- Label: "Portfolio"
+- Headline two lines:
+  "Real women. Real brands."
+  italic subline: "What professional looks like—without the studio."
+- Leave <PortfolioSection /> component as-is.
+
+7) TESTIMONIAL SECTION IN editorial-landing.tsx:
+- Label: "What she said"
+- Quote:
+  "These don’t *look* AI. They look like me on my best day, every day. I finally show up online like the woman I’m building into."
+- Attribution:
+  "Elena — Coach & Creator"
+
+8) FINAL CTA SECTION IN editorial-landing.tsx:
+- Big quote (three lines):
+  "Your phone.
+  My system.
+  Your next-level brand."
+- Paragraph under quote:
+  "I built the photographer I needed when I was starting from zero. Now she’s yours—so you can show up like the CEO version of you."
+- Button label remains: "Start Today €47"
+
+CONSTRAINTS
+- Do NOT alter the hero section text or structure.
+- Keep all Tailwind classes, spacing, and layout intact.
+- Only replace string literals inside JSX.
+- Preserve handlers: handleGetStarted, routing, modals.
+- Keep section labels uppercase/serif styles as implemented by the existing classes.
+
+ACCEPTANCE
+- App builds with no TypeScript/ESLint errors.
+- No visual regressions beyond text changes.
+- All copy appears exactly as specified above.

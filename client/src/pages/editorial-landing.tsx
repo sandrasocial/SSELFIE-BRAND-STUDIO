@@ -24,19 +24,19 @@ export default function EditorialLanding() {
       metaDescription.setAttribute('name', 'description');
       document.head.appendChild(metaDescription);
     }
-    metaDescription.setAttribute('content', 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, 100 monthly professional photos, Maya AI photographer.');
+    metaDescription.setAttribute('content', 'Turn selfies into professional brand photos with AI. €47/month personal brand studio: your trained model, up to 100 monthly images, and Maya—your AI stylist.');
     
     // Add comprehensive SEO meta tags
     const seoTags = [
-      { name: 'keywords', content: 'AI personal branding, AI photographer, professional headshots AI, personal brand builder, selfie to professional photos, AI brand strategist, business launch platform, professional photos from selfies, AI personal brand coach, digital brand transformation' },
+      { name: 'keywords', content: 'AI personal branding, AI headshots, professional photos from selfies, personal brand photos, AI photographer, brand studio' },
       { property: 'og:title', content: 'SSELFIE Studio - AI Personal Branding Platform | Professional Photos from Selfies' },
-      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Your trained AI model, 100 monthly professional photos, Maya AI photographer.' },
+      { property: 'og:description', content: 'Professional brand photos from your selfies. €47/month. No photographer, no awkwardness—just you, looking like a pro.' },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: window.location.href },
       { property: 'og:site_name', content: 'SSELFIE Studio' },
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: 'SSELFIE Studio - AI Personal Branding Platform' },
-      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. Personal Brand Studio €47/month - Never pay for another photoshoot.' },
+      { name: 'twitter:description', content: 'Professional brand photos from your selfies. €47/month. No photographer, no awkwardness—just you, looking like a pro.' },
       { name: 'twitter:creator', content: '@sandra.social' },
       { name: 'author', content: 'Sandra Sigurjónsdóttir' },
       { name: 'robots', content: 'index, follow, max-image-preview:large' }
@@ -283,12 +283,12 @@ export default function EditorialLanding() {
             </div>
             <div className="col-span-12 lg:col-span-7">
               <blockquote className="font-serif text-[clamp(1.5rem,5vw,4.5rem)] leading-[0.95] font-thin text-black text-center lg:text-left px-4 sm:px-0">
-                <span className="italic">I went from</span> teaching selfies <span className="italic">to building AI</span> that creates them for you. Because honestly? You don't have time to learn angles. <span className="italic">You need photos now.</span>
+                I went from teaching selfies to building the AI that creates them for you. Because real talk? You don't have time for angles or waiting on edits. You need photos now—so your brand can move.
               </blockquote>
               <div className="mt-8 sm:mt-10 lg:mt-12 flex items-center justify-center lg:justify-start gap-4 sm:gap-6">
                 <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
                 <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500">
-                  Sandra Sigurjónsdóttir, 120K followers
+                  Sandra Sigurjónsdóttir, built from scratch
                 </p>
               </div>
             </div>
@@ -308,9 +308,8 @@ export default function EditorialLanding() {
                 The Method
               </p>
               <h2 className="font-serif text-[clamp(2rem,7vw,6rem)] leading-[0.85] font-thin px-4 sm:px-0">
-                Transform selfies<br/>
-                <span className="italic text-white/60">into professional</span><br/>
-                brand photos
+                Turn your selfies into brand photos that sell.<br/>
+                <span className="italic text-white/60">Simple. Fast. On your terms.</span>
               </h2>
             </div>
           </div>
@@ -329,7 +328,7 @@ export default function EditorialLanding() {
                 AI Photoshoot
               </h3>
               <p className="text-xs sm:text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100">
-                Upload your phone selfies, get photos that look like you hired a fancy photographer. No studio required.
+                Upload 10–20 selfies. Get a full set of images that look professionally shot—without a studio, lights, or stress.
               </p>
             </div>
             
@@ -342,10 +341,10 @@ export default function EditorialLanding() {
                 </span>
               </div>
               <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl font-thin mb-4 sm:mb-6 -mt-12 sm:-mt-16 lg:-mt-20">
-                Maya AI Photographer
+                Maya, your AI stylist
               </h3>
               <p className="text-xs sm:text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100">
-                Chat with Maya to create perfect brand photoshoots. She knows exactly how to style you and generate photos that look professional.
+                Tell Maya the vibe: "power CEO," "coffee shop founder," "launch day." She styles the shoot and delivers ready-to-post photos.
               </p>
             </div>
           </div>
@@ -389,34 +388,34 @@ export default function EditorialLanding() {
                   <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
                   <div>
                     <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Your trained personal AI model</h4>
-                    <p className="text-[10px] sm:text-xs text-gray-500">Personalized to your unique features</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Keeps your look consistent across shoots.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 sm:gap-6 group">
                   <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">100 monthly professional photos</h4>
-                    <p className="text-[10px] sm:text-xs text-gray-500">Fresh content every month</p>
+                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Up to 100 new photos monthly</h4>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Fresh content for socials, site, launches.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 sm:gap-6 group">
                   <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Maya AI photographer access</h4>
-                    <p className="text-[10px] sm:text-xs text-gray-500">Your personal styling assistant</p>
+                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Maya AI stylist access</h4>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Describe the vibe—get the set.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 sm:gap-6 group">
                   <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Personal brand photo gallery</h4>
-                    <p className="text-[10px] sm:text-xs text-gray-500">Organized and ready to use</p>
+                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Private brand gallery</h4>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Save favorites. Download fast.</p>
                   </div>
                 </div>
               </div>
               
               <p className="text-[10px] sm:text-xs text-gray-400 text-center lg:text-left">
-                Cancel anytime. No photographer required.
+                Cancel anytime. Your selfies stay private.
               </p>
             </div>
           </div>
@@ -432,8 +431,8 @@ export default function EditorialLanding() {
                 Portfolio
               </p>
               <h2 className="font-serif text-[clamp(2rem,6vw,5rem)] leading-[0.9] font-thin text-black px-4 sm:px-0">
-                Real results from<br/>
-                <span className="italic">my personal brand</span>
+                Real women. Real brands.<br/>
+                <span className="italic">What professional looks like—without the studio.</span>
               </h2>
             </div>
           </div>
@@ -449,16 +448,15 @@ export default function EditorialLanding() {
             <div className="col-span-12 lg:col-span-8 lg:col-start-3">
               <div className="text-center">
                 <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-8 sm:mb-10 lg:mb-12">
-                  Testimonial
+                  What she said
                 </p>
                 <blockquote className="font-serif text-[clamp(1.2rem,4vw,3rem)] leading-[1.2] font-thin italic text-gray-900 mb-8 sm:mb-10 lg:mb-12 px-4">
-                  "I thought I knew what I was doing, but Sandra's system completely changed how I show up online. 
-                  The AI photos don't look AI - they look like me, but the version of me I've always wanted to be."
+                  "These don't *look* AI. They look like me on my best day, every day. I finally show up online like the woman I'm building into."
                 </blockquote>
                 <div className="flex items-center justify-center gap-4 sm:gap-6">
                   <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
                   <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500">
-                    Elena M., Life Coach
+                    Elena — Coach & Creator
                   </p>
                   <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
                 </div>
@@ -478,13 +476,12 @@ export default function EditorialLanding() {
         <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 lg:px-16 text-center">
           <blockquote className="font-serif text-[clamp(1.8rem,6vw,5rem)] leading-[0.9] font-thin italic mb-8 sm:mb-12 lg:mb-16 px-4">
             "Your phone.<br />
-            <span className="not-italic text-white/60">My strategy.</span><br />
-            Your empire."
+            My system.<br />
+            Your next-level brand."
           </blockquote>
           
           <p className="text-sm sm:text-base text-white/60 mb-8 sm:mb-10 lg:mb-12 max-w-lg mx-auto px-4">
-            From single mom with zero plan to 120K followers. 
-            I built the AI photographer I needed. Now she's yours.
+            I built the photographer I needed when I was starting from zero. Now she's yours—so you can show up like the CEO version of you.
           </p>
           
           <button
