@@ -85,7 +85,6 @@ export default function Pricing() {
       }
     };
   }, []);
-
   const handleGetStarted = () => {
     toast({
       title: "Personal Brand Studio", 
@@ -406,43 +405,209 @@ export default function Pricing() {
           </div>
         </div>
       </section>
-
-      {/* Final CTA - Editorial Style */}
-      <section className="relative min-h-[60vh] flex items-center justify-center bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-40">
-          <img
-            src={SandraImages.editorial.laughing}
-            alt="Start your personal brand transformation"
-            className="w-full h-full object-cover object-center"
-          />
-        </div>
         
-        <div className="relative z-10 text-center max-w-4xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl font-extralight text-white tracking-[0.2em] sm:tracking-[0.3em] mb-8 sm:mb-12 leading-tight">
-            <span className="block">Ready to</span>
-            <span className="block ml-8 sm:ml-16">Stop Hiding?</span>
-          </h2>
-          
-          <button
-            onClick={() => handleGetStarted()}
-            className="group inline-block"
-          >
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 group-hover:border-white group-hover:tracking-[0.3em] sm:group-hover:tracking-[0.35em] transition-all duration-300">
-              Start Personal Brand Studio €47
-            </span>
-          </button>
-        </div>
-      </section>
+        {/* Header Section - Enhanced Mobile Responsiveness */}
+        <section className="text-center mb-12 sm:mb-16 md:mb-20 px-4 sm:px-6 lg:px-8"
+                 itemScope
+                 itemType="https://schema.org/Organization">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
+              Choose Your Journey
+            </div>
+            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light text-black mb-6 sm:mb-8 px-4"
+                itemProp="name">
+              Start where you<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>feel ready
+            </h1>
+            <div className="w-16 h-px bg-[#B5B5B3] mx-auto mb-6 sm:mb-8"></div>
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed px-4"
+               itemProp="description">
+              Transform your selfies into professional brand photos with AI. Never pay for another photoshoot.
+            </p>
+          </div>
+        </section>
 
-      {/* Email Capture Modal */}
-      <EmailCaptureModal 
-        isOpen={isEmailModalOpen}
-        onClose={() => setIsEmailModalOpen(false)}
-        plan="personal-brand-studio"
-      />
+        {/* Single Tier Pricing Section - Enhanced Mobile Design */}
+        <section className="px-4 sm:px-6 lg:px-8 mb-16 sm:mb-24 md:mb-32"
+                 itemScope
+                 itemType="https://schema.org/Product">
+          <div className="max-w-md mx-auto">
+            {/* PERSONAL BRAND STUDIO - SINGLE TIER */}
+            <div className="bg-black text-white p-8 sm:p-10 md:p-12 text-center relative"
+                 itemScope
+                 itemType="https://schema.org/Offer">
+              <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-white text-black px-4 sm:px-6 py-1 sm:py-2 text-xs uppercase tracking-[0.3em]">
+                  Launch Special
+                </div>
+              </div>
+              
+              <h3 className="font-serif text-2xl sm:text-3xl font-light mb-4 sm:mb-6"
+                  itemProp="name">Personal Brand Studio</h3>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-light mb-6 sm:mb-8">
+                <span itemProp="price">€47</span>
+                <span className="text-sm sm:text-base md:text-lg text-gray-400">/month</span>
+              </div>
+              
+              <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-10 md:mb-12 text-left">
+                <div className="flex items-start">
+                  <span className="text-white mr-3">•</span>
+                  <span className="text-sm">Your trained personal AI model</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-white mr-3">•</span>
+                  <span className="text-sm">100 monthly professional photos</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-white mr-3">•</span>
+                  <span className="text-sm">Maya AI photographer access</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-white mr-3">•</span>
+                  <span className="text-sm">Personal brand photo gallery</span>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-white mr-3">•</span>
+                  <span className="text-sm">Cancel anytime</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => handleGetStarted()}
+                className="w-full py-4 border border-white text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300"
+                aria-label="Start Personal Brand Studio for €47 per month"
+              >
+                Start Personal Brand Studio
+              </button>
+            </div>
+            
+            <div className="text-center mt-8 sm:mt-10 md:mt-12">
+              <p className="text-sm text-gray-500 px-4">
+                Never pay for another photoshoot. Your personal AI photographer available 24/7.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section - Enhanced Mobile */}
+        <section className="px-4 sm:px-6 lg:px-8 mb-16 sm:mb-24 md:mb-32"
+                 itemScope
+                 itemType="https://schema.org/FAQPage">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-black mb-4 sm:mb-6"
+                  itemProp="headline">
+                Frequently Asked Questions
+              </h2>
+              <div className="w-16 h-px bg-[#B5B5B3] mx-auto"></div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12">
+              <div className="space-y-3 sm:space-y-4"
+                   itemScope
+                   itemType="https://schema.org/Question">
+                <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
+                    itemProp="name">
+                  What's included in Personal Brand Studio?
+                </h3>
+                <div itemScope itemType="https://schema.org/Answer">
+                  <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
+                     itemProp="text">
+                    Personal Brand Studio (€47/month): Your trained personal AI model + 100 monthly professional photos + Maya AI photographer access + personal brand photo gallery.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3 sm:space-y-4"
+                   itemScope
+                   itemType="https://schema.org/Question">
+                <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
+                    itemProp="name">
+                  How does the AI work?
+                </h3>
+                <div itemScope itemType="https://schema.org/Answer">
+                  <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
+                     itemProp="text">
+                    Upload 10-15 selfies, and our custom-trained AI model creates editorial-quality images 
+                    that look authentically like you. It's trained specifically for women's personal branding.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3 sm:space-y-4"
+                   itemScope
+                   itemType="https://schema.org/Question">
+                <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
+                    itemProp="name">
+                  Who is Maya AI?
+                </h3>
+                <div itemScope itemType="https://schema.org/Answer">
+                  <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
+                     itemProp="text">
+                    Maya is your personal AI photographer who creates professional brand photos from your selfies. She knows exactly how to style you and generate photos that look like you hired a professional photographer.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3 sm:space-y-4"
+                   itemScope
+                   itemType="https://schema.org/Question">
+                <h3 className="font-serif text-lg sm:text-xl font-light text-black leading-tight"
+                    itemProp="name">
+                  How many photos can I generate?
+                </h3>
+                <div itemScope itemType="https://schema.org/Answer">
+                  <p className="text-sm sm:text-base text-gray-600 font-light leading-relaxed"
+                     itemProp="text">
+                    With Personal Brand Studio, you get 100 monthly professional brand photo generation. Fresh content every month for your personal brand growth.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA - Enhanced Mobile Design */}
+        <section className="px-4 sm:px-6 lg:px-8 text-center bg-black text-white py-16 sm:py-24 md:py-32"
+                 itemScope
+                 itemType="https://schema.org/Organization">
+          <div className="max-w-5xl mx-auto">
+            <blockquote className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light italic text-white leading-tight mb-6 sm:mb-8 px-4"
+                        itemProp="slogan">
+              "You don't need a plan.<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>Just one brave selfie."
+            </blockquote>
+            
+            <p className="text-base sm:text-lg text-white/80 mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto px-4 font-light">
+              Stop waiting for the perfect moment. Start with what you have, where you are, right now.
+            </p>
+            
+            <div className="flex justify-center">
+              <button 
+                onClick={() => handleGetStarted()}
+                className="w-full sm:w-auto px-8 sm:px-12 py-4 sm:py-6 bg-white text-black text-xs sm:text-sm uppercase tracking-[0.25em] sm:tracking-[0.3em] hover:bg-gray-100 transition-all duration-300"
+                aria-label="Start Personal Brand Studio for €47 per month"
+              >
+                Start Personal Brand Studio €47
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
 
       {/* Global Footer */}
       <GlobalFooter />
+
+      {/* Email Capture Modal */}
+      <EmailCaptureModal 
+        isOpen={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        plan="basic"
+        onEmailCaptured={(email) => {
+          console.log('Email captured:', email);
+          // Email modal will handle redirect to authentication
+        }}
+      />
     </div>
   );
-};
+}

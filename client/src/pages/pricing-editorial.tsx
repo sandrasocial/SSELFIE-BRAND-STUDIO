@@ -5,7 +5,7 @@ import { EmailCaptureModal } from "../components/email-capture-modal";
 import { GlobalFooter } from "../components/global-footer";
 import { useToast } from "../hooks/use-toast";
 
-export default function Pricing() {
+export default function PricingEditorial() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [, setLocation] = useLocation();
