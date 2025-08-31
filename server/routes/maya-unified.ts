@@ -1202,10 +1202,15 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   
   console.log('🎯 UNIFIED CONCEPT PARSING: Analyzing response for Maya\'s styling concepts');
   
-  // ENHANCED CONCEPT DETECTION: Look for Maya's natural concept presentation with emojis
-  // Pattern 1: Emoji + concept name (e.g., "📸 THE POWER PLAYER CASUAL")
-  // Pattern 2: Traditional **Concept Name** format
-  // Pattern 3: Single concept with "Story Collection Preview:" or similar formats
+  // ENHANCED CONCEPT DETECTION: Handle Maya's mixed concept presentation formats
+  // Pattern 1: FLUX_PROMPT embedded concepts (FLUX_PROMPT: ... 💫 *Concept Name*)
+  // Pattern 2: Emoji + concept name (e.g., "📸 THE POWER PLAYER CASUAL")  
+  // Pattern 3: Traditional **Concept Name** format
+  // Pattern 4: Mixed inline concepts (FLUX_PROMPT: ... emoji *concept* description)
+  
+  // NEW: Pattern to handle FLUX_PROMPT followed by concept name
+  const fluxInlinePattern = /FLUX_PROMPT:\s*([^💫]*?)([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*([^*\n]+)\*\s*([^FLUX_PROMPT]*?)(?=FLUX_PROMPT:|$)/gs;
+  
   const emojiConceptPattern = /([✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬])\s*\*?\*?([A-Z][A-Z\s]{7,50})\*?\*?\n(.*?)(?=\n[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬]|$)/gs;
   const multiConceptPattern = /\*\*([^*\n]{10,80})\*\*([^*]*?)(?=\*\*[^*\n]{10,80}\*\*|$)/gs;
   const singleConceptPattern = /\*\*([^*\n]+(?:Collection|Preview|Concept|Look|Style|Vibe)[^*\n]*)\*\*\s*\*([^*]+)\*/gs;
@@ -1214,7 +1219,42 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
   let conceptNumber = 1;
   const foundConcepts = new Set();
   
-  // Try emoji concept pattern first (Maya's new format)
+  console.log('🔍 MAYA RESPONSE ANALYSIS:', response.substring(0, 200));
+  
+  // Try FLUX inline pattern first (Maya's mixed format: FLUX_PROMPT: ... 💫 *concept* description)
+  while ((match = fluxInlinePattern.exec(response)) !== null) {
+    const firstFluxPrompt = match[1].trim();
+    const emoji = match[2];
+    const conceptName = match[3].trim();
+    const conceptDescription = match[4].trim();
+    
+    const fullConceptName = `${emoji} ${conceptName}`;
+    
+    console.log(`🎯 FLUX INLINE CONCEPT DEBUG: "${fullConceptName}"`);
+    console.log(`📝 FIRST FLUX PROMPT: "${firstFluxPrompt.substring(0, 100)}..."`);
+    console.log(`📝 CONCEPT DESCRIPTION: "${conceptDescription.substring(0, 100)}..."`);
+    
+    if (fullConceptName.length >= 8 && !foundConcepts.has(fullConceptName)) {
+      foundConcepts.add(fullConceptName);
+      
+      const description = conceptDescription.substring(0, 120).trim() + (conceptDescription.length > 120 ? '...' : '');
+      
+      const conceptCard: ConceptCard = {
+        id: `concept_${conceptNumber++}`,
+        title: fullConceptName,
+        description: description,
+        originalContext: `${conceptDescription.substring(0, 500)}`,
+        fullPrompt: firstFluxPrompt, // Use the FLUX prompt that appeared before this concept
+        canGenerate: true,
+        isGenerating: false
+      };
+      
+      console.log(`✅ FLUX INLINE CONCEPT EXTRACTED: "${fullConceptName}"`);
+      concepts.push(conceptCard);
+    }
+  }
+  
+  // Try emoji concept pattern (Maya's standard format)
   while ((match = emojiConceptPattern.exec(response)) !== null) {
     const emoji = match[1];
     let conceptName = match[2].trim();
@@ -1274,7 +1314,7 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
     }
   }
   
-  // Try multi-concept pattern if no emoji concepts found
+  // Try multi-concept pattern if no concepts found yet
   if (concepts.length === 0) {
     multiConceptPattern.lastIndex = 0; // Reset regex
     while ((match = multiConceptPattern.exec(response)) !== null) {

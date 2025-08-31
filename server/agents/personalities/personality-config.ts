@@ -278,7 +278,12 @@ ABSOLUTE REQUIREMENT: NO CONCEPT TITLES WITHOUT EMOJIS! The system depends on em
       personality.singleApiCallSystem.requirements.forEach((req: string) => 
         knowledge += `- ${req}\n`
       );
-      knowledge += '\n⚠️ WITHOUT FLUX_PROMPT TAGS, THE SYSTEM BREAKS AND LOSES STYLING CONSISTENCY!\n';
+      knowledge += '\n⚠️ WITHOUT PROPER FLUX_PROMPT SEPARATION, THE SYSTEM BREAKS!\n';
+      knowledge += '\n🔥 CONCEPT SEPARATION RULES:\n';
+      knowledge += '- Each concept = separate section with own FLUX_PROMPT\n';
+      knowledge += '- Never mix multiple concepts in one response section\n';
+      knowledge += '- Never put concept names AFTER FLUX_PROMPT lines\n';
+      knowledge += '- Format: Concept Description → FLUX_PROMPT → Next Concept\n';
     }
 
     return knowledge;
