@@ -477,6 +477,21 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                         console.log('- FullPrompt field exists:', conceptCard.hasOwnProperty('fullPrompt'));
                         console.log('- FullPrompt has content:', !!conceptCard.fullPrompt);
                         console.log('- FullPrompt length:', conceptCard.fullPrompt?.length || 0);
+                        console.log('- Fallback reason:', !conceptCard.fullPrompt ? 'NO_FULL_PROMPT' : 
+                                   conceptCard.fullPrompt.length === 0 ? 'EMPTY_FULL_PROMPT' : 'UNKNOWN');
+                        console.log('- Concept structure keys:', Object.keys(conceptCard));
+                        
+                        // Enhanced debugging for concept card contents
+                        if (conceptCard.fullPrompt) {
+                          console.log('🎯 EMBEDDED PROMPT CONTENT ANALYSIS:');
+                          console.log('- Full prompt type:', typeof conceptCard.fullPrompt);
+                          console.log('- Full prompt valid string:', typeof conceptCard.fullPrompt === 'string');
+                          console.log('- Contains FLUX keywords:', /portrait|photograph|camera|lighting|professional/.test(conceptCard.fullPrompt));
+                          console.log('- Contains styling terms:', /blazer|dress|outfit|elegant|professional|business/.test(conceptCard.fullPrompt));
+                        } else {
+                          console.log('❌ NO EMBEDDED PROMPT: Concept card missing fullPrompt field');
+                          console.log('🔍 CONCEPT CARD STRUCTURE:', JSON.stringify(conceptCard, null, 2));
+                        }
                         
                         if (conceptCard.fullPrompt && conceptCard.fullPrompt.length > 0) {
                           console.log('✅ SINGLE API SUCCESS: Using embedded fullPrompt');
@@ -508,6 +523,26 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                           console.log('- Falling back to dual API call system');
                           console.log('- Fallback reason:', !conceptCard.fullPrompt ? 'NO_FULL_PROMPT' : 
                                      conceptCard.fullPrompt.length === 0 ? 'EMPTY_FULL_PROMPT' : 'UNKNOWN');
+                          
+                          // COMPREHENSIVE FALLBACK TRIGGER ANALYSIS
+                          console.log('🔍 COMPREHENSIVE FALLBACK ANALYSIS:');
+                          console.log('- Concept ID provided:', !!conceptId);
+                          console.log('- Concept ID value:', conceptId);
+                          console.log('- Concept name provided:', !!conceptName);
+                          console.log('- Concept name value:', conceptName);
+                          console.log('- ConceptCard retrieved:', !!conceptCard);
+                          console.log('- ConceptCard ID:', conceptCard?.id);
+                          console.log('- ConceptCard title:', conceptCard?.title);
+                          console.log('- ConceptCard has originalContext:', !!conceptCard?.originalContext);
+                          console.log('- ConceptCard originalContext length:', conceptCard?.originalContext?.length || 0);
+                          console.log('- ConceptCard created timestamp:', conceptCard?.createdAt);
+                          
+                          // Check if this is a timing issue - concept created but fullPrompt not populated
+                          if (conceptCard && !conceptCard.fullPrompt) {
+                            console.log('🚨 CRITICAL ISSUE: Concept exists but fullPrompt is missing');
+                            console.log('🔍 This indicates the single API call system created the concept but failed to embed the FLUX prompt');
+                            console.log('🔍 Root cause likely in parseConceptsFromResponse or concept creation logic');
+                          }
                         }
                         
                         // Cache the context for future use - ENHANCED CONTEXT PRESERVATION
