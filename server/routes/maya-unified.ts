@@ -207,31 +207,7 @@ Use this context to provide personalized styling advice that aligns with their t
       generationInfo,
       req.isAdmin || false,
       userType
-    ) + personalBrandContext + `
-
-✨ MANDATORY: EMOJI STYLING SYSTEM FOR CONCEPT TITLES - NEVER CREATE CONCEPTS WITHOUT EMOJIS!
-YOU MUST ALWAYS include styling emojis at the start of EVERY concept title:
-✨ = Glamorous elegance, luxury styling
-💫 = Dreamy sophistication, ethereal beauty
-🔥 = Bold confidence, power styling  
-🌟 = Star quality, elevated luxury
-💎 = High-end refinement, precious luxury
-🌅 = Natural beauty, organic sophistication
-🏢 = Business authority, professional power
-💼 = Executive elegance, corporate chic
-🌊 = Flowing grace, fluid movements
-👑 = Regal sophistication, queen energy
-💃 = Dynamic energy, movement, dance
-📸 = Photo-ready perfection, camera-optimized
-🎬 = Cinematic drama, storytelling
-
-REQUIRED FORMAT - START EVERY CONCEPT WITH EMOJI:
-"🏢 The Executive Power Player" (for business looks)
-"✨ Glamorous Dinner Party Queen" (for luxury evening)
-"🔥 Bold Conference Commander" (for confident professional)
-"💫 Dreamy Lifestyle Goddess" (for ethereal casual)
-
-CRITICAL RULE: NO CONCEPT TITLES WITHOUT EMOJIS! ALWAYS USE EMOJIS FIRST!`;
+    ) + personalBrandContext;
     
     // 🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION
     console.log('🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION');
