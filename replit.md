@@ -22,18 +22,27 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 
 ## System Architecture
 
+### Maya AI Core System
+- **Maya Intelligence**: Consolidated personality system with FLUX optimization mastery in `server/agents/personalities/personality-config.ts`
+- **Single API Call Architecture**: Unified concept generation and FLUX-optimized prompt creation via `/api/maya/*` endpoints
+- **Pure Intelligence Preservation**: Maya's styling expertise drives all technical decisions without generic system overrides
+- **Shot Type Intelligence**: Automatic detection and optimization for close-up portraits (4:5), half-body shots (3:4), and full scenes (3:2)
+- **Context Memory**: Complete conversation and styling preference preservation across sessions
+
 ### Frontend Architecture
 - **Framework**: React 18 with TypeScript and Vite.
 - **Routing**: Wouter.
 - **UI Framework**: Radix UI components with shadcn/ui design system.
 - **Styling**: Tailwind CSS, luxury brand color palette (editorial blacks, signature golds, premium grays), Times New Roman typography.
 - **State Management**: TanStack Query for server state, custom hooks for local state.
+- **Maya Integration**: Specialized hooks (`useMayaGeneration.ts`) for concept card management and generation pipeline.
 - **PWA Support**: Progressive Web App features for mobile optimization.
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js.
 - **Language**: TypeScript with ES modules.
 - **API Design**: RESTful endpoints with agent-specific routing, unified `/api/maya/*` endpoint for consistent Maya personality via `PersonalityManager`.
+- **Maya Pipeline**: Complete image generation system with FLUX optimization in `server/model-training-service.ts`
 - **Authentication**: Express sessions with role-based access control.
 - **File Operations**: Direct tool access for admin agents.
 - **Agent System**: Specialized AI agents (Elena, Zara) with autonomous capabilities and database-connected memory for context persistence.
