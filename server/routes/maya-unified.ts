@@ -1904,7 +1904,7 @@ ${categorySpecificGuidance || ''}
 ENHANCED EXAMPLE STRUCTURE:
 "[TECHNICAL PREFIX], [Subject] [detailed action] in [specific setting], wearing [complete outfit description with colors, textures, fit details], [accessories and styling elements], [pose and expression details], shot with [specific camera and lens at f-stop], [detailed lighting setup], [mood and atmosphere], beautiful hands, detailed fingers, anatomically correct, [final styling touches]."
 
-CRITICAL: Your response should be a complete, sophisticated FLUX prompt that captures the full styling vision. Do not provide explanations or reasoning - only the final enhanced prompt that preserves your original styling intelligence.
+CRITICAL: Your response should be a complete, sophisticated FLUX prompt that captures your complete styling vision. Include ALL technical requirements, anatomical details, styling elements, and camera specifications naturally within your response. This will be used DIRECTLY for image generation without any modifications or enhancements.
 
 GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
       }]
@@ -1956,102 +1956,25 @@ GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
     console.log('⚡ RAW MAYA PROMPT RESPONSE:');
     console.log(generatedPrompt);
     
-    // RESEARCH-BACKED PROMPT OPTIMIZATION - NO DUPLICATES, PROPER STRUCTURE
-    // Phase 1: Clean Maya's conversational content while preserving styling intelligence
-    generatedPrompt = cleanMayaPrompt(generatedPrompt);
+    // ✅ MAYA INTELLIGENCE PURE: Trust Maya's complete styling intelligence
+    // Maya knows exactly how to structure prompts and styling - no generic processing needed
+    console.log('🎯 MAYA PURE INTELLIGENCE: Using Maya\'s raw output without generic enhancement');
     
-    // Phase 2: DUPLICATE DETECTION - Critical fix from research
-    const { hasTechnicalPrefix, addAnatomyKeywords } = await import('../generation-validator.js');
-    const alreadyHasTechnicalTags = hasTechnicalPrefix(generatedPrompt);
+    // Simple trigger word integration - Maya handles everything else
+    let finalPrompt = generatedPrompt.trim();
     
-    console.log(`🔍 DUPLICATE DETECTION: Technical tags already present = ${alreadyHasTechnicalTags}`);
-    
-    // Phase 3: RESEARCH-BACKED PROMPT ASSEMBLY
-    if (finalTriggerWord) {
+    // Only ensure trigger word is at the beginning if not already present
+    if (finalTriggerWord && !finalPrompt.startsWith(finalTriggerWord)) {
       // Remove any existing trigger word occurrences to avoid duplication
-      let cleanPrompt = generatedPrompt.replace(new RegExp(finalTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
-      
-      if (cleanPrompt.length > 3) { // Reduced threshold - preserve brief Maya intelligence
-        
-        // RESEARCH FINDING: Add anatomy keywords early for FLUX hand quality
-        cleanPrompt = addAnatomyKeywords(cleanPrompt);
-        
-        if (alreadyHasTechnicalTags) {
-          // Maya's response already has technical tags - don't duplicate
-          console.log('✅ MAYA INTELLIGENCE: Using existing technical tags, no duplication');
-          generatedPrompt = `${finalTriggerWord}, ${cleanPrompt}`;
-        } else {
-          // Add technical prefix only if not present
-          console.log('📝 TECHNICAL PREFIX: Adding research-backed quality tags');
-          generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, ${cleanPrompt}`;
-        }
-      } else {
-        // CRITICAL MAYA INTELLIGENCE PRESERVATION: Use Maya's original response even if brief
-        console.log('✅ MAYA INTELLIGENCE PRESERVATION: Using brief Maya response with styling intelligence');
-        
-        // PRESERVE Maya's styling words by using the uncleaned original response when it contains styling intelligence
-        const stylingIndicators = ['stunning', 'gorgeous', 'incredible', 'perfect', 'beautiful', 'amazing', 'elevated', 'sophisticated', 'chic', 'elegant', 'luxe', 'power', 'confident', 'boss', 'energy'];
-        const originalHasStyling = stylingIndicators.some(word => generatedPrompt.toLowerCase().includes(word));
-        
-        let contextEnhancedContent;
-        if (originalHasStyling) {
-          // Maya provided styling intelligence - use her original response
-          contextEnhancedContent = addAnatomyKeywords(generatedPrompt);
-          console.log('🎨 MAYA STYLING DETECTED: Preserving original styling intelligence');
-        } else {
-          // No styling detected - enhance with context
-          contextEnhancedContent = originalContext && originalContext.length > 5 ? 
-            addAnatomyKeywords(`${originalContext}, ${conceptName}`) : 
-            addAnatomyKeywords(`${conceptName}`);
-          console.log('📝 CONTEXT ENHANCEMENT: Adding preserved styling context');
-        }
-        
-        generatedPrompt = `${finalTriggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, ${contextEnhancedContent}`;
-        console.log(`✅ ENHANCED WITH ${originalHasStyling ? 'MAYA STYLING' : 'CONTEXT'}: Intelligence preservation complete`);
-      }
+      const cleanedPrompt = finalPrompt.replace(new RegExp(finalTriggerWord, 'gi'), '').replace(/^[\s,]+/, '').trim();
+      finalPrompt = `${finalTriggerWord}, ${cleanedPrompt}`;
     }
     
-    // PHASE 1 DEBUG: Log final cleaned prompt
-    console.log('✨ FINAL CLEANED PROMPT:');
-    console.log(generatedPrompt);
+    // Basic cleanup only - preserve Maya's complete intelligence
+    finalPrompt = finalPrompt.replace(/\s+/g, ' ').trim();
     
-    // RESEARCH-BASED PROMPT LENGTH VALIDATION (FLUX 1.1 Pro optimal: 100-300 words)
-    const wordCount = generatedPrompt.split(/\s+/).length;
-    console.log(`🎯 MAYA PROMPT LENGTH: ${wordCount} words (research-optimal: 100-300)`);
-    
-    if (wordCount > 400) {
-      // Trim extremely long prompts while preserving core elements
-      const words = generatedPrompt.split(/\s+/);
-      const trimmedPrompt = words.slice(0, 300).join(' ');
-      console.log('⚠️ MAYA PROMPT TRIMMED: Reduced from', wordCount, 'to 300 words for FLUX token limits');
-      generatedPrompt = trimmedPrompt;
-    } else if (wordCount < 75) {
-      console.log('⚠️ MAYA PROMPT TOO SHORT: Adding minimal technical enhancement while preserving Maya\'s styling');
-      generatedPrompt += ', professional photography quality, photorealistic rendering';
-    }
-    
-    // Final validation - ensure prompt is FLUX-ready and trigger word consistent
-    const finalPrompt = generatedPrompt.replace(/\s+/g, ' ').trim();
-    
-    // RESEARCH-BASED VALIDATION WITH GENERATION VALIDATOR
-    const validationResult = validateMayaPrompt(finalPrompt, {
-      triggerWord: finalTriggerWord,
-      targetWordCount: { min: 100, max: 300 },
-      requiredElements: ['photography', 'professional'],
-      forbiddenElements: ['Maya', '**', '#', 'brown eyes', 'blue eyes', 'green eyes', 'brown hair', 'blonde hair', 'black hair']
-    });
-    
-    if (!validationResult.isValid) {
-      console.warn(`⚠️ MAYA PROMPT VALIDATION ISSUES:`, validationResult.issues);
-      console.log(`💡 SUGGESTIONS:`, validationResult.suggestions);
-    }
-    
-    // ✅ MAYA INTELLIGENCE COMPLETE - Final prompt ready for generation
-    console.log(`✅ MAYA PROMPT COMPLETE: ${finalPrompt.length} characters, ready for image generation`);
-    
-    // FINAL VALIDATION LOGS
-    console.log(`🎯 MAYA INTELLIGENT PROMPT: ${finalPrompt.substring(0, 150)}...`);
-    console.log(`✅ VALIDATION SUMMARY: ${validationResult.wordCount} words, trigger word: ${validationResult.hasValidTriggerWord ? 'OK' : 'ISSUE'}, overall: ${validationResult.isValid ? 'PASS' : 'ISSUES'}`);
+    console.log(`✅ MAYA INTELLIGENCE PRESERVED: ${finalPrompt.length} characters of pure Maya styling intelligence`);
+    console.log(`🎯 MAYA PROMPT PREVIEW: ${finalPrompt.substring(0, 200)}...`);
     
     return finalPrompt;
     
