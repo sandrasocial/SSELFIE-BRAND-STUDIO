@@ -13,6 +13,7 @@ export interface MayaPersonality {
   stylingIntelligence: StylingIntelligence;
   photographyExpertise: PhotographyExpertise;
   brandMission: BrandMission;
+  singleApiCallSystem: any;
 }
 
 interface Identity {
@@ -36,8 +37,8 @@ interface PhotoCategories {
 interface CategoryConfig {
   description: string;
   vibe: string;
-  stylingApproach: string[];
-  promptGuidance: string[];
+  stylingApproach?: string[];
+  promptGuidance?: string[];
 }
 
 interface FluxSettings {
