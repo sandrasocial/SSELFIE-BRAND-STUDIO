@@ -8,12 +8,15 @@ Preferred communication style: Simple, everyday language.
 UI Preferences: Keep technical controls hidden - users prefer Maya to handle technical details automatically rather than exposing preset/seed parameters.
 PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY flow for immediate €47/month launch. Maya authentication cleaned for production - development access removed for professional launch experience.
 
-## Training System Access
-**CRITICAL**: Training system requires proper authentication
-- Users must be logged in via `/api/login` to access training endpoints
-- Paid plans required: 'pro', 'full-access', 'sselfie-studio' (studio plan recommended)
-- Test user Erla (erlafgunnars@gmail.com) upgraded to studio plan with 500 monthly generations
-- Authentication validates via session cookies and isAuthenticated middleware
+## Single Plan Structure (Implemented September 1, 2025)
+**UNIFIED SUBSCRIPTION MODEL**: All users on single sselfie-studio plan
+- **Plan**: 'sselfie-studio' - Personal Brand Studio 
+- **Price**: €47/month 
+- **Features**: 100 monthly AI generations + Maya AI photographer + Personal brand photo gallery
+- **Training Access**: sselfie-studio plan required for AI model training
+- **Admin Access**: -1 generations (unlimited) for Sandra admin accounts
+- **Checkout Flow**: Stripe → Authentication → Redirect to /studio
+- **Database**: All existing users migrated to sselfie-studio plan with 100 monthly limit
 
 ## Recent Critical Update (August 31, 2025)
 **MAYA FLUX INTELLIGENCE ENHANCEMENT COMPLETE**: Maya's prompt generation system has been upgraded with comprehensive FLUX optimization knowledge including natural language examples, anti-pattern guidance, and shot-specific technical intelligence. The system now guides Maya to create optimal FLUX prompts with 30-80 word natural sentence structure instead of tag lists.

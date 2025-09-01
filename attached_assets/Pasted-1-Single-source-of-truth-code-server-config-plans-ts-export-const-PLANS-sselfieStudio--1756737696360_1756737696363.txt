@@ -1,0 +1,95 @@
+1) Single source of truth (code)
+// server/config/plans.ts
+export const PLANS = {
+  sselfieStudio: {
+    key: 'sselfie-studio',
+    publicName: 'Personal Brand Studio',
+    priceCents: 4700,
+    monthlyGenerations: 100,
+    description: '100 AI generations/month + Maya',
+  },
+};
+
+// server/services/usageService.ts
+import { PLANS } from '../config/plans';
+
+export function getMonthlyLimitForUser(user) {
+  if (user.role === 'admin' || user.monthly_generation_limit === -1) return -1;
+  return user.plan === 'sselfie-studio' ? PLANS.sselfieStudio.monthlyGenerations : 0; // only plan
+}
+
+2) Data fix (SQL — idempotent)
+
+replace sandra@yourdomain.com with your real admin email(s)
+
+BEGIN;
+
+-- admin stays unlimited
+UPDATE users
+SET role='admin', plan='sselfie-studio', monthly_generation_limit=-1
+WHERE lower(email) IN ('sandra@yourdomain.com');
+
+-- everyone else → sselfie-studio 100
+UPDATE users
+SET plan='sselfie-studio', monthly_generation_limit=100
+WHERE lower(email) NOT IN ('sandra@yourdomain.com');
+
+COMMIT;
+
+-- sanity check
+SELECT plan, monthly_generation_limit, COUNT(*) 
+FROM users GROUP BY 1,2 ORDER BY 1,2;
+
+3) Remove legacy subscription tables/rows
+
+If you have separate plans/subscriptions tables, nuke legacy data. Keep only sselfie-studio.
+
+-- keep the single product/price mapping for sselfie-studio; delete others
+DELETE FROM plans WHERE key IN ('basic','pro','full-access','studio','free');
+
+-- optional: drop unused tables if truly not needed
+-- DROP TABLE legacy_subscriptions;
+-- DROP TABLE legacy_plan_mappings;
+
+
+(If dropping tables is risky, at least remove references in code and add NOT NULL constraints so only sselfie-studio can be written.)
+
+4) Stripe → auth → redirect to /studio
+
+Checkout webhook (checkout.session.completed or invoice.paid):
+
+// server/routes/stripe-webhooks.ts
+await db.users.update(userId, {
+  plan: 'sselfie-studio',
+  monthly_generation_limit: 100,
+});
+
+
+
+Post-checkout client redirect:
+
+// client/src/pages/checkout-success.tsx
+// after session verifies, set auth/session then:
+setLocation('/studio');
+
+
+If you create sessions server-side:
+
+// server/routes/checkout.ts
+// success_url must point to a page that finalizes auth then redirects:
+success_url = 'https://yourapp.com/checkout-success';
+
+5) Edge guard (normalize stragglers on first request)
+// server/middleware/normalizePlan.ts
+const legacy = new Set(['basic','pro','full-access','studio','free', null]);
+if (legacy.has(user.plan)) {
+  await db.users.update(user.id, { plan: 'sselfie-studio', monthly_generation_limit: 100 });
+}
+
+6) Frontend copy + routing
+
+Show one offer everywhere: “€47/month – 100 photos”
+
+All “Start/Buy” buttons → Stripe checkout for sselfie-studio
+
+After success → /checkout-success → set session → /studio

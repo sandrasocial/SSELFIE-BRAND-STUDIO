@@ -29,6 +29,7 @@ const Privacy = lazy(() => import("./pages/privacy"));
 const HowItWorks = lazy(() => import("./pages/how-it-works"));
 const SelfieGuide = lazy(() => import("./pages/selfie-guide"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
+const CheckoutSuccess = lazy(() => import("./pages/checkout-success"));
 const Checkout = lazy(() => import("./pages/checkout"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
@@ -217,6 +218,12 @@ function Router() {
           <PaymentSuccess />
         </Suspense>
       )} />
+      
+      <Route path="/checkout-success" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <CheckoutSuccess />
+        </Suspense>
+      )} />
       <Route path="/auth-success" component={() => (
         <Suspense fallback={<PageLoader />}>
           <AuthSuccess />
@@ -231,9 +238,7 @@ function Router() {
 
       {/* PROTECTED ROUTES */}
       <Route path="/workspace" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
-      <Route path="/studio">
-        <Redirect to="/workspace" />
-      </Route>
+      <Route path="/studio" component={(props) => <ProtectedRoute component={Workspace} {...props} />} />
 
       
       {/* AI TRAINING & PHOTOSHOOT WORKFLOW */}
