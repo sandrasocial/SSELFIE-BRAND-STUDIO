@@ -283,7 +283,7 @@ export default function EditorialLanding() {
             <div className="col-span-12 lg:col-span-6">
               <div className="relative h-[400px] lg:h-[500px] overflow-hidden bg-gray-100">
                 <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756240155921.png"
                   alt="Professional brand consistency"
                   className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
                 />
