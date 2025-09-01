@@ -218,7 +218,7 @@ export default function EditorialLanding() {
             </button>
             <button
               onClick={() => { handleGetStarted(); setMobileMenuOpen(false); }}
-              className="px-8 py-4 border border-white/50 text-white text-sm sm:text-base uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8 min-h-[44px] min-w-[44px]"
+              className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
             >
               Start €47
             </button>
@@ -237,31 +237,18 @@ export default function EditorialLanding() {
       {/* Hero Section - Full Bleed Editorial */}
       <section className="relative min-h-screen flex items-end justify-center bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-60">
-          <picture>
-            <source 
-              media="(min-width: 1024px)" 
-              srcSet="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
-            />
-            <source 
-              media="(min-width: 768px)" 
-              srcSet="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
-            />
-            <img
-              src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
-              alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
-              className="w-full h-full object-cover object-center"
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              width="1920"
-              height="1080"
-            />
-          </picture>
+          <img
+            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
+            alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
+            className="w-full h-full object-cover object-center"
+            loading="eager"
+            fetchPriority="high"
+          />
         </div>
         
         {/* Hero Content - Positioned Lower */}
         <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 md:pb-24">
-          <p className="text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light mobile-text-base">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
             IT STARTS WITH YOUR SELFIES
           </p>
           
@@ -269,15 +256,15 @@ export default function EditorialLanding() {
             SSELFIE
           </h1>
           
-          <p className="text-xs sm:text-sm md:text-base uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-8 sm:mb-10 font-light mobile-text-lg">
+          <p className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-8 sm:mb-10 font-light">
             STUDIO
           </p>
           
           <button
             onClick={() => handleGetStarted()}
-            className="group inline-block min-h-[44px] min-w-[44px] px-4 py-3 sm:px-6 sm:py-4"
+            className="group inline-block"
           >
-            <span className="text-sm sm:text-base uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 group-hover:border-white group-hover:tracking-[0.3em] sm:group-hover:tracking-[0.35em] transition-all duration-300 mobile-text-lg">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 group-hover:border-white group-hover:tracking-[0.3em] sm:group-hover:tracking-[0.35em] transition-all duration-300">
               Begin Your Journey €47
             </span>
           </button>
@@ -290,7 +277,7 @@ export default function EditorialLanding() {
           <div className="grid grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
             <div className="col-span-12 lg:col-span-2 lg:col-start-2">
               <div className="h-[1px] w-full bg-gray-200 mb-4 sm:mb-6 lg:mb-8"></div>
-              <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 text-center lg:text-left mobile-text-base">
+              <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 text-center lg:text-left">
                 The Truth
               </p>
             </div>
@@ -300,7 +287,7 @@ export default function EditorialLanding() {
               </blockquote>
               <div className="mt-8 sm:mt-10 lg:mt-12 flex items-center justify-center lg:justify-start gap-4 sm:gap-6">
                 <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
-                <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500 mobile-text-base">
+                <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500">
                   Sandra Sigurjónsdóttir, built from scratch
                 </p>
               </div>
@@ -317,7 +304,7 @@ export default function EditorialLanding() {
         <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16">
           <div className="grid grid-cols-12 gap-4 sm:gap-8 mb-12 sm:mb-16 lg:mb-24">
             <div className="col-span-12 lg:col-span-8 lg:col-start-3 text-center lg:text-left">
-              <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/40 mb-4 sm:mb-6 lg:mb-8 mobile-text-base">
+              <p className="text-[9px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/40 mb-4 sm:mb-6 lg:mb-8">
                 The Method
               </p>
               <h2 className="font-serif text-[clamp(2rem,7vw,6rem)] leading-[0.85] font-thin px-4 sm:px-0">
@@ -333,7 +320,7 @@ export default function EditorialLanding() {
             <div className="border border-white/10 p-6 sm:p-10 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700">
               <div className="flex justify-between items-start mb-6 sm:mb-8">
                 <span className="text-[60px] sm:text-[80px] lg:text-[100px] font-serif font-thin opacity-10 leading-none">01</span>
-                <span className="text-xs sm:text-sm tracking-[0.3em] sm:tracking-[0.4em] uppercase opacity-50 mt-2 sm:mt-4 mobile-text-base">
+                <span className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.3em] sm:tracking-[0.4em] uppercase opacity-50 mt-2 sm:mt-4">
                   Feature
                 </span>
               </div>
@@ -349,7 +336,7 @@ export default function EditorialLanding() {
             <div className="border border-white/10 p-6 sm:p-10 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700">
               <div className="flex justify-between items-start mb-6 sm:mb-8">
                 <span className="text-[60px] sm:text-[80px] lg:text-[100px] font-serif font-thin opacity-10 leading-none">02</span>
-                <span className="text-xs sm:text-sm tracking-[0.3em] sm:tracking-[0.4em] uppercase opacity-50 mt-2 sm:mt-4 mobile-text-base">
+                <span className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.3em] sm:tracking-[0.4em] uppercase opacity-50 mt-2 sm:mt-4">
                   Feature
                 </span>
               </div>
@@ -371,7 +358,7 @@ export default function EditorialLanding() {
             {/* Left Side - Price Statement */}
             <div className="col-span-12 lg:col-span-5 text-center lg:text-left">
               <div className="lg:sticky lg:top-32">
-                <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8 mobile-text-base">
+                <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8">
                   Investment
                 </p>
                 <div className="mb-6 sm:mb-8">
@@ -380,9 +367,9 @@ export default function EditorialLanding() {
                 </div>
                 <button
                   onClick={() => handleGetStarted()}
-                  className="group min-h-[44px] min-w-[44px] px-4 py-3 cta-button"
+                  className="group"
                 >
-                  <span className="text-sm sm:text-base tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 group-hover:border-black transition-all duration-300 mobile-text-lg">
+                  <span className="text-[9px] sm:text-[10px] lg:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 group-hover:border-black transition-all duration-300">
                     Start Your Journey
                   </span>
                 </button>
@@ -427,7 +414,7 @@ export default function EditorialLanding() {
                 </div>
               </div>
               
-              <p className="text-sm sm:text-base text-gray-400 text-center lg:text-left mobile-text-lg">
+              <p className="text-[10px] sm:text-xs text-gray-400 text-center lg:text-left">
                 Cancel anytime. Your selfies stay private.
               </p>
             </div>
@@ -440,7 +427,7 @@ export default function EditorialLanding() {
         <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16">
           <div className="grid grid-cols-12 gap-4 sm:gap-6 lg:gap-8 mb-12 sm:mb-16 lg:mb-20">
             <div className="col-span-12 lg:col-span-6 lg:col-start-2 text-center lg:text-left">
-              <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-4 sm:mb-6 mobile-text-base">
+              <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-4 sm:mb-6">
                 Portfolio
               </p>
               <h2 className="font-serif text-[clamp(2rem,6vw,5rem)] leading-[0.9] font-thin text-black px-4 sm:px-0">
@@ -460,7 +447,7 @@ export default function EditorialLanding() {
           <div className="grid grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
             <div className="col-span-12 lg:col-span-8 lg:col-start-3">
               <div className="text-center">
-                <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-8 sm:mb-10 lg:mb-12 mobile-text-base">
+                <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-8 sm:mb-10 lg:mb-12">
                   What she said
                 </p>
                 <blockquote className="font-serif text-[clamp(1.2rem,4vw,3rem)] leading-[1.2] font-thin italic text-gray-900 mb-8 sm:mb-10 lg:mb-12 px-4">
@@ -468,7 +455,7 @@ export default function EditorialLanding() {
                 </blockquote>
                 <div className="flex items-center justify-center gap-4 sm:gap-6">
                   <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
-                  <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500 mobile-text-base">
+                  <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500">
                     Elena — Coach & Creator
                   </p>
                   <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
@@ -499,9 +486,9 @@ export default function EditorialLanding() {
           
           <button
             onClick={() => handleGetStarted()}
-            className="border border-white/20 px-8 sm:px-12 lg:px-14 py-4 sm:py-5 lg:py-6 hover:bg-white hover:text-black transition-all duration-700 group min-h-[44px] min-w-[44px] cta-button"
+            className="border border-white/20 px-8 sm:px-12 lg:px-14 py-4 sm:py-5 lg:py-6 hover:bg-white hover:text-black transition-all duration-700 group"
           >
-            <span className="text-sm sm:text-base tracking-[0.4em] sm:tracking-[0.5em] uppercase font-light text-white group-hover:text-black transition-colors duration-700 mobile-text-lg">
+            <span className="text-[10px] sm:text-[11px] tracking-[0.4em] sm:tracking-[0.5em] uppercase font-light text-white group-hover:text-black transition-colors duration-700">
               Start Today €47
             </span>
           </button>
