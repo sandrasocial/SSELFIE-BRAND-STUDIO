@@ -261,7 +261,7 @@ export default function EditorialLanding() {
           </p>
           
           <p className="text-xs sm:text-sm md:text-base text-white/80 mb-8 sm:mb-10 font-light italic">
-            Your phone. My system. Your next-level brand.
+            Your selfies. My system. Your next-level brand.
           </p>
           
           <button
