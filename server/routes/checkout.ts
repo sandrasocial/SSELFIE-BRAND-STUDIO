@@ -16,39 +16,18 @@ export function registerCheckoutRoutes(app: Express) {
   // Create Stripe Checkout Session (simpler and more reliable)
   app.post("/api/create-checkout-session", async (req: any, res) => {
     try {
-      const { successUrl, cancelUrl, plan = 'full-access' } = req.body;
+      const { successUrl, cancelUrl, plan = 'sselfie-studio' } = req.body;
       
-      // Define pricing for different plans
+      // Single pricing plan - SIMPLIFIED FOR LAUNCH
       const planConfig = {
-        'basic': {
-          name: 'SSELFIE Studio Basic',
-          description: 'Trained personal AI model + 30 monthly AI photos + Maya AI',
-          amount: 2900, // €29.00 in cents
-        },
-        'full-access': {
-          name: 'SSELFIE Studio Full Access',
-          description: 'Complete package: trained model + 100 photos + Maya + Victoria + website',
-          amount: 6700, // €67.00 in cents
-        },
-        // Legacy support
-        'images-only': {
-          name: 'SSELFIE Studio Basic',
-          description: 'Trained personal AI model + 30 monthly AI photos + Maya AI',
-          amount: 2900, // €29.00 in cents
-        },
         'sselfie-studio': {
-          name: 'SSELFIE STUDIO',
-          description: 'Personal AI model + 100 monthly photos + Maya AI photographer',
-          amount: 4700, // €47.00 in cents
-        },
-        'personal-brand-studio': {
           name: 'SSELFIE STUDIO',
           description: 'Personal AI model + 100 monthly photos + Maya AI photographer',
           amount: 4700, // €47.00 in cents
         }
       };
 
-      const selectedPlan = planConfig[plan as keyof typeof planConfig] || planConfig['full-access'];
+      const selectedPlan = planConfig['sselfie-studio']; // Only one plan available
       
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
