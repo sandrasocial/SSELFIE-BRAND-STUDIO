@@ -500,7 +500,7 @@ export const mayaPersonalMemory = pgTable("maya_personal_memory", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Maya Chat History tables
+// Maya Chat History tables - STEP 3.1: Performance Optimized
 export const mayaChats = pgTable("maya_chats", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull(),
@@ -510,7 +510,13 @@ export const mayaChats = pgTable("maya_chats", {
   lastActivity: timestamp("last_activity").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => ({
+  // STEP 3.1: Performance indexes for optimal query performance
+  userIdIdx: index("maya_chats_user_id_idx").on(table.userId),
+  lastActivityIdx: index("maya_chats_last_activity_idx").on(table.lastActivity),
+  categoryIdx: index("maya_chats_category_idx").on(table.chatCategory),
+  userActivityIdx: index("maya_chats_user_activity_idx").on(table.userId, table.lastActivity),
+}));
 
 export const mayaChatMessages = pgTable("maya_chat_messages", {
   id: serial("id").primaryKey(),
@@ -523,7 +529,14 @@ export const mayaChatMessages = pgTable("maya_chat_messages", {
   quickButtons: text("quick_buttons"), // JSON array of quick action buttons
   canGenerate: boolean("can_generate").default(false), // Whether this message can generate images
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  // STEP 3.1: Performance indexes for optimal message retrieval
+  chatIdIdx: index("maya_chat_messages_chat_id_idx").on(table.chatId),
+  createdAtIdx: index("maya_chat_messages_created_at_idx").on(table.createdAt),
+  roleIdx: index("maya_chat_messages_role_idx").on(table.role),
+  chatRoleIdx: index("maya_chat_messages_chat_role_idx").on(table.chatId, table.role),
+  canGenerateIdx: index("maya_chat_messages_can_generate_idx").on(table.canGenerate),
+}));
 
 
 
