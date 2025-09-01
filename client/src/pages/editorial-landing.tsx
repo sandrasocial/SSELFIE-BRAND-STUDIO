@@ -249,15 +249,19 @@ export default function EditorialLanding() {
         {/* Hero Content - Positioned Lower */}
         <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 md:pb-24">
           <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
-            IT STARTS WITH YOUR SELFIES
+            It starts with your selfies.
           </p>
           
           <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] font-extralight text-white tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.5em] mb-2 sm:mb-4 leading-none">
             SSELFIE
           </h1>
           
-          <p className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-8 sm:mb-10 font-light">
+          <p className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
             STUDIO
+          </p>
+          
+          <p className="text-xs sm:text-sm md:text-base text-white/80 mb-8 sm:mb-10 font-light italic">
+            Your phone. My system. Your next-level brand.
           </p>
           
           <button
@@ -265,7 +269,7 @@ export default function EditorialLanding() {
             className="group inline-block"
           >
             <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 group-hover:border-white group-hover:tracking-[0.3em] sm:group-hover:tracking-[0.35em] transition-all duration-300">
-              Begin Your Journey €47
+              Start My AI Photoshoot – €47
             </span>
           </button>
         </div>
