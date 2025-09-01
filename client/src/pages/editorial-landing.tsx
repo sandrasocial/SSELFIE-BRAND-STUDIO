@@ -238,7 +238,7 @@ export default function EditorialLanding() {
       <section className="relative min-h-screen flex items-end justify-center bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-60">
           <img
-            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5te0ac4q2xrme0cs07ns8685h0_0_1756673852393.png"
+            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
             className="w-full h-full object-cover object-center"
             loading="eager"
