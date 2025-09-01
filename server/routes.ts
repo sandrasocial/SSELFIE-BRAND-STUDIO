@@ -964,8 +964,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Check if user has a paid plan for retraining
-      const hasPaidPlan = ['pro', 'full-access', 'sselfie-studio'].includes(user.plan || '');
+      // Check if user has a paid plan for retraining - SIMPLIFIED FOR LAUNCH
+      const hasPaidPlan = ['sselfie-studio'].includes(user.plan || '');
       if (!hasPaidPlan) {
         return res.status(403).json({ 
           needsRestart: false, 
@@ -3032,7 +3032,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       // Get user plan information
       const user = await storage.getUser(userId);
-      const hasPaidPlan = user && ['pro', 'full-access', 'sselfie-studio'].includes(user.plan || '');
+      const hasPaidPlan = user && ['sselfie-studio'].includes(user.plan || '');
       
       // Import database and schema
       const { db } = await import('./db');
@@ -3280,7 +3280,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
         });
       }
 
-      const hasPaidPlan = ['pro', 'full-access', 'sselfie-studio'].includes(user.plan || '');
+      const hasPaidPlan = ['sselfie-studio'].includes(user.plan || '');
       if (!hasPaidPlan) {
         return res.status(403).json({ 
           success: false, 
