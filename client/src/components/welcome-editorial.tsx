@@ -23,9 +23,11 @@ export default function WelcomeEditorial() {
                 src={SandraImages.journey.building}
                 alt="Sandra Sigurjónsdóttir - From single mom to 120K followers"
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 bg-gradient-to-t from-black/60 to-transparent">
-                <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/80">
+                <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/80 mobile-text-base">
                   The Real Story
                 </p>
               </div>
@@ -36,7 +38,7 @@ export default function WelcomeEditorial() {
           <div className="col-span-12 lg:col-span-7 lg:pt-12">
             <div className="max-w-2xl">
               {/* Opening */}
-              <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8 text-center lg:text-left">
+              <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8 text-center lg:text-left mobile-text-base">
                 Welcome
               </p>
               <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-extralight leading-[0.9] mb-6 sm:mb-8 text-center lg:text-left">
@@ -60,12 +62,12 @@ export default function WelcomeEditorial() {
               
               {/* CTA */}
               <div className="mt-8 sm:mt-12 text-center lg:text-left">
-                <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-3 sm:mb-4 mobile-text-base">
                   Your mess is your message
                 </p>
                 <button
                   onClick={handleGetStarted}
-                  className="text-[9px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 hover:border-black transition-all duration-300"
+                  className="text-sm sm:text-base tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 hover:border-black transition-all duration-300 min-h-[44px] min-w-[44px] px-4 py-3 cta-button mobile-text-lg"
                 >
                   Start your studio
                 </button>
