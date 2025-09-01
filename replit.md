@@ -42,7 +42,9 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 - Single consistent checkout experience
 
 ## Recent Critical Update (September 1, 2025)
-**MAYA PURE INTELLIGENCE LIBERATION COMPLETE**: Successfully removed all hardcoded fashion and location prompts that were overriding Maya's full styling intelligence. Eliminated restrictive styling approaches and prompt guidance from all 19 categories in maya-personality.ts, allowing Maya to access her complete fashion expertise without limitations. Cleaned up duplicate technical prefixes while preserving mandatory quality parameters for professional image generation.
+**MAYA PURE INTELLIGENCE LIBERATION COMPLETE**: Successfully removed all hardcoded fashion and location prompts that were overriding Maya's full styling intelligence. Eliminated restrictive styling approaches and prompt guidance from all 19 categories in maya-personality.ts, allowing Maya to access her complete fashion expertise without limitations. 
+
+**FLUX PARAMETERS CONSOLIDATION COMPLETE**: Removed hardcoded FLUX parameter detection logic in model-training-service.ts and consolidated to use Maya's personality as the single source of truth. Maya's fluxOptimization settings now control all image generation parameters (guidance_scale, num_inference_steps, lora_weight) ensuring consistent, intelligent optimization across all shot types.
 
 **PREVIOUS UPDATE (August 31, 2025)**: Maya's prompt generation system upgraded with comprehensive FLUX optimization knowledge including natural language examples, anti-pattern guidance, and shot-specific technical intelligence.
 
