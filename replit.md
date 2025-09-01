@@ -46,6 +46,8 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 
 **FLUX PARAMETERS CONSOLIDATION COMPLETE**: Removed hardcoded FLUX parameter detection logic in model-training-service.ts and consolidated to use Maya's personality as the single source of truth. Maya's fluxOptimization settings now control all image generation parameters (guidance_scale, num_inference_steps, lora_weight) ensuring consistent, intelligent optimization across all shot types.
 
+**PROMPT DUPLICATION ELIMINATION COMPLETE**: Eliminated redundant createDetailedPromptFromConcept calls when Maya has already provided intelligent embedded prompts. System now uses single API call path for Maya-generated concept cards while only falling back to dual API calls when necessary, optimizing performance and preserving Maya's pure intelligence.
+
 **PREVIOUS UPDATE (August 31, 2025)**: Maya's prompt generation system upgraded with comprehensive FLUX optimization knowledge including natural language examples, anti-pattern guidance, and shot-specific technical intelligence.
 
 **ENHANCED FEATURES**:
