@@ -300,7 +300,7 @@ export default function EditorialLanding() {
               <div className="mt-8 sm:mt-10 lg:mt-12 flex items-center justify-center lg:justify-start gap-4 sm:gap-6">
                 <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
                 <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500">
-                  Sandra Sigurjónsdóttir, built from scratch
+                  Sandra Sigurjónsdóttir
                 </p>
               </div>
             </div>
