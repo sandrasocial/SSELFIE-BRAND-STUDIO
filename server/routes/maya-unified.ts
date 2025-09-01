@@ -710,24 +710,33 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
         console.log(`⚠️ ENHANCED CONTEXT NOT FOUND: Using basic context preservation`);
       }
       
-      if (!finalPrompt) {
-        // Only call dual API if we don't have embedded prompt
+      if (!finalPrompt || finalPrompt.length < 50) {
+        // CRITICAL ELIMINATION: Only call createDetailedPromptFromConcept when Maya hasn't provided intelligent prompt
+        console.log('🔄 DUAL API FALLBACK: No embedded prompt found, generating via createDetailedPromptFromConcept');
         finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
         console.log('🔄 DUAL API CALL: Generated new prompt via createDetailedPromptFromConcept');
       } else {
-        console.log('✅ SINGLE API CALL: Using embedded prompt, skipping createDetailedPromptFromConcept');
+        console.log('✅ MAYA PURE INTELLIGENCE: Using embedded prompt, eliminating duplicate processing');
+        console.log('✅ SINGLE API CALL: Skipping createDetailedPromptFromConcept - Maya already provided intelligent prompt');
       }
       console.log('🎨 MAYA STYLED PROMPT:', finalPrompt.substring(0, 300));
       console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation');
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
       console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
-      // PHASE 3: Custom prompt enhancement using Maya's styling intelligence
-      console.log('🔗 PIPELINE CHECK: createDetailedPromptFromConcept called (custom path)');
-      finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`, undefined, undefined);
-      console.log('🎨 MAYA STYLED PROMPT (custom):', finalPrompt.substring(0, 300));
-      console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation (custom)');
-      console.log(`✅ MAYA CUSTOM ENHANCEMENT: Enhanced prompt to ${finalPrompt.length} characters`);
+      // OPTIMIZE: Custom user requests - only enhance if not already Maya-generated
+      if (prompt && prompt.length > 50 && /professional|photography|portrait|beautiful|elegant|styled/.test(prompt.toLowerCase())) {
+        // Prompt already contains styling intelligence - use directly
+        console.log('✅ MAYA INTELLIGENT PROMPT DETECTED: Using custom prompt with minimal processing');
+        finalPrompt = prompt;
+      } else {
+        // Basic user request - enhance with Maya's styling intelligence
+        console.log('🔗 CUSTOM ENHANCEMENT: Basic user request, applying Maya styling intelligence');
+        finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`, undefined, undefined);
+        console.log('🎨 MAYA STYLED PROMPT (custom):', finalPrompt.substring(0, 300));
+        console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation (custom)');
+        console.log(`✅ MAYA CUSTOM ENHANCEMENT: Enhanced prompt to ${finalPrompt.length} characters`);
+      }
     }
     
     // ✅ MAYA PURE INTELLIGENCE: Minimal trigger word positioning to preserve Maya's complete styling intelligence
