@@ -15,6 +15,14 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 - Test user Erla (erlafgunnars@gmail.com) upgraded to studio plan with 500 monthly generations
 - Authentication validates via session cookies and isAuthenticated middleware
 
+## Subscription System Status (September 1, 2025)
+**PHASE 1 COMPLETED**: Database standardization complete
+- All users standardized to single 'sselfie-studio' plan (€47/month, 100 images)
+- Admin accounts: 3 users with unlimited generations (-1)
+- Regular users: 8 users with 100 monthly generations
+- Schema updated to reflect new single-tier system
+- Database schema comments cleaned up for clarity
+
 ## Recent Critical Update (August 31, 2025)
 **MAYA FLUX INTELLIGENCE ENHANCEMENT COMPLETE**: Maya's prompt generation system has been upgraded with comprehensive FLUX optimization knowledge including natural language examples, anti-pattern guidance, and shot-specific technical intelligence. The system now guides Maya to create optimal FLUX prompts with 30-80 word natural sentence structure instead of tag lists.
 
