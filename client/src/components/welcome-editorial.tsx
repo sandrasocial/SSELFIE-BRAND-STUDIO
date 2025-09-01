@@ -70,11 +70,11 @@ export default function WelcomeEditorial() {
           
           {/* Right Side - Image */}
           <div className="col-span-12 lg:col-span-5 order-1 lg:order-2">
-            <div className="relative h-[300px] sm:h-[400px] lg:h-[600px] overflow-hidden">
+            <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
               <img
                 src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_rr4fnv2rb5rm80crzyd87jm48g_0_1756634973175.png"
                 alt="AI vs Reality - Professional photos that look like you"
-                className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
+                className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
               <div className="absolute bottom-6 left-6 right-6">

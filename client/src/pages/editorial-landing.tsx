@@ -280,7 +280,7 @@ export default function EditorialLanding() {
           <div className="grid grid-cols-12 gap-6 lg:gap-12">
             {/* Left - Image */}
             <div className="col-span-12 lg:col-span-6">
-              <div className="relative h-[400px] lg:h-[500px] overflow-hidden bg-gray-100">
+              <div className="relative overflow-hidden bg-gray-100" style={{ aspectRatio: '3/4' }}>
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756240155921.png"
                   alt="Professional brand consistency"
@@ -341,7 +341,7 @@ export default function EditorialLanding() {
           {/* Step 1 - TRAIN (Image Left, Text Right) */}
           <div className="grid grid-cols-12 gap-8 lg:gap-16 mb-20 lg:mb-32">
             <div className="col-span-12 lg:col-span-6">
-              <div className="relative h-[400px] lg:h-[500px] overflow-hidden">
+              <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_nxsdf9gfxdrma0crzzc87381t0_0_1756639025507.png"
                   alt="Train your AI model with selfies"
@@ -403,7 +403,7 @@ export default function EditorialLanding() {
             </div>
             
             <div className="col-span-12 lg:col-span-6 order-1 lg:order-2">
-              <div className="relative h-[400px] lg:h-[500px] overflow-hidden">
+              <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
                   alt="Style with Maya AI stylist"
@@ -425,7 +425,7 @@ export default function EditorialLanding() {
           {/* Step 3 - GALLERY (Image Left, Text Right) */}
           <div className="grid grid-cols-12 gap-8 lg:gap-16">
             <div className="col-span-12 lg:col-span-6">
-              <div className="relative h-[400px] lg:h-[500px] overflow-hidden">
+              <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_3hj19rf19xrmc0cryyz81tk7pg_0_1756503154230.png"
                   alt="Curate your brand photo gallery"
@@ -513,7 +513,7 @@ export default function EditorialLanding() {
             
             {/* Right - Visual Content */}
             <div className="col-span-12 lg:col-span-5">
-              <div className="relative h-[400px] lg:h-[500px] overflow-hidden">
+              <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_rr4fnv2rb5rm80crzyd87jm48g_0_1756634973175.png"
                   alt="Professional brand transformation results"
@@ -594,7 +594,7 @@ export default function EditorialLanding() {
             
             {/* Right - Hero Image */}
             <div className="col-span-12 lg:col-span-5 order-1 lg:order-2">
-              <div className="relative h-[400px] sm:h-[500px] lg:h-[700px] overflow-hidden">
+              <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
                   alt="Sandra building SSELFIE - from kitchen table to AI revolution"
