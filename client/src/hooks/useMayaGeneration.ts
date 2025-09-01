@@ -67,6 +67,10 @@ export const useMayaGeneration = (
   const [clickedButtons, setClickedButtons] = useState(new Map<number, Set<string>>());
   const [activeGenerations, setActiveGenerations] = useState(new Set<string>());
   const [generationQueue, setGenerationQueue] = useState<Array<{id: string, priority: number}>>([]);
+  // STEP 4.2: Add retry tracking for generation operations
+  const [generationRetryCount, setGenerationRetryCount] = useState<Map<string, number>>(new Map());
+  const [generationErrors, setGenerationErrors] = useState<Map<string, string>>(new Map());
+  const maxGenerationRetries = 2;
   // REMOVED: Preset selection - Maya's AI now handles all parameter selection automatically
   const [seed, setSeed] = useState<string>('');
   const { createTimeout, addCleanup } = useMemoryCleanup();

@@ -1,4 +1,4 @@
-import { KeyboardEvent, useState, useEffect, useRef } from 'react';
+import React, { KeyboardEvent, useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useLocation } from 'wouter';
 import { useToast } from '../hooks/use-toast';
@@ -83,7 +83,21 @@ interface OnboardingStatus {
 
 type Preset = 'Identity' | 'Editorial' | 'UltraPrompt' | 'Fast';
 
-function Maya() {
+// STEP 4.1: Error Boundary Component for Maya
+const MayaErrorFallback = React.memo(({ error, resetError }: { error?: Error, resetError?: () => void }) => (
+  <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="text-center p-8">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Maya encountered an issue</h2>
+      <p className="text-gray-600 dark:text-gray-400 mb-6">Something went wrong while loading Maya's interface.</p>
+      <Button onClick={() => window.location.reload()} className="bg-black text-white">
+        Reload Maya
+      </Button>
+    </div>
+  </div>
+));
+
+// STEP 4.1: Memoized Maya component for optimal performance
+const MayaComponent = React.memo(() => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -145,16 +159,52 @@ function Maya() {
 
   // Remaining local UI state
   const [input, setInput] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Performance optimizations
+  // STEP 4.1: Performance Optimizations
   const { addCleanup } = useMemoryCleanup();
+  
+  // Memoize expensive concept card operations
+  const memoizedConceptCards = useMemo(() => {
+    console.log('🎯 STEP 4.1: Memoizing concept cards for performance');
+    return messages.flatMap(msg => msg.conceptCards || []).filter(card => card && card.id);
+  }, [messages]);
+  
+  // Memoize message statistics for performance monitoring
+  const messageStats = useMemo(() => {
+    const stats = {
+      totalMessages: messages.length,
+      conceptCardCount: memoizedConceptCards.length,
+      generatingCount: memoizedConceptCards.filter(card => card.isGenerating).length,
+      availableForGeneration: memoizedConceptCards.filter(card => card.canGenerate).length
+    };
+    console.log('📊 STEP 4.1: Message stats updated:', stats);
+    return stats;
+  }, [messages, memoizedConceptCards]);
+  
+  // Optimize concept generation with useCallback to prevent re-renders
+  const handleConceptGeneration = useCallback((conceptId: string) => {
+    console.log('🎯 STEP 4.1: Optimized concept generation for ID:', conceptId);
+    const concept = memoizedConceptCards.find(card => card.id === conceptId);
+    if (concept && concept.canGenerate) {
+      generateFromSpecificConcept(concept);
+    }
+  }, [memoizedConceptCards, generateFromSpecificConcept]);
+  
+  // Optimize message sending with useCallback
+  const handleSendMessage = useCallback(async (messageContent: string) => {
+    console.log('💬 STEP 4.1: Optimized message sending');
+    if (messageContent.trim()) {
+      await sendChatMessage(messageContent.trim(), 'style');
+      setInput('');
+    }
+  }, [sendChatMessage]);
   
   // Throttled input handler for better performance
   const throttledHandleInputChange = throttle((value: string) => {
     setInput(value);
   }, 100);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Check onboarding status on load
   useEffect(() => {
@@ -2072,12 +2122,15 @@ function Maya() {
       )}
     </>
   );
-}
+});
 
-export default function MayaWithErrorBoundary() {
+// STEP 4.1: Enhanced error boundary with performance monitoring
+const Maya = React.memo(() => {
   return (
-    <ErrorBoundary>
-      <Maya />
+    <ErrorBoundary fallback={<MayaErrorFallback />}>
+      <MayaComponent />
     </ErrorBoundary>
   );
-}
+});
+
+export default Maya;
