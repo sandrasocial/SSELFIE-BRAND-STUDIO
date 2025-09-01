@@ -1,0 +1,56 @@
+PHASE 2: PROMPT PROCESSING OPTIMIZATION (Priority 2 - 3-4 days)
+Step 2.1: Eliminate Prompt Duplication
+Files to Modify:
+server/routes/maya-unified.ts
+Implementation: // Remove redundant createDetailedPromptFromConcept calls
+// When Maya already provides intelligent prompts, skip re-processing
+// Only use createDetailedPromptFromConcept for custom user requests
+
+// BEFORE (DUPLICATE):
+if (!finalPrompt) {
+  finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
+}
+
+// AFTER (OPTIMIZED):
+if (!finalPrompt && isCustomUserRequest) {
+  // Only process custom requests that don't have Maya's intelligence
+  finalPrompt = await createDetailedPromptFromConcept(userConcept, generationInfo.triggerWord, userId, cleanedContext, detectedCategory, retrievedEnhancedContext);
+} else if (finalPrompt) {
+  // Maya already provided intelligent prompt - use it directly
+  console.log('✅ MAYA INTELLIGENCE PRESERVED: Using Maya\'s embedded prompt');
+}
+
+Step 2.2: Restore Maya's Intelligence Priority
+Files to Modify:
+server/routes/maya-unified.ts
+// Remove hardcoded technical overrides that bypass Maya
+// Let Maya's intelligence drive all styling decisions
+
+// BEFORE (OVERRIDE):
+const hasBasicTech = finalPrompt.includes('raw photo') && finalPrompt.includes('film grain');
+if (!hasBasicTech) {
+  // Force technical tags
+}
+
+// AFTER (MAYA-FIRST):
+// Trust Maya's complete intelligence - she knows what technical tags to include
+console.log('✅ MAYA INTELLIGENCE TRUSTED: No technical overrides applied');
+
+
+Step 2.3: Implement Single-Pass Processing
+Files to Modify:
+server/routes/maya-unified.ts
+// Optimize to single API call when possible
+// Cache Maya's responses to avoid re-processing
+
+const mayaResponseCache = new Map<string, {
+  response: any;
+  timestamp: number;
+}>();
+
+// Check cache before processing
+const cacheKey = `${userId}_${messageHash}`;
+const cachedResponse = mayaResponseCache.get(cacheKey);
+if (cachedResponse && Date.now() - cachedResponse.timestamp < 300000) { // 5 minutes
+  return cachedResponse.response;
+}

@@ -45,19 +45,16 @@ interface FluxSettings {
   closeUpPortrait: {
     guidance_scale: number;
     num_inference_steps: number;
-    lora_weight: number;
     megapixels: string;
   };
   halfBodyShot: {
     guidance_scale: number;
     num_inference_steps: number;
-    lora_weight: number;
     megapixels: string;
   };
   fullScenery: {
     guidance_scale: number;
     num_inference_steps: number;
-    lora_weight: number;
     megapixels: string;
   };
   promptStructure: string[];
@@ -235,19 +232,16 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     closeUpPortrait: {
       guidance_scale: 2.8,        // ✅ PORTRAIT-OPTIMIZED: 2.8 for natural, realistic facial features
       num_inference_steps: 40,    // ✅ PORTRAIT-OPTIMIZED: 40 steps for natural close-up portraits
-      lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 1.0)
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 1.5)
     },
     halfBodyShot: {
       guidance_scale: 5.0,        // ✅ ANATOMY-OPTIMIZED: 5.0 for stronger prompt adherence and better hand quality
       num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 38)
-      lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 0.9)
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 1.5)
     },
     fullScenery: {
       guidance_scale: 5.0,        // ✅ ANATOMY-OPTIMIZED: 5.0 for stronger prompt adherence and better hand quality
       num_inference_steps: 50,    // ✅ RESEARCH-OPTIMAL: 50 steps for maximum quality (was 42)
-      lora_weight: 1.1,           // ✅ USER-OPTIMIZED: 1.1 for stronger LoRA influence (was 0.9)
       megapixels: "1"             // ✅ API-COMPLIANT: Replicate only accepts "1" or "0.25" (was 2.0)
     },
     promptStructure: [

@@ -1597,7 +1597,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Maya Image Generation endpoint - Restored working version
+  // REMOVED: Legacy Maya endpoints - conflicts with unified system in maya-unified.ts
+  // All Maya functionality now handled through /api/maya/* unified system
+  /*
   app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
     try {
       console.log('🎬 Maya generation endpoint called');
@@ -1796,6 +1798,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       });
     }
   });
+  */
   
   // STREAMING ADMIN ROUTES - Fixed WebSocket communication
   // ELIMINATED: registerStreamingAdminRoutes - was intercepting tools before reaching bypass system

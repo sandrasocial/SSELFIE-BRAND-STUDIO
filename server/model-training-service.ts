@@ -456,8 +456,8 @@ export class ModelTrainingService {
         output_quality: 95,
         // CRITICAL FLUX PARAMETERS FOR BEAUTIFUL HANDS AND ANATOMICAL ACCURACY
         guidance_scale: fluxParams.guidance_scale,
-        num_inference_steps: fluxParams.num_inference_steps,
-        lora_scale: fluxParams.lora_weight
+        num_inference_steps: fluxParams.num_inference_steps
+        // ❌ NO lora_scale in merged - this is handled per-path below
       };
       
       // Use intelligent count unless explicitly overridden
@@ -474,19 +474,22 @@ export class ModelTrainingService {
       let loraWeightsUrl = userModel?.loraWeightsUrl;
 
       if (usePackaged) {
-        // PATH 1: PACKAGED MODEL (Preferred - safest today)
+        // PATH 1: PACKAGED MODEL - NO LoRA parameters needed
         const modelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
         requestBody = {
           version: modelVersion,
           input: {
             prompt: finalPrompt,
             num_outputs: finalCount,
-            // ✅ MAYA PURE INTELLIGENCE: Maya controls quality through prompt intelligence
+            // ✅ FLUX parameters only - packaged models have LoRA built-in
+            guidance_scale: merged.guidance_scale,
+            num_inference_steps: merged.num_inference_steps,
             aspect_ratio: merged.aspect_ratio,
             megapixels: merged.megapixels,
             output_format: "png", 
             output_quality: 95,
             seed: seed
+            // ❌ NO lora_scale or lora_weights for packaged models!
           }
         };
       } else {
@@ -518,8 +521,8 @@ export class ModelTrainingService {
           input: {
             prompt: finalPrompt,
             lora_weights: loraWeightsUrl,
-            // 🎯 MAYA'S INTELLIGENT FLUX PARAMETERS IN ACTION
-            lora_scale: merged.lora_scale,
+            // ✅ PATH 2: Base FLUX + LoRA requires LoRA parameters
+            lora_scale: 1.1,  // Fixed optimal LoRA scale for base FLUX path
             num_outputs: finalCount,
             guidance_scale: merged.guidance_scale,
             num_inference_steps: merged.num_inference_steps,

@@ -1,0 +1,88 @@
+PHASE 1: CRITICAL FIXES (Priority 1 - 2-3 days)
+Step 1.1: Fix Parameter Architecture Conflicts
+Files to Modify:
+server/model-training-service.ts
+server/agents/personalities/maya-personality.ts
+Implementation: // 1. Remove LoRA parameters from Maya's personality
+// File: server/agents/personalities/maya-personality.ts
+interface FluxSettings {
+  closeUpPortrait: {
+    guidance_scale: number;
+    num_inference_steps: number;
+    // lora_weight: number; // ← REMOVE THIS LINE
+    megapixels: string;
+  };
+  // ... same for other shot types
+}
+
+// 2. Fix parameter application logic
+// File: server/model-training-service.ts
+if (usePackaged) {
+  // PATH 1: Packaged models - NO LoRA parameters
+  requestBody = {
+    version: modelVersion,
+    input: {
+      prompt: finalPrompt,
+      num_outputs: finalCount,
+      guidance_scale: fluxParams.guidance_scale,      // ✅ FLUX parameters only
+      num_inference_steps: fluxParams.num_inference_steps, // ✅ FLUX parameters only
+      aspect_ratio: merged.aspect_ratio,
+      megapixels: merged.megapixels,
+      output_format: "png",
+      output_quality: 95,
+      seed: seed
+      // ❌ NO lora_scale or lora_weights for packaged models!
+    }
+  };
+} else {
+  // PATH 2: Base FLUX + LoRA - LoRA parameters REQUIRED
+  requestBody = {
+    version: "black-forest-labs/flux-1.1-pro",
+    input: {
+      prompt: finalPrompt,
+      lora_weights: loraWeightsUrl,                   // ✅ LoRA weights required
+      lora_scale: fluxParams.lora_scale,              // ✅ LoRA scale required
+      num_outputs: finalCount,
+      guidance_scale: fluxParams.guidance_scale,      // ✅ FLUX parameters
+      num_inference_steps: fluxParams.num_inference_steps, // ✅ FLUX parameters
+      aspect_ratio: merged.aspect_ratio,
+      megapixels: merged.megapixels,
+      output_format: "png",
+      output_quality: 95,
+      seed: seed
+    }
+  };
+} Step 1.2: Define Missing Types
+Files to Create/Modify:
+shared/types/FluxParameters.ts (NEW)
+Implementation: // File: shared/types/FluxParameters.ts
+export interface BASE_QUALITY_SETTINGS {
+  guidance_scale: number;
+  num_inference_steps: number;
+  lora_scale: number;
+  aspect_ratio: string;
+  megapixels: string;
+  output_format: string;
+  output_quality: number;
+}
+
+export interface FluxOptimizationParams {
+  closeUpPortrait: {
+    guidance_scale: number;
+    num_inference_steps: number;
+    megapixels: string;
+  };
+  halfBodyShot: {
+    guidance_scale: number;
+    num_inference_steps: number;
+    megapixels: string;
+  };
+  fullScenery: {
+    guidance_scale: number;
+    num_inference_steps: number;
+    megapixels: string;
+  };
+} Step 1.3: Remove Legacy Endpoints
+Files to Modify:
+server/routes.ts
+Implementation:
