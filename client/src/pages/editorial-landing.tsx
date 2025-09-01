@@ -545,24 +545,7 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* PORTFOLIO SECTION */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-gray-50">
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="grid grid-cols-12 gap-4 sm:gap-6 lg:gap-8 mb-12 sm:mb-16 lg:mb-20">
-            <div className="col-span-12 lg:col-span-6 lg:col-start-2 text-center lg:text-left">
-              <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-4 sm:mb-6">
-                Portfolio
-              </p>
-              <h2 className="font-serif text-[clamp(2rem,6vw,5rem)] leading-[0.9] font-thin text-black px-4 sm:px-0">
-                Real women. Real brands.<br/>
-                <span className="italic">What professional looks like—without the studio.</span>
-              </h2>
-            </div>
-          </div>
-          
-          <PortfolioSection />
-        </div>
-      </section>
+
 
       {/* SANDRA'S STORY - The Real Origin */}
       <section className="py-16 sm:py-24 lg:py-32 bg-white">
