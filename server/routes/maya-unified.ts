@@ -39,6 +39,14 @@ const mayaContextCache = new Map<string, {
 }>();
 const MAYA_CONTEXT_CACHE_TTL = 10 * 60 * 1000; // 10 minutes for context reuse
 
+// STEP 2.3: Maya Response Caching System
+// Single-pass processing with intelligent response caching
+const mayaResponseCache = new Map<string, {
+  response: any;
+  timestamp: number;
+}>();
+const MAYA_RESPONSE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes for response reuse
+
 // PHASE 3: Cache cleanup utility
 function cleanupMayaContextCache() {
   const now = Date.now();
@@ -49,8 +57,34 @@ function cleanupMayaContextCache() {
   }
 }
 
-// Run cache cleanup every 5 minutes
-setInterval(cleanupMayaContextCache, 5 * 60 * 1000);
+// STEP 2.3: Maya Response Cache Cleanup
+function cleanupMayaResponseCache() {
+  const now = Date.now();
+  for (const [key, value] of mayaResponseCache.entries()) {
+    if (now - value.timestamp > MAYA_RESPONSE_CACHE_TTL) {
+      mayaResponseCache.delete(key);
+    }
+  }
+}
+
+// STEP 2.3: Generate cache key from message content for optimal deduplication
+function generateMessageHash(message: string, context: string): string {
+  // Simple hash function for cache key generation
+  let hash = 0;
+  const content = message + context;
+  for (let i = 0; i < content.length; i++) {
+    const char = content.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
+// Run cache cleanup every 5 minutes for both caches
+setInterval(() => {
+  cleanupMayaContextCache();
+  cleanupMayaResponseCache();
+}, 5 * 60 * 1000);
 
 // PHASE 7: Environment Variables Validation
 if (!process.env.REPLICATE_API_TOKEN) {
@@ -128,6 +162,46 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     });
     
     console.log(`🎨 MAYA ${userType.toUpperCase()}: Processing ${context} message for ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
+
+    // STEP 2.3: Check Maya Response Cache for single-pass processing
+    const messageHash = generateMessageHash(message, context);
+    const cacheKey = `${userId}_${messageHash}`;
+    const cachedResponse = mayaResponseCache.get(cacheKey);
+    
+    if (cachedResponse && Date.now() - cachedResponse.timestamp < MAYA_RESPONSE_CACHE_TTL) {
+      console.log('⚡ STEP 2.3 CACHE HIT: Using cached Maya response for optimal performance');
+      console.log(`🎯 CACHE PERFORMANCE: Saved API call, cache age: ${Math.floor((Date.now() - cachedResponse.timestamp) / 1000)}s`);
+      
+      // Track cached response as chat activity
+      trackMayaActivity(userId, userType as 'admin' | 'member', conversationId, 'chat', {
+        context,
+        cached: true,
+        cacheAge: Date.now() - cachedResponse.timestamp
+      });
+      
+      logMayaPerformance('CHAT_CACHE_HIT', {
+        userId,
+        userType,
+        context,
+        cacheAge: Date.now() - cachedResponse.timestamp
+      });
+      
+      return res.json({
+        success: true,
+        content: cachedResponse.response.content || cachedResponse.response,
+        message: cachedResponse.response.message || cachedResponse.response,
+        mode: context,
+        canGenerate: cachedResponse.response.canGenerate || false,
+        generatedPrompt: cachedResponse.response.generatedPrompt,
+        onboardingProgress: cachedResponse.response.onboardingProgress,
+        quickButtons: cachedResponse.response.quickButtons,
+        conceptCards: cachedResponse.response.conceptCards || [],
+        chatCategory: cachedResponse.response.chatCategory,
+        cached: true
+      });
+    } else {
+      console.log('🔍 STEP 2.3 CACHE MISS: Processing new Maya response');
+    }
 
     // CRITICAL FIX: Use frontend conversation history or load from database
     let fullConversationHistory: any[] = conversationHistory || [];
@@ -307,7 +381,7 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     
     logMayaAPI('/chat', startTime, true);
     
-    res.json({
+    const responseData = {
       success: true,
       content: processedResponse.message || processedResponse,  // CRITICAL: Frontend expects 'content' field
       message: processedResponse.message || processedResponse,
@@ -319,7 +393,17 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
       quickButtons: processedResponse.quickButtons,
       conceptCards: processedResponse.conceptCards || [], // CRITICAL: Include concept cards for frontend
       chatCategory: processedResponse.chatCategory
+    };
+    
+    // STEP 2.3: Cache Maya response for single-pass processing optimization
+    mayaResponseCache.set(cacheKey, {
+      response: responseData,
+      timestamp: Date.now()
     });
+    console.log('💾 STEP 2.3 CACHE STORED: Maya response cached for future requests');
+    console.log(`🎯 CACHE STATS: Total cached responses: ${mayaResponseCache.size}`);
+    
+    res.json(responseData);
 
   } catch (error) {
     console.error('Unified Maya error:', error);
@@ -724,18 +808,26 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
       console.log(`✅ MAYA LAZY GENERATION: Generated ${finalPrompt.length} character prompt with category: ${detectedCategory || 'General'}`);
       console.log(`🔍 MAYA FINAL PROMPT PREVIEW: ${finalPrompt.substring(0, 300)}...`);
     } else {
-      // OPTIMIZE: Custom user requests - only enhance if not already Maya-generated
-      if (prompt && prompt.length > 50 && /professional|photography|portrait|beautiful|elegant|styled/.test(prompt.toLowerCase())) {
-        // Prompt already contains styling intelligence - use directly
-        console.log('✅ MAYA INTELLIGENT PROMPT DETECTED: Using custom prompt with minimal processing');
+      // STEP 2.1: Enhanced Custom User Request Detection
+      const isCustomUserRequest = !conceptName || conceptName.length === 0;
+      const isMayaGeneratedPrompt = prompt && prompt.length > 100 && 
+        /raw photo|film grain|professional photography|beautiful hands|detailed fingers/.test(prompt.toLowerCase());
+      
+      if (isMayaGeneratedPrompt) {
+        // Maya already provided intelligent prompt - use directly
+        console.log('✅ MAYA INTELLIGENCE PRESERVED: Maya-generated prompt detected, using directly');
+        console.log('✅ STEP 2.1 OPTIMIZATION: Skipping createDetailedPromptFromConcept for Maya prompt');
         finalPrompt = prompt;
-      } else {
-        // Basic user request - enhance with Maya's styling intelligence
-        console.log('🔗 CUSTOM ENHANCEMENT: Basic user request, applying Maya styling intelligence');
+      } else if (isCustomUserRequest && (!prompt || prompt.length < 100)) {
+        // Only process basic custom requests that need Maya's intelligence
+        console.log('🔗 STEP 2.1 CUSTOM ENHANCEMENT: Basic user request, applying Maya styling intelligence');
         finalPrompt = await createDetailedPromptFromConcept(prompt, generationInfo.triggerWord, userId, `Custom user request: ${prompt}`, undefined, undefined);
         console.log('🎨 MAYA STYLED PROMPT (custom):', finalPrompt.substring(0, 300));
         console.log('✅ MAYA INTELLIGENCE ACTIVE in image generation (custom)');
-        console.log(`✅ MAYA CUSTOM ENHANCEMENT: Enhanced prompt to ${finalPrompt.length} characters`);
+      } else {
+        // Use prompt as-is for other cases
+        console.log('✅ STEP 2.1 DIRECT USE: Using prompt without additional processing');
+        finalPrompt = prompt;
       }
     }
     
