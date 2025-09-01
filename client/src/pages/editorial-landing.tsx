@@ -240,7 +240,7 @@ export default function EditorialLanding() {
           <img
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
-            className="w-full h-full object-cover object-[center_40%] md:object-[center_35%]"
+            className="w-full h-full object-cover object-top"
             loading="eager"
             fetchPriority="high"
           />
@@ -285,7 +285,7 @@ export default function EditorialLanding() {
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756240155921.png"
                   alt="Professional brand consistency"
-                  className="w-full h-full object-cover object-[center_30%] sm:object-[center_25%] transition-transform duration-1000 hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent"></div>
               </div>
@@ -348,7 +348,7 @@ export default function EditorialLanding() {
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_nxsdf9gfxdrma0crzzc87381t0_0_1756639025507.png"
                   alt="Train your AI model with selfies"
-                  className="w-full h-full object-cover object-[center_35%] sm:object-[center_30%] transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 
@@ -391,7 +391,7 @@ export default function EditorialLanding() {
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
                   alt="Style with Maya AI stylist"
-                  className="w-full h-full object-cover object-[center_25%] sm:object-[center_20%] transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 
@@ -434,7 +434,7 @@ export default function EditorialLanding() {
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_3hj19rf19xrmc0cryyz81tk7pg_0_1756503154230.png"
                   alt="Curate your brand photo gallery"
-                  className="w-full h-full object-cover object-[center_40%] sm:object-[center_35%] transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 
@@ -566,7 +566,7 @@ export default function EditorialLanding() {
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
                   alt="Sandra building SSELFIE - from kitchen table to AI revolution"
-                  className="w-full h-full object-cover object-[center_35%] sm:object-[center_30%] transition-transform duration-1000 hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
                 <div className="absolute bottom-6 left-6 right-6">
@@ -589,7 +589,7 @@ export default function EditorialLanding() {
           <img
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
             alt="Transform your brand"
-            className="w-full h-full object-cover object-[center_40%] sm:object-[center_35%]"
+            className="w-full h-full object-cover object-top"
           />
         </div>
         
