@@ -136,346 +136,97 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   categories: {
     "Business": {
       description: "Executive presence, boardroom confidence, CEO energy",
-      vibe: "Powerful, polished, commanding respect while staying approachable",
-      stylingApproach: [
-        "Power dressing with perfect proportions - structured pieces balanced with softer elements",
-        "Monochromatic luxury in rich textures - think premium materials that photograph beautifully",
-        "Statement accessories as focal points - architectural jewelry, quality leather goods",
-        "Current trend integration - unexpected textures and sophisticated proportional balance",
-        "Color psychology - rich neutrals that convey authority with strategic accent colors"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], close-up business portrait, natural professional expression",
-        "Shot on Canon EOS R5, 85mm f/1.4 lens, f/2.8 aperture, ISO 400, natural window light with soft shadows",
-        "Maya's intelligent styling choices based on concept and user's personal brand",
-        "Professional environment with architectural lighting and sophisticated atmosphere",
-        "Raw photo quality, visible skin pores, film grain, natural skin texture, confident presence"
-      ]
+      vibe: "Powerful, polished, commanding respect while staying approachable"
     },
 
     "Professional & Authority": {
       description: "Industry leader, expert in your field, thought leadership",
-      vibe: "Sophisticated expertise, approachable authority, trusted advisor",
-      stylingApproach: [
-        "Sophisticated separates with expert color coordination - understanding undertones and harmony",
-        "Quality over quantity approach - fewer pieces, perfect tailoring, premium materials",
-        "Trend-informed classics - timeless silhouettes updated with current details",
-        "Proportional intelligence - understanding what flatters specific body types and occasions",
-        "Professional styling that translates across different business environments"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], half-body professional portrait, natural expression conveying expertise and warmth",
-        "Shot on Sony A7R V, 50mm f/1.4 GM lens, f/2.8, shallow depth of field, professional lighting setup with key light and fill",
-        "Maya's intelligent ensemble selection based on concept and personal style goals",
-        "Contemporary professional environment, clean architectural lines, natural lighting, minimalist backdrop",
-        "Professional photography quality, raw photo aesthetic, authentic features, approachable authority presence"
-      ]
+      vibe: "Sophisticated expertise, approachable authority, trusted advisor"
     },
 
     "Lifestyle": {
       description: "Elevated everyday moments, luxury made approachable",
-      vibe: "Effortless sophistication, living your best life daily",
-      stylingApproach: [
-        "Elevated basics with luxury touches - understanding how premium materials elevate simple pieces",
-        "Effortless styling that looks intentional - mastering the art of 'thrown together' perfection",
-        "Comfort-first luxury - pieces that feel amazing and photograph beautifully",
-        "Seasonal trend integration - current colors, textures, silhouettes adapted for real life",
-        "Lifestyle-appropriate luxury - pieces that work for actual daily routines"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], elevated lifestyle moment, effortless styling approach, shot with Nikon Z9, 35mm f/1.4 lens for environmental context",
-        "Maya's intelligent elevated casual styling based on concept and lifestyle goals",
-        "Beautiful lifestyle environment, natural lighting, curated living spaces, authentic moments",
-        "Lifestyle photography lighting, film grain, natural expression, approachable elegance"
-      ]
+      vibe: "Effortless sophistication, living your best life daily"
     },
 
     "Casual & Authentic": {
       description: "Real moments, approachable luxury, everyday elevated",
-      vibe: "Relatable but polished, expensive taste made accessible",
-      stylingApproach: [
-        "High-low mixing mastery - combining affordable and luxury pieces seamlessly",
-        "Authentic styling that feels genuine - understanding personal style vs. trend-following",
-        "Comfort styling with visual interest - pieces that feel good and look intentional",
-        "Accessible luxury principles - making expensive-looking outfits from various price points",
-        "Real-life appropriate styling - looks that work for actual daily activities"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], authentic casual moment, approachable styling excellence, shot with Canon R6 Mark II, 24-70mm f/2.8 zoom for versatile framing",
-        "Maya's intelligent authentic styling approach based on concept and personal style",
-        "Natural environment, home spaces, neighborhood settings, authentic lighting",
-        "Natural photography, soft lighting, natural expression, relatable energy"
-      ]
+      vibe: "Relatable but polished, expensive taste made accessible"
     },
 
     "Story": {
       description: "Narrative moments, authentic personal expression, empowering style",
-      vibe: "Confident authenticity, personal style mastery, inspiring presence",
-      stylingApproach: [
-        "Meaningful styling choices that reflect current authentic self - understanding emotional connection to clothing",
-        "Confidence-building wardrobe pieces - styling for present moment empowerment",
-        "Authentic personal expression - helping showcase individual style with current trends",
-        "Storytelling through fashion - using clothes to communicate current personal narrative",
-        "Empowerment styling - pieces that make someone feel like their best self right now"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], authentic personal moment, confident expression, shot with Sony FE 85mm f/1.8, single cohesive portrait showing current empowered self",
-        "Maya's thoughtful styling choices that reflect authentic current style and confidence",
-        "Meaningful location, personal significance, natural intimate lighting, single empowering moment",
-        "Confident portrait lighting, natural expression, authentic presence, inspiring current strength"
-      ]
+      vibe: "Confident authenticity, personal style mastery, inspiring presence"
     },
 
     "Behind the Scenes": {
       description: "Real moments, process shots, authentic work life",
-      vibe: "Genuine hustle, real entrepreneurship, behind the magic",
-      stylingApproach: [
-        "Functional luxury - pieces that look great but work for actual productivity",
-        "Professional casual styling - understanding work-appropriate elevated casual",
-        "Comfortable confidence pieces - clothing that supports focus and productivity",
-        "Authentic work styling - real outfits for real work, not costume-y 'work looks'",
-        "Versatile pieces that transition from work to content creation seamlessly"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], authentic work moment, functional approach, shot with Fujifilm X-T5, 23mm f/2 lens for natural documentary feel",
-        "Maya's intelligent work styling balancing comfort and elevated style for productivity",
-        "Authentic workspace, home office, creative environment, natural available lighting",
-        "Documentary style lighting, authentic work energy, genuine productivity focus"
-      ]
+      vibe: "Genuine hustle, real entrepreneurship, behind the magic"
     },
 
     "Instagram": {
       description: "Social media optimized, feed-perfect, engagement ready",
-      vibe: "Scroll-stopping content, perfectly curated, share-worthy",
-      stylingApproach: [
-        "Photo-optimized styling - understanding what colors, textures, and silhouettes photograph well",
-        "Current trend integration - staying ahead of what's trending on social platforms",
-        "Visual interest styling - creating looks that make people stop scrolling",
-        "Brand-building fashion - consistent aesthetic with variety and engagement potential",
-        "Social media color theory - understanding what palettes perform well on different platforms"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], social media content creation, engagement-optimized approach, shot with Canon EOS R5, 50mm f/1.2L for social media optimization",
-        "Maya's intelligent styling using current social trends and photo-optimized principles",
-        "Instagram-worthy background, aesthetic locations, perfect social media lighting setup",
-        "Social media optimized lighting, high engagement visual appeal, share-worthy energy"
-      ]
+      vibe: "Scroll-stopping content, perfectly curated, share-worthy"
     },
 
     "Feed & Stories": {
       description: "Content creation, brand consistency, social media strategy",
-      vibe: "Cohesive aesthetic, brand-aligned, content creator energy",
-      stylingApproach: [
-        "Brand-consistent styling with variety - maintaining aesthetic while avoiding repetition",
-        "Content creator wardrobe strategy - versatile pieces that create multiple looks",
-        "Visual storytelling through fashion - using outfits to communicate brand messages",
-        "Platform-specific styling - understanding what works for different social media formats",
-        "Cohesive color story development - creating recognizable brand aesthetic through styling"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], content creation, brand-consistent approach, shot with Sony A7 IV, 24-105mm f/4 for content creation versatility",
-        "Maya's brand-aligned styling maintaining aesthetic consistency with engaging variety",
-        "Brand-appropriate environment, consistent aesthetic elements, content-friendly lighting",
-        "Content creation lighting setup, brand consistency, strategic authenticity"
-      ]
+      vibe: "Cohesive aesthetic, brand-aligned, content creator energy"
     },
 
     "Travel": {
       description: "Jet-set lifestyle, destination content, wanderlust luxury",
-      vibe: "International sophistication, effortless jet-set, cultural appreciation",
-      stylingApproach: [
-        "Destination-appropriate luxury - understanding cultural sensitivity and climate considerations",
-        "Travel-friendly sophistication - pieces that pack well but photograph beautifully",
-        "International style intelligence - adapting personal style to different cultural contexts",
-        "Versatile travel wardrobe - pieces that mix and match for multiple looks",
-        "Jet-set styling principles - effortless luxury that works across different environments"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], luxury travel moment, destination-appropriate sophistication, shot with Leica Q2, 28mm lens for travel documentation and environmental context",
-        "Maya's intelligent jet-set styling combining travel practicality with destination-specific approach",
-        "International destination, cultural landmark, natural travel lighting, sophisticated environment",
-        "Travel photography lighting, cultural respect, international sophistication, wanderlust energy"
-      ]
+      vibe: "International sophistication, effortless jet-set, cultural appreciation"
     },
 
     "Adventures & Destinations": {
       description: "Exploration moments, destination experiences, adventure luxury",
-      vibe: "Adventurous spirit with sophisticated style, fearless exploration",
-      stylingApproach: [
-        "Adventure luxury styling - pieces that work for activities but still look elevated",
-        "Functional fashion intelligence - understanding performance fabrics and practical luxury",
-        "Movement-friendly styling - clothes that look great in action and static photos",
-        "Destination-specific considerations - styling for different climates and activities",
-        "Adventure-appropriate proportions - understanding what works for active photography"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], adventure moment, functional approach for exploration, shot with Sony FX3, 16-35mm f/2.8 lens for adventure documentation and movement",
-        "Maya's adventure-ready styling balancing performance requirements with elevated aesthetic",
-        "Dramatic landscape, adventure destination, natural outdoor lighting, exploration environment",
-        "Adventure photography lighting, dynamic movement, fearless exploration energy"
-      ]
+      vibe: "Adventurous spirit with sophisticated style, fearless exploration"
     },
 
     "Outfits": {
       description: "Fashion focus, styling showcase, outfit coordination",
-      vibe: "Fashion expertise, styling mastery, sartorial confidence",
-      stylingApproach: [
-        "Expert coordination principles - understanding color harmony, texture mixing, proportion balancing",
-        "Current fashion trend integration - staying ahead of what's emerging in luxury fashion",
-        "Styling mathematics - understanding the formulas that create visually appealing combinations",
-        "Fashion-forward thinking - anticipating trends while maintaining wearability",
-        "Sartorial confidence building - creating looks that make someone feel like a fashion expert"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], fashion styling showcase, expert coordination approach, shot with Phase One XF IQ4, 80mm lens for fashion editorial quality",
-        "Maya's intelligent fashion-forward styling demonstrating advanced principles and trend awareness",
-        "Clean fashion environment, styling-focused background, professional fashion lighting",
-        "Fashion photography lighting, styling expertise, sartorial confidence"
-      ]
+      vibe: "Fashion expertise, styling mastery, sartorial confidence"
     },
 
     "Fashion & Style": {
       description: "Editorial fashion, style innovation, trendsetting",
-      vibe: "Fashion authority, style innovation, trendsetting confidence",
-      stylingApproach: [
-        "Editorial fashion intelligence - understanding what creates visual impact and storytelling",
-        "Style innovation principles - pushing boundaries while maintaining sophistication",
-        "Trendsetting vs. trend-following - creating looks that influence rather than follow",
-        "High fashion accessibility - making editorial concepts wearable for real life",
-        "Fashion authority development - building looks that establish credibility in style spaces"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], editorial fashion moment, style innovation approach, shot with Fujifilm GFX100S, 63mm lens for medium format fashion editorial quality",
-        "Maya's cutting-edge styling pushing fashion boundaries with editorial intelligence",
-        "High fashion environment, editorial lighting setup, fashion-worthy backdrop",
-        "Editorial fashion lighting, style innovation, trendsetting confidence"
-      ]
+      vibe: "Fashion authority, style innovation, trendsetting confidence"
     },
 
     "GRWM": {
       description: "Get ready process, transformation moments, styling journey",
-      vibe: "Intimate preparation, transformation magic, styling process",
-      stylingApproach: [
-        "Preparation styling strategy - understanding the psychology of getting ready",
-        "Transformation documentation - capturing the journey from comfortable to confident",
-        "Behind-the-scenes authenticity - real preparation looks that still photograph well",
-        "Process-focused styling - clothing that works for the preparation ritual",
-        "Intimate styling moments - understanding personal preparation routines and preferences"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], getting ready moment, transformation process, shot with Canon EOS R8, 35mm f/1.8 lens for intimate preparation documentation",
-        "Maya's intelligent preparation styling capturing authentic transformation journey",
-        "Personal preparation space, bedroom, bathroom, intimate lighting, transformation environment",
-        "Intimate preparation lighting, transformation magic, personal styling journey"
-      ]
+      vibe: "Intimate preparation, transformation magic, styling process"
     },
 
     "Get Ready With Me": {
       description: "Preparation content, styling process, beauty routine",
-      vibe: "Behind the scenes preparation, styling expertise, beauty mastery",
-      stylingApproach: [
-        "Content-ready preparation styling - looks that work for both preparation and final result",
-        "Educational styling approach - showing the process and decisions behind great outfits",
-        "Preparation wardrobe intelligence - understanding what to wear while getting ready",
-        "Process documentation styling - making preparation look as good as the final result",
-        "Teaching moment styling - using preparation time to demonstrate styling principles"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], GRWM content creation, educational process, shot with Sony FX30, 24mm f/1.4 lens for content creation and process documentation",
-        "Maya's preparation content showing intelligent styling decisions and beauty routine integration",
-        "Content creation space, preparation environment, educational lighting, process-friendly setup",
-        "Content creation lighting, educational energy, styling expertise"
-      ]
+      vibe: "Behind the scenes preparation, styling expertise, beauty mastery"
     },
 
     "Future Self": {
       description: "Aspirational vision, elevated confidence, empowered presence",
-      vibe: "Elevated confidence, dream achievement, aspirational sophistication",
-      stylingApproach: [
-        "Aspirational styling that feels achievable - understanding the psychology of style goals",
-        "Elevated wardrobe intelligence - pieces that represent current aspirational style",
-        "Confidence-building fashion - styling that helps someone embody their best self",
-        "Elevated lifestyle styling - looks that match current aspirational life goals",
-        "Empowerment styling principles - using fashion to support confidence and vision"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], aspirational confidence moment, elevated sophistication, shot with Hasselblad X2D 100C, 90mm lens for premium aspirational quality, single empowered image",
-        "Maya's intelligent aspirational styling representing current elevated confidence and sophistication",
-        "Luxury aspirational environment, premium setting, elevated lighting, success environment, single cohesive moment",
-        "Aspirational lighting, confidence energy, sophisticated presence, single empowering shot"
-      ]
+      vibe: "Elevated confidence, dream achievement, aspirational sophistication"
     },
 
     "Aspirational Vision": {
       description: "Dream life content, goal achievement, vision realization",
-      vibe: "Living the dream, goal achievement, aspirational confidence",
-      stylingApproach: [
-        "Dream life styling intelligence - understanding what success looks like through fashion",
-        "Goal achievement fashion - pieces that match accomplished lifestyle aspirations",
-        "Vision board styling - creating looks that represent personal and professional goals",
-        "Success lifestyle fashion - understanding how style evolves with achievement",
-        "Aspirational accessibility - making dream looks achievable at different life stages"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], dream life moment, goal achievement approach, shot with Canon EOS R1, 28-70mm f/2L lens for ultimate professional quality",
-        "Maya's success-level styling representing achieved aspirations with intelligent goal-oriented approach",
-        "Dream lifestyle environment, achievement setting, success lighting, aspirational backdrop",
-        "Dream life lighting, goal achievement energy, aspirational confidence"
-      ]
+      vibe: "Living the dream, goal achievement, aspirational confidence"
     },
 
     "B&W": {
       description: "Timeless elegance, artistic vision, classic sophistication",
-      vibe: "Timeless artistry, classic elegance, sophisticated storytelling",
-      stylingApproach: [
-        "Monochrome styling intelligence - understanding how different textures and tones translate to black and white",
-        "Timeless proportion principles - classic silhouettes that never go out of style",
-        "Texture and contrast mastery - creating visual interest without relying on color",
-        "Classic sophistication principles - understanding what makes styling feel timeless",
-        "Artistic fashion intelligence - styling for visual impact in monochromatic photography"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], timeless black and white portrait, classic sophistication, shot with Leica M11 Monochrom, 50mm Summilux lens for ultimate black and white quality",
-        "Maya's timeless approach emphasizing texture, proportion, and classic elegance for monochrome",
-        "Architectural environment, classic setting, dramatic black and white lighting, timeless backdrop",
-        "Classic black and white lighting, timeless elegance, artistic sophistication"
-      ]
+      vibe: "Timeless artistry, classic elegance, sophisticated storytelling"
     },
 
     "Timeless & Artistic": {
       description: "Artistic expression, timeless beauty, sophisticated creativity",
-      vibe: "Artistic sophistication, creative elegance, timeless artistry",
-      stylingApproach: [
-        "Artistic fashion intelligence - understanding how fashion can become art",
-        "Creative styling principles - pushing boundaries while maintaining sophistication",
-        "Timeless creativity balance - innovative looks that won't feel dated",
-        "Sophisticated artistic expression - using fashion to communicate creative vision",
-        "Artistic styling mathematics - understanding composition and visual impact in creative fashion"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], artistic creative moment, sophisticated artistic expression, shot with Pentax 645Z, 75mm lens for artistic medium format quality",
-        "Maya's artistic approach balancing creative expression with timeless sophistication",
-        "Artistic environment, creative space, sophisticated artistic lighting, gallery-worthy setting",
-        "Artistic photography lighting, creative sophistication, timeless artistry"
-      ]
+      vibe: "Artistic sophistication, creative elegance, timeless artistry"
     },
 
     "Studio": {
       description: "Controlled environment, perfect lighting, professional quality",
-      vibe: "Professional perfection, controlled sophistication, studio mastery",
-      stylingApproach: [
-        "Studio-optimized styling - understanding how different pieces work under controlled lighting",
-        "Professional styling intelligence - creating looks that work for commercial and editorial purposes",
-        "Controlled environment fashion - styling specifically for studio photography requirements",
-        "Technical styling expertise - understanding how fabrics, colors, and silhouettes work in studio conditions",
-        "Professional quality styling - creating looks that meet commercial photography standards"
-      ],
-      promptGuidance: [
-        "[TRIGGER_WORD], professional studio portrait, controlled lighting approach, shot with Canon EOS R5C, 85mm f/1.2L lens with professional studio lighting setup",
-        "Maya's studio-optimized styling created specifically for professional controlled lighting environment",
-        "Professional photography studio, controlled lighting setup, neutral backdrop, commercial environment",
-        "Professional studio lighting, controlled perfection, commercial quality excellence"
-      ]
+      vibe: "Professional perfection, controlled sophistication, studio mastery"
     }
   },
 
@@ -702,16 +453,11 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     mandatoryFormat: `
 CRITICAL REQUIREMENT: Create 3-5 concept cards using your emoji styling system, each with embedded FLUX_PROMPT.
 
-FORMAT EXAMPLE FOR MULTIPLE CONCEPTS:
-🏢 **THE LUXURY BOARDROOM QUEEN**
-This stunning business ensemble features sophisticated tailoring that conveys authority while maintaining approachable elegance. Picture yourself in a perfectly fitted blazer in rich navy or charcoal, paired with a silk blouse in cream or soft blush.
+FORMAT STRUCTURE FOR CONCEPT CARDS:
+[EMOJI] **CONCEPT NAME IN ALL CAPS**
+[Brief styling description explaining your intelligent styling choices for this concept]
 
-FLUX_PROMPT: Professional businesswoman sits confidently in a luxury boardroom wearing a sophisticated navy blazer and cream silk blouse. Shot with 85mm lens at f/2.0, shallow depth of field creates stunning portrait depth. Natural skin texture, elegant jewelry, and refined lighting showcase her authoritative yet approachable executive presence in this high-end editorial photography.
-
-✨ **THE CONFIDENT CREATIVE DIRECTOR**
-A sophisticated creative look featuring an oversized blazer in warm camel paired with wide-leg trousers in cream. The styling emphasizes architectural silhouettes and luxurious textures.
-
-FLUX_PROMPT: Creative director poses naturally in her modern workspace wearing an oversized camel blazer paired with cream wide-leg trousers. Photographed with 50mm lens at f/2.2, the architectural styling emphasizes luxury textures and sophisticated casual elegance. Soft natural lighting illuminates her effortless hair and natural makeup for this high-end fashion portrait.
+FLUX_PROMPT: [Complete FLUX prompt with mandatory technical prefix + your styling description]
 
 MANDATORY: Use your emoji styling system (🏢💼✨🔥🌟👑 etc.) to communicate styling approaches. Each concept MUST have its own FLUX_PROMPT line. Create 3-5 concepts per response for variety.
 

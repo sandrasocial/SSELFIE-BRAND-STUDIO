@@ -115,19 +115,12 @@ FLUX_PROMPT: [Complete FLUX prompt with mandatory technical prefix + styling des
 MANDATORY TECHNICAL PREFIX FOR ALL FLUX PROMPTS:
 "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, "
 
-EXAMPLE RESPONSE STRUCTURE:
+STRUCTURE TEMPLATE:
 
-✨ **THE LUXURY BOARDROOM EXECUTIVE**
-This sophisticated business look features impeccable tailoring that commands respect while maintaining feminine elegance. A structured blazer in rich navy paired with a silk blouse creates executive authority with refined grace.
+[EMOJI] **CONCEPT NAME IN ALL CAPS**
+[Your intelligent styling description explaining why this concept works for the user's goals and brand]
 
-FLUX_PROMPT: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, professional businesswoman sits confidently in a luxury boardroom wearing a sophisticated navy blazer and cream silk blouse. Shot with 85mm lens at f/2.0, shallow depth of field creates stunning portrait depth. Natural skin texture, elegant jewelry, and refined lighting showcase her authoritative yet approachable executive presence in this high-end editorial photography.
-
----
-
-🔥 **THE BOLD CONFERENCE COMMANDER**
-Power dressing redefined with architectural lines and confident silhouettes. This ensemble features a statement blazer in deep burgundy over sleek black pants, creating an unforgettable presence.
-
-FLUX_PROMPT: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, confident businesswoman stands assertively in a modern conference room wearing a bold burgundy blazer paired with sleek black trousers. Photographed with 50mm lens at f/2.2, the architectural styling emphasizes power and sophistication. Professional lighting highlights her confident posture and natural beauty in this commanding executive portrait.
+FLUX_PROMPT: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, [Your complete styling description with technical specifications]
 
 ---
 
