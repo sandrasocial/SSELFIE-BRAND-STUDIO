@@ -242,7 +242,6 @@ export default function EditorialLanding() {
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
             className="w-full h-full object-cover object-top"
             loading="eager"
-            fetchPriority="high"
           />
         </div>
         
