@@ -177,9 +177,8 @@ export function cleanMayaPrompt(prompt: string): string {
  */
 export function hasTechnicalPrefix(prompt: string): boolean {
   const technicalIndicators = [
-    'raw photo', 'visible skin pores', 'film grain', 'unretouched natural skin texture',
-    'subsurface scattering', 'photographed on film', 'professional photography',
-    'Canon EOS', 'Sony A7', 'Nikon Z', 'shot with', 'captured with'
+    'professional photography', 'shot with', 'captured with', 'photographed',
+    'Canon EOS', 'Sony A7', 'Nikon Z', 'lens', 'aperture', 'ISO'
   ];
   
   return technicalIndicators.some(indicator => 
@@ -191,12 +190,13 @@ export function hasTechnicalPrefix(prompt: string): boolean {
  * RESEARCH-BACKED: Add essential anatomy keywords for FLUX 1.1 Pro hand quality
  */
 export function addAnatomyKeywords(prompt: string): string {
-  // Check if anatomy keywords already present
-  const hasAnatomyKeywords = /(?:beautiful hands|detailed fingers|anatomically correct|natural hand positioning)/i.test(prompt);
+  // Trust Maya's intelligence - she knows when to include anatomy elements
+  // Only add if completely missing and Maya hasn't addressed it
+  const hasAnatomyKeywords = /(?:hands|fingers|anatomy|positioning)/i.test(prompt);
   
-  if (!hasAnatomyKeywords) {
-    // Add research-backed anatomy keywords early in prompt for FLUX optimization
-    return `beautiful hands, detailed fingers, anatomically correct, ${prompt}`;
+  if (!hasAnatomyKeywords && prompt.length < 100) {
+    // Only add minimal anatomy guidance for very short prompts
+    return `${prompt}, natural positioning`;
   }
   
   return prompt;
@@ -206,16 +206,11 @@ export function addAnatomyKeywords(prompt: string): string {
  * FLUX 1.1 Pro optimal quality tags for professional photography
  */
 export const FLUX_QUALITY_TAGS = [
-  'raw photo',
-  'visible skin pores', 
-  'film grain',
-  'unretouched natural skin texture',
-  'subsurface scattering',
-  'photographed on film',
   'professional photography',
-  'sharp focus on eyes',
-  'detailed facial features',
-  'photorealistic',
+  'natural skin texture',
+  'authentic presence',
+  'sharp focus',
+  'natural expression',
   'high resolution',
   'DSLR quality'
 ];

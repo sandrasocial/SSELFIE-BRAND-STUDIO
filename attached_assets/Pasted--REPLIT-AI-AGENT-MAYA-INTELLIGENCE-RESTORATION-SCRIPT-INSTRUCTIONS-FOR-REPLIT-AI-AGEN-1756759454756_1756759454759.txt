@@ -1,0 +1,340 @@
+# **REPLIT AI AGENT: MAYA INTELLIGENCE RESTORATION SCRIPT** 🤖
+
+## **INSTRUCTIONS FOR REPLIT AI AGENT**
+
+Execute these fixes step by step to restore Maya's intelligence and eliminate hardcoded prompt overrides.
+
+---
+
+## **PHASE 1: REMOVE HARDCODED BUSINESS TEMPLATES** 💼
+
+### **Step 1.1: Fix personality-config.ts**
+**File**: `server/agents/personalities/personality-config.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS SECTION (around line 120-130):
+✨ **THE LUXURY BOARDROOM EXECUTIVE**
+This sophisticated business look features impeccable tailoring that commands respect while maintaining feminine elegance. A structured blazer in rich navy paired with a silk blouse creates executive authority with refined grace.
+
+FLUX_PROMPT: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, professional businesswoman sits confidently in a luxury boardroom wearing a sophisticated navy blazer and cream silk blouse. Shot with 85mm lens at f/2.0, shallow depth of field creates stunning portrait depth. Natural skin texture, elegant jewelry, and refined lighting showcase her authoritative yet approachable executive presence in this high-end editorial photography.
+
+---
+
+🔥 **THE BOLD CONFERENCE COMMANDER**
+Power dressing redefined with architectural lines and confident silhouettes. This ensemble features a statement blazer in deep burgundy over sleek black pants, creating an unforgettable presence.
+
+FLUX_PROMPT: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, confident businesswoman stands assertively in a modern conference room wearing a bold burgundy blazer paired with sleek black trousers. Photographed with 50mm lens at f/2.2, the architectural styling emphasizes power and sophistication. Professional lighting highlights her confident posture and natural beauty in this commanding executive portrait.
+
+// REPLACE WITH:
+✨ **MAYA'S CREATIVE STYLING INTELLIGENCE**
+Trust Maya's complete styling expertise - she knows exactly what looks amazing for each individual. Maya will create personalized concepts based on the user's specific request, using her professional styling knowledge and creative vision.
+
+FLUX_PROMPT: [Maya will generate her own intelligent styling description based on the user's request, incorporating her professional expertise in fashion, photography, and personal branding]
+
+---
+
+🔥 **MAYA'S AUTHENTIC CREATIVITY**
+Maya's intelligence shines through her ability to understand each person's unique style and create concepts that truly represent them. She combines her styling expertise with professional photography knowledge to deliver personalized results.
+
+FLUX_PROMPT: [Maya will create her own authentic styling vision, using her complete understanding of fashion, photography, and personal branding to deliver exactly what the user needs]
+```
+
+### **Step 1.2: Fix maya-personality.ts**
+**File**: `server/agents/personalities/maya-personality.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS SECTION (around line 700-710):
+🏢 **THE LUXURY BOARDROOM QUEEN**
+This stunning business ensemble features sophisticated tailoring that conveys authority while maintaining approachable elegance. Picture yourself in a perfectly fitted blazer in rich navy or charcoal, paired with a silk blouse in cream or soft blush.
+
+FLUX_PROMPT: Professional businesswoman sits confidently in a luxury boardroom wearing a sophisticated navy blazer and cream silk blouse. Shot with 85mm lens at f/2.0, shallow depth of field creates stunning portrait depth. Natural skin texture, elegant jewelry, and refined lighting showcase her authoritative yet approachable executive presence in this high-end editorial photography.
+
+✨ **THE CONFIDENT CREATIVE DIRECTOR**
+A sophisticated creative look featuring an oversized blazer in warm camel paired with wide-leg trousers in cream. The styling emphasizes architectural silhouettes and luxurious textures.
+
+FLUX_PROMPT: Creative director poses naturally in her modern workspace wearing an oversized camel blazer paired with cream wide-leg trousers. Photographed with 50mm lens at f/2.2, the architectural styling emphasizes luxury textures and sophisticated casual elegance. Soft natural lighting illuminates her effortless hair and natural makeup for this high-end fashion portrait.
+
+// REPLACE WITH:
+🏢 **MAYA'S INTELLIGENT STYLING**
+Maya will create personalized styling concepts based on the user's specific request, using her complete understanding of fashion, personal branding, and professional photography.
+
+FLUX_PROMPT: [Maya will generate her own intelligent styling description, incorporating her professional expertise and creative vision for the user's specific needs]
+
+✨ **MAYA'S AUTHENTIC CREATIVITY**
+Maya's intelligence allows her to understand each person's unique style and create concepts that truly represent them, combining her styling expertise with professional photography knowledge.
+
+FLUX_PROMPT: [Maya will create her own authentic styling vision, using her complete understanding of fashion, photography, and personal branding to deliver exactly what the user needs]
+```
+
+---
+
+## **PHASE 2: REMOVE HARDCODED TECHNICAL OVERRIDES** ⚙️
+
+### **Step 2.1: Fix Technical Prefix Requirements**
+**File**: `server/agents/personalities/personality-config.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS:
+MANDATORY TECHNICAL PREFIX FOR ALL FLUX PROMPTS:
+"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, "
+
+// REPLACE WITH:
+MAYA'S INTELLIGENT TECHNICAL EXPERTISE:
+Trust Maya's professional photography knowledge - she knows exactly what technical elements to include for optimal results. Maya will naturally incorporate appropriate technical quality elements when needed, without being constrained by hardcoded prefixes.
+```
+
+### **Step 2.2: Fix Mandatory Requirements**
+**File**: `server/agents/personalities/personality-config.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS:
+• ALWAYS start FLUX_PROMPT with: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, "
+
+// REPLACE WITH:
+• TRUST MAYA'S INTELLIGENCE: Let Maya determine what technical elements to include based on her professional photography expertise
+```
+
+### **Step 2.3: Fix Response Format Requirements**
+**File**: `server/agents/personalities/personality-config.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS:
+• Include FLUX_PROMPT with mandatory technical prefix + styling description
+
+// REPLACE WITH:
+• Include FLUX_PROMPT with Maya's intelligent styling description
+```
+
+### **Step 2.4: Fix Absolute Requirements**
+**File**: `server/agents/personalities/personality-config.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS:
+ABSOLUTE REQUIREMENT: Every FLUX_PROMPT must include the mandatory technical prefix for anatomically correct, beautiful hands and professional quality. The system depends on this format to generate high-quality images from your intelligence.
+
+// REPLACE WITH:
+ABSOLUTE REQUIREMENT: Trust Maya's complete intelligence to create high-quality, anatomically correct images. Maya knows exactly what technical elements to include for optimal results.
+```
+
+---
+
+## **PHASE 3: REMOVE HARDCODED CAMERA SPECIFICATIONS** 📸
+
+### **Step 3.1: Fix Camera Specifications**
+**File**: `server/agents/personalities/maya-personality.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS (around line 621):
+"Canon RF 85mm f/1.2L USM - ultimate portrait sharpness with creamy bokeh",
+
+// REPLACE WITH:
+"Maya's intelligent camera selection based on shot type and styling intention",
+```
+
+---
+
+## **PHASE 4: FIX GENERATION VALIDATOR** 🔧
+
+### **Step 4.1: Update Technical Detection**
+**File**: `server/generation-validator.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS:
+export function hasTechnicalPrefix(prompt: string): boolean {
+  const technicalIndicators = [
+    'raw photo', 'visible skin pores', 'film grain', 'unretouched natural skin texture',
+    'subsurface scattering', 'photographed on film', 'professional photography',
+    'Canon EOS', 'Sony A7', 'Nikon Z', 'shot with', 'captured with'
+  ];
+  
+  return technicalIndicators.some(indicator => 
+    prompt.toLowerCase().includes(indicator.toLowerCase())
+  );
+}
+
+// REPLACE WITH:
+export function hasTechnicalPrefix(prompt: string): boolean {
+  const technicalIndicators = [
+    'professional photography', 'shot with', 'captured with', 'photographed',
+    'Canon EOS', 'Sony A7', 'Nikon Z', 'lens', 'aperture', 'ISO'
+  ];
+  
+  return technicalIndicators.some(indicator => 
+    prompt.toLowerCase().includes(indicator.toLowerCase())
+  );
+}
+```
+
+### **Step 4.2: Update Anatomy Keywords**
+**File**: `server/generation-validator.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS:
+export function addAnatomyKeywords(prompt: string): string {
+  // Check if anatomy keywords already present
+  const hasAnatomyKeywords = /(?:beautiful hands|detailed fingers|anatomically correct|natural hand positioning)/i.test(prompt);
+  
+  if (!hasAnatomyKeywords) {
+    // Add research-backed anatomy keywords early in prompt for FLUX optimization
+    return `beautiful hands, detailed fingers, anatomically correct, ${prompt}`;
+  }
+  
+  return prompt;
+}
+
+// REPLACE WITH:
+export function addAnatomyKeywords(prompt: string): string {
+  // Trust Maya's intelligence - she knows when to include anatomy elements
+  // Only add if completely missing and Maya hasn't addressed it
+  const hasAnatomyKeywords = /(?:hands|fingers|anatomy|positioning)/i.test(prompt);
+  
+  if (!hasAnatomyKeywords && prompt.length < 100) {
+    // Only add minimal anatomy guidance for very short prompts
+    return `${prompt}, natural positioning`;
+  }
+  
+  return prompt;
+}
+```
+
+### **Step 4.3: Update Quality Tags**
+**File**: `server/generation-validator.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS:
+export const FLUX_QUALITY_TAGS = [
+  'raw photo',
+  'visible skin pores', 
+  'film grain',
+  'unretouched natural skin texture',
+  'subsurface scattering',
+  'photographed on film',
+  'professional photography',
+  'sharp focus on eyes',
+  'detailed facial features',
+  'photorealistic',
+  'high resolution',
+  'DSLR quality'
+];
+
+// REPLACE WITH:
+export const FLUX_QUALITY_TAGS = [
+  'professional photography',
+  'natural skin texture',
+  'authentic presence',
+  'sharp focus',
+  'natural expression',
+  'high resolution',
+  'DSLR quality'
+];
+```
+
+---
+
+## **PHASE 5: FIX ROUTES.TS** 🛣️
+
+### **Step 5.1: Simplify Prompt Processing**
+**File**: `server/routes.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS (around line 2147-2158):
+// Clean prompt and add Shannon's trigger
+let cleanPrompt = testPrompt
+  .replace(/raw photo,?\s*/gi, '')
+  .replace(/visible skin pores,?\s*/gi, '')
+  .replace(/film grain,?\s*/gi, '')
+  .replace(/unretouched natural skin texture,?\s*/gi, '')
+  .replace(/subsurface scattering,?\s*/gi, '')
+  .replace(/photographed on film,?\s*/gi, '')
+  .trim();
+
+const anatomyTerms = "detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy";
+const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}, ${anatomyTerms}`;
+
+// REPLACE WITH:
+// Trust Maya's intelligence - use prompt as provided
+const finalPrompt = `${triggerWord}, ${testPrompt}`;
+```
+
+---
+
+## **PHASE 6: UPDATE MAYA PERSONALITY QUALITY TAGS** 🏷️
+
+### **Step 6.1: Fix Quality Tags**
+**File**: `server/agents/personalities/maya-personality.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS:
+"Raw photo quality, visible skin pores, film grain, natural skin texture, confident presence"
+
+// REPLACE WITH:
+"Professional photography quality, natural skin texture, confident presence"
+```
+
+### **Step 6.2: Fix Quality Tags Array**
+**File**: `server/agents/personalities/maya-personality.ts`
+
+**Find and Replace**:
+```typescript
+// FIND THIS:
+"visible skin pores", 
+"film grain",
+"unretouched natural skin texture",
+
+// REPLACE WITH:
+"natural skin texture", 
+"professional photography",
+"authentic presence",
+```
+
+---
+
+## **VALIDATION CHECKLIST** ✅
+
+After completing all steps, verify:
+
+1. **No hardcoded business templates** - Search for "businesswoman in luxury boardroom" - should return 0 results
+2. **No hardcoded technical prefixes** - Search for "raw photo, visible skin pores, film grain" - should return 0 results  
+3. **No hardcoded camera specs** - Search for "Canon RF 85mm f/1.2L" - should return 0 results
+4. **Maya's intelligence is trusted** - All files should reference "Maya's intelligence" or "trust Maya"
+
+---
+
+## **EXPECTED RESULTS** 🎯
+
+**Before Fix**:
+- User asks: "Casual morning vibes"
+- Maya describes: "silk slip dress, elevated loungewear, perfectly undone hair"
+- System generates: "businesswoman in luxury boardroom wearing sophisticated navy blazer"
+
+**After Fix**:
+- User asks: "Casual morning vibes"
+- Maya describes: "silk slip dress, elevated loungewear, perfectly undone hair"  
+- System generates: "silk slip dress, elevated loungewear, perfectly undone hair" ✅
+
+---
+
+## **EXECUTION ORDER** 📋
+
+Execute these phases in order:
+1. **Phase 1**: Remove hardcoded business templates
+2. **Phase 2**: Remove hardcoded technical overrides  
+3. **Phase 3**: Remove hardcoded camera specifications
+4. **Phase 4**: Fix generation validator
+5. **Phase 5**: Fix routes.ts
+6. **Phase 6**: Update Maya personality quality tags
+7. **Validation**: Run checklist to confirm all fixes applied
+
+**Maya's intelligence will be fully restored!** 🎉
