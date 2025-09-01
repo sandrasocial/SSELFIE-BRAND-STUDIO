@@ -1,14 +1,14 @@
 /**
  * Maya Storage Extensions
  * Specialized storage functions for Maya's onboarding and personal brand data
- * Conservative approach - extends existing storage without modifications
+ * STEP 3.2: Enhanced with performance-optimized database methods
  */
 
 import { storage } from './storage';
 import { personalBrandService } from './services/personal-brand-service';
 import { db } from './db';
-import { userPersonalBrand, mayaPersonalMemory } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { userPersonalBrand, mayaPersonalMemory, mayaChats, mayaChatMessages } from '@shared/schema';
+import { eq, desc, and, gte, lte, count, sql } from 'drizzle-orm';
 
 interface MayaUserContext {
   userId: string;
@@ -373,9 +373,7 @@ export class MayaStorageExtensions {
               currentSituation: personalBrandData.currentSituation,
               futureVision: personalBrandData.futureVision,
               businessGoals: personalBrandData.businessGoals,
-              businessType: personalBrandData.businessType,
-              stylePreferences: personalBrandData.stylePreferences,
-              photoGoals: personalBrandData.photoGoals,
+
               onboardingStep: personalBrandData.onboardingStep,
               isCompleted: personalBrandData.isCompleted,
               completedAt: personalBrandData.completedAt,
@@ -660,6 +658,125 @@ export class MayaStorageExtensions {
     } catch (error) {
       console.error('❌ Maya: Complete profile save transaction failed:', error);
       return false;
+    }
+  }
+
+  // STEP 3.2: Performance-Optimized Database Methods
+  
+  /**
+   * Bulk retrieve recent chats for a user with optimized query
+   * Uses indexes: maya_chats_user_activity_idx for optimal performance
+   */
+  static async getRecentChats(userId: string, limit: number = 10): Promise<any[]> {
+    try {
+      const chats = await db
+        .select()
+        .from(mayaChats)
+        .where(eq(mayaChats.userId, userId))
+        .orderBy(desc(mayaChats.lastActivity))
+        .limit(limit);
+      
+      console.log(`📊 STEP 3.2: Retrieved ${chats.length} recent chats for user ${userId}`);
+      return chats;
+    } catch (error) {
+      console.error('❌ STEP 3.2: Failed to get recent chats:', error);
+      return [];
+    }
+  }
+  
+  /**
+   * Bulk retrieve chat messages with pagination
+   * Uses indexes: maya_chat_messages_chat_id_idx for optimal performance
+   */
+  static async getChatMessages(chatId: number, limit: number = 50, offset: number = 0): Promise<any[]> {
+    try {
+      const messages = await db
+        .select()
+        .from(mayaChatMessages)
+        .where(eq(mayaChatMessages.chatId, chatId))
+        .orderBy(desc(mayaChatMessages.createdAt))
+        .limit(limit)
+        .offset(offset);
+      
+      console.log(`📊 STEP 3.2: Retrieved ${messages.length} messages for chat ${chatId}`);
+      return messages.reverse(); // Return in chronological order
+    } catch (error) {
+      console.error('❌ STEP 3.2: Failed to get chat messages:', error);
+      return [];
+    }
+  }
+  
+  /**
+   * Efficient conversation cleanup utility
+   * Removes old conversations beyond retention period
+   */
+  static async cleanupOldConversations(retentionDays: number = 30): Promise<number> {
+    try {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+      
+      const result = await db.transaction(async (tx) => {
+        // Get chat IDs to delete
+        const oldChats = await tx
+          .select({ id: mayaChats.id })
+          .from(mayaChats)
+          .where(lte(mayaChats.lastActivity, cutoffDate));
+        
+        const chatIds = oldChats.map(chat => chat.id);
+        
+        if (chatIds.length === 0) {
+          return 0;
+        }
+        
+        // Delete messages first (foreign key constraint)
+        await tx.delete(mayaChatMessages).where(sql`chat_id IN (${chatIds.join(',')})`);
+        
+        // Delete chats
+        const deleteResult = await tx.delete(mayaChats).where(lte(mayaChats.lastActivity, cutoffDate));
+        
+        return chatIds.length;
+      });
+      
+      console.log(`🧹 STEP 3.2: Cleaned up ${result} old conversations older than ${retentionDays} days`);
+      return result;
+    } catch (error) {
+      console.error('❌ STEP 3.2: Conversation cleanup failed:', error);
+      return 0;
+    }
+  }
+  
+  /**
+   * Database performance monitoring - get chat statistics
+   * Uses all performance indexes for optimal analytics
+   */
+  static async getChatStatistics(userId?: string): Promise<any> {
+    try {
+      const baseQuery = userId ? 
+        db.select({ count: count() }).from(mayaChats).where(eq(mayaChats.userId, userId)) :
+        db.select({ count: count() }).from(mayaChats);
+      
+      const [totalChats] = await baseQuery;
+      
+      const [totalMessages] = await db
+        .select({ count: count() })
+        .from(mayaChatMessages)
+        .where(userId ? 
+          sql`chat_id IN (SELECT id FROM maya_chats WHERE user_id = ${userId})` :
+          undefined
+        );
+      
+      const stats = {
+        totalChats: totalChats.count,
+        totalMessages: totalMessages.count,
+        averageMessagesPerChat: totalChats.count > 0 ? Math.round(totalMessages.count / totalChats.count) : 0,
+        userId: userId || 'all'
+      };
+      
+      console.log(`📊 STEP 3.2: Chat statistics for ${userId || 'all users'}:`, stats);
+      return stats;
+    } catch (error) {
+      console.error('❌ STEP 3.2: Failed to get chat statistics:', error);
+      return { totalChats: 0, totalMessages: 0, averageMessagesPerChat: 0, userId: userId || 'all' };
     }
   }
 }
