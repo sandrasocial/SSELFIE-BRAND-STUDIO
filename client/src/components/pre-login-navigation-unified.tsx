@@ -47,12 +47,7 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
             >
               About
             </button>
-            <button 
-              onClick={() => setLocation("/how-it-works")}
-              className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
-            >
-              How It Works
-            </button>
+
             <button 
               onClick={() => setLocation("/pricing")}
               className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
@@ -100,15 +95,7 @@ export function PreLoginNavigationUnified({ transparent = true }: PreLoginNaviga
             >
               About
             </button>
-            <button 
-              onClick={() => {
-                setLocation("/how-it-works");
-                setMobileMenuOpen(false);
-              }}
-              className="text-sm uppercase tracking-[0.4em] text-white/70 hover:text-white transition-all duration-300"
-            >
-              How It Works
-            </button>
+
             <button 
               onClick={() => {
                 setLocation("/pricing");
