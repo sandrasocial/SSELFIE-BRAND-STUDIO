@@ -10,7 +10,7 @@ import { GlobalFooter } from "../components/global-footer";
 
 export default function EditorialLanding() {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [selectedPlan] = useState('sselfie-studio');
+  const [selectedPlan] = useState('personal-brand-studio');
   const [, setLocation] = useLocation();
 
   // SEO Meta Tags and Performance Optimization
@@ -97,7 +97,7 @@ export default function EditorialLanding() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleGetStarted = (plan: string = 'sselfie-studio') => {
+  const handleGetStarted = (plan: string = 'personal-brand-studio') => {
     // Store the selected plan
     localStorage.setItem('selectedPlan', plan);
     

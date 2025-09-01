@@ -116,7 +116,7 @@ export default function Pricing() {
       title: "Personal Brand Studio", 
       description: "Redirecting to checkout for €47/month plan...",
     });
-    localStorage.setItem('selectedPlan', 'sselfie-studio');
+    localStorage.setItem('selectedPlan', 'personal-brand-studio');
     setLocation('/simple-checkout');
   };
 
