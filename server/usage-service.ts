@@ -1,6 +1,6 @@
 import { storage } from './storage';
 
-// Plan configuration with usage limits and costs
+// Plan configuration with usage limits and costs - SIMPLIFIED FOR LAUNCH
 export const PLAN_LIMITS = {
   'admin': {
     totalGenerations: null,
@@ -9,54 +9,11 @@ export const PLAN_LIMITS = {
     description: 'Unlimited admin access',
     resetMonthly: false
   },
-  'free': {
-    totalGenerations: null,
-    monthlyGenerations: 6, // 6 free images per month (allows 2 generations of 3 images each)
-    cost: 0,
-    description: '6 AI generations per month',
-    resetMonthly: true
-  },
-  'FREE': {
-    totalGenerations: null,
-    monthlyGenerations: 6, // 6 free images per month (allows 2 generations of 3 images each)
-    cost: 0,
-    description: '6 AI generations per month',
-    resetMonthly: true
-  },
   'sselfie-studio': {
     totalGenerations: null,
-    monthlyGenerations: 100, // €67/month for 100 AI images
+    monthlyGenerations: 100, // €47/month for 100 AI images
     cost: 47,
-    description: '100 AI generations per month + Maya AI chat',
-    resetMonthly: true
-  },
-  'pro': {
-    totalGenerations: null,
-    monthlyGenerations: 100, // Pro plan with 100 images per month
-    cost: 47,
-    description: '100 AI generations per month + Maya AI + Victoria AI',
-    resetMonthly: true
-  },
-
-  'ai-pack': {
-    totalGenerations: 100,
-    monthlyGenerations: null, // Legacy one-time purchase
-    cost: 47,
-    description: '100 AI generations (legacy plan)',
-    resetMonthly: false
-  },
-  'studio-founding': {
-    totalGenerations: null, // Unlimited lifetime but monthly limits
-    monthlyGenerations: 100,
-    cost: 97,
-    description: '100 generations per month + Studio access',
-    resetMonthly: true
-  },
-  'studio-standard': {
-    totalGenerations: null,
-    monthlyGenerations: 100,
-    cost: 147,
-    description: '100 generations per month + Priority support (legacy plan)',
+    description: '100 AI generations per month + Maya AI photographer',
     resetMonthly: true
   }
 } as const;

@@ -23,6 +23,13 @@ PROJECT STATUS: LAUNCH READY - Simplified to core TRAIN → STYLE → GALLERY fl
 - Schema updated to reflect new single-tier system
 - Database schema comments cleaned up for clarity
 
+**PHASE 2 COMPLETED**: Pricing configuration consistency achieved
+- Simplified usage-service.ts to only 'sselfie-studio' (€47, 100 images) and admin plans
+- Updated checkout.ts to default to 'sselfie-studio' plan only
+- Verified simple-checkout.tsx shows consistent €47/month pricing
+- Removed all conflicting legacy plans (basic, pro, studio-founding, etc.)
+- Single pricing tier maintained across all systems
+
 ## Recent Critical Update (August 31, 2025)
 **MAYA FLUX INTELLIGENCE ENHANCEMENT COMPLETE**: Maya's prompt generation system has been upgraded with comprehensive FLUX optimization knowledge including natural language examples, anti-pattern guidance, and shot-specific technical intelligence. The system now guides Maya to create optimal FLUX prompts with 30-80 word natural sentence structure instead of tag lists.
 
