@@ -127,45 +127,15 @@ export default function Pricing() {
       {/* Standardized Navigation */}
       <PreLoginNavigationUnified />
 
-      {/* Hero Section - Editorial Style */}
-      <section className="relative min-h-[70vh] lg:min-h-[80vh] flex items-end justify-center bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-60">
-          <img
-            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756128420487.png"
-            alt="SSELFIE Studio Pricing - Professional AI Brand Photos"
-            className="w-full h-full object-cover object-top"
-            loading="eager"
-          />
-        </div>
-        
-        {/* Hero Content - Editorial Style */}
-        <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 md:pb-24">
-          <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
-            Less than one dinner out
-          </p>
-          
-          <h1 className="font-serif text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-extralight text-white tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.5em] mb-2 sm:mb-4 leading-none">
-            €47
-          </h1>
-          
-          <p className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
-            PER MONTH
-          </p>
-          
-          <p className="text-xs sm:text-sm md:text-base text-white/80 mb-8 sm:mb-10 font-light italic">
-            Your mess is your message. Let's clean it up.
-          </p>
-          
-          <button
-            onClick={() => handleGetStarted()}
-            className="group inline-block"
-          >
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 group-hover:border-white group-hover:tracking-[0.3em] sm:group-hover:tracking-[0.35em] transition-all duration-300">
-              Start My Personal Brand Studio
-            </span>
-          </button>
-        </div>
-      </section>
+      {/* Hero Section */}
+      <HeroFullBleed
+        backgroundImage="https://i.postimg.cc/HsrPfn0G/out-2-26.png"
+        tagline="Investment in the woman you're becoming"
+        title="PRICING"
+        ctaText="Choose Your Plan"
+        onCtaClick={() => {}} // Scroll to pricing section
+        fullHeight={false}
+      />
 
       {/* Main Content */}
       <main className="py-16 sm:py-24 md:py-32">
@@ -186,54 +156,24 @@ export default function Pricing() {
           </div>
         )}
         
-        {/* Editorial Quote Section - Real Talk Style */}
-        <section className="py-16 sm:py-24 lg:py-32 bg-white">
-          <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16">
-            <div className="grid grid-cols-12 gap-6 lg:gap-16 xl:gap-20">
-              {/* Left - Text Content */}
-              <div className="col-span-12 lg:col-span-7 xl:col-span-8 flex items-center">
-                <div className="max-w-lg lg:max-w-none w-full">
-                  <p className="text-[8px] sm:text-[10px] lg:text-xs tracking-[0.4em] uppercase text-gray-400 mb-6 lg:mb-8">
-                    Real Talk About Money
-                  </p>
-                  
-                  <h2 className="font-serif text-[clamp(2rem,5vw,3.5rem)] lg:text-4xl xl:text-5xl font-thin leading-[0.9] lg:leading-[0.85] mb-8 lg:mb-12">
-                    €47 is less than one dinner out.
-                  </h2>
-                  
-                  <div className="space-y-4 lg:space-y-6 text-sm sm:text-base lg:text-lg text-gray-800 leading-relaxed lg:leading-loose">
-                    <p>
-                      <strong>You'll spend more than that on coffee this month.</strong> But this investment? It transforms your entire business presence.
-                    </p>
-                    
-                    <p>
-                      <strong>One client books you because of your cohesive brand?</strong> That's €500+. One speaking gig because your photos look professional? €2000+.
-                    </p>
-                    
-                    <p className="font-medium text-black italic">
-                      Stop thinking of this as an expense. Start thinking of it as the smartest business investment you'll make this year.
-                    </p>
-                  </div>
-                  
-                  <div className="mt-8 lg:mt-12 flex items-center gap-4 lg:gap-6">
-                    <div className="w-12 lg:w-16 h-[1px] bg-gray-300"></div>
-                    <p className="text-[8px] lg:text-[9px] tracking-[0.4em] uppercase text-gray-500">Sandra</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Right - Image */}
-              <div className="col-span-12 lg:col-span-5 xl:col-span-4">
-                <div className="relative h-[400px] lg:h-[600px] xl:h-[700px] overflow-hidden bg-gray-100">
-                  <img
-                    src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756240155921.png"
-                    alt="Professional brand consistency investment"
-                    className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent"></div>
-                </div>
-              </div>
+        {/* Header Section - Enhanced Mobile Responsiveness */}
+        <section className="text-center mb-12 sm:mb-16 md:mb-20 px-4 sm:px-6 lg:px-8"
+                 itemScope
+                 itemType="https://schema.org/Organization">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-gray-500 mb-6 sm:mb-8">
+              Choose Your Journey
             </div>
+            <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light text-black mb-6 sm:mb-8 px-4"
+                itemProp="name">
+              Start where you<br className="hidden sm:block" />
+              <span className="sm:hidden"> </span>feel ready
+            </h1>
+            <div className="w-16 h-px bg-[#B5B5B3] mx-auto mb-6 sm:mb-8"></div>
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed px-4"
+               itemProp="description">
+              Transform your selfies into professional brand photos with AI. Never pay for another photoshoot.
+            </p>
           </div>
         </section>
 

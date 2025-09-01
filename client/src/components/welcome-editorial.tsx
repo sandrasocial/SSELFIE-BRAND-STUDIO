@@ -11,21 +11,21 @@ export default function WelcomeEditorial() {
   };
 
   return (
-    <section className="relative py-16 sm:py-24 lg:py-32 xl:py-40 bg-gray-50">
-      <div className="max-w-[2000px] mx-auto px-4 sm:px-8 lg:px-20 xl:px-24">
-        <div className="grid grid-cols-12 gap-8 lg:gap-20 xl:gap-24">
-          {/* Left Side - Content - Desktop Enhanced */}
-          <div className="col-span-12 lg:col-span-7 xl:col-span-6 order-2 lg:order-1">
-            <div className="max-w-2xl lg:max-w-none lg:pt-20 xl:pt-24">
-              <p className="text-[8px] sm:text-[10px] lg:text-xs tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8 lg:mb-12">
+    <section className="relative py-16 sm:py-24 lg:py-32 bg-gray-50">
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-20">
+        <div className="grid grid-cols-12 gap-8 lg:gap-16">
+          {/* Left Side - Content */}
+          <div className="col-span-12 lg:col-span-7 order-2 lg:order-1">
+            <div className="max-w-2xl lg:pt-16">
+              <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8">
                 But Wait... AI Photos?
               </p>
               
-              <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] lg:text-5xl xl:text-6xl font-extralight leading-[0.9] lg:leading-[0.85] mb-6 sm:mb-8 lg:mb-12">
+              <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-extralight leading-[0.9] mb-6 sm:mb-8">
                 I know what you're thinking.
               </h2>
               
-              <div className="space-y-4 sm:space-y-6 lg:space-y-8 text-sm sm:text-base lg:text-lg xl:text-xl leading-relaxed lg:leading-loose text-gray-700 font-light">
+              <div className="space-y-4 sm:space-y-6 text-sm sm:text-base lg:text-lg leading-relaxed text-gray-700 font-light">
                 <p>
                   "Isn't that cheating?" "What if people can tell?" "I want to be authentic..."
                 </p>
@@ -51,16 +51,16 @@ export default function WelcomeEditorial() {
                 </p>
               </div>
               
-              <div className="mt-8 sm:mt-12 lg:mt-16 pt-6 sm:pt-8 lg:pt-12 border-t border-gray-200">
-                <p className="text-[8px] sm:text-[10px] lg:text-xs tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-3 sm:mb-4 lg:mb-6">
+              <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-200">
+                <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-3 sm:mb-4">
                   The question isn't "Should I use AI?"
                 </p>
-                <p className="text-base sm:text-lg lg:text-xl xl:text-2xl font-medium text-black mb-6 lg:mb-8 leading-relaxed">
+                <p className="text-base sm:text-lg font-medium text-black mb-6">
                   The question is "Why wouldn't I use every tool available to build my dream business?"
                 </p>
                 <button
                   onClick={handleGetStarted}
-                  className="text-[9px] sm:text-[11px] lg:text-xs tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 lg:pb-3 hover:border-black transition-all duration-300"
+                  className="text-[9px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 hover:border-black transition-all duration-300"
                 >
                   Show Me How It Works
                 </button>
@@ -68,20 +68,20 @@ export default function WelcomeEditorial() {
             </div>
           </div>
           
-          {/* Right Side - Image - Desktop Enhanced */}
-          <div className="col-span-12 lg:col-span-5 xl:col-span-6 order-1 lg:order-2">
-            <div className="relative h-[300px] sm:h-[400px] lg:h-[700px] xl:h-[800px] overflow-hidden">
+          {/* Right Side - Image */}
+          <div className="col-span-12 lg:col-span-5 order-1 lg:order-2">
+            <div className="relative h-[300px] sm:h-[400px] lg:h-[600px] overflow-hidden">
               <img
                 src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_rr4fnv2rb5rm80crzyd87jm48g_0_1756634973175.png"
                 alt="AI vs Reality - Professional photos that look like you"
-                className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-              <div className="absolute bottom-6 lg:bottom-12 left-6 lg:left-12 right-6 lg:right-12">
-                <p className="text-[8px] sm:text-[10px] lg:text-xs tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/80 mb-2 lg:mb-4">
+              <div className="absolute bottom-6 left-6 right-6">
+                <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/80 mb-2">
                   Your future self
                 </p>
-                <p className="text-white text-sm sm:text-base lg:text-lg xl:text-xl font-light leading-relaxed">
+                <p className="text-white text-sm sm:text-base font-light">
                   is waiting for you to stop overthinking
                 </p>
               </div>
