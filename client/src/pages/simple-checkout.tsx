@@ -15,10 +15,10 @@ export default function SimpleCheckout() {
     setIsProcessing(true);
     
     try {
-      // Create Stripe checkout session for sselfie-studio plan
-      const response = await apiRequest("/api/create-checkout-session", "POST", {
-        plan: "sselfie-studio", // Single plan structure
-        successUrl: `${window.location.origin}/checkout-success`,
+      // Create Stripe checkout session instead of payment intent
+      const response = await apiRequest("POST", "/api/create-checkout-session", {
+        plan: "personal-brand-studio", // Use the plan we configured
+        successUrl: `${window.location.origin}/payment-success?plan=sselfie-studio`,
         cancelUrl: `${window.location.origin}/simple-checkout`,
       });
 
@@ -49,8 +49,8 @@ export default function SimpleCheckout() {
         description: "Redirecting to your workspace...",
       });
       
-      // Redirect to checkout success page
-      setLocation('/checkout-success');
+      // Redirect to payment success page
+      setLocation('/payment-success?plan=sselfie-studio');
     } catch (error) {
       console.error('Test payment error:', error);
       setIsProcessing(false);
