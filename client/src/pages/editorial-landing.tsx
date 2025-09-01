@@ -643,32 +643,49 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* FINAL CTA - Sandra's Mission */}
+      {/* FINAL CTA - Sandra's Promise */}
       <section className="relative py-20 sm:py-32 lg:py-40 bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-[400px] sm:w-[600px] lg:w-[800px] h-[400px] sm:h-[600px] lg:h-[800px] border border-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-[300px] sm:w-[500px] lg:w-[600px] h-[300px] sm:h-[500px] lg:h-[600px] border border-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+        <div className="absolute inset-0 opacity-20">
+          <img
+            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
+            alt="Transform your brand"
+            className="w-full h-full object-cover"
+          />
         </div>
         
         <div className="relative max-w-[1200px] mx-auto px-4 sm:px-8 lg:px-16 text-center">
-          <blockquote className="font-serif text-[clamp(1.8rem,6vw,5rem)] leading-[0.9] font-thin italic mb-8 sm:mb-12 lg:mb-16 px-4">
-            "Your phone.<br />
-            My system.<br />
-            Your next-level brand."
-          </blockquote>
-          
-          <p className="text-sm sm:text-base text-white/60 mb-8 sm:mb-10 lg:mb-12 max-w-lg mx-auto px-4">
-            I built the photographer I needed when I was starting from zero. Now she's yours—so you can show up like the CEO version of you.
+          <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/40 mb-8">
+            The Real Promise
           </p>
           
-          <button
-            onClick={() => handleGetStarted()}
-            className="border border-white/20 px-8 sm:px-12 lg:px-14 py-4 sm:py-5 lg:py-6 hover:bg-white hover:text-black transition-all duration-700 group"
-          >
-            <span className="text-[10px] sm:text-[11px] tracking-[0.4em] sm:tracking-[0.5em] uppercase font-light text-white group-hover:text-black transition-colors duration-700">
-              Start Today €47
-            </span>
-          </button>
+          <blockquote className="font-serif text-[clamp(1.8rem,6vw,4rem)] leading-[0.9] font-thin mb-8 sm:mb-12 lg:mb-16 px-4">
+            Look, this isn't about perfect photos.<br/>
+            It's about finally looking like<br/>
+            the woman you're becoming.
+          </blockquote>
+          
+          <div className="max-w-2xl mx-auto mb-8 sm:mb-12">
+            <p className="text-sm sm:text-base text-white/70 leading-relaxed mb-6">
+              The woman you're becoming doesn't wait for the "perfect" moment, the right photographer, or permission to be visible.
+            </p>
+            <p className="text-base sm:text-lg text-white font-medium">
+              She just needs her selfies and my system.
+            </p>
+          </div>
+          
+          <div className="border border-white/20 inline-block">
+            <button
+              onClick={() => handleGetStarted()}
+              className="px-12 sm:px-16 py-5 sm:py-6 hover:bg-white hover:text-black transition-all duration-700 group"
+            >
+              <span className="text-[10px] sm:text-[11px] tracking-[0.4em] sm:tracking-[0.5em] uppercase font-light">
+                Build Your Empire — €47
+              </span>
+              <div className="text-[8px] tracking-[0.3em] uppercase text-white/50 group-hover:text-black/50 mt-2">
+                Your mess is your message
+              </div>
+            </button>
+          </div>
         </div>
       </section>
 
