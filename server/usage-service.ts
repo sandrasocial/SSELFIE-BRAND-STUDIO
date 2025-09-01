@@ -1,62 +1,13 @@
 import { storage } from './storage';
+import { PLANS } from './config/plans';
 
-// Plan configuration with usage limits and costs
+// Simplified plan configuration - single source of truth
 export const PLAN_LIMITS = {
-  'admin': {
-    totalGenerations: null,
-    monthlyGenerations: 999999, // Unlimited for admin
-    cost: 0,
-    description: 'Unlimited admin access',
-    resetMonthly: false
-  },
-  'free': {
-    totalGenerations: null,
-    monthlyGenerations: 6, // 6 free images per month (allows 2 generations of 3 images each)
-    cost: 0,
-    description: '6 AI generations per month',
-    resetMonthly: true
-  },
-  'FREE': {
-    totalGenerations: null,
-    monthlyGenerations: 6, // 6 free images per month (allows 2 generations of 3 images each)
-    cost: 0,
-    description: '6 AI generations per month',
-    resetMonthly: true
-  },
   'sselfie-studio': {
     totalGenerations: null,
-    monthlyGenerations: 100, // €67/month for 100 AI images
-    cost: 47,
-    description: '100 AI generations per month + Maya AI chat',
-    resetMonthly: true
-  },
-  'pro': {
-    totalGenerations: null,
-    monthlyGenerations: 100, // Pro plan with 100 images per month
-    cost: 47,
-    description: '100 AI generations per month + Maya AI + Victoria AI',
-    resetMonthly: true
-  },
-
-  'ai-pack': {
-    totalGenerations: 100,
-    monthlyGenerations: null, // Legacy one-time purchase
-    cost: 47,
-    description: '100 AI generations (legacy plan)',
-    resetMonthly: false
-  },
-  'studio-founding': {
-    totalGenerations: null, // Unlimited lifetime but monthly limits
-    monthlyGenerations: 100,
-    cost: 97,
-    description: '100 generations per month + Studio access',
-    resetMonthly: true
-  },
-  'studio-standard': {
-    totalGenerations: null,
-    monthlyGenerations: 100,
-    cost: 147,
-    description: '100 generations per month + Priority support (legacy plan)',
+    monthlyGenerations: PLANS.sselfieStudio.monthlyGenerations, // 100 images
+    cost: PLANS.sselfieStudio.priceCents / 100, // €47
+    description: PLANS.sselfieStudio.description,
     resetMonthly: true
   }
 } as const;
@@ -114,6 +65,12 @@ export class UsageService {
     });
   }
 
+  // Get monthly limit for user based on simplified plan structure
+  static getMonthlyLimitForUser(user: any): number {
+    if (user.role === 'admin' || user.monthlyGenerationLimit === -1) return -1;
+    return user.plan === 'sselfie-studio' ? PLANS.sselfieStudio.monthlyGenerations : 0;
+  }
+
   // Check if user can generate images
   static async checkUsageLimit(userId: string): Promise<UsageCheck> {
     // CRITICAL: Check if user is admin first
@@ -121,7 +78,7 @@ export class UsageService {
     const adminEmails = ['ssa@ssasocial.com', 'sandrajonna@gmail.com', 'sandra@sselfie.ai'];
     
     // Admin users get unlimited access
-    if (user && (adminEmails.includes(user.email) || user.role === 'admin')) {
+    if (user && (adminEmails.includes(user.email) || user.role === 'admin' || user.monthlyGenerationLimit === -1)) {
       console.log(`👑 Admin user detected: ${user.email} - granting unlimited access`);
       return {
         canGenerate: true,

@@ -18,37 +18,12 @@ export function registerCheckoutRoutes(app: Express) {
     try {
       const { successUrl, cancelUrl, plan = 'full-access' } = req.body;
       
-      // Define pricing for different plans
+      // Single plan structure - all checkouts go to sselfie-studio
       const planConfig = {
-        'basic': {
-          name: 'SSELFIE Studio Basic',
-          description: 'Trained personal AI model + 30 monthly AI photos + Maya AI',
-          amount: 2900, // €29.00 in cents
-        },
-        'full-access': {
-          name: 'SSELFIE Studio Full Access',
-          description: 'Complete package: trained model + 100 photos + Maya + Victoria + website',
-          amount: 6700, // €67.00 in cents
-        },
-        // Legacy support
-        'images-only': {
-          name: 'SSELFIE Studio Basic',
-          description: 'Trained personal AI model + 30 monthly AI photos + Maya AI',
-          amount: 2900, // €29.00 in cents
-        },
-        'sselfie-studio': {
-          name: 'SSELFIE STUDIO',
-          description: 'Personal AI model + 100 monthly photos + Maya AI photographer',
-          amount: 4700, // €47.00 in cents
-        },
-        'personal-brand-studio': {
-          name: 'SSELFIE STUDIO',
-          description: 'Personal AI model + 100 monthly photos + Maya AI photographer',
-          amount: 4700, // €47.00 in cents
-        }
+        name: 'Personal Brand Studio',
+        description: '100 AI generations/month + Maya AI photographer + Personal brand photo gallery',
+        amount: 4700, // €47.00 in cents
       };
-
-      const selectedPlan = planConfig[plan as keyof typeof planConfig] || planConfig['full-access'];
       
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -57,10 +32,10 @@ export function registerCheckoutRoutes(app: Express) {
             price_data: {
               currency: 'eur',
               product_data: {
-                name: selectedPlan.name,
-                description: selectedPlan.description,
+                name: planConfig.name,
+                description: planConfig.description,
               },
-              unit_amount: selectedPlan.amount,
+              unit_amount: planConfig.amount,
             },
             quantity: 1,
           },
@@ -69,7 +44,7 @@ export function registerCheckoutRoutes(app: Express) {
         success_url: successUrl,
         cancel_url: cancelUrl,
         metadata: {
-          plan: plan
+          plan: 'sselfie-studio'
         }
       });
 

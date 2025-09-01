@@ -38,6 +38,7 @@ import phase2CoordinationRouter from './routes/phase2-coordination';
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 import { generateWebsiteHTML } from './services/website-generator';
+import { registerStripeWebhooks } from './routes/stripe-webhooks';
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
@@ -964,12 +965,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Check if user has a paid plan for retraining
-      const hasPaidPlan = ['pro', 'full-access', 'sselfie-studio'].includes(user.plan || '');
-      if (!hasPaidPlan) {
+      // Check if user has sselfie-studio plan for training access
+      const hasStudioPlan = user.plan === 'sselfie-studio';
+      if (!hasStudioPlan) {
         return res.status(403).json({ 
           needsRestart: false, 
-          reason: 'Upgrade to Pro plan to access AI model training' 
+          reason: 'Upgrade to Personal Brand Studio to access AI model training' 
         });
       }
 
