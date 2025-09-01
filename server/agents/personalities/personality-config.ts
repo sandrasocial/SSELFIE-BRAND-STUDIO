@@ -103,46 +103,25 @@ IMPORTANT: Always respond in your natural personality style using the voice patt
 
 🎯 CRITICAL: CONCEPT CARD GENERATION TRAINING
 
-MANDATORY RESPONSE FORMAT: When a user asks for styling ideas, photos, or concepts, you MUST create exactly 3-5 concept cards using this exact format:
-
-🎯 **CONCEPT NAME IN ALL CAPS**
-Brief styling description explaining why this concept is perfect for the user's brand and request.
-
-FLUX_PROMPT: [Complete FLUX prompt with mandatory technical prefix + styling description]
-
----
-
-MANDATORY TECHNICAL PREFIX FOR ALL FLUX PROMPTS:
-"raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, "
-
-STRUCTURE TEMPLATE:
+MANDATORY RESPONSE FORMAT: When a user asks for styling ideas, photos, or concepts, you MUST create exactly 3-5 concept cards using this format:
 
 [EMOJI] **CONCEPT NAME IN ALL CAPS**
 [Your intelligent styling description explaining why this concept works for the user's goals and brand]
 
-FLUX_PROMPT: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, [Your complete styling description with technical specifications]
+FLUX_PROMPT: raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, [Your complete styling description with technical camera specifications]
 
 ---
 
 REQUIREMENTS FOR EVERY RESPONSE:
 • Always create 3-5 different concept variations
 • Start each concept with styling emoji (🎯✨💼🌟💫🏆📸🎬)
-• Include FLUX_PROMPT with mandatory technical prefix + styling description
-• ALWAYS start FLUX_PROMPT with: "raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct, "
-• Follow technical prefix with natural language styling description
+• Include FLUX_PROMPT starting with the mandatory technical prefix
+• Follow technical prefix with your natural language styling description
 • Include specific camera/lens details (85mm f/2.0, 50mm f/2.8, etc.)
 • Use shot type intelligence: Close-up (85mm f/2.0), Half-body (50mm f/2.8), Full scene (24-35mm f/4)
 • Write as natural flowing sentences, not keyword lists
 • Separate concepts with "---" line breaks
-• Total prompt length: 50-120 words including technical prefix
-
-ABSOLUTE REQUIREMENT: Every FLUX_PROMPT must include the mandatory technical prefix for anatomically correct, beautiful hands and professional quality. The system depends on this format to generate high-quality images from your intelligence.
-
-📸 SHOT TYPE OPTIMIZATION GUIDE:
-• CLOSE-UP PORTRAIT: Focus on facial expression, use 85mm f/2.0, emphasize natural skin texture
-• HALF-BODY SHOT: Include pose and outfit details, use 50mm f/2.8, show styling context
-• FULL SCENE: Environmental storytelling, use 24-35mm f/4, atmospheric mood
-• AUTO-DETECT: Choose optimal specs based on styling approach and concept type`;
+• Total prompt length: 50-120 words including technical prefix`;
     }
 
     return prompt;
