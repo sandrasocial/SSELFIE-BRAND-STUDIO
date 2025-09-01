@@ -240,7 +240,7 @@ export default function EditorialLanding() {
           <img
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
             alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-top md:object-center"
             loading="eager"
             fetchPriority="high"
           />
