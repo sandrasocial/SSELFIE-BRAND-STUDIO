@@ -466,128 +466,67 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* BUT WAIT... AI PHOTOS? - Editorial Content */}
+      {/* PRICING - Editorial Spread Style */}
       <section className="py-16 sm:py-24 lg:py-32 bg-gray-50">
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-20">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
           <div className="grid grid-cols-12 gap-8 lg:gap-16">
-            {/* Left Side - Content */}
-            <div className="col-span-12 lg:col-span-7 order-2 lg:order-1">
-              <div className="max-w-2xl lg:pt-16">
-                <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8">
-                  But Wait... AI Photos?
+            {/* Left - Text Content */}
+            <div className="col-span-12 lg:col-span-7 flex items-center">
+              <div className="max-w-2xl">
+                <p className="text-[10px] tracking-[0.4em] uppercase text-gray-400 mb-8">
+                  Let's Talk Money
                 </p>
                 
-                <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-extralight leading-[0.9] mb-6 sm:mb-8">
-                  I know what you're thinking.
+                <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-thin mb-8">
+                  €47 a month.
                 </h2>
                 
-                <div className="space-y-4 sm:space-y-6 text-sm sm:text-base lg:text-lg leading-relaxed text-gray-700 font-light">
+                <div className="space-y-6 text-base sm:text-lg text-gray-800 leading-relaxed">
                   <p>
-                    "Isn't that cheating?" "What if people can tell?" "I want to be authentic..."
-                  </p>
-                  
-                  <p>
-                    Girl, I GET IT. I was skeptical too.
-                  </p>
-                  
-                  <p className="font-medium text-black">
-                    But here's the thing: your competitors are already using AI. The women in your industry who seem to have endless professional photos? Half of them are using tools like this.
+                    <strong>That's less than one dinner out.</strong> Less than one photographer session that you'd use once.
                   </p>
                   
                   <p>
-                    You can spend the next year debating whether AI photos are "authentic enough" while they're booking clients with their stunning feeds...
+                    For unlimited professional photos, every month, that actually look like <strong>you</strong>.
                   </p>
                   
-                  <p className="font-medium text-black italic">
-                    Or you can get on board now and be three steps ahead.
-                  </p>
-                  
-                  <p>
-                    My system doesn't just copy-paste your face. It studies YOUR expressions, YOUR energy, and creates photos that are authentically you. Just... better lighting, better styling, better everything.
+                  <p className="text-sm text-gray-600 italic">
+                    Your competitors are booking clients with their stunning feeds while you're debating whether AI photos are "authentic enough."
                   </p>
                 </div>
                 
-                <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-200">
-                  <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-3 sm:mb-4">
-                    The question isn't "Should I use AI?"
-                  </p>
-                  <p className="text-base sm:text-lg font-medium text-black mb-6">
-                    The question is "Why wouldn't I use every tool available to build my dream business?"
-                  </p>
-                  <button
+                <div className="mt-10">
+                  <button 
                     onClick={() => handleGetStarted()}
-                    className="text-[9px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 hover:border-black transition-all duration-300"
+                    className="bg-black text-white px-12 py-4 text-xs tracking-[0.3em] uppercase hover:bg-gray-800 transition-colors"
                   >
-                    Show Me How It Works
+                    I'm Ready - €47
                   </button>
+                </div>
+                
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="w-12 h-[1px] bg-gray-300"></div>
+                  <p className="text-[8px] tracking-[0.4em] uppercase text-gray-500">Launch Special</p>
                 </div>
               </div>
             </div>
             
-            {/* Right Side - Image */}
-            <div className="col-span-12 lg:col-span-5 order-1 lg:order-2">
-              <div className="relative h-[300px] sm:h-[400px] lg:h-[600px] overflow-hidden">
+            {/* Right - Visual Content */}
+            <div className="col-span-12 lg:col-span-5">
+              <div className="relative h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden">
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_rr4fnv2rb5rm80crzyd87jm48g_0_1756634973175.png"
-                  alt="AI vs Reality - Professional photos that look like you"
+                  alt="Professional brand transformation results"
                   className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                 <div className="absolute bottom-6 left-6 right-6">
-                  <p className="text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/80 mb-2">
-                    Your future self
+                  <p className="text-[8px] sm:text-[10px] tracking-[0.4em] uppercase text-white/80 mb-2">
+                    Your Investment
                   </p>
                   <p className="text-white text-sm sm:text-base font-light">
-                    is waiting for you to stop overthinking
+                    In the woman you're becoming
                   </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PRICING - Editorial Spread Style */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-white">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="flex justify-center">
-            <div className="max-w-2xl text-center">
-              <p className="text-[10px] tracking-[0.4em] uppercase text-gray-400 mb-8">
-                Let's Talk Money
-              </p>
-              
-              <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-thin mb-8">
-                €47 a month.
-              </h2>
-              
-              <div className="space-y-6 text-base sm:text-lg text-gray-800 leading-relaxed">
-                <p>
-                  <strong>That's less than one dinner out.</strong> Less than one photographer session that you'd use once.
-                </p>
-                
-                <p>
-                  For unlimited professional photos, every month, that actually look like <strong>you</strong>.
-                </p>
-                
-                <p className="text-sm text-gray-600 italic">
-                  Your competitors are booking clients with their stunning feeds while you're debating whether AI photos are "authentic enough."
-                </p>
-              </div>
-              
-              <div className="mt-10">
-                <button 
-                  onClick={() => handleGetStarted()}
-                  className="bg-black text-white px-12 py-4 text-xs tracking-[0.3em] uppercase hover:bg-gray-800 transition-colors"
-                >
-                  I'm Ready - €47
-                </button>
-              </div>
-              
-              <div className="mt-8 flex justify-center">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-[1px] bg-gray-300"></div>
-                  <p className="text-[8px] tracking-[0.4em] uppercase text-gray-500">Launch Special</p>
-                  <div className="w-12 h-[1px] bg-gray-300"></div>
                 </div>
               </div>
             </div>
@@ -599,11 +538,11 @@ export default function EditorialLanding() {
 
       {/* SANDRA'S STORY - The Real Origin */}
       <section className="py-16 sm:py-24 lg:py-32 bg-white">
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-20">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
           <div className="grid grid-cols-12 gap-8 lg:gap-16">
             {/* Left - Story Content */}
             <div className="col-span-12 lg:col-span-7 order-2 lg:order-1">
-              <div className="max-w-2xl lg:pt-16">
+              <div className="max-w-2xl">
                 <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8">
                   What Actually Happened
                 </p>
@@ -655,7 +594,7 @@ export default function EditorialLanding() {
             
             {/* Right - Hero Image */}
             <div className="col-span-12 lg:col-span-5 order-1 lg:order-2">
-              <div className="relative h-[300px] sm:h-[400px] lg:h-[600px] overflow-hidden">
+              <div className="relative h-[400px] sm:h-[500px] lg:h-[600px] overflow-hidden">
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
                   alt="Sandra building SSELFIE - from kitchen table to AI revolution"
