@@ -53,9 +53,9 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
-  plan: varchar("plan").default("free"), // basic, full-access (no more images-only)
-  role: varchar("role").default("user"), // user, admin, founder
-  monthlyGenerationLimit: integer("monthly_generation_limit").default(5), // 30 for basic, 100 for full-access, unlimited (-1) for admin
+  plan: varchar("plan").default("sselfie-studio"), // sselfie-studio for €47/month, admin for unlimited
+  role: varchar("role").default("user"), // user, admin
+  monthlyGenerationLimit: integer("monthly_generation_limit").default(100), // 100 for sselfie-studio plan, unlimited (-1) for admin
   generationsUsedThisMonth: integer("generations_used_this_month").default(0),
   mayaAiAccess: boolean("maya_ai_access").default(true), // Available on both tiers
   victoriaAiAccess: boolean("victoria_ai_access").default(false), // Only for full-access tier
