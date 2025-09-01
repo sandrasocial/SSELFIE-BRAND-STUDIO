@@ -1,0 +1,71 @@
+3. FEATURES SECTION - Make It More Personal
+Current Issue: "The Method" feels corporate
+Solution: Use Sandra's signature frameworks and make it story-driven
+Replace the current features section with:
+jsx{/* FEATURES - Sandra's Way */}
+<section className="py-16 sm:py-24 lg:py-32 bg-black text-white">
+  <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16">
+    <div className="grid grid-cols-12 gap-4 sm:gap-8 mb-12 sm:mb-16 lg:mb-24">
+      <div className="col-span-12 lg:col-span-8 lg:col-start-3 text-center lg:text-left">
+        <p className="text-[9px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/40 mb-4 sm:mb-6 lg:mb-8">
+          How It Actually Works
+        </p>
+        <h2 className="font-serif text-[clamp(2rem,7vw,6rem)] leading-[0.85] font-thin px-4 sm:px-0">
+          Your selfies. My system.<br/>
+          <span className="italic text-white/60">Your next-level brand.</span>
+        </h2>
+      </div>
+    </div>
+    
+    {/* The 3-Step Flow - Editorial Cards */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border border-white/10">
+      {/* Step 1 - TRAIN */}
+      <div className="border-r-0 lg:border-r border-white/10 p-8 sm:p-12 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700 text-center">
+        <div className="mb-8">
+          <span className="text-[80px] sm:text-[100px] font-serif font-thin opacity-10 leading-none">01</span>
+        </div>
+        <h3 className="font-serif text-2xl sm:text-3xl font-thin mb-6 -mt-16 sm:-mt-20">
+          TRAIN
+        </h3>
+        <p className="text-xs sm:text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100 mb-6">
+          Upload 10–20 selfies and I'll train your personal AI model.
+        </p>
+        <p className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-white/50 group-hover:text-black/50">
+          Once. That's it.
+        </p>
+      </div>
+      
+      {/* Step 2 - STYLE */}
+      <div className="border-r-0 lg:border-r border-white/10 p-8 sm:p-12 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700 text-center">
+        <div className="mb-8">
+          <span className="text-[80px] sm:text-[100px] font-serif font-thin opacity-10 leading-none">02</span>
+        </div>
+        <h3 className="font-serif text-2xl sm:text-3xl font-thin mb-6 -mt-16 sm:-mt-20">
+          STYLE
+        </h3>
+        <p className="text-xs sm:text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100 mb-6">
+          Tell Maya the vibe: "Business," "Travel," "Future Self," "GRWM." She creates the shoot.
+        </p>
+        <p className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-white/50 group-hover:text-black/50">
+          10+ collections ready.
+        </p>
+      </div>
+      
+      {/* Step 3 - GALLERY */}
+      <div className="p-8 sm:p-12 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700 text-center">
+        <div className="mb-8">
+          <span className="text-[80px] sm:text-[100px] font-serif font-thin opacity-10 leading-none">03</span>
+        </div>
+        <h3 className="font-serif text-2xl sm:text-3xl font-thin mb-6 -mt-16 sm:-mt-20">
+          GALLERY
+        </h3>
+        <p className="text-xs sm:text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100 mb-6">
+          Download your photos and watch your brand transform.
+        </p>
+        <p className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-white/50 group-hover:text-black/50">
+          Every month.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
