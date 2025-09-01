@@ -325,53 +325,150 @@ export default function EditorialLanding() {
       {/* WELCOME EDITORIAL COMPONENT */}
       <WelcomeEditorial />
 
-      {/* FEATURES - Editorial Spread */}
+      {/* FEATURES - Editorial Image Cards */}
       <section className="py-16 sm:py-24 lg:py-32 bg-black text-white">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16">
           <div className="grid grid-cols-12 gap-4 sm:gap-8 mb-12 sm:mb-16 lg:mb-24">
             <div className="col-span-12 lg:col-span-8 lg:col-start-3 text-center lg:text-left">
               <p className="text-[9px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/40 mb-4 sm:mb-6 lg:mb-8">
-                The Method
+                How It Actually Works
               </p>
               <h2 className="font-serif text-[clamp(2rem,7vw,6rem)] leading-[0.85] font-thin px-4 sm:px-0">
-                Turn your selfies into brand photos that sell.<br/>
-                <span className="italic text-white/60">Simple. Fast. On your terms.</span>
+                Your selfies. My system.<br/>
+                <span className="italic text-white/60">Your next-level brand.</span>
               </h2>
             </div>
           </div>
           
-          {/* Feature Cards - Magazine Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-            {/* AI Photoshoot */}
-            <div className="border border-white/10 p-6 sm:p-10 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700">
-              <div className="flex justify-between items-start mb-6 sm:mb-8">
-                <span className="text-[60px] sm:text-[80px] lg:text-[100px] font-serif font-thin opacity-10 leading-none">01</span>
-                <span className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.3em] sm:tracking-[0.4em] uppercase opacity-50 mt-2 sm:mt-4">
-                  Feature
-                </span>
+          {/* The 3-Step Flow - Image Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-4">
+            {/* Step 1 - TRAIN */}
+            <div className="group cursor-pointer">
+              <div className="relative h-[500px] sm:h-[600px] overflow-hidden">
+                <img
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_nxsdf9gfxdrma0crzzc87381t0_0_1756639025507.png"
+                  alt="Train your AI model with selfies"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                
+                {/* Overlay Content */}
+                <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8">
+                  <div className="flex justify-between items-start">
+                    <span className="bg-black/50 backdrop-blur-sm px-3 py-1 text-[8px] tracking-[0.3em] uppercase text-white/90">
+                      Model Ready
+                    </span>
+                  </div>
+                  
+                  <div className="text-center">
+                    <h3 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-thin tracking-[0.2em] text-white mb-2">
+                      T R A I N
+                    </h3>
+                    <p className="text-[8px] sm:text-[10px] tracking-[0.4em] uppercase text-white/70 mb-6">
+                      Step 1
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl font-thin mb-4 sm:mb-6 -mt-12 sm:-mt-16 lg:-mt-20">
-                AI Photoshoot
-              </h3>
-              <p className="text-xs sm:text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100">
-                Upload 10–20 selfies. Get a full set of images that look professionally shot—without a studio, lights, or stress.
-              </p>
+              
+              {/* Card Footer */}
+              <div className="bg-white text-black p-6 sm:p-8">
+                <h4 className="font-serif text-xl sm:text-2xl font-thin mb-3 text-black">
+                  Train Your AI Model
+                </h4>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-4">
+                  Upload 10–20 selfies and I'll train your personal AI model.
+                </p>
+                <p className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-gray-400">
+                  Once. That's it.
+                </p>
+              </div>
             </div>
             
-            {/* Maya AI */}
-            <div className="border border-white/10 p-6 sm:p-10 lg:p-16 group hover:bg-white hover:text-black transition-all duration-700">
-              <div className="flex justify-between items-start mb-6 sm:mb-8">
-                <span className="text-[60px] sm:text-[80px] lg:text-[100px] font-serif font-thin opacity-10 leading-none">02</span>
-                <span className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.3em] sm:tracking-[0.4em] uppercase opacity-50 mt-2 sm:mt-4">
-                  Feature
-                </span>
+            {/* Step 2 - STYLE */}
+            <div className="group cursor-pointer">
+              <div className="relative h-[500px] sm:h-[600px] overflow-hidden">
+                <img
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
+                  alt="Style with Maya AI stylist"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                
+                {/* Overlay Content */}
+                <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8">
+                  <div className="flex justify-between items-start">
+                    <span className="bg-black/50 backdrop-blur-sm px-3 py-1 text-[8px] tracking-[0.3em] uppercase text-white/90">
+                      Maya Ready
+                    </span>
+                  </div>
+                  
+                  <div className="text-center">
+                    <h3 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-thin tracking-[0.2em] text-white mb-2">
+                      S T Y L E
+                    </h3>
+                    <p className="text-[8px] sm:text-[10px] tracking-[0.4em] uppercase text-white/70 mb-6">
+                      Step 2
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl font-thin mb-4 sm:mb-6 -mt-12 sm:-mt-16 lg:-mt-20">
-                Maya, your AI stylist
-              </h3>
-              <p className="text-xs sm:text-sm font-light leading-relaxed opacity-70 group-hover:opacity-100">
-                Tell Maya the vibe: "power CEO," "coffee shop founder," "launch day." She styles the shoot and delivers ready-to-post photos.
-              </p>
+              
+              {/* Card Footer */}
+              <div className="bg-white text-black p-6 sm:p-8">
+                <h4 className="font-serif text-xl sm:text-2xl font-thin mb-3 text-black">
+                  Style with Maya
+                </h4>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-4">
+                  Tell Maya the vibe: "Business," "Travel," "Future Self," "GRWM." She creates the shoot.
+                </p>
+                <p className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-gray-400">
+                  10+ collections ready.
+                </p>
+              </div>
+            </div>
+            
+            {/* Step 3 - GALLERY */}
+            <div className="group cursor-pointer">
+              <div className="relative h-[500px] sm:h-[600px] overflow-hidden">
+                <img
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_3hj19rf19xrmc0cryyz81tk7pg_0_1756503154230.png"
+                  alt="Curate your brand photo gallery"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                
+                {/* Overlay Content */}
+                <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8">
+                  <div className="flex justify-between items-start">
+                    <span className="bg-black/50 backdrop-blur-sm px-3 py-1 text-[8px] tracking-[0.3em] uppercase text-white/90">
+                      View Gallery
+                    </span>
+                  </div>
+                  
+                  <div className="text-center">
+                    <h3 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-thin tracking-[0.2em] text-white mb-2">
+                      G A L L E R Y
+                    </h3>
+                    <p className="text-[8px] sm:text-[10px] tracking-[0.4em] uppercase text-white/70 mb-6">
+                      Step 3
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Card Footer */}
+              <div className="bg-white text-black p-6 sm:p-8">
+                <h4 className="font-serif text-xl sm:text-2xl font-thin mb-3 text-black">
+                  Curate Your Gallery
+                </h4>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-4">
+                  Download your photos and watch your brand transform.
+                </p>
+                <p className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-gray-400">
+                  Every month.
+                </p>
+              </div>
             </div>
           </div>
         </div>
