@@ -288,14 +288,14 @@ export default function EditorialLanding() {
             <div className="col-span-12 lg:col-span-7">
               <blockquote className="font-serif text-[clamp(1.5rem,5vw,4.5rem)] leading-[0.95] font-thin text-black text-center lg:text-left px-4 sm:px-0">
                 I started by showing women how to take better selfies.<br/>
-                Then my life fell apart — divorced, three kids, no money, completely overwhelmed.<br/><br/>
+                Then my life fell apart - divorced, three kids, no money, completely overwhelmed.<br/><br/>
                 
                 Selfies became my way back.<br/>
                 I built my confidence one picture at a time.<br/>
                 Now I've built the AI that creates them for you.<br/><br/>
                 
                 Because let's be honest: you don't have time for angles or waiting on edits.<br/>
-                You need photos now — so your brand can move.
+                You need photos now - so your brand can move.
               </blockquote>
               <div className="mt-8 sm:mt-10 lg:mt-12 flex items-center justify-center lg:justify-start gap-4 sm:gap-6">
                 <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
