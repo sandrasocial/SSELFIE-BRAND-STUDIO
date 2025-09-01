@@ -39,6 +39,8 @@ export const PortfolioSection = () => {
                 src={SandraImages.editorial.laptop1}
                 alt="Build your empire with SSELFIE"
                 className="portfolio-image object-cover w-full h-full"
+                loading="lazy"
+                decoding="async"
               />
               <div className="overlay-content" style={{zIndex: 2}}>
                 <h3 className="story-title display-font">Future you</h3>
@@ -54,6 +56,8 @@ export const PortfolioSection = () => {
                 src={SandraImages.editorial.laptop2}
                 alt="CEO Energy"
                 className="portfolio-image object-cover w-full h-full"
+                loading="lazy"
+                decoding="async"
               />
               <div className="text-overlay">
                 <span className="overlay-number">01</span>
@@ -78,6 +82,8 @@ export const PortfolioSection = () => {
                 src={SandraImages.editorial.phone1}
                 alt="Professional brand photos"
                 className="portfolio-image object-cover w-full h-full"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -90,6 +96,8 @@ export const PortfolioSection = () => {
                   src={SandraImages.editorial.mirror}
                   alt="Transform your brand"
                   className="portfolio-image object-cover w-full h-full"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="text-side">

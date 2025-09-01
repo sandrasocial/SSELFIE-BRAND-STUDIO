@@ -218,7 +218,7 @@ export default function EditorialLanding() {
             </button>
             <button
               onClick={() => { handleGetStarted(); setMobileMenuOpen(false); }}
-              className="px-8 py-4 border border-white/50 text-white text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8"
+              className="px-8 py-4 border border-white/50 text-white text-sm sm:text-base uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-300 mt-8 min-h-[44px] min-w-[44px]"
             >
               Start €47
             </button>
@@ -237,18 +237,31 @@ export default function EditorialLanding() {
       {/* Hero Section - Full Bleed Editorial */}
       <section className="relative min-h-screen flex items-end justify-center bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-60">
-          <img
-            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
-            alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
-            className="w-full h-full object-cover object-center"
-            loading="eager"
-            fetchPriority="high"
-          />
+          <picture>
+            <source 
+              media="(min-width: 1024px)" 
+              srcSet="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
+            />
+            <source 
+              media="(min-width: 768px)" 
+              srcSet="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
+            />
+            <img
+              src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
+              alt="Sandra Sigurjónsdóttir - SSELFIE Studio Founder transforming personal branding with AI"
+              className="w-full h-full object-cover object-center"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              width="1920"
+              height="1080"
+            />
+          </picture>
         </div>
         
         {/* Hero Content - Positioned Lower */}
         <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-20 md:pb-24">
-          <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light">
+          <p className="text-xs sm:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-4 sm:mb-6 font-light mobile-text-base">
             IT STARTS WITH YOUR SELFIES
           </p>
           
@@ -256,15 +269,15 @@ export default function EditorialLanding() {
             SSELFIE
           </h1>
           
-          <p className="text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-8 sm:mb-10 font-light">
+          <p className="text-xs sm:text-sm md:text-base uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/70 mb-8 sm:mb-10 font-light mobile-text-lg">
             STUDIO
           </p>
           
           <button
             onClick={() => handleGetStarted()}
-            className="group inline-block"
+            className="group inline-block min-h-[44px] min-w-[44px] px-4 py-3 sm:px-6 sm:py-4"
           >
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 group-hover:border-white group-hover:tracking-[0.3em] sm:group-hover:tracking-[0.35em] transition-all duration-300">
+            <span className="text-sm sm:text-base uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white border-b border-white/30 pb-1 sm:pb-2 group-hover:border-white group-hover:tracking-[0.3em] sm:group-hover:tracking-[0.35em] transition-all duration-300 mobile-text-lg">
               Begin Your Journey €47
             </span>
           </button>
