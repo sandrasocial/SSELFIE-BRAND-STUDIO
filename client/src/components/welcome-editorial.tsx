@@ -70,7 +70,7 @@ export default function WelcomeEditorial() {
           
           {/* Right Side - Image */}
           <div className="col-span-12 lg:col-span-5 order-1 lg:order-2">
-            <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
+            <div className="relative h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden">
               <img
                 src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_rr4fnv2rb5rm80crzyd87jm48g_0_1756634973175.png"
                 alt="AI vs Reality - Professional photos that look like you"
