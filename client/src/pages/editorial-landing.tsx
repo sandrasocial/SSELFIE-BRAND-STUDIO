@@ -324,180 +324,213 @@ export default function EditorialLanding() {
       {/* WELCOME EDITORIAL COMPONENT */}
       <WelcomeEditorial />
 
-      {/* FEATURES - Editorial Image Cards */}
+      {/* FEATURES - Editorial Spread Style */}
       <section className="py-16 sm:py-24 lg:py-32 bg-black text-white">
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="grid grid-cols-12 gap-4 sm:gap-8 mb-12 sm:mb-16 lg:mb-24">
-            <div className="col-span-12 lg:col-span-8 lg:col-start-3 text-center lg:text-left">
-              <p className="text-[9px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/40 mb-4 sm:mb-6 lg:mb-8">
-                How It Actually Works
-              </p>
-              <h2 className="font-serif text-[clamp(2rem,7vw,6rem)] leading-[0.85] font-thin px-4 sm:px-0">
-                Your selfies. My system.<br/>
-                <span className="italic text-white/60">Your next-level brand.</span>
-              </h2>
-            </div>
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
+          {/* Section Header */}
+          <div className="text-center mb-16 sm:mb-20 lg:mb-24">
+            <p className="text-[9px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-white/40 mb-6 sm:mb-8">
+              How It Actually Works
+            </p>
+            <h2 className="font-serif text-[clamp(2rem,6vw,4rem)] leading-[0.85] font-thin">
+              Your selfies. My system.<br/>
+              <span className="italic text-white/60">Your next-level brand.</span>
+            </h2>
           </div>
           
-          {/* The 3-Step Flow - Image Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-4">
-            {/* Step 1 - TRAIN */}
-            <div className="group cursor-pointer">
-              <div className="relative h-[500px] sm:h-[600px] overflow-hidden">
+          {/* Step 1 - TRAIN (Image Left, Text Right) */}
+          <div className="grid grid-cols-12 gap-8 lg:gap-16 mb-20 lg:mb-32">
+            <div className="col-span-12 lg:col-span-6">
+              <div className="relative h-[400px] lg:h-[500px] overflow-hidden">
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_nxsdf9gfxdrma0crzzc87381t0_0_1756639025507.png"
                   alt="Train your AI model with selfies"
-                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                
-                {/* Overlay Content */}
-                <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8">
-                  <div className="flex justify-between items-start">
-                    <span className="bg-black/50 backdrop-blur-sm px-3 py-1 text-[8px] tracking-[0.3em] uppercase text-white/90">
-                      Model Ready
-                    </span>
-                  </div>
-                  
-                  <div className="text-center">
-                    <h3 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-thin tracking-[0.2em] text-white mb-2">
-                      T R A I N
-                    </h3>
-                    <p className="text-[8px] sm:text-[10px] tracking-[0.4em] uppercase text-white/70 mb-6">
-                      Step 1
-                    </p>
-                  </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+                <div className="absolute bottom-6 left-6 right-6">
+                  <span className="bg-white/10 backdrop-blur-sm px-3 py-1 text-[8px] tracking-[0.3em] uppercase text-white/90 mb-2 inline-block">
+                    Step 1
+                  </span>
+                  <h3 className="font-serif text-3xl font-thin tracking-[0.2em] text-white">
+                    T R A I N
+                  </h3>
                 </div>
-              </div>
-              
-              {/* Card Footer */}
-              <div className="bg-white text-black p-6 sm:p-8">
-                <h4 className="font-serif text-xl sm:text-2xl font-thin mb-3 text-black">
-                  Train Your AI Model
-                </h4>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-4">
-                  Upload 10–20 selfies and I'll train your personal AI model.
-                </p>
-                <p className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-gray-400">
-                  Once. That's it.
-                </p>
               </div>
             </div>
             
-            {/* Step 2 - STYLE */}
-            <div className="group cursor-pointer">
-              <div className="relative h-[500px] sm:h-[600px] overflow-hidden">
+            <div className="col-span-12 lg:col-span-6 flex items-center">
+              <div className="max-w-lg">
+                <h4 className="font-serif text-2xl sm:text-3xl font-thin mb-6 text-white">
+                  Train Your AI Model
+                </h4>
+                <div className="space-y-4 text-sm sm:text-base text-white/80 leading-relaxed">
+                  <p>
+                    Upload 10–20 selfies and I'll train your personal AI model to understand your unique features, expressions, and energy.
+                  </p>
+                  <p className="font-medium text-white">
+                    Once. That's it. Your AI twin is ready.
+                  </p>
+                </div>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="w-12 h-[1px] bg-white/30"></div>
+                  <p className="text-[8px] tracking-[0.4em] uppercase text-white/50">Model Ready</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Step 2 - STYLE (Text Left, Image Right) */}
+          <div className="grid grid-cols-12 gap-8 lg:gap-16 mb-20 lg:mb-32">
+            <div className="col-span-12 lg:col-span-6 order-2 lg:order-1 flex items-center">
+              <div className="max-w-lg">
+                <h4 className="font-serif text-2xl sm:text-3xl font-thin mb-6 text-white">
+                  Style with Maya
+                </h4>
+                <div className="space-y-4 text-sm sm:text-base text-white/80 leading-relaxed">
+                  <p>
+                    Tell Maya the vibe: "Business," "Travel," "Future Self," "GRWM." She creates the entire photoshoot concept.
+                  </p>
+                  <p className="font-medium text-white">
+                    10+ styled collections ready to generate.
+                  </p>
+                </div>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="w-12 h-[1px] bg-white/30"></div>
+                  <p className="text-[8px] tracking-[0.4em] uppercase text-white/50">Maya Ready</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="col-span-12 lg:col-span-6 order-1 lg:order-2">
+              <div className="relative h-[400px] lg:h-[500px] overflow-hidden">
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
                   alt="Style with Maya AI stylist"
-                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                
-                {/* Overlay Content */}
-                <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8">
-                  <div className="flex justify-between items-start">
-                    <span className="bg-black/50 backdrop-blur-sm px-3 py-1 text-[8px] tracking-[0.3em] uppercase text-white/90">
-                      Maya Ready
-                    </span>
-                  </div>
-                  
-                  <div className="text-center">
-                    <h3 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-thin tracking-[0.2em] text-white mb-2">
-                      S T Y L E
-                    </h3>
-                    <p className="text-[8px] sm:text-[10px] tracking-[0.4em] uppercase text-white/70 mb-6">
-                      Step 2
-                    </p>
-                  </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+                <div className="absolute bottom-6 left-6 right-6">
+                  <span className="bg-white/10 backdrop-blur-sm px-3 py-1 text-[8px] tracking-[0.3em] uppercase text-white/90 mb-2 inline-block">
+                    Step 2
+                  </span>
+                  <h3 className="font-serif text-3xl font-thin tracking-[0.2em] text-white">
+                    S T Y L E
+                  </h3>
                 </div>
               </div>
-              
-              {/* Card Footer */}
-              <div className="bg-white text-black p-6 sm:p-8">
-                <h4 className="font-serif text-xl sm:text-2xl font-thin mb-3 text-black">
-                  Style with Maya
-                </h4>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-4">
-                  Tell Maya the vibe: "Business," "Travel," "Future Self," "GRWM." She creates the shoot.
-                </p>
-                <p className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-gray-400">
-                  10+ collections ready.
-                </p>
-              </div>
             </div>
-            
-            {/* Step 3 - GALLERY */}
-            <div className="group cursor-pointer">
-              <div className="relative h-[500px] sm:h-[600px] overflow-hidden">
+          </div>
+          
+          {/* Step 3 - GALLERY (Image Left, Text Right) */}
+          <div className="grid grid-cols-12 gap-8 lg:gap-16">
+            <div className="col-span-12 lg:col-span-6">
+              <div className="relative h-[400px] lg:h-[500px] overflow-hidden">
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_3hj19rf19xrmc0cryyz81tk7pg_0_1756503154230.png"
                   alt="Curate your brand photo gallery"
-                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                
-                {/* Overlay Content */}
-                <div className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8">
-                  <div className="flex justify-between items-start">
-                    <span className="bg-black/50 backdrop-blur-sm px-3 py-1 text-[8px] tracking-[0.3em] uppercase text-white/90">
-                      View Gallery
-                    </span>
-                  </div>
-                  
-                  <div className="text-center">
-                    <h3 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-thin tracking-[0.2em] text-white mb-2">
-                      G A L L E R Y
-                    </h3>
-                    <p className="text-[8px] sm:text-[10px] tracking-[0.4em] uppercase text-white/70 mb-6">
-                      Step 3
-                    </p>
-                  </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+                <div className="absolute bottom-6 left-6 right-6">
+                  <span className="bg-white/10 backdrop-blur-sm px-3 py-1 text-[8px] tracking-[0.3em] uppercase text-white/90 mb-2 inline-block">
+                    Step 3
+                  </span>
+                  <h3 className="font-serif text-3xl font-thin tracking-[0.2em] text-white">
+                    G A L L E R Y
+                  </h3>
                 </div>
               </div>
-              
-              {/* Card Footer */}
-              <div className="bg-white text-black p-6 sm:p-8">
-                <h4 className="font-serif text-xl sm:text-2xl font-thin mb-3 text-black">
+            </div>
+            
+            <div className="col-span-12 lg:col-span-6 flex items-center">
+              <div className="max-w-lg">
+                <h4 className="font-serif text-2xl sm:text-3xl font-thin mb-6 text-white">
                   Curate Your Gallery
                 </h4>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-4">
-                  Download your photos and watch your brand transform.
-                </p>
-                <p className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-gray-400">
-                  Every month.
-                </p>
+                <div className="space-y-4 text-sm sm:text-base text-white/80 leading-relaxed">
+                  <p>
+                    Download your photos and watch your brand transform. Professional content, every month.
+                  </p>
+                  <p className="font-medium text-white">
+                    Your personal brand photo gallery is ready.
+                  </p>
+                </div>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="w-12 h-[1px] bg-white/30"></div>
+                  <p className="text-[8px] tracking-[0.4em] uppercase text-white/50">View Gallery</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* PRICING - Real Talk Style */}
+      {/* PRICING - Editorial Spread Style */}
       <section className="py-16 sm:py-24 lg:py-32 bg-gray-50">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 lg:px-16 text-center">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-gray-400 mb-8">
-            Let's Talk Money
-          </p>
-          
-          <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-thin mb-8">
-            €47 a month.
-          </h2>
-          
-          <p className="text-lg sm:text-xl text-gray-800 mb-6 max-w-2xl mx-auto">
-            That's less than one dinner out. Less than one photographer session that you'd use once.
-          </p>
-          
-          <p className="text-base text-gray-600 mb-12 max-w-xl mx-auto">
-            For unlimited professional photos, every month, that actually look like you.
-          </p>
-          
-          <button 
-            onClick={() => handleGetStarted()}
-            className="bg-black text-white px-12 py-4 text-xs tracking-[0.3em] uppercase hover:bg-gray-800 transition-colors"
-          >
-            I'm Ready - €47
-          </button>
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
+          <div className="grid grid-cols-12 gap-8 lg:gap-16">
+            {/* Left - Text Content */}
+            <div className="col-span-12 lg:col-span-7 flex items-center">
+              <div className="max-w-2xl">
+                <p className="text-[10px] tracking-[0.4em] uppercase text-gray-400 mb-8">
+                  Let's Talk Money
+                </p>
+                
+                <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-thin mb-8">
+                  €47 a month.
+                </h2>
+                
+                <div className="space-y-6 text-base sm:text-lg text-gray-800 leading-relaxed">
+                  <p>
+                    <strong>That's less than one dinner out.</strong> Less than one photographer session that you'd use once.
+                  </p>
+                  
+                  <p>
+                    For unlimited professional photos, every month, that actually look like <strong>you</strong>.
+                  </p>
+                  
+                  <p className="text-sm text-gray-600 italic">
+                    Your competitors are booking clients with their stunning feeds while you're debating whether AI photos are "authentic enough."
+                  </p>
+                </div>
+                
+                <div className="mt-10">
+                  <button 
+                    onClick={() => handleGetStarted()}
+                    className="bg-black text-white px-12 py-4 text-xs tracking-[0.3em] uppercase hover:bg-gray-800 transition-colors"
+                  >
+                    I'm Ready - €47
+                  </button>
+                </div>
+                
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="w-12 h-[1px] bg-gray-300"></div>
+                  <p className="text-[8px] tracking-[0.4em] uppercase text-gray-500">Launch Special</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right - Visual Content */}
+            <div className="col-span-12 lg:col-span-5">
+              <div className="relative h-[400px] lg:h-[500px] overflow-hidden">
+                <img
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_rr4fnv2rb5rm80crzyd87jm48g_0_1756634973175.png"
+                  alt="Professional brand transformation results"
+                  className="w-full h-full object-cover object-top transition-transform duration-1000 hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                <div className="absolute bottom-6 left-6 right-6">
+                  <p className="text-[8px] sm:text-[10px] tracking-[0.4em] uppercase text-white/80 mb-2">
+                    Your Investment
+                  </p>
+                  <p className="text-white text-sm sm:text-base font-light">
+                    In the woman you're becoming
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
