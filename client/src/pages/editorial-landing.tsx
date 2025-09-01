@@ -474,74 +474,31 @@ export default function EditorialLanding() {
         </div>
       </section>
 
-      {/* PRICING - Editorial Minimalism */}
-      <section className="relative py-16 sm:py-24 lg:py-32 bg-white">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="grid grid-cols-12 gap-6 lg:gap-8">
-            {/* Left Side - Price Statement */}
-            <div className="col-span-12 lg:col-span-5 text-center lg:text-left">
-              <div className="lg:sticky lg:top-32">
-                <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 mb-6 sm:mb-8">
-                  Investment
-                </p>
-                <div className="mb-6 sm:mb-8">
-                  <span className="font-serif text-[clamp(4rem,12vw,10rem)] leading-[0.8] font-thin">€47</span>
-                  <span className="text-xs sm:text-sm font-light text-gray-500 ml-2 sm:ml-4">per month</span>
-                </div>
-                <button
-                  onClick={() => handleGetStarted()}
-                  className="group"
-                >
-                  <span className="text-[9px] sm:text-[10px] lg:text-[11px] tracking-[0.3em] sm:tracking-[0.4em] uppercase text-black border-b border-gray-300 pb-1 sm:pb-2 group-hover:border-black transition-all duration-300">
-                    Start Your Journey
-                  </span>
-                </button>
-              </div>
-            </div>
-            
-            {/* Right Side - Details */}
-            <div className="col-span-12 lg:col-span-6 lg:col-start-7 mt-8 lg:mt-0">
-              <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-thin mb-8 sm:mb-10 lg:mb-12 text-center lg:text-left">
-                Personal Brand<br/>
-                <span className="italic text-gray-400">Studio</span>
-              </h3>
-              
-              <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-10 lg:mb-12">
-                <div className="flex items-start gap-4 sm:gap-6 group">
-                  <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Your trained personal AI model</h4>
-                    <p className="text-[10px] sm:text-xs text-gray-500">Keeps your look consistent across shoots.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 sm:gap-6 group">
-                  <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Up to 100 new photos monthly</h4>
-                    <p className="text-[10px] sm:text-xs text-gray-500">Fresh content for socials, site, launches.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 sm:gap-6 group">
-                  <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Maya AI stylist access</h4>
-                    <p className="text-[10px] sm:text-xs text-gray-500">Describe the vibe—get the set.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 sm:gap-6 group">
-                  <span className="text-2xl sm:text-3xl font-thin text-gray-200 group-hover:text-black transition-colors">•</span>
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-light mb-1 sm:mb-2">Private brand gallery</h4>
-                    <p className="text-[10px] sm:text-xs text-gray-500">Save favorites. Download fast.</p>
-                  </div>
-                </div>
-              </div>
-              
-              <p className="text-[10px] sm:text-xs text-gray-400 text-center lg:text-left">
-                Cancel anytime. Your selfies stay private.
-              </p>
-            </div>
-          </div>
+      {/* PRICING - Real Talk Style */}
+      <section className="py-16 sm:py-24 lg:py-32 bg-gray-50">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-8 lg:px-16 text-center">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-gray-400 mb-8">
+            Let's Talk Money
+          </p>
+          
+          <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] font-thin mb-8">
+            €47 a month.
+          </h2>
+          
+          <p className="text-lg sm:text-xl text-gray-800 mb-6 max-w-2xl mx-auto">
+            That's less than one dinner out. Less than one photographer session that you'd use once.
+          </p>
+          
+          <p className="text-base text-gray-600 mb-12 max-w-xl mx-auto">
+            For unlimited professional photos, every month, that actually look like you.
+          </p>
+          
+          <button 
+            onClick={() => handleGetStarted()}
+            className="bg-black text-white px-12 py-4 text-xs tracking-[0.3em] uppercase hover:bg-gray-800 transition-colors"
+          >
+            I'm Ready - €47
+          </button>
         </div>
       </section>
 
