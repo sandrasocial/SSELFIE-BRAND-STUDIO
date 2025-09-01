@@ -278,30 +278,44 @@ export default function EditorialLanding() {
       {/* EDITORIAL QUOTE - Sandra's Voice */}
       <section className="py-16 sm:py-24 lg:py-32 bg-white">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
-          <div className="grid grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
-            <div className="col-span-12 lg:col-span-2 lg:col-start-2">
-              <div className="h-[1px] w-full bg-gray-200 mb-4 sm:mb-6 lg:mb-8"></div>
-              <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-400 text-center lg:text-left">
-                The Truth
-              </p>
+          <div className="grid grid-cols-12 gap-6 lg:gap-12">
+            {/* Left - Image */}
+            <div className="col-span-12 lg:col-span-6">
+              <div className="relative h-[400px] lg:h-[500px] overflow-hidden bg-gray-100">
+                <img
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
+                  alt="Professional brand consistency"
+                  className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent"></div>
+              </div>
             </div>
-            <div className="col-span-12 lg:col-span-7">
-              <blockquote className="font-serif text-[clamp(1.5rem,5vw,4.5rem)] leading-[0.95] font-thin text-black text-center lg:text-left px-4 sm:px-0">
-                I started by showing women how to take better selfies.<br/>
-                Then my life fell apart - divorced, three kids, no money, completely overwhelmed.<br/><br/>
-                
-                Selfies became my way back.<br/>
-                I built my confidence one picture at a time.<br/>
-                Now I've built the AI that creates them for you.<br/><br/>
-                
-                Because let's be honest: you don't have time for angles or waiting on edits.<br/>
-                You need photos now - so your brand can move.
-              </blockquote>
-              <div className="mt-8 sm:mt-10 lg:mt-12 flex items-center justify-center lg:justify-start gap-4 sm:gap-6">
-                <div className="w-12 sm:w-16 lg:w-20 h-[1px] bg-gray-300"></div>
-                <p className="text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.4em] sm:tracking-[0.5em] uppercase text-gray-500">
-                  Sandra Sigurjónsdóttir
+            
+            {/* Right - Text */}
+            <div className="col-span-12 lg:col-span-6 flex items-center">
+              <div className="max-w-lg">
+                <p className="text-[8px] sm:text-[10px] tracking-[0.4em] uppercase text-gray-400 mb-6">
+                  Real Talk
                 </p>
+                
+                <h2 className="font-serif text-[clamp(2rem,5vw,3.5rem)] font-thin leading-[0.9] mb-8">
+                  Can I be real with you for a second?
+                </h2>
+                
+                <div className="space-y-4 text-sm sm:text-base text-gray-800 leading-relaxed">
+                  <p>
+                    <strong>Your photos are your business card now.</strong> People decide if they trust you based on your Instagram in about 2 seconds.
+                  </p>
+                  
+                  <p>
+                    <strong>Consistency literally makes you money.</strong> When your brand looks cohesive everywhere, that's when people pull out their credit card.
+                  </p>
+                </div>
+                
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="w-12 h-[1px] bg-gray-300"></div>
+                  <p className="text-[8px] tracking-[0.4em] uppercase text-gray-500">Sandra</p>
+                </div>
               </div>
             </div>
           </div>
