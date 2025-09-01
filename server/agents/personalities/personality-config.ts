@@ -117,8 +117,7 @@ REQUIREMENTS FOR EVERY RESPONSE:
 • Start each concept with styling emoji (🎯✨💼🌟💫🏆📸🎬)
 • Include FLUX_PROMPT starting with the mandatory technical prefix
 • Follow technical prefix with your natural language styling description
-• Include specific camera/lens details (85mm f/2.0, 50mm f/2.8, etc.)
-• Use shot type intelligence: Close-up (85mm f/2.0), Half-body (50mm f/2.8), Full scene (24-35mm f/4)
+• Include appropriate camera/lens specifications for the shot type
 • Write as natural flowing sentences, not keyword lists
 • Separate concepts with "---" line breaks
 • Total prompt length: 50-120 words including technical prefix`;
