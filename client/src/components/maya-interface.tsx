@@ -32,6 +32,9 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  
+  // Close sidebar when clicking outside on mobile
+  const closeSidebar = () => setIsSidebarOpen(false);
 
   // Load Maya conversation history
   const { data: conversationData } = useQuery({
@@ -177,17 +180,14 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
       <div className="flex">
         {/* Editorial Sidebar - Desktop & Mobile Overlay */}
         <div className={`
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-          md:translate-x-0 
-          fixed md:relative top-0 left-0 h-full md:h-auto
-          w-80 bg-white border-r border-gray-200 shadow-luxury md:shadow-none
-          z-40 md:z-auto transition-transform duration-300 ease-in-out
-          md:flex-shrink-0 overflow-y-auto
+          fixed top-0 left-0 h-full w-80 bg-white border-r border-gray-200 shadow-luxury 
+          z-40 transition-transform duration-300 ease-in-out overflow-y-auto
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
-          {/* Mobile Close Button */}
-          <div className="md:hidden flex justify-end p-4 border-b border-gray-100">
+          {/* Close Button - Mobile & Desktop */}
+          <div className="flex justify-end p-4 border-b border-gray-100">
             <button
-              onClick={() => setIsSidebarOpen(false)}
+              onClick={closeSidebar}
               className="text-gray-500 hover:text-black text-lg w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-all cursor-pointer"
             >
               ✕
@@ -462,8 +462,8 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/50 z-30"
-          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-black/50 z-30"
+          onClick={closeSidebar}
         ></div>
       )}
     </div>
