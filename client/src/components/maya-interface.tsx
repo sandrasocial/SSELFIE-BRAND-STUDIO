@@ -34,11 +34,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   const queryClient = useQueryClient();
   
   // Close sidebar when clicking outside on mobile
-  const closeSidebar = () => {
-    console.log('Closing sidebar! Current state:', isSidebarOpen);
-    setIsSidebarOpen(false);
-    console.log('After closing - state should be false');
-  };
+  const closeSidebar = () => setIsSidebarOpen(false);
 
   // Load Maya conversation history
   const { data: conversationData } = useQuery({
@@ -56,6 +52,19 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Generate image from concept card
+  const handleGenerateImage = (card: ConceptCard) => {
+    const imageGeneration = {
+      conceptId: card.id,
+      prompt: card.fluxPrompt || card.description,
+      title: card.title,
+      category: card.category || 'Editorial'
+    };
+    
+    // Navigate to workspace with concept card data
+    window.location.href = `/workspace?generate=${encodeURIComponent(JSON.stringify(imageGeneration))}`;
+  };
 
   // Send message to Maya
   const sendMessage = useMutation({
@@ -137,19 +146,11 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
           }}></div>
         </div>
 
-        {/* Debug State Indicator */}
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-3 py-1 text-xs z-50 rounded">
-          State: {isSidebarOpen ? 'OPEN' : 'CLOSED'}
-        </div>
-
         {/* Top Navigation Bar */}
-        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-8 pt-12">
+        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-8">
           {/* Mobile Hamburger Menu */}
           <button
-            onClick={() => {
-              console.log('Menu clicked! Current state:', isSidebarOpen, 'Setting to:', !isSidebarOpen);
-              setIsSidebarOpen(!isSidebarOpen);
-            }}
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="md:hidden btn light text-xs tracking-[0.3em] uppercase px-4 py-2"
           >
             Menu
@@ -385,9 +386,21 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                                           <div className="eyebrow text-white/70 mb-3">
                                             FLUX Prompt • Optimized
                                           </div>
-                                          <div className="text-sm font-mono leading-relaxed text-white/90">
+                                          <div className="text-sm font-mono leading-relaxed text-white/90 mb-4">
                                             {card.fluxPrompt}
                                           </div>
+                                          
+                                          {/* Generate Button */}
+                                          <button
+                                            onClick={() => handleGenerateImage(card)}
+                                            className="editorial-card bg-white text-black hover:bg-gray-100 transition-all duration-300 w-full"
+                                          >
+                                            <div className="card-content px-6 py-3">
+                                              <div className="text-xs font-normal uppercase tracking-[0.3em]">
+                                                Generate Image
+                                              </div>
+                                            </div>
+                                          </button>
                                         </div>
                                       )}
                                     </div>
