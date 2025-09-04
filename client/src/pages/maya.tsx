@@ -425,21 +425,48 @@ export default function Maya() {
                                                   src={imageUrl} 
                                                   alt={`Generated ${card.title} ${imgIndex + 1}`}
                                                   className="w-full h-64 object-cover"
+                                                  crossOrigin="anonymous"
                                                   onLoad={(e) => {
                                                     console.log('✅ Image loaded successfully:', imageUrl);
                                                     // Remove any loading states
                                                     const target = e.target as HTMLImageElement;
                                                     target.style.display = 'block';
                                                   }}
-                                                  onError={(e) => {
+                                                  onError={async (e) => {
                                                     console.error('❌ Image failed to load:', imageUrl);
-                                                    console.error('Error details:', e);
-                                                    // Show error state
                                                     const target = e.target as HTMLImageElement;
-                                                    target.style.display = 'none';
-                                                    const parent = target.parentElement;
-                                                    if (parent) {
-                                                      parent.innerHTML = `<div class="w-full h-64 bg-red-100 border border-red-200 flex items-center justify-center text-red-600 text-sm">Failed to load image</div>`;
+                                                    
+                                                    // Try to fetch through our backend proxy as fallback
+                                                    try {
+                                                      console.log('🔄 Trying image proxy for:', imageUrl);
+                                                      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+                                                      target.src = proxyUrl;
+                                                      // Give it one more chance to load
+                                                      target.onload = () => {
+                                                        console.log('✅ Image loaded via proxy:', proxyUrl);
+                                                        target.style.display = 'block';
+                                                      };
+                                                      target.onerror = () => {
+                                                        console.error('❌ Proxy also failed for:', imageUrl);
+                                                        target.style.display = 'none';
+                                                        const parent = target.parentElement;
+                                                        if (parent && !parent.querySelector('.error-state')) {
+                                                          const errorDiv = document.createElement('div');
+                                                          errorDiv.className = 'error-state w-full h-64 bg-red-50 border border-red-200 flex flex-col items-center justify-center text-red-600 text-sm';
+                                                          errorDiv.innerHTML = `
+                                                            <div class="text-center">
+                                                              <div class="text-red-500 mb-2">🖼️</div>
+                                                              <div>Image temporarily unavailable</div>
+                                                              <button onclick="window.location.reload()" class="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 rounded text-xs">
+                                                                Refresh Page
+                                                              </button>
+                                                            </div>
+                                                          `;
+                                                          parent.appendChild(errorDiv);
+                                                        }
+                                                      };
+                                                    } catch (fallbackError) {
+                                                      console.error('❌ Fallback error:', fallbackError);
                                                     }
                                                   }}
                                                   style={{ 
