@@ -29,6 +29,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -118,7 +119,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col animate-fadeIn">
+    <div className="fixed inset-0 z-50 bg-white animate-fadeIn overflow-y-auto">
       {/* Editorial Hero Header - Magazine Style */}
       <div className="hero relative h-[40vh] bg-black text-white overflow-hidden">
         {/* Background Pattern */}
@@ -129,13 +130,24 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
           }}></div>
         </div>
 
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-8 right-8 z-20 btn light text-xs tracking-[0.3em] uppercase px-6 py-3 hover:scale-105 transition-all duration-300"
-        >
-          Close
-        </button>
+        {/* Top Navigation Bar */}
+        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-8">
+          {/* Mobile Hamburger Menu */}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="md:hidden btn light text-xs tracking-[0.3em] uppercase px-4 py-2"
+          >
+            Menu
+          </button>
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="btn light text-xs tracking-[0.3em] uppercase px-6 py-3 hover:scale-105 transition-all duration-300"
+          >
+            Close
+          </button>
+        </div>
 
         {/* Hero Content - Compact */}
         <div className="hero-content relative z-10 flex flex-col justify-center items-center text-center h-full px-8 py-12">
@@ -161,12 +173,29 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
         </div>
       </div>
 
-      {/* Chat Interface */}
-      <div className="flex-1 flex min-h-0 relative">
-        {/* Editorial Sidebar - Cool Overlay Style */}
-        <div className="absolute top-0 left-0 bottom-0 w-80 bg-white/90 backdrop-blur-xl border-r border-gray-200/50 shadow-luxury z-30 overflow-y-auto">
-          {/* Sidebar Header - More Breathing Room */}
-          <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-8 py-12">
+      {/* Main Content Area */}
+      <div className="flex">
+        {/* Editorial Sidebar - Desktop & Mobile Overlay */}
+        <div className={`
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          md:translate-x-0 
+          fixed md:relative top-0 left-0 h-full md:h-auto
+          w-80 bg-white border-r border-gray-200 shadow-luxury md:shadow-none
+          z-40 md:z-auto transition-transform duration-300 ease-in-out
+          md:flex-shrink-0
+        `}>
+          {/* Mobile Close Button */}
+          <div className="md:hidden flex justify-end p-4 border-b border-gray-100">
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="text-gray-500 hover:text-black"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Sidebar Header */}
+          <div className="px-8 py-12 border-b border-gray-100">
             <h2 className="font-serif text-xl font-extralight uppercase tracking-[0.2em] text-black mb-3">
               Quick Start
             </h2>
@@ -175,7 +204,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
             </div>
           </div>
 
-          <div className="px-8 py-16 space-y-20">
+          <div className="px-8 py-16 space-y-16">
             {/* Editorial Quick Actions - Spacious */}
             <div className="space-y-8">
               {quickActions.slice(0, 3).map((action, index) => (
@@ -231,10 +260,9 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
           </div>
         </div>
 
-        {/* Editorial Main Chat Area */}
-        <div className="flex-1 flex flex-col bg-gradient-to-b from-white to-gray-50 min-h-0 ml-80">
-          {/* Messages - Spacious Magazine Layout with Integrated Input */}
-          <div className="flex-1 overflow-y-auto px-16 py-20 space-y-20 min-h-0">
+        {/* Maya Chat - The Star of the Show */}
+        <div className="flex-1 bg-gradient-to-b from-white to-gray-50">
+          <div className="max-w-6xl mx-auto px-8 md:px-16 py-16 space-y-20">
             {messages.length === 0 && (
               <div className="section text-center py-32">
                 <div className="eyebrow text-gray-500 mb-8">
@@ -411,6 +439,14 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
           </div>
         </div>
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
     </div>
   );
 }
