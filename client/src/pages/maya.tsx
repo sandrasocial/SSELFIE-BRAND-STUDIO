@@ -1841,12 +1841,25 @@ const MayaComponent = React.memo(() => {
                                           src={imageUrl}
                                           alt={`${concept.title} ${imgIndex + 1}`}
                                           onClick={() => setSelectedImage(imageUrl)}
+                                          onLoad={(e) => {
+                                            console.log('✅ Image loaded in maya.tsx:', imageUrl);
+                                            const target = e.target as HTMLImageElement;
+                                            target.style.display = 'block';
+                                          }}
+                                          onError={(e) => {
+                                            console.error('❌ Image failed to load in maya.tsx:', imageUrl);
+                                            const target = e.target as HTMLImageElement;
+                                            target.style.display = 'none';
+                                          }}
                                           style={{
                                             width: '100%',
                                             height: '100%',
                                             objectFit: 'cover',
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            display: 'block',
+                                            maxWidth: '100%'
                                           }}
+                                          crossOrigin="anonymous"
                                         />
                                         {/* Save button for concept images */}
                                         <button
