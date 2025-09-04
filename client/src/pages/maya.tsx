@@ -409,80 +409,32 @@ export default function Maya() {
                                         </div>
                                       )}
 
-                                      {/* Generated Images Display */}
+                                      {/* Generated Images Display - Working Version */}
                                       {card.generatedImages && card.generatedImages.length > 0 && (
-                                        <div className="mt-6 pt-6 border-t border-gray-200">
-                                          <div className="eyebrow text-gray-500 mb-4">
-                                            Generated Images
-                                          </div>
-                                          <div className="text-xs text-gray-400 mb-2">
-                                            Debug: {card.generatedImages.length} images - {JSON.stringify(card.generatedImages)}
-                                          </div>
-                                          <div className="grid grid-cols-1 gap-4">
-                                            {card.generatedImages.map((imageUrl, imgIndex) => (
-                                              <div key={imgIndex} className="relative bg-gray-100 border border-gray-200" style={{ minHeight: '256px' }}>
+                                        <div className="image-grid">
+                                          <div className="eyebrow text-gray-500 mb-4">Generated Images</div>
+                                          {card.generatedImages.map((imageUrl, imgIndex) => {
+                                            // Use proxy URL immediately to avoid CORS issues
+                                            const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+                                            return (
+                                              <div key={imgIndex} className="image-item" onClick={() => setSelectedImage?.(proxyUrl)}>
                                                 <img 
-                                                  src={imageUrl} 
+                                                  src={proxyUrl}
                                                   alt={`Generated ${card.title} ${imgIndex + 1}`}
-                                                  className="w-full h-64 object-cover"
-                                                  crossOrigin="anonymous"
-                                                  onLoad={(e) => {
-                                                    console.log('✅ Image loaded successfully:', imageUrl);
-                                                    // Remove any loading states
+                                                  onLoad={() => console.log('✅ Image loaded via proxy:', proxyUrl)}
+                                                  onError={(e) => {
+                                                    console.error('❌ Image proxy failed:', proxyUrl);
                                                     const target = e.target as HTMLImageElement;
-                                                    target.style.display = 'block';
-                                                  }}
-                                                  onError={async (e) => {
-                                                    console.error('❌ Image failed to load:', imageUrl);
-                                                    const target = e.target as HTMLImageElement;
-                                                    
-                                                    // Try to fetch through our backend proxy as fallback
-                                                    try {
-                                                      console.log('🔄 Trying image proxy for:', imageUrl);
-                                                      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
-                                                      target.src = proxyUrl;
-                                                      // Give it one more chance to load
-                                                      target.onload = () => {
-                                                        console.log('✅ Image loaded via proxy:', proxyUrl);
-                                                        target.style.display = 'block';
-                                                      };
-                                                      target.onerror = () => {
-                                                        console.error('❌ Proxy also failed for:', imageUrl);
-                                                        target.style.display = 'none';
-                                                        const parent = target.parentElement;
-                                                        if (parent && !parent.querySelector('.error-state')) {
-                                                          const errorDiv = document.createElement('div');
-                                                          errorDiv.className = 'error-state w-full h-64 bg-red-50 border border-red-200 flex flex-col items-center justify-center text-red-600 text-sm';
-                                                          errorDiv.innerHTML = `
-                                                            <div class="text-center">
-                                                              <div class="text-red-500 mb-2">🖼️</div>
-                                                              <div>Image temporarily unavailable</div>
-                                                              <button onclick="window.location.reload()" class="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 rounded text-xs">
-                                                                Refresh Page
-                                                              </button>
-                                                            </div>
-                                                          `;
-                                                          parent.appendChild(errorDiv);
-                                                        }
-                                                      };
-                                                    } catch (fallbackError) {
-                                                      console.error('❌ Fallback error:', fallbackError);
+                                                    target.style.display = 'none';
+                                                    const parent = target.parentElement;
+                                                    if (parent && !parent.querySelector('.error-fallback')) {
+                                                      parent.innerHTML += '<div class="error-fallback text-center py-8 text-gray-500">Image unavailable</div>';
                                                     }
                                                   }}
-                                                  style={{ 
-                                                    maxWidth: '100%',
-                                                    height: '256px',
-                                                    display: 'block'
-                                                  }}
-                                                  crossOrigin="anonymous"
                                                 />
-                                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                                                  Image {imgIndex + 1}
-                                                </div>
-                                                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 cursor-pointer"></div>
                                               </div>
-                                            ))}
-                                          </div>
+                                            );
+                                          })}
                                         </div>
                                       )}
                                       
