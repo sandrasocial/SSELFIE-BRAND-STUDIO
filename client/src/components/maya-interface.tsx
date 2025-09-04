@@ -162,9 +162,9 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
       </div>
 
       {/* Chat Interface */}
-      <div className="flex-1 flex min-h-0">
-        {/* Editorial Sidebar - Spacious Magazine Style */}
-        <div className="w-80 bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 overflow-y-auto">
+      <div className="flex-1 flex min-h-0 relative">
+        {/* Editorial Sidebar - Cool Overlay Style */}
+        <div className="absolute top-0 left-0 bottom-0 w-80 bg-white/90 backdrop-blur-xl border-r border-gray-200/50 shadow-luxury z-30 overflow-y-auto">
           {/* Sidebar Header - More Breathing Room */}
           <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-8 py-12">
             <h2 className="font-serif text-xl font-extralight uppercase tracking-[0.2em] text-black mb-3">
@@ -232,8 +232,8 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
         </div>
 
         {/* Editorial Main Chat Area */}
-        <div className="flex-1 flex flex-col bg-gradient-to-b from-white to-gray-50 min-h-0">
-          {/* Messages - Spacious Magazine Layout */}
+        <div className="flex-1 flex flex-col bg-gradient-to-b from-white to-gray-50 min-h-0 ml-80">
+          {/* Messages - Spacious Magazine Layout with Integrated Input */}
           <div className="flex-1 overflow-y-auto px-16 py-20 space-y-20 min-h-0">
             {messages.length === 0 && (
               <div className="section text-center py-32">
@@ -365,14 +365,10 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
               </div>
             )}
             
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Luxury Message Board Input - Spacious Integration */}
-          <div className="px-16 pt-12 pb-20">
+            {/* Integrated Chat Input - Part of Conversation Flow */}
             <div className="max-w-4xl">
-              {/* Message Board Style Input */}
-              <div className="bg-white border border-gray-200 shadow-lg">
+              {/* Input as Natural Chat Element */}
+              <div className="bg-white border border-gray-200 shadow-lg animate-fadeIn">
                 <div className="p-12">
                   <div className="eyebrow text-gray-500 mb-6">
                     Continue Conversation • Tell Maya Your Vision
@@ -410,6 +406,8 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                 </div>
               </div>
             </div>
+            
+            <div ref={messagesEndRef} />
           </div>
         </div>
       </div>
