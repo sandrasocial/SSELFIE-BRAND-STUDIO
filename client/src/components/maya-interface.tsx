@@ -34,7 +34,11 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   const queryClient = useQueryClient();
   
   // Close sidebar when clicking outside on mobile
-  const closeSidebar = () => setIsSidebarOpen(false);
+  const closeSidebar = () => {
+    console.log('Closing sidebar! Current state:', isSidebarOpen);
+    setIsSidebarOpen(false);
+    console.log('After closing - state should be false');
+  };
 
   // Load Maya conversation history
   const { data: conversationData } = useQuery({
@@ -133,11 +137,19 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
           }}></div>
         </div>
 
+        {/* Debug State Indicator */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-3 py-1 text-xs z-50 rounded">
+          State: {isSidebarOpen ? 'OPEN' : 'CLOSED'}
+        </div>
+
         {/* Top Navigation Bar */}
-        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-8">
+        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-8 pt-12">
           {/* Mobile Hamburger Menu */}
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={() => {
+              console.log('Menu clicked! Current state:', isSidebarOpen, 'Setting to:', !isSidebarOpen);
+              setIsSidebarOpen(!isSidebarOpen);
+            }}
             className="md:hidden btn light text-xs tracking-[0.3em] uppercase px-4 py-2"
           >
             Menu
@@ -180,7 +192,10 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
       <div className="flex">
         {/* Editorial Sidebar - Desktop & Mobile Overlay */}
         <div 
-          className={`fixed top-0 left-0 h-full w-80 bg-white border-r border-gray-200 shadow-luxury z-40 transition-transform duration-300 ease-in-out overflow-y-auto ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          className={`fixed top-0 left-0 h-full w-80 bg-white border-r border-gray-200 shadow-luxury z-40 transition-transform duration-300 ease-in-out overflow-y-auto transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          style={{
+            transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)'
+          }}
         >
           {/* Close Button - Mobile & Desktop */}
           <div className="flex justify-end p-4 border-b border-gray-100">
