@@ -1160,6 +1160,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // RESTORED: Sandra's admin user management system active
   
+  // Image proxy endpoint to bypass CORS issues with S3
+  app.get('/api/proxy-image', isAuthenticated, async (req: any, res) => {
+    try {
+      const { url } = req.query;
+      
+      if (!url || typeof url !== 'string') {
+        return res.status(400).json({ error: 'Image URL required' });
+      }
+      
+      // Only allow our S3 bucket URLs for security
+      if (!url.includes('sselfie-training-zips.s3.') && !url.includes('replicate.delivery')) {
+        return res.status(403).json({ error: 'Unauthorized image source' });
+      }
+      
+      console.log('🖼️ Proxying image:', url);
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'SSELFIE-Studio/1.0'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status}`);
+      }
+      
+      // Set appropriate headers
+      res.set({
+        'Content-Type': response.headers.get('content-type') || 'image/png',
+        'Cache-Control': 'public, max-age=3600',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
+      
+      // Stream the image
+      const buffer = await response.arrayBuffer();
+      res.send(Buffer.from(buffer));
+      
+    } catch (error) {
+      console.error('❌ Image proxy error:', error);
+      res.status(500).json({ error: 'Failed to proxy image' });
+    }
+  });
+
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
