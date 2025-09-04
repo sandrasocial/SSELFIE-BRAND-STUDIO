@@ -101,113 +101,141 @@ export function SimplifiedWorkspace() {
   return (
     <>
       <div className="min-h-screen bg-white font-light">
-        {/* Navigation */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
-          <div className="max-w-6xl mx-auto px-8 py-5 flex justify-between items-center">
-            <div className="font-serif text-xl font-normal tracking-tight">
+        {/* Editorial Navigation - Matching Styleguide */}
+        <nav className="nav fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+          <div className="nav-content max-w-6xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div className="logo font-serif text-xl font-normal tracking-tight">
               SSELFIE Studio
             </div>
-            <div className="flex items-center gap-8">
-              <Link href="/profile" className="text-xs uppercase tracking-wide text-gray-600 hover:text-black transition-colors">
-                Profile
-              </Link>
-              <a 
-                href="/api/logout"
-                className="text-xs uppercase tracking-wide text-gray-600 hover:text-black transition-colors"
-              >
-                Sign Out
-              </a>
-            </div>
+            <ul className="nav-menu flex items-center gap-8">
+              <li>
+                <Link href="/profile" className="nav-link text-xs uppercase tracking-[0.3em] text-black hover:opacity-60 transition-opacity duration-300">
+                  Profile
+                </Link>
+              </li>
+              <li>
+                <a 
+                  href="/api/logout"
+                  className="nav-link text-xs uppercase tracking-[0.3em] text-black hover:opacity-60 transition-opacity duration-300"
+                >
+                  Sign Out
+                </a>
+              </li>
+            </ul>
           </div>
         </nav>
 
-        {/* Workspace Header */}
-        <div className="pt-20 pb-16 text-center bg-gray-50">
-          <div className="max-width-6xl mx-auto px-8">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-6">
+        {/* Editorial Workspace Header - Full Styleguide */}
+        <div className="section pt-32 pb-20 text-center bg-gray-50">
+          <div className="container max-w-6xl mx-auto px-8">
+            <div className="eyebrow text-xs font-normal tracking-[0.4em] uppercase text-gray-500 mb-8">
               Welcome Back
             </div>
-            <h1 className="font-serif text-[clamp(3rem,8vw,6rem)] leading-[0.9] font-extralight uppercase tracking-[0.1em] text-black mb-6">
+            <h1 className="font-serif text-[clamp(4rem,8vw,8rem)] leading-[0.9] font-extralight uppercase tracking-[0.3em] text-black mb-8">
               Your Studio
             </h1>
-            <p className="text-lg text-gray-600 max-width-2xl mx-auto font-light leading-relaxed">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
               Create professional photos that make people wonder where you got them done.
             </p>
           </div>
         </div>
 
-        {/* Three Step Layout */}
+        {/* Three Step Layout - Full Bleed Editorial Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 min-h-screen">
           {steps.map((step, index) => (
             <div
               key={step.id}
-              className={`relative flex items-center justify-center cursor-pointer transition-all duration-500 overflow-hidden ${
-                step.status === 'locked' ? 'cursor-not-allowed' : 'hover:scale-[1.02]'
+              className={`editorial-card group relative min-h-screen cursor-pointer transition-all duration-500 overflow-hidden ${
+                step.status === 'locked' ? 'cursor-not-allowed' : ''
               } ${
-                index === 0 ? 'bg-white' : 
-                index === 1 ? 'bg-gray-50' : 
-                'bg-black text-white'
+                index === 0 ? 'bg-white hover:bg-black' : 
+                index === 1 ? 'bg-gray-50 hover:bg-black' : 
+                'bg-black'
               }`}
               onClick={() => handleStepClick(step)}
             >
-              {/* Background Image */}
-              <div className="absolute inset-0 opacity-10 transition-opacity duration-500 hover:opacity-20">
+              {/* Full Bleed Background Image */}
+              <div className="hero-bg absolute inset-0 opacity-30 transition-opacity duration-1000 group-hover:opacity-40">
                 <img 
                   src={step.bgImage} 
                   alt={step.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 />
               </div>
 
-              {/* Content */}
-              <div className="relative z-10 text-center px-8 max-w-md">
-                {/* Large Step Number */}
-                <div className={`font-serif text-[120px] leading-none font-extralight opacity-20 mb-6 ${
-                  index === 2 ? 'text-white' : 'text-black'
+              {/* Editorial Number - Large Background */}
+              <div className={`card-number absolute top-8 right-12 font-serif text-[200px] leading-none font-extralight opacity-10 transition-all duration-500 ${
+                index === 2 ? 'text-white' : 'text-black group-hover:text-white'
+              }`}>
+                {step.number}
+              </div>
+
+              {/* Content Container */}
+              <div className="relative z-10 h-full flex flex-col justify-center px-12 py-20 text-center max-w-md mx-auto">
+                
+                {/* Editorial Eyebrow */}
+                <div className={`eyebrow text-xs font-normal tracking-[0.4em] uppercase mb-8 transition-colors duration-500 ${
+                  index === 2 ? 'text-white/70' : 'text-gray-500 group-hover:text-white/70'
                 }`}>
-                  {step.number}
+                  Step {step.number}
                 </div>
 
-                {/* Step Title */}
-                <h2 className={`font-serif text-4xl font-light uppercase tracking-[0.05em] mb-4 ${
-                  index === 2 ? 'text-white' : 'text-black'
+                {/* Main Title - Editorial Style */}
+                <h2 className={`font-serif text-[clamp(3rem,6vw,4rem)] font-extralight uppercase tracking-[0.3em] leading-[0.9] mb-6 transition-colors duration-500 ${
+                  index === 2 ? 'text-white' : 'text-black group-hover:text-white'
                 }`}>
                   {step.title}
                 </h2>
 
                 {/* Subtitle */}
-                <div className={`text-sm tracking-[0.2em] uppercase mb-6 ${
-                  index === 2 ? 'text-gray-300' : 'text-gray-600'
+                <div className={`text-sm tracking-[0.2em] uppercase mb-8 transition-colors duration-500 font-light ${
+                  index === 2 ? 'text-white/80' : 'text-gray-600 group-hover:text-white/80'
                 }`}>
                   {step.subtitle}
                 </div>
 
                 {/* Description */}
-                <p className={`text-sm leading-relaxed mb-8 ${
-                  index === 2 ? 'text-gray-300' : 'text-gray-600'
+                <p className={`text-sm leading-relaxed mb-12 max-w-xs mx-auto font-light transition-colors duration-500 ${
+                  index === 2 ? 'text-white/70' : 'text-gray-600 group-hover:text-white/70'
                 }`}>
                   {step.description}
                 </p>
 
-                {/* Status */}
-                <div className={`text-xs font-medium uppercase tracking-[0.3em] ${
+                {/* Status Badge - Editorial Style */}
+                <div className={`inline-flex items-center gap-2 px-6 py-3 text-xs font-normal uppercase tracking-[0.3em] border transition-all duration-500 ${
                   step.status === 'complete' ? 
-                    (index === 2 ? 'text-white' : 'text-black') :
+                    (index === 2 ? 'border-white text-white' : 'border-black text-black group-hover:border-white group-hover:text-white') :
                   step.status === 'progress' ?
-                    (index === 2 ? 'text-white' : 'text-black') :
+                    (index === 2 ? 'border-white text-white' : 'border-black text-black group-hover:border-white group-hover:text-white') :
                   step.status === 'ready' ?
-                    (index === 2 ? 'text-white' : 'text-black') :
-                    'text-gray-400'
+                    (index === 2 ? 'border-white text-white' : 'border-black text-black group-hover:border-white group-hover:text-white') :
+                    'border-gray-400 text-gray-400'
                 }`}>
                   {step.status === 'progress' && (
-                    <div className="inline-block w-2 h-2 bg-current rounded-full animate-pulse mr-2"></div>
+                    <div className="w-2 h-2 bg-current rounded-full animate-pulse"></div>
                   )}
                   {step.statusText}
                 </div>
 
+                {/* Editorial Hover CTA */}
+                {step.status !== 'locked' && (
+                  <div className={`mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+                    index === 2 ? 'text-white/60' : 'text-white/60'
+                  }`}>
+                    <div className="text-xs tracking-[0.2em] uppercase">
+                      Click to {step.action === 'maya' ? 'Open Maya' : 'Continue'}
+                    </div>
+                  </div>
+                )}
+
                 {/* Lock overlay for disabled steps */}
                 {step.status === 'locked' && (
-                  <div className="absolute inset-0 bg-black/20"></div>
+                  <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
+                    <div className="text-white/70 text-center">
+                      <div className="text-xs tracking-[0.3em] uppercase mb-2">Locked</div>
+                      <div className="text-xs text-white/50">Complete previous steps</div>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
