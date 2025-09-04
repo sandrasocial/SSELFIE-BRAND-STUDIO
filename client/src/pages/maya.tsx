@@ -378,9 +378,9 @@ const MayaComponent = React.memo(() => {
     });
   };
 
+  // Auto-scroll removed - users control their own scrolling
   const scrollToChat = () => {
-    const chatContainer = document.querySelector('.main-container');
-    chatContainer?.scrollIntoView({ behavior: 'smooth' });
+    // Removed auto-scroll behavior - users prefer to control scrolling position
   };
 
 
@@ -1560,7 +1560,7 @@ const MayaComponent = React.memo(() => {
           <div className="hero-eyebrow">Professional photos, no photographer needed</div>
           <h1 className="hero-title">Maya</h1>
           <p className="hero-subtitle">Your Personal Brand Stylist</p>
-          <button className="hero-cta" onClick={scrollToChat}>Start Creating</button>
+          <button className="hero-cta" onClick={() => {}}>Start Creating</button>
         </div>
       </section>
 
@@ -1768,7 +1768,19 @@ const MayaComponent = React.memo(() => {
                               <img
                                 src={imageUrl}
                                 alt={`Generated image ${imgIndex + 1}`}
+                                crossOrigin="anonymous"
                                 onClick={() => setSelectedImage(imageUrl)}
+                                onLoad={() => console.log(`✅ Image loaded successfully:`, imageUrl)}
+                                onError={(e) => {
+                                  console.error(`❌ Image failed to load:`, imageUrl);
+                                  console.error('Error details:', e);
+                                }}
+                                style={{
+                                  width: '100%',
+                                  height: 'auto',
+                                  display: 'block',
+                                  backgroundColor: 'transparent'
+                                }}
                               />
 
                               {/* Heart save button */}
