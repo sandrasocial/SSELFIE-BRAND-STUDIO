@@ -419,17 +419,34 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                                           </div>
                                           <div className="grid grid-cols-1 gap-4">
                                             {card.generatedImages.map((imageUrl, imgIndex) => (
-                                              <div key={imgIndex} className="relative">
+                                              <div key={imgIndex} className="relative bg-gray-100 border border-gray-200" style={{ minHeight: '256px' }}>
                                                 <img 
                                                   src={imageUrl} 
                                                   alt={`Generated ${card.title} ${imgIndex + 1}`}
-                                                  className="w-full h-64 object-cover border border-gray-200 bg-gray-100"
-                                                  onLoad={(e) => console.log('✅ Image loaded successfully:', imageUrl)}
+                                                  className="w-full h-64 object-cover"
+                                                  onLoad={(e) => {
+                                                    console.log('✅ Image loaded successfully:', imageUrl);
+                                                    // Remove any loading states
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'block';
+                                                  }}
                                                   onError={(e) => {
                                                     console.error('❌ Image failed to load:', imageUrl);
                                                     console.error('Error details:', e);
+                                                    // Show error state
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                    const parent = target.parentElement;
+                                                    if (parent) {
+                                                      parent.innerHTML = `<div class="w-full h-64 bg-red-100 border border-red-200 flex items-center justify-center text-red-600 text-sm">Failed to load image</div>`;
+                                                    }
                                                   }}
-                                                  style={{ minHeight: '256px' }}
+                                                  style={{ 
+                                                    maxWidth: '100%',
+                                                    height: '256px',
+                                                    display: 'block'
+                                                  }}
+                                                  crossOrigin="anonymous"
                                                 />
                                                 <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
                                                   Image {imgIndex + 1}
