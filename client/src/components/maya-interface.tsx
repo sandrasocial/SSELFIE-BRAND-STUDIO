@@ -389,26 +389,67 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                                         {card.description}
                                       </p>
                                       
+                                      {/* Loading Indicator During Generation */}
+                                      {card.isGenerating && (
+                                        <div className="mt-6 pt-6 border-t border-gray-200">
+                                          <div className="eyebrow text-gray-500 mb-4">
+                                            Generating Images
+                                          </div>
+                                          <div className="bg-gray-50 border border-gray-200 h-48 flex items-center justify-center">
+                                            <div className="flex flex-col items-center space-y-4">
+                                              <div className="flex space-x-2">
+                                                <div className="w-3 h-3 bg-black rounded-full animate-bounce"></div>
+                                                <div className="w-3 h-3 bg-black rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                                <div className="w-3 h-3 bg-black rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+                                              </div>
+                                              <div className="text-sm font-light text-gray-600">
+                                                Creating your personalized image...
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+
                                       {/* Generated Images Display */}
                                       {card.generatedImages && card.generatedImages.length > 0 && (
                                         <div className="mt-6 pt-6 border-t border-gray-200">
                                           <div className="eyebrow text-gray-500 mb-4">
                                             Generated Images
                                           </div>
-                                          <div className="grid grid-cols-2 gap-4">
+                                          <div className="text-xs text-gray-400 mb-2">
+                                            Debug: {card.generatedImages.length} images - {JSON.stringify(card.generatedImages)}
+                                          </div>
+                                          <div className="grid grid-cols-1 gap-4">
                                             {card.generatedImages.map((imageUrl, imgIndex) => (
                                               <div key={imgIndex} className="relative">
                                                 <img 
                                                   src={imageUrl} 
                                                   alt={`Generated ${card.title} ${imgIndex + 1}`}
-                                                  className="w-full h-48 object-cover border border-gray-200"
+                                                  className="w-full h-64 object-cover border border-gray-200 bg-gray-100"
+                                                  onLoad={(e) => console.log('✅ Image loaded successfully:', imageUrl)}
+                                                  onError={(e) => {
+                                                    console.error('❌ Image failed to load:', imageUrl);
+                                                    console.error('Error details:', e);
+                                                  }}
+                                                  style={{ minHeight: '256px' }}
                                                 />
+                                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                                  Image {imgIndex + 1}
+                                                </div>
                                                 <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 cursor-pointer"></div>
                                               </div>
                                             ))}
                                           </div>
                                         </div>
                                       )}
+                                      
+                                      {/* Debug info for concept card state */}
+                                      <div className="mt-4 p-2 bg-gray-50 text-xs text-gray-500">
+                                        <div>Debug State:</div>
+                                        <div>isGenerating: {card.isGenerating ? 'true' : 'false'}</div>
+                                        <div>hasGenerated: {card.hasGenerated ? 'true' : 'false'}</div>
+                                        <div>generatedImages: {card.generatedImages?.length || 0}</div>
+                                      </div>
                                       
                                       {/* Generate Button - Always show if concept can be generated */}
                                       {(card.fluxPrompt || (card as any).fullPrompt) && (
