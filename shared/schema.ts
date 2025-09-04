@@ -130,7 +130,10 @@ export const aiImages = pgTable("ai_images", {
   userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   imageUrl: varchar("image_url").notNull(),
   prompt: text("prompt"),
+  generatedPrompt: text("generated_prompt"), // The actual FLUX prompt used for generation
   style: varchar("style"), // editorial, business, lifestyle, luxury
+  category: varchar("category"), // Business, Fashion, Lifestyle, Travel - NEW FIELD
+  source: varchar("source").default("workspace"), // maya-chat, workspace, gallery-edit
   predictionId: varchar("prediction_id"), // FLUX model prediction tracking
   generationStatus: varchar("generation_status").default("pending"), // pending, processing, completed, failed
   isSelected: boolean("is_selected").default(false),

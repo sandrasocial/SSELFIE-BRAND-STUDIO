@@ -2169,9 +2169,9 @@ router.get('/generated-images', isAuthenticated, async (req, res) => {
         id: img.id,
         imageUrl: img.imageUrl,
         prompt: img.prompt || img.generatedPrompt || '',
-        category: detectCategoryFromPrompt(img.prompt || img.generatedPrompt || ''),
+        category: img.category || 'Lifestyle', // Use stored category with fallback
         createdAt: img.createdAt,
-        isFavorite: false // Can be enhanced to check favorites
+        isFavorite: img.isFavorite || false
       }))
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
