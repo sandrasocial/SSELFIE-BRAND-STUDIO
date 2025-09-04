@@ -1020,10 +1020,10 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
       console.log(`✅ MAYA MIGRATION COMPLETE: ${finalImageUrls.length}/${imageUrls.length} images permanently stored`);
       
       // Step 2: Try to update chat persistence (optional, doesn't affect final URLs)
-      if (chatId && messageId && chatId !== 'null' && chatId !== 'undefined') {
+      if (chatId && messageId && chatId !== 'null' && chatId !== 'undefined' && messageId !== 'null' && messageId !== 'undefined') {
         try {
           const chatIdNumber = parseInt(chatId as string);
-          if (!isNaN(chatIdNumber)) {
+          if (!isNaN(chatIdNumber) && chatIdNumber > 0) {
             const chatMessages = await storage.getMayaChatMessages(chatIdNumber);
             const latestMayaMessage = chatMessages
               .filter(msg => msg.role === 'assistant' || msg.role === 'maya')
@@ -1045,7 +1045,7 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
           // Chat persistence failed but URLs are already permanent - continue
         }
       } else {
-        console.log(`⚠️ MAYA PERSISTENCE: Missing or invalid chatId/messageId - skipping chat update`);
+        console.log(`⚠️ MAYA PERSISTENCE: Missing chatId/messageId (chatId:"${chatId}", messageId:"${messageId}") - standalone generation, returning images without chat persistence`);
       }
       
       // PHASE 7: Log successful generation completion

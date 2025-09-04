@@ -42,8 +42,8 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
-  // Initialize Maya generation hook
-  const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsLoading, toast);
+  // Initialize Maya generation hook (standalone mode - no chat persistence needed)
+  const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, -1, setIsLoading, toast);
   
   // Close sidebar when clicking outside on mobile
   const closeSidebar = () => setIsSidebarOpen(false);
