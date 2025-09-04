@@ -377,30 +377,45 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Editorial Input Section */}
-          <div className="section border-t border-gray-200 bg-white">
-            <div className="px-20 py-12">
-              <div className="max-w-4xl">
-                <div className="eyebrow text-gray-500 mb-6">
-                  Tell Maya Your Vision
-                </div>
-                <div className="flex gap-8 items-end">
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Describe the style, mood, and concept for your next photo session..."
-                    className="flex-1 border border-gray-300 p-8 text-base resize-none bg-white font-light leading-relaxed transition-all duration-500 focus:outline-none focus:border-black focus:shadow-luxury hover:border-gray-400"
-                    rows={4}
-                    disabled={isLoading}
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!message.trim() || isLoading}
-                    className="btn bg-black text-white border-black px-12 py-8 text-xs font-normal uppercase tracking-[0.3em] transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  >
-                    Create Concepts
-                  </button>
+          {/* Luxury Message Board Input - Integrated */}
+          <div className="px-20 pt-8 pb-16">
+            <div className="max-w-5xl">
+              {/* Message Board Style Input */}
+              <div className="bg-white border border-gray-200 shadow-lg">
+                <div className="p-8">
+                  <div className="eyebrow text-gray-500 mb-6">
+                    Continue Conversation • Tell Maya Your Vision
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Share your vision for the next photo session..."
+                      className="w-full border-0 resize-none bg-transparent text-lg font-light leading-relaxed placeholder-gray-400 focus:outline-none"
+                      rows={3}
+                      disabled={isLoading}
+                    />
+                    
+                    {/* Integrated Send Area */}
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                      <div className="eyebrow text-gray-400">
+                        Press Enter to send • Shift+Enter for new line
+                      </div>
+                      <button
+                        onClick={handleSendMessage}
+                        disabled={!message.trim() || isLoading}
+                        className="editorial-card group bg-black text-white hover:bg-gray-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <div className="card-content px-8 py-3 relative">
+                          <div className="text-xs font-normal uppercase tracking-[0.3em] group-hover:text-white transition-colors duration-300">
+                            {isLoading ? 'Creating...' : 'Send to Maya'}
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
