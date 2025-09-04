@@ -21,11 +21,12 @@
   }
 }
 
-/* Simplified Workspace Custom Styles */
+/* SSELFIE Editorial Styleguide Variables */
 :root {
-  --warm-white: #fefefe;
+  --black: #0a0a0a;
+  --white: #ffffff;
   --editorial-gray: #f5f5f5;
-  --mid-gray: #fafafa;  
+  --mid-gray: #fafafa;
   --soft-gray: #666666;
   --accent-line: #e5e5e5;
   --subtle-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -60,4 +61,57 @@
 ::-webkit-scrollbar-thumb {
   background: var(--accent-line);
   border-radius: 2px;
+}
+
+/* Editorial Card Styling - Matching Styleguide */
+.editorial-card {
+  position: relative;
+  transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.editorial-card:hover {
+  background: var(--black) !important;
+  color: var(--white);
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  transition: opacity 1000ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1000ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-number {
+  font-family: 'Times New Roman', serif;
+  position: absolute;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+}
+
+/* Typography - Matching Editorial Styleguide */
+h1, h2, h3 {
+  font-family: 'Times New Roman', serif;
+  font-weight: 200;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Selection styling */
+::selection {
+  background: var(--black);
+  color: var(--white);
 }
