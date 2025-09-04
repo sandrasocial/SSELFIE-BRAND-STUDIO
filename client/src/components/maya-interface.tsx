@@ -182,13 +182,13 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
           fixed md:relative top-0 left-0 h-full md:h-auto
           w-80 bg-white border-r border-gray-200 shadow-luxury md:shadow-none
           z-40 md:z-auto transition-transform duration-300 ease-in-out
-          md:flex-shrink-0
+          md:flex-shrink-0 overflow-y-auto
         `}>
           {/* Mobile Close Button */}
           <div className="md:hidden flex justify-end p-4 border-b border-gray-100">
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="text-gray-500 hover:text-black"
+              className="text-gray-500 hover:text-black text-lg w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-all cursor-pointer"
             >
               ✕
             </button>
@@ -255,6 +255,25 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
               <div className="text-center space-y-6">
                 <div className="font-serif text-3xl font-extralight text-black">295</div>
                 <div className="eyebrow text-gray-500">Photos Generated</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Profile Section - Bottom */}
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                <span className="text-lg font-serif text-gray-600">
+                  {user?.firstName?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate">
+                  {user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user?.email}
+                </div>
+                <div className="text-xs text-gray-500 truncate">
+                  SSELFIE Studio Member
+                </div>
               </div>
             </div>
           </div>
