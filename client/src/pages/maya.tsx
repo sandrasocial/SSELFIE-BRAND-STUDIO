@@ -213,20 +213,8 @@ const MayaComponent = React.memo(() => {
     }
   }, [isAuthenticated]);
 
-  // Get current chat ID from URL
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const chatIdFromUrl = urlParams.get('chat');
-      if (chatIdFromUrl) {
-        const parsedChatId = parseInt(chatIdFromUrl);
-        if (!isNaN(parsedChatId)) {
-          setCurrentChatId(parsedChatId);
-          loadChatHistory(parsedChatId);
-        }
-      }
-    }
-  }, []);
+  // Simplified: Maya uses a single continuous conversation
+  // Removed URL-based chat switching to prevent multiple chat contexts
 
   // Auto-scroll removed - let users control their own scrolling position
 
