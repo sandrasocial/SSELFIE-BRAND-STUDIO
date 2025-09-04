@@ -1947,18 +1947,14 @@ RESEARCH-BACKED FLUX 1.1 PRO REQUIREMENTS:
 - Target 100-250 words for optimal FLUX performance
 - NO conversational language - pure styling description only
 
-CRITICAL TECHNICAL RULES:
+CREATIVE STYLING FLOW:
 - Technical quality tags handled automatically - focus on styling intelligence
-- For business/professional concepts: ALWAYS include 'woman' or 'professional woman' (platform serves women entrepreneurs)
-- Hair color, eye color, skin tone - let LoRA handle specific features while providing feminine business context
-
-CRITICAL PLATFORM ALIGNMENT:
-- SSELFIE Studio serves women building personal brands - include feminine context for business concepts
-- Business styling: 'confident professional woman', 'businesswoman', 'woman entrepreneur' etc.
+- Let Maya's natural fashion expertise guide language choices without forced constraints
+- Hair color, eye color, skin tone - let LoRA handle specific features while Maya provides styling context
 - NEVER create split images, diptych, before/after, side-by-side, or comparison shots
 - NEVER include "transformation", "before and after", "split screen", "two images", or comparison elements  
 - ALWAYS generate single, cohesive images showing one complete moment/outfit
-- FOR BUSINESS CONCEPTS: Include feminine professional context to ensure proper representation
+- Let Maya's styling intelligence flow naturally for all concept types
 
 CREATIVE STYLING APPROACH:
 Let your styling intelligence flow naturally! Create unexpected, beautiful combinations that showcase your expertise:
@@ -2006,8 +2002,8 @@ ${categorySpecificGuidance}
 
 📸 TECHNICAL REQUIREMENTS:
 - Start with technical prefix: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
-- FOR BUSINESS/PROFESSIONAL CONCEPTS: Include 'confident professional woman' or 'businesswoman' after technical prefix
-- Follow with natural sentence describing the styled scene
+- Follow with Maya's natural styling description using her fashion intelligence
+- Let Maya's expertise guide the language flow without forced constraints
 - Include camera specifications (85mm f/2.0 for portraits, 50mm f/2.8 for half-body, 24-35mm f/5.6 for scenes)
 - End with natural lighting and mood description
 
