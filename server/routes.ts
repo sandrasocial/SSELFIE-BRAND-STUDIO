@@ -1205,6 +1205,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Save image to gallery - POST endpoint
+  app.post('/api/ai-images', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const { imageUrl, prompt, category, isAutoSaved, isFavorite } = req.body;
+      
+      console.log('💾 Saving image to gallery:', { userId, prompt, category, isAutoSaved });
+      
+      const { db } = await import('./db');
+      const { aiImages } = await import('../shared/schema');
+      
+      // Check if image already exists to avoid duplicates
+      const { eq } = await import('drizzle-orm');
+      const [existingImage] = await db
+        .select()
+        .from(aiImages)
+        .where(eq(aiImages.imageUrl, imageUrl));
+      
+      if (existingImage) {
+        console.log('⚠️ Image already exists in gallery');
+        return res.json({ message: 'Image already in gallery', id: existingImage.id });
+      }
+      
+      // Save new image
+      const [savedImage] = await db
+        .insert(aiImages)
+        .values({
+          userId,
+          imageUrl,
+          prompt: prompt || 'Maya Generated Image',
+          category: category || 'Lifestyle',
+          isFavorite: isFavorite || false,
+          createdAt: new Date()
+        })
+        .returning();
+      
+      console.log('✅ Image saved to gallery:', savedImage.id);
+      res.json({ message: 'Image saved successfully', id: savedImage.id });
+      
+    } catch (error) {
+      console.error('❌ Error saving image to gallery:', error);
+      res.status(500).json({ 
+        message: "Failed to save image", 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
     try {
