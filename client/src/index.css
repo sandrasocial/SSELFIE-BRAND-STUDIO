@@ -115,3 +115,86 @@ h1, h2, h3 {
   background: var(--black);
   color: var(--white);
 }
+
+/* Editorial Button Styling - Matching Styleguide */
+.btn {
+  display: inline-block;
+  padding: 16px 32px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--black);
+  color: var(--black);
+  background: transparent;
+  transition: all 300ms ease;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--black);
+  color: var(--white);
+}
+
+.btn.light {
+  border-color: var(--white);
+  color: var(--white);
+}
+
+.btn.light:hover {
+  background: var(--white);
+  color: var(--black);
+}
+
+/* Maya Hero Styling */
+.hero {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--black);
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-tagline {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  font-weight: 300;
+}
+
+.hero-title-main {
+  font-family: 'Times New Roman', serif;
+  font-weight: 200;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  line-height: 0.8;
+}
+
+.hero-title-sub {
+  font-family: 'Times New Roman', serif;
+  font-weight: 200;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.hero-description {
+  letter-spacing: 0.05em;
+  text-transform: none;
+  font-weight: 300;
+}
+
+/* Luxury Shadow */
+.shadow-luxury {
+  box-shadow: var(--luxury-shadow);
+}
