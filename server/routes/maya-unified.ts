@@ -599,7 +599,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
                               userId,
                               cleanedPrompt,
                               count,
-                              { categoryContext: detectedCategory }
+                              { categoryContext: req.body.category || 'General' }
                             );
                             
                             console.log(`✅ SINGLE API GENERATION: Images generated using embedded prompt`);
@@ -1948,14 +1948,17 @@ RESEARCH-BACKED FLUX 1.1 PRO REQUIREMENTS:
 - NO conversational language - pure styling description only
 
 CRITICAL TECHNICAL RULES:
-- NEVER add technical quality tags (raw photo, film grain, etc.) - system handles this automatically
-- NEVER specify hair color, eye color, skin tone, facial features - LoRA handles physical appearance
+- Technical quality tags handled automatically - focus on styling intelligence
+- For business/professional concepts: ALWAYS include 'woman' or 'professional woman' (platform serves women entrepreneurs)
+- Hair color, eye color, skin tone - let LoRA handle specific features while providing feminine business context
 
-CRITICAL IMAGE RESTRICTIONS:
-- NEVER specify hair color, eye color, skin tone, or facial features - the LoRA model handles all physical appearance
+CRITICAL PLATFORM ALIGNMENT:
+- SSELFIE Studio serves women building personal brands - include feminine context for business concepts
+- Business styling: 'confident professional woman', 'businesswoman', 'woman entrepreneur' etc.
 - NEVER create split images, diptych, before/after, side-by-side, or comparison shots
 - NEVER include "transformation", "before and after", "split screen", "two images", or comparison elements  
 - ALWAYS generate single, cohesive images showing one complete moment/outfit
+- FOR BUSINESS CONCEPTS: Include feminine professional context to ensure proper representation
 
 CREATIVE STYLING APPROACH:
 Let your styling intelligence flow naturally! Create unexpected, beautiful combinations that showcase your expertise:
@@ -2002,7 +2005,8 @@ ${categorySpecificGuidance}
 - Natural skin texture and realistic lighting phrases
 
 📸 TECHNICAL REQUIREMENTS:
-- Start with technical prefix (DO NOT MODIFY): "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
+- Start with technical prefix: "${triggerWord}, raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, professional photography, beautiful hands, detailed fingers, anatomically correct"
+- FOR BUSINESS/PROFESSIONAL CONCEPTS: Include 'confident professional woman' or 'businesswoman' after technical prefix
 - Follow with natural sentence describing the styled scene
 - Include camera specifications (85mm f/2.0 for portraits, 50mm f/2.8 for half-body, 24-35mm f/5.6 for scenes)
 - End with natural lighting and mood description
