@@ -213,7 +213,7 @@ export const useMayaGeneration = (
       // Call Maya's intelligent generation system with comprehensive error handling
       const response = await apiRequest('/api/maya/generate', 'POST', {
         prompt,
-        chatId: currentChatId,
+        chatId: currentChatId || -1,
         count: 1 // Maya will intelligently adjust based on shot type and choose optimal parameters
       });
       
@@ -246,7 +246,7 @@ export const useMayaGeneration = (
         // Poll for Maya's generation completion with enhanced error handling
         const pollForImages = async () => {
           try {
-            const statusResponse = await fetch(`/api/maya/check-generation/${response.predictionId}?chatId=${currentChatId}&messageId=${finalGenerationId}`, { 
+            const statusResponse = await fetch(`/api/maya/check-generation/${response.predictionId}?chatId=${currentChatId || -1}&messageId=${finalGenerationId}`, { 
               credentials: 'include' 
             }).then(res => {
               if (!res.ok) {
@@ -446,7 +446,7 @@ export const useMayaGeneration = (
     
     const poll = async () => {
       try {
-        const statusResponse = await fetch(`/api/maya/check-generation/${predictionId}?chatId=${currentChatId}&messageId=${messageId}`, { 
+        const statusResponse = await fetch(`/api/maya/check-generation/${predictionId}?chatId=${currentChatId || -1}&messageId=${messageId}`, { 
           credentials: 'include' 
         });
         
@@ -574,7 +574,7 @@ export const useMayaGeneration = (
           prompt: conceptTitle, 
           conceptName: conceptTitle, // This ensures the backend knows it's a concept selection
           conceptId: conceptId, // CRITICAL: Send concept ID to retrieve embedded prompt
-          chatId: currentChatId,
+          chatId: currentChatId || -1,
           count: 1
         })
       });
