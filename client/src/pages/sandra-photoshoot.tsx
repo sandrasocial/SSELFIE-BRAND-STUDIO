@@ -55,11 +55,11 @@ export default function MayaLandingPage() {
     },
     {
       id: 'recent-chats',
-      title: 'Recent Conversations',
-      description: 'Continue previous styling discussions',
+      title: 'Continue with Maya',
+      description: 'Continue your styling conversation with Maya',
       image: SandraImages.editorial.laughing,
-      route: '/maya?history=true',
-      category: 'Chat History'
+      route: '/maya',
+      category: 'Chat'
     },
     {
       id: 'profile-settings',
@@ -273,9 +273,9 @@ export default function MayaLandingPage() {
           </div>
 
           <div className="text-center mt-12">
-            <Link href="/maya?history=all">
+            <Link href="/maya">
               <button className="text-[10px] tracking-[0.2em] uppercase text-black hover:tracking-[0.3em] transition-all duration-300 pb-2 border-b border-black/20 hover:border-black">
-                View All Conversations
+                Chat with Maya
               </button>
             </Link>
           </div>
