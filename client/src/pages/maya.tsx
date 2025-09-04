@@ -94,7 +94,7 @@ export default function Maya() {
       }
     } catch (error) {
       console.error('❌ Save failed:', error);
-      toast({ title: "Save Failed", description: "Please try again", variant: "destructive" });
+      toast({ title: "Save Failed", description: "Please try again" });
     }
   };
   
