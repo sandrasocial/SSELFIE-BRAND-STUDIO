@@ -55,6 +55,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
 
   // Generate image from concept card
   const handleGenerateImage = (card: ConceptCard) => {
+    console.log('🎨 Generate Image clicked for card:', card);
     const imageGeneration = {
       conceptId: card.id,
       prompt: card.fluxPrompt || card.description,
@@ -62,6 +63,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
       category: card.category || 'Editorial'
     };
     
+    console.log('🚀 Navigating to workspace with:', imageGeneration);
     // Navigate to workspace with concept card data
     window.location.href = `/workspace?generate=${encodeURIComponent(JSON.stringify(imageGeneration))}`;
   };
@@ -355,7 +357,9 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                             </div>
                             
                             <div className="grid gap-8">
-                              {msg.conceptCards.map((card, index) => (
+                              {msg.conceptCards.map((card, index) => {
+                                console.log('🎨 Rendering concept card:', card);
+                                return (
                                 <div key={card.id} className="editorial-card group border border-gray-200">
                                   <div className="card-content p-8 relative">
                                     <div className="card-number text-8xl font-serif opacity-5 absolute -top-4 -right-2">
@@ -381,19 +385,26 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                                         {card.description}
                                       </p>
                                       
-                                      {card.fluxPrompt && (
+                                      {/* Always show generate button - check for fluxPrompt OR fullPrompt */}
+                                      {(card.fluxPrompt || (card as any).fullPrompt) && (
                                         <div className="bg-black text-white p-6 transition-all duration-500 group-hover:bg-gray-900">
                                           <div className="eyebrow text-white/70 mb-3">
                                             FLUX Prompt • Optimized
                                           </div>
                                           <div className="text-sm font-mono leading-relaxed text-white/90 mb-4">
-                                            {card.fluxPrompt}
+                                            {card.fluxPrompt || (card as any).fullPrompt}
                                           </div>
                                           
                                           {/* Generate Button */}
                                           <button
-                                            onClick={() => handleGenerateImage(card)}
-                                            className="editorial-card bg-white text-black hover:bg-gray-100 transition-all duration-300 w-full"
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              console.log('🔥 Button clicked!', card);
+                                              handleGenerateImage(card);
+                                            }}
+                                            className="editorial-card bg-white text-black hover:bg-gray-100 transition-all duration-300 w-full cursor-pointer"
+                                            style={{ cursor: 'pointer' }}
                                           >
                                             <div className="card-content px-6 py-3">
                                               <div className="text-xs font-normal uppercase tracking-[0.3em]">
@@ -403,10 +414,17 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                                           </button>
                                         </div>
                                       )}
+                                      
+                                      {/* Debug info */}
+                                      {!(card.fluxPrompt || (card as any).fullPrompt) && (
+                                        <div className="bg-red-100 p-4 text-red-800 text-sm">
+                                          DEBUG: No fluxPrompt or fullPrompt found in card
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
-                              ))}
+                              )})}
                             </div>
                           </div>
                         )}
