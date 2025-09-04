@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../hooks/use-auth';
 import { useMayaGeneration } from '../hooks/useMayaGeneration';
 import { useToast } from '../hooks/use-toast';
+import { MayaCategorizedGallery } from './maya-categorized-gallery';
 
 interface MayaInterfaceProps {
   onClose: () => void;
@@ -443,13 +444,6 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                                         </div>
                                       )}
                                       
-                                      {/* Debug info for concept card state */}
-                                      <div className="mt-4 p-2 bg-gray-50 text-xs text-gray-500">
-                                        <div>Debug State:</div>
-                                        <div>isGenerating: {card.isGenerating ? 'true' : 'false'}</div>
-                                        <div>hasGenerated: {card.hasGenerated ? 'true' : 'false'}</div>
-                                        <div>generatedImages: {card.generatedImages?.length || 0}</div>
-                                      </div>
                                       
                                       {/* Generate Button - Always show if concept can be generated */}
                                       {(card.fluxPrompt || (card as any).fullPrompt) && (
@@ -553,6 +547,9 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
           </div>
         </div>
       </div>
+
+      {/* Maya Categorized Gallery */}
+      <MayaCategorizedGallery />
 
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
