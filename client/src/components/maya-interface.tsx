@@ -120,7 +120,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col animate-fadeIn">
       {/* Editorial Hero Header - Magazine Style */}
-      <div className="hero relative min-h-[60vh] bg-black text-white overflow-hidden">
+      <div className="hero relative h-[40vh] bg-black text-white overflow-hidden">
         {/* Background Pattern */}
         <div className="hero-bg absolute inset-0 opacity-20">
           <div className="w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-800"></div>
@@ -137,34 +137,27 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
           Close
         </button>
 
-        {/* Hero Content */}
-        <div className="hero-content relative z-10 flex flex-col justify-center items-center text-center h-full px-8 py-20">
+        {/* Hero Content - Compact */}
+        <div className="hero-content relative z-10 flex flex-col justify-center items-center text-center h-full px-8 py-12">
           {/* Editorial Eyebrow */}
-          <div className="hero-tagline eyebrow text-white/70 mb-6">
+          <div className="hero-tagline eyebrow text-white/70 mb-4">
             AI Styling Intelligence
           </div>
 
           {/* Main Title - Editorial Size */}
-          <h1 className="hero-title-main font-serif text-[clamp(5rem,12vw,10rem)] font-extralight uppercase tracking-[0.5em] leading-[0.8] mb-4">
+          <h1 className="hero-title-main font-serif text-[clamp(4rem,8vw,7rem)] font-extralight uppercase tracking-[0.5em] leading-[0.8] mb-3">
             MAYA
           </h1>
 
           {/* Subtitle */}
-          <div className="hero-title-sub font-serif text-[clamp(1.5rem,4vw,2.5rem)] font-extralight uppercase tracking-[0.3em] opacity-80 mb-8">
+          <div className="hero-title-sub font-serif text-[clamp(1.2rem,3vw,2rem)] font-extralight uppercase tracking-[0.3em] opacity-80 mb-6">
             Personal Brand Architect
           </div>
 
           {/* Description */}
-          <p className="hero-description max-w-2xl text-sm font-light leading-relaxed opacity-90 tracking-[0.05em]">
-            Creating bespoke concept cards with intelligent FLUX prompts for your luxury personal brand photography. 
-            Each session is tailored to your vision, style, and professional goals.
+          <p className="hero-description max-w-xl text-sm font-light leading-relaxed opacity-90 tracking-[0.05em]">
+            Creating bespoke concept cards with intelligent FLUX prompts for your luxury personal brand photography.
           </p>
-
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/50 animate-bounce">
-            <div className="text-xs tracking-[0.2em] uppercase mb-2">Scroll to Chat</div>
-            <div className="w-px h-8 bg-white/30 mx-auto"></div>
-          </div>
         </div>
       </div>
 
