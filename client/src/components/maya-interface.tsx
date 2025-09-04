@@ -34,7 +34,10 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   const queryClient = useQueryClient();
   
   // Close sidebar when clicking outside on mobile
-  const closeSidebar = () => setIsSidebarOpen(false);
+  const closeSidebar = () => {
+    console.log('Closing sidebar, current state:', isSidebarOpen);
+    setIsSidebarOpen(false);
+  };
 
   // Load Maya conversation history
   const { data: conversationData } = useQuery({
@@ -135,9 +138,17 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
 
         {/* Top Navigation Bar */}
         <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-8">
+          {/* Debug Info */}
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-2 py-1 text-xs">
+            Sidebar: {isSidebarOpen ? 'OPEN' : 'CLOSED'}
+          </div>
+          
           {/* Mobile Hamburger Menu */}
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={() => {
+              console.log('Opening sidebar, current state:', isSidebarOpen);
+              setIsSidebarOpen(!isSidebarOpen);
+            }}
             className="md:hidden btn light text-xs tracking-[0.3em] uppercase px-4 py-2"
           >
             Menu
@@ -187,7 +198,12 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
           {/* Close Button - Mobile & Desktop */}
           <div className="flex justify-end p-4 border-b border-gray-100">
             <button
-              onClick={closeSidebar}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('X button clicked, current state:', isSidebarOpen);
+                closeSidebar();
+              }}
               className="text-gray-500 hover:text-black text-lg w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 transition-all cursor-pointer"
             >
               ✕
