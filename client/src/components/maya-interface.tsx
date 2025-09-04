@@ -60,10 +60,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
     }
   }, [conversationData]);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  // Auto-scroll removed - let users control their own scrolling position
 
   // Generate image from concept card using Maya's generation system
   const handleGenerateImage = async (card: ConceptCard) => {

@@ -228,10 +228,7 @@ const MayaComponent = React.memo(() => {
     }
   }, []);
 
-  // Auto-scroll to bottom when messages update
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  // Auto-scroll removed - let users control their own scrolling position
 
   // Authentication check - clean production flow
   useEffect(() => {
