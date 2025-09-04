@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../hooks/use-auth';
+import { useMayaGeneration } from '../hooks/useMayaGeneration';
+import { useToast } from '../hooks/use-toast';
 
 interface MayaInterfaceProps {
   onClose: () => void;
@@ -20,8 +22,13 @@ interface ConceptCard {
   title: string;
   description: string;
   fluxPrompt?: string;
+  fullPrompt?: string;
   category?: string;
   imageUrl?: string;
+  generatedImages?: string[];
+  isGenerating?: boolean;
+  isLoading?: boolean;
+  hasGenerated?: boolean;
 }
 
 export function MayaInterface({ onClose }: MayaInterfaceProps) {
@@ -32,6 +39,10 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  // Initialize Maya generation hook
+  const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsLoading, toast);
   
   // Close sidebar when clicking outside on mobile
   const closeSidebar = () => setIsSidebarOpen(false);
@@ -53,19 +64,14 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Generate image from concept card
-  const handleGenerateImage = (card: ConceptCard) => {
-    console.log('🎨 Generate Image clicked for card:', card);
-    const imageGeneration = {
-      conceptId: card.id,
-      prompt: card.fluxPrompt || card.description,
-      title: card.title,
-      category: card.category || 'Editorial'
-    };
-    
-    console.log('🚀 Navigating to workspace with:', imageGeneration);
-    // Navigate to workspace with concept card data
-    window.location.href = `/workspace?generate=${encodeURIComponent(JSON.stringify(imageGeneration))}`;
+  // Generate image from concept card using Maya's generation system
+  const handleGenerateImage = async (card: ConceptCard) => {
+    if (generateFromSpecificConcept) {
+      // Use Maya's intelligent generation system
+      await generateFromSpecificConcept(card.title, card.id);
+    } else {
+      console.error('Maya generation system not available');
+    }
   };
 
   // Send message to Maya
@@ -357,9 +363,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                             </div>
                             
                             <div className="grid gap-8">
-                              {msg.conceptCards.map((card, index) => {
-                                console.log('🎨 Rendering concept card:', card);
-                                return (
+                              {msg.conceptCards.map((card, index) => (
                                 <div key={card.id} className="editorial-card group border border-gray-200">
                                   <div className="card-content p-8 relative">
                                     <div className="card-number text-8xl font-serif opacity-5 absolute -top-4 -right-2">
@@ -385,46 +389,52 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
                                         {card.description}
                                       </p>
                                       
-                                      {/* Always show generate button - check for fluxPrompt OR fullPrompt */}
+                                      {/* Generated Images Display */}
+                                      {card.generatedImages && card.generatedImages.length > 0 && (
+                                        <div className="mt-6 pt-6 border-t border-gray-200">
+                                          <div className="eyebrow text-gray-500 mb-4">
+                                            Generated Images
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-4">
+                                            {card.generatedImages.map((imageUrl, imgIndex) => (
+                                              <div key={imgIndex} className="relative">
+                                                <img 
+                                                  src={imageUrl} 
+                                                  alt={`Generated ${card.title} ${imgIndex + 1}`}
+                                                  className="w-full h-48 object-cover border border-gray-200"
+                                                />
+                                                <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-300 cursor-pointer"></div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                      
+                                      {/* Generate Button - Always show if concept can be generated */}
                                       {(card.fluxPrompt || (card as any).fullPrompt) && (
-                                        <div className="bg-black text-white p-6 transition-all duration-500 group-hover:bg-gray-900">
-                                          <div className="eyebrow text-white/70 mb-3">
-                                            FLUX Prompt • Optimized
-                                          </div>
-                                          <div className="text-sm font-mono leading-relaxed text-white/90 mb-4">
-                                            {card.fluxPrompt || (card as any).fullPrompt}
-                                          </div>
-                                          
-                                          {/* Generate Button */}
+                                        <div className="mt-6 pt-6 border-t border-gray-200">
                                           <button
                                             onClick={(e) => {
                                               e.preventDefault();
                                               e.stopPropagation();
-                                              console.log('🔥 Button clicked!', card);
                                               handleGenerateImage(card);
                                             }}
-                                            className="editorial-card bg-white text-black hover:bg-gray-100 transition-all duration-300 w-full cursor-pointer"
-                                            style={{ cursor: 'pointer' }}
+                                            disabled={card.isGenerating}
+                                            className="editorial-card bg-black text-white hover:bg-gray-900 transition-all duration-300 w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                           >
                                             <div className="card-content px-6 py-3">
                                               <div className="text-xs font-normal uppercase tracking-[0.3em]">
-                                                Generate Image
+                                                {card.isGenerating ? 'Generating...' : 
+                                                 card.hasGenerated ? 'Generate More' : 'Generate Image'}
                                               </div>
                                             </div>
                                           </button>
                                         </div>
                                       )}
-                                      
-                                      {/* Debug info */}
-                                      {!(card.fluxPrompt || (card as any).fullPrompt) && (
-                                        <div className="bg-red-100 p-4 text-red-800 text-sm">
-                                          DEBUG: No fluxPrompt or fullPrompt found in card
-                                        </div>
-                                      )}
                                     </div>
                                   </div>
                                 </div>
-                              )})}
+                              ))}
                             </div>
                           </div>
                         )}
