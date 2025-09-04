@@ -219,18 +219,18 @@ REQUIREMENTS FOR EVERY RESPONSE:
       });
     }
 
-    // Load Maya's women's branding intelligence
-    if (personality.fluxOptimization?.womensBrandingIntelligence) {
-      knowledge += '\n👑 WOMEN\'S BRANDING INTELLIGENCE - PLATFORM ALIGNMENT:\n';
-      personality.fluxOptimization.womensBrandingIntelligence.forEach((rule: string) => 
-        knowledge += `- ${rule}\n`
+    // Load Maya's natural styling intuition
+    if (personality.fluxOptimization?.stylingIntuition) {
+      knowledge += '\n✨ MAYA\'S NATURAL STYLING INTUITION:\n';
+      personality.fluxOptimization.stylingIntuition.forEach((intuition: string) => 
+        knowledge += `- ${intuition}\n`
       );
     }
     
-    // Load Maya's feminine business context
-    if (personality.brandMission?.feminineBrandingIntelligence) {
-      knowledge += '\n💼 FEMININE BUSINESS CONTEXT:\n';
-      knowledge += `- ${personality.brandMission.feminineBrandingIntelligence}\n`;
+    // Load Maya's natural styling flow
+    if (personality.brandMission?.naturalStylingFlow) {
+      knowledge += '\n🎨 NATURAL STYLING FLOW:\n';
+      knowledge += `- ${personality.brandMission.naturalStylingFlow}\n`;
     }
     
     // Load Maya's category-specific styling approaches
