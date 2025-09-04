@@ -982,52 +982,70 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
       const imageUrls = Array.isArray(prediction.output) ? prediction.output : [prediction.output];
       console.log(`✅ MAYA GENERATION COMPLETE: ${imageUrls.length} images generated`);
       
-      // 🔥 CRITICAL FIX: Save generated images to database and start permanent migration
-      let finalImageUrls = imageUrls;
+      // 🔥 CRITICAL FIX: ALWAYS migrate temporary URLs to permanent S3 storage first
+      console.log(`💾 MAYA PERSISTENCE: Saving ${imageUrls.length} images to database and migrating to permanent storage`);
       
-      if (chatId && messageId) {
+      // Step 1: ALWAYS migrate temporary URLs to permanent S3 storage (never skip this)
+      const { ImageStorageService } = await import('../image-storage-service');
+      const permanentUrls = [];
+      
+      for (const tempUrl of imageUrls) {
         try {
-          console.log(`💾 MAYA PERSISTENCE: Saving ${imageUrls.length} images to database and migrating to permanent storage`);
-          
-          // Step 1: Immediately migrate temporary URLs to permanent S3 storage
-          const { ImageStorageService } = await import('../image-storage-service');
-          const permanentUrls = [];
-          
-          for (const tempUrl of imageUrls) {
-            try {
-              const permanentUrl = await ImageStorageService.ensurePermanentStorage(
-                tempUrl, 
-                userId, 
-                `maya_${predictionId}_${permanentUrls.length}`
-              );
-              permanentUrls.push(permanentUrl);
-              console.log(`✅ MAYA MIGRATION: ${tempUrl} → ${permanentUrl}`);
-            } catch (migrationError) {
-              console.error(`⚠️ MAYA MIGRATION: Failed to migrate ${tempUrl}, using temporary URL:`, migrationError);
-              // Use temporary URL as fallback - migration monitor will retry later
-              permanentUrls.push(tempUrl);
-            }
+          const permanentUrl = await ImageStorageService.ensurePermanentStorage(
+            tempUrl, 
+            userId, 
+            `maya_${predictionId}_${permanentUrls.length}`
+          );
+          permanentUrls.push(permanentUrl);
+          console.log(`✅ MAYA MIGRATION: ${tempUrl} → ${permanentUrl}`);
+        } catch (migrationError) {
+          console.error(`❌ MAYA MIGRATION: CRITICAL - Failed to migrate ${tempUrl}:`, migrationError);
+          // NEVER fall back to temporary URLs - retry once more
+          try {
+            const retryUrl = await ImageStorageService.ensurePermanentStorage(
+              tempUrl, 
+              userId, 
+              `maya_${predictionId}_${permanentUrls.length}_retry`
+            );
+            permanentUrls.push(retryUrl);
+            console.log(`✅ MAYA MIGRATION RETRY: ${tempUrl} → ${retryUrl}`);
+          } catch (retryError) {
+            console.error(`❌ MAYA MIGRATION RETRY FAILED: ${tempUrl} - this image will be lost`, retryError);
+            // Don't add the temp URL - better to fail than serve temporary URLs
           }
-          
-          finalImageUrls = permanentUrls;
-          
-          // Step 2: Find the latest Maya message in this chat that can generate
-          const chatMessages = await storage.getMayaChatMessages(Number(chatId));
-          const latestMayaMessage = chatMessages
-            .filter(msg => msg.role === 'assistant' || msg.role === 'maya')
-            .reverse()[0]; // Get the most recent Maya message
-          
-          if (latestMayaMessage) {
-            await storage.updateMayaChatMessage(latestMayaMessage.id, {
-              imagePreview: JSON.stringify(finalImageUrls) // Store permanent URLs as JSON string
-            });
-            console.log(`✅ MAYA PERSISTENCE: ${finalImageUrls.length} permanent images saved to message ${latestMayaMessage.id}`);
+        }
+      }
+      
+      const finalImageUrls = permanentUrls;
+      console.log(`✅ MAYA MIGRATION COMPLETE: ${finalImageUrls.length}/${imageUrls.length} images permanently stored`);
+      
+      // Step 2: Try to update chat persistence (optional, doesn't affect final URLs)
+      if (chatId && messageId && chatId !== 'null' && chatId !== 'undefined') {
+        try {
+          const chatIdNumber = parseInt(chatId as string);
+          if (!isNaN(chatIdNumber)) {
+            const chatMessages = await storage.getMayaChatMessages(chatIdNumber);
+            const latestMayaMessage = chatMessages
+              .filter(msg => msg.role === 'assistant' || msg.role === 'maya')
+              .reverse()[0]; // Get the most recent Maya message
+            
+            if (latestMayaMessage) {
+              await storage.updateMayaChatMessage(latestMayaMessage.id, {
+                imagePreview: JSON.stringify(finalImageUrls) // Store permanent URLs as JSON string
+              });
+              console.log(`✅ MAYA PERSISTENCE: ${finalImageUrls.length} permanent images saved to message ${latestMayaMessage.id}`);
+            } else {
+              console.log(`⚠️ MAYA PERSISTENCE: No Maya message found in chat ${chatIdNumber}`);
+            }
+          } else {
+            console.log(`⚠️ MAYA PERSISTENCE: Invalid chatId "${chatId}" - skipping chat update`);
           }
         } catch (persistError) {
           console.error('Maya persistence error (non-blocking):', persistError);
-          // Don't fail the request if persistence fails - use original URLs
-          finalImageUrls = imageUrls;
+          // Chat persistence failed but URLs are already permanent - continue
         }
+      } else {
+        console.log(`⚠️ MAYA PERSISTENCE: Missing or invalid chatId/messageId - skipping chat update`);
       }
       
       // PHASE 7: Log successful generation completion
