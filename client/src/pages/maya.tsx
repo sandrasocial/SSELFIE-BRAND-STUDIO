@@ -477,7 +477,7 @@ export default function Maya() {
                                             // Use proxy URL immediately to avoid CORS issues
                                             const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
                                             return (
-                                              <div key={imgIndex} className="image-item" onClick={() => setSelectedImage?.(proxyUrl)}>
+                                              <div key={imgIndex} className="image-item group" onClick={() => setSelectedImage?.(proxyUrl)}>
                                                 <img 
                                                   src={proxyUrl}
                                                   alt={`Generated ${card.title} ${imgIndex + 1}`}
@@ -498,7 +498,7 @@ export default function Maya() {
                                                 />
                                                 {/* Heart/Save Button */}
                                                 <button
-                                                  className="save-btn absolute top-2 right-2 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100"
+                                                  className="save-btn absolute top-2 right-2 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-600"
                                                   onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleSaveToGallery(imageUrl, card.title);
