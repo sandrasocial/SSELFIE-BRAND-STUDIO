@@ -170,29 +170,29 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
 
       {/* Chat Interface */}
       <div className="flex-1 flex min-h-0">
-        {/* Editorial Sidebar - Magazine Style */}
-        <div className="w-96 bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 overflow-y-auto">
-          {/* Sidebar Header */}
-          <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 p-8">
-            <h2 className="font-serif text-2xl font-extralight uppercase tracking-[0.2em] text-black mb-2">
+        {/* Editorial Sidebar - Spacious Magazine Style */}
+        <div className="w-80 bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 overflow-y-auto">
+          {/* Sidebar Header - More Breathing Room */}
+          <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-8 py-12">
+            <h2 className="font-serif text-xl font-extralight uppercase tracking-[0.2em] text-black mb-3">
               Quick Start
             </h2>
-            <div className="eyebrow text-gray-500 mb-0">
+            <div className="eyebrow text-gray-500">
               Choose your direction
             </div>
           </div>
 
-          <div className="p-8 space-y-12">
-            {/* Editorial Quick Actions */}
-            <div className="space-y-6">
-              {quickActions.map((action, index) => (
+          <div className="px-8 py-16 space-y-20">
+            {/* Editorial Quick Actions - Spacious */}
+            <div className="space-y-8">
+              {quickActions.slice(0, 3).map((action, index) => (
                 <div key={index} className="editorial-card group cursor-pointer" onClick={() => setMessage(action)}>
-                  <div className="card-content p-6 border border-gray-200 hover:border-black transition-all duration-500">
-                    <div className="card-number text-6xl font-serif opacity-10 absolute top-2 right-4">
+                  <div className="card-content p-8 border border-gray-200 hover:border-black transition-all duration-500">
+                    <div className="card-number text-5xl font-serif opacity-8 absolute top-4 right-6">
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    <div className="relative z-10">
-                      <div className="eyebrow text-gray-500 mb-3 group-hover:text-white transition-colors duration-500">
+                    <div className="relative z-10 pr-12">
+                      <div className="eyebrow text-gray-500 mb-4 group-hover:text-white transition-colors duration-500">
                         Session {String(index + 1).padStart(2, '0')}
                       </div>
                       <div className="text-sm font-light leading-relaxed group-hover:text-white transition-colors duration-500">
@@ -204,22 +204,20 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
               ))}
             </div>
 
-            {/* Editorial Style Categories */}
-            <div className="border-t border-gray-200 pt-8">
-              <h3 className="font-serif text-xl font-extralight uppercase tracking-[0.2em] text-black mb-6">
+            {/* Editorial Style Categories - Grid with Space */}
+            <div className="border-t border-gray-200 pt-12">
+              <h3 className="font-serif text-lg font-extralight uppercase tracking-[0.2em] text-black mb-8">
                 Categories
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-6">
                 {[
-                  { name: 'Business', desc: 'Executive portraits' },
-                  { name: 'Lifestyle', desc: 'Personal brand' },
-                  { name: 'Travel', desc: 'Location shoots' },
-                  { name: 'Fashion', desc: 'Editorial style' },
-                  { name: 'Instagram', desc: 'Social content' },
-                  { name: 'Editorial', desc: 'Magazine style' }
+                  { name: 'Business', desc: 'Executive' },
+                  { name: 'Lifestyle', desc: 'Personal' },
+                  { name: 'Travel', desc: 'Location' },
+                  { name: 'Fashion', desc: 'Editorial' }
                 ].map((category, index) => (
-                  <div key={index} className="text-center py-6 border border-gray-200 hover:bg-black hover:text-white transition-all duration-300 cursor-pointer group">
-                    <div className="text-xs font-normal uppercase tracking-[0.3em] mb-2 group-hover:text-white">
+                  <div key={index} className="text-center py-8 border border-gray-200 hover:bg-black hover:text-white transition-all duration-300 cursor-pointer group">
+                    <div className="text-xs font-normal uppercase tracking-[0.3em] mb-3 group-hover:text-white">
                       {category.name}
                     </div>
                     <div className="text-xs text-gray-500 group-hover:text-white/70">
@@ -230,10 +228,10 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
               </div>
             </div>
 
-            {/* Editorial Statistics */}
-            <div className="border-t border-gray-200 pt-8">
-              <div className="text-center space-y-4">
-                <div className="font-serif text-4xl font-extralight text-black">295</div>
+            {/* Editorial Statistics - More Space */}
+            <div className="border-t border-gray-200 pt-12">
+              <div className="text-center space-y-6">
+                <div className="font-serif text-3xl font-extralight text-black">295</div>
                 <div className="eyebrow text-gray-500">Photos Generated</div>
               </div>
             </div>
@@ -242,8 +240,8 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
 
         {/* Editorial Main Chat Area */}
         <div className="flex-1 flex flex-col bg-gradient-to-b from-white to-gray-50 min-h-0">
-          {/* Messages - Magazine Layout */}
-          <div className="flex-1 overflow-y-auto px-20 py-16 space-y-16 min-h-0">
+          {/* Messages - Spacious Magazine Layout */}
+          <div className="flex-1 overflow-y-auto px-16 py-20 space-y-20 min-h-0">
             {messages.length === 0 && (
               <div className="section text-center py-32">
                 <div className="eyebrow text-gray-500 mb-8">
@@ -377,12 +375,12 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Luxury Message Board Input - Integrated */}
-          <div className="px-20 pt-8 pb-16">
-            <div className="max-w-5xl">
+          {/* Luxury Message Board Input - Spacious Integration */}
+          <div className="px-16 pt-12 pb-20">
+            <div className="max-w-4xl">
               {/* Message Board Style Input */}
               <div className="bg-white border border-gray-200 shadow-lg">
-                <div className="p-8">
+                <div className="p-12">
                   <div className="eyebrow text-gray-500 mb-6">
                     Continue Conversation • Tell Maya Your Vision
                   </div>
