@@ -4,12 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { SandraImages } from '../lib/sandra-images';
 
-// Luxury Maya Interface Component
-import { MayaInterface } from './maya-interface';
+// Maya interface now uses the main page route instead of overlay component
 
 export function SimplifiedWorkspace() {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const [activeMaya, setActiveMaya] = useState(false);
   const [activeStep, setActiveStep] = useState<string | null>(null);
   
   // Fetch user data
@@ -75,8 +73,7 @@ export function SimplifiedWorkspace() {
     if (step.status === 'locked') return;
     
     if (step.action === 'maya') {
-      setActiveMaya(true);
-      setActiveStep(step.id);
+      window.location.href = '/maya';
     } else if (step.link) {
       window.location.href = step.link;
     }
@@ -243,15 +240,7 @@ export function SimplifiedWorkspace() {
         </div>
       </div>
 
-      {/* Maya Interface Overlay */}
-      {activeMaya && (
-        <MayaInterface 
-          onClose={() => {
-            setActiveMaya(false);
-            setActiveStep(null);
-          }}
-        />
-      )}
+      {/* Maya now uses dedicated page route */}
     </>
   );
 }
