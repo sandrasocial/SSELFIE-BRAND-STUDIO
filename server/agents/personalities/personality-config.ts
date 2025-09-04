@@ -219,6 +219,20 @@ REQUIREMENTS FOR EVERY RESPONSE:
       });
     }
 
+    // Load Maya's women's branding intelligence
+    if (personality.fluxOptimization?.womensBrandingIntelligence) {
+      knowledge += '\n👑 WOMEN\'S BRANDING INTELLIGENCE - PLATFORM ALIGNMENT:\n';
+      personality.fluxOptimization.womensBrandingIntelligence.forEach((rule: string) => 
+        knowledge += `- ${rule}\n`
+      );
+    }
+    
+    // Load Maya's feminine business context
+    if (personality.brandMission?.feminineBrandingIntelligence) {
+      knowledge += '\n💼 FEMININE BUSINESS CONTEXT:\n';
+      knowledge += `- ${personality.brandMission.feminineBrandingIntelligence}\n`;
+    }
+    
     // Load Maya's category-specific styling approaches
     if (personality.categories) {
       const categoryCount = Object.keys(personality.categories).length;
