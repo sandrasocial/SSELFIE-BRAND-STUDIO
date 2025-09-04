@@ -169,7 +169,7 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
       </div>
 
       {/* Chat Interface */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex min-h-0">
         {/* Editorial Sidebar - Magazine Style */}
         <div className="w-96 bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 overflow-y-auto">
           {/* Sidebar Header */}
@@ -241,9 +241,9 @@ export function MayaInterface({ onClose }: MayaInterfaceProps) {
         </div>
 
         {/* Editorial Main Chat Area */}
-        <div className="flex-1 flex flex-col bg-gradient-to-b from-white to-gray-50">
+        <div className="flex-1 flex flex-col bg-gradient-to-b from-white to-gray-50 min-h-0">
           {/* Messages - Magazine Layout */}
-          <div className="flex-1 overflow-y-auto px-20 py-16 space-y-16">
+          <div className="flex-1 overflow-y-auto px-20 py-16 space-y-16 min-h-0">
             {messages.length === 0 && (
               <div className="section text-center py-32">
                 <div className="eyebrow text-gray-500 mb-8">
