@@ -46,6 +46,66 @@ export default function Maya() {
   
   // Close sidebar when clicking outside on mobile
   const closeSidebar = () => setIsSidebarOpen(false);
+  
+  // Image modal functionality
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  
+  // Auto-save and gallery functionality
+  const handleAutoSaveToGallery = async (imageUrl: string, conceptTitle: string) => {
+    try {
+      console.log('🎯 Auto-saving to gallery:', conceptTitle);
+      const response = await fetch('/api/ai-images', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl,
+          prompt: conceptTitle,
+          category: detectCategory(conceptTitle),
+          isAutoSaved: true
+        })
+      });
+      
+      if (response.ok) {
+        console.log('✅ Auto-saved to gallery successfully');
+      }
+    } catch (error) {
+      console.error('❌ Auto-save failed:', error);
+    }
+  };
+  
+  const handleSaveToGallery = async (imageUrl: string, conceptTitle: string) => {
+    try {
+      console.log('💾 Manual save to gallery:', conceptTitle);
+      toast({ title: "Saving to Gallery", description: "Adding image to your personal collection..." });
+      
+      const response = await fetch('/api/ai-images', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl,
+          prompt: conceptTitle,
+          category: detectCategory(conceptTitle),
+          isFavorite: true
+        })
+      });
+      
+      if (response.ok) {
+        toast({ title: "Saved!", description: "Image added to your gallery" });
+      }
+    } catch (error) {
+      console.error('❌ Save failed:', error);
+      toast({ title: "Save Failed", description: "Please try again", variant: "destructive" });
+    }
+  };
+  
+  // Auto-categorize based on concept title
+  const detectCategory = (title: string): string => {
+    const text = title.toLowerCase();
+    if (text.includes('business') || text.includes('professional') || text.includes('corporate') || text.includes('executive')) return 'Business';
+    if (text.includes('fashion') || text.includes('style') || text.includes('elegant') || text.includes('luxe')) return 'Fashion';
+    if (text.includes('travel') || text.includes('destination') || text.includes('adventure') || text.includes('vacation')) return 'Travel';
+    return 'Lifestyle';
+  };
 
   // Load Maya conversation history
   const { data: conversationData } = useQuery({
@@ -421,7 +481,11 @@ export default function Maya() {
                                                 <img 
                                                   src={proxyUrl}
                                                   alt={`Generated ${card.title} ${imgIndex + 1}`}
-                                                  onLoad={() => console.log('✅ Image loaded via proxy:', proxyUrl)}
+                                                  onLoad={() => {
+                                                    console.log('✅ Image loaded via proxy:', proxyUrl);
+                                                    // Auto-save to gallery
+                                                    handleAutoSaveToGallery(imageUrl, card.title);
+                                                  }}
                                                   onError={(e) => {
                                                     console.error('❌ Image proxy failed:', proxyUrl);
                                                     const target = e.target as HTMLImageElement;
@@ -432,6 +496,17 @@ export default function Maya() {
                                                     }
                                                   }}
                                                 />
+                                                {/* Heart/Save Button */}
+                                                <button
+                                                  className="save-btn absolute top-2 right-2 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleSaveToGallery(imageUrl, card.title);
+                                                  }}
+                                                  title="Save to gallery"
+                                                >
+                                                  ♥
+                                                </button>
                                               </div>
                                             );
                                           })}
@@ -542,8 +617,54 @@ export default function Maya() {
         </div>
       </div>
 
-      {/* Maya Categorized Gallery */}
-      <MayaCategorizedGallery />
+      {/* Integrated Auto-Categorizing Gallery */}
+      <div className="bg-gray-50 border-t border-gray-200">
+        <div className="max-w-4xl mx-auto px-8 py-12">
+          <div className="mb-8">
+            <div className="eyebrow text-gray-500 mb-2">Your Personal Gallery</div>
+            <h2 className="font-serif text-2xl font-extralight uppercase tracking-[0.2em] text-black">
+              Auto-Categorized Collection
+            </h2>
+            <p className="text-sm text-gray-600 mt-2">All your Maya-generated images, automatically organized by category</p>
+          </div>
+          <MayaCategorizedGallery />
+        </div>
+      </div>
+
+      {/* Full-size Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-5xl max-h-full">
+            <img 
+              src={selectedImage}
+              alt="Full size view"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Modal Controls */}
+            <div className="absolute top-4 right-4 flex gap-2">
+              {/* Close Button */}
+              <button 
+                onClick={() => setSelectedImage(null)}
+                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 hover:text-black rounded-full transition-all shadow-lg"
+                title="Close"
+              >
+                <span className="text-xl leading-none">×</span>
+              </button>
+            </div>
+
+            {/* Image Info */}
+            <div className="absolute bottom-4 left-4 bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
+              <div className="text-sm font-medium">Maya Personal Brand Photo</div>
+              <div className="text-xs text-white/80">Saved to your gallery collection</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
