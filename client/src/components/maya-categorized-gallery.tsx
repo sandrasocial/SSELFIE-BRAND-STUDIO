@@ -66,15 +66,23 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => {
       className="relative bg-white border border-gray-200 overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-lg"
       onClick={() => onImageClick(image)}
     >
-      <div className="aspect-square relative">
+      <div className="relative" style={{ aspectRatio: '1/1' }}>
         <img 
           src={image.imageUrl} 
           alt={`Generated image ${image.id}`}
-          className="w-full h-full object-cover"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover'
+          }}
           loading="lazy"
+          onLoad={() => {
+            console.log('✅ Maya gallery image loaded:', image.imageUrl.substring(0, 80) + '...');
+          }}
           onError={(e) => {
-            console.log('Image load error for:', image.imageUrl);
-            (e.target as HTMLImageElement).style.display = 'none';
+            console.log('❌ Maya gallery image error:', image.imageUrl.substring(0, 80) + '...');
+            (e.target as HTMLImageElement).style.backgroundColor = 'red';
+            (e.target as HTMLImageElement).style.opacity = '0.5';
           }}
         />
       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />
