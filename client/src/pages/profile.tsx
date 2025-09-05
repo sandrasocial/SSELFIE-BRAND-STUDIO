@@ -166,7 +166,7 @@ export default function Profile() {
         <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
           <div className="absolute inset-0 opacity-30">
             <img 
-              src={user?.profileImageUrl || SandraImages.editorial.luxury1}
+              src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_pq4snm35a5rm80crzxhafek9c4_0_1756631312368.png"
               alt="Your Story"
               className="w-full h-full object-cover object-center-top"
             />

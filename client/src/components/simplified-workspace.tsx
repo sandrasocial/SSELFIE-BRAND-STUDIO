@@ -111,6 +111,11 @@ export function SimplifiedWorkspace() {
                 </Link>
               </li>
               <li>
+                <Link href="/settings" className="nav-link text-xs uppercase tracking-[0.3em] text-black hover:opacity-60 transition-opacity duration-300">
+                  Settings
+                </Link>
+              </li>
+              <li>
                 <a 
                   href="/api/logout"
                   className="nav-link text-xs uppercase tracking-[0.3em] text-black hover:opacity-60 transition-opacity duration-300"
