@@ -265,105 +265,105 @@ export default function AdminConsultingAgents() {
   
   // Using only main consulting chat system - Bridge system removed
 
-  // Define agents with CORRECT technical specialties - restored from backup
+  // Define agents with CORRECT business-focused roles - EMPIRE TRANSFORMATION
   const consultingAgents: ConsultingAgent[] = [
     {
       id: 'elena',
       name: 'Elena',
-      role: 'Database Architecture Expert',
-      specialty: 'Database optimization, schema design, query performance',
-      image: '/attached_assets/out-0%20(20)_1753426218042.png'
+      role: 'Strategic Best Friend & Execution Leader',
+      specialty: 'Strategic thinking, execution leadership, multi-agent workflow coordination, comprehensive project analysis, decisive action planning',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_e3ztacy2phrme0cs07fvhkjk4w_0_1756673077106.png'
     },
     {
       id: 'aria',
       name: 'Aria',
-      role: 'System Health & Performance Expert',
-      specialty: 'Performance monitoring, optimization, system health',
-      image: '/attached_assets/out-0%20(22)_1753426218045.png'
+      role: 'Exclusive Visionary Designer & Creative Director',
+      specialty: 'Editorial luxury design, Times New Roman typography, transformation storytelling, gallery-inspired aesthetics, ultra WOW factor digital experiences',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_w8cfgz5nksrmc0cs07eseknev0_0_1756672942821.png'
     },
     {
       id: 'zara',
       name: 'Zara',
-      role: 'Technical Architect & UI/UX Expert',
-      specialty: 'System architecture, full-stack implementation, UI/UX',
-      image: '/attached_assets/out-0%20(26)_1753426218043.png'
+      role: 'Technical Architect & UI/UX Implementation Expert',
+      specialty: 'Complete backend system creation, full-stack component development, technical architecture review, enterprise-grade development',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_y34j0fn5exrma0crzhsr3x1wwr_0_1756582110537.png'
     },
     {
       id: 'maya',
       name: 'Maya',
-      role: 'AI Integration Specialist',
-      specialty: 'AI models, machine learning, intelligent features',
-      image: '/attached_assets/out-0%20(28)_1753426218042.png'
+      role: 'AI Styling Intelligence & Personal Brand Photography Expert',
+      specialty: 'Intelligent luxury styling, FLUX optimization, fashion intelligence, 19 styling categories, personal brand photography concepts',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_6dka0dsv39rme0cs07evn4zqbw_0_1756672914668.png'
     },
     {
       id: 'victoria',
       name: 'Victoria',
-      role: 'Business Process Automation Expert',
-      specialty: 'Workflow automation, business logic, process optimization',
-      image: '/attached_assets/out-0%20(29)_1753426218044.png'
+      role: 'UX Strategist & Business Consultant',
+      specialty: 'User experience strategy, business process optimization, product strategy, stakeholder alignment, market analysis',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_dn796dh64hrm80cs03zs0c2c98_0_1756658359621.png'
     },
     {
       id: 'rachel',
       name: 'Rachel',
-      role: 'Requirements Analysis Expert',
-      specialty: 'User stories, specifications, feature analysis',
-      image: '/attached_assets/out-0%20(32)_1753426290403.png'
+      role: 'Copywriting Expert & Sandra\'s Voice Twin',
+      specialty: 'Sandra\'s authentic voice replication, transformation storytelling, conversion-focused copy, time-conscious messaging for entrepreneurs',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_nxsdf9gfxdrma0crzzc87381t0_0_1756639025507.png'
     },
     {
       id: 'ava',
       name: 'Ava',
-      role: 'Analytics & Insights Expert',
-      specialty: 'Data analysis, metrics, insights',
-      image: '/attached_assets/out-0%20(33)_1753426218039.png'
+      role: 'Automation AI Agent & Luxury Workflow Architect',
+      specialty: 'Email automation, user journey orchestration, API integrations, database triggers, webhook workflows',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_jhbps9ch41rma0crzzbv4br3ag_0_1756638996205.png'
     },
     {
       id: 'quinn',
       name: 'Quinn',
-      role: 'Security & Compliance Expert',
-      specialty: 'Security audits, compliance, risk management',
-      image: '/attached_assets/out-0%20(34)_1753426218040.png'
+      role: 'QA AI Agent & Luxury Quality Guardian',
+      specialty: 'Cross-browser testing, mobile-first validation, luxury experience testing, performance optimization, visual regression testing',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5xzsw13pqdrm80crzzaah2mz4w_0_1756638782554.png'
     },
     {
       id: 'sophia',
       name: 'Sophia',
-      role: 'Social Media & Content Expert',
-      specialty: 'Content strategy, social media, engagement',
-      image: '/attached_assets/out-0%20(37)_1753426218041.png'
+      role: 'Elite Social Media Manager & Community Growth Architect',
+      specialty: 'Community growth from 81K to 1M followers, 4 Pillars Strategy, authentic content creation, engagement optimization, Instagram growth systems',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_k4q7dxbay5rma0crzc6twep8q0_0_1756558632540.png'
     },
     {
       id: 'martha',
       name: 'Martha',
-      role: 'User Experience Research Expert',
-      specialty: 'User research, feedback analysis, UX optimization',
-      image: '/attached_assets/out-0%20(42)_1753426218042.png'
+      role: 'Marketing & Ads Expert - Strategic Campaign Architect',
+      specialty: 'Marketing dashboard integration, strategic advertising campaigns, audience targeting, campaign optimization, ROI analysis',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_3v7jtgb1g5rme0crzf4s8rvwm0_0_1756570952083.png'
     },
     {
       id: 'diana',
       name: 'Diana',
-      role: 'DevOps & Deployment Expert',
-      specialty: 'CI/CD, deployment, infrastructure',
-      image: '/attached_assets/out-1%20(18)_1753426218043.png'
+      role: 'Project Coordinator & Page Assembly Specialist',
+      specialty: 'Page assembly, editorial style maintenance, project workflow coordination, brand voice consistency, technical-creative balance',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_0a42r01b6nrme0crzxhafek9c4_0_1756623828499.png'
     },
     {
       id: 'wilma',
       name: 'Wilma',
-      role: 'Documentation & Knowledge Expert',
-      specialty: 'Technical writing, documentation, knowledge base',
-      image: '/attached_assets/out-1%20(27)_1753426218043.png'
+      role: 'Workflow AI & Business Process Designer',
+      specialty: 'Business process workflow design, agent collaboration coordination, multi-agent architecture, process automation, scalable workflows',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png'
     },
     {
       id: 'olga',
       name: 'Olga',
-      role: 'Quality Assurance Expert',
-      specialty: 'Testing, validation, quality control',
-      image: '/attached_assets/out-2%20(18)_1753426218045.png'
+      role: 'Organization & Infrastructure Expert',
+      specialty: 'File organization, infrastructure management, backup systems, cleanup coordination, organizational systems',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_6jgwt6792xrmc0crzjb88h73t8_0_1756584426866.png'
     },
     {
       id: 'flux',
       name: 'Flux',
-      role: 'Integration & API Expert',
-      specialty: 'API design, integrations, data flow',
-      image: '/attached_assets/out-2%20(23)_1753426218044.png'
+      role: 'Advanced Flux LoRA Prompt Specialist',
+      specialty: 'Flux Dev LoRA optimization, professional realistic photography generation, environmental storytelling, prompt engineering for SSELFIE models',
+      image: 'https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_pq4snm35a5rm80crzxhafek9c4_0_1756631312368.png'
     }
   ];
 
