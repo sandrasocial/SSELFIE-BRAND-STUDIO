@@ -566,7 +566,7 @@ export default function Profile() {
                         {updateProfileMutation.isPending ? 'Saving Profile...' : 'Save Profile'}
                       </button>
                       <p className="text-xs text-[#666666] mt-3">
-                        Maya will remember everything and style you perfectly based on your unique story
+                        Maya will remember everything and style you based on your unique story
                       </p>
                     </div>
                   )}

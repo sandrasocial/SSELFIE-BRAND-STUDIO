@@ -45,7 +45,11 @@ export default function Maya() {
   const [message, setMessage] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -65,6 +69,47 @@ export default function Maya() {
   // Initialize Maya generation hook with persistent messages
   const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
   
+  // Smart auto-scroll system
+  const checkIfNearBottom = () => {
+    if (!chatContainerRef.current) return false;
+    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+    const threshold = 100; // pixels from bottom
+    return scrollHeight - scrollTop - clientHeight < threshold;
+  };
+
+  const handleScroll = () => {
+    const nearBottom = checkIfNearBottom();
+    setIsNearBottom(nearBottom);
+    setShouldAutoScroll(nearBottom);
+  };
+
+  const smartScrollToBottom = (delay = 0, force = false) => {
+    if (!force && !shouldAutoScroll) return;
+    
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end'
+      });
+    }, delay);
+  };
+
+  const scrollToNewContent = (elementId?: string) => {
+    if (!shouldAutoScroll) return;
+    
+    if (elementId) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'center'
+        });
+        return;
+      }
+    }
+    smartScrollToBottom(300);
+  };
+
   // Close sidebar when clicking outside on mobile
   const closeSidebar = () => setIsSidebarOpen(false);
   
@@ -142,7 +187,60 @@ export default function Maya() {
     }
   }, [conversationData, messages.length, setMessages]);
 
-  // Auto-scroll removed - let users control their own scrolling position
+  // Smart auto-scroll effects
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (!chatContainer) return;
+
+    chatContainer.addEventListener('scroll', handleScroll);
+    return () => chatContainer.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Auto-scroll when new messages arrive (only if user is near bottom)
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      
+      // Always scroll for user messages (they just sent it)
+      if (lastMessage.type === 'user') {
+        smartScrollToBottom(100, true);
+      }
+      // Smart scroll for Maya messages (only if near bottom)  
+      else if (lastMessage.type === 'maya' && !isTyping) {
+        smartScrollToBottom(500);
+      }
+    }
+  }, [messages.length, isTyping, shouldAutoScroll]);
+
+  // Auto-scroll when concept cards are generated
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.conceptCards && lastMessage.conceptCards.length > 0) {
+        scrollToNewContent();
+      }
+    }
+  }, [messages.map(m => m.conceptCards?.length).join(',')]);
+
+  // Auto-scroll when typing indicator changes
+  useEffect(() => {
+    if (isTyping) {
+      smartScrollToBottom(200);
+    }
+  }, [isTyping]);
+
+  // Toggle concept card expansion
+  const toggleCardExpansion = (cardId: string) => {
+    setExpandedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(cardId)) {
+        newSet.delete(cardId);
+      } else {
+        newSet.add(cardId);
+      }
+      return newSet;
+    });
+  };
 
   // Generate image from concept card using Maya's generation system
   const handleGenerateImage = async (card: ConceptCard) => {
@@ -257,13 +355,22 @@ export default function Maya() {
             Menu
           </button>
 
-          {/* Back Button Only */}
-          <button
-            onClick={() => setLocation('/workspace')}
-            className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
-          >
-            Back
-          </button>
+          {/* Navigation Actions */}
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handleNewSession}
+              className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
+              title="Start a fresh conversation"
+            >
+              New Session
+            </button>
+            <button
+              onClick={() => setLocation('/workspace')}
+              className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
+            >
+              Back
+            </button>
+          </div>
         </div>
 
         {/* Hero Content - Compact */}
@@ -285,7 +392,7 @@ export default function Maya() {
 
           {/* Description */}
           <p className="hero-description max-w-xl text-sm font-light leading-relaxed opacity-90 tracking-[0.05em]">
-            I help you create the perfect photo concepts that tell your unique story and grow your brand.
+            I help you create photo concepts that tell your unique story and grow your brand.
           </p>
         </div>
       </div>
@@ -395,7 +502,7 @@ export default function Maya() {
         </div>
 
         {/* Maya Chat - The Star of the Show */}
-        <div className="flex-1 bg-gradient-to-b from-white to-gray-50">
+        <div className="flex-1 bg-gradient-to-b from-white to-gray-50" ref={chatContainerRef}>
           <div className="max-w-6xl mx-auto px-4 sm:px-8 md:px-16 py-8 sm:py-16 space-y-12 sm:space-y-20">
             {messages.length === 0 && (
               <div className="section text-center py-32">
@@ -403,31 +510,16 @@ export default function Maya() {
                   Welcome! I'm here to help
                 </div>
                 <div className="font-serif text-[clamp(2rem,5vw,4rem)] font-extralight text-black mb-8 italic">
-                  "Let's create something amazing together"
+                  "Let's create your next photo concept"
                 </div>
                 <p className="text-gray-600 max-w-2xl mx-auto font-light leading-relaxed text-lg">
                   Just tell me what kind of photos you need, and I'll create personalized photo concepts 
-                  that perfectly capture your style and story.
+                  that capture your style and story.
                 </p>
                 
                 {/* Editorial Decorative Element */}
                 <div className="mt-12 flex justify-center">
                   <div className="w-32 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                </div>
-                
-                {/* New Session Button - Right over chat interface */}
-                <div className="mt-16 flex justify-center">
-                  <button
-                    onClick={handleNewSession}
-                    className="editorial-card group bg-white border border-gray-300 hover:border-black transition-all duration-300"
-                    title="Start a fresh conversation (remembers your style preferences)"
-                  >
-                    <div className="card-content px-8 py-4">
-                      <div className="text-xs font-normal uppercase tracking-[0.3em] text-gray-600 group-hover:text-black transition-colors duration-300">
-                        New Session
-                      </div>
-                    </div>
-                  </button>
                 </div>
               </div>
             )}
@@ -471,56 +563,79 @@ export default function Maya() {
                             </div>
                             
                             <div className="grid gap-8">
-                              {msg.conceptCards.map((card, index) => (
-                                <div key={card.id} className="editorial-card group border border-gray-200">
-                                  <div className="card-content p-8 relative">
-                                    <div className="card-number text-8xl font-serif opacity-5 absolute -top-4 -right-2">
-                                      {String(index + 1).padStart(2, '0')}
-                                    </div>
-                                    
-                                    <div className="relative z-10">
-                                      <div className="flex items-start justify-between mb-6">
-                                        <div className="flex-1">
-                                          <div className="eyebrow text-gray-500 mb-3">
-                                            Concept {String(index + 1).padStart(2, '0')} • {card.category || 'Editorial'}
-                                          </div>
-                                          <h3 className="font-serif text-xl font-light uppercase tracking-[0.1em] text-black mb-4">
-                                            {cleanDisplayTitle(card.title)}
-                                          </h3>
-                                        </div>
-                                        {card.imageUrl && (
-                                          <div className="w-20 h-20 ml-6 bg-gray-100 border border-gray-200"></div>
-                                        )}
+                              {msg.conceptCards.map((card, index) => {
+                                const isExpanded = expandedCards.has(card.id);
+                                
+                                return (
+                                  <div key={card.id} className="editorial-card group border border-gray-200">
+                                    <div className="card-content p-8 relative">
+                                      <div className="card-number text-8xl font-serif opacity-5 absolute -top-4 -right-2">
+                                        {String(index + 1).padStart(2, '0')}
                                       </div>
                                       
-                                      <p className="text-base leading-relaxed font-light text-gray-700 mb-6">
-                                        {card.description}
-                                      </p>
-                                      
-                                      {/* Loading Indicator During Generation */}
-                                      {card.isGenerating && (
-                                        <div className="mt-6 pt-6 border-t border-gray-200">
-                                          <div className="eyebrow text-gray-500 mb-4">
-                                            Generating Images
+                                      <div className="relative z-10">
+                                        <div className="flex items-start justify-between mb-6">
+                                          <div className="flex-1">
+                                            <div className="eyebrow text-gray-500 mb-3">
+                                              Concept {String(index + 1).padStart(2, '0')} • {card.category || 'Editorial'}
+                                            </div>
+                                            <h3 className="font-serif text-xl font-light uppercase tracking-[0.1em] text-black mb-4">
+                                              {cleanDisplayTitle(card.title)}
+                                            </h3>
                                           </div>
-                                          <div className="bg-gray-50 border border-gray-200 h-48 flex items-center justify-center">
-                                            <div className="flex flex-col items-center space-y-4">
-                                              <div className="flex space-x-2">
-                                                <div className="w-3 h-3 bg-black rounded-full animate-bounce"></div>
-                                                <div className="w-3 h-3 bg-black rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                                                <div className="w-3 h-3 bg-black rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
-                                              </div>
-                                              <div className="text-sm font-light text-gray-600">
-                                                Creating your personalized image...
+                                          {card.imageUrl && (
+                                            <div className="w-20 h-20 ml-6 bg-gray-100 border border-gray-200"></div>
+                                          )}
+                                        </div>
+                                        
+                                        {isExpanded && (
+                                          <p className="text-base leading-relaxed font-light text-gray-700 mb-6">
+                                            {card.description}
+                                          </p>
+                                        )}
+                                        
+                                        {/* Action Buttons Row */}
+                                        <div className="flex items-center justify-between">
+                                          <button
+                                            onClick={() => toggleCardExpansion(card.id)}
+                                            className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+                                          >
+                                            {isExpanded ? 'Collapse' : 'View Details'}
+                                          </button>
+                                          
+                                          <button
+                                            onClick={() => handleGenerateImage(card)}
+                                            disabled={card.isGenerating}
+                                            className="bg-black text-white px-6 py-2 text-xs uppercase tracking-[0.3em] hover:bg-gray-800 transition-colors disabled:opacity-50"
+                                          >
+                                            {card.isGenerating ? 'Generating...' : 'Generate'}
+                                          </button>
+                                        </div>
+                                        
+                                        {/* Loading Indicator During Generation */}
+                                        {card.isGenerating && (
+                                          <div className="mt-6 pt-6 border-t border-gray-200">
+                                            <div className="eyebrow text-gray-500 mb-4">
+                                              Generating Images
+                                            </div>
+                                            <div className="bg-gray-50 border border-gray-200 h-48 flex items-center justify-center">
+                                              <div className="flex flex-col items-center space-y-4">
+                                                <div className="flex space-x-2">
+                                                  <div className="w-3 h-3 bg-black rounded-full animate-bounce"></div>
+                                                  <div className="w-3 h-3 bg-black rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                                  <div className="w-3 h-3 bg-black rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+                                                </div>
+                                                <div className="text-sm font-light text-gray-600">
+                                                  Creating your personalized image...
+                                                </div>
                                               </div>
                                             </div>
                                           </div>
-                                        </div>
-                                      )}
+                                        )}
 
-                                      {/* Generated Images Display - Working Version */}
-                                      {card.generatedImages && card.generatedImages.length > 0 && (
-                                        <div className="image-grid">
+                                        {/* Generated Images Display - Always show results */}
+                                        {card.generatedImages && card.generatedImages.length > 0 && (
+                                          <div className="image-grid">
                                           <div className="eyebrow text-gray-500 mb-4">Generated Images</div>
                                           {card.generatedImages.map((imageUrl, imgIndex) => {
                                             // Use proxy URL immediately to avoid CORS issues
@@ -560,34 +675,12 @@ export default function Maya() {
                                             );
                                           })}
                                         </div>
-                                      )}
-                                      
-                                      
-                                      {/* Generate Button - Always show if concept can be generated */}
-                                      {(card.fluxPrompt || (card as any).fullPrompt) && (
-                                        <div className="mt-6 pt-6 border-t border-gray-200">
-                                          <button
-                                            onClick={(e) => {
-                                              e.preventDefault();
-                                              e.stopPropagation();
-                                              handleGenerateImage(card);
-                                            }}
-                                            disabled={card.isGenerating}
-                                            className="editorial-card bg-black text-white hover:bg-gray-900 active:bg-gray-800 transition-all duration-300 w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
-                                          >
-                                            <div className="card-content px-6 py-3">
-                                              <div className="text-xs font-normal uppercase tracking-[0.3em]">
-                                                {card.isGenerating ? 'Generating...' : 
-                                                 card.hasGenerated ? 'Generate More' : 'Generate Image'}
-                                              </div>
-                                            </div>
-                                          </button>
-                                        </div>
-                                      )}
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         )}
