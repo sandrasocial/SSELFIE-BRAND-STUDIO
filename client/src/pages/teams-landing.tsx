@@ -39,12 +39,44 @@ export default function TeamsLanding() {
             >
               SSELFIE
             </div>
-            <button
-              onClick={handleContactSales}
-              className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-8 py-3 font-light"
-            >
-              Contact Sales
-            </button>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <button 
+                onClick={() => setLocation("/business")}
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+              >
+                Business
+              </button>
+              <button
+                onClick={() => setLocation("/api/login")}
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+              >
+                Login
+              </button>
+              <button
+                onClick={handleContactSales}
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-8 py-3 font-light"
+              >
+                Contact Sales
+              </button>
+            </div>
+            
+            {/* Mobile Navigation */}
+            <div className="md:hidden flex items-center space-x-4">
+              <button
+                onClick={() => setLocation("/api/login")}
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+              >
+                Login
+              </button>
+              <button
+                onClick={handleContactSales}
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light"
+              >
+                Contact
+              </button>
+            </div>
           </div>
         </div>
       </nav>
