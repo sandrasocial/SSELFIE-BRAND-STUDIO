@@ -11,7 +11,6 @@ import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/perfor
 import { optimizeRuntime } from "./utils/webVitals";
 
 // Core pages (loaded immediately)
-import EditorialLanding from "./pages/editorial-landing";
 import Workspace from "./pages/workspace";
 import Maya from "./pages/maya";
 
@@ -162,8 +161,6 @@ function Router() {
         </Suspense>
       )} />
       
-      <Route path="/personal" component={EditorialLanding} />
-      <Route path="/solopreneur" component={EditorialLanding} />
       
       <Route path="/business" component={() => (
         <Suspense fallback={<PageLoader />}>
