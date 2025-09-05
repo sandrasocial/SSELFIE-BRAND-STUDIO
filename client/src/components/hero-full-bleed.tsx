@@ -112,7 +112,7 @@ export const HeroExamples = () => {
       
       {/* About Page - Vulnerable but Strong */}
       <HeroFullBleed
-        backgroundImage={SandraImages.editorial.mirror}
+        backgroundImage="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_68de145ae1rme0cs07ja9mcp90_0_1756673402614.png"
         tagline="The Icelandic Selfie Queen"
         title="SANDRA"
         subtitle="SIGURJONSDOTTIR"
