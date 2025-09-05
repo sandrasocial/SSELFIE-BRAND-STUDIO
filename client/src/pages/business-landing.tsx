@@ -25,7 +25,7 @@ export default function BusinessLanding() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Editorial Navigation */}
+      {/* Business Navigation with Mobile Support */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
@@ -36,6 +36,8 @@ export default function BusinessLanding() {
             >
               SSELFIE
             </div>
+            
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <button 
                 onClick={() => setLocation("/editorial-landing")}
@@ -50,8 +52,30 @@ export default function BusinessLanding() {
                 Teams
               </button>
               <button
+                onClick={() => setLocation("/api/login")}
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+              >
+                Login
+              </button>
+              <button
                 onClick={handleGetStarted}
                 className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-8 py-3 font-light"
+              >
+                Start €47
+              </button>
+            </div>
+            
+            {/* Mobile Navigation */}
+            <div className="md:hidden flex items-center space-x-4">
+              <button
+                onClick={() => setLocation("/api/login")}
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+              >
+                Login
+              </button>
+              <button
+                onClick={handleGetStarted}
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light"
               >
                 Start €47
               </button>
@@ -60,8 +84,8 @@ export default function BusinessLanding() {
         </div>
       </nav>
 
-      {/* HERO - Editorial Luxury */}
-      <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
+      {/* HERO - Clean & Focused */}
+      <section className="relative min-h-screen bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50">
           <img 
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
@@ -70,39 +94,35 @@ export default function BusinessLanding() {
           />
         </div>
         
-        <div className="relative z-10 text-center max-w-5xl px-4 sm:px-6 lg:px-8">
-          <h1 
-            className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light mb-8 tracking-[-0.02em] leading-none"
-            style={{ fontFamily: "Times New Roman, serif" }}
-          >
-            Professional Photos<br />
-            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-[0.3em] text-white/80 font-light">
-              FROM YOUR SELFIES
-            </span>
-          </h1>
-          
-          <div className="w-16 h-px bg-white/30 mx-auto mb-8"></div>
-          
-          <p className="text-lg sm:text-xl md:text-2xl font-light mb-8 max-w-3xl mx-auto leading-relaxed">
-            Upload selfies. Get 100+ professional photos monthly.<br />
-            Never book another photoshoot.
-          </p>
-          
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 mb-12 max-w-2xl mx-auto">
-            <p className="text-base text-white/90 mb-2">€47 monthly vs €500+ per photoshoot</p>
-            <p className="text-sm text-white/70">Professional photos ready in 20 minutes</p>
+        <div className="relative z-10 flex flex-col justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-5xl mx-auto">
+            <div className="mb-12">
+              <div className="w-24 h-px bg-white/30 mx-auto mb-8"></div>
+            </div>
+            
+            <h1 
+              className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light mb-16 tracking-[-0.02em] leading-none"
+              style={{ fontFamily: "Times New Roman, serif" }}
+            >
+              Professional Photos<br />
+              <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-[0.3em] text-white/80 font-light">
+                FROM YOUR SELFIES
+              </span>
+            </h1>
+            
+            <div className="space-y-8">
+              <button 
+                onClick={handleGetStarted}
+                className="bg-white text-black px-12 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
+              >
+                GET PROFESSIONAL PHOTOS — €47
+              </button>
+              
+              <p className="text-xs text-white/50 tracking-wide">
+                Photos ready in 20 minutes • Cancel anytime
+              </p>
+            </div>
           </div>
-          
-          <button 
-            onClick={handleGetStarted}
-            className="bg-white text-black px-12 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium mb-6"
-          >
-            GET PROFESSIONAL PHOTOS — €47
-          </button>
-          
-          <p className="text-xs text-white/50 mt-6 tracking-wide">
-            Photos ready in 20 minutes • Cancel anytime
-          </p>
         </div>
       </section>
 
