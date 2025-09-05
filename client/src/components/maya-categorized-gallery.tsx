@@ -61,9 +61,6 @@ interface ImageCardProps {
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => {
-  // Use proxy URL to avoid CORS issues like main Maya chat
-  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(image.imageUrl)}`;
-  
   return (
     <div 
       className="relative bg-white border border-gray-200 overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-lg"
@@ -71,10 +68,14 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => {
     >
       <div className="aspect-square relative">
         <img 
-          src={proxyUrl} 
+          src={image.imageUrl} 
           alt={`Generated image ${image.id}`}
           className="w-full h-full object-cover"
           loading="lazy"
+          onError={(e) => {
+            console.log('Image load error for:', image.imageUrl);
+            (e.target as HTMLImageElement).style.display = 'none';
+          }}
         />
       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />
       
