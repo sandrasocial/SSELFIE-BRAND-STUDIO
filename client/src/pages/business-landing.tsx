@@ -361,9 +361,9 @@ export default function BusinessLanding() {
                 className="font-serif text-3xl sm:text-4xl font-light mb-8 text-black"
                 style={{ fontFamily: "Times New Roman, serif" }}
               >
-                I had €12 and three kids<br />
-                when I started
+                Sandra Sigurjonsdottir
               </h3>
+              <p className="text-lg text-gray-600 mb-8">Founder & Creator</p>
               
               <div className="grid grid-cols-2 gap-8 mb-8">
                 <div>
