@@ -73,13 +73,14 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  animation: slideIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideIn 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 20px 40px rgba(10, 10, 10, 0.1);
 }
 
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(30px) scale(0.94);
   }
   to {
     opacity: 1;
@@ -95,6 +96,12 @@
   justify-content: space-between;
   align-items: flex-start;
   background: #f5f5f5;
+}
+
+.support-chat-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .support-chat-title h3 {
@@ -116,6 +123,7 @@
   line-height: 1.4;
 }
 
+.support-clear-button,
 .support-chat-close {
   background: none;
   border: none;
@@ -128,8 +136,36 @@
   justify-content: center;
 }
 
+.support-clear-button:hover,
 .support-chat-close:hover {
   color: #0a0a0a;
+}
+
+/* Status Indicators */
+.support-status {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.status-sending {
+  color: #666666;
+  animation: pulse 1.5s infinite;
+}
+
+.status-sent {
+  color: #28a745;
+}
+
+.status-error {
+  color: #dc3545;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* Messages Area */
@@ -351,15 +387,29 @@
   cursor: not-allowed;
 }
 
-/* Mobile Responsive */
+/* Enhanced Mobile Responsive */
 @media (max-width: 768px) {
   .support-chat-container {
-    width: 340px;
-    height: 500px;
+    width: calc(100vw - 24px);
+    height: calc(100vh - 140px);
+    position: fixed;
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+    animation: slideInMobile 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .support-bubble-trigger {
+    padding: 14px 18px;
+    font-size: 10px;
   }
   
   .support-chat-header {
-    padding: 20px;
+    padding: 18px 20px;
+  }
+  
+  .support-chat-title h3 {
+    font-size: 14px;
   }
   
   .support-chat-input {
@@ -371,10 +421,39 @@
   }
   
   .support-message-content {
-    max-width: 240px;
+    max-width: calc(100vw - 120px);
+    font-size: 14px;
   }
   
   .support-welcome-content {
     padding: 20px;
+  }
+  
+  .support-welcome-content h4 {
+    font-size: 18px;
+  }
+  
+  .support-input-field {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+@keyframes slideInMobile {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Animations */
+@media (prefers-reduced-motion: reduce) {
+  .support-chat-container,
+  .support-bubble-trigger,
+  .support-typing-indicator span {
+    animation: none;
   }
 }

@@ -28,9 +28,33 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [messageStatus, setMessageStatus] = useState<'sending' | 'sent' | 'error' | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // PHASE 4: Load persisted conversation on mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('maya-support-chat');
+    if (savedMessages) {
+      try {
+        const parsedMessages = JSON.parse(savedMessages).map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+        setMessages(parsedMessages);
+      } catch (error) {
+        console.error('Failed to load saved support messages:', error);
+      }
+    }
+  }, []);
+
+  // PHASE 4: Persist conversations to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('maya-support-chat', JSON.stringify(messages));
+    }
+  }, [messages]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -51,6 +75,7 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
     const userMessage = inputValue.trim();
     setInputValue('');
     setIsLoading(true);
+    setMessageStatus('sending');
 
     // Add user message immediately
     const newUserMessage: ChatMessage = {
@@ -74,6 +99,8 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
       if (response.ok) {
         const data = await response.json();
         
+        setMessageStatus('sent');
+        
         const assistantMessage: ChatMessage = {
           role: 'assistant',
           content: data.content || data.message,
@@ -81,11 +108,16 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
         };
         
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // Clear status after a short delay
+        setTimeout(() => setMessageStatus(null), 2000);
       } else {
         throw new Error('Failed to send message');
       }
     } catch (error) {
       console.error('Support chat error:', error);
+      setMessageStatus('error');
+      
       toast({
         title: "Connection Issue",
         description: "Unable to reach Maya right now. Please try again.",
@@ -93,6 +125,9 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
       
       // Remove the user message on error
       setMessages(prev => prev.slice(0, -1));
+      
+      // Clear error status after delay
+      setTimeout(() => setMessageStatus(null), 3000);
     } finally {
       setIsLoading(false);
     }
@@ -108,6 +143,11 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
   const handleStartConversation = () => {
     setInputValue("Hi Maya, I need help with my account");
     setTimeout(() => sendMessage(), 100);
+  };
+
+  const clearConversation = () => {
+    setMessages([]);
+    localStorage.removeItem('maya-support-chat');
   };
 
   if (!isOpen) {
@@ -146,21 +186,48 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
           <div className="support-chat-title">
             <h3>MAYA SUPPORT</h3>
             <p>How can I help you today?</p>
+            {messageStatus && (
+              <div className="support-status">
+                {messageStatus === 'sending' && <span className="status-sending">Sending...</span>}
+                {messageStatus === 'sent' && <span className="status-sent">✓ Sent</span>}
+                {messageStatus === 'error' && <span className="status-error">Failed to send</span>}
+              </div>
+            )}
           </div>
-          <button
-            onClick={onToggle}
-            className="support-chat-close"
-            aria-label="Close support chat"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M18 6L6 18M6 6L18 18"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
+          <div className="support-chat-actions">
+            {messages.length > 0 && (
+              <button
+                onClick={clearConversation}
+                className="support-clear-button"
+                aria-label="Clear conversation"
+                title="Clear conversation"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={onToggle}
+              className="support-chat-close"
+              aria-label="Close support chat"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M18 6L6 18M6 6L18 18"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
