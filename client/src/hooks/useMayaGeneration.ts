@@ -484,8 +484,78 @@ export const useMayaGeneration = (
         // Add to active generations
         setActiveGenerations?.(prev => new Set(prev).add(result.predictionId));
         
-        // Use unified polling mechanism with concept context
-        // The pollForImages function already handles concept card updates
+        // Start unified polling for concept generation
+        const pollForImages = async () => {
+          try {
+            const statusResponse = await fetch(`/api/maya/check-generation/${result.predictionId}?chatId=${currentChatId || -1}&messageId=${messageId}`, { 
+              credentials: 'include' 
+            }).then(res => {
+              if (!res.ok) {
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+              }
+              return res.json();
+            });
+            
+            console.log('Maya concept polling status:', statusResponse.status, 'Images:', statusResponse.imageUrls?.length || 0);
+            
+            if (statusResponse.status === 'completed' && statusResponse.imageUrls && statusResponse.imageUrls.length > 0) {
+              console.log(`Maya concept "${conceptTitle}" generation complete!`);
+              
+              // Update the specific concept card with generated images
+              setMessages?.(prev => prev.map(msg => ({
+                ...msg,
+                conceptCards: msg.conceptCards?.map(concept => 
+                  concept.id === conceptId 
+                    ? { 
+                        ...concept, 
+                        generatedImages: statusResponse.imageUrls,
+                        isLoading: false,
+                        isGenerating: false,
+                        hasGenerated: true 
+                      }
+                    : concept
+                )
+              })));
+              
+              // Remove from active generations
+              setActiveGenerations?.(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(result.predictionId);
+                return newSet;
+              });
+              
+              return;
+            } else if (statusResponse.status === 'failed') {
+              throw new Error(`Generation failed: ${statusResponse.error || 'Unknown error'}`);
+            } else {
+              // Still processing - continue polling with 2-second intervals
+              console.log(`Maya concept "${conceptTitle}" still generating, polling again in 2 seconds...`);
+              setTimeout(pollForImages, 2000);
+            }
+          } catch (pollError) {
+            console.error(`Maya concept "${conceptTitle}" polling error:`, pollError);
+            
+            // Reset concept card loading state on error
+            setMessages?.(prev => prev.map(msg => ({
+              ...msg,
+              conceptCards: msg.conceptCards?.map(concept => 
+                concept.id === conceptId 
+                  ? { ...concept, isLoading: false, isGenerating: false }
+                  : concept
+              )
+            })));
+            
+            // Remove from active generations
+            setActiveGenerations?.(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(result.predictionId);
+              return newSet;
+            });
+          }
+        };
+        
+        // Start polling after a brief delay
+        setTimeout(pollForImages, 1000);
         
         return { predictionId: result.predictionId, messageId };
       } else {
