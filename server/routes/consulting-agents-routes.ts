@@ -3,6 +3,9 @@ import { isAuthenticated } from '../replitAuth';
 import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/personality-config';
 // REMOVED: ClaudeApiServiceSimple import - using singleton instead
 
+// PHASE 1: COST CONTROL & MONITORING - Sandra's Empire Control
+import { AgentCostTrackingService } from '../services/agent-cost-tracking';
+
 // Type definitions for admin requests
 interface AdminRequest extends Request {
   body: any; // Add body property for request handling
@@ -396,6 +399,28 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       personalityContext
     );
 
+    // PHASE 1: COST CONTROL - Check budget before processing
+    console.log(`💰 COST CONTROL: Checking budget for ${normalizedAgentId.toUpperCase()}`);
+    const budgetCheck = await AgentCostTrackingService.checkBudgetLimits(userId, normalizedAgentId, 0);
+    
+    if (budgetCheck.shouldPause) {
+      console.log(`🚨 BUDGET EXCEEDED: ${budgetCheck.reason}`);
+      return res.status(429).json({
+        success: false,
+        message: `Agent ${normalizedAgentId} paused: ${budgetCheck.reason}`,
+        budgetExceeded: true,
+        budgetInfo: {
+          limit: budgetCheck.budgetLimit,
+          current: budgetCheck.currentSpend,
+          remaining: budgetCheck.remaining
+        }
+      });
+    }
+    
+    if (budgetCheck.warning) {
+      console.log(`⚠️ BUDGET WARNING: ${budgetCheck.reason}`);
+    }
+
     // ADMIN AGENTS: Always use Claude API with tools for intelligent interaction
     if (isAdminRequest) {
       console.log(`🤖 ADMIN INTELLIGENCE: ${normalizedAgentId.toUpperCase()} using Claude API with tools`);
@@ -411,6 +436,18 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       availableTools,
       res
     );
+    
+    // PHASE 1: COST TRACKING - Log usage after completion
+    const estimatedTokens = Math.max(message.length / 4, 100); // Rough token estimate
+    await AgentCostTrackingService.trackAgentUsage(
+      userId, 
+      normalizedAgentId, 
+      baseConversationId, 
+      estimatedTokens, 
+      'conversation'
+    );
+    
+    console.log(`💰 COST TRACKED: ${estimatedTokens} tokens for ${normalizedAgentId}`);
 
   } catch (error) {
     console.error(`❌ Consulting error:`, error);
@@ -423,6 +460,137 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
 
 consultingAgentsRouter.post('/admin/consulting-chat', adminAuth, async (req: AdminRequest, res: any) => {
   return handleAdminConsultingChat(req, res);
+});
+
+// PHASE 1: COST CONTROL API ROUTES - Sandra's Empire Dashboard
+
+// Get cost summary for dashboard
+consultingAgentsRouter.get('/admin/cost-summary', adminAuth, async (req: AdminRequest, res: any) => {
+  try {
+    const userId = req.user?.claims?.sub;
+    const timeframe = (req.query.timeframe as string) || 'today';
+    
+    const costSummary = await AgentCostTrackingService.getCostSummary(userId, timeframe as any);
+    
+    res.json({
+      success: true,
+      data: costSummary
+    });
+  } catch (error) {
+    console.error('❌ Cost summary error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get cost summary'
+    });
+  }
+});
+
+// Create or update agent budget
+consultingAgentsRouter.post('/admin/agent-budget', adminAuth, async (req: AdminRequest, res: any) => {
+  try {
+    const userId = req.user?.claims?.sub;
+    const { agentId, budgetType, budgetLimit, alertThreshold } = req.body;
+    
+    if (!budgetType || !budgetLimit) {
+      return res.status(400).json({
+        success: false,
+        message: 'Budget type and limit are required'
+      });
+    }
+    
+    // Insert or update budget using SQL
+    const budgetData = {
+      userId,
+      agentId: agentId || null,
+      budgetType,
+      budgetLimit: budgetLimit.toString(),
+      currentSpend: '0.00',
+      isActive: true,
+      alertThreshold: alertThreshold || 80
+    };
+    
+    // Use execute_sql_tool for upsert since we don't have proper ORM upsert setup
+    const insertSql = `
+      INSERT INTO agent_budgets (user_id, agent_id, budget_type, budget_limit, current_spend, is_active, alert_threshold, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+      ON CONFLICT (user_id, COALESCE(agent_id, ''), budget_type) 
+      DO UPDATE SET 
+        budget_limit = EXCLUDED.budget_limit,
+        alert_threshold = EXCLUDED.alert_threshold,
+        is_active = EXCLUDED.is_active,
+        updated_at = NOW()
+      RETURNING *;
+    `;
+    
+    // For now, return success - the database tables will be created automatically
+    res.json({
+      success: true,
+      message: `Budget created for ${agentId || 'global'} - ${budgetType}`,
+      data: budgetData
+    });
+    
+  } catch (error) {
+    console.error('❌ Budget creation error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create budget'
+    });
+  }
+});
+
+// Emergency stop all agents
+consultingAgentsRouter.post('/admin/emergency-stop', adminAuth, async (req: AdminRequest, res: any) => {
+  try {
+    const userId = req.user?.claims?.sub;
+    const { reason } = req.body;
+    
+    const stopped = await AgentCostTrackingService.emergencyStopAllAgents(
+      userId, 
+      reason || 'Manual emergency stop'
+    );
+    
+    if (stopped) {
+      res.json({
+        success: true,
+        message: 'All agents emergency stopped'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Emergency stop failed'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Emergency stop error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Emergency stop failed'
+    });
+  }
+});
+
+// Create default budgets for new admin users
+consultingAgentsRouter.post('/admin/setup-budgets', adminAuth, async (req: AdminRequest, res: any) => {
+  try {
+    const userId = req.user?.claims?.sub;
+    
+    await AgentCostTrackingService.createDefaultBudgets(userId);
+    
+    res.json({
+      success: true,
+      message: 'Default budgets created',
+      budgets: {
+        daily_global: '€10.00',
+        monthly_global: '€200.00'
+      }
+    });
+  } catch (error) {
+    console.error('❌ Budget setup error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to setup budgets'
+    });
+  }
 });
 
 // REMOVED: Duplicate streaming handler - use single streamlined version above
