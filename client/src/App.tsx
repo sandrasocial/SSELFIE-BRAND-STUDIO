@@ -18,6 +18,12 @@ import Maya from "./pages/maya";
 // Lazy loaded pages for better performance
 const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
 const SimpleTraining = lazy(() => import("./pages/simple-training"));
+const TeamsLanding = lazy(() => import("./pages/teams-landing"));
+const TeamsServicePackages = lazy(() => import("./pages/teams-service-packages"));
+const CompanyDashboard = lazy(() => import("./pages/company-dashboard"));
+const MayaBrandCustomization = lazy(() => import("./pages/maya-brand-customization"));
+const SalesConsultation = lazy(() => import("./pages/sales-consultation"));
+const ImplementationTimeline = lazy(() => import("./pages/implementation-timeline"));
 const Profile = lazy(() => import("./pages/profile"));
 const Pricing = lazy(() => import("./pages/pricing"));
 const About = lazy(() => import("./pages/about"));
@@ -204,6 +210,42 @@ function Router() {
       <Route path="/pricing" component={() => (
         <Suspense fallback={<PageLoader />}>
           <Pricing />
+        </Suspense>
+      )} />
+      
+      <Route path="/teams" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <TeamsLanding />
+        </Suspense>
+      )} />
+      
+      <Route path="/teams/packages" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <TeamsServicePackages />
+        </Suspense>
+      )} />
+      
+      <Route path="/company-dashboard" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <CompanyDashboard />
+        </Suspense>
+      )} />
+      
+      <Route path="/maya-brand-customization" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <MayaBrandCustomization />
+        </Suspense>
+      )} />
+      
+      <Route path="/sales-consultation" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <SalesConsultation />
+        </Suspense>
+      )} />
+      
+      <Route path="/implementation-timeline" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <ImplementationTimeline />
         </Suspense>
       )} />
       <Route path="/domain-help" component={() => (
