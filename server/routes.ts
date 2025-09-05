@@ -29,6 +29,7 @@ import consultingAgentsRouter from './routes/consulting-agents-routes';
 import agentHandoffRouter from './routes/agent-handoff-routes';
 import adminRouter from './routes/admin';
 import adminCacheRouter from './routes/admin-cache-management';
+import adminEmpireApiRouter from './routes/admin-empire-api';
 // REMOVED: import quinnTestingRouter from './routes/quinn-testing';
 import memberProtectionRouter from './routes/member-protection';
 import systemValidationRouter from './routes/system-validation';
@@ -1978,6 +1979,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // RESTORED: Sandra's designed admin and consulting agent routes
   app.use('/api/admin', adminRouter);
   app.use('/api/admin/cache', adminCacheRouter);
+  app.use('/api/admin', adminEmpireApiRouter);
   // REMOVED: Personality test router
   
   // User intervention routes for managing inactive paid users
