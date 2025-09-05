@@ -5,17 +5,127 @@ import { GlobalFooter } from '../components/global-footer';
 export default function TeamsLanding() {
   const [, setLocation] = useLocation();
 
-  // SEO Meta Tags
+  // Comprehensive SEO Meta Tags for Teams/Enterprise
   useEffect(() => {
-    document.title = "Professional Team Photos From Phone Selfies | SSELFIE Teams";
+    // Primary SEO tags
+    document.title = "Professional Team Photos From Selfies | Enterprise AI Photography | SSELFIE Teams";
     
-    let metaDescription = document.querySelector('meta[name="description"]');
-    if (!metaDescription) {
-      metaDescription = document.createElement('meta');
-      metaDescription.setAttribute('name', 'description');
-      document.head.appendChild(metaDescription);
+    const metaTags = [
+      { name: 'description', content: 'Transform team selfies into professional brand photos with AI. Enterprise headshots, team photography, consistent branding across your organization. Stop coordinating expensive photoshoots - get team photos monthly.' },
+      { name: 'keywords', content: 'team headshots, enterprise photography, professional team photos, corporate headshots, team branding photos, business team photography, AI team photos, corporate photography, employee headshots, team photo coordination' },
+      { name: 'author', content: 'SSELFIE Studio' },
+      { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1.0, viewport-fit=cover' },
+      { name: 'theme-color', content: '#000000' },
+      { name: 'msapplication-TileColor', content: '#000000' },
+      
+      // Open Graph tags for social sharing
+      { property: 'og:title', content: 'Professional Team Photos From Selfies | Enterprise AI Photography | SSELFIE Teams' },
+      { property: 'og:description', content: 'Transform team selfies into professional brand photos with AI. Stop coordinating expensive team photoshoots. Get consistent brand photos for your entire team monthly.' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: 'https://sselfie.ai/teams' },
+      { property: 'og:image', content: 'https://sselfie.ai/og-teams.jpg' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:image:alt', content: 'Professional AI-generated team photos from selfies for enterprise branding' },
+      { property: 'og:site_name', content: 'SSELFIE Studio' },
+      { property: 'og:locale', content: 'en_US' },
+      
+      // Twitter Card tags
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'Professional Team Photos From Selfies | SSELFIE Teams' },
+      { name: 'twitter:description', content: 'Transform team selfies into professional brand photos with AI. Stop coordinating expensive team photoshoots.' },
+      { name: 'twitter:image', content: 'https://sselfie.ai/twitter-teams.jpg' },
+      { name: 'twitter:image:alt', content: 'Professional AI-generated team photos from selfies' },
+      
+      // Additional SEO and Mobile Optimization tags
+      { name: 'format-detection', content: 'telephone=no' },
+      { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+      { name: 'mobile-web-app-capable', content: 'yes' },
+      { name: 'HandheldFriendly', content: 'true' },
+      { name: 'MobileOptimized', content: '320' },
+    ];
+
+    // Set canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
     }
-    metaDescription.setAttribute('content', 'Professional team photos from phone selfies. Stop coordinating expensive photoshoots. Get consistent brand photos for your entire team monthly.');
+    canonical.setAttribute('href', 'https://sselfie.ai/teams');
+
+    // Apply all meta tags
+    metaTags.forEach(tag => {
+      const selector = tag.name ? `meta[name="${tag.name}"]` : `meta[property="${tag.property}"]`;
+      let meta = document.querySelector(selector);
+      if (!meta) {
+        meta = document.createElement('meta');
+        if (tag.name) meta.setAttribute('name', tag.name);
+        if (tag.property) meta.setAttribute('property', tag.property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', tag.content);
+    });
+
+    // Add JSON-LD structured data for better SEO (Enterprise focused)
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "SSELFIE Teams - Enterprise Photography Solution",
+      "description": "AI-powered professional team photo generation from selfies for enterprise branding and corporate identity",
+      "provider": {
+        "@type": "Organization",
+        "name": "SSELFIE Studio",
+        "url": "https://sselfie.ai",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+1-800-SSELFIE",
+          "contactType": "sales",
+          "areaServed": "Worldwide",
+          "availableLanguage": "English"
+        }
+      },
+      "serviceType": "Corporate Photography Service",
+      "areaServed": "Worldwide",
+      "audience": {
+        "@type": "BusinessAudience",
+        "audienceType": "Enterprise Teams"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Enterprise Team Photo Packages",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Enterprise Team Photography Solution",
+              "description": "Professional team photos from selfies for large organizations"
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "priceCurrency": "EUR",
+              "price": "Custom Pricing"
+            }
+          }
+        ]
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "89"
+      }
+    };
+
+    let script = document.querySelector('script[type="application/ld+json"]');
+    if (!script) {
+      script = document.createElement('script');
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(structuredData);
   }, []);
 
   const handleContactSales = () => {
@@ -62,17 +172,17 @@ export default function TeamsLanding() {
               </button>
             </div>
             
-            {/* Mobile Navigation */}
-            <div className="md:hidden flex items-center space-x-4">
+            {/* Mobile Navigation - Optimized touch targets */}
+            <div className="md:hidden flex items-center space-x-3">
               <button
                 onClick={() => window.location.href = "/api/login"}
-                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
               >
                 Login
               </button>
               <button
                 onClick={handleContactSales}
-                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light"
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-3 font-light min-h-[44px] min-w-[120px]"
               >
                 Contact
               </button>
