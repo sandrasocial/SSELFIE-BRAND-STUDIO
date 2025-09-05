@@ -126,76 +126,25 @@ export default function BusinessLanding() {
         </div>
       </section>
 
-      {/* PROBLEM - Editorial Layout */}
-      <section className="py-20 sm:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-12 gap-8 lg:gap-16">
-            {/* Problem Content */}
-            <div className="col-span-12 lg:col-span-7 flex items-center">
-              <div className="max-w-2xl">
-                <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
-                  The Current Reality
-                </div>
-                
-                <h2 
-                  className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-12 text-black leading-tight"
-                  style={{ fontFamily: "Times New Roman, serif" }}
-                >
-                  Hours creating content.<br />
-                  Still looks unprofessional.
-                </h2>
-                
-                <div className="space-y-8">
-                  <div className="border-l-2 border-gray-200 pl-6">
-                    <h3 className="text-lg font-medium mb-2 text-black">Time consumed</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      Two hours trying to get one decent photo. Testing angles, fighting with lighting, 
-                      taking 47 shots to get one you don't hate.
-                    </p>
-                  </div>
-                  
-                  <div className="border-l-2 border-gray-200 pl-6">
-                    <h3 className="text-lg font-medium mb-2 text-black">Content shortage</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      Scrolling through your camera roll like "what can I post today?" 
-                      Using the same three photos over and over.
-                    </p>
-                  </div>
-                  
-                  <div className="border-l-2 border-gray-200 pl-6">
-                    <h3 className="text-lg font-medium mb-2 text-black">Credibility gap</h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      Your content looks amateur next to competitors. People can tell. 
-                      It's killing your confidence to show up online.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="mt-12 p-6 bg-gray-50">
-                  <p className="text-lg text-black font-medium italic" style={{ fontFamily: "Times New Roman, serif" }}>
-                    "Meanwhile, other entrepreneurs post professional content daily"
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Problem Visual */}
-            <div className="col-span-12 lg:col-span-5">
-              <div className="relative h-[500px] overflow-hidden">
-                <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_nxsdf9gfxdrma0crzzc87381t0_0_1756639025507.png"
-                  alt="The struggle of content creation"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <div className="absolute bottom-6 left-6 right-6">
-                  <p className="text-white text-sm italic" style={{ fontFamily: "Times New Roman, serif" }}>
-                    "Two hours for one usable photograph"
-                  </p>
-                </div>
-              </div>
-            </div>
+      {/* PROBLEM - Simplified */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+            The Reality
           </div>
+          
+          <h2 
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-black leading-tight"
+            style={{ fontFamily: "Times New Roman, serif" }}
+          >
+            Two hours for one decent photo.<br />
+            <span className="italic text-gray-600">Still looks amateur.</span>
+          </h2>
+          
+          <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+            Scrolling through your camera roll like "what can I post today?" 
+            Using the same three photos over and over while competitors look professional.
+          </p>
         </div>
       </section>
 
