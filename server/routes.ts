@@ -2025,6 +2025,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   const agentInsightsDataRouter = await import('./routes/agent-insights-data');
   app.use('/api/agent-insights-data', agentInsightsDataRouter.default);
   
+  // NOTIFICATION PREFERENCES ROUTES - Agent notification management
+  const notificationPreferencesRouter = await import('./routes/notification-preferences');
+  app.use('/api/admin/notification-preferences', notificationPreferencesRouter.default);
+  
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
   

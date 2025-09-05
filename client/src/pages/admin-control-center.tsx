@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AgentInsightsDashboard } from '../components/agent-insights-dashboard';
+import { QuickSpecialistAccess } from '../components/quick-specialist-access';
+import { NotificationPreferences } from '../components/notification-preferences';
 
 interface ApprovalItem {
   id: number;
@@ -14,7 +16,7 @@ interface ApprovalItem {
 }
 
 export default function AdminControlCenter() {
-  const [activeTab, setActiveTab] = useState<'approvals' | 'costs' | 'agents' | 'handoffs' | 'insights'>('approvals');
+  const [activeTab, setActiveTab] = useState<'approvals' | 'costs' | 'agents' | 'handoffs' | 'insights' | 'specialists' | 'preferences'>('approvals');
   
   // Get pending approvals
   const { data: pendingApprovals, isLoading } = useQuery({
@@ -86,7 +88,9 @@ export default function AdminControlCenter() {
               { id: 'costs', label: 'COST CONTROL' },
               { id: 'agents', label: 'AGENT STATUS' },
               { id: 'handoffs', label: 'AGENT REQUESTS' },
-              { id: 'insights', label: 'AGENT INSIGHTS' }
+              { id: 'insights', label: 'AGENT INSIGHTS' },
+              { id: 'specialists', label: 'QUICK ACCESS' },
+              { id: 'preferences', label: 'SETTINGS' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -168,6 +172,20 @@ export default function AdminControlCenter() {
           <div>
             <h2 className="font-serif text-2xl font-light mb-6">AGENT INSIGHTS</h2>
             <AgentInsightsDashboard />
+          </div>
+        )}
+
+        {activeTab === 'specialists' && (
+          <div>
+            <h2 className="font-serif text-2xl font-light mb-6">QUICK SPECIALIST ACCESS</h2>
+            <QuickSpecialistAccess />
+          </div>
+        )}
+
+        {activeTab === 'preferences' && (
+          <div>
+            <h2 className="font-serif text-2xl font-light mb-6">NOTIFICATION SETTINGS</h2>
+            <NotificationPreferences />
           </div>
         )}
         
