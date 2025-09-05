@@ -361,18 +361,18 @@ export default function BusinessLanding() {
                 className="font-serif text-3xl sm:text-4xl font-light mb-8 text-black"
                 style={{ fontFamily: "Times New Roman, serif" }}
               >
-                Built by Sandra Sigurjónsdóttir
+                Started with €12 and a broken camera
               </h3>
               
               <div className="grid grid-cols-2 gap-8 mb-8">
                 <div>
                   <p className="text-3xl font-light text-black">120,000+</p>
-                  <p className="text-gray-600 text-sm">Followers cultivated using this methodology</p>
+                  <p className="text-gray-600 text-sm">Built using phone selfies and this exact system</p>
                 </div>
                 
                 <div>
-                  <p className="text-3xl font-light text-black">€12 → Empire</p>
-                  <p className="text-gray-600 text-sm">Built from modest beginnings</p>
+                  <p className="text-3xl font-light text-black">€500 → €47</p>
+                  <p className="text-gray-600 text-sm">What photoshoots cost vs what you actually need</p>
                 </div>
               </div>
               
@@ -380,12 +380,12 @@ export default function BusinessLanding() {
                 className="text-xl italic text-black mb-8 border-l-2 border-gray-300 pl-6"
                 style={{ fontFamily: "Times New Roman, serif" }}
               >
-                "I created this because traditional photoshoots were financially impossible, yet professional imagery was essential for brand development."
+                "Two hours trying to get one decent photo for my business. There had to be a better way."
               </blockquote>
               
               <div className="bg-white p-6 border-l-4 border-black">
                 <p className="text-gray-700 leading-relaxed">
-                  <span className="font-medium">Single mother, three children, minimal capital.</span> Built from kitchen table using mobile photography and this precise system. Now enabling entrepreneurs globally to achieve similar transformation.
+                  <span className="font-medium">Single mom, three kids, kitchen table office.</span> Scrolling through camera roll like "what can I actually post?" Built this because professional photos shouldn't require a professional photographer. Your mess is your message.
                 </p>
               </div>
             </div>
