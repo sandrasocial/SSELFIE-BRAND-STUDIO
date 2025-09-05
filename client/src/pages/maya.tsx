@@ -257,22 +257,13 @@ export default function Maya() {
             Menu
           </button>
 
-          {/* PHASE 3: New Session + Back Buttons */}
-          <div className="flex gap-4">
-            <button
-              onClick={handleNewSession}
-              className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
-              title="Start a fresh conversation (remembers your style preferences)"
-            >
-              New Session
-            </button>
-            <button
-              onClick={() => setLocation('/workspace')}
-              className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
-            >
-              Back
-            </button>
-          </div>
+          {/* Back Button Only */}
+          <button
+            onClick={() => setLocation('/workspace')}
+            className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
+          >
+            Back
+          </button>
         </div>
 
         {/* Hero Content - Compact */}
@@ -422,6 +413,21 @@ export default function Maya() {
                 {/* Editorial Decorative Element */}
                 <div className="mt-12 flex justify-center">
                   <div className="w-32 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                </div>
+                
+                {/* New Session Button - Right over chat interface */}
+                <div className="mt-16 flex justify-center">
+                  <button
+                    onClick={handleNewSession}
+                    className="editorial-card group bg-white border border-gray-300 hover:border-black transition-all duration-300"
+                    title="Start a fresh conversation (remembers your style preferences)"
+                  >
+                    <div className="card-content px-8 py-4">
+                      <div className="text-xs font-normal uppercase tracking-[0.3em] text-gray-600 group-hover:text-black transition-colors duration-300">
+                        New Session
+                      </div>
+                    </div>
+                  </button>
                 </div>
               </div>
             )}
