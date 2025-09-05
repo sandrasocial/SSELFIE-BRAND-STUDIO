@@ -44,6 +44,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
     { path: '/maya', label: 'Style' },
     { path: '/sselfie-gallery', label: 'Gallery' },
     { path: '/profile', label: 'Profile' },
+    { path: '/settings', label: 'Settings' },
   ];
 
   const handleLogout = () => {
