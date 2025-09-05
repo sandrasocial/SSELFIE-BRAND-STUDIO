@@ -1545,16 +1545,14 @@ async function processMayaResponse(response: string, context: string, userId: st
       .join('\n')
       .trim();
     
-    // Update the message to show only the intro/outro without concept details
-    if (cleanedMessage.length > 100) {
+    // Update the message to show Maya's original conversational response without concept details
+    // ALWAYS preserve Maya's original voice - no generic templates allowed
+    if (cleanedMessage.length > 30) {
       processed.message = cleanedMessage;
     } else {
-      // If almost everything was removed, create a nice intro message
-      processed.message = `Oh my gosh, I'm absolutely buzzing with ideas for you! 
-
-Based on your personal brand vision and the amazing energy you're bringing - let me give you some absolutely stunning concepts that are going to make your audience stop scrolling.
-
-Which of these is calling to you? I can already picture how incredible these are going to look!`;
+      // If cleaning removed too much, preserve Maya's original response intro
+      const originalIntro = response.split('\n').slice(0, 3).join('\n').trim();
+      processed.message = originalIntro || "I'm so excited to create these concepts for you!";
     }
     
     console.log('🎯 MAYA CONCEPT CARDS: Parsed', concepts.length, 'concepts from response');
