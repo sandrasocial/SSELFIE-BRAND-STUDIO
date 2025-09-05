@@ -272,7 +272,7 @@ export default function Profile() {
                   <div className="border-b border-[#f5f5f5] pb-8">
                     <div className="mb-6">
                       <h3 className="text-lg font-light text-[#0a0a0a] mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-                        Tell me about your journey, beautiful
+                        What's your business story?
                       </h3>
                       <p className="text-sm text-[#666666]">
                         What's your transformation story? Where did you start, and what led you to where you are now?
@@ -304,7 +304,7 @@ export default function Profile() {
                       />
                     ) : (
                       <div className="text-sm text-[#666666] py-3 italic">
-                        {formData.transformationStory || "I can't wait to hear your incredible journey..."}
+                        {formData.transformationStory || "Tell me how you got started in business..."}
                       </div>
                     )}
                   </div>
@@ -427,7 +427,7 @@ export default function Profile() {
                       />
                     ) : (
                       <div className="text-sm text-[#666666] py-3 italic">
-                        {formData.businessGoals || "Tell me about those big, beautiful goals of yours..."}
+                        {formData.businessGoals || "What business results do you want to achieve?"}
                       </div>
                     )}
                   </div>
@@ -436,7 +436,7 @@ export default function Profile() {
                   <div className="border-b border-[#f5f5f5] pb-8">
                     <div className="mb-6">
                       <h3 className="text-lg font-light text-[#0a0a0a] mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-                        What do you do, gorgeous?
+                        What's your business or industry?
                       </h3>
                       <p className="text-sm text-[#666666]">
                         Tell me about your business or what you're building. What industry are you in?
@@ -545,7 +545,7 @@ export default function Profile() {
                         value={formData.photoGoals}
                         onChange={(e) => handleInputChange('photoGoals', e.target.value)}
                         rows={3}
-                        placeholder="How do you want to use these beautiful photos?"
+                        placeholder="How will you use these photos?"
                         className="w-full border border-[#e5e5e5] px-4 py-3 text-sm focus:border-[#0a0a0a] focus:outline-none resize-none"
                       />
                     ) : (
@@ -563,7 +563,7 @@ export default function Profile() {
                         disabled={updateProfileMutation.isPending}
                         className="bg-[#0a0a0a] text-white px-12 py-4 text-xs uppercase tracking-[0.1em] hover:bg-[#333] transition-colors disabled:opacity-50"
                       >
-                        {updateProfileMutation.isPending ? 'Saving Your Beautiful Story...' : 'Save My Story'}
+                        {updateProfileMutation.isPending ? 'Saving Profile...' : 'Save Profile'}
                       </button>
                       <p className="text-xs text-[#666666] mt-3">
                         Maya will remember everything and style you perfectly based on your unique story
