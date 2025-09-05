@@ -239,14 +239,47 @@ export default function EmailDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  Email Automation Settings
+                  Gmail Account Connection
                 </CardTitle>
                 <CardDescription>
-                  Configure how Ava processes and manages your emails
+                  Connect your Gmail accounts to enable real email processing
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <h3 className="font-medium mb-2">💼 Business Gmail</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Connect your business Gmail account for customer email processing
+                    </p>
+                    <Button
+                      onClick={() => {
+                        window.location.href = '/api/auth/gmail/connect/business';
+                      }}
+                      className="w-full"
+                    >
+                      Connect Business Gmail
+                    </Button>
+                  </div>
+                  
+                  <div className="p-4 border rounded-lg">
+                    <h3 className="font-medium mb-2">👤 Personal Gmail</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Connect your personal Gmail account for personal email management
+                    </p>
+                    <Button
+                      onClick={() => {
+                        window.location.href = '/api/auth/gmail/connect/personal';
+                      }}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      Connect Personal Gmail
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
                   <div>
                     <h3 className="font-medium">Automatic Processing</h3>
                     <p className="text-sm text-muted-foreground">
@@ -261,15 +294,16 @@ export default function EmailDashboard() {
                   </Button>
                 </div>
                 
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <h3 className="font-medium mb-2">What Ava Does:</h3>
-                  <ul className="text-sm text-muted-foreground space-y-1">
+                <div className="p-4 border rounded-lg bg-green-50 dark:bg-green-950/20">
+                  <h3 className="font-medium mb-2 text-green-800 dark:text-green-200">🧠 Ava's AI Capabilities:</h3>
+                  <ul className="text-sm text-green-700 dark:text-green-300 space-y-1">
                     <li>• Categorizes emails as urgent, customer, business, personal, or marketing</li>
                     <li>• Identifies emails that need responses</li>
                     <li>• Generates AI summaries for important emails</li>
                     <li>• Suggests response drafts for efficiency</li>
                     <li>• Sends Slack notifications for urgent items</li>
                     <li>• Tracks customer opportunities and sales inquiries</li>
+                    <li>• Different processing logic for business vs personal accounts</li>
                   </ul>
                 </div>
               </CardContent>

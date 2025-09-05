@@ -218,6 +218,8 @@
     "globals": "^13.24.0",
     "globalthis": "^1.0.4",
     "globby": "^11.1.0",
+    "google-auth-library": "^10.3.0",
+    "googleapis": "^159.0.0",
     "gopd": "^1.2.0",
     "graceful-fs": "^4.2.11",
     "graphemer": "^1.4.0",
