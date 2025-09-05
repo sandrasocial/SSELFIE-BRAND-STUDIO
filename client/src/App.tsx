@@ -39,6 +39,7 @@ const AIGenerator = lazy(() => import("./pages/ai-generator"));
 const MarketingAutomation = lazy(() => import("./pages/marketing-automation"));
 
 // Admin pages - lazy loaded
+const AdminControlCenter = lazy(() => import("./pages/admin-control-center"));
 const AdminBusinessOverview = lazy(() => import("./pages/admin-business-overview"));
 const AdminConsultingAgents = lazy(() => import("./pages/admin-consulting-agents"));
 const AdminSubscriberImport = lazy(() => import("./pages/admin-subscriber-import"));
@@ -331,12 +332,22 @@ function Router() {
       )} />
 
       
-      {/* SANDRA'S ADMIN SYSTEM - UNIFIED ROUTING */}
+      {/* SANDRA'S ADMIN SYSTEM - EMPIRE CONTROL CENTER */}
       <Route path="/admin" component={(props) => (
         <Suspense fallback={<PageLoader />}>
-          <ProtectedRoute component={AdminConsultingAgents} {...props} />
+          <ProtectedRoute component={AdminControlCenter} {...props} />
         </Suspense>
       )} />
+      <Route path="/admin-control-center" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={AdminControlCenter} {...props} />
+        </Suspense>
+      )} />
+      <Route path="/dashboard">
+        <Redirect to="/admin" />
+      </Route>
+      
+      {/* ADMIN SUB-PAGES */}
       <Route path="/admin/business-overview" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={AdminBusinessOverview} {...props} />
@@ -345,6 +356,16 @@ function Router() {
       <Route path="/admin/consulting-agents" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={AdminConsultingAgents} {...props} />
+        </Suspense>
+      )} />
+      <Route path="/admin-consulting-agents" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={AdminConsultingAgents} {...props} />
+        </Suspense>
+      )} />
+      <Route path="/admin-business-overview" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={AdminBusinessOverview} {...props} />
         </Suspense>
       )} />
       <Route path="/admin/subscriber-import" component={(props) => (
