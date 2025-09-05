@@ -350,23 +350,23 @@ export default function Maya() {
           {/* Mobile Hamburger Menu */}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="md:hidden btn light text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.2em] uppercase px-2 py-1 sm:px-3 sm:py-1.5"
+            className="md:hidden text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-white/80 hover:text-white transition-colors px-3 py-2"
           >
             Menu
           </button>
 
           {/* Navigation Actions */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2">
+          <div className="flex items-center space-x-6 sm:space-x-8">
             <button
               onClick={handleNewSession}
-              className="btn light text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.2em] uppercase px-1.5 sm:px-2 py-1 sm:py-1.5 hover:scale-105 transition-all duration-300"
+              className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-white/80 hover:text-white transition-colors px-3 py-2"
               title="Start a fresh conversation"
             >
               New Session
             </button>
             <button
               onClick={() => setLocation('/workspace')}
-              className="btn light text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.2em] uppercase px-1.5 sm:px-2 py-1 sm:py-1.5 hover:scale-105 transition-all duration-300"
+              className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-white/80 hover:text-white transition-colors px-3 py-2"
             >
               Back
             </button>
