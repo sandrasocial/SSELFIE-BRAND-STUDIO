@@ -268,7 +268,7 @@ export default function BusinessLanding() {
             <div className="text-center">
               <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
                 <img
-                  src="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/proxy-image?url=https%3A%2F%2Fsselfie-training-zips.s3.eu-north-1.amazonaws.com%2Fgenerated-images%2F42585527%2Fmaya_5za99wfxpsrm80cs3fz8tw06rr_0_1757111336843.png"
+                  src="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/proxy-image?url=https%3A%2F%2Fsselfie-training-zips.s3.eu-north-1.amazonaws.com%2Fgenerated-images%2F42585527%2Fmaya_07pta82ha9rma0cs3g5ra0138w_0_1757112142115.png"
                   alt="Upload process"
                   className="w-full h-full object-cover object-[center_20%]"
                 />
