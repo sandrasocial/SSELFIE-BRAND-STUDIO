@@ -38,6 +38,8 @@ import phase2CoordinationRouter from './routes/phase2-coordination';
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 import { generateWebsiteHTML } from './services/website-generator';
+// 🔄 PHASE 5: Import checkout routes for retraining system
+import { registerCheckoutRoutes } from './routes/checkout';
 
 // Generate Victoria website HTML content
 function generateWebsiteHTML_Legacy(websiteData: any, onboardingData: any) {
@@ -393,6 +395,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup authentication
   await setupAuth(app);
+
+  // 🔄 PHASE 5: Register checkout routes for retraining system
+  registerCheckoutRoutes(app);
   
   // CRITICAL: Serve training ZIP files with correct content type
   app.get("/training-zip/:filename", (req, res) => {

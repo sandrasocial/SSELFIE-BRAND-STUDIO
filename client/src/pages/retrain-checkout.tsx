@@ -166,10 +166,22 @@ export default function RetrainCheckout() {
             </div>
 
             {/* 🔄 PHASE 2: ADDITIONAL INFO */}
+            {/* 🔄 PHASE 4: Enhanced messaging and support */}
             <div className="mt-16 text-center">
               <p className="text-gray-400 text-sm mb-4">
                 Questions about retraining? The process works exactly like your original training.
               </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                <div className="text-xs text-gray-500">
+                  ✅ Same training process you know
+                </div>
+                <div className="text-xs text-gray-500">
+                  ⚡ 25-30 minute completion time
+                </div>
+                <div className="text-xs text-gray-500">
+                  🔄 Upload fresh photos & styling
+                </div>
+              </div>
               <p className="text-gray-500 text-xs">
                 Secure payment processing via Stripe • Cancel anytime during checkout
               </p>
