@@ -302,6 +302,13 @@ export function MayaCategorizedGallery() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
   const [downloadingImages, setDownloadingImages] = useState(new Set<string>());
+  const [visibleCount, setVisibleCount] = useState<Record<string, number>>({
+    Business: 6,
+    Fashion: 6,
+    Lifestyle: 6,
+    Travel: 6,
+    all: 6
+  });
   const queryClient = useQueryClient();
 
   // Fetch Maya-generated images
@@ -399,10 +406,22 @@ export function MayaCategorizedGallery() {
     return categoryImages.length > 0 ? categoryImages[0].imageUrl : undefined;
   };
 
-  // Get images to display
-  const imagesToDisplay = selectedCategory === 'all' 
+  // Load more images function
+  const loadMoreImages = () => {
+    setVisibleCount(prev => ({
+      ...prev,
+      [selectedCategory]: prev[selectedCategory] + 6
+    }));
+  };
+
+  // Get all images for selected category
+  const allCategoryImages = selectedCategory === 'all' 
     ? mayaImages 
     : categorizedImages[selectedCategory] || [];
+
+  // Get images to display (with pagination)
+  const imagesToDisplay = allCategoryImages.slice(0, visibleCount[selectedCategory]);
+  const hasMoreImages = allCategoryImages.length > visibleCount[selectedCategory];
 
   const handleImageClick = (image: ImageData) => {
     setSelectedImage(image);
@@ -518,6 +537,20 @@ export function MayaCategorizedGallery() {
                 />
               ))}
             </div>
+            
+            {/* View More Button */}
+            {hasMoreImages && (
+              <div className="text-center mt-12">
+                <button
+                  onClick={loadMoreImages}
+                  className="bg-white text-black border border-gray-300 hover:border-black px-8 py-3 transition-all duration-300"
+                >
+                  <div className="text-xs font-normal uppercase tracking-[0.3em]">
+                    View {Math.min(6, allCategoryImages.length - visibleCount[selectedCategory])} More
+                  </div>
+                </button>
+              </div>
+            )}
           </>
         )}
 

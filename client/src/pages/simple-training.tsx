@@ -939,7 +939,7 @@ function SimpleTraining() {
                 margin: '0 auto 40px auto',
                 opacity: 0.9
               }}>
-                Girl, your AI is officially trained and ready to create some seriously gorgeous photos! Time to see what magic we can make together.
+                Your AI is officially trained and ready to create professional photos that capture your unique style. Let's start creating.
               </p>
 
               <div style={{
