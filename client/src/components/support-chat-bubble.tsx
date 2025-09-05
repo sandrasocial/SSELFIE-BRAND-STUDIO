@@ -87,7 +87,7 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
 
     try {
       // Send to Support Maya with context
-      const response = await apiRequest('POST', '/api/maya/chat', {
+      const response = await apiRequest('/api/maya/chat', 'POST', {
         message: userMessage,
         context: 'support', // PHASE 1: Support context
         conversationHistory: messages.slice(-6).map(msg => ({
@@ -96,8 +96,7 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
         }))
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = response;
         
         setMessageStatus('sent');
         
@@ -116,9 +115,6 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
         
         // Clear status after a short delay
         setTimeout(() => setMessageStatus(null), 2000);
-      } else {
-        throw new Error('Failed to send message');
-      }
     } catch (error) {
       console.error('Support chat error:', error);
       setMessageStatus('error');
@@ -161,15 +157,14 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
       console.log('🚨 ESCALATION TRIGGERED:', escalationData);
       
       // Send escalation request to backend
-      const escalationResponse = await apiRequest('POST', '/api/support/escalate', {
+      const escalationResponse = await apiRequest('/api/support/escalate', 'POST', {
         reason: escalationData.reason,
         conversationHistory: messages,
         urgency: escalationData.urgency || 'normal'
       });
-
-      if (escalationResponse.ok) {
-        // Show escalation confirmation message
-        const escalationMessage: ChatMessage = {
+      
+      // Show escalation confirmation message
+      const escalationMessage: ChatMessage = {
           role: 'assistant',
           content: 'Perfect! I\'ve notified Sandra about your request. She\'ll reach out to you personally within 24 hours with specialized assistance.',
           timestamp: new Date()
@@ -181,7 +176,6 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
           title: "Request Escalated",
           description: "Sandra will contact you directly within 24 hours.",
         });
-      }
     } catch (error) {
       console.error('Escalation error:', error);
       toast({
