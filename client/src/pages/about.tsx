@@ -4,7 +4,7 @@ import { HeroFullBleed } from '../components/hero-full-bleed';
 import { EditorialStory } from '../components/editorial-story';
 import { EditorialImageBreak } from '../components/editorial-image-break';
 import PowerQuote from '../components/power-quote';
-import { EditorialTestimonials } from '../components/editorial-testimonials';
+import EditorialTestimonials from '../components/editorial-testimonials';
 import WelcomeEditorial from '../components/welcome-editorial';
 import { EmailCaptureModal } from '../components/email-capture-modal';
 import { GlobalFooter } from '../components/global-footer';
@@ -105,7 +105,7 @@ export default function AboutPage() {
       <main>
         {/* Hero Section */}
         <HeroFullBleed
-          backgroundImage={SandraImages.portraits.professional[0]}
+          backgroundImage="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_68de145ae1rme0cs07ja9mcp90_0_1756673402614.png"
           tagline="The Icelandic Selfie Queen"
           title="SANDRA"
           ctaText="My story"

@@ -129,7 +129,7 @@ export default function Pricing() {
 
       {/* Hero Section */}
       <HeroFullBleed
-        backgroundImage="https://i.postimg.cc/HsrPfn0G/out-2-26.png"
+        backgroundImage="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_3w7qjbn8v5rmc0crzccba8gyc0_0_1756559371966.png"
         tagline="Investment in the woman you're becoming"
         title="PRICING"
         ctaText="Choose Your Plan"
