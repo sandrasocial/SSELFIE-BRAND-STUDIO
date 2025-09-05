@@ -3732,6 +3732,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
 
   // Connect Slack Testing Routes
   const testSlackAgentsRouter = await import('./routes/test-slack-agents');
+  app.use('/api/test-slack-agents', testSlackAgentsRouter.default);
   app.use('/api/test-slack', testSlackAgentsRouter.default);
   console.log('✅ SLACK: Agent testing interface ready');
 
