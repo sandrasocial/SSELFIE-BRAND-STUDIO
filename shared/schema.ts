@@ -1004,6 +1004,18 @@ export const agentHandoffRequests = pgTable("agent_handoff_requests", {
   respondedAt: timestamp("responded_at"),
 });
 
+// Agent sessions tracking table for emergency controls
+export const agentSessions = pgTable("agent_sessions", {
+  id: serial("id").primaryKey(),
+  agentId: varchar("agent_id").notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  conversationId: varchar("conversation_id"),
+  status: varchar("status").default("active"), // "active", "paused", "emergency_paused", "completed"
+  startedAt: timestamp("started_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  endedAt: timestamp("ended_at"),
+});
+
 // Approval workflow type exports
 export const insertApprovalQueueSchema = createInsertSchema(approvalQueue);
 export type InsertApprovalQueue = z.infer<typeof insertApprovalQueueSchema>;
@@ -1012,6 +1024,10 @@ export type ApprovalQueue = typeof approvalQueue.$inferSelect;
 export const insertAgentHandoffRequestsSchema = createInsertSchema(agentHandoffRequests);
 export type InsertAgentHandoffRequests = z.infer<typeof insertAgentHandoffRequestsSchema>;
 export type AgentHandoffRequests = typeof agentHandoffRequests.$inferSelect;
+
+export const insertAgentSessionsSchema = createInsertSchema(agentSessions);
+export type InsertAgentSessions = z.infer<typeof insertAgentSessionsSchema>;
+export type AgentSessions = typeof agentSessions.$inferSelect;
 
 export type InsertUsageHistory = typeof usageHistory.$inferInsert;
 
