@@ -168,12 +168,6 @@ function Router() {
         </Suspense>
       )} />
       
-      {/* UNIFIED AUTHENTICATION PAGE */}
-      <Route path="/login" component={() => (
-        <div className="min-h-screen flex items-center justify-center bg-white">
-          <UnifiedLoginButton text="Sign in to continue" showBrand={true} />
-        </div>
-      )} />
 
 
 
