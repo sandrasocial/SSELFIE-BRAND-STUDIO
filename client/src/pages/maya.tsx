@@ -569,13 +569,13 @@ export default function Maya() {
                                 return (
                                   <div key={card.id} className="editorial-card group border border-gray-200">
                                     <div className="card-content p-4 sm:p-8 relative">
-                                      <div className="card-number text-4xl sm:text-8xl font-serif opacity-5 absolute -top-2 sm:-top-4 -right-1 sm:-right-2">
+                                      <div className="card-number text-3xl sm:text-6xl font-serif opacity-5 absolute top-2 sm:top-4 right-4 sm:right-6">
                                         {String(index + 1).padStart(2, '0')}
                                       </div>
                                       
-                                      <div className="relative z-10 pr-8 sm:pr-16">
+                                      <div className="relative z-10 pr-12 sm:pr-20">
                                         <div className="flex items-start justify-between mb-6 sm:mb-8">
-                                          <div className="flex-1 mr-4 sm:mr-8">
+                                          <div className="flex-1">
                                             <h3 className="font-serif text-base sm:text-xl font-light uppercase tracking-[0.1em] text-black mb-4 sm:mb-6 leading-tight">
                                               {cleanDisplayTitle(card.title)}
                                             </h3>
