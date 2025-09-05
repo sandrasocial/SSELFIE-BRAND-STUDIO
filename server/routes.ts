@@ -1227,6 +1227,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 📧 AVA Email Management Agent Routes
   app.use('/api/email-management', emailManagementRouter);
   
+  // 🔐 Gmail Authentication Routes
+  const gmailAuthRouter = await import('./routes/gmail-auth');
+  app.use('/api/auth/gmail', gmailAuthRouter.default);
+  
   // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
   app.use('/api/subscribers', subscriberImport.default);
