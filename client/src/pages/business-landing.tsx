@@ -84,43 +84,54 @@ export default function BusinessLanding() {
         </div>
       </nav>
 
-      {/* HERO - Clean & Focused */}
+      {/* HERO - Optimized Layout */}
       <section className="relative min-h-screen bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-50">
+        <div className="absolute inset-0 opacity-60">
           <img 
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
             alt="Professional transformation through AI photography"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-right"
           />
         </div>
         
-        <div className="relative z-10 flex flex-col justify-center min-h-screen px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-5xl mx-auto">
-            <div className="mb-12">
-              <div className="w-24 h-px bg-white/30 mx-auto mb-8"></div>
-            </div>
-            
-            <h1 
-              className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light mb-16 tracking-[-0.02em] leading-none"
-              style={{ fontFamily: "Times New Roman, serif" }}
-            >
-              Professional Photos<br />
-              <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-[0.3em] text-white/80 font-light">
-                FROM YOUR SELFIES
-              </span>
-            </h1>
-            
-            <div className="space-y-8">
-              <button 
-                onClick={handleGetStarted}
-                className="bg-white text-black px-12 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
-              >
-                GET PROFESSIONAL PHOTOS — €47
-              </button>
+        {/* Content positioned to avoid face */}
+        <div className="relative z-10 flex flex-col justify-center min-h-screen">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div className="grid lg:grid-cols-2 gap-8 items-center min-h-screen">
+              {/* Text Content - Left Side */}
+              <div className="text-left lg:text-left">
+                <div className="mb-8">
+                  <div className="w-24 h-px bg-white/30 mb-8"></div>
+                </div>
+                
+                <h1 
+                  className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light mb-12 tracking-[-0.02em] leading-none"
+                  style={{ fontFamily: "Times New Roman, serif" }}
+                >
+                  Professional Photos<br />
+                  <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-[0.3em] text-white/80 font-light">
+                    FROM YOUR SELFIES
+                  </span>
+                </h1>
+                
+                <div className="space-y-6">
+                  <button 
+                    onClick={handleGetStarted}
+                    className="bg-white text-black px-10 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
+                  >
+                    GET PROFESSIONAL PHOTOS — €47
+                  </button>
+                  
+                  <p className="text-xs text-white/50 tracking-wide">
+                    Photos ready in 20 minutes • Cancel anytime
+                  </p>
+                </div>
+              </div>
               
-              <p className="text-xs text-white/50 tracking-wide">
-                Photos ready in 20 minutes • Cancel anytime
-              </p>
+              {/* Right side - Space for image visibility */}
+              <div className="hidden lg:block">
+                {/* This space allows the face/image to be visible */}
+              </div>
             </div>
           </div>
         </div>
