@@ -86,31 +86,29 @@ describe('Maya Pipeline Integration Tests', () => {
       expect(duration).toBeLessThan(1000); // Mock should be fast
     });
 
-    test('should handle both packaged and LoRA model generation paths', async () => {
-      console.log('🔧 STEP 5.1: Testing FLUX parameter architecture');
+    test('should handle packaged model generation only', async () => {
+      console.log('🔧 STEP 5.1: Testing FLUX parameter architecture - packaged models only');
       
-      // Test packaged model path (no LoRA parameters)
+      // Test packaged model path only (Path 2 eliminated)
       const packagedModelTest = {
         modelPath: 'packaged',
         expectedParams: ['guidance_scale', 'num_inference_steps'],
-        excludedParams: ['lora_scale']
+        excludedParams: ['lora_scale', 'lora_weight'] // Should never appear in packaged models
       };
       
-      // Test base FLUX + LoRA path (includes LoRA parameters)  
-      const loraModelTest = {
-        modelPath: 'base-flux-lora',
-        expectedParams: ['guidance_scale', 'num_inference_steps', 'lora_scale'],
-        excludedParams: []
-      };
+      // REMOVED: LoRA model test - Path 2 eliminated
       
-      [packagedModelTest, loraModelTest].forEach(testCase => {
-        console.log(`🎯 Testing ${testCase.modelPath} parameter path`);
-        testCase.expectedParams.forEach(param => {
-          expect(['guidance_scale', 'num_inference_steps', 'lora_scale']).toContain(param);
-        });
+      console.log(`🎯 Testing ${packagedModelTest.modelPath} parameter path`);
+      packagedModelTest.expectedParams.forEach(param => {
+        expect(['guidance_scale', 'num_inference_steps']).toContain(param);
       });
       
-      console.log('✅ STEP 5.1: Parameter architecture validation complete');
+      // Verify forbidden parameters are excluded
+      packagedModelTest.excludedParams.forEach(param => {
+        expect(['guidance_scale', 'num_inference_steps']).not.toContain(param);
+      });
+      
+      console.log('✅ STEP 5.1: Packaged model parameter validation complete');
     });
 
     test('should preserve Maya\'s intelligence without system overrides', async () => {

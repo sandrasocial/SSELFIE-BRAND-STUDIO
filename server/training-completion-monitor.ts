@@ -52,33 +52,14 @@ export class TrainingCompletionMonitor {
           versionId = trainingData.version;
         }
         
-        // OPTION A: Direct LoRA weights extraction from ostris/flux-dev-lora-trainer
-        let loraWeightsUrl = null;
-        
-        console.log(`🔍 OPTION A EXTRACTION: Looking for LoRA weights in training output`);
-        console.log(`📋 Training Output Structure:`, JSON.stringify(trainingData.output, null, 2));
+        // REMOVED: LoRA weights extraction - packaged models only approach
+        console.log(`🎯 PACKAGED MODEL: Training completed, using packaged model approach`);
         
         if (trainingData.output) {
-          // ostris/flux-dev-lora-trainer without destination outputs LoRA weights directly
-          if (trainingData.output.weights) {
-            loraWeightsUrl = trainingData.output.weights;
-            console.log(`✅ LORA WEIGHTS FOUND (output.weights): ${loraWeightsUrl}`);
+          console.log(`✅ Training output available for packaged model`);
+        } else {
+          console.log(`⚠️ No training output - may need additional processing`);
           }
-          else if (Array.isArray(trainingData.output) && trainingData.output.length > 0) {
-            // Sometimes weights are in array format
-            loraWeightsUrl = trainingData.output[0];
-            console.log(`✅ LORA WEIGHTS FOUND (output[0]): ${loraWeightsUrl}`);
-          }
-          else if (typeof trainingData.output === 'string' && trainingData.output.includes('.safetensors')) {
-            // Direct URL string
-            loraWeightsUrl = trainingData.output;
-            console.log(`✅ LORA WEIGHTS FOUND (direct string): ${loraWeightsUrl}`);
-          }
-        }
-        
-        if (!loraWeightsUrl) {
-          console.log(`⚠️ CRITICAL: No LoRA weights URL found in training output for user ${userId}`);
-          console.log(`📋 Training output structure:`, JSON.stringify(trainingData.output || {}, null, 2));
         }
         
         // CRITICAL: Extract and store the trigger word from existing model data
@@ -91,15 +72,15 @@ export class TrainingCompletionMonitor {
           console.log(`🆔 Generated trigger word: ${triggerWord} for user ${userId}`);
         }
         
-        // OPTION A: Store LoRA weights URL and training metadata
+        // PACKAGED MODEL: Store training metadata for packaged model approach
         await storage.updateUserModel(userId, {
           trainingStatus: 'completed',
           replicateModelId: replicateModelId, // Keep training ID for reference
           replicateVersionId: versionId, // Training version
-          loraWeightsUrl: loraWeightsUrl, // CRITICAL: Store LoRA weights for generation
+          // REMOVED: loraWeightsUrl - packaged models have LoRA built-in
           triggerWord: triggerWord, // CRITICAL: Ensure trigger word is stored
           trainedModelPath: paths.getUserModelPath(userId),
-          modelType: 'flux-lora-weights', // NEW: Indicates base model + LoRA approach
+          modelType: 'flux-packaged', // Updated: Indicates packaged model approach
           completedAt: new Date(),
           updatedAt: new Date()
         });

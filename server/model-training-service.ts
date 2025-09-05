@@ -397,12 +397,8 @@ export class ModelTrainingService {
       const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
       console.log(`🚀 [${promptId}] PROMPT FORMATTED: ${finalPrompt.length} characters ready for generation`);
 
-      // DETERMINISTIC PATH LOGIC: Declare usePackaged early to avoid temporal dead zone issues
-      const usePackaged = Boolean(
-        userModel?.replicateModelId && 
-        userModel?.replicateVersionId && 
-        process.env.MAYA_USE_PACKAGED !== "0"
-      );
+      // SINGLE PATH LOGIC: Only packaged models supported for consistency
+      // All users must have completed trained models with valid model + version IDs
 
       // ✅ MAYA PURE INTELLIGENCE: Maya already provides count in her concept creation
       // No need for separate parameter intelligence - Maya handles this in her main response
@@ -468,76 +464,34 @@ export class ModelTrainingService {
         ? options.seed!
         : Math.floor(Math.random() * 1e9);
 
-      console.log(`🎯 MAYA PATH SELECTION: usePackaged=${usePackaged} (affects parameter application)`);
+      console.log(`🎯 MAYA SINGLE PATH: Using packaged model for consistent quality`);
 
-      let requestBody: any;
-      let loraWeightsUrl = userModel?.loraWeightsUrl;
-
-      if (usePackaged) {
-        // PATH 1: PACKAGED MODEL - NO LoRA parameters needed
-        const modelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
-        requestBody = {
-          version: modelVersion,
-          input: {
-            prompt: finalPrompt,
-            num_outputs: finalCount,
-            // ✅ FLUX parameters only - packaged models have LoRA built-in
-            guidance_scale: merged.guidance_scale,
-            num_inference_steps: merged.num_inference_steps,
-            aspect_ratio: merged.aspect_ratio,
-            megapixels: merged.megapixels,
-            output_format: "png", 
-            output_quality: 95,
-            seed: seed
-            // ❌ NO lora_scale or lora_weights for packaged models!
-          }
-        };
-      } else {
-        // PATH 2: Base FLUX + LoRA (requires LoRA weights extraction)
-        if (!loraWeightsUrl) {
-          console.log(`🔧 TRAINING SERVICE: Extracting LoRA weights for user ${userId}`);
-          
-          try {
-            // Use the proper extractLoRAWeights function
-            loraWeightsUrl = await this.extractLoRAWeights(userModel);
-            
-            if (loraWeightsUrl) {
-              // Update the user model with the extracted weights URL
-              await storage.updateUserModel(userId, { loraWeightsUrl });
-              console.log(`✅ WEIGHTS EXTRACTED AND SAVED: ${loraWeightsUrl}`);
-            }
-          } catch (error) {
-            console.error(`❌ Failed to extract LoRA weights for user ${userId}:`, error);
-          }
-        }
-
-        // MANDATORY: Refuse to run without LoRA weights
-        if (!loraWeightsUrl) {
-          throw new Error("BLOCKED: Missing lora_weights; refusing base FLUX.");
-        }
-
-        requestBody = {
-          version: "black-forest-labs/flux-1.1-pro",
-          input: {
-            prompt: finalPrompt,
-            lora_weights: loraWeightsUrl,
-            // ✅ PATH 2: Base FLUX + LoRA requires LoRA parameters
-            lora_scale: 1.1,  // Fixed optimal LoRA scale for base FLUX path
-            num_outputs: finalCount,
-            guidance_scale: merged.guidance_scale,
-            num_inference_steps: merged.num_inference_steps,
-            aspect_ratio: merged.aspect_ratio,
-            megapixels: merged.megapixels,
-            output_format: "png",
-            output_quality: 95,
-            seed: seed
-          }
-        };
+      // PACKAGED MODEL ONLY: Consistent quality for all users
+      if (!userModel?.replicateModelId || !userModel?.replicateVersionId) {
+        throw new Error("BLOCKED: User model missing required packaged model ID or version. Please complete training first.");
       }
+      
+      const userModelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+      const requestBody = {
+        version: userModelVersion,
+        input: {
+          prompt: finalPrompt,
+          num_outputs: finalCount,
+          // ✅ FLUX parameters only - packaged models have LoRA built-in
+          guidance_scale: merged.guidance_scale,
+          num_inference_steps: merged.num_inference_steps,
+          aspect_ratio: merged.aspect_ratio,
+          megapixels: merged.megapixels,
+          output_format: "png", 
+          output_quality: 95,
+          seed: seed
+          // ✅ NO lora_scale or lora_weights needed - packaged models include LoRA
+        }
+      };
 
-      // ABSOLUTE GUARD (no silent base):
-      if (requestBody.version.includes("flux-1.1-pro") && !requestBody.input.lora_weights) {
-        throw new Error("BLOCKED: would call base FLUX without lora_weights.");
+      // PACKAGED MODEL GUARD: Ensure we're using trained user models only
+      if (requestBody.version.includes("flux-1.1-pro")) {
+        throw new Error("BLOCKED: Attempted to use base FLUX model. Only packaged user models allowed.");
       }
 
       console.log("🚚 Replicate payload keys:", Object.keys(requestBody.input), "version:", requestBody.version);
@@ -626,230 +580,7 @@ export class ModelTrainingService {
     }
   }
 
-  // CRITICAL: Proper LoRA weights extraction function implementation
-  static async extractLoRAWeights(userModel: any): Promise<string | null> {
-    if (!userModel) {
-      console.error('❌ extractLoRAWeights: No user model provided');
-      return null;
-    }
-
-    try {
-      // Try multiple extraction methods in order of priority
-      
-      // Method 1: Use trainingId if available (new architecture)
-      if (userModel.trainingId) {
-        console.log(`🔧 EXTRACT WEIGHTS: Method 1 - Using trainingId: ${userModel.trainingId}`);
-        
-        const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.trainingId}`, {
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (trainingResponse.ok) {
-          const trainingData = await trainingResponse.json();
-          
-          // Check for weights in training output
-          
-          // Extract weights from training output
-          if (trainingData.output?.weights) {
-            console.log(`✅ WEIGHTS FOUND via trainingId: ${trainingData.output.weights}`);
-            return trainingData.output.weights;
-          }
-          
-          // Sometimes it's under different keys
-          if (trainingData.weights) {
-            console.log(`✅ WEIGHTS FOUND via trainingData.weights: ${trainingData.weights}`);
-            return trainingData.weights;
-          }
-          
-          if (trainingData.output?.version) {
-            // Extract model path and version from version URL
-            const versionMatch = trainingData.output.version.match(/replicate\.com\/([^:]+):(.+)$/);
-            if (versionMatch) {
-              const modelPath = versionMatch[1];
-              const versionId = versionMatch[2];
-              
-              // Fetch version details to get weights
-              const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelPath}/versions/${versionId}`, {
-                headers: {
-                  'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-                  'Content-Type': 'application/json'
-                }
-              });
-              
-              if (versionResponse.ok) {
-                const versionData = await versionResponse.json();
-                
-                if (versionData.files?.lora_weights) {
-                  console.log(`✅ WEIGHTS FOUND via version files: ${versionData.files.lora_weights}`);
-                  return versionData.files.lora_weights;
-                }
-                if (versionData.files?.weights) {
-                  console.log(`✅ WEIGHTS FOUND via version files: ${versionData.files.weights}`);
-                  return versionData.files.weights;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Method 2: Use replicateModelId and replicateVersionId if available (current architecture)  
-      if (userModel.replicateModelId && userModel.replicateVersionId) {
-        console.log(`🔧 EXTRACT WEIGHTS: Method 2 - Using modelId: ${userModel.replicateModelId}, versionId: ${userModel.replicateVersionId}`);
-        
-        // First try: List model versions to get complete data
-        const versionsResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}/versions`, {
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (versionsResponse.ok) {
-          const versionsData = await versionsResponse.json();
-          
-          // Look for our specific version in the results
-          if (versionsData.results) {
-            for (const version of versionsData.results) {
-              if (version.id === userModel.replicateVersionId) {
-                // Check various possible locations for weights
-                if (version.files?.weights) {
-                  console.log(`✅ WEIGHTS FOUND via versions list: ${version.files.weights}`);
-                  return version.files.weights;
-                }
-                if (version.weights) {
-                  console.log(`✅ WEIGHTS FOUND via version weights: ${version.weights}`);
-                  return version.weights;
-                }
-                if (version.files && Object.keys(version.files).length > 0) {
-                  // Try to find any .safetensors file
-                  for (const [key, value] of Object.entries(version.files)) {
-                    if (typeof value === 'string' && value.includes('.safetensors')) {
-                      console.log(`✅ WEIGHTS FOUND via safetensors: ${value}`);
-                      return value;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-        
-        // Second try: Get the model metadata 
-        const modelResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}`, {
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (modelResponse.ok) {
-          const modelData = await modelResponse.json();
-          
-          // Check if model has latest_version data
-          if (modelData.latest_version && modelData.latest_version.id === userModel.replicateVersionId) {
-            const versionData = modelData.latest_version;
-            
-            if (versionData.files?.weights) {
-              console.log(`✅ WEIGHTS FOUND via model latest_version: ${versionData.files.weights}`);
-              return versionData.files.weights;
-            }
-          }
-        }
-        
-        // Second try: Direct version API call  
-        const versionResponse = await fetch(`https://api.replicate.com/v1/models/${userModel.replicateModelId}/versions/${userModel.replicateVersionId}`, {
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (versionResponse.ok) {
-          const versionData = await versionResponse.json();
-          
-          // Check for weights in version data
-          
-          // Look for weights in different possible locations
-          if (versionData.files?.weights) {
-            console.log(`✅ WEIGHTS FOUND via version files.weights: ${versionData.files.weights}`);
-            return versionData.files.weights;
-          }
-          if (versionData.weights) {
-            console.log(`✅ WEIGHTS FOUND via version.weights: ${versionData.weights}`);
-            return versionData.weights;
-          }
-          
-        } else {
-          console.error(`❌ Version API call failed: ${versionResponse.status} ${versionResponse.statusText}`);
-        }
-      }
-
-      // Method 3: Search trainings by model name to find associated training
-      console.log(`🔧 EXTRACT WEIGHTS: Method 3 - Searching trainings for model: ${userModel.replicateModelId}`);
-      
-      try {
-        const trainingsResponse = await fetch(`https://api.replicate.com/v1/trainings`, {
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (trainingsResponse.ok) {
-          const trainingsData = await trainingsResponse.json();
-          
-          if (trainingsData.results) {
-            for (const training of trainingsData.results) {
-              // Look for a training that matches our model
-              const modelName = userModel.replicateModelId.split('/')[1];
-              if (training.output?.model && training.output.model.includes(modelName)) {
-                if (training.output?.weights) {
-                  console.log(`✅ WEIGHTS FOUND via training search: ${training.output.weights}`);
-                  return training.output.weights;
-                }
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.error('❌ Training search failed:', error);
-      }
-
-      // Method 4: Legacy fallback - try replicateModelId as training ID
-      if (userModel.replicateModelId) {
-        console.log(`🔧 EXTRACT WEIGHTS: Method 4 - Legacy fallback using replicateModelId as training ID: ${userModel.replicateModelId}`);
-        
-        const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (trainingResponse.ok) {
-          const trainingData = await trainingResponse.json();
-          
-          if (trainingData.output?.weights) {
-            console.log(`✅ WEIGHTS FOUND via legacy method: ${trainingData.output.weights}`);
-            return trainingData.output.weights;
-          }
-        } else {
-          console.error(`❌ Training API call failed: ${trainingResponse.status} ${trainingResponse.statusText}`);
-        }
-      }
-
-      console.error('❌ extractLoRAWeights: No valid weights URL found in any method');
-      return null;
-
-    } catch (error) {
-      console.error('❌ extractLoRAWeights error:', error);
-      return null;
-    }
-  }
+  // REMOVED: extractLoRAWeights method - no longer needed for packaged-only approach
 
   // MAYA'S INTELLIGENT SHOT TYPE DETECTION - LIBERATION FROM HARDCODED RESTRICTIONS
   // ✅ REMOVED: Shot type determination - Maya's intelligence includes framing decisions

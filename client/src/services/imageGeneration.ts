@@ -1,9 +1,9 @@
-// client/src/services/imageGeneration.ts - Enhanced for model-specific generation
+// client/src/services/imageGeneration.ts - Packaged models only
 interface GenerateImageParams {
   prompt: string;
   guidance_scale: number;
   num_inference_steps: number;
-  lora_scale: number;
+  // REMOVED: lora_scale - packaged models have LoRA built-in
   model_id: string;
   aspect_ratio: string;
   user_id?: string;

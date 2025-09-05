@@ -12,7 +12,7 @@ export interface ModelValidationResult {
   modelId: string | null;
   versionId: string | null;
   triggerWord: string | null;
-  loraWeightsUrl?: string | null;  // NEW: Support for LoRA weights architecture
+  // REMOVED: loraWeightsUrl - packaged models only approach
   errorMessage?: string;
   requiresCorrection?: boolean;
 }
@@ -115,15 +115,15 @@ export class ModelValidationService {
       console.log(`   Model ID: ${modelId}`);
       console.log(`   Version ID: ${versionId}`);
       console.log(`   Trigger Word: ${userModel.triggerWord}`);
-      console.log(`   LoRA Weights: ${userModel.loraWeightsUrl || 'Not available - will use custom model fallback'}`);
+      console.log(`   Packaged Model: Using trained model with built-in LoRA`);
       
       return {
         isValid: true,
         canGenerate: true,
         modelId,
         versionId,
-        triggerWord: userModel.triggerWord,
-        loraWeightsUrl: userModel.loraWeightsUrl  // NEW: Return LoRA weights URL
+        triggerWord: userModel.triggerWord
+        // REMOVED: loraWeightsUrl - packaged models have LoRA built-in
       };
       
     } catch (error) {
