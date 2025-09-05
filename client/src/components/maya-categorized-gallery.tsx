@@ -66,14 +66,15 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => {
       className="relative bg-white border border-gray-200 overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-lg"
       onClick={() => onImageClick(image)}
     >
-      <div className="relative" style={{ aspectRatio: '1/1' }}>
+      <div className="relative w-full h-64" style={{ aspectRatio: '1/1' }}>
         <img 
           src={image.imageUrl} 
           alt={`Generated image ${image.id}`}
           style={{
             width: '100%',
             height: '100%',
-            objectFit: 'cover'
+            objectFit: 'cover',
+            display: 'block'
           }}
           loading="lazy"
           onLoad={() => {
