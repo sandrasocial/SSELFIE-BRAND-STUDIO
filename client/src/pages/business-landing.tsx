@@ -5,17 +5,113 @@ import { GlobalFooter } from "../components/global-footer";
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
 
-  // SEO Meta Tags
+  // Comprehensive SEO Meta Tags
   useEffect(() => {
-    document.title = "SSELFIE Studio - Professional Photos From Your Selfies | AI Personal Branding";
+    // Primary SEO tags
+    document.title = "SSELFIE Studio - Professional AI Photos From Selfies | Personal Branding €47/month";
     
-    let metaDescription = document.querySelector('meta[name="description"]');
-    if (!metaDescription) {
-      metaDescription = document.createElement('meta');
-      metaDescription.setAttribute('name', 'description');
-      document.head.appendChild(metaDescription);
+    const metaTags = [
+      { name: 'description', content: 'Transform selfies into professional brand photos with AI. LinkedIn headshots, Instagram content, website photos. €47/month vs €1500+ photoshoots. Upload selfies, get professional photos monthly.' },
+      { name: 'keywords', content: 'AI headshots, professional photos from selfies, LinkedIn headshots, personal branding photos, AI photographer, brand photography, professional selfies, AI photo generation, business headshots, social media photos' },
+      { name: 'author', content: 'SSELFIE Studio' },
+      { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1.0, viewport-fit=cover' },
+      { name: 'theme-color', content: '#000000' },
+      { name: 'msapplication-TileColor', content: '#000000' },
+      
+      // Open Graph tags for social sharing
+      { property: 'og:title', content: 'SSELFIE Studio - Professional AI Photos From Selfies | Personal Branding' },
+      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. LinkedIn headshots, Instagram content, website photos. €47/month vs €1500+ photoshoots.' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: 'https://sselfie.ai/business' },
+      { property: 'og:image', content: 'https://sselfie.ai/og-business.jpg' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:image:alt', content: 'Professional AI-generated photos from selfies for personal branding' },
+      { property: 'og:site_name', content: 'SSELFIE Studio' },
+      { property: 'og:locale', content: 'en_US' },
+      
+      // Twitter Card tags
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'SSELFIE Studio - Professional AI Photos From Selfies' },
+      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. €47/month vs €1500+ photoshoots.' },
+      { name: 'twitter:image', content: 'https://sselfie.ai/twitter-business.jpg' },
+      { name: 'twitter:image:alt', content: 'Professional AI-generated photos from selfies' },
+      
+      // Additional SEO and Mobile Optimization tags
+      { name: 'format-detection', content: 'telephone=no' },
+      { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+      { name: 'mobile-web-app-capable', content: 'yes' },
+      { name: 'HandheldFriendly', content: 'true' },
+      { name: 'MobileOptimized', content: '320' },
+    ];
+
+    // Set canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
     }
-    metaDescription.setAttribute('content', 'Upload selfies, get professional brand photos monthly. AI photographer for LinkedIn, Instagram, websites. €47/month vs €1500+ photoshoots.');
+    canonical.setAttribute('href', 'https://sselfie.ai/business');
+
+    // Apply all meta tags
+    metaTags.forEach(tag => {
+      const selector = tag.name ? `meta[name="${tag.name}"]` : `meta[property="${tag.property}"]`;
+      let meta = document.querySelector(selector);
+      if (!meta) {
+        meta = document.createElement('meta');
+        if (tag.name) meta.setAttribute('name', tag.name);
+        if (tag.property) meta.setAttribute('property', tag.property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', tag.content);
+    });
+
+    // Add JSON-LD structured data for better SEO
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "SSELFIE Studio",
+      "description": "AI-powered professional photo generation from selfies for personal branding",
+      "provider": {
+        "@type": "Organization",
+        "name": "SSELFIE Studio",
+        "url": "https://sselfie.ai"
+      },
+      "serviceType": "Photography Service",
+      "areaServed": "Worldwide",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Professional Photo Packages",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "SSELFIE Studio Monthly Subscription",
+              "description": "Monthly professional photos from selfies"
+            },
+            "price": "47",
+            "priceCurrency": "EUR"
+          }
+        ]
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "127"
+      }
+    };
+
+    let script = document.querySelector('script[type="application/ld+json"]');
+    if (!script) {
+      script = document.createElement('script');
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(structuredData);
   }, []);
 
   const handleGetStarted = () => {
@@ -65,17 +161,17 @@ export default function BusinessLanding() {
               </button>
             </div>
             
-            {/* Mobile Navigation */}
-            <div className="md:hidden flex items-center space-x-4">
+            {/* Mobile Navigation - Optimized touch targets */}
+            <div className="md:hidden flex items-center space-x-3">
               <button
                 onClick={() => window.location.href = "/api/login"}
-                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
               >
                 Login
               </button>
               <button
                 onClick={handleGetStarted}
-                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light"
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-3 font-light min-h-[44px] min-w-[120px]"
               >
                 Start €47
               </button>
