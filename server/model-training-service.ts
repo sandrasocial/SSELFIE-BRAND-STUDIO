@@ -500,44 +500,12 @@ export class ModelTrainingService {
         throw new Error(`No prediction ID returned from Replicate API: ${JSON.stringify(prediction)}`);
       }
       
-      // FIX B: Return immediately for Maya chat flow to prevent double-polling
-      // Let the /api/check-generation route handle polling instead
-      if (process.env.MAYA_SYNC_PREDICTIONS !== '1') {
-        return { 
-          images: [], 
-          predictionId: prediction.id 
-        };
-      }
-      
-      // Only poll for admin tools when MAYA_SYNC_PREDICTIONS=1
-      // Wait for completion (polling)
-      let attempts = 0;
-      const maxAttempts = 30; // 5 minutes maximum
-      
-      while (attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
-        
-        const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${prediction.id}`, {
-          headers: {
-            'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-          }
-        });
-        
-        const statusData = await statusResponse.json();
-        
-        if (statusData.status === 'succeeded' && statusData.output) {
-          return {
-            images: Array.isArray(statusData.output) ? statusData.output : [statusData.output],
-            predictionId: prediction.id
-          };
-        } else if (statusData.status === 'failed') {
-          throw new Error(`Image generation failed: ${statusData.error}`);
-        }
-        
-        attempts++;
-      }
-      
-      throw new Error('Image generation timed out after 5 minutes');
+      // ✅ UNIFIED POLLING STRATEGY: Always return immediately for Maya chat
+      // All polling handled by /api/maya/check-generation route
+      return {
+        images: [],
+        predictionId: prediction.id,
+      };
       
     } catch (error) {
       throw new Error(`Failed to generate images: ${error.message}`);
