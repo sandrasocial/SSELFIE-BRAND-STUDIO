@@ -227,7 +227,7 @@ export default function Maya() {
 
           {/* Back to Workspace Button */}
           <button
-            onClick={() => setLocation('/')}
+            onClick={() => setLocation('/workspace')}
             className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
           >
             Back
