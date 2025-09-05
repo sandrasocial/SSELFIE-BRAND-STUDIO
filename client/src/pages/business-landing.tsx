@@ -441,7 +441,7 @@ export default function BusinessLanding() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
-              <p className="text-2xl font-light mb-2">24hrs</p>
+              <p className="text-2xl font-light mb-2">20min</p>
               <p className="text-xs text-white/70 uppercase tracking-wide">Delivery</p>
             </div>
             <div>
