@@ -28,31 +28,24 @@ describe('Maya System Validation', () => {
     test('should have zero parameter conflicts', async () => {
       console.log('🔧 STEP 5.3: Validating parameter architecture');
       
-      // Validate FLUX parameter paths
+      // Validate FLUX parameter paths - packaged models only
       const parameterPaths = {
         packagedModels: {
           requiredParams: ['guidance_scale', 'num_inference_steps'],
-          forbiddenParams: ['lora_scale', 'lora_weight']
-        },
-        loraModels: {
-          requiredParams: ['guidance_scale', 'num_inference_steps', 'lora_scale'],
-          forbiddenParams: ['lora_weight']
+          forbiddenParams: ['lora_scale', 'lora_weight'] // These should never appear
         }
+        // REMOVED: loraModels - only packaged models supported
       };
 
-      // Check PATH 1: Packaged models
+      // Check packaged models only - Path 2 eliminated
       const packagedConflicts = parameterPaths.packagedModels.forbiddenParams
         .filter(param => parameterPaths.packagedModels.requiredParams.includes(param));
       
       expect(packagedConflicts).toHaveLength(0);
       
-      // Check PATH 2: LoRA models  
-      const loraConflicts = parameterPaths.loraModels.forbiddenParams
-        .filter(param => parameterPaths.loraModels.requiredParams.includes(param));
-        
-      expect(loraConflicts).toHaveLength(0);
+      // REMOVED: PATH 2 LoRA models check - no longer supported
 
-      systemMetrics.parameterConflicts = packagedConflicts.length + loraConflicts.length;
+      systemMetrics.parameterConflicts = packagedConflicts.length;
       
       console.log(`✅ Parameter conflicts: ${systemMetrics.parameterConflicts} (target: 0)`);
       expect(systemMetrics.parameterConflicts).toBe(0);

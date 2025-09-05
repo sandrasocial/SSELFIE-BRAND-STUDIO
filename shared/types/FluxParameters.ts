@@ -6,7 +6,7 @@
 export interface BASE_QUALITY_SETTINGS {
   guidance_scale: number;
   num_inference_steps: number;
-  lora_scale: number;
+  // REMOVED: lora_scale - packaged models have LoRA built-in
   aspect_ratio: string;
   megapixels: string;
   output_format: string;
@@ -37,6 +37,6 @@ export interface FluxOptimizationParams {
 export type ShotType = 'closeUpPortrait' | 'halfBodyShot' | 'fullScenery';
 
 /**
- * Model generation paths
+ * Model generation paths - packaged models only
  */
-export type GenerationPath = 'packaged' | 'base_flux_lora';
+export type GenerationPath = 'packaged'; // REMOVED: 'base_flux_lora' - only packaged models supported
