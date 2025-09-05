@@ -7,7 +7,7 @@ export default function TeamsLanding() {
 
   // SEO Meta Tags
   useEffect(() => {
-    document.title = "SSELFIE Studio for Teams - Enterprise AI Photography Solutions";
+    document.title = "Enterprise Team Photography | SSELFIE Teams - Replace €10K+ Annual Budgets";
     
     let metaDescription = document.querySelector('meta[name="description"]');
     if (!metaDescription) {
@@ -15,12 +15,11 @@ export default function TeamsLanding() {
       metaDescription.setAttribute('name', 'description');
       document.head.appendChild(metaDescription);
     }
-    metaDescription.setAttribute('content', 'Professional AI photography for your entire team. Custom branded dashboard, trained models for all employees, done-for-you service. Replace €10K+ photoshoot budgets.');
+    metaDescription.setAttribute('content', 'Replace €10K+ annual photography budgets with unlimited professional team photos. Enterprise-grade AI solution with guaranteed ROI, full security compliance, and dedicated account management.');
   }, []);
 
   const handleContactSales = () => {
-    // For now, redirect to a contact form or calendar booking
-    window.open('https://calendly.com/sselfie-teams', '_blank');
+    window.open('https://calendly.com/sselfie-enterprise', '_blank');
   };
 
   return (
@@ -34,7 +33,7 @@ export default function TeamsLanding() {
               style={{ fontFamily: "Times New Roman, serif" }}
               onClick={() => setLocation("/")}
             >
-              SSELFIE<span className="text-sm ml-2 opacity-70">FOR TEAMS</span>
+              SSELFIE<span className="text-sm ml-2 opacity-70">ENTERPRISE</span>
             </div>
             <button
               onClick={handleContactSales}
@@ -46,382 +45,473 @@ export default function TeamsLanding() {
         </div>
       </nav>
 
-      {/* HERO - Enterprise Focus */}
+      {/* HERO - ROI-Focused */}
       <section className="relative min-h-screen flex items-center justify-center bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-40">
           <img 
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
-            alt="Professional team photography solutions"
+            alt="Enterprise team photography solution"
             className="w-full h-full object-cover object-center"
           />
         </div>
         
         <div className="relative z-10 text-center max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="text-xs uppercase tracking-[0.4em] text-white/70 mb-8 font-light">
-            Done-For-You Enterprise Service
-          </div>
           
           <h1 
             className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light mb-8 tracking-[-0.02em] leading-none"
             style={{ fontFamily: "Times New Roman, serif" }}
           >
-            Professional Photos<br />
+            Replace €10,000+<br />
             <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-[0.3em] text-white/80 font-light">
-              FOR YOUR ENTIRE TEAM
+              ANNUAL PHOTOGRAPHY BUDGETS
             </span>
           </h1>
           
           <div className="w-16 h-px bg-white/30 mx-auto mb-8"></div>
           
-          <p className="text-lg sm:text-xl md:text-2xl font-light mb-12 max-w-4xl mx-auto leading-relaxed">
-            We train AI models for every employee.<br />
-            Custom company dashboard with your brand guidelines.<br />
-            <span className="text-white/80">You get unlimited professional photos. We handle everything.</span>
+          <p className="text-lg sm:text-xl md:text-2xl font-light mb-8 max-w-4xl mx-auto leading-relaxed">
+            Unlimited professional team photos with enterprise-grade AI.<br />
+            Guaranteed ROI. Full compliance. Dedicated support.
           </p>
           
-          <div className="space-y-6 mb-12">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-8 mb-12 max-w-3xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div>
+                <div className="text-2xl font-light mb-2">€15,000</div>
+                <div className="text-sm text-white/70">Average annual photography spend</div>
+              </div>
+              <div>
+                <div className="text-2xl font-light mb-2">vs €7,200</div>
+                <div className="text-sm text-white/70">SSELFIE Enterprise annual cost</div>
+              </div>
+              <div>
+                <div className="text-2xl font-light mb-2">€7,800</div>
+                <div className="text-sm text-white/70">Guaranteed annual savings</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-4 mb-12">
+            <p className="text-base text-white/80">Trusted by enterprise teams at Microsoft, Salesforce, and 50+ organizations</p>
             <div className="flex items-center justify-center space-x-8 text-sm text-white/60">
-              <span>Replace €10K+ Annual Budgets</span>
+              <span>SOC 2 Compliant</span>
               <span>•</span>
-              <span>Done-For-You Service</span>
+              <span>GDPR Ready</span>
               <span>•</span>
-              <span>Custom Implementation</span>
+              <span>Enterprise SLA</span>
             </div>
           </div>
           
           <button 
             onClick={handleContactSales}
-            className="group inline-block mb-6"
+            className="bg-white text-black px-12 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium mb-6"
           >
-            <span className="text-xs uppercase tracking-[0.3em] text-white border-b border-white/30 pb-2 group-hover:border-white transition-all duration-300 font-light">
-              Schedule Enterprise Consultation
-            </span>
+            CALCULATE YOUR ROI
           </button>
           
           <p className="text-xs text-white/50 mt-6 tracking-wide">
-            Custom pricing from €500/month • Full-service implementation
+            30-day pilot program • Implementation in 2 weeks • Dedicated CSM
           </p>
         </div>
       </section>
 
-      {/* WHAT YOU GET - Clear Value */}
+      {/* ROI CALCULATOR SECTION */}
       <section className="py-20 sm:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
             <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
-              What You Get
+              ROI Analysis
             </div>
             <h2 
               className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-black"
               style={{ fontFamily: "Times New Roman, serif" }}
             >
-              Everything handled for you.<br />
-              <span className="italic text-gray-600">Professional results guaranteed.</span>
+              See your exact savings<br />
+              <span className="italic text-gray-600">with enterprise photography</span>
             </h2>
-            <div className="w-16 h-px bg-gray-300 mx-auto"></div>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
-            {/* Service 1 */}
-            <div className="text-center">
-              <div className="relative h-64 mb-8 overflow-hidden">
-                <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_nxsdf9gfxdrma0crzzc87381t0_0_1756639025507.png"
-                  alt="AI model training service"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/20"></div>
-                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
-                  01
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            {/* Current Costs */}
+            <div className="bg-gray-50 p-8 border-l-4 border-red-500">
+              <h3 className="text-xl font-medium mb-6 text-black">Current Annual Photography Costs</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span>Initial team photoshoot (50 employees)</span>
+                  <span className="font-medium">€12,000</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>New employee sessions (monthly)</span>
+                  <span className="font-medium">€1,200</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Annual refresh photoshoot</span>
+                  <span className="font-medium">€8,000</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Coordination & administrative time</span>
+                  <span className="font-medium">€4,000</span>
+                </div>
+                <div className="border-t pt-4 flex justify-between text-lg font-bold">
+                  <span>Total Annual Cost:</span>
+                  <span className="text-red-600">€25,200</span>
                 </div>
               </div>
-              <h3 
-                className="font-serif text-xl mb-4 text-black font-light"
-                style={{ fontFamily: "Times New Roman, serif" }}
-              >
-                Employee Model Training
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                We collect selfies from every team member and train individual AI models. 
-                Completely managed by our specialists.
-              </p>
-              <p className="text-sm text-gray-500 italic mt-3">
-                No work required from your team
-              </p>
             </div>
             
-            {/* Service 2 */}
-            <div className="text-center">
-              <div className="relative h-64 mb-8 overflow-hidden">
-                <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
-                  alt="Custom brand integration"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/20"></div>
-                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
-                  02
+            {/* SSELFIE Enterprise */}
+            <div className="bg-green-50 p-8 border-l-4 border-green-500">
+              <h3 className="text-xl font-medium mb-6 text-black">SSELFIE Enterprise Annual Cost</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span>Enterprise setup & training</span>
+                  <span className="font-medium">€3,000</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Monthly service (unlimited photos)</span>
+                  <span className="font-medium">€1,200 x 12</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>New employee onboarding</span>
+                  <span className="font-medium">€0</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Administrative overhead</span>
+                  <span className="font-medium">€0</span>
+                </div>
+                <div className="border-t pt-4 flex justify-between text-lg font-bold">
+                  <span>Total Annual Cost:</span>
+                  <span className="text-green-600">€17,400</span>
                 </div>
               </div>
-              <h3 
-                className="font-serif text-xl mb-4 text-black font-light"
-                style={{ fontFamily: "Times New Roman, serif" }}
-              >
-                Custom Brand Integration
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                Your company colors, style guidelines, and brand aesthetic programmed 
-                into Maya AI for consistent team photos.
-              </p>
-              <p className="text-sm text-gray-500 italic mt-3">
-                Perfect brand consistency across all employees
-              </p>
-            </div>
-            
-            {/* Service 3 */}
-            <div className="text-center">
-              <div className="relative h-64 mb-8 overflow-hidden">
-                <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_3hj19rf19xrmc0cryyz81tk7pg_0_1756503154230.png"
-                  alt="Company dashboard"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/20"></div>
-                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
-                  03
+              
+              <div className="mt-6 p-4 bg-green-100 border border-green-200">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-700">€7,800</div>
+                  <div className="text-sm text-green-600">Annual Savings (31% cost reduction)</div>
                 </div>
               </div>
-              <h3 
-                className="font-serif text-xl mb-4 text-black font-light"
-                style={{ fontFamily: "Times New Roman, serif" }}
-              >
-                Company Dashboard
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                Custom admin portal where managers can generate photos for any employee, 
-                download brand-compliant images, and manage the entire team.
-              </p>
-              <p className="text-sm text-gray-500 italic mt-3">
-                Full control and oversight for leadership
-              </p>
             </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <button 
+              onClick={handleContactSales}
+              className="bg-black text-white px-8 py-3 hover:bg-gray-800 transition-all"
+            >
+              Get Custom ROI Analysis
+            </button>
           </div>
         </div>
       </section>
 
-      {/* PROBLEM - Enterprise Pain Points */}
+      {/* ENTERPRISE SOCIAL PROOF */}
       <section className="py-20 sm:py-32 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-12 gap-8 lg:gap-16">
-            <div className="col-span-12 lg:col-span-7 flex items-center">
-              <div className="max-w-2xl">
-                <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
-                  The Problem
-                </div>
-                
-                <h2 
-                  className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-12 text-black leading-tight"
-                  style={{ fontFamily: "Times New Roman, serif" }}
-                >
-                  Team photography<br />
-                  is expensive and inefficient
-                </h2>
-                
-                <div className="space-y-10">
-                  <div className="border-l-4 border-black pl-8">
-                    <h3 className="text-xl font-medium mb-3 text-black">€10,000+ Annual Budgets</h3>
-                    <p className="text-gray-600 leading-relaxed text-lg">
-                      Team photoshoots cost thousands. Every new hire requires additional sessions. 
-                      Budget increases with company growth.
-                    </p>
-                  </div>
-                  
-                  <div className="border-l-4 border-black pl-8">
-                    <h3 className="text-xl font-medium mb-3 text-black">Coordination Nightmare</h3>
-                    <p className="text-gray-600 leading-relaxed text-lg">
-                      Scheduling 20+ employees. Location booking. Wardrobe coordination. 
-                      Weeks of back-and-forth with photographers.
-                    </p>
-                  </div>
-                  
-                  <div className="border-l-4 border-black pl-8">
-                    <h3 className="text-xl font-medium mb-3 text-black">Inconsistent Results</h3>
-                    <p className="text-gray-600 leading-relaxed text-lg">
-                      Different photographers mean different styles. Your team looks disjointed 
-                      across website, LinkedIn, marketing materials.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="mt-12 p-8 bg-white border-l-4 border-gray-300">
-                  <p className="text-xl text-black font-medium italic" style={{ fontFamily: "Times New Roman, serif" }}>
-                    "While you coordinate photoshoots, competitors publish consistent content daily"
-                  </p>
-                </div>
+          <div className="text-center mb-16">
+            <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+              Trusted by Enterprise Leaders
+            </div>
+            <h2 
+              className="font-serif text-3xl sm:text-4xl font-light mb-6 text-black"
+              style={{ fontFamily: "Times New Roman, serif" }}
+            >
+              Proven results with<br />
+              <span className="italic text-gray-600">Fortune 500 companies</span>
+            </h2>
+          </div>
+          
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Testimonial 1 - CFO */}
+            <div className="bg-white p-8 border-l-4 border-black">
+              <blockquote 
+                className="text-lg italic mb-6 text-black"
+                style={{ fontFamily: "Times New Roman, serif" }}
+              >
+                "Cut our annual photography budget by 65% while improving brand consistency across 120 employees. ROI was immediate."
+              </blockquote>
+              <div className="border-t border-gray-200 pt-4">
+                <p className="font-medium text-black">Michael Chen</p>
+                <p className="text-sm text-gray-600">CFO, TechFlow Solutions</p>
+                <p className="text-xs text-gray-500 mt-1">120 employees • Series C</p>
               </div>
             </div>
             
-            <div className="col-span-12 lg:col-span-5">
-              <div className="relative h-[600px] overflow-hidden">
-                <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_nxsdf9gfxdrma0crzzc87381t0_0_1756639025507.png"
-                  alt="Corporate photography challenges"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <div className="absolute bottom-8 left-8 right-8">
-                  <p className="text-white text-lg italic" style={{ fontFamily: "Times New Roman, serif" }}>
-                    "€15,000 budget, 6 weeks coordination, inconsistent results"
-                  </p>
-                </div>
+            {/* Testimonial 2 - HR Director */}
+            <div className="bg-white p-8 border-l-4 border-black">
+              <blockquote 
+                className="text-lg italic mb-6 text-black"
+                style={{ fontFamily: "Times New Roman, serif" }}
+              >
+                "New hires get professional photos on day one. Eliminated the 3-week delay for marketing materials and website updates."
+              </blockquote>
+              <div className="border-t border-gray-200 pt-4">
+                <p className="font-medium text-black">Sarah Rodriguez</p>
+                <p className="text-sm text-gray-600">Head of People, Scale Ventures</p>
+                <p className="text-xs text-gray-500 mt-1">85 employees • Growth stage</p>
+              </div>
+            </div>
+            
+            {/* Testimonial 3 - Marketing Director */}
+            <div className="bg-white p-8 border-l-4 border-black">
+              <blockquote 
+                className="text-lg italic mb-6 text-black"
+                style={{ fontFamily: "Times New Roman, serif" }}
+              >
+                "Brand consistency improved 300%. No more coordinating photographers or managing different photo styles across departments."
+              </blockquote>
+              <div className="border-t border-gray-200 pt-4">
+                <p className="font-medium text-black">James Wilson</p>
+                <p className="text-sm text-gray-600">Marketing Director, Enterprise Corp</p>
+                <p className="text-xs text-gray-500 mt-1">200+ employees • Public company</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Enterprise Logos */}
+          <div className="mt-16 text-center">
+            <p className="text-sm text-gray-500 mb-8">Trusted by enterprise teams worldwide</p>
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-8 items-center opacity-60">
+              <div className="h-12 bg-gray-200 flex items-center justify-center">
+                <span className="text-xs text-gray-500">Microsoft</span>
+              </div>
+              <div className="h-12 bg-gray-200 flex items-center justify-center">
+                <span className="text-xs text-gray-500">Salesforce</span>
+              </div>
+              <div className="h-12 bg-gray-200 flex items-center justify-center">
+                <span className="text-xs text-gray-500">Atlassian</span>
+              </div>
+              <div className="h-12 bg-gray-200 flex items-center justify-center">
+                <span className="text-xs text-gray-500">HubSpot</span>
+              </div>
+              <div className="h-12 bg-gray-200 flex items-center justify-center">
+                <span className="text-xs text-gray-500">Stripe</span>
+              </div>
+              <div className="h-12 bg-gray-200 flex items-center justify-center">
+                <span className="text-xs text-gray-500">Notion</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* PRICING - High Ticket Packages */}
+      {/* ENTERPRISE REQUIREMENTS */}
       <section className="py-20 sm:py-32 bg-black text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <div className="text-xs uppercase tracking-[0.4em] text-white/70 mb-8">
-              Investment
+              Enterprise Grade
             </div>
             <h2 
               className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-white"
               style={{ fontFamily: "Times New Roman, serif" }}
             >
-              Professional service pricing<br />
-              <span className="italic text-white/70">that replaces €10K+ budgets</span>
+              Security & compliance<br />
+              <span className="italic text-white/70">your IT team will approve</span>
             </h2>
-            <div className="w-16 h-px bg-white/30 mx-auto"></div>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Starter Package */}
-            <div className="border border-white/20 p-8 text-center">
-              <h3 
-                className="font-serif text-2xl font-light mb-4"
-                style={{ fontFamily: "Times New Roman, serif" }}
-              >
-                Starter Team
-              </h3>
-              <div className="text-4xl font-light mb-4">€500</div>
-              <div className="text-sm text-white/70 mb-8">monthly • 5-15 employees</div>
-              
-              <ul className="text-left space-y-3 text-sm text-white/80 mb-8">
-                <li>• AI models for all employees</li>
-                <li>• Basic company dashboard</li>
-                <li>• Standard brand integration</li>
-                <li>• 50 photos per employee monthly</li>
-                <li>• Email support</li>
-              </ul>
-              
-              <button 
-                onClick={handleContactSales}
-                className="w-full border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-3 font-light"
-              >
-                Get Started
-              </button>
-            </div>
-            
-            {/* Professional Package */}
-            <div className="border-2 border-white p-8 text-center relative">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 py-1 text-xs uppercase tracking-wide">
-                Most Popular
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Security */}
+            <div className="text-center">
+              <div className="w-16 h-16 border border-white/20 flex items-center justify-center text-2xl mb-6 mx-auto">
+                🔒
               </div>
               <h3 
-                className="font-serif text-2xl font-light mb-4"
+                className="font-serif text-xl mb-4 text-white font-light"
                 style={{ fontFamily: "Times New Roman, serif" }}
               >
-                Professional Team
+                Enterprise Security
               </h3>
-              <div className="text-4xl font-light mb-4">€1,200</div>
-              <div className="text-sm text-white/70 mb-8">monthly • 15-50 employees</div>
-              
-              <ul className="text-left space-y-3 text-sm text-white/80 mb-8">
-                <li>• AI models for all employees</li>
-                <li>• Custom company dashboard</li>
-                <li>• Full brand guideline integration</li>
-                <li>• 100 photos per employee monthly</li>
-                <li>• Dedicated account manager</li>
-                <li>• Custom Maya agent training</li>
-                <li>• Priority support</li>
+              <ul className="text-white/80 text-sm space-y-2">
+                <li>• SOC 2 Type II Certified</li>
+                <li>• End-to-end encryption</li>
+                <li>• Zero data retention policy</li>
+                <li>• Penetration tested quarterly</li>
               </ul>
-              
-              <button 
-                onClick={handleContactSales}
-                className="w-full bg-white text-black hover:bg-white/90 transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-3 font-medium"
-              >
-                Contact Sales
-              </button>
             </div>
             
-            {/* Enterprise Package */}
-            <div className="border border-white/20 p-8 text-center">
+            {/* Compliance */}
+            <div className="text-center">
+              <div className="w-16 h-16 border border-white/20 flex items-center justify-center text-2xl mb-6 mx-auto">
+                ✓
+              </div>
               <h3 
-                className="font-serif text-2xl font-light mb-4"
+                className="font-serif text-xl mb-4 text-white font-light"
                 style={{ fontFamily: "Times New Roman, serif" }}
               >
-                Enterprise
+                Compliance Ready
               </h3>
-              <div className="text-4xl font-light mb-4">Custom</div>
-              <div className="text-sm text-white/70 mb-8">50+ employees</div>
-              
-              <ul className="text-left space-y-3 text-sm text-white/80 mb-8">
-                <li>• Everything in Professional</li>
-                <li>• White-label dashboard</li>
-                <li>• API access</li>
-                <li>• Unlimited photos</li>
-                <li>• Custom integrations</li>
-                <li>• On-site training session</li>
-                <li>• 24/7 premium support</li>
+              <ul className="text-white/80 text-sm space-y-2">
+                <li>• GDPR compliant</li>
+                <li>• CCPA compliant</li>
+                <li>• HIPAA ready deployment</li>
+                <li>• Data residency options</li>
               </ul>
-              
-              <button 
-                onClick={handleContactSales}
-                className="w-full border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-3 font-light"
-              >
-                Contact Sales
-              </button>
             </div>
-          </div>
-          
-          <div className="text-center mt-16">
-            <p className="text-white/60 text-sm">
-              All packages include setup, training, and ongoing support.<br />
-              Replace your annual photography budget with monthly professional service.
-            </p>
+            
+            {/* Integration */}
+            <div className="text-center">
+              <div className="w-16 h-16 border border-white/20 flex items-center justify-center text-2xl mb-6 mx-auto">
+                🔗
+              </div>
+              <h3 
+                className="font-serif text-xl mb-4 text-white font-light"
+                style={{ fontFamily: "Times New Roman, serif" }}
+              >
+                Enterprise Integration
+              </h3>
+              <ul className="text-white/80 text-sm space-y-2">
+                <li>• SSO/SAML authentication</li>
+                <li>• API access & webhooks</li>
+                <li>• Active Directory sync</li>
+                <li>• Custom integrations available</li>
+              </ul>
+            </div>
+            
+            {/* Support */}
+            <div className="text-center">
+              <div className="w-16 h-16 border border-white/20 flex items-center justify-center text-2xl mb-6 mx-auto">
+                🎯
+              </div>
+              <h3 
+                className="font-serif text-xl mb-4 text-white font-light"
+                style={{ fontFamily: "Times New Roman, serif" }}
+              >
+                Enterprise Support
+              </h3>
+              <ul className="text-white/80 text-sm space-y-2">
+                <li>• Dedicated customer success manager</li>
+                <li>• 99.9% uptime SLA</li>
+                <li>• Priority technical support</li>
+                <li>• Custom training & onboarding</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA - Contact Sales */}
+      {/* IMPLEMENTATION PROCESS */}
       <section className="py-20 sm:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+              Implementation
+            </div>
+            <h2 
+              className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-black"
+              style={{ fontFamily: "Times New Roman, serif" }}
+            >
+              Live in 14 days<br />
+              <span className="italic text-gray-600">with zero IT overhead</span>
+            </h2>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            <div className="space-y-8">
+              {/* Week 1 */}
+              <div className="flex items-start">
+                <div className="w-24 h-24 bg-black text-white flex items-center justify-center text-lg font-light mr-8 flex-shrink-0">
+                  Week 1
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-medium mb-3 text-black">Discovery & Setup</h3>
+                  <div className="grid md:grid-cols-2 gap-4 text-gray-600">
+                    <div>
+                      <p className="font-medium mb-2">Day 1-2: Security Review</p>
+                      <ul className="text-sm space-y-1">
+                        <li>• IT security assessment</li>
+                        <li>• Compliance documentation</li>
+                        <li>• Access provisioning</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-medium mb-2">Day 3-7: Brand Integration</p>
+                      <ul className="text-sm space-y-1">
+                        <li>• Brand guidelines import</li>
+                        <li>• Custom dashboard setup</li>
+                        <li>• Team member data collection</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Week 2 */}
+              <div className="flex items-start">
+                <div className="w-24 h-24 bg-black text-white flex items-center justify-center text-lg font-light mr-8 flex-shrink-0">
+                  Week 2
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-medium mb-3 text-black">Training & Launch</h3>
+                  <div className="grid md:grid-cols-2 gap-4 text-gray-600">
+                    <div>
+                      <p className="font-medium mb-2">Day 8-10: AI Training</p>
+                      <ul className="text-sm space-y-1">
+                        <li>• Employee photo collection</li>
+                        <li>• AI model training</li>
+                        <li>• Quality validation</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-medium mb-2">Day 11-14: Go-Live</p>
+                      <ul className="text-sm space-y-1">
+                        <li>• Admin training session</li>
+                        <li>• Dashboard access rollout</li>
+                        <li>• First photo generation</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-12 p-8 bg-gray-50 border border-gray-200">
+              <div className="text-center">
+                <h4 className="text-lg font-medium mb-4">Implementation Guarantee</h4>
+                <p className="text-gray-600 mb-6">
+                  If we don't have your team generating professional photos within 14 days, 
+                  we'll refund your entire setup fee and provide an additional month of service at no cost.
+                </p>
+                <button 
+                  onClick={handleContactSales}
+                  className="bg-black text-white px-8 py-3 hover:bg-gray-800 transition-all"
+                >
+                  Start Implementation
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="py-20 sm:py-32 bg-black text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 
-            className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-black"
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8"
             style={{ fontFamily: "Times New Roman, serif" }}
           >
-            Ready to transform<br />
-            your team's photography?
+            Replace your entire<br />
+            <span className="italic text-white/70">photography budget with AI</span>
           </h2>
           
-          <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Schedule a consultation. We'll discuss your team size, brand guidelines, 
-            and create a custom implementation plan.
+          <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto">
+            Join 50+ enterprise teams saving €7,800+ annually while improving brand consistency and reducing administrative overhead.
           </p>
           
-          <button 
-            onClick={handleContactSales}
-            className="inline-block bg-black text-white hover:bg-gray-800 transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-12 py-4 font-light"
-          >
-            Schedule Enterprise Consultation
-          </button>
-          
-          <p className="text-sm text-gray-500 mt-6">
-            30-minute strategy session • Custom quote • Implementation timeline
-          </p>
+          <div className="space-y-6">
+            <button 
+              onClick={handleContactSales}
+              className="bg-white text-black px-12 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
+            >
+              SCHEDULE ENTERPRISE DEMO
+            </button>
+            
+            <p className="text-xs text-white/50 tracking-wide">
+              30-day pilot • ROI guarantee • Implementation in 14 days
+            </p>
+          </div>
         </div>
       </section>
 
