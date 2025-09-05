@@ -107,6 +107,7 @@ async function handleBlockActions(payload: any) {
   const userId = payload.user.id;
   
   console.log(`🔘 SLACK ACTION: ${action.action_id} by ${payload.user.name}`);
+  console.log(`🔍 DEBUG - Action details:`, JSON.stringify(action, null, 2));
 
   switch (action.action_id) {
     case 'chat_with_agent':
@@ -153,6 +154,7 @@ async function startSlackAgentChat(payload: any, agentName: string) {
 
   try {
     console.log(`🎯 STARTING SLACK CHAT: ${agentName} with ${payload.user.name}`);
+    console.log(`🔍 DEBUG - Channel ID: ${channelId}`);
     
     // Get real SSELFIE Studio metrics for context
     const metrics = await getRealLaunchMetrics();
