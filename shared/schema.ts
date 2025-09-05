@@ -59,6 +59,10 @@ export const users = pgTable("users", {
   generationsUsedThisMonth: integer("generations_used_this_month").default(0),
   mayaAiAccess: boolean("maya_ai_access").default(true), // Available on both tiers
   victoriaAiAccess: boolean("victoria_ai_access").default(false), // Only for full-access tier
+  // 🔄 PHASE 3: Retraining access tracking
+  hasRetrainingAccess: boolean("has_retraining_access").default(false),
+  retrainingSessionId: varchar("retraining_session_id"),
+  retrainingPaidAt: timestamp("retraining_paid_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

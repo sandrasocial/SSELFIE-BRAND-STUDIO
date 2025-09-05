@@ -105,9 +105,9 @@ function SimpleTraining() {
       return; // Don't proceed with normal training flow
     }
 
-    // NEW: Check if user has paid plan but no model - enable retraining
+    // 🔄 PHASE 1: USER TYPE DETECTION - New users vs. trained users
     if (userModel?.canRetrain && userModel?.needsTraining && !userModel?.id) {
-      console.log('📚 PAID USER WITH NO MODEL: Enabling new training flow');
+      console.log('🔄 PHASE 1: NEW USER DETECTED - Enabling normal training flow');
       setIsRetrainingMode(false); // Use normal training flow for new users
     }
     
@@ -120,20 +120,20 @@ function SimpleTraining() {
       }
     } else if (userModel && userModel.trainingStatus === 'completed') {
       console.log('✅ Found completed training on page load');
-      // Only redirect if user is actually on the training page
+      // 🔄 PHASE 1: NEW RETRAINING LOGIC - Route to retraining instead of workspace
       const currentPath = window.location.pathname;
       const isOnTrainingPage = currentPath.includes('simple-training') || currentPath.includes('ai-training');
       
       if (isOnTrainingPage) {
-        console.log('✅ User on training page - redirecting to workspace');
+        console.log('🔄 PHASE 1: User with completed training - routing to retraining checkout');
         toast({
-          title: "Training Already Complete!",
-          description: "Your AI model is ready. Redirecting to workspace...",
+          title: "Model Already Trained!",
+          description: "Want to retrain your AI model? $10 retraining fee applies. Redirecting...",
         });
         
         setTimeout(() => {
-          window.location.href = '/workspace';
-        }, 2000);
+          window.location.href = '/retrain-checkout';
+        }, 3000); // Slightly longer to read the message
       } else {
         console.log('✅ Training complete but user on different page - no redirect needed');
       }
@@ -170,12 +170,12 @@ function SimpleTraining() {
           setTrainingProgress(100);
           clearInterval(interval); // CRITICAL: Stop polling immediately
           
-          // ONLY redirect if still on training page - don't interrupt Maya
+          // 🔄 PHASE 1: TRAINING COMPLETION - Route to workspace for newly trained users
           const stillOnTrainingPage = window.location.pathname.includes('simple-training') || window.location.pathname.includes('ai-training');
           if (stillOnTrainingPage) {
             toast({
               title: "Training Complete!",
-              description: "Your AI model is ready. Redirecting to workspace...",
+              description: "Your AI model is ready! Redirecting to workspace...",
             });
             
             setTimeout(() => {
