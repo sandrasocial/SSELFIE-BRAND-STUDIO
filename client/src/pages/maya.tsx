@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../hooks/use-auth';
 import { useMayaGeneration } from '../hooks/useMayaGeneration';
+import { useMayaPersistence } from '../hooks/useMayaPersistence';
 import { useToast } from '../hooks/use-toast';
 import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
@@ -42,15 +43,27 @@ export default function Maya() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
-  // Initialize Maya generation hook (standalone mode - no chat persistence needed)
-  const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsLoading, toast);
+  // PHASE 2.1: Enhanced persistence system
+  const {
+    messages,
+    setMessages,
+    addMessage,
+    updateMessage,
+    updateConceptCard,
+    clearConversation,
+    getConversationStats,
+    isLoading: isPersistenceLoading,
+    sessionId
+  } = useMayaPersistence(user?.id);
+  
+  // Initialize Maya generation hook with persistent messages
+  const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
   
   // Close sidebar when clicking outside on mobile
   const closeSidebar = () => setIsSidebarOpen(false);
@@ -115,17 +128,19 @@ export default function Maya() {
     return 'Lifestyle';
   };
 
-  // Load Maya conversation history
+  // PHASE 2.1: Enhanced loading with database sync (Phase 2.2 pending)
   const { data: conversationData } = useQuery({
     queryKey: ['/api/maya/conversation'],
-    enabled: true
+    enabled: !!user?.id && !isPersistenceLoading
   });
 
+  // PHASE 2.1: Sync database conversation with localStorage (Phase 2.2 will enhance this)
   useEffect(() => {
-    if (conversationData && (conversationData as any).messages) {
-      setMessages((conversationData as any).messages);
+    if (conversationData && (conversationData as any).messages && messages.length === 0) {
+      console.log('🔄 PHASE 2.1: Syncing database conversation with persistent storage');
+      setMessages(() => (conversationData as any).messages.slice(-20)); // Keep last 20
     }
-  }, [conversationData]);
+  }, [conversationData, messages.length, setMessages]);
 
   // Auto-scroll removed - let users control their own scrolling position
 
@@ -139,7 +154,21 @@ export default function Maya() {
     }
   };
 
-  // Send message to Maya
+  // PHASE 3: New Session Management
+  const handleNewSession = () => {
+    const stats = getConversationStats();
+    if (stats.totalMessages > 0) {
+      if (confirm(`Start a new styling session? This will clear your current conversation (${stats.totalMessages} messages, ${stats.conceptCards} concept cards, ${stats.images} images) but Maya will remember your style preferences.`)) {
+        clearConversation();
+        toast({ title: "New Session Started", description: "Fresh conversation started! Maya still remembers your style preferences." });
+      }
+    } else {
+      clearConversation();
+      toast({ title: "New Session", description: "Ready for a fresh styling conversation!" });
+    }
+  };
+
+  // Send message to Maya with enhanced persistence
   const sendMessage = useMutation({
     mutationFn: async (messageContent: string) => {
       const response = await fetch('/api/maya/chat', {
@@ -155,36 +184,33 @@ export default function Maya() {
       return response.json();
     },
     onSuccess: (data) => {
-      // Add Maya's response
-      const mayaMessage: ChatMessage = {
-        id: Date.now().toString(),
+      // PHASE 2.1: Add Maya's response with enhanced persistence
+      addMessage({
         type: 'maya',
-        content: data.response || '',
+        content: data.response || data.content || data.message || '',
         timestamp: new Date().toISOString(),
-        conceptCards: data.conceptCards || []
-      };
-
-      setMessages(prev => [...prev, mayaMessage]);
-      setIsLoading(false);
+        conceptCards: data.conceptCards || [],
+        quickButtons: data.quickButtons || []
+      });
+      setIsTyping(false);
     },
     onError: () => {
-      setIsLoading(false);
+      setIsTyping(false);
+      toast({ title: "Connection Error", description: "Failed to send message. Please try again." });
     }
   });
 
   const handleSendMessage = () => {
-    if (!message.trim() || isLoading) return;
+    if (!message.trim() || isTyping) return;
 
-    // Add user message immediately
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
+    // PHASE 2.1: Add user message with enhanced persistence
+    addMessage({
       type: 'user', 
       content: message.trim(),
       timestamp: new Date().toISOString()
-    };
+    });
 
-    setMessages(prev => [...prev, userMessage]);
-    setIsLoading(true);
+    setIsTyping(true);
     
     // Send to Maya
     sendMessage.mutate(message.trim());
@@ -231,13 +257,22 @@ export default function Maya() {
             Menu
           </button>
 
-          {/* Back to Workspace Button */}
-          <button
-            onClick={() => setLocation('/workspace')}
-            className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
-          >
-            Back
-          </button>
+          {/* PHASE 3: New Session + Back Buttons */}
+          <div className="flex gap-4">
+            <button
+              onClick={handleNewSession}
+              className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
+              title="Start a fresh conversation (remembers your style preferences)"
+            >
+              New Session
+            </button>
+            <button
+              onClick={() => setLocation('/workspace')}
+              className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
+            >
+              Back
+            </button>
+          </div>
         </div>
 
         {/* Hero Content - Compact */}
@@ -558,7 +593,7 @@ export default function Maya() {
             ))}
 
             {/* Maya Typing Indicator - Editorial Style */}
-            {isLoading && (
+            {isTyping && (
               <div className="animate-fadeIn">
                 <div className="eyebrow text-gray-500 mb-6">
                   Maya • Crafting your concepts
@@ -595,7 +630,7 @@ export default function Maya() {
                       placeholder="Share your vision for the next photo session..."
                       className="w-full border-0 resize-none bg-transparent text-lg font-light leading-relaxed placeholder-gray-400 focus:outline-none"
                       rows={3}
-                      disabled={isLoading}
+                      disabled={isTyping}
                     />
                     
                     {/* Integrated Send Area */}
@@ -605,12 +640,12 @@ export default function Maya() {
                       </div>
                       <button
                         onClick={handleSendMessage}
-                        disabled={!message.trim() || isLoading}
+                        disabled={!message.trim() || isTyping}
                         className="editorial-card group bg-black text-white hover:bg-gray-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <div className="card-content px-8 py-3 relative">
                           <div className="text-xs font-normal uppercase tracking-[0.3em] group-hover:text-white transition-colors duration-300">
-                            {isLoading ? 'Creating...' : 'Send to Maya'}
+                            {isTyping ? 'Creating...' : 'Send to Maya'}
                           </div>
                         </div>
                       </button>
