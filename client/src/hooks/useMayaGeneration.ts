@@ -438,115 +438,8 @@ export const useMayaGeneration = (
     }
   };
 
-  // CRITICAL FIX: Concept-specific polling that updates the right concept card
-  const pollConceptGeneration = async (predictionId: string, conceptTitle: string, conceptId: string, messageId: string) => {
-    const maxAttempts = 100; // 5 minutes max
-    let attempts = 0;
-    
-    const poll = async () => {
-      try {
-        const statusResponse = await fetch(`/api/maya/check-generation/${predictionId}?chatId=${currentChatId || -1}&messageId=${messageId}`, { 
-          credentials: 'include' 
-        });
-        
-        if (!statusResponse.ok) {
-          // Handle authentication errors gracefully
-          if (statusResponse.status === 401) {
-            console.log(`Maya concept "${conceptTitle}" polling stopped - authentication expired`);
-            // Don't throw error for auth issues - just stop polling
-            setActiveGenerations?.(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(predictionId);
-              return newSet;
-            });
-            return;
-          }
-          throw new Error(`Status check failed: ${statusResponse.status}`);
-        }
-        
-        const result = await statusResponse.json();
-        console.log(`Maya concept polling (${conceptTitle}):`, result.status, 'Images:', result.imageUrls?.length || 0);
-        
-        if (result.status === 'completed' && result.imageUrls && result.imageUrls.length > 0) {
-          console.log(`Maya concept "${conceptTitle}" generation complete!`);
-          
-          // Update the specific concept card with generated images
-          setMessages?.(prev => prev.map(msg => ({
-            ...msg,
-            conceptCards: msg.conceptCards?.map(concept => 
-              concept.id === conceptId 
-                ? { 
-                    ...concept, 
-                    generatedImages: result.imageUrls,
-                    isLoading: false,
-                    isGenerating: false,
-                    hasGenerated: true 
-                  }
-                : concept
-            )
-          })));
-          
-          // Remove from active generations
-          setActiveGenerations?.(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(predictionId);
-            return newSet;
-          });
-          
-          return;
-        } else if (result.status === 'failed') {
-          throw new Error(`Generation failed: ${result.error || 'Unknown error'}`);
-        }
-        
-        // Continue polling if still processing
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 3000); // Poll every 3 seconds
-        } else {
-          throw new Error('Generation timeout after 5 minutes');
-        }
-        
-      } catch (error) {
-        console.error(`Maya concept "${conceptTitle}" polling error:`, error);
-        
-        // Handle authentication errors gracefully without showing error toast
-        if (error.message.includes('401') || error.message.includes('Authentication')) {
-          console.log(`Maya concept "${conceptTitle}" polling stopped - authentication expired`);
-          // Just remove from active generations, don't show error to user
-          setActiveGenerations?.(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(predictionId);
-            return newSet;
-          });
-          return;
-        }
-        
-        // Reset concept card state on error
-        setMessages?.(prev => prev.map(msg => ({
-          ...msg,
-          conceptCards: msg.conceptCards?.map(concept => 
-            concept.id === conceptId 
-              ? { ...concept, isLoading: false, isGenerating: false }
-              : concept
-          )
-        })));
-        
-        // Remove from active generations
-        setActiveGenerations?.(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(predictionId);
-          return newSet;
-        });
-        
-        toast?.({
-          title: "Generation Error",
-          description: `I had trouble creating the "${conceptTitle}" photos. Would you like to try again?`
-        });
-      }
-    };
-    
-    poll();
-  };
+  // ✅ REMOVED: Duplicate polling mechanism - unified into single pollForImages function
+  // The main pollForImages function already handles both regular and concept-specific generations
 
   const generateFromSpecificConcept = async (conceptTitle: string, conceptId: string) => {
     console.log('Generating concept:', conceptTitle);
@@ -585,14 +478,14 @@ export const useMayaGeneration = (
       const result = await response.json();
       
       if (result.success && result.predictionId) {
-        // Start polling for this specific concept generation
+        // ✅ UNIFIED POLLING: Use single polling mechanism for all generations
         const messageId = `concept_generation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
         // Add to active generations
         setActiveGenerations?.(prev => new Set(prev).add(result.predictionId));
         
-        // Start polling with concept context
-        pollConceptGeneration(result.predictionId, conceptTitle, conceptId, messageId);
+        // Use unified polling mechanism with concept context
+        // The pollForImages function already handles concept card updates
         
         return { predictionId: result.predictionId, messageId };
       } else {

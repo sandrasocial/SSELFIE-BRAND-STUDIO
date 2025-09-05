@@ -407,11 +407,8 @@ export class ModelTrainingService {
       
       // ✅ MAYA PURE INTELLIGENCE: Trust Maya's complete parameter selection
       // Maya's AI handles shot type detection, aspect ratio, and all FLUX parameters
-      const fluxParams = {
-        guidance_scale: 3.5,  // Maya's default - will be overridden by her intelligence
-        num_inference_steps: 50, // Maya's default - will be overridden by her intelligence  
-      };
-      const aspectRatio = "4:5"; // Maya's default - will be overridden by her intelligence
+      const fluxParams = MAYA_PERSONALITY.getFluxOptimization('auto-detect');
+      const aspectRatio = fluxParams.aspect_ratio || "4:5";
 
       console.log(`🎯 MAYA PURE INTELLIGENCE: Using Maya's embedded parameter intelligence`);
       
