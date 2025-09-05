@@ -204,37 +204,28 @@ export default function TeamsLanding() {
         <div className="relative z-10 text-center max-w-5xl px-4 sm:px-6 lg:px-8">
           
           <h1 
-            className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light mb-6 tracking-[-0.02em] leading-none"
+            className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light mb-12 tracking-[-0.02em] leading-none"
             style={{ fontFamily: "Times New Roman, serif" }}
           >
-            Professional Team Photos<br />
-            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-[0.3em] text-white/80 font-light">
-              FROM PHONE SELFIES
+            Team Photos<br />
+            <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-[0.3em] text-white/80 font-light">
+              FROM YOUR SELFIES
             </span>
           </h1>
           
-          <div className="w-16 h-px bg-white/30 mx-auto mb-8"></div>
+          <div className="w-16 h-px bg-white/30 mx-auto mb-12"></div>
           
-          <p className="text-lg sm:text-xl md:text-2xl font-light mb-8 max-w-3xl mx-auto leading-relaxed">
-            Stop coordinating expensive photoshoots.<br />
-            Get consistent brand photos for your entire team monthly.
+          <p className="text-lg font-light mb-16 max-w-2xl mx-auto">
+            Stop coordinating photoshoots.<br />
+            Consistent professional photos for your entire team.
           </p>
-          
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 mb-12 max-w-2xl mx-auto">
-            <p className="text-base text-white/90 mb-2">Professional team photos vs coordinating photographers</p>
-            <p className="text-sm text-white/70">Used by growing companies who got tired of the photoshoot circus</p>
-          </div>
           
           <button 
             onClick={handleContactSales}
-            className="bg-white text-black px-12 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium mb-6"
+            className="bg-white text-black px-12 py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
           >
-            GET TEAM PRICING
+            Contact Sales
           </button>
-          
-          <p className="text-xs text-white/50 mt-6 tracking-wide">
-            Custom setup for teams • Implementation in 2 weeks
-          </p>
         </div>
       </section>
 
