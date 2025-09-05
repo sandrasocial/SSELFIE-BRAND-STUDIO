@@ -354,38 +354,48 @@ export default function BusinessLanding() {
             {/* Content */}
             <div>
               <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
-                The Creator
+                Who built this
               </div>
               
               <h3 
                 className="font-serif text-3xl sm:text-4xl font-light mb-8 text-black"
                 style={{ fontFamily: "Times New Roman, serif" }}
               >
-                Started with €12 and a broken camera
+                I had €12 and three kids<br />
+                when I started
               </h3>
               
               <div className="grid grid-cols-2 gap-8 mb-8">
                 <div>
-                  <p className="text-3xl font-light text-black">120,000+</p>
-                  <p className="text-gray-600 text-sm">Built using phone selfies and this exact system</p>
+                  <p className="text-3xl font-light text-black">120K</p>
+                  <p className="text-gray-600 text-sm">Followers built with this exact method</p>
                 </div>
                 
                 <div>
-                  <p className="text-3xl font-light text-black">€500 → €47</p>
-                  <p className="text-gray-600 text-sm">What photoshoots cost vs what you actually need</p>
+                  <p className="text-3xl font-light text-black">€12 → Business</p>
+                  <p className="text-gray-600 text-sm">Started with almost nothing</p>
                 </div>
               </div>
               
-              <blockquote 
-                className="text-xl italic text-black mb-8 border-l-2 border-gray-300 pl-6"
-                style={{ fontFamily: "Times New Roman, serif" }}
-              >
-                "Two hours trying to get one decent photo for my business. There had to be a better way."
-              </blockquote>
+              <div className="space-y-6 text-gray-700 leading-relaxed">
+                <p>
+                  Marriage ended. Single mom. Zero business plan. But I had a phone 
+                  and I knew I needed professional photos to build anything online.
+                </p>
+                
+                <p>
+                  I couldn't afford €500 photoshoots, so I figured out how to make 
+                  my phone selfies work. Built everything from my kitchen table using this exact system.
+                </p>
+                
+                <p className="font-medium text-black">
+                  Now I'm showing you how to do the same thing.
+                </p>
+              </div>
               
-              <div className="bg-white p-6 border-l-4 border-black">
-                <p className="text-gray-700 leading-relaxed">
-                  <span className="font-medium">Single mom, three kids, kitchen table office.</span> Scrolling through camera roll like "what can I actually post?" Built this because professional photos shouldn't require a professional photographer. Your mess is your message.
+              <div className="mt-8 p-6 bg-gray-50 border-l-4 border-black">
+                <p className="text-black italic" style={{ fontFamily: "Times New Roman, serif" }}>
+                  "Your mess is your message. Your phone has everything you need."
                 </p>
               </div>
             </div>
