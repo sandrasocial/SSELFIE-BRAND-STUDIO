@@ -59,7 +59,6 @@ export class TrainingCompletionMonitor {
           console.log(`✅ Training output available for packaged model`);
         } else {
           console.log(`⚠️ No training output - may need additional processing`);
-          }
         }
         
         // CRITICAL: Extract and store the trigger word from existing model data
@@ -101,9 +100,7 @@ export class TrainingCompletionMonitor {
 
         console.log(`🎉 Database updated! User ${userId} training completed`);
         return true;
-      }
-
-      if (trainingData.status === 'failed') {
+      } else if (trainingData.status === 'failed') {
         console.log(`❌ Training failed for user ${userId}`);
         
         await storage.updateUserModel(userId, {
@@ -112,11 +109,11 @@ export class TrainingCompletionMonitor {
         });
         
         return false;
+      } else {
+        // Training still in progress
+        return false;
       }
 
-      // Training still in progress
-      return false;
-      
     } catch (error) {
       console.error(`❌ Error checking training ${replicateModelId}:`, error);
       return false;
