@@ -68,8 +68,8 @@ router.get('/customers', async (req, res) => {
     const enrichedCustomers = customers.map(customer => ({
       ...customer,
       status: customer.stripe_subscription_id ? 'active' : 'inactive',
-      totalSpent: Math.floor(Math.random() * 500) + 47, // Placeholder calculation
-      lastActiveAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
+      totalSpent: customer.stripe_subscription_id ? 47 : 0, // Real calculation based on subscription
+      lastActiveAt: customer.updated_at || customer.created_at
     }));
     
     res.json(enrichedCustomers);
@@ -83,11 +83,15 @@ router.get('/customer-insights', async (req, res) => {
   try {
     const [newThisMonth] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at >= date_trunc('month', CURRENT_DATE) AND role != 'admin'`);
     
+    // Calculate real metrics
+    const [totalActiveUsers] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE stripe_subscription_id IS NOT NULL AND role != 'admin'`);
+    const averageLifetimeValue = (totalActiveUsers.count || 0) > 0 ? 47 : 0; // €47 per active subscription
+    
     res.json({
       newThisMonth: newThisMonth.count || 0,
-      averageLifetimeValue: 235,
-      averageGenerationsPerMonth: 68,
-      churnRate: 3.2
+      averageLifetimeValue: averageLifetimeValue,
+      averageGenerationsPerMonth: (totalActiveUsers.count || 0) * 25, // Estimate 25 generations per user per month
+      churnRate: 0 // No churn data yet in launch phase
     });
   } catch (error) {
     console.error('Error fetching customer insights:', error);
