@@ -240,11 +240,24 @@ export function AgentInsightsDashboard() {
                       Mark Read
                     </Button>
                   )}
-                  <Link href={`/admin-consulting-agents?agent=${insight.agentName}`}>
-                    <Button size="sm">
-                      Chat with {insight.agentName.charAt(0).toUpperCase() + insight.agentName.slice(1)}
-                    </Button>
-                  </Link>
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      // Open Slack for agent conversation about this insight
+                      window.open('https://app.slack.com/client/', '_blank');
+                      fetch('/api/slack/start-agent-chat', { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                          agent: insight.agentName, 
+                          insightId: insight.id,
+                          type: 'insight_discussion' 
+                        }) 
+                      });
+                    }}
+                  >
+                    💬 Chat on Slack
+                  </Button>
                 </div>
               </div>
 

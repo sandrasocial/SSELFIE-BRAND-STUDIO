@@ -112,6 +112,10 @@ const AGENT_SPECIALIZATIONS = {
 export class AgentInsightEngine {
   private static triggers: AgentInsightTrigger[] = [];
   private static isInitialized = false;
+  
+  // Track last sent insights to prevent spam
+  private static lastSentInsights: Map<string, Date> = new Map();
+  private static readonly COOLDOWN_HOURS = 6; // 6 hour cooldown between same insights
 
   static initialize() {
     if (this.isInitialized) return;
@@ -309,10 +313,24 @@ export class AgentInsightEngine {
     return triggeredInsights;
   }
 
-  // Send insights via Slack and store in dashboard
+  // Send insights via Slack and store in dashboard (with spam prevention)
   static async sendInsights(insights: AgentInsight[]): Promise<void> {
     for (const insight of insights) {
       try {
+        // Create unique key for this insight type to prevent duplicates
+        const insightKey = `${insight.agentName}-${insight.insightType}-${insight.title}`;
+        const lastSent = this.lastSentInsights.get(insightKey);
+        const now = new Date();
+        
+        // Check if this insight was sent recently (within cooldown period)
+        if (lastSent) {
+          const hoursSinceLastSent = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60);
+          if (hoursSinceLastSent < this.COOLDOWN_HOURS) {
+            console.log(`🔇 SKIPPING: ${insight.agentName} - ${insight.title} (sent ${hoursSinceLastSent.toFixed(1)}h ago)`);
+            continue; // Skip this insight - too recent
+          }
+        }
+        
         // Store insight in dashboard
         await this.storeInsightInDashboard(insight);
         
@@ -333,6 +351,9 @@ export class AgentInsightEngine {
             insight.message,
             insight.priority
           );
+          
+          // Track that we sent this insight
+          this.lastSentInsights.set(insightKey, now);
           console.log(`✅ INSIGHT SENT: ${insight.agentName} - ${insight.title}`);
         } else {
           console.log(`🔕 INSIGHT STORED ONLY: ${insight.agentName} - ${insight.title} (notification preferences)`);

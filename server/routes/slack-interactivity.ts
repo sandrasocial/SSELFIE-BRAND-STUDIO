@@ -31,6 +31,69 @@ function verifySlackRequest(body: string, timestamp: string, signature: string):
   return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(computedHash, 'hex'));
 }
 
+// Handle agent chat initiation from frontend
+router.post('/start-agent-chat', async (req, res) => {
+  try {
+    const { agent, action, type, insightId } = req.body;
+    
+    if (!agent) {
+      return res.status(400).json({ error: 'Agent name required' });
+    }
+
+    let message = '';
+    const agentEmoji = {
+      elena: '👑', aria: '🎨', zara: '⚡', maya: '✨', victoria: '📊',
+      rachel: '✍️', ava: '🤖', quinn: '🔍', sophia: '📱', martha: '📈'
+    }[agent] || '🤖';
+
+    // Create contextual message based on type
+    switch (type) {
+      case 'direct_chat':
+        message = `💬 **Direct Chat Initiated with ${agent.charAt(0).toUpperCase() + agent.slice(1)}** ${agentEmoji}\n\nSandra has requested to chat directly. Ready to assist with strategic guidance and expertise.`;
+        break;
+      case 'action_request':
+        message = `🎯 **Action Request for ${agent.charAt(0).toUpperCase() + agent.slice(1)}** ${agentEmoji}\n\nSandra needs help with: **${action}**\n\nReady to provide expert guidance on this specific request.`;
+        break;
+      case 'insight_discussion':
+        message = `💡 **Insight Discussion with ${agent.charAt(0).toUpperCase() + agent.slice(1)}** ${agentEmoji}\n\nSandra wants to discuss insight #${insightId}\n\nReady to dive deeper into this strategic recommendation.`;
+        break;
+      default:
+        message = `💬 **Chat Initiated with ${agent.charAt(0).toUpperCase() + agent.slice(1)}** ${agentEmoji}\n\nSandra has started a conversation. Ready to assist!`;
+    }
+
+    // Send to Slack channel
+    if (slack && channelId) {
+      await slack.chat.postMessage({
+        channel: channelId,
+        text: message,
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: message
+            }
+          },
+          {
+            type: 'context',
+            elements: [
+              {
+                type: 'mrkdwn',
+                text: `💬 Waiting for Sandra's message to begin conversation...`
+              }
+            ]
+          }
+        ]
+      });
+    }
+
+    res.json({ success: true, message: 'Agent chat initiated in Slack' });
+  } catch (error) {
+    console.error('❌ Failed to start agent chat:', error);
+    res.status(500).json({ error: 'Failed to initiate agent chat' });
+  }
+});
+
 // Handle message events for conversational agents
 router.post('/events', async (req, res) => {
   try {
