@@ -1231,6 +1231,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const gmailAuthRouter = await import('./routes/gmail-auth');
   app.use('/api/auth/gmail', gmailAuthRouter.default);
   
+  // 📱 Instagram DM Management Routes
+  const instagramManagementRouter = await import('./routes/instagram-management');
+  app.use('/api/instagram-management', instagramManagementRouter.default);
+  
   // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
   app.use('/api/subscribers', subscriberImport.default);

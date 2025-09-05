@@ -111,6 +111,36 @@ export const processedEmails = pgTable("processed_emails", {
   index("idx_processed_emails_priority").on(table.priority),
 ]);
 
+// Instagram/ManyChat message management for Ava agent
+export const instagramMessages = pgTable("instagram_messages", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  platform: varchar("platform").notNull(), // 'instagram' or 'manychat'
+  externalId: varchar("external_id").notNull(), // Message ID from platform
+  fromUsername: varchar("from_username").notNull(),
+  fromId: varchar("from_id").notNull(),
+  message: text("message").notNull(),
+  messageType: varchar("message_type").notNull(), // 'text', 'image', 'video', 'story_reply'
+  receivedAt: timestamp("received_at").notNull(),
+  category: varchar("category").notNull(), // 'customer_inquiry', 'general', 'collaboration', 'spam', 'urgent'
+  priority: varchar("priority").notNull(), // 'high', 'medium', 'low'
+  sentiment: varchar("sentiment").notNull(), // 'positive', 'neutral', 'negative'
+  needsResponse: boolean("needs_response").default(false),
+  hasResponse: boolean("has_response").default(false),
+  isBusinessOpportunity: boolean("is_business_opportunity").default(false),
+  tags: jsonb("tags"), // Array of tags
+  aiSummary: text("ai_summary"),
+  suggestedResponse: text("suggested_response"),
+  isArchived: boolean("is_archived").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_instagram_messages_user").on(table.userId),
+  index("idx_instagram_messages_platform").on(table.platform),
+  index("idx_instagram_messages_category").on(table.category),
+  index("idx_instagram_messages_priority").on(table.priority),
+]);
+
 // Website schema for Victoria website builder
 export const websites = pgTable("websites", {
   id: serial("id").primaryKey(),
