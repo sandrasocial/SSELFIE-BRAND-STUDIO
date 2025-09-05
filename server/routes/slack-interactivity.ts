@@ -37,13 +37,25 @@ router.post('/interactivity', async (req, res) => {
     const timestamp = req.headers['x-slack-request-timestamp'] as string;
     const signature = req.headers['x-slack-signature'] as string;
     
+    // Get the raw body for signature verification
+    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    
     // Verify request is from Slack
-    if (!verifySlackRequest(req.body, timestamp, signature)) {
+    if (!verifySlackRequest(rawBody, timestamp, signature)) {
       console.warn('⚠️ SLACK: Invalid request signature');
       return res.status(401).send('Invalid signature');
     }
 
-    const payload = JSON.parse(req.body.payload);
+    // Parse the payload from either raw body or already parsed body
+    let payload;
+    if (typeof req.body === 'string') {
+      // Body is raw string, parse the payload parameter
+      const urlParams = new URLSearchParams(req.body);
+      payload = JSON.parse(urlParams.get('payload') || '{}');
+    } else {
+      // Body is already parsed, get payload directly
+      payload = req.body.payload ? JSON.parse(req.body.payload) : req.body;
+    }
     console.log('🔔 SLACK INTERACTION:', payload.type, payload.user?.name);
 
     // Handle different interaction types
