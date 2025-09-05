@@ -270,13 +270,13 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
           {messages.length === 0 ? (
             <div className="support-chat-welcome">
               <div className="support-welcome-content">
-                <h4>Welcome to Maya Support</h4>
-                <p>I'm here to help with your account, training, generations, and any technical questions.</p>
+                <h4>Need Help?</h4>
+                <p>Get answers about your account, training, photo generation, and technical issues.</p>
                 <button
                   onClick={handleStartConversation}
                   className="support-welcome-button"
                 >
-                  Get Help with Account
+                  Start Chat
                 </button>
               </div>
             </div>

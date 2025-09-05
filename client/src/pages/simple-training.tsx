@@ -186,8 +186,8 @@ function SimpleTraining() {
           const stillOnTrainingPage = window.location.pathname.includes('simple-training') || window.location.pathname.includes('ai-training');
           if (stillOnTrainingPage) {
             toast({
-              title: "Training Complete!",
-              description: "Your AI model is ready! Redirecting to workspace...",
+              title: "Model Ready",
+              description: "Your AI training is complete. Redirecting to workspace...",
             });
             
             setTimeout(() => {
@@ -252,8 +252,8 @@ function SimpleTraining() {
         setStartTime(new Date());
         setTrainingProgress(5); // Initial progress
         toast({
-          title: "Bulletproof Training Started!",
-          description: "Your AI model training has begun with full validation.",
+          title: "Training Started",
+          description: "Your AI model is now training. You'll get an email when it's ready.",
         });
       } else {
         // Handle validation errors from bulletproof service
@@ -472,7 +472,7 @@ function SimpleTraining() {
                 textTransform: 'uppercase',
                 marginBottom: '24px'
               }}>
-                YOUR AI IS LEARNING
+                TRAINING YOUR MODEL
               </h1>
               
               <p style={{
@@ -484,8 +484,8 @@ function SimpleTraining() {
                 opacity: 0.9,
                 padding: '0 20px'
               }}>
-                Your personal SSELFIE AI model is being created. This process takes approximately 20 minutes. 
-                You'll receive an email when it's ready.
+                Your personalized AI model is training. This takes about 20 minutes. 
+                You'll get an email when it's complete.
               </p>
               
               {/* LUXURY TRAINING ANIMATION */}
@@ -1084,8 +1084,8 @@ function SimpleTraining() {
               color: '#333333',
               padding: '0 20px'
             }}>
-              Your AI needs to learn your face to create photos that actually look like you. 
-              Ten selfies with good light is all it takes.
+              Upload 10 selfies so your AI can create photos that actually look like you. 
+              Good lighting and variety work best.
             </p>
 
             <div style={{
