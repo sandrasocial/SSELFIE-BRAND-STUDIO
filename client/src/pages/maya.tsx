@@ -573,9 +573,9 @@ export default function Maya() {
                                         {String(index + 1).padStart(2, '0')}
                                       </div>
                                       
-                                      <div className="relative z-10">
+                                      <div className="relative z-10 pr-8 sm:pr-16">
                                         <div className="flex items-start justify-between mb-6 sm:mb-8">
-                                          <div className="flex-1">
+                                          <div className="flex-1 mr-4 sm:mr-8">
                                             <h3 className="font-serif text-base sm:text-xl font-light uppercase tracking-[0.1em] text-black mb-4 sm:mb-6 leading-tight">
                                               {cleanDisplayTitle(card.title)}
                                             </h3>
