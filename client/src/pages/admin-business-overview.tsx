@@ -7,8 +7,8 @@ import { MoodboardSection } from '../components/MoodboardSection';
 import { SandraImages } from '../lib/sandra-images';
 
 export default function AdminBusinessOverview() {
-  // WILMA'S WORKFLOW STATE MANAGEMENT
-  const [activeView, setActiveView] = useState<'overview' | 'analytics' | 'tasks' | 'integrations'>('overview');
+  // EMPIRE COMMAND CENTER STATE MANAGEMENT
+  const [activeView, setActiveView] = useState<'empire' | 'teams' | 'analytics' | 'tasks' | 'integrations'>('empire');
   const [quickActions, setQuickActions] = useState({
     subscriberImport: false,
     revenueAlert: false,
@@ -24,16 +24,16 @@ export default function AdminBusinessOverview() {
 
   const { data: subscriberStats, isLoading: subscriberLoading } = useQuery({
     queryKey: ['/api/admin/subscriber-stats'],
-    enabled: activeView === 'analytics' || activeView === 'overview' // Load on demand
+    enabled: activeView === 'analytics' || activeView === 'empire' // Load on demand
   });
 
   const { data: recentActivity, isLoading: activityLoading } = useQuery({
     queryKey: ['/api/admin/recent-activity'],
-    enabled: activeView === 'overview'
+    enabled: activeView === 'empire'
   });
 
-  // WILMA'S SMART LOADING STATES
-  const isLoading = metricsLoading || (activeView === 'analytics' && subscriberLoading) || (activeView === 'overview' && activityLoading);
+  // EMPIRE COMMAND CENTER LOADING STATES
+  const isLoading = metricsLoading || (activeView === 'analytics' && subscriberLoading) || (activeView === 'empire' && activityLoading);
 
   // PRIORITY DATA HIERARCHY (Wilma's signature move!)
   const priorityMetrics = useMemo(() => [
@@ -71,6 +71,63 @@ export default function AdminBusinessOverview() {
     const activityBoost = quickActions.systemHealth === 'optimal' ? 5 : 0;
     return Math.min(100, baseScore + revenueBoost + subscriberBoost + activityBoost);
   }, [businessMetrics, quickActions]);
+
+  // Empire transformation tracking
+  const [empireMetrics, setEmpireMetrics] = useState({
+    revenue: { mrr: 47000, growth_rate: 15, ltv_cac_ratio: 3.2, arpu: 47 },
+    scale: { active_users: 1200, user_growth_rate: 25, retention_rate: 89, churn_rate: 11 },
+    market: { market_share: 2.5, brand_mentions: 156, competitive_position: "emerging_leader", thought_leadership_score: 78 },
+    operations: { agent_roi: {}, process_efficiency: 87, automation_coverage: 65, cost_optimization: 23 }
+  });
+
+  // Empire team organization
+  const empireTeams = {
+    REVENUE_INTELLIGENCE: {
+      lead: "elena",
+      members: ["ava", "martha"],
+      mission: "Scale SSELFIE revenue to €1M+/month", 
+      kpis: ["MRR growth", "LTV/CAC ratio", "conversion rates"],
+      currentMRR: 47000,
+      target: 1000000,
+      progress: 4.7
+    },
+    GROWTH_MACHINE: {
+      lead: "aria", 
+      members: ["rachel", "sophia"],
+      mission: "Build viral growth systems and brand dominance",
+      kpis: ["User acquisition", "viral coefficient", "brand mentions"],
+      currentUsers: 1200,
+      target: 200000,
+      progress: 0.6
+    },
+    TECHNICAL_SCALING: {
+      lead: "zara",
+      members: ["quinn", "diana"], 
+      mission: "Scale infrastructure for 1M+ users",
+      kpis: ["System performance", "uptime", "scaling efficiency"],
+      currentCapacity: 10000,
+      target: 1000000,
+      progress: 1
+    },
+    CUSTOMER_SUCCESS: {
+      lead: "victoria",
+      members: ["wilma", "olga"],
+      mission: "Maximize customer lifetime value and satisfaction", 
+      kpis: ["Retention rates", "NPS scores", "customer success metrics"],
+      currentRetention: 89,
+      target: 95,
+      progress: 93.7
+    },
+    AI_INNOVATION: {
+      lead: "maya",
+      members: ["flux"],
+      mission: "Create revolutionary AI features that dominate the market",
+      kpis: ["AI feature adoption", "generation quality", "user satisfaction"],
+      currentAdoption: 78,
+      target: 95,
+      progress: 82.1
+    }
+  };
 
   // Hero image from your authentic workspace gallery - using your actual generated AI images
   const heroImage = "https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/images/42585527/tracker_377_img_1_1753351608174.png";
@@ -197,21 +254,21 @@ export default function AdminBusinessOverview() {
         
         <div className="relative z-10 text-center max-w-5xl mx-auto px-8 flex flex-col justify-end min-h-screen pb-20">
           <div className="text-xs tracking-[0.4em] uppercase opacity-70 mb-8">
-            Workflow-Optimized Business Command Center
+            AI Agent Empire Command Center
           </div>
           
           <h1 className="font-serif text-[clamp(4rem,10vw,10rem)] leading-[0.8] font-light uppercase tracking-wide mb-8">
-            Business Overview
+            Empire Dashboard
           </h1>
           
           <p className="text-lg max-w-2xl mx-auto opacity-80 font-light leading-relaxed mb-8">
-            Streamlined revenue tracking, priority-based analytics, and intelligent workflow automation 
-            for maximum business efficiency.
+            Transform your 14 AI agents into revenue-generating business partners. Track empire growth, 
+            coordinate agent teams, and scale SSELFIE Studio to €1M+ monthly revenue.
           </p>
 
-          {/* WILMA'S SMART NAVIGATION TABS */}
+          {/* EMPIRE COMMAND CENTER NAVIGATION TABS */}
           <div className="flex justify-center gap-6 mt-12">
-            {['overview', 'analytics', 'tasks', 'integrations'].map((view) => (
+            {['empire', 'teams', 'analytics', 'tasks', 'integrations'].map((view) => (
               <button
                 key={view}
                 onClick={() => setActiveView(view as any)}
@@ -231,7 +288,166 @@ export default function AdminBusinessOverview() {
       {/* CONTENT SECTIONS */}
       <section className="py-20 bg-white text-black">
         <div className="max-w-6xl mx-auto px-8">
-          {activeView === 'overview' && (
+          {activeView === 'empire' && (
+            <>
+              {/* Empire Metrics Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-0 mb-20 border border-gray-200">
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2 text-emerald-600">
+                    €{empireMetrics.revenue.mrr.toLocaleString()}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    Monthly Revenue
+                  </div>
+                  <div className="text-xs text-emerald-600 mt-1">
+                    +{empireMetrics.revenue.growth_rate}% growth
+                  </div>
+                </div>
+                
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2 text-blue-600">
+                    {empireMetrics.scale.active_users.toLocaleString()}
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    Active Users
+                  </div>
+                  <div className="text-xs text-blue-600 mt-1">
+                    +{empireMetrics.scale.user_growth_rate}% monthly
+                  </div>
+                </div>
+                
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2 text-purple-600">
+                    {empireMetrics.scale.retention_rate}%
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    Retention Rate
+                  </div>
+                  <div className="text-xs text-purple-600 mt-1">
+                    {empireMetrics.market.competitive_position}
+                  </div>
+                </div>
+                
+                <div className="text-center p-8 border border-gray-200">
+                  <div className="font-serif text-4xl font-light mb-2 text-orange-600">
+                    {empireMetrics.operations.automation_coverage}%
+                  </div>
+                  <div className="text-xs tracking-[0.3em] uppercase text-gray-500">
+                    Automation Coverage
+                  </div>
+                  <div className="text-xs text-orange-600 mt-1">
+                    {empireMetrics.operations.process_efficiency}% efficiency
+                  </div>
+                </div>
+              </div>
+
+              {/* Empire Teams Grid */}
+              <div className="mb-20">
+                <div className="text-center mb-12">
+                  <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-4">
+                    Empire Team Organization
+                  </div>
+                  <h3 className="font-serif text-2xl font-light tracking-wide">
+                    Revenue-Focused Agent Teams
+                  </h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {Object.entries(empireTeams).map(([teamKey, team]) => (
+                    <div key={teamKey} className="border border-gray-200 p-6">
+                      <div className="text-center mb-4">
+                        <h4 className="font-serif text-lg font-medium mb-2">
+                          {teamKey.replace(/_/g, ' ')}
+                        </h4>
+                        <div className="text-xs tracking-[0.3em] uppercase text-gray-500 mb-3">
+                          Lead: {team.lead.toUpperCase()}
+                        </div>
+                        <div className="text-sm text-gray-700 mb-4">
+                          {team.mission}
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span>Progress</span>
+                          <span>{team.progress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 h-2">
+                          <div 
+                            className="bg-black h-2"
+                            style={{ width: `${Math.min(team.progress, 100)}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          Team: {team.members.join(', ')}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeView === 'teams' && (
+            <>
+              {/* Detailed Team Management View */}
+              <div className="mb-20">
+                <div className="text-center mb-12">
+                  <div className="text-xs tracking-[0.4em] uppercase text-gray-500 mb-4">
+                    Agent Team Management
+                  </div>
+                  <h3 className="font-serif text-2xl font-light tracking-wide">
+                    Empire Team Details
+                  </h3>
+                </div>
+                
+                {Object.entries(empireTeams).map(([teamKey, team]) => (
+                  <div key={teamKey} className="mb-12 border border-gray-200">
+                    <div className="bg-black text-white p-6">
+                      <h4 className="font-serif text-xl font-light tracking-wide mb-2">
+                        {teamKey.replace(/_/g, ' ')}
+                      </h4>
+                      <p className="text-sm opacity-80">{team.mission}</p>
+                    </div>
+                    
+                    <div className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                          <h5 className="font-medium mb-3">Team Lead</h5>
+                          <div className="text-sm text-gray-700 capitalize">{team.lead}</div>
+                        </div>
+                        
+                        <div>
+                          <h5 className="font-medium mb-3">Team Members</h5>
+                          <div className="space-y-1">
+                            {team.members.map(member => (
+                              <div key={member} className="text-sm text-gray-700 capitalize">
+                                {member}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h5 className="font-medium mb-3">Key Performance Indicators</h5>
+                          <div className="space-y-1">
+                            {team.kpis.map(kpi => (
+                              <div key={kpi} className="text-sm text-gray-700">
+                                • {kpi}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {activeView === 'analytics' && (
             <>
               {/* Business Metrics Grid */}
               <div className="grid grid-cols-2 md:grid-cols-6 gap-0 mb-20 border border-gray-200">
