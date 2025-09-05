@@ -13,11 +13,18 @@ export default function PaymentSuccess() {
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    // Get plan from URL params
+    // Get plan and type from URL params
     const urlParams = new URLSearchParams(window.location.search);
     const plan = urlParams.get('plan');
+    const type = urlParams.get('type');
     
-    // If user is authenticated and we have a plan, trigger upgrade immediately
+    // 🔄 PHASE 4: Handle retraining payments specifically
+    if (plan === 'retraining' && type === 'retrain') {
+      handleRetrainingSuccess();
+      return;
+    }
+    
+    // Handle regular subscription payments
     if (isAuthenticated && user && plan) {
       triggerUserUpgrade(plan);
     } else {
@@ -33,6 +40,42 @@ export default function PaymentSuccess() {
       }
     }
   }, [toast, isAuthenticated, user]);
+
+  // 🔄 PHASE 4: Handle successful retraining payments
+  const handleRetrainingSuccess = async () => {
+    try {
+      if (!isAuthenticated || !user) {
+        toast({
+          title: "Retraining Payment Successful!",
+          description: "Please sign in to access your AI model training.",
+        });
+        return;
+      }
+
+      // Show immediate success message
+      toast({
+        title: "🎉 Retraining Payment Successful!",
+        description: "Your AI model retraining access has been activated. Redirecting to training...",
+      });
+
+      // Wait 3 seconds to show the message, then redirect to training
+      setTimeout(() => {
+        setLocation('/simple-training');
+      }, 3000);
+
+    } catch (error) {
+      console.error('Retraining success handling error:', error);
+      toast({
+        title: "Payment Successful",
+        description: "Your retraining access is ready. Please visit the training page to continue.",
+      });
+      
+      // Still redirect to training even if there's an error
+      setTimeout(() => {
+        setLocation('/simple-training');
+      }, 3000);
+    }
+  };
 
   // Trigger upgrade automation after successful payment
   const triggerUserUpgrade = async (plan: string) => {
@@ -92,6 +135,8 @@ export default function PaymentSuccess() {
       case 'ai-pack': return 'SSELFIE AI';
       case 'studio-founding': return 'STUDIO Founding';
       case 'studio-standard': return 'STUDIO Pro';
+      case 'sselfie-studio': return 'SSELFIE STUDIO';
+      case 'retraining': return 'AI Model Retraining';
       default: return 'SSELFIE AI';
     }
   };

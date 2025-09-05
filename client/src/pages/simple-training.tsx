@@ -120,20 +120,32 @@ function SimpleTraining() {
       }
     } else if (userModel && userModel.trainingStatus === 'completed') {
       console.log('✅ Found completed training on page load');
-      // 🔄 PHASE 1: NEW RETRAINING LOGIC - Route to retraining instead of workspace
+      // 🔄 PHASE 4: Enhanced retraining logic with retraining access support
       const currentPath = window.location.pathname;
       const isOnTrainingPage = currentPath.includes('simple-training') || currentPath.includes('ai-training');
+      const hasRetrainingAccess = userModel?.hasRetrainingAccess === true;
       
       if (isOnTrainingPage) {
-        console.log('🔄 PHASE 1: User with completed training - routing to retraining checkout');
-        toast({
-          title: "Model Already Trained!",
-          description: "Want to retrain your AI model? $10 retraining fee applies. Redirecting...",
-        });
-        
-        setTimeout(() => {
-          window.location.href = '/retrain-checkout';
-        }, 3000); // Slightly longer to read the message
+        if (hasRetrainingAccess) {
+          // 🔄 PHASE 4: User has retraining access - allow training to continue
+          console.log('🎉 PHASE 4: User has retraining access - allowing training access');
+          toast({
+            title: "🎉 Retraining Access Active!",
+            description: "Your retraining session is ready! Upload new photos and refresh your AI model.",
+          });
+          // Let training continue normally - don't redirect
+        } else {
+          // 🔄 PHASE 4: User without retraining access - route to retraining checkout
+          console.log('🔄 PHASE 4: User with completed training - routing to retraining checkout');
+          toast({
+            title: "✨ AI Model Already Trained!",
+            description: "To retrain your AI model with new photos, you'll need a retraining session for $10. This gives you full access to update your model.",
+          });
+          
+          setTimeout(() => {
+            window.location.href = '/retrain-checkout';
+          }, 4000);
+        }
       } else {
         console.log('✅ Training complete but user on different page - no redirect needed');
       }
