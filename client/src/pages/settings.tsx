@@ -343,7 +343,7 @@ export default function Settings() {
               We're here to help you get the most out of SSELFIE Studio.
             </p>
             <a
-              href="mailto:support@sselfie.ai"
+              href="mailto:hello@sselfie.ai"
               className="bg-black text-white px-8 py-4 text-xs uppercase tracking-wider hover:bg-gray-800 transition-colors inline-block"
             >
               Contact Support
