@@ -15,7 +15,7 @@ export default function BusinessLanding() {
       metaDescription.setAttribute('name', 'description');
       document.head.appendChild(metaDescription);
     }
-    metaDescription.setAttribute('content', 'Upload selfies, get professional brand photos monthly. AI photographer for LinkedIn, Instagram, websites. €47/month vs €500+ photoshoots.');
+    metaDescription.setAttribute('content', 'Upload selfies, get professional brand photos monthly. AI photographer for LinkedIn, Instagram, websites. €47/month vs €1500+ photoshoots.');
   }, []);
 
   const handleGetStarted = () => {
@@ -255,7 +255,7 @@ export default function BusinessLanding() {
               className="text-xl font-light"
               style={{ fontFamily: "Times New Roman, serif" }}
             >
-              100+ professional photos monthly for €47 vs €500+ per single photoshoot
+              100+ professional photos monthly for €47 vs €1500+ per single photoshoot
             </p>
           </div>
         </div>
@@ -300,7 +300,7 @@ export default function BusinessLanding() {
                   <span className="text-4xl font-light text-black">€47</span>
                   <span className="text-lg text-gray-600 ml-2">monthly</span>
                 </div>
-                <p className="text-sm text-gray-500 mt-2">versus €500+ traditional photoshoots</p>
+                <p className="text-sm text-gray-500 mt-2">versus €1500+ traditional photoshoots</p>
               </div>
               <button 
                 onClick={handleGetStarted}
@@ -384,7 +384,7 @@ export default function BusinessLanding() {
                 </p>
                 
                 <p>
-                  I couldn't afford €500 photoshoots, so I figured out how to make 
+                  I couldn't afford €1500 photoshoots, so I figured out how to make 
                   my phone selfies work. Built everything from my kitchen table using this exact system.
                 </p>
                 
