@@ -3721,11 +3721,21 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   const { migrationMonitor } = await import('./migration-monitor');
   migrationMonitor.startMonitoring();
   
-  // PHASE 2: Start Agent Context Monitor for intelligent insights
-  const { AgentContextMonitor } = await import('./services/agent-context-monitor');
-  AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes
+  // DISABLED: Mock data agent spam - replaced with real launch-focused interactive system
+  // const { AgentContextMonitor } = await import('./services/agent-context-monitor');
+  // AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes
   
-  console.log('✅ MONITORING: All monitors active - Generation, Training, URL Migration, and Agent Insights protecting and optimizing user experience!');
+  // Connect Slack Interactive System
+  const slackInteractivityRouter = await import('./routes/slack-interactivity');
+  app.use('/api/slack', slackInteractivityRouter.default);
+  console.log('✅ SLACK: Interactive agent conversation system connected');
+
+  // Connect Slack Testing Routes
+  const testSlackAgentsRouter = await import('./routes/test-slack-agents');
+  app.use('/api/test-slack', testSlackAgentsRouter.default);
+  console.log('✅ SLACK: Agent testing interface ready');
+
+  console.log('✅ MONITORING: All monitors active - Generation, Training, URL Migration protecting user experience!');
   
   return server;
 }
