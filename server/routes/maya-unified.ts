@@ -28,6 +28,8 @@ import { ModelTrainingService } from '../model-training-service';
 import { adminContextDetection, getConversationId, type AdminContextRequest } from '../middleware/admin-context';
 import { trackMayaActivity } from '../services/maya-usage-isolation';
 import { UserStyleMemoryService } from '../services/user-style-memory';
+import { SupportIntelligenceService } from '../services/support-intelligence';
+import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
 
 const router = Router();
 
@@ -350,6 +352,21 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     if (context === 'support') {
       // Support mode: No concept cards, just conversational response
       console.log('🎯 PHASE 1: Processing SUPPORT mode response - no concept cards');
+      
+      // PHASE 5: Check for escalation triggers in Maya's support response
+      let escalationData = null;
+      if (mayaResponse.includes('ESCALATE_TO_HUMAN')) {
+        console.log('🚨 PHASE 5: Escalation trigger detected in Maya response');
+        const escalationMatch = mayaResponse.match(/ESCALATE_TO_HUMAN:\s*([^.]+)/);
+        if (escalationMatch) {
+          escalationData = {
+            reason: escalationMatch[1].trim(),
+            urgency: 'normal'
+          };
+          console.log('🚨 PHASE 5: Escalation data extracted:', escalationData);
+        }
+      }
+      
       processedResponse = {
         message: mayaResponse,
         content: mayaResponse,
@@ -358,7 +375,8 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
         conceptCards: [], // No concept cards in support mode
         quickButtons: [],
         onboardingProgress: null,
-        chatCategory: 'support'
+        chatCategory: 'support',
+        escalation: escalationData // PHASE 5: Include escalation data if detected
       };
     } else {
       // Styling mode: Full concept card processing

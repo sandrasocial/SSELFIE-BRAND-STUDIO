@@ -22,6 +22,7 @@ import { ModelRetrainService } from './retrain-model';
 // import { registerMayaAIRoutes } from './routes/maya-ai-routes';
 // import mayaOnboardingRoutes from './routes/maya-onboarding-routes';
 import mayaUnifiedRouter from './routes/maya-unified';
+import supportEscalationRouter from './routes/support-escalation';
 
 // UNIFIED ADMIN SYSTEM: Single consolidated admin agent interface - COMPETING SYSTEMS ELIMINATED
 import consultingAgentsRouter from './routes/consulting-agents-routes';
@@ -432,6 +433,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // MAYA UNIFIED SYSTEM - Single intelligent conversation system  
   app.use('/api/maya', mayaUnifiedRouter);
   console.log('✅ MAYA UNIFIED: Single intelligent system active at /api/maya/*');
+  
+  // 🚨 PHASE 5: Support escalation routes
+  app.use('/api/support', supportEscalationRouter);
   
   // Profile Management API
   app.get('/api/profile', isAuthenticated, async (req: any, res) => {
