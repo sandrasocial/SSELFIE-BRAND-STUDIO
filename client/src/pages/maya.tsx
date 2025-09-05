@@ -396,7 +396,7 @@ export default function Maya() {
 
         {/* Maya Chat - The Star of the Show */}
         <div className="flex-1 bg-gradient-to-b from-white to-gray-50">
-          <div className="max-w-6xl mx-auto px-8 md:px-16 py-16 space-y-20">
+          <div className="max-w-6xl mx-auto px-4 sm:px-8 md:px-16 py-8 sm:py-16 space-y-12 sm:space-y-20">
             {messages.length === 0 && (
               <div className="section text-center py-32">
                 <div className="eyebrow text-gray-500 mb-8">
@@ -526,7 +526,7 @@ export default function Maya() {
                                             // Use proxy URL immediately to avoid CORS issues
                                             const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
                                             return (
-                                              <div key={imgIndex} className="image-item group" onClick={() => setSelectedImage?.(proxyUrl)}>
+                                              <div key={imgIndex} className="image-item group cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-200" onClick={() => setSelectedImage?.(proxyUrl)}>
                                                 <img 
                                                   src={proxyUrl}
                                                   alt={`Generated ${cleanDisplayTitle(card.title)} ${imgIndex + 1}`}
@@ -545,9 +545,9 @@ export default function Maya() {
                                                     }
                                                   }}
                                                 />
-                                                {/* Heart/Save Button */}
+                                                {/* Heart/Save Button - Mobile Optimized */}
                                                 <button
-                                                  className="save-btn absolute top-2 right-2 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100"
+                                                  className="save-btn absolute top-2 right-2 w-12 h-12 sm:w-10 sm:h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all text-red-500 hover:text-red-600 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 active:scale-90 touch-manipulation"
                                                   onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleSaveToGallery(imageUrl, card.title);
@@ -573,7 +573,7 @@ export default function Maya() {
                                               handleGenerateImage(card);
                                             }}
                                             disabled={card.isGenerating}
-                                            className="editorial-card bg-black text-white hover:bg-gray-900 transition-all duration-300 w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="editorial-card bg-black text-white hover:bg-gray-900 active:bg-gray-800 transition-all duration-300 w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] touch-manipulation"
                                           >
                                             <div className="card-content px-6 py-3">
                                               <div className="text-xs font-normal uppercase tracking-[0.3em]">
@@ -620,7 +620,7 @@ export default function Maya() {
             )}
             
             {/* Integrated Chat Input - Part of Conversation Flow */}
-            <div className="max-w-4xl">
+            <div className="max-w-4xl mx-auto px-4 sm:px-0">
               {/* Input as Natural Chat Element */}
               <div className="bg-white border border-gray-200 shadow-lg animate-fadeIn">
                 <div className="p-12">
@@ -644,7 +644,7 @@ export default function Maya() {
                       <button
                         onClick={handleSendMessage}
                         disabled={!message.trim() || isTyping}
-                        className="editorial-card group bg-black text-white hover:bg-gray-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                        className="editorial-card group bg-black text-white hover:bg-gray-800 active:bg-gray-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full min-h-[48px] touch-manipulation"
                       >
                         <div className="card-content px-8 py-3 relative">
                           <div className="text-xs font-normal uppercase tracking-[0.3em] group-hover:text-white transition-colors duration-300">
@@ -665,7 +665,7 @@ export default function Maya() {
 
       {/* Integrated Auto-Categorizing Gallery */}
       <div className="bg-gray-50 border-t border-gray-200">
-        <div className="max-w-4xl mx-auto px-8 py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
           <div className="mb-8">
             <div className="eyebrow text-gray-500 mb-2">Your Photo Collection</div>
             <h2 className="font-serif text-2xl font-extralight uppercase tracking-[0.2em] text-black">
@@ -696,7 +696,7 @@ export default function Maya() {
               {/* Close Button */}
               <button 
                 onClick={() => setSelectedImage(null)}
-                className="w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 hover:text-black rounded-full transition-all shadow-lg"
+                className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 hover:text-black rounded-full transition-all shadow-lg active:scale-90 touch-manipulation"
                 title="Close"
               >
                 <span className="text-xl leading-none">×</span>
