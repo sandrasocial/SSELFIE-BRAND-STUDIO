@@ -1,7 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MemberNavigation } from '../components/member-navigation';
-import { HeroFullBleed } from '../components/HeroFullBleed';
-import { SandraImages } from '../lib/sandra-images';
 import { apiRequest } from "../lib/queryClient";
 import { useToast } from "../hooks/use-toast";
 import { useLocation } from 'wouter';
@@ -62,90 +60,133 @@ export default function RetrainCheckout() {
     }
   };
 
+  // SEO Meta tags setup
+  useEffect(() => {
+    document.title = "Retrain AI Model - SSELFIE Studio";
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Retrain your AI model with new photos for $10. Fresh training, quick process, enhanced quality. Upload new images and update your personal AI model.');
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-black">
-      <MemberNavigation />
+      <MemberNavigation transparent={false} />
       
-      {/* 🔄 PHASE 2: CUSTOM HERO SECTION FOR RETRAINING */}
-      <section 
-        className="relative w-full min-h-screen flex items-center overflow-hidden"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${SandraImages.hero.homepage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
-        <div className="container mx-auto px-6 py-24">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* 🔄 PHASE 2: RETRAINING-SPECIFIC HEADER */}
-            <h1 className="text-5xl md:text-7xl font-light text-white mb-8 leading-tight">
-              Retrain Your 
-              <span className="block text-[#D4AF37] font-normal">AI Model</span>
-            </h1>
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `url(https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_y34j0fn5exrma0crzhsr3x1wwr_0_1756582110537.png)`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          <div className="absolute inset-0 bg-black/60"></div>
+        </div>
+        
+        {/* Content */}
+        <div className="relative z-10 max-w-5xl mx-auto px-8 text-center">
+          <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-8 font-light">
+            Model Enhancement
+          </div>
+          <h1 className="font-serif text-[clamp(4rem,10vw,8rem)] leading-[0.9] font-extralight tracking-[0.3em] uppercase text-white mb-8">
+            Retrain
+          </h1>
+          <h2 className="font-serif text-[clamp(1.5rem,4vw,3rem)] leading-[1] font-extralight tracking-[0.5em] uppercase text-white/80 mb-12">
+            Your AI Model
+          </h2>
+          <p className="text-lg text-white/80 max-w-2xl mx-auto font-light mb-16">
+            Ready to refresh your AI model with new photos or updated style? One-time $10 retraining fee gets you access to the full training process again.
+          </p>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-24 bg-black">
+        <div className="max-w-5xl mx-auto px-8">
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-4">
+                Fresh Training
+              </div>
+              <h3 className="font-serif text-2xl font-light text-white mb-6">
+                New Photos
+              </h3>
+              <p className="text-white/70 font-light leading-relaxed">
+                Upload new photos and retrain your AI model with updated images and styling preferences.
+              </p>
+            </div>
             
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Ready to refresh your AI model with new photos or updated style? 
-              <span className="text-[#D4AF37]"> One-time $10 retraining fee</span> gets you access to the full training process again.
-            </p>
+            <div className="text-center">
+              <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-4">
+                Quick Process
+              </div>
+              <h3 className="font-serif text-2xl font-light text-white mb-6">
+                25-30 Minutes
+              </h3>
+              <p className="text-white/70 font-light leading-relaxed">
+                Same streamlined training process you experienced before with consistent completion times.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-4">
+                Enhanced Quality
+              </div>
+              <h3 className="font-serif text-2xl font-light text-white mb-6">
+                Better Results
+              </h3>
+              <p className="text-white/70 font-light leading-relaxed">
+                Latest AI training optimizations ensure even better image quality and style accuracy.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            {/* 🔄 PHASE 2: RETRAINING BENEFITS SECTION */}
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-                <div className="text-[#D4AF37] text-3xl mb-4">🔄</div>
-                <h3 className="text-xl font-semibold text-white mb-3">Fresh Training</h3>
-                <p className="text-gray-400">Upload new photos and retrain your AI model with updated images and styling preferences.</p>
+      {/* Pricing Section */}
+      <section className="py-24 bg-white/5">
+        <div className="max-w-4xl mx-auto px-8">
+          <div className="bg-black border border-white/20 p-12 text-center">
+            <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-8">
+              AI Model Retraining
+            </div>
+            
+            <div className="mb-12">
+              <div className="font-serif text-[clamp(4rem,8vw,6rem)] font-extralight text-white mb-4">
+                $10
               </div>
-              
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-                <div className="text-[#D4AF37] text-3xl mb-4">⚡</div>
-                <h3 className="text-xl font-semibold text-white mb-3">Quick Process</h3>
-                <p className="text-gray-400">Same streamlined training process you experienced before - typically completes in 25-30 minutes.</p>
-              </div>
-              
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-                <div className="text-[#D4AF37] text-3xl mb-4">💎</div>
-                <h3 className="text-xl font-semibold text-white mb-3">Enhanced Quality</h3>
-                <p className="text-gray-400">Latest AI training optimizations ensure even better image quality and style accuracy.</p>
+              <div className="text-white/60 text-sm tracking-[0.2em] uppercase">
+                Per Retraining Session
               </div>
             </div>
 
-            {/* 🔄 PHASE 2: PRICING SECTION */}
-            <div className="bg-gradient-to-r from-[#D4AF37]/20 to-transparent border border-[#D4AF37]/30 rounded-3xl p-12 mb-12">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="text-left">
-                  <h2 className="text-3xl font-semibold text-white mb-4">
-                    AI Model Retraining
-                  </h2>
-                  <p className="text-gray-300 mb-2">
-                    <span className="text-[#D4AF37] font-semibold">One-time payment</span> for complete model retraining
-                  </p>
-                  <p className="text-gray-400 text-sm">
-                    Upload new photos • Train fresh AI model • Generate unlimited images
-                  </p>
-                  {user && (
-                    <p className="text-gray-500 text-sm mt-2">
-                      Signed in as: {user.email}
-                    </p>
-                  )}
-                </div>
-                
-                <div className="text-center">
-                  <div className="text-6xl font-light text-[#D4AF37] mb-2">$10</div>
-                  <div className="text-gray-400 text-sm">per retraining session</div>
-                </div>
-              </div>
+            <div className="space-y-4 mb-12 text-white/70">
+              <div className="text-sm tracking-[0.1em] uppercase">Upload New Photos</div>
+              <div className="text-sm tracking-[0.1em] uppercase">Train Fresh AI Model</div>
+              <div className="text-sm tracking-[0.1em] uppercase">Generate Unlimited Images</div>
             </div>
 
-            {/* 🔄 PHASE 2: PAYMENT BUTTONS */}
+            {user && (
+              <div className="text-white/50 text-xs mb-8">
+                Signed in as: {user.email}
+              </div>
+            )}
+
+            {/* Payment Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <button
                 onClick={handleRetrainingPayment}
                 disabled={isProcessing}
-                className="bg-[#D4AF37] hover:bg-[#B8941F] text-black font-semibold py-4 px-12 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
+                className="bg-white text-black px-12 py-4 text-xs uppercase tracking-[0.3em] hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? (
                   <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                     Processing...
                   </div>
                 ) : (
@@ -153,40 +194,46 @@ export default function RetrainCheckout() {
                 )}
               </button>
               
-              {/* 🔄 PHASE 2: TEST BUTTON FOR DEVELOPMENT */}
               {process.env.NODE_ENV === 'development' && (
                 <button
                   onClick={handleTestRetrainingPayment}
                   disabled={isProcessing}
-                  className="border-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black font-semibold py-4 px-12 rounded-xl transition-all duration-300 min-w-[200px]"
+                  className="border border-white text-white px-12 py-4 text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-colors"
                 >
                   Test Retraining Payment
                 </button>
               )}
             </div>
+          </div>
+        </div>
+      </section>
 
-            {/* 🔄 PHASE 2: ADDITIONAL INFO */}
-            {/* 🔄 PHASE 4: Enhanced messaging and support */}
-            <div className="mt-16 text-center">
-              <p className="text-gray-400 text-sm mb-4">
-                Questions about retraining? The process works exactly like your original training.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                <div className="text-xs text-gray-500">
-                  ✅ Same training process you know
-                </div>
-                <div className="text-xs text-gray-500">
-                  ⚡ 25-30 minute completion time
-                </div>
-                <div className="text-xs text-gray-500">
-                  🔄 Upload fresh photos & styling
-                </div>
-              </div>
-              <p className="text-gray-500 text-xs">
-                Secure payment processing via Stripe • Cancel anytime during checkout
-              </p>
+      {/* Support Section */}
+      <section className="py-24 bg-black">
+        <div className="max-w-4xl mx-auto px-8 text-center">
+          <div className="text-xs tracking-[0.4em] uppercase text-white/60 mb-8">
+            Support
+          </div>
+          
+          <p className="text-white/70 font-light mb-8 max-w-2xl mx-auto">
+            Questions about retraining? The process works exactly like your original training.
+          </p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12 text-white/50">
+            <div className="text-xs tracking-[0.2em] uppercase">
+              Same Training Process
+            </div>
+            <div className="text-xs tracking-[0.2em] uppercase">
+              25-30 Minute Completion
+            </div>
+            <div className="text-xs tracking-[0.2em] uppercase">
+              Fresh Photos & Styling
             </div>
           </div>
+          
+          <p className="text-white/40 text-xs tracking-[0.1em] uppercase">
+            Secure Payment Processing via Stripe • Cancel Anytime During Checkout
+          </p>
         </div>
       </section>
     </div>
