@@ -225,7 +225,7 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
         const chatMessages = await storage.getMayaChatMessages(Number(chatId));
         // Transform to Claude API format, keeping last 10 messages for context
         fullConversationHistory = chatMessages
-          .slice(-10)
+          .slice(-20)
           .map(msg => {
             let content = msg.content;
             
@@ -245,7 +245,7 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
               content
             };
           });
-        console.log(`📖 MAYA CONTEXT: Loaded ${fullConversationHistory.length} previous messages from database`);
+        console.log(`📖 PHASE 1.3: Loaded ${fullConversationHistory.length} previous messages from database (enhanced to 20 messages)`);
       } catch (error) {
         console.log('No previous conversation history found, starting fresh');
       }
@@ -1260,10 +1260,36 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
 
 async function getUnifiedUserContext(userId: string) {
   try {
+    console.log(`🧠 PHASE 1.1: Loading enhanced personal brand context for user ${userId}`);
+    
     // Get user basic info
     const user = await storage.getUser(userId);
     
-    // Get onboarding data
+    // PHASE 1.1: Load rich personal brand data from Maya storage extensions
+    let personalBrandData = null;
+    let styleMemoryData = null;
+    let successfulPatterns = null;
+    
+    try {
+      const { MayaStorageExtensions } = await import('../storage-maya-extensions');
+      const mayaUserContext = await MayaStorageExtensions.getMayaUserContext(userId);
+      personalBrandData = mayaUserContext?.personalBrand;
+      console.log(`✅ PHASE 1.1: Personal brand data loaded - ${personalBrandData ? 'FOUND' : 'NOT FOUND'}`);
+    } catch (error) {
+      console.log('No Maya personal brand data found for user:', userId);
+    }
+    
+    // PHASE 1.1: Load learned style patterns and memory
+    try {
+      const { UserStyleMemoryService } = await import('../services/user-style-memory');
+      styleMemoryData = await UserStyleMemoryService.initializeUserMemory(userId);
+      successfulPatterns = await UserStyleMemoryService.getSuccessfulPatterns(userId);
+      console.log(`✅ PHASE 1.1: Style memory loaded - ${styleMemoryData.totalInteractions} interactions, ${successfulPatterns.topPrompts.length} successful patterns`);
+    } catch (error) {
+      console.log('No style memory data found for user:', userId);
+    }
+    
+    // Get onboarding data (legacy support)
     let onboardingData = null;
     try {
       onboardingData = await storage.getOnboardingData(userId);
@@ -1271,37 +1297,76 @@ async function getUnifiedUserContext(userId: string) {
       console.log('No onboarding data found for user:', userId);
     }
     
-    // Get recent Maya chats
+    // PHASE 1.1: Get recent Maya chats with enhanced context (5 most recent)
     let recentChats = [];
     try {
       const chats = await storage.getMayaChats(userId);
-      recentChats = chats.slice(0, 5); // Get 5 most recent
+      recentChats = chats.slice(0, 5);
     } catch (error) {
       console.log('No chat history found for user:', userId);
     }
 
-    return {
+    // PHASE 1.1: Build comprehensive user context with rich memory data
+    const enhancedContext = {
       userId,
       userInfo: {
         email: user?.email,
         firstName: user?.firstName,
         plan: user?.plan
       },
+      // PHASE 1.1: Rich personal brand context
+      personalBrand: personalBrandData ? {
+        transformationStory: personalBrandData.transformationStory,
+        currentSituation: personalBrandData.currentSituation,
+        futureVision: personalBrandData.futureVision,
+        businessGoals: personalBrandData.businessGoals,
+        businessType: personalBrandData.businessType,
+        stylePreferences: personalBrandData.stylePreferences,
+        photoGoals: personalBrandData.photoGoals,
+        isCompleted: personalBrandData.isCompleted
+      } : null,
+      // PHASE 1.1: Learned style patterns and preferences
+      styleMemory: styleMemoryData ? {
+        preferredCategories: styleMemoryData.preferredCategories,
+        favoritePromptPatterns: styleMemoryData.favoritePromptPatterns,
+        colorPreferences: styleMemoryData.colorPreferences,
+        settingPreferences: styleMemoryData.settingPreferences,
+        stylingKeywords: styleMemoryData.stylingKeywords,
+        totalInteractions: styleMemoryData.totalInteractions,
+        totalFavorites: styleMemoryData.totalFavorites,
+        highPerformingPrompts: styleMemoryData.highPerformingPrompts,
+        rejectedPrompts: styleMemoryData.rejectedPrompts
+      } : null,
+      // PHASE 1.1: Successful pattern analysis
+      successfulPatterns: successfulPatterns ? {
+        topPrompts: successfulPatterns.topPrompts,
+        preferredCategories: successfulPatterns.preferredCategories,
+        stylingKeywords: successfulPatterns.stylingKeywords,
+        averageSuccessScore: successfulPatterns.averageSuccessScore
+      } : null,
+      // Legacy onboarding support
       onboarding: {
-        isComplete: onboardingData?.isCompleted || false,
+        isComplete: onboardingData?.isCompleted || personalBrandData?.isCompleted || false,
         currentStep: onboardingData?.currentStep || 1,
-        stylePreferences: onboardingData?.stylePreferences,
-        businessType: onboardingData?.businessType,
-        personalBrandGoals: onboardingData?.personalBrandGoals
+        stylePreferences: personalBrandData?.stylePreferences || onboardingData?.stylePreferences,
+        businessType: personalBrandData?.businessType || onboardingData?.businessType,
+        personalBrandGoals: personalBrandData?.businessGoals || onboardingData?.personalBrandGoals
       },
       recentChats,
-      onboardingComplete: onboardingData?.isCompleted || false
+      onboardingComplete: personalBrandData?.isCompleted || onboardingData?.isCompleted || false
     };
+    
+    console.log(`🎯 PHASE 1.1: Enhanced context compiled - Personal Brand: ${!!enhancedContext.personalBrand}, Style Memory: ${!!enhancedContext.styleMemory}, Patterns: ${!!enhancedContext.successfulPatterns}`);
+    
+    return enhancedContext;
   } catch (error) {
-    console.error('Error getting unified user context:', error);
+    console.error('❌ PHASE 1.1: Error getting enhanced user context:', error);
     return {
       userId,
       userInfo: {},
+      personalBrand: null,
+      styleMemory: null,
+      successfulPatterns: null,
       onboarding: { isComplete: false, currentStep: 1 },
       recentChats: [],
       onboardingComplete: false
@@ -1970,23 +2035,70 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
           finalTriggerWord = generationInfo.triggerWord || '';
         }
         
-        // Load personal brand context for styling customization
-        const { MayaStorageExtensions } = await import('../storage-maya-extensions');
-        const mayaUserContext = await MayaStorageExtensions.getMayaUserContext(userId);
+        // PHASE 1.1: Load comprehensive user context with enhanced memory
+        const enhancedUserContext = await getUnifiedUserContext(userId);
         
-        if (mayaUserContext?.personalBrand) {
+        // PHASE 1.1: Build rich personal brand context with learned patterns
+        if (enhancedUserContext?.personalBrand || enhancedUserContext?.styleMemory || enhancedUserContext?.successfulPatterns) {
           personalBrandContext = `
-          
-USER'S PERSONAL BRAND CONTEXT:
-- Business Goals: ${mayaUserContext.personalBrand.businessGoals || 'Professional growth'}
-- Current Situation: ${mayaUserContext.personalBrand.currentSituation || 'Building their brand'}
-- Future Vision: ${mayaUserContext.personalBrand.futureVision || 'Success and confidence'}
-- Transformation Story: ${mayaUserContext.personalBrand.transformationStory || 'Personal evolution'}
 
-Use this context to customize styling choices that align with their unique transformation journey.`;
+🎯 COMPREHENSIVE PERSONAL BRAND CONTEXT:`;
+
+          // PHASE 1.1: Rich personal brand story and goals
+          if (enhancedUserContext.personalBrand) {
+            personalBrandContext += `
+            
+📖 TRANSFORMATION JOURNEY:
+- Current Situation: ${enhancedUserContext.personalBrand.currentSituation || 'Building their brand'}
+- Future Vision: ${enhancedUserContext.personalBrand.futureVision || 'Success and confidence'}
+- Business Goals: ${enhancedUserContext.personalBrand.businessGoals || 'Professional growth'}
+- Business Type: ${enhancedUserContext.personalBrand.businessType || 'Professional services'}
+- Transformation Story: ${enhancedUserContext.personalBrand.transformationStory || 'Personal evolution'}
+- Style Preferences: ${enhancedUserContext.personalBrand.stylePreferences || 'Professional and confident'}
+- Photo Goals: ${enhancedUserContext.personalBrand.photoGoals || 'Building personal brand'}`;
+          }
+
+          // PHASE 1.1: Learned style patterns and preferences  
+          if (enhancedUserContext.styleMemory) {
+            personalBrandContext += `
+
+🎨 LEARNED STYLE PREFERENCES (from ${enhancedUserContext.styleMemory.totalInteractions} interactions, ${enhancedUserContext.styleMemory.totalFavorites} favorites):
+- Preferred Categories: ${enhancedUserContext.styleMemory.preferredCategories?.join(', ') || 'Learning preferences'}
+- Favorite Styling Keywords: ${enhancedUserContext.styleMemory.stylingKeywords?.slice(0, 10).join(', ') || 'Building style vocabulary'}
+- Color Preferences: ${enhancedUserContext.styleMemory.colorPreferences?.join(', ') || 'Exploring color palette'}
+- Setting Preferences: ${enhancedUserContext.styleMemory.settingPreferences?.join(', ') || 'Discovering favorite settings'}`;
+            
+            if (enhancedUserContext.styleMemory.highPerformingPrompts?.length > 0) {
+              personalBrandContext += `
+- High-Performing Prompt Elements: ${enhancedUserContext.styleMemory.highPerformingPrompts.slice(0, 3).join(' | ')}`;
+            }
+            
+            if (enhancedUserContext.styleMemory.rejectedPrompts?.length > 0) {
+              personalBrandContext += `
+- Avoid These Elements: ${enhancedUserContext.styleMemory.rejectedPrompts.slice(0, 3).join(' | ')}`;
+            }
+          }
+
+          // PHASE 1.1: Successful pattern analysis
+          if (enhancedUserContext.successfulPatterns) {
+            personalBrandContext += `
+
+📊 SUCCESSFUL PATTERN ANALYSIS (${enhancedUserContext.successfulPatterns.averageSuccessScore.toFixed(2)} avg success score):
+- Top Performing Prompts: ${enhancedUserContext.successfulPatterns.topPrompts?.slice(0, 2).join(' | ') || 'Building success patterns'}
+- Most Used Categories: ${enhancedUserContext.successfulPatterns.preferredCategories?.slice(0, 5).join(', ') || 'Discovering favorites'}
+- Successful Styling Keywords: ${enhancedUserContext.successfulPatterns.stylingKeywords?.slice(0, 8).join(', ') || 'Learning what works'}`;
+          }
+
+          personalBrandContext += `
+
+💡 STYLING INTELLIGENCE: Use this rich personal context to create highly personalized styling suggestions that align with their transformation journey, reflect their learned preferences, and build on their successful patterns. Make styling choices that feel authentically "them" while elevating their personal brand story.`;
+
+          console.log(`✨ PHASE 1.1: Comprehensive personal brand context built - ${personalBrandContext.length} characters of rich context`);
+        } else {
+          console.log('⚠️ PHASE 1.1: No enhanced personal brand context available, using general approach');
         }
       } catch (error) {
-        console.log('Personal brand context not available, using general styling approach');
+        console.log('❌ PHASE 1.1: Personal brand context loading failed, using general styling approach:', error);
       }
     }
     
