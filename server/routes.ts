@@ -2017,6 +2017,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   const testNotificationsRouter = await import('./routes/test-agent-notifications');
   app.use('/api/test/notifications', testNotificationsRouter.default);
   
+  // AGENT INSIGHTS ROUTES - Intelligent agent insight system
+  const agentInsightsRouter = await import('./routes/agent-insights');
+  app.use('/api/agent-insights', agentInsightsRouter.default);
+  
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
   
@@ -3703,7 +3707,11 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   const { migrationMonitor } = await import('./migration-monitor');
   migrationMonitor.startMonitoring();
   
-  console.log('✅ MONITORING: All monitors active - Generation, Training, and URL Migration protecting user images!');
+  // PHASE 2: Start Agent Context Monitor for intelligent insights
+  const { AgentContextMonitor } = await import('./services/agent-context-monitor');
+  AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes
+  
+  console.log('✅ MONITORING: All monitors active - Generation, Training, URL Migration, and Agent Insights protecting and optimizing user experience!');
   
   return server;
 }
