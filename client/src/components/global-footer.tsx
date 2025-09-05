@@ -101,7 +101,7 @@ export const GlobalFooter: FC = () => {
               © 2025 SSELFIE STUDIO. All rights reserved.
             </p>
             <p className="text-white/40 text-xs font-light mt-4 md:mt-0 italic" style={{ fontFamily: "Times New Roman, serif" }}>
-              Professional photography, redefined.
+              Professional photos from your selfies.
             </p>
           </div>
         </div>
