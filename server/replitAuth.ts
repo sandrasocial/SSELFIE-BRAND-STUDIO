@@ -88,9 +88,10 @@ export function getSession() {
       store: sessionStore,
       resave: false,
       saveUninitialized: false,
+      rolling: true, // Refresh session on each request
       cookie: {
         httpOnly: true,
-        secure: false, // Disable for development
+        secure: useSecureCookies,
         sameSite: 'lax',
         maxAge: sessionTtl,
       },
@@ -475,36 +476,17 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  // DEBUGGING: Add detailed logging to identify the issue
-  console.log('🔍 AUTH CHECK:', {
-    hasIsAuthenticatedFunction: typeof (req as any).isAuthenticated === 'function',
-    isAuthenticatedResult: (req as any).isAuthenticated ? (req as any).isAuthenticated() : 'function_missing',
-    hasUser: !!req.user,
-    userEmail: (req.user as any)?.claims?.email || 'no_email',
-    sessionId: (req as any).sessionID,
-    sessionData: req.session ? Object.keys(req.session) : 'no_session',
-    cookieHeader: req.headers.cookie,
-    url: req.url
-  });
-
   const user = req.user as any;
 
+  // Check basic authentication first
   if (!(req as any).isAuthenticated || !(req as any).isAuthenticated() || !user) {
-    console.log('❌ AUTH FAILED:', {
-      hasFunction: !!(req as any).isAuthenticated,
-      functionResult: (req as any).isAuthenticated ? (req as any).isAuthenticated() : 'N/A',
-      hasUser: !!user,
-      url: req.url
-    });
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  // CRITICAL FIX: Handle impersonation by overriding user claims
+  // Handle impersonation by overriding user claims
   if ((req.session as any)?.impersonatedUser) {
     const impersonatedUser = (req.session as any).impersonatedUser;
-    console.log(`🎭 Using impersonated user in isAuthenticated: ${impersonatedUser.email}`);
     
-    // Override the user claims to use impersonated user's data
     (req.user as any).claims = {
       sub: impersonatedUser.id,
       email: impersonatedUser.email,
@@ -516,24 +498,40 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     return next();
   }
 
+  // Check token expiration with buffer time (5 minutes)
   const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
+  const bufferTime = 300; // 5 minutes
+  
+  if (user.expires_at && now <= (user.expires_at - bufferTime)) {
     return next();
   }
 
+  // Try token refresh if we have a refresh token
   const refreshToken = user.refresh_token;
   if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
+    // No refresh token available, force re-authentication
+    return res.status(401).json({ message: "Session expired - please log in again" });
   }
 
   try {
     const config = await getOidcConfig();
     const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
     updateUserSession(user, tokenResponse);
+    
+    // Update session to persist the refresh
+    req.session.save((err) => {
+      if (err) {
+        console.error('❌ Session save error after token refresh:', err);
+      }
+    });
+    
     return next();
   } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
+    console.error('❌ Token refresh failed:', error);
+    // Clear the invalid session
+    req.session.destroy((err) => {
+      if (err) console.error('❌ Session destroy error:', err);
+    });
+    return res.status(401).json({ message: "Session expired - please log in again" });
   }
 };
