@@ -27,6 +27,7 @@ import { ModelTrainingService } from '../model-training-service';
 // ✅ REMOVED: All validation imports - Maya's intelligence needs no validation
 import { adminContextDetection, getConversationId, type AdminContextRequest } from '../middleware/admin-context';
 import { trackMayaActivity } from '../services/maya-usage-isolation';
+import { UserStyleMemoryService } from '../services/user-style-memory';
 
 const router = Router();
 
@@ -404,6 +405,37 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     console.log(`🎯 CACHE STATS: Total cached responses: ${mayaResponseCache.size}`);
     
     res.json(responseData);
+
+    // 🧠 SAFE STYLE MEMORY LOGGING: Non-blocking user preference tracking
+    // This runs after response is sent to user - zero impact on UX
+    setImmediate(async () => {
+      try {
+        // Initialize user memory if needed
+        await UserStyleMemoryService.initializeUserMemory(userId);
+        
+        // Track this interaction
+        await UserStyleMemoryService.trackInteraction(userId);
+        
+        // Log prompt analysis for learning
+        await UserStyleMemoryService.logPromptAnalysis(userId, {
+          originalPrompt: message,
+          conceptTitle: 'Maya Chat',
+          category: context,
+          wasGenerated: !!processedResponse.generatedPrompt,
+          wasFavorited: false, // Will be updated later when user favorites
+          wasSaved: !!savedChatId,
+          promptLength: message.length,
+          keywordDensity: {},
+          technicalSpecs: { context, hasQuickButtons: !!processedResponse.quickButtons?.length },
+          successScore: processedResponse.canGenerate ? 0.7 : 0.3,
+        });
+        
+        console.log(`🧠 STYLE MEMORY: Logged chat interaction for user ${userId}`);
+      } catch (memoryError) {
+        // Silent fail - never disrupt user experience
+        console.log('🧠 STYLE MEMORY: Silent fail (no impact on user)', memoryError.message);
+      }
+    });
 
   } catch (error) {
     console.error('Unified Maya error:', error);
@@ -860,10 +892,46 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     logMayaAPI('/generate', startTime, true);
 
-    return res.json({ 
+    const generationResponse = { 
       success: true,
       predictionId: result.predictionId
+    };
+    
+    res.json(generationResponse);
+
+    // 🧠 SAFE STYLE MEMORY LOGGING: Track successful generation for learning
+    // This runs after response is sent to user - zero impact on UX
+    setImmediate(async () => {
+      try {
+        // Log generation analysis for style learning
+        await UserStyleMemoryService.logPromptAnalysis(userId, {
+          originalPrompt: req.body.prompt || '',
+          generatedPrompt: finalPrompt,
+          conceptTitle: conceptName || 'Custom Generation',
+          category: req.body.category,
+          wasGenerated: true,
+          wasFavorited: false, // Will be updated when user favorites images
+          wasSaved: true, // Generation always creates saved images
+          promptLength: finalPrompt.length,
+          keywordDensity: {},
+          technicalSpecs: { 
+            seed: req.body.seed, 
+            count: safeCount,
+            triggerWord: generationInfo.triggerWord,
+            userModel: generationInfo.userModel
+          },
+          generationTime: Date.now() - startTime,
+          successScore: 1.0, // Full success for completed generation
+        });
+        
+        console.log(`🧠 STYLE MEMORY: Logged successful generation for user ${userId}`);
+      } catch (memoryError) {
+        // Silent fail - never disrupt user experience
+        console.log('🧠 STYLE MEMORY: Silent fail (no impact on user)', memoryError.message);
+      }
     });
+    
+    return;
   } catch (error: any) {
     console.error("Unified Maya generate error:", error);
     
@@ -2256,5 +2324,51 @@ function detectCategoryFromPrompt(prompt: string): string {
   
   return 'Lifestyle'; // Default category
 }
+
+// 🧠 DEVELOPMENT ROUTE: View user style memory (safe testing endpoint)
+router.get('/style-memory', isAuthenticated, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.claims?.sub;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Get user's style patterns
+    const patterns = await UserStyleMemoryService.getSuccessfulPatterns(userId);
+    const memory = await UserStyleMemoryService.initializeUserMemory(userId);
+
+    res.json({
+      success: true,
+      userId,
+      memory,
+      patterns,
+      message: 'Style memory retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Style memory error:', error);
+    res.status(500).json({ error: 'Failed to retrieve style memory' });
+  }
+});
+
+// 🧠 DEVELOPMENT ROUTE: Learn from user favorites manually (safe testing)
+router.post('/learn-from-favorites', isAuthenticated, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.claims?.sub;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Learn from existing favorites
+    await UserStyleMemoryService.learnFromFavorites(userId);
+
+    res.json({
+      success: true,
+      message: 'Learning from favorites completed successfully'
+    });
+  } catch (error) {
+    console.error('Learn from favorites error:', error);
+    res.status(500).json({ error: 'Failed to learn from favorites' });
+  }
+});
 
 export default router;
