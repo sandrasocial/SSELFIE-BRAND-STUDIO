@@ -3,12 +3,15 @@ import { useAuth } from '../hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { SandraImages } from '../lib/sandra-images';
+import { SupportChatBubble } from './support-chat-bubble';
+import '../components/support-chat-styles.css';
 
 // Maya interface now uses the main page route instead of overlay component
 
 export function SimplifiedWorkspace() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [activeStep, setActiveStep] = useState<string | null>(null);
+  const [isSupportChatOpen, setIsSupportChatOpen] = useState(false);
   
   // Fetch user data
   const { data: aiImages = [] } = useQuery({
@@ -246,6 +249,14 @@ export function SimplifiedWorkspace() {
       </div>
 
       {/* Maya now uses dedicated page route */}
+      
+      {/* PHASE 3: Support Chat Bubble - only appears on workspace */}
+      {isAuthenticated && (
+        <SupportChatBubble 
+          isOpen={isSupportChatOpen}
+          onToggle={() => setIsSupportChatOpen(!isSupportChatOpen)}
+        />
+      )}
     </>
   );
 }
