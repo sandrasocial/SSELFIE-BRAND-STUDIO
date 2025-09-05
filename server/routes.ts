@@ -2555,25 +2555,6 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
         return res.json(adminUser);
       }
 
-      // TEMPORARY DEV FIX: Auto-login for development when OAuth is broken
-      if (process.env.NODE_ENV === 'development' && req.query.dev_login === 'true') {
-        console.log('🔧 TEMP DEV LOGIN: Creating temporary user session');
-        
-        let devUser = await storage.getUserByEmail('sandra@sselfie.ai');
-        
-        if (!devUser) {
-          devUser = await storage.upsertUser({
-            id: 'dev-user-test',
-            email: 'sandra@sselfie.ai',
-            firstName: 'Sandra',
-            lastName: 'Developer',
-            profileImageUrl: null
-          } as any);
-        }
-        
-        console.log('✅ Dev user authenticated:', devUser.email);
-        return res.json(devUser);
-      }
 
       // PRIORITY 1: Check session-based authentication (temp user)
       if (req.session?.user) {

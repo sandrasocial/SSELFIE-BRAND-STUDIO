@@ -19,11 +19,7 @@ export function useAuth() {
         };
         
         
-        // TEMP FIX: Use dev login in development when OAuth is broken
-        const isDevelopment = import.meta.env.DEV;
-        const authUrl = isDevelopment ? '/api/auth/user?dev_login=true' : '/api/auth/user';
-        
-        const response = await fetch(authUrl, {
+        const response = await fetch('/api/auth/user', {
           credentials: 'include',
           cache: 'no-cache',
           headers
