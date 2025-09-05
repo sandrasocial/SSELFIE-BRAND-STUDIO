@@ -230,7 +230,7 @@ export default function Maya() {
             onClick={() => setLocation('/')}
             className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
           >
-            Back to Workspace
+            Back
           </button>
         </div>
 
