@@ -991,6 +991,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // 🔧 PHASE 3: Retry model extraction for failed trainings
+  app.post('/api/training/retry-extraction', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      console.log(`🔧 PHASE 3: Model extraction retry requested for user: ${userId}`);
+      
+      // Get user plan to verify they can retry
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      // Check if user has a paid plan for training access - SIMPLIFIED FOR LAUNCH
+      const hasPaidPlan = ['sselfie-studio'].includes(user.plan || '');
+      if (!hasPaidPlan) {
+        return res.status(403).json({ 
+          success: false,
+          message: 'Upgrade to Studio plan to access AI model training features' 
+        });
+      }
+
+      // Import the model training service and attempt retry
+      const { ModelTrainingService } = await import('./model-training-service');
+      const result = await ModelTrainingService.retryModelExtraction(userId);
+
+      if (result.success) {
+        console.log(`✅ PHASE 3: Model extraction retry successful for user ${userId}`);
+        res.json({
+          success: true,
+          message: result.message
+        });
+      } else {
+        console.log(`❌ PHASE 3: Model extraction retry failed for user ${userId}: ${result.message}`);
+        res.status(400).json({
+          success: false,
+          message: result.message
+        });
+      }
+      
+    } catch (error) {
+      console.error('❌ PHASE 3: Model extraction retry endpoint error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Internal server error during retry attempt'
+      });
+    }
+  });
+
 
   // MISSING ENDPOINT: Training progress for real-time updates
   app.get('/api/training-progress/:requestId', isAuthenticated, async (req: any, res) => {
@@ -1037,7 +1088,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let status = userModel.trainingStatus;
       let isRealTraining = false;
       
-      // Check real Replicate training status if we have a training ID
+      // 📊 PHASE 4: Enhanced real training status with progress tracking
       if (userModel.replicateModelId) {
         try {
           const response = await fetch(`https://api.replicate.com/v1/trainings/${userModel.replicateModelId}`, {
@@ -1051,7 +1102,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             status = replicateData.status;
             isRealTraining = true;
             
-            // Calculate progress based on Replicate status
+            // 📊 PHASE 4: Use enhanced progress calculation
+            const { ModelTrainingService } = await import('./model-training-service');
+            
             if (status === 'succeeded') {
               progress = 100;
               // Update our database if training completed
@@ -1065,11 +1118,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 trainingStatus: 'failed'
               });
             } else if (status === 'processing') {
-              // Estimate progress based on time elapsed
-              const startTime = new Date(userModel.startedAt || userModel.createdAt || new Date()).getTime();
-              const elapsed = Date.now() - startTime;
-              const estimatedDuration = 20 * 60 * 1000; // 20 minutes
-              progress = Math.min(90, Math.floor((elapsed / estimatedDuration) * 100));
+              // 📊 PHASE 4: Use enhanced progress calculation for training in progress
+              progress = await ModelTrainingService.calculateRealTrainingProgress(replicateData, userModel);
+              console.log(`📊 PHASE 4: Enhanced progress for user ${userId}: ${progress}%`);
             } else if (status === 'starting') {
               progress = 10;
             }
@@ -1078,14 +1129,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error('Error checking Replicate status:', error);
         }
       } else {
-        // No Replicate ID yet, estimate based on local status
+        // 📊 PHASE 4: No Replicate ID yet, use enhanced local progress estimation
         if (status === 'training') {
-          const startTime = new Date(userModel.startedAt || userModel.createdAt || new Date()).getTime();
-          const elapsed = Date.now() - startTime;
-          const estimatedDuration = 20 * 60 * 1000; // 20 minutes
-          progress = Math.min(90, Math.floor((elapsed / estimatedDuration) * 100));
+          const { ModelTrainingService } = await import('./model-training-service');
+          // Create a mock training data object for progress calculation
+          const mockTrainingData = { logs: [], status: 'processing' };
+          progress = await ModelTrainingService.calculateRealTrainingProgress(mockTrainingData, userModel);
+          console.log(`📊 PHASE 4: Local enhanced progress for user ${userId}: ${progress}%`);
         }
       }
+
+      // 📊 PHASE 4: Add stage description for better UX
+      const trainingStartTime = userModel.startedAt 
+        ? new Date(userModel.startedAt).getTime()
+        : new Date(userModel.createdAt || new Date()).getTime();
+      const trainingDuration = Date.now() - trainingStartTime;
+      
+      const { ModelTrainingService } = await import('./model-training-service');
+      const stageDescription = ModelTrainingService.getTrainingStageDescription(progress, trainingDuration);
 
       res.json({
         userId,
@@ -1093,7 +1154,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         progress,
         isRealTraining,
         replicateModelId: userModel.replicateModelId,
-        modelName: userModel.modelName
+        modelName: userModel.modelName,
+        stageDescription, // 📊 PHASE 4: Enhanced UX with stage descriptions
+        estimatedTimeRemaining: progress >= 95 ? "Almost done!" : `${Math.max(1, Math.round((30 - trainingDuration / 60000)))} minutes remaining`
       });
       
     } catch (error) {
