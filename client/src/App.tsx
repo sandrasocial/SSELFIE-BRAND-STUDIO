@@ -16,6 +16,7 @@ import Workspace from "./pages/workspace";
 import Maya from "./pages/maya";
 
 // Lazy loaded pages for better performance
+const BusinessLanding = lazy(() => import("./pages/business-landing"));
 const SSELFIEGallery = lazy(() => import("./pages/sselfie-gallery"));
 const SimpleTraining = lazy(() => import("./pages/simple-training"));
 const TeamsLanding = lazy(() => import("./pages/teams-landing"));
@@ -154,8 +155,21 @@ function Router() {
         </Suspense>
       )} />
       
-      {/* PUBLIC PAGES - SINGLE MAIN LANDING PAGE */}
-      <Route path="/" component={EditorialLanding} />
+      {/* PUBLIC PAGES - THREE LANDING PAGES FOR DIFFERENT SEGMENTS */}
+      <Route path="/" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <BusinessLanding />
+        </Suspense>
+      )} />
+      
+      <Route path="/personal" component={EditorialLanding} />
+      <Route path="/solopreneur" component={EditorialLanding} />
+      
+      <Route path="/business" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <BusinessLanding />
+        </Suspense>
+      )} />
       
       {/* UNIFIED AUTHENTICATION PAGE */}
       <Route path="/login" component={() => (
