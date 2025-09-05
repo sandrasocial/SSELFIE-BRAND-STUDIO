@@ -67,6 +67,50 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Email management for Ava agent
+export const emailAccounts = pgTable("email_accounts", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  accountType: varchar("account_type").notNull(), // 'personal' or 'business'
+  email: varchar("email").notNull(),
+  provider: varchar("provider").notNull(), // 'gmail', 'outlook', 'other'
+  displayName: varchar("display_name"),
+  accessToken: text("access_token"), // Encrypted
+  refreshToken: text("refresh_token"), // Encrypted
+  isActive: boolean("is_active").default(true),
+  lastSyncAt: timestamp("last_sync_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const processedEmails = pgTable("processed_emails", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  accountId: integer("account_id").references(() => emailAccounts.id, { onDelete: "cascade" }).notNull(),
+  externalId: varchar("external_id").notNull(), // Email ID from provider
+  fromAddress: varchar("from_address").notNull(),
+  toAddresses: jsonb("to_addresses").notNull(),
+  subject: text("subject").notNull(),
+  bodyPreview: text("body_preview"),
+  receivedAt: timestamp("received_at").notNull(),
+  category: varchar("category").notNull(), // 'urgent', 'customer', 'business', 'personal', 'marketing', 'spam'
+  priority: varchar("priority").notNull(), // 'high', 'medium', 'low'
+  needsResponse: boolean("needs_response").default(false),
+  hasResponse: boolean("has_response").default(false),
+  sentiment: varchar("sentiment").notNull(), // 'positive', 'neutral', 'negative'
+  tags: jsonb("tags"), // Array of tags
+  aiSummary: text("ai_summary"),
+  suggestedResponse: text("suggested_response"),
+  isArchived: boolean("is_archived").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_processed_emails_user").on(table.userId),
+  index("idx_processed_emails_account").on(table.accountId),
+  index("idx_processed_emails_category").on(table.category),
+  index("idx_processed_emails_priority").on(table.priority),
+]);
+
 // Website schema for Victoria website builder
 export const websites = pgTable("websites", {
   id: serial("id").primaryKey(),
