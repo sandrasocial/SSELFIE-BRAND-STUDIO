@@ -639,15 +639,12 @@ export default function Maya() {
                       disabled={isTyping}
                     />
                     
-                    {/* Integrated Send Area */}
-                    <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-                      <div className="eyebrow text-gray-400">
-                        Press Enter to send • Shift+Enter for new line
-                      </div>
+                    {/* Full Width Send Button */}
+                    <div className="pt-4 border-t border-gray-100">
                       <button
                         onClick={handleSendMessage}
                         disabled={!message.trim() || isTyping}
-                        className="editorial-card group bg-black text-white hover:bg-gray-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="editorial-card group bg-black text-white hover:bg-gray-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full"
                       >
                         <div className="card-content px-8 py-3 relative">
                           <div className="text-xs font-normal uppercase tracking-[0.3em] group-hover:text-white transition-colors duration-300">
