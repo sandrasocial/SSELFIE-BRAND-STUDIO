@@ -103,11 +103,22 @@ export function QuickSpecialistAccess() {
                   <p className="text-xs text-gray-600">{agent.role}</p>
                 </div>
                 <div className="ml-auto">
-                  <Link href={`/admin-consulting-agents?agent=${agent.name}`}>
-                    <Button size="sm" variant="outline">
-                      Chat Now
-                    </Button>
-                  </Link>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      // Open Slack directly for agent conversation
+                      window.open('https://app.slack.com/client/', '_blank');
+                      // Optionally trigger notification to agent in Slack
+                      fetch('/api/slack/start-agent-chat', { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ agent: agent.name, type: 'direct_chat' }) 
+                      });
+                    }}
+                  >
+                    💬 Chat on Slack
+                  </Button>
                 </div>
               </div>
               
@@ -127,11 +138,21 @@ export function QuickSpecialistAccess() {
                   <p className="text-xs font-medium text-gray-700 mb-1">Quick Actions:</p>
                   <div className="flex flex-wrap gap-1">
                     {agent.quickActions.slice(0, 2).map(action => (
-                      <Link key={action} href={`/admin-consulting-agents?agent=${agent.name}&action=${action}`}>
-                        <button className="text-xs bg-white bg-opacity-50 px-2 py-1 rounded border hover:bg-opacity-70 transition-colors">
-                          {action}
-                        </button>
-                      </Link>
+                      <button 
+                        key={action} 
+                        className="text-xs bg-white bg-opacity-50 px-2 py-1 rounded border hover:bg-opacity-70 transition-colors"
+                        onClick={() => {
+                          // Open Slack with specific action context
+                          window.open('https://app.slack.com/client/', '_blank');
+                          fetch('/api/slack/start-agent-chat', { 
+                            method: 'POST', 
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ agent: agent.name, action, type: 'action_request' }) 
+                          });
+                        }}
+                      >
+                        {action}
+                      </button>
                     ))}
                   </div>
                 </div>
