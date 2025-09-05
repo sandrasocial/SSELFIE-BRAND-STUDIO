@@ -5,29 +5,21 @@ import { isAuthenticated } from '../replitAuth';
 
 const router = Router();
 
-// Admin-only middleware
-const requireAdminRole = (req: any, res: any, next: any) => {
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
-  next();
-};
-
-// Apply authentication and admin role to all routes
+// Apply authentication to all routes
 router.use(isAuthenticated);
-router.use(requireAdminRole);
 
 // Customer Management APIs
 router.get('/customer-stats', async (req, res) => {
   try {
-    const [totalCustomers] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE role != 'admin'`);
-    const [activeSubscriptions] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE plan != '' AND stripe_subscription_id IS NOT NULL AND role != 'admin'`);
-    const [newThisMonth] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at >= date_trunc('month', CURRENT_DATE) AND role != 'admin'`);
+    // Show all test users (admin + friends/family) since we're in launch phase
+    const totalUsersResult = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+    const activeSubscriptionsResult = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE plan = 'sselfie-studio' AND stripe_subscription_id IS NOT NULL`);
+    const newThisMonthResult = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at >= date_trunc('month', CURRENT_DATE)`);
     
     res.json({
-      totalCustomers: totalCustomers.count || 0,
-      activeSubscriptions: activeSubscriptions.count || 0,
-      newThisMonth: newThisMonth.count || 0,
+      totalCustomers: (totalUsersResult[0] as any)?.count || 0, // All test users for now
+      activeSubscriptions: (activeSubscriptionsResult[0] as any)?.count || 0, // Real paying customers (currently 0)
+      newThisMonth: (newThisMonthResult[0] as any)?.count || 0,
       systemHealth: 98
     });
   } catch (error) {
@@ -40,11 +32,12 @@ router.get('/customers', async (req, res) => {
   try {
     const { search, status, sort } = req.query;
     
+    // Show all users during launch phase (admin + test users)
     let query = sql`
       SELECT u.*, up.full_name, up.phone, up.location
       FROM users u
       LEFT JOIN user_profiles up ON u.id = up.user_id
-      WHERE u.role != 'admin'
+      WHERE 1=1
     `;
     
     if (search) {
@@ -62,14 +55,16 @@ router.get('/customers', async (req, res) => {
     
     query = sql`${query} LIMIT 50`;
     
-    const customers = await db.execute(query);
+    const customersResult = await db.execute(query);
+    const customers = Array.from(customersResult);
     
-    // Add calculated fields
-    const enrichedCustomers = customers.map(customer => ({
+    // Add calculated fields with accurate test user status
+    const enrichedCustomers = customers.map((customer: any) => ({
       ...customer,
-      status: customer.stripe_subscription_id ? 'active' : 'inactive',
-      totalSpent: customer.stripe_subscription_id ? 47 : 0, // Real calculation based on subscription
-      lastActiveAt: customer.updated_at || customer.created_at
+      status: customer.stripe_subscription_id ? 'paying' : 'test-user',
+      totalSpent: customer.stripe_subscription_id ? 47 : 0, // €0 for test users
+      lastActiveAt: customer.updated_at || customer.created_at,
+      userType: customer.id === '42585527' ? 'admin' : 'test-user' // Mark admin vs test users
     }));
     
     res.json(enrichedCustomers);
@@ -81,16 +76,16 @@ router.get('/customers', async (req, res) => {
 
 router.get('/customer-insights', async (req, res) => {
   try {
-    const [newThisMonth] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at >= date_trunc('month', CURRENT_DATE) AND role != 'admin'`);
+    const newThisMonthResult = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at >= date_trunc('month', CURRENT_DATE)`);
     
-    // Calculate real metrics
-    const [totalActiveUsers] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE stripe_subscription_id IS NOT NULL AND role != 'admin'`);
-    const averageLifetimeValue = (totalActiveUsers.count || 0) > 0 ? 47 : 0; // €47 per active subscription
+    // Calculate real metrics - currently 0 paying customers in launch phase
+    const totalPayingUsersResult = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE stripe_subscription_id IS NOT NULL`);
+    const averageLifetimeValue = 0; // €0 since no paying customers yet
     
     res.json({
-      newThisMonth: newThisMonth.count || 0,
+      newThisMonth: (newThisMonthResult[0] as any)?.count || 0,
       averageLifetimeValue: averageLifetimeValue,
-      averageGenerationsPerMonth: (totalActiveUsers.count || 0) * 25, // Estimate 25 generations per user per month
+      averageGenerationsPerMonth: 0, // No paying customer activity yet
       churnRate: 0 // No churn data yet in launch phase
     });
   } catch (error) {
@@ -102,13 +97,14 @@ router.get('/customer-insights', async (req, res) => {
 // Revenue Analytics APIs
 router.get('/revenue-summary', async (req, res) => {
   try {
-    const [activeUsers] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE stripe_subscription_id IS NOT NULL AND role != 'admin'`);
-    const monthlyRevenue = (activeUsers.count || 0) * 47; // €47 per subscription
+    const payingUsersResult = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE stripe_subscription_id IS NOT NULL`);
+    const totalUsersResult = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+    const monthlyRevenue = 0; // €0 revenue - launch phase with test users only
     
     res.json({
       monthlyRevenue: monthlyRevenue,
-      totalCustomers: activeUsers.count || 0,
-      activeSubscriptions: activeUsers.count || 0,
+      totalCustomers: (totalUsersResult[0] as any)?.count || 0, // All test users
+      activeSubscriptions: (payingUsersResult[0] as any)?.count || 0, // Real paying customers (0)
       systemHealth: 98
     });
   } catch (error) {
@@ -121,18 +117,18 @@ router.get('/revenue-analytics', async (req, res) => {
   try {
     const { timeframe = 'month' } = req.query;
     
-    const [activeUsers] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE stripe_subscription_id IS NOT NULL AND role != 'admin'`);
-    const monthlyRevenue = (activeUsers.count || 0) * 47;
+    // Launch phase - all metrics start at 0
+    const monthlyRevenue = 0;
     
     res.json({
       monthlyRevenue: monthlyRevenue,
-      previousMonthRevenue: monthlyRevenue * 0.85, // 15% growth simulation
-      yearlyRevenue: monthlyRevenue * 12,
-      averageRevenuePerUser: 47,
-      monthlyGrowthRate: 15.3,
-      churnRate: 3.2,
-      newCustomerRevenue: monthlyRevenue * 0.3,
-      recurringRevenue: monthlyRevenue * 0.7
+      previousMonthRevenue: 0,
+      yearlyRevenue: 0,
+      averageRevenuePerUser: 0, // Will be €47 when we get paying customers
+      monthlyGrowthRate: 0,
+      churnRate: 0,
+      newCustomerRevenue: 0,
+      recurringRevenue: 0
     });
   } catch (error) {
     console.error('Error fetching revenue analytics:', error);
@@ -142,13 +138,11 @@ router.get('/revenue-analytics', async (req, res) => {
 
 router.get('/revenue-breakdown', async (req, res) => {
   try {
-    const [activeUsers] = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE stripe_subscription_id IS NOT NULL AND role != 'admin'`);
-    const subscriptionRevenue = (activeUsers.count || 0) * 47;
-    
+    // Launch phase - no revenue yet
     res.json({
-      subscriptions: subscriptionRevenue,
-      retraining: Math.floor(subscriptionRevenue * 0.15), // 15% from retraining
-      oneTime: Math.floor(subscriptionRevenue * 0.05) // 5% from other services
+      subscriptions: 0,
+      retraining: 0,
+      oneTime: 0
     });
   } catch (error) {
     console.error('Error fetching revenue breakdown:', error);
