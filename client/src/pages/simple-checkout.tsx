@@ -17,7 +17,7 @@ export default function SimpleCheckout() {
     try {
       // Create Stripe checkout session instead of payment intent
       const response = await apiRequest("/api/create-checkout-session", "POST", {
-        plan: "personal-brand-studio", // Use the plan we configured
+        plan: "sselfie-studio", // Use the correct plan name
         successUrl: `${window.location.origin}/payment-success?plan=sselfie-studio`,
         cancelUrl: `${window.location.origin}/simple-checkout`,
       });
