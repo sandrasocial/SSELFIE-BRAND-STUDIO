@@ -316,18 +316,64 @@ export class AgentInsightEngine {
         // Store insight in dashboard
         await this.storeInsightInDashboard(insight);
         
-        // Send to Slack
-        await SlackNotificationService.sendAgentInsight(
+        // Check notification preferences before sending to Slack
+        const shouldNotify = await this.checkNotificationPreferences(
+          '42585527', // Sandra's user ID
           insight.agentName,
           insight.insightType,
-          insight.title,
-          insight.message,
           insight.priority
         );
-        console.log(`✅ INSIGHT SENT: ${insight.agentName} - ${insight.title}`);
+        
+        if (shouldNotify) {
+          // Send to Slack
+          await SlackNotificationService.sendAgentInsight(
+            insight.agentName,
+            insight.insightType,
+            insight.title,
+            insight.message,
+            insight.priority
+          );
+          console.log(`✅ INSIGHT SENT: ${insight.agentName} - ${insight.title}`);
+        } else {
+          console.log(`🔕 INSIGHT STORED ONLY: ${insight.agentName} - ${insight.title} (notification preferences)`);
+        }
       } catch (error) {
         console.error(`❌ Failed to send insight from ${insight.agentName}:`, error);
       }
+    }
+  }
+
+  // Check notification preferences
+  private static async checkNotificationPreferences(
+    userId: string,
+    agentName: string,
+    insightType: string,
+    priority: string
+  ): Promise<boolean> {
+    try {
+      const response = await fetch('http://localhost:5000/api/admin/notification-preferences/should-notify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          agentName,
+          insightType,
+          priority
+        })
+      });
+
+      if (!response.ok) {
+        console.warn('⚠️ Failed to check notification preferences, defaulting to notify');
+        return true;
+      }
+
+      const result = await response.json();
+      return result.shouldNotify;
+    } catch (error) {
+      console.warn('⚠️ Error checking notification preferences, defaulting to notify:', error);
+      return true;
     }
   }
 
