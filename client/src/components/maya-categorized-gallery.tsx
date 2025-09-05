@@ -60,18 +60,22 @@ interface ImageCardProps {
   onImageClick: (image: ImageData) => void;
 }
 
-const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => (
-  <div 
-    className="relative bg-white border border-gray-200 overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-lg"
-    onClick={() => onImageClick(image)}
-  >
-    <div className="aspect-square relative">
-      <img 
-        src={image.imageUrl} 
-        alt={`Generated image ${image.id}`}
-        className="w-full h-full object-cover"
-        loading="lazy"
-      />
+const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => {
+  // Use proxy URL to avoid CORS issues like main Maya chat
+  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(image.imageUrl)}`;
+  
+  return (
+    <div 
+      className="relative bg-white border border-gray-200 overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-lg"
+      onClick={() => onImageClick(image)}
+    >
+      <div className="aspect-square relative">
+        <img 
+          src={proxyUrl} 
+          alt={`Generated image ${image.id}`}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />
       
       {/* Image info overlay */}
@@ -82,7 +86,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => (
       </div>
     </div>
   </div>
-);
+);};
 
 export function MayaCategorizedGallery() {
   const { user, isAuthenticated } = useAuth();
