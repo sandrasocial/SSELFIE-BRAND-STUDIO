@@ -286,7 +286,7 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
                 key={index}
                 className={`support-message ${message.role === 'user' ? 'user' : 'assistant'}`}
               >
-                <div className="support-message-content">
+                <div className="support-message-content" style={{ whiteSpace: 'pre-line' }}>
                   {message.content}
                 </div>
                 <div className="support-message-time">
