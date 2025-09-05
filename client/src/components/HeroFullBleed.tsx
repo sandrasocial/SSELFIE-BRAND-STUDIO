@@ -67,7 +67,7 @@ export const HeroFullBleed: FC<HeroFullBleedProps> = ({
           )}
           
           {/* Main Title - Ultra-Stretched */}
-          <h1 className="hero-title text-white text-[clamp(4rem,12vw,10rem)] mb-8">
+          <h1 className="hero-title text-white text-[clamp(4rem,12vw,10rem)] mb-8" style={{ color: '#ffffff' }}>
             {title}
           </h1>
           
