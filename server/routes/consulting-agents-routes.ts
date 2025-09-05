@@ -399,26 +399,14 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       personalityContext
     );
 
-    // PHASE 1: COST CONTROL - Check budget before processing
-    console.log(`💰 COST CONTROL: Checking budget for ${normalizedAgentId.toUpperCase()}`);
+    // COST CONTROL: Check budget before processing
     const budgetCheck = await AgentCostTrackingService.checkBudgetLimits(userId, normalizedAgentId, 0);
-    
     if (budgetCheck.shouldPause) {
-      console.log(`🚨 BUDGET EXCEEDED: ${budgetCheck.reason}`);
       return res.status(429).json({
         success: false,
         message: `Agent ${normalizedAgentId} paused: ${budgetCheck.reason}`,
-        budgetExceeded: true,
-        budgetInfo: {
-          limit: budgetCheck.budgetLimit,
-          current: budgetCheck.currentSpend,
-          remaining: budgetCheck.remaining
-        }
+        budgetExceeded: true
       });
-    }
-    
-    if (budgetCheck.warning) {
-      console.log(`⚠️ BUDGET WARNING: ${budgetCheck.reason}`);
     }
 
     // ADMIN AGENTS: Always use Claude API with tools for intelligent interaction
@@ -437,17 +425,15 @@ export async function handleAdminConsultingChat(req: AdminRequest, res: any) {
       res
     );
     
-    // PHASE 1: COST TRACKING - Log usage after completion
-    const estimatedTokens = Math.max(message.length / 4, 100); // Rough token estimate
+    // COST TRACKING: Log usage after completion
+    const estimatedTokens = Math.max(message.length / 4, 100); // You'll need to calculate this
     await AgentCostTrackingService.trackAgentUsage(
       userId, 
       normalizedAgentId, 
       baseConversationId, 
-      estimatedTokens, 
+      estimatedTokens,
       'conversation'
     );
-    
-    console.log(`💰 COST TRACKED: ${estimatedTokens} tokens for ${normalizedAgentId}`);
 
   } catch (error) {
     console.error(`❌ Consulting error:`, error);
