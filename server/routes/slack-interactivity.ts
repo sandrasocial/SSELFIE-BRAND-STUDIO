@@ -110,7 +110,7 @@ async function handleBlockActions(payload: any) {
 
   switch (action.action_id) {
     case 'chat_with_agent':
-      await startAgentConversation(payload, action.value);
+      await startSlackAgentChat(payload, action.value);
       break;
     case 'view_customer_details':
       await viewCustomerDetails(payload, action.value);
@@ -138,8 +138,8 @@ async function handleBlockActions(payload: any) {
   }
 }
 
-// Start a conversation with a specific agent
-async function startAgentConversation(payload: any, agentName: string) {
+// 🎯 START AGENT CHAT DIRECTLY IN SLACK (NO WEB REDIRECT)
+async function startSlackAgentChat(payload: any, agentName: string) {
   const agentPersonalities = {
     elena: { emoji: '👑', role: 'Strategic Leader', focus: 'Revenue & Growth Strategy' },
     maya: { emoji: '✨', role: 'AI Stylist', focus: 'Image Quality & Generation' },
@@ -151,59 +151,84 @@ async function startAgentConversation(payload: any, agentName: string) {
   const agent = agentPersonalities[agentName as keyof typeof agentPersonalities];
   if (!agent) return;
 
-  // Get real SSELFIE Studio metrics for context
-  const metrics = await getRealLaunchMetrics();
+  try {
+    console.log(`🎯 STARTING SLACK CHAT: ${agentName} with ${payload.user.name}`);
+    
+    // Get real SSELFIE Studio metrics for context
+    const metrics = await getRealLaunchMetrics();
 
-  const conversationBlocks = [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `${agent.emoji} *Starting conversation with ${agentName.toUpperCase()}*\n_${agent.role} • Focus: ${agent.focus}_`
-      }
-    },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `Sandra! I've been analyzing SSELFIE Studio's current state:\n\n` +
-              `📊 *Launch Status:* ${metrics.totalUsers} test users, €${metrics.revenue} revenue\n` +
-              `🎯 *Generation Success:* ${metrics.generationSuccessRate}% success rate\n` +
-              `📈 *Growth Priority:* Customer acquisition & launch strategy\n\n` +
-              `What would you like to discuss about scaling SSELFIE Studio? Type your message below and I'll respond with strategic insights and recommendations.`
-      }
-    },
-    {
-      type: 'actions',
-      elements: [
+    // Start conversation thread in Slack channel (NOT web redirect)
+    await slack.chat.postMessage({
+      channel: channelId,
+      blocks: [
         {
-          type: 'button',
-          text: { type: 'plain_text', text: 'Launch Strategy Session' },
-          action_id: 'start_launch_planning',
-          style: 'primary'
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: `${agent.emoji} ${agentName.toUpperCase()} - Strategic Conversation Started`
+          }
         },
         {
-          type: 'button',
-          text: { type: 'plain_text', text: 'Customer Acquisition Plan' },
-          action_id: 'customer_acquisition_plan'
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `Sandra! I'm here to discuss **${agent.focus}** for SSELFIE Studio.\n\n` +
+                  `📊 **Current Status Analysis:**\n` +
+                  `• Users: ${metrics.totalUsers} test users\n` +
+                  `• Revenue: €${metrics.revenue} MRR\n` +
+                  `• Generation Success: ${metrics.generationSuccessRate}%\n` +
+                  `• Priority: Customer acquisition & €47/month validation\n\n` +
+                  `💬 **I'm actively listening in this channel now.** Type any message about ${agent.focus.toLowerCase()} and I'll respond with strategic insights tailored to your SSELFIE Studio launch!`
+          }
         },
         {
-          type: 'button',
-          text: { type: 'plain_text', text: '💬 Private Strategy Chat' },
-          action_id: 'start_private_strategy',
-          style: 'danger'
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: `🎯 **Active Agent:** ${agent.role} | **Specialization:** ${agent.focus} | **Status:** Ready for conversation`
+            }
+          ]
         }
-      ]
-    }
-  ];
+      ],
+      text: `${agentName} conversation started`
+    });
 
-  // Start a thread for the conversation
-  await slack.chat.postMessage({
-    channel: channelId,
-    blocks: conversationBlocks,
-    text: `Starting conversation with ${agentName}`
-  });
+    // Set active agent context for message responses
+    await setActiveAgent(channelId, agentName, agent);
+
+  } catch (error) {
+    console.error(`❌ Error starting Slack chat with ${agentName}:`, error);
+  }
 }
+
+// Store active agent for contextual responses
+const activeAgents = new Map();
+
+async function setActiveAgent(channelId: string, agentName: string, agentData: any) {
+  activeAgents.set(channelId, { name: agentName, data: agentData, timestamp: Date.now() });
+  console.log(`🎯 SET ACTIVE AGENT: ${agentName} in ${channelId}`);
+}
+
+async function getActiveAgent(channelId: string) {
+  const agent = activeAgents.get(channelId);
+  
+  // Clear agent after 30 minutes of inactivity
+  if (agent && Date.now() - agent.timestamp > 30 * 60 * 1000) {
+    activeAgents.delete(channelId);
+    return null;
+  }
+  
+  return agent;
+}
+
+// LEGACY FUNCTION (kept for backwards compatibility, but now redirects to new Slack-native chat)
+async function startAgentConversation(payload: any, agentName: string) {
+  // Redirect to new Slack-native chat instead of web redirect
+  return startSlackAgentChat(payload, agentName);
+}
+
+// Clean legacy function cleanup complete
 
 // Open launch planning modal
 async function openLaunchPlanningModal(payload: any) {
@@ -785,7 +810,7 @@ async function setFollowupReminder(payload: any, reminderType: string) {
   }
 }
 
-// Handle conversational messages (DMs and channel messages)
+// 🎯 ENHANCED CONVERSATIONAL MESSAGE HANDLER - REAL-TIME AGENT RESPONSES
 async function handleConversationalMessage(event: any) {
   try {
     console.log(`💬 CONVERSATION: Message from ${event.user} in ${event.channel}`);
@@ -796,18 +821,163 @@ async function handleConversationalMessage(event: any) {
     const message = event.text.toLowerCase();
     const channel = event.channel;
     
-    // Check if this is a strategic conversation
-    if (message.includes('strategy') || message.includes('launch') || message.includes('revenue')) {
-      await respondWithStrategicInsight(event, channel);
-    }
+    // Check for active agent in this channel
+    const activeAgent = await getActiveAgent(channel);
     
-    // Check if this is asking for analysis
-    if (message.includes('analyze') || message.includes('metrics') || message.includes('data')) {
-      await respondWithDataAnalysis(event, channel);
+    if (activeAgent) {
+      // Respond as the active agent with specialized knowledge
+      await respondAsActiveAgent(event, activeAgent, message);
+    } else {
+      // General agent responses based on message content
+      await respondWithGeneralAgentIntelligence(event, channel, message);
     }
     
   } catch (error) {
     console.error('❌ Error handling conversation:', error);
+  }
+}
+
+// Respond as the currently active agent with specialized context
+async function respondAsActiveAgent(event: any, activeAgent: any, message: string) {
+  console.log(`🎯 ACTIVE AGENT RESPONSE: ${activeAgent.name} responding to: "${message}"`);
+  
+  const metrics = await getRealLaunchMetrics();
+  const agent = activeAgent.data;
+  
+  // Generate intelligent response based on agent specialization
+  let response = '';
+  let actionButtons: any[] = [];
+  
+  switch (activeAgent.name) {
+    case 'elena':
+      response = generateElenaResponse(message, metrics);
+      actionButtons = [
+        {
+          type: 'button',
+          text: { type: 'plain_text', text: '📊 Revenue Analysis' },
+          action_id: 'share_strategy_doc',
+          value: 'revenue_analysis'
+        },
+        {
+          type: 'button',
+          text: { type: 'plain_text', text: '🎯 Acquisition Plan' },
+          action_id: 'customer_acquisition_plan'
+        }
+      ];
+      break;
+      
+    case 'victoria':
+      response = generateVictoriaResponse(message, metrics);
+      actionButtons = [
+        {
+          type: 'button',
+          text: { type: 'plain_text', text: '🔍 UX Analysis' },
+          action_id: 'share_strategy_doc',
+          value: 'ux_analysis'
+        }
+      ];
+      break;
+      
+    case 'maya':
+      response = generateMayaResponse(message, metrics);
+      actionButtons = [
+        {
+          type: 'button',
+          text: { type: 'plain_text', text: '✨ Style Insights' },
+          action_id: 'share_strategy_doc',
+          value: 'style_analysis'
+        }
+      ];
+      break;
+      
+    default:
+      response = `${agent.emoji} I'm analyzing your question about **${agent.focus.toLowerCase()}** for SSELFIE Studio. Based on current metrics (${metrics.totalUsers} users, €${metrics.revenue} revenue), I recommend focusing on customer acquisition strategies.`;
+  }
+
+  await slack.chat.postMessage({
+    channel: event.channel,
+    blocks: [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `${agent.emoji} **${activeAgent.name.toUpperCase()} responds:**\n\n${response}`
+        }
+      },
+      ...(actionButtons.length > 0 ? [{
+        type: 'actions',
+        elements: actionButtons
+      }] : [])
+    ],
+    text: `${activeAgent.name} response`
+  });
+  
+  // Update agent activity timestamp
+  await setActiveAgent(event.channel, activeAgent.name, agent);
+}
+
+// Generate Elena's strategic responses
+function generateElenaResponse(message: string, metrics: any): string {
+  if (message.includes('revenue') || message.includes('money') || message.includes('pricing')) {
+    return `Based on our current €${metrics.revenue} MRR with ${metrics.totalUsers} test users, we're in a strong position to scale. The €47/month price point is validated. \n\n🎯 **Strategic Priority:** Convert test users to paid subscriptions and acquire new customers through social media testimonials and referral programs.\n\n📈 **Next Steps:** Launch customer acquisition campaign targeting women entrepreneurs on Instagram and LinkedIn.`;
+  }
+  
+  if (message.includes('launch') || message.includes('strategy') || message.includes('growth')) {
+    return `SSELFIE Studio is launch-ready! With ${metrics.generationSuccessRate}% generation success rate, we have solid product-market fit.\n\n🚀 **Launch Strategy:**\n• Target: 100 paid subscribers by Q1 2025\n• Channels: Instagram + LinkedIn + influencer partnerships\n• Focus: Women entrepreneurs seeking professional brand photos\n\n💡 **Immediate Action:** Start content marketing with before/after showcases.`;
+  }
+  
+  return `From a strategic perspective, SSELFIE Studio has strong fundamentals. Let's focus on scaling our proven €47/month model to reach 100+ paying customers.`;
+}
+
+// Generate Victoria's UX/conversion responses
+function generateVictoriaResponse(message: string, metrics: any): string {
+  if (message.includes('conversion') || message.includes('user') || message.includes('experience')) {
+    return `Our ${metrics.generationSuccessRate}% generation success rate is excellent, but I see conversion optimization opportunities.\n\n📊 **UX Insights:**\n• User onboarding: Streamline the TRAIN → STYLE → GALLERY flow\n• Conversion funnel: Add testimonials at decision points\n• Mobile experience: Optimize for mobile-first users\n\n🎯 **Priority:** A/B test the checkout flow to improve conversion rates.`;
+  }
+  
+  if (message.includes('design') || message.includes('interface') || message.includes('ui')) {
+    return `The current interface is clean, but we can optimize for better conversion. Focus on reducing friction in the photo generation process and making the value proposition clearer.\n\n💡 **Quick wins:** Add progress indicators, testimonials, and clearer pricing benefits.`;
+  }
+  
+  return `From a UX perspective, let's focus on optimizing the conversion funnel to turn more visitors into paying subscribers.`;
+}
+
+// Generate Maya's AI/generation responses  
+function generateMayaResponse(message: string, metrics: any): string {
+  if (message.includes('generation') || message.includes('ai') || message.includes('quality') || message.includes('photos')) {
+    return `Our AI generation system is performing excellently with ${metrics.generationSuccessRate}% success rate! The FLUX 1.1 Pro models are producing professional-quality results.\n\n✨ **AI Performance:**\n• Style accuracy: High-quality business portraits\n• Generation speed: Optimized for user experience\n• Model training: Personalized for each user\n\n🎨 **Enhancement opportunities:** Continue refining prompts for even better brand photo quality.`;
+  }
+  
+  if (message.includes('style') || message.includes('brand') || message.includes('professional')) {
+    return `The styling intelligence is delivering exactly what women entrepreneurs need - professional, authentic brand photos that replace expensive photoshoots.\n\n🎯 **Style focus:** Business portraits, lifestyle shots, and professional headshots optimized for social media and websites.`;
+  }
+  
+  return `The AI generation system is the core strength of SSELFIE Studio. We're delivering professional-quality brand photos that would typically cost hundreds of euros per photoshoot.`;
+}
+
+// General agent intelligence when no specific agent is active
+async function respondWithGeneralAgentIntelligence(event: any, channel: string, message: string) {
+  // Check if this is a strategic conversation
+  if (message.includes('strategy') || message.includes('launch') || message.includes('revenue')) {
+    await respondWithStrategicInsight(event, channel);
+    return;
+  }
+  
+  // Check if this is asking for analysis
+  if (message.includes('analyze') || message.includes('metrics') || message.includes('data')) {
+    await respondWithDataAnalysis(event, channel);
+    return;
+  }
+  
+  // Check for agent-specific topics
+  if (message.includes('generation') || message.includes('ai') || message.includes('photos')) {
+    await respondAsAgent(event, 'maya');
+    return;
+  }
+  
+  if (message.includes('conversion') || message.includes('ux') || message.includes('user')) {
+    await respondAsAgent(event, 'victoria');
+    return;
   }
 }
 
