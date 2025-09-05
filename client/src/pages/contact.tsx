@@ -34,7 +34,7 @@ export default function Contact() {
       <PreLoginNavigationUnified />
       
       <HeroFullBleed
-        backgroundImage="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600"
+        backgroundImage="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
         title="CONTACT"
         tagline="YOUR STORY, YOUR IMAGE, YOUR WAY"
         ctaText="START YOUR STORY"
