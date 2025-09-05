@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest } from '../lib/queryClient';
 
 interface SandraAiChatProps {
   context: 'brandbook' | 'landing-page' | 'dashboard-builder' | 'general';
