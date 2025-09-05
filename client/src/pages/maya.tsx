@@ -32,6 +32,12 @@ interface ConceptCard {
   hasGenerated?: boolean;
 }
 
+// Clean display formatter - strips emojis for professional appearance while preserving backend intelligence
+const cleanDisplayTitle = (title: string): string => {
+  // Remove Maya's styling emojis but keep the concept name for clean display
+  return title.replace(/[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖]/g, '').trim();
+};
+
 export default function Maya() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
@@ -438,7 +444,7 @@ export default function Maya() {
                                             Concept {String(index + 1).padStart(2, '0')} • {card.category || 'Editorial'}
                                           </div>
                                           <h3 className="font-serif text-xl font-light uppercase tracking-[0.1em] text-black mb-4">
-                                            {card.title}
+                                            {cleanDisplayTitle(card.title)}
                                           </h3>
                                         </div>
                                         {card.imageUrl && (
@@ -482,7 +488,7 @@ export default function Maya() {
                                               <div key={imgIndex} className="image-item group" onClick={() => setSelectedImage?.(proxyUrl)}>
                                                 <img 
                                                   src={proxyUrl}
-                                                  alt={`Generated ${card.title} ${imgIndex + 1}`}
+                                                  alt={`Generated ${cleanDisplayTitle(card.title)} ${imgIndex + 1}`}
                                                   onLoad={() => {
                                                     console.log('✅ Image loaded via proxy:', proxyUrl);
                                                     // Auto-save to gallery
