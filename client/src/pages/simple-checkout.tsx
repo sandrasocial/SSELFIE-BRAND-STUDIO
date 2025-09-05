@@ -16,16 +16,20 @@ export default function SimpleCheckout() {
     
     try {
       // Create Stripe checkout session instead of payment intent
-      const response = await apiRequest("/api/create-checkout-session", "POST", {
+      const data = await apiRequest("/api/create-checkout-session", "POST", {
         plan: "sselfie-studio", // Use the correct plan name
         successUrl: `${window.location.origin}/payment-success?plan=sselfie-studio`,
         cancelUrl: `${window.location.origin}/simple-checkout`,
       });
 
-      const { url } = await response.json();
+      console.log('🔍 Checkout response:', data);
       
-      // Redirect to Stripe hosted checkout
-      window.location.href = url;
+      if (data.url) {
+        // Redirect to Stripe hosted checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
     } catch (error) {
       console.error('Checkout error:', error);
       toast({
