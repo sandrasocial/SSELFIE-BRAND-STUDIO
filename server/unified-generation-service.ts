@@ -5,8 +5,8 @@
 
 import { ModelTrainingService } from './model-training-service';
 
-// Feature flag to prevent Maya from using this service
-export const MAYA_USE_UNIFIED = process.env.MAYA_USE_UNIFIED === "1"; // default false
+// ✅ SIMPLIFIED: Maya always uses unified generation approach
+// No environment variables needed - direct delegation to ModelTrainingService
 
 /**
  * WRAPPER: Single entry point that calls ModelTrainingService
