@@ -56,7 +56,7 @@ router.get('/customers', async (req, res) => {
     query = sql`${query} LIMIT 50`;
     
     const customersResult = await db.execute(query);
-    const customers = Array.from(customersResult);
+    const customers = Array.from(customersResult as unknown as any[]);
     
     // Add calculated fields with accurate test user status
     const enrichedCustomers = customers.map((customer: any) => ({
