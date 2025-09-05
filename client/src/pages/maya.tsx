@@ -5,6 +5,7 @@ import { useMayaGeneration } from '../hooks/useMayaGeneration';
 import { useToast } from '../hooks/use-toast';
 import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
+import { useLocation } from 'wouter';
 
 // Maya simplified workspace page
 
@@ -33,6 +34,7 @@ interface ConceptCard {
 
 export default function Maya() {
   const { user } = useAuth();
+  const [location, setLocation] = useLocation();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -223,12 +225,12 @@ export default function Maya() {
             Menu
           </button>
 
-          {/* Close Button */}
+          {/* Back to Workspace Button */}
           <button
-            onClick={() => window.history.back()}
+            onClick={() => setLocation('/')}
             className="btn light text-xs tracking-[0.3em] uppercase px-6 py-3 hover:scale-105 transition-all duration-300"
           >
-            Close
+            Back to Workspace
           </button>
         </div>
 
