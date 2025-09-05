@@ -55,9 +55,9 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled || !transparent ? 'bg-black/80 backdrop-blur-md' : 'bg-transparent'
+      scrolled || !transparent ? 'bg-black/90 backdrop-blur-md' : 'bg-transparent'
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between">
           <button 
             onClick={(e) => {
@@ -70,20 +70,21 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
               }
             }}
             className="font-serif text-xl font-light tracking-wide text-white hover:opacity-70 transition-opacity duration-300"
+            style={{ fontFamily: "Times New Roman, serif" }}
           >
             SSELFIE
           </button>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6 lg:space-x-10">
+          <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
               <button
                 key={item.path}
                 onClick={() => setLocation(item.path)}
-                className={`text-xs uppercase tracking-[0.4em] transition-all duration-300 ${
+                className={`text-xs uppercase tracking-[0.3em] font-light transition-all duration-300 ${
                   isActive(item.path)
-                    ? 'text-white'
-                    : 'text-white/80 hover:text-white'
+                    ? 'text-white border-b border-white/50 pb-1'
+                    : 'text-white/70 hover:text-white hover:tracking-[0.4em]'
                 }`}
               >
                 {item.label}
@@ -108,7 +109,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                     console.error('Failed to stop impersonation:', error);
                   }
                 }}
-                className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white hover:tracking-[0.4em] transition-all duration-300"
               >
                 Back to Admin
               </button>
@@ -116,7 +117,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
 
             <button
               onClick={handleLogout}
-              className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
+              className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light"
             >
               Logout
             </button>
