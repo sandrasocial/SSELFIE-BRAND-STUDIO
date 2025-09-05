@@ -415,33 +415,15 @@ export class ModelTrainingService {
       // MAYA'S INTELLIGENT FLUX PARAMETERS: Use Maya's personality as single source of truth
       const { MAYA_PERSONALITY } = await import('./agents/personalities/maya-personality.js');
       
-      // INTELLIGENT SHOT TYPE DETECTION: Analyze Maya's prompt for optimal FLUX parameters
-      const promptLower = finalPrompt.toLowerCase();
-      
-      // SHOT TYPE DETECTION with aspect ratio optimization using Maya's intelligence
-      let detectedShotType = 'halfBodyShot'; // Default to half-body for styling showcase
-      let aspectRatio = "3:4"; // Default vertical ratio for styling
-      let fluxParams = MAYA_PERSONALITY.fluxOptimization.halfBodyShot;
-      
-      if (promptLower.includes('close-up') || promptLower.includes('headshot') || promptLower.includes('f/1.8') || promptLower.includes('f/2.0')) {
-        // CLOSE-UP PORTRAIT: Use Maya's optimized close-up parameters
-        fluxParams = MAYA_PERSONALITY.fluxOptimization.closeUpPortrait;
-        aspectRatio = "4:5"; // IG-friendly close-up portrait ratio
-        detectedShotType = 'closeUpPortrait';
-        console.log(`📸 MAYA'S FLUX OPTIMIZATION: Close-up portrait detected - using Maya's parameters: guidance_scale: ${fluxParams.guidance_scale}, steps: ${fluxParams.num_inference_steps}, aspect_ratio: 4:5`);
-      } else if (promptLower.includes('full') || promptLower.includes('scene') || promptLower.includes('environmental') || promptLower.includes('24mm') || promptLower.includes('35mm') || promptLower.includes('f/4') || promptLower.includes('f/5.6') || promptLower.includes('f/8')) {
-        // FULL SCENE: Use Maya's optimized full scenery parameters
-        fluxParams = MAYA_PERSONALITY.fluxOptimization.fullScenery;
-        aspectRatio = "3:2"; // Landscape for environmental context
-        detectedShotType = 'fullScenery';
-        console.log(`📸 MAYA'S FLUX OPTIMIZATION: Full scene detected - using Maya's parameters: guidance_scale: ${fluxParams.guidance_scale}, steps: ${fluxParams.num_inference_steps}, aspect_ratio: 3:2`);
-      } else {
-        // HALF-BODY SHOT (DEFAULT): Use Maya's optimized half-body parameters for styling showcase
-        fluxParams = MAYA_PERSONALITY.fluxOptimization.halfBodyShot;
-        aspectRatio = "3:4"; // Vertical that shows outfit/pose
-        detectedShotType = 'halfBodyShot';
-        console.log(`📸 MAYA'S FLUX OPTIMIZATION: Half-body styling shot detected - using Maya's parameters: guidance_scale: ${fluxParams.guidance_scale}, steps: ${fluxParams.num_inference_steps}, aspect_ratio: 3:4`);
-      }
+      // ✅ MAYA PURE INTELLIGENCE: Trust Maya's complete parameter selection
+      // Maya's AI handles shot type detection, aspect ratio, and all FLUX parameters
+      const fluxParams = {
+        guidance_scale: 3.5,  // Maya's default - will be overridden by her intelligence
+        num_inference_steps: 50, // Maya's default - will be overridden by her intelligence  
+      };
+      const aspectRatio = "4:5"; // Maya's default - will be overridden by her intelligence
+
+      console.log(`🎯 MAYA PURE INTELLIGENCE: Using Maya's embedded parameter intelligence`);
       
       // Maya will specify parameters naturally in her response if needed
       // FLUX optimization settings with Maya's quality intelligence  
