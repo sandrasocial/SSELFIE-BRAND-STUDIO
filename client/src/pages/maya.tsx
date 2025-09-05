@@ -350,23 +350,23 @@ export default function Maya() {
           {/* Mobile Hamburger Menu */}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="md:hidden btn light text-xs tracking-[0.2em] uppercase px-3 py-1.5 text-[10px] sm:text-xs sm:px-4 sm:py-2"
+            className="md:hidden btn light text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.2em] uppercase px-2 py-1 sm:px-3 sm:py-1.5"
           >
             Menu
           </button>
 
           {/* Navigation Actions */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-1.5 sm:space-x-2">
             <button
               onClick={handleNewSession}
-              className="btn light text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase px-2 sm:px-4 py-1.5 sm:py-2 hover:scale-105 transition-all duration-300"
+              className="btn light text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.2em] uppercase px-1.5 sm:px-2 py-1 sm:py-1.5 hover:scale-105 transition-all duration-300"
               title="Start a fresh conversation"
             >
               New Session
             </button>
             <button
               onClick={() => setLocation('/workspace')}
-              className="btn light text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase px-2 sm:px-4 py-1.5 sm:py-2 hover:scale-105 transition-all duration-300"
+              className="btn light text-[9px] sm:text-xs tracking-[0.1em] sm:tracking-[0.2em] uppercase px-1.5 sm:px-2 py-1 sm:py-1.5 hover:scale-105 transition-all duration-300"
             >
               Back
             </button>
@@ -576,9 +576,6 @@ export default function Maya() {
                                       <div className="relative z-10">
                                         <div className="flex items-start justify-between mb-3 sm:mb-6">
                                           <div className="flex-1">
-                                            <div className="eyebrow text-gray-500 mb-2 sm:mb-3 text-xs sm:text-sm">
-                                              Concept {String(index + 1).padStart(2, '0')} • {card.category || 'Editorial'}
-                                            </div>
                                             <h3 className="font-serif text-base sm:text-xl font-light uppercase tracking-[0.1em] text-black mb-2 sm:mb-4 leading-tight">
                                               {cleanDisplayTitle(card.title)}
                                             </h3>
