@@ -54,9 +54,27 @@ export default function AdminControlCenter() {
       {/* SANDRA'S CONTROL HEADER */}
       <div className="bg-black text-white p-6">
         <div className="max-w-7xl mx-auto">
-          <h1 className="font-serif text-3xl font-light tracking-wide mb-4">
-            ADMIN EMPIRE CONTROL CENTER
-          </h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="font-serif text-3xl font-light tracking-wide">
+              ADMIN EMPIRE CONTROL CENTER
+            </h1>
+            
+            {/* Quick Navigation Links */}
+            <div className="flex gap-3">
+              <a 
+                href="/admin/consulting-agents" 
+                className="bg-white bg-opacity-10 hover:bg-opacity-20 px-4 py-2 text-xs uppercase tracking-wide transition-colors border border-white border-opacity-20"
+              >
+                🤖 Consulting Agents
+              </a>
+              <a 
+                href="/admin/business-overview" 
+                className="bg-white bg-opacity-10 hover:bg-opacity-20 px-4 py-2 text-xs uppercase tracking-wide transition-colors border border-white border-opacity-20"
+              >
+                📊 Business Overview
+              </a>
+            </div>
+          </div>
           
           {/* Quick Stats Bar */}
           <div className="grid grid-cols-4 gap-6">
