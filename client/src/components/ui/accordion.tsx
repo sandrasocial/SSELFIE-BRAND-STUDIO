@@ -2,7 +2,7 @@ import React, { ComponentPropsWithoutRef, ElementRef, forwardRef } from 'react';
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 // Removed Lucide React icon to comply with Sandra's no-icons styleguide
 
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 
 const Accordion = AccordionPrimitive.Root
 

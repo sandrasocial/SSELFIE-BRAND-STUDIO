@@ -2,7 +2,7 @@ import React, { ComponentProps, ComponentPropsWithoutRef, ReactNode, forwardRef 
 import { Slot } from "@radix-ui/react-slot"
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 
 const Breadcrumb = forwardRef<
   HTMLElement,

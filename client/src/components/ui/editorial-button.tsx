@@ -1,5 +1,5 @@
 import React, { ButtonHTMLAttributes, ReactNode, forwardRef } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 export interface EditorialButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'white' | 'ghost';
