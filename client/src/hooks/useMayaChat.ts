@@ -104,7 +104,7 @@ export const useMayaChat = () => {
     const chatStartTime = Date.now();
     trackUserEvent('CHAT_MESSAGE_SENT', {
       messageLength: messageToSend.length,
-      context: isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'regular',
+      context: isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'styling',
       isOnboarding: isOnboardingMode,
       isQuickStart: isQuickStartMode
     });
@@ -125,7 +125,7 @@ export const useMayaChat = () => {
         setConnectionStatus(attempt > 0 ? 'connecting' : 'connected');
         
         // SINGLE MAYA ENDPOINT for all interactions with conversation history
-        const context = isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'regular';
+        const context = isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'styling';
         
         // Build conversation history for context (last 8 messages to avoid token limits)
         const conversationHistory = messages
@@ -217,7 +217,7 @@ export const useMayaChat = () => {
       trackInteractionTiming('CHAT_RESPONSE', chatStartTime, false);
       trackUserEvent('CHAT_ERROR', {
         error: error.message || 'Unknown error',
-        context: isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'regular'
+        context: isOnboardingMode ? 'onboarding' : isQuickStartMode ? 'quickstart' : 'styling'
       });
       
       const errorMessage: ChatMessage = {
