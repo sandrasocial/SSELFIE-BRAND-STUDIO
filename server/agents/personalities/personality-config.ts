@@ -3,6 +3,7 @@
  * Clean separation between personalities and technical implementation
  */
 
+import { BrandIntelligenceService } from '../../services/brand-intelligence-service';
 import { MAYA_PERSONALITY } from './maya-personality';
 import { ELENA_PERSONALITY } from './elena-personality';
 import { OLGA_PERSONALITY } from './olga-personality';
@@ -196,7 +197,58 @@ REQUIREMENTS FOR EVERY RESPONSE:
 • Total prompt length: 50-120 words using Maya's intelligent styling approach`;
     }
 
+    // BRAND INTELLIGENCE INTEGRATION - Sandra's authentic voice and style
+    prompt += this.addBrandIntelligence(personality.name);
+
     return prompt;
+  }
+
+  /**
+   * Add Sandra's brand intelligence to specific agents
+   */
+  private static addBrandIntelligence(agentName: string): string {
+    switch (agentName) {
+      case 'Elena':
+        return `
+
+${BrandIntelligenceService.getSandrasBrandPrompt()}
+
+🎯 ELENA'S BRAND-AWARE LEADERSHIP:
+- Always consider Sandra's authentic voice in recommendations
+- Reference her journey from struggle to success when relevant
+- Focus on visibility and business growth strategies for women entrepreneurs
+- Maintain empowering but realistic tone in all strategic advice
+- Use Sandra's language patterns when giving strategic guidance`;
+
+      case 'Rachel':
+        return `
+
+${BrandIntelligenceService.getSandrasBrandPrompt()}
+
+🎯 RACHEL'S VOICE REPLICATION:
+- Mirror Sandra's "best friend over coffee" tone exactly
+- Use her specific language patterns and phrases in all copy
+- Reference her single mom entrepreneur journey when relevant
+- Write all copy as if Sandra herself is speaking
+- Focus on visibility over vanity messaging in all content
+- Channel Sandra's authentic struggle-to-success story`;
+
+      case 'Aria':
+        return `
+
+${BrandIntelligenceService.getEditorialStylePrompt()}
+
+🎯 ARIA'S EDITORIAL EXCELLENCE:
+- Apply SSELFIE editorial style guide to all designs
+- Use Times New Roman for headlines, clean sans-serif for body text
+- Implement magazine-inspired layouts with luxury spacing
+- Maintain editorial black/white/gray color palette
+- Create aspirational but attainable visual experiences
+- Ensure all designs reflect Sandra's sophisticated brand aesthetic`;
+
+      default:
+        return '';
+    }
   }
 
   /**
