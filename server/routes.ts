@@ -1261,9 +1261,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { db } = await import('./db');
       const { aiImages } = await import('../shared/schema');
-      const { eq, desc, and } = await import('drizzle-orm');
+      const { eq, desc } = await import('drizzle-orm');
       
-      // Get images from Maya - using any source since they're all Maya-generated
+      console.log('🔍 DEBUG: Database imported, querying for userId:', userId);
+      
+      // Get images from Maya - all ai_images for this user
       const mayaImages = await db
         .select({
           id: aiImages.id,
@@ -1281,7 +1283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(mayaImages);
     } catch (error) {
       console.error('❌ Error fetching Maya images:', error);
-      res.status(500).json({ error: 'Failed to fetch Maya images' });
+      res.status(500).json({ error: 'Failed to fetch Maya images', details: error.message });
     }
   });
 
@@ -2433,32 +2435,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // AI Images API - FIXED: Return actual user images from database
-  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = (req.user as any)?.claims?.sub;
-      console.log('🖼️ Fetching AI images for user:', userId);
-      
-      // Import database and schema
-      const { db } = await import('./db');
-      const { aiImages } = await import('../shared/schema');
-      const { eq, desc } = await import('drizzle-orm');
-      
-      // Query user's AI images from database
-      const userImages = await db
-        .select()
-        .from(aiImages)
-        .where(eq(aiImages.userId, userId))
-        .orderBy(desc(aiImages.createdAt));
-      
-      console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
-      res.json(userImages);
-      
-    } catch (error) {
-      console.error('❌ Error fetching AI images:', error);
-      res.status(500).json({ error: 'Failed to get AI images' });
-    }
-  });
+  // REMOVED DUPLICATE AI IMAGES ROUTE #2
 
   app.get('/api/auth/user', async (req: any, res) => {
     try {
@@ -2957,29 +2934,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
   
-  // AI Images route for workspace gallery - FIXED: Use correct column names
-  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = (req.user as any)?.claims?.sub;
-      console.log('🖼️ Fetching AI images for user:', userId);
-      
-      // Import database and schema  
-      const { db } = await import('./db');
-      const { sql } = await import('drizzle-orm');
-      
-      // Query user's AI images from database using correct column name user_id
-      const userImages = await db.execute(
-        sql`SELECT * FROM ai_images WHERE user_id = ${userId} ORDER BY created_at DESC`
-      );
-      
-      console.log(`✅ Found ${userImages.rows.length} AI images for user ${userId}`);
-      res.json(userImages.rows);
-      
-    } catch (error) {
-      console.error('❌ Error fetching AI images:', error);
-      res.status(500).json({ message: "Failed to fetch AI images", error: error instanceof Error ? error.message : 'Unknown error' });
-    }
-  });
+  // REMOVED DUPLICATE AI IMAGES ROUTE #3
 
   // GALLERY API ENDPOINTS - MISSING IMPLEMENTATIONS
   
