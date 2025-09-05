@@ -142,16 +142,25 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
       });
     }
 
-    const { message, context = 'regular', chatId, conversationHistory = [] } = req.body;
+    const { message, context = 'styling', chatId, conversationHistory = [] } = req.body;
 
     if (!message) {
       logMayaAPI('/chat', startTime, false, new Error('Message required'));
       return res.status(400).json({ error: 'Message required' });
     }
 
-    // Admin/Member context awareness
+    // Admin/Member context awareness with support conversation separation
     const userType = req.userType || 'member';
-    const conversationId = getConversationId(userId, req.isAdmin || false, chatId);
+    
+    // PHASE 1: Separate conversation storage for support vs styling
+    let conversationId;
+    if (context === 'support') {
+      // Support conversations use separate conversation thread
+      conversationId = getConversationId(userId, req.isAdmin || false, chatId, 'support');
+    } else {
+      // Styling conversations use default thread (backward compatibility)
+      conversationId = getConversationId(userId, req.isAdmin || false, chatId);
+    }
     
     // PHASE 7: Log chat interaction
     logMayaPerformance('CHAT_START', {
@@ -163,6 +172,7 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     });
     
     console.log(`🎨 MAYA ${userType.toUpperCase()}: Processing ${context} message for ${req.isAdmin ? 'admin' : 'member'} user ${userId}`);
+    console.log(`🎯 PHASE 1: Context = "${context}", Conversation ID = "${conversationId}"`);
 
     // STEP 2.3: Check Maya Response Cache for single-pass processing
     const messageHash = generateMessageHash(message, context);
@@ -247,8 +257,23 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     // Check generation capability
     const generationInfo = await checkGenerationCapability(userId);
     
-    // SIMPLE: Single personality load with all intelligence from consolidated system
-    const mayaPersonality = PersonalityManager.getNaturalPrompt('maya');
+    // CONTEXT-AWARE: Load personality based on context (styling vs support)
+    let mayaPersonality = PersonalityManager.getContextPrompt('maya', context);
+    
+    // PHASE 2: Add support intelligence for support context
+    if (context === 'support') {
+      const { SupportIntelligenceService } = await import('../services/support-intelligence');
+      try {
+        const supportContext = await SupportIntelligenceService.getUserSupportContext(userId);
+        const contextText = SupportIntelligenceService.formatSupportContextForMaya(supportContext);
+        
+        mayaPersonality += `\n\n${contextText}`;
+        console.log('🧠 PHASE 2: Support intelligence added to Maya personality');
+      } catch (error) {
+        console.error('❌ PHASE 2: Error loading support intelligence:', error);
+        // Continue without support context
+      }
+    }
     
     // Add only essential request context
     const requestContext = `Current request: ${message}`;
@@ -320,35 +345,56 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     console.log('🎯 MAYA USER RESPONSE (what user sees):');
     console.log(mayaResponse);
     
-    // Process Maya's unified response
-    const processedResponse = await processMayaResponse(
-      mayaResponse, 
-      context, 
-      userId, 
-      userContext,
-      generationInfo
-    );
-    
-    // CRITICAL DEBUG: Check concept fullPrompt population after processing
-    console.log(`🎨 POST-PROCESSING CONCEPTS: Found ${processedResponse.conceptCards?.length || 0} concept cards`);
-    if (processedResponse.conceptCards) {
-      processedResponse.conceptCards.forEach((concept, index) => {
-        console.log(`🎨 POST-PROCESSING CONCEPT ${index + 1}:`);
-        console.log(`- Name: ${concept.title}`);
-        console.log(`- Has fullPrompt: ${!!concept.fullPrompt}`);
-        console.log(`- FullPrompt length: ${concept.fullPrompt?.length || 0} characters`);
-        if (concept.fullPrompt) {
-          console.log(`- FullPrompt preview: ${concept.fullPrompt.substring(0, 100)}...`);
-        }
-      });
+    // PHASE 1: Context-aware response processing
+    let processedResponse;
+    if (context === 'support') {
+      // Support mode: No concept cards, just conversational response
+      console.log('🎯 PHASE 1: Processing SUPPORT mode response - no concept cards');
+      processedResponse = {
+        message: mayaResponse,
+        content: mayaResponse,
+        mode: context,
+        canGenerate: false,
+        conceptCards: [], // No concept cards in support mode
+        quickButtons: [],
+        onboardingProgress: null,
+        chatCategory: 'support'
+      };
+    } else {
+      // Styling mode: Full concept card processing
+      console.log('🎯 PHASE 1: Processing STYLING mode response - full concept card system');
+      processedResponse = await processMayaResponse(
+        mayaResponse, 
+        context, 
+        userId, 
+        userContext,
+        generationInfo
+      );
     }
-
-    // ENHANCED CONTEXT PRESERVATION: Store in concept cards for API Call #2
-    if (processedResponse.conceptCards && processedResponse.conceptCards.length > 0) {
-      processedResponse.conceptCards.forEach(concept => {
-        concept.enhancedContext = enhancedContext;
-        console.log(`💾 ENHANCED CONTEXT STORED: Concept "${concept.title}" with complete Maya context (${enhancedContext.originalMayaResponse.length} chars)`);
-      });
+    
+    // PHASE 1: Context-aware post-processing
+    if (context === 'styling') {
+      // Only process concept cards in styling mode
+      console.log(`🎨 POST-PROCESSING CONCEPTS: Found ${processedResponse.conceptCards?.length || 0} concept cards`);
+      if (processedResponse.conceptCards) {
+        processedResponse.conceptCards.forEach((concept, index) => {
+          console.log(`🎨 POST-PROCESSING CONCEPT ${index + 1}:`);
+          console.log(`- Name: ${concept.title}`);
+          console.log(`- Has fullPrompt: ${!!concept.fullPrompt}`);
+          console.log(`- FullPrompt length: ${concept.fullPrompt?.length || 0} characters`);
+          if (concept.fullPrompt) {
+            console.log(`- FullPrompt preview: ${concept.fullPrompt.substring(0, 100)}...`);
+          }
+        });
+        
+        // ENHANCED CONTEXT PRESERVATION: Store in concept cards for API Call #2
+        processedResponse.conceptCards.forEach(concept => {
+          concept.enhancedContext = enhancedContext;
+          console.log(`💾 ENHANCED CONTEXT STORED: Concept "${concept.title}" with complete Maya context (${enhancedContext.originalMayaResponse.length} chars)`);
+        });
+      }
+    } else {
+      console.log(`💬 SUPPORT MODE: Pure conversational response - no concept processing needed`);
     }
     
     // Admin/Member aware conversation storage

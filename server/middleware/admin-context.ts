@@ -61,18 +61,21 @@ export function adminContextDetection(req: AdminContextRequest, res: Response, n
 }
 
 /**
- * Generate conversation ID based on user type
+ * Generate conversation ID based on user type and context
+ * PHASE 1: Added context support for separate styling vs support conversations
  */
-export function getConversationId(userId: string, isAdmin: boolean, chatId?: number): string {
+export function getConversationId(userId: string, isAdmin: boolean, chatId?: number, context?: string): string {
+  const contextSuffix = context === 'support' ? '_support' : '';
+  
   if (isAdmin) {
-    return `maya_admin_platform_${userId}`;
+    return `maya_admin_platform_${userId}${contextSuffix}`;
   }
   
   if (chatId) {
-    return `maya_member_${userId}_${chatId}`;
+    return `maya_member_${userId}_${chatId}${contextSuffix}`;
   }
   
-  return `maya_member_${userId}`;
+  return `maya_member_${userId}${contextSuffix}`;
 }
 
 /**
