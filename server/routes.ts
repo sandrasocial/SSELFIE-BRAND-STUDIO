@@ -1253,39 +1253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Maya generated images endpoint - for categorized gallery  
-  app.get('/api/maya/generated-images', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user?.claims?.sub;
-      console.log('🎨 Fetching Maya generated images for user:', userId);
-      
-      const { db } = await import('./db');
-      const { aiImages } = await import('../shared/schema');
-      const { eq, desc } = await import('drizzle-orm');
-      
-      console.log('🔍 DEBUG: Database imported, querying for userId:', userId);
-      
-      // Get images from Maya - all ai_images for this user
-      const mayaImages = await db
-        .select({
-          id: aiImages.id,
-          imageUrl: aiImages.imageUrl,
-          prompt: aiImages.prompt,
-          category: aiImages.category,
-          createdAt: aiImages.createdAt,
-          isFavorite: aiImages.isFavorite
-        })
-        .from(aiImages)
-        .where(eq(aiImages.userId, userId))
-        .orderBy(desc(aiImages.createdAt));
-      
-      console.log(`🎨 Found ${mayaImages.length} Maya generated images for user ${userId}`);
-      res.json(mayaImages);
-    } catch (error) {
-      console.error('❌ Error fetching Maya images:', error);
-      res.status(500).json({ error: 'Failed to fetch Maya images', details: error.message });
-    }
-  });
+  // REMOVED: Maya endpoint moved to unified router at /api/maya/generated-images
 
   // AI Images endpoint - Production ready
   app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
