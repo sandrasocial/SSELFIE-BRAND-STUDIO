@@ -129,7 +129,7 @@ export default function TeamsLanding() {
   }, []);
 
   const handleContactSales = () => {
-    window.open('https://calendly.com/sselfie-enterprise', '_blank');
+    window.location.href = '/contact';
   };
 
   const handleGetStarted = () => {
