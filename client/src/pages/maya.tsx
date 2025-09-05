@@ -350,23 +350,23 @@ export default function Maya() {
           {/* Mobile Hamburger Menu */}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="md:hidden btn light text-xs tracking-[0.3em] uppercase px-4 py-2"
+            className="md:hidden btn light text-xs tracking-[0.2em] uppercase px-3 py-1.5 text-[10px] sm:text-xs sm:px-4 sm:py-2"
           >
             Menu
           </button>
 
           {/* Navigation Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <button
               onClick={handleNewSession}
-              className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
+              className="btn light text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase px-2 sm:px-4 py-1.5 sm:py-2 hover:scale-105 transition-all duration-300"
               title="Start a fresh conversation"
             >
               New Session
             </button>
             <button
               onClick={() => setLocation('/workspace')}
-              className="btn light text-xs tracking-[0.3em] uppercase px-4 py-2 hover:scale-105 transition-all duration-300"
+              className="btn light text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase px-2 sm:px-4 py-1.5 sm:py-2 hover:scale-105 transition-all duration-300"
             >
               Back
             </button>
@@ -374,24 +374,24 @@ export default function Maya() {
         </div>
 
         {/* Hero Content - Compact */}
-        <div className="hero-content relative z-10 flex flex-col justify-center items-center text-center h-full px-8 py-12">
+        <div className="hero-content relative z-10 flex flex-col justify-center items-center text-center h-full px-4 sm:px-8 py-6 sm:py-12">
           {/* Editorial Eyebrow */}
-          <div className="hero-tagline eyebrow text-white/70 mb-4">
+          <div className="hero-tagline eyebrow text-white/70 mb-2 sm:mb-4 text-xs sm:text-sm">
             Your Personal Photo Stylist
           </div>
 
           {/* Main Title - Editorial Size */}
-          <h1 className="hero-title-main font-serif text-[clamp(4rem,8vw,7rem)] font-extralight uppercase tracking-[0.5em] leading-[0.8] mb-3">
+          <h1 className="hero-title-main font-serif text-[clamp(3rem,8vw,7rem)] font-extralight uppercase tracking-[0.3em] sm:tracking-[0.5em] leading-[0.8] mb-2 sm:mb-3">
             MAYA
           </h1>
 
           {/* Subtitle */}
-          <div className="hero-title-sub font-serif text-[clamp(1.2rem,3vw,2rem)] font-extralight uppercase tracking-[0.3em] opacity-80 mb-6">
+          <div className="hero-title-sub font-serif text-[clamp(0.9rem,3vw,2rem)] font-extralight uppercase tracking-[0.2em] sm:tracking-[0.3em] opacity-80 mb-3 sm:mb-6">
             Personal Brand Architect
           </div>
 
           {/* Description */}
-          <p className="hero-description max-w-xl text-sm font-light leading-relaxed opacity-90 tracking-[0.05em]">
+          <p className="hero-description max-w-xl text-xs sm:text-sm font-light leading-relaxed opacity-90 tracking-[0.05em] px-4">
             I help you create photo concepts that tell your unique story and grow your brand.
           </p>
         </div>
@@ -558,7 +558,7 @@ export default function Maya() {
                         {/* Editorial Concept Cards */}
                         {msg.conceptCards && msg.conceptCards.length > 0 && (
                           <div className="mt-12 pt-12 border-t border-gray-200">
-                            <div className="font-serif text-2xl font-extralight uppercase tracking-[0.2em] text-black mb-8">
+                            <div className="font-serif text-lg sm:text-2xl font-extralight uppercase tracking-[0.2em] text-black mb-4 sm:mb-8">
                               Concept Cards
                             </div>
                             
@@ -568,18 +568,18 @@ export default function Maya() {
                                 
                                 return (
                                   <div key={card.id} className="editorial-card group border border-gray-200">
-                                    <div className="card-content p-8 relative">
-                                      <div className="card-number text-8xl font-serif opacity-5 absolute -top-4 -right-2">
+                                    <div className="card-content p-4 sm:p-8 relative">
+                                      <div className="card-number text-4xl sm:text-8xl font-serif opacity-5 absolute -top-2 sm:-top-4 -right-1 sm:-right-2">
                                         {String(index + 1).padStart(2, '0')}
                                       </div>
                                       
                                       <div className="relative z-10">
-                                        <div className="flex items-start justify-between mb-6">
+                                        <div className="flex items-start justify-between mb-3 sm:mb-6">
                                           <div className="flex-1">
-                                            <div className="eyebrow text-gray-500 mb-3">
+                                            <div className="eyebrow text-gray-500 mb-2 sm:mb-3 text-xs sm:text-sm">
                                               Concept {String(index + 1).padStart(2, '0')} • {card.category || 'Editorial'}
                                             </div>
-                                            <h3 className="font-serif text-xl font-light uppercase tracking-[0.1em] text-black mb-4">
+                                            <h3 className="font-serif text-base sm:text-xl font-light uppercase tracking-[0.1em] text-black mb-2 sm:mb-4 leading-tight">
                                               {cleanDisplayTitle(card.title)}
                                             </h3>
                                           </div>
@@ -589,26 +589,26 @@ export default function Maya() {
                                         </div>
                                         
                                         {isExpanded && (
-                                          <p className="text-base leading-relaxed font-light text-gray-700 mb-6">
+                                          <p className="text-sm sm:text-base leading-relaxed font-light text-gray-700 mb-3 sm:mb-6">
                                             {card.description}
                                           </p>
                                         )}
                                         
                                         {/* Action Buttons Row */}
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center justify-between gap-2">
                                           <button
                                             onClick={() => toggleCardExpansion(card.id)}
-                                            className="text-xs uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors"
+                                            className="text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-600 hover:text-black transition-colors flex-shrink-0"
                                           >
-                                            {isExpanded ? 'Collapse' : 'View Details'}
+                                            {isExpanded ? 'Collapse' : 'Details'}
                                           </button>
                                           
                                           <button
                                             onClick={() => handleGenerateImage(card)}
                                             disabled={card.isGenerating}
-                                            className="bg-black text-white px-6 py-2 text-xs uppercase tracking-[0.3em] hover:bg-gray-800 transition-colors disabled:opacity-50"
+                                            className="bg-black text-white px-4 sm:px-6 py-2 text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] hover:bg-gray-800 transition-colors disabled:opacity-50 min-w-[80px] sm:min-w-[100px]"
                                           >
-                                            {card.isGenerating ? 'Generating...' : 'Generate'}
+                                            {card.isGenerating ? 'Creating...' : 'Generate'}
                                           </button>
                                         </div>
                                         
@@ -694,11 +694,11 @@ export default function Maya() {
             {/* Maya Typing Indicator - Editorial Style */}
             {isTyping && (
               <div className="animate-fadeIn">
-                <div className="eyebrow text-gray-500 mb-6">
+                <div className="eyebrow text-gray-500 mb-3 sm:mb-6 text-xs sm:text-sm">
                   Maya • Working on your ideas
                 </div>
                 <div className="bg-white border border-gray-200 shadow-lg">
-                  <div className="p-12 flex items-center space-x-4">
+                  <div className="p-6 sm:p-12 flex items-center space-x-4">
                     <div className="flex space-x-2">
                       <div className="w-3 h-3 bg-black rounded-full animate-bounce"></div>
                       <div className="w-3 h-3 bg-black rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
@@ -716,18 +716,18 @@ export default function Maya() {
             <div className="max-w-4xl mx-auto px-4 sm:px-0">
               {/* Input as Natural Chat Element */}
               <div className="bg-white border border-gray-200 shadow-lg animate-fadeIn">
-                <div className="p-12">
-                  <div className="eyebrow text-gray-500 mb-6">
+                <div className="p-6 sm:p-12">
+                  <div className="eyebrow text-gray-500 mb-3 sm:mb-6 text-xs sm:text-sm">
                     Continue our conversation • Share your ideas
                   </div>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="What kind of photos are you thinking about?"
-                      className="w-full border-0 resize-none bg-transparent text-lg font-light leading-relaxed placeholder-gray-400 focus:outline-none"
+                      className="w-full border-0 resize-none bg-transparent text-base sm:text-lg font-light leading-relaxed placeholder-gray-400 focus:outline-none"
                       rows={3}
                       disabled={isTyping}
                     />
@@ -739,8 +739,8 @@ export default function Maya() {
                         disabled={!message.trim() || isTyping}
                         className="editorial-card group bg-black text-white hover:bg-gray-800 active:bg-gray-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed w-full min-h-[48px] touch-manipulation"
                       >
-                        <div className="card-content px-8 py-3 relative">
-                          <div className="text-xs font-normal uppercase tracking-[0.3em] group-hover:text-white transition-colors duration-300">
+                        <div className="card-content px-4 sm:px-8 py-3 relative">
+                          <div className="text-xs font-normal uppercase tracking-[0.2em] sm:tracking-[0.3em] group-hover:text-white transition-colors duration-300">
                             {isTyping ? 'Creating...' : 'Send to Maya'}
                           </div>
                         </div>
@@ -759,12 +759,12 @@ export default function Maya() {
       {/* Integrated Auto-Categorizing Gallery */}
       <div className="bg-gray-50 border-t border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
-          <div className="mb-8">
-            <div className="eyebrow text-gray-500 mb-2">Your Photo Collection</div>
-            <h2 className="font-serif text-2xl font-extralight uppercase tracking-[0.2em] text-black">
+          <div className="mb-6 sm:mb-8">
+            <div className="eyebrow text-gray-500 mb-2 text-xs sm:text-sm">Your Photo Collection</div>
+            <h2 className="font-serif text-xl sm:text-2xl font-extralight uppercase tracking-[0.15em] sm:tracking-[0.2em] text-black">
               All Your Photos
             </h2>
-            <p className="text-sm text-gray-600 mt-2">Every photo we've created together, organized by style</p>
+            <p className="text-xs sm:text-sm text-gray-600 mt-2">Every photo we've created together, organized by style</p>
           </div>
           <MayaCategorizedGallery />
         </div>
