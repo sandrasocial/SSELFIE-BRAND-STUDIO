@@ -1,7 +1,7 @@
 import React, { ComponentProps, forwardRef } from 'react';
 // Removed Lucide React icons to comply with Sandra's no-icons styleguide
 
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 import { ButtonProps, buttonVariants } from "@/components/ui/button"
 
 const Pagination = ({ className, ...props }: ComponentProps<"nav">) => (

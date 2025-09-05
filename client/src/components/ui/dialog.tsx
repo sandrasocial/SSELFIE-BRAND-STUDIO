@@ -4,7 +4,7 @@ import React, { forwardRef, ElementRef, ComponentPropsWithoutRef, HTMLAttributes
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 // Removed Lucide React icon import to comply with Sandra's no-icons styleguide
 
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 
 const Dialog = DialogPrimitive.Root
 
