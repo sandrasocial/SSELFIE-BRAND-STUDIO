@@ -3721,9 +3721,9 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   const { migrationMonitor } = await import('./migration-monitor');
   migrationMonitor.startMonitoring();
   
-  // DISABLED: Mock data agent spam - replaced with real launch-focused interactive system
-  // const { AgentContextMonitor } = await import('./services/agent-context-monitor');
-  // AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes
+  // ENABLED: Real-data agent insights for launch strategy (every 30 minutes)
+  const { AgentContextMonitor } = await import('./services/agent-context-monitor');
+  AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes for launch opportunities
   
   // Connect Slack Interactive System
   const slackInteractivityRouter = await import('./routes/slack-interactivity');
