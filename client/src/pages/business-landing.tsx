@@ -376,8 +376,8 @@ export default function BusinessLanding() {
               
               <div className="grid grid-cols-2 gap-8 mb-8">
                 <div>
-                  <p className="text-3xl font-light text-black">120,000+</p>
-                  <p className="text-gray-600 text-sm">Followers cultivated using this methodology</p>
+                  <p className="text-3xl font-light text-black">3 Children</p>
+                  <p className="text-gray-600 text-sm">Single mother building this solution</p>
                 </div>
                 
                 <div>
