@@ -1235,6 +1235,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const instagramManagementRouter = await import('./routes/instagram-management');
   app.use('/api/instagram-management', instagramManagementRouter.default);
   
+  // 🧪 Slack Integration Testing Routes
+  const slackTestRouter = await import('./routes/slack-test');
+  app.use('/api/slack', slackTestRouter.default);
+  
   // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
   app.use('/api/subscribers', subscriberImport.default);
