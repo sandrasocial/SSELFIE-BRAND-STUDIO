@@ -574,9 +574,9 @@ export default function Maya() {
                                       </div>
                                       
                                       <div className="relative z-10">
-                                        <div className="flex items-start justify-between mb-3 sm:mb-6">
+                                        <div className="flex items-start justify-between mb-6 sm:mb-8">
                                           <div className="flex-1">
-                                            <h3 className="font-serif text-base sm:text-xl font-light uppercase tracking-[0.1em] text-black mb-2 sm:mb-4 leading-tight">
+                                            <h3 className="font-serif text-base sm:text-xl font-light uppercase tracking-[0.1em] text-black mb-4 sm:mb-6 leading-tight">
                                               {cleanDisplayTitle(card.title)}
                                             </h3>
                                           </div>
@@ -586,13 +586,13 @@ export default function Maya() {
                                         </div>
                                         
                                         {isExpanded && (
-                                          <p className="text-sm sm:text-base leading-relaxed font-light text-gray-700 mb-3 sm:mb-6">
+                                          <p className="text-sm sm:text-base leading-relaxed font-light text-gray-700 mb-6 sm:mb-8">
                                             {card.description}
                                           </p>
                                         )}
                                         
                                         {/* Action Buttons Row */}
-                                        <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center justify-between gap-2 mt-2 sm:mt-4">
                                           <button
                                             onClick={() => toggleCardExpansion(card.id)}
                                             className="text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] text-gray-600 hover:text-black transition-colors flex-shrink-0"
