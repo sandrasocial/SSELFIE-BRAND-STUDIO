@@ -2009,6 +2009,14 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.use('/api/agent-handoff', agentHandoffRouter);
   console.log('✅ FIXED: Consulting agent system active at /api/consulting-agents/*');
   
+  // ADMIN NOTIFICATIONS ROUTES - Agent-to-admin communication via Slack
+  const adminNotificationsRouter = await import('./routes/admin-notifications');
+  app.use('/api/admin/notifications', adminNotificationsRouter.default);
+  
+  // TEST NOTIFICATIONS ROUTES - For testing agent notification system
+  const testNotificationsRouter = await import('./routes/test-agent-notifications');
+  app.use('/api/test/notifications', testNotificationsRouter.default);
+  
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
   
