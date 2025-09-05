@@ -62,6 +62,7 @@ const LaunchCountdown = lazy(() => import("./pages/launch-countdown"));
 const AdminAccessOnly = lazy(() => import("./pages/admin-access-only"));
 const Build = lazy(() => import("./pages/build"));
 const Settings = lazy(() => import("./pages/settings"));
+const EmailDashboard = lazy(() => import("./pages/EmailDashboard"));
 
 // Components
 import UnifiedLoginButton from "./components/UnifiedLoginButton";
@@ -371,6 +372,12 @@ function Router() {
       <Route path="/admin/subscriber-import" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={AdminSubscriberImport} {...props} />
+        </Suspense>
+      )} />
+      
+      <Route path="/admin/email-management" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={EmailDashboard} {...props} />
         </Suspense>
       )} />
 

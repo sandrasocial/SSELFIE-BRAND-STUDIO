@@ -164,7 +164,7 @@ export class SlackNotificationService {
       'maya': '✨',      // AI Stylist
       'victoria': '📊',  // UX Strategist
       'rachel': '✍️',    // Copywriter
-      'ava': '🤖',       // Automation
+      'ava': '📧',       // Email Management Agent
       'quinn': '🔍',     // QA
       'sophia': '📱',    // Social Media
       'martha': '📈',    // Marketing

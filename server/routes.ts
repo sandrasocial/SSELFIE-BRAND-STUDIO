@@ -40,6 +40,7 @@ import phase2CoordinationRouter from './routes/phase2-coordination';
 // REMOVED: registerAdminConversationRoutes - using unified consulting-agents-routes only
 
 import { generateWebsiteHTML } from './services/website-generator';
+import emailManagementRouter from './routes/email-management-routes';
 // 🔄 PHASE 5: Import checkout routes for retraining system
 import { registerCheckoutRoutes } from './routes/checkout';
 
@@ -1222,6 +1223,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Email automation routes
   app.use('/api/email', emailAutomation);
+  
+  // 📧 AVA Email Management Agent Routes
+  app.use('/api/email-management', emailManagementRouter);
   
   // Subscriber import routes
   const subscriberImport = await import('./routes/subscriber-import');
