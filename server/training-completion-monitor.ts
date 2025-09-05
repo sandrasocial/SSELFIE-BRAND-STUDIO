@@ -101,8 +101,9 @@ export class TrainingCompletionMonitor {
 
         console.log(`🎉 Database updated! User ${userId} training completed`);
         return true;
+      }
 
-      } else if (trainingData.status === 'failed') {
+      if (trainingData.status === 'failed') {
         console.log(`❌ Training failed for user ${userId}`);
         
         await storage.updateUserModel(userId, {
@@ -113,9 +114,9 @@ export class TrainingCompletionMonitor {
         return false;
       }
 
-      // Still in progress
+      // Training still in progress
       return false;
-
+      
     } catch (error) {
       console.error(`❌ Error checking training ${replicateModelId}:`, error);
       return false;
