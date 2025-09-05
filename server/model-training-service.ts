@@ -160,19 +160,30 @@ export class ModelTrainingService {
       }
 
       
-      // ✅ CRITICAL FIX: Store training ID in separate field, keep replicateModelId for final model path only
+      // 🔒 PHASE 1 FIX: PRESERVE WORKING MODEL DATA - Critical Database Safety
+      // Don't clear existing model data until replacement is confirmed working
       console.log(`🔍 Storing training ID: ${trainingData.id} for user ${userId}`);
+      
+      // Get existing model data to preserve working functionality
+      const currentModel = await storage.getUserModelByUserId(userId);
+      console.log(`🔒 PHASE 1: Preserving existing model data for user ${userId}`);
+      console.log(`🔒 PHASE 1: Existing model - ID: ${currentModel?.replicateModelId}, Version: ${currentModel?.replicateVersionId}`);
+      
       await storage.updateUserModel(userId, {
         trainingId: trainingData.id, // Store training ID in dedicated field
         triggerWord: triggerWord,
         trainingStatus: 'training',
         trainingProgress: 0,
-        // Clear previous model data while training
-        replicateModelId: null,
-        replicateVersionId: null,
-        loraWeightsUrl: null
+        startedAt: new Date(),
+        // 🔒 PHASE 1 CRITICAL FIX: PRESERVE existing working model data
+        // User can continue generating images while new training is in progress
+        // replicateModelId: PRESERVED - don't clear until replacement is ready
+        // replicateVersionId: PRESERVED - don't clear until replacement is ready
+        // Only clear if no existing model data exists
+        ...(currentModel?.replicateModelId ? {} : { replicateModelId: null }),
+        ...(currentModel?.replicateVersionId ? {} : { replicateVersionId: null })
       });
-      console.log(`✅ Training ID stored in dedicated field for user ${userId}`);
+      console.log(`✅ PHASE 1: Training started while preserving working model for user ${userId}`);
       
       
       return {
@@ -224,12 +235,9 @@ export class ModelTrainingService {
         status = 'cancelled';
         progress = 0;
       } else {
-        // Training in progress - estimate progress based on time
-        const trainingStartTime = new Date(userModel.createdAt || new Date()).getTime();
-        const now = Date.now();
-        const trainingDuration = now - trainingStartTime;
-        const twentyMinutes = 20 * 60 * 1000; // 20 minutes typical training time
-        progress = Math.min(Math.round((trainingDuration / twentyMinutes) * 100), 99);
+        // 📊 PHASE 4: Enhanced progress tracking with real Replicate logs
+        progress = await this.calculateRealTrainingProgress(trainingData, userModel);
+        console.log(`📊 PHASE 4: Real progress calculated: ${progress}% for user ${userId}`);
       }
       
       // Update model with real status and version ID when training completes
@@ -238,66 +246,81 @@ export class ModelTrainingService {
         trainingProgress: progress
       };
       
-      // 🔒 CRITICAL FIX: Extract final model data and LoRA weights when training completes
+      // 🔒 PHASE 1 FIX: SAFE MODEL REPLACEMENT - Only replace after validation
       if (status === 'completed') {
         try {
-          console.log(`✅ TRAINING COMPLETED: Extracting model data and LoRA weights for user ${userId}`);
+          console.log(`✅ TRAINING COMPLETED: Safely extracting and validating new model for user ${userId}`);
           
-          // Extract model data and LoRA weights from completed training
+          let newModelId = null;
+          let newVersionId = null;
+          
+          // Extract model data from completed training
           if (trainingData.output) {
-            // Method 1: Direct weights from training output
-            if (trainingData.output.weights) {
-              updateData.loraWeightsUrl = trainingData.output.weights;
-              console.log(`✅ EXTRACTED LoRA weights from training output: ${trainingData.output.weights}`);
+            // Method 1: Direct model path from training output (preferred for packaged models)
+            if (trainingData.output.model) {
+              const modelParts = trainingData.output.model.split(':');
+              if (modelParts.length === 2) {
+                newModelId = modelParts[0];
+                newVersionId = modelParts[1];
+                console.log(`✅ PHASE 1: Extracted model from output.model: ${newModelId}:${newVersionId}`);
+              }
             }
             
-            // Method 2: Extract model path and version from training output
-            if (trainingData.output.version) {
-              const versionMatch = trainingData.output.version.match(/replicate\.com\/([^:]+):(.+)$/);
+            // Method 2: Extract from version URL (fallback)
+            if (!newModelId && trainingData.output.version) {
+              const versionMatch = trainingData.output.version.match(/([^\/]+\/[^:]+):(.+)$/);
               if (versionMatch) {
-                const modelPath = versionMatch[1];
-                const versionId = versionMatch[2];
-                
-                updateData.replicateModelId = modelPath;
-                updateData.replicateVersionId = versionId;
-                
-                console.log(`✅ EXTRACTED model path: ${modelPath}, version: ${versionId}`);
-                
-                // If no direct weights, try to fetch from version
-                if (!updateData.loraWeightsUrl) {
-                  const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelPath}/versions/${versionId}`, {
-                    headers: {
-                      'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
-                      'Content-Type': 'application/json'
-                    }
-                  });
-                  
-                  if (versionResponse.ok) {
-                    const versionData = await versionResponse.json();
-                    if (versionData.files?.lora_weights) {
-                      updateData.loraWeightsUrl = versionData.files.lora_weights;
-                      console.log(`✅ EXTRACTED LoRA weights from version: ${versionData.files.lora_weights}`);
-                    } else if (versionData.files?.weights) {
-                      updateData.loraWeightsUrl = versionData.files.weights;
-                      console.log(`✅ EXTRACTED weights from version: ${versionData.files.weights}`);
-                    }
-                  }
-                }
+                newModelId = versionMatch[1];
+                newVersionId = versionMatch[2];
+                console.log(`✅ PHASE 1: Extracted model from version URL: ${newModelId}:${newVersionId}`);
               }
             }
           }
           
-          // Set completion timestamp
-          updateData.completedAt = new Date();
+          // 🔒 PHASE 1 CRITICAL: Only replace working model if new model is valid
+          if (newModelId && newVersionId) {
+            // Validate new model format before replacing
+            if (newModelId.includes(':') || !newVersionId) {
+              console.error(`❌ PHASE 1: Invalid model format - modelId: ${newModelId}, versionId: ${newVersionId}`);
+              throw new Error('Invalid model format extracted from training');
+            }
+            
+            // 🔧 PHASE 3: Add model validation before replacement (enhanced safety)
+            const isValid = await this.validateModelVersion(newModelId, newVersionId);
+            if (!isValid) {
+              console.error(`❌ PHASE 3: Model validation failed during completion - modelId: ${newModelId}, versionId: ${newVersionId}`);
+              throw new Error('Extracted model failed validation test');
+            }
+            
+            // Get existing model for backup logging
+            const existingModel = await storage.getUserModelByUserId(userId);
+            console.log(`🔒 PHASE 1: Replacing model - Previous: ${existingModel?.replicateModelId}:${existingModel?.replicateVersionId}`);
+            console.log(`🔒 PHASE 1: Replacing model - New: ${newModelId}:${newVersionId}`);
+            
+            // SAFE REPLACEMENT: Only now replace the working model with validated new model
+            updateData.replicateModelId = newModelId;
+            updateData.replicateVersionId = newVersionId;
+            updateData.completedAt = new Date();
+            
+            console.log(`✅ PHASE 1 + 3: Model safely replaced after format and API validation for user ${userId}`);
+          } else {
+            console.error(`❌ PHASE 1: Could not extract valid model data from training completion`);
+            console.error(`❌ PHASE 1: Training output:`, JSON.stringify(trainingData.output, null, 2));
+            throw new Error('Failed to extract model data from completed training');
+          }
           
         } catch (error) {
-          console.error('❌ Failed to extract model data from completed training:', error);
-          // Continue with status update even if extraction fails
+          console.error('❌ PHASE 1: Failed to safely replace model data:', error);
+          // PHASE 1 SAFETY: Keep existing working model if replacement fails
+          console.log(`🔒 PHASE 1: Preserving existing working model due to replacement failure`);
+          updateData.trainingStatus = 'extraction_failed'; // Mark for retry
         }
       }
       
-      if (status === 'completed') {
-        updateData.trainedModelPath = userModel.replicateModelId;
+      // 🔒 PHASE 1: Update trainedModelPath only if we have new model data
+      if (status === 'completed' && updateData.replicateModelId) {
+        updateData.trainedModelPath = updateData.replicateModelId;
+        console.log(`✅ PHASE 1: Updated trainedModelPath to: ${updateData.replicateModelId}`);
       }
       
       await storage.updateUserModel(userId, updateData);
@@ -306,6 +329,241 @@ export class ModelTrainingService {
       
     } catch (error) {
       throw error;
+    }
+  }
+
+  // 🔧 PHASE 3: Retry model extraction for failed trainings
+  static async retryModelExtraction(userId: string): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log(`🔧 PHASE 3: Attempting model extraction retry for user ${userId}`);
+      
+      const userModel = await storage.getUserModelByUserId(userId);
+      if (!userModel || !userModel.trainingId) {
+        throw new Error('No training found for user');
+      }
+
+      // Only allow retry for extraction_failed status
+      if (userModel.trainingStatus !== 'extraction_failed') {
+        throw new Error(`Cannot retry extraction for status: ${userModel.trainingStatus}`);
+      }
+
+      // Get training data from Replicate
+      const trainingResponse = await fetch(`https://api.replicate.com/v1/trainings/${userModel.trainingId}`, {
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!trainingResponse.ok) {
+        throw new Error(`Failed to fetch training data: ${trainingResponse.status}`);
+      }
+
+      const trainingData = await trainingResponse.json();
+      
+      if (trainingData.status !== 'succeeded') {
+        throw new Error(`Training is not in succeeded state: ${trainingData.status}`);
+      }
+
+      // 🔧 PHASE 3: Apply the same extraction logic as completion detection
+      let newModelId = null;
+      let newVersionId = null;
+      
+      if (trainingData.output) {
+        // Method 1: Direct model path from training output
+        if (trainingData.output.model) {
+          const modelParts = trainingData.output.model.split(':');
+          if (modelParts.length === 2) {
+            newModelId = modelParts[0];
+            newVersionId = modelParts[1];
+            console.log(`✅ PHASE 3: Extracted model from output.model: ${newModelId}:${newVersionId}`);
+          }
+        }
+        
+        // Method 2: Extract from version URL (fallback)
+        if (!newModelId && trainingData.output.version) {
+          const versionMatch = trainingData.output.version.match(/([^\/]+\/[^:]+):(.+)$/);
+          if (versionMatch) {
+            newModelId = versionMatch[1];
+            newVersionId = versionMatch[2];
+            console.log(`✅ PHASE 3: Extracted model from version URL: ${newModelId}:${newVersionId}`);
+          }
+        }
+      }
+
+      // 🔧 PHASE 3: Validate extracted model before updating
+      if (!newModelId || !newVersionId) {
+        console.error(`❌ PHASE 3: Could not extract valid model data from retry`);
+        throw new Error('Failed to extract model data from training');
+      }
+
+      // Validate model format
+      if (newModelId.includes(':') || !newVersionId) {
+        console.error(`❌ PHASE 3: Invalid model format - modelId: ${newModelId}, versionId: ${newVersionId}`);
+        throw new Error('Invalid model format extracted from training');
+      }
+
+      // 🔧 PHASE 3: Test model validity before replacing (optional additional validation)
+      const isValid = await this.validateModelVersion(newModelId, newVersionId);
+      if (!isValid) {
+        throw new Error('Extracted model failed validation test');
+      }
+
+      // 🔧 PHASE 3: Apply the validated model data
+      await storage.updateUserModel(userId, {
+        replicateModelId: newModelId,
+        replicateVersionId: newVersionId,
+        trainedModelPath: newModelId,
+        trainingStatus: 'completed',
+        completedAt: new Date()
+      });
+
+      console.log(`✅ PHASE 3: Model extraction retry successful for user ${userId}`);
+      return { 
+        success: true, 
+        message: `Model extraction successful. New model: ${newModelId}:${newVersionId}` 
+      };
+
+    } catch (error) {
+      console.error(`❌ PHASE 3: Model extraction retry failed for user ${userId}:`, error);
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error during retry' 
+      };
+    }
+  }
+
+  // 📊 PHASE 4: Calculate real training progress from Replicate logs and timing
+  static async calculateRealTrainingProgress(trainingData: any, userModel: any): Promise<number> {
+    try {
+      // Get training start time - prefer startedAt or fall back to createdAt
+      const trainingStartTime = userModel.startedAt 
+        ? new Date(userModel.startedAt).getTime()
+        : new Date(userModel.createdAt || new Date()).getTime();
+      
+      const now = Date.now();
+      const trainingDuration = now - trainingStartTime;
+      
+      // 📊 PHASE 4: More realistic training time estimates based on actual data
+      // Typical FLUX model training takes 25-35 minutes for 1200 steps
+      const thirtyMinutes = 30 * 60 * 1000; // 30 minutes - more realistic baseline
+      
+      // 📊 PHASE 4: Parse real training logs if available
+      let logBasedProgress = 0;
+      if (trainingData.logs && trainingData.logs.length > 0) {
+        const logs = trainingData.logs;
+        
+        // Look for step progress in logs (e.g., "step 234/1200")
+        const stepRegex = /step\s+(\d+)\/(\d+)/i;
+        const percentRegex = /(\d+(?:\.\d+)?)%/;
+        
+        // Find the most recent progress indicator
+        for (let i = logs.length - 1; i >= 0; i--) {
+          const logEntry = logs[i];
+          
+          // Try to extract step progress
+          const stepMatch = logEntry.match(stepRegex);
+          if (stepMatch) {
+            const currentStep = parseInt(stepMatch[1]);
+            const totalSteps = parseInt(stepMatch[2]);
+            logBasedProgress = Math.round((currentStep / totalSteps) * 90); // Cap at 90% until completion
+            console.log(`📊 PHASE 4: Found step progress: ${currentStep}/${totalSteps} = ${logBasedProgress}%`);
+            break;
+          }
+          
+          // Try to extract percentage progress
+          const percentMatch = logEntry.match(percentRegex);
+          if (percentMatch) {
+            logBasedProgress = Math.min(parseInt(percentMatch[1]), 90); // Cap at 90% until completion
+            console.log(`📊 PHASE 4: Found percentage progress: ${logBasedProgress}%`);
+            break;
+          }
+        }
+      }
+      
+      // 📊 PHASE 4: Combine time-based and log-based progress for accuracy
+      const timeBasedProgress = Math.min(Math.round((trainingDuration / thirtyMinutes) * 85), 85); // Cap time-based at 85%
+      
+      // Use log-based progress if available and higher, otherwise use time-based
+      const combinedProgress = Math.max(logBasedProgress, timeBasedProgress);
+      
+      // 📊 PHASE 4: Enhanced progress stages for better UX
+      if (trainingDuration < 2 * 60 * 1000) {
+        // First 2 minutes: "Initializing training"
+        return Math.min(combinedProgress, 10);
+      } else if (trainingDuration < 5 * 60 * 1000) {
+        // 2-5 minutes: "Processing training data"
+        return Math.min(combinedProgress, 25);
+      } else if (trainingDuration < 15 * 60 * 1000) {
+        // 5-15 minutes: "Training AI model"
+        return Math.min(combinedProgress, 60);
+      } else if (trainingDuration < 25 * 60 * 1000) {
+        // 15-25 minutes: "Optimizing model"
+        return Math.min(combinedProgress, 85);
+      } else {
+        // 25+ minutes: "Finalizing training"
+        return Math.min(combinedProgress, 95);
+      }
+      
+    } catch (error) {
+      console.error('📊 PHASE 4: Error calculating real progress:', error);
+      // Fallback to time-based progress
+      const trainingStartTime = new Date(userModel.createdAt || new Date()).getTime();
+      const now = Date.now();
+      const trainingDuration = now - trainingStartTime;
+      const thirtyMinutes = 30 * 60 * 1000;
+      return Math.min(Math.round((trainingDuration / thirtyMinutes) * 100), 95);
+    }
+  }
+
+  // 📊 PHASE 4: Get training stage description for better UX
+  static getTrainingStageDescription(progress: number, trainingDuration: number): string {
+    if (progress >= 95) {
+      return "Finalizing your AI model...";
+    } else if (progress >= 85) {
+      return "Optimizing model quality...";
+    } else if (progress >= 60) {
+      return "Training AI to recognize your features...";
+    } else if (progress >= 25) {
+      return "Processing your photos...";
+    } else if (progress >= 10) {
+      return "Analyzing your style...";
+    } else {
+      return "Initializing training...";
+    }
+  }
+
+  // 🔧 PHASE 3: Validate model version exists and is accessible
+  static async validateModelVersion(modelId: string, versionId: string): Promise<boolean> {
+    try {
+      console.log(`🔧 PHASE 3: Validating model ${modelId}:${versionId}`);
+      
+      const versionResponse = await fetch(`https://api.replicate.com/v1/models/${modelId}/versions/${versionId}`, {
+        headers: {
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!versionResponse.ok) {
+        console.error(`❌ PHASE 3: Model validation failed: ${versionResponse.status}`);
+        return false;
+      }
+
+      const versionData = await versionResponse.json();
+      
+      // Check if version is in valid state
+      if (versionData.status && versionData.status !== 'succeeded') {
+        console.error(`❌ PHASE 3: Model version not ready: ${versionData.status}`);
+        return false;
+      }
+
+      console.log(`✅ PHASE 3: Model validation successful for ${modelId}:${versionId}`);
+      return true;
+
+    } catch (error) {
+      console.error(`❌ PHASE 3: Model validation error:`, error);
+      return false;
     }
   }
 

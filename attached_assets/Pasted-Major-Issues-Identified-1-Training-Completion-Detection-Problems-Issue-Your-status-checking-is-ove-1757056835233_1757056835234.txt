@@ -1,0 +1,115 @@
+Major Issues Identified
+1. Training Completion Detection Problems
+Issue: Your status checking is overly complex and trying to extract LoRA weights for packaged models:
+typescript// 🚨 PROBLEM: Unnecessary for packaged models
+if (trainingData.output.weights) {
+  updateData.loraWeightsUrl = trainingData.output.weights; // ❌ Not needed for packaged
+}
+Fix: For packaged models, you only need the final model path and version:
+typescript// ✅ SIMPLIFIED for packaged models
+if (status === "completed" && trainingData.output) {
+  if (trainingData.output.model) {
+    // Direct model path from training output
+    updateData.replicateModelId = trainingData.output.model.split(':')[0];
+    updateData.replicateVersionId = trainingData.output.model.split(':')[1];
+  }
+}
+2. Database State Management Issues
+Critical Problem: Training starts by clearing model data, but if completion detection fails, users are left in broken state:
+typescript// 🚨 DANGEROUS: Clears working model data
+await storage.updateUserModel(userId, {
+  trainingId: trainingData.id,
+  // Clear previous model data while training
+  replicateModelId: null,  // ❌ User can't generate images now
+  replicateVersionId: null,
+  loraWeightsUrl: null,
+});
+Fix: Don't clear existing model data until new training successfully completes:
+typescript// ✅ SAFER: Keep existing model until replacement ready
+await storage.updateUserModel(userId, {
+  trainingId: trainingData.id,
+  trainingStatus: "training",
+  trainingProgress: 0,
+  // Keep existing replicateModelId/replicateVersionId until completion
+});
+3. Model Version Extraction Fragility
+Issue: The regex pattern assumes a specific URL format that might not always match:
+typescript// 🚨 FRAGILE: Assumes replicate.com URL format
+const versionMatch = trainingData.output.version.match(
+  /replicate\.com\/([^:]+):(.+)$/,
+);
+Fix: Handle multiple possible output formats:
+typescript// ✅ ROBUST: Handle various output formats
+if (trainingData.output.model) {
+  // Direct model reference
+  const [modelPath, versionId] = trainingData.output.model.split(':');
+  updateData.replicateModelId = modelPath;
+  updateData.replicateVersionId = versionId;
+} else if (trainingData.output.version) {
+  // URL format fallback
+  const match = trainingData.output.version.match(/([^\/]+\/[^:]+):(.+)$/);
+  if (match) {
+    updateData.replicateModelId = match[1];
+    updateData.replicateVersionId = match[2];
+  }
+}
+4. Progress Estimation Issues
+Problem: Time-based progress estimation is inaccurate:
+typescript// 🚨 INACCURATE: Training time varies significantly
+const twentyMinutes = 20 * 60 * 1000; // ❌ Arbitrary estimate
+progress = Math.min(Math.round((trainingDuration / twentyMinutes) * 100), 99);
+Fix: Use actual Replicate training logs if available:
+typescript// ✅ BETTER: Use actual progress if available
+if (trainingData.logs && trainingData.logs.length > 0) {
+  // Parse logs for actual progress indicators
+  const lastLog = trainingData.logs[trainingData.logs.length - 1];
+  const stepMatch = lastLog.match(/step (\d+)\/(\d+)/);
+  if (stepMatch) {
+    progress = Math.round((parseInt(stepMatch[1]) / parseInt(stepMatch[2])) * 100);
+  }
+} else {
+  // Fallback to time-based with more realistic estimates
+  progress = Math.min(Math.round((trainingDuration / (30 * 60 * 1000)) * 90), 95);
+}
+5. Missing Error Recovery
+Critical Gap: No way to retry model extraction if it fails during completion:
+typescript// 🚨 MISSING: What if extraction fails?
+if (status === "completed") {
+  try {
+    // Model extraction logic
+  } catch (error) {
+    // ❌ No recovery mechanism - user stuck with completed but unusable training
+  }
+}
+Fix: Add extraction retry capability:
+typescript// ✅ ADD: Extraction retry function
+static async retryModelExtraction(userId: string): Promise<boolean> {
+  const userModel = await storage.getUserModelByUserId(userId);
+  if (!userModel.trainingId) return false;
+  
+  // Retry the extraction process
+  const trainingData = await this.fetchTrainingData(userModel.trainingId);
+  if (trainingData.status === "succeeded") {
+    return await this.extractModelDataFromTraining(userId, trainingData);
+  }
+  return false;
+}
+6. Architecture Validation Mismatch
+Issue: Architecture validator expects specific format but training might not produce it:
+typescript// In validator:
+if (!requestBody.version || !requestBody.version.includes(":")) {
+  throw new Error("Architecture violation: Must use individual user model only");
+}
+
+// But in generation:
+const modelVersion = `${userModel.replicateModelId}:${userModel.replicateVersionId}`;
+If either replicateModelId or replicateVersionId is null, this creates null:null which fails validation.
+Recommended Immediate Fixes
+1. Simplify Packaged Model Completion Detection
+Remove all LoRA extraction logic for packaged models and focus on model path/version only.
+2. Add Model Extraction Retry Endpoint
+Create an endpoint users can hit if their training shows "completed" but they can't generate images.
+3. Improve Database State Management
+Don't clear working model data until replacement is confirmed working.
+4. Add Training Data Validation
+Validate that extracted model data actually works before marking training as completed.
