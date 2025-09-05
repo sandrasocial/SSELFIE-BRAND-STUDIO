@@ -50,7 +50,6 @@ interface ChatMessage {
   conceptCards?: ConceptCard[];
 }
 
-// ✅ REMOVED: Preset system - Maya's intelligence controls all generation modes
 
 export const useMayaGeneration = (
   messages?: any,
@@ -214,7 +213,7 @@ export const useMayaGeneration = (
       const response = await apiRequest('/api/maya/generate', 'POST', {
         prompt,
         chatId: currentChatId || -1,
-        count: 1 // Maya will intelligently adjust based on shot type and choose optimal parameters
+        // Maya's intelligence handles count, parameters, and all generation decisions
       });
       
       console.log('Maya generation response:', response);
@@ -575,7 +574,7 @@ export const useMayaGeneration = (
           conceptName: conceptTitle, // This ensures the backend knows it's a concept selection
           conceptId: conceptId, // CRITICAL: Send concept ID to retrieve embedded prompt
           chatId: currentChatId || -1,
-          count: 1
+          // Maya's intelligence handles all generation parameters
         })
       });
 
