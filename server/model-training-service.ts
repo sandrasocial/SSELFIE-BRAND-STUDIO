@@ -15,18 +15,8 @@ export const IMAGE_CATEGORIES = {
   creative: ['artistic', 'concept', 'avant-garde']
 } as const;
 
-// REMOVED: Hardcoded PROMPT_TEMPLATES with camera equipment - Maya's personality now drives content
-// 
-// 🚨 ZERO TOLERANCE ANTI-HARDCODE POLICY ENFORCED:
-// - All prompts flow through Maya's Claude API intelligence
-// - No hardcoded if/else prompt generation logic allowed  
-// - Maya's AI personality drives every image generation decision
-
-// 🚨 REMOVED: Hardcoded GENERATION_SETTINGS that were overriding Maya's intelligence
-// Maya's personality file now drives ALL parameters for consistent, intelligent generation
-// NO MORE HARDCODED OVERRIDES - Maya's fluxOptimization has full control
-
-// ✅ REMOVED: Base quality settings - Maya's intelligence controls all quality parameters
+// ✅ MAYA AI INTELLIGENCE: All generation parameters controlled by Maya's personality system
+// No hardcoded templates, settings, or parameters - Maya's AI makes all decisions
 
 // 🔒 IMMUTABLE CORE ARCHITECTURE - TRAINING SERVICE
 // Creates individual LoRA models for each user using ostris/flux-dev-lora-trainer
