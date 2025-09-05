@@ -259,80 +259,32 @@ export default function BusinessLanding() {
         </div>
       </section>
 
-      {/* SUCCESS - Editorial Benefits */}
-      <section className="py-20 sm:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
-              Your New Reality
-            </div>
-            <h2 
-              className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-6 text-black"
-              style={{ fontFamily: "Times New Roman, serif" }}
-            >
-              Never lack content again
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Fresh professional imagery that tells your story across every platform
-            </p>
+      {/* SUCCESS - Simplified */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+            Your New Reality
           </div>
           
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Benefits */}
-            <div className="space-y-8">
-              <div className="flex items-start">
-                <div className="w-1 h-8 bg-black mr-6 mt-1"></div>
-                <div>
-                  <h3 className="text-lg font-medium mb-2 text-black">Fresh imagery monthly</h3>
-                  <p className="text-gray-600">
-                    100+ professional photographs. Lifestyle, business, storytelling imagery beyond traditional headshots.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="w-1 h-8 bg-black mr-6 mt-1"></div>
-                <div>
-                  <h3 className="text-lg font-medium mb-2 text-black">Platform optimization</h3>
-                  <p className="text-gray-600">
-                    LinkedIn posts, Instagram stories, website headers, landing pages, marketing materials.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="w-1 h-8 bg-black mr-6 mt-1"></div>
-                <div>
-                  <h3 className="text-lg font-medium mb-2 text-black">Narrative photography</h3>
-                  <p className="text-gray-600">
-                    Professional brand moments that communicate your authentic story and values.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="w-1 h-8 bg-black mr-6 mt-1"></div>
-                <div>
-                  <h3 className="text-lg font-medium mb-2 text-black">Brand consistency</h3>
-                  <p className="text-gray-600">
-                    Your personal AI model ensures visual coherence across all touchpoints.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start">
-                <div className="w-1 h-8 bg-black mr-6 mt-1"></div>
-                <div>
-                  <h3 className="text-lg font-medium mb-2 text-black">Content confidence</h3>
-                  <p className="text-gray-600">
-                    Post daily without hesitation. Never scroll through camera roll searching for content.
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Pricing */}
-            <div className="space-y-8">
+          <h2 
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-black leading-tight"
+            style={{ fontFamily: "Times New Roman, serif" }}
+          >
+            100+ professional photos monthly.<br />
+            <span className="italic text-gray-600">Never run out of content.</span>
+          </h2>
+          
+          <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+            LinkedIn posts, Instagram stories, website headers, marketing materials. 
+            Fresh professional imagery that tells your story across every platform.
+          </p>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section className="py-20 sm:py-32 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-8">
               {/* Individual Plan */}
               <div className="bg-gray-50 border border-gray-200 p-8">
                 <div className="text-center border-b border-gray-200 pb-6 mb-6">
