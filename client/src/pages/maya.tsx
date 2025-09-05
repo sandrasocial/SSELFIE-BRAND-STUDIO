@@ -270,7 +270,7 @@ export default function Maya() {
         <div className="hero-content relative z-10 flex flex-col justify-center items-center text-center h-full px-8 py-12">
           {/* Editorial Eyebrow */}
           <div className="hero-tagline eyebrow text-white/70 mb-4">
-            AI Styling Intelligence
+            Your Personal Photo Stylist
           </div>
 
           {/* Main Title - Editorial Size */}
@@ -285,7 +285,7 @@ export default function Maya() {
 
           {/* Description */}
           <p className="hero-description max-w-xl text-sm font-light leading-relaxed opacity-90 tracking-[0.05em]">
-            Creating bespoke concept cards with intelligent FLUX prompts for your luxury personal brand photography.
+            I help you create the perfect photo concepts that tell your unique story and grow your brand.
           </p>
         </div>
       </div>
@@ -315,7 +315,7 @@ export default function Maya() {
               Quick Start
             </h2>
             <div className="eyebrow text-gray-500">
-              Choose your direction
+              Pick what you need help with
             </div>
           </div>
 
@@ -400,14 +400,14 @@ export default function Maya() {
             {messages.length === 0 && (
               <div className="section text-center py-32">
                 <div className="eyebrow text-gray-500 mb-8">
-                  Welcome to your styling session
+                  Welcome! I'm here to help
                 </div>
                 <div className="font-serif text-[clamp(2rem,5vw,4rem)] font-extralight text-black mb-8 italic">
-                  "Ready to create something extraordinary?"
+                  "Let's create something amazing together"
                 </div>
                 <p className="text-gray-600 max-w-2xl mx-auto font-light leading-relaxed text-lg">
-                  Tell me about your vision, and I'll craft personalized concept cards with intelligent FLUX prompts 
-                  that bring your brand story to life.
+                  Just tell me what kind of photos you need, and I'll create personalized photo concepts 
+                  that perfectly capture your style and story.
                 </p>
                 
                 {/* Editorial Decorative Element */}
@@ -602,7 +602,7 @@ export default function Maya() {
             {isTyping && (
               <div className="animate-fadeIn">
                 <div className="eyebrow text-gray-500 mb-6">
-                  Maya • Crafting your concepts
+                  Maya • Working on your ideas
                 </div>
                 <div className="bg-white border border-gray-200 shadow-lg">
                   <div className="p-12 flex items-center space-x-4">
@@ -612,7 +612,7 @@ export default function Maya() {
                       <div className="w-3 h-3 bg-black rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
                     </div>
                     <div className="text-sm font-light text-gray-600">
-                      Creating your personalized concept cards...
+                      Creating your photo concepts...
                     </div>
                   </div>
                 </div>
@@ -625,7 +625,7 @@ export default function Maya() {
               <div className="bg-white border border-gray-200 shadow-lg animate-fadeIn">
                 <div className="p-12">
                   <div className="eyebrow text-gray-500 mb-6">
-                    Continue Conversation • Tell Maya Your Vision
+                    Continue our conversation • Share your ideas
                   </div>
                   
                   <div className="space-y-6">
@@ -633,7 +633,7 @@ export default function Maya() {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Share your vision for the next photo session..."
+                      placeholder="What kind of photos are you thinking about?"
                       className="w-full border-0 resize-none bg-transparent text-lg font-light leading-relaxed placeholder-gray-400 focus:outline-none"
                       rows={3}
                       disabled={isTyping}
@@ -667,11 +667,11 @@ export default function Maya() {
       <div className="bg-gray-50 border-t border-gray-200">
         <div className="max-w-4xl mx-auto px-8 py-12">
           <div className="mb-8">
-            <div className="eyebrow text-gray-500 mb-2">Your Personal Gallery</div>
+            <div className="eyebrow text-gray-500 mb-2">Your Photo Collection</div>
             <h2 className="font-serif text-2xl font-extralight uppercase tracking-[0.2em] text-black">
-              Auto-Categorized Collection
+              All Your Photos
             </h2>
-            <p className="text-sm text-gray-600 mt-2">All your Maya-generated images, automatically organized by category</p>
+            <p className="text-sm text-gray-600 mt-2">Every photo we've created together, organized by style</p>
           </div>
           <MayaCategorizedGallery />
         </div>
@@ -705,8 +705,8 @@ export default function Maya() {
 
             {/* Image Info */}
             <div className="absolute bottom-4 left-4 bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
-              <div className="text-sm font-medium">Maya Personal Brand Photo</div>
-              <div className="text-xs text-white/80">Saved to your gallery collection</div>
+              <div className="text-sm font-medium">Your Photo</div>
+              <div className="text-xs text-white/80">Saved to your collection</div>
             </div>
           </div>
         </div>
