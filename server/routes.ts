@@ -2029,6 +2029,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   const notificationPreferencesRouter = await import('./routes/notification-preferences');
   app.use('/api/admin/notification-preferences', notificationPreferencesRouter.default);
   
+  // SYSTEM HEALTH ROUTES - System monitoring and diagnostics
+  const systemHealthRouter = await import('./routes/system-health');
+  app.use('/api/system-health', systemHealthRouter.default);
+  
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
   
