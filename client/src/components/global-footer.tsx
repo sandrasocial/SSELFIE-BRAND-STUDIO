@@ -25,7 +25,7 @@ export const GlobalFooter: FC = () => {
             <h3 className="text-xs uppercase tracking-[0.3em] text-white/80 mb-6">Platform</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/ai-training" className="text-white/60 hover:text-white transition-colors text-sm">
+                <Link href="/simple-training" className="text-white/60 hover:text-white transition-colors text-sm">
                   Train AI
                 </Link>
               </li>
@@ -35,13 +35,13 @@ export const GlobalFooter: FC = () => {
                 </Link>
               </li>
               <li>
-                <Link href="/gallery" className="text-white/60 hover:text-white transition-colors text-sm">
+                <Link href="/sselfie-gallery" className="text-white/60 hover:text-white transition-colors text-sm">
                   Gallery
                 </Link>
               </li>
               <li>
-                <Link href="/flatlay-library" className="text-white/60 hover:text-white transition-colors text-sm">
-                  Flatlay Library
+                <Link href="/workspace" className="text-white/60 hover:text-white transition-colors text-sm">
+                  Workspace
                 </Link>
               </li>
             </ul>

@@ -4,12 +4,9 @@ import { SandraImages } from "../lib/sandra-images";
 import { PortfolioSection } from "../components/portfolio-section";
 import FreeTierSignup from "../components/free-tier-signup";
 import WelcomeEditorial from "../components/welcome-editorial";
-import { EmailCaptureModal } from "../components/email-capture-modal";
-import { InlineEmailCapture } from "../components/inline-email-capture";
 import { GlobalFooter } from "../components/global-footer";
 
 export default function EditorialLanding() {
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [selectedPlan] = useState('personal-brand-studio');
   const [, setLocation] = useLocation();
 
@@ -98,19 +95,9 @@ export default function EditorialLanding() {
   }, []);
 
   const handleGetStarted = (plan: string = 'personal-brand-studio') => {
-    // Store the selected plan
+    // Store the selected plan and proceed directly to checkout
     localStorage.setItem('selectedPlan', plan);
-    
-    // Check if email already captured
-    const emailCaptured = localStorage.getItem('emailCaptured');
-    
-    if (emailCaptured) {
-      // Email already captured, proceed to checkout for both plans
-      setLocation('/simple-checkout');
-    } else {
-      // Show email capture modal first
-      setIsEmailModalOpen(true);
-    }
+    setLocation('/simple-checkout');
   };
 
 
@@ -663,17 +650,6 @@ export default function EditorialLanding() {
 
       {/* Global Footer */}
       <GlobalFooter />
-
-      {/* Email Capture Modal */}
-      <EmailCaptureModal
-        isOpen={isEmailModalOpen}
-        onClose={() => setIsEmailModalOpen(false)}
-        plan={selectedPlan}
-        onEmailCaptured={(email) => {
-          console.log('Email captured:', email);
-          // Email modal will handle redirect to authentication
-        }}
-      />
     </div>
   );
 }
