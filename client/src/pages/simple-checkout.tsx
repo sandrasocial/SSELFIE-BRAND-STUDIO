@@ -67,6 +67,7 @@ export default function SimpleCheckout() {
         title="SECURE CHECKOUT"
         ctaText="Continue"
         fullHeight={false}
+        overlay={0.7}
       />
 
       <main className="max-w-4xl mx-auto px-8 py-16">
