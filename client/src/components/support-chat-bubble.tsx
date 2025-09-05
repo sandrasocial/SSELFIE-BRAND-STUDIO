@@ -109,6 +109,11 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
         
         setMessages(prev => [...prev, assistantMessage]);
         
+        // PHASE 5: Check for escalation triggers in Maya's response
+        if (data.escalation) {
+          handleEscalation(data.escalation);
+        }
+        
         // Clear status after a short delay
         setTimeout(() => setMessageStatus(null), 2000);
       } else {
@@ -148,6 +153,42 @@ export function SupportChatBubble({ isOpen, onToggle }: SupportChatBubbleProps) 
   const clearConversation = () => {
     setMessages([]);
     localStorage.removeItem('maya-support-chat');
+  };
+
+  // PHASE 5: Handle escalation requests
+  const handleEscalation = async (escalationData: any) => {
+    try {
+      console.log('🚨 ESCALATION TRIGGERED:', escalationData);
+      
+      // Send escalation request to backend
+      const escalationResponse = await apiRequest('POST', '/api/support/escalate', {
+        reason: escalationData.reason,
+        conversationHistory: messages,
+        urgency: escalationData.urgency || 'normal'
+      });
+
+      if (escalationResponse.ok) {
+        // Show escalation confirmation message
+        const escalationMessage: ChatMessage = {
+          role: 'assistant',
+          content: 'Perfect! I\'ve notified Sandra about your request. She\'ll reach out to you personally within 24 hours with specialized assistance.',
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, escalationMessage]);
+        
+        toast({
+          title: "Request Escalated",
+          description: "Sandra will contact you directly within 24 hours.",
+        });
+      }
+    } catch (error) {
+      console.error('Escalation error:', error);
+      toast({
+        title: "Escalation Failed",
+        description: "Unable to process escalation request. Please try again.",
+      });
+    }
   };
 
   if (!isOpen) {
