@@ -284,7 +284,7 @@ export default function TeamsLanding() {
             <div className="col-span-12 lg:col-span-5">
               <div className="relative h-[500px] overflow-hidden">
                 <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_nxsdf9gfxdrma0crzzc87381t0_0_1756639025507.png"
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_hmgfad3ya5rm80cs32rt8fzm0g_0_1757055924222.png"
                   alt="Team photo coordination struggles"
                   className="w-full h-full object-cover"
                 />
