@@ -222,49 +222,50 @@ export default function EmailDashboard() {
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-foreground mb-4">📧 Email Management</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Emails</CardTitle>
-              <Mail className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{dashboard?.unreadEmails || 0}</div>
-              <p className="text-xs text-muted-foreground">Across {dashboard?.totalAccounts || 0} accounts</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Emails</CardTitle>
+                <Mail className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboard?.unreadEmails || 0}</div>
+                <p className="text-xs text-muted-foreground">Across {dashboard?.totalAccounts || 0} accounts</p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Urgent Items</CardTitle>
-              <AlertCircle className="h-4 w-4 text-red-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{dashboard?.urgentEmails || 0}</div>
-              <p className="text-xs text-muted-foreground">Need immediate attention</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Urgent Items</CardTitle>
+                <AlertCircle className="h-4 w-4 text-red-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-red-600">{dashboard?.urgentEmails || 0}</div>
+                <p className="text-xs text-muted-foreground">Need immediate attention</p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Customer Inquiries</CardTitle>
-              <Users className="h-4 w-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{dashboard?.customerInquiries || 0}</div>
-              <p className="text-xs text-muted-foreground">Potential opportunities</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Customer Inquiries</CardTitle>
+                <Users className="h-4 w-4 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">{dashboard?.customerInquiries || 0}</div>
+                <p className="text-xs text-muted-foreground">Potential opportunities</p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Responses Pending</CardTitle>
-              <Clock className="h-4 w-4 text-orange-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{dashboard?.responsesPending || 0}</div>
-              <p className="text-xs text-muted-foreground">Need replies</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Responses Pending</CardTitle>
+                <Clock className="h-4 w-4 text-orange-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-600">{dashboard?.responsesPending || 0}</div>
+                <p className="text-xs text-muted-foreground">Need replies</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Instagram Overview Cards */}
