@@ -16,7 +16,7 @@ export default function SimpleCheckout() {
     
     try {
       // Create Stripe checkout session instead of payment intent
-      const response = await apiRequest("POST", "/api/create-checkout-session", {
+      const response = await apiRequest("/api/create-checkout-session", "POST", {
         plan: "personal-brand-studio", // Use the plan we configured
         successUrl: `${window.location.origin}/payment-success?plan=sselfie-studio`,
         cancelUrl: `${window.location.origin}/simple-checkout`,
@@ -62,7 +62,7 @@ export default function SimpleCheckout() {
       <MemberNavigation />
       
       <HeroFullBleed
-        backgroundImage={SandraImages.editorial.luxury1}
+        backgroundImage="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691038.png"
         tagline="Your transformation starts here"
         title="SECURE CHECKOUT"
         ctaText="Continue"
@@ -104,20 +104,11 @@ export default function SimpleCheckout() {
             </button>
 
             <div className="text-center text-sm text-gray-500">
-              <div className="flex items-center justify-center space-x-2 mb-2">
+              <div className="flex items-center justify-center space-x-2">
                 <span>🔒</span>
                 <span>Secure payment powered by Stripe</span>
               </div>
-              <div>Or for testing purposes:</div>
             </div>
-
-            <button
-              onClick={handleTestPayment}
-              disabled={isProcessing}
-              className="w-full border border-gray-300 text-gray-700 py-4 px-6 text-xs uppercase tracking-wider hover:bg-gray-50 disabled:opacity-50 transition-colors"
-            >
-              {isProcessing ? 'PROCESSING...' : 'SIMULATE PAYMENT (TEST ONLY)'}
-            </button>
           </div>
 
           <div className="mt-8 text-center text-sm text-gray-600">
