@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { AgentInsightsDashboard } from '../components/agent-insights-dashboard';
 
 interface ApprovalItem {
   id: number;
@@ -13,7 +14,7 @@ interface ApprovalItem {
 }
 
 export default function AdminControlCenter() {
-  const [activeTab, setActiveTab] = useState<'approvals' | 'costs' | 'agents' | 'handoffs'>('approvals');
+  const [activeTab, setActiveTab] = useState<'approvals' | 'costs' | 'agents' | 'handoffs' | 'insights'>('approvals');
   
   // Get pending approvals
   const { data: pendingApprovals, isLoading } = useQuery({
@@ -84,7 +85,8 @@ export default function AdminControlCenter() {
               { id: 'approvals', label: 'APPROVAL QUEUE', badge: pendingApprovals?.length },
               { id: 'costs', label: 'COST CONTROL' },
               { id: 'agents', label: 'AGENT STATUS' },
-              { id: 'handoffs', label: 'AGENT REQUESTS' }
+              { id: 'handoffs', label: 'AGENT REQUESTS' },
+              { id: 'insights', label: 'AGENT INSIGHTS' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -160,6 +162,12 @@ export default function AdminControlCenter() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {activeTab === 'insights' && (
+          <div>
+            <h2 className="font-serif text-2xl font-light mb-6">AGENT INSIGHTS</h2>
+            <AgentInsightsDashboard />
           </div>
         )}
         

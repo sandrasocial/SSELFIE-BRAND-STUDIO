@@ -2021,6 +2021,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   const agentInsightsRouter = await import('./routes/agent-insights');
   app.use('/api/agent-insights', agentInsightsRouter.default);
   
+  // AGENT INSIGHTS DATA ROUTES - Dashboard data management
+  const agentInsightsDataRouter = await import('./routes/agent-insights-data');
+  app.use('/api/agent-insights-data', agentInsightsDataRouter.default);
+  
   // STEP 3: Advanced Multi-Agent Workflow Orchestration
   // ELIMINATED: workflowOrchestrationRouter - competing system
   

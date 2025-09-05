@@ -309,10 +309,14 @@ export class AgentInsightEngine {
     return triggeredInsights;
   }
 
-  // Send insights via Slack
+  // Send insights via Slack and store in dashboard
   static async sendInsights(insights: AgentInsight[]): Promise<void> {
     for (const insight of insights) {
       try {
+        // Store insight in dashboard
+        await this.storeInsightInDashboard(insight);
+        
+        // Send to Slack
         await SlackNotificationService.sendAgentInsight(
           insight.agentName,
           insight.insightType,
@@ -324,6 +328,35 @@ export class AgentInsightEngine {
       } catch (error) {
         console.error(`❌ Failed to send insight from ${insight.agentName}:`, error);
       }
+    }
+  }
+
+  // Store insight in dashboard data store
+  private static async storeInsightInDashboard(insight: AgentInsight): Promise<void> {
+    try {
+      const response = await fetch('http://localhost:5000/api/agent-insights-data/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          agentName: insight.agentName,
+          insightType: insight.insightType,
+          title: insight.title,
+          message: insight.message,
+          priority: insight.priority,
+          context: insight.context,
+          triggerReason: insight.triggerReason
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to store insight in dashboard');
+      }
+
+      console.log(`📊 INSIGHT STORED: ${insight.agentName} - ${insight.title}`);
+    } catch (error) {
+      console.error(`❌ Failed to store insight in dashboard:`, error);
     }
   }
 
