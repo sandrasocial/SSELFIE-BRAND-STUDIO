@@ -31,6 +31,7 @@ const SelfieGuide = lazy(() => import("./pages/selfie-guide"));
 const PaymentSuccess = lazy(() => import("./pages/payment-success"));
 const Checkout = lazy(() => import("./pages/checkout"));
 const SimpleCheckout = lazy(() => import("./pages/simple-checkout"));
+const RetrainCheckout = lazy(() => import("./pages/retrain-checkout"));
 const ThankYou = lazy(() => import("./pages/thank-you"));
 const SandraPhotoshoot = lazy(() => import("./pages/sandra-photoshoot"));
 const AIGenerator = lazy(() => import("./pages/ai-generator"));
@@ -204,6 +205,12 @@ function Router() {
       <Route path="/simple-checkout" component={() => (
         <Suspense fallback={<PageLoader />}>
           <SimpleCheckout />
+        </Suspense>
+      )} />
+      {/* 🔄 PHASE 2: DEDICATED RETRAINING CHECKOUT ROUTE */}
+      <Route path="/retrain-checkout" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <RetrainCheckout />
         </Suspense>
       )} />
 

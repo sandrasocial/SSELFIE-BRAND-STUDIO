@@ -71,6 +71,8 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   upsertUser(user: InsertUser): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
+  // 🔄 PHASE 3: Retraining access management
+  updateUserRetrainingAccess(userId: string, retrainingData: { hasRetrainingAccess: boolean; retrainingSessionId: string; retrainingPaidAt: Date }): Promise<User>;
 
   // User Profile operations
   getUserProfile(userId: string): Promise<UserProfile | undefined>;
@@ -304,6 +306,21 @@ export class DatabaseStorage implements IStorage {
     const [updatedUser] = await db
       .update(users)
       .set({ ...updates, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+    return updatedUser;
+  }
+
+  // 🔄 PHASE 3: Update user retraining access after payment
+  async updateUserRetrainingAccess(userId: string, retrainingData: { hasRetrainingAccess: boolean; retrainingSessionId: string; retrainingPaidAt: Date }): Promise<User> {
+    const [updatedUser] = await db
+      .update(users)
+      .set({ 
+        hasRetrainingAccess: retrainingData.hasRetrainingAccess,
+        retrainingSessionId: retrainingData.retrainingSessionId,
+        retrainingPaidAt: retrainingData.retrainingPaidAt,
+        updatedAt: new Date() 
+      })
       .where(eq(users.id, userId))
       .returning();
     return updatedUser;

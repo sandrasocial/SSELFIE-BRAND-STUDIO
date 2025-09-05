@@ -9,10 +9,67 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
+  apiVersion: "2025-08-27.basil",
 });
 
 export function registerCheckoutRoutes(app: Express) {
+  // 🔄 PHASE 3: Create Retraining Checkout Session
+  app.post("/api/create-retrain-checkout-session", isAuthenticated, async (req: any, res) => {
+    try {
+      const { successUrl, cancelUrl } = req.body;
+      const userId = req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ message: 'User authentication required for retraining' });
+      }
+
+      // Check if user has existing trained model
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Retraining configuration - $10 one-time fee
+      const retrainingConfig = {
+        name: 'AI Model Retraining',
+        description: 'One-time retraining session for your personal AI model',
+        amount: 1000, // $10.00 in cents
+      };
+      
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: retrainingConfig.name,
+                description: retrainingConfig.description,
+              },
+              unit_amount: retrainingConfig.amount,
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        metadata: {
+          plan: 'retraining-session',
+          userId: userId,
+          type: 'retrain'
+        },
+        customer_email: user.email || undefined,
+      });
+
+      console.log(`🔄 RETRAINING SESSION: Created checkout for user ${userId} - ${session.id}`);
+      res.json({ url: session.url });
+    } catch (error: any) {
+      console.error('Retraining checkout session creation error:', error);
+      res.status(500).json({ message: "Error creating retraining checkout session: " + error.message });
+    }
+  });
+
   // Create Stripe Checkout Session (simpler and more reliable)
   app.post("/api/create-checkout-session", async (req: any, res) => {
     try {
@@ -124,8 +181,44 @@ export function registerCheckoutRoutes(app: Express) {
       }
     }
 
+    // 🔄 PHASE 3: Handle successful retraining payments via checkout.session.completed
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const { plan, userId, type } = session.metadata || {};
+      
+      if (plan === 'retraining-session' && type === 'retrain' && userId) {
+        try {
+          console.log(`🔄 RETRAINING PAYMENT: Successful payment for user ${userId} - session ${session.id}`);
+          
+          // Grant retraining access to user
+          await grantRetrainingAccess(userId, session.id);
+          
+          console.log(`✅ RETRAINING ACCESS: Granted to user ${userId}`);
+        } catch (error) {
+          console.error('Retraining payment processing error:', error);
+        }
+      }
+    }
+
     res.json({ received: true });
   });
+}
+
+// 🔄 PHASE 3: Grant retraining access to user
+async function grantRetrainingAccess(userId: string, sessionId: string) {
+  try {
+    // Update user with retraining access
+    await storage.updateUserRetrainingAccess(userId, {
+      hasRetrainingAccess: true,
+      retrainingSessionId: sessionId,
+      retrainingPaidAt: new Date(),
+    });
+
+    console.log(`🔄 RETRAINING ACCESS: User ${userId} can now access training with session ${sessionId}`);
+  } catch (error) {
+    console.error('Error granting retraining access:', error);
+    throw error;
+  }
 }
 
 async function triggerPostPurchaseAutomation(userId: string, plan: string) {
