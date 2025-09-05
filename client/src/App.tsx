@@ -60,6 +60,7 @@ const SwitchAccount = lazy(() => import("./pages/switch-account"));
 const LaunchCountdown = lazy(() => import("./pages/launch-countdown"));
 const AdminAccessOnly = lazy(() => import("./pages/admin-access-only"));
 const Build = lazy(() => import("./pages/build"));
+const Settings = lazy(() => import("./pages/settings"));
 
 // Components
 import UnifiedLoginButton from "./components/UnifiedLoginButton";
@@ -287,6 +288,11 @@ function Router() {
       <Route path="/profile" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={Profile} {...props} />
+        </Suspense>
+      )} />
+      <Route path="/settings" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={Settings} {...props} />
         </Suspense>
       )} />
       

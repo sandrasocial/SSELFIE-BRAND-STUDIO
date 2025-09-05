@@ -116,6 +116,115 @@ export function registerCheckoutRoutes(app: Express) {
     }
   });
 
+  // Subscription Management Routes
+  
+  // Get user's subscription details
+  app.get("/api/subscription", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: 'User authentication required' });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user || !user.stripeCustomerId) {
+        return res.status(404).json({ message: 'No subscription found' });
+      }
+
+      // Get the customer's subscriptions
+      const subscriptions = await stripe.subscriptions.list({
+        customer: user.stripeCustomerId,
+        status: 'all',
+        limit: 1,
+      });
+
+      if (subscriptions.data.length === 0) {
+        return res.status(404).json({ message: 'No subscription found' });
+      }
+
+      res.json(subscriptions.data[0]);
+    } catch (error: any) {
+      console.error('Error fetching subscription:', error);
+      res.status(500).json({ message: "Error fetching subscription: " + error.message });
+    }
+  });
+
+  // Get user's invoices
+  app.get("/api/invoices", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: 'User authentication required' });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user || !user.stripeCustomerId) {
+        return res.status(404).json({ message: 'No customer found' });
+      }
+
+      // Get the customer's invoices
+      const invoices = await stripe.invoices.list({
+        customer: user.stripeCustomerId,
+        limit: 10,
+      });
+
+      res.json(invoices.data);
+    } catch (error: any) {
+      console.error('Error fetching invoices:', error);
+      res.status(500).json({ message: "Error fetching invoices: " + error.message });
+    }
+  });
+
+  // Cancel subscription (at period end)
+  app.post("/api/subscription/cancel", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: 'User authentication required' });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user || !user.stripeSubscriptionId) {
+        return res.status(404).json({ message: 'No subscription found' });
+      }
+
+      // Cancel subscription at period end (not immediately)
+      const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        cancel_at_period_end: true,
+      });
+
+      res.json(subscription);
+    } catch (error: any) {
+      console.error('Error canceling subscription:', error);
+      res.status(500).json({ message: "Error canceling subscription: " + error.message });
+    }
+  });
+
+  // Reactivate subscription (remove cancel_at_period_end)
+  app.post("/api/subscription/reactivate", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: 'User authentication required' });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user || !user.stripeSubscriptionId) {
+        return res.status(404).json({ message: 'No subscription found' });
+      }
+
+      // Remove the cancellation (reactivate)
+      const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        cancel_at_period_end: false,
+      });
+
+      res.json(subscription);
+    } catch (error: any) {
+      console.error('Error reactivating subscription:', error);
+      res.status(500).json({ message: "Error reactivating subscription: " + error.message });
+    }
+  });
+
   // Keep the old payment intent endpoint for backward compatibility
   app.post("/api/create-payment-intent", async (req: any, res) => {
     try {
