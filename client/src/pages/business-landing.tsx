@@ -285,48 +285,47 @@ export default function BusinessLanding() {
       <section className="py-20 sm:py-32 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-8">
-              {/* Individual Plan */}
-              <div className="bg-gray-50 border border-gray-200 p-8">
-                <div className="text-center border-b border-gray-200 pb-6 mb-6">
-                  <h3 
-                    className="font-serif text-2xl font-light mb-2 text-black"
-                    style={{ fontFamily: "Times New Roman, serif" }}
-                  >
-                    Personal Brand Studio
-                  </h3>
-                  <div className="flex items-baseline justify-center">
-                    <span className="text-4xl font-light text-black">€47</span>
-                    <span className="text-lg text-gray-600 ml-2">monthly</span>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-2">versus €500+ traditional photoshoots</p>
-                </div>
-                <button 
-                  onClick={handleGetStarted}
-                  className="w-full bg-black text-white py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-800 transition-all font-light"
+            {/* Individual Plan */}
+            <div className="bg-gray-50 border border-gray-200 p-8">
+              <div className="text-center border-b border-gray-200 pb-6 mb-6">
+                <h3 
+                  className="font-serif text-2xl font-light mb-2 text-black"
+                  style={{ fontFamily: "Times New Roman, serif" }}
                 >
-                  Begin Transformation
-                </button>
-                <p className="text-xs text-gray-500 text-center mt-4">30-day money-back guarantee</p>
-              </div>
-              
-              {/* Team Option */}
-              <div className="border-2 border-black p-8">
-                <div className="text-center border-b border-gray-200 pb-6 mb-6">
-                  <h3 
-                    className="font-serif text-2xl font-light mb-2 text-black"
-                    style={{ fontFamily: "Times New Roman, serif" }}
-                  >
-                    Enterprise Solutions
-                  </h3>
-                  <p className="text-gray-600">Professional photography for teams and organizations</p>
+                  Personal Brand Studio
+                </h3>
+                <div className="flex items-baseline justify-center">
+                  <span className="text-4xl font-light text-black">€47</span>
+                  <span className="text-lg text-gray-600 ml-2">monthly</span>
                 </div>
-                <button 
-                  onClick={() => setLocation('/teams')}
-                  className="w-full border border-black text-black py-4 text-sm uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all font-light"
-                >
-                  Request Custom Proposal
-                </button>
+                <p className="text-sm text-gray-500 mt-2">versus €500+ traditional photoshoots</p>
               </div>
+              <button 
+                onClick={handleGetStarted}
+                className="w-full bg-black text-white py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-800 transition-all font-light"
+              >
+                Begin Transformation
+              </button>
+              <p className="text-xs text-gray-500 text-center mt-4">30-day money-back guarantee</p>
+            </div>
+            
+            {/* Team Option */}
+            <div className="border-2 border-black p-8">
+              <div className="text-center border-b border-gray-200 pb-6 mb-6">
+                <h3 
+                  className="font-serif text-2xl font-light mb-2 text-black"
+                  style={{ fontFamily: "Times New Roman, serif" }}
+                >
+                  Enterprise Solutions
+                </h3>
+                <p className="text-gray-600">Professional photography for teams and organizations</p>
+              </div>
+              <button 
+                onClick={() => setLocation('/teams')}
+                className="w-full border border-black text-black py-4 text-sm uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all font-light"
+              >
+                Request Custom Proposal
+              </button>
             </div>
           </div>
         </div>
