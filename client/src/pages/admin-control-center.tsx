@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AgentInsightsDashboard } from '../components/agent-insights-dashboard';
 import { QuickSpecialistAccess } from '../components/quick-specialist-access';
 import { NotificationPreferences } from '../components/notification-preferences';
+import { SystemHealthMonitor } from '../components/system-health-monitor';
 
 interface ApprovalItem {
   id: number;
@@ -16,7 +17,7 @@ interface ApprovalItem {
 }
 
 export default function AdminControlCenter() {
-  const [activeTab, setActiveTab] = useState<'approvals' | 'costs' | 'agents' | 'handoffs' | 'insights' | 'specialists' | 'preferences'>('approvals');
+  const [activeTab, setActiveTab] = useState<'approvals' | 'costs' | 'agents' | 'handoffs' | 'insights' | 'specialists' | 'preferences' | 'health'>('approvals');
   
   // Get pending approvals
   const { data: pendingApprovals, isLoading } = useQuery({
@@ -90,7 +91,8 @@ export default function AdminControlCenter() {
               { id: 'handoffs', label: 'AGENT REQUESTS' },
               { id: 'insights', label: 'AGENT INSIGHTS' },
               { id: 'specialists', label: 'QUICK ACCESS' },
-              { id: 'preferences', label: 'SETTINGS' }
+              { id: 'preferences', label: 'SETTINGS' },
+              { id: 'health', label: 'SYSTEM HEALTH' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -186,6 +188,13 @@ export default function AdminControlCenter() {
           <div>
             <h2 className="font-serif text-2xl font-light mb-6">NOTIFICATION SETTINGS</h2>
             <NotificationPreferences />
+          </div>
+        )}
+
+        {activeTab === 'health' && (
+          <div>
+            <h2 className="font-serif text-2xl font-light mb-6">SYSTEM HEALTH MONITORING</h2>
+            <SystemHealthMonitor />
           </div>
         )}
         
