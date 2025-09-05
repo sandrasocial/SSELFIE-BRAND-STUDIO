@@ -21,11 +21,23 @@ interface ApprovalItem {
   createdAt: string;
 }
 
+interface CustomerStats {
+  totalCustomers: number;
+  activeSubscriptions: number;
+  systemHealth: number;
+}
+
+interface RevenueData {
+  monthlyRevenue: number;
+}
+
+interface PendingApprovals extends Array<ApprovalItem> {}
+
 export default function AdminControlCenter() {
   const [activeTab, setActiveTab] = useState<'customers' | 'approvals' | 'revenue' | 'content' | 'support' | 'insights' | 'specialists' | 'health'>('customers');
   
-  // Get pending approvals
-  const { data: pendingApprovals, isLoading } = useQuery({
+  // Get pending approvals with proper typing
+  const { data: pendingApprovals, isLoading } = useQuery<PendingApprovals>({
     queryKey: ['/api/admin/approval-queue'],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
@@ -54,80 +66,94 @@ export default function AdminControlCenter() {
     }
   });
 
-  // Get customer data
-  const { data: customerStats } = useQuery({
+  // Get customer data with proper typing
+  const { data: customerStats } = useQuery<CustomerStats>({
     queryKey: ['/api/admin/customer-stats'],
     refetchInterval: 300000, // Refresh every 5 minutes
   });
 
-  const { data: revenueData } = useQuery({
+  const { data: revenueData } = useQuery<RevenueData>({
     queryKey: ['/api/admin/revenue-summary'],
     refetchInterval: 300000,
   });
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--white, #ffffff)', color: 'var(--black, #0a0a0a)' }}>
-      {/* EDITORIAL HERO HEADER */}
-      <div style={{ background: 'var(--black, #0a0a0a)', color: 'var(--white, #ffffff)' }} className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black to-gray-900 opacity-90"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-8 py-16">
-          <div className="flex items-center justify-between mb-8">
-            {/* Editorial Title */}
-            <div>
-              <div className="text-xs font-light tracking-[0.4em] uppercase opacity-70 mb-4">
-                SSELFIE STUDIO
-              </div>
-              <h1 className="font-serif text-5xl font-light tracking-wide uppercase leading-none">
-                EMPIRE
-              </h1>
-              <h1 className="font-serif text-5xl font-light tracking-wide uppercase leading-none opacity-80">
-                CONTROL
-              </h1>
+    <div className="min-h-screen bg-white">
+      {/* DESKTOP-OPTIMIZED HERO SECTION */}
+      <section className="relative min-h-[60vh] flex items-center justify-center bg-black text-white overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black to-gray-900 opacity-95"></div>
+        <div className="relative z-10 max-w-7xl mx-auto px-8 py-20 text-center">
+          <div className="mb-16">
+            <div className="text-xs font-light tracking-[0.4em] uppercase opacity-70 mb-8">
+              SSELFIE STUDIO
             </div>
+            <h1 className="font-serif text-[clamp(4rem,8vw,8rem)] leading-[0.8] font-light uppercase tracking-wide mb-8">
+              Admin Control
+            </h1>
+            <p className="text-lg max-w-3xl mx-auto opacity-80 font-light leading-relaxed mb-12">
+              Comprehensive management dashboard for your AI-powered empire. 
+              Monitor customers, revenue, content, and agent performance from a unified command center.
+            </p>
             
-            {/* Quick Navigation - Editorial Style */}
-            <div className="flex gap-4">
+            {/* Quick Navigation */}
+            <div className="flex justify-center gap-6">
               <a 
                 href="/admin/consulting-agents" 
-                className="border border-white border-opacity-20 hover:bg-white hover:bg-opacity-10 px-6 py-3 text-xs uppercase tracking-[0.3em] transition-all"
+                className="border border-white/30 hover:bg-white/10 px-6 py-3 text-xs uppercase tracking-[0.3em] transition-all"
               >
                 Consulting Agents
               </a>
               <a 
                 href="/admin/business-overview" 
-                className="border border-white border-opacity-20 hover:bg-white hover:bg-opacity-10 px-6 py-3 text-xs uppercase tracking-[0.3em] transition-all"
+                className="border border-white/30 hover:bg-white/10 px-6 py-3 text-xs uppercase tracking-[0.3em] transition-all"
               >
                 Business Overview
               </a>
             </div>
           </div>
           
-          {/* Editorial Stats Grid */}
-          <div className="grid grid-cols-4 gap-8 border-t border-white border-opacity-20 pt-8">
-            <div className="text-center">
-              <div className="text-3xl font-light font-serif">€{revenueData?.monthlyRevenue || '0'}</div>
-              <div className="text-xs uppercase tracking-[0.3em] opacity-70 mt-2">Monthly Revenue</div>
+          {/* Desktop-Optimized Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-white/20 max-w-5xl mx-auto">
+            <div className="text-center p-8 border border-white/20">
+              <div className="font-serif text-4xl font-light mb-2 text-emerald-400">
+                €{revenueData?.monthlyRevenue || '0'}
+              </div>
+              <div className="text-xs tracking-[0.3em] uppercase opacity-70">
+                Monthly Revenue
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-light font-serif">{customerStats?.totalCustomers || 0}</div>
-              <div className="text-xs uppercase tracking-[0.3em] opacity-70 mt-2">Total Customers</div>
+            <div className="text-center p-8 border border-white/20">
+              <div className="font-serif text-4xl font-light mb-2">
+                {customerStats?.totalCustomers || 0}
+              </div>
+              <div className="text-xs tracking-[0.3em] uppercase opacity-70">
+                Total Customers
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-light font-serif">{customerStats?.activeSubscriptions || 0}</div>
-              <div className="text-xs uppercase tracking-[0.3em] opacity-70 mt-2">Active Subscriptions</div>
+            <div className="text-center p-8 border border-white/20">
+              <div className="font-serif text-4xl font-light mb-2 text-blue-400">
+                {customerStats?.activeSubscriptions || 0}
+              </div>
+              <div className="text-xs tracking-[0.3em] uppercase opacity-70">
+                Active Subscriptions
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-light font-serif text-green-400">{customerStats?.systemHealth || '98'}%</div>
-              <div className="text-xs uppercase tracking-[0.3em] opacity-70 mt-2">System Health</div>
+            <div className="text-center p-8 border border-white/20">
+              <div className="font-serif text-4xl font-light mb-2 text-green-400">
+                {customerStats?.systemHealth || '98'}%
+              </div>
+              <div className="text-xs tracking-[0.3em] uppercase opacity-70">
+                System Health
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* EDITORIAL NAVIGATION */}
-      <div className="border-b" style={{ borderColor: 'var(--accent-line, #e5e5e5)' }}>
+      {/* DESKTOP-OPTIMIZED NAVIGATION */}
+      <section className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-8">
-          <div className="flex space-x-0">
+          <div className="flex justify-center space-x-0">
             {[
               { id: 'customers', label: 'CUSTOMERS', icon: Users },
               { id: 'approvals', label: 'APPROVALS', icon: Shield, badge: pendingApprovals?.length },
@@ -143,16 +169,16 @@ export default function AdminControlCenter() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex flex-col items-center py-6 px-6 text-xs uppercase tracking-[0.3em] transition-all relative ${
+                  className={`flex flex-col items-center py-8 px-8 text-xs uppercase tracking-[0.3em] transition-all relative border-l border-gray-200 first:border-l-0 ${
                     activeTab === tab.id 
-                      ? 'text-black border-b-2 border-black' 
-                      : 'text-gray-500 hover:text-black'
+                      ? 'text-black bg-gray-50 border-b-2 border-black' 
+                      : 'text-gray-500 hover:text-black hover:bg-gray-50'
                   }`}
                 >
-                  <Icon size={18} className="mb-2" />
+                  <Icon size={20} className="mb-3" />
                   {tab.label}
                   {tab.badge && tab.badge > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
                       {tab.badge}
                     </span>
                   )}
@@ -161,193 +187,181 @@ export default function AdminControlCenter() {
             })}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* EDITORIAL CONTENT AREA */}
-      <div className="max-w-7xl mx-auto px-8 py-12">
-        {activeTab === 'customers' && (
-          <div>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-xs font-light tracking-[0.4em] uppercase opacity-60 mb-2">
+      {/* DESKTOP-OPTIMIZED CONTENT AREA */}
+      <section className="py-20 bg-white text-black">
+        <div className="max-w-7xl mx-auto px-8">
+          {activeTab === 'customers' && (
+            <div>
+              <div className="text-center mb-16">
+                <div className="text-xs font-light tracking-[0.4em] uppercase text-gray-500 mb-4">
                   Customer Administration
                 </div>
-                <h2 className="font-serif text-4xl font-light uppercase tracking-wide">
+                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-light uppercase tracking-wide mb-8">
                   Customer Management
                 </h2>
+                <div className="flex justify-center">
+                  <button className="border border-black hover:bg-black hover:text-white px-8 py-4 text-xs uppercase tracking-[0.3em] transition-all">
+                    Export Data
+                  </button>
+                </div>
               </div>
-              <button className="border border-black hover:bg-black hover:text-white px-6 py-3 text-xs uppercase tracking-[0.3em] transition-all">
-                Export Data
-              </button>
+              
+              <CustomerManagementDashboard />
             </div>
-            
-            <CustomerManagementDashboard />
-          </div>
-        )}
+          )}
 
-        {activeTab === 'revenue' && (
-          <div>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-xs font-light tracking-[0.4em] uppercase opacity-60 mb-2">
+          {activeTab === 'revenue' && (
+            <div>
+              <div className="text-center mb-16">
+                <div className="text-xs font-light tracking-[0.4em] uppercase text-gray-500 mb-4">
                   Financial Analytics
                 </div>
-                <h2 className="font-serif text-4xl font-light uppercase tracking-wide">
+                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-light uppercase tracking-wide">
                   Revenue Intelligence
                 </h2>
               </div>
+              
+              <RevenueAnalyticsDashboard />
             </div>
-            
-            <RevenueAnalyticsDashboard />
-          </div>
-        )}
+          )}
 
-        {activeTab === 'content' && (
-          <div>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-xs font-light tracking-[0.4em] uppercase opacity-60 mb-2">
+          {activeTab === 'content' && (
+            <div>
+              <div className="text-center mb-16">
+                <div className="text-xs font-light tracking-[0.4em] uppercase text-gray-500 mb-4">
                   Content Review
                 </div>
-                <h2 className="font-serif text-4xl font-light uppercase tracking-wide">
+                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-light uppercase tracking-wide">
                   Content Moderation
                 </h2>
               </div>
+              
+              <ContentModerationDashboard />
             </div>
-            
-            <ContentModerationDashboard />
-          </div>
-        )}
+          )}
 
-        {activeTab === 'support' && (
-          <div>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-xs font-light tracking-[0.4em] uppercase opacity-60 mb-2">
+          {activeTab === 'support' && (
+            <div>
+              <div className="text-center mb-16">
+                <div className="text-xs font-light tracking-[0.4em] uppercase text-gray-500 mb-4">
                   Customer Support
                 </div>
-                <h2 className="font-serif text-4xl font-light uppercase tracking-wide">
+                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-light uppercase tracking-wide">
                   Support Management
                 </h2>
               </div>
+              
+              <SupportManagementDashboard />
             </div>
-            
-            <SupportManagementDashboard />
-          </div>
-        )}
+          )}
 
-        {activeTab === 'approvals' && (
-          <div>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-xs font-light tracking-[0.4em] uppercase opacity-60 mb-2">
+          {activeTab === 'approvals' && (
+            <div>
+              <div className="text-center mb-16">
+                <div className="text-xs font-light tracking-[0.4em] uppercase text-gray-500 mb-4">
                   Content Approval
                 </div>
-                <h2 className="font-serif text-4xl font-light uppercase tracking-wide">
+                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-light uppercase tracking-wide">
                   Pending Approvals
                 </h2>
               </div>
-            </div>
-            
-            {pendingApprovals?.map((item: ApprovalItem) => (
-              <div key={item.id} className="border border-gray-200 mb-4 p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="flex items-center gap-4 mb-2">
-                      <h3 className="font-medium">{item.contentTitle}</h3>
-                      <span className="text-xs uppercase tracking-wide bg-gray-100 px-2 py-1">
-                        {item.agentId}
-                      </span>
-                      <span className={`text-xs uppercase tracking-wide px-2 py-1 ${
-                        item.impactLevel === 'high' ? 'bg-red-100 text-red-700' :
-                        item.impactLevel === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
-                      }`}>
-                        {item.impactLevel} IMPACT
-                      </span>
+              
+              <div className="max-w-5xl mx-auto space-y-8">
+                {pendingApprovals?.map((item: ApprovalItem) => (
+                  <div key={item.id} className="border border-gray-200 p-8">
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <div className="flex items-center gap-4 mb-4">
+                          <h3 className="font-serif text-xl font-medium">{item.contentTitle}</h3>
+                          <span className="text-xs uppercase tracking-wide bg-gray-100 px-3 py-2">
+                            {item.agentId}
+                          </span>
+                          <span className={`text-xs uppercase tracking-wide px-3 py-2 ${
+                            item.impactLevel === 'high' ? 'bg-red-100 text-red-700' :
+                            item.impactLevel === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-green-100 text-green-700'
+                          }`}>
+                            {item.impactLevel} IMPACT
+                          </span>
+                        </div>
+                        <p className="text-gray-600 text-lg leading-relaxed">{item.contentPreview}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-serif text-2xl font-light">€{item.estimatedCost}</div>
+                        <div className="text-xs tracking-[0.3em] uppercase text-gray-500">Est. Cost</div>
+                      </div>
                     </div>
-                    <p className="text-gray-600 mb-4">{item.contentPreview}</p>
+                    
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() => approveMutation.mutate({ id: item.id, action: 'approve' })}
+                        className="bg-green-600 text-white px-6 py-3 text-xs uppercase tracking-wide hover:bg-green-700 transition-colors"
+                      >
+                        APPROVE
+                      </button>
+                      <button
+                        onClick={() => approveMutation.mutate({ id: item.id, action: 'reject' })}
+                        className="bg-red-600 text-white px-6 py-3 text-xs uppercase tracking-wide hover:bg-red-700 transition-colors"
+                      >
+                        REJECT
+                      </button>
+                      <button className="border border-gray-300 px-6 py-3 text-xs uppercase tracking-wide hover:bg-gray-50 transition-colors">
+                        MODIFY
+                      </button>
+                      <button className="border border-gray-300 px-6 py-3 text-xs uppercase tracking-wide hover:bg-gray-50 transition-colors">
+                        PREVIEW
+                      </button>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium">€{item.estimatedCost}</div>
-                    <div className="text-xs text-gray-500">Est. Cost</div>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => approveMutation.mutate({ id: item.id, action: 'approve' })}
-                    className="bg-green-600 text-white px-4 py-2 text-xs uppercase tracking-wide hover:bg-green-700 transition-colors"
-                  >
-                    APPROVE
-                  </button>
-                  <button
-                    onClick={() => approveMutation.mutate({ id: item.id, action: 'reject' })}
-                    className="bg-red-600 text-white px-4 py-2 text-xs uppercase tracking-wide hover:bg-red-700 transition-colors"
-                  >
-                    REJECT
-                  </button>
-                  <button className="border border-gray-300 px-4 py-2 text-xs uppercase tracking-wide hover:bg-gray-50 transition-colors">
-                    MODIFY
-                  </button>
-                  <button className="border border-gray-300 px-4 py-2 text-xs uppercase tracking-wide hover:bg-gray-50 transition-colors">
-                    PREVIEW
-                  </button>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-        {activeTab === 'insights' && (
-          <div>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-xs font-light tracking-[0.4em] uppercase opacity-60 mb-2">
+            </div>
+          )}
+          {activeTab === 'insights' && (
+            <div>
+              <div className="text-center mb-16">
+                <div className="text-xs font-light tracking-[0.4em] uppercase text-gray-500 mb-4">
                   Agent Intelligence
                 </div>
-                <h2 className="font-serif text-4xl font-light uppercase tracking-wide">
+                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-light uppercase tracking-wide">
                   Agent Insights
                 </h2>
               </div>
+              <AgentInsightsDashboard />
             </div>
-            <AgentInsightsDashboard />
-          </div>
-        )}
+          )}
 
-        {activeTab === 'specialists' && (
-          <div>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-xs font-light tracking-[0.4em] uppercase opacity-60 mb-2">
+          {activeTab === 'specialists' && (
+            <div>
+              <div className="text-center mb-16">
+                <div className="text-xs font-light tracking-[0.4em] uppercase text-gray-500 mb-4">
                   Agent Access
                 </div>
-                <h2 className="font-serif text-4xl font-light uppercase tracking-wide">
+                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-light uppercase tracking-wide">
                   Specialist Agents
                 </h2>
               </div>
+              <QuickSpecialistAccess />
             </div>
-            <QuickSpecialistAccess />
-          </div>
-        )}
+          )}
 
-        {activeTab === 'health' && (
-          <div>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-xs font-light tracking-[0.4em] uppercase opacity-60 mb-2">
+          {activeTab === 'health' && (
+            <div>
+              <div className="text-center mb-16">
+                <div className="text-xs font-light tracking-[0.4em] uppercase text-gray-500 mb-4">
                   System Monitoring
                 </div>
-                <h2 className="font-serif text-4xl font-light uppercase tracking-wide">
+                <h2 className="font-serif text-[clamp(2rem,4vw,4rem)] font-light uppercase tracking-wide">
                   System Health
                 </h2>
               </div>
+              <SystemHealthMonitor />
             </div>
-            <SystemHealthMonitor />
-          </div>
-        )}
-        
-        {/* Other tab content sections... */}
-      </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
