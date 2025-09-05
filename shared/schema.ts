@@ -503,6 +503,61 @@ export const mayaPersonalMemory = pgTable("maya_personal_memory", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User Style Memory for learning preferences and patterns
+export const userStyleMemory = pgTable("user_style_memory", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  
+  // Preference tracking
+  preferredCategories: jsonb("preferred_categories").default('[]'), // ["Business", "Lifestyle", etc.]
+  favoritePromptPatterns: jsonb("favorite_prompt_patterns").default('[]'), // Successful prompt structures
+  colorPreferences: jsonb("color_preferences").default('[]'), // Preferred color palettes
+  settingPreferences: jsonb("setting_preferences").default('[]'), // Indoor, outdoor, urban, etc.
+  stylingKeywords: jsonb("styling_keywords").default('[]'), // Words that resonate with user
+  
+  // Learning metrics
+  totalInteractions: integer("total_interactions").default(0),
+  totalFavorites: integer("total_favorites").default(0),
+  averageSessionLength: integer("average_session_length").default(0), // in minutes
+  mostActiveHours: jsonb("most_active_hours").default('[]'), // Time patterns
+  
+  // Success patterns
+  highPerformingPrompts: jsonb("high_performing_prompts").default('[]'), // Prompts that got favorited
+  rejectedPrompts: jsonb("rejected_prompts").default('[]'), // Prompts user didn't like
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Prompt Analysis for tracking successful patterns (zero risk - just logging)
+export const promptAnalysis = pgTable("prompt_analysis", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  
+  // Prompt details
+  originalPrompt: text("original_prompt").notNull(),
+  generatedPrompt: text("generated_prompt"), // The FLUX prompt used
+  conceptTitle: text("concept_title"),
+  category: varchar("category"), // Business, Lifestyle, etc.
+  
+  // User interaction data
+  wasGenerated: boolean("was_generated").default(false),
+  wasFavorited: boolean("was_favorited").default(false),
+  wasSaved: boolean("was_saved").default(false),
+  viewDuration: integer("view_duration"), // How long user looked at result
+  
+  // Technical analysis
+  promptLength: integer("prompt_length"),
+  keywordDensity: jsonb("keyword_density").default('{}'), // Word frequency analysis
+  technicalSpecs: jsonb("technical_specs").default('{}'), // Camera, lighting, etc.
+  
+  // Performance metrics
+  generationTime: integer("generation_time"), // How long it took to generate
+  successScore: decimal("success_score", { precision: 3, scale: 2 }).default("0.0"), // 0.0 to 1.0 based on user actions
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Maya Chat History tables - STEP 3.1: Performance Optimized
 export const mayaChats = pgTable("maya_chats", {
   id: serial("id").primaryKey(),
@@ -565,6 +620,8 @@ export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).o
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserPersonalBrandSchema = createInsertSchema(userPersonalBrand).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaPersonalMemorySchema = createInsertSchema(mayaPersonalMemory).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertUserStyleMemorySchema = createInsertSchema(userStyleMemory).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertPromptAnalysisSchema = createInsertSchema(promptAnalysis).omit({ id: true, createdAt: true });
 export const insertMayaChatSchema = createInsertSchema(mayaChats).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaChatMessageSchema = createInsertSchema(mayaChatMessages).omit({ id: true, createdAt: true });
 export const insertGenerationTrackerSchema = createInsertSchema(generationTrackers).omit({ id: true, createdAt: true });
@@ -606,6 +663,10 @@ export type BrandOnboarding = typeof brandOnboarding.$inferSelect;
 // Website types already defined above at lines 750-751
 export type InsertUserProfile = typeof userProfiles.$inferInsert;
 export type InsertProject = typeof projects.$inferInsert;
+export type UserStyleMemory = typeof userStyleMemory.$inferSelect;
+export type InsertUserStyleMemory = typeof userStyleMemory.$inferInsert;
+export type PromptAnalysis = typeof promptAnalysis.$inferSelect;
+export type InsertPromptAnalysis = typeof promptAnalysis.$inferInsert;
 
 // Claude API types
 export type ClaudeConversation = typeof claudeConversations.$inferSelect;
