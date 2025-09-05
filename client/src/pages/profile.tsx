@@ -26,16 +26,16 @@ export default function Profile() {
     },
     onSuccess: () => {
       toast({
-        title: "Beautiful! Your story is saved.",
-        description: "Maya now knows more about your journey and can style you even better.",
+        title: "Profile Saved",
+        description: "Your information helps create better photos that match your goals.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/profile'] });
       setIsEditing(false);
     },
     onError: (error: any) => {
       toast({
-        title: "Oops, something went wrong", 
-        description: error.message || "Let's try saving your story again.",
+        title: "Save Failed", 
+        description: error.message || "Please try saving your profile again.",
 
       });
     }
@@ -85,54 +85,54 @@ export default function Profile() {
   // Suggestion options for each field
   const suggestions = {
     transformationStory: [
-      "Single mom building my empire",
-      "Career pivot to entrepreneurship", 
-      "Overcoming self-doubt to step into my power",
-      "From employee to business owner",
-      "Healing journey to self-love"
+      "Started from scratch with $500",
+      "Quit corporate to solve a real problem", 
+      "Two years of failures before first success",
+      "From side hustle to full-time business",
+      "Industry experience led to consulting"
     ],
     currentSituation: [
-      "Building my business foundation",
-      "Growing my online presence",
-      "Transitioning between careers",
-      "Scaling my existing business",
-      "Just getting started"
+      "Profitable but need more leads",
+      "Good reputation, inconsistent income",
+      "Booked solid, ready to scale",
+      "Strong skills, weak marketing",
+      "6 months in, learning fast"
     ],
     futureVision: [
-      "Confident CEO of my dream business",
-      "Recognized expert in my field", 
-      "Financial freedom and impact",
-      "Inspiring others through my story",
-      "Building a legacy"
+      "Booked 6 months ahead consistently",
+      "Industry go-to for [specific problem]", 
+      "Premium prices, ideal clients only",
+      "Team handling operations while I focus on strategy",
+      "Multiple revenue streams from expertise"
     ],
     businessGoals: [
-      "Launch my dream business",
-      "Grow to 6-figure revenue",
-      "Build a personal brand",
-      "Become a thought leader",
-      "Create multiple income streams"
+      "Double my current rates",
+      "Hit $10k months consistently",
+      "Launch high-value group program",
+      "Get featured in industry publications",
+      "Build waitlist for my services"
     ],
     businessType: [
-      "Coach/Consultant",
-      "Creative/Artist",
-      "E-commerce", 
+      "Business Coach",
+      "Creative Director",
+      "E-commerce Store", 
       "Service Provider",
       "Content Creator",
-      "Other"
+      "Consultant"
     ],
     stylePreferences: [
-      "Minimalist and elevated",
+      "Clean and professional",
       "Bold and confident",
-      "Feminine and powerful",
-      "Edgy and modern",
-      "Classic with a twist"
+      "Approachable but premium",
+      "Modern and minimal",
+      "Classic with edge"
     ],
     photoGoals: [
-      "Social media content",
-      "Website and marketing",
-      "Personal branding",
-      "Professional headshots",
-      "Building confidence"
+      "LinkedIn and website headers",
+      "Sales pages and marketing",
+      "Speaking engagement materials",
+      "Media kit and press photos",
+      "Social proof content"
     ]
   };
 
@@ -142,10 +142,10 @@ export default function Profile() {
         <MemberNavigation />
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
           <h1 className="text-3xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-            Hey Beautiful
+            Let's Get Started
           </h1>
           <p className="text-[#666666] mb-8">
-            I'd love to get to know you better! Sign in so we can chat about your story and style.
+            Sign in to create your profile so we can generate photos that actually look like you.
           </p>
           <a
             href="/api/login"
@@ -204,7 +204,7 @@ export default function Profile() {
               maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Tell me about your journey so I can style you perfectly
+              Your story helps create photos that match your goals
             </div>
           </div>
         </section>
@@ -215,19 +215,18 @@ export default function Profile() {
             <div className="px-12 py-8 border-b border-[#0a0a0a]">
               <div className="text-center">
                 <h2 className="text-2xl font-light text-[#0a0a0a] mb-3" style={{ fontFamily: 'Times New Roman, serif' }}>
-                  Hey gorgeous! It's Maya 
+                  Your Profile Setup
                 </h2>
                 <p className="text-sm text-[#666666] max-w-2xl mx-auto leading-relaxed">
-                  I'm Sandra's AI bestie, and I'm here to get to know the real you. Think of this as us having 
-                  coffee together - I want to hear your story, understand your dreams, and learn your style so 
-                  I can create the most incredible photos that show your power and beauty.
+                  Help me understand your story and goals so I can create photos that actually represent you. 
+                  The more specific you are, the better your photos will be.
                 </p>
                 <div className="mt-6">
                   <button
                     onClick={() => setIsEditing(!isEditing)}
                     className="border border-[#0a0a0a] bg-white text-[#0a0a0a] px-8 py-3 text-xs uppercase tracking-[0.1em] hover:bg-[#0a0a0a] hover:text-white transition-colors"
                   >
-                    {isEditing ? 'Save My Story' : 'Tell Maya Your Story'}
+                    {isEditing ? 'Save Profile' : 'Complete Your Profile'}
                   </button>
                 </div>
               </div>
@@ -238,7 +237,7 @@ export default function Profile() {
               {isLoading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin w-8 h-8 border-4 border-[#0a0a0a] border-t-transparent rounded-full mx-auto mb-4"></div>
-                  <p className="text-sm text-[#666666]">Getting to know you better...</p>
+                  <p className="text-sm text-[#666666]">Loading your profile...</p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-12">
@@ -247,10 +246,10 @@ export default function Profile() {
                   <div className="border-b border-[#f5f5f5] pb-8">
                     <div className="mb-6">
                       <h3 className="text-lg font-light text-[#0a0a0a] mb-2" style={{ fontFamily: 'Times New Roman, serif' }}>
-                        What should I call you, beautiful?
+                        What should I call you?
                       </h3>
                       <p className="text-sm text-[#666666]">
-                        Your name or what you'd like to be called so I can personalize our conversations
+                        Your name helps personalize your photo generation experience
                       </p>
                     </div>
                     
