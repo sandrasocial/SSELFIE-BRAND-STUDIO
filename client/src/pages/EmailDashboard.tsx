@@ -65,7 +65,7 @@ export default function EmailDashboard() {
   // Process emails mutation
   const processEmailsMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('POST', '/api/email-management/process');
+      return await apiRequest('/api/email-management/process', 'POST');
     },
     onSuccess: (data) => {
       toast({
@@ -86,7 +86,7 @@ export default function EmailDashboard() {
   // Start monitoring mutation
   const startMonitoringMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('POST', '/api/email-management/monitor/start');
+      return await apiRequest('/api/email-management/monitor/start', 'POST');
     },
     onSuccess: () => {
       toast({
@@ -103,10 +103,10 @@ export default function EmailDashboard() {
     },
   });
 
-  // Test processing mutation (admin only)
+  // Test processing mutation (now available for all users)
   const testProcessingMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('POST', '/api/email-management/test-processing');
+      return await apiRequest('/api/email-management/test-processing', 'POST');
     },
     onSuccess: (data) => {
       toast({
@@ -126,7 +126,7 @@ export default function EmailDashboard() {
   // Process Instagram messages mutation
   const processInstagramMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('POST', '/api/instagram-management/process');
+      return await apiRequest('/api/instagram-management/process', 'POST');
     },
     onSuccess: (data) => {
       toast({
@@ -144,10 +144,10 @@ export default function EmailDashboard() {
     },
   });
 
-  // Test Instagram processing mutation (admin only)
+  // Test Instagram processing mutation (now available for all users)
   const testInstagramMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest('POST', '/api/instagram-management/test-processing');
+      return await apiRequest('/api/instagram-management/test-processing', 'POST');
     },
     onSuccess: (data) => {
       toast({

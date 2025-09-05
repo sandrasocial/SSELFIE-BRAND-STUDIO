@@ -415,6 +415,32 @@ export class InstagramIntegration {
       urgentMessages.length > 0 ? 'high' : 'medium'
     );
   }
+
+  // 📱 Get processed messages for user (for dashboard)
+  async getProcessedMessages(userId: string): Promise<ProcessedInstagramMessage[]> {
+    try {
+      // In a real implementation, this would fetch from database
+      // For now, return empty array to prevent errors
+      console.log(`📱 Getting processed Instagram messages for user ${userId}`);
+      return [];
+    } catch (error) {
+      console.error('❌ Error getting processed messages:', error);
+      return [];
+    }
+  }
+
+  // 💬 Get ManyChat messages for user (for dashboard)
+  async getManyChatMessages(userId: string): Promise<ManyChatMessage[]> {
+    try {
+      // In a real implementation, this would fetch from database
+      // For now, return empty array to prevent errors
+      console.log(`💬 Getting ManyChat messages for user ${userId}`);
+      return [];
+    } catch (error) {
+      console.error('❌ Error getting ManyChat messages:', error);
+      return [];
+    }
+  }
 }
 
 export const instagramIntegration = new InstagramIntegration();

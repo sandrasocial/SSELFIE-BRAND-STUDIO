@@ -52,6 +52,32 @@ export class EmailManagementAgent {
     return this.instance;
   }
 
+  // 📧 Get user email accounts (for dashboard)
+  async getUserEmailAccounts(userId: string): Promise<any[]> {
+    try {
+      console.log(`📧 Getting email accounts for user ${userId}`);
+      // In a real implementation, this would fetch from database
+      // For now, return empty array to prevent errors
+      return [];
+    } catch (error) {
+      console.error('❌ Error getting user email accounts:', error);
+      return [];
+    }
+  }
+
+  // 📊 Get recent email insights (for dashboard)
+  async getRecentEmailInsights(userId: string): Promise<any[]> {
+    try {
+      console.log(`📊 Getting recent email insights for user ${userId}`);
+      // In a real implementation, this would fetch from database
+      // For now, return empty array to prevent errors
+      return [];
+    } catch (error) {
+      console.error('❌ Error getting recent email insights:', error);
+      return [];
+    }
+  }
+
   // 📧 Initialize with both personal and business accounts
   async addEmailAccount(userId: string, account: EmailAccount): Promise<boolean> {
     try {
