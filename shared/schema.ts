@@ -902,6 +902,39 @@ export const agentTrainingSessions = pgTable("agent_training_sessions", {
   trainedBy: varchar("trained_by"), // User ID who initiated training
 });
 
+// PHASE 1: COST CONTROL & MONITORING SYSTEM
+// Agent cost tracking and budgets for Sandra's Empire Control
+
+export const agentCostTracking = pgTable("agent_cost_tracking", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  agentId: varchar("agent_id").notNull(),
+  conversationId: varchar("conversation_id"),
+  apiCalls: integer("api_calls").default(0),
+  tokensUsed: integer("tokens_used").default(0),
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 4 }).default("0.0000"),
+  date: timestamp("date").defaultNow(),
+  taskType: varchar("task_type"), // "chat", "file_edit", "analysis", etc.
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_cost_tracking_user_agent_date").on(table.userId, table.agentId, table.date),
+]);
+
+// Daily/monthly budget controls
+export const agentBudgets = pgTable("agent_budgets", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  agentId: varchar("agent_id"),
+  budgetType: varchar("budget_type").notNull(), // "daily", "monthly"
+  budgetLimit: decimal("budget_limit", { precision: 10, scale: 2 }).notNull(),
+  currentSpend: decimal("current_spend", { precision: 10, scale: 2 }).default("0.00"),
+  isActive: boolean("is_active").default(true),
+  resetDate: timestamp("reset_date"),
+  alertThreshold: integer("alert_threshold").default(80), // Alert at 80% of budget
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Additional Agent Learning Schemas
 export const insertAgentKnowledgeBaseSchemaOnly = createInsertSchema(agentKnowledgeBase);
 export type InsertAgentKnowledgeBaseOnly = z.infer<typeof insertAgentKnowledgeBaseSchemaOnly>;
@@ -918,6 +951,16 @@ export type AgentPerformanceMetrics = typeof agentPerformanceMetrics.$inferSelec
 export const insertAgentTrainingSessionsSchema = createInsertSchema(agentTrainingSessions);
 export type InsertAgentTrainingSession = z.infer<typeof insertAgentTrainingSessionsSchema>;
 export type AgentTrainingSession = typeof agentTrainingSessions.$inferSelect;
+
+// Cost tracking type exports
+export const insertAgentCostTrackingSchema = createInsertSchema(agentCostTracking);
+export type InsertAgentCostTracking = z.infer<typeof insertAgentCostTrackingSchema>;
+export type AgentCostTracking = typeof agentCostTracking.$inferSelect;
+
+export const insertAgentBudgetsSchema = createInsertSchema(agentBudgets);
+export type InsertAgentBudgets = z.infer<typeof insertAgentBudgetsSchema>;
+export type AgentBudgets = typeof agentBudgets.$inferSelect;
+
 export type InsertUsageHistory = typeof usageHistory.$inferInsert;
 
 // Export styleguide tables and types  
