@@ -3725,8 +3725,14 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   const { AgentContextMonitor } = await import('./services/agent-context-monitor');
   AgentContextMonitor.getInstance().startMonitoring(30); // Check every 30 minutes for launch opportunities
   
-  // Connect Slack Interactive System
+  // Connect Slack Interactive System with raw body parsing for signature verification
   const slackInteractivityRouter = await import('./routes/slack-interactivity');
+  
+  // Add raw body parser specifically for Slack webhooks
+  app.use('/api/slack', express.raw({
+    type: 'application/x-www-form-urlencoded'
+  }));
+  
   app.use('/api/slack', slackInteractivityRouter.default);
   console.log('✅ SLACK: Interactive agent conversation system connected');
 

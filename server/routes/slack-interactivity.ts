@@ -65,7 +65,7 @@ router.post('/interactivity', async (req, res) => {
     const signature = req.headers['x-slack-signature'] as string;
     
     // Get the raw body for signature verification
-    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const rawBody = req.body.toString();
     
     // Verify request is from Slack
     if (!verifySlackRequest(rawBody, timestamp, signature)) {
@@ -73,16 +73,9 @@ router.post('/interactivity', async (req, res) => {
       return res.status(401).send('Invalid signature');
     }
 
-    // Parse the payload from either raw body or already parsed body
-    let payload;
-    if (typeof req.body === 'string') {
-      // Body is raw string, parse the payload parameter
-      const urlParams = new URLSearchParams(req.body);
-      payload = JSON.parse(urlParams.get('payload') || '{}');
-    } else {
-      // Body is already parsed, get payload directly
-      payload = req.body.payload ? JSON.parse(req.body.payload) : req.body;
-    }
+    // Parse the payload from URL-encoded body
+    const urlParams = new URLSearchParams(rawBody);
+    const payload = JSON.parse(urlParams.get('payload') || '{}');
     console.log('🔔 SLACK INTERACTION:', payload.type, payload.user?.name);
 
     // Handle different interaction types
@@ -718,7 +711,6 @@ async function shareStrategyDocument(payload: any, docType: string) {
 ## Current State (${new Date().toLocaleDateString()})
 - Total Users: ${metrics.totalUsers} 
 - Monthly Recurring Revenue: €${metrics.revenue}
-- Conversion Rate: ${metrics.conversionRate}%
 - Generation Success Rate: ${metrics.generationSuccessRate}%
 
 ## Launch Strategy Recommendations
@@ -894,7 +886,7 @@ async function respondWithDataAnalysis(event: any, channel: string) {
                 `**Current Performance:**\n` +
                 `• Users: ${metrics.totalUsers} (growth from ${metrics.totalUsers - 2} last week)\n` +
                 `• Revenue: €${metrics.revenue} MRR\n` +
-                `• Conversion: ${metrics.conversionRate}% (industry avg: 2-5%)\n` +
+                `• Test Users: ${metrics.testUsers} (industry avg: 2-5%)\n` +
                 `• Gen Success: ${metrics.generationSuccessRate}%\n\n` +
                 `**Strategic Insights:**\n` +
                 `🔥 Ready for launch - solid €47/month validation\n` +
