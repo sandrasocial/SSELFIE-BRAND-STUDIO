@@ -15,17 +15,38 @@ console.log('🔧 Stack Auth Environment Check:', {
 
 if (STACK_PROJECT_ID && publishableKey) {
   try {
-    // Simple Stack Auth configuration
+    console.log('🔧 Initializing Stack Auth with explicit token storage...');
+    
+    // Configure Stack Auth with explicit token storage settings
     stackApp = new StackClientApp({
       projectId: STACK_PROJECT_ID,
       publishableClientKey: publishableKey,
+      // Force localStorage-based token storage to avoid undefined object issues
+      tokenStore: {
+        type: 'localStorage',
+        prefix: 'stack-auth-',
+      },
+      // Add explicit storage configuration
+      baseUrl: 'https://api.stack-auth.com',
     });
     
-    console.log('✅ Stack Auth client created');
+    console.log('✅ Stack Auth client created with explicit storage config');
     
   } catch (error) {
     console.error('❌ Stack Auth client creation failed:', error);
-    stackApp = createFallbackStackApp();
+    console.log('🔧 Trying fallback Stack Auth config...');
+    
+    // Try simpler configuration as fallback
+    try {
+      stackApp = new StackClientApp({
+        projectId: STACK_PROJECT_ID,
+        publishableClientKey: publishableKey,
+      });
+      console.log('✅ Stack Auth fallback config worked');
+    } catch (fallbackError) {
+      console.error('❌ Stack Auth fallback also failed:', fallbackError);
+      stackApp = createFallbackStackApp();
+    }
   }
 } else {
   console.warn('⚠️ Stack Auth environment variables missing');
