@@ -1,4 +1,4 @@
-import { FC, MouseEvent, ReactNode } from 'react';
+import React, { FC, MouseEvent, ReactNode } from 'react';
 interface HeroFullBleedProps {
   backgroundImage: string;
   tagline?: string;
