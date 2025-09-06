@@ -9,23 +9,39 @@ let stackApp: any;
 
 if (STACK_PROJECT_ID && publishableKey) {
   try {
+    console.log('🔧 Initializing Stack Auth with config:', {
+      projectId: STACK_PROJECT_ID,
+      hasPublishableKey: !!publishableKey,
+      publishableKeyPrefix: publishableKey?.substring(0, 10) + '...'
+    });
+    
     stackApp = new StackClientApp({
       projectId: STACK_PROJECT_ID,
       publishableClientKey: publishableKey,
-      // Add configuration to prevent token store errors
-      tokenStore: 'cookie', // Use cookie-based storage instead of localStorage
+      // Remove tokenStore config to use default behavior
     });
-    console.log('🔧 Stack Auth client initialized successfully');
-    console.log('Project ID:', STACK_PROJECT_ID);
+    
+    console.log('✅ Stack Auth client initialized successfully');
+    console.log('🔧 Stack Auth client methods:', Object.keys(stackApp));
     
   } catch (error) {
-    console.error('❌ Stack Auth initialization failed:', error);
+    console.error('❌ Stack Auth initialization failed:', {
+      error,
+      message: error?.message,
+      stack: error?.stack
+    });
     stackApp = createFallbackStackApp();
   }
 } else {
   console.warn('⚠️ Stack Auth environment variables missing - using fallback auth system');
   console.warn('Project ID available:', !!STACK_PROJECT_ID);
   console.warn('Publishable key available:', !!publishableKey);
+  if (STACK_PROJECT_ID) {
+    console.warn('Project ID value:', STACK_PROJECT_ID);
+  }
+  if (publishableKey) {
+    console.warn('Publishable key prefix:', publishableKey?.substring(0, 10) + '...');
+  }
   stackApp = createFallbackStackApp();
 }
 

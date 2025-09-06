@@ -20,13 +20,28 @@ export function useAuth() {
       return createFallbackAuthState();
     }
     
+    // Debug Stack Auth app status
+    console.log('🔧 Stack Auth app status:', {
+      exists: !!stackApp,
+      hasRedirect: typeof stackApp.redirectToSignIn === 'function',
+      type: typeof stackApp
+    });
+
     // Wrap useUser in try-catch to handle internal Stack Auth errors
     let user;
     try {
       // Use more defensive user loading approach
+      console.log('🔍 Attempting to call useUser...');
       user = useUser({ or: 'return-null' });
+      console.log('✅ useUser success, result:', user);
     } catch (userError) {
-      console.warn('⚠️ Stack Auth useUser failed, using fallback:', userError);
+      console.error('❌ Stack Auth useUser failed with details:', {
+        error: userError,
+        message: userError?.message,
+        name: userError?.name,
+        stack: userError?.stack,
+        toString: userError?.toString?.()
+      });
       return createFallbackAuthState();
     }
     
