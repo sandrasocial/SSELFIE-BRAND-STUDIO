@@ -4,7 +4,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
-import { setupAuth, requireAuth } from "./auth";
+import { requireStackAuth, optionalStackAuth } from "./stack-auth";
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -397,130 +397,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Setup JWT authentication
-  setupAuth(app);
+  // Stack Auth JWKS verification - no setup needed
 
-  // 🔐 JWT Authentication Routes
-  app.post('/api/auth/register', async (req, res) => {
+  // 🔐 Stack Auth Authentication Routes
+  // Note: Login/Logout/Register are handled by Stack Auth OAuth flow
+  
+  app.get('/api/auth/user', requireStackAuth, async (req: any, res) => {
     try {
-      const { email, password, firstName, lastName } = req.body;
+      const stackUser = req.user; // User from Stack Auth JWT
       
-      if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password required' });
-      }
-
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(409).json({ message: 'User already exists' });
-      }
-
-      // Hash password and create user
-      const { hashPassword, generateToken } = await import('./auth');
-      const hashedPassword = await hashPassword(password);
+      // Check if user exists in our database, create if not
+      let user = await storage.getUser(stackUser.id);
       
-      const user = await storage.createUser({
-        id: Math.random().toString(36).substr(2, 9), // Generate random ID
-        email,
-        firstName: firstName || '',
-        lastName: lastName || '',
-        password: hashedPassword,
-        plan: 'sselfie-studio', // Default plan
-        role: 'user'
-      });
-
-      // Generate JWT token
-      const token = generateToken({
-        id: user.id,
-        email: user.email,
-        role: user.role || 'user',
-        plan: user.plan || 'sselfie-studio'
-      });
-
-      // Set token as HTTP-only cookie
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
-
-      res.json({
-        success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          plan: user.plan
-        }
-      });
-    } catch (error) {
-      console.error('Registration error:', error);
-      res.status(500).json({ message: 'Registration failed' });
-    }
-  });
-
-  app.post('/api/auth/login', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password required' });
-      }
-
-      // Get user from database
-      const user = await storage.getUserByEmail(email);
       if (!user) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-      }
-
-      // Check password
-      const { comparePassword, generateToken } = await import('./auth');
-      const isValidPassword = await comparePassword(password, user.password || '');
-      if (!isValidPassword) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-      }
-
-      // Generate JWT token
-      const token = generateToken({
-        id: user.id,
-        email: user.email,
-        role: user.role || 'user',
-        plan: user.plan || 'sselfie-studio'
-      });
-
-      // Set token as HTTP-only cookie
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
-
-      res.json({
-        success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          plan: user.plan
-        }
-      });
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Login failed' });
-    }
-  });
-
-  app.post('/api/auth/logout', (req, res) => {
-    res.clearCookie('token');
-    res.json({ success: true, message: 'Logged out successfully' });
-  });
-
-  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
-    try {
-      const user = await storage.getUser(req.user.id);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        console.log('🔄 Creating new user from Stack Auth data:', stackUser);
+        
+        // Create new user with Stack Auth data
+        user = await storage.createUser({
+          id: stackUser.id,
+          email: stackUser.primaryEmail || '',
+          firstName: extractFirstName(stackUser.displayName),
+          lastName: extractLastName(stackUser.displayName),
+          plan: 'sselfie-studio', // Default plan for new users
+          role: stackUser.primaryEmail === 'ssa@ssasocial.com' ? 'admin' : 'user'
+        });
       }
       
       res.json({
@@ -532,13 +432,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         role: user.role
       });
     } catch (error) {
-      console.error('Get user error:', error);
+      console.error('❌ Stack Auth user sync error:', error);
       res.status(500).json({ message: 'Failed to get user' });
     }
   });
 
+  // Helper functions for name parsing
+  function extractFirstName(displayName?: string): string {
+    if (!displayName) return '';
+    return displayName.split(' ')[0] || '';
+  }
+
+  function extractLastName(displayName?: string): string {
+    if (!displayName) return '';
+    const parts = displayName.split(' ');
+    return parts.length > 1 ? parts.slice(1).join(' ') : '';
+  }
+
   // 🧪 JWT AUTH INTEGRATION TEST ENDPOINT
-  app.get('/api/test-auth', requireAuth, async (req: any, res) => {
+  app.get('/api/test-auth', requireStackAuth, async (req: any, res) => {
     try {
       const stackUser = req.user;
       console.log('🧪 STACK AUTH TEST - Raw user from token:', stackUser);
@@ -626,7 +538,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/support', supportEscalationRouter);
   
   // Profile Management API
-  app.get('/api/profile', requireAuth, async (req: any, res) => {
+  app.get('/api/profile', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -650,7 +562,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/profile', requireAuth, async (req: any, res) => {
+  app.put('/api/profile', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -755,7 +667,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // CRITICAL: System health check for user models
-  app.get('/api/admin/validate-all-models', requireAuth, async (req: any, res) => {
+  app.get('/api/admin/validate-all-models', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const user = await storage.getUser(userId);
@@ -784,7 +696,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Victoria AI Website Builder - Uses saved onboarding data for enhanced generation
-  app.post('/api/victoria/generate', requireAuth, async (req: any, res) => {
+  app.post('/api/victoria/generate', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const websiteData = req.body;
@@ -904,7 +816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/victoria/customize', requireAuth, async (req: any, res) => {
+  app.post('/api/victoria/customize', requireStackAuth, async (req: any, res) => {
     try {
       const { siteId, modifications } = req.body;
       const userId = req.user?.claims?.sub;
@@ -929,7 +841,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/victoria/deploy', requireAuth, async (req: any, res) => {
+  app.post('/api/victoria/deploy', requireStackAuth, async (req: any, res) => {
     try {
       const { siteId } = req.body;
       const userId = req.user?.claims?.sub;
@@ -960,7 +872,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/victoria/websites', requireAuth, async (req: any, res) => {
+  app.get('/api/victoria/websites', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { db } = await import('./db');
@@ -981,7 +893,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Save brand assessment from new personal brand flow
-  app.post('/api/save-brand-assessment', requireAuth, async (req: any, res) => {
+  app.post('/api/save-brand-assessment', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const assessmentData = req.body;
@@ -1037,7 +949,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Users should use the admin-built brand-onboarding system instead
 
   // Website management endpoints
-  app.get('/api/websites', requireAuth, async (req: any, res) => {
+  app.get('/api/websites', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { db } = await import('./db');
@@ -1057,7 +969,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/websites', requireAuth, async (req: any, res) => {
+  app.post('/api/websites', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { db } = await import('./db');
@@ -1082,7 +994,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/websites/:id', requireAuth, async (req: any, res) => {
+  app.put('/api/websites/:id', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const websiteId = parseInt(req.params.id);
@@ -1107,7 +1019,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/websites/:id', requireAuth, async (req: any, res) => {
+  app.delete('/api/websites/:id', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const websiteId = parseInt(req.params.id);
@@ -1131,7 +1043,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/websites/:id/refresh-screenshot', requireAuth, async (req: any, res) => {
+  app.post('/api/websites/:id/refresh-screenshot', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const websiteId = parseInt(req.params.id);
@@ -1147,7 +1059,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   
   // 🚨 Check training status and handle failures
-  app.get('/api/training-status', requireAuth, async (req: any, res) => {
+  app.get('/api/training-status', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log(`🔍 Checking training status for user: ${userId}`);
@@ -1189,7 +1101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // 🔧 PHASE 3: Retry model extraction for failed trainings
-  app.post('/api/training/retry-extraction', requireAuth, async (req: any, res) => {
+  app.post('/api/training/retry-extraction', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log(`🔧 PHASE 3: Model extraction retry requested for user: ${userId}`);
@@ -1241,7 +1153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // MISSING ENDPOINT: Training progress for real-time updates
-  app.get('/api/training-progress/:requestId', requireAuth, async (req: any, res) => {
+  app.get('/api/training-progress/:requestId', requireStackAuth, async (req: any, res) => {
     try {
       const { requestId } = req.params;
       const authUserId = req.user.claims.sub;
@@ -1363,7 +1275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Simple training page route (for direct image upload)
-  app.post('/api/train-model', requireAuth, async (req: any, res) => {
+  app.post('/api/train-model', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { images } = req.body;
@@ -1436,7 +1348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // RESTORED: Sandra's admin user management system active
   
   // Image proxy endpoint to bypass CORS issues with S3
-  app.get('/api/proxy-image', requireAuth, async (req: any, res) => {
+  app.get('/api/proxy-image', requireStackAuth, async (req: any, res) => {
     try {
       const { url } = req.query;
       
@@ -1481,7 +1393,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Save image to gallery - POST endpoint
-  app.post('/api/ai-images', requireAuth, async (req: any, res) => {
+  app.post('/api/ai-images', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { imageUrl, prompt, category, isAutoSaved, isFavorite } = req.body;
@@ -1531,7 +1443,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // REMOVED: Maya endpoint moved to unified router at /api/maya/generated-images
 
   // AI Images endpoint - Production ready
-  app.get('/api/ai-images', requireAuth, async (req: any, res) => {
+  app.get('/api/ai-images', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('🖼️ Fetching AI images for user:', userId);
@@ -1559,7 +1471,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Model endpoint - Production ready (DUPLICATE - REMOVE THIS ONE)
-  app.get('/api/user-model-old', requireAuth, async (req: any, res) => {
+  app.get('/api/user-model-old', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('🤖 OLD ENDPOINT - Fetching user model for user:', userId);
@@ -1592,7 +1504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // LEGACY MAYA CHAT STORAGE ENDPOINTS - May be needed for backward compatibility
   // NOTE: Main Maya interactions now use /api/maya/* unified system
-  app.get('/api/maya-chats', requireAuth, async (req: any, res) => {
+  app.get('/api/maya-chats', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('💬 Fetching Maya chats for user:', userId);
@@ -1610,7 +1522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // LEGACY: Get Maya chats organized by category
-  app.get('/api/maya-chats/categorized', requireAuth, async (req: any, res) => {
+  app.get('/api/maya-chats/categorized', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('📂 Fetching categorized Maya chats for user:', userId);
@@ -1627,7 +1539,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/maya-chats', requireAuth, async (req: any, res) => {
+  app.post('/api/maya-chats', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { chatTitle, chatSummary } = req.body;
@@ -1652,7 +1564,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // LEGACY MAYA ROUTE - DISABLED: Use unified Maya system at /api/maya/* instead
   /*
-  app.post('/api/maya-chat', requireAuth, async (req: any, res) => {
+  app.post('/api/maya-chat', requireStackAuth, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
       const userId = req.user?.claims?.sub;
@@ -1810,7 +1722,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   */
 
   // Victoria Website Chat endpoint - MEMBER AGENT (Website Building Guide)
-  app.post('/api/victoria-website-chat', requireAuth, async (req: any, res) => {
+  app.post('/api/victoria-website-chat', requireStackAuth, async (req: any, res) => {
     try {
       const { message, onboardingData, conversationHistory } = req.body;
       const userId = req.user?.claims?.sub;
@@ -1901,7 +1813,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // LEGACY: Maya Chat Messages endpoints - May be needed for chat history
-  app.get('/api/maya-chats/:chatId/messages', requireAuth, async (req: any, res) => {
+  app.get('/api/maya-chats/:chatId/messages', requireStackAuth, async (req: any, res) => {
     try {
       const { chatId } = req.params;
       const messages = await storage.getMayaChatMessages(parseInt(chatId));
@@ -1915,7 +1827,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  app.post('/api/maya-chats/:chatId/messages', requireAuth, async (req: any, res) => {
+  app.post('/api/maya-chats/:chatId/messages', requireStackAuth, async (req: any, res) => {
     try {
       const { chatId } = req.params;
       const { role, content, imagePreview, generatedPrompt, conceptCards, quickButtons, canGenerate } = req.body;
@@ -1944,7 +1856,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Update Maya message with image preview - CRITICAL FOR PERSISTENT IMAGES
-  app.patch('/api/maya-chats/:chatId/messages/:messageId/update-preview', requireAuth, async (req: any, res) => {
+  app.patch('/api/maya-chats/:chatId/messages/:messageId/update-preview', requireStackAuth, async (req: any, res) => {
     try {
       const { chatId, messageId } = req.params;
       const { imagePreview, generatedPrompt } = req.body;
@@ -1970,7 +1882,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // REMOVED: Legacy Maya endpoints - conflicts with unified system in maya-unified.ts
   // All Maya functionality now handled through /api/maya/* unified system
   /*
-  app.post('/api/maya-generate-images', requireAuth, async (req: any, res) => {
+  app.post('/api/maya-generate-images', requireStackAuth, async (req: any, res) => {
     try {
       console.log('🎬 Maya generation endpoint called');
       
@@ -2073,7 +1985,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Maya polling endpoint - Check generation status
-  app.get('/api/check-generation/:predictionId', requireAuth, async (req: any, res) => {
+  app.get('/api/check-generation/:predictionId', requireStackAuth, async (req: any, res) => {
     try {
       const { predictionId } = req.params;
       const userId = req.user?.claims?.sub;
@@ -2133,7 +2045,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Maya save image endpoint - Heart functionality
-  app.post('/api/save-image', requireAuth, async (req: any, res) => {
+  app.post('/api/save-image', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { imageUrl, source, prompt } = req.body;
@@ -2249,7 +2161,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.use(flatlayLibraryRoutes.default);
   
   // Generation tracker polling endpoint for live progress
-  app.get('/api/generation-tracker/:trackerId', requireAuth, async (req: any, res) => {
+  app.get('/api/generation-tracker/:trackerId', requireStackAuth, async (req: any, res) => {
     try {
       const { trackerId } = req.params;
       console.log(`🔍 TRACKER DEBUG: Looking for tracker ${trackerId}`);
@@ -2329,7 +2241,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Save preview images to permanent gallery endpoint
-  app.post('/api/save-preview-to-gallery', requireAuth, async (req: any, res) => {
+  app.post('/api/save-preview-to-gallery', requireStackAuth, async (req: any, res) => {
     try {
       const { trackerId, selectedImageUrls } = req.body;
       
@@ -2389,7 +2301,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // 🔥 CRITICAL FIX: Gallery images endpoint - ONLY return user-hearted/saved images
-  app.get('/api/gallery-images', requireAuth, async (req: any, res) => {
+  app.get('/api/gallery-images', requireStackAuth, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
@@ -2455,7 +2367,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // 🔄 ADMIN IMAGE MIGRATION: Restore admin user images to SSELFIE gallery
-  app.post('/api/admin/migrate-images-to-gallery', requireAuth, async (req: any, res) => {
+  app.post('/api/admin/migrate-images-to-gallery', requireStackAuth, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
@@ -2544,7 +2456,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // ========================================
   
   // Subscription API - Required for workspace functionality
-  app.get('/api/subscription', requireAuth, async (req: any, res) => {
+  app.get('/api/subscription', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       
@@ -2565,7 +2477,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Usage API - Required for workspace functionality
-  app.get('/api/usage/status', requireAuth, async (req: any, res) => {
+  app.get('/api/usage/status', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       
@@ -2770,7 +2682,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('Session debug:', { 
         hasSession: !!req.session, 
         sessionUser: req.session?.user,
-        requireAuth: req.requireAuth?.(),
+        requireStackAuth: req.requireStackAuth?.(),
         user: req.user,
         cookies: req.headers.cookie
       });
@@ -2788,9 +2700,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
-      const requireAuth = req.requireAuth?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
+      const requireStackAuth = req.requireStackAuth?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
       
-      if (!requireAuth && adminToken !== 'sandra-admin-2025') {
+      if (!requireStackAuth && adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ error: 'Admin access required' });
       }
 
@@ -2834,9 +2746,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
-      const requireAuth = req.requireAuth?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
+      const requireStackAuth = req.requireStackAuth?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
       
-      if (!requireAuth && adminToken !== 'sandra-admin-2025') {
+      if (!requireStackAuth && adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ error: 'Admin access required' });
       }
 
@@ -2956,7 +2868,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       if (isAdminRequest) {
         userId = '42585527'; // Sandra's actual admin user ID
         console.log('✅ ADMIN AUTH: Using Sandra admin userId:', userId);
-      } else if (req.requireAuth()) {
+      } else if (req.requireStackAuth()) {
         userId = req.user?.claims?.sub || req.user?.id;
         console.log('🔒 SESSION AUTH: Using session userId:', userId);
       }
@@ -3208,7 +3120,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // GALLERY API ENDPOINTS - MISSING IMPLEMENTATIONS
   
   // Get user's favorite image IDs
-  app.get('/api/images/favorites', requireAuth, async (req: any, res) => {
+  app.get('/api/images/favorites', requireStackAuth, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
@@ -3250,7 +3162,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
   
   // Toggle favorite status for an image
-  app.post('/api/images/:imageId/favorite', requireAuth, async (req: any, res) => {
+  app.post('/api/images/:imageId/favorite', requireStackAuth, async (req: any, res) => {
     try {
       const { imageId } = req.params;
       const authUserId = req.user.claims.sub;
@@ -3316,7 +3228,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
   
   // Delete an AI image
-  app.delete('/api/ai-images/:imageId', requireAuth, async (req: any, res) => {
+  app.delete('/api/ai-images/:imageId', requireStackAuth, async (req: any, res) => {
     try {
       const { imageId } = req.params;
       const authUserId = req.user.claims.sub;
@@ -3377,7 +3289,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // User model endpoint for workspace model status  
-  app.get('/api/user-model', requireAuth, async (req: any, res) => {
+  app.get('/api/user-model', requireStackAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       console.log('🤖 Fetching user model for:', userId);
@@ -3432,7 +3344,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
 
   // AI Photoshoot Generation - CRITICAL MISSING ENDPOINT
-  app.post('/api/generate-user-images', requireAuth, async (req: any, res) => {
+  app.post('/api/generate-user-images', requireStackAuth, async (req: any, res) => {
     try {
       const { category, subcategory } = req.body;
       const authUserId = req.user.claims.sub;
@@ -3545,18 +3457,18 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
     if (req.user) {
       res.json({
         user: req.user,
-        requireAuth: true
+        requireStackAuth: true
       });
     } else {
       res.json({
         user: null,
-        requireAuth: false
+        requireStackAuth: false
       });
     }
   });
 
   // Model training endpoint for workspace step 1 - Uses BulletproofUploadService
-  app.post('/api/start-model-training', requireAuth, async (req: any, res) => {
+  app.post('/api/start-model-training', requireStackAuth, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
@@ -3616,7 +3528,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   });
 
   // Enhanced endpoint for users to start fresh training (retraining)
-  app.post('/api/initiate-new-training', requireAuth, async (req: any, res) => {
+  app.post('/api/initiate-new-training', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { resetExisting = false } = req.body;
@@ -3683,7 +3595,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       const isAdminAuth = adminToken === 'sandra-admin-2025';
       
       const sessionUser = req.user;
-      const isSessionAdmin = req.requireAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      const isSessionAdmin = req.requireStackAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
       
       if (!isAdminAuth && !isSessionAdmin) {
         return res.status(401).json({ message: "Admin access required" });
@@ -3726,7 +3638,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       const isAdminAuth = adminToken === 'sandra-admin-2025';
       
       const sessionUser = req.user;
-      const isSessionAdmin = req.requireAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      const isSessionAdmin = req.requireStackAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
       
       if (!isAdminAuth && !isSessionAdmin) {
         return res.status(401).json({ message: "Admin access required" });
@@ -3776,7 +3688,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       const isAdminAuth = adminToken === 'sandra-admin-2025';
       
       const sessionUser = req.user;
-      const isSessionAdmin = req.requireAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      const isSessionAdmin = req.requireStackAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
       
       if (!isAdminAuth && !isSessionAdmin) {
         return res.status(401).json({ message: "Admin access required" });
