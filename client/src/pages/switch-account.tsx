@@ -6,7 +6,7 @@ import { SandraImages } from '../lib/sandra-images';
 export default function SwitchAccount() {
   const handleSwitchAccount = () => {
     // Force account selection for switching
-    window.location.href = '/api/login?prompt=select_account';
+    window.location.href = '/api/auth/signin?prompt=select_account';
   };
 
   const handleCancel = () => {
