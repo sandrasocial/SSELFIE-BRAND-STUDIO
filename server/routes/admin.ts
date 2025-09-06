@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../db';
 import { users, subscriptions, sessions, importedSubscribers, aiImages, userModels } from '../../shared/schema';
 import { eq, count, sum, desc, sql, gte } from 'drizzle-orm';
-import { requireAuth } from '../neonAuth';
+import { requireAuth } from '../stackAuth';
 import { storage } from '../storage';
 import { requireAdmin, checkAdminAccess, getAdminUserData } from '../middleware/admin-middleware';
 

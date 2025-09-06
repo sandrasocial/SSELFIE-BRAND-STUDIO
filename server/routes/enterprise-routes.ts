@@ -9,7 +9,7 @@ import { securityAudit } from '../enterprise/security-audit';
 import { performanceMonitor } from '../enterprise/performance-monitor';
 import { globalExpansion } from '../enterprise/global-expansion';
 import { analyticsReporting } from '../enterprise/analytics-reporting';
-import { requireAuth } from '../neonAuth';
+import { requireAuth } from '../stackAuth';
 
 export function registerEnterpriseRoutes(app: Express): void {
   console.log('🏢 Registering Enterprise Scaling API routes...');

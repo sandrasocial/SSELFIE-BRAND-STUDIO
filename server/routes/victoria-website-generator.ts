@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { requireAuth } from '../neonAuth';
+import { requireAuth } from '../stackAuth';
 
 interface WebsiteGenerationRequest {
   businessName: string;

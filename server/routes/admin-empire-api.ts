@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { sql } from 'drizzle-orm';
-import { requireAuth } from '../neonAuth';
+import { requireAuth } from '../stackAuth';
 
 const router = Router();
 

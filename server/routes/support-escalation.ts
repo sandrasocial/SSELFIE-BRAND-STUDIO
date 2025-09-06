@@ -4,7 +4,7 @@
  */
 
 import { Router } from 'express';
-import { requireAuth } from '../neonAuth';
+import { requireAuth } from '../stackAuth';
 import { escalationHandler } from '../services/escalation-handler';
 
 const router = Router();

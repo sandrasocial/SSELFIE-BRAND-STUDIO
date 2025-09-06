@@ -14,7 +14,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table for Neon authentication
+// Session storage table for Stack Auth (Stack Auth manages sessions automatically)
 export const sessions = pgTable(
   "sessions",
   {
@@ -44,13 +44,14 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
   index("idx_agent_session_updated").on(table.updatedAt),
 ]);
 
-// User storage table for Neon authentication
+// User storage table for Stack Auth integration
 export const users = pgTable("users", {
-  // Core user fields
-  id: varchar("id").primaryKey().notNull(), // User ID - preserved from existing system
-  email: varchar("email").unique(),
+  // Core Stack Auth user fields
+  id: varchar("id").primaryKey().notNull(), // Stack Auth user ID
+  email: varchar("email").unique().notNull(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
+  displayName: varchar("display_name"), // Stack Auth displayName field
   profileImageUrl: varchar("profile_image_url"),
   
   // User activity tracking  

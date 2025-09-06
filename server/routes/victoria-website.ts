@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { requireAuth } from '../neonAuth';
+import { requireAuth } from '../stackAuth';
 import { db } from '../db';
 import { users, websites } from '../shared/schema';
 import { eq } from 'drizzle-orm';
