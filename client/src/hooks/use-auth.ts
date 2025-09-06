@@ -1,78 +1,61 @@
+import { useUser, useStackApp } from "@stackframe/stack";
 import { useQuery } from "@tanstack/react-query";
-import { useUser } from "@stackframe/stack";
 
 export function useAuth() {
-  console.log('🔍 Auth: Using client-side Stack Auth');
+  console.log('🔍 Auth: Using Stack Auth client-side authentication');
   
-  // Get Stack Auth user (client-side)
-  const stackUser = useUser({ or: 'redirect' });
+  const stackApp = useStackApp();
+  const stackUser = useUser();
   
-  // Sync with database user data when Stack Auth user exists
-  const { data: dbUser, isLoading: dbLoading, error } = useQuery({
-    queryKey: ["/api/auth/user"],
+  // Only sync with database when we have a Stack Auth user
+  const { data: dbUser, isLoading: dbLoading } = useQuery({
+    queryKey: ["/api/auth/user", stackUser?.id],
+    enabled: !!stackUser,
     retry: false,
-    enabled: !!stackUser, // Only fetch when Stack Auth user exists
-    refetchOnWindowFocus: false,
-    refetchOnMount: true,
-    refetchOnReconnect: false,
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-    throwOnError: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
-      console.log('🔍 Auth check: Syncing Stack Auth user with database');
+      console.log('🔍 Syncing Stack Auth user with database:', stackUser?.primaryEmail);
       
-      try {
-        const response = await fetch('/api/auth/user', {
-          credentials: 'include',
-          cache: 'no-cache',
-          headers: {
-            'Cache-Control': 'no-cache'
-          }
-        });
-        
-        console.log('🔍 Auth check: Response status:', response.status);
-        
-        if (!response.ok) {
-          if (response.status === 401) {
-            console.log('🔍 Auth check: Database user not found (401)');
-            return null;
-          }
-          throw new Error(`Auth failed: ${response.status}`);
+      const response = await fetch('/api/auth/user', {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${await stackUser?.getAccessToken()}`,
+          'Content-Type': 'application/json'
         }
-        
-        const userData = await response.json();
-        console.log('✅ Auth check: Database user synced:', userData.email);
-        return userData;
-      } catch (error) {
-        console.log('❌ Auth check: Error:', (error as Error).message);
+      });
+      
+      if (!response.ok) {
+        console.log('⚠️ Database sync failed, using Stack Auth data only');
         return null;
       }
+      
+      const userData = await response.json();
+      console.log('✅ Database user synced:', userData.email);
+      return userData;
     }
   });
 
-  // SINGLE ADMIN CHECK: Sandra's email only
-  const isAdmin = (stackUser?.primaryEmail || dbUser?.email) === 'sandra@sselfie.ai';
+  // Admin check - Sandra's email only
+  const isAdmin = stackUser?.primaryEmail === 'sandra@sselfie.ai';
   
-  // Determine authentication state (Stack Auth primary, database secondary)
+  // Authentication state based on Stack Auth
   const isAuthenticated = !!stackUser;
-  const isLoading = !stackUser && dbLoading;
+  const isLoading = stackApp.useInitialLoad() || dbLoading;
   
-  console.log('🔍 Auth State (Client-side Stack Auth):', {
-    hasStackUser: !!stackUser,
-    hasDbUser: !!dbUser,
-    isAuthenticated,
-    isLoading,
-    email: stackUser?.primaryEmail || dbUser?.email
+  console.log('🔍 Auth State:', {
+    authenticated: isAuthenticated,
+    loading: isLoading,
+    email: stackUser?.primaryEmail,
+    hasDbSync: !!dbUser
   });
 
   return {
-    user: stackUser || dbUser || null,
+    user: stackUser || null,
+    dbUser, // Separate database user data
     isLoading,
     isAuthenticated,
     isAdmin,
-    error: error?.message,
-    // Client-side Stack Auth redirects
-    signIn: () => window.location.href = '/#/auth/sign-in',
-    signOut: () => stackUser?.signOut()
+    signIn: () => stackApp.redirectToSignIn(),
+    signOut: () => stackApp.signOut()
   };
 }
