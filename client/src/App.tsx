@@ -81,23 +81,45 @@ import { PageLoader } from "./components/PageLoader";
 
 // Removed duplicate photoshoot imports - using existing system
 
-// Smart Home component - Always routes to workspace for authenticated users
+// Smart Home component - Routes authenticated users to workspace
 function SmartHome() {
   const [, setLocation] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  // Always show STUDIO workspace as the home page for authenticated users
-  // Profile editing available directly via /profile route
   useEffect(() => {
-    setLocation('/workspace');
-  }, [setLocation]);
+    if (!isLoading) {
+      if (isAuthenticated) {
+        console.log('✅ User authenticated, redirecting to workspace');
+        setLocation('/workspace');
+      } else {
+        console.log('🔍 User not authenticated, staying on landing page');
+        // Stay on landing page for unauthenticated users
+      }
+    }
+  }, [isAuthenticated, isLoading, setLocation]);
 
+  // Show loading while determining auth state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // For unauthenticated users, show landing page content
+  if (!isAuthenticated) {
+    return null; // Let the route system handle showing BusinessLanding
+  }
+
+  // For authenticated users, redirect will happen in useEffect
   return null;
 }
 
-// Protected wrapper component that handles authentication
+// Protected wrapper component that handles Stack Auth authentication
 function ProtectedRoute({ component: Component, ...props }: { component: ComponentType<any>, [key: string]: any }) {
   try {
-    const { isAuthenticated, isLoading, user } = useAuth();
+    const { isAuthenticated, isLoading, signIn, user } = useAuth();
     const [, setLocation] = useLocation();
     
     // Enhanced logging for debugging navigation issues
@@ -107,11 +129,11 @@ function ProtectedRoute({ component: Component, ...props }: { component: Compone
       }
     }, [isAuthenticated, isLoading, user]);
 
-    // FIXED: Move useEffect outside conditional to follow Rules of Hooks
+    // Redirect to sign-in if not authenticated
     useEffect(() => {
       if (!isLoading && !isAuthenticated) {
-        // Use proper authentication flow instead of broken login route
-        window.location.href = '/api/login';
+        console.log('🔍 ProtectedRoute: Redirecting to Stack Auth sign-in');
+        setLocation('/auth/sign-in');
       }
     }, [isLoading, isAuthenticated, setLocation]);
     
@@ -158,12 +180,24 @@ function Router() {
         </Suspense>
       )} />
       
-      {/* PUBLIC PAGES - THREE LANDING PAGES FOR DIFFERENT SEGMENTS */}
-      <Route path="/" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <BusinessLanding />
-        </Suspense>
-      )} />
+      {/* HOME ROUTE - Smart routing based on authentication */}
+      <Route path="/" component={() => {
+        const { isAuthenticated, isLoading } = useAuth();
+        
+        if (isLoading) {
+          return <PageLoader />;
+        }
+        
+        if (isAuthenticated) {
+          return <SmartHome />;
+        }
+        
+        return (
+          <Suspense fallback={<PageLoader />}>
+            <BusinessLanding />
+          </Suspense>
+        );
+      }} />
       
       
       <Route path="/business" component={() => (
