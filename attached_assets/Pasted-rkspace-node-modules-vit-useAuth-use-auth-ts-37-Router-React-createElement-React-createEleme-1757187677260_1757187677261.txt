@@ -1,0 +1,69 @@
+rkspace/node_modules/.vit...'}
+useAuth @ use-auth.ts:37
+Router.React.createElement.React.createElement.component @ App.tsx:186
+renderWithHooks @ react-dom.development.js:15486
+updateFunctionComponent @ react-dom.development.js:19617
+beginWork @ react-dom.development.js:21640
+beginWork$1 @ react-dom.development.js:27465
+performUnitOfWork @ react-dom.development.js:26596
+workLoopSync @ react-dom.development.js:26505
+renderRootSync @ react-dom.development.js:26473
+performSyncWorkOnRoot @ react-dom.development.js:26124
+flushSyncCallbacks @ react-dom.development.js:12042
+flushPassiveEffectsImpl @ react-dom.development.js:27099
+flushPassiveEffects @ react-dom.development.js:27023
+(anonymous) @ react-dom.development.js:26808
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+performWorkUntilDeadline @ scheduler.development.js:533Understand this error
+use-auth.ts:12 🔍 Auth: Starting useAuth hook
+use-auth.ts:18 🔧 Stack app retrieved: true
+use-auth.ts:33 🔍 Calling useUser hook...
+use-auth.ts:37 ❌ useUser hook failed: {name: 'TypeError', message: 'import_react3.default.use is not a function', stack: 'TypeError: import_react3.default.use is not a func…ev/@fs/home/runner/workspace/node_modules/.vit...'}
+useAuth @ use-auth.ts:37
+Router.React.createElement.React.createElement.component @ App.tsx:186
+renderWithHooks @ react-dom.development.js:15486
+updateFunctionComponent @ react-dom.development.js:19617
+beginWork @ react-dom.development.js:21640
+beginWork$1 @ react-dom.development.js:27465
+performUnitOfWork @ react-dom.development.js:26596
+workLoopSync @ react-dom.development.js:26505
+renderRootSync @ react-dom.development.js:26473
+performSyncWorkOnRoot @ react-dom.development.js:26124
+flushSyncCallbacks @ react-dom.development.js:12042
+(anonymous) @ react-dom.development.js:25690
+setTimeout
+(anonymous) @ promises.tsx:267
+wait @ promises.tsx:267
+next @ promises.tsx:469
+(anonymous) @ promises.tsx:503
+await in (anonymous)
+runAsynchronously @ promises.tsx:351
+rateLimited @ promises.tsx:501
+AsyncValueCache @ caches.tsx:148
+getValueCache @ caches.tsx:92
+(anonymous) @ caches.tsx:84
+(anonymous) @ common.ts:169
+mountSyncExternalStore @ react-dom.development.js:15980
+useSyncExternalStore @ react-dom.development.js:16908
+useSyncExternalStore @ react.development.js:1676
+useAsyncCache @ common.ts:176
+useUser @ client-app-impl.ts:1439
+useUser @ hooks.tsx:30
+useAuth @ use-auth.ts:34
+Router.React.createElement.React.createElement.component @ App.tsx:186
+renderWithHooks @ react-dom.development.js:15486
+mountIndeterminateComponent @ react-dom.development.js:20103
+beginWork @ react-dom.development.js:21626
+beginWork$1 @ react-dom.development.js:27465
+performUnitOfWork @ react-dom.development.js:26596
+workLoopSync @ react-dom.development.js:26505
+renderRootSync @ react-dom.development.js:26473
+performConcurrentWorkOnRoot @ react-dom.development.js:25777
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+performWorkUntilDeadline @ scheduler.development.js:533Understand this error
+use-auth.ts:12 🔍 Auth: Starting useAuth hook
+use-auth.ts:18 🔧 Stack app retrieved: true
+use-auth.ts:33 🔍 Calling useUser hook...
+use-auth.ts:37 ❌ useUser hook failed: {name: 'TypeError', message: 'import_react3.default.use is not a function', stack: 'TypeError: import_react3.default.use is not a func…ev/@fs/home/runner/workspace/node_modules/.vit...'}
