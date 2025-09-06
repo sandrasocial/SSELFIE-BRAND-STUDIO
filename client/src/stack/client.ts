@@ -10,10 +10,13 @@ console.log('🔧 Stack Auth Configuration:', {
   projectId: projectId ? `${projectId.slice(0, 8)}...` : 'MISSING'
 });
 
-// Create Stack Auth client with minimal, reliable configuration
+// Create Stack Auth client with explicit token store configuration
 export const stackApp = new StackClientApp({
   projectId: projectId || "253d7343-a0d4-43a1-be5c-822f590d40be", // fallback to known project ID
   publishableClientKey: publishableKey || "",
+  tokenStore: "localStorage", // Explicitly specify localStorage token storage
+  // Provide baseUrl to ensure proper API communication
+  baseUrl: "https://api.stack-auth.com",
 });
 
 console.log('✅ Stack Auth client initialized successfully');
