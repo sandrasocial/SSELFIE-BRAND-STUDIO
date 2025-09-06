@@ -140,7 +140,7 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     if (!userId) {
       logMayaAPI('/chat', startTime, false, new Error('Authentication required'));
       return res.status(401).json({ 
-        error: "Hey beautiful! I need to make sure you're logged in before we can start creating amazing photos together. Let's get you signed in so I can help you see your future self!" 
+        error: "Authentication required to create professional photos. Please log in to access your photo creation service." 
       });
     }
 
@@ -514,11 +514,11 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
     
     logMayaAPI('/chat', startTime, false, error);
     
-    // CRITICAL: Always return proper JSON with Maya's warm personality
+    // CRITICAL: Always return proper JSON with Maya's professional guidance
     return res.status(200).json({ 
       success: false,
-      content: "Oh! I had a little hiccup there, but I'm still here to help you create amazing photos! Tell me what kind of shots you're dreaming of and I'll guide you through it step by step. What's your vision?",
-      message: "Oh! I had a little hiccup there, but I'm still here to help you create amazing photos! Tell me what kind of shots you're dreaming of and I'll guide you through it step by step. What's your vision?",
+      content: "Photo creation encountered an issue. I'm ready to help you create professional photos. What style works best for your business goals?",
+      message: "Photo creation encountered an issue. I'm ready to help you create professional photos. What style works best for your business goals?",
       canGenerate: false,
       quickButtons: ["Lifestyle photography", "Creative portraits", "Personal branding photos", "Tell me what happened"],
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -559,7 +559,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     if (!prompt) {
       logMayaAPI('/generate', startTime, false, new Error('Prompt required'));
       return res.status(400).json({ 
-        error: "I'm so excited to create something amazing for you! Just tell me what kind of photos you're dreaming of - business vibes? Lifestyle moments? Let's bring your vision to life!" 
+        error: "Ready to create professional photos for your business. Tell me what style you need - business headshots, lifestyle content, or brand photos?" 
       });
     }
     
@@ -568,12 +568,12 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     // Get user context for trigger word
     const generationInfo = await checkGenerationCapability(userId);
     
-    // Check if user can generate - provide Maya's friendly guidance if not
+    // Check if user can generate - provide Maya's direct guidance if not
     if (!generationInfo.canGenerate || !generationInfo.userModel || !generationInfo.triggerWord) {
       return res.status(200).json({
         success: false,
-        error: "I'd love to create photos for you, but it looks like your AI model isn't quite ready yet! Once you complete the training process with your selfies, I'll be able to create amazing personalized photos. Should we check on your training status?",
-        message: "I'd love to create photos for you, but it looks like your AI model isn't quite ready yet! Once you complete the training process with your selfies, I'll be able to create amazing personalized photos. Should we check on your training status?",
+        error: "Your AI model needs to complete training before creating personalized photos. Complete the training process with your selfies first. Check your training status?",
+        message: "Your AI model needs to complete training before creating personalized photos. Complete the training process with your selfies first. Check your training status?",
         quickButtons: ["Check training status", "Learn about training", "Upload more photos", "Start training process"],
         canGenerate: false
       });
@@ -1011,7 +1011,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     
     return res.status(200).json({ 
       success: false,
-      error: "Oops! Something went wonky when I tried to start creating your photos. Let me help you troubleshoot this - what specific type of photo are you trying to create? I'll make sure we get it working!",
+      error: "Photo creation encountered an error. Let me help troubleshoot this - what specific type of professional photo do you need? I'll help resolve this issue.",
       message: "Oops! Something went wonky when I tried to start creating your photos. Let me help you troubleshoot this - what specific type of photo are you trying to create? I'll make sure we get it working!",
       quickButtons: ["Try professional headshot", "Try lifestyle photo", "Check my training", "Tell me what's wrong"],
       canGenerate: false 
@@ -1027,7 +1027,7 @@ router.get('/status', isAuthenticated, adminContextDetection, async (req: AdminC
     if (!userId) {
       logMayaAPI('/status', startTime, false, new Error('Authentication required'));
       return res.status(401).json({ 
-        error: "Hey gorgeous! I need to verify it's you before I can check your styling status. Let's get you signed in so I can see what amazing photos we can create!" 
+        error: "Authentication required to check your photo status. Please log in to access your professional photos." 
       });
     }
     
@@ -1194,7 +1194,7 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
       res.json({
         status: 'completed',
         imageUrls: finalImageUrls, // Return permanent URLs
-        message: `Maya created ${finalImageUrls.length} stunning photo${finalImageUrls.length > 1 ? 's' : ''} for you!`
+        message: `Created ${finalImageUrls.length} professional photo${finalImageUrls.length > 1 ? 's' : ''} ready for business use.`
       });
     } else if (prediction.status === 'failed') {
       console.error(`❌ MAYA GENERATION FAILED: ${prediction.error || 'Unknown error'}`);
@@ -1251,7 +1251,7 @@ router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetec
     res.status(200).json({ 
       status: 'error',
       error: 'Status check failed',
-      message: "I'm having a little trouble checking on your photos right now, but don't worry! Let me create something fresh for you instead. What kind of amazing photos would you love to see?"
+      message: "Unable to check photo status right now. Let me create new professional photos for you instead. What style works best for your business goals?"
     });
   }
 });
@@ -1552,7 +1552,7 @@ async function processMayaResponse(response: string, context: string, userId: st
     } else {
       // If cleaning removed too much, preserve Maya's original response intro
       const originalIntro = response.split('\n').slice(0, 3).join('\n').trim();
-      processed.message = originalIntro || "I'm so excited to create these concepts for you!";
+      processed.message = originalIntro || "Ready to create professional photo concepts for your business.";
     }
     
     console.log('🎯 MAYA CONCEPT CARDS: Parsed', concepts.length, 'concepts from response');
@@ -2345,14 +2345,14 @@ router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
       return res.status(401).json({ 
-        error: "I need to make sure it's really you before I can load your styling journey! Let's get you signed in so I can see all the amazing concepts we've created together." 
+        error: "Authentication required to load your photo history. Please log in to access your professional photo collection." 
       });
     }
 
     const chatId = parseInt(req.params.chatId);
     if (isNaN(chatId)) {
       return res.status(400).json({ 
-        error: "Something seems off with that chat link, babe! Let me help you navigate back to your styling conversations - I want to make sure we don't lose any of your amazing photo ideas!" 
+        error: "Invalid chat link detected. Let me help you navigate back to your photo conversations to access your professional photo concepts." 
       });
     }
 
