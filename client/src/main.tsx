@@ -1,41 +1,5 @@
-// ⚡ CRITICAL: Apply polyfills BEFORE any imports to prevent "process is not defined"
-// This must run before Stack Auth SDK is imported
-if (typeof window !== 'undefined') {
-  // Process polyfill with environment variables
-  if (!window.process) {
-    (window as any).process = {
-      env: {
-        NODE_ENV: import.meta.env.MODE || 'development',
-        VITE_STACK_PROJECT_ID: import.meta.env.VITE_STACK_PROJECT_ID,
-        VITE_STACK_PUBLISHABLE_CLIENT_KEY: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY,
-      },
-      version: '18.0.0',
-      platform: 'browser',
-      nextTick: (fn: Function) => setTimeout(fn, 0),
-      cwd: () => '/',
-      browser: true
-    };
-  }
-
-  // Global polyfill
-  if (!window.global) {
-    (window as any).global = window;
-  }
-
-  // Buffer polyfill (Stack Auth might need this)
-  if (!window.Buffer) {
-    (window as any).Buffer = {
-      from: (str: string) => new TextEncoder().encode(str),
-      isBuffer: () => false
-    };
-  }
-
-  console.log('✅ Browser polyfills applied for Stack Auth compatibility');
-}
-
 import React from 'react';
 import { createRoot } from "react-dom/client";
-import { StackProvider, StackTheme } from "@stackframe/stack";
 import App from "./App";
 import "./index.css";
 
@@ -102,53 +66,12 @@ console.log('CSS files loaded:', document.styleSheets.length);
 const root = document.getElementById("root");
 if (root) {
   try {
-    // Get Stack Auth configuration with proper validation
-    const stackProjectId = import.meta.env.VITE_STACK_PROJECT_ID;
-    const stackPublishableKey = import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
-    
-    console.log('🔍 Stack Auth Config Check:', {
-      hasProjectId: !!stackProjectId,
-      hasPublishableKey: !!stackPublishableKey
-    });
-
-    // Robust Stack Auth loading with fallback (like Replit Auth had)
-    if (stackProjectId && stackPublishableKey) {
-      console.log('✅ Stack Auth: Attempting Stack Auth provider initialization');
-      
-      try {
-        // Test Stack Auth SDK availability before using it
-        createRoot(root).render(
-          React.createElement(StackProvider, {
-            projectId: stackProjectId,
-            publishableClientKey: stackPublishableKey,
-            theme: StackTheme.withDefaults({
-              primaryColor: "#d4af37", // SSELFIE Studio gold
-              textColor: "#1a1a1a",    // Editorial black
-            })
-          }, React.createElement(App))
-        );
-        console.log('✅ Stack Auth: Provider initialized successfully');
-      } catch (stackError) {
-        console.log('⚠️ Stack Auth: Provider failed, falling back to server-side auth like Replit Auth');
-        console.error('Stack Auth error:', stackError);
-        createRoot(root).render(React.createElement(App));
-      }
-    } else {
-      console.log('⚠️ Stack Auth: Configuration missing, using server-side auth fallback');
-      createRoot(root).render(React.createElement(App));
-    }
-    
-    console.log('SSELFIE Studio: App rendered successfully');
+    console.log('🚀 SSELFIE Studio: Starting with server-side Stack Auth (like Replit Auth)');
+    createRoot(root).render(React.createElement(App));
+    console.log('✅ SSELFIE Studio: App rendered successfully');
   } catch (error) {
     console.error('SSELFIE Studio: Error rendering app:', error);
-    // Fallback: render app without Stack Auth provider
-    try {
-      createRoot(root).render(React.createElement(App));
-      console.log('SSELFIE Studio: Fallback render successful');
-    } catch (fallbackError) {
-      console.error('SSELFIE Studio: Fallback render failed:', fallbackError);
-      root.innerHTML = '<div style="padding: 20px; font-family: serif;">SSELFIE Studio Loading...</div>';
-    }
+    root.innerHTML = '<div style="padding: 20px; font-family: serif;">SSELFIE Studio Loading...</div>';
   }
 } else {
   console.error('SSELFIE Studio: Root element not found');
