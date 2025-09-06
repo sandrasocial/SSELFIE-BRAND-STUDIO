@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from "react-dom/client";
+import { StackProvider, StackTheme } from "@stackframe/stack";
 import App from "./App";
 import "./index.css";
 
@@ -66,8 +67,17 @@ console.log('CSS files loaded:', document.styleSheets.length);
 const root = document.getElementById("root");
 if (root) {
   try {
-    createRoot(root).render(React.createElement(App));
-    console.log('SSELFIE Studio: App rendered successfully');
+    createRoot(root).render(
+      React.createElement(StackProvider, {
+        projectId: import.meta.env.VITE_STACK_PROJECT_ID || import.meta.env.VITE_NEXT_PUBLIC_STACK_PROJECT_ID,
+        publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY,
+        theme: StackTheme.withDefaults({
+          primaryColor: "#d4af37", // SSELFIE Studio gold
+          textColor: "#1a1a1a",    // Editorial black
+        })
+      }, React.createElement(App))
+    );
+    console.log('SSELFIE Studio: App rendered successfully with Stack Auth');
   } catch (error) {
     console.error('SSELFIE Studio: Error rendering app:', error);
     // Fallback to simple HTML if React fails
