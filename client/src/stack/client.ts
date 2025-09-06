@@ -10,10 +10,11 @@ console.log('🔧 Stack Auth Configuration:', {
   projectId: projectId ? `${projectId.slice(0, 8)}...` : 'MISSING'
 });
 
-// Create Stack Auth client with minimal configuration - let Stack Auth handle defaults
+// Create Stack Auth client with explicit cookie-based token storage (recommended for React + Vite)
 export const stackApp = new StackClientApp({
   projectId: projectId || "253d7343-a0d4-43a1-be5c-822f590d40be", // fallback to known project ID
   publishableClientKey: publishableKey || "",
+  tokenStore: "cookie", // Explicit cookie storage - recommended for React apps
 });
 
 console.log('✅ Stack Auth client initialized successfully');
