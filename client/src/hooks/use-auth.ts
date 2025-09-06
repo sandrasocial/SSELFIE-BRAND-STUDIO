@@ -20,13 +20,13 @@ export function useAuth() {
 
   // Check authentication status from backend
   const { data: userData, isLoading: userLoading, error } = useQuery({
-    queryKey: ["/api/auth/user"],
+    queryKey: ["/api/auth/session"],
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
       console.log('🔍 Checking authentication status...');
       
-      const response = await fetch('/api/auth/user', {
+      const response = await fetch('/api/auth/session', {
         credentials: 'include',
         cache: 'no-cache'
       });
@@ -39,9 +39,14 @@ export function useAuth() {
         throw new Error(`Auth check failed: ${response.status}`);
       }
       
-      const user = await response.json();
-      console.log('✅ User authenticated:', user.email);
-      return user;
+      const data = await response.json();
+      if (data.user) {
+        console.log('✅ User authenticated:', data.user.email);
+        return data.user;
+      } else {
+        console.log('🔍 User not authenticated');
+        return null;
+      }
     }
   });
 
