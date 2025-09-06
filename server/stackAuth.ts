@@ -128,9 +128,8 @@ export async function setupAuth(app: Express) {
       app.get('/handler/sign-in', (req, res) => {
         console.log('🔐 Manual Stack Auth sign-in handler');
         try {
-          // Get Stack Auth project ID for hosted authentication page
-          const projectId = process.env.VITE_STACK_PROJECT_ID;
-          const directSignInUrl = `https://${projectId}.stack-auth.com/handler/signin`;
+          // Use Stack Auth dashboard sign-in (no project subdomains)
+          const directSignInUrl = `https://app.stack-auth.com/handler/sign-in`;
           console.log('🔍 Redirecting to Stack Auth sign-in:', directSignInUrl);
           res.redirect(directSignInUrl);
         } catch (error) {
@@ -206,9 +205,8 @@ export async function setupAuth(app: Express) {
   app.get("/api/login", (req, res) => {
     console.log('🔐 Legacy login endpoint - redirecting to Stack Auth');
     try {
-      // Get Stack Auth project ID for hosted authentication page
-      const projectId = process.env.VITE_STACK_PROJECT_ID;
-      const directSignInUrl = `https://${projectId}.stack-auth.com/handler/signin`;
+      // Use Stack Auth dashboard sign-in (no project subdomains)
+      const directSignInUrl = `https://app.stack-auth.com/handler/sign-in`;
       console.log('🔍 Redirecting to Stack Auth sign-in:', directSignInUrl);
       res.redirect(directSignInUrl);
     } catch (error) {
@@ -243,10 +241,9 @@ export async function setupAuth(app: Express) {
   app.get("/api/auth/login", (req, res) => {
     console.log('🔐 Server-side Stack Auth: Login requested (like Replit Auth)');
     try {
-      // Redirect to Stack Auth hosted sign-in page with return URL support
+      // Redirect to Stack Auth dashboard sign-in with return URL support
       const returnUrl = (req.query.returnUrl as string) || '/';
-      const projectId = process.env.VITE_STACK_PROJECT_ID;
-      const directSignInUrl = `https://${projectId}.stack-auth.com/handler/signin?returnUrl=${encodeURIComponent(returnUrl)}`;
+      const directSignInUrl = `https://app.stack-auth.com/handler/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`;
       console.log('🔍 Redirecting to Stack Auth sign-in:', directSignInUrl);
       res.redirect(directSignInUrl);
     } catch (error) {
