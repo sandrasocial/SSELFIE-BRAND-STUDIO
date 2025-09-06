@@ -63,6 +63,14 @@ export const users = pgTable("users", {
   hasRetrainingAccess: boolean("has_retraining_access").default(false),
   retrainingSessionId: varchar("retraining_session_id"),
   retrainingPaidAt: timestamp("retraining_paid_at"),
+  // Profile completion tracking for conversational onboarding
+  profileCompleted: boolean("profile_completed").default(false),
+  onboardingStep: integer("onboarding_step").default(0), // 0=not started, 5=complete
+  // Essential profile data for Maya personalization
+  gender: varchar("gender"), // "man" | "woman" | "non-binary" - CRITICAL for image generation
+  profession: varchar("profession"), // User's business/profession
+  brandStyle: varchar("brand_style"), // "professional" | "creative" | "lifestyle" | "luxury"
+  photoGoals: text("photo_goals"), // What they want photos for (business use case)
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
