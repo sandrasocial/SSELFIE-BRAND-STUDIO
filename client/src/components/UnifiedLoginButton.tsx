@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { useStackApp, useUser } from "@stackframe/stack";
+import { useAuth } from "@/hooks/use-auth";
 
 interface UnifiedLoginButtonProps {
   text: string;
@@ -8,19 +8,23 @@ interface UnifiedLoginButtonProps {
 }
 
 export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButtonProps) {
-  const stackApp = useStackApp();
-  const user = useUser();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   const handleLogin = () => {
-    stackApp.redirectToSignIn();
+    // Direct Stack Auth OAuth redirect
+    const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/253d7343-a0d4-43a1-be5c-822f590d40be/oauth/authorize?redirect_uri=${encodeURIComponent(window.location.origin + '/auth-success')}&response_type=code`;
+    window.location.href = stackAuthUrl;
   };
 
   const handleLogout = () => {
-    stackApp.signOut();
+    // Clear any stored tokens and redirect to logout
+    localStorage.removeItem('stack-auth-token');
+    sessionStorage.removeItem('stack-auth-token');
+    window.location.href = '/login';
   };
 
   // If user is already logged in, show logout button
-  if (user) {
+  if (isAuthenticated && user) {
     return (
       <div className="text-center max-w-md mx-auto">
         {showBrand && (
@@ -30,7 +34,7 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <div className="text-center space-y-4">
             <p className="text-lg">Welcome back!</p>
-            <p className="text-sm text-gray-600">{user.primaryEmail}</p>
+            <p className="text-sm text-gray-600">{user.email}</p>
             <Button 
               onClick={handleLogout}
               variant="outline"
@@ -38,6 +42,23 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
             >
               Sign Out
             </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="text-center max-w-md mx-auto">
+        {showBrand && (
+          <h1 className="text-3xl font-bold mb-4">SSELFIE Studio</h1>
+        )}
+        
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <div className="text-center space-y-4">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-sm text-gray-600">Loading...</p>
           </div>
         </div>
       </div>

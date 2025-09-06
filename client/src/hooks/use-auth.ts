@@ -1,5 +1,5 @@
-import { useUser, useStackApp } from "@stackframe/stack";
 import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export interface User {
   id: string;
@@ -11,28 +11,46 @@ export interface User {
 }
 
 export function useAuth() {
-  const stackUser = useUser();
-  const stackApp = useStackApp();
+  // Check for Stack Auth token in cookies or local storage
+  const hasToken = document.cookie.includes('stack-auth') || 
+                   localStorage.getItem('stack-auth-token') ||
+                   sessionStorage.getItem('stack-auth-token');
   
-  // Sync Stack Auth user with our backend
+  // Sync with our backend using JWKS verification
   const { data: user, isLoading, error } = useQuery({
     queryKey: ["/api/auth/user"],
-    enabled: !!stackUser, // Only fetch when Stack Auth user exists
+    enabled: !!hasToken, // Only fetch when we have a token
     retry: false,
+    queryFn: async () => {
+      // Include token in headers if we have it in localStorage
+      const token = localStorage.getItem('stack-auth-token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['x-stack-auth-token'] = token;
+      }
+      
+      const response = await fetch('/api/auth/user', { headers });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      return response.json();
+    }
   });
 
-  console.log('🔍 Stack Auth: User from Stack Auth:', stackUser);
-  console.log('🔍 Backend: User data from our API:', user);
+  console.log('🔍 Auth: Has token:', !!hasToken);
+  console.log('🔍 Auth: User data:', user);
   console.log('🔍 Auth: Loading:', isLoading);
   console.log('🔍 Auth: Error:', error);
 
   return {
     user: user as User | undefined,
-    stackUser,
-    isLoading: isLoading || !stackUser, // Loading if either Stack Auth or backend is loading
-    isAuthenticated: !!stackUser && !!user,
+    isLoading: isLoading && hasToken, // Only loading if we have a token and are fetching
+    isAuthenticated: !!user && !!hasToken,
     error,
-    signOut: () => stackApp.signOut(),
-    signIn: () => stackApp.redirectToSignIn()
   };
 }

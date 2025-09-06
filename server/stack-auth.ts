@@ -38,6 +38,11 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       token = req.cookies['stack-auth-token'] || req.cookies['stack-auth'];
     }
     
+    // Also check for token from frontend localStorage (passed via headers)
+    if (!token && req.headers['x-stack-auth-token']) {
+      token = req.headers['x-stack-auth-token'] as string;
+    }
+    
     if (!token) {
       console.log('🔐 Stack Auth: No token found in headers or cookies');
       return res.status(401).json({ message: 'Authentication required' });
