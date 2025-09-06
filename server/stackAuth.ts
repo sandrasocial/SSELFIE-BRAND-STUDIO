@@ -61,18 +61,25 @@ export function getSession() {
   }
 }
 
-// Stack Auth user management
+// Stack Auth user management with proper field mapping
 async function upsertStackAuthUser(stackUser: any) {
   try {
+    console.log('🔄 Upserting user:', stackUser.primaryEmail, stackUser.displayName);
+    
     await storage.upsertUser({
       id: stackUser.id,
       email: stackUser.primaryEmail,
       firstName: stackUser.displayName?.split(' ')[0] || '',
       lastName: stackUser.displayName?.split(' ').slice(1).join(' ') || '',
       profileImageUrl: stackUser.profileImageUrl || null,
+      authProvider: 'stack-auth',
+      stackAuthUserId: stackUser.id,
+      displayName: stackUser.displayName,
+      lastLoginAt: new Date(),
     });
   } catch (error) {
     console.error('❌ Failed to upsert Stack Auth user:', error);
+    throw error;
   }
 }
 
@@ -130,6 +137,27 @@ export async function setupAuth(app: Express) {
     }
   });
 
+  // Stack Auth user endpoint that matches the frontend useAuth hook
+  app.get('/api/auth/user', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      if (!user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Get complete user data from database 
+      const dbUser = await storage.getUser(user.claims.sub);
+      if (!dbUser) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
+      res.json(dbUser);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   console.log('✅ Stack Auth setup complete');
 }
 
@@ -137,7 +165,7 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   try {
     // Get the Stack Auth user from the request
-    const stackUser = stackServerApp.getUser(req);
+    const stackUser = await stackServerApp.getUser(req, res);
     
     if (!stackUser) {
       return res.status(401).json({ message: "Unauthorized" });
