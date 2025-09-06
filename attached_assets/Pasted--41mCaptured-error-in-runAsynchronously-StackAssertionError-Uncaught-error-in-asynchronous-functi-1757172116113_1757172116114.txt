@@ -1,0 +1,36 @@
+[41mCaptured error in runAsynchronously: StackAssertionError: Uncaught error in asynchronous function: TypeError: Cannot use 'in' operator to search for 'accessToken' in undefined
+  Stack:
+    Stack:
+    at __StackClientAppImplIncomplete2._getOrCreateTokenStore (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:17655:34)
+    at __StackClientAppImplIncomplete2._getSession (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:17699:29)
+    at async https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:18963:66
+    at concatStacktraces (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:9230:46)
+    at concatStacktracesIfRejected (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:11210:24)
+    at runAsynchronously (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:11251:5)
+    at Object.setCurrentUser (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:18962:9)
+    at https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:100316:34
+    at commitHookEffectListMount (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CBGSZYFS.js?v=4d6a9040:16963:34)
+    at commitPassiveMountOnFiber (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CBGSZYFS.js?v=4d6a9040:18206:19)
+    at commitPassiveMountEffects_complete (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CBGSZYFS.js?v=4d6a9040:18179:17)
+    at commitPassiveMountEffects_begin (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CBGSZYFS.js?v=4d6a9040:18169:15)
+    at commitPassiveMountEffects (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CBGSZYFS.js?v=4d6a9040:18159:11)
+    at flushPassiveEffectsImpl (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-CBGSZYFS.js?v=4d6a9040:19543:11)
+    This is likely an error in Stack. Please make sure you are running the newest version and report it.
+    at https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:11254:24
+  Extra properties: {
+    "extraData": {
+      "cause": TypeError: Cannot use 'in' operator to search for 'accessToken' in undefined
+        Stack:
+          at __StackClientAppImplIncomplete2._getOrCreateTokenStore (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:17655:34)
+          at __StackClientAppImplIncomplete2._getSession (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:17699:29)
+          at async https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:18963:66
+          at concatStacktraces (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:9230:46)
+          at concatStacktracesIfRejected (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:11210:24)
+          at runAsynchronously (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:11251:5)
+          at Object.setCurrentUser (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=4d6a9040:18962:9)
+     … 
+Object {cause: TypeError}
+ [0m
+Cannot use 'in' operator to search for 'accessToken' in undefined
+[vite] 
+Error {}
