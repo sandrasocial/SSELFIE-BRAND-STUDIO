@@ -1,11 +1,5 @@
-import React from 'react';
-import { createRoot } from "react-dom/client";
-import { StackProvider, StackTheme } from "@stackframe/stack";
-import App from "./App";
-import "./index.css";
-
-// Comprehensive browser polyfills for Stack Auth compatibility
-// This matches what Replit Auth had built-in
+// ⚡ CRITICAL: Apply polyfills BEFORE any imports to prevent "process is not defined"
+// This must run before Stack Auth SDK is imported
 if (typeof window !== 'undefined') {
   // Process polyfill with environment variables
   if (!window.process) {
@@ -38,6 +32,12 @@ if (typeof window !== 'undefined') {
 
   console.log('✅ Browser polyfills applied for Stack Auth compatibility');
 }
+
+import React from 'react';
+import { createRoot } from "react-dom/client";
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import App from "./App";
+import "./index.css";
 
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');
