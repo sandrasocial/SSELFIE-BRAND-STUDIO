@@ -2,6 +2,7 @@ import { setupEnhancementRoutes } from './services/backend-enhancement-services'
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
+import cookieParser from "cookie-parser";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { requireStackAuth, optionalStackAuth, handleStackAuthCallback } from "./stack-auth";
@@ -225,6 +226,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Essential middleware setup
   app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
   app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
+  
+  // 🍪 CRITICAL: Cookie parser middleware for Stack Auth tokens
+  app.use(cookieParser());
+  console.log('✅ Cookie parser middleware initialized');
 
   // Content Security Policy to fix browser warnings
   app.use((req, res, next) => {
