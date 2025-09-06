@@ -1,9 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
+import { useUser, useStackApp } from "@stackframe/stack";
 
 export function useAuth() {
-  console.log('🔍 Auth: Using server-side Stack Auth (like Replit Auth)');
+  console.log('🔍 Auth: Using Stack Auth client components');
   
-  // Server-side authentication check (similar to Replit Auth pattern)
+  // Stack Auth client-side user
+  const stackUser = useUser();
+  const stackApp = useStackApp();
+  
+  // Check if Stack Auth user is available
+  const hasStackUser = !!stackUser && !stackUser.isLoggedOut;
+  
+  // Server-side authentication check (fallback)
   const { data: dbUser, isLoading: dbLoading, error, isStale } = useQuery({
     queryKey: ["/api/auth/user"],
     retry: false,
@@ -45,29 +53,31 @@ export function useAuth() {
     }
   });
 
-  // SINGLE ADMIN CHECK: Sandra's email only
-  const isAdmin = dbUser?.email === 'sandra@sselfie.ai';
+  // Determine authentication state - prefer Stack Auth client
+  const isAuthenticated = hasStackUser || !!dbUser;
+  const isLoading = dbLoading || stackUser === undefined;
+  const user = stackUser || dbUser;
   
-  // Determine authentication state (server-side only, like Replit Auth)
-  const isAuthenticated = !!dbUser;
-  const isLoading = dbLoading;
+  // SINGLE ADMIN CHECK: Sandra's email only  
+  const isAdmin = user?.primaryEmail === 'sandra@sselfie.ai' || dbUser?.email === 'sandra@sselfie.ai';
   
-  console.log('🔍 Auth State (Server-side Stack Auth):', {
+  console.log('🔍 Auth State (Stack Auth Client + Server):', {
+    hasStackUser,
     hasDbUser: !!dbUser,
     isAuthenticated,
     isLoading,
-    isStale
+    userEmail: user?.primaryEmail || dbUser?.email
   });
 
   return {
-    user: dbUser || null,
+    user: user || null,
     isLoading,
     isAuthenticated,
     isAdmin,
     error: error?.message,
     isStale,
-    // Simple redirects like Replit Auth
-    signIn: () => window.location.href = '/api/auth/login',
-    signOut: () => window.location.href = '/api/auth/logout'
+    // Stack Auth client methods
+    signIn: () => stackApp.redirectToSignIn(),
+    signOut: () => stackApp.signOut()
   };
 }

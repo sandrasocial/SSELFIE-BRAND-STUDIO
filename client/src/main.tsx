@@ -1,5 +1,7 @@
 import React from 'react';
 import { createRoot } from "react-dom/client";
+import { StackProvider } from "@stackframe/stack";
+import { stackClientApp } from "./stack";
 import App from "./App";
 import "./index.css";
 
@@ -66,9 +68,13 @@ console.log('CSS files loaded:', document.styleSheets.length);
 const root = document.getElementById("root");
 if (root) {
   try {
-    console.log('🚀 SSELFIE Studio: Starting with server-side Stack Auth (like Replit Auth)');
-    createRoot(root).render(React.createElement(App));
-    console.log('✅ SSELFIE Studio: App rendered successfully');
+    console.log('🚀 SSELFIE Studio: Starting with Stack Auth client components');
+    createRoot(root).render(
+      React.createElement(StackProvider, { app: stackClientApp }, 
+        React.createElement(App)
+      )
+    );
+    console.log('✅ SSELFIE Studio: App rendered with Stack Auth provider');
   } catch (error) {
     console.error('SSELFIE Studio: Error rendering app:', error);
     root.innerHTML = '<div style="padding: 20px; font-family: serif;">SSELFIE Studio Loading...</div>';
