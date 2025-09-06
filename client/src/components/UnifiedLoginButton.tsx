@@ -7,7 +7,7 @@ interface UnifiedLoginButtonProps {
 
 export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButtonProps) {
   const handleLogin = () => {
-    window.location.href = '/api/login';
+    window.location.href = '/api/auth/login';
   };
 
   return (

@@ -48,7 +48,7 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
   ];
 
   const handleLogout = () => {
-    window.location.href = '/api/logout';
+    window.location.href = '/api/auth/logout';
   };
 
 
