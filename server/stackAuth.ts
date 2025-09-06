@@ -4,10 +4,10 @@ import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 
-// Stack Auth configuration with correct environment variable names
-const stackProjectId = process.env.NEXT_PUBLIC_STACK_PROJECT_ID || process.env.STACK_AUTH_PROJECT_ID;
+// Stack Auth configuration with correct environment variable names from your setup
+const stackProjectId = process.env.VITE_STACK_PROJECT_ID || process.env.NEXT_PUBLIC_STACK_PROJECT_ID || process.env.STACK_AUTH_PROJECT_ID;
 const stackSecretKey = process.env.STACK_SECRET_SERVER_KEY || process.env.STACK_AUTH_SECRET_KEY;
-const stackPublishableKey = process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || process.env.STACK_PUBLISHABLE_CLIENT_KEY;
+const stackPublishableKey = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || process.env.STACK_PUBLISHABLE_CLIENT_KEY;
 
 console.log('🔍 Stack Auth Server Config:', {
   hasProjectId: !!stackProjectId,
