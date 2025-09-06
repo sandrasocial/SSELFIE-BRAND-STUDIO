@@ -4,7 +4,7 @@ import { StackClientApp } from "@stackframe/stack";
 const STACK_PROJECT_ID = import.meta.env.VITE_STACK_PROJECT_ID;
 const publishableKey = import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
 
-// Stack Auth client configuration with proper environment variable handling
+// Stack Auth client configuration with robust error handling
 let stackApp: any;
 
 if (STACK_PROJECT_ID && publishableKey) {
@@ -12,21 +12,11 @@ if (STACK_PROJECT_ID && publishableKey) {
     stackApp = new StackClientApp({
       projectId: STACK_PROJECT_ID,
       publishableClientKey: publishableKey,
+      // Add configuration to prevent token store errors
+      tokenStore: 'cookie', // Use cookie-based storage instead of localStorage
     });
     console.log('🔧 Stack Auth client initialized successfully');
     console.log('Project ID:', STACK_PROJECT_ID);
-    
-    // Add error handling for Stack Auth internal errors
-    if (typeof window !== 'undefined') {
-      window.addEventListener('unhandledrejection', (event) => {
-        if (event.reason?.message?.includes('accessToken') || 
-            event.reason?.message?.includes('StackAssertionError')) {
-          console.warn('⚠️ Stack Auth internal error caught, using fallback');
-          event.preventDefault(); // Prevent unhandled rejection error
-          stackApp = createFallbackStackApp();
-        }
-      });
-    }
     
   } catch (error) {
     console.error('❌ Stack Auth initialization failed:', error);

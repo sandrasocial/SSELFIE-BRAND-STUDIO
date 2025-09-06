@@ -23,6 +23,7 @@ export function useAuth() {
     // Wrap useUser in try-catch to handle internal Stack Auth errors
     let user;
     try {
+      // Use more defensive user loading approach
       user = useUser({ or: 'return-null' });
     } catch (userError) {
       console.warn('⚠️ Stack Auth useUser failed, using fallback:', userError);
