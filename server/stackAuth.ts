@@ -103,6 +103,18 @@ export async function setupAuth(app: Express) {
 
   // Stack Auth middleware setup
   console.log('🔍 Setting up Stack Auth middleware...');
+  
+  // Stack Auth handler middleware with proper error handling
+  try {
+    if (stackServerApp.urls && stackServerApp.handler) {
+      app.use(stackServerApp.urls, stackServerApp.handler);
+      console.log('✅ Stack Auth handler middleware installed');
+    } else {
+      console.log('⚠️ Stack Auth handler not available, using custom routes only');
+    }
+  } catch (error) {
+    console.log('⚠️ Stack Auth handler setup failed, falling back to custom routes:', error.message);
+  }
 
   // Stack Auth webhook endpoint for user events
   app.post('/api/stack-auth/webhook', async (req, res) => {
