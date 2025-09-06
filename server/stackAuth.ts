@@ -164,8 +164,14 @@ export async function setupAuth(app: Express) {
 // Stack Auth authentication middleware with impersonation support
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   try {
-    // Get the Stack Auth user from the request
-    const stackUser = await stackServerApp.getUser(req, res);
+    // Get the Stack Auth user from the request with proper error handling
+    let stackUser;
+    try {
+      stackUser = await stackServerApp.getUser({ req, res });
+    } catch (error) {
+      console.log('❌ Stack Auth getUser error:', error.message);
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     
     if (!stackUser) {
       return res.status(401).json({ message: "Unauthorized" });
