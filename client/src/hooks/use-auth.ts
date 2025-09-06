@@ -1,76 +1,82 @@
-import { useUser, useStackApp } from "@stackframe/stack";
+import { useState, useEffect } from 'react';
 import { useQuery } from "@tanstack/react-query";
 
+interface User {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  displayName?: string;
+}
+
 export function useAuth() {
-  console.log('🔍 Auth: Using Stack Auth client-side authentication');
+  console.log('🔍 Auth: Using simplified authentication system');
   
-  // Use Stack Auth hooks with error handling for React compatibility
-  let stackApp, stackUser;
-  try {
-    stackApp = useStackApp();
-    stackUser = useUser();
-  } catch (error) {
-    console.warn('⚠️ Stack Auth hook error (React compatibility):', error.message);
-    stackApp = null;
-    stackUser = null;
-  }
-  
-  // Only sync with database when we have a Stack Auth user
-  const { data: dbUser, isLoading: dbLoading } = useQuery({
-    queryKey: ["/api/auth/user", stackUser?.id],
-    enabled: !!stackUser,
+  const [authState, setAuthState] = useState({
+    isAuthenticated: false,
+    isLoading: true,
+    user: null as User | null
+  });
+
+  // Check authentication status from backend
+  const { data: userData, isLoading: userLoading, error } = useQuery({
+    queryKey: ["/api/auth/user"],
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
     queryFn: async () => {
-      console.log('🔍 Syncing Stack Auth user with database:', stackUser?.primaryEmail);
+      console.log('🔍 Checking authentication status...');
       
       const response = await fetch('/api/auth/user', {
         credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${await stackUser?.getAccessToken()}`,
-          'Content-Type': 'application/json'
-        }
+        cache: 'no-cache'
       });
       
       if (!response.ok) {
-        console.log('⚠️ Database sync failed, using Stack Auth data only');
-        return null;
+        if (response.status === 401) {
+          console.log('🔍 User not authenticated');
+          return null;
+        }
+        throw new Error(`Auth check failed: ${response.status}`);
       }
       
-      const userData = await response.json();
-      console.log('✅ Database user synced:', userData.email);
-      return userData;
+      const user = await response.json();
+      console.log('✅ User authenticated:', user.email);
+      return user;
     }
   });
 
+  // Update auth state when user data changes
+  useEffect(() => {
+    setAuthState({
+      isAuthenticated: !!userData,
+      isLoading: userLoading,
+      user: userData
+    });
+  }, [userData, userLoading]);
+
   // Admin check - Sandra's email only
-  const isAdmin = stackUser?.primaryEmail === 'sandra@sselfie.ai';
-  
-  // Authentication state based on Stack Auth with error handling
-  const isAuthenticated = !!stackUser;
-  let isStackLoading = false;
-  try {
-    isStackLoading = stackApp?.useInitialLoad() || false;
-  } catch (error) {
-    console.warn('⚠️ Stack Auth loading state error:', error.message);
-    isStackLoading = false;
-  }
-  const isLoading = isStackLoading || dbLoading;
+  const isAdmin = userData?.email === 'sandra@sselfie.ai';
   
   console.log('🔍 Auth State:', {
-    authenticated: isAuthenticated,
-    loading: isLoading,
-    email: stackUser?.primaryEmail,
-    hasDbSync: !!dbUser
+    authenticated: authState.isAuthenticated,
+    loading: authState.isLoading,
+    email: userData?.email,
+    isAdmin
   });
 
   return {
-    user: stackUser || null,
-    dbUser, // Separate database user data
-    isLoading,
-    isAuthenticated,
+    user: authState.user,
+    isLoading: authState.isLoading,
+    isAuthenticated: authState.isAuthenticated,
     isAdmin,
-    signIn: () => stackApp.redirectToSignIn(),
-    signOut: () => stackApp.signOut()
+    error: error?.message,
+    signIn: () => {
+      console.log('🔐 Redirecting to Stack Auth sign-in');
+      window.location.href = '/api/auth/signin';
+    },
+    signOut: () => {
+      console.log('🔐 Signing out...');
+      window.location.href = '/api/auth/signout';
+    }
   };
 }
