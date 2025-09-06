@@ -12,11 +12,22 @@ import { useLocation } from 'wouter';
 
 interface ChatMessage {
   id: string;
-  type: 'user' | 'maya';
+  type: 'user' | 'maya' | 'onboarding';
   content: string;
   timestamp: string;
   conceptCards?: ConceptCard[];
   isStreaming?: boolean;
+  onboardingData?: OnboardingData;
+}
+
+interface OnboardingData {
+  step: number;
+  totalSteps: number;
+  question: string;
+  fieldName: string;
+  options?: string[];
+  explanation?: string;
+  isOnboardingComplete: boolean;
 }
 
 interface ConceptCard {
@@ -48,6 +59,8 @@ export default function Maya() {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [isOnboarding, setIsOnboarding] = useState(false);
+  const [currentOnboardingData, setCurrentOnboardingData] = useState<OnboardingData | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -282,14 +295,28 @@ export default function Maya() {
       return response.json();
     },
     onSuccess: (data) => {
-      // PHASE 2.1: Add Maya's response with enhanced persistence
-      addMessage({
-        type: 'maya',
-        content: data.response || data.content || data.message || '',
-        timestamp: new Date().toISOString(),
-        conceptCards: data.conceptCards || [],
-        quickButtons: data.quickButtons || []
-      });
+      // PHASE 7: Handle onboarding responses
+      if (data.type === 'onboarding' || data.type === 'onboarding_complete') {
+        setIsOnboarding(data.type === 'onboarding');
+        setCurrentOnboardingData(data);
+        
+        // Add onboarding message to chat
+        addMessage({
+          type: 'onboarding',
+          content: data.question || data.message || '',
+          timestamp: new Date().toISOString(),
+          onboardingData: data
+        });
+      } else {
+        // PHASE 2.1: Add Maya's response with enhanced persistence
+        addMessage({
+          type: 'maya',
+          content: data.response || data.content || data.message || '',
+          timestamp: new Date().toISOString(),
+          conceptCards: data.conceptCards || [],
+          quickButtons: data.quickButtons || []
+        });
+      }
       setIsTyping(false);
     },
     onError: () => {
@@ -319,6 +346,52 @@ export default function Maya() {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    }
+  };
+
+  // PHASE 7: Onboarding response handler
+  const handleOnboardingResponse = async (fieldName: string, answer: string) => {
+    try {
+      const response = await fetch('/api/maya/onboarding-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fieldName, answer })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit onboarding response');
+      }
+
+      const data = await response.json();
+      
+      // Handle response similar to chat response
+      if (data.type === 'onboarding_complete') {
+        setIsOnboarding(false);
+        setCurrentOnboardingData(null);
+        
+        // Add completion message
+        addMessage({
+          type: 'maya',
+          content: data.message,
+          timestamp: new Date().toISOString()
+        });
+      } else if (data.type === 'onboarding') {
+        setCurrentOnboardingData(data);
+        
+        // Add next question
+        addMessage({
+          type: 'onboarding',
+          content: data.question,
+          timestamp: new Date().toISOString(),
+          onboardingData: data
+        });
+      }
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: "Failed to process your response. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -540,6 +613,58 @@ export default function Maya() {
                           </div>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                ) : msg.type === 'onboarding' ? (
+                  // PHASE 7: Onboarding Message - Professional Setup
+                  <div className="max-w-4xl mb-12">
+                    <div className="eyebrow text-gray-500 mb-6">
+                      Profile Setup • Step {msg.onboardingData?.step} of {msg.onboardingData?.totalSteps}
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-8">
+                      <div className="text-xl font-light text-gray-800 mb-6">
+                        {msg.content}
+                      </div>
+                      
+                      {msg.onboardingData?.explanation && (
+                        <div className="text-sm text-gray-600 mb-6 italic">
+                          {msg.onboardingData.explanation}
+                        </div>
+                      )}
+                      
+                      {/* Answer Options */}
+                      {msg.onboardingData?.options ? (
+                        <div className="grid gap-3 max-w-md">
+                          {msg.onboardingData.options.map((option) => (
+                            <button
+                              key={option}
+                              onClick={() => handleOnboardingResponse(msg.onboardingData!.fieldName, option)}
+                              className="text-left p-4 bg-white border border-gray-200 hover:border-blue-500 hover:bg-blue-50 rounded transition-all"
+                            >
+                              {option.charAt(0).toUpperCase() + option.slice(1)}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        // Text Input for open-ended questions
+                        <div className="max-w-md">
+                          <input
+                            type="text"
+                            placeholder="Enter your answer..."
+                            className="w-full p-4 border border-gray-200 rounded focus:border-blue-500 focus:outline-none"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                const target = e.target as HTMLInputElement;
+                                if (target.value.trim()) {
+                                  handleOnboardingResponse(msg.onboardingData!.fieldName, target.value.trim());
+                                  target.value = '';
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
