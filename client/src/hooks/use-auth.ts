@@ -14,6 +14,25 @@ export function useAuth() {
   const stackApp = useStackApp();
   const user = useUser({ or: 'return-null' });
   
+  // Handle Stack Auth loading states
+  if (user === undefined) {
+    return {
+      user: null,
+      isLoading: true,
+      isAuthenticated: false,
+      isAdmin: false,
+      error: undefined,
+      signIn: () => {
+        console.log('🔐 Redirecting to Stack Auth sign-in');
+        stackApp.redirectToSignIn();
+      },
+      signOut: () => {
+        console.log('🔐 Signing out with Stack Auth');
+        stackApp.signOut();
+      }
+    };
+  }
+  
   // Transform Stack Auth user to our interface
   const transformedUser: User | null = user ? {
     id: user.id,
