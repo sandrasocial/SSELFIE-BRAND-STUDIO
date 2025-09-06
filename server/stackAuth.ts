@@ -23,6 +23,7 @@ const stackServerApp = new StackServerApp({
   projectId: stackProjectId,
   secretServerKey: stackSecretKey,
   publishableClientKey: stackPublishableKey,
+  baseUrl: `https://app.stack-auth.com/projects/${stackProjectId}`,
 });
 
 export function getSession() {
@@ -227,9 +228,27 @@ export async function setupAuth(app: Express) {
     console.log('🔐 Stack Auth: Signin requested, redirecting to external auth');
     try {
       const returnUrl = (req.query.returnUrl as string) || '/';
-      const signInUrl = stackServerApp.urls.signIn;
-      console.log('🔍 Redirecting to Stack Auth external sign-in:', signInUrl);
-      res.redirect(signInUrl);
+      
+      // Debug Stack Auth URLs
+      console.log('🔍 Stack Auth URLs available:', Object.keys(stackServerApp.urls));
+      const localSignInUrl = stackServerApp.urls.signIn;
+      console.log('🔍 Stack Auth local signIn URL:', localSignInUrl);
+      
+      // Use external Stack Auth URL instead of local handler
+      const externalSignInUrl = `https://app.stack-auth.com/projects/${stackProjectId}/sign-in?return_url=${encodeURIComponent(req.protocol + '://' + req.get('host') + returnUrl)}`;
+      console.log('🔍 Using external Stack Auth URL:', externalSignInUrl);
+      
+      console.log('🔍 Performing explicit redirect to external Stack Auth');
+      
+      // Explicit redirect with proper headers to external Stack Auth
+      res.writeHead(302, {
+        'Location': externalSignInUrl,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+      res.end();
+      
     } catch (error) {
       console.error('❌ Stack Auth signin redirect error:', error);
       res.status(500).json({ error: 'Stack Auth service temporarily unavailable' });
