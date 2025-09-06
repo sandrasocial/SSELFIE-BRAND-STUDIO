@@ -401,6 +401,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupStackAuth(app);
   setupStackWebhook(app);
 
+  // 🧪 STACK AUTH INTEGRATION TEST ENDPOINT
+  app.get('/api/test-auth', requireAuth, async (req: any, res) => {
+    try {
+      const stackUser = req.user;
+      console.log('🧪 STACK AUTH TEST - Raw user from token:', stackUser);
+      
+      if (!stackUser || !stackUser.id) {
+        return res.status(401).json({
+          success: false,
+          message: 'No user found in JWT token',
+          details: { user: stackUser }
+        });
+      }
+
+      // Try to find user in database
+      const dbUser = await storage.getUser(stackUser.id);
+      console.log('🧪 STACK AUTH TEST - User from database:', dbUser ? 'FOUND' : 'NOT FOUND');
+
+      res.json({
+        success: true,
+        message: 'Stack Auth integration working correctly!',
+        stackAuth: {
+          userId: stackUser.id,
+          email: stackUser.primaryEmail,
+          displayName: stackUser.displayName
+        },
+        database: {
+          userExists: !!dbUser,
+          userdata: dbUser ? {
+            id: dbUser.id,
+            email: dbUser.email,
+            displayName: dbUser.displayName,
+            plan: dbUser.plan,
+            role: dbUser.role
+          } : null
+        },
+        webhookStatus: 'Handler available at /api/webhooks/stack'
+      });
+    } catch (error) {
+      console.error('🧪 STACK AUTH TEST ERROR:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Authentication test failed',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // 🔄 PHASE 5: Register checkout routes for retraining system
   registerCheckoutRoutes(app);
   
