@@ -4,6 +4,7 @@ import { HeroFullBleed } from '../components/HeroFullBleed';
 import { SandraImages } from '../lib/sandra-images';
 import { useAuth } from '../hooks/use-auth';
 import { useLocation } from 'wouter';
+import UnifiedLoginButton from '../components/UnifiedLoginButton';
 
 export default function Login() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -17,12 +18,7 @@ export default function Login() {
     }
   }, [isAuthenticated, isLoading, setLocation]);
 
-  const handleLogin = () => {
-    // Redirect directly to Stack Auth sign-in (no popup needed for Stack Auth)
-    console.log('🔐 Redirecting to Stack Auth sign-in');
-    window.location.href = '/api/auth/signin';
-    return;
-  };
+  // Use the UnifiedLoginButton component instead of custom handler
 
   // Show loading while checking authentication
   if (isLoading) {
@@ -47,7 +43,7 @@ export default function Login() {
         tagline="Sign In or Create Account"
         title="JOIN SSELFIE"
         ctaText="Access Your Studio"
-        onCta={handleLogin}
+        onCta={() => window.location.href = '/api/auth/signin'}
         fullHeight={false}
       />
 
@@ -71,12 +67,12 @@ export default function Login() {
               Create your account or sign in using your email address. You'll be redirected to a secure login page to complete authentication.
             </p>
             
-            <button 
-              onClick={handleLogin}
-              className="w-full bg-[#0a0a0a] text-white px-8 py-4 text-xs uppercase tracking-wider hover:bg-[#333] transition-colors mb-6"
-            >
-              Continue with Email
-            </button>
+            <div className="mb-6">
+              <UnifiedLoginButton 
+                text="Continue with Email" 
+                showBrand={false} 
+              />
+            </div>
             
             <div className="text-xs text-[#666666] space-y-3 border-t border-[#e0e0e0] pt-6">
               <p className="font-medium">What happens next:</p>
