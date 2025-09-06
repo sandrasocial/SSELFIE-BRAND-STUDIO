@@ -4,8 +4,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
-import { setupStackAuth, requireAuth } from "./stackAuth";
-import { setupStackWebhook } from "./routes/stack-webhook";
+import { setupAuth, requireAuth } from "./auth";
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -398,8 +397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Setup Stack authentication
-  setupStackAuth(app);
-  setupStackWebhook(app);
+  setupAuth(app);
 
   // 🧪 STACK AUTH INTEGRATION TEST ENDPOINT
   app.get('/api/test-auth', requireAuth, async (req: any, res) => {

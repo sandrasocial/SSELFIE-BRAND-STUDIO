@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireAuth } from "../stackAuth";
+import { requireAuth } from "../auth";
 
 // Victoria AI Service Layer - Missing component identified by Zara's audit
 export function registerVictoriaService(app: Express) {

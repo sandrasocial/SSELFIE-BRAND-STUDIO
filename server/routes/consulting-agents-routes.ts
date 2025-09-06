@@ -1,5 +1,5 @@
 import { Router, Request } from 'express';
-import { requireAuth } from '../stackAuth';
+import { requireAuth } from "../auth";
 import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/personality-config';
 // REMOVED: ClaudeApiServiceSimple import - using singleton instead
 

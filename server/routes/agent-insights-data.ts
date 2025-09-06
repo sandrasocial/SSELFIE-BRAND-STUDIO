@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../stackAuth';
+import { requireAuth } from "../auth";
 import { db } from '../db';
 import { eq, desc, and, gte } from 'drizzle-orm';
 

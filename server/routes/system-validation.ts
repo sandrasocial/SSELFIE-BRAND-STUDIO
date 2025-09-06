@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../stackAuth';
+import { requireAuth } from "../auth";
 import { storage } from '../storage';
 
 const router = Router();

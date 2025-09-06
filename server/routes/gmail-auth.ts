@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { gmailIntegration } from '../services/gmail-integration';
-import { requireAuth } from '../stackAuth';
+import { requireAuth } from "../auth";
 
 const router = Router();
 
