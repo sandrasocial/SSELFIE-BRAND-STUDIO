@@ -67,21 +67,44 @@ console.log('CSS files loaded:', document.styleSheets.length);
 const root = document.getElementById("root");
 if (root) {
   try {
-    createRoot(root).render(
-      React.createElement(StackProvider, {
-        projectId: import.meta.env.VITE_STACK_PROJECT_ID || import.meta.env.VITE_NEXT_PUBLIC_STACK_PROJECT_ID,
-        publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY,
-        theme: StackTheme.withDefaults({
-          primaryColor: "#d4af37", // SSELFIE Studio gold
-          textColor: "#1a1a1a",    // Editorial black
-        })
-      }, React.createElement(App))
-    );
-    console.log('SSELFIE Studio: App rendered successfully with Stack Auth');
+    // Get Stack Auth configuration with proper validation
+    const stackProjectId = import.meta.env.VITE_STACK_PROJECT_ID;
+    const stackPublishableKey = import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+    
+    console.log('🔍 Stack Auth Config Check:', {
+      hasProjectId: !!stackProjectId,
+      hasPublishableKey: !!stackPublishableKey
+    });
+
+    // Only use Stack Auth if properly configured, otherwise render app directly
+    if (stackProjectId && stackPublishableKey) {
+      console.log('✅ Stack Auth: Using Stack Auth provider');
+      createRoot(root).render(
+        React.createElement(StackProvider, {
+          projectId: stackProjectId,
+          publishableClientKey: stackPublishableKey,
+          theme: StackTheme.withDefaults({
+            primaryColor: "#d4af37", // SSELFIE Studio gold
+            textColor: "#1a1a1a",    // Editorial black
+          })
+        }, React.createElement(App))
+      );
+    } else {
+      console.log('⚠️ Stack Auth: Configuration missing, rendering app directly');
+      createRoot(root).render(React.createElement(App));
+    }
+    
+    console.log('SSELFIE Studio: App rendered successfully');
   } catch (error) {
     console.error('SSELFIE Studio: Error rendering app:', error);
-    // Fallback to simple HTML if React fails
-    root.innerHTML = '<div style="padding: 20px; font-family: serif;">SSELFIE Studio Loading...</div>';
+    // Fallback: render app without Stack Auth provider
+    try {
+      createRoot(root).render(React.createElement(App));
+      console.log('SSELFIE Studio: Fallback render successful');
+    } catch (fallbackError) {
+      console.error('SSELFIE Studio: Fallback render failed:', fallbackError);
+      root.innerHTML = '<div style="padding: 20px; font-family: serif;">SSELFIE Studio Loading...</div>';
+    }
   }
 } else {
   console.error('SSELFIE Studio: Root element not found');

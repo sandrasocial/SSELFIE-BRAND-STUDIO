@@ -2,8 +2,17 @@ import { useUser } from "@stackframe/stack";
 import { useQuery } from "@tanstack/react-query";
 
 export function useAuth() {
-  // Use Stack Auth's React hook
-  const { user: stackUser, isLoading: stackLoading } = useUser();
+  // Use Stack Auth's React hook with error handling
+  let stackUser, stackLoading;
+  try {
+    const stackAuth = useUser();
+    stackUser = stackAuth.user;
+    stackLoading = stackAuth.isLoading;
+  } catch (error) {
+    console.log('⚠️ Stack Auth hook not available, falling back to traditional auth');
+    stackUser = null;
+    stackLoading = false;
+  }
   
   // Fetch complete user data from our backend when Stack Auth user is available
   const { data: dbUser, isLoading: dbLoading, error, isStale } = useQuery({
