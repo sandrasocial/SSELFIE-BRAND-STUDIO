@@ -4,8 +4,16 @@ import { useQuery } from "@tanstack/react-query";
 export function useAuth() {
   console.log('🔍 Auth: Using Stack Auth client-side authentication');
   
-  const stackApp = useStackApp();
-  const stackUser = useUser();
+  // Use Stack Auth hooks with error handling for React compatibility
+  let stackApp, stackUser;
+  try {
+    stackApp = useStackApp();
+    stackUser = useUser();
+  } catch (error) {
+    console.warn('⚠️ Stack Auth hook error (React compatibility):', error.message);
+    stackApp = null;
+    stackUser = null;
+  }
   
   // Only sync with database when we have a Stack Auth user
   const { data: dbUser, isLoading: dbLoading } = useQuery({
@@ -38,9 +46,16 @@ export function useAuth() {
   // Admin check - Sandra's email only
   const isAdmin = stackUser?.primaryEmail === 'sandra@sselfie.ai';
   
-  // Authentication state based on Stack Auth
+  // Authentication state based on Stack Auth with error handling
   const isAuthenticated = !!stackUser;
-  const isLoading = stackApp.useInitialLoad() || dbLoading;
+  let isStackLoading = false;
+  try {
+    isStackLoading = stackApp?.useInitialLoad() || false;
+  } catch (error) {
+    console.warn('⚠️ Stack Auth loading state error:', error.message);
+    isStackLoading = false;
+  }
+  const isLoading = isStackLoading || dbLoading;
   
   console.log('🔍 Auth State:', {
     authenticated: isAuthenticated,
