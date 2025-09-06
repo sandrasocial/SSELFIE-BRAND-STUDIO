@@ -1,28 +1,31 @@
+import { useUser } from "@stackframe/stack";
 import { useQuery } from "@tanstack/react-query";
 
 export function useAuth() {
-  const { data: user, isLoading, error, isStale } = useQuery({
-    queryKey: ["/api/auth/user"],
-    retry: false, // CRITICAL: Disable retry to prevent infinite loading
+  // Use Stack Auth's React hook
+  const { user: stackUser, isLoading: stackLoading } = useUser();
+  
+  // Fetch complete user data from our backend when Stack Auth user is available
+  const { data: dbUser, isLoading: dbLoading, error, isStale } = useQuery({
+    queryKey: ["/api/auth/user", stackUser?.id],
+    enabled: !!stackUser?.id, // Only fetch when we have a Stack Auth user
+    retry: false,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     refetchOnReconnect: false,
-    staleTime: 60 * 1000, // Consider fresh for 60 seconds
-    gcTime: 5 * 60 * 1000, // 5 minutes cache
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
     throwOnError: false,
     queryFn: async () => {
-      console.log('🔍 Auth check: Making request to /api/auth/user');
+      console.log('🔍 Auth check: Fetching DB user for Stack user:', stackUser?.primaryEmail);
       
       try {
-        const headers: Record<string, string> = {
-          'Cache-Control': 'no-cache'
-        };
-        
-        
         const response = await fetch('/api/auth/user', {
           credentials: 'include',
           cache: 'no-cache',
-          headers
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
         });
         
         console.log('🔍 Auth check: Response status:', response.status);
@@ -30,22 +33,7 @@ export function useAuth() {
         if (!response.ok) {
           if (response.status === 401) {
             console.log('🔍 Auth check: User not authenticated (401)');
-            
-            // Check if this is a token refresh failure that requires re-login
-            try {
-              const errorData = await response.json();
-              if (errorData.needsLogin) {
-                console.log('🔄 Token refresh failed, redirecting to login');
-                // Small delay to prevent immediate redirect loops
-                setTimeout(() => {
-                  window.location.href = '/api/login';
-                }, 1000);
-              }
-            } catch (e) {
-              // Ignore JSON parsing errors for error responses
-            }
-            
-            return null; // Not authenticated
+            return null;
           }
           throw new Error(`Auth failed: ${response.status}`);
         }
@@ -55,30 +43,47 @@ export function useAuth() {
         return userData;
       } catch (error) {
         console.log('❌ Auth check: Error:', (error as Error).message);
-        return null; // Treat errors as not authenticated
+        return null;
       }
     }
   });
 
-  // SINGLE ADMIN CHECK: Sandra's email only - FIXED CORRECT EMAIL
+  // Use Stack Auth user or database user
+  const user = dbUser || (stackUser ? {
+    id: stackUser.id,
+    email: stackUser.primaryEmail,
+    firstName: stackUser.displayName?.split(' ')[0] || '',
+    lastName: stackUser.displayName?.split(' ').slice(1).join(' ') || '',
+    displayName: stackUser.displayName,
+    profileImageUrl: stackUser.profileImageUrl
+  } : null);
+
+  // SINGLE ADMIN CHECK: Sandra's email only
   const isAdmin = user?.email === 'sandra@sselfie.ai';
   
   // CRITICAL: Determine authentication state
-  const isAuthenticated = !!(user && user.id);
+  const isAuthenticated = !!stackUser && !!user;
   
-  // CRITICAL: Don't consider it loading if we got a definitive answer (even if null)
-  const actuallyLoading = isLoading && user === undefined;
+  // Combine loading states
+  const actuallyLoading = stackLoading || (stackUser && dbLoading);
 
-  // MAYA FIX: Remove console.log that was causing constant re-renders in browser console
-  // Only log significant state changes, not every render
-  // console.log('🔍 useAuth final state:', { isAuthenticated, actuallyLoading });
+  console.log('🔍 Stack Auth useAuth state:', { 
+    hasStackUser: !!stackUser, 
+    hasDbUser: !!dbUser, 
+    isAuthenticated, 
+    actuallyLoading 
+  });
 
   return {
     user,
-    isLoading: actuallyLoading, // Fixed loading state
+    isLoading: actuallyLoading,
     isAuthenticated,
-    isAdmin, // Unified admin check
+    isAdmin,
     error,
-    isStale
+    isStale,
+    // Stack Auth methods
+    stackUser,
+    signIn: () => window.location.href = '/api/login',
+    signOut: () => window.location.href = '/api/logout'
   };
 }
