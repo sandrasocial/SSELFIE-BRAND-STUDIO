@@ -93,7 +93,21 @@ export function useAuth() {
       }
     };
   } catch (error) {
-    console.error('❌ Auth hook error:', error);
+    // Better error logging to identify the actual issue
+    console.error('❌ Auth hook error:', {
+      message: error?.message || 'Unknown error',
+      name: error?.name || 'Unknown error type',
+      stack: error?.stack || 'No stack trace',
+      fullError: error
+    });
+    
+    // Check if it's a Stack Auth specific error
+    if (error?.message?.includes('StackAssertionError') || 
+        error?.message?.includes('accessToken') ||
+        error?.name === 'StackAssertionError') {
+      console.warn('⚠️ Stack Auth internal error detected, switching to fallback auth');
+    }
+    
     return createFallbackAuthState();
   }
 }

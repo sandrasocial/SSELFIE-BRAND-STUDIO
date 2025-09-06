@@ -31,8 +31,21 @@ window.addEventListener('unhandledrejection', (event) => {
     event.reason.toString().includes('WebSocket')
   );
   
+  // Check if this is a Stack Auth internal error
+  const isStackAuthError = event.reason && (
+    event.reason.message?.includes('accessToken') ||
+    event.reason.message?.includes('StackAssertionError') ||
+    event.reason.name === 'StackAssertionError' ||
+    event.reason.toString().includes('StackAssertionError')
+  );
+  
   if (isWebSocketError) {
     // Silently ignore WebSocket/HMR errors - these are development only
+    return;
+  }
+  
+  if (isStackAuthError) {
+    console.warn('⚠️ Stack Auth internal error prevented:', event.reason?.message || event.reason);
     return;
   }
   
