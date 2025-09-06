@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef, ComponentPropsWithoutRef, ElementRef } from 'react';
+import React, { ReactNode, forwardRef, ComponentPropsWithoutRef, ElementRef } from 'react';
 
 interface TooltipProviderProps {
   children: ReactNode;
