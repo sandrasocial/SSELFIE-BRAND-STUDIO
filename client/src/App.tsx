@@ -298,10 +298,15 @@ function Router() {
         </Suspense>
       )} />
 
-      {/* STACK AUTH ROUTES */}
+      {/* JWT AUTH ROUTES */}
+      <Route path="/login" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <Login />
+        </Suspense>
+      )} />
       <Route path="/auth/sign-in" component={() => (
         <Suspense fallback={<PageLoader />}>
-          <AuthSignIn />
+          <AuthSignUp />
         </Suspense>
       )} />
       <Route path="/auth/sign-up" component={() => (
