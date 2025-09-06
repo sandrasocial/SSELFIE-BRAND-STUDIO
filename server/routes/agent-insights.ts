@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../neonAuth';
+import { requireAuth } from '../stackAuth';
 import { AgentInsightEngine } from '../services/agent-insight-engine';
 
 const router = Router();

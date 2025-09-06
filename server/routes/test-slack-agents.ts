@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../neonAuth';
+import { requireAuth } from '../stackAuth';
 import { launchFocusedAgentService } from '../services/launch-focused-agent-service';
 import { SlackNotificationService } from '../services/slack-notification-service';
 
