@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { storage } from "../storage";
-import { requireAuth } from "../neonAuth";
+import { requireAuth } from "../stackAuth";
 import { requireAdmin, checkAdminAccess } from "../middleware/admin-middleware";
 import type { Request, Response } from "express";
 

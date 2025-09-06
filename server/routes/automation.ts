@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireAuth } from "../neonAuth";
+import { requireAuth } from "../stackAuth";
 import { storage } from "../storage";
 
 export function registerAutomationRoutes(app: Express) {

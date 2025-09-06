@@ -5,9 +5,19 @@ if (!process.env.STACK_SECRET_SERVER_KEY) {
   throw new Error('STACK_SECRET_SERVER_KEY environment variable is required');
 }
 
+if (!process.env.VITE_STACK_PROJECT_ID) {
+  throw new Error('VITE_STACK_PROJECT_ID environment variable is required');
+}
+
+if (!process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY) {
+  throw new Error('VITE_STACK_PUBLISHABLE_CLIENT_KEY environment variable is required');
+}
+
 // Initialize Stack Server App
 const stackServerApp = new StackServerApp({
-  tokenStore: "nextjs-cookie", // Use Next.js cookie token store
+  projectId: process.env.VITE_STACK_PROJECT_ID,
+  secretServerKey: process.env.STACK_SECRET_SERVER_KEY,
+  publishableClientKey: process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY,
 });
 
 // Stack Auth middleware for protected routes
