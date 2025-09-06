@@ -1,11 +1,11 @@
 import type { Express } from "express";
-import { isAuthenticated } from "../replitAuth";
+import { requireAuth } from "../neonAuth";
 
 // Victoria AI Service Layer - Missing component identified by Zara's audit
 export function registerVictoriaService(app: Express) {
   
   // Goal Analysis Algorithm - Generate website goals from brand data
-  app.post('/api/victoria/analyze-goals', isAuthenticated, async (req, res) => {
+  app.post('/api/victoria/analyze-goals', requireAuth, async (req, res) => {
     try {
       const { brandData } = req.body;
       
@@ -28,7 +28,7 @@ export function registerVictoriaService(app: Express) {
   });
 
   // Website Structure Generation - Create page structure from brand data
-  app.post('/api/victoria/generate-structure', isAuthenticated, async (req, res) => {
+  app.post('/api/victoria/generate-structure', requireAuth, async (req, res) => {
     try {
       const { brandData, selectedImages, selectedFlatlays } = req.body;
       
@@ -57,7 +57,7 @@ export function registerVictoriaService(app: Express) {
   });
 
   // Content Generation - Generate page content using brand voice
-  app.post('/api/victoria/generate-content', isAuthenticated, async (req, res) => {
+  app.post('/api/victoria/generate-content', requireAuth, async (req, res) => {
     try {
       const { brandData, pageType, sectionType } = req.body;
       
@@ -74,7 +74,7 @@ export function registerVictoriaService(app: Express) {
   });
 
   // Design Preferences Analysis - New endpoint from Zara's audit
-  app.post('/api/victoria/analyze-design', isAuthenticated, async (req, res) => {
+  app.post('/api/victoria/analyze-design', requireAuth, async (req, res) => {
     try {
       const { brandData } = req.body;
       

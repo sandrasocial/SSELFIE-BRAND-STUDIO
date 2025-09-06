@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 
 const router = Router();
 
@@ -34,7 +34,7 @@ router.get('/health/member-features', async (req, res) => {
 });
 
 // Pre-deployment validation for admin changes
-router.get('/validate/pre-admin-changes', isAuthenticated, async (req: any, res) => {
+router.get('/validate/pre-admin-changes', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     

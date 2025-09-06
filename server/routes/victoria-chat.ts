@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 
 const router = Router();
 
 // Victoria website chat endpoint - integrates with member agent system
-router.post('/api/victoria-website-chat', isAuthenticated, async (req: any, res) => {
+router.post('/api/victoria-website-chat', requireAuth, async (req: any, res) => {
   try {
     const { message, conversationHistory, selectedImages = [], selectedFlatlays = [] } = req.body;
     const userId = req.user.claims.sub;

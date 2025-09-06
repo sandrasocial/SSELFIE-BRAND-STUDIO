@@ -4,13 +4,13 @@
  */
 
 import { Router } from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 import { escalationHandler } from '../services/escalation-handler';
 
 const router = Router();
 
 // PHASE 5: Handle escalation requests from support chat
-router.post('/escalate', isAuthenticated, async (req, res) => {
+router.post('/escalate', requireAuth, async (req, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     const userEmail = (req.user as any)?.claims?.email;

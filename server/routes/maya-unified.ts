@@ -19,7 +19,7 @@
  */
 
 import { Router } from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 import { storage } from '../storage';
 import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
@@ -133,7 +133,7 @@ function logUserAbandonment(event: 'ONBOARDING_ABANDON' | 'CHAT_ABANDON' | 'GENE
 }
 
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
-router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
+router.post('/chat', requireAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track API performance
   try {
     const userId = (req.user as any)?.claims?.sub;
@@ -557,7 +557,7 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
 });
 
 // Image generation through unified system
-router.post('/generate', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
+router.post('/generate', requireAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track generation performance
   try {
     const userId = (req.user as any)?.claims?.sub;
@@ -1066,7 +1066,7 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
 });
 
 // Unified status endpoint
-router.get('/status', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
+router.get('/status', requireAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track status performance
   try {
     const userId = (req.user as any)?.claims?.sub;
@@ -1124,7 +1124,7 @@ router.get('/status', isAuthenticated, adminContextDetection, async (req: AdminC
 });
 
 // 🎯 MAYA'S INTELLIGENT GENERATION STATUS POLLING
-router.get('/check-generation/:predictionId', isAuthenticated, adminContextDetection, async (req: AdminContextRequest, res) => {
+router.get('/check-generation/:predictionId', requireAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track polling performance
   try {
     const userId = (req.user as any)?.claims?.sub;
@@ -2386,7 +2386,7 @@ GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
 }
 
 // 🔥 CRITICAL FIX: Chat History Loading with Image Persistence
-router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
+router.get('/chats/:chatId/messages', requireAuth, async (req, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
@@ -2461,7 +2461,7 @@ router.get('/chats/:chatId/messages', isAuthenticated, async (req, res) => {
 });
 
 // Get user's Maya-generated images for categorized gallery
-router.get('/generated-images', isAuthenticated, async (req, res) => {
+router.get('/generated-images', requireAuth, async (req, res) => {
   console.log('🎨 MAYA UNIFIED: Fetching generated images...');
   try {
     const userId = (req.user as any).claims.sub;
@@ -2546,7 +2546,7 @@ function detectCategoryFromPrompt(prompt: string): string {
 }
 
 // 🧠 DEVELOPMENT ROUTE: View user style memory (safe testing endpoint)
-router.get('/style-memory', isAuthenticated, async (req, res) => {
+router.get('/style-memory', requireAuth, async (req, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
@@ -2571,7 +2571,7 @@ router.get('/style-memory', isAuthenticated, async (req, res) => {
 });
 
 // 🧠 DEVELOPMENT ROUTE: Learn from user favorites manually (safe testing)
-router.post('/learn-from-favorites', isAuthenticated, async (req, res) => {
+router.post('/learn-from-favorites', requireAuth, async (req, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
@@ -2592,7 +2592,7 @@ router.post('/learn-from-favorites', isAuthenticated, async (req, res) => {
 });
 
 // PHASE 3: Onboarding Response Handler - Process user profile completion answers
-router.post('/onboarding-response', isAuthenticated, async (req, res) => {
+router.post('/onboarding-response', requireAuth, async (req, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     if (!userId) {
