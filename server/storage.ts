@@ -236,9 +236,7 @@ export class DatabaseStorage implements IStorage {
           firstName: userData.firstName,
           lastName: userData.lastName,
           profileImageUrl: userData.profileImageUrl,
-          // Stack Auth specific fields
-          authProvider: userData.authProvider,
-          stackAuthUserId: userData.stackAuthUserId,
+          // Stack Auth integration - no extra fields needed
           displayName: userData.displayName,
           lastLoginAt: userData.lastLoginAt,
           // Business logic fields
@@ -271,9 +269,7 @@ export class DatabaseStorage implements IStorage {
             firstName: userData.firstName,
             lastName: userData.lastName,
             profileImageUrl: userData.profileImageUrl,
-            // Stack Auth specific fields
-            authProvider: userData.authProvider,
-            stackAuthUserId: userData.stackAuthUserId,
+            // Stack Auth integration - no extra fields needed
             displayName: userData.displayName,
             lastLoginAt: userData.lastLoginAt,
             // Business logic fields
