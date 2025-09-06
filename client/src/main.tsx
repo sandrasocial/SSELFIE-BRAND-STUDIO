@@ -4,6 +4,11 @@ import { StackProvider, StackTheme } from "@stackframe/stack";
 import App from "./App";
 import "./index.css";
 
+// Polyfill process for Stack Auth browser compatibility
+if (typeof window !== 'undefined' && !window.process) {
+  (window as any).process = { env: {} };
+}
+
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');
 console.log('SSELFIE Studio: Root element found:', !!document.getElementById("root"));
