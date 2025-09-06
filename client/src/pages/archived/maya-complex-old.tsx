@@ -389,7 +389,7 @@ const MayaComponent = React.memo(() => {
           <h2 className="text-2xl font-serif mb-4">Maya Authentication Required</h2>
           <p className="text-gray-600 mb-6">Please authenticate to access Maya, your personal brand stylist.</p>
           <button 
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/api/auth/signin'}
             className="w-full bg-black text-white px-6 py-3 text-sm font-medium tracking-wider uppercase hover:bg-gray-800 transition-colors"
           >
             Login with Replit

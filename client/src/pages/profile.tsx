@@ -148,7 +148,7 @@ export default function Profile() {
             Sign in to create your profile so we can generate photos that actually look like you.
           </p>
           <a
-            href="/api/login"
+            href="/api/auth/signin"
             className="text-xs uppercase tracking-wider text-[#0a0a0a] border-b border-[#0a0a0a] pb-1"
           >
             Sign In

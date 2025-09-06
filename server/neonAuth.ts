@@ -38,6 +38,13 @@ export function setupNeonAuth(app: Express) {
     }
   });
   
+  // Legacy compatibility endpoint - redirect old login requests
+  app.get('/api/login', async (req, res) => {
+    console.log('🔄 Legacy /api/login redirect to new auth system');
+    const callbackUrl = req.query.callbackUrl || '/';
+    res.redirect(`/api/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl as string)}`);
+  });
+  
   console.log('✅ Simplified Neon authentication setup complete');
 }
 

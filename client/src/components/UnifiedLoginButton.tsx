@@ -7,8 +7,8 @@ interface UnifiedLoginButtonProps {
 
 export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButtonProps) {
   const handleLogin = () => {
-    // Redirect to Stack Auth sign-in endpoint
-    console.log('🔐 UnifiedLoginButton: Redirecting to Stack Auth sign-in');
+    // Redirect to Neon auth sign-in endpoint
+    console.log('🔐 UnifiedLoginButton: Redirecting to Neon auth sign-in');
     window.location.href = '/api/auth/signin';
   };
 
