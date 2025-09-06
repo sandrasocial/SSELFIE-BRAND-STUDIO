@@ -5,6 +5,7 @@ import { useToast } from '../hooks/use-toast';
 import { apiRequest } from '../lib/queryClient';
 import { MemberNavigation } from '../components/member-navigation';
 import { SandraImages } from '../lib/sandra-images';
+import { SignIn } from '@stackframe/stack';
 
 export default function Profile() {
   const { user, isAuthenticated } = useAuth();
@@ -147,12 +148,9 @@ export default function Profile() {
           <p className="text-[#666666] mb-8">
             Sign in to create your profile so we can generate photos that actually look like you.
           </p>
-          <a
-            href="/api/auth/signin"
-            className="text-xs uppercase tracking-wider text-[#0a0a0a] border-b border-[#0a0a0a] pb-1"
-          >
-            Sign In
-          </a>
+          <div className="stack-auth-signin">
+            <SignIn />
+          </div>
         </div>
       </div>
     );
