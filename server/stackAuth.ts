@@ -234,9 +234,14 @@ export async function setupAuth(app: Express) {
       const localSignInUrl = stackServerApp.urls.signIn;
       console.log('🔍 Stack Auth local signIn URL:', localSignInUrl);
       
-      // Use external Stack Auth URL instead of local handler
-      const externalSignInUrl = `https://app.stack-auth.com/projects/${stackProjectId}/sign-in?return_url=${encodeURIComponent(req.protocol + '://' + req.get('host') + returnUrl)}`;
-      console.log('🔍 Using external Stack Auth URL:', externalSignInUrl);
+      // Use correct Stack Auth external URL format - they use /api/v1/auth/signin
+      const host = req.get('host');
+      const protocol = req.protocol;
+      const fullReturnUrl = `${protocol}://${host}${returnUrl}`;
+      
+      // Stack Auth external authentication URL - use their hosted sign-in page
+      const externalSignInUrl = `https://app.stack-auth.com/oauth/signin?client_id=${stackProjectId}&redirect_uri=${encodeURIComponent(fullReturnUrl)}`;
+      console.log('🔍 Using Stack Auth OAuth URL:', externalSignInUrl);
       
       console.log('🔍 Performing explicit redirect to external Stack Auth');
       
