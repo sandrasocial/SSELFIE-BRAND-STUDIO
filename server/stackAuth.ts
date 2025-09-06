@@ -234,6 +234,11 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     try {
       // More defensive call to Stack Auth getUser
       stackUser = await stackServerApp.getUser({ req, res });
+      
+      if (!stackUser) {
+        console.log('🔍 Redirecting to Stack Auth sign-in: /handler/sign-in');
+        return res.status(401).json({ message: "Unauthorized" });
+      }
     } catch (error) {
       console.log('❌ Stack Auth getUser error:', error.message);
       
