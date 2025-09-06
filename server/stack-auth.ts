@@ -1,8 +1,10 @@
 import { jwtVerify, createRemoteJWKSet } from 'jose';
 import type { Request, Response, NextFunction } from 'express';
 
-// Stack Auth JWKS endpoint
-const JWKS_URL = 'https://api.stack-auth.com/api/v1/projects/253d7343-a0d4-43a1-be5c-822f590d40be/.well-known/jwks.json';
+// Stack Auth configuration
+const STACK_AUTH_PROJECT_ID = '253d7343-a0d4-43a1-be5c-822f590d40be';
+const STACK_AUTH_API_URL = 'https://api.stack-auth.com/api/v1';
+const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-known/jwks.json`;
 
 // Create JWKS resolver
 const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
@@ -22,66 +24,83 @@ declare global {
   }
 }
 
+// OAuth token exchange function
+async function exchangeCodeForTokens(code: string, redirectUri: string) {
+  const response = await fetch(`${STACK_AUTH_API_URL}/oauth/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: redirectUri,
+      client_id: STACK_AUTH_PROJECT_ID,
+      publishable_client_key: process.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Token exchange failed: ${response.status} - ${error}`);
+  }
+
+  return await response.json();
+}
+
+// Get user info from access token
+async function getUserInfo(accessToken: string) {
+  const response = await fetch(`${STACK_AUTH_API_URL}/users/me`, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Get user info failed: ${response.status} - ${error}`);
+  }
+
+  return await response.json();
+}
+
 export async function verifyStackAuthToken(req: Request, res: Response, next: NextFunction) {
   try {
-    let jwtToken: string | undefined;
+    let accessToken: string | undefined;
     
-    // Check Authorization header for JWT tokens
+    // Check Authorization header for Bearer token
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ')) {
-      jwtToken = authHeader.substring(7);
+      accessToken = authHeader.substring(7);
       console.log('🔐 Stack Auth: Found Bearer token in Authorization header');
     }
     
-    // Check for direct JWT tokens in cookies first
-    if (!jwtToken && req.cookies) {
-      jwtToken = req.cookies['stack-auth-jwt'] || req.cookies['access_token'];
-    }
-    
-    // If no JWT token found, check for Stack Auth session cookies
-    if (!jwtToken) {
-      console.log('🔍 Stack Auth: No JWT token found, checking for session cookies...');
-      console.log('🔍 Available cookies:', req.headers.cookie || 'none');
-      
-      // For now, let's look for any tokens that might be JWT format
-      if (req.headers.cookie) {
-        const cookies = req.headers.cookie.split(';');
-        for (const cookie of cookies) {
-          const [name, value] = cookie.trim().split('=');
-          const decodedValue = decodeURIComponent(value);
-          
-          console.log(`🔍 Cookie '${name}': ${decodedValue.substring(0, 100)}...`);
-          
-          // Check if the value looks like a JWT (has two dots)
-          if (decodedValue.includes('.') && decodedValue.split('.').length === 3) {
-            console.log(`🎯 Found JWT-like token in cookie '${name}'`);
-            jwtToken = decodedValue;
-            break;
-          }
-        }
+    // Check cookies for stored access token
+    if (!accessToken && req.cookies) {
+      accessToken = req.cookies['stack-access-token'];
+      if (accessToken) {
+        console.log('🔐 Stack Auth: Found access token in cookies');
       }
     }
     
-    if (!jwtToken) {
-      console.log('❌ Stack Auth: No JWT token found in any location');
+    if (!accessToken) {
+      console.log('❌ Stack Auth: No access token found');
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    console.log('🔐 Stack Auth: Attempting to verify JWT token...');
-    console.log('🔍 Token preview:', jwtToken.substring(0, 50) + '...');
+    console.log('🔐 Stack Auth: Verifying access token with Stack Auth API...');
     
-    // Verify JWT using Stack Auth JWKS
-    const { payload } = await jwtVerify(jwtToken, JWKS);
+    // Get user info from Stack Auth API
+    const userInfo = await getUserInfo(accessToken);
     
-    console.log('✅ Stack Auth: Token verified successfully');
-    console.log('📊 Stack Auth: User payload:', payload);
+    console.log('✅ Stack Auth: User verified successfully');
+    console.log('📊 Stack Auth: User info:', userInfo);
     
-    // Extract user information from the payload
+    // Set user information in request
     req.user = {
-      id: payload.sub as string,
-      primaryEmail: payload.email as string,
-      displayName: payload.name as string,
-      // Add other fields as they exist in Stack Auth payload
+      id: userInfo.id,
+      primaryEmail: userInfo.primary_email,
+      displayName: userInfo.display_name || userInfo.first_name,
     };
 
     next();
@@ -91,6 +110,44 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       message: 'Invalid or expired token',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
+  }
+}
+
+// OAuth callback handler
+export async function handleStackAuthCallback(req: Request, res: Response) {
+  try {
+    const { code, state } = req.query;
+    
+    if (!code) {
+      return res.status(400).json({ message: 'Missing authorization code' });
+    }
+    
+    console.log('🔐 Stack Auth: Handling OAuth callback with code:', typeof code === 'string' ? code.substring(0, 20) + '...' : code);
+    
+    const redirectUri = `${req.protocol}://${req.get('host')}/auth-success`;
+    
+    // Exchange authorization code for tokens
+    const tokens = await exchangeCodeForTokens(code as string, redirectUri);
+    console.log('✅ Stack Auth: Tokens received successfully');
+    
+    // Get user information
+    const userInfo = await getUserInfo(tokens.access_token);
+    console.log('✅ Stack Auth: User info retrieved:', userInfo);
+    
+    // Store access token in secure cookie
+    res.cookie('stack-access-token', tokens.access_token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: tokens.expires_in * 1000, // Convert to milliseconds
+    });
+    
+    // Redirect to the main app
+    res.redirect('/?auth=success');
+    
+  } catch (error) {
+    console.error('❌ Stack Auth: OAuth callback failed:', error);
+    res.redirect('/?auth=error');
   }
 }
 
