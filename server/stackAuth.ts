@@ -125,18 +125,11 @@ export async function setupAuth(app: Express) {
       // Install manual Stack Auth callback handlers since handler is undefined due to Next.js dependencies
       console.log('🔧 Installing manual Stack Auth callback handlers for Express.js compatibility');
       
+      // Client-side Stack Auth sign-in page (served by frontend)
       app.get('/handler/sign-in', (req, res) => {
-        console.log('🔐 Manual Stack Auth sign-in handler');
-        try {
-          // Use Stack Auth dashboard sign-in (no project subdomains)
-          const directSignInUrl = `https://app.stack-auth.com/handler/sign-in`;
-          console.log('🔍 Redirecting to Stack Auth sign-in:', directSignInUrl);
-          res.redirect(directSignInUrl);
-        } catch (error) {
-          console.error('❌ Sign-in redirect error:', error);
-          // Fallback to API login
-          res.redirect('/api/auth/login');
-        }
+        console.log('🔐 Stack Auth sign-in page requested - serving client-side auth');
+        // Let the frontend handle this route with Stack Auth client components
+        res.redirect('/#/auth/sign-in');
       });
       
       // Manual callback handler to complete authentication loop
@@ -203,12 +196,11 @@ export async function setupAuth(app: Express) {
 
   // Legacy auth endpoints (for existing links)
   app.get("/api/login", (req, res) => {
-    console.log('🔐 Legacy login endpoint - redirecting to Stack Auth');
+    console.log('🔐 Legacy login endpoint - redirecting to client-side auth');
     try {
-      // Use Stack Auth dashboard sign-in (no project subdomains)
-      const directSignInUrl = `https://app.stack-auth.com/handler/sign-in`;
-      console.log('🔍 Redirecting to Stack Auth sign-in:', directSignInUrl);
-      res.redirect(directSignInUrl);
+      // Redirect to client-side Stack Auth authentication page
+      const returnUrl = (req.query.returnUrl as string) || '/';
+      res.redirect(`/#/auth/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`);
     } catch (error) {
       console.error('❌ Login redirect error:', error);
       res.status(500).json({ error: 'Authentication service temporarily unavailable' });
@@ -237,15 +229,14 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // New auth endpoints (server-side Stack Auth like Replit Auth)
+  // New auth endpoints (client-side Stack Auth)
   app.get("/api/auth/login", (req, res) => {
-    console.log('🔐 Server-side Stack Auth: Login requested (like Replit Auth)');
+    console.log('🔐 Client-side Stack Auth: Login requested');
     try {
-      // Redirect to Stack Auth dashboard sign-in with return URL support
+      // Redirect to client-side Stack Auth authentication page within our domain
       const returnUrl = (req.query.returnUrl as string) || '/';
-      const directSignInUrl = `https://app.stack-auth.com/handler/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`;
-      console.log('🔍 Redirecting to Stack Auth sign-in:', directSignInUrl);
-      res.redirect(directSignInUrl);
+      console.log('🔍 Redirecting to client-side Stack Auth sign-in');
+      res.redirect(`/#/auth/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`);
     } catch (error) {
       console.error('❌ Auth login redirect error:', error);
       res.status(500).json({ error: 'Authentication service temporarily unavailable' });

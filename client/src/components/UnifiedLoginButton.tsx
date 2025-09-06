@@ -7,7 +7,8 @@ interface UnifiedLoginButtonProps {
 
 export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButtonProps) {
   const handleLogin = () => {
-    window.location.href = '/api/auth/login';
+    // Use client-side Stack Auth instead of server redirect
+    window.location.href = '/#/auth/sign-in';
   };
 
   return (
