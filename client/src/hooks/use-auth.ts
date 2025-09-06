@@ -2,14 +2,14 @@ import { useUser } from "@stackframe/stack";
 import { useQuery } from "@tanstack/react-query";
 
 export function useAuth() {
-  // Use Stack Auth's React hook with error handling
+  // Use Stack Auth's React hook with comprehensive error handling
   let stackUser, stackLoading;
   try {
     const stackAuth = useUser();
     stackUser = stackAuth.user;
     stackLoading = stackAuth.isLoading;
   } catch (error) {
-    console.log('⚠️ Stack Auth hook not available, falling back to traditional auth');
+    console.log('⚠️ Stack Auth hook unavailable, using server-side auth (like Replit Auth)');
     stackUser = null;
     stackLoading = false;
   }
