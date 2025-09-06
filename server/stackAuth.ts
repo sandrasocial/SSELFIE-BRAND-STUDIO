@@ -229,20 +229,51 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // New auth endpoints (client-side Stack Auth)
-  app.get("/api/auth/login", (req, res) => {
-    console.log('🔐 Client-side Stack Auth: Login requested');
+  // Stack Auth signin endpoint - redirect to external Stack Auth
+  app.get("/api/auth/signin", (req, res) => {
+    console.log('🔐 Stack Auth: Signin requested, redirecting to external auth');
     try {
-      // Redirect to client-side Stack Auth authentication page within our domain
       const returnUrl = (req.query.returnUrl as string) || '/';
-      console.log('🔍 Redirecting to client-side Stack Auth sign-in');
-      res.redirect(`/#/auth/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`);
+      const signInUrl = stackServerApp.urls.signIn;
+      console.log('🔍 Redirecting to Stack Auth external sign-in:', signInUrl);
+      res.redirect(signInUrl);
     } catch (error) {
-      console.error('❌ Auth login redirect error:', error);
-      res.status(500).json({ error: 'Authentication service temporarily unavailable' });
+      console.error('❌ Stack Auth signin redirect error:', error);
+      res.status(500).json({ error: 'Stack Auth service temporarily unavailable' });
+    }
+  });
+  
+  // Legacy login endpoint support
+  app.get("/api/auth/login", (req, res) => {
+    console.log('🔐 Legacy login endpoint - redirecting to signin');
+    res.redirect('/api/auth/signin');
+  });
+
+  // Stack Auth signout endpoint - redirect to external Stack Auth
+  app.get("/api/auth/signout", async (req, res) => {
+    try {
+      console.log('🔐 Stack Auth: Signout requested, redirecting to external auth');
+      
+      // Clear local session
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('❌ Session destroy error:', err);
+        }
+        res.clearCookie('connect.sid');
+        console.log('✅ User logged out successfully');
+        
+        // Redirect to Stack Auth sign-out
+        const signOutUrl = stackServerApp.urls.signOut;
+        console.log('🔍 Redirecting to Stack Auth external sign-out:', signOutUrl);
+        res.redirect(signOutUrl);
+      });
+    } catch (error) {
+      console.error('❌ Stack Auth signout error:', error);
+      res.redirect('/');
     }
   });
 
+  // Legacy logout endpoint support  
   app.get("/api/auth/logout", async (req, res) => {
     try {
       console.log('🔐 Server-side Stack Auth: Logout requested (like Replit Auth)');
