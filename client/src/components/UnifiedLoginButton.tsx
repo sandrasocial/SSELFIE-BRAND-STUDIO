@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useLogin, useRegister } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -62,7 +61,7 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
           {!isLogin && (
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <Label htmlFor="firstName">First Name</Label>
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                 <Input
                   id="firstName"
                   type="text"
@@ -72,7 +71,7 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
                 />
               </div>
               <div>
-                <Label htmlFor="lastName">Last Name</Label>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                 <Input
                   id="lastName"
                   type="text"
@@ -85,7 +84,7 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
           )}
           
           <div>
-            <Label htmlFor="email">Email</Label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <Input
               id="email"
               type="email"
@@ -97,7 +96,7 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
           </div>
           
           <div>
-            <Label htmlFor="password">Password</Label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <Input
               id="password"
               type="password"
