@@ -62,7 +62,6 @@ const PhotoSelection = lazy(() => import("./pages/photo-selection"));
 
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const Login = lazy(() => import("./pages/login"));
-const StackAuthSignIn = lazy(() => import("./pages/stack-auth-signin"));
 const DomainHelp = lazy(() => import("./pages/domain-help"));
 const SwitchAccount = lazy(() => import("./pages/switch-account"));
 const LaunchCountdown = lazy(() => import("./pages/launch-countdown"));
@@ -291,11 +290,6 @@ function Router() {
       <Route path="/auth-success" component={() => (
         <Suspense fallback={<PageLoader />}>
           <AuthSuccess />
-        </Suspense>
-      )} />
-      <Route path="/handler/sign-in" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <StackAuthSignIn />
         </Suspense>
       )} />
       <Route path="/switch-account" component={() => (
