@@ -1,5 +1,5 @@
 import { Router, Request } from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/personality-config';
 // REMOVED: ClaudeApiServiceSimple import - using singleton instead
 
@@ -262,7 +262,7 @@ const adminAuth = async (req: AdminRequest, res: any, next: any) => {
   try {
     // First try normal authentication
     await new Promise((resolve, reject) => {
-      isAuthenticated(req, res, (err: any) => {
+      requireAuth(req, res, (err: any) => {
         if (err) reject(err);
         else resolve(null);
       });

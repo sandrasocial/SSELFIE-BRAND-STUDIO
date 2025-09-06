@@ -9,13 +9,13 @@ import { securityAudit } from '../enterprise/security-audit';
 import { performanceMonitor } from '../enterprise/performance-monitor';
 import { globalExpansion } from '../enterprise/global-expansion';
 import { analyticsReporting } from '../enterprise/analytics-reporting';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 
 export function registerEnterpriseRoutes(app: Express): void {
   console.log('🏢 Registering Enterprise Scaling API routes...');
 
   // Predictive Intelligence Endpoints
-  app.get('/api/enterprise/predictive-metrics', isAuthenticated, async (req, res) => {
+  app.get('/api/enterprise/predictive-metrics', requireAuth, async (req, res) => {
     try {
       console.log('🔮 PREDICTIVE INTELLIGENCE: Generating metrics...');
       const metrics = await predictiveIntelligence.generatePredictiveMetrics();
@@ -35,7 +35,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Security Audit Endpoints
-  app.get('/api/enterprise/security-report', isAuthenticated, async (req, res) => {
+  app.get('/api/enterprise/security-report', requireAuth, async (req, res) => {
     try {
       console.log('🔒 SECURITY AUDIT: Generating security report...');
       const report = await securityAudit.generateSecurityReport();
@@ -55,7 +55,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Security threat detection endpoint
-  app.post('/api/enterprise/security/detect-threat', isAuthenticated, async (req, res) => {
+  app.post('/api/enterprise/security/detect-threat', requireAuth, async (req, res) => {
     try {
       const { type, source, description, severity } = req.body;
       await securityAudit.detectThreat(type, source, description, severity);
@@ -74,7 +74,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Performance Monitoring Endpoints
-  app.get('/api/enterprise/performance-report', isAuthenticated, async (req, res) => {
+  app.get('/api/enterprise/performance-report', requireAuth, async (req, res) => {
     try {
       console.log('📊 PERFORMANCE MONITOR: Generating performance report...');
       const report = await performanceMonitor.generatePerformanceReport();
@@ -94,7 +94,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Performance alerts endpoint
-  app.get('/api/enterprise/performance/alerts', isAuthenticated, async (req, res) => {
+  app.get('/api/enterprise/performance/alerts', requireAuth, async (req, res) => {
     try {
       const alerts = await performanceMonitor.getSystemAlerts();
       res.json({
@@ -113,7 +113,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Resolve performance alert endpoint
-  app.post('/api/enterprise/performance/alerts/:alertId/resolve', isAuthenticated, async (req, res) => {
+  app.post('/api/enterprise/performance/alerts/:alertId/resolve', requireAuth, async (req, res) => {
     try {
       const { alertId } = req.params;
       const resolved = await performanceMonitor.resolveAlert(alertId);
@@ -140,7 +140,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Global Expansion Endpoints
-  app.get('/api/enterprise/global-expansion', isAuthenticated, async (req, res) => {
+  app.get('/api/enterprise/global-expansion', requireAuth, async (req, res) => {
     try {
       console.log('🌍 GLOBAL EXPANSION: Generating expansion metrics...');
       const metrics = await globalExpansion.generateExpansionMetrics();
@@ -160,7 +160,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Advanced Analytics & Reporting Endpoints
-  app.get('/api/enterprise/analytics-report', isAuthenticated, async (req, res) => {
+  app.get('/api/enterprise/analytics-report', requireAuth, async (req, res) => {
     try {
       console.log('📈 ENTERPRISE ANALYTICS: Generating comprehensive report...');
       const report = await analyticsReporting.generateEnterpriseReport();
@@ -180,7 +180,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Executive Summary endpoint for quick dashboard overview
-  app.get('/api/enterprise/executive-summary', isAuthenticated, async (req, res) => {
+  app.get('/api/enterprise/executive-summary', requireAuth, async (req, res) => {
     try {
       console.log('📋 EXECUTIVE SUMMARY: Generating quick overview...');
       const fullReport = await analyticsReporting.generateEnterpriseReport();
@@ -211,7 +211,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Enterprise health check endpoint
-  app.get('/api/enterprise/health', isAuthenticated, async (req, res) => {
+  app.get('/api/enterprise/health', requireAuth, async (req, res) => {
     try {
       const [
         predictiveHealth,
@@ -251,7 +251,7 @@ export function registerEnterpriseRoutes(app: Express): void {
   });
 
   // Enterprise configuration endpoint
-  app.get('/api/enterprise/config', isAuthenticated, async (req, res) => {
+  app.get('/api/enterprise/config', requireAuth, async (req, res) => {
     try {
       res.json({
         success: true,

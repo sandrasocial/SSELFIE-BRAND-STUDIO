@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 
 const router = Router();
 
@@ -86,7 +86,7 @@ let systemHealth: SystemHealthMetrics = {
 };
 
 // Get comprehensive system health
-router.get('/', isAuthenticated, async (req: any, res) => {
+router.get('/', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') { // Sandra's user ID
@@ -114,7 +114,7 @@ router.get('/', isAuthenticated, async (req: any, res) => {
 });
 
 // Get quick health status
-router.get('/status', isAuthenticated, async (req: any, res) => {
+router.get('/status', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {
@@ -141,7 +141,7 @@ router.get('/status', isAuthenticated, async (req: any, res) => {
 });
 
 // Run system diagnostics
-router.post('/diagnostics', isAuthenticated, async (req: any, res) => {
+router.post('/diagnostics', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {

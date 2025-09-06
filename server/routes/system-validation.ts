@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 import { storage } from '../storage';
 
 const router = Router();
 
 // Comprehensive system validation for Phase 1 verification
-router.get('/phase1-validation', isAuthenticated, async (req: any, res) => {
+router.get('/phase1-validation', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     
@@ -19,7 +19,7 @@ router.get('/phase1-validation', isAuthenticated, async (req: any, res) => {
           status: 'PASS',
           userAuthenticated: !!req.user,
           userId: userId,
-          sessionValid: !!req.isAuthenticated()
+          sessionValid: !!req.requireAuth()
         },
         database: {
           status: 'PASS',
@@ -64,14 +64,14 @@ router.get('/phase1-validation', isAuthenticated, async (req: any, res) => {
 });
 
 // Quick authentication test endpoint
-router.get('/auth-test', isAuthenticated, async (req: any, res) => {
+router.get('/auth-test', requireAuth, async (req: any, res) => {
   try {
     const user = req.user;
     res.json({
       authenticated: !!user,
       userId: user?.claims?.sub,
       email: user?.claims?.email,
-      sessionActive: !!req.isAuthenticated(),
+      sessionActive: !!req.requireAuth(),
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -83,7 +83,7 @@ router.get('/auth-test', isAuthenticated, async (req: any, res) => {
 });
 
 // Database connectivity test
-router.get('/database-test', isAuthenticated, async (req: any, res) => {
+router.get('/database-test', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     const user = await storage.getUser(userId);

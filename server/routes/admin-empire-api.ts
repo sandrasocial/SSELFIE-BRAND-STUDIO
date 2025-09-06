@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { sql } from 'drizzle-orm';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 
 const router = Router();
 
 // Apply authentication to all routes
-router.use(isAuthenticated);
+router.use(requireAuth);
 
 // Customer Management APIs
 router.get('/customer-stats', async (req, res) => {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 
 const router = Router();
 
@@ -68,7 +68,7 @@ const flatlayCollections = [
 ];
 
 // Get all flatlay collections
-router.get('/api/flatlay-collections', isAuthenticated, async (req, res) => {
+router.get('/api/flatlay-collections', requireAuth, async (req, res) => {
   try {
     res.json({
       success: true,
@@ -84,7 +84,7 @@ router.get('/api/flatlay-collections', isAuthenticated, async (req, res) => {
 });
 
 // Get all flatlay images as a simple array (for Victoria builder)
-router.get('/api/flatlay-library', isAuthenticated, async (req, res) => {
+router.get('/api/flatlay-library', requireAuth, async (req, res) => {
   try {
     // Flatten all images from all collections into a single array
     const allImages: string[] = [];
@@ -103,7 +103,7 @@ router.get('/api/flatlay-library', isAuthenticated, async (req, res) => {
 });
 
 // Get specific collection
-router.get('/api/flatlay-collections/:id', isAuthenticated, async (req, res) => {
+router.get('/api/flatlay-collections/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const collection = flatlayCollections.find(c => c.id === id);

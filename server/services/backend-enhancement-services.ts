@@ -5,7 +5,7 @@
  */
 
 import express from 'express';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 
 export interface ServiceRegistry {
   id: string;
@@ -209,7 +209,7 @@ export function setupEnhancementRoutes(app: express.Application): void {
   services.initializeAPIOrchestration();
 
   // Progress tracking endpoints
-  app.get('/api/enhancement/progress', isAuthenticated, async (req, res) => {
+  app.get('/api/enhancement/progress', requireAuth, async (req, res) => {
     try {
       const since = req.query.since ? new Date(req.query.since as string) : undefined;
       const events = services.getProgressEvents(since);
@@ -220,7 +220,7 @@ export function setupEnhancementRoutes(app: express.Application): void {
   });
 
   // Task status endpoint
-  app.get('/api/enhancement/tasks', isAuthenticated, async (req, res) => {
+  app.get('/api/enhancement/tasks', requireAuth, async (req, res) => {
     try {
       const tasks = services.getTaskStatus();
       res.json({ success: true, tasks });
@@ -230,7 +230,7 @@ export function setupEnhancementRoutes(app: express.Application): void {
   });
 
   // System health endpoint
-  app.get('/api/enhancement/health', isAuthenticated, async (req, res) => {
+  app.get('/api/enhancement/health', requireAuth, async (req, res) => {
     try {
       const health = await services.calculateSystemHealth();
       res.json({ success: true, health });
@@ -240,7 +240,7 @@ export function setupEnhancementRoutes(app: express.Application): void {
   });
 
   // Create checkpoint endpoint
-  app.post('/api/enhancement/checkpoint', isAuthenticated, async (req, res) => {
+  app.post('/api/enhancement/checkpoint', requireAuth, async (req, res) => {
     try {
       const { description, trigger = 'manual' } = req.body;
       const checkpointId = await services.createSystemCheckpoint(description, trigger);
@@ -251,7 +251,7 @@ export function setupEnhancementRoutes(app: express.Application): void {
   });
 
   // Task management endpoints
-  app.post('/api/enhancement/task', isAuthenticated, async (req, res) => {
+  app.post('/api/enhancement/task', requireAuth, async (req, res) => {
     try {
       const { taskId, assignedAgent, dependsOn = [] } = req.body;
       services.createTask(taskId, assignedAgent, dependsOn);
@@ -261,7 +261,7 @@ export function setupEnhancementRoutes(app: express.Application): void {
     }
   });
 
-  app.put('/api/enhancement/task/:taskId/complete', isAuthenticated, async (req, res) => {
+  app.put('/api/enhancement/task/:taskId/complete', requireAuth, async (req, res) => {
     try {
       const { taskId } = req.params;
       services.completeTask(taskId);

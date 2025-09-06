@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { emailManagementAgent } from '../services/email-management-agent';
-import { isAuthenticated } from '../replitAuth';
+import { requireAuth } from '../neonAuth';
 import { SlackNotificationService } from '../services/slack-notification-service';
 
 const router = Router();
 
 // 📧 Add email account (personal or business)
-router.post('/accounts', isAuthenticated, async (req: any, res) => {
+router.post('/accounts', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const { type, email, provider, accessToken, refreshToken } = req.body;
@@ -45,7 +45,7 @@ router.post('/accounts', isAuthenticated, async (req: any, res) => {
 });
 
 // 🔍 Process unread emails
-router.post('/process', isAuthenticated, async (req: any, res) => {
+router.post('/process', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     console.log(`📧 AVA: Processing emails for user ${userId}`);
@@ -64,7 +64,7 @@ router.post('/process', isAuthenticated, async (req: any, res) => {
 });
 
 // 🚀 Start automated monitoring
-router.post('/monitor/start', isAuthenticated, async (req: any, res) => {
+router.post('/monitor/start', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const { intervalMinutes = 60 } = req.body;
@@ -91,7 +91,7 @@ router.post('/monitor/start', isAuthenticated, async (req: any, res) => {
 });
 
 // 📊 Get email summary dashboard  
-router.get('/dashboard', isAuthenticated, async (req: any, res) => {
+router.get('/dashboard', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     console.log(`📊 Loading REAL email dashboard for user ${userId}`);
@@ -145,7 +145,7 @@ router.get('/dashboard', isAuthenticated, async (req: any, res) => {
 });
 
 // 🎯 Test email processing (available for all users)
-router.post('/test-processing', isAuthenticated, async (req: any, res) => {
+router.post('/test-processing', requireAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
 
