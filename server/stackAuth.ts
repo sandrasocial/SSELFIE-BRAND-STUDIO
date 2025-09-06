@@ -122,22 +122,49 @@ export async function setupAuth(app: Express) {
     } else {
       console.log('⚠️ Stack Auth handler not available, installing custom callback handlers');
       
-      // Install custom callback handlers if Stack Auth handler isn't available
+      // Install manual Stack Auth callback handlers since handler is undefined due to Next.js dependencies
+      console.log('🔧 Installing manual Stack Auth callback handlers for Express.js compatibility');
+      
       app.get('/handler/sign-in', (req, res) => {
-        console.log('🔐 Custom Stack Auth sign-in handler');
-        const redirectUrl = stackServerApp.urls.signIn || `${stackServerApp.baseUrl}/sign-in`;
+        console.log('🔐 Manual Stack Auth sign-in handler');
+        const redirectUrl = stackServerApp.urls.signIn;
+        console.log('🔍 Redirecting to Stack Auth sign-in:', redirectUrl);
         res.redirect(redirectUrl);
       });
       
+      // Manual callback handler to complete authentication loop
       app.get('/handler/callback', async (req, res) => {
-        console.log('🔐 Custom Stack Auth callback handler');
+        console.log('🔐 Manual Stack Auth callback handler');
+        console.log('🔍 Callback received with query:', req.query);
+        
         try {
-          // This should be handled by Stack Auth, but we'll add fallback
+          // For Stack Auth, the authentication is handled by the client-side after redirect
+          // The session will be established when the user makes authenticated requests
           const returnUrl = (req.query.returnUrl as string) || '/';
+          console.log('✅ Authentication callback processed, redirecting to:', returnUrl);
           res.redirect(returnUrl);
         } catch (error) {
-          console.error('❌ Callback error:', error);
+          console.error('❌ Callback processing error:', error);
           res.redirect('/?error=auth_callback_failed');
+        }
+      });
+      
+      // Add Stack Auth session establishment endpoint 
+      app.post('/handler/session', async (req, res) => {
+        console.log('🔐 Stack Auth session establishment');
+        try {
+          // Verify user session with Stack Auth
+          const stackUser = await stackServerApp.getUser({ req, res });
+          if (stackUser) {
+            await upsertStackAuthUser(stackUser);
+            console.log('✅ User session established:', stackUser.primaryEmail);
+            res.json({ success: true, user: stackUser });
+          } else {
+            res.status(401).json({ error: 'No authenticated user' });
+          }
+        } catch (error) {
+          console.error('❌ Session establishment error:', error);
+          res.status(500).json({ error: 'Session establishment failed' });
         }
       });
     }
