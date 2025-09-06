@@ -46,12 +46,13 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
 
 // User storage table for Stack Auth integration
 export const users = pgTable("users", {
-  // Core Stack Auth user fields
-  id: varchar("id").primaryKey().notNull(), // Stack Auth user ID
+  // Core user fields for JWT authentication
+  id: varchar("id").primaryKey().notNull(),
   email: varchar("email").unique().notNull(),
+  password: varchar("password"), // For JWT authentication
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
-  displayName: varchar("display_name"), // Stack Auth displayName field
+  displayName: varchar("display_name"),
   profileImageUrl: varchar("profile_image_url"),
   
   // User activity tracking  
