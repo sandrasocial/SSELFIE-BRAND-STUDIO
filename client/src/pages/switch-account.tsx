@@ -5,8 +5,9 @@ import { SandraImages } from '../lib/sandra-images';
 
 export default function SwitchAccount() {
   const handleSwitchAccount = () => {
-    // Force account selection for switching
-    window.location.href = '/api/auth/signin?prompt=select_account';
+    // Use Stack Auth for account switching instead of redirect
+    console.log('🔐 SwitchAccount: Using Stack Auth component instead of redirect');
+    // TODO: Implement Stack Auth account switching
   };
 
   const handleCancel = () => {
