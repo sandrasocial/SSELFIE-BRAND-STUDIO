@@ -5,7 +5,6 @@ import { useToast } from '../hooks/use-toast';
 import { apiRequest } from '../lib/queryClient';
 import { MemberNavigation } from '../components/member-navigation';
 import { SandraImages } from '../lib/sandra-images';
-import { SignIn } from '@stackframe/stack';
 
 export default function Profile() {
   const { user, isAuthenticated } = useAuth();
