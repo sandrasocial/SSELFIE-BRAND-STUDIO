@@ -44,13 +44,22 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
   index("idx_agent_session_updated").on(table.updatedAt),
 ]);
 
-// User storage table for Replit OAuth
+// User storage table - Stack Auth Compatible
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
+  // Stack Auth primary fields
+  id: varchar("id").primaryKey().notNull(), // Stack Auth user ID (already compatible!)
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  
+  // Stack Auth metadata
+  authProvider: varchar("auth_provider").default("stack-auth"), // "replit-oauth" | "stack-auth"
+  stackAuthUserId: varchar("stack_auth_user_id"), // Original Stack Auth ID for reference
+  displayName: varchar("display_name"), // Stack Auth display name
+  lastLoginAt: timestamp("last_login_at"), // Track user activity
+  
+  // Business logic - preserved from existing system
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   plan: varchar("plan").default("sselfie-studio"), // sselfie-studio for €47/month, admin for unlimited
@@ -59,18 +68,22 @@ export const users = pgTable("users", {
   generationsUsedThisMonth: integer("generations_used_this_month").default(0),
   mayaAiAccess: boolean("maya_ai_access").default(true), // Available on both tiers
   victoriaAiAccess: boolean("victoria_ai_access").default(false), // Only for full-access tier
+  
   // 🔄 PHASE 3: Retraining access tracking
   hasRetrainingAccess: boolean("has_retraining_access").default(false),
   retrainingSessionId: varchar("retraining_session_id"),
   retrainingPaidAt: timestamp("retraining_paid_at"),
+  
   // Profile completion tracking for conversational onboarding
   profileCompleted: boolean("profile_completed").default(false),
   onboardingStep: integer("onboarding_step").default(0), // 0=not started, 5=complete
+  
   // Essential profile data for Maya personalization
   gender: varchar("gender"), // "man" | "woman" | "non-binary" - CRITICAL for image generation
   profession: varchar("profession"), // User's business/profession
   brandStyle: varchar("brand_style"), // "professional" | "creative" | "lifestyle" | "luxury"
   photoGoals: text("photo_goals"), // What they want photos for (business use case)
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
