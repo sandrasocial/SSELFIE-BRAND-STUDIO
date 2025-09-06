@@ -670,10 +670,44 @@ export class ModelTrainingService {
         console.log(`💼 [${promptId}] PROFESSION ENHANCED: Added professional context`);
       }
       
-      console.log(`🎯 [${promptId}] ENHANCED PROMPT: "${genderEnhancedPrompt.substring(0, 300)}"`);
+      console.log(`🎯 [${promptId}] ENHANCED PROMPT: "${genderEnhancedPrompt.substring(0, 300)}"`);      
       
-      // Personality-first: keep Maya's prompt with gender enhancement, ensure trigger appears once and first
-      const finalPrompt = ModelTrainingService.formatPrompt(genderEnhancedPrompt, triggerWord);
+      // PHASE 5: NATURAL SKIN TEXTURE ENHANCEMENT - Professional realistic appearance
+      let textureEnhancedPrompt = genderEnhancedPrompt;
+      
+      // Add natural skin texture for professional realism
+      const skinTextureEnhancements = [
+        'natural skin texture',
+        'realistic skin details', 
+        'professional lighting',
+        'soft natural shadows',
+        'high resolution skin',
+        'detailed facial features'
+      ];
+      
+      // Smart enhancement - only add if not already present
+      const hasTextureTerms = skinTextureEnhancements.some(term => 
+        textureEnhancedPrompt.toLowerCase().includes(term.toLowerCase())
+      );
+      
+      if (!hasTextureTerms) {
+        // Add subtle, professional skin texture enhancement
+        textureEnhancedPrompt = `${textureEnhancedPrompt}, natural skin texture, professional lighting, realistic skin details`;
+        console.log(`✨ [${promptId}] TEXTURE ENHANCED: Added natural skin texture for professional realism`);
+      } else {
+        console.log(`✨ [${promptId}] TEXTURE PRESENT: Skin enhancement already in prompt`);
+      }
+      
+      // Additional professional quality enhancements
+      if (!textureEnhancedPrompt.toLowerCase().includes('high quality')) {
+        textureEnhancedPrompt = `${textureEnhancedPrompt}, high quality, detailed, professional photography`;
+        console.log(`📸 [${promptId}] QUALITY ENHANCED: Added professional photography terms`);
+      }
+      
+      console.log(`✨ [${promptId}] TEXTURE ENHANCED PROMPT: "${textureEnhancedPrompt.substring(0, 300)}"`);
+      
+      // Personality-first: keep Maya's prompt with gender and texture enhancement, ensure trigger appears once and first
+      const finalPrompt = ModelTrainingService.formatPrompt(textureEnhancedPrompt, triggerWord);
       console.log(`🚀 [${promptId}] PROMPT FORMATTED: ${finalPrompt.length} characters ready for generation`);
 
       // SINGLE PATH LOGIC: Only packaged models supported for consistency
