@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { SandraImages } from '../lib/sandra-images';
 import { SupportChatBubble } from './support-chat-bubble';
+import { MemberNavigation } from './member-navigation';
 import '../components/support-chat-styles.css';
 
 // Maya interface now uses the main page route instead of overlay component
@@ -101,40 +102,7 @@ export function SimplifiedWorkspace() {
   return (
     <>
       <div className="min-h-screen bg-white font-light">
-        {/* Editorial Navigation - Luxury Consistency */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-center justify-between">
-              <div 
-                className="font-serif text-xl font-light tracking-wide text-black cursor-pointer"
-                style={{ fontFamily: "Times New Roman, serif" }}
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              >
-                SSELFIE
-              </div>
-              <div className="flex items-center space-x-8">
-                <Link 
-                  href="/profile" 
-                  className="text-xs uppercase tracking-[0.3em] font-light text-black/70 hover:text-black hover:tracking-[0.4em] transition-all duration-300"
-                >
-                  Profile
-                </Link>
-                <Link 
-                  href="/settings" 
-                  className="text-xs uppercase tracking-[0.3em] font-light text-black/70 hover:text-black hover:tracking-[0.4em] transition-all duration-300"
-                >
-                  Settings
-                </Link>
-                <a 
-                  href="/api/logout"
-                  className="text-black border border-black/30 hover:bg-black hover:text-white transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-2 font-light"
-                >
-                  Sign Out
-                </a>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <MemberNavigation transparent={false} />
 
         {/* Editorial Workspace Header - Full Styleguide */}
         <div className="section pt-32 pb-20 text-center bg-gray-50">
