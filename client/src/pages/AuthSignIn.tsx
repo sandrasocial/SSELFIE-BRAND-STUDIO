@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import UnifiedLoginButton from "../components/UnifiedLoginButton";
 
 export default function AuthSignIn() {
   const [location] = useLocation();
@@ -7,8 +8,8 @@ export default function AuthSignIn() {
   const returnUrl = urlParams.get('returnUrl') || '/';
 
   const handleSignIn = () => {
-    // Redirect to Neon Auth.js sign-in
-    window.location.href = `/api/auth/signin?callbackUrl=${encodeURIComponent(returnUrl)}`;
+    // Use Stack Auth component instead of redirect
+    console.log('🔐 AuthSignIn: Using Stack Auth component instead of redirect');
   };
 
   return (
@@ -37,12 +38,10 @@ export default function AuthSignIn() {
             </p>
           </div>
           
-          <Button 
-            onClick={handleSignIn}
-            className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium transition-colors"
-          >
-            Sign In
-          </Button>
+          <UnifiedLoginButton 
+            text="Sign In"
+            showBrand={false}
+          />
         </div>
 
         {/* Footer */}

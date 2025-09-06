@@ -39,8 +39,9 @@ export function useAuth() {
         error: undefined,
         signIn: () => {
           try {
-            console.log('🔐 Redirecting to Stack Auth sign-in');
-            stackApp.redirectToSignIn();
+            console.log('🔐 Stack Auth sign-in requested - component will handle');
+            // Don't redirect - let Stack Auth components handle this
+            return;
           } catch (signInError) {
             console.warn('⚠️ Stack Auth sign-in failed, using fallback:', signInError);
             window.location.href = '/login';
@@ -84,8 +85,9 @@ export function useAuth() {
       isAdmin,
       error: undefined,
       signIn: () => {
-        console.log('🔐 Redirecting to Stack Auth sign-in');
-        stackApp.redirectToSignIn();
+        console.log('🔐 Stack Auth sign-in requested - component will handle');
+        // Don't redirect - let Stack Auth components handle this
+        return;
       },
       signOut: () => {
         console.log('🔐 Signing out with Stack Auth');

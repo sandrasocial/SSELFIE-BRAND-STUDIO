@@ -43,7 +43,11 @@ export default function Login() {
         tagline="Sign In or Create Account"
         title="JOIN SSELFIE"
         ctaText="Access Your Studio"
-        onCta={() => window.location.href = '/api/auth/signin'}
+        onCta={() => {
+          console.log('🔐 Login page: Using Stack Auth sign-in');
+          // Use Stack Auth component instead of redirect
+          return;
+        }}
         fullHeight={false}
       />
 
