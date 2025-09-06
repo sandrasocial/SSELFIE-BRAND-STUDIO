@@ -1,20 +1,7 @@
-// CRITICAL: Polyfill process.env BEFORE any imports to fix Stack Auth Next.js dependencies
-if (typeof window !== 'undefined' && !window.process) {
-  (window as any).process = { 
-    env: {
-      NODE_ENV: 'development',
-      VITE_STACK_PROJECT_ID: import.meta.env.VITE_STACK_PROJECT_ID,
-      VITE_STACK_PUBLISHABLE_CLIENT_KEY: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY,
-    }
-  };
-}
-
 import React from 'react';
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackClientApp } from "./stack";
 
 // Debug logging for troubleshooting
 console.log('SSELFIE Studio: Main.tsx loading...');
@@ -27,9 +14,6 @@ if ((import.meta as any).hot) {
     // Accept all hot updates without triggering WebSocket connections
   });
 }
-
-// Make React globally available for debugging
-(window as any).React = React;
 
 // Add global error handlers to catch unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
@@ -79,14 +63,8 @@ console.log('CSS files loaded:', document.styleSheets.length);
 const root = document.getElementById("root");
 if (root) {
   try {
-    console.log('🚀 SSELFIE Studio: Starting with client-side Stack Auth');
-    createRoot(root).render(
-      <StackProvider app={stackClientApp}>
-        <StackTheme>
-          <App />
-        </StackTheme>
-      </StackProvider>
-    );
+    console.log('🚀 SSELFIE Studio: Starting with simplified authentication');
+    createRoot(root).render(<App />);
     console.log('✅ SSELFIE Studio: App rendered successfully');
   } catch (error) {
     console.error('SSELFIE Studio: Error rendering app:', error);
