@@ -4,9 +4,39 @@ import { StackProvider, StackTheme } from "@stackframe/stack";
 import App from "./App";
 import "./index.css";
 
-// Polyfill process for Stack Auth browser compatibility
-if (typeof window !== 'undefined' && !window.process) {
-  (window as any).process = { env: {} };
+// Comprehensive browser polyfills for Stack Auth compatibility
+// This matches what Replit Auth had built-in
+if (typeof window !== 'undefined') {
+  // Process polyfill with environment variables
+  if (!window.process) {
+    (window as any).process = {
+      env: {
+        NODE_ENV: import.meta.env.MODE || 'development',
+        VITE_STACK_PROJECT_ID: import.meta.env.VITE_STACK_PROJECT_ID,
+        VITE_STACK_PUBLISHABLE_CLIENT_KEY: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY,
+      },
+      version: '18.0.0',
+      platform: 'browser',
+      nextTick: (fn: Function) => setTimeout(fn, 0),
+      cwd: () => '/',
+      browser: true
+    };
+  }
+
+  // Global polyfill
+  if (!window.global) {
+    (window as any).global = window;
+  }
+
+  // Buffer polyfill (Stack Auth might need this)
+  if (!window.Buffer) {
+    (window as any).Buffer = {
+      from: (str: string) => new TextEncoder().encode(str),
+      isBuffer: () => false
+    };
+  }
+
+  console.log('✅ Browser polyfills applied for Stack Auth compatibility');
 }
 
 // Debug logging for troubleshooting
