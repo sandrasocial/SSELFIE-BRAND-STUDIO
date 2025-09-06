@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useQuery } from "@tanstack/react-query";
+import { useUser, useStackApp } from '@stackframe/stack';
 
 interface User {
   id: string;
@@ -10,78 +9,43 @@ interface User {
 }
 
 export function useAuth() {
-  console.log('🔍 Auth: Using simplified authentication system');
+  console.log('🔍 Auth: Using Stack Auth system');
   
-  const [authState, setAuthState] = useState({
-    isAuthenticated: false,
-    isLoading: true,
-    user: null as User | null
-  });
-
-  // Check authentication status from backend
-  const { data: userData, isLoading: userLoading, error } = useQuery({
-    queryKey: ["/api/auth/session"],
-    retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    queryFn: async () => {
-      console.log('🔍 Checking authentication status...');
-      
-      const response = await fetch('/api/auth/session', {
-        credentials: 'include',
-        cache: 'no-cache'
-      });
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          console.log('🔍 User not authenticated');
-          return null;
-        }
-        throw new Error(`Auth check failed: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      if (data.user) {
-        console.log('✅ User authenticated:', data.user.email);
-        return data.user;
-      } else {
-        console.log('🔍 User not authenticated');
-        return null;
-      }
-    }
-  });
-
-  // Update auth state when user data changes
-  useEffect(() => {
-    setAuthState({
-      isAuthenticated: !!userData,
-      isLoading: userLoading,
-      user: userData
-    });
-  }, [userData, userLoading]);
+  const stackApp = useStackApp();
+  const user = useUser({ or: 'return-null' });
+  
+  // Transform Stack Auth user to our interface
+  const transformedUser: User | null = user ? {
+    id: user.id,
+    email: user.primaryEmail || '',
+    firstName: user.displayName?.split(' ')[0] || user.primaryEmail?.split('@')[0] || '',
+    lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+    displayName: user.displayName || user.primaryEmail || '',
+  } : null;
 
   // Admin check - Sandra's email only
-  const isAdmin = userData?.email === 'sandra@sselfie.ai';
+  const isAdmin = transformedUser?.email === 'sandra@sselfie.ai';
   
   console.log('🔍 Auth State:', {
-    authenticated: authState.isAuthenticated,
-    loading: authState.isLoading,
-    email: userData?.email,
+    authenticated: !!user,
+    loading: false, // Stack Auth handles loading internally
+    email: transformedUser?.email,
     isAdmin
   });
 
   return {
-    user: authState.user,
-    isLoading: authState.isLoading,
-    isAuthenticated: authState.isAuthenticated,
+    user: transformedUser,
+    isLoading: false, // Stack Auth handles loading states internally
+    isAuthenticated: !!user,
     isAdmin,
-    error: error?.message,
+    error: undefined,
     signIn: () => {
       console.log('🔐 Redirecting to Stack Auth sign-in');
-      window.location.href = '/api/auth/signin';
+      stackApp.redirectToSignIn();
     },
     signOut: () => {
-      console.log('🔐 Signing out...');
-      window.location.href = '/api/auth/signout';
+      console.log('🔐 Signing out with Stack Auth');
+      stackApp.signOut();
     }
   };
 }
