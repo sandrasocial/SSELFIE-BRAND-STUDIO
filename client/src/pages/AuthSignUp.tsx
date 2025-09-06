@@ -1,4 +1,4 @@
-import { SignUp } from "@stackframe/stack";
+import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 
 export default function AuthSignUp() {
@@ -32,10 +32,12 @@ export default function AuthSignUp() {
             </p>
           </div>
           
-          <SignUp 
-            afterSignUp={returnUrl}
-            redirectOnEmailVerification={returnUrl}
-          />
+          <Button 
+            onClick={() => window.location.href = `/api/auth/signin?callbackUrl=${encodeURIComponent(returnUrl)}`}
+            className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium transition-colors"
+          >
+            Sign Up
+          </Button>
         </div>
 
         {/* Footer */}

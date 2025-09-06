@@ -4,7 +4,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./stackAuth";
+import { setupNeonAuth, requireAuth } from "./neonAuth";
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -396,8 +396,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Setup authentication
-  await setupAuth(app);
+  // Setup Neon authentication
+  setupNeonAuth(app);
 
   // 🔄 PHASE 5: Register checkout routes for retraining system
   registerCheckoutRoutes(app);
@@ -440,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/support', supportEscalationRouter);
   
   // Profile Management API
-  app.get('/api/profile', isAuthenticated, async (req: any, res) => {
+  app.get('/api/profile', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -464,7 +464,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/profile', isAuthenticated, async (req: any, res) => {
+  app.put('/api/profile', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -569,7 +569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // CRITICAL: System health check for user models
-  app.get('/api/admin/validate-all-models', isAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/validate-all-models', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const user = await storage.getUser(userId);
@@ -598,7 +598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Victoria AI Website Builder - Uses saved onboarding data for enhanced generation
-  app.post('/api/victoria/generate', isAuthenticated, async (req: any, res) => {
+  app.post('/api/victoria/generate', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const websiteData = req.body;
@@ -718,7 +718,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/victoria/customize', isAuthenticated, async (req: any, res) => {
+  app.post('/api/victoria/customize', requireAuth, async (req: any, res) => {
     try {
       const { siteId, modifications } = req.body;
       const userId = req.user?.claims?.sub;
@@ -743,7 +743,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/victoria/deploy', isAuthenticated, async (req: any, res) => {
+  app.post('/api/victoria/deploy', requireAuth, async (req: any, res) => {
     try {
       const { siteId } = req.body;
       const userId = req.user?.claims?.sub;
@@ -774,7 +774,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/victoria/websites', isAuthenticated, async (req: any, res) => {
+  app.get('/api/victoria/websites', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { db } = await import('./db');
@@ -795,7 +795,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Save brand assessment from new personal brand flow
-  app.post('/api/save-brand-assessment', isAuthenticated, async (req: any, res) => {
+  app.post('/api/save-brand-assessment', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const assessmentData = req.body;
@@ -851,7 +851,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Users should use the admin-built brand-onboarding system instead
 
   // Website management endpoints
-  app.get('/api/websites', isAuthenticated, async (req: any, res) => {
+  app.get('/api/websites', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { db } = await import('./db');
@@ -871,7 +871,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/websites', isAuthenticated, async (req: any, res) => {
+  app.post('/api/websites', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { db } = await import('./db');
@@ -896,7 +896,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/websites/:id', isAuthenticated, async (req: any, res) => {
+  app.put('/api/websites/:id', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const websiteId = parseInt(req.params.id);
@@ -921,7 +921,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/websites/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/websites/:id', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const websiteId = parseInt(req.params.id);
@@ -945,7 +945,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/websites/:id/refresh-screenshot', isAuthenticated, async (req: any, res) => {
+  app.post('/api/websites/:id/refresh-screenshot', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const websiteId = parseInt(req.params.id);
@@ -961,7 +961,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   
   // 🚨 Check training status and handle failures
-  app.get('/api/training-status', isAuthenticated, async (req: any, res) => {
+  app.get('/api/training-status', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log(`🔍 Checking training status for user: ${userId}`);
@@ -1003,7 +1003,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // 🔧 PHASE 3: Retry model extraction for failed trainings
-  app.post('/api/training/retry-extraction', isAuthenticated, async (req: any, res) => {
+  app.post('/api/training/retry-extraction', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log(`🔧 PHASE 3: Model extraction retry requested for user: ${userId}`);
@@ -1055,7 +1055,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // MISSING ENDPOINT: Training progress for real-time updates
-  app.get('/api/training-progress/:requestId', isAuthenticated, async (req: any, res) => {
+  app.get('/api/training-progress/:requestId', requireAuth, async (req: any, res) => {
     try {
       const { requestId } = req.params;
       const authUserId = req.user.claims.sub;
@@ -1177,7 +1177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Simple training page route (for direct image upload)
-  app.post('/api/train-model', isAuthenticated, async (req: any, res) => {
+  app.post('/api/train-model', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { images } = req.body;
@@ -1250,7 +1250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // RESTORED: Sandra's admin user management system active
   
   // Image proxy endpoint to bypass CORS issues with S3
-  app.get('/api/proxy-image', isAuthenticated, async (req: any, res) => {
+  app.get('/api/proxy-image', requireAuth, async (req: any, res) => {
     try {
       const { url } = req.query;
       
@@ -1295,7 +1295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Save image to gallery - POST endpoint
-  app.post('/api/ai-images', isAuthenticated, async (req: any, res) => {
+  app.post('/api/ai-images', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { imageUrl, prompt, category, isAutoSaved, isFavorite } = req.body;
@@ -1345,7 +1345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // REMOVED: Maya endpoint moved to unified router at /api/maya/generated-images
 
   // AI Images endpoint - Production ready
-  app.get('/api/ai-images', isAuthenticated, async (req: any, res) => {
+  app.get('/api/ai-images', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('🖼️ Fetching AI images for user:', userId);
@@ -1373,7 +1373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Model endpoint - Production ready (DUPLICATE - REMOVE THIS ONE)
-  app.get('/api/user-model-old', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user-model-old', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('🤖 OLD ENDPOINT - Fetching user model for user:', userId);
@@ -1406,7 +1406,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // LEGACY MAYA CHAT STORAGE ENDPOINTS - May be needed for backward compatibility
   // NOTE: Main Maya interactions now use /api/maya/* unified system
-  app.get('/api/maya-chats', isAuthenticated, async (req: any, res) => {
+  app.get('/api/maya-chats', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('💬 Fetching Maya chats for user:', userId);
@@ -1424,7 +1424,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // LEGACY: Get Maya chats organized by category
-  app.get('/api/maya-chats/categorized', isAuthenticated, async (req: any, res) => {
+  app.get('/api/maya-chats/categorized', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       console.log('📂 Fetching categorized Maya chats for user:', userId);
@@ -1441,7 +1441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/maya-chats', isAuthenticated, async (req: any, res) => {
+  app.post('/api/maya-chats', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { chatTitle, chatSummary } = req.body;
@@ -1466,7 +1466,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // LEGACY MAYA ROUTE - DISABLED: Use unified Maya system at /api/maya/* instead
   /*
-  app.post('/api/maya-chat', isAuthenticated, async (req: any, res) => {
+  app.post('/api/maya-chat', requireAuth, async (req: any, res) => {
     try {
       const { message, chatHistory } = req.body;
       const userId = req.user?.claims?.sub;
@@ -1624,7 +1624,7 @@ Remember: You are the MEMBER experience Maya - provide creative guidance and ima
   */
 
   // Victoria Website Chat endpoint - MEMBER AGENT (Website Building Guide)
-  app.post('/api/victoria-website-chat', isAuthenticated, async (req: any, res) => {
+  app.post('/api/victoria-website-chat', requireAuth, async (req: any, res) => {
     try {
       const { message, onboardingData, conversationHistory } = req.body;
       const userId = req.user?.claims?.sub;
@@ -1715,7 +1715,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // LEGACY: Maya Chat Messages endpoints - May be needed for chat history
-  app.get('/api/maya-chats/:chatId/messages', isAuthenticated, async (req: any, res) => {
+  app.get('/api/maya-chats/:chatId/messages', requireAuth, async (req: any, res) => {
     try {
       const { chatId } = req.params;
       const messages = await storage.getMayaChatMessages(parseInt(chatId));
@@ -1729,7 +1729,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  app.post('/api/maya-chats/:chatId/messages', isAuthenticated, async (req: any, res) => {
+  app.post('/api/maya-chats/:chatId/messages', requireAuth, async (req: any, res) => {
     try {
       const { chatId } = req.params;
       const { role, content, imagePreview, generatedPrompt, conceptCards, quickButtons, canGenerate } = req.body;
@@ -1758,7 +1758,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Update Maya message with image preview - CRITICAL FOR PERSISTENT IMAGES
-  app.patch('/api/maya-chats/:chatId/messages/:messageId/update-preview', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/maya-chats/:chatId/messages/:messageId/update-preview', requireAuth, async (req: any, res) => {
     try {
       const { chatId, messageId } = req.params;
       const { imagePreview, generatedPrompt } = req.body;
@@ -1784,7 +1784,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // REMOVED: Legacy Maya endpoints - conflicts with unified system in maya-unified.ts
   // All Maya functionality now handled through /api/maya/* unified system
   /*
-  app.post('/api/maya-generate-images', isAuthenticated, async (req: any, res) => {
+  app.post('/api/maya-generate-images', requireAuth, async (req: any, res) => {
     try {
       console.log('🎬 Maya generation endpoint called');
       
@@ -1887,7 +1887,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Maya polling endpoint - Check generation status
-  app.get('/api/check-generation/:predictionId', isAuthenticated, async (req: any, res) => {
+  app.get('/api/check-generation/:predictionId', requireAuth, async (req: any, res) => {
     try {
       const { predictionId } = req.params;
       const userId = req.user?.claims?.sub;
@@ -1947,7 +1947,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Maya save image endpoint - Heart functionality
-  app.post('/api/save-image', isAuthenticated, async (req: any, res) => {
+  app.post('/api/save-image', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { imageUrl, source, prompt } = req.body;
@@ -2063,7 +2063,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.use(flatlayLibraryRoutes.default);
   
   // Generation tracker polling endpoint for live progress
-  app.get('/api/generation-tracker/:trackerId', isAuthenticated, async (req: any, res) => {
+  app.get('/api/generation-tracker/:trackerId', requireAuth, async (req: any, res) => {
     try {
       const { trackerId } = req.params;
       console.log(`🔍 TRACKER DEBUG: Looking for tracker ${trackerId}`);
@@ -2143,7 +2143,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Save preview images to permanent gallery endpoint
-  app.post('/api/save-preview-to-gallery', isAuthenticated, async (req: any, res) => {
+  app.post('/api/save-preview-to-gallery', requireAuth, async (req: any, res) => {
     try {
       const { trackerId, selectedImageUrls } = req.body;
       
@@ -2203,7 +2203,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // 🔥 CRITICAL FIX: Gallery images endpoint - ONLY return user-hearted/saved images
-  app.get('/api/gallery-images', isAuthenticated, async (req: any, res) => {
+  app.get('/api/gallery-images', requireAuth, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
@@ -2269,7 +2269,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // 🔄 ADMIN IMAGE MIGRATION: Restore admin user images to SSELFIE gallery
-  app.post('/api/admin/migrate-images-to-gallery', isAuthenticated, async (req: any, res) => {
+  app.post('/api/admin/migrate-images-to-gallery', requireAuth, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
@@ -2358,7 +2358,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // ========================================
   
   // Subscription API - Required for workspace functionality
-  app.get('/api/subscription', isAuthenticated, async (req: any, res) => {
+  app.get('/api/subscription', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       
@@ -2379,7 +2379,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // Usage API - Required for workspace functionality
-  app.get('/api/usage/status', isAuthenticated, async (req: any, res) => {
+  app.get('/api/usage/status', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       
@@ -2584,7 +2584,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log('Session debug:', { 
         hasSession: !!req.session, 
         sessionUser: req.session?.user,
-        isAuthenticated: req.isAuthenticated?.(),
+        requireAuth: req.requireAuth?.(),
         user: req.user,
         cookies: req.headers.cookie
       });
@@ -2602,9 +2602,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
-      const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
+      const requireAuth = req.requireAuth?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
       
-      if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
+      if (!requireAuth && adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ error: 'Admin access required' });
       }
 
@@ -2648,9 +2648,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     try {
       // Admin authentication check
       const adminToken = req.headers['x-admin-token'];
-      const isAuthenticated = req.isAuthenticated?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
+      const requireAuth = req.requireAuth?.() && (req.user as any)?.claims?.email === 'ssa@ssasocial.com';
       
-      if (!isAuthenticated && adminToken !== 'sandra-admin-2025') {
+      if (!requireAuth && adminToken !== 'sandra-admin-2025') {
         return res.status(401).json({ error: 'Admin access required' });
       }
 
@@ -2770,7 +2770,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       if (isAdminRequest) {
         userId = '42585527'; // Sandra's actual admin user ID
         console.log('✅ ADMIN AUTH: Using Sandra admin userId:', userId);
-      } else if (req.isAuthenticated()) {
+      } else if (req.requireAuth()) {
         userId = req.user?.claims?.sub || req.user?.id;
         console.log('🔒 SESSION AUTH: Using session userId:', userId);
       }
@@ -3022,7 +3022,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // GALLERY API ENDPOINTS - MISSING IMPLEMENTATIONS
   
   // Get user's favorite image IDs
-  app.get('/api/images/favorites', isAuthenticated, async (req: any, res) => {
+  app.get('/api/images/favorites', requireAuth, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
@@ -3064,7 +3064,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
   
   // Toggle favorite status for an image
-  app.post('/api/images/:imageId/favorite', isAuthenticated, async (req: any, res) => {
+  app.post('/api/images/:imageId/favorite', requireAuth, async (req: any, res) => {
     try {
       const { imageId } = req.params;
       const authUserId = req.user.claims.sub;
@@ -3130,7 +3130,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
   
   // Delete an AI image
-  app.delete('/api/ai-images/:imageId', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/ai-images/:imageId', requireAuth, async (req: any, res) => {
     try {
       const { imageId } = req.params;
       const authUserId = req.user.claims.sub;
@@ -3191,7 +3191,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // User model endpoint for workspace model status  
-  app.get('/api/user-model', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user-model', requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       console.log('🤖 Fetching user model for:', userId);
@@ -3246,7 +3246,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
 
   // AI Photoshoot Generation - CRITICAL MISSING ENDPOINT
-  app.post('/api/generate-user-images', isAuthenticated, async (req: any, res) => {
+  app.post('/api/generate-user-images', requireAuth, async (req: any, res) => {
     try {
       const { category, subcategory } = req.body;
       const authUserId = req.user.claims.sub;
@@ -3359,18 +3359,18 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
     if (req.user) {
       res.json({
         user: req.user,
-        isAuthenticated: true
+        requireAuth: true
       });
     } else {
       res.json({
         user: null,
-        isAuthenticated: false
+        requireAuth: false
       });
     }
   });
 
   // Model training endpoint for workspace step 1 - Uses BulletproofUploadService
-  app.post('/api/start-model-training', isAuthenticated, async (req: any, res) => {
+  app.post('/api/start-model-training', requireAuth, async (req: any, res) => {
     try {
       const authUserId = req.user.claims.sub;
       const claims = req.user.claims;
@@ -3430,7 +3430,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   });
 
   // Enhanced endpoint for users to start fresh training (retraining)
-  app.post('/api/initiate-new-training', isAuthenticated, async (req: any, res) => {
+  app.post('/api/initiate-new-training', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const { resetExisting = false } = req.body;
@@ -3497,7 +3497,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       const isAdminAuth = adminToken === 'sandra-admin-2025';
       
       const sessionUser = req.user;
-      const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      const isSessionAdmin = req.requireAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
       
       if (!isAdminAuth && !isSessionAdmin) {
         return res.status(401).json({ message: "Admin access required" });
@@ -3540,7 +3540,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       const isAdminAuth = adminToken === 'sandra-admin-2025';
       
       const sessionUser = req.user;
-      const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      const isSessionAdmin = req.requireAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
       
       if (!isAdminAuth && !isSessionAdmin) {
         return res.status(401).json({ message: "Admin access required" });
@@ -3590,7 +3590,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       const isAdminAuth = adminToken === 'sandra-admin-2025';
       
       const sessionUser = req.user;
-      const isSessionAdmin = req.isAuthenticated && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+      const isSessionAdmin = req.requireAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
       
       if (!isAdminAuth && !isSessionAdmin) {
         return res.status(401).json({ message: "Admin access required" });
