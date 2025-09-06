@@ -4,44 +4,35 @@ import { StackClientApp } from "@stackframe/stack";
 const STACK_PROJECT_ID = import.meta.env.VITE_STACK_PROJECT_ID;
 const publishableKey = import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
 
-// Stack Auth client configuration with robust error handling
+// Stack Auth client configuration
 let stackApp: any;
+
+console.log('🔧 Stack Auth Environment Check:', {
+  projectId: STACK_PROJECT_ID,
+  hasPublishableKey: !!publishableKey,
+  publishableKeyExists: typeof publishableKey === 'string',
+});
 
 if (STACK_PROJECT_ID && publishableKey) {
   try {
-    console.log('🔧 Initializing Stack Auth with config:', {
-      projectId: STACK_PROJECT_ID,
-      hasPublishableKey: !!publishableKey,
-      publishableKeyPrefix: publishableKey?.substring(0, 10) + '...'
-    });
-    
+    // Simple Stack Auth configuration
     stackApp = new StackClientApp({
       projectId: STACK_PROJECT_ID,
       publishableClientKey: publishableKey,
-      // Remove tokenStore config to use default behavior
     });
     
-    console.log('✅ Stack Auth client initialized successfully');
-    console.log('🔧 Stack Auth client methods:', Object.keys(stackApp));
+    console.log('✅ Stack Auth client created');
     
   } catch (error) {
-    console.error('❌ Stack Auth initialization failed:', {
-      error,
-      message: error?.message,
-      stack: error?.stack
-    });
+    console.error('❌ Stack Auth client creation failed:', error);
     stackApp = createFallbackStackApp();
   }
 } else {
-  console.warn('⚠️ Stack Auth environment variables missing - using fallback auth system');
-  console.warn('Project ID available:', !!STACK_PROJECT_ID);
-  console.warn('Publishable key available:', !!publishableKey);
-  if (STACK_PROJECT_ID) {
-    console.warn('Project ID value:', STACK_PROJECT_ID);
-  }
-  if (publishableKey) {
-    console.warn('Publishable key prefix:', publishableKey?.substring(0, 10) + '...');
-  }
+  console.warn('⚠️ Stack Auth environment variables missing');
+  console.log('Missing vars:', {
+    projectId: !STACK_PROJECT_ID,
+    publishableKey: !publishableKey
+  });
   stackApp = createFallbackStackApp();
 }
 

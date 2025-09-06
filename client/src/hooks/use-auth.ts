@@ -9,41 +9,39 @@ interface User {
 }
 
 export function useAuth() {
-  console.log('🔍 Auth: Using Stack Auth system');
+  console.log('🔍 Auth: Starting useAuth hook');
   
+  // First try to get the Stack app
+  let stackApp;
   try {
-    const stackApp = useStackApp();
-    
-    // Check if Stack Auth is properly initialized
-    if (!stackApp || typeof stackApp.redirectToSignIn !== 'function') {
-      console.warn('⚠️ Stack Auth not properly initialized, using fallback');
-      return createFallbackAuthState();
-    }
-    
-    // Debug Stack Auth app status
-    console.log('🔧 Stack Auth app status:', {
-      exists: !!stackApp,
-      hasRedirect: typeof stackApp.redirectToSignIn === 'function',
-      type: typeof stackApp
+    stackApp = useStackApp();
+    console.log('🔧 Stack app retrieved:', !!stackApp);
+  } catch (stackAppError) {
+    console.error('❌ useStackApp failed:', stackAppError);
+    return createFallbackAuthState();
+  }
+  
+  // Validate Stack app
+  if (!stackApp) {
+    console.warn('⚠️ Stack Auth app not available, using fallback');
+    return createFallbackAuthState();
+  }
+  
+  // Try to get the user
+  let user;
+  try {
+    console.log('🔍 Calling useUser hook...');
+    user = useUser({ or: 'return-null' });
+    console.log('✅ useUser returned:', typeof user, user?.id ? 'authenticated' : 'not authenticated');
+  } catch (userError) {
+    console.error('❌ useUser hook failed:', {
+      name: userError?.name,
+      message: userError?.message,
+      constructor: userError?.constructor?.name,
+      stack: userError?.stack?.substring(0, 200) + '...'
     });
-
-    // Wrap useUser in try-catch to handle internal Stack Auth errors
-    let user;
-    try {
-      // Use more defensive user loading approach
-      console.log('🔍 Attempting to call useUser...');
-      user = useUser({ or: 'return-null' });
-      console.log('✅ useUser success, result:', user);
-    } catch (userError) {
-      console.error('❌ Stack Auth useUser failed with details:', {
-        error: userError,
-        message: userError?.message,
-        name: userError?.name,
-        stack: userError?.stack,
-        toString: userError?.toString?.()
-      });
-      return createFallbackAuthState();
-    }
+    return createFallbackAuthState();
+  }
     
     // Handle Stack Auth loading states
     if (user === undefined) {
