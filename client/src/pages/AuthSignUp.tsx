@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { SignIn } from '@stackframe/stack';
+import UnifiedLoginButton from '../components/UnifiedLoginButton';
 
 export default function AuthSignUp() {
   const [location] = useLocation();
@@ -33,9 +33,10 @@ export default function AuthSignUp() {
             </p>
           </div>
           
-          <div className="stack-auth-signin">
-            <SignIn />
-          </div>
+          <UnifiedLoginButton 
+            text="Create Account"
+            showBrand={false}
+          />
         </div>
 
         {/* Footer */}

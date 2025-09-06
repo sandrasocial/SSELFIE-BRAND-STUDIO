@@ -147,8 +147,13 @@ export default function Profile() {
           <p className="text-[#666666] mb-8">
             Sign in to create your profile so we can generate photos that actually look like you.
           </p>
-          <div className="stack-auth-signin">
-            <SignIn />
+          <div className="jwt-auth-signin">
+            <a 
+              href="/login" 
+              className="inline-block bg-black text-white px-8 py-3 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors"
+            >
+              Sign In to Continue
+            </a>
           </div>
         </div>
       </div>
