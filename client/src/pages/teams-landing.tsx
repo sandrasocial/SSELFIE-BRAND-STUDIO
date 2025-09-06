@@ -159,7 +159,7 @@ export default function TeamsLanding() {
                 Business
               </button>
               <button
-                onClick={() => window.location.href = "/api/auth/signin"}
+                onClick={() => window.location.href = "/login"}
                 className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
               >
                 Login
@@ -175,7 +175,7 @@ export default function TeamsLanding() {
             {/* Mobile Navigation - Optimized touch targets */}
             <div className="md:hidden flex items-center space-x-3">
               <button
-                onClick={() => window.location.href = "/api/auth/signin"}
+                onClick={() => window.location.href = "/login"}
                 className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
               >
                 Login
