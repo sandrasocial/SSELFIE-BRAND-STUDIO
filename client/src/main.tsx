@@ -111,21 +111,30 @@ if (root) {
       hasPublishableKey: !!stackPublishableKey
     });
 
-    // Only use Stack Auth if properly configured, otherwise render app directly
+    // Robust Stack Auth loading with fallback (like Replit Auth had)
     if (stackProjectId && stackPublishableKey) {
-      console.log('✅ Stack Auth: Using Stack Auth provider');
-      createRoot(root).render(
-        React.createElement(StackProvider, {
-          projectId: stackProjectId,
-          publishableClientKey: stackPublishableKey,
-          theme: StackTheme.withDefaults({
-            primaryColor: "#d4af37", // SSELFIE Studio gold
-            textColor: "#1a1a1a",    // Editorial black
-          })
-        }, React.createElement(App))
-      );
+      console.log('✅ Stack Auth: Attempting Stack Auth provider initialization');
+      
+      try {
+        // Test Stack Auth SDK availability before using it
+        createRoot(root).render(
+          React.createElement(StackProvider, {
+            projectId: stackProjectId,
+            publishableClientKey: stackPublishableKey,
+            theme: StackTheme.withDefaults({
+              primaryColor: "#d4af37", // SSELFIE Studio gold
+              textColor: "#1a1a1a",    // Editorial black
+            })
+          }, React.createElement(App))
+        );
+        console.log('✅ Stack Auth: Provider initialized successfully');
+      } catch (stackError) {
+        console.log('⚠️ Stack Auth: Provider failed, falling back to server-side auth like Replit Auth');
+        console.error('Stack Auth error:', stackError);
+        createRoot(root).render(React.createElement(App));
+      }
     } else {
-      console.log('⚠️ Stack Auth: Configuration missing, rendering app directly');
+      console.log('⚠️ Stack Auth: Configuration missing, using server-side auth fallback');
       createRoot(root).render(React.createElement(App));
     }
     
