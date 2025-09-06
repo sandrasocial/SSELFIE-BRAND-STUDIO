@@ -63,6 +63,10 @@ const PhotoSelection = lazy(() => import("./pages/photo-selection"));
 const AuthSuccess = lazy(() => import("./pages/auth-success"));
 const Login = lazy(() => import("./pages/login"));
 const DomainHelp = lazy(() => import("./pages/domain-help"));
+
+// Stack Auth authentication pages
+const AuthSignIn = lazy(() => import("./pages/AuthSignIn"));
+const AuthSignUp = lazy(() => import("./pages/AuthSignUp"));
 const SwitchAccount = lazy(() => import("./pages/switch-account"));
 const LaunchCountdown = lazy(() => import("./pages/launch-countdown"));
 const AdminAccessOnly = lazy(() => import("./pages/admin-access-only"));
@@ -256,6 +260,18 @@ function Router() {
       <Route path="/domain-help" component={() => (
         <Suspense fallback={<PageLoader />}>
           <DomainHelp />
+        </Suspense>
+      )} />
+
+      {/* STACK AUTH ROUTES */}
+      <Route path="/auth/sign-in" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <AuthSignIn />
+        </Suspense>
+      )} />
+      <Route path="/auth/sign-up" component={() => (
+        <Suspense fallback={<PageLoader />}>
+          <AuthSignUp />
         </Suspense>
       )} />
 
