@@ -396,10 +396,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Setup Stack authentication
+  // Setup JWT authentication
   setupAuth(app);
 
-  // 🧪 STACK AUTH INTEGRATION TEST ENDPOINT
+  // 🔐 JWT Authentication Routes
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const { email, password, firstName, lastName } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password required' });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(409).json({ message: 'User already exists' });
+      }
+
+      // Hash password and create user
+      const { hashPassword, generateToken } = await import('./auth');
+      const hashedPassword = await hashPassword(password);
+      
+      const user = await storage.createUser({
+        id: Math.random().toString(36).substr(2, 9), // Generate random ID
+        email,
+        firstName: firstName || '',
+        lastName: lastName || '',
+        password: hashedPassword,
+        plan: 'sselfie-studio', // Default plan
+        role: 'user'
+      });
+
+      // Generate JWT token
+      const token = generateToken({
+        id: user.id,
+        email: user.email,
+        role: user.role || 'user',
+        plan: user.plan || 'sselfie-studio'
+      });
+
+      // Set token as HTTP-only cookie
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      res.json({
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          plan: user.plan
+        }
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({ message: 'Registration failed' });
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password required' });
+      }
+
+      // Get user from database
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+
+      // Check password
+      const { comparePassword, generateToken } = await import('./auth');
+      const isValidPassword = await comparePassword(password, user.password || '');
+      if (!isValidPassword) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+
+      // Generate JWT token
+      const token = generateToken({
+        id: user.id,
+        email: user.email,
+        role: user.role || 'user',
+        plan: user.plan || 'sselfie-studio'
+      });
+
+      // Set token as HTTP-only cookie
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      res.json({
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          plan: user.plan
+        }
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Login failed' });
+    }
+  });
+
+  app.post('/api/auth/logout', (req, res) => {
+    res.clearCookie('token');
+    res.json({ success: true, message: 'Logged out successfully' });
+  });
+
+  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        plan: user.plan,
+        role: user.role
+      });
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({ message: 'Failed to get user' });
+    }
+  });
+
+  // 🧪 JWT AUTH INTEGRATION TEST ENDPOINT
   app.get('/api/test-auth', requireAuth, async (req: any, res) => {
     try {
       const stackUser = req.user;
