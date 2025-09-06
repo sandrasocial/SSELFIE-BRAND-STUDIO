@@ -20,7 +20,7 @@ export default function Login() {
   const handleLogin = () => {
     // Open OAuth in popup window instead of redirecting main window
     const popup = window.open(
-      '/api/login?popup=true',
+      '/api/auth/login?popup=true',
       'oauth_popup',
       'width=600,height=700,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
     );
@@ -28,7 +28,7 @@ export default function Login() {
     if (!popup) {
       // Fallback if popup is blocked
       console.log('🔄 Popup blocked, falling back to main window redirect');
-      window.location.href = '/api/login';
+      window.location.href = '/api/auth/login';
       return;
     }
     
