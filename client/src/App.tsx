@@ -5,7 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { useAuth } from "./hooks/use-auth";
-import { StackAuthProvider } from "./components/StackAuthProvider";
+// Removed StackAuthProvider - using direct OAuth flow
 import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations";
@@ -521,13 +521,11 @@ function Router() {
 
 function AppWithProvider() {
   return (
-    <StackAuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <App />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </StackAuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <App />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 

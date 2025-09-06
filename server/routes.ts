@@ -401,6 +401,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // 🔐 Stack Auth Authentication Routes
   // Note: Login/Logout/Register are handled by Stack Auth OAuth flow
+
+  // OAuth callback handler for Stack Auth code exchange
+  app.post('/api/auth/oauth/callback', async (req, res) => {
+    try {
+      const { code } = req.body;
+      
+      if (!code) {
+        return res.status(400).json({ message: 'Authorization code required' });
+      }
+
+      // Exchange OAuth code for Stack Auth token
+      const tokenResponse = await fetch('https://api.stack-auth.com/api/v1/projects/253d7343-a0d4-43a1-be5c-822f590d40be/oauth/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code,
+          grant_type: 'authorization_code',
+          redirect_uri: `${req.protocol}://${req.hostname}/auth-success`
+        }),
+      });
+
+      if (!tokenResponse.ok) {
+        const error = await tokenResponse.text();
+        console.error('❌ Stack Auth token exchange failed:', error);
+        return res.status(400).json({ message: 'Failed to exchange OAuth code' });
+      }
+
+      const tokenData = await tokenResponse.json();
+      console.log('✅ Stack Auth: Token exchange successful');
+
+      // Set the token as a cookie for our JWKS middleware to pick up
+      res.cookie('stack-auth-token', tokenData.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        sameSite: 'lax'
+      });
+
+      res.json({
+        success: true,
+        token: tokenData.access_token
+      });
+    } catch (error) {
+      console.error('❌ OAuth callback error:', error);
+      res.status(500).json({ message: 'Internal server error during OAuth callback' });
+    }
+  });
   
   app.get('/api/auth/user', requireStackAuth, async (req: any, res) => {
     try {
