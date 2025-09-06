@@ -639,10 +639,41 @@ export class ModelTrainingService {
         console.log(`🔧 [${promptId}] ADDING TRIGGER: Prepended "${triggerWord}"`);
       }
       
-      console.log(`🎯 [${promptId}] BASE PROMPT: "${basePrompt.substring(0, 300)}"`);
+      console.log(`🎯 [${promptId}] BASE PROMPT: "${basePrompt.substring(0, 300)}"`);      
       
-      // Personality-first: keep Maya's prompt, ensure trigger appears once and first
-      const finalPrompt = ModelTrainingService.formatPrompt(basePrompt, triggerWord);
+      // PHASE 4: MANDATORY GENDER INJECTION - Critical for accurate representation
+      const user = await storage.getUser(userId);
+      if (!user) {
+        throw new Error('User not found for image generation');
+      }
+      
+      // CRITICAL: Inject gender for proper AI representation
+      let genderEnhancedPrompt = basePrompt;
+      if (user.gender) {
+        // Ensure gender is properly represented in the prompt
+        const genderTerm = user.gender === 'woman' ? 'woman' : user.gender === 'man' ? 'man' : user.gender;
+        
+        // Smart gender injection - add if not already present
+        if (!basePrompt.toLowerCase().includes(genderTerm.toLowerCase())) {
+          genderEnhancedPrompt = `${genderTerm} ${basePrompt}`;
+          console.log(`👤 [${promptId}] GENDER INJECTED: Added "${genderTerm}" for accurate representation`);
+        } else {
+          console.log(`👤 [${promptId}] GENDER PRESENT: "${genderTerm}" already in prompt`);
+        }
+      } else {
+        console.log(`⚠️ [${promptId}] WARNING: No gender data available - may affect representation accuracy`);
+      }
+      
+      // Additional profile enhancement
+      if (user.profession && !genderEnhancedPrompt.toLowerCase().includes('professional')) {
+        genderEnhancedPrompt = `professional ${genderEnhancedPrompt}`;
+        console.log(`💼 [${promptId}] PROFESSION ENHANCED: Added professional context`);
+      }
+      
+      console.log(`🎯 [${promptId}] ENHANCED PROMPT: "${genderEnhancedPrompt.substring(0, 300)}"`);
+      
+      // Personality-first: keep Maya's prompt with gender enhancement, ensure trigger appears once and first
+      const finalPrompt = ModelTrainingService.formatPrompt(genderEnhancedPrompt, triggerWord);
       console.log(`🚀 [${promptId}] PROMPT FORMATTED: ${finalPrompt.length} characters ready for generation`);
 
       // SINGLE PATH LOGIC: Only packaged models supported for consistency
