@@ -18,7 +18,16 @@ export function useAuth() {
   const { data: user, isLoading, error } = useQuery({
     queryKey: ["/api/auth/user"],
     enabled: !!hasStackAuthSession, // Only fetch when we have Stack Auth session
-    retry: false,
+    retry: (failureCount, error) => {
+      // Only retry if it's a network error, not authentication errors
+      if (error?.message?.includes('401')) {
+        console.log('🚫 Auth: 401 error, not retrying to prevent loop');
+        return false;
+      }
+      return failureCount < 2; // Only retry twice for other errors
+    },
+    refetchOnWindowFocus: false, // Don't refetch on focus to prevent loops
+    staleTime: 1000 * 60 * 5, // Consider user data fresh for 5 minutes
   });
 
   console.log('🔍 Auth: Has Stack Auth session:', hasStackAuthSession);
@@ -26,10 +35,15 @@ export function useAuth() {
   console.log('🔍 Auth: Loading:', isLoading);
   console.log('🔍 Auth: Error:', error);
 
+  // If we have a 401 error but Stack Auth session exists, 
+  // the OAuth callback probably didn't complete properly
+  const isAuthError = error?.message?.includes('401');
+  
   return {
     user: user as User | undefined,
     isLoading: isLoading && hasStackAuthSession,
     isAuthenticated: !!user && !!hasStackAuthSession,
     error,
+    authFlowIncomplete: hasStackAuthSession && isAuthError, // New flag for debugging
   };
 }

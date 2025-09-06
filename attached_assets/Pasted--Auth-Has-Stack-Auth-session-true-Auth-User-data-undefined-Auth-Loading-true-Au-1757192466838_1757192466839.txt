@@ -1,0 +1,1916 @@
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: false
+use-auth.ts:27 🔍 Auth: Error: Error: 401: {"message":"Authentication required"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async queryClient.ts:60:5
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+use-auth.ts:27 🔍 Auth: Error: null
+use-auth.ts:24 🔍 Auth: Has Stack Auth session: true
+use-auth.ts:25 🔍 Auth: User data: undefined
+use-auth.ts:26 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: false
+ 🔍 Auth: Error: 
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
+ 🔍 Auth: Has Stack Auth session: true
+ 🔍 Auth: User data: undefined
+ 🔍 Auth: Loading: true
+ 🔍 Auth: Error: null
