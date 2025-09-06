@@ -127,9 +127,17 @@ export async function setupAuth(app: Express) {
       
       app.get('/handler/sign-in', (req, res) => {
         console.log('🔐 Manual Stack Auth sign-in handler');
-        const redirectUrl = stackServerApp.urls.signIn;
-        console.log('🔍 Redirecting to Stack Auth sign-in:', redirectUrl);
-        res.redirect(redirectUrl);
+        try {
+          // Get Stack Auth project ID for direct URL construction
+          const projectId = process.env.VITE_STACK_PROJECT_ID;
+          const directSignInUrl = `https://app.stack-auth.com/handler/${projectId}/sign-in`;
+          console.log('🔍 Redirecting to Stack Auth sign-in:', directSignInUrl);
+          res.redirect(directSignInUrl);
+        } catch (error) {
+          console.error('❌ Sign-in redirect error:', error);
+          // Fallback to API login
+          res.redirect('/api/auth/login');
+        }
       });
       
       // Manual callback handler to complete authentication loop
@@ -196,10 +204,17 @@ export async function setupAuth(app: Express) {
 
   // Legacy auth endpoints (for existing links)
   app.get("/api/login", (req, res) => {
-    // Redirect to Stack Auth sign-in
-    const redirectUrl = stackServerApp.urls.signIn;
-    console.log('🔍 Redirecting to Stack Auth sign-in:', redirectUrl);
-    res.redirect(redirectUrl);
+    console.log('🔐 Legacy login endpoint - redirecting to Stack Auth');
+    try {
+      // Get Stack Auth project ID for direct URL construction
+      const projectId = process.env.VITE_STACK_PROJECT_ID;
+      const directSignInUrl = `https://app.stack-auth.com/handler/${projectId}/sign-in`;
+      console.log('🔍 Redirecting to Stack Auth sign-in:', directSignInUrl);
+      res.redirect(directSignInUrl);
+    } catch (error) {
+      console.error('❌ Login redirect error:', error);
+      res.status(500).json({ error: 'Authentication service temporarily unavailable' });
+    }
   });
 
   app.get("/api/logout", async (req, res) => {
@@ -227,11 +242,17 @@ export async function setupAuth(app: Express) {
   // New auth endpoints (server-side Stack Auth like Replit Auth)
   app.get("/api/auth/login", (req, res) => {
     console.log('🔐 Server-side Stack Auth: Login requested (like Replit Auth)');
-    // Redirect to Stack Auth sign-in with return URL support
-    const returnUrl = (req.query.returnUrl as string) || '/';
-    const redirectUrl = `${stackServerApp.urls.signIn}?returnUrl=${encodeURIComponent(returnUrl)}`;
-    console.log('🔍 Redirecting to Stack Auth sign-in:', redirectUrl);
-    res.redirect(redirectUrl);
+    try {
+      // Redirect to Stack Auth sign-in with return URL support
+      const returnUrl = (req.query.returnUrl as string) || '/';
+      const projectId = process.env.VITE_STACK_PROJECT_ID;
+      const directSignInUrl = `https://app.stack-auth.com/handler/${projectId}/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`;
+      console.log('🔍 Redirecting to Stack Auth sign-in:', directSignInUrl);
+      res.redirect(directSignInUrl);
+    } catch (error) {
+      console.error('❌ Auth login redirect error:', error);
+      res.status(500).json({ error: 'Authentication service temporarily unavailable' });
+    }
   });
 
   app.get("/api/auth/logout", async (req, res) => {
