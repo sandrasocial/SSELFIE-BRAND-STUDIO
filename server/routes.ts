@@ -4,7 +4,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
-import { setupNeonAuth, requireAuth } from "./neonAuth";
+import { setupStackAuth, requireAuth } from "./stackAuth";
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -396,8 +396,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Setup Neon authentication
-  setupNeonAuth(app);
+  // Setup Stack authentication
+  setupStackAuth(app);
 
   // 🔄 PHASE 5: Register checkout routes for retraining system
   registerCheckoutRoutes(app);
