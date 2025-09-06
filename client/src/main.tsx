@@ -1,5 +1,7 @@
 import React from 'react';
 import { createRoot } from "react-dom/client";
+import { StackProvider } from '@stackframe/stack';
+import { stackApp } from './stack/client';
 import App from "./App";
 import "./index.css";
 
@@ -63,8 +65,12 @@ console.log('CSS files loaded:', document.styleSheets.length);
 const root = document.getElementById("root");
 if (root) {
   try {
-    console.log('🚀 SSELFIE Studio: Starting with simplified authentication');
-    createRoot(root).render(<App />);
+    console.log('🚀 SSELFIE Studio: Starting with Stack Auth');
+    createRoot(root).render(
+      <StackProvider app={stackApp}>
+        <App />
+      </StackProvider>
+    );
     console.log('✅ SSELFIE Studio: App rendered successfully');
   } catch (error) {
     console.error('SSELFIE Studio: Error rendering app:', error);
