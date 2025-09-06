@@ -314,7 +314,25 @@ export async function setupAuth(app: Express) {
   console.log('✅ Stack Auth setup complete');
 }
 
-// Stack Auth authentication middleware with impersonation support
+// Replit Auth Compatibility Layer - transforms Stack Auth user to Replit Auth structure
+function createReplitAuthCompatibleUser(stackUser: any) {
+  return {
+    // Replit Auth structure that all existing routes expect
+    claims: {
+      sub: stackUser.id,
+      email: stackUser.primaryEmail,
+      first_name: stackUser.displayName?.split(' ')[0] || null,
+      last_name: stackUser.displayName?.split(' ').slice(1).join(' ') || null,
+      profile_image_url: stackUser.profileImageUrl || null
+    },
+    // Mock token structure to maintain compatibility
+    access_token: 'stack_auth_session',
+    refresh_token: 'stack_auth_refresh', 
+    expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+  };
+}
+
+// Stack Auth authentication middleware with Replit Auth compatibility
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   try {
     // Get the Stack Auth user from the request with proper error handling
@@ -358,43 +376,35 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    // 🎯 REPLIT AUTH COMPATIBILITY: Transform Stack Auth user to Replit Auth structure
+    const compatibleUser = createReplitAuthCompatibleUser(stackUser);
+    
     // Handle impersonation by overriding user claims (preserved from Replit Auth)
     if ((req.session as any)?.impersonatedUser) {
       const impersonatedUser = (req.session as any).impersonatedUser;
       
+      // Apply Replit Auth structure to impersonated user too
       (req as any).user = {
-        id: impersonatedUser.id,
-        email: impersonatedUser.email,
-        displayName: `${impersonatedUser.firstName} ${impersonatedUser.lastName}`.trim(),
-        profileImageUrl: impersonatedUser.profileImageUrl,
         claims: {
           sub: impersonatedUser.id,
           email: impersonatedUser.email,
           first_name: impersonatedUser.firstName,
           last_name: impersonatedUser.lastName,
           profile_image_url: impersonatedUser.profileImageUrl
-        }
+        },
+        access_token: 'impersonated_session',
+        refresh_token: 'impersonated_refresh',
+        expires_at: compatibleUser.expires_at
       };
       
       console.log('🎭 Impersonation active:', impersonatedUser.email);
       return next();
     }
 
-    // Store user in request for compatibility with existing code
-    (req as any).user = {
-      id: stackUser.id,
-      email: stackUser.primaryEmail,
-      displayName: stackUser.displayName,
-      profileImageUrl: stackUser.profileImageUrl,
-      // Legacy compatibility - map Stack Auth user to claims structure
-      claims: {
-        sub: stackUser.id,
-        email: stackUser.primaryEmail,
-        first_name: stackUser.displayName?.split(' ')[0] || '',
-        last_name: stackUser.displayName?.split(' ').slice(1).join(' ') || '',
-        profile_image_url: stackUser.profileImageUrl
-      }
-    };
+    // 🎯 APPLY REPLIT AUTH COMPATIBILITY: Use the compatible user structure
+    (req as any).user = compatibleUser;
+    
+    console.log('✅ Stack Auth user authenticated with Replit Auth compatibility:', stackUser.primaryEmail);
 
     // Sync user to database
     await upsertStackAuthUser(stackUser);
