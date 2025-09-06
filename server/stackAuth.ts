@@ -120,7 +120,7 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Auth login endpoint
+  // Legacy auth endpoints (for existing links)
   app.get("/api/login", (req, res) => {
     // Redirect to Stack Auth sign-in
     const redirectUrl = stackServerApp.urls.signIn;
@@ -128,7 +128,6 @@ export async function setupAuth(app: Express) {
     res.redirect(redirectUrl);
   });
 
-  // Auth logout endpoint
   app.get("/api/logout", async (req, res) => {
     try {
       console.log('🔍 Logout requested');
@@ -143,6 +142,39 @@ export async function setupAuth(app: Express) {
         
         // Redirect to Stack Auth sign-out
         const signOutUrl = stackServerApp.urls.signOut;
+        res.redirect(signOutUrl);
+      });
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      res.redirect('/');
+    }
+  });
+
+  // New auth endpoints (server-side Stack Auth like Replit Auth)
+  app.get("/api/auth/login", (req, res) => {
+    console.log('🔐 Server-side Stack Auth: Login requested (like Replit Auth)');
+    // Redirect to Stack Auth sign-in with return URL support
+    const returnUrl = (req.query.returnUrl as string) || '/';
+    const redirectUrl = `${stackServerApp.urls.signIn}?returnUrl=${encodeURIComponent(returnUrl)}`;
+    console.log('🔍 Redirecting to Stack Auth sign-in:', redirectUrl);
+    res.redirect(redirectUrl);
+  });
+
+  app.get("/api/auth/logout", async (req, res) => {
+    try {
+      console.log('🔐 Server-side Stack Auth: Logout requested (like Replit Auth)');
+      
+      // Clear local session
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('❌ Session destroy error:', err);
+        }
+        res.clearCookie('connect.sid');
+        console.log('✅ User logged out successfully');
+        
+        // Redirect to Stack Auth sign-out with return URL
+        const returnUrl = (req.query.returnUrl as string) || '/';
+        const signOutUrl = `${stackServerApp.urls.signOut}?returnUrl=${encodeURIComponent(returnUrl)}`;
         res.redirect(signOutUrl);
       });
     } catch (error) {
