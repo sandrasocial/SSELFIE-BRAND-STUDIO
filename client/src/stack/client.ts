@@ -19,6 +19,19 @@ if (publishableKey) {
       publishableClientKey: publishableKey,
     });
     console.log('🔧 Stack Auth client initialized with project ID:', STACK_PROJECT_ID);
+    
+    // Add error handling for Stack Auth internal errors
+    if (typeof window !== 'undefined') {
+      window.addEventListener('unhandledrejection', (event) => {
+        if (event.reason?.message?.includes('accessToken') || 
+            event.reason?.message?.includes('StackAssertionError')) {
+          console.warn('⚠️ Stack Auth internal error caught, using fallback');
+          event.preventDefault(); // Prevent unhandled rejection error
+          stackApp = createFallbackStackApp();
+        }
+      });
+    }
+    
   } catch (error) {
     console.error('❌ Stack Auth initialization failed:', error);
     stackApp = createFallbackStackApp();

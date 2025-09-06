@@ -20,7 +20,14 @@ export function useAuth() {
       return createFallbackAuthState();
     }
     
-    const user = useUser({ or: 'return-null' });
+    // Wrap useUser in try-catch to handle internal Stack Auth errors
+    let user;
+    try {
+      user = useUser({ or: 'return-null' });
+    } catch (userError) {
+      console.warn('⚠️ Stack Auth useUser failed, using fallback:', userError);
+      return createFallbackAuthState();
+    }
     
     // Handle Stack Auth loading states
     if (user === undefined) {
@@ -31,12 +38,22 @@ export function useAuth() {
         isAdmin: false,
         error: undefined,
         signIn: () => {
-          console.log('🔐 Redirecting to Stack Auth sign-in');
-          stackApp.redirectToSignIn();
+          try {
+            console.log('🔐 Redirecting to Stack Auth sign-in');
+            stackApp.redirectToSignIn();
+          } catch (signInError) {
+            console.warn('⚠️ Stack Auth sign-in failed, using fallback:', signInError);
+            window.location.href = '/login';
+          }
         },
         signOut: () => {
-          console.log('🔐 Signing out with Stack Auth');
-          stackApp.signOut();
+          try {
+            console.log('🔐 Signing out with Stack Auth');
+            stackApp.signOut();
+          } catch (signOutError) {
+            console.warn('⚠️ Stack Auth sign-out failed, using fallback:', signOutError);
+            window.location.href = '/';
+          }
         }
       };
     }
