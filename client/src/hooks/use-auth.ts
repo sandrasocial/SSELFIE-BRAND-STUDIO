@@ -1,23 +1,11 @@
-import { useUser } from "@stackframe/stack";
 import { useQuery } from "@tanstack/react-query";
 
 export function useAuth() {
-  // Use Stack Auth's React hook with comprehensive error handling
-  let stackUser, stackLoading;
-  try {
-    const stackAuth = useUser();
-    stackUser = stackAuth.user;
-    stackLoading = stackAuth.isLoading;
-  } catch (error) {
-    console.log('⚠️ Stack Auth hook unavailable, using server-side auth (like Replit Auth)');
-    stackUser = null;
-    stackLoading = false;
-  }
+  console.log('🔍 Auth: Using server-side Stack Auth (like Replit Auth)');
   
-  // Fetch complete user data from our backend when Stack Auth user is available
+  // Server-side authentication check (similar to Replit Auth pattern)
   const { data: dbUser, isLoading: dbLoading, error, isStale } = useQuery({
-    queryKey: ["/api/auth/user", stackUser?.id],
-    enabled: !!stackUser?.id, // Only fetch when we have a Stack Auth user
+    queryKey: ["/api/auth/user"],
     retry: false,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
@@ -26,7 +14,7 @@ export function useAuth() {
     gcTime: 5 * 60 * 1000,
     throwOnError: false,
     queryFn: async () => {
-      console.log('🔍 Auth check: Fetching DB user for Stack user:', stackUser?.primaryEmail);
+      console.log('🔍 Auth check: Checking server-side Stack Auth session');
       
       try {
         const response = await fetch('/api/auth/user', {
@@ -57,42 +45,29 @@ export function useAuth() {
     }
   });
 
-  // Use Stack Auth user or database user
-  const user = dbUser || (stackUser ? {
-    id: stackUser.id,
-    email: stackUser.primaryEmail,
-    firstName: stackUser.displayName?.split(' ')[0] || '',
-    lastName: stackUser.displayName?.split(' ').slice(1).join(' ') || '',
-    displayName: stackUser.displayName,
-    profileImageUrl: stackUser.profileImageUrl
-  } : null);
-
   // SINGLE ADMIN CHECK: Sandra's email only
-  const isAdmin = user?.email === 'sandra@sselfie.ai';
+  const isAdmin = dbUser?.email === 'sandra@sselfie.ai';
   
-  // CRITICAL: Determine authentication state
-  const isAuthenticated = !!stackUser && !!user;
+  // Determine authentication state (server-side only, like Replit Auth)
+  const isAuthenticated = !!dbUser;
+  const isLoading = dbLoading;
   
-  // Combine loading states
-  const actuallyLoading = stackLoading || (stackUser && dbLoading);
-
-  console.log('🔍 Stack Auth useAuth state:', { 
-    hasStackUser: !!stackUser, 
-    hasDbUser: !!dbUser, 
-    isAuthenticated, 
-    actuallyLoading 
+  console.log('🔍 Auth State (Server-side Stack Auth):', {
+    hasDbUser: !!dbUser,
+    isAuthenticated,
+    isLoading,
+    isStale
   });
 
   return {
-    user,
-    isLoading: actuallyLoading,
+    user: dbUser || null,
+    isLoading,
     isAuthenticated,
     isAdmin,
-    error,
+    error: error?.message,
     isStale,
-    // Stack Auth methods
-    stackUser,
-    signIn: () => window.location.href = '/api/login',
-    signOut: () => window.location.href = '/api/logout'
+    // Simple redirects like Replit Auth
+    signIn: () => window.location.href = '/api/auth/login',
+    signOut: () => window.location.href = '/api/auth/logout'
   };
 }
