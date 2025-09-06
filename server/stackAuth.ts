@@ -194,17 +194,10 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Legacy auth endpoints (for existing links)
+  // Legacy auth endpoints (for existing links) - redirect to proper Stack Auth
   app.get("/api/login", (req, res) => {
-    console.log('🔐 Legacy login endpoint - redirecting to client-side auth');
-    try {
-      // Redirect to client-side Stack Auth authentication page
-      const returnUrl = (req.query.returnUrl as string) || '/';
-      res.redirect(`/#/auth/sign-in?returnUrl=${encodeURIComponent(returnUrl)}`);
-    } catch (error) {
-      console.error('❌ Login redirect error:', error);
-      res.status(500).json({ error: 'Authentication service temporarily unavailable' });
-    }
+    console.log('🔐 Legacy login endpoint - redirecting to Stack Auth signin');
+    res.redirect('/api/auth/signin');
   });
 
   app.get("/api/logout", async (req, res) => {
