@@ -1,24 +1,35 @@
 import type { Express, RequestHandler } from "express";
 import { StackServerApp } from "@stackframe/stack";
 
-if (!process.env.STACK_SECRET_SERVER_KEY) {
-  throw new Error('STACK_SECRET_SERVER_KEY environment variable is required');
-}
+// Use the known project ID from the Stack Auth integration
+const STACK_PROJECT_ID = "253d7343-a0d4-43a1-be5c-822f590d40be";
 
-if (!process.env.VITE_STACK_PROJECT_ID) {
-  throw new Error('VITE_STACK_PROJECT_ID environment variable is required');
-}
+// Check for required environment variables
+const secretServerKey = process.env.STACK_SECRET_SERVER_KEY;
+const publishableClientKey = process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
 
-if (!process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY) {
-  throw new Error('VITE_STACK_PUBLISHABLE_CLIENT_KEY environment variable is required');
-}
+// Initialize Stack Server App only if we have the required credentials
+let stackServerApp: any = null;
 
-// Initialize Stack Server App
-const stackServerApp = new StackServerApp({
-  projectId: process.env.VITE_STACK_PROJECT_ID,
-  secretServerKey: process.env.STACK_SECRET_SERVER_KEY,
-  publishableClientKey: process.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY,
-});
+if (secretServerKey && publishableClientKey) {
+  try {
+    stackServerApp = new StackServerApp({
+      projectId: STACK_PROJECT_ID,
+      secretServerKey: secretServerKey,
+      publishableClientKey: publishableClientKey,
+    });
+    console.log('🔧 Stack Auth server initialized with project ID:', STACK_PROJECT_ID);
+  } catch (error) {
+    console.error('❌ Stack Auth server initialization failed:', error);
+    stackServerApp = null;
+  }
+} else {
+  console.warn('⚠️ Stack Auth server credentials not found - using fallback auth system');
+  console.warn('Missing credentials:', {
+    secretServerKey: !!secretServerKey,
+    publishableClientKey: !!publishableClientKey
+  });
+}
 
 // Stack Auth middleware for protected routes
 export const requireAuth: RequestHandler = async (req, res, next) => {
