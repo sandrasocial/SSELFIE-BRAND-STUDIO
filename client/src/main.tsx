@@ -1,3 +1,14 @@
+// CRITICAL: Polyfill process.env BEFORE any imports to fix Stack Auth Next.js dependencies
+if (typeof window !== 'undefined' && !window.process) {
+  (window as any).process = { 
+    env: {
+      NODE_ENV: 'development',
+      VITE_STACK_PROJECT_ID: import.meta.env.VITE_STACK_PROJECT_ID,
+      VITE_STACK_PUBLISHABLE_CLIENT_KEY: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY,
+    }
+  };
+}
+
 import React from 'react';
 import { createRoot } from "react-dom/client";
 import { StackProvider } from "@stackframe/stack";
