@@ -260,15 +260,30 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     // Get the Stack Auth user from the request with proper error handling
     let stackUser;
     try {
-      // More defensive call to Stack Auth getUser
+      // Check if request has proper session/token structure first
+      if (!req || typeof req !== 'object') {
+        console.log('🔍 Invalid request object for Stack Auth');
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // More defensive call to Stack Auth getUser with null checks
       stackUser = await stackServerApp.getUser({ req, res });
       
       if (!stackUser) {
-        console.log('🔍 Redirecting to Stack Auth sign-in: /handler/sign-in');
+        console.log('🔍 No Stack Auth user found, authentication required');
         return res.status(401).json({ message: "Unauthorized" });
       }
     } catch (error) {
       console.log('❌ Stack Auth getUser error:', error.message);
+      
+      // Check if error is due to missing access token (handler not working)
+      if (error.message.includes('accessToken') || error.message.includes('undefined')) {
+        console.log('🔧 Stack Auth handler issue: Missing authentication session');
+        return res.status(401).json({ 
+          message: "Authentication session not established. Please log in again.",
+          error: "stack_auth_handler_issue"
+        });
+      }
       
       // For development: Allow bypassing auth temporarily to test flow
       if (process.env.NODE_ENV === 'development' && req.path.includes('/api/auth/user')) {
