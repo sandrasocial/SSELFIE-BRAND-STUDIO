@@ -7,10 +7,10 @@ const STACK_PROJECT_ID = "253d7343-a0d4-43a1-be5c-822f590d40be";
 let stackApp: any;
 
 // Check if we have the required publishable key
-const publishableKey = import.meta.env.VITE_STACK_PUBLISHABLE_KEY || 
+const publishableKey = import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || 
+                       import.meta.env.VITE_STACK_PUBLISHABLE_KEY || 
                        import.meta.env.VITE_STACK_AUTH_PUBLISHABLE_KEY ||
-                       import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY ||
-                       import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+                       import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
 
 if (publishableKey) {
   try {
