@@ -5,7 +5,7 @@
  */
 
 import express from 'express';
-import { requireAuth } from '../stackAuth';
+import { requireAuth } from '../auth';
 
 export interface ServiceRegistry {
   id: string;

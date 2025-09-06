@@ -2,7 +2,7 @@
 // Triggers for automatic email sending
 
 import { Router } from 'express';
-import { requireAuth } from '../stackAuth';
+import { requireAuth } from "../auth";
 import { 
   sendWelcomeEmail, 
   sendTrainingCompleteEmail, 

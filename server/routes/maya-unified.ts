@@ -19,7 +19,7 @@
  */
 
 import { Router } from 'express';
-import { requireAuth } from '../stackAuth';
+import { requireAuth } from "../auth";
 import { storage } from '../storage';
 import { PersonalityManager } from '../agents/personalities/personality-config';
 import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
