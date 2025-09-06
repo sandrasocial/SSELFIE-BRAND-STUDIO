@@ -61,6 +61,11 @@ export class MigrationMonitor {
       // Get all images with Replicate URLs from the last 24 hours
       const recentImages = await this.getReplicateImages();
       
+      if (recentImages === null) {
+        console.log('⚠️ MIGRATION MONITOR: Database schema issue, skipping migration');
+        return;
+      }
+      
       if (recentImages.length === 0) {
         console.log('✅ MIGRATION MONITOR: No temp URLs found - all images already permanent');
         return;
@@ -105,14 +110,19 @@ export class MigrationMonitor {
   /**
    * Get images with Replicate URLs that need migration
    */
-  private async getReplicateImages(): Promise<any[]> {
+  private async getReplicateImages(): Promise<any[] | null> {
     try {
       const { db } = await import('./db');
       const { aiImages } = await import('../shared/schema');
       const { sql } = await import('drizzle-orm');
 
       const results = await db
-        .select()
+        .select({
+          id: aiImages.id,
+          userId: aiImages.userId,
+          imageUrl: aiImages.imageUrl,
+          createdAt: aiImages.createdAt
+        })
         .from(aiImages)
         .where(
           sql`${aiImages.imageUrl} LIKE 'https://replicate.delivery%' 
@@ -127,6 +137,12 @@ export class MigrationMonitor {
       }));
 
     } catch (error) {
+      // Handle schema mismatches gracefully
+      if (error.message?.includes('column') && error.message?.includes('does not exist')) {
+        console.log('⚠️ MIGRATION MONITOR: Database schema mismatch, migration paused until schema is updated');
+        return null;
+      }
+      
       console.error('❌ MIGRATION MONITOR: Error fetching Replicate images:', error);
       return [];
     }
