@@ -24,31 +24,9 @@ declare global {
   }
 }
 
-// OAuth token exchange function
-async function exchangeCodeForTokens(code: string, redirectUri: string) {
-  const response = await fetch(`${STACK_AUTH_API_URL}/oauth/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      grant_type: 'authorization_code',
-      code: code,
-      redirect_uri: redirectUri,
-      client_id: STACK_AUTH_PROJECT_ID,
-      publishable_client_key: process.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY,
-    }),
-  });
+// ✅ SIMPLIFIED: Direct Stack Auth integration - no token exchange needed
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Token exchange failed: ${response.status} - ${error}`);
-  }
-
-  return await response.json();
-}
-
-// Get user info from access token
+// Get user info from access token  
 async function getUserInfo(accessToken: string) {
   const response = await fetch(`${STACK_AUTH_API_URL}/users/me`, {
     headers: {
@@ -132,71 +110,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
   }
 }
 
-// OAuth callback handler
-export async function handleStackAuthCallback(req: Request, res: Response) {
-  try {
-    const { code, state } = req.query;
-    
-    console.log('🔐 Stack Auth: Callback received');
-    console.log('🔍 Query params:', req.query);
-    console.log('🔍 Host:', req.get('host'));
-    console.log('🔍 Protocol:', req.protocol);
-    
-    if (!code) {
-      console.error('❌ Stack Auth: Missing authorization code');
-      return res.redirect('/?auth=error&reason=no_code');
-    }
-    
-    console.log('🔐 Stack Auth: Handling OAuth callback with code:', typeof code === 'string' ? code.substring(0, 20) + '...' : code);
-    
-    const redirectUri = `${req.protocol}://${req.get('host')}/auth-success`;
-    console.log('🔍 Redirect URI used:', redirectUri);
-    
-    // Exchange authorization code for tokens
-    console.log('🔄 Stack Auth: Exchanging code for tokens...');
-    const tokens = await exchangeCodeForTokens(code as string, redirectUri);
-    console.log('✅ Stack Auth: Tokens received successfully');
-    console.log('🔍 Token info:', { 
-      hasAccessToken: !!tokens.access_token,
-      expiresIn: tokens.expires_in,
-      tokenType: tokens.token_type 
-    });
-    
-    // Get user information
-    console.log('🔄 Stack Auth: Getting user info...');
-    const userInfo = await getUserInfo(tokens.access_token);
-    console.log('✅ Stack Auth: User info retrieved:', {
-      id: userInfo.id,
-      email: userInfo.primary_email,
-      displayName: userInfo.display_name || userInfo.first_name
-    });
-    
-    // Store access token in secure cookie
-    const cookieOptions = {
-      httpOnly: true,
-      secure: req.get('host')?.includes('replit.') ? true : false, // Allow HTTP in dev
-      sameSite: 'lax' as const, // More permissive for OAuth redirects
-      maxAge: (tokens.expires_in || 3600) * 1000, // Convert to milliseconds
-      path: '/' // Ensure cookie is available site-wide
-    };
-    
-    console.log('🔄 Stack Auth: Setting access token cookie with options:', cookieOptions);
-    res.cookie('stack-access-token', tokens.access_token, cookieOptions);
-    
-    // Redirect to the main app
-    console.log('✅ Stack Auth: Redirecting to success page');
-    res.redirect('/?auth=success');
-    
-  } catch (error) {
-    console.error('❌ Stack Auth: OAuth callback failed:', error);
-    console.error('❌ Error details:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    res.redirect('/?auth=error&reason=callback_failed');
-  }
-}
+// ✅ REMOVED: Complex OAuth callback handler no longer needed with direct Stack Auth integration
 
 // Middleware that requires authentication
 export function requireStackAuth(req: Request, res: Response, next: NextFunction) {
