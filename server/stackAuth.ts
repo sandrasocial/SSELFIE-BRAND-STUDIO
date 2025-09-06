@@ -368,18 +368,20 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized" });
       }
       
-      // More defensive call to Stack Auth getUser with null checks
+      // More defensive call to Stack Auth getUser with proper error handling
       stackUser = await stackServerApp.getUser({ req, res });
       
       if (!stackUser) {
         console.log('🔍 No Stack Auth user found, authentication required');
         return res.status(401).json({ message: "Unauthorized" });
       }
-    } catch (error) {
-      console.log('❌ Stack Auth getUser error:', error.message);
+    } catch (error: any) {
+      console.log('❌ Stack Auth getUser error:', error?.message || error);
       
-      // Check if error is due to missing access token (handler not working)
-      if (error.message.includes('accessToken') || error.message.includes('undefined')) {
+      // Check if error is due to missing access token or authentication data
+      if (error?.message?.includes('accessToken') || 
+          error?.message?.includes('undefined') ||
+          error?.message?.includes('in') && error?.message?.includes('operator')) {
         console.log('🔧 Stack Auth handler issue: Missing authentication session');
         return res.status(401).json({ 
           message: "Authentication session not established. Please log in again.",
@@ -441,9 +443,9 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 };
 
 // Stack Auth helper to get current user
-export async function getCurrentUser(req: any) {
+export async function getCurrentUser(req: any, res?: any) {
   try {
-    const stackUser = stackServerApp.getUser(req);
+    const stackUser = await stackServerApp.getUser({ req, res });
     return stackUser;
   } catch (error) {
     console.error('❌ Failed to get current user:', error);
