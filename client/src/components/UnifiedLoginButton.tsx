@@ -11,19 +11,36 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
   const { user, isAuthenticated, isLoading } = useAuth();
 
   const handleLogin = () => {
-    // Direct Stack Auth OAuth redirect
-    const stackAuthUrl = `https://api.stack-auth.com/api/v1/projects/253d7343-a0d4-43a1-be5c-822f590d40be/oauth/authorize?redirect_uri=${encodeURIComponent(window.location.origin + '/auth-success')}&response_type=code`;
-    window.location.href = stackAuthUrl;
+    // Use Stack Auth's built-in OAuth flow
+    const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
+    const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
+    
+    if (!publishableKey) {
+      console.error('❌ Stack Auth: Missing publishable key');
+      return;
+    }
+    
+    // Stack Auth OAuth login URL  
+    window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin + '/auth-success')}`;
   };
 
-  const handleLogout = () => {
-    // Clear any stored tokens and redirect to logout
-    localStorage.removeItem('stack-auth-token');
-    sessionStorage.removeItem('stack-auth-token');
+  const handleLogout = async () => {
+    // Clear Stack Auth session and redirect
+    try {
+      const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
+      await fetch(`https://api.stack-auth.com/api/v1/auth/signout?project_id=${projectId}`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    
+    // Clear local state and redirect
     window.location.href = '/login';
   };
 
-  // If user is already logged in, show logout button
+  // If user is already logged in, show logout button  
   if (isAuthenticated && user) {
     return (
       <div className="text-center max-w-md mx-auto">
