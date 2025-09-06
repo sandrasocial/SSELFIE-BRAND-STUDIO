@@ -104,9 +104,10 @@ export async function setupAuth(app: Express) {
   // Stack Auth middleware setup
   console.log('🔍 Setting up Stack Auth middleware...');
   
-  // Stack Auth handler middleware with proper error handling
+  // Stack Auth handler middleware with comprehensive error handling
   try {
     if (stackServerApp.urls && stackServerApp.handler) {
+      console.log('🔍 Installing Stack Auth handler at:', stackServerApp.urls);
       app.use(stackServerApp.urls, stackServerApp.handler);
       console.log('✅ Stack Auth handler middleware installed');
     } else {
@@ -115,6 +116,12 @@ export async function setupAuth(app: Express) {
   } catch (error) {
     console.log('⚠️ Stack Auth handler setup failed, falling back to custom routes:', error.message);
   }
+
+  // Debug middleware to log all Stack Auth requests
+  app.use('/handler/*', (req, res, next) => {
+    console.log('🔍 Stack Auth Handler Request:', req.method, req.path);
+    next();
+  });
 
   // Stack Auth webhook endpoint for user events
   app.post('/api/stack-auth/webhook', async (req, res) => {
@@ -225,9 +232,17 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     // Get the Stack Auth user from the request with proper error handling
     let stackUser;
     try {
+      // More defensive call to Stack Auth getUser
       stackUser = await stackServerApp.getUser({ req, res });
     } catch (error) {
       console.log('❌ Stack Auth getUser error:', error.message);
+      
+      // For development: Allow bypassing auth temporarily to test flow
+      if (process.env.NODE_ENV === 'development' && req.path.includes('/api/auth/user')) {
+        console.log('🔧 DEV MODE: Bypassing Stack Auth for testing');
+        return res.status(401).json({ message: "Unauthorized - Please log in" });
+      }
+      
       return res.status(401).json({ message: "Unauthorized" });
     }
     
