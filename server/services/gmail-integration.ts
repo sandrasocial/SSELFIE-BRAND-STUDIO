@@ -293,4 +293,47 @@ export class GmailIntegration {
   }
 }
 
-export const gmailIntegration = new GmailIntegration();
+// Lazy initialization to prevent startup crashes
+let gmailIntegrationInstance: GmailIntegration | null = null;
+
+export const gmailIntegration = {
+  getInstance(): GmailIntegration {
+    if (!gmailIntegrationInstance) {
+      try {
+        gmailIntegrationInstance = new GmailIntegration();
+        console.log('✅ Gmail integration initialized successfully');
+      } catch (error) {
+        console.warn('⚠️ Gmail integration not available:', (error as Error).message);
+        // Return a no-op instance to prevent crashes
+        return {
+          generateAuthUrl: () => '',
+          handleCallback: async () => ({ userId: '', accountType: 'personal' as const, email: '' }),
+          fetchUnreadEmails: async () => [],
+          storeEmailAccount: async () => {},
+          getStoredEmailAccounts: async () => [],
+          processAllUserEmails: async () => {},
+        } as GmailIntegration;
+      }
+    }
+    return gmailIntegrationInstance;
+  },
+  
+  // Proxy methods for backward compatibility
+  generateAuthUrl: (userId: string, accountType: 'personal' | 'business') => 
+    gmailIntegration.getInstance().generateAuthUrl(userId, accountType),
+  
+  handleCallback: (code: string, state: string) => 
+    gmailIntegration.getInstance().handleCallback(code, state),
+  
+  fetchUnreadEmails: (accessToken: string, refreshToken?: string) => 
+    gmailIntegration.getInstance().fetchUnreadEmails(accessToken, refreshToken),
+  
+  storeEmailAccount: (userId: string, accountData: any) => 
+    gmailIntegration.getInstance().storeEmailAccount(userId, accountData),
+  
+  getStoredEmailAccounts: (userId: string) => 
+    gmailIntegration.getInstance().getStoredEmailAccounts(userId),
+  
+  processAllUserEmails: (userId: string) => 
+    gmailIntegration.getInstance().processAllUserEmails(userId),
+};
