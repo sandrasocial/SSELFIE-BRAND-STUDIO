@@ -38,9 +38,16 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       token = req.cookies['stack-auth-token'] || req.cookies['stack-auth'];
     }
     
-    // Also check for token from frontend localStorage (passed via headers)
-    if (!token && req.headers['x-stack-auth-token']) {
-      token = req.headers['x-stack-auth-token'] as string;
+    // Check Stack Auth session cookies that Stack Auth SDK sets
+    if (!token && req.headers.cookie) {
+      const cookies = req.headers.cookie.split(';');
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name.includes('stack-') && value) {
+          token = value;
+          break;
+        }
+      }
     }
     
     if (!token) {
