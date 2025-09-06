@@ -692,7 +692,7 @@ export default function Maya() {
             {isTyping && (
               <div className="animate-fadeIn">
                 <div className="eyebrow text-gray-500 mb-3 sm:mb-6 text-xs sm:text-sm">
-                  Maya • Working on your ideas
+                  Maya • Creating your professional photos
                 </div>
                 <div className="bg-white border border-gray-200 shadow-lg">
                   <div className="p-6 sm:p-12 flex items-center space-x-4">
@@ -702,7 +702,7 @@ export default function Maya() {
                       <div className="w-3 h-3 bg-black rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
                     </div>
                     <div className="text-sm font-light text-gray-600">
-                      Creating your photo concepts...
+                      Creating your professional photos...
                     </div>
                   </div>
                 </div>
@@ -715,7 +715,7 @@ export default function Maya() {
               <div className="bg-white border border-gray-200 shadow-lg animate-fadeIn">
                 <div className="p-6 sm:p-12">
                   <div className="eyebrow text-gray-500 mb-3 sm:mb-6 text-xs sm:text-sm">
-                    Continue our conversation • Share your ideas
+                    Get professional photos • Tell me your business goals
                   </div>
                   
                   <div className="space-y-4 sm:space-y-6">
@@ -723,7 +723,7 @@ export default function Maya() {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="What kind of photos are you thinking about?"
+                      placeholder="What professional photos do you need for your business?"
                       className="w-full border-0 resize-none bg-transparent text-base sm:text-lg font-light leading-relaxed placeholder-gray-400 focus:outline-none"
                       rows={3}
                       disabled={isTyping}
@@ -738,7 +738,7 @@ export default function Maya() {
                       >
                         <div className="card-content px-4 sm:px-8 py-3 relative">
                           <div className="text-xs font-normal uppercase tracking-[0.2em] sm:tracking-[0.3em] group-hover:text-white transition-colors duration-300">
-                            {isTyping ? 'Creating...' : 'Send to Maya'}
+                            {isTyping ? 'Creating...' : 'Get Professional Photos'}
                           </div>
                         </div>
                       </button>
@@ -761,7 +761,7 @@ export default function Maya() {
             <h2 className="font-serif text-xl sm:text-2xl font-extralight uppercase tracking-[0.15em] sm:tracking-[0.2em] text-black">
               All Your Photos
             </h2>
-            <p className="text-xs sm:text-sm text-gray-600 mt-2">Every photo we've created together, organized by style</p>
+            <p className="text-xs sm:text-sm text-gray-600 mt-2">Professional photos ready for LinkedIn, Instagram, websites, and business use</p>
           </div>
           <MayaCategorizedGallery />
         </div>
