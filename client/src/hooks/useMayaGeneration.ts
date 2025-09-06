@@ -109,7 +109,7 @@ export const useMayaGeneration = (
       
       const queueMessage: ChatMessage = {
         role: 'maya',
-        content: `I'm still working on your previous photos! Let me finish those first, then I'll create these "${conceptName}" photos next. Quality over speed - I want each set to be absolutely perfect! ✨`,
+        content: `Working on your previous photos right now. I'll create your "${conceptName}" photos next to ensure quality results.`,
         timestamp: new Date().toISOString(),
         quickButtons: ["Cancel queue", "What's taking so long?", "Show me current progress"]
       };
@@ -125,7 +125,7 @@ export const useMayaGeneration = (
       // Create Maya message showing generation progress
       const generatingMessage: ChatMessage = {
         role: 'maya',
-        content: `Creating your "${conceptName}" photos right now! I'm applying all my styling expertise to make these absolutely stunning. You're going to love the results! ✨`,
+        content: `Creating your "${conceptName}" photos now. Applying professional styling techniques for business-ready results.`,
         timestamp: new Date().toISOString(),
         canGenerate: true,
         generationId: messageId
@@ -148,7 +148,7 @@ export const useMayaGeneration = (
           // Show Maya timeout message
           const timeoutMessage: ChatMessage = {
             role: 'maya',
-            content: "I had a little hiccup with that photo creation! Let me try a different approach. What specific style are you going for?",
+            content: "Photo creation encountered an issue. Let me try a different approach. What specific style works best for your goals?",
             timestamp: new Date().toISOString(),
             quickButtons: ["Try again", "Different style", "Tell me the issue"]
           };
@@ -271,7 +271,7 @@ export const useMayaGeneration = (
                       ...msg, 
                       imagePreview: statusResponse.imageUrls, 
                       canGenerate: false,
-                      content: msg.content + `\n\nHere are your styled photos! These turned out absolutely incredible! ✨`
+                      content: msg.content + `\n\nHere are your professional photos. Ready to use for your business needs.`
                     };
                   } else if (isConceptGeneration && msg.conceptCards) {
                     // Update concept card with generated images - use conceptName instead of conceptTitle
@@ -297,10 +297,10 @@ export const useMayaGeneration = (
                 if (!isConceptGeneration) {
                   const followUpMessage: ChatMessage = {
                     role: 'maya',
-                    content: "Which style should we create next? I have so many more gorgeous concepts for you! 💫",
+                    content: "What style should we create next? I have more professional concepts ready for your brand.",
                     timestamp: new Date().toISOString(),
                     quickButtons: [
-                      "✨ Different lighting mood", 
+                      "Different lighting approach", 
                       "🎬 New style category", 
                       "💎 Elevated version", 
                       "🌟 Surprise me Maya!",
@@ -328,7 +328,7 @@ export const useMayaGeneration = (
                 msg.generationId === finalGenerationId 
                   ? { 
                       ...msg, 
-                      content: msg.content + '\n\nOh no! I had a little hiccup creating those photos. Let me try a different approach - tell me specifically what style you\'re going for and I\'ll make sure we get the perfect shot this time! What\'s the vibe you want?',
+                      content: msg.content + '\n\nPhoto creation encountered an issue. Let me try a different approach - tell me specifically what style works for your business goals and I\'ll create the right professional photos. What style fits your brand?',
                       canGenerate: false,
                       quickButtons: [`Retry "${conceptName || 'this concept'}"`, "Different style approach", "Professional headshot", "Tell me more about the issue"]
                     }
@@ -357,7 +357,7 @@ export const useMayaGeneration = (
             // Add Maya's helpful polling error message with retry
             const errorMessage: ChatMessage = {
               role: 'maya',
-              content: "I'm having trouble checking on your photos right now, but don't worry! Let me create something fresh for you instead. What kind of photos would you love to see?",
+              content: "I'm having trouble checking on your photos right now. Let me create new professional photos for you instead. What style works best for your business goals?",
               timestamp: new Date().toISOString(),
               quickButtons: [`Retry "${conceptName || 'last concept'}"`, "Professional headshot", "Creative lifestyle", "Try a different concept"]
             };
