@@ -1,24 +1,20 @@
 import { StackClientApp } from "@stackframe/stack";
 
-// Use the known project ID from the Stack Auth integration
-const STACK_PROJECT_ID = "253d7343-a0d4-43a1-be5c-822f590d40be";
+// Use environment variables for Stack Auth configuration
+const STACK_PROJECT_ID = import.meta.env.VITE_STACK_PROJECT_ID;
+const publishableKey = import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
 
-// Stack Auth client configuration with fallback for missing environment variables
+// Stack Auth client configuration with proper environment variable handling
 let stackApp: any;
 
-// Check if we have the required publishable key
-const publishableKey = import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || 
-                       import.meta.env.VITE_STACK_PUBLISHABLE_KEY || 
-                       import.meta.env.VITE_STACK_AUTH_PUBLISHABLE_KEY ||
-                       import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
-
-if (publishableKey) {
+if (STACK_PROJECT_ID && publishableKey) {
   try {
     stackApp = new StackClientApp({
       projectId: STACK_PROJECT_ID,
       publishableClientKey: publishableKey,
     });
-    console.log('🔧 Stack Auth client initialized with project ID:', STACK_PROJECT_ID);
+    console.log('🔧 Stack Auth client initialized successfully');
+    console.log('Project ID:', STACK_PROJECT_ID);
     
     // Add error handling for Stack Auth internal errors
     if (typeof window !== 'undefined') {
@@ -37,7 +33,9 @@ if (publishableKey) {
     stackApp = createFallbackStackApp();
   }
 } else {
-  console.warn('⚠️ Stack Auth publishable key not found - using fallback auth system');
+  console.warn('⚠️ Stack Auth environment variables missing - using fallback auth system');
+  console.warn('Project ID available:', !!STACK_PROJECT_ID);
+  console.warn('Publishable key available:', !!publishableKey);
   stackApp = createFallbackStackApp();
 }
 
