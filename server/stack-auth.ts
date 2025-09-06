@@ -24,39 +24,54 @@ declare global {
 
 export async function verifyStackAuthToken(req: Request, res: Response, next: NextFunction) {
   try {
-    // Look for token in Authorization header or cookies
-    let token: string | undefined;
+    let jwtToken: string | undefined;
     
-    // Check Authorization header
+    // Check Authorization header for JWT tokens
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ')) {
-      token = authHeader.substring(7);
+      jwtToken = authHeader.substring(7);
+      console.log('🔐 Stack Auth: Found Bearer token in Authorization header');
     }
     
-    // Check cookies for Stack Auth token
-    if (!token && req.cookies) {
-      token = req.cookies['stack-auth-token'] || req.cookies['stack-auth'];
+    // Check for direct JWT tokens in cookies first
+    if (!jwtToken && req.cookies) {
+      jwtToken = req.cookies['stack-auth-jwt'] || req.cookies['access_token'];
     }
     
-    // Check Stack Auth session cookies that Stack Auth SDK sets
-    if (!token && req.headers.cookie) {
-      const cookies = req.headers.cookie.split(';');
-      for (const cookie of cookies) {
-        const [name, value] = cookie.trim().split('=');
-        if (name.includes('stack-') && value) {
-          token = value;
-          break;
+    // If no JWT token found, check for Stack Auth session cookies
+    if (!jwtToken) {
+      console.log('🔍 Stack Auth: No JWT token found, checking for session cookies...');
+      console.log('🔍 Available cookies:', req.headers.cookie || 'none');
+      
+      // For now, let's look for any tokens that might be JWT format
+      if (req.headers.cookie) {
+        const cookies = req.headers.cookie.split(';');
+        for (const cookie of cookies) {
+          const [name, value] = cookie.trim().split('=');
+          const decodedValue = decodeURIComponent(value);
+          
+          console.log(`🔍 Cookie '${name}': ${decodedValue.substring(0, 100)}...`);
+          
+          // Check if the value looks like a JWT (has two dots)
+          if (decodedValue.includes('.') && decodedValue.split('.').length === 3) {
+            console.log(`🎯 Found JWT-like token in cookie '${name}'`);
+            jwtToken = decodedValue;
+            break;
+          }
         }
       }
     }
     
-    if (!token) {
-      console.log('🔐 Stack Auth: No token found in headers or cookies');
+    if (!jwtToken) {
+      console.log('❌ Stack Auth: No JWT token found in any location');
       return res.status(401).json({ message: 'Authentication required' });
     }
 
+    console.log('🔐 Stack Auth: Attempting to verify JWT token...');
+    console.log('🔍 Token preview:', jwtToken.substring(0, 50) + '...');
+    
     // Verify JWT using Stack Auth JWKS
-    const { payload } = await jwtVerify(token, JWKS);
+    const { payload } = await jwtVerify(jwtToken, JWKS);
     
     console.log('✅ Stack Auth: Token verified successfully');
     console.log('📊 Stack Auth: User payload:', payload);
