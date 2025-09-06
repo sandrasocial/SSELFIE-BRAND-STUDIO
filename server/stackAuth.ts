@@ -106,15 +106,43 @@ export async function setupAuth(app: Express) {
   
   // Stack Auth handler middleware with comprehensive error handling
   try {
-    if (stackServerApp.urls && stackServerApp.handler) {
-      console.log('🔍 Installing Stack Auth handler at:', stackServerApp.urls);
-      app.use(stackServerApp.urls, stackServerApp.handler);
+    console.log('🔍 Stack Auth objects available:', {
+      hasUrls: !!stackServerApp.urls,
+      hasHandler: !!stackServerApp.handler,
+      urlsType: typeof stackServerApp.urls,
+      handlerType: typeof stackServerApp.handler
+    });
+    
+    // Try to install the Stack Auth handler
+    if (stackServerApp.handler) {
+      const handlerPath = '/handler';
+      console.log('🔍 Installing Stack Auth handler at:', handlerPath);
+      app.use(handlerPath, stackServerApp.handler);
       console.log('✅ Stack Auth handler middleware installed');
     } else {
-      console.log('⚠️ Stack Auth handler not available, using custom routes only');
+      console.log('⚠️ Stack Auth handler not available, installing custom callback handlers');
+      
+      // Install custom callback handlers if Stack Auth handler isn't available
+      app.get('/handler/sign-in', (req, res) => {
+        console.log('🔐 Custom Stack Auth sign-in handler');
+        const redirectUrl = stackServerApp.urls.signIn || `${stackServerApp.baseUrl}/sign-in`;
+        res.redirect(redirectUrl);
+      });
+      
+      app.get('/handler/callback', async (req, res) => {
+        console.log('🔐 Custom Stack Auth callback handler');
+        try {
+          // This should be handled by Stack Auth, but we'll add fallback
+          const returnUrl = (req.query.returnUrl as string) || '/';
+          res.redirect(returnUrl);
+        } catch (error) {
+          console.error('❌ Callback error:', error);
+          res.redirect('/?error=auth_callback_failed');
+        }
+      });
     }
   } catch (error) {
-    console.log('⚠️ Stack Auth handler setup failed, falling back to custom routes:', error.message);
+    console.log('⚠️ Stack Auth handler setup failed:', error.message);
   }
 
   // Debug middleware to log all Stack Auth requests
