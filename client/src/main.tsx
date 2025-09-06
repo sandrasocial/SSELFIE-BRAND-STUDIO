@@ -35,8 +35,10 @@ window.addEventListener('unhandledrejection', (event) => {
   const isStackAuthError = event.reason && (
     event.reason.message?.includes('accessToken') ||
     event.reason.message?.includes('StackAssertionError') ||
+    event.reason.message?.includes('Cannot use \'in\' operator') ||
     event.reason.name === 'StackAssertionError' ||
-    event.reason.toString().includes('StackAssertionError')
+    event.reason.toString().includes('StackAssertionError') ||
+    event.reason.toString().includes('accessToken')
   );
   
   if (isWebSocketError) {
