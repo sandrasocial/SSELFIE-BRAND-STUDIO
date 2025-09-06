@@ -9,6 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { redirectToHttps, detectBrowserIssues, showDomainHelp } from "./utils/browserCompat";
 import { optimizeImageLoading, enableServiceWorkerCaching } from "./utils/performanceOptimizations";
 import { optimizeRuntime } from "./utils/webVitals";
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackClientApp } from "./stack";
 
 // Core pages (loaded immediately)
 import Workspace from "./pages/workspace";
@@ -514,11 +516,15 @@ function Router() {
 
 function AppWithProvider() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <App />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <StackProvider app={stackClientApp}>
+      <StackTheme>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <App />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </StackTheme>
+    </StackProvider>
   );
 }
 
