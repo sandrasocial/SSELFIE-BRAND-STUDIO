@@ -144,6 +144,36 @@ router.post('/chat', isAuthenticated, adminContextDetection, async (req: AdminCo
       });
     }
 
+    // PHASE 3: Profile Completion Check - Mandatory before any Maya interaction
+    const user = await storage.getUser(userId);
+    if (!user) {
+      logMayaAPI('/chat', startTime, false, new Error('User not found'));
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Check if user needs onboarding
+    if (!user.profileCompleted) {
+      const onboardingStep = user.onboardingStep || 0;
+      const onboardingQuestions = MAYA_PERSONALITY.onboarding.questions;
+      
+      if (onboardingStep < onboardingQuestions.length) {
+        const currentQuestion = onboardingQuestions[onboardingStep];
+        
+        // Return onboarding question with brand voice
+        return res.json({
+          type: 'onboarding',
+          step: onboardingStep + 1,
+          totalSteps: onboardingQuestions.length,
+          question: currentQuestion.question,
+          fieldName: currentQuestion.fieldName,
+          required: currentQuestion.required,
+          options: currentQuestion.options,
+          explanation: currentQuestion.explanation,
+          isOnboardingComplete: false
+        });
+      }
+    }
+
     const { message, context = 'styling', chatId, conversationHistory = [] } = req.body;
 
     if (!message) {
@@ -534,6 +564,22 @@ router.post('/generate', isAuthenticated, adminContextDetection, async (req: Adm
     if (!userId) {
       logMayaAPI('/generate', startTime, false, new Error('Authentication required'));
       return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    // PHASE 3: Profile Completion Check - Mandatory before image generation
+    const user = await storage.getUser(userId);
+    if (!user) {
+      logMayaAPI('/generate', startTime, false, new Error('User not found'));
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    if (!user.profileCompleted) {
+      logMayaAPI('/generate', startTime, false, new Error('Profile incomplete'));
+      return res.status(400).json({ 
+        error: 'Profile incomplete',
+        message: 'Please complete your profile setup before generating images',
+        requiresOnboarding: true 
+      });
     }
     
     const userType = req.userType || 'member';
@@ -2542,6 +2588,75 @@ router.post('/learn-from-favorites', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Learn from favorites error:', error);
     res.status(500).json({ error: 'Failed to learn from favorites' });
+  }
+});
+
+// PHASE 3: Onboarding Response Handler - Process user profile completion answers
+router.post('/onboarding-response', isAuthenticated, async (req, res) => {
+  try {
+    const userId = (req.user as any)?.claims?.sub;
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { fieldName, answer } = req.body;
+    if (!fieldName || !answer) {
+      return res.status(400).json({ error: 'Field name and answer are required' });
+    }
+
+    // Get current user data
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update the specific profile field
+    const updateData: any = {};
+    updateData[fieldName] = answer;
+    updateData.onboardingStep = (user.onboardingStep || 0) + 1;
+    
+    // Check if onboarding is complete
+    const totalSteps = MAYA_PERSONALITY.onboarding.questions.length;
+    const isComplete = updateData.onboardingStep >= totalSteps;
+    
+    if (isComplete) {
+      updateData.profileCompleted = true;
+    }
+
+    // Update user profile in database
+    await storage.updateUserProfile(userId, updateData);
+
+    if (isComplete) {
+      // Send completion message with brand voice
+      return res.json({
+        type: 'onboarding_complete',
+        message: MAYA_PERSONALITY.onboarding.completionMessage,
+        isOnboardingComplete: true,
+        profileData: {
+          gender: user.gender || answer,
+          profession: user.profession,
+          brandStyle: user.brandStyle,
+          photoGoals: user.photoGoals
+        }
+      });
+    } else {
+      // Get next question
+      const nextQuestion = MAYA_PERSONALITY.onboarding.questions[updateData.onboardingStep];
+      return res.json({
+        type: 'onboarding',
+        step: updateData.onboardingStep + 1,
+        totalSteps: totalSteps,
+        question: nextQuestion.question,
+        fieldName: nextQuestion.fieldName,
+        required: nextQuestion.required,
+        options: nextQuestion.options,
+        explanation: nextQuestion.explanation,
+        isOnboardingComplete: false
+      });
+    }
+  } catch (error) {
+    console.error('Onboarding response error:', error);
+    res.status(500).json({ error: 'Failed to process onboarding response' });
   }
 });
 
