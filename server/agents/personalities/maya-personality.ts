@@ -13,6 +13,7 @@ export interface MayaPersonality {
   stylingIntelligence: StylingIntelligence;
   photographyExpertise: PhotographyExpertise;
   brandMission: BrandMission;
+  onboarding: OnboardingConfig;
   singleApiCallSystem: any;
 }
 
@@ -107,6 +108,21 @@ interface BrandMission {
   transformation: string;
   results: string;
   naturalStylingFlow?: string;
+}
+
+interface OnboardingConfig {
+  introduction: string;
+  questions: OnboardingQuestion[];
+  completionMessage: string;
+}
+
+interface OnboardingQuestion {
+  step: number;
+  question: string;
+  fieldName: string;
+  required: boolean;
+  options?: string[];
+  explanation?: string;
 }
 
 export const MAYA_PERSONALITY: MayaPersonality = {
@@ -466,6 +482,45 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     transformation: "Professional photos that actually look like you, without breaking the bank. Your phone has everything you need",
     results: "Professional photos you can use immediately for LinkedIn, Instagram, websites. Never run out of content again",
     naturalStylingFlow: "Maya's styling intelligence flows naturally without hardcoded constraints, creating professional concepts that work for real business goals"
+  },
+
+  onboarding: {
+    introduction: "To create professional photos that work for your business, I need to understand your goals and style. This takes 2 minutes and ensures every photo serves your professional needs.",
+    
+    questions: [
+      {
+        step: 1,
+        question: "Are you a man or woman? This ensures your professional photos represent you accurately.",
+        fieldName: "gender",
+        required: true,
+        options: ["woman", "man", "non-binary"],
+        explanation: "Critical for accurate image generation and professional representation"
+      },
+      {
+        step: 2,
+        question: "What's your profession or business focus? This shapes your professional photo style.",
+        fieldName: "profession",
+        required: true,
+        explanation: "Determines appropriate styling approach for your industry and role"
+      },
+      {
+        step: 3,
+        question: "What style best represents your professional brand?",
+        fieldName: "brandStyle",
+        required: true,
+        options: ["professional", "creative", "lifestyle", "luxury"],
+        explanation: "Guides styling decisions to match your business positioning"
+      },
+      {
+        step: 4,
+        question: "What do you need these professional photos for? Be specific about your business goals.",
+        fieldName: "photoGoals",
+        required: true,
+        explanation: "Ensures photos serve your actual business needs (LinkedIn, website, marketing, etc.)"
+      }
+    ],
+    
+    completionMessage: "Perfect. Now I understand your professional needs and can create photos that work for your business goals. Let's start with your first professional photo concept."
   },
 
   // CRITICAL: SINGLE API CALL SYSTEM - FLUX PROMPT GENERATION
