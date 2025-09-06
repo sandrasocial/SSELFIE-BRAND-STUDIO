@@ -1,7 +1,5 @@
 import React from 'react';
 import { createRoot } from "react-dom/client";
-import { StackProvider } from '@stackframe/stack';
-import { stackApp } from './stack/client';
 import App from "./App";
 import "./index.css";
 
@@ -31,23 +29,8 @@ window.addEventListener('unhandledrejection', (event) => {
     event.reason.toString().includes('WebSocket')
   );
   
-  // Check if this is a Stack Auth internal error
-  const isStackAuthError = event.reason && (
-    event.reason.message?.includes('accessToken') ||
-    event.reason.message?.includes('StackAssertionError') ||
-    event.reason.message?.includes('Cannot use \'in\' operator') ||
-    event.reason.name === 'StackAssertionError' ||
-    event.reason.toString().includes('StackAssertionError') ||
-    event.reason.toString().includes('accessToken')
-  );
-  
   if (isWebSocketError) {
     // Silently ignore WebSocket/HMR errors - these are development only
-    return;
-  }
-  
-  if (isStackAuthError) {
-    console.warn('⚠️ Stack Auth internal error prevented:', event.reason?.message || event.reason);
     return;
   }
   
@@ -55,42 +38,17 @@ window.addEventListener('unhandledrejection', (event) => {
   console.warn('SSELFIE Studio: Unhandled promise rejection caught:', event.reason);
 });
 
-window.addEventListener('error', (event) => {
-  // Check if this is a WebSocket or development-related error
-  const isWebSocketError = event.error && (
-    event.error.message?.includes('WebSocket') ||
-    event.error.message?.includes('websocket') ||
-    event.error.message?.includes('HMR') ||
-    event.error.toString().includes('WebSocket')
-  );
-  
-  if (isWebSocketError) {
-    // Silently ignore WebSocket/HMR errors - these are development only
-    event.preventDefault();
-    return;
-  }
-  
-  // Only log actual application errors
-  console.warn('SSELFIE Studio: Global error caught:', event.error);
-});
+console.log('SSELFIE Studio: Starting up with JWT authentication...');
 
-// Force CSS reload for debugging
-console.log('CSS files loaded:', document.styleSheets.length);
-
-const root = document.getElementById("root");
-if (root) {
-  try {
-    console.log('🚀 SSELFIE Studio: Starting with Stack Auth');
-    createRoot(root).render(
-      <StackProvider app={stackApp}>
-        <App />
-      </StackProvider>
-    );
-    console.log('✅ SSELFIE Studio: App rendered successfully');
-  } catch (error) {
-    console.error('SSELFIE Studio: Error rendering app:', error);
-    root.innerHTML = '<div style="padding: 20px; font-family: serif;">SSELFIE Studio Loading...</div>';
-  }
-} else {
-  console.error('SSELFIE Studio: Root element not found');
+const container = document.getElementById("root");
+if (!container) {
+  throw new Error("Root container not found");
 }
+
+const root = createRoot(container);
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
