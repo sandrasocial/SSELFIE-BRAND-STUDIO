@@ -5,6 +5,7 @@ import { createServer, type Server } from "http";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { setupStackAuth, requireAuth } from "./stackAuth";
+import { setupStackWebhook } from "./routes/stack-webhook";
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -398,6 +399,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup Stack authentication
   setupStackAuth(app);
+  setupStackWebhook(app);
 
   // 🔄 PHASE 5: Register checkout routes for retraining system
   registerCheckoutRoutes(app);
