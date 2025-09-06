@@ -65,9 +65,10 @@ import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (required for Google OAuth)
+  // User operations (required for JWT authentication)
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>; // For JWT registration
   getAllUsers(): Promise<User[]>;
   upsertUser(user: InsertUser): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
@@ -204,6 +205,32 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    console.log('🔄 Creating new user:', userData.email);
+    
+    // Special admin setup for ssa@ssasocial.com
+    if (userData.email === 'ssa@ssasocial.com') {
+      userData.role = 'admin';
+      userData.monthlyGenerationLimit = -1; // Unlimited
+      userData.plan = 'sselfie-studio';
+      userData.mayaAiAccess = true;
+      userData.victoriaAiAccess = true;
+      console.log('👑 Setting admin privileges for ssa@ssasocial.com');
+    }
+
+    const [user] = await db
+      .insert(users)
+      .values({
+        ...userData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+      
+    console.log('✅ Created new user:', user.id, user.email);
     return user;
   }
 
