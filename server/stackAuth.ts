@@ -378,11 +378,12 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     } catch (error: any) {
       console.log('❌ Stack Auth getUser error:', error?.message || error);
       
-      // Check if error is due to missing access token or authentication data
-      if (error?.message?.includes('accessToken') || 
+      // Handle the specific "in operator" error gracefully by treating as unauthenticated  
+      if (error?.message?.includes("Cannot use 'in' operator") ||
+          error?.message?.includes('accessToken') || 
           error?.message?.includes('undefined') ||
           error?.message?.includes('in') && error?.message?.includes('operator')) {
-        console.log('🔧 Stack Auth handler issue: Missing authentication session');
+        console.log('🔧 Stack Auth token access issue (handled gracefully): Missing authentication session');
         return res.status(401).json({ 
           message: "Authentication session not established. Please log in again.",
           error: "stack_auth_handler_issue"
@@ -447,7 +448,12 @@ export async function getCurrentUser(req: any, res?: any) {
   try {
     const stackUser = await stackServerApp.getUser({ req, res });
     return stackUser;
-  } catch (error) {
+  } catch (error: any) {
+    // Handle the specific "in operator" error gracefully
+    if (error?.message?.includes("Cannot use 'in' operator")) {
+      console.log('🔧 Stack Auth token access issue in getCurrentUser (handled gracefully)');
+      return null;
+    }
     console.error('❌ Failed to get current user:', error);
     return null;
   }
