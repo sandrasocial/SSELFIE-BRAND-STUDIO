@@ -20,8 +20,8 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
       return;
     }
     
-    // Stack Auth OAuth login URL  
-    window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin + '/auth-success')}`;
+    // Stack Auth OAuth login URL - direct redirect to app  
+    window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
   };
 
   const handleLogout = async () => {

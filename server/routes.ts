@@ -5,7 +5,7 @@ import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
-import { requireStackAuth, optionalStackAuth, handleStackAuthCallback } from "./stack-auth";
+import { requireStackAuth, optionalStackAuth } from "./stack-auth";
 import { db } from "./db";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -407,8 +407,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 🔐 Stack Auth Authentication Routes
   // Note: Login/Logout/Register are handled by Stack Auth OAuth flow
 
-  // OAuth callback handler - handles Stack Auth authorization code exchange
-  app.get('/auth-success', handleStackAuthCallback);
+  // ✅ SIMPLIFIED: Direct Stack Auth integration - no callback route needed
   
   // User data endpoint - protected route that returns current user
   app.get('/api/auth/user', requireStackAuth, async (req: any, res) => {
