@@ -236,6 +236,12 @@ export class DatabaseStorage implements IStorage {
           firstName: userData.firstName,
           lastName: userData.lastName,
           profileImageUrl: userData.profileImageUrl,
+          // Stack Auth specific fields
+          authProvider: userData.authProvider,
+          stackAuthUserId: userData.stackAuthUserId,
+          displayName: userData.displayName,
+          lastLoginAt: userData.lastLoginAt,
+          // Business logic fields
           role: userData.role,
           monthlyGenerationLimit: userData.monthlyGenerationLimit,
           plan: userData.plan,
@@ -261,10 +267,16 @@ export class DatabaseStorage implements IStorage {
         const [updatedUser] = await db
           .update(users)
           .set({
-            id: userData.id, // Update to new Replit user ID
+            id: userData.id, // Update to new Stack Auth user ID
             firstName: userData.firstName,
             lastName: userData.lastName,
             profileImageUrl: userData.profileImageUrl,
+            // Stack Auth specific fields
+            authProvider: userData.authProvider,
+            stackAuthUserId: userData.stackAuthUserId,
+            displayName: userData.displayName,
+            lastLoginAt: userData.lastLoginAt,
+            // Business logic fields
             role: userData.role,
             monthlyGenerationLimit: userData.monthlyGenerationLimit,
             plan: userData.plan,
