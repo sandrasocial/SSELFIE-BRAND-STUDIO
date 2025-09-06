@@ -14,7 +14,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table for Replit OAuth
+// Session storage table for Neon authentication
 export const sessions = pgTable(
   "sessions",
   {
@@ -44,19 +44,16 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
   index("idx_agent_session_updated").on(table.updatedAt),
 ]);
 
-// User storage table - Stack Auth Compatible
+// User storage table for Neon authentication
 export const users = pgTable("users", {
-  // Stack Auth primary fields
-  id: varchar("id").primaryKey().notNull(), // Stack Auth user ID (already compatible!)
+  // Core user fields
+  id: varchar("id").primaryKey().notNull(), // User ID - preserved from existing system
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   
-  // Stack Auth metadata
-  authProvider: varchar("auth_provider").default("stack-auth"), // "replit-oauth" | "stack-auth"
-  stackAuthUserId: varchar("stack_auth_user_id"), // Original Stack Auth ID for reference
-  displayName: varchar("display_name"), // Stack Auth display name
+  // User activity tracking  
   lastLoginAt: timestamp("last_login_at"), // Track user activity
   
   // Business logic - preserved from existing system
