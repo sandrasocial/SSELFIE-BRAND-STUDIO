@@ -133,7 +133,7 @@ export async function setupAuth(app: Express) {
   console.log('✅ Stack Auth setup complete');
 }
 
-// Stack Auth authentication middleware
+// Stack Auth authentication middleware with impersonation support
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   try {
     // Get the Stack Auth user from the request
@@ -141,6 +141,28 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     
     if (!stackUser) {
       return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Handle impersonation by overriding user claims (preserved from Replit Auth)
+    if ((req.session as any)?.impersonatedUser) {
+      const impersonatedUser = (req.session as any).impersonatedUser;
+      
+      (req as any).user = {
+        id: impersonatedUser.id,
+        email: impersonatedUser.email,
+        displayName: `${impersonatedUser.firstName} ${impersonatedUser.lastName}`.trim(),
+        profileImageUrl: impersonatedUser.profileImageUrl,
+        claims: {
+          sub: impersonatedUser.id,
+          email: impersonatedUser.email,
+          first_name: impersonatedUser.firstName,
+          last_name: impersonatedUser.lastName,
+          profile_image_url: impersonatedUser.profileImageUrl
+        }
+      };
+      
+      console.log('🎭 Impersonation active:', impersonatedUser.email);
+      return next();
     }
 
     // Store user in request for compatibility with existing code
