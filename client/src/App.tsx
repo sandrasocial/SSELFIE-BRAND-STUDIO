@@ -520,6 +520,10 @@ function Router() {
 function HandlerRoutes({ params }: { params: { path?: string } }) {
   // Extract the sub-path after "/handler/" for Stack Auth
   const handlerPath = params.path || '';
+  
+  // Debug logging
+  console.log('🔍 HandlerRoutes:', { params, handlerPath, stackClientApp: !!stackClientApp });
+  
   return <StackHandler app={stackClientApp} location={handlerPath} fullPage />;
 }
 
