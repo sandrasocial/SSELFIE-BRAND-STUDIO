@@ -2751,4 +2751,200 @@ router.post('/onboarding-response', requireStackAuth, async (req, res) => {
   }
 });
 
+// TRAINING-TIME COACHING SYSTEM - Maya's intelligent brand strategy coaching during training
+router.post('/training-coaching-start', requireStackAuth, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now();
+  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+  
+  if (!userId) {
+    logMayaAPI('/training-coaching-start', startTime, false, new Error('Authentication required'));
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    console.log(`🎯 TRAINING COACHING: Starting brand strategy coaching for user ${userId}`);
+    
+    // Get training-time coaching configuration from Maya's personality
+    const coachingConfig = MAYA_PERSONALITY.trainingTimeCoaching;
+    const firstPhase = coachingConfig.coachingFlow[0];
+    
+    // Initialize coaching session in database
+    await storage.updateUserProfile(userId, {
+      trainingCoachingStarted: true,
+      trainingCoachingPhase: 'businessGoals',
+      trainingCoachingStep: 0,
+      brandStrategyContext: JSON.stringify({
+        startTime: Date.now(),
+        phase: 'businessGoals',
+        responses: {}
+      })
+    });
+    
+    const response = {
+      type: 'training_coaching',
+      phase: firstPhase.phase,
+      title: firstPhase.title,
+      introduction: firstPhase.introduction,
+      coachingMessage: coachingConfig.initiationMessage,
+      question: firstPhase.questions[0].question,
+      questionId: firstPhase.questions[0].id,
+      followUp: firstPhase.questions[0].followUp,
+      purpose: firstPhase.questions[0].purpose,
+      currentStep: 1,
+      totalSteps: coachingConfig.coachingFlow.reduce((total, phase) => total + phase.questions.length, 0),
+      estimatedTrainingTime: "20-40 minutes"
+    };
+
+    logMayaAPI('/training-coaching-start', startTime, true);
+    res.json(response);
+    
+  } catch (error) {
+    console.error('❌ TRAINING COACHING ERROR:', error);
+    logMayaAPI('/training-coaching-start', startTime, false, error);
+    res.status(500).json({ error: 'Failed to start training coaching' });
+  }
+});
+
+// Process coaching conversation responses during training
+router.post('/training-coaching-response', requireStackAuth, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now();
+  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+  const { questionId, answer, currentPhase } = req.body;
+  
+  if (!userId) {
+    logMayaAPI('/training-coaching-response', startTime, false, new Error('Authentication required'));
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    console.log(`🎯 COACHING RESPONSE: ${questionId} = ${answer} for user ${userId}`);
+    
+    // Get current user's coaching context
+    const user = await storage.getUserByUserId(userId);
+    const currentContext = user?.brandStrategyContext ? JSON.parse(user.brandStrategyContext) : { responses: {} };
+    
+    // Store the response
+    currentContext.responses[questionId] = answer;
+    currentContext.lastUpdated = Date.now();
+    
+    // Get coaching configuration
+    const coachingConfig = MAYA_PERSONALITY.trainingTimeCoaching;
+    const currentPhaseConfig = coachingConfig.coachingFlow.find(p => p.phase === currentPhase);
+    
+    if (!currentPhaseConfig) {
+      throw new Error(`Invalid coaching phase: ${currentPhase}`);
+    }
+    
+    // Find current question and determine next question
+    const currentQuestionIndex = currentPhaseConfig.questions.findIndex(q => q.id === questionId);
+    const nextQuestionIndex = currentQuestionIndex + 1;
+    
+    let nextResponse;
+    
+    if (nextQuestionIndex < currentPhaseConfig.questions.length) {
+      // More questions in current phase
+      const nextQuestion = currentPhaseConfig.questions[nextQuestionIndex];
+      nextResponse = {
+        type: 'training_coaching',
+        phase: currentPhase,
+        title: currentPhaseConfig.title,
+        question: nextQuestion.question,
+        questionId: nextQuestion.id,
+        followUp: nextQuestion.followUp,
+        purpose: nextQuestion.purpose,
+        currentStep: Object.keys(currentContext.responses).length + 1,
+        totalSteps: coachingConfig.coachingFlow.reduce((total, phase) => total + phase.questions.length, 0)
+      };
+    } else {
+      // Move to next phase or complete coaching
+      const currentPhaseIndex = coachingConfig.coachingFlow.findIndex(p => p.phase === currentPhase);
+      const nextPhaseIndex = currentPhaseIndex + 1;
+      
+      if (nextPhaseIndex < coachingConfig.coachingFlow.length) {
+        // Move to next phase
+        const nextPhase = coachingConfig.coachingFlow[nextPhaseIndex];
+        currentContext.phase = nextPhase.phase;
+        
+        nextResponse = {
+          type: 'training_coaching',
+          phase: nextPhase.phase,
+          title: nextPhase.title,
+          introduction: nextPhase.introduction,
+          question: nextPhase.questions[0].question,
+          questionId: nextPhase.questions[0].id,
+          followUp: nextPhase.questions[0].followUp,
+          purpose: nextPhase.questions[0].purpose,
+          currentStep: Object.keys(currentContext.responses).length + 1,
+          totalSteps: coachingConfig.coachingFlow.reduce((total, phase) => total + phase.questions.length, 0)
+        };
+        
+        await storage.updateUserProfile(userId, {
+          trainingCoachingPhase: nextPhase.phase
+        });
+      } else {
+        // Coaching complete - prepare for training completion integration
+        currentContext.completed = true;
+        currentContext.completedAt = Date.now();
+        
+        nextResponse = {
+          type: 'training_coaching_complete',
+          message: "Excellent! I now understand your brand strategy completely. When your training finishes, I'll create your first strategic photo concepts that align with your business goals.",
+          brandStrategy: {
+            businessGoals: currentContext.responses,
+            positioning: currentContext.responses.authorityLevel || 'rising_leader',
+            primaryPlatform: currentContext.responses.primaryPlatform || 'linkedin',
+            contentPurpose: currentContext.responses.contentPurpose || 'professional'
+          }
+        };
+        
+        await storage.updateUserProfile(userId, {
+          trainingCoachingCompleted: true,
+          trainingCoachingPhase: 'completed'
+        });
+      }
+    }
+    
+    // Update context in database
+    await storage.updateUserProfile(userId, {
+      brandStrategyContext: JSON.stringify(currentContext)
+    });
+    
+    logMayaAPI('/training-coaching-response', startTime, true);
+    res.json(nextResponse);
+    
+  } catch (error) {
+    console.error('❌ COACHING RESPONSE ERROR:', error);
+    logMayaAPI('/training-coaching-response', startTime, false, error);
+    res.status(500).json({ error: 'Failed to process coaching response' });
+  }
+});
+
+// Check training and coaching status
+router.get('/training-coaching-status/:userId', requireStackAuth, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now();
+  const userId = req.params.userId;
+  
+  try {
+    const user = await storage.getUserByUserId(userId);
+    const userModel = await storage.getUserModelByUserId(userId);
+    
+    const response = {
+      trainingStatus: userModel?.status || 'not_started',
+      trainingProgress: userModel?.trainingProgress || 0,
+      coachingStarted: user?.trainingCoachingStarted || false,
+      coachingCompleted: user?.trainingCoachingCompleted || false,
+      currentPhase: user?.trainingCoachingPhase || null,
+      brandStrategyContext: user?.brandStrategyContext ? JSON.parse(user.brandStrategyContext) : null
+    };
+    
+    logMayaAPI('/training-coaching-status', startTime, true);
+    res.json(response);
+    
+  } catch (error) {
+    console.error('❌ COACHING STATUS ERROR:', error);
+    logMayaAPI('/training-coaching-status', startTime, false, error);
+    res.status(500).json({ error: 'Failed to get coaching status' });
+  }
+});
+
 export default router;
