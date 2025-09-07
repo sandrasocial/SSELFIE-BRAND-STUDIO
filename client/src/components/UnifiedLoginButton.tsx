@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useStackApp } from "@stackframe/stack";
 
 interface UnifiedLoginButtonProps {
   text: string;
@@ -9,35 +10,54 @@ interface UnifiedLoginButtonProps {
 
 export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButtonProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
+  let app;
+  
+  try {
+    app = useStackApp();
+  } catch (error) {
+    console.warn('⚠️ Stack Auth not available:', error);
+    app = null;
+  }
 
-  const handleLogin = () => {
-    // Use Stack Auth's built-in OAuth flow
-    const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
-    const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
-    
-    if (!publishableKey) {
-      console.error('❌ Stack Auth: Missing publishable key');
+  const handleLogin = async () => {
+    if (!app) {
+      console.warn('⚠️ Stack Auth not available, using fallback');
+      // Fallback to direct OAuth URL if Stack Auth fails
+      const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
+      const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+      
+      if (publishableKey) {
+        window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
+      } else {
+        console.error('❌ No Stack Auth configuration available');
+      }
       return;
     }
     
-    // Stack Auth OAuth login URL - direct redirect to app  
-    window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
+    try {
+      // ✅ Use proper Stack Auth SDK method
+      await app.signInWithOAuth('google');
+    } catch (error) {
+      console.error('❌ Stack Auth: OAuth login failed:', error);
+    }
   };
 
   const handleLogout = async () => {
-    // Clear Stack Auth session and redirect
-    try {
-      const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
-      await fetch(`https://api.stack-auth.com/api/v1/auth/signout?project_id=${projectId}`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
+    if (!app) {
+      // Fallback logout
+      window.location.href = '/';
+      return;
     }
     
-    // Clear local state and redirect to home
-    window.location.href = '/';
+    try {
+      // ✅ Use proper Stack Auth SDK method  
+      await app.signOut();
+      // Stack Auth handles redirect automatically
+    } catch (error) {
+      console.error('❌ Stack Auth: Logout error:', error);
+      // Fallback to simple redirect
+      window.location.href = '/';
+    }
   };
 
   // If user is already logged in, show logout button  

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from "wouter";
 import { GlobalFooter } from '../components/global-footer';
+import { useStackApp } from "@stackframe/stack";
 
 export default function TeamsLanding() {
   const [, setLocation] = useLocation();
+  const app = useStackApp();
 
   // Comprehensive SEO Meta Tags for Teams/Enterprise
   useEffect(() => {
@@ -136,17 +138,13 @@ export default function TeamsLanding() {
     setLocation('/business');
   };
 
-  const handleLogin = () => {
-    // ✅ FIXED: Use Stack Auth's direct OAuth URL instead of old login page
-    const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
-    const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
-    
-    if (!publishableKey) {
-      console.error('❌ Stack Auth: Missing publishable key');
-      return;
+  const handleLogin = async () => {
+    try {
+      // ✅ FIXED: Use proper Stack Auth SDK method
+      await app.signInWithOAuth('google');
+    } catch (error) {
+      console.error('❌ Stack Auth: OAuth login failed:', error);
     }
-    
-    window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
   };
 
   return (
