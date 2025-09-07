@@ -123,15 +123,8 @@ function SmartHome() {
 // Protected wrapper component that handles Stack Auth authentication
 function ProtectedRoute({ component: Component, ...props }: { component: ComponentType<any>, [key: string]: any }) {
   // ✅ FIXED: All hooks called at top level, outside any conditions or try/catch
-  const { isAuthenticated, isLoading, user, refetchUser } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
-  
-  // Force refetch user data on mount to catch fresh OAuth state
-  useEffect(() => {
-    if (refetchUser && !isLoading) {
-      refetchUser();
-    }
-  }, [refetchUser, isLoading]);
   
   // Enhanced logging for debugging navigation issues
   useEffect(() => {
@@ -140,18 +133,11 @@ function ProtectedRoute({ component: Component, ...props }: { component: Compone
     }
   }, [isAuthenticated, isLoading, user]);
 
-  // Redirect to sign-in if not authenticated (with longer timeout for OAuth)
+  // Redirect to sign-in if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      // Give OAuth a moment to complete before redirecting
-      const timer = setTimeout(() => {
-        if (!isAuthenticated) {
-          console.log('🔍 ProtectedRoute: Redirecting to Stack Auth sign-in');
-          setLocation('/handler/sign-in');
-        }
-      }, 1000); // 1 second delay for OAuth completion
-      
-      return () => clearTimeout(timer);
+      console.log('🔍 ProtectedRoute: Redirecting to Stack Auth sign-in');
+      setLocation('/handler/sign-in');
     }
   }, [isLoading, isAuthenticated, setLocation]);
   
