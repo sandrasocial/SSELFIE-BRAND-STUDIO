@@ -7,19 +7,21 @@ import { useToast } from '../hooks/use-toast';
 import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
 import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
+import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery';
 import { useLocation } from 'wouter';
 
 // Maya simplified workspace page
 
 interface ChatMessage {
   id: string;
-  type: 'user' | 'maya' | 'onboarding' | 'upload';
+  type: 'user' | 'maya' | 'onboarding' | 'upload' | 'examples';
   content: string;
   timestamp: string;
   conceptCards?: ConceptCard[];
   isStreaming?: boolean;
   onboardingData?: OnboardingData;
   showUpload?: boolean;
+  showExamples?: boolean;
 }
 
 interface OnboardingData {
@@ -647,6 +649,26 @@ export default function Maya() {
                             }}
                             className="mt-6"
                           />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : msg.type === 'examples' ? (
+                  // Examples Gallery Message - Sandra's Professional Selfie Examples
+                  <div className="max-w-4xl mb-12">
+                    <div className="eyebrow text-gray-500 mb-6">
+                      Maya • Professional Photo Examples
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 shadow-lg">
+                      <div className="p-8 sm:p-12">
+                        <div className="text-lg leading-relaxed font-light text-gray-800 whitespace-pre-wrap mb-8">
+                          {msg.content}
+                        </div>
+                        
+                        {/* Embedded Examples Gallery */}
+                        {msg.showExamples && (
+                          <MayaExamplesGallery className="mt-6" />
                         )}
                       </div>
                     </div>

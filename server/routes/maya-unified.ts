@@ -310,6 +310,59 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     // Add only essential request context
     const requestContext = `Current request: ${message}`;
     
+    // SANDRA'S EXAMPLES DETECTION - Before Claude API call
+    const examplesKeywords = [
+      'show me examples', 'what photos', 'example photos', 'what selfies', 'selfie examples',
+      'training examples', 'photo examples', 'examples of', 'what kind of photos',
+      'good photos', 'photo samples', 'sample photos', 'example selfies'
+    ];
+    
+    const isExamplesRequest = examplesKeywords.some(keyword => 
+      message.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    if (isExamplesRequest) {
+      console.log('📸 EXAMPLES REQUEST DETECTED: Showing Sandra\'s professional selfie examples');
+      
+      // Return examples response instead of calling Claude API
+      const examplesResponse = {
+        type: 'examples',
+        message: "Here are the types of selfies that work perfectly for AI training. These examples show the natural expressions, good lighting, and authentic moments that create professional results.\n\nNotice how each photo has clear facial features, natural lighting, and genuine expressions. This is exactly what your AI needs to learn how to create professional photos that actually look like you.",
+        content: "Here are the types of selfies that work perfectly for AI training. These examples show the natural expressions, good lighting, and authentic moments that create professional results.",
+        mode: context,
+        canGenerate: false,
+        showExamples: true,
+        conceptCards: [],
+        quickButtons: ['Upload Photos', 'Start Training', 'Ask Questions'],
+        onboardingProgress: null,
+        chatCategory: 'Training Examples'
+      };
+      
+      // Save examples conversation  
+      const savedChatId = await saveUnifiedConversation(
+        userId, 
+        message, 
+        examplesResponse, 
+        chatId, 
+        context,
+        userType,
+        conversationId
+      );
+
+      // Track examples activity
+      trackMayaActivity(userId, userType as 'admin' | 'member', conversationId, 'examples', {
+        context,
+        examplesShown: true
+      });
+
+      logMayaAPI('/chat', startTime, true);
+      return res.json({
+        success: true,
+        ...examplesResponse,
+        chatId: savedChatId
+      });
+    }
+    
     // 🎨 MAYA UNIFIED SINGLE API CALL - CONCEPT + PROMPT GENERATION
     console.log('🎯 SINGLE API CALL SYSTEM: Starting combined concept + prompt generation');
     console.log('Call ID: UNIFIED-' + Date.now());
