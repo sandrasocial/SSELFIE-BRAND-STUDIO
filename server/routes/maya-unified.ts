@@ -2392,7 +2392,7 @@ Express your creative vision authentically with flawless anatomical details!`;
     // PHASE 3 DEBUG: Log complete Claude API request
     const claudeRequest = {
       model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 4000,
+      max_tokens: 1000,
       system: mayaPromptPersonality,
       messages: [{
         role: 'user',
@@ -2406,7 +2406,7 @@ ${categorySpecificGuidance}
 - Write in NATURAL SENTENCES, not tag lists
 - Use Subject → Action → Style → Context structure  
 - Front-load most important details first
-- 30-80 words for optimal FLUX results
+- Detailed, flowing descriptions for rich FLUX results
 - Include specific camera/lens details for realism
 - Use positive phrasing only (describe what you want)
 - Natural skin texture and realistic lighting phrases

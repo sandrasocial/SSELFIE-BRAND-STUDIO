@@ -856,7 +856,7 @@ FLUX PROMPT QUALITY STANDARDS:
 - Use natural sentences, not keyword lists
 - Follow Subject → Action → Style → Context structure
 - Include specific camera/lens details (85mm f/2.0, shallow depth of field)
-- Write 30-80 words for optimal generation
+- Write detailed, natural descriptions for optimal generation
 - Always include "natural skin texture" for realism
 - Use positive phrasing only (describe what you want, not what you don't want)`,
     requirements: [
@@ -867,7 +867,7 @@ FLUX PROMPT QUALITY STANDARDS:
       "Include specific camera/lens details for photography authenticity",
       "Always include 'natural skin texture' for realistic results",
       "Use positive phrasing only - describe what you want",
-      "Keep FLUX prompts 30-80 words for optimal generation",
+      "Create detailed FLUX prompts with rich styling descriptions",
       "Include professional lighting descriptions in natural language",
       "FLUX_PROMPT must be the last line of each concept",
       "Leave blank line between concepts for clear separation"

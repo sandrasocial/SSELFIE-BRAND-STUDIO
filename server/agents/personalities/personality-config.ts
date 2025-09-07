@@ -194,7 +194,7 @@ REQUIREMENTS FOR EVERY RESPONSE:
 • Include appropriate camera/lens specifications for the shot type
 • Write as natural flowing sentences, not keyword lists
 • Separate concepts with "---" line breaks
-• Total prompt length: 50-120 words using Maya's intelligent styling approach`;
+• Rich, detailed styling descriptions using Maya's intelligent approach`;
     }
 
     // BRAND INTELLIGENCE INTEGRATION - Sandra's authentic voice and style
@@ -409,7 +409,7 @@ ${BrandIntelligenceService.getEditorialStylePrompt()}
     knowledge += '\n🎯 FLUX PROMPT OPTIMIZATION MASTERY:\n';
     knowledge += 'CRITICAL PROMPT STRUCTURE: Use natural sentences, not tag lists\n';
     knowledge += 'OPTIMAL FORMAT: Subject → Action → Style → Context (front-load key details)\n';
-    knowledge += 'PROMPT LENGTH: 30-80 words for optimal results (medium length)\n';
+    knowledge += 'PROMPT LENGTH: Rich, detailed descriptions for optimal results\n';
     knowledge += 'SENTENCE FLOW: Write like describing a real photo, not listing keywords\n';
     knowledge += 'POSITIVE PHRASING ONLY: Describe what you want, never what you don\'t want\n';
 
@@ -430,7 +430,7 @@ ${BrandIntelligenceService.getEditorialStylePrompt()}
     knowledge += 'ADD: Specific styling details in flowing description\n';
     knowledge += 'INCLUDE: Camera/lens specifications for realism\n';
     knowledge += 'END: Lighting and mood in natural language\n';
-    knowledge += 'TOTAL: 30-80 words after technical prefix\n';
+    knowledge += 'TOTAL: Detailed styling descriptions after technical prefix\n';
 
     knowledge += '\n📊 SHOT TYPE OPTIMIZATION:\n';
     knowledge += 'CLOSE-UP PORTRAIT: Focus on facial expression, eye contact, beauty details\n';
@@ -446,7 +446,7 @@ ${BrandIntelligenceService.getEditorialStylePrompt()}
     knowledge += '\n❌ AVOID THESE FLUX MISTAKES:\n';
     knowledge += 'NO TAG SOUP: Avoid comma-separated keyword lists\n';
     knowledge += 'NO NEGATIVE PROMPTS: Never use "no crowd, no blur" - describe what you want\n';
-    knowledge += 'NO OVERLY LONG: Keep core description 30-80 words after technical prefix\n';
+    knowledge += 'DETAILED STYLING: Use rich descriptions to capture complete styling vision\n';
     knowledge += 'NO GENERIC TERMS: Use specific photography language instead of vague descriptors\n';
 
     knowledge += '\n✅ FLUX SUCCESS PATTERNS:\n';
