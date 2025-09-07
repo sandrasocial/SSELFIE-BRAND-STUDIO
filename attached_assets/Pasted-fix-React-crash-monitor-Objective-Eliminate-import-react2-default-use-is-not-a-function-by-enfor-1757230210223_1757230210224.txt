@@ -1,0 +1,155 @@
+fix React crash + monitor
+
+Objective
+
+Eliminate import_react2.default.use is not a function by enforcing React 18.3.1 everywhere (root and subdeps), deduping, and preventing a second React copy.
+
+Patch server/migration-monitor.ts to use our centralized DB helper (raw SQL) instead of an undefined Drizzle db.
+
+Don’t print secrets.
+
+STEP 1 — Inspect current versions to prove the mismatch
+echo "== React tree =="
+npm ls react react-dom || true
+
+echo "== Key peers =="
+npm ls @stackframe/react wouter @tanstack/react-query || true
+
+STEP 2 — Enforce one React everywhere (root + subdeps)
+
+Add overrides and pin versions that are known-good with @stackframe/react:
+
+# Pin versions
+npm pkg set dependencies.react="18.3.1"
+npm pkg set dependencies.react-dom="18.3.1"
+npm pkg set devDependencies.@types/react="^18.3.0"
+npm pkg set devDependencies.@types/react-dom="^18.3.0"
+
+# Make subdeps obey the same React (npm “overrides”)
+node -e "const fs=require('fs');const p=require('./package.json');p.overrides=p.overrides||{};p.overrides.react='18.3.1';p.overrides['react-dom']='18.3.1';fs.writeFileSync('package.json',JSON.stringify(p,null,2));"
+
+# Make sure router/libs are compatible (safe moderns)
+npm pkg set dependencies.wouter="^3.2.0"
+npm pkg set dependencies.@tanstack/react-query="^5.48.0" || true
+npm pkg set dependencies.@stackframe/react="^latest"
+
+
+Now reinstall clean and dedupe:
+
+rm -rf node_modules package-lock.json
+npm i --no-audit --no-fund
+npm dedupe
+
+STEP 3 — Force Vite to use the single, root React
+
+If you have vite.config.ts, add aliases so no deep import pulls a second copy:
+
+# Patch vite.config.ts (create if missing)
+if [ ! -f vite.config.ts ]; then
+  cat > vite.config.ts <<'EOF'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      react: path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+    },
+  },
+});
+EOF
+else
+  node -e "const fs=require('fs');let t=fs.readFileSync('vite.config.ts','utf8');if(!t.includes('alias: {')){t=t.replace(/defineConfig\\((\\{)/,'defineConfig($1\\n  resolve: { alias: {\\n    react: path.resolve(__dirname, \\\"node_modules/react\\\"),\\n    \\\"react-dom\\\": path.resolve(__dirname, \\\"node_modules/react-dom\\\")\\n  } },');if(!t.includes(\"import path from 'path'\")) t=\"import path from 'path';\\n\"+t;fs.writeFileSync('vite.config.ts',t);}"
+fi
+
+STEP 4 — Add a one-time sanity log for React at startup
+
+In your root app (e.g. src/main.tsx or src/App.tsx), add:
+
+import * as React from "react";
+// one-time check
+if (import.meta.env.DEV) {
+  console.log("React sanity:", { version: React.version, hasUse: typeof (React as any).use === "function" });
+}
+
+STEP 5 — Hard clean Vite caches and rebuild
+rm -rf node_modules/.vite .vite dist
+npm run build || true
+npm run dev &
+sleep 3
+
+STEP 6 — Patch migration-monitor to use raw SQL (no undefined db.select)
+
+Replace the select with our query() helper.
+
+# Ensure central db helper exists
+test -f server/db.ts || cat > server/db.ts <<'EOF'
+import { Pool } from 'pg';
+import 'dotenv/config';
+const url = (process.env.DATABASE_URL||'').trim().replace(/^['"]+|['"]+$/g,'');
+export const pool = new Pool({ connectionString: url, max: 10, ssl: { rejectUnauthorized: false } });
+export const query = (text: string, params?: any[]) => pool.query(text, params);
+EOF
+
+# Patch migration-monitor.ts safely
+node <<'NODE'
+const fs=require('fs'),p='server/migration-monitor.ts';
+if(!fs.existsSync(p)) process.exit(0);
+let s=fs.readFileSync(p,'utf8');
+if(!s.includes("from './db'")) s = "import { query } from './db';\n" + s;
+s = s.replace(/(\bdb\.select\b[^\n]*\n)/g, '// replaced drizzle select with raw SQL\n');
+if(!s.includes('getReplicateImages')) { fs.writeFileSync(p,s); process.exit(0); }
+
+s = s.replace(
+/async function getReplicateImages\\([^)]*\\)\\s*\\{[\\s\\S]*?\\}/m,
+`async function getReplicateImages(limit:number=20){
+  const sql = "select id, user_id, image_url, created_at from ai_images where image_url LIKE 'https://replicate.delivery%' AND created_at > NOW() - INTERVAL '24 hours' limit $1";
+  const r = await query(sql, [limit]);
+  return r.rows;
+}`
+);
+fs.writeFileSync(p,s);
+NODE
+
+git add -A
+git commit -m "fix(react+db): pin single React 18.3.1, alias in Vite, dedupe; patch migration-monitor to pg query"
+
+STEP 7 — Acceptance checks
+
+Open console in the browser. Expect:
+
+React sanity: { version: "18.3.1", hasUse: true }
+
+The error import_react2.default.use is not a function must be gone.
+
+Visit /handler/sign-up → page renders; complete sign-up.
+
+Header <UserButton /> shows logged-in state.
+
+Server logs keep running clean (no DB auth errors, no migration-monitor crash).
+
+If npm was previously “blocked by environment”, try:
+
+# fallback reinstall flow
+corepack enable || true
+npm i --no-audit --no-fund
+npm dedupe
+
+Why this fixes it
+
+The crash is from a duplicate/old React pulled somewhere in the tree. We:
+
+pin React to 18.3.1,
+
+enforce it for sub-dependencies via overrides,
+
+alias React paths in Vite so every import resolves to the same copy,
+
+clear caches so the bundle rebuilds clean.
+
+The monitor error came from leftover Drizzle usage after you moved to pg. Swapping to query() removes the undefined db call.
+
+If anything still screams, drop the new console line that prints React sanity: { version, hasUse } and I’ll zero in on it fast.
