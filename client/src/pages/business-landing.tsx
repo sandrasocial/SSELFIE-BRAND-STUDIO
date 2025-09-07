@@ -222,14 +222,14 @@ export default function BusinessLanding() {
         
         <div className="relative z-10 max-w-4xl mx-auto px-6 pb-20">
           {/* Eyebrow - Clear Category */}
-          <p className="eyebrow-text text-white/70" style={{ marginBottom: 'var(--space-lg)' }}>
+          <p className="text-xs uppercase tracking-[0.4em] text-white/70 mb-6">
             YOUR PERSONAL AI PHOTOGRAPHER
           </p>
           
           {/* Hero Headline - Value Prop First */}
           <h1 
-            className="guide-title text-white"
-            style={{ marginBottom: 'var(--space-2xl)' }}
+            className="font-serif text-[clamp(3rem,8vw,6rem)] font-light leading-[0.9] tracking-wide uppercase mb-8"
+            style={{ fontFamily: 'Times New Roman, serif' }}
           >
             Professional Photos<br />From Your Selfies
           </h1>
@@ -259,23 +259,23 @@ export default function BusinessLanding() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           {/* Relatable Headline */}
           <h2 
-            className="section-title"
-            style={{ marginBottom: 'var(--space-4xl)' }}
+            className="font-serif text-[clamp(2rem,5vw,3.5rem)] font-light mb-16 leading-tight"
+            style={{ fontFamily: 'Times New Roman, serif' }}
           >
             Scrolling through your camera roll like<br />
             "what can I post today?"
           </h2>
           
-          <div className="max-w-2xl mx-auto text-lg leading-relaxed" style={{ color: 'var(--body-gray)' }}>
-            <p style={{ marginBottom: 'var(--space-2xl)' }}>
+          <div className="max-w-2xl mx-auto space-y-8 text-lg leading-relaxed text-gray-700">
+            <p>
               You know the drill. Sunday night content prep. Scrolling through your phone looking for something decent to post. The same three photos. Again.
             </p>
             
-            <p style={{ marginBottom: 'var(--space-2xl)' }}>
+            <p>
               Two hours later, you settle for a mediocre selfie with a caption about "being authentic." But you know you look amateur next to your competitors.
             </p>
             
-            <p className="font-medium" style={{ color: 'var(--luxury-black)' }}>
+            <p className="font-medium text-black">
               There's a better way.
             </p>
           </div>
@@ -283,7 +283,7 @@ export default function BusinessLanding() {
       </section>
 
       {/* Sandra's Story - Vulnerable Credibility */}
-      <section style={{ padding: 'var(--space-5xl) 0', backgroundColor: 'var(--editorial-gray)' }}>
+      <section className="py-20 md:py-32 bg-[#fafafa]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
@@ -295,27 +295,27 @@ export default function BusinessLanding() {
             </div>
             
             <div className="space-y-6">
-              <p className="eyebrow-text" style={{ marginBottom: 'var(--space-2xl)' }}>
+              <p className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
                 THE REAL STORY
               </p>
               
               <h2 
-                className="section-title"
-                style={{ marginBottom: 'var(--space-2xl)' }}
+                className="font-serif text-[clamp(2rem,4vw,3rem)] font-light mb-8 leading-tight"
+                style={{ fontFamily: 'Times New Roman, serif' }}
               >
                 I figured this out the hard way
               </h2>
               
-              <div className="text-lg leading-relaxed" style={{ color: 'var(--body-gray)' }}>
-                <p style={{ marginBottom: 'var(--space-lg)' }}>
+              <div className="space-y-4 text-lg leading-relaxed text-gray-700">
+                <p>
                   Single mom. Divorced. €12 in my bank account. But I knew I needed professional photos to build anything online.
                 </p>
                 
-                <p style={{ marginBottom: 'var(--space-lg)' }}>
+                <p>
                   I couldn't afford €1500 photoshoots, so I figured out how to make my phone selfies work. Built my entire brand using professional photos generated from bathroom mirror selfies.
                 </p>
                 
-                <p className="font-medium" style={{ color: 'var(--luxury-black)' }}>
+                <p className="font-medium text-black">
                   If it worked for a broke single mom in Iceland, it'll work for you too.
                 </p>
               </div>
@@ -325,11 +325,11 @@ export default function BusinessLanding() {
       </section>
 
       {/* Solution Section - Confident Simplicity */}
-      <section style={{ padding: 'var(--space-5xl) 0', backgroundColor: 'var(--pure-white)' }}>
+      <section className="py-20 md:py-32 bg-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 
-            className="section-title"
-            style={{ marginBottom: 'var(--space-4xl)' }}
+            className="font-serif text-[clamp(2rem,5vw,3.5rem)] font-light mb-16"
+            style={{ fontFamily: 'Times New Roman, serif' }}
           >
             Here's exactly how it works
           </h2>
