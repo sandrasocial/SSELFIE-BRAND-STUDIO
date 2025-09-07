@@ -462,7 +462,7 @@ export default function Maya() {
                 Personal Brand Strategist
               </div>
               <h1 
-                className="text-4xl md:text-5xl text-black mb-6"
+                className="text-4xl md:text-5xl text-black mb-8"
                 style={{ 
                   fontFamily: 'Times New Roman, serif', 
                   fontWeight: 200, 
@@ -472,6 +472,25 @@ export default function Maya() {
               >
                 MAYA
               </h1>
+              
+              {/* Maya Profile Image - Editorial Style */}
+              <div className="mb-8">
+                <div className="relative w-32 h-32 mx-auto mb-6 overflow-hidden rounded-full">
+                  <img
+                    src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
+                    alt="Maya - Personal Brand Strategist"
+                    className="w-full h-full object-cover object-center filter grayscale-[10%] hover:grayscale-0 transition-all duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/10 hover:bg-transparent transition-all duration-500"></div>
+                </div>
+                <p 
+                  className="text-xs tracking-widest uppercase text-gray-500 text-center"
+                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, letterSpacing: '0.2em' }}
+                >
+                  Your AI Strategist
+                </p>
+              </div>
+              
               <div className="flex items-center justify-center space-x-8">
                 <button
                   onClick={handleNewSession}
