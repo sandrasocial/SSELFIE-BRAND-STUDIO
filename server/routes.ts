@@ -540,7 +540,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'User not authenticated' });
       }
 
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { userPersonalBrand } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
 
@@ -564,7 +564,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'User not authenticated' });
       }
 
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { userPersonalBrand } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
 
@@ -697,7 +697,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const websiteData = req.body;
       
       // Generate website using Victoria AI
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { websites, onboardingData } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
       
@@ -816,7 +816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { siteId, modifications } = req.body;
       const userId = req.user?.claims?.sub;
       
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
       
@@ -841,7 +841,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { siteId } = req.body;
       const userId = req.user?.claims?.sub;
       
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
       
@@ -870,7 +870,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/victoria/websites', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
       
@@ -893,7 +893,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user?.claims?.sub;
       const assessmentData = req.body;
       
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { onboardingData } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
       
@@ -947,7 +947,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/websites', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
       const { eq, desc } = await import('drizzle-orm');
       
@@ -967,7 +967,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/websites', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { websites, insertWebsiteSchema } = await import('../shared/schema');
       
       const websiteData = { 
@@ -993,7 +993,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       const websiteId = parseInt(req.params.id);
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
       
@@ -1018,7 +1018,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user?.claims?.sub;
       const websiteId = parseInt(req.params.id);
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { websites } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
       
@@ -1395,7 +1395,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('💾 Saving image to gallery:', { userId, prompt, category, isAutoSaved });
       
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { aiImages } = await import('../shared/schema');
       
       // Check if image already exists to avoid duplicates
@@ -1437,21 +1437,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // REMOVED: Maya endpoint moved to unified router at /api/maya/generated-images
 
-  // AI Images endpoint - Production ready
+  // AI Images endpoint - Production ready (Fixed to use storage layer)
   app.get('/api/ai-images', requireActiveSubscription, async (req: any, res) => {
     try {
       const userId = req.user.id;
       console.log('🖼️ Fetching AI images for user:', userId);
       
-      const { db } = await import('./db');
-      const { aiImages } = await import('../shared/schema');
-      const { eq, desc } = await import('drizzle-orm');
-      
-      const userImages = await db
-        .select()
-        .from(aiImages)
-        .where(eq(aiImages.userId, userId))
-        .orderBy(desc(aiImages.createdAt));
+      // Use storage layer instead of direct database access
+      const userImages = await storage.getAIImages(userId);
       
       console.log(`✅ Found ${userImages.length} AI images for user ${userId}`);
       res.json(userImages);
@@ -1471,7 +1464,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user?.claims?.sub;
       console.log('🤖 OLD ENDPOINT - Fetching user model for user:', userId);
       
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { userModels } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
       
@@ -2971,7 +2964,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       // Use database directly to get conversation history
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { claudeMessages } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
       
@@ -3088,7 +3081,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log(`💖 Fetching favorites for user: ${user.id}`);
       
       // Import database and schema
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { aiImages } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
       
@@ -3131,7 +3124,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log(`💖 Toggling favorite for image ${imageId} by user ${user.id}`);
       
       // Import database and schema
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { aiImages } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
       
@@ -3197,7 +3190,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log(`🗑️ Deleting image ${imageId} for user ${user.id}`);
       
       // Import database and schema
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { aiImages } = await import('../shared/schema');
       const { eq, and } = await import('drizzle-orm');
       
@@ -3238,7 +3231,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // User model endpoint for workspace model status  
+  // User model endpoint for workspace model status (Fixed to use storage layer)
   app.get('/api/user-model', requireActiveSubscription, async (req: any, res) => {
     try {
       const userId = req.user.id;
@@ -3248,18 +3241,8 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       const user = await storage.getUser(userId);
       const hasPaidPlan = user && ['sselfie-studio'].includes(user.plan || '');
       
-      // Import database and schema
-      const { db } = await import('./db');
-      const { userModels } = await import('../shared/schema');
-      const { eq, desc } = await import('drizzle-orm');
-      
-      // Query user's latest model
-      const [userModel] = await db
-        .select()
-        .from(userModels)
-        .where(eq(userModels.userId, userId))
-        .orderBy(desc(userModels.createdAt))
-        .limit(1);
+      // Use storage layer instead of direct database access
+      const userModel = await storage.getUserModelByUserId(userId);
       
       if (userModel) {
         console.log(`✅ Found user model: ${userModel.modelName} (${userModel.trainingStatus})`);
@@ -3509,7 +3492,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
       }
 
       // Check for existing selfie uploads
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { selfieUploads } = await import('../shared/schema');
       const { eq } = await import('drizzle-orm');
       
@@ -3646,7 +3629,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
 
       console.log('📊 DATA STATUS: Checking data consistency...');
       
-      const { db } = await import('./db');
+      const { db } = await import('./drizzle');
       const { aiImages, generatedImages, selfieUploads, userModels, generationTrackers } = await import('../shared/schema');
       const { sql } = await import('drizzle-orm');
       
