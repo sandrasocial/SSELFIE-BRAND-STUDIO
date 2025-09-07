@@ -3,7 +3,7 @@
  * Automated outreach and support for inactive paid users
  */
 
-import { db } from '../db.js';
+import { db } from '../drizzle.js';
 import { users, selfieUploads, userModels } from '../../shared/schema.js';
 import { eq, sql } from 'drizzle-orm';
 

@@ -1,4 +1,4 @@
-import { db } from '../db';
+import { db } from '../drizzle';
 import { claudeConversations, claudeMessages } from '../shared/schema';
 import { eq, desc, and } from 'drizzle-orm';
 

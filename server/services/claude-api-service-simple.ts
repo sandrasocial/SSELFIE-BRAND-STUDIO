@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { db } from '../db.js';
+import { db } from '../drizzle.js';
 import { claudeConversations, claudeMessages, agentLearning, agentKnowledgeBase, agentSessionContexts } from '../../shared/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 import { simpleMemoryService } from './simple-memory-service.js';

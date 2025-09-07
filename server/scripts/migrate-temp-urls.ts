@@ -1,4 +1,4 @@
-import { pool } from '../db';
+import { pool } from '../drizzle';
 import { ImageStorageService } from '../image-storage-service';
 
 async function migrateTempUrls() {

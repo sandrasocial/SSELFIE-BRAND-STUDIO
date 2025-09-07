@@ -1,4 +1,4 @@
-import { db } from '../db';
+import { db } from '../drizzle';
 import { agentCostTracking, agentBudgets } from '../../shared/schema';
 import { eq, and, gte, sql, sum } from 'drizzle-orm';
 

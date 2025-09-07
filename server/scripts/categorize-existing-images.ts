@@ -1,4 +1,4 @@
-import { pool } from '../db';
+import { pool } from '../drizzle';
 
 // Helper function to detect category from prompt - same logic as in Maya unified routes
 function detectCategoryFromPrompt(prompt: string): string {

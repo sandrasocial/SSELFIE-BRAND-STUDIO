@@ -40,7 +40,7 @@ import { AdminContextManager } from '../memory/admin-context-manager';
 import { PersonalityIntegrationService } from '../agents/personality-integration-service';
 import { LocalProcessingEngine } from '../services/hybrid-intelligence/local-processing-engine';
 import { simpleMemoryService } from '../services/simple-memory-service';
-import { db } from '../db';
+import { db } from '../drizzle';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, desc } from 'drizzle-orm';
 // COORDINATION TOOLS: Import schemas and direct tool functions

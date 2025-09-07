@@ -6,7 +6,7 @@
 
 import { storage } from './storage';
 import { personalBrandService } from './services/personal-brand-service';
-import { db } from './db';
+import { db } from './drizzle';
 import { userPersonalBrand, mayaPersonalMemory, mayaChats, mayaChatMessages } from '@shared/schema';
 import { eq, desc, and, gte, lte, count, sql } from 'drizzle-orm';
 
