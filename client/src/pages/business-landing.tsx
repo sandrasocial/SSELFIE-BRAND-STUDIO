@@ -136,7 +136,7 @@ export default function BusinessLanding() {
       const publishableKey = STACK_PUBLISHABLE_CLIENT_KEY;
       
       if (publishableKey) {
-        window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
+        window.location.href = `/handler/sign-in)}`;
       }
       return;
     }
