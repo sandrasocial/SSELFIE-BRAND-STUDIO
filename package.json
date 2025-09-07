@@ -507,7 +507,7 @@
     "scheduler": "^0.23.2",
     "semver": "^6.3.1",
     "send": "^1.2.0",
-    "serve-static": "^1.15.0",
+    "serve-static": "^1.16.2",
     "set-function-length": "^1.2.2",
     "set-function-name": "^2.0.2",
     "set-proto": "^1.0.0",

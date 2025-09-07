@@ -4,6 +4,7 @@
  * Runs continuously to ensure no images are lost due to URL expiration
  */
 
+import { query } from './db';
 import { storage } from './storage';
 import { ImageStorageService } from './image-storage-service';
 
@@ -110,32 +111,11 @@ export class MigrationMonitor {
   /**
    * Get images with Replicate URLs that need migration
    */
-  private async getReplicateImages(): Promise<any[] | null> {
+  private async getReplicateImages(limit: number = 20): Promise<any[] | null> {
     try {
-      const { db } = await import('./db');
-      const { aiImages } = await import('../shared/schema');
-      const { sql } = await import('drizzle-orm');
-
-      const results = await db
-        .select({
-          id: aiImages.id,
-          userId: aiImages.userId,
-          imageUrl: aiImages.imageUrl,
-          createdAt: aiImages.createdAt
-        })
-        .from(aiImages)
-        .where(
-          sql`${aiImages.imageUrl} LIKE 'https://replicate.delivery%' 
-              AND ${aiImages.createdAt} > NOW() - INTERVAL '24 hours'`
-        )
-        .limit(20); // Process in batches of 20
-
-      return results.map(row => ({
-        id: row.id,
-        user_id: row.userId,
-        image_url: row.imageUrl
-      }));
-
+      const sql = "SELECT id, user_id, image_url, created_at FROM ai_images WHERE image_url LIKE 'https://replicate.delivery%' AND created_at > NOW() - INTERVAL '24 hours' LIMIT $1";
+      const result = await query(sql, [limit]);
+      return result.rows;
     } catch (error) {
       // Handle schema mismatches gracefully
       if (error.message?.includes('column') && error.message?.includes('does not exist')) {
@@ -153,16 +133,8 @@ export class MigrationMonitor {
    */
   private async updateImageUrl(imageId: number, permanentUrl: string): Promise<void> {
     try {
-      const { db } = await import('./db');
-      const { aiImages } = await import('../shared/schema');
-      const { eq } = await import('drizzle-orm');
-
-      await db
-        .update(aiImages)
-        .set({ 
-          imageUrl: permanentUrl
-        })
-        .where(eq(aiImages.id, imageId));
+      const sql = "UPDATE ai_images SET image_url = $1 WHERE id = $2";
+      await query(sql, [permanentUrl, imageId]);
 
     } catch (error) {
       console.error(`❌ MIGRATION MONITOR: Error updating image ${imageId}:`, error);
@@ -177,19 +149,9 @@ export class MigrationMonitor {
     try {
       console.log(`🔄 MANUAL MIGRATION: Starting for user ${userId}`);
       
-      const { db } = await import('./db');
-      const { aiImages } = await import('../shared/schema');
-      const { eq, and, like } = await import('drizzle-orm');
-
-      const userImages = await db
-        .select()
-        .from(aiImages)
-        .where(
-          and(
-            eq(aiImages.userId, userId),
-            like(aiImages.imageUrl, 'https://replicate.delivery%')
-          )
-        );
+      const selectSql = "SELECT * FROM ai_images WHERE user_id = $1 AND image_url LIKE 'https://replicate.delivery%'";
+      const result = await query(selectSql, [userId]);
+      const userImages = result.rows;
 
       if (userImages.length === 0) {
         console.log(`✅ MANUAL MIGRATION: No temp URLs found for user ${userId}`);
@@ -202,17 +164,13 @@ export class MigrationMonitor {
         try {
           const imageId = `manual_${image.id}_${Date.now()}`;
           const permanentUrl = await ImageStorageService.ensurePermanentStorage(
-            image.imageUrl, 
+            image.image_url, 
             userId, 
             imageId
           );
 
-          await db
-            .update(aiImages)
-            .set({ 
-              imageUrl: permanentUrl
-            })
-            .where(eq(aiImages.id, image.id));
+          const updateSql = "UPDATE ai_images SET image_url = $1 WHERE id = $2";
+          await query(updateSql, [permanentUrl, image.id]);
 
           console.log(`✅ MANUAL MIGRATION: Image ${image.id} migrated successfully`);
 
