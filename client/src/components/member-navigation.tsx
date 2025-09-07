@@ -37,13 +37,10 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
   const isAdmin = user?.email === 'ssa@ssasocial.com';
   const isImpersonating = user?.email === 'shannon@soulresets.com' && user?.role === 'user';
 
-  // Member navigation items - SIMPLIFIED TO 3-STEP FLOW
+  // Member navigation items - SIMPLIFIED TO STUDIO, GALLERY, LOGOUT
   const navItems = [
-    { path: '/ai-training', label: 'Train' },
-    { path: '/maya', label: 'Style' },
+    { path: '/workspace', label: 'Studio' },
     { path: '/sselfie-gallery', label: 'Gallery' },
-    { path: '/profile', label: 'Profile' },
-    { path: '/settings', label: 'Settings' },
   ];
 
   const handleLogout = () => {
