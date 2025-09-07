@@ -7,8 +7,7 @@ interface MemberNavigationProps {
 }
 
 export function MemberNavigation({ transparent = true }: MemberNavigationProps) {
-  const [, setLocation] = useLocation();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
