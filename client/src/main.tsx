@@ -38,6 +38,14 @@ window.addEventListener('unhandledrejection', (event) => {
   console.warn('SSELFIE Studio: Unhandled promise rejection caught:', event.reason);
 });
 
+// React sanity check for debugging
+if (import.meta.env.DEV) {
+  console.log("React sanity:", { 
+    version: React.version, 
+    hasUse: typeof (React as any).use === "function" 
+  });
+}
+
 console.log('SSELFIE Studio: Starting up with JWT authentication...');
 
 const container = document.getElementById("root");
