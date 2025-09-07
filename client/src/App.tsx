@@ -122,54 +122,43 @@ function SmartHome() {
 
 // Protected wrapper component that handles Stack Auth authentication
 function ProtectedRoute({ component: Component, ...props }: { component: ComponentType<any>, [key: string]: any }) {
-  try {
-    const { isAuthenticated, isLoading, signIn, user } = useAuth();
-    const [, setLocation] = useLocation();
-    
-    // Enhanced logging for debugging navigation issues
-    useEffect(() => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('ProtectedRoute state:', { isAuthenticated, isLoading, hasUser: !!user });
-      }
-    }, [isAuthenticated, isLoading, user]);
+  // ✅ FIXED: All hooks called at top level, outside any conditions or try/catch
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const [, setLocation] = useLocation();
+  
+  // Enhanced logging for debugging navigation issues
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('ProtectedRoute state:', { isAuthenticated, isLoading, hasUser: !!user });
+    }
+  }, [isAuthenticated, isLoading, user]);
 
-    // Redirect to sign-in if not authenticated
-    useEffect(() => {
-      if (!isLoading && !isAuthenticated) {
-        console.log('🔍 ProtectedRoute: Redirecting to Stack Auth sign-in');
-        setLocation('/auth/sign-in');
-      }
-    }, [isLoading, isAuthenticated, setLocation]);
-    
-    if (isLoading) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-        </div>
-      );
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      console.log('🔍 ProtectedRoute: Redirecting to Stack Auth sign-in');
+      setLocation('/handler/sign-in');
     }
-    
-    if (!isAuthenticated) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
-        </div>
-      );
-    }
-    
-    return <Component {...props} />;
-  } catch (error) {
-    console.error('ProtectedRoute error:', error);
-    // Fallback UI for React errors
+  }, [isLoading, isAuthenticated, setLocation]);
+  
+  // ✅ FIXED: Simple conditional rendering without try/catch
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-bold mb-4">Loading Authentication...</h2>
-          <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full mx-auto" />
-        </div>
+        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
       </div>
     );
   }
+  
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-black border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+  
+  return <Component {...props} />;
 }
 
 function Router() {
