@@ -77,6 +77,7 @@ export function NotificationPreferences() {
       const response = await fetch('/api/admin/notification-preferences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(prefs)
       });
       if (!response.ok) throw new Error('Failed to save preferences');

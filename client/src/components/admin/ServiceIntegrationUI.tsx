@@ -108,7 +108,8 @@ export default function ServiceIntegrationUI() {
     try {
       const response = await fetch('/api/admin/services/health-check', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
       });
       
       if (response.ok) {
@@ -141,6 +142,7 @@ export default function ServiceIntegrationUI() {
       const response = await fetch(`/api/admin/services/${serviceId}/configure`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(config)
       });
       
