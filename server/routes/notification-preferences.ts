@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 
 const router = Router();
 
@@ -7,7 +7,7 @@ const router = Router();
 const userPreferences: Record<string, any> = {};
 
 // Get notification preferences
-router.get('/', requireAuth, async (req: any, res) => {
+router.get('/', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') { // Sandra's user ID
@@ -67,7 +67,7 @@ router.get('/', requireAuth, async (req: any, res) => {
 });
 
 // Save notification preferences
-router.post('/', requireAuth, async (req: any, res) => {
+router.post('/', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {
@@ -211,7 +211,7 @@ router.post('/should-notify', async (req, res) => {
 });
 
 // Reset preferences to defaults
-router.post('/reset', requireAuth, async (req: any, res) => {
+router.post('/reset', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {

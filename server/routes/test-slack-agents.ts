@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { launchFocusedAgentService } from '../services/launch-focused-agent-service';
 import { SlackNotificationService } from '../services/slack-notification-service';
 
 const router = Router();
 
 // Test route to verify Slack integration works
-router.post('/send-launch-status', requireAuth, async (req: any, res) => {
+router.post('/send-launch-status', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     
@@ -51,7 +51,7 @@ router.post('/send-launch-status', requireAuth, async (req: any, res) => {
 });
 
 // Test agent conversation trigger
-router.post('/trigger-agent-conversation/:agentName', requireAuth, async (req: any, res) => {
+router.post('/trigger-agent-conversation/:agentName', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     
@@ -86,7 +86,7 @@ router.post('/trigger-agent-conversation/:agentName', requireAuth, async (req: a
 });
 
 // Show agent team status
-router.get('/agent-team-status', requireAuth, async (req: any, res) => {
+router.get('/agent-team-status', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     

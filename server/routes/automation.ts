@@ -1,10 +1,10 @@
 import type { Express } from "express";
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { storage } from "../storage";
 
 export function registerAutomationRoutes(app: Express) {
   // Welcome email automation
-  app.post('/api/automation/welcome-email', requireAuth, async (req: any, res) => {
+  app.post('/api/automation/welcome-email', requireStackAuth, async (req: any, res) => {
     try {
       const { plan } = req.body;
       const userId = (req.user as any)?.claims?.sub;
@@ -23,7 +23,7 @@ export function registerAutomationRoutes(app: Express) {
   });
 
   // Setup onboarding automation
-  app.post('/api/automation/setup-onboarding', requireAuth, async (req: any, res) => {
+  app.post('/api/automation/setup-onboarding', requireStackAuth, async (req: any, res) => {
     try {
       const { plan } = req.body;
       const userId = (req.user as any)?.claims?.sub;
@@ -57,7 +57,7 @@ export function registerAutomationRoutes(app: Express) {
       let targetUserId = userId;
       
       // If no userId provided, try to get from authentication
-      if (!targetUserId && req.requireAuth()) {
+      if (!targetUserId && req.requireStackAuth()) {
         targetUserId = (req.user as any)?.claims?.sub;
       }
       
@@ -131,7 +131,7 @@ export function registerAutomationRoutes(app: Express) {
   });
 
   // Email sequence automation (for future implementation)
-  app.post('/api/automation/email-sequence', requireAuth, async (req: any, res) => {
+  app.post('/api/automation/email-sequence', requireStackAuth, async (req: any, res) => {
     try {
       const { sequenceType, step } = req.body;
       const userId = (req.user as any)?.claims?.sub;
@@ -148,7 +148,7 @@ export function registerAutomationRoutes(app: Express) {
   });
 
   // AI generation automation (for bulk processing)
-  app.post('/api/automation/bulk-ai-generation', requireAuth, async (req: any, res) => {
+  app.post('/api/automation/bulk-ai-generation', requireStackAuth, async (req: any, res) => {
     try {
       const { prompts } = req.body;
       const userId = (req.user as any)?.claims?.sub;

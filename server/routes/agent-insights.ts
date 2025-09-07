@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { AgentInsightEngine } from '../services/agent-insight-engine';
 
 const router = Router();
 
 // Trigger manual insight from specific agent (for testing)
-router.post('/trigger-manual/:agentName', requireAuth, async (req: any, res) => {
+router.post('/trigger-manual/:agentName', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') { // Sandra's user ID
@@ -71,7 +71,7 @@ router.post('/process-context', async (req, res) => {
 });
 
 // Get agent engine statistics
-router.get('/stats', requireAuth, async (req: any, res) => {
+router.get('/stats', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {
@@ -95,7 +95,7 @@ router.get('/stats', requireAuth, async (req: any, res) => {
 });
 
 // Test multiple agent insights
-router.post('/test-multi-agent', requireAuth, async (req: any, res) => {
+router.post('/test-multi-agent', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {

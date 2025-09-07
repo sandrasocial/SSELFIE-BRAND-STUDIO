@@ -65,13 +65,13 @@ import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (required for JWT authentication)
+  // User operations (Stack Auth integration)
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>; // For JWT registration
+  upsertUser(user: InsertUser): Promise<User>; // For Stack Auth sync
   getAllUsers(): Promise<User[]>;
-  upsertUser(user: InsertUser): Promise<User>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
+  syncStackAuthUser(stackUser: { id: string; primaryEmail?: string; displayName?: string; profileImageUrl?: string }): Promise<User>;
   // 🔄 PHASE 3: Retraining access management
   updateUserRetrainingAccess(userId: string, retrainingData: { hasRetrainingAccess: boolean; retrainingSessionId: string; retrainingPaidAt: Date }): Promise<User>;
 

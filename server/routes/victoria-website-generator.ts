@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 
 interface WebsiteGenerationRequest {
   businessName: string;
@@ -14,7 +14,7 @@ interface WebsiteGenerationRequest {
 
 export function registerVictoriaWebsiteGenerator(app: Express) {
   // Generate complete website using Victoria's AI
-  app.post('/api/victoria/generate-website', requireAuth, async (req: any, res) => {
+  app.post('/api/victoria/generate-website', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const data: WebsiteGenerationRequest = req.body;

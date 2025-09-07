@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { sql } from 'drizzle-orm';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 
 const router = Router();
 
 // Apply authentication to all routes
-router.use(requireAuth);
+router.use(requireStackAuth);
 
 // Customer Management APIs
 router.get('/customer-stats', async (req, res) => {

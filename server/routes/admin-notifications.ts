@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { SlackNotificationService } from '../services/slack-notification-service';
 
 const router = Router();
 
 // Test Slack connection endpoint
-router.post('/test-slack', requireAuth, async (req: any, res) => {
+router.post('/test-slack', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') { // Sandra's user ID
@@ -47,7 +47,7 @@ router.post('/test-slack', requireAuth, async (req: any, res) => {
 });
 
 // Send manual insight notification (for testing)
-router.post('/send-insight', requireAuth, async (req: any, res) => {
+router.post('/send-insight', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {
@@ -79,7 +79,7 @@ router.post('/send-insight', requireAuth, async (req: any, res) => {
 });
 
 // Send urgent request notification
-router.post('/urgent-request', requireAuth, async (req: any, res) => {
+router.post('/urgent-request', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {

@@ -2,7 +2,7 @@
 // Triggers for automatic email sending
 
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { 
   sendWelcomeEmail, 
   sendTrainingCompleteEmail, 
@@ -14,7 +14,7 @@ import { storage } from '../storage';
 const router = Router();
 
 // Send welcome email (triggered on subscription)
-router.post('/welcome', requireAuth, async (req, res) => {
+router.post('/welcome', requireStackAuth, async (req, res) => {
   try {
     const { userEmail, userName } = req.body;
     
@@ -35,7 +35,7 @@ router.post('/welcome', requireAuth, async (req, res) => {
 });
 
 // Send training completion email
-router.post('/training-complete', requireAuth, async (req, res) => {
+router.post('/training-complete', requireStackAuth, async (req, res) => {
   try {
     const { userEmail, userName } = req.body;
     
@@ -56,7 +56,7 @@ router.post('/training-complete', requireAuth, async (req, res) => {
 });
 
 // Send generation limit warning
-router.post('/limit-warning', requireAuth, async (req, res) => {
+router.post('/limit-warning', requireStackAuth, async (req, res) => {
   try {
     const { userEmail, userName, percentage, planType } = req.body;
     
@@ -77,7 +77,7 @@ router.post('/limit-warning', requireAuth, async (req, res) => {
 });
 
 // Send upgrade invitation
-router.post('/upgrade-invite', requireAuth, async (req, res) => {
+router.post('/upgrade-invite', requireStackAuth, async (req, res) => {
   try {
     const { userEmail, userName } = req.body;
     
