@@ -46,17 +46,18 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
 
 // User storage table for Stack Auth integration
 export const users = pgTable("users", {
-  // Core user fields for JWT authentication
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique().notNull(),
-  password: varchar("password"), // For JWT authentication
+  // Core user fields - Stack Auth compatible
+  id: varchar("id").primaryKey().notNull(), // Stack Auth uses string IDs
+  email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   displayName: varchar("display_name"),
   profileImageUrl: varchar("profile_image_url"),
   
-  // User activity tracking  
-  lastLoginAt: timestamp("last_login_at"), // Track user activity
+  // Stack Auth managed timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastLoginAt: timestamp("last_login_at"),
   
   // Business logic - preserved from existing system
   stripeCustomerId: varchar("stripe_customer_id"),
