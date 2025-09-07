@@ -1069,7 +1069,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 🚨 Check training status and handle failures
   app.get('/api/training-status', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user?.id || req.user?.claims?.sub;
       console.log(`🔍 Checking training status for user: ${userId}`);
       
       // Get user plan to verify they can retrain
@@ -1111,7 +1111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 🔧 PHASE 3: Retry model extraction for failed trainings
   app.post('/api/training/retry-extraction', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user?.id || req.user?.claims?.sub;
       console.log(`🔧 PHASE 3: Model extraction retry requested for user: ${userId}`);
       
       // Get user plan to verify they can retry
@@ -3433,7 +3433,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   // Model training endpoint for workspace step 1 - Uses BulletproofUploadService
   app.post('/api/start-model-training', requireActiveSubscription, async (req: any, res) => {
     try {
-      const authUserId = req.user.id;
+      const authUserId = req.user.id || req.user.claims?.sub;
       const claims = req.user.claims;
       const { selfieImages } = req.body;
       
@@ -3493,7 +3493,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   // Enhanced endpoint for users to start fresh training (retraining)
   app.post('/api/initiate-new-training', requireStackAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user?.id || req.user?.claims?.sub;
       const { resetExisting = false } = req.body;
       
       console.log(`🚀 RETRAIN: User ${userId} initiating new training (reset: ${resetExisting})`);

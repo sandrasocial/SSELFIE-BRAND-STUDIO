@@ -460,11 +460,26 @@ export class DatabaseStorage implements IStorage {
 
   // AI Image operations
   async getAIImages(userId: string): Promise<AiImage[]> {
-    return await db
+    // Direct lookup first
+    let images = await db
       .select()
       .from(aiImages)
       .where(eq(aiImages.userId, userId))
       .orderBy(desc(aiImages.createdAt));
+    
+    if (images.length === 0) {
+      // For Stack Auth users, check by linked original user ID
+      const linkedUser = await this.getUserByStackAuthId(userId);
+      if (linkedUser) {
+        images = await db
+          .select()
+          .from(aiImages)
+          .where(eq(aiImages.userId, linkedUser.id))
+          .orderBy(desc(aiImages.createdAt));
+      }
+    }
+    
+    return images;
   }
 
   async saveAIImage(data: InsertAiImage): Promise<AiImage> {
@@ -577,17 +592,30 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(generationTrackers.createdAt));
   }
 
-  // User Model operations
+  // User Model operations - with dual ID support for Stack Auth migration
   async getUserModel(userId: string): Promise<UserModel | undefined> {
-    const [model] = await db
+    // Direct lookup first
+    let [model] = await db
       .select()
       .from(userModels)
       .where(eq(userModels.userId, userId));
+    
+    if (!model) {
+      // For Stack Auth users, also check by linked original user ID
+      const linkedUser = await this.getUserByStackAuthId(userId);
+      if (linkedUser) {
+        [model] = await db
+          .select()
+          .from(userModels)
+          .where(eq(userModels.userId, linkedUser.id));
+      }
+    }
+    
     return model;
   }
 
   async getUserModelByUserId(userId: string): Promise<UserModel | undefined> {
-    // Alias for getUserModel - same functionality
+    // Alias for getUserModel - same functionality with dual ID support
     return this.getUserModel(userId);
   }
 
@@ -606,11 +634,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserModel(userId: string, data: Partial<UserModel>): Promise<UserModel> {
-    const [updated] = await db
+    // Try direct update first
+    let [updated] = await db
       .update(userModels)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(userModels.userId, userId))
       .returning();
+    
+    if (!updated) {
+      // For Stack Auth users, try updating by linked original user ID
+      const linkedUser = await this.getUserByStackAuthId(userId);
+      if (linkedUser) {
+        [updated] = await db
+          .update(userModels)
+          .set({ ...data, updatedAt: new Date() })
+          .where(eq(userModels.userId, linkedUser.id))
+          .returning();
+      }
+    }
+    
+    if (!updated) {
+      throw new Error(`User model not found for user: ${userId}`);
+    }
+    
     return updated;
   }
 
@@ -652,21 +698,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async ensureUserModel(userId: string): Promise<UserModel> {
-    // Check if user model already exists
+    // Check if user model already exists (with dual ID support)
     const existingModel = await this.getUserModel(userId);
     if (existingModel) {
       console.log('✅ User model already exists for user:', userId);
       return existingModel;
     }
+    
+    // For new user models, use the original user ID (not Stack Auth ID)
+    const user = await this.getUser(userId);
+    const actualUserId = user?.id || userId;
 
     // Create new user model that requires actual training
-    console.log('🔄 Creating new user model for user:', userId);
-    const triggerWord = `user${userId}`;
+    console.log('🔄 Creating new user model for user:', actualUserId);
+    const triggerWord = `user${actualUserId}`;
     const modelData: InsertUserModel = {
-      userId,
+      userId: actualUserId,
       triggerWord,
       trainingStatus: 'not_started', // User must complete training
-      modelName: `${userId}-selfie-lora`, // Consistent with training service
+      modelName: `${actualUserId}-selfie-lora`, // Consistent with training service
     };
 
     return await this.createUserModel(modelData);
