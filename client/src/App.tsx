@@ -525,26 +525,6 @@ function HandlerRoutes() {
 }
 
 function AppWithProvider() {
-  const stackKey = stackClientApp.publishableClientKey;
-  
-  console.log('🔍 Stack Auth Config:', {
-    projectId: stackClientApp.projectId,
-    hasKey: !!stackKey,
-    keyPrefix: stackKey ? stackKey.substring(0, 10) + '...' : 'MISSING'
-  });
-
-  if (!stackKey) {
-    console.error('❌ Stack Auth: Missing publishable client key!');
-    console.error('Raw env vars (before cleaning):', {
-      VITE_STACK_PROJECT_ID: import.meta.env.VITE_STACK_PROJECT_ID,
-      VITE_STACK_PUBLISHABLE_CLIENT_KEY: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY,
-    });
-    return <div>Stack Auth configuration error - check environment variables</div>;
-  }
-
-  // Use Neon Auth @stackframe/react SDK with StackProvider and StackTheme  
-  console.log('✅ Stack Auth: Configuration successful, starting app...');
-  
   return (
     <QueryClientProvider client={queryClient}>
       <StackProvider app={stackClientApp}>
