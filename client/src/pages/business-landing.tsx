@@ -3,52 +3,61 @@ import { useLocation } from "wouter";
 import { GlobalFooter } from "../components/global-footer";
 import { useStackApp } from "@stackframe/stack";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../env";
-import { EditorialButton } from "../components/ui/editorial-button";
-import { OfferCard } from "../components/ui/offer-card";
-import { FeatureCard } from "../components/ui/feature-card";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
-  const [showFAQ, setShowFAQ] = useState(false);
+  // Safely use Stack Auth hook with error handling for when outside provider
   let app;
   try {
     app = useStackApp();
   } catch (error) {
+    // This is fine - component can work without Stack Auth for public pages
     app = null;
   }
 
-  // SEO Meta Tags
+  // Comprehensive SEO Meta Tags
   useEffect(() => {
-    document.title = "SSELFIE Studio - Professional Photos From Your Selfies | €47/month vs €1500+ Photoshoots";
+    // Primary SEO tags
+    document.title = "SSELFIE Studio - Professional AI Photos From Selfies | Personal Branding €47/month";
 
     const metaTags = [
-      { name: 'description', content: 'Get 100+ professional brand photos from your selfies in 20 minutes. €47/month vs €1500+ photoshoots. No photographer needed.' },
-      { name: 'keywords', content: 'professional photos from selfies, AI headshots, LinkedIn headshots, personal branding photos, brand photography' },
+      { name: 'description', content: 'Transform selfies into professional brand photos with AI. LinkedIn headshots, Instagram content, website photos. €47/month vs €1500+ photoshoots. Upload selfies, get professional photos monthly.' },
+      { name: 'keywords', content: 'AI headshots, professional photos from selfies, LinkedIn headshots, personal branding photos, AI photographer, brand photography, professional selfies, AI photo generation, business headshots, social media photos' },
       { name: 'author', content: 'SSELFIE Studio' },
       { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1.0, viewport-fit=cover' },
       { name: 'theme-color', content: '#000000' },
+      { name: 'msapplication-TileColor', content: '#000000' },
 
-      // Open Graph
-      { property: 'og:title', content: 'SSELFIE Studio - Professional Photos From Your Selfies | €47/month' },
-      { property: 'og:description', content: 'Get 100+ professional brand photos from your selfies in 20 minutes. €47/month vs €1500+ photoshoots.' },
+      // Open Graph tags for social sharing
+      { property: 'og:title', content: 'SSELFIE Studio - Professional AI Photos From Selfies | Personal Branding' },
+      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. LinkedIn headshots, Instagram content, website photos. €47/month vs €1500+ photoshoots.' },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: 'https://sselfie.ai/business' },
       { property: 'og:image', content: 'https://sselfie.ai/og-business.jpg' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:image:alt', content: 'Professional AI-generated photos from selfies for personal branding' },
       { property: 'og:site_name', content: 'SSELFIE Studio' },
+      { property: 'og:locale', content: 'en_US' },
 
-      // Twitter
+      // Twitter Card tags
       { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:title', content: 'Professional Photos From Your Selfies | SSELFIE Studio' },
-      { name: 'twitter:description', content: 'Get 100+ professional brand photos from your selfies in 20 minutes. €47/month.' },
+      { name: 'twitter:title', content: 'SSELFIE Studio - Professional AI Photos From Selfies' },
+      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. €47/month vs €1500+ photoshoots.' },
+      { name: 'twitter:image', content: 'https://sselfie.ai/twitter-business.jpg' },
+      { name: 'twitter:image:alt', content: 'Professional AI-generated photos from selfies' },
 
-      // Mobile Optimization
+      // Additional SEO and Mobile Optimization tags
       { name: 'format-detection', content: 'telephone=no' },
       { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+      { name: 'mobile-web-app-capable', content: 'yes' },
       { name: 'HandheldFriendly', content: 'true' },
+      { name: 'MobileOptimized', content: '320' },
     ];
 
-    // Canonical URL
+    // Set canonical URL
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement('link');
@@ -57,7 +66,7 @@ export default function BusinessLanding() {
     }
     canonical.setAttribute('href', 'https://sselfie.ai/business');
 
-    // Apply meta tags
+    // Apply all meta tags
     metaTags.forEach(tag => {
       const selector = tag.name ? `meta[name="${tag.name}"]` : `meta[property="${tag.property}"]`;
       let meta = document.querySelector(selector);
@@ -70,12 +79,12 @@ export default function BusinessLanding() {
       meta.setAttribute('content', tag.content);
     });
 
-    // Structured Data
+    // Add JSON-LD structured data for better SEO
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Service",
       "name": "SSELFIE Studio",
-      "description": "Professional photo generation from selfies for personal branding",
+      "description": "AI-powered professional photo generation from selfies for personal branding",
       "provider": {
         "@type": "Organization",
         "name": "SSELFIE Studio",
@@ -98,6 +107,11 @@ export default function BusinessLanding() {
             "priceCurrency": "EUR"
           }
         ]
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "127"
       }
     };
 
@@ -117,102 +131,77 @@ export default function BusinessLanding() {
 
   const handleLogin = async () => {
     if (!app) {
-      if (STACK_PUBLISHABLE_CLIENT_KEY) {
+      // Fallback to direct OAuth URL
+      const projectId = STACK_PROJECT_ID;
+      const publishableKey = STACK_PUBLISHABLE_CLIENT_KEY;
+
+      if (publishableKey) {
         window.location.href = `/handler/sign-in`;
       }
       return;
     }
 
     try {
+      // ✅ Use Stack Auth SDK method
       await app.signInWithOAuth('google');
     } catch (error) {
-      console.error('Stack Auth login failed:', error);
+      console.error('❌ Stack Auth: OAuth login failed:', error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden" style={{ fontFamily: 'Helvetica Neue, Arial, sans-serif' }}>
-      {/* Transparent Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300">
-        <div className="max-w-[1400px] mx-auto px-8 py-6">
+    <div className="min-h-screen bg-white">
+      {/* Business Navigation with Mobile Support */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div 
-              className="cursor-pointer text-white transition-opacity duration-300 hover:opacity-70"
-              style={{
-                fontFamily: "Times New Roman, serif",
-                fontSize: '24px',
-                fontWeight: 200,
-                letterSpacing: '0.25em',
-                textTransform: 'uppercase'
-              }}
+              className="font-serif text-xl font-light tracking-wide text-white cursor-pointer"
+              style={{ fontFamily: "Times New Roman, serif" }}
               onClick={() => setLocation("/")}
             >
               SSELFIE
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-12">
+            <div className="hidden md:flex items-center space-x-8">
               <button 
                 onClick={() => setLocation("/editorial-landing")}
-                className="text-white/80 hover:text-white transition-all duration-300"
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 300,
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase'
-                }}
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
               >
                 Personal
               </button>
               <button 
                 onClick={() => setLocation("/teams")}
-                className="text-white/80 hover:text-white transition-all duration-300"
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 300,
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase'
-                }}
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
               >
                 Teams
               </button>
               <button
                 onClick={handleLogin}
-                className="text-white/80 hover:text-white transition-all duration-300"
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 300,
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase'
-                }}
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
               >
                 Login
               </button>
               <button
                 onClick={handleGetStarted}
-                className="text-white border border-white/50 hover:bg-white hover:text-black hover:border-white transition-all duration-500 px-8 py-3 group backdrop-blur-sm"
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 300,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase'
-                }}
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-8 py-3 font-light"
               >
                 Start €47
               </button>
             </div>
 
-            {/* Mobile Navigation */}
-            <div className="md:hidden">
+            {/* Mobile Navigation - Optimized touch targets */}
+            <div className="md:hidden flex items-center space-x-3">
+              <button
+                onClick={handleLogin}
+                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
+              >
+                Login
+              </button>
               <button
                 onClick={handleGetStarted}
-                className="text-white border border-white/50 hover:bg-white hover:text-black transition-all duration-300 px-6 py-3 backdrop-blur-sm"
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 300,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase'
-                }}
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-3 font-light min-h-[44px] min-w-[120px]"
               >
                 Start €47
               </button>
@@ -221,891 +210,383 @@ export default function BusinessLanding() {
         </div>
       </nav>
 
-      {/* Sticky CTA for Mobile */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 p-4">
-        <button 
-          onClick={handleGetStarted}
-          className="w-full bg-black text-white py-4 hover:bg-gray-900 transition-all duration-300"
-          style={{
-            fontSize: '12px',
-            fontWeight: 300,
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase'
-          }}
-        >
-          Get Professional Photos — €47
-        </button>
-      </div>
-
-      {/* Conversion-Optimized Hero */}
-      <section className="relative h-screen w-full overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
+      {/* HERO - Optimized Layout */}
+      <section className="relative min-h-screen bg-black text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-60">
           <img 
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
-            alt="Professional transformation"
+            alt="Professional transformation through AI photography"
             className="w-full h-full object-cover object-center"
-            loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent" />
         </div>
 
-        {/* Content - Left Aligned to Avoid Face */}
-        <div className="absolute inset-0 flex items-center">
-          <div className="max-w-7xl mx-auto px-8 w-full">
-            <div className="max-w-2xl text-white">
-              {/* Eyebrow */}
-              <p 
-                className="text-white/70 mb-6 animate-fade-in"
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 300,
-                  letterSpacing: '0.4em',
-                  textTransform: 'uppercase',
-                  animationDelay: '300ms'
-                }}
-              >
-                Professional Brand Photography
-              </p>
+        <div className="relative z-10 min-h-screen px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto h-screen flex items-end pb-20">
+            <div className="w-full max-w-2xl">
+              <div className="mb-8">
+                <div className="w-16 h-px bg-white/30 mb-6"></div>
+              </div>
 
-              {/* Conversion-Focused Headline */}
               <h1 
-                className="text-white mb-8 leading-[0.9] animate-fade-in"
-                style={{ 
-                  fontFamily: 'Times New Roman, serif',
-                  fontWeight: 200,
-                  fontSize: 'clamp(2.5rem, 6vw, 5rem)',
-                  letterSpacing: '0.02em',
-                  textTransform: 'uppercase',
-                  animationDelay: '600ms'
-                }}
+                className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light mb-12 tracking-[-0.02em] leading-none"
+                style={{ fontFamily: "Times New Roman, serif" }}
               >
-                100+ Professional Photos
-                <br />
-                <span className="text-white/90">From Your Selfies</span>
+                Professional Photos<br />
+                <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-[0.3em] text-white/80 font-light">
+                  FROM YOUR SELFIES
+                </span>
               </h1>
 
-              {/* Clear Value Prop */}
-              <div className="mb-12 animate-fade-in" style={{ animationDelay: '900ms' }}>
-                <p 
-                  className="text-white/90 font-light mb-4"
-                  style={{
-                    fontSize: '22px',
-                    lineHeight: 1.4,
-                    letterSpacing: '0.01em'
-                  }}
+              <div className="space-y-6">
+                <button 
+                  onClick={handleGetStarted}
+                  className="bg-white text-black px-10 py-3 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
                 >
-                  €47/month vs €1500+ photoshoots
-                </p>
-                <p 
-                  className="text-white/70 font-light"
-                  style={{
-                    fontSize: '16px',
-                    lineHeight: 1.5
-                  }}
-                >
-                  Ready in 20 minutes • 100+ photos monthly
+                  GET PROFESSIONAL PHOTOS — €47
+                </button>
+
+                <p className="text-xs text-white/60 tracking-wide">
+                  Photos ready in 20 minutes • Cancel anytime
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              {/* Clean CTA */}
+      {/* PROBLEM - Simplified */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+            The Reality
+          </div>
+
+          <h2 
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-black leading-tight"
+            style={{ fontFamily: "Times New Roman, serif" }}
+          >
+            Two hours for one decent photo.<br />
+            <span className="italic text-gray-600">Still looks amateur.</span>
+          </h2>
+
+          <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+            Scrolling through your camera roll like "what can I post today?" 
+            Using the same three photos over and over while competitors look professional.
+          </p>
+        </div>
+      </section>
+
+      {/* SOLUTION - Editorial Process */}
+      <section className="py-20 sm:py-32 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 sm:mb-20">
+            <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+              The Solution
+            </div>
+            <h2 
+              className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-6 text-black"
+              style={{ fontFamily: "Times New Roman, serif" }}
+            >
+              Professional photos in<br />
+              <span className="italic text-gray-600">three simple steps</span>
+            </h2>
+            <div className="w-16 h-px bg-gray-300 mx-auto"></div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-12 lg:gap-16">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
+                <img
+                  src="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/proxy-image?url=https%3A%2F%2Fsselfie-training-zips.s3.eu-north-1.amazonaws.com%2Fgenerated-images%2F42585527%2Fmaya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
+                  alt="Upload process"
+                  className="w-full h-full object-cover object-[center_20%]"
+                />
+                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
+                  01
+                </div>
+              </div>
+              <h3 
+                className="font-serif text-xl mb-4 text-black font-light"
+                style={{ fontFamily: "Times New Roman, serif" }}
+              >
+                Upload your selfies
+              </h3>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Send 15-20 selfies from your phone. Mirror selfies, car selfies, 
+                bathroom selfies. Whatever you have works.
+              </p>
+              <p className="text-sm text-gray-500 italic">
+                "Any lighting, any background"
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
+                <img
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
+                  alt="AI creation process"
+                  className="w-full h-full object-cover object-[center_20%]"
+                />
+                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
+                  02
+                </div>
+              </div>
+              <h3 
+                className="font-serif text-xl mb-4 text-black font-light"
+                style={{ fontFamily: "Times New Roman, serif" }}
+              >
+                AI creates professional photos
+              </h3>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Maya AI learns your face and creates professional photos 
+                in different styles. Business, lifestyle, editorial, creative.
+              </p>
+              <p className="text-sm text-gray-500 italic">
+                "Like having a personal photographer"
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
+                <img
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5s2emwbk3srma0crywrbh9kg4c_0_1756493820306.png"
+                  alt="Professional gallery"
+                  className="w-full h-full object-cover object-[center_20%]"
+                />
+                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
+                  03
+                </div>
+              </div>
+              <h3 
+                className="font-serif text-xl mb-4 text-black font-light"
+                style={{ fontFamily: "Times New Roman, serif" }}
+              >
+                Get 100+ monthly photos
+              </h3>
+              <p className="text-gray-600 leading-relaxed mb-4">
+                Download professional photos for LinkedIn, Instagram, 
+                your website, marketing materials. Fresh content every month.
+              </p>
+              <p className="text-sm text-gray-500 italic">
+                "Never run out of content again"
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mt-16 bg-black text-white p-12">
+            <p 
+              className="text-xl font-light"
+              style={{ fontFamily: "Times New Roman, serif" }}
+            >
+              100+ professional photos monthly for €47 vs €1500+ per single photoshoot
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* SUCCESS - Simplified */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+            Your New Reality
+          </div>
+
+          <h2 
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-black leading-tight"
+            style={{ fontFamily: "Times New Roman, serif" }}
+          >
+            100+ professional photos monthly.<br />
+            <span className="italic text-gray-600">Never run out of content.</span>
+          </h2>
+
+          <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+            LinkedIn posts, Instagram stories, website headers, marketing materials. 
+            Fresh professional imagery that tells your story across every platform.
+          </p>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section className="py-20 sm:py-32 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="space-y-8">
+            {/* Individual Plan */}
+            <div className="bg-gray-50 border border-gray-200 p-8">
+              <div className="text-center border-b border-gray-200 pb-6 mb-6">
+                <h3 
+                  className="font-serif text-2xl font-light mb-2 text-black"
+                  style={{ fontFamily: "Times New Roman, serif" }}
+                >
+                  Personal Brand Studio
+                </h3>
+                <div className="flex items-baseline justify-center">
+                  <span className="text-4xl font-light text-black">€47</span>
+                  <span className="text-lg text-gray-600 ml-2">monthly</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-2">versus €1500+ traditional photoshoots</p>
+              </div>
               <button 
                 onClick={handleGetStarted}
-                className="bg-white text-black px-12 py-4 hover:bg-gray-100 transition-all duration-500 group animate-fade-in mb-8"
-                style={{
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  letterSpacing: '0.15em',
-                  textTransform: 'uppercase',
-                  animationDelay: '1200ms'
-                }}
+                className="w-full bg-black text-white py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-800 transition-all font-light"
               >
-                <span className="group-hover:tracking-[0.2em] transition-all duration-500">
-                  Start for €47
-                </span>
+                Begin Transformation
               </button>
-
-              {/* Trust Signals */}
-              <div className="flex flex-col space-y-2 text-white/60 animate-fade-in" style={{ animationDelay: '1500ms' }}>
-                <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
-                  ✓ 30-day money-back guarantee • Cancel anytime
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/60">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-bounce" />
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Proof Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-8">
-          <div className="text-center mb-16">
-            <p 
-              className="text-gray-500 mb-6"
-              style={{
-                fontSize: '11px',
-                fontWeight: 300,
-                letterSpacing: '0.4em',
-                textTransform: 'uppercase'
-              }}
-            >
-              See It In Action
-            </p>
-            <h2 
-              className="text-black max-w-3xl mx-auto mb-8"
-              style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
-                fontWeight: 200,
-                letterSpacing: '0.02em',
-                lineHeight: 1.1,
-                textTransform: 'uppercase'
-              }}
-            >
-              Upload → AI Training → Professional Gallery
-            </h2>
-          </div>
-
-          {/* Workflow Demo Cards */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <FeatureCard
-              title="Upload 15 Selfies"
-              description="Any lighting, any background. Your phone camera is perfect."
-              imageSrc="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/sandra_y0b8hff1v9rmmp8r5vkwdxj4mr_0_1756585457633.png"
-              imageAlt="Upload selfies step"
-            />
-            <FeatureCard
-              title="20-Minute AI Training"
-              description="Our AI learns your unique features and creates your personal model."
-              imageSrc="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
-              imageAlt="AI training process"
-            />
-            <FeatureCard
-              title="100+ Pro Photos"
-              description="Business, lifestyle, editorial styles. LinkedIn and social media ready."
-              imageSrc="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
-              imageAlt="Professional results"
-            />
-          </div>
-
-          <div className="text-center">
-            <EditorialButton 
-              variant="primary" 
-              size="lg"
-              onClick={handleGetStarted}
-            >
-              Try It Now - €47
-            </EditorialButton>
-          </div>
-        </div>
-      </section>
-
-      {/* Before/After Transformation */}
-      <section className="py-32 bg-white">
-        <div className="max-w-[1400px] mx-auto px-8">
-          {/* Editorial Header */}
-          <div className="text-center mb-24">
-            <p 
-              className="text-gray-500 mb-8"
-              style={{
-                fontSize: '11px',
-                fontWeight: 300,
-                letterSpacing: '0.4em',
-                textTransform: 'uppercase'
-              }}
-            >
-              Real Transformations
-            </p>
-            <h2 
-              className="text-black max-w-4xl mx-auto"
-              style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                fontWeight: 200,
-                letterSpacing: '0.02em',
-                lineHeight: 1.1,
-                textTransform: 'uppercase'
-              }}
-            >
-              Same Person.
-              <br />
-              Professional Results.
-            </h2>
-          </div>
-
-          {/* Before/After Luxury Grid */}
-          <div className="grid lg:grid-cols-2 gap-16 lg:gap-32 items-start max-w-6xl mx-auto">
-            {/* Before */}
-            <div className="group">
-              <div className="relative overflow-hidden bg-gray-50 mb-8 transition-all duration-700 hover:shadow-2xl">
-                <div className="aspect-[3/4]">
-                  <img
-                    src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/sandra_y0b8hff1v9rmmp8r5vkwdxj4mr_0_1756585457633.png"
-                    alt="Before - regular selfie"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute top-6 left-6 bg-black/80 text-white px-4 py-2 backdrop-blur-sm">
-                  <span style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                    Before
-                  </span>
-                </div>
-              </div>
-              <div className="text-center">
-                <p style={{ fontSize: '14px', fontWeight: 300, color: '#666' }}>
-                  Regular phone selfie
-                </p>
-              </div>
+              <p className="text-xs text-gray-500 text-center mt-4">30-day money-back guarantee</p>
             </div>
 
-            {/* After */}
-            <div className="group">
-              <div className="relative overflow-hidden bg-gray-50 mb-8 transition-all duration-700 hover:shadow-2xl">
-                <div className="aspect-[3/4]">
-                  <img
-                    src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
-                    alt="After - professional photo"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute top-6 left-6 bg-white/90 text-black px-4 py-2 backdrop-blur-sm">
-                  <span style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                    After
-                  </span>
-                </div>
+            {/* Team Option */}
+            <div className="border-2 border-black p-8">
+              <div className="text-center border-b border-gray-200 pb-6 mb-6">
+                <h3 
+                  className="font-serif text-2xl font-light mb-2 text-black"
+                  style={{ fontFamily: "Times New Roman, serif" }}
+                >
+                  Enterprise Solutions
+                </h3>
+                <p className="text-gray-600">Professional photography for teams and organizations</p>
               </div>
-              <div className="text-center">
-                <p style={{ fontSize: '14px', fontWeight: 300, color: '#666' }}>
-                  Professional brand photo
-                </p>
-              </div>
+              <button 
+                onClick={() => setLocation('/teams')}
+                className="w-full border border-black text-black py-4 text-sm uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all font-light"
+              >
+                Request Custom Proposal
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Social Proof Stats */}
-      <section className="py-20 bg-black text-white">
-        <div className="max-w-4xl mx-auto px-8 text-center">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      {/* SOCIAL PROOF - Editorial Portrait */}
+      <section className="py-20 sm:py-32 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Sandra's Portrait */}
+            <div className="relative h-[500px] overflow-hidden">
+              <img
+                src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
+                alt="Sandra Sigurjónsdóttir, Founder"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+              <div className="absolute bottom-6 left-6 right-6">
+                <p className="text-white text-sm font-light">Sandra Sigurjónsdóttir</p>
+                <p className="text-white/80 text-sm italic">Founder, SSELFIE Studio</p>
+              </div>
+            </div>
+
+            {/* Content */}
             <div>
-              <p 
-                className="text-white mb-2"
-                style={{
-                  fontSize: '32px',
-                  fontWeight: 200
-                }}
-              >
-                1000+
-              </p>
-              <p 
-                className="text-white/60"
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 300,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                Happy Users
-              </p>
-            </div>
-            <div>
-              <p 
-                className="text-white mb-2"
-                style={{
-                  fontSize: '32px',
-                  fontWeight: 200
-                }}
-              >
-                50K+
-              </p>
-              <p 
-                className="text-white/60"
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 300,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                Photos Generated
-              </p>
-            </div>
-            <div>
-              <p 
-                className="text-white mb-2"
-                style={{
-                  fontSize: '32px',
-                  fontWeight: 200
-                }}
-              >
-                20min
-              </p>
-              <p 
-                className="text-white/60"
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 300,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                Setup Time
-              </p>
-            </div>
-            <div>
-              <p 
-                className="text-white mb-2"
-                style={{
-                  fontSize: '32px',
-                  fontWeight: 200
-                }}
-              >
-                €47
-              </p>
-              <p 
-                className="text-white/60"
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 300,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                Monthly
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Editorial Suitability Section */}
-      <section className="py-32 bg-white">
-        <div className="max-w-5xl mx-auto px-8">
-          <h2 
-            className="text-black text-center mb-24"
-            style={{
-              fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(2rem, 5vw, 3rem)',
-              fontWeight: 200,
-              letterSpacing: '0.02em',
-              lineHeight: 1.1,
-              textTransform: 'uppercase'
-            }}
-          >
-            Is This Right For You?
-          </h2>
-
-          <div className="grid lg:grid-cols-2 gap-24">
-            {/* Perfect If */}
-            <div className="editorial-card bg-white p-12 border border-gray-100 transition-all duration-700 hover:bg-black hover:text-white hover:border-black group">
-              <h3 
-                className="text-green-700 group-hover:text-green-400 mb-8 transition-colors duration-700"
-                style={{
-                  fontSize: '14px',
-                  fontWeight: 400,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                Perfect if you
-              </h3>
-              <div className="space-y-6">
-                {[
-                  "Need professional photos for LinkedIn or social media",
-                  "Want to avoid €1500+ traditional photoshoots",
-                  "Run out of quality content to post regularly",
-                  "Have decent selfies on your phone",
-                  "Value authenticity over artificial perfection"
-                ].map((item, index) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <span className="text-green-700 group-hover:text-green-400 mt-1 transition-colors duration-700">✓</span>
-                    <p 
-                      className="text-gray-700 group-hover:text-white transition-colors duration-700"
-                      style={{
-                        fontSize: '15px',
-                        fontWeight: 300,
-                        lineHeight: 1.7
-                      }}
-                    >
-                      {item}
-                    </p>
-                  </div>
-                ))}
+              <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
+                Who built this
               </div>
-            </div>
-
-            {/* Not Suitable If */}
-            <div className="editorial-card bg-white p-12 border border-gray-100 transition-all duration-700 hover:bg-black hover:text-white hover:border-black group">
-              <h3 
-                className="text-red-700 group-hover:text-red-400 mb-8 transition-colors duration-700"
-                style={{
-                  fontSize: '14px',
-                  fontWeight: 400,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                Not suitable if
-              </h3>
-              <div className="space-y-6">
-                {[
-                  "You only have 1-2 selfies available",
-                  "You need group photos or product photography",
-                  "You prefer traditional photography exclusively",
-                  "You need same-day photo delivery",
-                  "You don't maintain an online presence"
-                ].map((item, index) => (
-                  <div key={index} className="flex items-start space-x-4">
-                    <span className="text-red-700 group-hover:text-red-400 mt-1 transition-colors duration-700">✗</span>
-                    <p 
-                      className="text-gray-700 group-hover:text-white transition-colors duration-700"
-                      style={{
-                        fontSize: '15px',
-                        fontWeight: 300,
-                        lineHeight: 1.7
-                      }}
-                    >
-                      {item}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Minimalist FAQ Section */}
-      <section className="py-32 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-8">
-          <div className="mb-24">
-            <h2 
-              className="text-black"
-              style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(2rem, 5vw, 3rem)',
-                fontWeight: 200,
-                letterSpacing: '0.02em',
-                lineHeight: 1.1,
-                textTransform: 'uppercase'
-              }}
-            >
-              Questions & Answers
-            </h2>
-          </div>
-
-          <div className="space-y-12">
-            {[
-              {
-                q: "Do I need professional selfies to start?",
-                a: "No. Regular phone selfies work perfectly. Mirror selfies, car selfies, bathroom selfies—we've seen it all work great."
-              },
-              {
-                q: "What about glasses, skin tone, or unique features?",
-                a: "Our AI works with all skin tones, glasses, facial hair, and unique features. It learns your specific look and maintains it across all generated photos."
-              },
-              {
-                q: "Can I cancel anytime?",
-                a: "Yes. Cancel anytime with one click. No contracts, no questions asked. Plus, 30-day money-back guarantee."
-              },
-              {
-                q: "Will my photos be used to train other AI models?",
-                a: "Never. Your photos are used only to create your personal AI model. We never share, sell, or use your photos for training other models."
-              },
-              {
-                q: "How long until I get my first photos?",
-                a: "Your AI model trains in 20 minutes. You can start generating professional photos immediately after training completes."
-              }
-            ].map((faq, index) => (
-              <div key={index} className="group cursor-pointer">
-                <div className="border-b border-gray-200 pb-8 transition-all duration-500 hover:border-black">
-                  <h3 
-                    className="text-black mb-4 group-hover:text-gray-600 transition-colors duration-500"
-                    style={{
-                      fontSize: '18px',
-                      fontWeight: 300,
-                      lineHeight: 1.4
-                    }}
-                  >
-                    {faq.q}
-                  </h3>
-                  <p 
-                    className="text-gray-600 group-hover:text-black transition-colors duration-500"
-                    style={{
-                      fontSize: '15px',
-                      fontWeight: 300,
-                      lineHeight: 1.7
-                    }}
-                  >
-                    {faq.a}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section with Visual Card */}
-      <section className="py-32 bg-white">
-        <div className="max-w-5xl mx-auto px-8">
-          <div className="text-center mb-16">
-            <p 
-              className="text-gray-500 mb-8"
-              style={{
-                fontSize: '11px',
-                fontWeight: 300,
-                letterSpacing: '0.4em',
-                textTransform: 'uppercase'
-              }}
-            >
-              Simple Pricing
-            </p>
-            <h2 
-              className="text-black"
-              style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(2rem, 5vw, 3rem)',
-                fontWeight: 200,
-                letterSpacing: '0.02em',
-                lineHeight: 1.1,
-                textTransform: 'uppercase'
-              }}
-            >
-              One Plan. Everything Included.
-            </h2>
-          </div>
-
-          <div className="max-w-md mx-auto">
-            <OfferCard
-              number="01"
-              title="Personal Brand Studio"
-              price="€47/month"
-              description="Everything you need to never run out of professional photos. Join 1000+ women building their brands with confidence."
-              imageSrc="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5s2emwbk3srma0crywrbh9kg4c_0_1756493820306.png"
-              imageAlt="Professional photos gallery"
-              ctaText="Start for €47"
-              onCtaClick={handleGetStarted}
-              badge="Most Popular"
-            />
-          </div>
-
-          <div className="text-center mt-12">
-            <p 
-              className="text-gray-500 mb-6"
-              style={{
-                fontSize: '14px',
-                fontWeight: 300
-              }}
-            >
-              vs €1500+ traditional photoshoots
-            </p>
-            <div className="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-8 text-gray-500">
-              <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
-                ✓ 30-day money-back guarantee
-              </p>
-              <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
-                ✓ Cancel anytime
-              </p>
-              <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
-                ✓ No contracts
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Founder Story Section */}
-      <section className="py-32 bg-gray-50">
-        <div className="max-w-[1400px] mx-auto px-8">
-          <div className="grid lg:grid-cols-2 gap-24 items-center">
-            <div className="group">
-              <div className="aspect-[3/4] bg-white overflow-hidden transition-all duration-700 hover:shadow-2xl">
-                <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
-                  alt="Sandra Sigurjónsdóttir, Founder"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                />
-              </div>
-            </div>
-
-            <div className="lg:pl-16">
-              <p 
-                className="text-gray-500 mb-8"
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 300,
-                  letterSpacing: '0.4em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                The Founder
-              </p>
 
               <h3 
-                className="text-black mb-16"
-                style={{
-                  fontFamily: 'Times New Roman, serif',
-                  fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
-                  fontWeight: 200,
-                  letterSpacing: '0.02em',
-                  lineHeight: 1.1,
-                  textTransform: 'uppercase'
-                }}
+                className="font-serif text-3xl sm:text-4xl font-light mb-8 text-black"
+                style={{ fontFamily: "Times New Roman, serif" }}
               >
-                I built this because I needed it
+                Sandra Sigurjonsdottir
               </h3>
+              <p className="text-lg text-gray-600 mb-8">Founder & Creator</p>
 
-              <div className="grid grid-cols-2 gap-16 mb-16">
+              <div className="grid grid-cols-2 gap-8 mb-8">
                 <div>
-                  <p 
-                    className="text-black mb-3"
-                    style={{
-                      fontSize: '32px',
-                      fontWeight: 200
-                    }}
-                  >
-                    120K
-                  </p>
-                  <p 
-                    className="text-gray-600"
-                    style={{
-                      fontSize: '12px',
-                      fontWeight: 300,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase'
-                    }}
-                  >
-                    Followers built with this method
-                  </p>
+                  <p className="text-3xl font-light text-black">120K</p>
+                  <p className="text-gray-600 text-sm">Followers built with this exact method</p>
                 </div>
+
                 <div>
-                  <p 
-                    className="text-black mb-3"
-                    style={{
-                      fontSize: '32px',
-                      fontWeight: 200
-                    }}
-                  >
-                    €12 → Business
-                  </p>
-                  <p 
-                    className="text-gray-600"
-                    style={{
-                      fontSize: '12px',
-                      fontWeight: 300,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase'
-                    }}
-                  >
-                    Started with almost nothing
-                  </p>
+                  <p className="text-3xl font-light text-black">€12 → Business</p>
+                  <p className="text-gray-600 text-sm">Started with almost nothing</p>
                 </div>
               </div>
 
-              <div className="space-y-8 mb-16">
-                <p 
-                  className="text-gray-700"
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: 300,
-                    lineHeight: 1.7
-                  }}
-                >
-                  Single mom. Divorced. €12 in my bank account. I knew I needed professional photos to build anything online.
+              <div className="space-y-6 text-gray-700 leading-relaxed">
+                <p>
+                  Marriage ended. Single mom. Zero business plan. But I had a phone 
+                  and I knew I needed professional photos to build anything online.
                 </p>
 
-                <p 
-                  className="text-gray-700"
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: 300,
-                    lineHeight: 1.7
-                  }}
-                >
-                  I couldn't afford €1500 photoshoots, so I figured out how to make my phone selfies work professionally.
+                <p>
+                  I couldn't afford €1500 photoshoots, so I figured out how to make 
+                  my phone selfies work. Built everything from my kitchen table using this exact system.
                 </p>
 
-                <p 
-                  className="text-black"
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: 400,
-                    lineHeight: 1.7
-                  }}
-                >
-                  If it worked for me, it'll work for you.
+                <p className="font-medium text-black">
+                  Now I'm showing you how to do the same thing.
                 </p>
               </div>
 
-              <div className="border-l-4 border-black pl-8">
-                <p 
-                  className="text-black mb-4"
-                  style={{
-                    fontFamily: 'Times New Roman, serif',
-                    fontSize: '20px',
-                    fontWeight: 200,
-                    fontStyle: 'italic',
-                    lineHeight: 1.4
-                  }}
-                >
+              <div className="mt-8 p-6 bg-gray-50 border-l-4 border-black">
+                <p className="text-black italic" style={{ fontFamily: "Times New Roman, serif" }}>
                   "Your mess is your message. Your phone has everything you need."
                 </p>
-                <p 
-                  className="text-gray-600"
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 300,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  Sandra Sigurjónsdóttir
-                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Final Editorial CTA Section */}
-      <section className="relative py-32 bg-black text-white overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="w-full h-full bg-gradient-to-br from-white/10 to-transparent" />
+      {/* FINAL CTA - Editorial Call to Action */}
+      <section className="relative py-24 sm:py-32 bg-black text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <img
+            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_rr4fnv2rb5rm80crzyd87jm48g_0_1756634973175.png"
+            alt="Professional transformation"
+            className="w-full h-full object-cover"
+          />
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-8 text-center">
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-xs uppercase tracking-[0.4em] text-white/70 mb-8">
+            Your Transformation Begins Now
+          </div>
+
           <h2 
-            className="text-white mb-16"
-            style={{
-              fontFamily: 'Times New Roman, serif',
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-              fontWeight: 200,
-              letterSpacing: '0.02em',
-              lineHeight: 1.1,
-              textTransform: 'uppercase'
-            }}
+            className="font-serif text-4xl sm:text-5xl md:text-6xl font-light mb-8 text-white"
+            style={{ fontFamily: "Times New Roman, serif" }}
           >
-            Ready to Never Run Out of
-            <br />
-            Professional Photos?
+            Professional photography.<br />
+            <span className="italic">Monthly delivery.</span>
           </h2>
 
-          <p 
-            className="text-white/80 mb-20 max-w-2xl mx-auto"
-            style={{
-              fontSize: '18px',
-              fontWeight: 300,
-              lineHeight: 1.7
-            }}
-          >
-            Upload your selfies today. Get 100+ professional brand photos in 20 minutes.
+          <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto">
+            Upload selfies today. Receive 100+ professional brand photographs within 20 minutes.
           </p>
 
           <button 
             onClick={handleGetStarted}
-            className="bg-white text-black px-20 py-5 hover:bg-gray-100 transition-all duration-500 group mb-20"
-            style={{
-              fontSize: '12px',
-              fontWeight: 300,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase'
-            }}
+            className="group inline-block mb-8"
           >
-            <span className="group-hover:tracking-[0.2em] transition-all duration-500">
-              Start for €47
+            <span className="text-sm uppercase tracking-[0.3em] text-white border border-white/30 px-12 py-4 group-hover:bg-white group-hover:text-black transition-all duration-300 font-light">
+              Transform Your Brand — €47
             </span>
           </button>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-16 max-w-3xl mx-auto">
-            {[
-              { number: "20min", label: "Setup" },
-              { number: "100+", label: "Photos" },
-              { number: "€47", label: "Monthly" },
-              { number: "30d", label: "Guarantee" }
-            ].map((stat, index) => (
-              <div key={index} className="text-center group cursor-default">
-                <p 
-                  className="text-white mb-3 group-hover:scale-110 transition-transform duration-500"
-                  style={{
-                    fontSize: '28px',
-                    fontWeight: 200
-                  }}
-                >
-                  {stat.number}
-                </p>
-                <p 
-                  className="text-white/60"
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 300,
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  {stat.label}
-                </p>
-              </div>
-            ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+              <p className="text-2xl font-light mb-2">24hrs</p>
+              <p className="text-xs text-white/70 uppercase tracking-wide">Delivery</p>
+            </div>
+            <div>
+              <p className="text-2xl font-light mb-2">100+</p>
+              <p className="text-xs text-white/70 uppercase tracking-wide">Images</p>
+            </div>
+            <div>
+              <p className="text-2xl font-light mb-2">∞</p>
+              <p className="text-xs text-white/70 uppercase tracking-wide">Content</p>
+            </div>
+            <div>
+              <p className="text-2xl font-light mb-2">€47</p>
+              <p className="text-xs text-white/70 uppercase tracking-wide">Monthly</p>
+            </div>
           </div>
         </div>
       </section>
 
       <GlobalFooter />
-
-      {/* CSS for animations */}
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 1000ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
-          opacity: 0;
-        }
-
-        .editorial-card {
-          transition: all 700ms cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .editorial-card:hover {
-          transform: translateY(-8px);
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: #f5f5f5;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: #000;
-          border-radius: 2px;
-        }
-      `}</style>
     </div>
   );
 }
