@@ -4,7 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { StackProvider, StackClientApp } from "@stackframe/stack";
+import { StackProvider, StackTheme, StackHandler } from "@stackframe/react";
+import { stackClientApp } from "./stack";
 import { useAuth } from "./hooks/use-auth";
 // Using JWKS backend verification with custom frontend OAuth flow
 import { useQuery } from "@tanstack/react-query";
@@ -174,6 +175,11 @@ function ProtectedRoute({ component: Component, ...props }: { component: Compone
 function Router() {
   return (
     <div>
+      {/* NEON AUTH HANDLER - Must be first to catch authentication routes */}
+      <Route path="/handler/:rest*" component={() => (
+        <HandlerRoutes />
+      )} />
+      
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
       {/* LAUNCH COUNTDOWN */}
@@ -512,17 +518,17 @@ function Router() {
   );
 }
 
-// Stack Auth configuration following Neon template pattern
-const stackApp = new StackClientApp({
-  projectId: "253d7343-a0d4-43a1-be5c-822f590d40be",
-  publishableClientKey: import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || "",
-});
+// Stack Auth Handler component for authentication routes
+function HandlerRoutes() {
+  const [location] = useLocation();
+  return <StackHandler app={stackClientApp} location={location} fullPage />;
+}
 
 function AppWithProvider() {
-  const stackKey = stackApp.publishableClientKey;
+  const stackKey = stackClientApp.publishableClientKey;
   
   console.log('🔍 Stack Auth Config:', {
-    projectId: stackApp.projectId,
+    projectId: stackClientApp.projectId,
     hasKey: !!stackKey,
     keyPrefix: stackKey ? stackKey.substring(0, 10) + '...' : 'MISSING'
   });
@@ -530,20 +536,22 @@ function AppWithProvider() {
   if (!stackKey) {
     console.error('❌ Stack Auth: Missing publishable client key!');
     console.error('Available env vars:', {
-      VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY: import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY,
+      VITE_STACK_PROJECT_ID: import.meta.env.VITE_STACK_PROJECT_ID,
       VITE_STACK_PUBLISHABLE_CLIENT_KEY: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY,
     });
     return <div>Stack Auth configuration error - check environment variables</div>;
   }
 
-  // Use Stack App instance following documentation
+  // Use Neon Auth @stackframe/react SDK with StackProvider and StackTheme
   return (
     <QueryClientProvider client={queryClient}>
-      <StackProvider app={stackApp}>
-        <TooltipProvider>
-          <App />
-          <Toaster />
-        </TooltipProvider>
+      <StackProvider app={stackClientApp}>
+        <StackTheme>
+          <TooltipProvider>
+            <App />
+            <Toaster />
+          </TooltipProvider>
+        </StackTheme>
       </StackProvider>
     </QueryClientProvider>
   );
