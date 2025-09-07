@@ -13,9 +13,18 @@ build/
 .cache/
 .vite/
 
-# Training data (keep in production)
-# temp_training/
-# attached_assets/
+# CRITICAL: Prevent massive file bloat
+attached_assets/
+*.md
+!README.md
+!replit.md
+*.tar.gz
+*.zip
+export_*.txt
+export_*.csv
+cookies*.txt
+fresh_cookies.txt
+test_cookies.txt
 
 # Environment variables
 .env
@@ -100,7 +109,12 @@ debug_*.txt
 memory-restoration-debug-test.js
 test-navigation.json
 
-# Documentation files (keep README.md)
-*.md
-!README.md
-!replit.md
+# Large development files
+maya-system-backup/
+admin-development/
+docs/
+project_tracking/
+scripts/
+config/
+security-audit/
+onboarding/
