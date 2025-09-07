@@ -282,6 +282,48 @@ export default function BusinessLanding() {
         </div>
       </section>
 
+      {/* Sandra's Story - Vulnerable Credibility */}
+      <section className="py-20 md:py-32 bg-[#fafafa]">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div>
+              <img 
+                src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
+                alt="Sandra's transformation story"
+                className="w-full h-[500px] object-cover"
+              />
+            </div>
+            
+            <div className="space-y-6">
+              <p className="text-xs uppercase tracking-[0.4em] text-gray-500 mb-8">
+                THE REAL STORY
+              </p>
+              
+              <h2 
+                className="font-serif text-[clamp(2rem,4vw,3rem)] font-light mb-8 leading-tight"
+                style={{ fontFamily: 'Times New Roman, serif' }}
+              >
+                I figured this out the hard way
+              </h2>
+              
+              <div className="space-y-4 text-lg leading-relaxed text-gray-700">
+                <p>
+                  Single mom. Divorced. €12 in my bank account. But I knew I needed professional photos to build anything online.
+                </p>
+                
+                <p>
+                  I couldn't afford €1500 photoshoots, so I figured out how to make my phone selfies work. Built my entire brand using professional photos generated from bathroom mirror selfies.
+                </p>
+                
+                <p className="font-medium text-black">
+                  If it worked for a broke single mom in Iceland, it'll work for you too.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SOLUTION - Editorial Process */}
       <section className="py-20 sm:py-32 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
