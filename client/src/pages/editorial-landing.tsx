@@ -100,6 +100,19 @@ export default function EditorialLanding() {
     setLocation('/simple-checkout');
   };
 
+  const handleLogin = () => {
+    // ✅ FIXED: Use Stack Auth's direct OAuth URL instead of old login page
+    const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
+    const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
+    
+    if (!publishableKey) {
+      console.error('❌ Stack Auth: Missing publishable key');
+      return;
+    }
+    
+    window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
+  };
+
 
 
   return (
@@ -137,7 +150,7 @@ export default function EditorialLanding() {
                 Blog
               </button>
               <button
-                onClick={() => setLocation('/login')}
+                onClick={handleLogin}
                 className="text-xs uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
               >
                 Login
@@ -192,7 +205,7 @@ export default function EditorialLanding() {
               Blog
             </button>
             <button
-              onClick={() => { setLocation('/login'); setMobileMenuOpen(false); }}
+              onClick={() => { handleLogin(); setMobileMenuOpen(false); }}
               className="text-sm uppercase tracking-[0.4em] text-white/80 hover:text-white transition-all duration-300"
             >
               Login

@@ -148,12 +148,18 @@ export default function Profile() {
             Sign in to create your profile so we can generate photos that actually look like you.
           </p>
           <div className="jwt-auth-signin">
-            <a 
-              href="/login" 
+            <button
+              onClick={() => {
+                const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
+                const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
+                if (publishableKey) {
+                  window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
+                }
+              }}
               className="inline-block bg-black text-white px-8 py-3 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors"
             >
               Sign In to Continue
-            </a>
+            </button>
           </div>
         </div>
       </div>

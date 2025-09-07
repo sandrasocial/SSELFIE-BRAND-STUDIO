@@ -63,7 +63,7 @@ const VictoriaPreview = lazy(() => import('./pages/victoria-preview'));
 const PhotoSelection = lazy(() => import("./pages/photo-selection"));
 
 // ✅ REMOVED: Auth success page no longer needed with direct Stack Auth integration
-const Login = lazy(() => import("./pages/login"));
+// ✅ DELETED: Login page removed - using direct Stack Auth OAuth integration
 const DomainHelp = lazy(() => import("./pages/domain-help"));
 
 // Stack Auth authentication pages
@@ -300,11 +300,7 @@ function Router() {
       )} />
 
       {/* JWT AUTH ROUTES */}
-      <Route path="/login" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <Login />
-        </Suspense>
-      )} />
+      {/* ✅ DELETED: Login route removed - using direct Stack Auth OAuth */}
       <Route path="/auth/sign-in" component={() => (
         <Suspense fallback={<PageLoader />}>
           <AuthSignUp />

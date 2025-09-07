@@ -136,6 +136,19 @@ export default function TeamsLanding() {
     setLocation('/business');
   };
 
+  const handleLogin = () => {
+    // ✅ FIXED: Use Stack Auth's direct OAuth URL instead of old login page
+    const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
+    const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
+    
+    if (!publishableKey) {
+      console.error('❌ Stack Auth: Missing publishable key');
+      return;
+    }
+    
+    window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -159,7 +172,7 @@ export default function TeamsLanding() {
                 Business
               </button>
               <button
-                onClick={() => window.location.href = "/login"}
+                onClick={handleLogin}
                 className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
               >
                 Login
@@ -175,7 +188,7 @@ export default function TeamsLanding() {
             {/* Mobile Navigation - Optimized touch targets */}
             <div className="md:hidden flex items-center space-x-3">
               <button
-                onClick={() => window.location.href = "/login"}
+                onClick={handleLogin}
                 className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
               >
                 Login
