@@ -9,6 +9,46 @@ const JWKS_URL = `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}/.well-
 // Create JWKS resolver
 const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
 
+// Authentication cache to improve performance
+interface CachedUser {
+  dbUser: any;
+  timestamp: number;
+  tokenHash: string;
+}
+
+const authCache = new Map<string, CachedUser>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const MAX_CACHE_SIZE = 1000;
+
+// Clean expired cache entries
+function cleanExpiredCache() {
+  const now = Date.now();
+  for (const [key, cached] of authCache.entries()) {
+    if (now - cached.timestamp > CACHE_DURATION) {
+      authCache.delete(key);
+    }
+  }
+  
+  // Prevent memory leaks by limiting cache size
+  if (authCache.size > MAX_CACHE_SIZE) {
+    const entries = Array.from(authCache.entries());
+    entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+    const toDelete = entries.slice(0, authCache.size - MAX_CACHE_SIZE + 100);
+    toDelete.forEach(([key]) => authCache.delete(key));
+  }
+}
+
+// Simple hash function for tokens
+function hashToken(token: string): string {
+  let hash = 0;
+  for (let i = 0; i < token.length; i++) {
+    const char = token.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return hash.toString();
+}
+
 interface StackAuthUser {
   id: string;
   primaryEmail?: string;
@@ -44,6 +84,12 @@ async function verifyJWTToken(token: string) {
 export async function verifyStackAuthToken(req: Request, res: Response, next: NextFunction) {
   try {
     let accessToken: string | undefined;
+    
+    // Skip authentication for non-protected routes to improve performance
+    const skipPaths = ['/api/proxy-image', '/notification-preferences'];
+    if (skipPaths.some(path => req.path.startsWith(path))) {
+      return next();
+    }
     
     console.log('🔍 Stack Auth: Starting token verification');
     console.log('🔍 Request path:', req.path);
@@ -100,6 +146,21 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
 
     console.log('🔐 Stack Auth: Verifying JWT token...');
     console.log('🔍 Token preview:', accessToken.substring(0, 20) + '...');
+    
+    // Check cache first for performance
+    const tokenHash = hashToken(accessToken);
+    const cached = authCache.get(tokenHash);
+    
+    if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
+      console.log('⚡ Stack Auth: Using cached authentication');
+      req.user = cached.dbUser;
+      return next();
+    }
+    
+    // Clean expired cache periodically
+    if (Math.random() < 0.1) {
+      cleanExpiredCache();
+    }
     
     // Verify JWT token directly
     const userInfo = await verifyJWTToken(accessToken);
@@ -159,7 +220,16 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     
     // Set user information in request from database user
     req.user = dbUser;
+    
+    // Cache the authenticated user for performance
+    authCache.set(tokenHash, {
+      dbUser,
+      timestamp: Date.now(),
+      tokenHash
+    });
 
+    console.log('🎯 Stack Auth: User authenticated successfully, ID:', dbUser.id, 'Plan:', dbUser.plan || 'No subscription');
+    
     next();
   } catch (error) {
     console.error('❌ Stack Auth: Token verification failed:', error);
