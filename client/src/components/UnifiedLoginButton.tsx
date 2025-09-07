@@ -36,8 +36,8 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
       console.error('Logout error:', error);
     }
     
-    // Clear local state and redirect
-    window.location.href = '/login';
+    // Clear local state and redirect to home
+    window.location.href = '/';
   };
 
   // If user is already logged in, show logout button  
