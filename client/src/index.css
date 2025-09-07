@@ -215,10 +215,74 @@ h1, h2, h3 {
   line-height: 1.1;
 }
 
-/* Voice Guide Colors */
+/* Design Guide Typography Classes */
+.guide-title {
+  font-family: 'Times New Roman', serif;
+  font-weight: 200;
+  line-height: 0.9;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: clamp(2.8rem, 7vw, 5rem);
+}
+
+.section-title {
+  font-family: 'Times New Roman', serif;
+  font-weight: 200;
+  line-height: 1.1;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.subsection-title {
+  font-family: 'Times New Roman', serif;
+  font-weight: 200;
+  line-height: 1.2;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  color: var(--body-gray);
+}
+
+.eyebrow-text {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--body-gray);
+}
+
+/* Complete Design System - Voice Guide Standards */
 :root {
+  /* Colors */
   --luxury-black: #000000;
   --pure-white: #ffffff;
   --editorial-gray: #fafafa;
+  --soft-gray: #f7f7f7;
   --body-gray: #757575;
+  --light-gray: #e8e8e8;
+  --accent-line: #f0f0f0;
+  
+  /* Spacing System */
+  --space-xs: 12px;
+  --space-sm: 20px;
+  --space-md: 32px;
+  --space-lg: 48px;
+  --space-xl: 64px;
+  --space-2xl: 96px;
+  --space-3xl: 128px;
+  --space-4xl: 160px;
+  --space-5xl: 200px;
+  
+  /* Typography Scale */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 60px;
 }
