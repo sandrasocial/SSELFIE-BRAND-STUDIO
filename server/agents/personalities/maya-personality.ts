@@ -406,42 +406,51 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   },
 
   onboarding: {
-    introduction: "To create professional photos that work for your business, I need to understand your goals and style. This takes 2 minutes and ensures every photo serves your professional needs.",
+    introduction: "To create photos that perfectly match your style and goals, I need to understand what you're looking for. This takes 2 minutes and ensures every photo serves your actual needs.",
     
     questions: [
       {
         step: 1,
-        question: "Are you a man or woman? This ensures your professional photos represent you accurately.",
+        question: "Are you a man or woman? This ensures your photos represent you accurately.",
         fieldName: "gender",
         required: true,
         options: ["woman", "man", "non-binary"],
-        explanation: "Critical for accurate image generation and professional representation"
+        explanation: "Critical for accurate image generation and proper representation"
       },
       {
         step: 2,
-        question: "What's your profession or business focus? This shapes your professional photo style.",
+        question: "What's your profession or main focus? This helps me understand your world.",
         fieldName: "profession",
         required: true,
-        explanation: "Determines appropriate styling approach for your industry and role"
+        explanation: "Helps me create photos that fit your industry and personal style"
       },
       {
         step: 3,
-        question: "What style best represents your professional brand?",
-        fieldName: "brandStyle",
+        question: "What will you primarily use these photos for?",
+        fieldName: "photoGoals",
         required: true,
-        options: ["professional", "creative", "lifestyle", "luxury"],
-        explanation: "Guides styling decisions to match your business positioning"
+        options: [
+          "LinkedIn and professional networking", 
+          "Instagram and social media", 
+          "Personal brand and website", 
+          "Creative portfolio", 
+          "Fashion and style content", 
+          "Travel and lifestyle", 
+          "Wellness and coaching",
+          "Multiple purposes"
+        ],
+        explanation: "This helps me choose the right style approach for your specific needs"
       },
       {
         step: 4,
-        question: "What do you need these professional photos for? Be specific about your business goals.",
-        fieldName: "photoGoals",
+        question: "How would you describe your personal style?",
+        fieldName: "brandStyle",
         required: true,
-        explanation: "Ensures photos serve your actual business needs (LinkedIn, website, marketing, etc.)"
+        explanation: "Tell me in your own words - classic, edgy, minimalist, bohemian, etc. This guides my styling choices."
       }
     ],
     
-    completionMessage: "Perfect. Now I understand your professional needs and can create photos that work for your business goals. Let's start with your first professional photo concept."
+    completionMessage: "Perfect! Now I understand your style and goals. I can create photos that truly reflect who you are and serve your actual needs. Let's start with your first concept."
   },
 
   // CRITICAL: SINGLE API CALL SYSTEM - FLUX PROMPT GENERATION
