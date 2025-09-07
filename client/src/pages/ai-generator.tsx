@@ -413,7 +413,7 @@ Please create 4-6 optimized prompts following the AI Photoshoot format with [tri
               const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
               const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
               if (publishableKey) {
-                window.location.href = `/handler/sign-in)}`;
+                window.location.href = `/handler/sign-in`;
               }
             }}
             className="inline-block px-8 py-4 text-xs uppercase tracking-wide border border-black hover:bg-black hover:text-white transition-all duration-300"

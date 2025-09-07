@@ -136,7 +136,7 @@ export default function BusinessLanding() {
       const publishableKey = STACK_PUBLISHABLE_CLIENT_KEY;
       
       if (publishableKey) {
-        window.location.href = `/handler/sign-in)}`;
+        window.location.href = `/handler/sign-in`;
       }
       return;
     }
