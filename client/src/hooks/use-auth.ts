@@ -15,13 +15,11 @@ export function useAuth() {
   const stackUser = useUser();
   
   // Fetch our database user data if Stack Auth user exists
-  const { data: dbUser, isLoading: isDbUserLoading, error, refetch } = useQuery({
+  const { data: dbUser, isLoading: isDbUserLoading, error } = useQuery({
     queryKey: ["/api/auth/user"],
-    retry: 3,
+    retry: false,
     enabled: !!stackUser?.id, // Only fetch if Stack Auth user exists
-    staleTime: 30 * 1000, // 30 seconds cache (reduced from 5 minutes for better OAuth flow)
-    refetchOnWindowFocus: true, // Refetch when user returns after OAuth
-    refetchOnMount: true, // Always refetch on mount to catch fresh auth state
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 
   const isLoading = isDbUserLoading;
@@ -54,8 +52,7 @@ export function useAuth() {
     isAuthenticated,
     hasActiveSubscription,
     requiresPayment: isAuthenticated && !hasActiveSubscription,
-    error: error,
+    error: null,
     stackUser, // Provide access to raw Stack Auth user
-    refetchUser: refetch, // Allow manual refetch for OAuth flows
   };
 }
