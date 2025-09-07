@@ -1,0 +1,66 @@
+**GOAL**
+Repair node_modules without rolling back any code. Keep React 19 and @stackframe/react. Work around the npm “string-width-cjs” resolution bug. Do NOT print secrets.
+
+--------------------------------
+STEP 0 — Safety snapshot (idempotent)
+--------------------------------
+git add -A
+git commit -m "wip: snapshot before dependency repair" || true
+git tag -f backup-react19-migration || true
+
+--------------------------------
+STEP 1 — Force clean npm settings + stable registry
+--------------------------------
+# Lock to the public npm registry and reduce noise
+printf "registry=https://registry.npmjs.org/\nfund=false\naudit=false\n" > .npmrc
+
+# Prefer online metadata (helps with stale caches)
+npm config set prefer-online true
+
+--------------------------------
+STEP 2 — Pin React 19 + Stack SDK and add an override shim
+--------------------------------
+# Prefer stable React 19; fallback to rc if needed
+STABLE="19.0.0"; RC="19.0.0-rc.1"
+npm pkg set dependencies.react="$STABLE" || npm pkg set dependencies.react="$RC"
+npm pkg set dependencies.react-dom="$STABLE" || npm pkg set dependencies.react-dom="$RC"
+
+# Stack SDK pinned (avoid “latest” tag churn)
+npm pkg set dependencies.@stackframe/react="^2.8.36"
+
+# Helpful libs on modern versions
+npm pkg set dependencies.wouter="^3.2.0"
+npm pkg set dependencies.@tanstack/react-query="^5.48.0" || true
+
+# Remove legacy React 18 types (React 19 ships its own)
+npm pkg delete devDependencies.@types/react || true
+npm pkg delete devDependencies.@types/react-dom || true
+
+# 🔧 Workaround: some tool incorrectly asks for "string-width-cjs".
+# Fix by aliasing it to the real "string-width@4.2.3".
+node -e "const fs=require('fs');const p=require('./package.json');p.overrides=p.overrides||{};p.overrides['string-width-cjs']='npm:string-width@4.2.3';p.overrides.react=p.dependencies.react;p.overrides['react-dom']=p.dependencies['react-dom'];fs.writeFileSync('package.json',JSON.stringify(p,null,2));"
+
+--------------------------------
+STEP 3 — Clean reinstall
+--------------------------------
+rm -rf node_modules package-lock.json
+npm cache verify || true
+npm i --no-audit --no-fund --registry=https://registry.npmjs.org/
+npm dedupe
+
+echo "== React versions after install =="
+npm ls react react-dom || true
+
+--------------------------------
+STEP 4 — Hard rebuild (invalidate Vite caches)
+--------------------------------
+rm -rf node_modules/.vite .vite client/dist
+npm run build || true
+npm run dev & sleep 3
+
+--------------------------------
+STEP 5 — Sanity check in browser
+--------------------------------
+# Expect console to show something like:
+#   React sanity: { version: '19.x', hasUse: true }
+# Navigate to /handler/sign-up and confirm the page renders.
