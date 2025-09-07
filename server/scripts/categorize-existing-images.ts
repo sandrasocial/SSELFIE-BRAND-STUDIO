@@ -1,4 +1,4 @@
-import { pool } from '../drizzle';
+import { db } from '../drizzle';
 
 // Helper function to detect category from prompt - same logic as in Maya unified routes
 function detectCategoryFromPrompt(prompt: string): string {
@@ -45,13 +45,11 @@ function detectCategoryFromPrompt(prompt: string): string {
 }
 
 async function categorizeExistingImages() {
-  const client = await pool.connect();
-  
   try {
     console.log('🔄 Starting categorization of existing AI images...');
     
     // Get all images without categories
-    const result = await client.query(`
+    const result = await db.execute(`
       SELECT id, prompt, style 
       FROM ai_images 
       WHERE category IS NULL OR category = ''
@@ -70,7 +68,7 @@ async function categorizeExistingImages() {
       const category = detectCategoryFromPrompt(row.prompt || '');
       
       // Update the image with detected category
-      await client.query(`
+      await db.execute(`
         UPDATE ai_images 
         SET category = $1 
         WHERE id = $2
@@ -95,7 +93,7 @@ async function categorizeExistingImages() {
     console.log(`• Total: ${result.rows.length} images categorized`);
     
     // Verify the results
-    const verification = await client.query(`
+    const verification = await db.execute(`
       SELECT category, COUNT(*) as count 
       FROM ai_images 
       WHERE category IS NOT NULL 
@@ -113,8 +111,6 @@ async function categorizeExistingImages() {
   } catch (error) {
     console.error('❌ Error categorizing images:', error);
     throw error;
-  } finally {
-    client.release();
   }
 }
 
