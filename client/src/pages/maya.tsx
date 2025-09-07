@@ -482,7 +482,7 @@ export default function Maya() {
                 </button>
                 <div className="w-px h-4 bg-gray-200"></div>
                 <button
-                  onClick={() => setLocation('/workspace')}
+                  onClick={() => setLocation('/sselfie-gallery')}
                   className="text-xs tracking-widest uppercase text-gray-600 hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1"
                   style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, letterSpacing: '0.2em' }}
                 >
