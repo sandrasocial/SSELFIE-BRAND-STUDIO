@@ -48,6 +48,7 @@ export const agentSessionContexts = pgTable("agent_session_contexts", {
 export const users = pgTable("users", {
   // Core user fields - Stack Auth compatible
   id: varchar("id").primaryKey().notNull(), // Stack Auth uses string IDs
+  stackAuthId: varchar("stack_auth_id").unique(), // For linking existing users to Stack Auth
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
