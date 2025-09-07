@@ -1,15 +1,14 @@
-import { pool } from '../drizzle';
+import { db } from '../drizzle';
 import { ImageStorageService } from '../image-storage-service';
 
 async function migrateTempUrls() {
-  const client = await pool.connect();
   const imageStorage = new ImageStorageService();
   
   try {
     console.log('🔄 Starting migration of temporary URLs to permanent S3 URLs...');
     
     // Get all images with temporary URLs
-    const result = await client.query(`
+    const result = await db.execute(`
       SELECT id, image_url, user_id, created_at 
       FROM ai_images 
       WHERE image_url LIKE '%replicate%' 
@@ -32,7 +31,7 @@ async function migrateTempUrls() {
         
         if (permanentUrl && permanentUrl !== row.image_url) {
           // Update the image with permanent URL
-          await client.query(`
+          await db.execute(`
             UPDATE ai_images 
             SET image_url = $1 
             WHERE id = $2
@@ -58,7 +57,7 @@ async function migrateTempUrls() {
     console.log(`📊 Total processed: ${result.rows.length} images`);
     
     // Verify the results
-    const verification = await client.query(`
+    const verification = await db.execute(`
       SELECT 
         CASE 
           WHEN image_url LIKE '%s3%' OR image_url LIKE '%amazonaws%' THEN 'S3'
@@ -81,8 +80,6 @@ async function migrateTempUrls() {
   } catch (error) {
     console.error('❌ Error migrating URLs:', error);
     throw error;
-  } finally {
-    client.release();
   }
 }
 
