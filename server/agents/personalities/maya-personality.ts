@@ -151,99 +151,44 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   },
 
   categories: {
-    "Business": {
-      description: "Executive presence, boardroom confidence, CEO energy",
-      vibe: "Powerful, polished, commanding respect while staying approachable"
+    "LinkedIn Professional": {
+      description: "Credible business presence for professional networking and career advancement",
+      vibe: "Authority without intimidation, trustworthy advisor, LinkedIn-optimized"
     },
 
-    "Professional & Authority": {
-      description: "Industry leader, expert in your field, thought leadership",
-      vibe: "Sophisticated expertise, approachable authority, trusted advisor"
+    "Instagram Lifestyle": {
+      description: "Elevated everyday moments perfect for Instagram feed and stories",
+      vibe: "Effortless sophistication, scroll-stopping content, lifestyle inspiration"
     },
 
-    "Lifestyle": {
-      description: "Elevated everyday moments, luxury made approachable",
-      vibe: "Effortless sophistication, living your best life daily"
+    "Authentic Storytelling": {
+      description: "Genuine personal moments that show the real you and your journey",
+      vibe: "Confident authenticity, relatable but polished, inspiring presence"
     },
 
-    "Casual & Authentic": {
-      description: "Real moments, approachable luxury, everyday elevated",
-      vibe: "Relatable but polished, expensive taste made accessible"
+    "Creative Professional": {
+      description: "Artistic expression for creative portfolios and unconventional businesses",
+      vibe: "Innovative spirit, artistic confidence, creative authority"
     },
 
-    "Story": {
-      description: "Narrative moments, authentic personal expression, empowering style",
-      vibe: "Confident authenticity, personal style mastery, inspiring presence"
+    "Editorial Luxury": {
+      description: "High-fashion magazine-style photos with dramatic lighting and sophistication",
+      vibe: "Editorial drama, luxury sophistication, fashion-forward elegance"
     },
 
-    "Behind the Scenes": {
-      description: "Real moments, process shots, authentic work life",
-      vibe: "Genuine hustle, real entrepreneurship, behind the magic"
+    "Travel & Destination": {
+      description: "Location-based content showcasing wanderlust and global sophistication",
+      vibe: "Jet-set lifestyle, cultural appreciation, adventure with elegance"
     },
 
-    "Instagram": {
-      description: "Social media optimized, feed-perfect, engagement ready",
-      vibe: "Scroll-stopping content, perfectly curated, share-worthy"
+    "Wellness & Mindset": {
+      description: "Mindful, nurturing content for wellness and coaching businesses",
+      vibe: "Calm confidence, authentic healing energy, grounded sophistication"
     },
 
-    "Feed & Stories": {
-      description: "Content creation, brand consistency, social media strategy",
-      vibe: "Cohesive aesthetic, brand-aligned, content creator energy"
-    },
-
-    "Travel": {
-      description: "Jet-set lifestyle, destination content, wanderlust luxury",
-      vibe: "International sophistication, effortless jet-set, cultural appreciation"
-    },
-
-    "Adventures & Destinations": {
-      description: "Exploration moments, destination experiences, adventure luxury",
-      vibe: "Adventurous spirit with sophisticated style, fearless exploration"
-    },
-
-    "Outfits": {
-      description: "Fashion focus, styling showcase, outfit coordination",
-      vibe: "Fashion expertise, styling mastery, sartorial confidence"
-    },
-
-    "Fashion & Style": {
-      description: "Editorial fashion, style innovation, trendsetting",
-      vibe: "Fashion authority, style innovation, trendsetting confidence"
-    },
-
-    "GRWM": {
-      description: "Get ready process, transformation moments, styling journey",
-      vibe: "Intimate preparation, transformation magic, styling process"
-    },
-
-    "Get Ready With Me": {
-      description: "Preparation content, styling process, beauty routine",
-      vibe: "Behind the scenes preparation, styling expertise, beauty mastery"
-    },
-
-    "Future Self": {
-      description: "Aspirational vision, elevated confidence, empowered presence",
-      vibe: "Elevated confidence, dream achievement, aspirational sophistication"
-    },
-
-    "Aspirational Vision": {
-      description: "Dream life content, goal achievement, vision realization",
-      vibe: "Living the dream, goal achievement, aspirational confidence"
-    },
-
-    "B&W": {
-      description: "Timeless elegance, artistic vision, classic sophistication",
-      vibe: "Timeless artistry, classic elegance, sophisticated storytelling"
-    },
-
-    "Timeless & Artistic": {
-      description: "Artistic expression, timeless beauty, sophisticated creativity",
-      vibe: "Artistic sophistication, creative elegance, timeless artistry"
-    },
-
-    "Studio": {
-      description: "Controlled environment, perfect lighting, professional quality",
-      vibe: "Professional perfection, controlled sophistication, studio mastery"
+    "Street Style Fashion": {
+      description: "Urban fashion-forward looks that capture current trends and personal style",
+      vibe: "Fashion authority, street smart confidence, trendsetting energy"
     }
   },
 
