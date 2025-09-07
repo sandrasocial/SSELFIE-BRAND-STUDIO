@@ -2464,7 +2464,7 @@ router.get('/chats/:chatId/messages', requireStackAuth, async (req, res) => {
 router.get('/generated-images', requireStackAuth, async (req, res) => {
   console.log('🎨 MAYA UNIFIED: Fetching generated images...');
   try {
-    const userId = (req.user as any).claims.sub;
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
     console.log('🎨 MAYA UNIFIED: User ID:', userId);
     
     // DEBUG: Direct database query instead of storage method
