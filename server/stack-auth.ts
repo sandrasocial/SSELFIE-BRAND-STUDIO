@@ -123,9 +123,9 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         firstName: userInfo.displayName?.split(' ')[0] || null,
         lastName: userInfo.displayName?.split(' ').slice(1).join(' ') || null,
         profileImageUrl: userInfo.profileImageUrl || null,
-        plan: 'free', // New users start with free plan
+        plan: null, // New users have no plan until they subscribe
         monthlyGenerationLimit: 0, // No generations until they subscribe
-        mayaAiAccess: false, // No AI access until they subscribe
+        mayaAiAccess: false // No AI access until they subscribe
       });
       console.log('✅ Stack Auth: New user created (no subscription):', dbUser.email);
     } else {
@@ -173,7 +173,7 @@ export function requireActiveSubscription(req: Request, res: Response, next: Nex
       if (!subscription || subscription.status !== 'active') {
         console.log('❌ No active subscription for user:', user.email);
         return res.status(402).json({ 
-          message: 'Active subscription required', 
+          message: 'SSELFIE Studio subscription required (€47/month)', 
           redirectTo: '/checkout',
           requiresPayment: true 
         });

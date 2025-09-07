@@ -39,10 +39,10 @@ export function useAuth() {
     role: 'user' // Default, will be overridden by database
   } : undefined);
   
-  // Check if user has active subscription (for payment gating)
+  // Check if user has active subscription (single-tier €47/month model)
   const hasActiveSubscription = dbUser ? (
-    dbUser.monthlyGenerationLimit === -1 || // Admin users
-    dbUser.plan === 'sselfie-studio' // Only checking for main plan
+    dbUser.monthlyGenerationLimit === -1 || // Admin users (unlimited)
+    (dbUser.plan === 'sselfie-studio' && dbUser.monthlyGenerationLimit > 0) // Paid subscribers
   ) : false;
 
   return {
