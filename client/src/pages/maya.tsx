@@ -65,6 +65,8 @@ export default function Maya() {
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [currentOnboardingData, setCurrentOnboardingData] = useState<OnboardingData | null>(null);
+  const [showWelcomeScreen, setShowWelcomeScreen] = useState(true);
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -201,8 +203,18 @@ export default function Maya() {
     if (conversationData && (conversationData as any).messages && messages.length === 0) {
       console.log('🔄 PHASE 2.1: Syncing database conversation with persistent storage');
       setMessages(() => (conversationData as any).messages.slice(-20)); // Keep last 20
+      setShowWelcomeScreen(false);
+      setIsFirstVisit(false);
     }
   }, [conversationData, messages.length, setMessages]);
+
+  // Initialize welcome experience for new users
+  useEffect(() => {
+    if (messages.length === 0 && !conversationData) {
+      setShowWelcomeScreen(true);
+      setIsFirstVisit(true);
+    }
+  }, [messages.length, conversationData]);
 
   // Smart auto-scroll effects
   useEffect(() => {
@@ -399,6 +411,58 @@ export default function Maya() {
     }
   };
 
+  // Start luxury onboarding conversation
+  const startOnboarding = async () => {
+    setShowWelcomeScreen(false);
+    setIsOnboarding(true);
+    
+    try {
+      const response = await fetch('/api/maya/start-onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user?.id })
+      });
+      
+      const data = await response.json();
+      
+      if (data.type === 'onboarding') {
+        setCurrentOnboardingData(data);
+        
+        addMessage({
+          type: 'maya',
+          content: data.introduction || "I'm Maya, your personal brand strategist. I'll help you create photos that tell your unique story and grow your brand. Let me ask you a few quick questions so I can style you perfectly.",
+          timestamp: new Date().toISOString()
+        });
+        
+        // Add first question
+        setTimeout(() => {
+          addMessage({
+            type: 'onboarding',
+            content: data.question,
+            timestamp: new Date().toISOString(),
+            onboardingData: data
+          });
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('Failed to start onboarding:', error);
+      setShowWelcomeScreen(false);
+      setIsOnboarding(false);
+    }
+  };
+
+  // Skip to conversation
+  const skipToConversation = () => {
+    setShowWelcomeScreen(false);
+    setIsFirstVisit(false);
+    
+    addMessage({
+      type: 'maya',
+      content: "I'm Maya, your personal brand strategist. I help you create photo concepts that tell your unique story and grow your brand. What kind of photos are you looking to create today?",
+      timestamp: new Date().toISOString()
+    });
+  };
+
   // Quick action buttons
   const quickActions = [
     "Help me create business headshots",
@@ -412,6 +476,72 @@ export default function Maya() {
     <>
       <MemberNavigation />
       <div className="fixed inset-0 z-50 bg-white animate-fadeIn overflow-y-auto pt-20">
+      
+      {/* Luxury Welcome Screen - First Visit Experience */}
+      {showWelcomeScreen && isFirstVisit && (
+        <div className="welcome-overlay fixed inset-0 z-60 bg-white flex items-center justify-center">
+          <div className="welcome-content max-w-4xl mx-auto px-8 text-center">
+            {/* Editorial Eyebrow */}
+            <div className="luxury-eyebrow text-gray-600 text-xs tracking-[0.5em] uppercase mb-8">
+              Welcome to your Personal Brand Studio
+            </div>
+            
+            {/* Main Welcome Title */}
+            <h1 className="editorial-title font-serif font-extralight text-black text-[clamp(4rem,12vw,8rem)] uppercase tracking-[0.4em] leading-[0.85] mb-6">
+              MAYA
+            </h1>
+            
+            {/* Subtitle */}
+            <div className="section-title font-serif font-extralight text-black text-[clamp(1.5rem,4vw,3rem)] uppercase tracking-[0.3em] leading-[0.9] mb-12">
+              Personal Brand Strategist
+            </div>
+            
+            {/* Welcome Description */}
+            <div className="body-elegant text-gray-600 text-lg leading-relaxed max-w-2xl mx-auto mb-16">
+              I help entrepreneurs and professionals create powerful photo concepts that tell their unique story and drive real business results. Whether you need LinkedIn credibility, Instagram authenticity, or website conversions - I'll style you perfectly.
+            </div>
+            
+            {/* Luxury Action Buttons */}
+            <div className="luxury-buttons flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <button
+                onClick={startOnboarding}
+                className="luxury-button-primary bg-black text-white px-12 py-4 text-sm tracking-[0.2em] uppercase font-light hover:bg-gray-900 transition-all duration-300 border border-black"
+              >
+                Get Styled by Maya
+              </button>
+              
+              <button
+                onClick={skipToConversation}
+                className="luxury-button-secondary bg-white text-black px-12 py-4 text-sm tracking-[0.2em] uppercase font-light hover:bg-gray-50 transition-all duration-300 border border-gray-300"
+              >
+                Quick Start
+              </button>
+            </div>
+            
+            {/* Welcome Features */}
+            <div className="welcome-features grid grid-cols-1 md:grid-cols-3 gap-8 mt-20 max-w-3xl mx-auto">
+              <div className="feature text-center">
+                <div className="feature-number text-4xl font-serif text-gray-300 mb-4">01</div>
+                <div className="spaced-title text-sm tracking-[0.3em] uppercase mb-3">Platform Strategy</div>
+                <div className="body-elegant text-xs text-gray-600">LinkedIn authority, Instagram authenticity, website conversions</div>
+              </div>
+              
+              <div className="feature text-center">
+                <div className="feature-number text-4xl font-serif text-gray-300 mb-4">02</div>
+                <div className="spaced-title text-sm tracking-[0.3em] uppercase mb-3">High-End Fashion</div>
+                <div className="body-elegant text-xs text-gray-600">Current trends, luxury styling, diverse aesthetics beyond basics</div>
+              </div>
+              
+              <div className="feature text-center">
+                <div className="feature-number text-4xl font-serif text-gray-300 mb-4">03</div>
+                <div className="spaced-title text-sm tracking-[0.3em] uppercase mb-3">Personal Branding</div>
+                <div className="body-elegant text-xs text-gray-600">Strategic coaching that positions you as the obvious choice</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Editorial Hero Header - Magazine Style */}
       <div className="hero relative h-[40vh] bg-black text-white overflow-hidden">
         {/* Background Pattern */}
@@ -674,55 +804,80 @@ export default function Maya() {
                     </div>
                   </div>
                 ) : msg.type === 'onboarding' ? (
-                  // PHASE 7: Onboarding Message - Professional Setup
+                  // Luxury Onboarding Experience - Editorial Style
                   <div className="max-w-4xl mb-12">
-                    <div className="eyebrow text-gray-500 mb-6">
-                      Profile Setup • Step {msg.onboardingData?.step} of {msg.onboardingData?.totalSteps}
+                    <div className="luxury-eyebrow text-gray-500 text-xs tracking-[0.5em] uppercase mb-8">
+                      Personal Brand Setup • Step {msg.onboardingData?.step} of {msg.onboardingData?.totalSteps}
                     </div>
                     
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-8">
-                      <div className="text-xl font-light text-gray-800 mb-6">
-                        {msg.content}
+                    {/* Editorial Progress Bar */}
+                    <div className="progress-section mb-12">
+                      <div className="progress-bar bg-gray-200 h-px relative">
+                        <div 
+                          className="progress-fill bg-black h-full transition-all duration-700 ease-out"
+                          style={{ width: `${((msg.onboardingData?.step || 1) / (msg.onboardingData?.totalSteps || 4)) * 100}%` }}
+                        ></div>
                       </div>
-                      
-                      {msg.onboardingData?.explanation && (
-                        <div className="text-sm text-gray-600 mb-6 italic">
-                          {msg.onboardingData.explanation}
+                    </div>
+                    
+                    {/* Luxury Question Card */}
+                    <div className="luxury-card bg-white border border-gray-200 shadow-lg">
+                      <div className="card-content p-12">
+                        <div className="spaced-title font-serif font-extralight text-2xl tracking-[0.2em] uppercase text-black mb-8 leading-tight">
+                          {msg.content}
                         </div>
-                      )}
-                      
-                      {/* Answer Options */}
-                      {msg.onboardingData?.options ? (
-                        <div className="grid gap-3 max-w-md">
-                          {msg.onboardingData.options.map((option) => (
-                            <button
-                              key={option}
-                              onClick={() => handleOnboardingResponse(msg.onboardingData!.fieldName, option)}
-                              className="text-left p-4 bg-white border border-gray-200 hover:border-blue-500 hover:bg-blue-50 rounded transition-all"
-                            >
-                              {option.charAt(0).toUpperCase() + option.slice(1)}
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        // Text Input for open-ended questions
-                        <div className="max-w-md">
-                          <input
-                            type="text"
-                            placeholder="Enter your answer..."
-                            className="w-full p-4 border border-gray-200 rounded focus:border-blue-500 focus:outline-none"
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
-                                const target = e.target as HTMLInputElement;
-                                if (target.value.trim()) {
-                                  handleOnboardingResponse(msg.onboardingData!.fieldName, target.value.trim());
-                                  target.value = '';
+                        
+                        {msg.onboardingData?.explanation && (
+                          <div className="body-elegant text-sm text-gray-600 mb-10 font-light leading-relaxed italic max-w-2xl">
+                            {msg.onboardingData.explanation}
+                          </div>
+                        )}
+                        
+                        {/* Luxury Answer Options */}
+                        {msg.onboardingData?.options ? (
+                          <div className="luxury-options grid gap-4 max-w-2xl">
+                            {msg.onboardingData.options.map((option, index) => (
+                              <button
+                                key={option}
+                                onClick={() => handleOnboardingResponse(msg.onboardingData!.fieldName, option)}
+                                className="luxury-option-button text-left p-6 bg-white border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-300 group rounded-sm"
+                              >
+                                <div className="flex justify-between items-center">
+                                  <div className="flex items-center space-x-4">
+                                    <div className="option-number text-2xl font-serif text-gray-300 group-hover:text-black transition-colors">
+                                      {String(index + 1).padStart(2, '0')}
+                                    </div>
+                                    <span className="text-sm tracking-[0.05em] font-light group-hover:tracking-[0.1em] transition-all duration-300">
+                                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                                    </span>
+                                  </div>
+                                  <span className="text-gray-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    →
+                                  </span>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          // Luxury Text Input
+                          <div className="luxury-text-input max-w-2xl">
+                            <input
+                              type="text"
+                              placeholder="Share your thoughts and press Enter..."
+                              className="w-full p-6 border border-gray-200 hover:border-gray-300 focus:border-black focus:outline-none text-sm font-light tracking-[0.05em] bg-white rounded-sm transition-all duration-300"
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  const target = e.target as HTMLInputElement;
+                                  if (target.value.trim()) {
+                                    handleOnboardingResponse(msg.onboardingData!.fieldName, target.value.trim());
+                                    target.value = '';
+                                  }
                                 }
-                              }
-                            }}
-                          />
-                        </div>
-                      )}
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ) : (
