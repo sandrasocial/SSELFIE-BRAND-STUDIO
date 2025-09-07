@@ -10,9 +10,8 @@ export interface User {
 }
 
 export function useAuth() {
-  // Check for Stack Auth session cookie (set by Stack Auth OAuth flow)
-  const hasStackAuthSession = document.cookie.includes('stack-') || 
-                              window.location.search.includes('code='); // OAuth callback
+  // ✅ FIXED: Only check for actual access token, not generic stack cookies
+  const hasStackAuthSession = document.cookie.includes('stack-access-token');
   
   // Sync with our backend using JWKS verification
   const { data: user, isLoading, error } = useQuery({

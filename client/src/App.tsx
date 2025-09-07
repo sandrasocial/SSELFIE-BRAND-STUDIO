@@ -62,7 +62,7 @@ const VictoriaBuilder = lazy(() => import('./pages/victoria-builder'));
 const VictoriaPreview = lazy(() => import('./pages/victoria-preview'));
 const PhotoSelection = lazy(() => import("./pages/photo-selection"));
 
-const AuthSuccess = lazy(() => import("./pages/auth-success"));
+// ✅ REMOVED: Auth success page no longer needed with direct Stack Auth integration
 const Login = lazy(() => import("./pages/login"));
 const DomainHelp = lazy(() => import("./pages/domain-help"));
 
@@ -344,11 +344,7 @@ function Router() {
           <PaymentSuccess />
         </Suspense>
       )} />
-      <Route path="/auth-success" component={() => (
-        <Suspense fallback={<PageLoader />}>
-          <AuthSuccess />
-        </Suspense>
-      )} />
+      {/* ✅ REMOVED: Auth success route no longer needed with direct Stack Auth integration */}
       <Route path="/switch-account" component={() => (
         <Suspense fallback={<PageLoader />}>
           <SwitchAccount />
