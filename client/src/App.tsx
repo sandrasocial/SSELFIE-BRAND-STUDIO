@@ -175,10 +175,8 @@ function ProtectedRoute({ component: Component, ...props }: { component: Compone
 function Router() {
   return (
     <div>
-      {/* NEON AUTH HANDLER - Must be first to catch authentication routes */}
-      <Route path="/handler/:rest*" component={() => (
-        <HandlerRoutes />
-      )} />
+      {/* STACK AUTH HANDLER - Must be first to catch authentication routes */}
+      <Route path="/handler/:path*" component={HandlerRoutes} />
       
       {/* STREAMLINED USER JOURNEY: Landing → Simple Checkout → Payment Success → Onboarding → Workspace */}
 
@@ -519,9 +517,10 @@ function Router() {
 }
 
 // Stack Auth Handler component for authentication routes
-function HandlerRoutes() {
-  const [location] = useLocation();
-  return <StackHandler app={stackClientApp} location={location} fullPage />;
+function HandlerRoutes({ params }: { params: { path?: string } }) {
+  // Extract the sub-path after "/handler/" for Stack Auth
+  const handlerPath = params.path || '';
+  return <StackHandler app={stackClientApp} location={handlerPath} fullPage />;
 }
 
 function AppWithProvider() {
