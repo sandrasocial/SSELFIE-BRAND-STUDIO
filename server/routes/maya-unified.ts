@@ -2392,7 +2392,7 @@ Express your creative vision authentically with flawless anatomical details!`;
     // PHASE 3 DEBUG: Log complete Claude API request
     const claudeRequest = {
       model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1000,
+      max_tokens: 4000,
       system: mayaPromptPersonality,
       messages: [{
         role: 'user',
