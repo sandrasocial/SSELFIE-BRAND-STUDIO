@@ -187,15 +187,20 @@ function Router() {
         </Suspense>
       )} />
       
-      {/* HOME ROUTE - Smart routing based on authentication */}
+      {/* HOME ROUTE - Smart routing based on authentication and subscription */}
       <Route path="/" component={() => {
-        const { isAuthenticated, isLoading } = useAuth();
+        const { isAuthenticated, isLoading, hasActiveSubscription, requiresPayment } = useAuth();
         
         if (isLoading) {
           return <PageLoader />;
         }
         
         if (isAuthenticated) {
+          // If authenticated but no active subscription, redirect to checkout
+          if (requiresPayment) {
+            console.log('🔄 Auth: Redirecting to checkout - no active subscription');
+            return <Redirect to="/checkout" />;
+          }
           return <SmartHome />;
         }
         
