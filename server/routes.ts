@@ -5,7 +5,7 @@ import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
-import { requireStackAuth, optionalStackAuth } from './stack-auth';
+import { requireStackAuth, requireActiveSubscription, optionalStackAuth } from './stack-auth';
 import { db } from "./drizzle";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -1401,9 +1401,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Save image to gallery - POST endpoint
-  app.post('/api/ai-images', requireStackAuth, async (req: any, res) => {
+  app.post('/api/ai-images', requireActiveSubscription, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       const { imageUrl, prompt, category, isAutoSaved, isFavorite } = req.body;
       
       console.log('💾 Saving image to gallery:', { userId, prompt, category, isAutoSaved });
@@ -1451,9 +1451,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // REMOVED: Maya endpoint moved to unified router at /api/maya/generated-images
 
   // AI Images endpoint - Production ready
-  app.get('/api/ai-images', requireStackAuth, async (req: any, res) => {
+  app.get('/api/ai-images', requireActiveSubscription, async (req: any, res) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const userId = req.user.id;
       console.log('🖼️ Fetching AI images for user:', userId);
       
       const { db } = await import('./db');
@@ -2625,6 +2625,35 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
   // REMOVED DUPLICATE AI IMAGES ROUTE #2
 
+  // Stack Auth logout endpoint
+  app.get('/api/auth/logout', (req, res) => {
+    try {
+      console.log('🚪 Stack Auth: Logout requested');
+      
+      // Clear all Stack Auth cookies
+      res.clearCookie('stack-access');
+      res.clearCookie('stack-refresh-253d7343-a0d4-43a1-be5c-822f590d40be');
+      res.clearCookie('stack-is-https');
+      
+      // Clear session if it exists
+      if (req.session) {
+        req.session.destroy((err) => {
+          if (err) {
+            console.error('❌ Session destruction error:', err);
+          }
+        });
+      }
+      
+      console.log('✅ Stack Auth: User logged out successfully');
+      
+      // Redirect to login page
+      res.redirect('/handler/sign-in');
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      res.status(500).json({ error: 'Logout failed' });
+    }
+  });
+
   // REMOVED: Duplicate /api/auth/user endpoint - now handled by requireStackAuth version above
 
   // REMOVED: Competing autonomous orchestrator - consolidated into /api/admin/agents/*
@@ -3223,9 +3252,9 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   });
 
   // User model endpoint for workspace model status  
-  app.get('/api/user-model', requireStackAuth, async (req: any, res) => {
+  app.get('/api/user-model', requireActiveSubscription, async (req: any, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
+      const userId = req.user.id;
       console.log('🤖 Fetching user model for:', userId);
       
       // Get user plan information
@@ -3278,10 +3307,10 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
 
 
   // AI Photoshoot Generation - CRITICAL MISSING ENDPOINT
-  app.post('/api/generate-user-images', requireStackAuth, async (req: any, res) => {
+  app.post('/api/generate-user-images', requireActiveSubscription, async (req: any, res) => {
     try {
       const { category, subcategory } = req.body;
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       
       // Get the correct database user ID
       let user = await storage.getUser(authUserId);
@@ -3402,9 +3431,9 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   });
 
   // Model training endpoint for workspace step 1 - Uses BulletproofUploadService
-  app.post('/api/start-model-training', requireStackAuth, async (req: any, res) => {
+  app.post('/api/start-model-training', requireActiveSubscription, async (req: any, res) => {
     try {
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user.id;
       const claims = req.user.claims;
       const { selfieImages } = req.body;
       
