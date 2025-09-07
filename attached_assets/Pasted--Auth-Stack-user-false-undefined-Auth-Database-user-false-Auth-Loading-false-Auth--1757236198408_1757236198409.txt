@@ -1,0 +1,25 @@
+🔍 Auth: Stack user: false undefined
+🔍 Auth: Database user: false
+🔍 Auth: Loading: false
+🔍 Auth: Authenticated: false
+🔍 Auth: Stack user: false undefined
+🔍 Auth: Database user: false
+🔍 Auth: Loading: false
+🔍 Auth: Authenticated: false
+useStackApp must be used within a StackProvider
+at useStackApp (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=8ffb03ed:23315:11)
+at BusinessLanding (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/pages/business-landing.tsx:9:15)
+at react-stack-bottom-frame (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=795db830:16192:20)
+at renderWithHooks (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=795db830:4306:24)
+at updateFunctionComponent (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=795db830:5972:21)
+at beginWork (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=795db830:7007:199)
+at runWithFiberInDEV (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=795db830:726:18)
+at performUnitOfWork (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=795db830:10837:82)
+at workLoopSync (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=795db830:10692:43)
+at renderRootSync (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=795db830:10675:13)
+An error occurred in the  component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+[vite] failed to connect to websocket (Error: WebSocket closed without opened.). 
+WebSocket closed without opened.

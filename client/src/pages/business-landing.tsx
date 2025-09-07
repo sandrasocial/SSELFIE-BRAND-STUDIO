@@ -6,12 +6,12 @@ import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../env";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
+  // Safely use Stack Auth hook with error handling for when outside provider
   let app;
-  
   try {
     app = useStackApp();
   } catch (error) {
-    console.warn('⚠️ Stack Auth not available on business landing:', error);
+    // This is fine - component can work without Stack Auth for public pages
     app = null;
   }
 
