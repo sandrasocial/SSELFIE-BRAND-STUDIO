@@ -203,16 +203,14 @@ export default function Maya() {
     if (conversationData && (conversationData as any).messages && messages.length === 0) {
       console.log('🔄 PHASE 2.1: Syncing database conversation with persistent storage');
       setMessages(() => (conversationData as any).messages.slice(-20)); // Keep last 20
-      setShowWelcomeScreen(false);
-      setIsFirstVisit(false);
+      setHasStartedChat(true);
     }
   }, [conversationData, messages.length, setMessages]);
 
-  // Initialize welcome experience for new users
+  // Initialize chat state for new users
   useEffect(() => {
     if (messages.length === 0 && !conversationData) {
-      setShowWelcomeScreen(true);
-      setIsFirstVisit(true);
+      setHasStartedChat(false);
     }
   }, [messages.length, conversationData]);
 
@@ -428,50 +426,9 @@ export default function Maya() {
     }
   };
 
-  // Start luxury onboarding conversation
-  const startOnboarding = async () => {
-    setShowWelcomeScreen(false);
-    setIsOnboarding(true);
-    
-    try {
-      const response = await fetch('/api/maya/start-onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.id })
-      });
-      
-      const data = await response.json();
-      
-      if (data.type === 'onboarding') {
-        setCurrentOnboardingData(data);
-        
-        addMessage({
-          type: 'maya',
-          content: data.introduction || "I'm Maya, your personal brand strategist. I'll help you create photos that tell your unique story and grow your brand. Let me ask you a few quick questions so I can style you perfectly.",
-          timestamp: new Date().toISOString()
-        });
-        
-        // Add first question
-        setTimeout(() => {
-          addMessage({
-            type: 'onboarding',
-            content: data.question,
-            timestamp: new Date().toISOString(),
-            onboardingData: data
-          });
-        }, 1500);
-      }
-    } catch (error) {
-      console.error('Failed to start onboarding:', error);
-      setShowWelcomeScreen(false);
-      setIsOnboarding(false);
-    }
-  };
-
-  // Skip to conversation
-  const skipToConversation = () => {
-    setShowWelcomeScreen(false);
-    setIsFirstVisit(false);
+  // Simplified chat initialization - no complex onboarding needed
+  const startSimpleConversation = () => {
+    setHasStartedChat(true);
     
     addMessage({
       type: 'maya',
@@ -480,14 +437,6 @@ export default function Maya() {
     });
   };
 
-  // Quick action buttons
-  const quickActions = [
-    "Help me create business headshots",
-    "I need lifestyle content for Instagram", 
-    "Create professional photos for LinkedIn",
-    "Show me editorial styling options",
-    "Design travel content concepts"
-  ];
 
   return (
     <>
