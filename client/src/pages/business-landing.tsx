@@ -129,12 +129,12 @@ export default function BusinessLanding() {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden" style={{ fontFamily: 'Helvetica Neue, Arial, sans-serif' }}>
-      {/* Luxury Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/50">
+      {/* Transparent Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent transition-all duration-300">
         <div className="max-w-[1400px] mx-auto px-8 py-6">
           <div className="flex items-center justify-between">
             <div 
-              className="cursor-pointer text-black transition-opacity duration-300 hover:opacity-60"
+              className="cursor-pointer text-white transition-opacity duration-300 hover:opacity-70"
               style={{
                 fontFamily: "Times New Roman, serif",
                 fontSize: '24px',
@@ -151,7 +151,7 @@ export default function BusinessLanding() {
             <div className="hidden md:flex items-center space-x-12">
               <button 
                 onClick={() => setLocation("/editorial-landing")}
-                className="text-gray-600 hover:text-black transition-all duration-300"
+                className="text-white/80 hover:text-white transition-all duration-300"
                 style={{
                   fontSize: '12px',
                   fontWeight: 300,
@@ -163,7 +163,7 @@ export default function BusinessLanding() {
               </button>
               <button 
                 onClick={() => setLocation("/teams")}
-                className="text-gray-600 hover:text-black transition-all duration-300"
+                className="text-white/80 hover:text-white transition-all duration-300"
                 style={{
                   fontSize: '12px',
                   fontWeight: 300,
@@ -175,7 +175,7 @@ export default function BusinessLanding() {
               </button>
               <button
                 onClick={handleLogin}
-                className="text-gray-600 hover:text-black transition-all duration-300"
+                className="text-white/80 hover:text-white transition-all duration-300"
                 style={{
                   fontSize: '12px',
                   fontWeight: 300,
@@ -187,7 +187,7 @@ export default function BusinessLanding() {
               </button>
               <button
                 onClick={handleGetStarted}
-                className="text-black border border-black hover:bg-black hover:text-white transition-all duration-500 px-8 py-3 group"
+                className="text-white border border-white/50 hover:bg-white hover:text-black hover:border-white transition-all duration-500 px-8 py-3 group backdrop-blur-sm"
                 style={{
                   fontSize: '11px',
                   fontWeight: 300,
@@ -203,7 +203,7 @@ export default function BusinessLanding() {
             <div className="md:hidden">
               <button
                 onClick={handleGetStarted}
-                className="text-black border border-black hover:bg-black hover:text-white transition-all duration-300 px-6 py-3"
+                className="text-white border border-white/50 hover:bg-white hover:text-black transition-all duration-300 px-6 py-3 backdrop-blur-sm"
                 style={{
                   fontSize: '11px',
                   fontWeight: 300,
@@ -244,7 +244,7 @@ export default function BusinessLanding() {
             className="w-full h-full object-cover object-center"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-transparent to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-black/80" />
         </div>
 
         {/* Editorial Content Overlay */}
@@ -264,64 +264,86 @@ export default function BusinessLanding() {
               Professional Brand Photography
             </p>
 
-            {/* Hero Typography */}
+            {/* Sophisticated Hero Typography */}
             <h1 
-              className="text-white mb-12 leading-[0.9] animate-fade-in"
+              className="text-white mb-16 leading-[0.85] animate-fade-in tracking-tight"
               style={{ 
                 fontFamily: 'Times New Roman, serif',
-                fontWeight: 200,
-                fontSize: 'clamp(2.5rem, 7vw, 6rem)',
-                letterSpacing: '0.05em',
+                fontWeight: 100,
+                fontSize: 'clamp(3rem, 8vw, 7rem)',
+                letterSpacing: '0.02em',
                 textTransform: 'uppercase',
                 animationDelay: '600ms'
               }}
             >
-              From Selfies to
-              <br />
-              Professional Photos
-              <br />
-              <span className="text-white/70">in 20 Minutes</span>
+              <span className="block mb-2">From Selfies</span>
+              <span className="block mb-2">to Professional</span>
+              <span className="block mb-4 text-white/90">Photography</span>
+              <span 
+                className="block text-white/60"
+                style={{
+                  fontSize: 'clamp(1.2rem, 3vw, 2.5rem)',
+                  letterSpacing: '0.1em',
+                  fontWeight: 200
+                }}
+              >
+                in twenty minutes
+              </span>
             </h1>
 
-            {/* Value Proposition */}
-            <div className="mb-16 space-y-4 animate-fade-in" style={{ animationDelay: '900ms' }}>
+            {/* Refined Value Proposition */}
+            <div className="mb-20 space-y-6 animate-fade-in" style={{ animationDelay: '900ms' }}>
               <p 
-                className="text-white/90 font-light"
+                className="text-white/95 font-light"
                 style={{
-                  fontSize: '18px',
-                  lineHeight: 1.6,
-                  maxWidth: '600px',
-                  margin: '0 auto'
+                  fontSize: '20px',
+                  lineHeight: 1.5,
+                  maxWidth: '700px',
+                  margin: '0 auto',
+                  letterSpacing: '0.02em'
                 }}
               >
-                100+ professional brand photos monthly for €47
+                One hundred professional brand photographs monthly
               </p>
-              <p 
-                className="text-white/60 font-light"
-                style={{
-                  fontSize: '14px',
-                  lineHeight: 1.6
-                }}
-              >
-                vs €1500+ traditional photoshoots
-              </p>
+              <div className="flex items-center justify-center space-x-8">
+                <span 
+                  className="text-white/80 font-light"
+                  style={{
+                    fontSize: '16px',
+                    letterSpacing: '0.1em'
+                  }}
+                >
+                  €47/month
+                </span>
+                <span className="text-white/40">•</span>
+                <span 
+                  className="text-white/60 font-light line-through"
+                  style={{
+                    fontSize: '14px',
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  €1500+ photoshoots
+                </span>
+              </div>
             </div>
 
-            {/* CTA */}
+            {/* Sophisticated CTA */}
             <button 
               onClick={handleGetStarted}
-              className="bg-white text-black px-16 py-4 hover:bg-gray-100 transition-all duration-500 group animate-fade-in mb-16"
+              className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-20 py-6 hover:bg-white hover:text-black hover:border-white transition-all duration-700 group animate-fade-in mb-20 relative overflow-hidden"
               style={{
-                fontSize: '12px',
-                fontWeight: 300,
-                letterSpacing: '0.15em',
+                fontSize: '11px',
+                fontWeight: 200,
+                letterSpacing: '0.25em',
                 textTransform: 'uppercase',
                 animationDelay: '1200ms'
               }}
             >
-              <span className="group-hover:tracking-[0.2em] transition-all duration-500">
-                Start Your Transformation
+              <span className="relative z-10 group-hover:tracking-[0.3em] transition-all duration-700">
+                Begin Your Transformation
               </span>
+              <div className="absolute inset-0 bg-white translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-700" />
             </button>
 
             {/* Trust Signals */}
