@@ -108,11 +108,6 @@ export default function BusinessLanding() {
           }
         ]
       },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "reviewCount": "127"
-      }
     };
 
     let script = document.querySelector('script[type="application/ld+json"]');
@@ -228,21 +223,22 @@ export default function BusinessLanding() {
               </div>
 
               <h1 
-                className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light mb-12 tracking-[-0.02em] leading-none"
+                className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light mb-6 tracking-[-0.02em] leading-none"
                 style={{ fontFamily: "Times New Roman, serif" }}
               >
-                Professional Photos<br />
-                <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-[0.3em] text-white/80 font-light">
-                  FROM YOUR SELFIES
-                </span>
+                Professional photos from your selfies
               </h1>
+
+              <p className="text-lg sm:text-xl text-white/80 mb-12 font-light max-w-xl">
+                Upload 15 selfies once. Get 100+ fresh brand photos every month.
+              </p>
 
               <div className="space-y-6">
                 <button 
                   onClick={handleGetStarted}
                   className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-10 py-3 font-light"
                 >
-                  GET PROFESSIONAL PHOTOS — €47
+                  Get 100 Pro Photos — €47
                 </button>
 
                 <p className="text-xs text-white/60 tracking-wide">
@@ -430,7 +426,7 @@ export default function BusinessLanding() {
               </div>
               <button 
                 onClick={handleGetStarted}
-                className="w-full bg-black text-white py-4 text-sm uppercase tracking-[0.3em] hover:bg-gray-800 transition-all font-light"
+                className="w-full text-black border border-black hover:bg-black hover:text-white transition-colors duration-300 text-sm uppercase tracking-[0.3em] py-4 font-light"
               >
                 Begin Transformation
               </button>
@@ -456,6 +452,35 @@ export default function BusinessLanding() {
               </button>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Mini-FAQ */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="font-serif text-3xl mb-8 font-light" style={{ fontFamily: "Times New Roman, serif" }}>
+            FAQ
+          </h2>
+          
+          <details className="mb-4 border-b border-gray-200 pb-4">
+            <summary className="cursor-pointer text-lg font-light">Do my selfies need perfect lighting?</summary>
+            <p className="mt-2 text-gray-700 font-light">No. Any lighting/background works. Maya learns your face and style.</p>
+          </details>
+          
+          <details className="mb-4 border-b border-gray-200 pb-4">
+            <summary className="cursor-pointer text-lg font-light">Will you train on my photos?</summary>
+            <p className="mt-2 text-gray-700 font-light">Only with your consent. Your photos stay private.</p>
+          </details>
+          
+          <details className="mb-4 border-b border-gray-200 pb-4">
+            <summary className="cursor-pointer text-lg font-light">Cancel anytime?</summary>
+            <p className="mt-2 text-gray-700 font-light">Yes—one click in your account.</p>
+          </details>
+          
+          <details className="mb-4 border-b border-gray-200 pb-4">
+            <summary className="cursor-pointer text-lg font-light">Commercial usage?</summary>
+            <p className="mt-2 text-gray-700 font-light">Yes—use them on your site, socials, and marketing.</p>
+          </details>
         </div>
       </section>
 
@@ -567,7 +592,7 @@ export default function BusinessLanding() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
-              <p className="text-2xl font-light mb-2">24hrs</p>
+              <p className="text-2xl font-light mb-2">20min</p>
               <p className="text-xs text-white/70 uppercase tracking-wide">Delivery</p>
             </div>
             <div>
@@ -585,6 +610,19 @@ export default function BusinessLanding() {
           </div>
         </div>
       </section>
+
+      {/* Sticky CTA */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-center">
+          <button
+            onClick={handleGetStarted}
+            className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-8 py-3 font-light"
+            style={{ minHeight: 44 }}
+          >
+            Get 100 Pro Photos — €47
+          </button>
+        </div>
+      </div>
 
       <GlobalFooter />
     </div>
