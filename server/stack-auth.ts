@@ -111,14 +111,32 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       name: userInfo.displayName
     });
     
-    // Get or create user in our database
+    // Get or create user in our database with email-based linking for existing users
     const { storage } = await import('./storage');
-    let dbUser = await storage.getUser(userInfo.sub);
+    
+    // Step 1: Try to find user by Stack Auth ID first
+    let dbUser = await storage.getUserByStackAuthId(userInfo.sub);
     
     if (!dbUser) {
+      // Step 2: Try to find existing user by email (for migration from integer IDs)
+      if (userInfo.email) {
+        dbUser = await storage.getUserByEmail(userInfo.email);
+        
+        if (dbUser) {
+          // Step 3: Link existing user to Stack Auth ID
+          console.log(`🔗 Stack Auth: Linking existing user ${dbUser.email} (ID: ${dbUser.id}) to Stack Auth ID: ${userInfo.sub}`);
+          dbUser = await storage.linkStackAuthId(dbUser.id, userInfo.sub);
+          console.log('✅ Stack Auth: Existing user successfully linked to Stack Auth');
+        }
+      }
+    }
+    
+    if (!dbUser) {
+      // Step 4: Create new user if not found by Stack Auth ID or email
       console.log('🔄 Stack Auth: Creating new user in database...');
       dbUser = await storage.upsertUser({
         id: userInfo.sub,
+        stackAuthId: userInfo.sub,
         email: userInfo.email || null,
         firstName: userInfo.displayName?.split(' ')[0] || null,
         lastName: userInfo.displayName?.split(' ').slice(1).join(' ') || null,
@@ -129,7 +147,7 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       });
       console.log('✅ Stack Auth: New user created (no subscription):', dbUser.email);
     } else {
-      console.log('✅ Stack Auth: Existing user found:', dbUser.email);
+      console.log('✅ Stack Auth: User authenticated successfully:', dbUser.email);
     }
     
     // Set user information in request from database user

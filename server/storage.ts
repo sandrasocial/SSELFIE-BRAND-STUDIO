@@ -69,6 +69,8 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: InsertUser): Promise<User>; // For Stack Auth sync
+  linkStackAuthId(existingUserId: string, stackAuthId: string): Promise<User>; // Link existing user to Stack Auth
+  getUserByStackAuthId(stackAuthId: string): Promise<User | undefined>; // Get user by Stack Auth ID
   getAllUsers(): Promise<User[]>;
   updateUserProfile(userId: string, updates: Partial<User>): Promise<User>;
   syncStackAuthUser(stackUser: { id: string; primaryEmail?: string; displayName?: string; profileImageUrl?: string }): Promise<User>;
@@ -205,6 +207,30 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  // Link existing user account to Stack Auth ID (safer approach - preserve original ID)
+  async linkStackAuthId(existingUserId: string, stackAuthId: string): Promise<User> {
+    console.log(`🔗 Linking existing user ${existingUserId} to Stack Auth ID ${stackAuthId}`);
+    
+    // Add Stack Auth ID to existing user while preserving original ID and all relationships
+    const [linkedUser] = await db
+      .update(users)
+      .set({
+        stackAuthId: stackAuthId, // Store Stack Auth ID in separate column
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, existingUserId))
+      .returning();
+    
+    console.log(`✅ Successfully linked user to Stack Auth ID: ${linkedUser.email}`);
+    return linkedUser;
+  }
+  
+  // Get user by Stack Auth ID (for linked accounts)
+  async getUserByStackAuthId(stackAuthId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.stackAuthId, stackAuthId));
     return user;
   }
 
