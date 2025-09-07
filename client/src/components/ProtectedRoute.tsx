@@ -17,7 +17,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
       
       if (publishableKey) {
-        window.location.href = `/handler/sign-in)}`;
+        window.location.href = `/handler/sign-in`;
       }
     }
   }, [isAuthenticated, isLoading, setLocation]);
