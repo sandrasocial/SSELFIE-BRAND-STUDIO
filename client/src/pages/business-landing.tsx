@@ -324,114 +324,46 @@ export default function BusinessLanding() {
         </div>
       </section>
 
-      {/* SOLUTION - Editorial Process */}
-      <section className="py-20 sm:py-32 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 sm:mb-20">
-            <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
-              The Solution
-            </div>
-            <h2 
-              className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-6 text-black"
-              style={{ fontFamily: "Times New Roman, serif" }}
-            >
-              Professional photos in<br />
-              <span className="italic text-gray-600">three simple steps</span>
-            </h2>
-            <div className="w-16 h-px bg-gray-300 mx-auto"></div>
-          </div>
+      {/* Solution Section - Confident Simplicity */}
+      <section className="py-20 md:py-32 bg-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 
+            className="font-serif text-[clamp(2rem,5vw,3.5rem)] font-light mb-16"
+            style={{ fontFamily: 'Times New Roman, serif' }}
+          >
+            Here's exactly how it works
+          </h2>
           
-          <div className="grid md:grid-cols-3 gap-12 lg:gap-16">
-            {/* Step 1 */}
-            <div className="text-center">
-              <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
-                <img
-                  src="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/proxy-image?url=https%3A%2F%2Fsselfie-training-zips.s3.eu-north-1.amazonaws.com%2Fgenerated-images%2F42585527%2Fmaya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
-                  alt="Upload process"
-                  className="w-full h-full object-cover object-[center_20%]"
-                />
-                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
-                  01
-                </div>
-              </div>
-              <h3 
-                className="font-serif text-xl mb-4 text-black font-light"
-                style={{ fontFamily: "Times New Roman, serif" }}
-              >
-                Upload your selfies
-              </h3>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                Send 15-20 selfies from your phone. Mirror selfies, car selfies, 
-                bathroom selfies. Whatever you have works.
-              </p>
-              <p className="text-sm text-gray-500 italic">
-                "Any lighting, any background"
-              </p>
+          <div className="grid md:grid-cols-3 gap-12 mb-16">
+            <div className="space-y-4">
+              <div className="text-4xl font-light text-gray-300">01</div>
+              <h3 className="font-serif text-xl font-medium">Upload 15 selfies</h3>
+              <p className="text-gray-600">From your phone. Any lighting, any background.</p>
             </div>
             
-            {/* Step 2 */}
-            <div className="text-center">
-              <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
-                <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
-                  alt="AI creation process"
-                  className="w-full h-full object-cover object-[center_20%]"
-                />
-                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
-                  02
-                </div>
-              </div>
-              <h3 
-                className="font-serif text-xl mb-4 text-black font-light"
-                style={{ fontFamily: "Times New Roman, serif" }}
-              >
-                AI creates professional photos
-              </h3>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                Maya AI learns your face and creates professional photos 
-                in different styles. Business, lifestyle, editorial, creative.
-              </p>
-              <p className="text-sm text-gray-500 italic">
-                "Like having a personal photographer"
-              </p>
+            <div className="space-y-4">
+              <div className="text-4xl font-light text-gray-300">02</div>
+              <h3 className="font-serif text-xl font-medium">AI learns your best angles</h3>
+              <p className="text-gray-600">Your personal photographer studies what works.</p>
             </div>
             
-            {/* Step 3 */}
-            <div className="text-center">
-              <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
-                <img
-                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5s2emwbk3srma0crywrbh9kg4c_0_1756493820306.png"
-                  alt="Professional gallery"
-                  className="w-full h-full object-cover object-[center_20%]"
-                />
-                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
-                  03
-                </div>
-              </div>
-              <h3 
-                className="font-serif text-xl mb-4 text-black font-light"
-                style={{ fontFamily: "Times New Roman, serif" }}
-              >
-                Get 100+ monthly photos
-              </h3>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                Download professional photos for LinkedIn, Instagram, 
-                your website, marketing materials. Fresh content every month.
-              </p>
-              <p className="text-sm text-gray-500 italic">
-                "Never run out of content again"
-              </p>
+            <div className="space-y-4">
+              <div className="text-4xl font-light text-gray-300">03</div>
+              <h3 className="font-serif text-xl font-medium">Get 100+ photos monthly</h3>
+              <p className="text-gray-600">Professional brand photos. No photographer required.</p>
             </div>
           </div>
           
-          <div className="text-center mt-16 bg-black text-white p-12">
-            <p 
-              className="text-xl font-light"
-              style={{ fontFamily: "Times New Roman, serif" }}
-            >
-              100+ professional photos monthly for €47 vs €1500+ per single photoshoot
-            </p>
-          </div>
+          <p className="text-xl font-light mb-8">
+            That's it. Professional photos without the photographer.
+          </p>
+          
+          <button 
+            onClick={handleGetStarted}
+            className="bg-black text-white px-12 py-4 text-xs uppercase tracking-[0.3em] font-medium hover:bg-gray-900 transition-colors duration-300"
+          >
+            START YOUR TRANSFORMATION
+          </button>
         </div>
       </section>
 
