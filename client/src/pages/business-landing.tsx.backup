@@ -18,10 +18,10 @@ export default function BusinessLanding() {
   // Comprehensive SEO Meta Tags
   useEffect(() => {
     // Primary SEO tags
-    document.title = "SSELFIE Studio - Professional Photos From Your Selfies | €47/month vs €1500+ Photoshoots";
+    document.title = "SSELFIE Studio - Professional AI Photos From Selfies | Personal Branding €47/month";
     
     const metaTags = [
-      { name: 'description', content: 'Professional photos from your selfies. Upload once, get 100+ brand photos monthly. €47/month vs €1500+ photoshoots. No photographer, no awkwardness—just you looking like a pro.' },
+      { name: 'description', content: 'Transform selfies into professional brand photos with AI. LinkedIn headshots, Instagram content, website photos. €47/month vs €1500+ photoshoots. Upload selfies, get professional photos monthly.' },
       { name: 'keywords', content: 'AI headshots, professional photos from selfies, LinkedIn headshots, personal branding photos, AI photographer, brand photography, professional selfies, AI photo generation, business headshots, social media photos' },
       { name: 'author', content: 'SSELFIE Studio' },
       { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
@@ -30,8 +30,8 @@ export default function BusinessLanding() {
       { name: 'msapplication-TileColor', content: '#000000' },
       
       // Open Graph tags for social sharing
-      { property: 'og:title', content: 'SSELFIE Studio - Professional Photos From Your Selfies | €47/month' },
-      { property: 'og:description', content: 'Professional photos from your selfies. Upload once, get 100+ brand photos monthly. €47/month vs €1500+ photoshoots. No photographer, no awkwardness.' },
+      { property: 'og:title', content: 'SSELFIE Studio - Professional AI Photos From Selfies | Personal Branding' },
+      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. LinkedIn headshots, Instagram content, website photos. €47/month vs €1500+ photoshoots.' },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: 'https://sselfie.ai/business' },
       { property: 'og:image', content: 'https://sselfie.ai/og-business.jpg' },
