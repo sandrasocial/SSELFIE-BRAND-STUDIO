@@ -90,6 +90,7 @@ export default function AgentWorkflowAccelerator() {
             headers: {
               'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({
               agentId,
               message: `WORKFLOW EXECUTION: ${workflow.name}. Create actual files for: ${workflow.deliverables.join(', ')}. Work continuously until complete. This is an approved task - start immediately.`,
@@ -156,6 +157,7 @@ export default function AgentWorkflowAccelerator() {
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           agentId: task.agent,
           message: customMessage || `QUICK TASK: ${task.description}. Create actual files immediately. This is approved - start now.`,

@@ -16,6 +16,7 @@ export default function SignupGift() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           email: email,
           source: 'homepage-gift'
