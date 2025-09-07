@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useStackApp } from "@stackframe/stack";
+import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "@/env";
 
 interface UnifiedLoginButtonProps {
   text: string;
@@ -23,8 +24,8 @@ export default function UnifiedLoginButton({ text, showBrand }: UnifiedLoginButt
     if (!app) {
       console.warn('⚠️ Stack Auth not available, using fallback');
       // Fallback to direct OAuth URL if Stack Auth fails
-      const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
-      const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+      const projectId = STACK_PROJECT_ID;
+      const publishableKey = STACK_PUBLISHABLE_CLIENT_KEY;
       
       if (publishableKey) {
         window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../components/global-footer";
 import { useStackApp } from "@stackframe/stack";
+import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "@/env";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
@@ -131,8 +132,8 @@ export default function BusinessLanding() {
   const handleLogin = async () => {
     if (!app) {
       // Fallback to direct OAuth URL
-      const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
-      const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+      const projectId = STACK_PROJECT_ID;
+      const publishableKey = STACK_PUBLISHABLE_CLIENT_KEY;
       
       if (publishableKey) {
         window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
