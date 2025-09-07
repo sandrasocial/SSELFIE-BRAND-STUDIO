@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
+import { StackProvider } from "@stackframe/stack";
 import { useAuth } from "./hooks/use-auth";
 // Using JWKS backend verification with custom frontend OAuth flow
 import { useQuery } from "@tanstack/react-query";
@@ -512,13 +513,68 @@ function Router() {
 }
 
 function AppWithProvider() {
+  const stackKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+  
+  console.log('🔍 Stack Auth Config:', {
+    projectId: "253d7343-a0d4-43a1-be5c-822f590d40be",
+    hasKey: !!stackKey,
+    keyPrefix: stackKey ? stackKey.substring(0, 10) + '...' : 'MISSING'
+  });
+
+  // Fallback without Stack Auth if there's an error
+  if (!stackKey) {
+    console.warn('⚠️ Stack Auth: No publishable key found, falling back to basic setup');
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <App />
-      </TooltipProvider>
+      <ErrorBoundary>
+        <StackProvider
+          projectId="253d7343-a0d4-43a1-be5c-822f590d40be"
+          publishableClientKey={stackKey}
+        >
+          <TooltipProvider>
+            <App />
+          </TooltipProvider>
+        </StackProvider>
+      </ErrorBoundary>
     </QueryClientProvider>
   );
+}
+
+// Simple error boundary component
+class ErrorBoundary extends React.Component {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('❌ Stack Auth Error:', error);
+  }
+
+  render() {
+    if ((this.state as any).hasError) {
+      console.warn('⚠️ Stack Auth failed, falling back to basic app');
+      return (
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 function App() {

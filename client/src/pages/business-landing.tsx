@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../components/global-footer";
+import { useStackApp } from "@stackframe/stack";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
+  let app;
+  
+  try {
+    app = useStackApp();
+  } catch (error) {
+    console.warn('⚠️ Stack Auth not available on business landing:', error);
+    app = null;
+  }
 
   // Comprehensive SEO Meta Tags
   useEffect(() => {
@@ -119,17 +128,24 @@ export default function BusinessLanding() {
     setLocation('/simple-checkout');
   };
 
-  const handleLogin = () => {
-    // ✅ FIXED: Use Stack Auth's direct OAuth URL instead of old login page
-    const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
-    const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
-    
-    if (!publishableKey) {
-      console.error('❌ Stack Auth: Missing publishable key');
+  const handleLogin = async () => {
+    if (!app) {
+      // Fallback to direct OAuth URL
+      const projectId = "253d7343-a0d4-43a1-be5c-822f590d40be";
+      const publishableKey = import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY;
+      
+      if (publishableKey) {
+        window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
+      }
       return;
     }
     
-    window.location.href = `https://api.stack-auth.com/api/v1/auth/signin?project_id=${projectId}&publishable_client_key=${publishableKey}&redirect_uri=${encodeURIComponent(window.location.origin)}`;
+    try {
+      // ✅ Use Stack Auth SDK method
+      await app.signInWithOAuth('google');
+    } catch (error) {
+      console.error('❌ Stack Auth: OAuth login failed:', error);
+    }
   };
 
   return (
