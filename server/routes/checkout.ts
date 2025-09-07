@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { storage } from "../storage";
 // import { sendWelcomeEmail } from "../email-service";
 import Stripe from "stripe";
@@ -14,7 +14,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export function registerCheckoutRoutes(app: Express) {
   // 🔄 PHASE 3: Create Retraining Checkout Session
-  app.post("/api/create-retrain-checkout-session", requireAuth, async (req: any, res) => {
+  app.post("/api/create-retrain-checkout-session", requireStackAuth, async (req: any, res) => {
     try {
       const { successUrl, cancelUrl } = req.body;
       const userId = req.user?.claims?.sub;
@@ -119,7 +119,7 @@ export function registerCheckoutRoutes(app: Express) {
   // Subscription Management Routes
   
   // Get user's subscription details
-  app.get("/api/subscription", requireAuth, async (req: any, res) => {
+  app.get("/api/subscription", requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -150,7 +150,7 @@ export function registerCheckoutRoutes(app: Express) {
   });
 
   // Get user's invoices
-  app.get("/api/invoices", requireAuth, async (req: any, res) => {
+  app.get("/api/invoices", requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -176,7 +176,7 @@ export function registerCheckoutRoutes(app: Express) {
   });
 
   // Cancel subscription (at period end)
-  app.post("/api/subscription/cancel", requireAuth, async (req: any, res) => {
+  app.post("/api/subscription/cancel", requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {
@@ -201,7 +201,7 @@ export function registerCheckoutRoutes(app: Express) {
   });
 
   // Reactivate subscription (remove cancel_at_period_end)
-  app.post("/api/subscription/reactivate", requireAuth, async (req: any, res) => {
+  app.post("/api/subscription/reactivate", requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) {

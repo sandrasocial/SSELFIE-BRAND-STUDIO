@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { gmailIntegration } from '../services/gmail-integration';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 
 const router = Router();
 
 // 🔐 Start Gmail OAuth flow
-router.get('/connect/:accountType', requireAuth, async (req: any, res) => {
+router.get('/connect/:accountType', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const { accountType } = req.params;
@@ -53,7 +53,7 @@ router.get('/callback', async (req, res) => {
 });
 
 // 📧 Fetch emails from connected Gmail accounts
-router.post('/fetch-emails', requireAuth, async (req: any, res) => {
+router.post('/fetch-emails', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     
@@ -72,7 +72,7 @@ router.post('/fetch-emails', requireAuth, async (req: any, res) => {
 });
 
 // 📊 Get connected Gmail accounts status
-router.get('/accounts', requireAuth, async (req: any, res) => {
+router.get('/accounts', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     const accounts = await gmailIntegration.getGmailAccounts(userId);

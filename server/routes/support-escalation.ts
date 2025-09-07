@@ -4,13 +4,13 @@
  */
 
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { escalationHandler } from '../services/escalation-handler';
 
 const router = Router();
 
 // PHASE 5: Handle escalation requests from support chat
-router.post('/escalate', requireAuth, async (req, res) => {
+router.post('/escalate', requireStackAuth, async (req, res) => {
   try {
     const userId = (req.user as any)?.claims?.sub;
     const userEmail = (req.user as any)?.claims?.email;

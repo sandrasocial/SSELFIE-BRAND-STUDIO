@@ -1,5 +1,5 @@
 import { Router, Request } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { PersonalityManager, PURE_PERSONALITIES } from '../agents/personalities/personality-config';
 // REMOVED: ClaudeApiServiceSimple import - using singleton instead
 
@@ -262,7 +262,7 @@ const adminAuth = async (req: AdminRequest, res: any, next: any) => {
   try {
     // First try normal authentication
     await new Promise((resolve, reject) => {
-      requireAuth(req, res, (err: any) => {
+      requireStackAuth(req, res, (err: any) => {
         if (err) reject(err);
         else resolve(null);
       });

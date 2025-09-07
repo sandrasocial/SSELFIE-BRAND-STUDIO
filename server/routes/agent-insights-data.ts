@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { db } from '../db';
 import { eq, desc, and, gte } from 'drizzle-orm';
 
@@ -24,7 +24,7 @@ interface StoredInsight {
 const insights: StoredInsight[] = [];
 
 // Get recent agent insights for dashboard
-router.get('/recent', requireAuth, async (req: any, res) => {
+router.get('/recent', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') { // Sandra's user ID
@@ -68,7 +68,7 @@ router.get('/recent', requireAuth, async (req: any, res) => {
 });
 
 // Mark insight as read
-router.patch('/mark-read/:id', requireAuth, async (req: any, res) => {
+router.patch('/mark-read/:id', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {
@@ -99,7 +99,7 @@ router.patch('/mark-read/:id', requireAuth, async (req: any, res) => {
 });
 
 // Add action taken to insight
-router.patch('/action-taken/:id', requireAuth, async (req: any, res) => {
+router.patch('/action-taken/:id', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {
@@ -134,7 +134,7 @@ router.patch('/action-taken/:id', requireAuth, async (req: any, res) => {
 });
 
 // Get insight statistics for dashboard
-router.get('/stats', requireAuth, async (req: any, res) => {
+router.get('/stats', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {
@@ -235,7 +235,7 @@ router.post('/store', async (req, res) => {
 });
 
 // Delete insight
-router.delete('/:id', requireAuth, async (req: any, res) => {
+router.delete('/:id', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user?.claims?.sub;
     if (userId !== '42585527') {

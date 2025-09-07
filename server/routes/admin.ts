@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../db';
 import { users, subscriptions, sessions, importedSubscribers, aiImages, userModels } from '../../shared/schema';
 import { eq, count, sum, desc, sql, gte } from 'drizzle-orm';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { storage } from '../storage';
 import { requireAdmin, checkAdminAccess, getAdminUserData } from '../middleware/admin-middleware';
 
@@ -284,7 +284,7 @@ router.post('/impersonate-user', async (req: any, res) => {
     const isAdminAuth = adminToken === 'sandra-admin-2025';
     
     const sessionUser = req.user;
-    const isSessionAdmin = req.requireAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
+    const isSessionAdmin = req.requireStackAuth && sessionUser?.claims?.email === 'ssa@ssasocial.com';
     
     if (!isAdminAuth && !isSessionAdmin) {
       return res.status(401).json({ message: "Admin access required" });

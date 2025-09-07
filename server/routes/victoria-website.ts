@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { db } from '../db';
 import { users, websites } from '../shared/schema';
 import { eq } from 'drizzle-orm';
@@ -36,7 +36,7 @@ const CustomizationSchema = z.object({
 });
 
 // POST /api/victoria/generate - Main website generation endpoint
-router.post('/generate', requireAuth, async (req: any, res) => {
+router.post('/generate', requireStackAuth, async (req: any, res) => {
   try {
     const validatedData = WebsiteGenerationSchema.parse(req.body);
     const userId = req.user.claims.sub;
@@ -88,7 +88,7 @@ router.post('/generate', requireAuth, async (req: any, res) => {
 });
 
 // GET /api/victoria/templates - Fetch available templates
-router.get('/templates', requireAuth, async (req: any, res) => {
+router.get('/templates', requireStackAuth, async (req: any, res) => {
   try {
     const { industry, style, complexity } = req.query;
 
@@ -113,7 +113,7 @@ router.get('/templates', requireAuth, async (req: any, res) => {
 });
 
 // POST /api/victoria/customize - Real-time website customization
-router.post('/customize', requireAuth, async (req: any, res) => {
+router.post('/customize', requireStackAuth, async (req: any, res) => {
   try {
     const validatedData = CustomizationSchema.parse(req.body);
     const userId = req.user.claims.sub;
@@ -163,7 +163,7 @@ router.post('/customize', requireAuth, async (req: any, res) => {
 });
 
 // POST /api/victoria/deploy - Deploy generated website
-router.post('/deploy', requireAuth, async (req: any, res) => {
+router.post('/deploy', requireStackAuth, async (req: any, res) => {
   try {
     const { siteId, domainPreferences } = req.body;
     const userId = req.user.claims.sub;

@@ -2,7 +2,7 @@
 // Flodesk & ManyChat Integration for Email List Migration
 
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import FlodeskImportService from '../services/flodesk-import';
 import { ManyChatImportService } from '../services/manychat-import';
 import { randomUUID } from 'crypto';

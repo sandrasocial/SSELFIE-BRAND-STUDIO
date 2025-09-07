@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 
 const router = Router();
 
 // Phase 2 coordination endpoint for agent workflow execution
-router.post('/execute-phase2-workflow', requireAuth, async (req: any, res) => {
+router.post('/execute-phase2-workflow', requireStackAuth, async (req: any, res) => {
   try {
     const { workflow_type, priority = 'HIGH' } = req.body;
     
@@ -116,7 +116,7 @@ router.post('/execute-phase2-workflow', requireAuth, async (req: any, res) => {
 });
 
 // Get workflow status and progress
-router.get('/phase2-status', requireAuth, async (req: any, res) => {
+router.get('/phase2-status', requireStackAuth, async (req: any, res) => {
   try {
     // This would integrate with the actual agent coordination system
     const status = {

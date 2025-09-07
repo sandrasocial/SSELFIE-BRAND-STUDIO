@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 
 const router = Router();
 
 // Victoria website chat endpoint - integrates with member agent system
-router.post('/api/victoria-website-chat', requireAuth, async (req: any, res) => {
+router.post('/api/victoria-website-chat', requireStackAuth, async (req: any, res) => {
   try {
     const { message, conversationHistory, selectedImages = [], selectedFlatlays = [] } = req.body;
     const userId = req.user.claims.sub;

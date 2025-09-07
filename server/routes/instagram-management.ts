@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { instagramIntegration } from '../services/instagram-integration';
-import { requireAuth } from "../auth";
+import { requireStackAuth } from '../stack-auth';
 import { SlackNotificationService } from '../services/slack-notification-service';
 
 const router = Router();
 
 // 📱 Process Instagram DMs and ManyChat messages
-router.post('/process', requireAuth, async (req: any, res) => {
+router.post('/process', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     console.log(`📱 Processing Instagram messages for user ${userId}`);
@@ -29,7 +29,7 @@ router.post('/process', requireAuth, async (req: any, res) => {
 });
 
 // 📊 Get Instagram message dashboard
-router.get('/dashboard', requireAuth, async (req: any, res) => {
+router.get('/dashboard', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
     console.log(`📱 Loading REAL Instagram dashboard for user ${userId}`);
@@ -96,7 +96,7 @@ router.get('/dashboard', requireAuth, async (req: any, res) => {
 });
 
 // 🧪 Test Instagram processing (available for all users)
-router.post('/test-processing', requireAuth, async (req: any, res) => {
+router.post('/test-processing', requireStackAuth, async (req: any, res) => {
   try {
     const userId = req.user.claims.sub;
 
@@ -152,7 +152,7 @@ router.post('/test-processing', requireAuth, async (req: any, res) => {
 });
 
 // 🏷️ Get message categories breakdown
-router.get('/categories', requireAuth, async (req: any, res) => {
+router.get('/categories', requireStackAuth, async (req: any, res) => {
   try {
     const categories = {
       customer_inquiry: {
@@ -190,7 +190,7 @@ router.get('/categories', requireAuth, async (req: any, res) => {
 });
 
 // 📊 Get platform statistics
-router.get('/stats', requireAuth, async (req: any, res) => {
+router.get('/stats', requireStackAuth, async (req: any, res) => {
   try {
     const stats = {
       platforms: {
