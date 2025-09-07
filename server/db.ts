@@ -9,13 +9,27 @@ neonConfig.webSocketConstructor = ws;
 // Add resilient WebSocket error handling to prevent crashes
 // WebSocket proxy disabled to fix connection issues
 
-if (!process.env.DATABASE_URL) {
+// Helper function to clean environment variables (remove quotes if present)
+function cleanEnvVar(value: string): string {
+  if (!value) return value;
+  return value.replace(/^['"]|['"]$/g, ''); // Remove leading and trailing quotes
+}
+
+const databaseUrl = cleanEnvVar(process.env.DATABASE_URL || '');
+
+if (!databaseUrl) {
   throw new Error("DATABASE_URL environment variable is required");
 }
 
+console.log('📦 Database Config Debug:', {
+  rawUrl: process.env.DATABASE_URL ? 'SET' : 'MISSING',
+  cleanUrl: databaseUrl ? 'SET' : 'MISSING',
+  urlPrefix: databaseUrl ? databaseUrl.substring(0, 20) + '...' : 'MISSING'
+});
+
 // Enhanced connection pool with better error recovery
 export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseUrl,
   max: 10, // Reduced max connections to prevent overwhelming
   min: 1,  // Always keep one connection alive
   idleTimeoutMillis: 60000, // Longer idle timeout
