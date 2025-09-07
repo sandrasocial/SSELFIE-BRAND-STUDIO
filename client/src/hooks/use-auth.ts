@@ -21,7 +21,7 @@ export function useAuth() {
     enabled: !!stackUser?.id, // Only fetch if Stack Auth user exists
   });
 
-  const isLoading = !stackUser || isDbUserLoading;
+  const isLoading = isDbUserLoading; // Only loading when fetching DB user, not when no Stack user
   const isAuthenticated = !!stackUser?.id;
   
   console.log('🔍 Auth: Stack user:', !!stackUser, stackUser?.id);
