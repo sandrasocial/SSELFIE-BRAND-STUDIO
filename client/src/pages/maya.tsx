@@ -365,8 +365,17 @@ export default function Maya() {
     }
   };
 
-  // PHASE 7: Onboarding response handler
+  // LUXURY ONBOARDING: Enhanced response handler with smooth transitions
   const handleOnboardingResponse = async (fieldName: string, answer: string) => {
+    // Add user response to chat immediately
+    addMessage({
+      type: 'user',
+      content: answer,
+      timestamp: new Date().toISOString()
+    });
+
+    setIsTyping(true);
+
     try {
       const response = await fetch('/api/maya/onboarding-response', {
         method: 'POST',
@@ -379,33 +388,41 @@ export default function Maya() {
       }
 
       const data = await response.json();
+      setIsTyping(false);
       
-      // Handle response similar to chat response
-      if (data.type === 'onboarding_complete') {
+      // Handle onboarding completion with luxury experience
+      if (data.type === 'complete' || data.isOnboardingComplete) {
         setIsOnboarding(false);
         setCurrentOnboardingData(null);
         
-        // Add completion message
-        addMessage({
-          type: 'maya',
-          content: data.message,
-          timestamp: new Date().toISOString()
-        });
+        // Add Maya's welcoming completion message
+        setTimeout(() => {
+          addMessage({
+            type: 'maya',
+            content: data.message || "Perfect! I now understand your style and goals. Let's create some amazing photos that represent the real you. What kind of images are you thinking about?",
+            timestamp: new Date().toISOString()
+          });
+        }, 1000);
+        
       } else if (data.type === 'onboarding') {
         setCurrentOnboardingData(data);
         
-        // Add next question
-        addMessage({
-          type: 'onboarding',
-          content: data.question,
-          timestamp: new Date().toISOString(),
-          onboardingData: data
-        });
+        // Add next question with smooth transition
+        setTimeout(() => {
+          addMessage({
+            type: 'onboarding',
+            content: data.question,
+            timestamp: new Date().toISOString(),
+            onboardingData: data
+          });
+        }, 1500);
       }
     } catch (error) {
+      setIsTyping(false);
+      console.error('❌ LUXURY ONBOARDING ERROR:', error);
       toast({ 
-        title: "Error", 
-        description: "Failed to process your response. Please try again.",
+        title: "Connection Error", 
+        description: "Unable to process your response. Please check your connection and try again.",
         variant: "destructive"
       });
     }
