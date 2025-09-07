@@ -254,25 +254,31 @@ export default function BusinessLanding() {
         </div>
       </section>
 
-      {/* PROBLEM - Simplified */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-xs uppercase tracking-[0.4em] text-gray-400 mb-8">
-            The Reality
-          </div>
-          
+      {/* Problem Section - Authentic Struggle */}
+      <section className="py-20 md:py-32 bg-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          {/* Relatable Headline */}
           <h2 
-            className="font-serif text-3xl sm:text-4xl md:text-5xl font-light mb-8 text-black leading-tight"
-            style={{ fontFamily: "Times New Roman, serif" }}
+            className="font-serif text-[clamp(2rem,5vw,3.5rem)] font-light mb-16 leading-tight"
+            style={{ fontFamily: 'Times New Roman, serif' }}
           >
-            Two hours for one decent photo.<br />
-            <span className="italic text-gray-600">Still looks amateur.</span>
+            Scrolling through your camera roll like<br />
+            "what can I post today?"
           </h2>
           
-          <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
-            Scrolling through your camera roll like "what can I post today?" 
-            Using the same three photos over and over while competitors look professional.
-          </p>
+          <div className="max-w-2xl mx-auto space-y-8 text-lg leading-relaxed text-gray-700">
+            <p>
+              You know the drill. Sunday night content prep. Scrolling through your phone looking for something decent to post. The same three photos. Again.
+            </p>
+            
+            <p>
+              Two hours later, you settle for a mediocre selfie with a caption about "being authentic." But you know you look amateur next to your competitors.
+            </p>
+            
+            <p className="font-medium text-black">
+              There's a better way.
+            </p>
+          </div>
         </div>
       </section>
 
