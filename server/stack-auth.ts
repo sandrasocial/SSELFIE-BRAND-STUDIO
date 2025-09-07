@@ -26,20 +26,19 @@ declare global {
 
 // ✅ SIMPLIFIED: Direct Stack Auth integration - no token exchange needed
 
-// Get user info from access token  
-async function getUserInfo(accessToken: string) {
-  const response = await fetch(`${STACK_AUTH_API_URL}/users/me`, {
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Get user info failed: ${response.status} - ${error}`);
+// Verify JWT token directly using Stack Auth JWKS
+async function verifyJWTToken(token: string) {
+  try {
+    // Verify JWT using Stack Auth's JWKS
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `${STACK_AUTH_API_URL}/projects/${STACK_AUTH_PROJECT_ID}`,
+      audience: STACK_AUTH_PROJECT_ID,
+    });
+    
+    return payload;
+  } catch (error) {
+    throw new Error(`JWT verification failed: ${error.message}`);
   }
-
-  return await response.json();
 }
 
 export async function verifyStackAuthToken(req: Request, res: Response, next: NextFunction) {
@@ -59,15 +58,36 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
     
     // Check cookies for stored access token
     if (!accessToken && req.cookies) {
-      accessToken = req.cookies['stack-access-token'];
-      if (accessToken) {
-        console.log('🔐 Stack Auth: Found access token in cookies');
-      } else {
-        console.log('🔍 Stack Auth: No stack-access-token cookie found');
-        console.log('🔍 Available cookies:', Object.keys(req.cookies));
-        // Log cookie values without sensitive data
-        for (const [name, value] of Object.entries(req.cookies)) {
-          console.log(`🔍 Cookie '${name}': ${typeof value === 'string' ? value.substring(0, 10) + '...' : value}`);
+      // Stack Auth stores tokens in 'stack-access' cookie as array format
+      const stackAccessCookie = req.cookies['stack-access'];
+      
+      if (stackAccessCookie) {
+        try {
+          // Parse the array format: ["token_id", "jwt_token"]
+          const stackAccessArray = JSON.parse(stackAccessCookie);
+          if (Array.isArray(stackAccessArray) && stackAccessArray.length >= 2) {
+            accessToken = stackAccessArray[1]; // JWT is the second element
+            console.log('🔐 Stack Auth: Found access token in stack-access cookie');
+          } else {
+            console.log('⚠️ Stack Auth: Invalid stack-access cookie format');
+          }
+        } catch (error) {
+          console.log('❌ Stack Auth: Failed to parse stack-access cookie:', error);
+        }
+      }
+      
+      // Fallback: check for old stack-access-token format
+      if (!accessToken) {
+        accessToken = req.cookies['stack-access-token'];
+        if (accessToken) {
+          console.log('🔐 Stack Auth: Found access token in stack-access-token cookie');
+        } else {
+          console.log('🔍 Stack Auth: No stack-access or stack-access-token cookie found');
+          console.log('🔍 Available cookies:', Object.keys(req.cookies));
+          // Log cookie values without sensitive data
+          for (const [name, value] of Object.entries(req.cookies)) {
+            console.log(`🔍 Cookie '${name}': ${typeof value === 'string' ? value.substring(0, 10) + '...' : value}`);
+          }
         }
       }
     }
@@ -78,25 +98,39 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    console.log('🔐 Stack Auth: Verifying access token with Stack Auth API...');
+    console.log('🔐 Stack Auth: Verifying JWT token...');
     console.log('🔍 Token preview:', accessToken.substring(0, 20) + '...');
     
-    // Get user info from Stack Auth API
-    const userInfo = await getUserInfo(accessToken);
+    // Verify JWT token directly
+    const userInfo = await verifyJWTToken(accessToken);
     
-    console.log('✅ Stack Auth: User verified successfully');
+    console.log('✅ Stack Auth: JWT verified successfully');
     console.log('📊 Stack Auth: User info:', {
-      id: userInfo.id,
-      email: userInfo.primary_email,
-      displayName: userInfo.display_name || userInfo.first_name
+      id: userInfo.sub,
+      email: userInfo.email,
+      name: userInfo.displayName
     });
     
-    // Set user information in request
-    req.user = {
-      id: userInfo.id,
-      primaryEmail: userInfo.primary_email,
-      displayName: userInfo.display_name || userInfo.first_name,
-    };
+    // Get or create user in our database
+    const { storage } = await import('./storage');
+    let dbUser = await storage.getUser(userInfo.sub);
+    
+    if (!dbUser) {
+      console.log('🔄 Stack Auth: Creating new user in database...');
+      dbUser = await storage.upsertUser({
+        id: userInfo.sub,
+        email: userInfo.email || null,
+        firstName: userInfo.displayName?.split(' ')[0] || null,
+        lastName: userInfo.displayName?.split(' ').slice(1).join(' ') || null,
+        profileImageUrl: userInfo.profileImageUrl || null
+      });
+      console.log('✅ Stack Auth: User created in database:', dbUser.email);
+    } else {
+      console.log('✅ Stack Auth: User found in database:', dbUser.email);
+    }
+    
+    // Set user information in request from database user
+    req.user = dbUser;
 
     next();
   } catch (error) {
