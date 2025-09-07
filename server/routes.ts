@@ -1164,7 +1164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/training-progress/:requestId', requireStackAuth, async (req: any, res) => {
     try {
       const { requestId } = req.params;
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user?.id || req.user?.claims?.sub;
       
       console.log(`🔍 TRAINING PROGRESS: Request for ${requestId}, auth user: ${authUserId}`);
       
@@ -2184,7 +2184,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       console.log(`✅ TRACKER DEBUG: Found tracker ${trackerId}, userId: ${tracker.userId}, status: ${tracker.status}`);
       
       // Verify user owns this tracker - use auth ID directly for admin
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user?.id || req.user?.claims?.sub;
       const claims = req.user.claims;
       
       console.log(`🔍 USER DEBUG: Auth user ID: ${authUserId}, Email: ${claims.email}`);
@@ -2258,7 +2258,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       }
       
       // Get the correct database user ID
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user?.id || req.user?.claims?.sub;
       const claims = req.user.claims;
       
       let user = await storage.getUser(authUserId);
@@ -2311,7 +2311,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // 🔥 CRITICAL FIX: Gallery images endpoint - ONLY return user-hearted/saved images
   app.get('/api/gallery-images', requireStackAuth, async (req: any, res) => {
     try {
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user?.id || req.user?.claims?.sub;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -2377,7 +2377,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // 🔄 ADMIN IMAGE MIGRATION: Restore admin user images to SSELFIE gallery
   app.post('/api/admin/migrate-images-to-gallery', requireStackAuth, async (req: any, res) => {
     try {
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user?.id || req.user?.claims?.sub;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -3054,7 +3054,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       // Get user ID for authentication
       let userId = 'admin-sandra'; // Default admin user
       if (req.user && (req.user as any)?.claims?.sub) {
-        userId = (req.user as any).claims.sub;
+        userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
       }
 
       // UNIFIED SERVICE: Use singleton to eliminate service multiplication
@@ -3085,7 +3085,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   // Get user's favorite image IDs
   app.get('/api/images/favorites', requireStackAuth, async (req: any, res) => {
     try {
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user?.id || req.user?.claims?.sub;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -3128,7 +3128,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.post('/api/images/:imageId/favorite', requireStackAuth, async (req: any, res) => {
     try {
       const { imageId } = req.params;
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user?.id || req.user?.claims?.sub;
       const claims = req.user.claims;
       
       // Get the correct database user ID
@@ -3194,7 +3194,7 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
   app.delete('/api/ai-images/:imageId', requireStackAuth, async (req: any, res) => {
     try {
       const { imageId } = req.params;
-      const authUserId = req.user.claims.sub;
+      const authUserId = req.user?.id || req.user?.claims?.sub;
       const claims = req.user.claims;
       
       // Get the correct database user ID
