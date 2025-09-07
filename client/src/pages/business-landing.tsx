@@ -343,7 +343,71 @@ export default function BusinessLanding() {
         </div>
       </section>
 
-      {/* Editorial Transformation Section */}
+      {/* Demo Proof Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-8">
+          <div className="text-center mb-16">
+            <p 
+              className="text-gray-500 mb-6"
+              style={{
+                fontSize: '11px',
+                fontWeight: 300,
+                letterSpacing: '0.4em',
+                textTransform: 'uppercase'
+              }}
+            >
+              See It In Action
+            </p>
+            <h2 
+              className="text-black max-w-3xl mx-auto mb-8"
+              style={{
+                fontFamily: 'Times New Roman, serif',
+                fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+                fontWeight: 200,
+                letterSpacing: '0.02em',
+                lineHeight: 1.1,
+                textTransform: 'uppercase'
+              }}
+            >
+              Upload → AI Training → Professional Gallery
+            </h2>
+          </div>
+
+          {/* Workflow Demo Cards */}
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <FeatureCard
+              title="Upload 15 Selfies"
+              description="Any lighting, any background. Your phone camera is perfect."
+              imageSrc="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/sandra_y0b8hff1v9rmmp8r5vkwdxj4mr_0_1756585457633.png"
+              imageAlt="Upload selfies step"
+            />
+            <FeatureCard
+              title="20-Minute AI Training"
+              description="Our AI learns your unique features and creates your personal model."
+              imageSrc="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
+              imageAlt="AI training process"
+            />
+            <FeatureCard
+              title="100+ Pro Photos"
+              description="Business, lifestyle, editorial styles. LinkedIn and social media ready."
+              imageSrc="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_g826ygf2d9rm80crzjkvnvmpyr_0_1756585536824.png"
+              imageAlt="Professional results"
+            />
+          </div>
+
+          <div className="text-center">
+            <EditorialButton 
+              variant="primary" 
+              size="lg"
+              onClick={handleGetStarted}
+            >
+              Try It Now - €47
+            </EditorialButton>
+          </div>
+        </div>
+      </section>
+
+      {/* Before/After Transformation */}
       <section className="py-32 bg-white">
         <div className="max-w-[1400px] mx-auto px-8">
           {/* Editorial Header */}
@@ -357,7 +421,7 @@ export default function BusinessLanding() {
                 textTransform: 'uppercase'
               }}
             >
-              Transformation Gallery
+              Real Transformations
             </p>
             <h2 
               className="text-black max-w-4xl mx-auto"
@@ -370,7 +434,7 @@ export default function BusinessLanding() {
                 textTransform: 'uppercase'
               }}
             >
-              The Same Person.
+              Same Person.
               <br />
               Professional Results.
             </h2>
@@ -429,160 +493,97 @@ export default function BusinessLanding() {
         </div>
       </section>
 
-      {/* Editorial Process Section */}
-      <section className="py-32 bg-gray-50">
-        <div className="max-w-[1400px] mx-auto px-8">
-          {/* Section Header */}
-          <div className="mb-24">
-            <p 
-              className="text-gray-500 mb-8"
-              style={{
-                fontSize: '11px',
-                fontWeight: 300,
-                letterSpacing: '0.4em',
-                textTransform: 'uppercase'
-              }}
-            >
-              The Process
-            </p>
-            <h2 
-              className="text-black max-w-3xl"
-              style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                fontWeight: 200,
-                letterSpacing: '0.02em',
-                lineHeight: 1.1,
-                textTransform: 'uppercase'
-              }}
-            >
-              Simple. Elegant. Professional.
-            </h2>
-          </div>
-
-          {/* Luxury Process Grid */}
-          <div className="grid lg:grid-cols-3 gap-16">
-            {/* Step 1 */}
-            <div className="group">
-              <div className="relative overflow-hidden bg-white mb-8 transition-all duration-700 hover:shadow-2xl hover:-translate-y-1">
-                <div className="aspect-[3/4]">
-                  <img
-                    src="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/proxy-image?url=https%3A%2F%2Fsselfie-training-zips.s3.eu-north-1.amazonaws.com%2Fgenerated-images%2F42585527%2Fmaya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
-                    alt="Upload selfies"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute top-6 right-6 bg-black text-white w-12 h-12 rounded-full flex items-center justify-center text-lg font-light">
-                  01
-                </div>
-              </div>
-              <div>
-                <h3 
-                  className="text-black mb-4"
-                  style={{
-                    fontFamily: 'Times New Roman, serif',
-                    fontSize: '20px',
-                    fontWeight: 200,
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  Upload Your Selfies
-                </h3>
-                <p 
-                  className="text-gray-600"
-                  style={{
-                    fontSize: '15px',
-                    fontWeight: 300,
-                    lineHeight: 1.7
-                  }}
-                >
-                  Any lighting, any background. 15 photos from your phone are all we need.
-                </p>
-              </div>
+      {/* Social Proof Stats */}
+      <section className="py-20 bg-black text-white">
+        <div className="max-w-4xl mx-auto px-8 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <p 
+                className="text-white mb-2"
+                style={{
+                  fontSize: '32px',
+                  fontWeight: 200
+                }}
+              >
+                1000+
+              </p>
+              <p 
+                className="text-white/60"
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 300,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase'
+                }}
+              >
+                Happy Users
+              </p>
             </div>
-
-            {/* Step 2 */}
-            <div className="group">
-              <div className="relative overflow-hidden bg-white mb-8 transition-all duration-700 hover:shadow-2xl hover:-translate-y-1">
-                <div className="aspect-[3/4]">
-                  <img
-                    src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
-                    alt="AI training"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute top-6 right-6 bg-black text-white w-12 h-12 rounded-full flex items-center justify-center text-lg font-light">
-                  02
-                </div>
-              </div>
-              <div>
-                <h3 
-                  className="text-black mb-4"
-                  style={{
-                    fontFamily: 'Times New Roman, serif',
-                    fontSize: '20px',
-                    fontWeight: 200,
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  AI Model Training
-                </h3>
-                <p 
-                  className="text-gray-600"
-                  style={{
-                    fontSize: '15px',
-                    fontWeight: 300,
-                    lineHeight: 1.7
-                  }}
-                >
-                  Our system learns your unique features and style in just 20 minutes.
-                </p>
-              </div>
+            <div>
+              <p 
+                className="text-white mb-2"
+                style={{
+                  fontSize: '32px',
+                  fontWeight: 200
+                }}
+              >
+                50K+
+              </p>
+              <p 
+                className="text-white/60"
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 300,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase'
+                }}
+              >
+                Photos Generated
+              </p>
             </div>
-
-            {/* Step 3 */}
-            <div className="group">
-              <div className="relative overflow-hidden bg-white mb-8 transition-all duration-700 hover:shadow-2xl hover:-translate-y-1">
-                <div className="aspect-[3/4]">
-                  <img
-                    src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5s2emwbk3srma0crywrbh9kg4c_0_1756493820306.png"
-                    alt="Professional results"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute top-6 right-6 bg-black text-white w-12 h-12 rounded-full flex items-center justify-center text-lg font-light">
-                  03
-                </div>
-              </div>
-              <div>
-                <h3 
-                  className="text-black mb-4"
-                  style={{
-                    fontFamily: 'Times New Roman, serif',
-                    fontSize: '20px',
-                    fontWeight: 200,
-                    letterSpacing: '0.05em',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  Professional Gallery
-                </h3>
-                <p 
-                  className="text-gray-600"
-                  style={{
-                    fontSize: '15px',
-                    fontWeight: 300,
-                    lineHeight: 1.7
-                  }}
-                >
-                  100+ photos monthly. LinkedIn, Instagram, and website ready.
-                </p>
-              </div>
+            <div>
+              <p 
+                className="text-white mb-2"
+                style={{
+                  fontSize: '32px',
+                  fontWeight: 200
+                }}
+              >
+                20min
+              </p>
+              <p 
+                className="text-white/60"
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 300,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase'
+                }}
+              >
+                Setup Time
+              </p>
+            </div>
+            <div>
+              <p 
+                className="text-white mb-2"
+                style={{
+                  fontSize: '32px',
+                  fontWeight: 200
+                }}
+              >
+                €47
+              </p>
+              <p 
+                className="text-white/60"
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 300,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase'
+                }}
+              >
+                Monthly
+              </p>
             </div>
           </div>
         </div>
@@ -756,10 +757,10 @@ export default function BusinessLanding() {
         </div>
       </section>
 
-      {/* Editorial Pricing Section */}
+      {/* Pricing Section with Visual Card */}
       <section className="py-32 bg-white">
-        <div className="max-w-3xl mx-auto px-8 text-center">
-          <div className="mb-16">
+        <div className="max-w-5xl mx-auto px-8">
+          <div className="text-center mb-16">
             <p 
               className="text-gray-500 mb-8"
               style={{
@@ -769,7 +770,7 @@ export default function BusinessLanding() {
                 textTransform: 'uppercase'
               }}
             >
-              Investment
+              Simple Pricing
             </p>
             <h2 
               className="text-black"
@@ -782,47 +783,27 @@ export default function BusinessLanding() {
                 textTransform: 'uppercase'
               }}
             >
-              Simple, Transparent Pricing
+              One Plan. Everything Included.
             </h2>
           </div>
 
-          <div className="editorial-card bg-white p-16 border border-gray-100 transition-all duration-700 hover:shadow-2xl group">
-            <h3 
-              className="text-black mb-8"
-              style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: '24px',
-                fontWeight: 200,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase'
-              }}
-            >
-              Personal Brand Studio
-            </h3>
+          <div className="max-w-md mx-auto">
+            <OfferCard
+              number="01"
+              title="Personal Brand Studio"
+              price="€47/month"
+              description="Everything you need to never run out of professional photos. Join 1000+ women building their brands with confidence."
+              imageSrc="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5s2emwbk3srma0crywrbh9kg4c_0_1756493820306.png"
+              imageAlt="Professional photos gallery"
+              ctaText="Start for €47"
+              onCtaClick={handleGetStarted}
+              badge="Most Popular"
+            />
+          </div>
 
-            <div className="mb-8">
-              <span 
-                className="text-black"
-                style={{
-                  fontSize: '60px',
-                  fontWeight: 200
-                }}
-              >
-                €47
-              </span>
-              <span 
-                className="text-gray-500 ml-2"
-                style={{
-                  fontSize: '18px',
-                  fontWeight: 300
-                }}
-              >
-                per month
-              </span>
-            </div>
-
+          <div className="text-center mt-12">
             <p 
-              className="text-gray-500 mb-16"
+              className="text-gray-500 mb-6"
               style={{
                 fontSize: '14px',
                 fontWeight: 300
@@ -830,55 +811,17 @@ export default function BusinessLanding() {
             >
               vs €1500+ traditional photoshoots
             </p>
-
-            <div className="text-left space-y-6 mb-16 max-w-md mx-auto">
-              {[
-                "100+ professional photos monthly",
-                "LinkedIn, Instagram, website ready",
-                "Business, lifestyle, editorial styles",
-                "20-minute setup process",
-                "Cancel anytime",
-                "30-day money-back guarantee"
-              ].map((feature, index) => (
-                <div key={index} className="flex items-start space-x-4">
-                  <span className="text-gray-400 mt-1">✓</span>
-                  <p 
-                    className="text-gray-700"
-                    style={{
-                      fontSize: '15px',
-                      fontWeight: 300
-                    }}
-                  >
-                    {feature}
-                  </p>
-                </div>
-              ))}
+            <div className="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-8 text-gray-500">
+              <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
+                ✓ 30-day money-back guarantee
+              </p>
+              <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
+                ✓ Cancel anytime
+              </p>
+              <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
+                ✓ No contracts
+              </p>
             </div>
-
-            <button 
-              onClick={handleGetStarted}
-              className="w-full bg-black text-white py-4 hover:bg-gray-900 transition-all duration-500 group mb-8"
-              style={{
-                fontSize: '12px',
-                fontWeight: 300,
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase'
-              }}
-            >
-              <span className="group-hover:tracking-[0.2em] transition-all duration-500">
-                Start Your Transformation
-              </span>
-            </button>
-
-            <p 
-              className="text-gray-400"
-              style={{
-                fontSize: '11px',
-                fontWeight: 300
-              }}
-            >
-              30-day money-back guarantee • Cancel anytime
-            </p>
           </div>
         </div>
       </section>
