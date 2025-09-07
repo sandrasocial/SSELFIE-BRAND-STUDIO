@@ -252,56 +252,59 @@ export default function BusinessLanding() {
         </div>
       </nav>
 
-      {/* Minimal Hero - Full Bleed Image */}
-      <section className="relative h-screen flex items-end justify-center text-white bg-black overflow-hidden">
-        <div className="absolute inset-0">
+      {/* Editorial Hero Split - Visual First */}
+      <section className="hero-editorial-split">
+        {/* Primary Visual - Kinfolk Inspired */}
+        <div className="hero-image-primary">
           <img 
-            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
-            alt="Professional transformation"
-            className="w-full h-full object-cover object-center opacity-60"
+            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
+            alt="Professional transformation - Sandra's journey from selfie to professional"
+            className="w-full h-full object-cover"
           />
         </div>
-        <div className="absolute inset-0 bg-black/20" />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-8 pb-32 text-center">
-          {/* Minimal Eyebrow */}
-          <p className="text-white/60 mb-12 tracking-[0.5em] text-[10px] font-light uppercase">
+        {/* Editorial Content Panel */}
+        <div className="hero-content-editorial">
+          {/* Eyebrow - Category */}
+          <p className="card-eyebrow">
             Your Personal AI Photographer
           </p>
 
-          {/* Editorial Hero Title */}
-          <h1 
-            className="text-white mb-16 leading-[0.8]"
-            style={{ 
-              fontFamily: 'Times New Roman, serif',
-              fontWeight: 200,
-              letterSpacing: '0.3em',
-              fontSize: 'clamp(4rem, 10vw, 8rem)',
-              textTransform: 'uppercase'
-            }}
-          >
+          {/* Editorial Headline */}
+          <h1 className="hero-headline-editorial">
             Professional Photos<br />From Your Selfies
           </h1>
 
-          {/* Minimal Value Prop */}
-          <p className="text-white/90 mb-4 font-light text-[clamp(18px, 3vw, 24px)] tracking-[0.05em]">
+          {/* Value Proposition */}
+          <p 
+            className="mb-8 leading-relaxed"
+            style={{
+              fontSize: 'var(--text-lg)',
+              fontWeight: 300,
+              color: 'var(--body-gray)',
+              lineHeight: 1.7
+            }}
+          >
             Upload once, get 100+ brand photos monthly.
           </p>
 
-          <p className="text-white/70 mb-16 font-light text-[16px] tracking-[0.1em]">
+          {/* Price Comparison */}
+          <p 
+            className="mb-12"
+            style={{
+              fontSize: 'var(--text-base)',
+              fontWeight: 300,
+              color: 'var(--body-gray)',
+              lineHeight: 1.6
+            }}
+          >
             €47/month vs €1500+ photoshoots
           </p>
 
-          {/* Minimal CTA */}
+          {/* CTA Button */}
           <button 
             onClick={handleGetStarted}
-            className="bg-white text-black px-12 py-4 hover:bg-white/90 transition-all duration-500"
-            style={{
-              fontSize: '10px',
-              fontWeight: 300,
-              letterSpacing: '0.3em',
-              textTransform: 'uppercase'
-            }}
+            className="sample-button"
           >
             Get Professional Photos
           </button>
