@@ -1,0 +1,213 @@
+STEP 1 — Locate bad links (direct API hits)
+echo "== Hard-coded Stack API auth links =="
+grep -RniE "https?://api\.stack-auth\.com/.*/auth/(signin|sign-in|signup|sign-up)" client src || true
+grep -RniE "publishable_client_key=|redirect_uri=" client src || true
+
+STEP 2 — Replace API URLs with local handler paths
+
+Create a safe rewrite script that touches only TS/TSX/JS/JSX files:
+
+node <<'NODE'
+const fs=require('fs');const path=require('path');
+const roots=['client','src'].filter(p=>fs.existsSync(p));
+const exts=new Set(['.ts','.tsx','.js','.jsx']);
+const files=[];
+function walk(dir){
+  for(const e of fs.readdirSync(dir,{withFileTypes:true})){
+    if(e.name==='node_modules') continue;
+    const p=path.join(dir,e.name);
+    if(e.isDirectory()) walk(p);
+    else if(exts.has(path.extname(p))) files.push(p);
+  }
+}
+roots.forEach(walk);
+
+const urlRE=/https?:\/\/api\.stack-auth\.com\/[^"'\s]*\/auth\/(signin|sign-in|signup|sign-up)[^"'\s)]*/gi;
+let changed=0;
+for(const f of files){
+  let s=fs.readFileSync(f,'utf8');
+  const before=s;
+  // Replace any sign-in URLs with local handler route
+  s=s.replace(/https?:\/\/api\.stack-auth\.com\/[^"'\s]*\/auth\/(signin|sign-in)[^"'\s)]*/gi, '/handler/sign-in');
+  // Replace any sign-up URLs with local handler route
+  s=s.replace(/https?:\/\/api\.stack-auth\.com\/[^"'\s]*\/auth\/(signup|sign-up)[^"'\s)]*/gi, '/handler/sign-up');
+  // Clean leftover manual query string builders that append publishable_client_key/redirect_uri
+  s=s.replace(/([?&])(project_id|publishable_client_key|redirect_uri)=[^"'&)]*/gi, '');
+  if(s!==before){ fs.writeFileSync(f,s); changed++; }
+}
+console.log('Rewritten files:', changed);
+NODE
+
+STEP 3 — Detect router (Wouter vs React Router)
+ROUTER=""
+grep -Rni 'from "wouter"' client/src src || ROUTER=$ROUTER
+if grep -Rniq 'from "wouter"' client/src src; then ROUTER="wouter"; fi
+if grep -Rniq 'from "react-router-dom"' client/src src; then ROUTER="rrd"; fi
+echo "Router detected: ${ROUTER:-unknown}"
+
+STEP 4 — Ensure handler route + provider exist
+4A) Create client/src/stack.ts if missing (idempotent)
+test -f client/src/stack.ts || cat > client/src/stack.ts <<'TS'
+import { StackClientApp } from "@stackframe/react";
+export const stackClientApp = new StackClientApp({
+  projectId: import.meta.env.VITE_STACK_PROJECT_ID!,
+  publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY!,
+  tokenStore: "cookie",
+});
+TS
+
+4B) Patch App for Wouter
+
+If Wouter is detected, ensure /handler/:rest* route + providers:
+
+if [ "$ROUTER" = "wouter" ]; then
+  APP="client/src/App.tsx"; [ -f src/App.tsx ] && APP="src/App.tsx"
+  node <<'NODE'
+  const fs=require('fs');const path=require('path');
+  const app=['client/src/App.tsx','src/App.tsx'].find(f=>fs.existsSync(f));
+  if(!app) process.exit(0);
+  let s=fs.readFileSync(app,'utf8');
+  if(!/from "wouter"/.test(s)) process.exit(0);
+
+  if(!/@stackframe\/react/.test(s)){
+    s = `import { StackHandler, StackProvider, StackTheme } from "@stackframe/react";\n` + s;
+  }
+  if(!/stackClientApp/.test(s)){
+    s = s.replace(/(^import .*?;[\r\n]+)/, `$1import { stackClientApp } from "./stack";\n`);
+  }
+  // Ensure imports for wouter bits
+  if(!/useLocation/.test(s) && /from "wouter"/.test(s)){
+    s = s.replace(/from "wouter";/, 'from "wouter";');
+    if(!/useLocation/.test(s)) s = s.replace(/(^import .*from "wouter";)/m, '$1\nimport { useLocation, Route, Switch } from "wouter";');
+  }
+
+  // Add HandlerRoutes component if missing
+  if(!/function HandlerRoutes\(\)/.test(s)){
+    s += `
+function HandlerRoutes() {
+  const [loc] = useLocation();
+  return <StackHandler app={stackClientApp} location={loc} fullPage />;
+}
+`;
+  }
+
+  // Ensure StackProvider/StackTheme wrapper at default export (light-touch)
+  if(/export default function App/.test(s) && !/<StackProvider/.test(s)){
+    s = s.replace(/return\s*\(/, `return (
+    <StackProvider app={stackClientApp}>
+      <StackTheme>
+  `);
+    // naive close just before final );
+    s = s.replace(/\)\s*;\s*}\s*$/m, `      </StackTheme>
+    </StackProvider>
+  );
+}
+`);
+  }
+
+  // Ensure /handler route exists for Wouter
+  if(!/path="\/handler\/:rest\*"/.test(s)){
+    s = s.replace(/<Switch>[\s\S]*?<\/Switch>/m, (m)=>{
+      if(!m.includes('path="/handler/:rest*"')){
+        return m.replace('<Switch>', `<Switch>\n          <Route path="/handler/:rest*"><HandlerRoutes /></Route>`);
+      }
+      return m;
+    });
+  }
+
+  fs.writeFileSync(app,s);
+  console.log("Patched Wouter App at", app);
+  NODE
+fi
+
+4C) Patch App for React Router
+
+If React Router is detected, ensure /handler/* route + providers:
+
+if [ "$ROUTER" = "rrd" ]; then
+  APP="client/src/App.tsx"; [ -f src/App.tsx ] && APP="src/App.tsx"
+  node <<'NODE'
+  const fs=require('fs');const path=require('path');
+  const app=['client/src/App.tsx','src/App.tsx'].find(f=>fs.existsSync(f));
+  if(!app) process.exit(0);
+  let s=fs.readFileSync(app,'utf8');
+  if(!/from "react-router-dom"/.test(s)) process.exit(0);
+
+  if(!/@stackframe\/react/.test(s)){
+    s = `import { StackHandler, StackProvider, StackTheme } from "@stackframe/react";\n` + s;
+  }
+  if(!/stackClientApp/.test(s)){
+    s = s.replace(/(^import .*?;[\r\n]+)/, `$1import { stackClientApp } from "./stack";\n`);
+  }
+  if(!/useLocation/.test(s)){
+    s = s.replace(/from "react-router-dom";/, 'from "react-router-dom";');
+    if(!/useLocation/.test(s)) s = s.replace(/(^import .*from "react-router-dom";)/m, '$1\nimport { useLocation, Routes, Route } from "react-router-dom";');
+  }
+
+  if(!/function HandlerRoutes\(\)/.test(s)){
+    s += `
+function HandlerRoutes() {
+  const location = useLocation();
+  return <StackHandler app={stackClientApp} location={location.pathname} fullPage />;
+}
+`;
+  }
+
+  if(/export default function App/.test(s) && !/<StackProvider/.test(s)){
+    s = s.replace(/return\s*\(/, `return (
+    <StackProvider app={stackClientApp}>
+      <StackTheme>
+  `);
+    s = s.replace(/\)\s*;\s*}\s*$/m, `      </StackTheme>
+    </StackProvider>
+  );
+}
+`);
+  }
+
+  if(!/path="\/handler\/\*"/.test(s)){
+    // Insert a handler route inside the first <Routes> block
+    s = s.replace(/<Routes>([\s\S]*?)<\/Routes>/m, (m, inner) => {
+      if(inner.includes('path="/handler/*"')) return m;
+      return `<Routes>\n          <Route path="/handler/*" element={<HandlerRoutes />} />\n${inner}\n        </Routes>`;
+    });
+  }
+
+  fs.writeFileSync(app,s);
+  console.log("Patched React Router App at", app);
+  NODE
+fi
+
+STEP 5 — Optional: add a SignIn page you can route to
+mkdir -p client/src/pages
+cat > client/src/pages/Auth.tsx <<'TSX'
+import * as React from "react";
+import { SignIn, SignUp, UserButton } from "@stackframe/react";
+import { stackClientApp } from "../stack";
+
+export default function Auth() {
+  return (
+    <div style={{ padding: 24 }}>
+      <UserButton app={stackClientApp} />
+      <div style={{ display: "grid", gap: 24, marginTop: 24 }}>
+        <SignIn app={stackClientApp} />
+        <SignUp app={stackClientApp} />
+      </div>
+    </div>
+  );
+}
+TSX
+
+STEP 6 — Clean caches & boot
+rm -rf node_modules/.vite .vite client/dist
+npm run dev & sleep 3
+
+STEP 7 — Acceptance
+
+Search confirms no api.stack-auth.com/...signin|signup links remain.
+
+Browser opens; go to /handler/sign-in and /handler/sign-up — pages render.
+
+Any “Login” buttons should now navigate to /handler/sign-in (not external API).
+
+<UserButton /> reflects session after sign-in.
