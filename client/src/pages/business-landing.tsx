@@ -3,6 +3,9 @@ import { useLocation } from "wouter";
 import { GlobalFooter } from "../components/global-footer";
 import { useStackApp } from "@stackframe/stack";
 import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../env";
+import { EditorialButton } from "../components/ui/editorial-button";
+import { OfferCard } from "../components/ui/offer-card";
+import { FeatureCard } from "../components/ui/feature-card";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
@@ -234,126 +237,100 @@ export default function BusinessLanding() {
         </button>
       </div>
 
-      {/* Full Bleed Editorial Hero */}
+      {/* Conversion-Optimized Hero */}
       <section className="relative h-screen w-full overflow-hidden">
-        {/* Background Image with Parallax Effect */}
-        <div className="absolute inset-0 scale-105 transition-transform duration-[2000ms] hover:scale-100">
+        {/* Background Image */}
+        <div className="absolute inset-0">
           <img 
             src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
             alt="Professional transformation"
             className="w-full h-full object-cover object-center"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent" />
         </div>
 
-        {/* Editorial Content Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center px-8">
-          <div className="max-w-6xl w-full text-center text-white">
-            {/* Eyebrow */}
-            <p 
-              className="text-white/80 mb-8 animate-fade-in"
-              style={{
-                fontSize: '11px',
-                fontWeight: 300,
-                letterSpacing: '0.4em',
-                textTransform: 'uppercase',
-                animationDelay: '300ms'
-              }}
-            >
-              Professional Brand Photography
-            </p>
-
-            {/* Sophisticated Hero Typography */}
-            <h1 
-              className="text-white mb-16 leading-[0.85] animate-fade-in tracking-tight"
-              style={{ 
-                fontFamily: 'Times New Roman, serif',
-                fontWeight: 100,
-                fontSize: 'clamp(3rem, 8vw, 7rem)',
-                letterSpacing: '0.02em',
-                textTransform: 'uppercase',
-                animationDelay: '600ms'
-              }}
-            >
-              <span className="block mb-2">From Selfies</span>
-              <span className="block mb-2">to Professional</span>
-              <span className="block mb-4 text-white/90">Photography</span>
-              <span 
-                className="block text-white/60"
-                style={{
-                  fontSize: 'clamp(1.2rem, 3vw, 2.5rem)',
-                  letterSpacing: '0.1em',
-                  fontWeight: 200
-                }}
-              >
-                in twenty minutes
-              </span>
-            </h1>
-
-            {/* Refined Value Proposition */}
-            <div className="mb-20 space-y-6 animate-fade-in" style={{ animationDelay: '900ms' }}>
+        {/* Content - Left Aligned to Avoid Face */}
+        <div className="absolute inset-0 flex items-center">
+          <div className="max-w-7xl mx-auto px-8 w-full">
+            <div className="max-w-2xl text-white">
+              {/* Eyebrow */}
               <p 
-                className="text-white/95 font-light"
+                className="text-white/70 mb-6 animate-fade-in"
                 style={{
-                  fontSize: '20px',
-                  lineHeight: 1.5,
-                  maxWidth: '700px',
-                  margin: '0 auto',
-                  letterSpacing: '0.02em'
+                  fontSize: '11px',
+                  fontWeight: 300,
+                  letterSpacing: '0.4em',
+                  textTransform: 'uppercase',
+                  animationDelay: '300ms'
                 }}
               >
-                One hundred professional brand photographs monthly
+                Professional Brand Photography
               </p>
-              <div className="flex items-center justify-center space-x-8">
-                <span 
-                  className="text-white/80 font-light"
+
+              {/* Conversion-Focused Headline */}
+              <h1 
+                className="text-white mb-8 leading-[0.9] animate-fade-in"
+                style={{ 
+                  fontFamily: 'Times New Roman, serif',
+                  fontWeight: 200,
+                  fontSize: 'clamp(2.5rem, 6vw, 5rem)',
+                  letterSpacing: '0.02em',
+                  textTransform: 'uppercase',
+                  animationDelay: '600ms'
+                }}
+              >
+                100+ Professional Photos
+                <br />
+                <span className="text-white/90">From Your Selfies</span>
+              </h1>
+
+              {/* Clear Value Prop */}
+              <div className="mb-12 animate-fade-in" style={{ animationDelay: '900ms' }}>
+                <p 
+                  className="text-white/90 font-light mb-4"
+                  style={{
+                    fontSize: '22px',
+                    lineHeight: 1.4,
+                    letterSpacing: '0.01em'
+                  }}
+                >
+                  €47/month vs €1500+ photoshoots
+                </p>
+                <p 
+                  className="text-white/70 font-light"
                   style={{
                     fontSize: '16px',
-                    letterSpacing: '0.1em'
+                    lineHeight: 1.5
                   }}
                 >
-                  €47/month
-                </span>
-                <span className="text-white/40">•</span>
-                <span 
-                  className="text-white/60 font-light line-through"
-                  style={{
-                    fontSize: '14px',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  €1500+ photoshoots
-                </span>
+                  Ready in 20 minutes • 100+ photos monthly
+                </p>
               </div>
-            </div>
 
-            {/* Sophisticated CTA */}
-            <button 
-              onClick={handleGetStarted}
-              className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-20 py-6 hover:bg-white hover:text-black hover:border-white transition-all duration-700 group animate-fade-in mb-20 relative overflow-hidden"
-              style={{
-                fontSize: '11px',
-                fontWeight: 200,
-                letterSpacing: '0.25em',
-                textTransform: 'uppercase',
-                animationDelay: '1200ms'
-              }}
-            >
-              <span className="relative z-10 group-hover:tracking-[0.3em] transition-all duration-700">
-                Begin Your Transformation
-              </span>
-              <div className="absolute inset-0 bg-white translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-700" />
-            </button>
+              {/* Clean CTA */}
+              <button 
+                onClick={handleGetStarted}
+                className="bg-white text-black px-12 py-4 hover:bg-gray-100 transition-all duration-500 group animate-fade-in mb-8"
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 400,
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  animationDelay: '1200ms'
+                }}
+              >
+                <span className="group-hover:tracking-[0.2em] transition-all duration-500">
+                  Start for €47
+                </span>
+              </button>
 
-            {/* Trust Signals */}
-            <div className="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-8 text-white/60 animate-fade-in" style={{ animationDelay: '1500ms' }}>
-              <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
-                ✓ 30-day money-back guarantee
-              </p>
-              <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
-                ✓ Cancel anytime
-              </p>
+              {/* Trust Signals */}
+              <div className="flex flex-col space-y-2 text-white/60 animate-fade-in" style={{ animationDelay: '1500ms' }}>
+                <p style={{ fontSize: '11px', fontWeight: 300, letterSpacing: '0.1em' }}>
+                  ✓ 30-day money-back guarantee • Cancel anytime
+                </p>
+              </div>
             </div>
           </div>
         </div>
