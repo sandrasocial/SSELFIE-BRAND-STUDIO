@@ -198,3 +198,27 @@ h1, h2, h3 {
 .shadow-luxury {
   box-shadow: var(--luxury-shadow);
 }
+
+/* Voice Guide Typography */
+.hero-title {
+  font-family: 'Times New Roman', serif;
+  font-weight: 200;
+  letter-spacing: 0.25em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.editorial-headline {
+  font-family: 'Times New Roman', serif;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+/* Voice Guide Colors */
+:root {
+  --luxury-black: #000000;
+  --pure-white: #ffffff;
+  --editorial-gray: #fafafa;
+  --body-gray: #757575;
+}
