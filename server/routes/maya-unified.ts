@@ -132,6 +132,44 @@ function logUserAbandonment(event: 'ONBOARDING_ABANDON' | 'CHAT_ABANDON' | 'GENE
   });
 }
 
+// LUXURY ONBOARDING INITIALIZATION - Start Maya's personalized experience
+router.post('/start-onboarding', requireStackAuth, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now();
+  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+  
+  if (!userId) {
+    logMayaAPI('/start-onboarding', startTime, false, new Error('Authentication required'));
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    console.log(`🎯 MAYA ONBOARDING: Starting luxury onboarding experience for user ${userId}`);
+    
+    // Get the first onboarding question from Maya's personality
+    const firstQuestion = MAYA_PERSONALITY.onboarding.questions[0];
+    
+    const response = {
+      type: 'onboarding',
+      introduction: MAYA_PERSONALITY.onboarding.introduction,
+      question: firstQuestion.question,
+      fieldName: firstQuestion.fieldName,
+      options: firstQuestion.options,
+      explanation: firstQuestion.explanation,
+      step: firstQuestion.step,
+      totalSteps: MAYA_PERSONALITY.onboarding.questions.length,
+      isOnboardingComplete: false
+    };
+
+    logMayaAPI('/start-onboarding', startTime, true);
+    res.json(response);
+    
+  } catch (error) {
+    console.error('❌ MAYA ONBOARDING ERROR:', error);
+    logMayaAPI('/start-onboarding', startTime, false, error);
+    res.status(500).json({ error: 'Failed to start onboarding' });
+  }
+});
+
 // UNIFIED MAYA ENDPOINT - Handles all Maya interactions with admin/member distinction
 router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track API performance
