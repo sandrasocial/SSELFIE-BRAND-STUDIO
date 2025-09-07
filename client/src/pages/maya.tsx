@@ -6,18 +6,20 @@ import { useMayaPersistence } from '../hooks/useMayaPersistence';
 import { useToast } from '../hooks/use-toast';
 import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
+import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
 import { useLocation } from 'wouter';
 
 // Maya simplified workspace page
 
 interface ChatMessage {
   id: string;
-  type: 'user' | 'maya' | 'onboarding';
+  type: 'user' | 'maya' | 'onboarding' | 'upload';
   content: string;
   timestamp: string;
   conceptCards?: ConceptCard[];
   isStreaming?: boolean;
   onboardingData?: OnboardingData;
+  showUpload?: boolean;
 }
 
 interface OnboardingData {
@@ -612,6 +614,40 @@ export default function Maya() {
                             {msg.content}
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : msg.type === 'upload' ? (
+                  // Upload Component Message - Seamless Chat Integration
+                  <div className="max-w-4xl mb-12">
+                    <div className="eyebrow text-gray-500 mb-6">
+                      Maya • AI Model Training
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 shadow-lg">
+                      <div className="p-8 sm:p-12">
+                        <div className="text-lg leading-relaxed font-light text-gray-800 whitespace-pre-wrap mb-8">
+                          {msg.content}
+                        </div>
+                        
+                        {/* Embedded Upload Component */}
+                        {msg.showUpload && (
+                          <MayaUploadComponent
+                            onUploadComplete={(success) => {
+                              if (success) {
+                                // Training started successfully - Maya will handle onboarding
+                                console.log('✅ Maya: Training initiated successfully');
+                              } else {
+                                console.log('❌ Maya: Training initiation failed');
+                              }
+                            }}
+                            onTrainingStart={() => {
+                              // Training has started - Maya begins onboarding conversation
+                              console.log('🎯 Maya: Training started, beginning onboarding');
+                            }}
+                            className="mt-6"
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
