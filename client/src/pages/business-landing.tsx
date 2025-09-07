@@ -210,47 +210,47 @@ export default function BusinessLanding() {
         </div>
       </nav>
 
-      {/* HERO - Optimized Layout */}
-      <section className="relative min-h-screen bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-60">
-          <img 
-            src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png"
-            alt="Professional transformation through AI photography"
-            className="w-full h-full object-cover object-center"
-          />
-        </div>
+      {/* Hero Section - Voice Guide Compliant */}
+      <section className="relative h-screen flex items-end justify-center text-center text-white bg-black">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url(https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/undefined/undefined_1756382691095.png)`,
+          }}
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-30" />
         
-        <div className="relative z-10 min-h-screen px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto h-screen flex items-end pb-20">
-            <div className="w-full max-w-2xl">
-              <div className="mb-8">
-                <div className="w-16 h-px bg-white/30 mb-6"></div>
-              </div>
-              
-              <h1 
-                className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light mb-12 tracking-[-0.02em] leading-none"
-                style={{ fontFamily: "Times New Roman, serif" }}
-              >
-                Professional Photos<br />
-                <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-[0.3em] text-white/80 font-light">
-                  FROM YOUR SELFIES
-                </span>
-              </h1>
-              
-              <div className="space-y-6">
-                <button 
-                  onClick={handleGetStarted}
-                  className="bg-white text-black px-10 py-3 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
-                >
-                  GET PROFESSIONAL PHOTOS — €47
-                </button>
-                
-                <p className="text-xs text-white/60 tracking-wide">
-                  Photos ready in 20 minutes • Cancel anytime
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-6 pb-20">
+          {/* Eyebrow - Clear Category */}
+          <p className="text-xs uppercase tracking-[0.4em] text-white/70 mb-6">
+            YOUR PERSONAL AI PHOTOGRAPHER
+          </p>
+          
+          {/* Hero Headline - Value Prop First */}
+          <h1 
+            className="font-serif text-[clamp(3rem,8vw,6rem)] font-light leading-[0.9] tracking-wide uppercase mb-8"
+            style={{ fontFamily: 'Times New Roman, serif' }}
+          >
+            Professional Photos<br />From Your Selfies
+          </h1>
+          
+          {/* Value Proposition - Clear & Direct */}
+          <p className="text-xl md:text-2xl font-light mb-4 max-w-2xl mx-auto">
+            Upload once, get 100+ brand photos monthly.
+          </p>
+          
+          {/* Price Comparison - Immediate Value */}
+          <p className="text-lg font-light mb-12 text-white/90">
+            €47/month vs €1500+ photoshoots
+          </p>
+          
+          {/* CTA - Power Phrase */}
+          <button 
+            onClick={handleGetStarted}
+            className="bg-white text-black px-12 py-4 text-xs uppercase tracking-[0.3em] font-medium hover:bg-white/90 transition-colors duration-300"
+          >
+            GET PROFESSIONAL PHOTOS
+          </button>
         </div>
       </section>
 
