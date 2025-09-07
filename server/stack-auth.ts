@@ -122,11 +122,14 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
         email: userInfo.email || null,
         firstName: userInfo.displayName?.split(' ')[0] || null,
         lastName: userInfo.displayName?.split(' ').slice(1).join(' ') || null,
-        profileImageUrl: userInfo.profileImageUrl || null
+        profileImageUrl: userInfo.profileImageUrl || null,
+        plan: 'free', // New users start with free plan
+        monthlyGenerationLimit: 0, // No generations until they subscribe
+        mayaAiAccess: false, // No AI access until they subscribe
       });
-      console.log('✅ Stack Auth: User created in database:', dbUser.email);
+      console.log('✅ Stack Auth: New user created (no subscription):', dbUser.email);
     } else {
-      console.log('✅ Stack Auth: User found in database:', dbUser.email);
+      console.log('✅ Stack Auth: Existing user found:', dbUser.email);
     }
     
     // Set user information in request from database user
@@ -147,6 +150,44 @@ export async function verifyStackAuthToken(req: Request, res: Response, next: Ne
 // ✅ REMOVED: Complex OAuth callback handler no longer needed with direct Stack Auth integration
 
 // Middleware that requires authentication
+// Middleware to check active subscription for workspace access
+export function requireActiveSubscription(req: Request, res: Response, next: NextFunction) {
+  requireStackAuth(req, res, async () => {
+    try {
+      const user = req.user as any;
+      
+      if (!user || !user.id) {
+        return res.status(401).json({ message: 'Authentication required' });
+      }
+      
+      // Check if user has active subscription
+      const { storage } = await import('./storage');
+      const subscription = await storage.getUserSubscription(user.id);
+      
+      // Allow admin users and users with active subscriptions
+      if (user.role === 'admin' || user.monthlyGenerationLimit === -1) {
+        console.log('✅ Admin user access granted:', user.email);
+        return next();
+      }
+      
+      if (!subscription || subscription.status !== 'active') {
+        console.log('❌ No active subscription for user:', user.email);
+        return res.status(402).json({ 
+          message: 'Active subscription required', 
+          redirectTo: '/checkout',
+          requiresPayment: true 
+        });
+      }
+      
+      console.log('✅ Active subscription verified for user:', user.email);
+      next();
+    } catch (error) {
+      console.error('❌ Subscription validation error:', error);
+      res.status(500).json({ message: 'Subscription validation failed' });
+    }
+  });
+}
+
 export function requireStackAuth(req: Request, res: Response, next: NextFunction) {
   return verifyStackAuthToken(req, res, next);
 }
