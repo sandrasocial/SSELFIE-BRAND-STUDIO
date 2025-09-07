@@ -1,0 +1,63 @@
+**GOAL**
+Repair broken node_modules without rolling back code. Keep React 19 and enforce a single React across the app. Do not modify vite.config.ts and do not print secrets.
+
+--------------------------------
+STEP A — Inspect for duplicate dependency trees
+--------------------------------
+echo "== List non-root node_modules (may cause duplicate React) =="
+find . -maxdepth 3 -type d -name node_modules -not -path "./node_modules" -print || true
+
+echo "== Current React tree =="
+npm ls react react-dom || true
+
+--------------------------------
+STEP B — Ensure package.json pins React 19 + overrides
+--------------------------------
+# Prefer stable 19, fallback to rc if needed
+STABLE="19.0.0"; RC="19.0.0-rc.1"
+npm pkg set dependencies.react="$STABLE" || npm pkg set dependencies.react="$RC"
+npm pkg set dependencies.react-dom="$STABLE" || npm pkg set dependencies.react-dom="$RC"
+
+# @stackframe/react latest
+npm pkg set dependencies.@stackframe/react="^latest"
+
+# Helpful libs (safe modern versions)
+npm pkg set dependencies.wouter="^3.2.0"
+npm pkg set dependencies.@tanstack/react-query="^5.48.0" || true
+
+# React 19 ships its own types; remove v18 types if present
+npm pkg delete devDependencies.@types/react || true
+npm pkg delete devDependencies.@types/react-dom || true
+
+# Enforce one React via npm overrides
+node -e "const fs=require('fs');const p=require('./package.json');p.overrides=p.overrides||{};p.overrides.react=p.dependencies.react;p.overrides['react-dom']=p.dependencies['react-dom'];fs.writeFileSync('package.json',JSON.stringify(p,null,2));"
+
+--------------------------------
+STEP C — Clean install (fix broken tree)
+--------------------------------
+# Remove ONLY root node_modules + lockfile; keep code intact
+rm -rf node_modules package-lock.json
+npm cache verify || true
+
+# Install clean and dedupe
+npm i --no-audit --no-fund
+npm dedupe
+
+echo "== After reinstall =="
+npm ls react react-dom || true
+
+--------------------------------
+STEP D — Kill Vite caches and rebuild
+--------------------------------
+rm -rf node_modules/.vite .vite client/dist
+npm run build || true
+npm run dev &
+sleep 3
+
+--------------------------------
+STEP E — Sanity: ensure React.use exists
+--------------------------------
+# Add a one-time console check (idempotent)
+node -e "const fs=require('fs');['client/src/main.tsx','src/main.tsx','client/src/App.tsx','src/App.tsx'].forEach(f=>{if(fs.existsSync(f)){let s=fs.readFileSync(f,'utf8');if(!s.includes('React sanity')){s = \"import * as React from 'react';\\n\"+s; s+=\"\\nif (import.meta.env?.DEV) { console.log('React sanity:', { version: React.version, hasUse: typeof (React).use === 'function' }); }\\n\"; fs.writeFileSync(f,s);}});"
+
+echo "== Done. Open browser console; expect: React sanity { version: 19.x, hasUse: true } =="
