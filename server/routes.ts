@@ -2541,18 +2541,13 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
       
       const testPrompt = prompt || 'Young woman standing confidently in a mystical natural environment at golden hour, wearing sophisticated layered styling choices with unexpected textures, wind gently lifting hair, natural makeup with dewy skin, dreamy ethereal light creating mystical atmosphere, shot with editorial depth';
       
-      // Clean prompt and add Shannon's trigger
-      let cleanPrompt = testPrompt
-        .replace(/raw photo,?\s*/gi, '')
-        .replace(/visible skin pores,?\s*/gi, '')
-        .replace(/film grain,?\s*/gi, '')
-        .replace(/unretouched natural skin texture,?\s*/gi, '')
-        .replace(/subsurface scattering,?\s*/gi, '')
-        .replace(/photographed on film,?\s*/gi, '')
-        .trim();
+      // 🎯 MAYA INTELLIGENCE PRESERVED: Only add trigger word, preserve all Maya's choices
+      let mayaPrompt = testPrompt.trim();
       
-      const anatomyTerms = "detailed hands, perfect fingers, natural hand positioning, well-formed feet, accurate anatomy";
-      const finalPrompt = `raw photo, visible skin pores, film grain, unretouched natural skin texture, subsurface scattering, photographed on film, ${triggerWord}, ${cleanPrompt}, ${anatomyTerms}`;
+      // Only add trigger word if not already present, preserve Maya's complete styling intelligence
+      const finalPrompt = mayaPrompt.startsWith(triggerWord) 
+        ? mayaPrompt 
+        : `${triggerWord}, ${mayaPrompt}`;
       
       // Shannon test uses the model directly without LoRA weights
       console.log(`🔧 SHANNON TEST: Using model directly: ${modelVersion}`);
