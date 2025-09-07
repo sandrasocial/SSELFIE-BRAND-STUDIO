@@ -521,9 +521,6 @@ function HandlerRoutes({ params }: { params: { [key: string]: string } }) {
   // Extract the sub-path after "/handler/" for Stack Auth - handle both "path*" and "0" parameters
   const handlerPath = (params["path*"] || params["0"] || '').replace(/[)}]+$/, ''); // Remove trailing )}
   
-  // Debug logging
-  console.log('🔍 HandlerRoutes:', { params, handlerPath, stackClientApp: !!stackClientApp });
-  
   return <StackHandler app={stackClientApp} location={handlerPath} fullPage />;
 }
 

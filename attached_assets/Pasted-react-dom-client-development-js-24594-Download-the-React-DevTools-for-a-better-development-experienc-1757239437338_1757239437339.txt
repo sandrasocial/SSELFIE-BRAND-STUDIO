@@ -1,0 +1,164 @@
+react-dom-client.development.js:24594 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+env.ts:20 Neon Auth env (sanity): Object
+main.tsx:7 SSELFIE Studio: Main.tsx loading...
+main.tsx:8 SSELFIE Studio: Root element found: true
+main.tsx:12 Disabling HMR to prevent connection issues
+main.tsx:43 React sanity: Object
+main.tsx:49 SSELFIE Studio: Starting up with Stack Auth authentication...
+App.tsx:586 SSELFIE Studio: App rendering...
+App.tsx:586 SSELFIE Studio: App rendering...
+App.tsx:525 🔍 HandlerRoutes: Object
+App.tsx:525 🔍 HandlerRoutes: Object
+App.tsx:551 SSELFIE Studio: App initializing...
+App.tsx:575 SSELFIE Studio: Domain access validated, app ready
+App.tsx:551 SSELFIE Studio: App initializing...
+App.tsx:575 SSELFIE Studio: Domain access validated, app ready
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' *.replit.dev *.replit.com *.replicate.com *.amazonaws.com <URL> <URL> wss: ws:".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> ws:<URL> <URL> ws:<URL> <URL> <URL> <URL> wss://* ws://* <URL> <URL> <URL> <URL> <URL>".
+
+client-interface.ts:327 Fetch API cannot load https://api.stack-auth.com/api/v1/projects/current. Refused to connect because it violates the document's Content Security Policy.
+sendClientRequestInner @ client-interface.ts:327
+client-interface.ts:327 Fetch API cannot load https://api.stack-auth.com/api/v1/projects/current. Refused to connect because it violates the document's Content Security Policy.
+sendClientRequestInner @ client-interface.ts:327
+client-interface.ts:327 Fetch API cannot load https://api.stack-auth.com/api/v1/projects/current. Refused to connect because it violates the document's Content Security Policy.
+sendClientRequestInner @ client-interface.ts:327
+client-interface.ts:327 Fetch API cannot load https://api.stack-auth.com/api/v1/projects/current. Refused to connect because it violates the document's Content Security Policy.
+sendClientRequestInner @ client-interface.ts:327
+client-interface.ts:327 Fetch API cannot load https://api.stack-auth.com/api/v1/projects/current. Refused to connect because it violates the document's Content Security Policy.
+sendClientRequestInner @ client-interface.ts:327
+client-interface.ts:68 Fetch API cannot load https://1.1.1.1/cdn-cgi/trace. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ client-interface.ts:68
+client-interface.ts:327 Fetch API cannot load https://api.stack-auth.com/api/v1. Refused to connect because it violates the document's Content Security Policy.
+sendClientRequestInner @ client-interface.ts:327
+client-interface.ts:80 Fetch API cannot load https://api.stack-auth.com/health. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ client-interface.ts:80
+client-interface.ts:86 Fetch API cannot load https://app.stack-auth.com/health. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ client-interface.ts:86
+client-interface.ts:92 Fetch API cannot load https://api.stack-auth.com/health. Refused to connect because it violates the document's Content Security Policy.
+(anonymous) @ client-interface.ts:92
+react-dom-client.development.js:7398 Uncaught Error: Stack Auth is unable to connect to the server. Please check your internet connection and try again.
+
+If the problem persists, please contact support and provide a screenshot of your entire browser console.
+
+RetryError: Error after 5 attempts.
+
+Attempts 1-5:
+  TypeError: Failed to fetch
+    Stack:
+      at StackClientInterface.sendClientRequestInner (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:8634:22)
+      at async Object.retry (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:6339:17)
+      at async StackClientInterface._networkRetry (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:8482:27)
+      at async StackClientInterface.sendClientRequest (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:8544:12)
+      at async StackClientInterface.sendClientRequestAndCatchKnownError (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:8559:24)
+      at async StackClientInterface.getClientProject (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:9347:29)
+      at async https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_react.js?v=e09f26ef:993:29
+      at async https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_react.js?v=e09f26ef:399:72
+      at async Object.fromThrowingAsync (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:6293:22)
+      at async AsyncCache._fetcher (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_react.js?v=e09f26ef:399:29)
+
+{
+  "navigator?.onLine": true,
+  "cfTrace": "TypeError: Failed to fetch",
+  "apiRoot": "TypeError: Failed to fetch",
+  "baseUrlBackend": "TypeError: Failed to fetch",
+  "prodDashboard": "TypeError: Failed to fetch",
+  "prodBackend": "TypeError: Failed to fetch"
+}
+    at StackClientInterface._createNetworkError (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:8471:12)
+    at async StackClientInterface._networkRetry (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:8491:13)
+    at async StackClientInterface.sendClientRequest (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:8544:12)
+    at async StackClientInterface.sendClientRequestAndCatchKnownError (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:8559:24)
+    at async StackClientInterface.getClientProject (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:9347:29)
+    at async https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_react.js?v=e09f26ef:993:29
+    at async https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_react.js?v=e09f26ef:399:72
+    at async Object.fromThrowingAsync (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:6293:22)
+    at async AsyncCache._fetcher (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_react.js?v=e09f26ef:399:29)
+    at async AsyncValueCache (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:11245:21)
+    at concatStacktraces (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-6GUOBGCP.js?v=e09f26ef:4365:46)
+    at useAsyncCache (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_react.js?v=e09f26ef:512:32)
+    at __StackClientAppImplIncomplete2.useProject (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_react.js?v=e09f26ef:2536:18)
+    at Inner (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_react.js?v=e09f26ef:26452:36)
+    at react-stack-bottom-frame (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=e09f26ef:16192:20)
+    at renderWithHooks (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=e09f26ef:4306:24)
+    at updateFunctionComponent (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=e09f26ef:5972:21)
+    at beginWork (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=e09f26ef:7048:20)
+    at runWithFiberInDEV (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=e09f26ef:726:18)
+    at performUnitOfWork (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=e09f26ef:10837:82)
+    at workLoopConcurrent (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-dom_client.js?v=e09f26ef:10827:11)Caused by: RetryError: Error after 5 attempts.
+
+Attempts 1-5:
+  TypeError: Failed to fetch
+    Stack:
+      at StackClientInterface.sendClientRequestInner (client-interface.ts:327:22)
+      at async Object.retry (results.tsx:374:17)
+      at async StackClientInterface._networkRetry (client-interface.ts:120:27)
+      at async StackClientInterface.sendClientRequest (client-interface.ts:203:12)
+      at async StackClientInterface.sendClientRequestAndCatchKnownError (client-interface.ts:233:24)
+      at async StackClientInterface.getClientProject (client-interface.ts:1255:29)
+      at async client-app-impl.ts:110:27
+      at async common.ts:28:72
+      at async Object.fromThrowingAsync (results.tsx:230:22)
+      at async AsyncCache._fetcher (common.ts:28:29)
+    at Object.retry (results.tsx:384:37)
+    at async StackClientInterface._networkRetry (client-interface.ts:120:27)
+    at async StackClientInterface.sendClientRequest (client-interface.ts:203:12)
+    at async StackClientInterface.sendClientRequestAndCatchKnownError (client-interface.ts:233:24)
+    at async StackClientInterface.getClientProject (client-interface.ts:1255:29)
+    at async client-app-impl.ts:110:27
+    at async common.ts:28:72
+    at async Object.fromThrowingAsync (results.tsx:230:22)
+    at async AsyncCache._fetcher (common.ts:28:29)
+    at async AsyncValueCache (caches.tsx:93:21)Caused by: TypeError: Failed to fetch. Refused to connect because it violates the document's Content Security Policy.
+    at StackClientInterface.sendClientRequestInner (client-interface.ts:327:22)
+    at async Object.retry (results.tsx:374:17)
+    at async StackClientInterface._networkRetry (client-interface.ts:120:27)
+    at async StackClientInterface.sendClientRequest (client-interface.ts:203:12)
+    at async StackClientInterface.sendClientRequestAndCatchKnownError (client-interface.ts:233:24)
+    at async StackClientInterface.getClientProject (client-interface.ts:1255:29)
+    at async client-app-impl.ts:110:27
+    at async common.ts:28:72
+    at async Object.fromThrowingAsync (results.tsx:230:22)
+    at async AsyncCache._fetcher (common.ts:28:29)
+react-dom-client.development.js:7409 An error occurred in the <Inner> component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+
+defaultOnUncaughtError @ react-dom-client.development.js:7409
