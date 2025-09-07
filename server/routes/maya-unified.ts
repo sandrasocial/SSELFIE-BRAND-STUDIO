@@ -136,7 +136,7 @@ function logUserAbandonment(event: 'ONBOARDING_ABANDON' | 'CHAT_ABANDON' | 'GENE
 router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track API performance
   try {
-    const userId = (req.user as any)?.claims?.sub;
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
     if (!userId) {
       logMayaAPI('/chat', startTime, false, new Error('Authentication required'));
       return res.status(401).json({ 
@@ -560,7 +560,7 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
 router.post('/generate', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track generation performance
   try {
-    const userId = (req.user as any)?.claims?.sub;
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
     if (!userId) {
       logMayaAPI('/generate', startTime, false, new Error('Authentication required'));
       return res.status(401).json({ error: 'Authentication required' });
@@ -1069,7 +1069,7 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
 router.get('/status', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track status performance
   try {
-    const userId = (req.user as any)?.claims?.sub;
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
     if (!userId) {
       logMayaAPI('/status', startTime, false, new Error('Authentication required'));
       return res.status(401).json({ 
@@ -1127,7 +1127,7 @@ router.get('/status', requireStackAuth, adminContextDetection, async (req: Admin
 router.get('/check-generation/:predictionId', requireStackAuth, adminContextDetection, async (req: AdminContextRequest, res) => {
   const startTime = Date.now(); // PHASE 7: Track polling performance
   try {
-    const userId = (req.user as any)?.claims?.sub;
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
     if (!userId) {
       console.log('🔒 MAYA POLLING: Authentication required for generation check');
       logMayaAPI('/check-generation', startTime, false, new Error('Authentication required'));
@@ -2388,7 +2388,7 @@ GENERATE: Complete FLUX prompt with natural flow and optimal structure.`
 // 🔥 CRITICAL FIX: Chat History Loading with Image Persistence
 router.get('/chats/:chatId/messages', requireStackAuth, async (req, res) => {
   try {
-    const userId = (req.user as any)?.claims?.sub;
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
     if (!userId) {
       return res.status(401).json({ 
         error: "Authentication required to load your photo history. Please log in to access your professional photo collection." 
@@ -2548,7 +2548,7 @@ function detectCategoryFromPrompt(prompt: string): string {
 // 🧠 DEVELOPMENT ROUTE: View user style memory (safe testing endpoint)
 router.get('/style-memory', requireStackAuth, async (req, res) => {
   try {
-    const userId = (req.user as any)?.claims?.sub;
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'Authentication required' });
     }
@@ -2573,7 +2573,7 @@ router.get('/style-memory', requireStackAuth, async (req, res) => {
 // 🧠 DEVELOPMENT ROUTE: Learn from user favorites manually (safe testing)
 router.post('/learn-from-favorites', requireStackAuth, async (req, res) => {
   try {
-    const userId = (req.user as any)?.claims?.sub;
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'Authentication required' });
     }
@@ -2594,7 +2594,7 @@ router.post('/learn-from-favorites', requireStackAuth, async (req, res) => {
 // PHASE 3: Onboarding Response Handler - Process user profile completion answers
 router.post('/onboarding-response', requireStackAuth, async (req, res) => {
   try {
-    const userId = (req.user as any)?.claims?.sub;
+    const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
     if (!userId) {
       return res.status(401).json({ error: 'Authentication required' });
     }
