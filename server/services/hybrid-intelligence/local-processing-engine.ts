@@ -5,7 +5,7 @@
  * WITHOUT consuming Claude API tokens while building shared agent intelligence
  */
 
-import { db } from '../../db.js';
+import { db } from '../../drizzle.js';
 import { 
   agentLearning, 
   agentSessionContexts, 

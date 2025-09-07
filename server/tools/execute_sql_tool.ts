@@ -1,5 +1,5 @@
 // Execute SQL Tool - Fixed SQL execution for Neon/Drizzle
-import { db } from '../db';
+import { db } from '../drizzle';
 import { sql } from 'drizzle-orm';
 
 export interface SqlParams {

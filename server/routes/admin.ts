@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { db } from '../db';
+import { db } from '../drizzle';
 import { users, subscriptions, sessions, importedSubscribers, aiImages, userModels } from '../../shared/schema';
 import { eq, count, sum, desc, sql, gte } from 'drizzle-orm';
 import { requireStackAuth } from '../stack-auth';

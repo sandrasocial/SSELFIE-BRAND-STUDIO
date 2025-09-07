@@ -7,7 +7,7 @@
 import { agentCoordinationBridge } from '../services/agent-coordination-bridge';
 import { ElenaDelegationSystem } from '../utils/elena-delegation-system';
 import { WorkflowPersistence } from '../workflows/active/workflow-persistence';
-import { db } from '../db';
+import { db } from '../drizzle';
 import { claudeConversations, claudeMessages } from '../../shared/schema';
 import { eq, desc } from 'drizzle-orm';
 

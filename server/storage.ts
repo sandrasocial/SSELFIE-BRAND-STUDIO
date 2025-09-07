@@ -60,7 +60,7 @@ import {
   type InsertClaudeConversation,
   type InsertClaudeMessage,
 } from "../shared/schema";
-import { db } from "./db";
+import { db } from "./drizzle";
 import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
 // Interface for storage operations

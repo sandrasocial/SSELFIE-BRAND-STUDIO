@@ -3,7 +3,7 @@
  * Comprehensive security monitoring, audit trails, and threat detection
  */
 
-import { db } from '../db';
+import { db } from '../drizzle';
 import { users, userImages, aiImages } from '../../shared/schema';
 import { eq, desc, sql, and, gte } from 'drizzle-orm';
 

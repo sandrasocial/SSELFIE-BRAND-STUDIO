@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import { setupRollbackRoutes } from './routes/rollback.js';
 import { storage } from "./storage";
 import { requireStackAuth, optionalStackAuth } from './stack-auth';
-import { db } from "./db";
+import { db } from "./drizzle";
 import { claudeConversations, claudeMessages } from "../shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import emailAutomation from './routes/email-automation';
