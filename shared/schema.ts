@@ -85,6 +85,13 @@ export const users = pgTable("users", {
   brandStyle: varchar("brand_style"), // "professional" | "creative" | "lifestyle" | "luxury"
   photoGoals: text("photo_goals"), // What they want photos for (business use case)
   
+  // Training-time coaching system for brand strategy discovery
+  trainingCoachingStarted: boolean("training_coaching_started").default(false),
+  trainingCoachingCompleted: boolean("training_coaching_completed").default(false),
+  trainingCoachingPhase: varchar("training_coaching_phase"), // businessGoals, platformStrategy, brandPositioning, completed
+  trainingCoachingStep: integer("training_coaching_step").default(0),
+  brandStrategyContext: jsonb("brand_strategy_context"), // Stores coaching responses and brand strategy insights
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
