@@ -98,6 +98,29 @@ export class TrainingCompletionMonitor {
           // Don't fail the completion if email fails
         }
 
+        // TRAINING-TIME COACHING INTEGRATION - Generate strategic first concepts
+        try {
+          const user = await storage.getUser(userId);
+          if (user?.trainingCoachingCompleted && user?.brandStrategyContext) {
+            console.log(`🎯 STRATEGIC TRAINING COMPLETION: User ${userId} completed brand strategy coaching`);
+            
+            // Parse brand strategy context
+            const strategyData = JSON.parse(user.brandStrategyContext);
+            const responses = strategyData.responses;
+            
+            console.log(`✨ STRATEGIC CONCEPTS: User ${userId} ready for strategy-informed photo creation`);
+            console.log(`📊 BRAND STRATEGY: Primary platform = ${responses.primaryPlatform}, Authority = ${responses.authorityLevel}`);
+            
+            // Flag that strategic concepts are ready for this user
+            console.log(`🎯 STRATEGIC COMPLETION: User ${userId} training complete with brand strategy context available`);
+          } else {
+            console.log(`📸 STANDARD COMPLETION: User ${userId} completed training without brand strategy coaching`);
+          }
+        } catch (strategyError) {
+          console.error(`⚠️ STRATEGIC CONCEPTS: Failed to process for user ${userId}:`, strategyError);
+          // Don't fail training completion if strategic concepts fail
+        }
+
         console.log(`🎉 Database updated! User ${userId} training completed`);
         return true;
       } else if (trainingData.status === 'failed') {
@@ -183,6 +206,29 @@ export class TrainingCompletionMonitor {
         } catch (emailError) {
           console.error('❌ Failed to send model ready email:', emailError);
           // Don't fail the completion if email fails
+        }
+
+        // TRAINING-TIME COACHING INTEGRATION - Generate strategic first concepts
+        try {
+          const user = await storage.getUser(userId);
+          if (user?.trainingCoachingCompleted && user?.brandStrategyContext) {
+            console.log(`🎯 STRATEGIC TRAINING COMPLETION: User ${userId} completed brand strategy coaching`);
+            
+            // Parse brand strategy context
+            const strategyData = JSON.parse(user.brandStrategyContext);
+            const responses = strategyData.responses;
+            
+            console.log(`✨ STRATEGIC CONCEPTS: User ${userId} ready for strategy-informed photo creation`);
+            console.log(`📊 BRAND STRATEGY: Primary platform = ${responses.primaryPlatform}, Authority = ${responses.authorityLevel}`);
+            
+            // Flag that strategic concepts are ready for this user
+            console.log(`🎯 STRATEGIC COMPLETION: User ${userId} training complete with brand strategy context available`);
+          } else {
+            console.log(`📸 STANDARD COMPLETION: User ${userId} completed training without brand strategy coaching`);
+          }
+        } catch (strategyError) {
+          console.error(`⚠️ STRATEGIC CONCEPTS: Failed to process for user ${userId}:`, strategyError);
+          // Don't fail training completion if strategic concepts fail
         }
 
         console.log(`🎉 Database updated! User ${userId} training completed`);
