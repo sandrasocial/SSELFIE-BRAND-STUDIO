@@ -65,8 +65,8 @@ export default function Maya() {
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [currentOnboardingData, setCurrentOnboardingData] = useState<OnboardingData | null>(null);
-  const [showWelcomeScreen, setShowWelcomeScreen] = useState(true);
-  const [isFirstVisit, setIsFirstVisit] = useState(true);
+  // Simple mobile chat state
+  const [hasStartedChat, setHasStartedChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -492,134 +492,40 @@ export default function Maya() {
   return (
     <>
       <MemberNavigation />
-      <div className="fixed inset-0 z-50 bg-white animate-fadeIn overflow-y-auto pt-20">
-      
-      {/* Luxury Welcome Screen - First Visit Experience */}
-      {showWelcomeScreen && isFirstVisit && (
-        <div className="welcome-overlay fixed inset-0 z-60 bg-white flex items-center justify-center">
-          <div className="welcome-content max-w-4xl mx-auto px-8 text-center">
-            {/* Editorial Eyebrow */}
-            <div className="luxury-eyebrow text-gray-600 text-xs tracking-[0.5em] uppercase mb-8">
-              Welcome to your Personal Brand Studio
+      <div className="min-h-screen bg-gray-50 pt-20">
+        {/* Simple Mobile Header */}
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between max-w-4xl mx-auto">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-lg font-medium">M</span>
+              </div>
+              <div>
+                <h1 className="font-semibold text-gray-900">Maya</h1>
+                <p className="text-sm text-gray-500">Personal Brand Stylist</p>
+              </div>
             </div>
-            
-            {/* Main Welcome Title */}
-            <h1 className="editorial-title font-serif font-extralight text-black text-[clamp(4rem,12vw,8rem)] uppercase tracking-[0.4em] leading-[0.85] mb-6">
-              MAYA
-            </h1>
-            
-            {/* Subtitle */}
-            <div className="section-title font-serif font-extralight text-black text-[clamp(1.5rem,4vw,3rem)] uppercase tracking-[0.3em] leading-[0.9] mb-12">
-              Personal Brand Strategist
-            </div>
-            
-            {/* Welcome Description */}
-            <div className="body-elegant text-gray-600 text-lg leading-relaxed max-w-2xl mx-auto mb-16">
-              I help entrepreneurs and professionals create powerful photo concepts that tell their unique story and drive real business results. Whether you need LinkedIn credibility, Instagram authenticity, or website conversions - I'll style you perfectly.
-            </div>
-            
-            {/* Luxury Action Buttons */}
-            <div className="luxury-buttons flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <div className="flex items-center space-x-3">
               <button
-                onClick={startOnboarding}
-                className="luxury-button-primary bg-black text-white px-12 py-4 text-sm tracking-[0.2em] uppercase font-light hover:bg-gray-900 transition-all duration-300 border border-black"
+                onClick={handleNewSession}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+                title="New chat"
               >
-                Get Styled by Maya
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
               </button>
-              
               <button
-                onClick={skipToConversation}
-                className="luxury-button-secondary bg-white text-black px-12 py-4 text-sm tracking-[0.2em] uppercase font-light hover:bg-gray-50 transition-all duration-300 border border-gray-300"
+                onClick={() => setLocation('/workspace')}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
               >
-                Quick Start
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
-            
-            {/* Welcome Features */}
-            <div className="welcome-features grid grid-cols-1 md:grid-cols-3 gap-8 mt-20 max-w-3xl mx-auto">
-              <div className="feature text-center">
-                <div className="feature-number text-4xl font-serif text-gray-300 mb-4">01</div>
-                <div className="spaced-title text-sm tracking-[0.3em] uppercase mb-3">Platform Strategy</div>
-                <div className="body-elegant text-xs text-gray-600">LinkedIn authority, Instagram authenticity, website conversions</div>
-              </div>
-              
-              <div className="feature text-center">
-                <div className="feature-number text-4xl font-serif text-gray-300 mb-4">02</div>
-                <div className="spaced-title text-sm tracking-[0.3em] uppercase mb-3">High-End Fashion</div>
-                <div className="body-elegant text-xs text-gray-600">Current trends, luxury styling, diverse aesthetics beyond basics</div>
-              </div>
-              
-              <div className="feature text-center">
-                <div className="feature-number text-4xl font-serif text-gray-300 mb-4">03</div>
-                <div className="spaced-title text-sm tracking-[0.3em] uppercase mb-3">Personal Branding</div>
-                <div className="body-elegant text-xs text-gray-600">Strategic coaching that positions you as the obvious choice</div>
-              </div>
-            </div>
           </div>
         </div>
-      )}
-      
-      {/* Editorial Hero Header - Magazine Style */}
-      <div className="hero relative h-[40vh] bg-black text-white overflow-hidden">
-        {/* Background Pattern */}
-        <div className="hero-bg absolute inset-0 opacity-20">
-          <div className="w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-800"></div>
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M30 30c0-16.569 13.431-30 30-30v60c-16.569 0-30-13.431-30-30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}></div>
-        </div>
-
-        {/* Top Navigation Bar */}
-        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-8">
-          {/* Mobile Hamburger Menu */}
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="md:hidden text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-white/80 hover:text-white transition-colors px-3 py-2"
-          >
-            Menu
-          </button>
-
-          {/* Navigation Actions */}
-          <div className="flex items-center space-x-6 sm:space-x-8">
-            <button
-              onClick={handleNewSession}
-              className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-white/80 hover:text-white transition-colors px-3 py-2"
-              title="Start a fresh conversation"
-            >
-              New Session
-            </button>
-            <button
-              onClick={() => setLocation('/workspace')}
-              className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-white/80 hover:text-white transition-colors px-3 py-2"
-            >
-              Back
-            </button>
-          </div>
-        </div>
-
-        {/* Hero Content - Compact */}
-        <div className="hero-content relative z-10 flex flex-col justify-center items-center text-center h-full px-4 sm:px-8 py-6 sm:py-12">
-          {/* Editorial Eyebrow */}
-          <div className="hero-tagline eyebrow text-white/70 mb-2 sm:mb-4 text-xs sm:text-sm">
-            Your Personal Photo Stylist
-          </div>
-
-          {/* Main Title - Editorial Size */}
-          <h1 className="hero-title-main font-serif text-[clamp(3rem,8vw,7rem)] font-extralight uppercase tracking-[0.3em] sm:tracking-[0.5em] leading-[0.8] mb-2 sm:mb-3">
-            MAYA
-          </h1>
-
-          {/* Subtitle */}
-          <div className="hero-title-sub font-serif text-[clamp(0.9rem,3vw,2rem)] font-extralight uppercase tracking-[0.2em] sm:tracking-[0.3em] opacity-80 mb-3 sm:mb-6">
-            Personal Brand Architect
-          </div>
-
-          {/* Description */}
-          <p className="hero-description max-w-xl text-xs sm:text-sm font-light leading-relaxed opacity-90 tracking-[0.05em] px-4">
-            I help you create photo concepts that tell your unique story and grow your brand.
-          </p>
-        </div>
-      </div>
 
       {/* Main Content Area */}
       <div className="flex">
