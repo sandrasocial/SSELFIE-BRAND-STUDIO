@@ -1,0 +1,216 @@
+Replit Agent Prompt (exact text to send)
+
+Goal: Replace all legacy auth with Neon Auth (Stack) in a Vite + React app, using the official React SDK @stackframe/react. ENV variables already exist in Replit Secrets:
+
+VITE_STACK_PROJECT_ID
+
+VITE_STACK_PUBLISHABLE_CLIENT_KEY
+
+STACK_SECRET_SERVER_KEY (server-only)
+
+DATABASE_URL (server-only)
+
+Constraints & Principles
+
+Do not log or echo secret values.
+
+Keep changes minimal; remove old auth.
+
+Make the integration testable at /handler/sign-in and /handler/sign-up.
+
+Ensure user sessions render via <UserButton /> in the app header.
+
+Commit in small atomic steps with clear messages.
+
+1) Prep & Dependency Changes
+
+Create a new branch:
+git checkout -b chore/switch-to-neon-auth
+
+Remove legacy auth deps if present (ignore if absent):
+npm rm next-auth @clerk/* @supabase/supabase-js passport auth0 firebase lucia || true
+
+Install the official SDK:
+npm i @stackframe/react
+
+2) Repo Scan (to target files)
+
+Run these scans and use results to guide edits:
+
+# Auth libs / flows
+git ls-files | xargs grep -nEI 'next-auth|@clerk|supabase|auth0|firebase|passport|lucia|replitAuth|oauth|session|jwt|csrf' \
+ --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.next || true
+
+# Routing / entry points
+git ls-files | xargs grep -nEI 'BrowserRouter|createBrowserRouter|Routes|Route|wouter|useLocation|App\\.(tsx|jsx)|main\\.(tsx|jsx)|index\\.(tsx|jsx)|router\\.(ts|tsx|jsx)|layout' \
+ --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.next || true
+
+# Login UI components
+git ls-files | xargs grep -nEI 'Login|Sign[- ]?In|Sign[- ]?Up|User(Button|Menu)|AuthProvider|ProtectedRoute' \
+ --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.next || true
+
+# Server/edge handlers using old OAuth/session
+git ls-files | xargs grep -nEI 'api/login|api/callback|callback|authorize|token|session|replitAuth|STACK_SECRET_SERVER_KEY|DATABASE_URL' \
+ --exclude-dir=node_modules --exclude-dir=dist --exclude-dir=.next || true
+
+3) Create the Neon Auth client
+
+Create src/stack.ts (create parent folders if missing):
+
+// src/stack.ts
+import { StackClientApp } from '@stackframe/react';
+
+export const stackClientApp = new StackClientApp({
+  projectId: import.meta.env.VITE_STACK_PROJECT_ID!,
+  publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY!,
+  tokenStore: 'cookie',
+});
+
+
+Commit:
+git add src/stack.ts && git commit -m "feat(auth): add Neon Auth StackClientApp"
+
+4) Wire the app provider + handler route
+
+Detect router library:
+
+If using react-router-dom: patch the main app shell (usually src/App.tsx). Ensure it wraps with StackProvider + StackTheme and adds /handler/* with a StackHandler. Example:
+
+// src/App.tsx
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { StackHandler, StackProvider, StackTheme } from '@stackframe/react';
+import { stackClientApp } from './stack';
+import Home from './pages/Home'; // adjust existing home
+
+function HandlerRoutes() {
+  const location = useLocation();
+  return <StackHandler app={stackClientApp} location={location.pathname} fullPage />;
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <StackProvider app={stackClientApp}>
+        <StackTheme>
+          <Routes>
+            <Route path="/handler/*" element={<HandlerRoutes />} />
+            <Route path="/" element={<Home />} />
+          </Routes>
+        </StackTheme>
+      </StackProvider>
+    </BrowserRouter>
+  );
+}
+
+
+If using wouter: patch src/App.tsx similarly with Switch/Route and a useLocation() tuple:
+
+import { Route, Switch, useLocation } from 'wouter';
+import { StackHandler, StackProvider, StackTheme } from '@stackframe/react';
+import { stackClientApp } from './stack';
+import Home from './pages/Home';
+
+function HandlerRoutes() {
+  const [loc] = useLocation();
+  return <StackHandler app={stackClientApp} location={loc} fullPage />;
+}
+
+export default function App() {
+  return (
+    <StackProvider app={stackClientApp}>
+      <StackTheme>
+        <Switch>
+          <Route path="/handler/:rest*"><HandlerRoutes /></Route>
+          <Route path="/"><Home /></Route>
+        </Switch>
+      </StackTheme>
+    </StackProvider>
+  );
+}
+
+
+Do not change unrelated page components. Commit:
+git add src/App.tsx && git commit -m "feat(auth): wrap app with StackProvider and add /handler/*"
+
+5) Hook up drop-in UI
+
+Find the main header component (search for “Header”, “Navbar”, or where profile/avatar is rendered). Replace any custom user menu with the official button:
+
+import { UserButton } from '@stackframe/react';
+import { stackClientApp } from '../stack'; // adjust import path
+
+<UserButton app={stackClientApp} />
+
+
+Also ensure there’s an auth page or test route using:
+
+import { SignIn, SignUp } from '@stackframe/react';
+import { stackClientApp } from '../stack';
+
+<SignIn app={stackClientApp} />
+<SignUp app={stackClientApp} />
+
+
+If there are pages named SignIn/SignUp already, replace their content with the components above. Commit:
+git add -A && git commit -m "feat(auth): use Neon Auth SignIn/SignUp and UserButton"
+
+6) Remove legacy auth code
+
+Delete or neutralize files that implement other auth flows (based on the scan results), e.g.:
+
+server/replitAuth.ts or any api/login*, api/callback*, OAuth handlers
+
+Any custom AuthProvider, ProtectedRoute wrappers that depend on old sessions
+
+Any imports from next-auth, @clerk/*, @supabase/supabase-js, passport, auth0, firebase, lucia
+
+Then commit:
+
+git rm -f path/to/legacy/files || true
+git add -A
+git commit -m "chore(auth): remove legacy auth handlers and providers"
+
+7) ENV & security
+
+Do not print secret values. They already exist in Replit Secrets.
+
+The client uses only VITE_STACK_PROJECT_ID and VITE_STACK_PUBLISHABLE_CLIENT_KEY.
+
+STACK_SECRET_SERVER_KEY and DATABASE_URL must remain server-only. Do not import them in client code.
+
+8) Verification steps (must pass)
+
+Start dev server: npm run dev
+
+Visit /handler/sign-up, create a test user, then confirm session UI shows via <UserButton /> in the header.
+
+Verify Neon sync by running this SQL in the Neon console:
+
+SELECT id, email, created_at
+FROM neon_auth.users_sync
+ORDER BY created_at DESC
+LIMIT 5;
+
+
+You should see the test user listed.
+
+9) Cleanup & PR
+
+Ensure lints build: npm run build (or project’s build script)
+
+Push branch and open PR:
+git push --set-upstream origin chore/switch-to-neon-auth
+
+Acceptance Criteria
+
+/handler/sign-in and /handler/sign-up render Neon Auth screens.
+
+Header shows <UserButton /> and reflects logged-in state.
+
+No references to legacy auth libs remain (code or dependencies).
+
+Test user appears in neon_auth.users_sync.
+
+App compiles cleanly.
+
+If any file paths differ, adapt imports accordingly and keep the change minimal. Do not refactor unrelated code.
