@@ -410,6 +410,38 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     console.log('- Conversation history length:', fullConversationHistory?.length || 0);
     console.log('- Request context:', requestContext);
     
+    // BRAND STRATEGY INTEGRATION - Check for coaching insights to inform concept generation
+    let brandStrategyContext = '';
+    if (user.brandStrategyContext) {
+      try {
+        const strategyData = JSON.parse(user.brandStrategyContext);
+        console.log('🎯 BRAND STRATEGY: Integrating coaching insights into concept generation');
+        
+        if (strategyData.completed && strategyData.responses) {
+          const responses = strategyData.responses;
+          
+          // Build strategic context for Maya
+          brandStrategyContext = `
+BRAND STRATEGY CONTEXT FROM TRAINING COACHING:
+- Business Challenge: ${responses.businessChallenge || 'Not specified'}
+- Client Acquisition: ${responses.clientAcquisition || 'Not specified'}  
+- Differentiation: ${responses.differentiation || 'Not specified'}
+- Primary Platform: ${responses.primaryPlatform || 'Multiple platforms'}
+- Audience Perception Goal: ${responses.audienceResponse || 'Professional trustworthiness'}
+- Content Purpose: ${responses.contentPurpose || 'Professional advancement'}
+- Professional Identity: ${responses.professionalIdentity || 'Industry expert'}
+- Client Transformation: ${responses.clientTransformation || 'Not specified'}
+- Authority Level: ${responses.authorityLevel || 'Rising leader'}
+
+Use this strategic context to create photo concepts that directly support their business goals and platform strategy.`;
+          
+          console.log('✅ BRAND STRATEGY: Context integrated for strategic photo concepts');
+        }
+      } catch (error) {
+        console.log('⚠️ BRAND STRATEGY: Failed to parse context, proceeding without strategy integration');
+      }
+    }
+    
     // EMOJI SYSTEM VERIFICATION
     console.log('🎨 EMOJI SYSTEM CHECK:');
     console.log('- Maya personality includes emoji system:', mayaPersonality.includes('EMOJI') || mayaPersonality.includes('emoji'));
@@ -434,7 +466,7 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
           ...fullConversationHistory,
           {
             role: 'user',
-            content: requestContext
+            content: `${requestContext}${brandStrategyContext ? '\n\n' + brandStrategyContext : ''}`
           }
         ]
       })
