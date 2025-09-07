@@ -39,10 +39,18 @@ export function useAuth() {
     role: 'user' // Default, will be overridden by database
   } : undefined);
   
+  // Check if user has active subscription (for payment gating)
+  const hasActiveSubscription = dbUser ? (
+    dbUser.monthlyGenerationLimit === -1 || // Admin users
+    dbUser.plan === 'sselfie-studio' // Only checking for main plan
+  ) : false;
+
   return {
     user,
     isLoading,
     isAuthenticated,
+    hasActiveSubscription,
+    requiresPayment: isAuthenticated && !hasActiveSubscription,
     error: null,
     stackUser, // Provide access to raw Stack Auth user
   };
