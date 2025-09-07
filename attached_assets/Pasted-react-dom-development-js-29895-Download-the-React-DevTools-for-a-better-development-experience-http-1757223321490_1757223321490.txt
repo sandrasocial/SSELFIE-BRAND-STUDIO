@@ -1,0 +1,108 @@
+react-dom.development.js:29895 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+main.tsx:7 SSELFIE Studio: Main.tsx loading...
+main.tsx:8 SSELFIE Studio: Root element found: true
+main.tsx:12 Disabling HMR to prevent connection issues
+main.tsx:41 SSELFIE Studio: Starting up with JWT authentication...
+App.tsx:518 🔍 Stack Auth Config: Object
+App.tsx:518 🔍 Stack Auth Config: Object
+stack-provider.tsx:34 Uncaught TypeError: Cannot read properties of undefined (reading 'Symbol(StackAuth--DO-NOT-USE-OR-YOU-WILL-BE-FIRED--StackAppInternals)')
+    at NextStackProvider (stack-provider.tsx:34:31)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (react-dom.development.js:20103:13)
+    at beginWork (react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback2 (react-dom.development.js:4164:14)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:16)
+    at invokeGuardedCallback (react-dom.development.js:4277:31)
+    at beginWork$1 (react-dom.development.js:27490:7)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopSync (react-dom.development.js:26505:5)
+App.tsx:569 ⚠️ Stack Auth failed, falling back to basic app
+render @ App.tsx:569
+App.tsx:569 ⚠️ Stack Auth failed, falling back to basic app
+render @ App.tsx:569
+App.tsx:619 SSELFIE Studio: App rendering...
+App.tsx:619 SSELFIE Studio: App rendering...
+use-auth.ts:32 🔍 Auth: Has Stack Auth session: false
+use-auth.ts:33 🔍 Auth: User data: undefined
+use-auth.ts:34 🔍 Auth: Loading: false
+use-auth.ts:35 🔍 Auth: Error: null
+use-auth.ts:32 🔍 Auth: Has Stack Auth session: false
+use-auth.ts:33 🔍 Auth: User data: undefined
+use-auth.ts:34 🔍 Auth: Loading: false
+use-auth.ts:35 🔍 Auth: Error: null
+App.tsx:518 🔍 Stack Auth Config: Object
+App.tsx:518 🔍 Stack Auth Config: Object
+stack-provider.tsx:34 Uncaught TypeError: Cannot read properties of undefined (reading 'Symbol(StackAuth--DO-NOT-USE-OR-YOU-WILL-BE-FIRED--StackAppInternals)')
+    at NextStackProvider (stack-provider.tsx:34:31)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (react-dom.development.js:20103:13)
+    at beginWork (react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback2 (react-dom.development.js:4164:14)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:16)
+    at invokeGuardedCallback (react-dom.development.js:4277:31)
+    at beginWork$1 (react-dom.development.js:27490:7)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopSync (react-dom.development.js:26505:5)
+App.tsx:569 ⚠️ Stack Auth failed, falling back to basic app
+render @ App.tsx:569
+App.tsx:569 ⚠️ Stack Auth failed, falling back to basic app
+render @ App.tsx:569
+App.tsx:619 SSELFIE Studio: App rendering...
+App.tsx:619 SSELFIE Studio: App rendering...
+use-auth.ts:32 🔍 Auth: Has Stack Auth session: false
+use-auth.ts:33 🔍 Auth: User data: undefined
+use-auth.ts:34 🔍 Auth: Loading: false
+use-auth.ts:35 🔍 Auth: Error: null
+use-auth.ts:32 🔍 Auth: Has Stack Auth session: false
+use-auth.ts:33 🔍 Auth: User data: undefined
+use-auth.ts:34 🔍 Auth: Loading: false
+use-auth.ts:35 🔍 Auth: Error: null
+react-dom.development.js:18704 The above error occurred in the <NextStackProvider> component:
+
+    at NextStackProvider (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@stackframe_stack.js?v=23b10b3e:110297:3)
+    at ErrorBoundary (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/src/App.tsx?v=z-gnXIoISxLhW_bTik6rY:1176:5)
+    at QueryClientProvider (https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=23b10b3e:2874:3)
+    at AppWithProvider
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ react-dom.development.js:18704
+App.tsx:564 ❌ Stack Auth Error: TypeError: Cannot read properties of undefined (reading 'Symbol(StackAuth--DO-NOT-USE-OR-YOU-WILL-BE-FIRED--StackAppInternals)')
+    at NextStackProvider (stack-provider.tsx:34:31)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (react-dom.development.js:20103:13)
+    at beginWork (react-dom.development.js:21626:16)
+    at beginWork$1 (react-dom.development.js:27465:14)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopSync (react-dom.development.js:26505:5)
+    at renderRootSync (react-dom.development.js:26473:7)
+    at recoverFromConcurrentError (react-dom.development.js:25889:20)
+    at performConcurrentWorkOnRoot (react-dom.development.js:25789:22)
+componentDidCatch @ App.tsx:564
+App.tsx:584 SSELFIE Studio: App initializing...
+App.tsx:608 SSELFIE Studio: Domain access validated, app ready
+App.tsx:584 SSELFIE Studio: App initializing...
+App.tsx:608 SSELFIE Studio: Domain access validated, app ready
+business-landing.tsx:13 ⚠️ Stack Auth not available on business landing: Error: useStackApp must be used within a StackProvider
+    at useStackApp (hooks.tsx:42:11)
+    at BusinessLanding (business-landing.tsx:11:11)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at updateFunctionComponent (react-dom.development.js:19617:20)
+    at mountLazyComponent (react-dom.development.js:19988:17)
+    at beginWork (react-dom.development.js:21632:16)
+    at beginWork$1 (react-dom.development.js:27465:14)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopConcurrent (react-dom.development.js:26582:5)
+    at renderRootConcurrent (react-dom.development.js:26544:7)
+BusinessLanding @ business-landing.tsx:13
+business-landing.tsx:13 ⚠️ Stack Auth not available on business landing: Error: useStackApp must be used within a StackProvider
+    at useStackApp (hooks.tsx:42:11)
+    at BusinessLanding (business-landing.tsx:11:11)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at updateFunctionComponent (react-dom.development.js:19624:24)
+    at mountLazyComponent (react-dom.development.js:19988:17)
+    at beginWork (react-dom.development.js:21632:16)
+    at beginWork$1 (react-dom.development.js:27465:14)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopConcurrent (react-dom.development.js:26582:5)
+    at renderRootConcurrent (react-dom.development.js:26544:7)
+BusinessLanding @ business-landing.tsx:13
