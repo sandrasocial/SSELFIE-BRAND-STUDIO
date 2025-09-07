@@ -346,6 +346,21 @@ export class DatabaseStorage implements IStorage {
     return updatedUser;
   }
 
+  // Stack Auth user synchronization
+  async syncStackAuthUser(stackUser: { id: string; primaryEmail?: string; displayName?: string; profileImageUrl?: string }): Promise<User> {
+    const userData: InsertUser = {
+      id: stackUser.id,
+      email: stackUser.primaryEmail || '',
+      displayName: stackUser.displayName,
+      profileImageUrl: stackUser.profileImageUrl,
+      firstName: stackUser.displayName?.split(' ')[0],
+      lastName: stackUser.displayName?.split(' ').slice(1).join(' '),
+    };
+    
+    console.log('🔄 Syncing Stack Auth user:', userData.id, userData.email);
+    return this.upsertUser(userData);
+  }
+
   // 🔄 PHASE 3: Update user retraining access after payment
   async updateUserRetrainingAccess(userId: string, retrainingData: { hasRetrainingAccess: boolean; retrainingSessionId: string; retrainingPaidAt: Date }): Promise<User> {
     const [updatedUser] = await db

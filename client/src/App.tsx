@@ -4,7 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { StackProvider, StackApp } from "@stackframe/stack";
+import { StackProvider } from "@stackframe/stack";
 import { useAuth } from "./hooks/use-auth";
 // Using JWKS backend verification with custom frontend OAuth flow
 import { useQuery } from "@tanstack/react-query";
@@ -513,16 +513,16 @@ function Router() {
 }
 
 // Stack Auth configuration following Neon template pattern
-const stackApp = new StackApp({
+const stackConfig = {
   projectId: "253d7343-a0d4-43a1-be5c-822f590d40be",
   publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || "",
-});
+};
 
 function AppWithProvider() {
-  const stackKey = stackApp.publishableClientKey;
+  const stackKey = stackConfig.publishableClientKey;
   
   console.log('🔍 Stack Auth Config:', {
-    projectId: stackApp.projectId,
+    projectId: stackConfig.projectId,
     hasKey: !!stackKey,
     keyPrefix: stackKey ? stackKey.substring(0, 10) + '...' : 'MISSING'
   });
@@ -530,7 +530,10 @@ function AppWithProvider() {
   // Simplified setup following Neon template - no error boundaries needed
   return (
     <QueryClientProvider client={queryClient}>
-      <StackProvider app={stackApp}>
+      <StackProvider
+        projectId={stackConfig.projectId}
+        publishableClientKey={stackKey}
+      >
         <TooltipProvider>
           <App />
           <Toaster />
