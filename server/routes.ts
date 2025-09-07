@@ -412,24 +412,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User data endpoint - protected route that returns current user
   app.get('/api/auth/user', requireStackAuth, async (req: any, res) => {
     try {
-      const stackUser = req.user; // User from Stack Auth JWT
+      const user = req.user; // User from Stack Auth middleware (already processed)
       
-      // Check if user exists in our database, create if not
-      let user = await storage.getUser(stackUser.id);
-      
-      if (!user) {
-        console.log('🔄 Creating new user from Stack Auth data:', stackUser);
-        
-        // Create new user with Stack Auth data
-        user = await storage.createUser({
-          id: stackUser.id,
-          email: stackUser.primaryEmail || '',
-          firstName: extractFirstName(stackUser.displayName),
-          lastName: extractLastName(stackUser.displayName),
-          plan: 'sselfie-studio', // Default plan for new users
-          role: stackUser.primaryEmail === 'ssa@ssasocial.com' ? 'admin' : 'user'
-        });
-      }
+      console.log('📡 /api/auth/user: Returning authenticated user:', user.id, user.email);
       
       res.json({
         id: user.id,
@@ -437,11 +422,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: user.firstName,
         lastName: user.lastName,
         plan: user.plan,
-        role: user.role
+        role: user.role,
+        monthlyGenerationLimit: user.monthlyGenerationLimit,
+        mayaAiAccess: user.mayaAiAccess
       });
     } catch (error) {
-      console.error('❌ Stack Auth user sync error:', error);
-      res.status(500).json({ message: 'Failed to get user' });
+      console.error('❌ /api/auth/user error:', error);
+      res.status(500).json({ message: 'Failed to get user data' });
     }
   });
 
