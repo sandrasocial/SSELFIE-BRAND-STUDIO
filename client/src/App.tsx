@@ -196,9 +196,9 @@ function Router() {
         }
         
         if (isAuthenticated) {
-          // If authenticated but no active subscription, redirect to checkout
+          // If authenticated but no SSELFIE Studio subscription, redirect to checkout
           if (requiresPayment) {
-            console.log('🔄 Auth: Redirecting to checkout - no active subscription');
+            console.log('🔄 Auth: Redirecting to checkout - SSELFIE Studio subscription required (€47/month)');
             return <Redirect to="/checkout" />;
           }
           return <SmartHome />;
