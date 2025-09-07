@@ -347,118 +347,111 @@ export default function BusinessLanding() {
         </div>
       </section>
 
-      {/* Minimal Image Grid - How It Works */}
-      <section className="py-32 lg:py-48 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-32">
-            <div className="mb-16 text-[10px] font-light text-gray-400 tracking-[0.4em] uppercase">
+      {/* Editorial Process Section - Kinfolk Inspired */}
+      <section className="editorial-section bg-white">
+        <div className="editorial-container">
+          {/* Section Header */}
+          <div className="text-center mb-20">
+            <p className="card-eyebrow">
               The Solution
-            </div>
+            </p>
 
-            <h2 
-              className="text-black leading-[0.9]"
-              style={{
-                fontFamily: 'Times New Roman, serif',
-                fontSize: 'clamp(3rem, 8vw, 6rem)',
-                fontWeight: 200,
-                letterSpacing: '0.1em'
-              }}
-            >
+            <h2 className="section-title">
               Here's exactly how it works
             </h2>
           </div>
 
-          {/* Clean 3-Column Grid */}
-          <div className="grid md:grid-cols-3 gap-16 lg:gap-24">
-            {/* Step 1 */}
-            <div className="group">
-              <div className="relative overflow-hidden mb-12 aspect-[3/4] bg-white">
+          {/* Editorial Process Cards */}
+          <div className="process-editorial-cards">
+            {/* Step 1 - Upload */}
+            <div className="editorial-process-card">
+              <div className="process-card-image">
                 <img
-                  src="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/proxy-image?url=https%3A%2F%2Fsselfie-training-zips.s3.eu-north-1.amazonaws.com%2Fgenerated-images%2F42585527%2Fmaya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
-                  alt="Upload process"
-                  className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105"
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
+                  alt="Upload 15 selfies from your phone"
                 />
-                <div className="absolute top-8 left-8 bg-black/60 text-white px-4 py-2 text-[10px] font-light tracking-[0.2em] uppercase">
+                <div className="process-card-number">
                   01
                 </div>
               </div>
-
-              <div className="text-center">
-                <h3 className="mb-6 text-black"
-                    style={{
-                      fontFamily: 'Times New Roman, serif',
-                      fontSize: '20px',
-                      fontWeight: 200,
-                      letterSpacing: '0.2em',
-                      textTransform: 'uppercase'
-                    }}>
+              
+              <div className="process-card-content">
+                <h3 className="process-card-headline">
                   Upload 15 Selfies
                 </h3>
-                <p className="text-gray-600 font-light text-[16px] leading-[1.6]">
-                  Any lighting, any background.
+                <p className="process-card-description">
+                  From your phone. Any lighting, any background. Just be yourself.
                 </p>
               </div>
             </div>
 
-            {/* Step 2 */}
-            <div className="group">
-              <div className="relative overflow-hidden mb-12 aspect-[3/4] bg-white">
+            {/* Step 2 - Training */}
+            <div className="editorial-process-card">
+              <div className="process-card-image">
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_8r00hax7n1rm80cryjbs9enxam_0_1756450255292.png"
-                  alt="AI creation"
-                  className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105"
+                  alt="AI learns your best angles and features"
                 />
-                <div className="absolute top-8 left-8 bg-black/60 text-white px-4 py-2 text-[10px] font-light tracking-[0.2em] uppercase">
+                <div className="process-card-number">
                   02
                 </div>
               </div>
-
-              <div className="text-center">
-                <h3 className="mb-6 text-black"
-                    style={{
-                      fontFamily: 'Times New Roman, serif',
-                      fontSize: '20px',
-                      fontWeight: 200,
-                      letterSpacing: '0.2em',
-                      textTransform: 'uppercase'
-                    }}>
+              
+              <div className="process-card-content">
+                <h3 className="process-card-headline">
                   AI Learns Your Angles
                 </h3>
-                <p className="text-gray-600 font-light text-[16px] leading-[1.6]">
-                  Maya studies what works.
+                <p className="process-card-description">
+                  Maya studies what works best for you. Your personal photographer learns your style.
                 </p>
               </div>
             </div>
 
-            {/* Step 3 */}
-            <div className="group">
-              <div className="relative overflow-hidden mb-12 aspect-[3/4] bg-white">
+            {/* Step 3 - Results */}
+            <div className="editorial-process-card">
+              <div className="process-card-image">
                 <img
                   src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/maya_5s2emwbk3srma0crywrbh9kg4c_0_1756493820306.png"
-                  alt="Professional results"
-                  className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105"
+                  alt="Get 100+ professional photos monthly"
                 />
-                <div className="absolute top-8 left-8 bg-black/60 text-white px-4 py-2 text-[10px] font-light tracking-[0.2em] uppercase">
+                <div className="process-card-number">
                   03
                 </div>
               </div>
-
-              <div className="text-center">
-                <h3 className="mb-6 text-black"
-                    style={{
-                      fontFamily: 'Times New Roman, serif',
-                      fontSize: '20px',
-                      fontWeight: 200,
-                      letterSpacing: '0.2em',
-                      textTransform: 'uppercase'
-                    }}>
+              
+              <div className="process-card-content">
+                <h3 className="process-card-headline">
                   Get 100+ Photos Monthly
                 </h3>
-                <p className="text-gray-600 font-light text-[16px] leading-[1.6]">
-                  Fresh content every month.
+                <p className="process-card-description">
+                  Professional brand photos delivered monthly. No photographer required.
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Editorial Conclusion */}
+          <div className="text-center" style={{ marginTop: 'var(--space-5xl)' }}>
+            <p 
+              className="mb-12"
+              style={{
+                fontSize: 'var(--text-lg)',
+                fontWeight: 300,
+                color: 'var(--body-gray)',
+                lineHeight: 1.7,
+                maxWidth: '50ch',
+                margin: '0 auto var(--space-2xl) auto'
+              }}
+            >
+              That's it. Professional photos without the photographer.
+            </p>
+
+            <button 
+              onClick={handleGetStarted}
+              className="sample-button"
+            >
+              Start Creating €47/month
+            </button>
           </div>
         </div>
       </section>
