@@ -10,7 +10,7 @@ import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
 import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery';
 import { useLocation } from 'wouter';
 
-// Maya simplified workspace page
+// Maya luxury workspace - aligned with SSELFIE brand guidelines
 
 interface ChatMessage {
   id: string;
@@ -65,14 +65,14 @@ export default function Maya() {
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [currentOnboardingData, setCurrentOnboardingData] = useState<OnboardingData | null>(null);
-  // Simple mobile chat state
   const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  
-  // PHASE 2.1: Enhanced persistence system
+
+  // Enhanced persistence system
   const {
     messages,
     setMessages,
@@ -84,15 +84,29 @@ export default function Maya() {
     isLoading: isPersistenceLoading,
     sessionId
   } = useMayaPersistence(user?.id);
-  
+
   // Initialize Maya generation hook with persistent messages
   const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
-  
+
+  // Connection status monitoring
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   // Smart auto-scroll system
   const checkIfNearBottom = () => {
     if (!chatContainerRef.current) return false;
     const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-    const threshold = 100; // pixels from bottom
+    const threshold = 100;
     return scrollHeight - scrollTop - clientHeight < threshold;
   };
 
@@ -104,7 +118,7 @@ export default function Maya() {
 
   const smartScrollToBottom = (delay = 0, force = false) => {
     if (!force && !shouldAutoScroll) return;
-    
+
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ 
         behavior: 'smooth',
@@ -115,7 +129,7 @@ export default function Maya() {
 
   const scrollToNewContent = (elementId?: string) => {
     if (!shouldAutoScroll) return;
-    
+
     if (elementId) {
       const element = document.getElementById(elementId);
       if (element) {
@@ -129,16 +143,15 @@ export default function Maya() {
     smartScrollToBottom(300);
   };
 
-  // Close sidebar when clicking outside on mobile
   const closeSidebar = () => setIsSidebarOpen(false);
-  
+
   // Image modal functionality
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  
+
   // Auto-save and gallery functionality
   const handleAutoSaveToGallery = async (imageUrl: string, conceptTitle: string) => {
     try {
-      console.log('🎯 Auto-saving to gallery:', conceptTitle);
+      console.log('Auto-saving to gallery:', conceptTitle);
       const response = await fetch('/api/ai-images', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -149,20 +162,20 @@ export default function Maya() {
           isAutoSaved: true
         })
       });
-      
+
       if (response.ok) {
-        console.log('✅ Auto-saved to gallery successfully');
+        console.log('Auto-saved to gallery successfully');
       }
     } catch (error) {
-      console.error('❌ Auto-save failed:', error);
+      console.error('Auto-save failed:', error);
     }
   };
-  
+
   const handleSaveToGallery = async (imageUrl: string, conceptTitle: string) => {
     try {
-      console.log('💾 Manual save to gallery:', conceptTitle);
+      console.log('Manual save to gallery:', conceptTitle);
       toast({ title: "Saving to Gallery", description: "Adding image to your personal collection..." });
-      
+
       const response = await fetch('/api/ai-images', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -173,16 +186,16 @@ export default function Maya() {
           isFavorite: true
         })
       });
-      
+
       if (response.ok) {
         toast({ title: "Saved!", description: "Image added to your gallery" });
       }
     } catch (error) {
-      console.error('❌ Save failed:', error);
+      console.error('Save failed:', error);
       toast({ title: "Save Failed", description: "Please try again" });
     }
   };
-  
+
   // Auto-categorize based on concept title
   const detectCategory = (title: string): string => {
     const text = title.toLowerCase();
@@ -192,17 +205,17 @@ export default function Maya() {
     return 'Lifestyle';
   };
 
-  // PHASE 2.1: Enhanced loading with database sync (Phase 2.2 pending)
+  // Enhanced loading with database sync
   const { data: conversationData } = useQuery({
     queryKey: ['/api/maya/conversation'],
     enabled: !!user?.id && !isPersistenceLoading
   });
 
-  // PHASE 2.1: Sync database conversation with localStorage (Phase 2.2 will enhance this)
+  // Sync database conversation with localStorage
   useEffect(() => {
     if (conversationData && (conversationData as any).messages && messages.length === 0) {
-      console.log('🔄 PHASE 2.1: Syncing database conversation with persistent storage');
-      setMessages(() => (conversationData as any).messages.slice(-20)); // Keep last 20
+      console.log('Syncing database conversation with persistent storage');
+      setMessages(() => (conversationData as any).messages.slice(-20));
       setHasStartedChat(true);
     }
   }, [conversationData, messages.length, setMessages]);
@@ -223,16 +236,14 @@ export default function Maya() {
     return () => chatContainer.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Auto-scroll when new messages arrive (only if user is near bottom)
+  // Auto-scroll when new messages arrive
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      
-      // Always scroll for user messages (they just sent it)
+
       if (lastMessage.type === 'user') {
         smartScrollToBottom(100, true);
       }
-      // Smart scroll for Maya messages (only if near bottom)  
       else if (lastMessage.type === 'maya' && !isTyping) {
         smartScrollToBottom(500);
       }
@@ -272,14 +283,13 @@ export default function Maya() {
   // Generate image from concept card using Maya's generation system
   const handleGenerateImage = async (card: ConceptCard) => {
     if (generateFromSpecificConcept) {
-      // Use Maya's intelligent generation system
       await generateFromSpecificConcept(card.title, card.id);
     } else {
       console.error('Maya generation system not available');
     }
   };
 
-  // PHASE 3: New Session Management
+  // New Session Management
   const handleNewSession = () => {
     const stats = getConversationStats();
     if (stats.totalMessages > 0) {
@@ -309,12 +319,11 @@ export default function Maya() {
       return response.json();
     },
     onSuccess: (data) => {
-      // PHASE 7: Handle onboarding responses
+      // Handle onboarding responses
       if (data.type === 'onboarding' || data.type === 'onboarding_complete') {
         setIsOnboarding(data.type === 'onboarding');
         setCurrentOnboardingData(data);
-        
-        // Add onboarding message to chat
+
         addMessage({
           type: 'onboarding',
           content: data.question || data.message || '',
@@ -322,7 +331,6 @@ export default function Maya() {
           onboardingData: data
         });
       } else {
-        // PHASE 2.1: Add Maya's response with enhanced persistence
         addMessage({
           type: 'maya',
           content: data.response || data.content || data.message || '',
@@ -342,7 +350,6 @@ export default function Maya() {
   const handleSendMessage = () => {
     if (!message.trim() || isTyping) return;
 
-    // PHASE 2.1: Add user message with enhanced persistence
     addMessage({
       type: 'user', 
       content: message.trim(),
@@ -350,8 +357,6 @@ export default function Maya() {
     });
 
     setIsTyping(true);
-    
-    // Send to Maya
     sendMessage.mutate(message.trim());
     setMessage('');
   };
@@ -363,9 +368,8 @@ export default function Maya() {
     }
   };
 
-  // LUXURY ONBOARDING: Enhanced response handler with smooth transitions
+  // Enhanced onboarding response handler
   const handleOnboardingResponse = async (fieldName: string, answer: string) => {
-    // Add user response to chat immediately
     addMessage({
       type: 'user',
       content: answer,
@@ -387,13 +391,11 @@ export default function Maya() {
 
       const data = await response.json();
       setIsTyping(false);
-      
-      // Handle onboarding completion with luxury experience
+
       if (data.type === 'complete' || data.isOnboardingComplete) {
         setIsOnboarding(false);
         setCurrentOnboardingData(null);
-        
-        // Add Maya's welcoming completion message
+
         setTimeout(() => {
           addMessage({
             type: 'maya',
@@ -401,11 +403,10 @@ export default function Maya() {
             timestamp: new Date().toISOString()
           });
         }, 1000);
-        
+
       } else if (data.type === 'onboarding') {
         setCurrentOnboardingData(data);
-        
-        // Add next question with smooth transition
+
         setTimeout(() => {
           addMessage({
             type: 'onboarding',
@@ -417,7 +418,7 @@ export default function Maya() {
       }
     } catch (error) {
       setIsTyping(false);
-      console.error('❌ LUXURY ONBOARDING ERROR:', error);
+      console.error('Onboarding error:', error);
       toast({ 
         title: "Connection Error", 
         description: "Unable to process your response. Please check your connection and try again.",
@@ -426,10 +427,9 @@ export default function Maya() {
     }
   };
 
-  // Simplified chat initialization - no complex onboarding needed
   const startSimpleConversation = () => {
     setHasStartedChat(true);
-    
+
     addMessage({
       type: 'maya',
       content: "I'm Maya, your personal brand strategist. I help you create photo concepts that tell your unique story and grow your brand. What kind of photos are you looking to create today?",
@@ -437,164 +437,245 @@ export default function Maya() {
     });
   };
 
-
   return (
     <>
       <MemberNavigation />
-      <div className="min-h-screen bg-gray-50 pt-20">
-        {/* Simple Mobile Header */}
-        <div className="bg-white border-b border-gray-200 px-4 py-3">
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-lg font-medium">M</span>
-              </div>
-              <div>
-                <h1 className="font-semibold text-gray-900">Maya</h1>
-                <p className="text-sm text-gray-500">Personal Brand Stylist</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handleNewSession}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
-                title="New chat"
+      
+      {/* Connection Status Indicator */}
+      {!isOnline && (
+        <div className="fixed top-20 left-0 right-0 bg-red-500 text-white text-center py-2 z-50">
+          <div className="text-xs tracking-widest uppercase" style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}>
+            Offline • Check your connection
+          </div>
+        </div>
+      )}
+      
+      <div className="min-h-screen bg-white">
+        {/* Luxury Editorial Header */}
+        <div className="border-b border-gray-100" style={{ paddingTop: '80px' }}>
+          <div className="max-w-4xl mx-auto px-8 py-12">
+            <div className="text-center">
+              <div 
+                className="text-xs tracking-widest uppercase text-gray-400 mb-8"
+                style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, letterSpacing: '0.3em' }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-              <button
-                onClick={() => setLocation('/workspace')}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
+                Personal Brand Strategist
+              </div>
+              <h1 
+                className="text-4xl md:text-5xl text-black mb-6"
+                style={{ 
+                  fontFamily: 'Times New Roman, serif', 
+                  fontWeight: 200, 
+                  letterSpacing: '0.25em',
+                  lineHeight: 1.1
+                }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+                MAYA
+              </h1>
+              <div className="flex items-center justify-center space-x-8">
+                <button
+                  onClick={handleNewSession}
+                  className="text-xs tracking-widest uppercase text-gray-600 hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1"
+                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, letterSpacing: '0.2em' }}
+                >
+                  New Session
+                </button>
+                <div className="w-px h-4 bg-gray-200"></div>
+                <button
+                  onClick={() => setLocation('/workspace')}
+                  className="text-xs tracking-widest uppercase text-gray-600 hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1"
+                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, letterSpacing: '0.2em' }}
+                >
+                  Gallery
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-
-        {/* Clean Mobile Chat Interface */}
-        <div className="flex-1 max-w-4xl mx-auto px-4 py-4" ref={chatContainerRef}>
-          {/* Welcome Message for Empty Chat */}
+        {/* Editorial Chat Interface */}
+        <div 
+          className="flex-1 max-w-4xl mx-auto px-8 py-16 overflow-y-auto"
+          ref={chatContainerRef}
+          style={{ minHeight: 'calc(100vh - 300px)' }}
+        >
+          {/* Luxury Welcome State */}
           {messages.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-2xl mb-4">👋</div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                Hi! I'm Maya
-              </h2>
-              <p className="text-gray-600 mb-8">
-                I'll help you create amazing photos for your business. What kind of photos do you need?
-              </p>
-              
-              {/* Quick Start Suggestions */}
-              <div className="space-y-2 max-w-md mx-auto">
-                {[
-                  "Professional headshots for LinkedIn",
-                  "Instagram content for my business",
-                  "Website photos that convert"
-                ].map((suggestion, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setMessage(suggestion)}
-                    className="w-full text-left p-3 rounded-lg bg-white border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-colors text-sm"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
+            <div className="text-center py-24">
+              <div className="max-w-2xl mx-auto">
+                <h2 
+                  className="text-2xl md:text-3xl text-black mb-8"
+                  style={{ 
+                    fontFamily: 'Times New Roman, serif', 
+                    fontWeight: 200, 
+                    letterSpacing: '0.2em',
+                    lineHeight: 1.2
+                  }}
+                >
+                  PROFESSIONAL PHOTOS
+                  <br />
+                  THAT TELL YOUR STORY
+                </h2>
+                <p 
+                  className="text-gray-600 mb-16 leading-relaxed max-w-xl mx-auto"
+                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.8 }}
+                >
+                  I create photo concepts that build credibility and grow your business. From LinkedIn headshots to Instagram content that converts.
+                </p>
+
+                {/* Elegant Quick Start Options */}
+                <div className="space-y-3 max-w-md mx-auto">
+                  {[
+                    "Professional headshots for LinkedIn",
+                    "Instagram content for my business", 
+                    "Website photos that convert"
+                  ].map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setMessage(suggestion)}
+                      className="w-full text-left px-6 py-4 border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-300 group"
+                      style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                    >
+                      <span className="text-sm text-gray-700 group-hover:text-black transition-colors">
+                        {suggestion}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Chat Messages */}
-          <div className="space-y-4">
+          {/* Luxury Chat Messages */}
+          <div className="space-y-12">
             {messages.map((msg) => (
-              <div key={msg.id} className="animate-fadeIn">
+              <div key={msg.id} className="fade-in">
                 {msg.type === 'user' ? (
-                  // User Message - Simple Chat Bubble
+                  // User Message - Editorial Style
                   <div className="flex justify-end">
-                    <div className="max-w-xs sm:max-w-md bg-blue-500 text-white px-4 py-2 rounded-lg rounded-br-sm">
-                      <p className="text-sm">{msg.content}</p>
+                    <div className="max-w-2xl">
+                      <div 
+                        className="bg-black text-white px-8 py-6 mb-2"
+                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.6 }}
+                      >
+                        <p className="text-sm">{msg.content}</p>
+                      </div>
+                      <div className="text-right">
+                        <span 
+                          className="text-xs text-gray-400 tracking-wider uppercase"
+                          style={{ letterSpacing: '0.2em' }}
+                        >
+                          You
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ) : msg.type === 'upload' ? (
-                  // Upload Message - Clean Chat Style
+                  // Upload Message - Luxury Editorial
                   <div className="flex justify-start">
-                    <div className="max-w-xs sm:max-w-md">
-                      <div className="flex items-center mb-2">
-                        <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-2">
-                          <span className="text-white text-xs font-medium">M</span>
-                        </div>
-                        <span className="text-xs text-gray-500">Maya</span>
+                    <div className="max-w-2xl">
+                      <div className="mb-4">
+                        <span 
+                          className="text-xs text-gray-400 tracking-wider uppercase"
+                          style={{ letterSpacing: '0.2em' }}
+                        >
+                          Maya
+                        </span>
                       </div>
-                      <div className="bg-white border border-gray-200 rounded-lg rounded-tl-sm p-3 mb-3">
-                        <p className="text-sm text-gray-800 whitespace-pre-wrap">{msg.content}</p>
+                      <div 
+                        className="bg-gray-50 border border-gray-100 px-8 py-8 mb-6"
+                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+                      >
+                        <p className="text-gray-800 whitespace-pre-wrap">{msg.content}</p>
                       </div>
                       {msg.showUpload && (
-                        <MayaUploadComponent
-                          onUploadComplete={(success) => {
-                            if (success) {
-                              console.log('✅ Maya: Training initiated successfully');
-                            } else {
-                              console.log('❌ Maya: Training initiation failed');
-                            }
-                          }}
-                          onTrainingStart={() => {
-                            console.log('🎯 Maya: Training started, beginning onboarding');
-                          }}
-                          className="mt-2"
-                        />
+                        <div className="border-t border-gray-100 pt-8">
+                          <MayaUploadComponent
+                            onUploadComplete={(success) => {
+                              if (success) {
+                                console.log('Training initiated successfully');
+                              } else {
+                                console.log('Training initiation failed');
+                              }
+                            }}
+                            onTrainingStart={() => {
+                              console.log('Training started, beginning onboarding');
+                            }}
+                            className="luxury-upload"
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
                 ) : msg.type === 'examples' ? (
-                  // Examples Message - Clean Chat Style
+                  // Examples Message - Editorial Layout
                   <div className="flex justify-start">
-                    <div className="max-w-xs sm:max-w-md">
-                      <div className="flex items-center mb-2">
-                        <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-2">
-                          <span className="text-white text-xs font-medium">M</span>
-                        </div>
-                        <span className="text-xs text-gray-500">Maya</span>
+                    <div className="max-w-2xl">
+                      <div className="mb-4">
+                        <span 
+                          className="text-xs text-gray-400 tracking-wider uppercase"
+                          style={{ letterSpacing: '0.2em' }}
+                        >
+                          Maya
+                        </span>
                       </div>
-                      <div className="bg-white border border-gray-200 rounded-lg rounded-tl-sm p-3 mb-3">
-                        <p className="text-sm text-gray-800 whitespace-pre-wrap">{msg.content}</p>
+                      <div 
+                        className="bg-gray-50 border border-gray-100 px-8 py-8 mb-6"
+                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+                      >
+                        <p className="text-gray-800 whitespace-pre-wrap">{msg.content}</p>
                       </div>
                       {msg.showExamples && (
-                        <MayaExamplesGallery className="mt-2" />
+                        <div className="border-t border-gray-100 pt-8">
+                          <MayaExamplesGallery className="luxury-examples" />
+                        </div>
                       )}
                     </div>
                   </div>
                 ) : msg.type === 'onboarding' ? (
-                  // Simple Onboarding Chat Style
+                  // Luxury Onboarding Interface
                   <div className="flex justify-start">
-                    <div className="max-w-xs sm:max-w-md">
-                      <div className="flex items-center mb-2">
-                        <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-2">
-                          <span className="text-white text-xs font-medium">M</span>
-                        </div>
-                        <span className="text-xs text-gray-500">Maya • Step {msg.onboardingData?.step}/{msg.onboardingData?.totalSteps}</span>
+                    <div className="max-w-2xl">
+                      <div className="mb-6 flex items-center">
+                        <span 
+                          className="text-xs text-gray-400 tracking-wider uppercase mr-4"
+                          style={{ letterSpacing: '0.2em' }}
+                        >
+                          Maya
+                        </span>
+                        <div className="flex-1 h-px bg-gray-200"></div>
+                        <span 
+                          className="text-xs text-gray-400 tracking-wider uppercase ml-4"
+                          style={{ letterSpacing: '0.2em' }}
+                        >
+                          Step {msg.onboardingData?.step} of {msg.onboardingData?.totalSteps}
+                        </span>
                       </div>
-                      
-                      <div className="bg-white border border-gray-200 rounded-lg rounded-tl-sm p-3 mb-3">
-                        <p className="text-sm text-gray-800 mb-3">{msg.content}</p>
-                        
+
+                      <div 
+                        className="bg-gray-50 border border-gray-100 px-8 py-8 mb-8"
+                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+                      >
+                        <p className="text-gray-800 mb-6">{msg.content}</p>
+
                         {msg.onboardingData?.explanation && (
-                          <p className="text-xs text-gray-600 mb-3 italic">{msg.onboardingData.explanation}</p>
+                          <p className="text-sm text-gray-600 mb-6 italic leading-relaxed">
+                            {msg.onboardingData.explanation}
+                          </p>
                         )}
-                        
+
                         {msg.onboardingData?.options ? (
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             {msg.onboardingData.options.map((option) => (
                               <button
                                 key={option}
                                 onClick={() => handleOnboardingResponse(msg.onboardingData!.fieldName, option)}
-                                className="w-full text-left p-2 text-sm bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded transition-colors"
+                                className="w-full text-left px-6 py-4 border border-gray-200 hover:border-black hover:bg-white transition-all duration-300 group"
+                                style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
                               >
-                                {option.charAt(0).toUpperCase() + option.slice(1)}
+                                <span className="text-sm text-gray-700 group-hover:text-black transition-colors">
+                                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                                </span>
                               </button>
                             ))}
                           </div>
@@ -602,7 +683,8 @@ export default function Maya() {
                           <input
                             type="text"
                             placeholder="Type your answer..."
-                            className="w-full p-2 text-sm border border-gray-200 rounded focus:border-blue-500 focus:outline-none"
+                            className="w-full px-6 py-4 border border-gray-200 focus:border-black focus:outline-none transition-colors bg-white"
+                            style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
                             onKeyPress={(e) => {
                               if (e.key === 'Enter') {
                                 const target = e.target as HTMLInputElement;
@@ -618,110 +700,151 @@ export default function Maya() {
                     </div>
                   </div>
                 ) : (
-                  // Maya Message - Simple Chat Bubble
+                  // Maya Message - Editorial Magazine Style
                   <div className="flex justify-start">
-                    <div className="max-w-xs sm:max-w-md">
-                      <div className="flex items-center mb-2">
-                        <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-2">
-                          <span className="text-white text-xs font-medium">M</span>
-                        </div>
-                        <span className="text-xs text-gray-500">Maya</span>
+                    <div className="max-w-2xl">
+                      <div className="mb-4">
+                        <span 
+                          className="text-xs text-gray-400 tracking-wider uppercase"
+                          style={{ letterSpacing: '0.2em' }}
+                        >
+                          Maya
+                        </span>
                       </div>
-                      
-                      <div className="bg-white border border-gray-200 rounded-lg rounded-tl-sm p-3">
-                        <p className="text-sm text-gray-800 whitespace-pre-wrap">{msg.content}</p>
-                        
-                        {/* Simple Concept Cards */}
+
+                      <div 
+                        className="bg-gray-50 border border-gray-100 px-8 py-8"
+                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+                      >
+                        <p className="text-gray-800 whitespace-pre-wrap">{msg.content}</p>
+
+                        {/* Luxury Concept Cards */}
                         {msg.conceptCards && msg.conceptCards.length > 0 && (
-                          <div className="mt-3 space-y-3">
+                          <div className="mt-12 space-y-8">
+                            <div className="h-px bg-gray-200 my-8"></div>
+                            <h3 
+                              className="text-lg tracking-widest uppercase text-black mb-8"
+                              style={{ 
+                                fontFamily: 'Times New Roman, serif', 
+                                fontWeight: 200, 
+                                letterSpacing: '0.3em' 
+                              }}
+                            >
+                              Photo Concepts
+                            </h3>
+
                             {msg.conceptCards.map((card, index) => {
                               const isExpanded = expandedCards.has(card.id);
-                              
-                              return (
-                                <div key={card.id} className="bg-gray-50 rounded-lg p-3 border">
-                                  <div className="flex items-start justify-between mb-2">
-                                    <h3 className="font-medium text-sm text-gray-900">
-                                      {cleanDisplayTitle(card.title)}
-                                    </h3>
-                                    <span className="text-xs text-gray-500 ml-2">
-                                      #{index + 1}
-                                    </span>
-                                  </div>
-                                  
-                                  {isExpanded && (
-                                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                                      {card.description}
-                                    </p>
-                                  )}
-                                  
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      onClick={() => toggleCardExpansion(card.id)}
-                                      className="text-xs text-blue-600 hover:text-blue-700"
-                                    >
-                                      {isExpanded ? 'Less' : 'More'}
-                                    </button>
-                                    <button
-                                      onClick={() => handleGenerateImage(card)}
-                                      disabled={card.isGenerating}
-                                      className="bg-blue-600 text-white px-3 py-1 text-xs rounded hover:bg-blue-700 transition-colors disabled:opacity-50 ml-auto"
-                                    >
-                                      {card.isGenerating ? 'Creating...' : 'Generate'}
-                                    </button>
-                                  </div>
-                                  
-                                  {/* Loading indicator */}
-                                  {card.isGenerating && (
-                                    <div className="mt-2 flex items-center text-xs text-gray-500">
-                                      <div className="flex space-x-1 mr-2">
-                                        <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"></div>
-                                        <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                                        <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                                      </div>
-                                      Creating your image...
-                                    </div>
-                                  )}
 
-                                  {/* Generated Images */}
-                                  {card.generatedImages && card.generatedImages.length > 0 && (
-                                    <div className="mt-2">
-                                      <p className="text-xs text-gray-500 mb-2">Your images:</p>
-                                      <div className="grid grid-cols-2 gap-2">
-                                        {card.generatedImages.map((imageUrl, imgIndex) => {
-                                          const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
-                                          return (
-                                            <div key={imgIndex} className="relative group">
-                                              <img 
-                                                src={proxyUrl}
-                                                alt={`Generated ${cleanDisplayTitle(card.title)} ${imgIndex + 1}`}
-                                                className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-90 transition-opacity"
-                                                onClick={() => setSelectedImage?.(proxyUrl)}
-                                                onLoad={() => {
-                                                  console.log('✅ Image loaded via proxy:', proxyUrl);
-                                                  handleAutoSaveToGallery(imageUrl, card.title);
-                                                }}
-                                                onError={(e) => {
-                                                  console.error('❌ Image proxy failed:', proxyUrl);
-                                                  const target = e.target as HTMLImageElement;
-                                                  target.style.display = 'none';
-                                                }}
-                                              />
-                                              <button
-                                                className="absolute top-1 right-1 w-6 h-6 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  handleSaveToGallery(imageUrl, card.title);
-                                                }}
-                                                title="Save to gallery"
-                                              >
-                                                <span className="text-xs">♥</span>
-                                              </button>
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
+                              return (
+                                <div key={card.id} className="border border-gray-200 bg-white">
+                                  <div className="px-8 py-6">
+                                    <div className="flex items-start justify-between mb-4">
+                                      <h4 
+                                        className="text-base tracking-wider uppercase text-black flex-1"
+                                        style={{ 
+                                          fontFamily: 'Times New Roman, serif', 
+                                          fontWeight: 200, 
+                                          letterSpacing: '0.2em' 
+                                        }}
+                                      >
+                                        {cleanDisplayTitle(card.title)}
+                                      </h4>
+                                      <span 
+                                        className="text-xs text-gray-400 tracking-wider ml-6"
+                                        style={{ letterSpacing: '0.2em' }}
+                                      >
+                                        #{(index + 1).toString().padStart(2, '0')}
+                                      </span>
                                     </div>
-                                  )}
+
+                                    {isExpanded && (
+                                      <p 
+                                        className="text-gray-600 mb-6 leading-relaxed"
+                                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+                                      >
+                                        {card.description}
+                                      </p>
+                                    )}
+
+                                    <div className="flex items-center justify-between">
+                                      <button
+                                        onClick={() => toggleCardExpansion(card.id)}
+                                        className="text-xs tracking-wider uppercase text-gray-600 hover:text-black transition-colors border-b border-transparent hover:border-black pb-1"
+                                        style={{ letterSpacing: '0.2em' }}
+                                      >
+                                        {isExpanded ? 'Show Less' : 'View Details'}
+                                      </button>
+                                      <button
+                                        onClick={() => handleGenerateImage(card)}
+                                        disabled={card.isGenerating}
+                                        className="bg-black text-white px-6 py-2 text-xs tracking-wider uppercase hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        style={{ letterSpacing: '0.2em' }}
+                                      >
+                                        {card.isGenerating ? 'Creating...' : 'Generate Photos'}
+                                      </button>
+                                    </div>
+
+                                    {/* Elegant Loading State */}
+                                    {card.isGenerating && (
+                                      <div className="mt-6 pt-6 border-t border-gray-100">
+                                        <div className="flex items-center text-xs text-gray-500 tracking-wider uppercase" style={{ letterSpacing: '0.2em' }}>
+                                          <div className="flex space-x-2 mr-4">
+                                            <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse"></div>
+                                            <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                                            <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                                          </div>
+                                          Creating your professional photos...
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Editorial Image Gallery */}
+                                    {card.generatedImages && card.generatedImages.length > 0 && (
+                                      <div className="mt-8 pt-8 border-t border-gray-100">
+                                        <p 
+                                          className="text-xs text-gray-400 tracking-wider uppercase mb-6"
+                                          style={{ letterSpacing: '0.2em' }}
+                                        >
+                                          Your Professional Photos
+                                        </p>
+                                        <div className="grid grid-cols-2 gap-4">
+                                          {card.generatedImages.map((imageUrl, imgIndex) => {
+                                            const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+                                            return (
+                                              <div key={imgIndex} className="relative group">
+                                                <img 
+                                                  src={proxyUrl}
+                                                  alt={`Generated ${cleanDisplayTitle(card.title)} ${imgIndex + 1}`}
+                                                  className="w-full h-48 object-cover cursor-pointer hover:opacity-95 transition-opacity filter grayscale-[10%]"
+                                                  onClick={() => setSelectedImage?.(proxyUrl)}
+                                                  onLoad={() => {
+                                                    console.log('Image loaded via proxy:', proxyUrl);
+                                                    handleAutoSaveToGallery(imageUrl, card.title);
+                                                  }}
+                                                  onError={(e) => {
+                                                    console.error('Image proxy failed:', proxyUrl);
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                  }}
+                                                />
+                                                <button
+                                                  className="absolute top-3 right-3 w-8 h-8 bg-white/90 hover:bg-white flex items-center justify-center text-black hover:text-gray-800 opacity-0 group-hover:opacity-100 transition-all"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleSaveToGallery(imageUrl, card.title);
+                                                  }}
+                                                  title="Save to gallery"
+                                                >
+                                                  <span className="text-sm">♡</span>
+                                                </button>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               );
                             })}
@@ -733,68 +856,95 @@ export default function Maya() {
                 )}
               </div>
             ))}
-            
-            {/* Simple Typing Indicator */}
+
+            {/* Luxury Typing Indicator */}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="flex items-center">
-                  <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-2">
-                    <span className="text-white text-xs font-medium">M</span>
+                <div className="max-w-2xl">
+                  <div className="mb-4">
+                    <span 
+                      className="text-xs text-gray-400 tracking-wider uppercase"
+                      style={{ letterSpacing: '0.2em' }}
+                    >
+                      Maya
+                    </span>
                   </div>
-                  <div className="bg-white border border-gray-200 rounded-lg rounded-tl-sm px-3 py-2 flex items-center space-x-1">
-                    <div className="flex space-x-1">
-                      <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                      <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  <div className="bg-gray-50 border border-gray-100 px-8 py-6 flex items-center">
+                    <div className="flex space-x-2">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
                     </div>
+                    <span 
+                      className="ml-4 text-xs text-gray-500 tracking-wider uppercase"
+                      style={{ letterSpacing: '0.2em' }}
+                    >
+                      Thinking...
+                    </span>
                   </div>
                 </div>
               </div>
             )}
           </div>
-          
-          {/* Simple Chat Input */}
-          <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
-            <div className="flex items-end space-x-2 max-w-4xl mx-auto">
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Tell me what photos you need..."
-                className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                rows={1}
-                disabled={isTyping}
-                style={{ minHeight: '36px', maxHeight: '120px' }}
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={!message.trim() || isTyping}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-              >
-                {isTyping ? '...' : 'Send'}
-              </button>
-            </div>
-          </div>
-          
+
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Full-size Image Modal */}
+        {/* Luxury Editorial Input - Mobile Optimized */}
+        <div className="border-t border-gray-100 bg-white">
+          <div className="max-w-4xl mx-auto px-4 sm:px-8 py-4 sm:py-8">
+            <div className="flex items-end space-x-3 sm:space-x-6">
+              <div className="flex-1">
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Describe the photos you need for your business..."
+                  className="w-full resize-none border border-gray-200 focus:border-black focus:outline-none px-4 sm:px-6 py-3 sm:py-4 bg-white transition-colors"
+                  rows={1}
+                  disabled={isTyping}
+                  style={{ 
+                    fontFamily: 'Helvetica Neue', 
+                    fontWeight: 300, 
+                    minHeight: '52px', 
+                    maxHeight: '120px',
+                    lineHeight: 1.6,
+                    fontSize: '16px' // Prevents zoom on iOS
+                  }}
+                  aria-label="Type your message to Maya"
+                  role="textbox"
+                  aria-multiline="true"
+                />
+              </div>
+              <button
+                onClick={handleSendMessage}
+                disabled={!message.trim() || isTyping}
+                className="bg-black text-white px-4 sm:px-8 py-3 sm:py-4 text-xs tracking-wider uppercase hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                style={{ letterSpacing: '0.2em', minHeight: '52px', minWidth: '80px' }}
+                aria-label={isTyping ? 'Sending message...' : 'Send message'}
+              >
+                {isTyping ? 'Sending...' : 'Send'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Luxury Image Modal */}
         {selectedImage && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50 p-8"
             onClick={() => setSelectedImage(null)}
           >
             <div className="relative max-w-full max-h-full">
               <img 
                 src={selectedImage}
                 alt="Full size view"
-                className="max-w-full max-h-full object-contain rounded-lg"
+                className="max-w-full max-h-full object-contain"
                 onClick={(e) => e.stopPropagation()}
               />
               <button 
                 onClick={() => setSelectedImage(null)}
-                className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white/90 hover:bg-white text-gray-700 hover:text-black rounded-full transition-colors"
+                className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white hover:text-white transition-colors"
                 title="Close"
               >
                 <span className="text-lg leading-none">×</span>
@@ -803,6 +953,29 @@ export default function Maya() {
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        .fade-in {
+          animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .max-w-4xl {
+            max-width: 100%;
+          }
+        }
+      `}</style>
     </>
   );
 }
