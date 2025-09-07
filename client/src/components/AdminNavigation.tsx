@@ -7,8 +7,7 @@ interface AdminNavigationProps {
 }
 
 export function AdminNavigation({ transparent = true }: AdminNavigationProps) {
-  const [, setLocation] = useLocation();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user } = useAuth();
