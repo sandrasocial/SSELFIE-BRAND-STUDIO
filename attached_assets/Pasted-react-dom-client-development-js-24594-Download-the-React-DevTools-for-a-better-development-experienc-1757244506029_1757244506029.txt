@@ -1,0 +1,144 @@
+react-dom-client.development.js:24594 Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+env.ts:20 Neon Auth env (sanity): Object
+main.tsx:7 SSELFIE Studio: Main.tsx loading...
+main.tsx:8 SSELFIE Studio: Root element found: true
+main.tsx:12 Disabling HMR to prevent connection issues
+main.tsx:43 React sanity: Object
+main.tsx:49 SSELFIE Studio: Starting up with Stack Auth authentication...
+App.tsx:588 SSELFIE Studio: App rendering...
+App.tsx:588 SSELFIE Studio: App rendering...
+App.tsx:162 ProtectedRoute error: Error: Suspense Exception: This is not a real error! It's an implementation detail of `use` to interrupt the current render. You must either rethrow it immediately, or move the `use` call outside of the `try/catch` block. Capturing without rethrowing will lead to unexpected behavior.
+
+To handle async errors, wrap your component in an error boundary, or call the promise's `.catch` method and pass the result to `use`
+    at react-dom-client.development.js:22408:27
+    at ../node_modules/react-dom/cjs/react-dom-client.development.js (react-dom-client.development.js:24716:3)
+    at __require (chunk-IKZWERSR.js:8:50)
+    at ../node_modules/react-dom/client.js (client.js:37:20)
+    at __require (chunk-IKZWERSR.js:8:50)
+    at client.js:38:1
+ProtectedRoute @ App.tsx:162
+App.tsx:162 ProtectedRoute error: Error: Suspense Exception: This is not a real error! It's an implementation detail of `use` to interrupt the current render. You must either rethrow it immediately, or move the `use` call outside of the `try/catch` block. Capturing without rethrowing will lead to unexpected behavior.
+
+To handle async errors, wrap your component in an error boundary, or call the promise's `.catch` method and pass the result to `use`
+    at react-dom-client.development.js:22408:27
+    at ../node_modules/react-dom/cjs/react-dom-client.development.js (react-dom-client.development.js:24716:3)
+    at __require (chunk-IKZWERSR.js:8:50)
+    at ../node_modules/react-dom/client.js (client.js:37:20)
+    at __require (chunk-IKZWERSR.js:8:50)
+    at client.js:38:1
+ProtectedRoute @ App.tsx:162
+react-dom-client.development.js:5830 `use` was called from inside a try/catch block. This is not allowed and can lead to unexpected behavior. To handle errors triggered by `use`, wrap your component in a error boundary.
+finishRenderingHooks @ react-dom-client.development.js:5830
+App.tsx:553 SSELFIE Studio: App initializing...
+App.tsx:577 SSELFIE Studio: Domain access validated, app ready
+App.tsx:553 SSELFIE Studio: App initializing...
+App.tsx:577 SSELFIE Studio: Domain access validated, app ready
+App.tsx:162 ProtectedRoute error: Error: Suspense Exception: This is not a real error! It's an implementation detail of `use` to interrupt the current render. You must either rethrow it immediately, or move the `use` call outside of the `try/catch` block. Capturing without rethrowing will lead to unexpected behavior.
+
+To handle async errors, wrap your component in an error boundary, or call the promise's `.catch` method and pass the result to `use`
+    at react-dom-client.development.js:22408:27
+    at ../node_modules/react-dom/cjs/react-dom-client.development.js (react-dom-client.development.js:24716:3)
+    at __require (chunk-IKZWERSR.js:8:50)
+    at ../node_modules/react-dom/client.js (client.js:37:20)
+    at __require (chunk-IKZWERSR.js:8:50)
+    at client.js:38:1
+ProtectedRoute @ App.tsx:162
+App.tsx:162 ProtectedRoute error: Error: Suspense Exception: This is not a real error! It's an implementation detail of `use` to interrupt the current render. You must either rethrow it immediately, or move the `use` call outside of the `try/catch` block. Capturing without rethrowing will lead to unexpected behavior.
+
+To handle async errors, wrap your component in an error boundary, or call the promise's `.catch` method and pass the result to `use`
+    at react-dom-client.development.js:22408:27
+    at ../node_modules/react-dom/cjs/react-dom-client.development.js (react-dom-client.development.js:24716:3)
+    at __require (chunk-IKZWERSR.js:8:50)
+    at ../node_modules/react-dom/client.js (client.js:37:20)
+    at __require (chunk-IKZWERSR.js:8:50)
+    at client.js:38:1
+ProtectedRoute @ App.tsx:162
+react-dom-client.development.js:5665 React has detected a change in the order of Hooks called by ProtectedRoute. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+1. useContext                 useContext
+2. useCallback                useCallback
+3. useCallback                useCallback
+4. useSyncExternalStore       useSyncExternalStore
+5. useId                      useId
+6. useEffect                  useEffect
+7. useCallback                useCallback
+8. useCallback                useCallback
+9. useSyncExternalStore       useSyncExternalStore
+10. undefined                 useMemo
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+updateHookTypesDev @ react-dom-client.development.js:5665
+App.tsx:162 ProtectedRoute error: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (react-dom-client.development.js:5943:17)
+    at updateMemo (react-dom-client.development.js:6829:18)
+    at Object.useMemo (react-dom-client.development.js:23028:18)
+    at exports.useMemo (react.development.js:1488:34)
+    at __StackClientAppImplIncomplete2.useUser (client-app-impl.ts:1461:12)
+    at useUser (hooks.tsx:30:21)
+    at useAuth (use-auth.ts:15:21)
+    at ProtectedRoute (App.tsx:126:58)
+    at react-stack-bottom-frame (react-dom-client.development.js:22428:20)
+    at renderWithHooks (react-dom-client.development.js:5757:22)
+ProtectedRoute @ App.tsx:162
+App.tsx:162 ProtectedRoute error: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (react-dom-client.development.js:5943:17)
+    at updateMemo (react-dom-client.development.js:6829:18)
+    at Object.useMemo (react-dom-client.development.js:23028:18)
+    at exports.useMemo (react.development.js:1488:34)
+    at __StackClientAppImplIncomplete2.useUser (client-app-impl.ts:1461:12)
+    at useUser (hooks.tsx:30:21)
+    at useAuth (use-auth.ts:15:21)
+    at ProtectedRoute (App.tsx:126:58)
+    at react-stack-bottom-frame (react-dom-client.development.js:22428:20)
+    at renderWithHooksAgain (react-dom-client.development.js:5857:20)
+ProtectedRoute @ App.tsx:162
+App.tsx:162 ProtectedRoute error: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (react-dom-client.development.js:5943:17)
+    at updateMemo (react-dom-client.development.js:6829:18)
+    at Object.useMemo (react-dom-client.development.js:23028:18)
+    at exports.useMemo (react.development.js:1488:34)
+    at __StackClientAppImplIncomplete2.useUser (client-app-impl.ts:1461:12)
+    at useUser (hooks.tsx:30:21)
+    at useAuth (use-auth.ts:15:21)
+    at ProtectedRoute (App.tsx:126:58)
+    at react-stack-bottom-frame (react-dom-client.development.js:22428:20)
+    at renderWithHooks (react-dom-client.development.js:5757:22)
+ProtectedRoute @ App.tsx:162
+App.tsx:162 ProtectedRoute error: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (react-dom-client.development.js:5943:17)
+    at updateMemo (react-dom-client.development.js:6829:18)
+    at Object.useMemo (react-dom-client.development.js:23028:18)
+    at exports.useMemo (react.development.js:1488:34)
+    at __StackClientAppImplIncomplete2.useUser (client-app-impl.ts:1461:12)
+    at useUser (hooks.tsx:30:21)
+    at useAuth (use-auth.ts:15:21)
+    at ProtectedRoute (App.tsx:126:58)
+    at react-stack-bottom-frame (react-dom-client.development.js:22428:20)
+    at renderWithHooksAgain (react-dom-client.development.js:5857:20)
+ProtectedRoute @ App.tsx:162
+App.tsx:162 ProtectedRoute error: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (react-dom-client.development.js:5943:17)
+    at updateMemo (react-dom-client.development.js:6829:18)
+    at Object.useMemo (react-dom-client.development.js:23028:18)
+    at exports.useMemo (react.development.js:1488:34)
+    at __StackClientAppImplIncomplete2.useUser (client-app-impl.ts:1461:12)
+    at useUser (hooks.tsx:30:21)
+    at useAuth (use-auth.ts:15:21)
+    at ProtectedRoute (App.tsx:126:58)
+    at react-stack-bottom-frame (react-dom-client.development.js:22428:20)
+    at renderWithHooks (react-dom-client.development.js:5757:22)
+ProtectedRoute @ App.tsx:162
+App.tsx:162 ProtectedRoute error: Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (react-dom-client.development.js:5943:17)
+    at updateMemo (react-dom-client.development.js:6829:18)
+    at Object.useMemo (react-dom-client.development.js:23028:18)
+    at exports.useMemo (react.development.js:1488:34)
+    at __StackClientAppImplIncomplete2.useUser (client-app-impl.ts:1461:12)
+    at useUser (hooks.tsx:30:21)
+    at useAuth (use-auth.ts:15:21)
+    at ProtectedRoute (App.tsx:126:58)
+    at react-stack-bottom-frame (react-dom-client.development.js:22428:20)
+    at renderWithHooksAgain (react-dom-client.development.js:5857:20)
+ProtectedRoute @ App.tsx:162

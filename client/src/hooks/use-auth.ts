@@ -10,18 +10,19 @@ export interface User {
   role?: string;
 }
 
-// Neon Auth integration using @stackframe/react SDK
+// ✅ FIXED: Stack Auth integration with proper error handling
 export function useAuth() {
   const stackUser = useUser();
   
   // Fetch our database user data if Stack Auth user exists
-  const { data: dbUser, isLoading: isDbUserLoading } = useQuery({
+  const { data: dbUser, isLoading: isDbUserLoading, error } = useQuery({
     queryKey: ["/api/auth/user"],
     retry: false,
     enabled: !!stackUser?.id, // Only fetch if Stack Auth user exists
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 
-  const isLoading = isDbUserLoading; // Only loading when fetching DB user, not when no Stack user
+  const isLoading = isDbUserLoading;
   const isAuthenticated = !!stackUser?.id;
   
   console.log('🔍 Auth: Stack user:', !!stackUser, stackUser?.id);
