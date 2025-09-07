@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { GlobalFooter } from "../components/global-footer";
 import { useStackApp } from "@stackframe/stack";
-import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "@/env";
+import { STACK_PROJECT_ID, STACK_PUBLISHABLE_CLIENT_KEY } from "../env";
 
 export default function BusinessLanding() {
   const [, setLocation] = useLocation();
