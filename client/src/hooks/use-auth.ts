@@ -1,4 +1,5 @@
-import { useUser } from "@stackframe/stack";
+import { useUser } from "@stackframe/react";
+import { useQuery } from "@tanstack/react-query";
 
 export interface User {
   id: string;
@@ -9,29 +10,39 @@ export interface User {
   role?: string;
 }
 
-// Stack Auth integration following Neon template pattern
+// Neon Auth integration using @stackframe/react SDK
 export function useAuth() {
   const stackUser = useUser();
   
-  console.log('🔍 Auth: Has Stack Auth session:', !!stackUser);
-  console.log('🔍 Auth: User data:', stackUser);
-  console.log('🔍 Auth: Loading:', false); // Stack Auth handles loading internally
-  console.log('🔍 Auth: Error:', null);
+  // Fetch our database user data if Stack Auth user exists
+  const { data: dbUser, isLoading: isDbUserLoading } = useQuery({
+    queryKey: ["/api/auth/user"],
+    retry: false,
+    enabled: !!stackUser?.id, // Only fetch if Stack Auth user exists
+  });
 
-  // Transform Stack Auth user to our User interface
-  const user: User | undefined = stackUser ? {
+  const isLoading = !stackUser || isDbUserLoading;
+  const isAuthenticated = !!stackUser?.id;
+  
+  console.log('🔍 Auth: Stack user:', !!stackUser, stackUser?.id);
+  console.log('🔍 Auth: Database user:', !!dbUser);
+  console.log('🔍 Auth: Loading:', isLoading);
+  console.log('🔍 Auth: Authenticated:', isAuthenticated);
+
+  // Use database user data if available, fallback to Stack Auth user
+  const user: User | undefined = dbUser || (stackUser ? {
     id: stackUser.id,
     email: stackUser.primaryEmail || '',
     firstName: stackUser.displayName?.split(' ')[0],
     lastName: stackUser.displayName?.split(' ').slice(1).join(' '),
-    plan: 'sselfie-studio', // Will be fetched from database
-    role: 'user' // Will be fetched from database
-  } : undefined;
+    plan: 'sselfie-studio', // Default, will be overridden by database
+    role: 'user' // Default, will be overridden by database
+  } : undefined);
   
   return {
     user,
-    isLoading: false, // Stack Auth handles loading states internally
-    isAuthenticated: !!stackUser,
+    isLoading,
+    isAuthenticated,
     error: null,
     stackUser, // Provide access to raw Stack Auth user
   };

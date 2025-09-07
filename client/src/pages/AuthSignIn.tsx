@@ -1,17 +1,8 @@
-import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import UnifiedLoginButton from "../components/UnifiedLoginButton";
+import { Link } from "wouter";
+import { SignIn } from "@stackframe/react";
+import { stackClientApp } from "../stack";
 
 export default function AuthSignIn() {
-  const [location] = useLocation();
-  const urlParams = new URLSearchParams(location.split('?')[1] || '');
-  const returnUrl = urlParams.get('returnUrl') || '/';
-
-  const handleSignIn = () => {
-    // Use Stack Auth component instead of redirect
-    console.log('🔐 AuthSignIn: Using Stack Auth component instead of redirect');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
@@ -27,21 +18,9 @@ export default function AuthSignIn() {
           </p>
         </div>
 
-        {/* Neon Auth Sign-In */}
+        {/* Neon Auth Sign-In Component */}
         <div className="bg-white rounded-xl shadow-lg p-8">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
-              Welcome Back
-            </h2>
-            <p className="text-center text-gray-600">
-              Sign in to access your AI photo generation studio
-            </p>
-          </div>
-          
-          <UnifiedLoginButton 
-            text="Sign In"
-            showBrand={false}
-          />
+          <SignIn app={stackClientApp} />
         </div>
 
         {/* Footer */}
