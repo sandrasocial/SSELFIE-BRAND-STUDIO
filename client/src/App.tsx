@@ -4,7 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { StackProvider } from "@stackframe/stack";
+import { StackProvider, StackClientApp } from "@stackframe/stack";
 import { useAuth } from "./hooks/use-auth";
 // Using JWKS backend verification with custom frontend OAuth flow
 import { useQuery } from "@tanstack/react-query";
@@ -513,27 +513,33 @@ function Router() {
 }
 
 // Stack Auth configuration following Neon template pattern
-const stackConfig = {
+const stackApp = new StackClientApp({
   projectId: "253d7343-a0d4-43a1-be5c-822f590d40be",
-  publishableClientKey: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY || import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || "",
-};
+  publishableClientKey: import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY || "",
+});
 
 function AppWithProvider() {
-  const stackKey = stackConfig.publishableClientKey;
+  const stackKey = stackApp.publishableClientKey;
   
   console.log('🔍 Stack Auth Config:', {
-    projectId: stackConfig.projectId,
+    projectId: stackApp.projectId,
     hasKey: !!stackKey,
     keyPrefix: stackKey ? stackKey.substring(0, 10) + '...' : 'MISSING'
   });
 
-  // Simplified setup following Neon template - no error boundaries needed
+  if (!stackKey) {
+    console.error('❌ Stack Auth: Missing publishable client key!');
+    console.error('Available env vars:', {
+      VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY: import.meta.env.VITE_NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY,
+      VITE_STACK_PUBLISHABLE_CLIENT_KEY: import.meta.env.VITE_STACK_PUBLISHABLE_CLIENT_KEY,
+    });
+    return <div>Stack Auth configuration error - check environment variables</div>;
+  }
+
+  // Use Stack App instance following documentation
   return (
     <QueryClientProvider client={queryClient}>
-      <StackProvider
-        projectId={stackConfig.projectId}
-        publishableClientKey={stackKey}
-      >
+      <StackProvider app={stackApp}>
         <TooltipProvider>
           <App />
           <Toaster />
