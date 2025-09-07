@@ -46,7 +46,7 @@ if (import.meta.env.DEV) {
   });
 }
 
-console.log('SSELFIE Studio: Starting up with JWT authentication...');
+console.log('SSELFIE Studio: Starting up with Stack Auth authentication...');
 
 const container = document.getElementById("root");
 if (!container) {
