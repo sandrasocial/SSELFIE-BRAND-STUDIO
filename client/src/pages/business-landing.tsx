@@ -211,7 +211,7 @@ export default function BusinessLanding() {
       </nav>
 
       {/* Hero Section - Voice Guide Compliant */}
-      <section className="relative h-screen flex items-end justify-center text-center text-white bg-black">
+      <section className="relative h-screen flex items-end justify-center text-white bg-black">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
@@ -220,22 +220,28 @@ export default function BusinessLanding() {
         />
         <div className="absolute inset-0 bg-black bg-opacity-30" />
         
-        <div className="relative z-10 max-w-4xl mx-auto px-6 pb-20">
+        <div className="relative z-10 max-w-4xl mx-auto px-6 pb-24 text-center">
           {/* Eyebrow - Clear Category */}
-          <p className="eyebrow-text text-white/70" style={{ marginBottom: 'var(--space-lg)' }}>
+          <p className="hero-eyebrow text-white/70 mb-6">
             YOUR PERSONAL AI PHOTOGRAPHER
           </p>
           
           {/* Hero Headline - Value Prop First */}
           <h1 
-            className="guide-title text-white"
-            style={{ marginBottom: 'var(--space-2xl)' }}
+            className="hero-title-serif text-white mb-8"
+            style={{ 
+              fontFamily: 'Times New Roman, serif',
+              fontWeight: 200,
+              letterSpacing: '0.25em',
+              fontSize: 'clamp(3rem,8vw,6rem)',
+              lineHeight: '0.9'
+            }}
           >
-            Professional Photos<br />From Your Selfies
+            PROFESSIONAL PHOTOS<br />FROM YOUR SELFIES
           </h1>
           
           {/* Value Proposition - Clear & Direct */}
-          <p className="text-xl md:text-2xl font-light mb-4 max-w-2xl mx-auto">
+          <p className="hero-value-prop mb-4 max-w-2xl mx-auto leading-relaxed text-white">
             Upload once, get 100+ brand photos monthly.
           </p>
           
@@ -334,23 +340,65 @@ export default function BusinessLanding() {
             Here's exactly how it works
           </h2>
           
-          <div className="grid md:grid-cols-3 gap-12 mb-16">
-            <div className="space-y-4">
-              <div className="text-4xl font-light text-gray-300">01</div>
-              <h3 className="font-serif text-xl font-medium">Upload 15 selfies</h3>
-              <p className="text-gray-600">From your phone. Any lighting, any background.</p>
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            {/* Step 1 - Upload Process */}
+            <div className="space-y-6">
+              <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+                <img 
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/sandra_y0b8hff1v9rmmp8r5vkwdxj4mr_0_1756585457633.png"
+                  alt="Upload selfies process"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 text-xs font-medium rounded">
+                  01
+                </div>
+              </div>
+              <h3 className="font-serif text-xl font-medium" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Upload 15 selfies
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                From your phone. Any lighting, any background.
+              </p>
             </div>
             
-            <div className="space-y-4">
-              <div className="text-4xl font-light text-gray-300">02</div>
-              <h3 className="font-serif text-xl font-medium">AI learns your best angles</h3>
-              <p className="text-gray-600">Your personal photographer studies what works.</p>
+            {/* Step 2 - AI Training */}
+            <div className="space-y-6">
+              <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+                <img 
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/sandra_y0b8hff1v9rmmp8r5vkwdxj4mr_0_1756585457635.png"
+                  alt="AI learning your angles"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 text-xs font-medium rounded">
+                  02
+                </div>
+              </div>
+              <h3 className="font-serif text-xl font-medium" style={{ fontFamily: 'Times New Roman, serif' }}>
+                AI learns your best angles
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Your personal photographer studies what works.
+              </p>
             </div>
             
-            <div className="space-y-4">
-              <div className="text-4xl font-light text-gray-300">03</div>
-              <h3 className="font-serif text-xl font-medium">Get 100+ photos monthly</h3>
-              <p className="text-gray-600">Professional brand photos. No photographer required.</p>
+            {/* Step 3 - Results */}
+            <div className="space-y-6">
+              <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+                <img 
+                  src="https://sselfie-training-zips.s3.eu-north-1.amazonaws.com/generated-images/42585527/sandra_y0b8hff1v9rmmp8r5vkwdxj4mr_0_1756585457637.png"
+                  alt="Professional photos generated"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 text-xs font-medium rounded">
+                  03
+                </div>
+              </div>
+              <h3 className="font-serif text-xl font-medium" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Get 100+ photos monthly
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Professional brand photos. No photographer required.
+              </p>
             </div>
           </div>
           
