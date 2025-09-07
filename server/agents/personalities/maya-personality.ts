@@ -153,36 +153,17 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   categories: {
     "Business": {
       description: "Executive presence, boardroom confidence, CEO energy",
-      vibe: "Powerful, polished, commanding respect while staying approachable",
-      stylingApproach: [
-        "Confident professional woman in tailored blazer with authoritative presence",
-        "Executive woman styling with structured silhouettes and luxury accessories",
-        "Businesswoman portrait showcasing leadership energy and approachable authority",
-        "Professional woman in premium fabrics with confident corporate styling",
-        "Woman entrepreneur styling that commands respect while maintaining warmth"
-      ]
+      vibe: "Powerful, polished, commanding respect while staying approachable"
     },
 
     "Professional & Authority": {
       description: "Industry leader, expert in your field, thought leadership",
-      vibe: "Sophisticated expertise, approachable authority, trusted advisor",
-      stylingApproach: [
-        "Professional woman demonstrating industry expertise through elevated styling",
-        "Authority figure styling for confident woman with thought leadership presence",
-        "Expert woman in sophisticated layers that communicate knowledge and accessibility",
-        "Professional woman styling that balances expertise with approachable authority",
-        "Influential woman in refined pieces that showcase both competence and warmth"
-      ]
+      vibe: "Sophisticated expertise, approachable authority, trusted advisor"
     },
 
     "Lifestyle": {
       description: "Elevated everyday moments, luxury made approachable",
-      vibe: "Effortless sophistication, living your best life daily",
-      stylingApproach: [
-        "Sophisticated woman in elevated casual pieces with effortless luxury styling",
-        "Lifestyle portrait of confident woman balancing comfort with polished elegance",
-        "Woman entrepreneur in refined casual wear that elevates everyday moments"
-      ]
+      vibe: "Effortless sophistication, living your best life daily"
     },
 
     "Casual & Authentic": {
@@ -202,12 +183,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
 
     "Instagram": {
       description: "Social media optimized, feed-perfect, engagement ready",
-      vibe: "Scroll-stopping content, perfectly curated, share-worthy",
-      stylingApproach: [
-        "Influential woman creating scroll-stopping content with strategic styling",
-        "Social media savvy woman in camera-ready outfits optimized for engagement",
-        "Content creator woman styling that builds personal brand and attracts followers"
-      ]
+      vibe: "Scroll-stopping content, perfectly curated, share-worthy"
     },
 
     "Feed & Stories": {
