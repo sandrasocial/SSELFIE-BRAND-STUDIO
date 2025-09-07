@@ -240,7 +240,7 @@ export default function BusinessLanding() {
               <div className="space-y-6">
                 <button 
                   onClick={handleGetStarted}
-                  className="bg-white text-black px-10 py-3 text-sm uppercase tracking-[0.3em] hover:bg-gray-100 transition-all font-medium"
+                  className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-10 py-3 font-light"
                 >
                   GET PROFESSIONAL PHOTOS — €47
                 </button>
