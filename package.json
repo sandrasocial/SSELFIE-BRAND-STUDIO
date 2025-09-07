@@ -26,7 +26,7 @@
     "@replit/vite-plugin-cartographer": "^0.2.8",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@slack/web-api": "^7.10.0",
-    "@stackframe/react": "^2.8.36",
+    "@stackframe/react": "^latest",
     "@stackframe/stack": "^2.8.36",
     "@stripe/react-stripe-js": "^3.10.0",
     "@stripe/stripe-js": "^7.9.0",
