@@ -68,7 +68,7 @@ export function SimplifiedWorkspace() {
   // Maya profile suggestion based on user's best image
   const profileSuggestion = {
     image: userImages[0],
-    bio: `Professional ${userName} | Personal Brand Specialist\n✨ Transforming businesses through authentic photography\n📧 Book your session today`
+    bio: "✨ Empowering entrepreneurs through authentic storytelling\n📸 Professional photos that actually look like you\n🎯 Building credibility one image at a time\n👇 Book your brand session"
   };
 
   // Handle Maya chat
@@ -153,7 +153,7 @@ export function SimplifiedWorkspace() {
         </div>
 
         {/* Maya Chat Interface */}
-        <div className="max-w-2xl mx-auto mb-24">
+        <div className="max-w-2xl mx-auto mb-32">
           <div className="bg-gray-50 border border-gray-200 p-8 mb-8">
             <p 
               className="text-gray-800 mb-6 text-center"
@@ -214,9 +214,9 @@ export function SimplifiedWorkspace() {
             BRANDING
           </h2>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-            {/* Feed Mockup - Mobile Priority */}
-            <div className="lg:col-span-1 order-1 lg:order-1">
+          {/* Feed Mockup Section */}
+          <div className="mb-16">
+            <div className="max-w-md mx-auto">
               <h3 
                 className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
                 style={{ letterSpacing: '0.15em' }}
@@ -327,9 +327,11 @@ export function SimplifiedWorkspace() {
                 </button>
               </div>
             </div>
+          </div>
 
-            {/* Calendar Widget - Mobile Optimized */}
-            <div className="lg:col-span-1 order-3 lg:order-2">
+          {/* Calendar Widget Section */}
+          <div className="mb-16">
+            <div className="max-w-md mx-auto">
               <h3 
                 className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
                 style={{ letterSpacing: '0.15em' }}
@@ -375,9 +377,11 @@ export function SimplifiedWorkspace() {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Maya's Strategy - Mobile Optimized */}
-            <div className="lg:col-span-1 order-2 lg:order-3">
+          {/* Maya's Strategy Section */}
+          <div className="mb-16">
+            <div className="max-w-md mx-auto">
               <h3 
                 className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
                 style={{ letterSpacing: '0.15em' }}
