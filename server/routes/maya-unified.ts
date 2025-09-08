@@ -3354,6 +3354,122 @@ Return as a JSON array of text options with overlay suggestions.
   }
 });
 
+// ✅ PHASE 3A: Canvas Text Overlay Endpoint  
+// Creates actual branded images with text overlays using canvas system
+router.post('/create-branded-post', requireStackAuth, async (req: AdminContextRequest, res) => {
+  try {
+    const { userId, imageUrl, text, messageType, platform, overlayOptions } = req.body;
+
+    if (!userId || !imageUrl || !text) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: userId, imageUrl, and text are required' 
+      });
+    }
+
+    // Get user's brand context
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userBrandContext = {
+      profession: user.profession || 'entrepreneur',
+      brandStyle: user.brandStyle || 'professional',
+      photoGoals: user.photoGoals || 'business',
+      industry: user.profession || 'business'
+    };
+
+    // Import canvas service dynamically to avoid startup issues
+    const { canvasTextOverlayService } = await import('../services/canvas-text-overlay-service');
+
+    // Create branded post with canvas system
+    const brandedPostUrl = await canvasTextOverlayService.createBrandedPost(
+      imageUrl,
+      text,
+      userBrandContext,
+      overlayOptions || {}
+    );
+
+    // Save to database using our new branded_posts table
+    const brandedPost = await storage.createBrandedPost({
+      userId,
+      templateId: null, // Will add template support later
+      originalImageUrl: imageUrl,
+      processedImageUrl: brandedPostUrl,
+      textOverlay: text,
+      overlayPosition: overlayOptions?.position || 'lower-third',
+      overlayStyle: overlayOptions ? JSON.stringify(overlayOptions) : null,
+      socialPlatform: platform || 'instagram',
+      engagementData: null,
+      isPublished: false
+    });
+
+    res.json({
+      success: true,
+      brandedPostUrl,
+      brandedPostId: brandedPost.id,
+      originalImageUrl: imageUrl,
+      textOverlay: text,
+      overlayOptions: overlayOptions || {},
+      userBrandContext,
+      messageType,
+      platform: platform || 'instagram'
+    });
+
+  } catch (error) {
+    console.error('Branded post creation error:', error);
+    res.status(500).json({ 
+      error: 'Failed to create branded post',
+      message: error.message 
+    });
+  }
+});
+
+// ✅ PHASE 3A: Image Analysis for Text Placement
+// Analyzes images to recommend optimal text placement and overlay settings
+router.post('/analyze-image-placement', requireStackAuth, async (req: AdminContextRequest, res) => {
+  try {
+    const { imageUrl } = req.body;
+
+    if (!imageUrl) {
+      return res.status(400).json({ 
+        error: 'Missing required field: imageUrl' 
+      });
+    }
+
+    // Import canvas service dynamically
+    const { canvasTextOverlayService } = await import('../services/canvas-text-overlay-service');
+
+    // Analyze image for optimal text placement
+    const imageAnalysis = await canvasTextOverlayService.analyzeImageForTextPlacement(imageUrl);
+
+    // Provide recommendations based on analysis
+    const recommendations = {
+      textPosition: imageAnalysis.recommendedPosition,
+      overlayType: imageAnalysis.recommendedOverlay,
+      overlayOpacity: imageAnalysis.recommendedOverlay === 'dark' ? 0.4 : 0.5,
+      textColor: imageAnalysis.recommendedOverlay === 'dark' ? '#FFFFFF' : '#000000',
+      fontSize: imageAnalysis.brightness > 200 ? 52 : 48, // Larger text for very bright images
+      fontFamily: 'Times New Roman',
+      fontWeight: 'bold'
+    };
+
+    res.json({
+      success: true,
+      imageAnalysis,
+      recommendations,
+      imageUrl
+    });
+
+  } catch (error) {
+    console.error('Image analysis error:', error);
+    res.status(500).json({ 
+      error: 'Failed to analyze image',
+      message: error.message 
+    });
+  }
+});
+
 // Helper function for fallback text generation
 function generateFallbackTextOptions(messageType: string, userContext: any) {
   const { profession, brandStyle } = userContext;
