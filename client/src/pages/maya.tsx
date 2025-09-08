@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../hooks/use-auth';
 import { useMayaGeneration } from '../hooks/useMayaGeneration';
 import { useMayaPersistence } from '../hooks/useMayaPersistence';
+import { useMayaOnboarding } from '../hooks/useMayaOnboarding';
 import { useToast } from '../hooks/use-toast';
 import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
@@ -75,6 +76,14 @@ export default function Maya() {
 
   // Initialize Maya generation hook with persistent messages
   const { generateFromSpecificConcept } = useMayaGeneration(messages, setMessages, null, setIsTyping, toast);
+
+  // Maya onboarding system
+  const {
+    onboardingStatus,
+    isOnboardingMode,
+    checkOnboardingStatus,
+    initializeOnboarding
+  } = useMayaOnboarding();
 
   // Connection status monitoring
   useEffect(() => {
@@ -208,12 +217,22 @@ export default function Maya() {
     }
   }, [conversationData, messages.length, setMessages]);
 
-  // Initialize chat state for new users
+  // Initialize Maya onboarding for new users
   useEffect(() => {
-    if (messages.length === 0 && !conversationData) {
-      setHasStartedChat(false);
+    if (user && messages.length === 0 && !conversationData) {
+      console.log('🎯 Maya: New user detected, checking onboarding status...');
+      checkOnboardingStatus().then(() => {
+        if (isOnboardingMode) {
+          console.log('✅ Maya: Starting onboarding flow');
+          initializeOnboarding(setMessages);
+          setHasStartedChat(true);
+        } else {
+          console.log('✅ Maya: User has completed onboarding, ready for concept generation');
+          setHasStartedChat(false);
+        }
+      });
     }
-  }, [messages.length, conversationData]);
+  }, [user, messages.length, conversationData, checkOnboardingStatus, isOnboardingMode, initializeOnboarding, setMessages]);
 
   // ENHANCED SEAMLESS HANDOFF: Handle workspace-to-Maya transitions with user context
   useEffect(() => {
