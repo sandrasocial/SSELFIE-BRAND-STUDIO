@@ -3019,4 +3019,59 @@ router.get('/training-coaching-status/:userId', requireStackAuth, async (req: Ad
   }
 });
 
+// 🧠 ENHANCED MEMORY: Database fallback endpoint for frontend
+router.post('/chat-history', requireStackAuth, async (req: AdminContextRequest, res) => {
+  const startTime = Date.now();
+  const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
+  const { limit = 30 } = req.body;
+
+  if (!userId) {
+    logMayaAPI('/chat-history', startTime, false, new Error('Authentication required'));
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    console.log(`🗄️ MEMORY FALLBACK: Loading chat history for user ${userId} (limit: ${limit})`);
+    
+    // Get recent chats for this user
+    const recentChats = await storage.getMayaChats(userId);
+    
+    if (recentChats.length === 0) {
+      logMayaAPI('/chat-history', startTime, true);
+      return res.json({
+        success: true,
+        messages: [],
+        source: 'database_empty'
+      });
+    }
+
+    // Get messages from the most recent chat
+    const latestChat = recentChats[0];
+    const messages = await storage.getMayaChatMessages(latestChat.id);
+    
+    // Limit to requested amount and return in chronological order
+    const limitedMessages = messages.slice(-limit);
+    
+    console.log(`✅ MEMORY FALLBACK: Found ${limitedMessages.length} messages in database`);
+    
+    logMayaAPI('/chat-history', startTime, true);
+    res.json({
+      success: true,
+      messages: limitedMessages,
+      source: 'database',
+      chatId: latestChat.id,
+      totalMessages: messages.length
+    });
+
+  } catch (error) {
+    console.error('❌ MEMORY FALLBACK ERROR:', error);
+    logMayaAPI('/chat-history', startTime, false, error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to load chat history',
+      source: 'database_error'
+    });
+  }
+});
+
 export default router;
