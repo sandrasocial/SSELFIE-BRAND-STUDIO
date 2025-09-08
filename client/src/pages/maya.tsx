@@ -12,15 +12,75 @@ import { useLocation } from 'wouter';
 
 // Maya luxury workspace - aligned with SSELFIE brand guidelines
 
+// Unified message types for all Maya modes
+type MessageType = 'user' | 'maya' | 'upload' | 'examples' | 'business' | 'onboarding' | 'strategy' | 'feed-design' | 'support';
+
+// Business consultation specific data
+interface BusinessContext {
+  industry?: string;
+  targetAudience?: string;
+  businessGoals?: string[];
+  currentSituation?: string;
+  futureVision?: string;
+  stylePreferences?: string[];
+}
+
+interface OnboardingData {
+  step: number;
+  totalSteps: number;
+  question: string;
+  fieldName: string;
+  options?: string[];
+  explanation?: string;
+  isOnboardingComplete: boolean;
+}
+
+// Feed design specific data
+interface FeedDesignData {
+  selectedImages?: string[];
+  selectedTemplate?: string;
+  platform?: string;
+  messageType?: string;
+  brandedPosts?: any[];
+}
+
+// Support specific data
+interface SupportData {
+  category?: 'technical' | 'account' | 'billing' | 'training' | 'general';
+  priority?: 'low' | 'medium' | 'high';
+  resolved?: boolean;
+}
+
 interface ChatMessage {
   id: string;
-  type: 'user' | 'maya' | 'upload' | 'examples';
+  type: MessageType;
   content: string;
   timestamp: string;
+  mode?: MayaMode; // Which Maya mode this message belongs to
+  
+  // Creation mode properties (existing)
   conceptCards?: ConceptCard[];
   isStreaming?: boolean;
   showUpload?: boolean;
   showExamples?: boolean;
+  
+  // Business mode properties
+  businessContext?: BusinessContext;
+  onboardingData?: OnboardingData;
+  isFormatted?: boolean;
+  
+  // Feed design mode properties
+  feedDesignData?: FeedDesignData;
+  
+  // Support mode properties
+  supportData?: SupportData;
+  
+  // Quick actions for mode-specific interactions
+  quickButtons?: Array<{
+    label: string;
+    action: string;
+    mode?: MayaMode;
+  }>;
 }
 
 
@@ -376,13 +436,21 @@ export default function Maya() {
     }
   };
 
-  // Send message to Maya with enhanced persistence
+  // Send message to Maya with enhanced persistence and mode context
   const sendMessage = useMutation({
     mutationFn: async (messageContent: string) => {
       const response = await fetch('/api/maya/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: messageContent })
+        body: JSON.stringify({ 
+          message: messageContent,
+          mode: activeMode, // Include current mode for context-aware responses
+          conversationHistory: messages.slice(-6).map(msg => ({
+            role: msg.type === 'user' ? 'user' : 'assistant',
+            content: msg.content,
+            mode: msg.mode
+          }))
+        })
       });
 
       if (!response.ok) {
@@ -397,8 +465,14 @@ export default function Maya() {
           type: 'maya',
           content: data.response || data.content || data.message || '',
           timestamp: new Date().toISOString(),
+          mode: activeMode, // Include current mode context
           conceptCards: data.conceptCards || [],
-          quickButtons: data.quickButtons || []
+          quickButtons: data.quickButtons || [],
+          // Mode-specific data handling
+          businessContext: activeMode === 'business' ? data.businessContext : undefined,
+          onboardingData: activeMode === 'business' ? data.onboardingData : undefined,
+          feedDesignData: activeMode === 'feed-design' ? data.feedDesignData : undefined,
+          supportData: activeMode === 'support' ? data.supportData : undefined
         });
       }
       setIsTyping(false);
@@ -415,7 +489,8 @@ export default function Maya() {
     addMessage({
       type: 'user', 
       content: message.trim(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      mode: activeMode // Include current mode context for user messages
     });
 
     setIsTyping(true);
@@ -437,7 +512,8 @@ export default function Maya() {
     addMessage({
       type: 'maya',
       content: "I'm Maya, your photo creation specialist. Describe the professional photos you need and I'll create custom concepts with instant generation. What type of images are you looking to create?",
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      mode: 'creation' // This is specifically for creation mode
     });
   };
 
