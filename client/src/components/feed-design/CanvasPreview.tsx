@@ -19,6 +19,7 @@ interface CanvasPreviewProps {
     brandStyle?: string;
     photoGoals?: string;
     industry?: string;
+    visualTemplate?: string;
   };
   onBrandedPostCreate?: (brandedPostUrl: string) => void;
   className?: string;

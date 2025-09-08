@@ -88,6 +88,170 @@ export class CanvasTextOverlayService {
   }
 
   /**
+   * Create branded graphic using template colors (NO STOCK PHOTOS RULE)
+   */
+  async createBrandedGraphic(
+    text: string,
+    userBrandContext: any,
+    options: Partial<TextOverlayOptions> = {}
+  ): Promise<string> {
+    try {
+      console.log('🎨 CREATING BRANDED GRAPHIC: No user photos, using template colors');
+      
+      // Get visual template or fallback
+      const visualTemplate = options.visualTemplate ? getTemplateById(options.visualTemplate) : null;
+      
+      if (!visualTemplate) {
+        console.log('⚠️ No visual template provided, using elegant default');
+      }
+
+      // Generate template-based styling  
+      const styling = visualTemplate 
+        ? generatePlaceholderFromTemplate(visualTemplate, text)
+        : {
+            backgroundColor: '#1C1C1C', // Elegant dark luxury default
+            textColor: '#FFFFFF',
+            overlayColor: 'rgba(0, 0, 0, 0.4)',
+            fontFamily: 'Times New Roman',
+            fontWeight: 'bold',
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase'
+          };
+
+      // Create luxury branded canvas
+      const canvas = createCanvas(1080, 1080); // Instagram square format
+      const ctx = canvas.getContext('2d');
+
+      // 1. Apply sophisticated background
+      this.createLuxuryBackground(ctx, canvas.width, canvas.height, styling);
+
+      // 2. Configure luxury typography
+      ctx.font = `${styling.fontWeight} 48px "${styling.fontFamily}", serif`;
+      ctx.fillStyle = styling.textColor;
+      ctx.textAlign = 'center';
+      ctx.letterSpacing = styling.letterSpacing;
+
+      // 3. Apply text transform
+      const displayText = styling.textTransform === 'uppercase' ? text.toUpperCase() : text;
+
+      // 4. Draw text with luxury spacing
+      this.drawLuxuryText(ctx, displayText, canvas.width, canvas.height, styling);
+
+      // 5. Create branded buffer and upload
+      const brandedBuffer = canvas.toBuffer('image/jpeg', { quality: 0.95 });
+      const finalImageUrl = await this.uploadToS3(brandedBuffer, 'branded-graphic');
+      
+      console.log('✅ BRANDED GRAPHIC: Created elegant template-based graphic');
+      return finalImageUrl;
+      
+    } catch (error) {
+      console.error('❌ BRANDED GRAPHIC ERROR:', error);
+      throw new Error(`Failed to create branded graphic: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create luxury background using template colors
+   */
+  private createLuxuryBackground(
+    ctx: any,
+    width: number,
+    height: number,
+    styling: any
+  ): void {
+    // Sophisticated gradient background
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, styling.backgroundColor);
+    gradient.addColorStop(0.5, this.adjustColorBrightness(styling.backgroundColor, 10));
+    gradient.addColorStop(1, this.adjustColorBrightness(styling.backgroundColor, -10));
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    
+    // Add subtle texture overlay for luxury feel
+    ctx.fillStyle = styling.overlayColor;
+    ctx.fillRect(0, 0, width, height);
+  }
+
+  /**
+   * Draw luxury typography with optimal spacing
+   */
+  private drawLuxuryText(
+    ctx: any,
+    text: string,
+    width: number,
+    height: number,
+    styling: any
+  ): void {
+    // Calculate optimal text positioning
+    const centerX = width / 2;
+    const centerY = height / 2;
+    
+    // Word wrapping for long text
+    const words = text.split(' ');
+    const maxWidth = width * 0.8; // 80% of canvas width
+    let lines: string[] = [];
+    let currentLine = '';
+    
+    words.forEach(word => {
+      const testLine = currentLine + (currentLine ? ' ' : '') + word;
+      const metrics = ctx.measureText(testLine);
+      
+      if (metrics.width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+    
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+    
+    // Draw lines with luxury spacing
+    const lineHeight = 60;
+    const totalHeight = lines.length * lineHeight;
+    const startY = centerY - (totalHeight / 2) + (lineHeight / 2);
+    
+    lines.forEach((line, index) => {
+      const y = startY + (index * lineHeight);
+      
+      // Add subtle text shadow for depth
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      
+      ctx.fillText(line, centerX, y);
+    });
+    
+    // Reset shadow
+    ctx.shadowColor = 'transparent';
+  }
+
+  /**
+   * Utility: Adjust color brightness for gradients
+   */
+  private adjustColorBrightness(color: string, percent: number): string {
+    // Simple brightness adjustment for hex colors
+    if (color.startsWith('#')) {
+      const hex = color.slice(1);
+      const num = parseInt(hex, 16);
+      const amt = Math.round(2.55 * percent);
+      const R = (num >> 16) + amt;
+      const G = (num >> 8 & 0x00FF) + amt;
+      const B = (num & 0x0000FF) + amt;
+      
+      return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+        (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+        (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+    }
+    
+    return color; // Return original if not hex
+  }
+
+  /**
    * Analyze image to determine optimal text placement and overlay
    */
   async analyzeImageForTextPlacement(imageUrl: string): Promise<ImageAnalysis> {
