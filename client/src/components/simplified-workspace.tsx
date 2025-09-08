@@ -7,9 +7,32 @@ import { apiRequest } from '../lib/queryClient';
 import { useToast } from '../hooks/use-toast';
 
 interface ChatMessage {
-  role: 'user' | 'assistant';
+  id: string;
+  type: 'user' | 'maya' | 'onboarding' | 'strategy';
   content: string;
   timestamp: Date;
+  onboardingData?: OnboardingData;
+  isFormatted?: boolean;
+  businessContext?: BusinessContext;
+}
+
+interface OnboardingData {
+  step: number;
+  totalSteps: number;
+  question: string;
+  fieldName: string;
+  options?: string[];
+  explanation?: string;
+  isOnboardingComplete: boolean;
+}
+
+interface BusinessContext {
+  industry?: string;
+  targetAudience?: string;
+  businessGoals?: string[];
+  currentSituation?: string;
+  futureVision?: string;
+  stylePreferences?: string[];
 }
 
 export function SimplifiedWorkspace() {
@@ -21,13 +44,18 @@ export function SimplifiedWorkspace() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const [isOnboarding, setIsOnboarding] = useState(false);
+  const [currentOnboardingData, setCurrentOnboardingData] = useState<OnboardingData | null>(null);
+  const [businessContext, setBusinessContext] = useState<BusinessContext>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // Load persisted Maya conversation on mount
+  // Load persisted Maya conversation and business context on mount
   useEffect(() => {
     const savedMessages = localStorage.getItem('maya-workspace-chat');
+    const savedContext = localStorage.getItem('maya-business-context');
+    
     if (savedMessages) {
       try {
         const parsedMessages = JSON.parse(savedMessages).map((msg: any) => ({
@@ -39,14 +67,27 @@ export function SimplifiedWorkspace() {
         console.error('Failed to load Maya workspace messages:', error);
       }
     }
+    
+    if (savedContext) {
+      try {
+        const parsedContext = JSON.parse(savedContext);
+        setBusinessContext(parsedContext);
+      } catch (error) {
+        console.error('Failed to load business context:', error);
+      }
+    }
   }, []);
 
-  // Persist conversations to localStorage
+  // Persist conversations and business context to localStorage
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem('maya-workspace-chat', JSON.stringify(messages));
     }
   }, [messages]);
+  
+  useEffect(() => {
+    localStorage.setItem('maya-business-context', JSON.stringify(businessContext));
+  }, [businessContext]);
 
   // Smart auto-scroll system (same as Maya's page)
   const checkIfNearBottom = () => {
@@ -183,6 +224,117 @@ export function SimplifiedWorkspace() {
   };
 
   const welcomeContent = getWelcomeMessage();
+
+  // Enhanced onboarding response handler
+  const handleOnboardingResponse = async (fieldName: string, answer: string) => {
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: answer,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setIsTyping(true);
+
+    try {
+      const response = await apiRequest('/api/maya/chat', 'POST', {
+        message: answer,
+        context: 'dashboard',
+        onboardingField: fieldName,
+        userState,
+        userStats: {
+          imageCount: aiImages.length,
+          modelStatus: userModel?.status,
+          planType: usage.planType || 'sselfie-studio'
+        },
+        conversationHistory: messages.slice(-4).map(msg => ({
+          role: msg.type === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        }))
+      });
+
+      if (response.type === 'onboarding' || response.type === 'onboarding_complete') {
+        setIsOnboarding(response.type === 'onboarding');
+        setCurrentOnboardingData(response);
+        
+        // Update business context
+        if (response.businessContext) {
+          setBusinessContext(prev => ({ ...prev, ...response.businessContext }));
+        }
+
+        const assistantMessage: ChatMessage = {
+          id: Date.now().toString() + '_maya',
+          type: 'onboarding',
+          content: response.question || response.message,
+          timestamp: new Date(),
+          onboardingData: response
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        const assistantMessage: ChatMessage = {
+          id: Date.now().toString() + '_maya',
+          type: 'maya',
+          content: response.content || response.message,
+          timestamp: new Date(),
+          isFormatted: true
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      }
+    } catch (error) {
+      console.error('Onboarding error:', error);
+      toast({
+        title: "Connection Issue",
+        description: "Unable to process your response. Please try again.",
+      });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  // Clear chat with confirmation
+  const handleClearChat = () => {
+    const totalMessages = messages.length;
+    if (totalMessages === 0) {
+      toast({ title: "Already Clear", description: "No conversation to clear." });
+      return;
+    }
+
+    const confirmMessage = totalMessages > 5 
+      ? `Clear conversation? This will remove ${totalMessages} messages but keep your business context and preferences.`
+      : "Start a new conversation? Your business context will be preserved.";
+      
+    if (confirm(confirmMessage)) {
+      setMessages([]);
+      setIsOnboarding(false);
+      setCurrentOnboardingData(null);
+      localStorage.removeItem('maya-workspace-chat');
+      toast({ 
+        title: "Conversation Cleared", 
+        description: "Ready for a fresh start! Your business preferences are still saved." 
+      });
+    }
+  };
+
+  // Start re-onboarding
+  const handleReOnboarding = () => {
+    if (confirm("Start fresh onboarding? This will clear your current business context and guide you through the setup again.")) {
+      setMessages([]);
+      setBusinessContext({});
+      setIsOnboarding(false);
+      localStorage.removeItem('maya-workspace-chat');
+      localStorage.removeItem('maya-business-context');
+      
+      // Send initial onboarding trigger
+      const initialMessage = "I'd like to go through the onboarding process again";
+      setChatMessage(initialMessage);
+      setTimeout(() => handleSendMessage(), 100);
+      
+      toast({ 
+        title: "Onboarding Restarted", 
+        description: "Let's rediscover your business needs and style preferences!" 
+      });
+    }
+  };
   
   // Use actual user images or fallback to sample images
   const userImages = aiImages.length > 0 
@@ -236,7 +388,8 @@ export function SimplifiedWorkspace() {
 
     // Add user message immediately
     const newUserMessage: ChatMessage = {
-      role: 'user',
+      id: Date.now().toString(),
+      type: 'user',
       content: userMessage,
       timestamp: new Date()
     };
@@ -259,13 +412,35 @@ export function SimplifiedWorkspace() {
         }))
       });
 
-      const assistantMessage: ChatMessage = {
-        role: 'assistant',
-        content: response.content || response.message,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
+      // Handle different response types
+      if (response.type === 'onboarding' || response.type === 'onboarding_complete') {
+        setIsOnboarding(response.type === 'onboarding');
+        setCurrentOnboardingData(response);
+        
+        // Update business context
+        if (response.businessContext) {
+          setBusinessContext(prev => ({ ...prev, ...response.businessContext }));
+        }
+
+        const assistantMessage: ChatMessage = {
+          id: Date.now().toString() + '_maya',
+          type: 'onboarding',
+          content: response.question || response.message,
+          timestamp: new Date(),
+          onboardingData: response
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        const assistantMessage: ChatMessage = {
+          id: Date.now().toString() + '_maya',
+          type: response.isStrategy ? 'strategy' : 'maya',
+          content: response.content || response.message,
+          timestamp: new Date(),
+          isFormatted: true,
+          businessContext: response.businessContext
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      }
       
     } catch (error) {
       console.error('Maya chat error:', error);
@@ -330,20 +505,58 @@ export function SimplifiedWorkspace() {
         {/* Maya Chat Interface */}
         <div className="max-w-2xl mx-auto mb-32">
           <div className="bg-gray-50 border border-gray-200 p-8 mb-8">
-            {/* Context-Aware Maya Welcome */}
+            {/* Enhanced Maya Welcome with Controls */}
             <div className="text-center mb-6">
-              <h3 
-                className="text-lg text-black mb-2"
-                style={{ fontFamily: 'Times New Roman, serif', fontWeight: 400, letterSpacing: '0.1em' }}
-              >
-                {welcomeContent.greeting}
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 
+                  className="text-lg text-black flex-1"
+                  style={{ fontFamily: 'Times New Roman, serif', fontWeight: 400, letterSpacing: '0.1em' }}
+                >
+                  {welcomeContent.greeting}
+                </h3>
+                
+                {/* Chat Controls */}
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleClearChat}
+                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    title="Clear conversation"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={handleReOnboarding}
+                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    title="Restart onboarding"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
               <p 
                 className="text-gray-800 mb-4"
                 style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
               >
                 {welcomeContent.message}
               </p>
+              
+              {/* Business Context Display */}
+              {Object.keys(businessContext).length > 0 && (
+                <div className="bg-black/5 rounded-lg px-4 py-3 mb-4">
+                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Your Business Context</p>
+                  <div className="space-y-1 text-sm text-gray-700">
+                    {businessContext.industry && <span>• {businessContext.industry}</span>}
+                    {businessContext.targetAudience && <span>• {businessContext.targetAudience}</span>}
+                    {businessContext.currentSituation && <span>• {businessContext.currentSituation}</span>}
+                  </div>
+                </div>
+              )}
+              
               {messages.length === 0 && (
                 <p 
                   className="text-gray-600 text-sm italic"
@@ -367,31 +580,121 @@ export function SimplifiedWorkspace() {
                     scrollbarColor: '#e5e7eb transparent'
                   }}
                 >
-                  <div className="space-y-4 p-1">
-                    {messages.map((message, index) => (
-                      <div 
-                        key={index} 
-                        className={`flex items-end gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div 
-                          className={`max-w-[85%] sm:max-w-xs px-4 py-3 rounded-2xl transition-all duration-200 ${
-                            message.role === 'user'
-                              ? 'bg-black text-white rounded-br-md shadow-sm'
-                              : 'bg-white border border-gray-200 text-gray-800 rounded-bl-md shadow-sm'
-                          }`}
-                          style={{ 
-                            fontFamily: 'Helvetica Neue', 
-                            fontWeight: 300, 
-                            fontSize: '15px',
-                            lineHeight: '1.5'
-                          }}
-                        >
-                          <div className="break-words">
-                            {message.content}
+                  <div className="space-y-6 p-1">
+                    {messages.map((message, index) => {
+                      if (message.type === 'onboarding') {
+                        // Enhanced Onboarding Message UI
+                        return (
+                          <div key={message.id} className="flex justify-start">
+                            <div className="max-w-full w-full">
+                              <div className="mb-4 flex items-center">
+                                <span className="text-xs text-gray-400 tracking-wider uppercase mr-4" style={{ letterSpacing: '0.2em' }}>Maya</span>
+                                <div className="flex-1 h-px bg-gray-200"></div>
+                                {message.onboardingData && (
+                                  <span className="text-xs text-gray-400 tracking-wider uppercase ml-4" style={{ letterSpacing: '0.2em' }}>
+                                    Step {message.onboardingData.step} of {message.onboardingData.totalSteps}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              <div className="bg-gray-50 border border-gray-100 px-6 py-6 mb-4 rounded-lg">
+                                <p className="text-gray-800 mb-4" style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.6 }}>
+                                  {message.content}
+                                </p>
+                                
+                                {message.onboardingData?.explanation && (
+                                  <p className="text-sm text-gray-600 mb-4 italic leading-relaxed">
+                                    {message.onboardingData.explanation}
+                                  </p>
+                                )}
+                                
+                                {message.onboardingData?.options ? (
+                                  <div className="space-y-2">
+                                    {message.onboardingData.options.map((option) => (
+                                      <button
+                                        key={option}
+                                        onClick={() => handleOnboardingResponse(message.onboardingData!.fieldName, option)}
+                                        className="w-full text-left px-4 py-3 border border-gray-200 hover:border-black hover:bg-white transition-all duration-200 rounded-lg"
+                                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                                        disabled={isTyping}
+                                      >
+                                        <span className="text-sm text-gray-700">
+                                          {option.charAt(0).toUpperCase() + option.slice(1)}
+                                        </span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    placeholder="Type your answer..."
+                                    className="w-full px-4 py-3 border border-gray-300 focus:border-black focus:outline-none transition-colors bg-white rounded-lg"
+                                    style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                                    disabled={isTyping}
+                                    onKeyPress={(e) => {
+                                      if (e.key === 'Enter') {
+                                        const target = e.target as HTMLInputElement;
+                                        if (target.value.trim()) {
+                                          handleOnboardingResponse(message.onboardingData!.fieldName, target.value.trim());
+                                          target.value = '';
+                                        }
+                                      }
+                                    }}
+                                  />
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    ))}
+                        );
+                      } else if (message.type === 'strategy') {
+                        // Enhanced Strategy Message UI
+                        return (
+                          <div key={message.id} className="flex justify-start">
+                            <div className="max-w-full w-full">
+                              <div className="mb-3">
+                                <span className="text-xs text-gray-400 tracking-wider uppercase" style={{ letterSpacing: '0.2em' }}>Maya • Strategy</span>
+                              </div>
+                              <div className="bg-gradient-to-br from-black to-gray-800 text-white px-6 py-6 rounded-lg shadow-sm">
+                                <div className="break-words whitespace-pre-wrap" style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: '1.6' }}>
+                                  {message.content}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        // Regular conversation messages
+                        return (
+                          <div 
+                            key={message.id} 
+                            className={`flex items-end gap-2 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                          >
+                            {message.type !== 'user' && (
+                              <div className="mb-8">
+                                <span className="text-xs text-gray-400 tracking-wider uppercase" style={{ letterSpacing: '0.2em' }}>Maya</span>
+                              </div>
+                            )}
+                            <div 
+                              className={`max-w-[85%] sm:max-w-lg px-4 py-3 transition-all duration-200 ${
+                                message.type === 'user'
+                                  ? 'bg-black text-white rounded-2xl rounded-br-md shadow-sm'
+                                  : 'bg-gray-50 border border-gray-100 text-gray-800 rounded-2xl rounded-bl-md shadow-sm'
+                              }`}
+                              style={{ 
+                                fontFamily: 'Helvetica Neue', 
+                                fontWeight: 300, 
+                                fontSize: '15px',
+                                lineHeight: '1.6'
+                              }}
+                            >
+                              <div className={`break-words ${message.isFormatted ? 'whitespace-pre-wrap' : ''}`}>
+                                {message.content}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                    })}
                     
                     {/* Enhanced typing indicator */}
                     {isTyping && (
