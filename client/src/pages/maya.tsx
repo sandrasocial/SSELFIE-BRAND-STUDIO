@@ -250,7 +250,7 @@ export default function Maya() {
           const userName = context.userProfile?.name || 'there';
           addMessage({
             type: 'maya',
-            content: `Welcome to my creation studio, ${userName}! I received your request from the workspace: "${context.message}". With your professional background in ${context.businessContext?.industry || 'your field'}, let me create photo concepts that perfectly showcase your expertise...`,
+            content: `Hey ${userName}! I got your message from the workspace: "${context.message}". Perfect! Let's create some photos that'll look amazing for ${context.businessContext?.industry || 'your work'}. What are we styling today?`,
             timestamp: new Date().toISOString()
           });
           
@@ -417,7 +417,7 @@ export default function Maya() {
 
     addMessage({
       type: 'maya',
-      content: "I'm Maya, your photo creation specialist. Describe the professional photos you need and I'll create custom concepts with instant generation. What type of images are you looking to create?",
+      content: "Hey! I'm Maya. Ready to create some stunning photos? Tell me what you need and I'll help you look incredible. What are we working on?",
       timestamp: new Date().toISOString()
     });
   };
@@ -444,7 +444,7 @@ export default function Maya() {
                 className="text-xs tracking-widest uppercase text-gray-400 mb-8"
                 style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, letterSpacing: '0.3em' }}
               >
-                Personal Brand Strategist
+                AI Stylist
               </div>
               <h1 
                 className="text-4xl md:text-5xl text-black mb-8"
