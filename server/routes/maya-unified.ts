@@ -260,8 +260,9 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       
       if (isOnboardingRequest) {
         try {
-          // Get current onboarding step from user data or start fresh
-          const currentStep = user.onboardingStep || 1;
+          // Get current onboarding progress from user data - Maya handles all steps conversationally
+          const onboardingProgress = user.onboardingProgress ? JSON.parse(user.onboardingProgress as string) : {};
+          const currentStep = onboardingProgress.currentStep || 1;
           
           let onboardingResponse;
           
@@ -274,14 +275,18 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
               currentStep
             );
             
-            // Update user's onboarding progress
+            // Update user's conversational onboarding progress
             if (onboardingResponse.currentStep > currentStep) {
-              await storage.updateUser(userId, { onboardingStep: onboardingResponse.currentStep });
+              const updatedProgress = { ...onboardingProgress, currentStep: onboardingResponse.currentStep };
+              await storage.updateUser(userId, { onboardingProgress: JSON.stringify(updatedProgress) });
             }
             
-            // Mark profile as completed if onboarding is done
+            // Update conversational onboarding progress without blocking
             if (onboardingResponse.nextAction === 'complete_onboarding') {
-              await storage.updateUser(userId, { profileCompleted: true, onboardingStep: 6 });
+              await storage.updateUser(userId, { 
+                preferredOnboardingMode: 'completed',
+                onboardingProgress: JSON.stringify({ completed: true, completedAt: new Date().toISOString() })
+              });
             }
           } else {
             // Start or continue onboarding flow

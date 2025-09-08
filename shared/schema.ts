@@ -75,9 +75,9 @@ export const users = pgTable("users", {
   retrainingSessionId: varchar("retraining_session_id"),
   retrainingPaidAt: timestamp("retraining_paid_at"),
   
-  // Profile completion tracking for conversational onboarding
-  profileCompleted: boolean("profile_completed").default(false),
-  onboardingStep: integer("onboarding_step").default(0), // 0=not started, 5=complete
+  // Conversational onboarding tracking - Maya handles incomplete profiles gracefully
+  onboardingProgress: jsonb("onboarding_progress").default('{}'), // Store conversational progress without blocking
+  preferredOnboardingMode: varchar("preferred_onboarding_mode").default("conversational"), // conversational, guided, completed
   
   // Essential profile data for Maya personalization
   gender: varchar("gender"), // "man" | "woman" | "non-binary" - CRITICAL for image generation
