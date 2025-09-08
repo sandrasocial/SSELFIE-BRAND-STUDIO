@@ -29,6 +29,7 @@ const MayaBrandCustomization = lazy(() => import("./pages/maya-brand-customizati
 const SalesConsultation = lazy(() => import("./pages/sales-consultation"));
 const ImplementationTimeline = lazy(() => import("./pages/implementation-timeline"));
 const Profile = lazy(() => import("./pages/profile"));
+const AccountSettings = lazy(() => import("./pages/account-settings"));
 const Pricing = lazy(() => import("./pages/pricing"));
 const About = lazy(() => import("./pages/about"));
 const Blog = lazy(() => import("./pages/blog"));
@@ -398,6 +399,11 @@ function Router() {
       <Route path="/profile" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={Profile} {...props} />
+        </Suspense>
+      )} />
+      <Route path="/account-settings" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={AccountSettings} {...props} />
         </Suspense>
       )} />
       <Route path="/settings" component={(props) => (

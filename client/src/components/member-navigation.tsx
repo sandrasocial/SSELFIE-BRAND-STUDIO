@@ -38,11 +38,11 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
   const isAdmin = user?.email === 'ssa@ssasocial.com';
   const isImpersonating = user?.email === 'shannon@soulresets.com' && user?.role === 'user';
 
-  // Member navigation items - SIMPLIFIED TO STUDIO, GALLERY, PROFILE, LOGOUT  
+  // Member navigation items - SIMPLIFIED TO STUDIO, GALLERY, ACCOUNT SETTINGS, LOGOUT  
   const navItems = [
     { path: '/workspace', label: 'Studio' },
     { path: '/sselfie-gallery', label: 'Gallery' },
-    { path: '/profile', label: 'Profile' },
+    { path: '/account-settings', label: 'Account' },
   ];
 
   const handleLogout = () => {
@@ -97,12 +97,12 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                   {
                     text: 'Subscription & Billing',
                     icon: <span className="text-sm">💳</span>,
-                    onClick: () => setLocation('/profile?tab=billing')
+                    onClick: () => setLocation('/account-settings?tab=billing')
                   },
                   {
-                    text: 'Account Settings', 
-                    icon: <span className="text-sm">⚙️</span>,
-                    onClick: () => setLocation('/profile?tab=settings')
+                    text: 'Business Profile', 
+                    icon: <span className="text-sm">👤</span>,
+                    onClick: () => setLocation('/profile')
                   }
                 ]}
               />
