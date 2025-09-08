@@ -21,6 +21,8 @@ interface ChatMessage {
   isStreaming?: boolean;
   showUpload?: boolean;
   showExamples?: boolean;
+  quickButtons?: string[];
+  isOnboarding?: boolean;
 }
 
 
@@ -211,9 +213,9 @@ export default function Maya() {
     }
   }, [conversationData, messages.length, setMessages]);
 
-  // Initialize Maya onboarding for new users
+  // Initialize Maya onboarding for new users - Fixed race condition
   useEffect(() => {
-    if (user && messages.length === 0 && !conversationData) {
+    if (user?.id && messages.length === 0 && !conversationData && !hasStartedChat) {
       console.log('🎯 Maya: New user detected, checking onboarding status...');
       
       const checkOnboardingAndStart = async () => {
@@ -228,7 +230,7 @@ export default function Maya() {
           if (!statusResponse.onboardingComplete) {
             console.log('✅ Maya: Starting 6-step onboarding conversation service');
             // Start actual onboarding conversation service
-            startOnboardingConversation();
+            await startOnboardingConversation();
             setHasStartedChat(true);
           } else {
             console.log('✅ Maya: User has completed onboarding, ready for concept generation');
@@ -241,7 +243,7 @@ export default function Maya() {
       
       checkOnboardingAndStart();
     }
-  }, [user, messages.length, conversationData, setMessages]);
+  }, [user?.id, messages.length, conversationData, hasStartedChat]);
 
   // ENHANCED SEAMLESS HANDOFF: Handle workspace-to-Maya transitions with user context
   useEffect(() => {

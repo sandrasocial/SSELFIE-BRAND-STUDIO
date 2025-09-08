@@ -282,6 +282,81 @@ export const MAYA_PERSONALITY: MayaPersonality = {
     }
   },
 
+  categories: {
+    "Business": {
+      description: "Professional business portraits for LinkedIn, corporate websites, and career advancement",
+      vibe: "Authoritative yet approachable, trustworthy professional presence",
+      stylingApproach: [
+        "Structured blazers with confident posture and direct eye contact",
+        "Executive presence with sophisticated color palettes and polished accessories",
+        "Professional authority through strategic styling and composed expressions",
+        "Corporate leadership energy with premium fabrics and tailored fits",
+        "Business networking confidence with approachable but commanding presence"
+      ],
+      promptGuidance: [
+        "Focus on credibility-building elements like structured clothing and professional settings",
+        "Emphasize trustworthy facial expressions and confident body language",
+        "Include business-appropriate backgrounds like offices, conference rooms, or urban settings",
+        "Use lighting that conveys competence and reliability",
+        "Style should communicate expertise without being intimidating"
+      ]
+    },
+    "Fashion": {
+      description: "High-fashion editorial and stylish personal brand content",
+      vibe: "Fashion-forward, trendsetting, style authority",
+      stylingApproach: [
+        "Editorial fashion moments with dramatic lighting and sophisticated poses",
+        "Trendsetting combinations that showcase personal style authority",
+        "High-fashion elegance with luxury fabrics and statement accessories",
+        "Fashion photography aesthetics with magazine-quality composition",
+        "Style innovation through creative combinations and fashion-forward choices"
+      ],
+      promptGuidance: [
+        "Emphasize fashion-forward styling with current trends and luxury elements",
+        "Use dramatic or sophisticated lighting for editorial appeal",
+        "Include fashion-focused backgrounds like studios, urban settings, or luxury environments",
+        "Focus on clothing details, textures, and style innovation",
+        "Create images that could appear in fashion publications"
+      ]
+    },
+    "Lifestyle": {
+      description: "Authentic lifestyle moments perfect for social media and personal brand building",
+      vibe: "Relatable authenticity, effortless elegance, lifestyle inspiration",
+      stylingApproach: [
+        "Effortless elegance in everyday moments with natural sophistication",
+        "Lifestyle authenticity that feels genuine while maintaining polish",
+        "Social media optimization with scroll-stopping visual appeal",
+        "Personal brand moments that showcase lifestyle and values",
+        "Aspirational yet attainable styling for lifestyle inspiration"
+      ],
+      promptGuidance: [
+        "Create natural, relatable moments that still feel polished and intentional",
+        "Use lifestyle-appropriate backgrounds like cafes, homes, or outdoor spaces",
+        "Focus on authentic expressions and natural body language",
+        "Include lifestyle elements that tell a story about values and interests",
+        "Balance aspirational appeal with authentic relatability"
+      ]
+    },
+    "Travel": {
+      description: "Location-based content showcasing wanderlust and global sophistication",
+      vibe: "Jet-set elegance, cultural appreciation, adventure with style",
+      stylingApproach: [
+        "Travel-inspired elegance with location-appropriate sophisticated styling",
+        "Global sophistication that respects and celebrates different cultures",
+        "Adventure-ready style that maintains elegance and photo-worthiness",
+        "Destination fashion that enhances rather than dominates the location",
+        "Wanderlust inspiration through thoughtful styling and cultural appreciation"
+      ],
+      promptGuidance: [
+        "Incorporate location-specific elements while maintaining style sophistication",
+        "Use travel destinations as backdrops with cultural sensitivity",
+        "Focus on styling that works with different climates and cultural contexts",
+        "Create aspirational travel content that inspires wanderlust",
+        "Balance location prominence with personal style expression"
+      ]
+    }
+  },
+
   stylingApproaches: {
     "Professional Business": {
       description: "Credible business presence for professional networking and career advancement",
