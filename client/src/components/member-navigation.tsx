@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '../hooks/use-auth';
+import { UserButton } from '@stackframe/react';
 
 interface MemberNavigationProps {
   transparent?: boolean;
@@ -37,10 +38,11 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
   const isAdmin = user?.email === 'ssa@ssasocial.com';
   const isImpersonating = user?.email === 'shannon@soulresets.com' && user?.role === 'user';
 
-  // Member navigation items - SIMPLIFIED TO STUDIO, GALLERY, LOGOUT
+  // Member navigation items - SIMPLIFIED TO STUDIO, GALLERY, PROFILE, LOGOUT  
   const navItems = [
     { path: '/workspace', label: 'Studio' },
     { path: '/sselfie-gallery', label: 'Gallery' },
+    { path: '/profile', label: 'Profile' },
   ];
 
   const handleLogout = () => {
@@ -86,6 +88,25 @@ export function MemberNavigation({ transparent = true }: MemberNavigationProps) 
                 {item.label}
               </button>
             ))}
+
+            {/* Stack Auth UserButton with Maya's luxury styling */}
+            <div className="flex items-center">
+              <UserButton 
+                showUserInfo={false}
+                extraItems={[
+                  {
+                    text: 'Subscription & Billing',
+                    icon: <span className="text-sm">💳</span>,
+                    onClick: () => setLocation('/profile?tab=billing')
+                  },
+                  {
+                    text: 'Account Settings', 
+                    icon: <span className="text-sm">⚙️</span>,
+                    onClick: () => setLocation('/profile?tab=settings')
+                  }
+                ]}
+              />
+            </div>
 
             {isImpersonating && (
               <button
