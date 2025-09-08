@@ -17,6 +17,9 @@ import {
   emailCaptures,
   mayaChats,
   mayaChatMessages,
+  feedTemplates,
+  brandedPosts,
+  feedCollections,
   type User,
   type InsertUser,
   type UserProfile,
@@ -53,6 +56,12 @@ import {
   type InsertMayaChat,
   type MayaChatMessage,
   type InsertMayaChatMessage,
+  type FeedTemplate,
+  type InsertFeedTemplate,
+  type BrandedPost,
+  type InsertBrandedPost,
+  type FeedCollection,
+  type InsertFeedCollection,
   claudeConversations,
   claudeMessages,
   type ClaudeConversation,
@@ -196,6 +205,25 @@ export interface IStorage {
   getUserCount(): Promise<number>;
   getAIImageCount(): Promise<number>;
   getAgentConversationCount(): Promise<number>;
+
+  // Feed Design System operations
+  createFeedTemplate(template: InsertFeedTemplate): Promise<FeedTemplate>;
+  getFeedTemplate(id: number): Promise<FeedTemplate | undefined>;
+  getFeedTemplatesByUser(userId: string): Promise<FeedTemplate[]>;
+  updateFeedTemplate(id: number, updates: Partial<InsertFeedTemplate>): Promise<FeedTemplate>;
+  deleteFeedTemplate(id: number): Promise<void>;
+
+  createBrandedPost(post: InsertBrandedPost): Promise<BrandedPost>;
+  getBrandedPost(id: number): Promise<BrandedPost | undefined>;
+  getBrandedPostsByUser(userId: string): Promise<BrandedPost[]>;
+  updateBrandedPost(id: number, updates: Partial<InsertBrandedPost>): Promise<BrandedPost>;
+  deleteBrandedPost(id: number): Promise<void>;
+
+  createFeedCollection(collection: InsertFeedCollection): Promise<FeedCollection>;
+  getFeedCollection(id: number): Promise<FeedCollection | undefined>;
+  getFeedCollectionsByUser(userId: string): Promise<FeedCollection[]>;
+  updateFeedCollection(id: number, updates: Partial<InsertFeedCollection>): Promise<FeedCollection>;
+  deleteFeedCollection(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1573,6 +1601,76 @@ export class DatabaseStorage implements IStorage {
   async getAgentConversationCount(): Promise<number> {
     const result = await db.select({ count: sql`count(*)` }).from(claudeMessages);
     return Number(result[0]?.count || 0);
+  }
+
+  // Feed Design System implementations
+  async createFeedTemplate(template: InsertFeedTemplate): Promise<FeedTemplate> {
+    const [newTemplate] = await db.insert(feedTemplates).values(template).returning();
+    return newTemplate;
+  }
+
+  async getFeedTemplate(id: number): Promise<FeedTemplate | undefined> {
+    const [template] = await db.select().from(feedTemplates).where(eq(feedTemplates.id, id));
+    return template;
+  }
+
+  async getFeedTemplatesByUser(userId: string): Promise<FeedTemplate[]> {
+    return await db.select().from(feedTemplates).where(eq(feedTemplates.userId, userId)).orderBy(desc(feedTemplates.createdAt));
+  }
+
+  async updateFeedTemplate(id: number, updates: Partial<InsertFeedTemplate>): Promise<FeedTemplate> {
+    const [updated] = await db.update(feedTemplates).set(updates).where(eq(feedTemplates.id, id)).returning();
+    return updated;
+  }
+
+  async deleteFeedTemplate(id: number): Promise<void> {
+    await db.delete(feedTemplates).where(eq(feedTemplates.id, id));
+  }
+
+  async createBrandedPost(post: InsertBrandedPost): Promise<BrandedPost> {
+    const [newPost] = await db.insert(brandedPosts).values(post).returning();
+    return newPost;
+  }
+
+  async getBrandedPost(id: number): Promise<BrandedPost | undefined> {
+    const [post] = await db.select().from(brandedPosts).where(eq(brandedPosts.id, id));
+    return post;
+  }
+
+  async getBrandedPostsByUser(userId: string): Promise<BrandedPost[]> {
+    return await db.select().from(brandedPosts).where(eq(brandedPosts.userId, userId)).orderBy(desc(brandedPosts.createdAt));
+  }
+
+  async updateBrandedPost(id: number, updates: Partial<InsertBrandedPost>): Promise<BrandedPost> {
+    const [updated] = await db.update(brandedPosts).set(updates).where(eq(brandedPosts.id, id)).returning();
+    return updated;
+  }
+
+  async deleteBrandedPost(id: number): Promise<void> {
+    await db.delete(brandedPosts).where(eq(brandedPosts.id, id));
+  }
+
+  async createFeedCollection(collection: InsertFeedCollection): Promise<FeedCollection> {
+    const [newCollection] = await db.insert(feedCollections).values(collection).returning();
+    return newCollection;
+  }
+
+  async getFeedCollection(id: number): Promise<FeedCollection | undefined> {
+    const [collection] = await db.select().from(feedCollections).where(eq(feedCollections.id, id));
+    return collection;
+  }
+
+  async getFeedCollectionsByUser(userId: string): Promise<FeedCollection[]> {
+    return await db.select().from(feedCollections).where(eq(feedCollections.userId, userId)).orderBy(desc(feedCollections.createdAt));
+  }
+
+  async updateFeedCollection(id: number, updates: Partial<InsertFeedCollection>): Promise<FeedCollection> {
+    const [updated] = await db.update(feedCollections).set(updates).where(eq(feedCollections.id, id)).returning();
+    return updated;
+  }
+
+  async deleteFeedCollection(id: number): Promise<void> {
+    await db.delete(feedCollections).where(eq(feedCollections.id, id));
   }
 }
 
