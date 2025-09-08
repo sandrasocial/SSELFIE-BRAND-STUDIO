@@ -109,6 +109,8 @@ interface PlatformStrategy {
     contentStrategy: string;
     keyMetrics: string;
     stylingGuidance: string[];
+    industrySpecific?: { [key: string]: string };
+    algorithmInsights?: string[];
   };
   instagram: {
     purpose: string;
@@ -116,6 +118,8 @@ interface PlatformStrategy {
     contentStrategy: string;
     keyMetrics: string;
     stylingGuidance: string[];
+    contentTypes?: { [key: string]: string };
+    feedAesthetics?: string[];
   };
   websites: {
     purpose: string;
@@ -123,6 +127,8 @@ interface PlatformStrategy {
     contentStrategy: string;
     keyMetrics: string;
     stylingGuidance: string[];
+    pageSpecific?: { [key: string]: string };
+    conversionOptimization?: string[];
   };
 }
 
@@ -493,6 +499,20 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Stand tall and make eye contact - this builds trust immediately",
         "Professional settings that make sense for what you do",
         "Stick to trustworthy colors like navy and charcoal with small pops of personality"
+      ],
+      industrySpecific: {
+        consultants: "Authority-building headshots in structured blazers, confident eye contact, neutral backgrounds that don't distract from expertise",
+        coaches: "Warm approachability in professional settings, sitting positions that suggest listening and support, colors that feel inviting",
+        creatives: "Polished creative flair - artistic backgrounds, creative poses, showing tools of trade while maintaining professionalism",
+        entrepreneurs: "Dynamic leadership energy, forward-leaning poses, business casual elevated, settings that suggest innovation",
+        speakers: "Stage-ready presence, arms open or gesturing, confident stance, professional lighting that suggests spotlight readiness",
+        authors: "Thoughtful intellectual presence, perhaps with books or writing materials, contemplative poses, sophisticated styling"
+      },
+      algorithmInsights: [
+        "LinkedIn favors professional headshots with clear faces - avoid artistic shadows or creative crops",
+        "Post engagement increases 2x with professional photos vs casual selfies",
+        "Industry-appropriate styling gets 40% more profile views from relevant connections",
+        "Video thumbnails perform best with confident, direct eye contact and professional backgrounds"
       ]
     },
     instagram: {
@@ -511,6 +531,18 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Consistent colors and style so your feed looks cohesive",
         "Mix textures and layers for visual interest in photos",
         "Natural movement and genuine expressions - not stiff poses"
+      ],
+      contentTypes: {
+        lifestyle: "Elevated daily moments - morning coffee, workspace setups, travel, personal rituals that inspire",
+        behindScenes: "Real work process, challenges, victories, authentic moments that build connection",
+        educational: "Teaching moments in natural settings, visual tips, before/after transformations",
+        personal: "Journey stories, vulnerable moments balanced with strength, authentic celebrations"
+      },
+      feedAesthetics: [
+        "3-photo story sequences work better than single posts for engagement",
+        "Consistent color palette across 9 posts creates professional feed appearance",
+        "Mix of close-ups (33%), half-body (33%), and full scene (33%) creates visual variety",
+        "Stories with faces get 15% more engagement than landscape or product-only shots"
       ]
     },
     websites: {
@@ -529,6 +561,18 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Consistent with your overall brand but not overly matchy",
         "Choose styles that your ideal clients connect with emotionally",
         "Support your written content - don't compete with it"
+      ],
+      pageSpecific: {
+        hero: "Confident leadership presence, direct eye contact, professional but approachable styling, background that suggests success",
+        about: "Personal connection moments, genuine smile, comfortable poses that invite trust and relatability",
+        services: "In-action shots showing expertise, consulting poses, teaching moments, results-focused imagery",
+        testimonials: "Happy client interactions, celebration moments, collaborative energy that proves results"
+      },
+      conversionOptimization: [
+        "Hero images with direct eye contact increase form completions by 35%",
+        "About page photos with genuine smiles build trust faster than serious professional shots",
+        "Service page photos showing work process increase booking rates by 28%",
+        "Team photos with collaborative energy improve client retention by 22%"
       ]
     }
   },
