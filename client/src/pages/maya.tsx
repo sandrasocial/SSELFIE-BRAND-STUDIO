@@ -215,6 +215,41 @@ export default function Maya() {
     }
   }, [messages.length, conversationData]);
 
+  // SEAMLESS HANDOFF: Handle workspace-to-Maya transitions
+  useEffect(() => {
+    const handoffContext = localStorage.getItem('maya-handoff-context');
+    if (handoffContext) {
+      try {
+        const context = JSON.parse(handoffContext);
+        console.log('🔄 HANDOFF: Received context from workspace:', context.message);
+        
+        // Add welcome transition message
+        addMessage({
+          type: 'maya',
+          content: `Welcome to my creation studio! I received your request: "${context.message}". Let me create professional photo concepts for you...`,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Auto-start conversation with handoff message after brief delay
+        setTimeout(() => {
+          setMessage(context.message);
+          chatMutation.mutate({
+            message: context.message,
+            context: 'styling',
+            conversationHistory: []
+          });
+        }, 1000);
+        
+        // Clear handoff context after use
+        localStorage.removeItem('maya-handoff-context');
+        setHasStartedChat(true);
+        
+      } catch (error) {
+        console.error('Failed to process handoff context:', error);
+      }
+    }
+  }, []);
+
   // Smart auto-scroll effects
   useEffect(() => {
     const chatContainer = chatContainerRef.current;
