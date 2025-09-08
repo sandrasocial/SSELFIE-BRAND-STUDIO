@@ -42,21 +42,20 @@ export class MayaMemoryService {
   }
 
   /**
-   * Save Maya conversation to database and memory with context awareness
+   * Save Maya conversation to database and memory
    */
   async saveMayaConversation(
     userId: string,
     userMessage: string,
     mayaResponse: string,
     hasImageGeneration: boolean = false,
-    chatId?: number,
-    context: string = 'creation'
+    chatId?: number
   ): Promise<{ chatId: number; messageId: number }> {
     
-    // Get or create Maya chat session with context awareness
+    // Get or create Maya chat session
     let activeChatId = chatId;
     if (!activeChatId) {
-      activeChatId = await this.getOrCreateMayaChatSession(userId, context);
+      activeChatId = await this.getOrCreateMayaChatSession(userId);
     }
 
     // Save user message
@@ -270,86 +269,28 @@ export class MayaMemoryService {
   /**
    * Get or create Maya chat session for user
    */
-  private async getOrCreateMayaChatSession(userId: string, context: string = 'creation'): Promise<number> {
+  private async getOrCreateMayaChatSession(userId: string): Promise<number> {
     
-    // Check for existing active chat in the same context
+    // Check for existing active chat
     const existingChats = await storage.getMayaChats(userId);
     
-    // Look for a recent chat in the same context
-    const contextCategory = this.mapContextToCategory(context);
-    const recentContextChat = existingChats.find(chat => 
-      chat.chatCategory === contextCategory && 
-      // Chat is within last 24 hours
-      chat.lastActivity && new Date().getTime() - new Date(chat.lastActivity).getTime() < 24 * 60 * 60 * 1000
-    );
-    
-    if (recentContextChat) {
-      console.log(`🧠 CONTEXT-AWARE MEMORY: Using existing ${contextCategory} chat (${recentContextChat.id})`);
-      return recentContextChat.id;
+    if (existingChats.length > 0) {
+      // Use the most recent chat
+      const latestChat = existingChats[0];
+      return latestChat.id;
     }
 
-    // Create new context-specific Maya chat session
-    const { title, category } = this.getContextualChatInfo(context);
+    // Create new Maya chat session
     const newChatData: InsertMayaChat = {
       userId,
-      chatTitle: title,
-      chatCategory: category,
+      chatTitle: 'Personal Brand Discovery with Maya',
+      chatCategory: 'onboarding',
       createdAt: new Date(),
       lastActivity: new Date()
     };
 
-    console.log(`🧠 CONTEXT-AWARE MEMORY: Creating new ${category} chat session`);
     const newChat = await storage.createMayaChat(newChatData);
     return newChat.id;
-  }
-
-  /**
-   * Map context to database category
-   */
-  private mapContextToCategory(context: string): string {
-    switch (context) {
-      case 'consultation':
-      case 'workspace':
-      case 'dashboard':
-        return 'Brand Consultation';
-      case 'creation':
-      case 'styling':
-        return 'Photo Creation';
-      case 'support':
-        return 'Support';
-      default:
-        return 'Photo Creation';
-    }
-  }
-
-  /**
-   * Get contextual chat title and category
-   */
-  private getContextualChatInfo(context: string): { title: string; category: string } {
-    const category = this.mapContextToCategory(context);
-    
-    switch (category) {
-      case 'Brand Consultation':
-        return {
-          title: 'Business Strategy with Maya',
-          category
-        };
-      case 'Photo Creation':
-        return {
-          title: 'Professional Photos with Maya',
-          category
-        };
-      case 'Support':
-        return {
-          title: 'Maya Support',
-          category
-        };
-      default:
-        return {
-          title: 'Personal Brand Discovery with Maya',
-          category: 'Photo Creation'
-        };
-    }
   }
 
   /**
