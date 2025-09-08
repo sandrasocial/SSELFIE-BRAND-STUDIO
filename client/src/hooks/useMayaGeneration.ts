@@ -145,14 +145,8 @@ export const useMayaGeneration = (
             return newSet;
           });
           
-          // Show Maya timeout message
-          const timeoutMessage: ChatMessage = {
-            role: 'maya',
-            content: "Photo creation encountered an issue. Let me try a different approach. What specific style works best for your goals?",
-            timestamp: new Date().toISOString(),
-            quickButtons: ["Try again", "Different style", "Tell me the issue"]
-          };
-          setMessages(prev => [...prev, timeoutMessage]);
+          // Let Maya handle timeout naturally - no template override
+          console.log('Maya: Generation timeout - preserving Maya\'s original intelligence');
         }
       }, 15000);
       
@@ -328,7 +322,7 @@ export const useMayaGeneration = (
                 msg.generationId === finalGenerationId 
                   ? { 
                       ...msg, 
-                      content: msg.content + '\n\nPhoto creation encountered an issue. Let me try a different approach - tell me specifically what style works for your business goals and I\'ll create the right professional photos. What style fits your brand?',
+                      content: msg.content, // Preserve Maya's original intelligence without template override
                       canGenerate: false,
                       quickButtons: [`Retry "${conceptName || 'this concept'}"`, "Different style approach", "Professional headshot", "Tell me more about the issue"]
                     }
@@ -354,15 +348,8 @@ export const useMayaGeneration = (
               return newSet;
             });
             
-            // Add Maya's helpful polling error message with retry
-            const errorMessage: ChatMessage = {
-              role: 'maya',
-              content: "I'm having trouble checking on your photos right now. Let me create new professional photos for you instead. What style works best for your business goals?",
-              timestamp: new Date().toISOString(),
-              quickButtons: [`Retry "${conceptName || 'last concept'}"`, "Professional headshot", "Creative lifestyle", "Try a different concept"]
-            };
-            
-            setMessages(prev => [...prev, errorMessage]);
+            // Let Maya handle status check errors naturally - no template override
+            console.log('Maya: Status check error - preserving Maya\'s intelligence');
           }
         };
         
