@@ -139,11 +139,7 @@ export class MayaStorageExtensions {
       return false;
     }
     
-    // Validate step range
-    if (data.onboardingStep && (data.onboardingStep < 1 || data.onboardingStep > 6)) {
-      console.error('❌ Maya: Invalid onboardingStep, must be 1-6');
-      return false;
-    }
+    // Maya handles onboarding progress conversationally without rigid step validation
     
     // Validate required completion data
     if (data.isCompleted && (!data.transformationStory || !data.futureVision)) {

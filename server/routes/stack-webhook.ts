@@ -78,8 +78,8 @@ async function handleUserUpsert(stackUser: any) {
       monthlyGenerationLimit: stackUser.primary_email === 'sandra@sselfie.ai' ? -1 : 100,
       mayaAiAccess: true,
       victoriaAiAccess: false,
-      profileCompleted: false,
-      onboardingStep: 0,
+      preferredOnboardingMode: "conversational",
+      onboardingProgress: JSON.stringify({}),
     };
 
     // Upsert user to database
