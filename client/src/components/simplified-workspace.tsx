@@ -331,7 +331,7 @@ export function SimplifiedWorkspace() {
 
           {/* Calendar Widget Section */}
           <div className="mb-16">
-            <div className="max-w-md mx-auto">
+            <div className="max-w-lg mx-auto px-4">
               <h3 
                 className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
                 style={{ letterSpacing: '0.15em' }}
@@ -339,7 +339,7 @@ export function SimplifiedWorkspace() {
                 Calendar Widget
               </h3>
               
-              <div className="bg-black text-white p-4 sm:p-8">
+              <div className="bg-black text-white p-6 sm:p-8">
                 <div className="text-center mb-4 sm:mb-6">
                   <h4 
                     className="text-lg sm:text-xl tracking-wider uppercase mb-2"
@@ -355,14 +355,14 @@ export function SimplifiedWorkspace() {
                 </div>
                 
                 {/* Calendar Grid - Mobile Touch Friendly */}
-                <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-xs sm:text-sm mb-4">
+                <div className="grid grid-cols-7 gap-2 sm:gap-3 text-center text-sm mb-6">
                   {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day) => (
-                    <div key={day} className="text-gray-400 py-2">{day}</div>
+                    <div key={day} className="text-gray-400 py-3 font-medium">{day}</div>
                   ))}
                   {Array.from({ length: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate() }, (_, i) => (
                     <div 
                       key={i} 
-                      className={`py-2 min-h-[36px] flex items-center justify-center touch-manipulation ${
+                      className={`py-3 min-h-[48px] flex items-center justify-center touch-manipulation rounded ${
                         i + 1 === new Date().getDate() ? 'bg-white text-black' : 'text-white hover:bg-gray-800'
                       } transition-colors cursor-pointer`}
                     >
