@@ -45,13 +45,16 @@ interface PersistedConversation {
   };
 }
 
-const MAYA_CONVERSATION_KEY = 'maya_conversation';
+// 🔗 ENHANCED MEMORY: User-specific conversation storage
+const getMayaConversationKey = (userId?: string) => 
+  userId ? `maya_conversation_${userId}` : 'maya_conversation_temp';
 const MAX_MESSAGES = 30; // 🧠 MEMORY ENHANCED: Keep 30 messages for better context continuity
 const CONVERSATION_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export const useMayaPersistence = (userId?: string) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  // 🔗 ENHANCED SESSION CONTINUITY: Use userId-based session for persistence across browser sessions
+  const [sessionId] = useState(() => userId ? `maya_session_${userId}` : `temp_session_${Date.now()}`);
   const [isLoading, setIsLoading] = useState(true);
   const [lastSyncTime, setLastSyncTime] = useState<number>(0);
 
@@ -63,7 +66,8 @@ export const useMayaPersistence = (userId?: string) => {
     }
 
     try {
-      const stored = localStorage.getItem(MAYA_CONVERSATION_KEY);
+      const conversationKey = getMayaConversationKey(userId);
+      const stored = localStorage.getItem(conversationKey);
       if (stored) {
         const persistedData: PersistedConversation = JSON.parse(stored);
         
@@ -78,13 +82,14 @@ export const useMayaPersistence = (userId?: string) => {
           setMessages(persistedData.messages.slice(-MAX_MESSAGES)); // Keep only last 20
           setLastSyncTime(persistedData.lastUpdated);
         } else {
-          console.log('🔄 PHASE 2.1: Clearing expired or invalid conversation data');
-          localStorage.removeItem(MAYA_CONVERSATION_KEY);
+          console.log('🔄 MEMORY: Clearing expired or invalid conversation data');
+          localStorage.removeItem(conversationKey);
         }
       }
     } catch (error) {
-      console.error('❌ PHASE 2.1: Failed to load persisted conversation:', error);
-      localStorage.removeItem(MAYA_CONVERSATION_KEY);
+      console.error('❌ MEMORY: Failed to load persisted conversation:', error);
+      const conversationKey = getMayaConversationKey(userId);
+      localStorage.removeItem(conversationKey);
     }
     
     setIsLoading(false);
@@ -116,13 +121,14 @@ export const useMayaPersistence = (userId?: string) => {
         }
       };
 
-      localStorage.setItem(MAYA_CONVERSATION_KEY, JSON.stringify(persistedData));
+      const conversationKey = getMayaConversationKey(userId);
+      localStorage.setItem(conversationKey, JSON.stringify(persistedData));
       setLastSyncTime(Date.now());
       
-      console.log(`💾 PHASE 2.1: Saved ${updatedMessages.length} messages to localStorage`);
-      console.log(`📊 Stats: ${conceptCardsGenerated} concept cards, ${imagesGenerated} images`);
+      console.log(`💾 MEMORY: Saved ${updatedMessages.length} messages for user ${userId}`);
+      console.log(`📊 CONTINUITY: ${conceptCardsGenerated} concept cards, ${imagesGenerated} images across sessions`);
     } catch (error) {
-      console.error('❌ PHASE 2.1: Failed to save conversation:', error);
+      console.error('❌ MEMORY: Failed to save conversation:', error);
     }
   }, [userId, sessionId]);
 
