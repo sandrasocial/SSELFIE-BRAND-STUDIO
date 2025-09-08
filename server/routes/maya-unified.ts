@@ -30,6 +30,7 @@ import { trackMayaActivity } from '../services/maya-usage-isolation';
 import { UserStyleMemoryService } from '../services/user-style-memory';
 import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
+import { OnboardingConversationService } from '../services/onboarding-conversation-service';
 
 const router = Router();
 
@@ -212,11 +213,112 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       }
     }
 
-    const { message, context = 'styling', chatId, conversationHistory = [] } = req.body;
+    const { message, context = 'styling', chatId, conversationHistory = [], onboardingField, userState, userStats } = req.body;
 
     if (!message) {
       logMayaAPI('/chat', startTime, false, new Error('Message required'));
       return res.status(400).json({ error: 'Message required' });
+    }
+
+    // DASHBOARD ONBOARDING: Use structured OnboardingConversationService for workspace
+    if (context === 'dashboard') {
+      const onboardingService = new OnboardingConversationService();
+      
+      // Check if this is an onboarding trigger or continuation
+      const onboardingTriggers = [
+        'onboarding', 'getting started', 'tell me about', 'what brought you here',
+        'setup', 'discovery', 'through the onboarding', 'start over', 'business context'
+      ];
+      
+      const isOnboardingRequest = onboardingTriggers.some(trigger => 
+        message.toLowerCase().includes(trigger)
+      ) || onboardingField;
+      
+      if (isOnboardingRequest || !user.profileCompleted) {
+        try {
+          // Get current onboarding step from user data or start fresh
+          const currentStep = user.onboardingStep || 1;
+          
+          let onboardingResponse;
+          
+          if (onboardingField) {
+            // Handle onboarding response - user answered a question
+            console.log(`🎯 ONBOARDING: Processing answer for field '${onboardingField}'`);
+            onboardingResponse = await onboardingService.processOnboardingMessage(
+              userId,
+              message,
+              currentStep
+            );
+            
+            // Update user's onboarding progress
+            if (onboardingResponse.currentStep > currentStep) {
+              await storage.updateUser(userId, { onboardingStep: onboardingResponse.currentStep });
+            }
+            
+            // Mark profile as completed if onboarding is done
+            if (onboardingResponse.nextAction === 'complete_onboarding') {
+              await storage.updateUser(userId, { profileCompleted: true, onboardingStep: 6 });
+            }
+          } else {
+            // Start or continue onboarding flow
+            console.log(`🎯 ONBOARDING: Starting structured onboarding flow at step ${currentStep}`);
+            onboardingResponse = await onboardingService.processOnboardingMessage(
+              userId,
+              'Let\'s begin the onboarding process',
+              currentStep
+            );
+          }
+          
+          // Format response for frontend
+          const structuredResponse = {
+            type: onboardingResponse.nextAction === 'complete_onboarding' ? 'onboarding_complete' : 'onboarding',
+            step: onboardingResponse.currentStep,
+            totalSteps: 6,
+            question: onboardingResponse.message,
+            fieldName: `step_${onboardingResponse.currentStep}`,
+            explanation: onboardingResponse.stepGuidance,
+            options: onboardingResponse.quickButtons.length > 0 ? onboardingResponse.quickButtons : undefined,
+            isOnboardingComplete: onboardingResponse.nextAction === 'complete_onboarding',
+            progress: onboardingResponse.progress,
+            businessContext: {} // Will be populated by the service
+          };
+          
+          console.log('🎯 STRUCTURED ONBOARDING: Returning formatted response', {
+            step: structuredResponse.step,
+            totalSteps: structuredResponse.totalSteps,
+            hasOptions: !!structuredResponse.options,
+            isComplete: structuredResponse.isOnboardingComplete
+          });
+          
+          // Save structured conversation
+          const savedChatId = await saveUnifiedConversation(
+            userId,
+            message,
+            structuredResponse,
+            chatId,
+            'dashboard',
+            userType,
+            conversationId
+          );
+          
+          // Track onboarding activity
+          trackMayaActivity(userId, userType as 'admin' | 'member', conversationId, 'onboarding', {
+            step: structuredResponse.step,
+            totalSteps: structuredResponse.totalSteps
+          });
+          
+          logMayaAPI('/chat', startTime, true);
+          return res.json({
+            success: true,
+            ...structuredResponse,
+            chatId: savedChatId
+          });
+          
+        } catch (error) {
+          console.error('❌ DASHBOARD ONBOARDING ERROR:', error);
+          // Fall through to regular Maya conversation
+        }
+      }
     }
 
     // Admin/Member context awareness with support conversation separation
