@@ -92,11 +92,12 @@ export class OnboardingConversationService {
     5: {
       stepNumber: 5,
       title: "Style & Visual Identity",
-      description: "Discovering your authentic style",
-      focus: "Understand their style preferences and visual identity",
+      description: "Discovering your authentic style and visual preferences",
+      focus: "Understand their style preferences, visual identity, and demographic information for accurate photo generation",
       questions: [
         "How do you want people to see and remember you?",
-        "What styles speak to you?",
+        "What styles speak to you?", 
+        "To make sure your photos look perfect, how should I refer to you in the images? (woman/man/non-binary)",
         "When you imagine your future self, what are you wearing?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
