@@ -5,7 +5,7 @@ import { MemberNavigation } from '../components/member-navigation';
 import { useAuth } from '../hooks/use-auth';
 import { Settings, CreditCard, User, Shield, Bell } from 'lucide-react';
 
-export default function Profile() {
+export default function AccountSettingsPage() {
   const [location, setLocation] = useLocation();
   const { user, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
@@ -30,7 +30,7 @@ export default function Profile() {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-sm text-gray-600">Loading profile...</p>
+          <p className="text-sm text-gray-600">Loading account settings...</p>
         </div>
       </div>
     );
@@ -128,7 +128,7 @@ export default function Profile() {
     <div className="min-h-screen bg-white">
       <MemberNavigation transparent={false} />
       
-      {/* Profile Header */}
+      {/* Account Settings Header */}
       <div className="pt-24 pb-8 bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-serif text-black mb-2" style={{ fontFamily: "Times New Roman, serif" }}>
