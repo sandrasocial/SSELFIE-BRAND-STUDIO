@@ -64,6 +64,7 @@ const VictoriaChat = lazy(() => import("./pages/victoria-chat"));
 const VictoriaBuilder = lazy(() => import('./pages/victoria-builder'));
 const VictoriaPreview = lazy(() => import('./pages/victoria-preview'));
 const PhotoSelection = lazy(() => import("./pages/photo-selection"));
+const FeedDesigner = lazy(() => import("./components/feed-design/FeedDesignPage"));
 
 // ✅ REMOVED: Auth success page no longer needed with direct Stack Auth integration
 // ✅ DELETED: Login page removed - using direct Stack Auth OAuth integration
@@ -414,6 +415,11 @@ function Router() {
       
       {/* AI AGENTS */}
       <Route path="/maya" component={(props) => <ProtectedRoute component={Maya} {...props} />} />
+      <Route path="/feed-designer" component={(props) => (
+        <Suspense fallback={<PageLoader />}>
+          <ProtectedRoute component={FeedDesigner} {...props} />
+        </Suspense>
+      )} />
       <Route path="/victoria" component={(props) => (
         <Suspense fallback={<PageLoader />}>
           <ProtectedRoute component={Victoria} {...props} />
