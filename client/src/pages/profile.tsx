@@ -54,11 +54,20 @@ export default function Profile() {
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium text-black">SSELFIE Studio</p>
-            <p className="text-sm text-gray-600">€47/month • 100 images per month</p>
+            <p className="text-sm text-gray-600">€47/month • {user?.monthlyGenerationLimit || 100} images per month</p>
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-500">Next billing date</p>
-            <p className="font-medium text-black">January 15, 2025</p>
+            <p className="font-medium text-black">
+              {user?.subscriptionRenewDate 
+                ? new Date(user.subscriptionRenewDate).toLocaleDateString('en-GB', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })
+                : 'Updating...'
+              }
+            </p>
           </div>
         </div>
       </div>
@@ -69,10 +78,19 @@ export default function Profile() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">Images Generated</span>
-            <span className="font-medium text-black">23 / 100</span>
+            <span className="font-medium text-black">
+              {user?.monthlyGenerationsUsed || 0} / {user?.monthlyGenerationLimit === -1 ? '∞' : user?.monthlyGenerationLimit || 100}
+            </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-black h-2 rounded-full" style={{ width: '23%' }}></div>
+            <div 
+              className="bg-black h-2 rounded-full" 
+              style={{ 
+                width: user?.monthlyGenerationLimit === -1 
+                  ? '0%' 
+                  : `${Math.min(((user?.monthlyGenerationsUsed || 0) / (user?.monthlyGenerationLimit || 100)) * 100, 100)}%`
+              }}
+            ></div>
           </div>
         </div>
       </div>

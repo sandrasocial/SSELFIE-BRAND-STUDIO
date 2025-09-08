@@ -2464,24 +2464,78 @@ Remember: You are the MEMBER experience Victoria - provide website building guid
     }
   });
 
-  // Usage API - Required for workspace functionality
+  // Real Usage API - Connected to actual user data
   app.get('/api/usage/status', requireStackAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       
-      // For now, return basic usage data
-      // TODO: Integrate with real usage tracking
+      // Get real user data from database
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
       const usage = {
-        plan: 'full-access',
-        monthlyUsed: 5,
-        monthlyLimit: 100,
-        isAdmin: userId === '42585527'
+        plan: user.plan || 'sselfie-studio',
+        monthlyUsed: user.monthlyGenerationsUsed || 0,
+        monthlyLimit: user.monthlyGenerationLimit || 100,
+        isAdmin: user.monthlyGenerationLimit === -1,
+        nextBillingDate: user.subscriptionRenewDate,
+        subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1
       };
       
       res.json(usage);
     } catch (error) {
-      console.error('Usage API error:', error);
+      console.error('Real usage API error:', error);
       res.status(500).json({ error: 'Failed to get usage' });
+    }
+  });
+
+  // Usage endpoint for account settings page
+  app.get('/api/usage', requireStackAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      // Get real user data from database
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      // Return comprehensive usage and subscription data
+      const subscriptionData = {
+        plan: user.plan || 'sselfie-studio',
+        planDisplayName: 'SSELFIE Studio',
+        monthlyPrice: 47, // EUR
+        currency: 'EUR',
+        monthlyUsed: user.monthlyGenerationsUsed || 0,
+        monthlyLimit: user.monthlyGenerationLimit || 100,
+        isAdmin: user.monthlyGenerationLimit === -1,
+        nextBillingDate: user.subscriptionRenewDate,
+        subscriptionActive: user.monthlyGenerationLimit > 0 || user.monthlyGenerationLimit === -1,
+        userDisplayName: user.name || user.email?.split('@')[0] || 'SSELFIE User',
+        email: user.email,
+        accountType: user.monthlyGenerationLimit === -1 ? 'Admin Account' : 'SSELFIE Studio Member',
+        joinedDate: user.createdAt,
+        features: [
+          'Personal AI model training',
+          '100 monthly professional photos',
+          'Maya AI photographer access',
+          'Brand photo gallery',
+          'Style customization'
+        ]
+      };
+      
+      res.json(subscriptionData);
+    } catch (error) {
+      console.error('Usage data API error:', error);
+      res.status(500).json({ error: 'Failed to get subscription data' });
     }
   });
 
