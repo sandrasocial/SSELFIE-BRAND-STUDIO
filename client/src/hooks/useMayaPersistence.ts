@@ -58,41 +58,114 @@ export const useMayaPersistence = (userId?: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [lastSyncTime, setLastSyncTime] = useState<number>(0);
 
-  // PHASE 2.1: Load persisted conversation on mount
+  // 🧠 ENHANCED MEMORY LOADING: Multi-layered fallback system
   useEffect(() => {
     if (!userId) {
       setIsLoading(false);
       return;
     }
 
-    try {
-      const conversationKey = getMayaConversationKey(userId);
-      const stored = localStorage.getItem(conversationKey);
-      if (stored) {
-        const persistedData: PersistedConversation = JSON.parse(stored);
-        
-        // Check if conversation is still valid (within TTL and same user)
-        const isValid = persistedData.userId === userId && 
-                        (Date.now() - persistedData.lastUpdated) < CONVERSATION_TTL;
-        
-        if (isValid && persistedData.messages.length > 0) {
-          console.log(`🔄 PHASE 2.1: Loaded ${persistedData.messages.length} messages from localStorage`);
-          console.log(`📊 Context: ${persistedData.conversationContext.conceptCardsGenerated} concept cards, ${persistedData.conversationContext.imagesGenerated} images`);
-          
-          setMessages(persistedData.messages.slice(-MAX_MESSAGES)); // Keep only last 20
-          setLastSyncTime(persistedData.lastUpdated);
-        } else {
-          console.log('🔄 MEMORY: Clearing expired or invalid conversation data');
+    const loadConversationWithFallback = async () => {
+      try {
+        const conversationKey = getMayaConversationKey(userId);
+        let loadedMessages: ChatMessage[] = [];
+        let dataSource = 'none';
+
+        // LAYER 1: Try localStorage first
+        try {
+          const stored = localStorage.getItem(conversationKey);
+          if (stored) {
+            const persistedData: PersistedConversation = JSON.parse(stored);
+            
+            // Check if conversation is still valid (within TTL and same user)
+            const isValid = persistedData.userId === userId && 
+                            (Date.now() - persistedData.lastUpdated) < CONVERSATION_TTL;
+            
+            if (isValid && persistedData.messages.length > 0) {
+              loadedMessages = persistedData.messages.slice(-MAX_MESSAGES);
+              setLastSyncTime(persistedData.lastUpdated);
+              dataSource = 'localStorage';
+              console.log(`💾 MEMORY: Loaded ${loadedMessages.length} messages from localStorage`);
+              console.log(`📊 CONTEXT: ${persistedData.conversationContext.conceptCardsGenerated} concept cards, ${persistedData.conversationContext.imagesGenerated} images`);
+            } else {
+              console.log('🔄 MEMORY: localStorage expired or invalid, trying database fallback...');
+              localStorage.removeItem(conversationKey);
+            }
+          }
+        } catch (localStorageError) {
+          console.warn('⚠️ MEMORY: localStorage corrupted, trying database fallback...', localStorageError);
+          const conversationKey = getMayaConversationKey(userId);
           localStorage.removeItem(conversationKey);
         }
+
+        // LAYER 2: Database fallback if localStorage failed/expired
+        if (loadedMessages.length === 0) {
+          try {
+            console.log('🔍 MEMORY: Attempting database fallback for conversation history...');
+            const response = await fetch('/api/maya/chat-history', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ userId, limit: MAX_MESSAGES })
+            });
+            
+            if (response.ok) {
+              const chatHistory = await response.json();
+              if (chatHistory.success && chatHistory.messages?.length > 0) {
+                // Transform database messages to frontend format
+                loadedMessages = chatHistory.messages.map((msg: any) => ({
+                  id: msg.id || `db_${Date.now()}_${Math.random()}`,
+                  role: msg.role === 'assistant' ? 'maya' : msg.role,
+                  content: msg.content,
+                  timestamp: new Date(msg.createdAt).toISOString(),
+                  conceptCards: msg.conceptCards || [],
+                  canGenerate: msg.canGenerate || false
+                }));
+                dataSource = 'database';
+                console.log(`🗄️ MEMORY RECOVERY: Loaded ${loadedMessages.length} messages from database`);
+                
+                // Restore to localStorage for future sessions
+                const recoveryData: PersistedConversation = {
+                  messages: loadedMessages,
+                  lastUpdated: Date.now(),
+                  userId,
+                  sessionId: `maya_session_${userId}`,
+                  conversationContext: {
+                    totalMessages: loadedMessages.length,
+                    lastActivity: Date.now(),
+                    conceptCardsGenerated: loadedMessages.reduce((total, msg) => 
+                      total + (msg.conceptCards?.length || 0), 0),
+                    imagesGenerated: 0
+                  }
+                };
+                localStorage.setItem(conversationKey, JSON.stringify(recoveryData));
+                console.log('💾 MEMORY RECOVERY: Restored conversation to localStorage');
+              }
+            }
+          } catch (databaseError) {
+            console.warn('⚠️ MEMORY: Database fallback failed, starting fresh conversation', databaseError);
+          }
+        }
+
+        // Set loaded messages and log final state
+        if (loadedMessages.length > 0) {
+          setMessages(loadedMessages);
+          console.log(`✅ MEMORY: Successfully loaded ${loadedMessages.length} messages from ${dataSource}`);
+        } else {
+          console.log('🆕 MEMORY: No existing conversation found, starting fresh');
+        }
+
+      } catch (error) {
+        console.error('❌ MEMORY: Critical error in conversation loading:', error);
+        // Clean slate on critical error
+        const conversationKey = getMayaConversationKey(userId);
+        localStorage.removeItem(conversationKey);
       }
-    } catch (error) {
-      console.error('❌ MEMORY: Failed to load persisted conversation:', error);
-      const conversationKey = getMayaConversationKey(userId);
-      localStorage.removeItem(conversationKey);
-    }
-    
-    setIsLoading(false);
+      
+      setIsLoading(false);
+    };
+
+    loadConversationWithFallback();
   }, [userId]);
 
   // PHASE 2.1: Save conversation to localStorage
