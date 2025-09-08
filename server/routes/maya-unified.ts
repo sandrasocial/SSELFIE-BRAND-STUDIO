@@ -627,6 +627,36 @@ Use this context to provide personalized, intelligent responses instead of gener
     console.log('- Conversation history length:', fullConversationHistory?.length || 0);
     console.log('- Request context:', requestContext);
     
+    // SECURE USER GENDER CONTEXT - Critical for Maya's intelligent representation
+    const validGenders = ['woman', 'man', 'non-binary'] as const;
+    const secureGender = validGenders.includes(user.gender as any) ? user.gender : null;
+    
+    let genderContext = '';
+    if (secureGender) {
+      genderContext = `
+CRITICAL USER REPRESENTATION CONTEXT:
+- User Gender: ${secureGender}
+- MANDATORY: Always include "${secureGender}" immediately after the trigger word in ALL FLUX prompts
+- Example format: "triggerWord ${secureGender} professional business portrait..."
+- This ensures accurate AI representation and is REQUIRED for every generated prompt
+
+GENDER INCLUSION RULES:
+1. Every FLUX prompt MUST start: "triggerWord ${secureGender}"
+2. Never skip gender representation - it's mandatory for accuracy
+3. Place gender right after trigger word, before other descriptors
+4. Use exact gender value: "${secureGender}"`;
+      
+      console.log(`👤 SECURE GENDER CONTEXT: User is "${secureGender}" - Maya will include in all prompts`);
+    } else {
+      genderContext = `
+USER REPRESENTATION CONTEXT:
+- User Gender: Not specified or invalid
+- Maya should use neutral representation in prompts
+- Focus on professional, inclusive styling without gender assumptions`;
+      
+      console.log('⚠️ GENDER CONTEXT: No valid gender data - Maya will use neutral representation');
+    }
+
     // BRAND STRATEGY INTEGRATION - Check for coaching insights to inform concept generation
     let brandStrategyContext = '';
     if (user.brandStrategyContext) {
@@ -683,7 +713,7 @@ Use this strategic context to create photo concepts that directly support their 
           ...fullConversationHistory,
           {
             role: 'user',
-            content: `${requestContext}${brandStrategyContext ? '\n\n' + brandStrategyContext : ''}`
+            content: `${requestContext}${genderContext ? '\n\n' + genderContext : ''}${brandStrategyContext ? '\n\n' + brandStrategyContext : ''}`
           }
         ]
       })
