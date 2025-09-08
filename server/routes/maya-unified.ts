@@ -471,7 +471,8 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
         
         if (!isDuplicate) {
           fullConversationHistory.push({
-            ...frontendMsg,
+            role: frontendMsg.type === 'user' ? 'user' : 'assistant', // Fix: Ensure proper Claude API role format
+            content: frontendMsg.content,
             timestamp: Date.now()
           });
         }
@@ -479,7 +480,12 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       
       console.log(`🧠 MEMORY MERGE: Combined ${databaseHistory.length} database + ${frontendHistory.length} frontend messages`);
     } else if (frontendHistory.length > 0) {
-      fullConversationHistory = frontendHistory;
+      // Fix: Transform frontend messages to proper Claude API format
+      fullConversationHistory = frontendHistory.map(msg => ({
+        role: msg.type === 'user' ? 'user' : 'assistant',
+        content: msg.content,
+        timestamp: msg.timestamp || Date.now()
+      }));
       console.log(`📖 MEMORY: Using ${frontendHistory.length} frontend messages only`);
     } else if (databaseHistory.length > 0) {
       fullConversationHistory = databaseHistory;
@@ -488,6 +494,18 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     
     // Keep last 30 messages for extended context (was 20)
     fullConversationHistory = fullConversationHistory.slice(-30);
+
+    // DEBUG: Verify all messages have proper roles for Claude API
+    console.log('🔍 CONVERSATION HISTORY VALIDATION:');
+    console.log(`- Total messages: ${fullConversationHistory.length}`);
+    fullConversationHistory.forEach((msg, index) => {
+      if (!msg.role) {
+        console.log(`⚠️ Message ${index} missing role:`, msg);
+      } else if (msg.role !== 'user' && msg.role !== 'assistant') {
+        console.log(`⚠️ Message ${index} invalid role "${msg.role}":`, msg);
+      }
+    });
+    console.log('✅ All messages validated for Claude API compatibility');
 
     // Get unified user context for styling
     const unifiedUserContext = await getUnifiedUserContext(userId);
