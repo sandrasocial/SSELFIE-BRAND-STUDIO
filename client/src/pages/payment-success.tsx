@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
 import { PreLoginNavigationUnified } from '../components/pre-login-navigation-unified';
-import { HeroFullBleed } from '../components/HeroFullBleed';
-import { SandraImages } from '../lib/sandra-images';
 import { useAuth } from '../hooks/use-auth';
 import { Link, useLocation } from 'wouter';
 import { useToast } from '../hooks/use-toast';
@@ -18,28 +16,34 @@ export default function PaymentSuccess() {
     const plan = urlParams.get('plan');
     const type = urlParams.get('type');
     
-    // 🔄 PHASE 4: Handle retraining payments specifically
+    // Handle retraining payments specifically
     if (plan === 'retraining' && type === 'retrain') {
       handleRetrainingSuccess();
       return;
     }
     
-    // Handle regular subscription payments
-    if (isAuthenticated && user && plan) {
-      triggerUserUpgrade(plan);
+    // Handle regular subscription payments - redirect to training after successful payment
+    if (isAuthenticated && user) {
+      triggerUserUpgrade();
+      
+      // Show success message and redirect to training
+      toast({
+        title: "Welcome to SSELFIE Studio!",
+        description: "Your payment was successful. Let's start creating your AI model.",
+      });
+      
+      // Redirect to training after 3 seconds
+      setTimeout(() => {
+        setLocation('/simple-training');
+      }, 3000);
     } else {
-      // Show success message and store plan for later
+      // Show success message for non-authenticated users
       toast({
         title: "Payment Successful!",
-        description: "Welcome to SSELFIE Studio! Please sign in to access your account.",
+        description: "Welcome to SSELFIE Studio! Please sign in to start your AI training.",
       });
-
-      // Store the plan for after authentication
-      if (plan) {
-        localStorage.setItem('userPlan', plan);
-      }
     }
-  }, [toast, isAuthenticated, user]);
+  }, [toast, isAuthenticated, user, setLocation]);
 
   // 🔄 PHASE 4: Handle successful retraining payments
   const handleRetrainingSuccess = async () => {
@@ -78,7 +82,7 @@ export default function PaymentSuccess() {
   };
 
   // Trigger upgrade automation after successful payment
-  const triggerUserUpgrade = async (plan: string) => {
+  const triggerUserUpgrade = async () => {
     try {
       // Method 1: Try with authenticated user data
       if (user?.email) {
@@ -87,18 +91,13 @@ export default function PaymentSuccess() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: user.email,
-            plan: plan === 'ai-pack' ? 'sselfie-studio' : 'sselfie-studio'
+            plan: 'sselfie-studio' // Single business model
           })
         });
 
         if (upgradeResponse.ok) {
           const upgradeData = await upgradeResponse.json();
           console.log('✅ User upgrade successful:', upgradeData);
-          
-          toast({
-            title: "Account Upgraded!",
-            description: `Welcome to SSELFIE Studio! You now have ${upgradeData.upgradeDetails.monthlyLimit} monthly generations.`,
-          });
           
           // Clear stored plan
           localStorage.removeItem('userPlan');
@@ -112,12 +111,7 @@ export default function PaymentSuccess() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ plan: plan === 'ai-pack' ? 'sselfie-studio' : 'sselfie-studio' })
-        });
-        
-        toast({
-          title: "Account Upgraded!",
-          description: "Welcome to SSELFIE Studio Premium!",
+          body: JSON.stringify({ plan: 'sselfie-studio' })
         });
       }
     } catch (error) {
@@ -126,90 +120,275 @@ export default function PaymentSuccess() {
     }
   };
 
-  // Get plan details from URL
+  // Get plan details from URL - simplified to single business model
   const urlParams = new URLSearchParams(window.location.search);
-  const plan = urlParams.get('plan') || 'ai-pack';
+  const plan = urlParams.get('plan') || 'sselfie-studio';
   
   const getPlanName = (planType: string) => {
-    switch (planType) {
-      case 'ai-pack': return 'SSELFIE AI';
-      case 'studio-founding': return 'STUDIO Founding';
-      case 'studio-standard': return 'STUDIO Pro';
-      case 'sselfie-studio': return 'SSELFIE STUDIO';
-      case 'retraining': return 'AI Model Retraining';
-      default: return 'SSELFIE AI';
-    }
+    // Single business model - always SSELFIE STUDIO
+    if (planType === 'retraining') return 'AI Model Retraining';
+    return 'SSELFIE STUDIO';
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ 
+      background: '#ffffff',
+      fontFamily: 'Helvetica Neue, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif',
+      fontWeight: 300,
+      color: '#000000'
+    }}>
       <PreLoginNavigationUnified />
       
-      <HeroFullBleed
-        backgroundImage={SandraImages.editorial.luxury1}
-        tagline="Welcome to your transformation"
-        title="PAYMENT SUCCESSFUL"
-        ctaText="Continue"
-        onCtaClick={() => {
-          // Redirect to our branded login page
-          window.location.href = '/login';
-        }}
-        fullHeight={false}
-      />
-
-      <main className="max-w-4xl mx-auto px-8 py-16">
-        <div className="text-center mb-16">
-          <div className="inline-block bg-[var(--editorial-gray)] text-[var(--luxury-black)] px-6 py-2 text-sm uppercase tracking-wider mb-6">
-            {getPlanName(plan)} PURCHASED
+      {/* Luxury Header Section - Following Voice Guide Design System */}
+      <header style={{ 
+        padding: '200px 0 128px', 
+        textAlign: 'center',
+        background: '#fafafa'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 96px' }}>
+          <div style={{
+            fontSize: '11px',
+            fontWeight: 400,
+            letterSpacing: '0.25em',
+            textTransform: 'uppercase',
+            color: '#757575',
+            marginBottom: '64px'
+          }}>
+            PAYMENT SUCCESSFUL
           </div>
-          <h2 className="text-3xl font-light mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
-            Your Journey Begins Now
+          
+          <h1 style={{
+            fontFamily: 'Times New Roman, serif',
+            fontWeight: 200,
+            lineHeight: 0.9,
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+            fontSize: 'clamp(2.8rem, 7vw, 5rem)',
+            marginBottom: '96px'
+          }}>
+            WELCOME TO<br />SSELFIE STUDIO
+          </h1>
+          
+          <p style={{
+            fontSize: '17px',
+            lineHeight: 1.7,
+            fontWeight: 300,
+            color: '#757575',
+            maxWidth: '55ch',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
+            Your transformation begins now. You're about to create professional photos that represent exactly who you are becoming.
+          </p>
+        </div>
+      </header>
+
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 96px 200px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '160px' }}>
+          <div style={{
+            display: 'inline-block',
+            background: '#fafafa',
+            color: '#000000',
+            padding: '20px 48px',
+            fontSize: '13px',
+            fontWeight: 400,
+            letterSpacing: '0.25em',
+            textTransform: 'uppercase',
+            marginBottom: '64px',
+            border: '1px solid #e8e8e8'
+          }}>
+            {getPlanName(plan)} ACTIVATED
+          </div>
+          
+          <h2 style={{
+            fontFamily: 'Times New Roman, serif',
+            fontWeight: 200,
+            letterSpacing: '0.25em',
+            textTransform: 'uppercase',
+            fontSize: '30px',
+            marginBottom: '64px',
+            lineHeight: 1.1
+          }}>
+            Your Investment in Yourself<br />Starts Now
           </h2>
-          <p className="text-lg text-[#666666] max-w-2xl mx-auto font-light leading-relaxed">
-            Thank you for investing in yourself. You're about to build something incredible - 
-            a personal brand that reflects exactly who you are becoming.
+          
+          <p style={{
+            fontSize: '17px',
+            color: '#757575',
+            maxWidth: '55ch',
+            margin: '0 auto',
+            fontWeight: 300,
+            lineHeight: 1.7
+          }}>
+            Thank you for choosing to invest in your personal brand. 
+            You're about to create something extraordinary with Maya, your AI photographer.
           </p>
         </div>
 
-        <div className="bg-[#f5f5f5] p-12 text-center">
-          <h3 className="text-2xl font-light mb-4" style={{ fontFamily: 'Times New Roman, serif' }}>
-            What Happens Next
+        {/* Next Steps - Luxury Card Design */}
+        <div style={{
+          background: '#fafafa',
+          padding: '128px 96px',
+          marginBottom: '160px',
+          border: '1px solid #e8e8e8'
+        }}>
+          <h3 style={{
+            fontFamily: 'Times New Roman, serif',
+            fontWeight: 200,
+            letterSpacing: '0.25em',
+            textTransform: 'uppercase',
+            fontSize: '24px',
+            marginBottom: '96px',
+            textAlign: 'center',
+            lineHeight: 1.1
+          }}>
+            Your Next Steps
           </h3>
-          <div className="space-y-4 max-w-2xl mx-auto">
-            <div className="flex items-start text-left">
-              <div className="text-2xl font-light mr-4 mt-1" style={{ fontFamily: 'Times New Roman, serif' }}>01</div>
+          
+          <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              textAlign: 'left',
+              marginBottom: '64px'
+            }}>
+              <div style={{
+                fontFamily: 'Times New Roman, serif',
+                fontSize: '24px',
+                fontWeight: 200,
+                marginRight: '32px',
+                marginTop: '8px',
+                color: '#757575'
+              }}>01</div>
               <div>
-                <h4 className="font-medium text-[#0a0a0a] mb-1">Complete Your Brand Questionnaire</h4>
-                <p className="text-sm text-[#666666]">Tell us about your story, your vision, and who you want to become.</p>
+                <h4 style={{
+                  fontSize: '17px',
+                  fontWeight: 300,
+                  color: '#000000',
+                  marginBottom: '8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  Upload Your Training Photos
+                </h4>
+                <p style={{
+                  fontSize: '15px',
+                  color: '#757575',
+                  lineHeight: 1.6,
+                  fontWeight: 300
+                }}>
+                  Create your personal AI model with 15-25 selfies for the best results.
+                </p>
               </div>
             </div>
-            <div className="flex items-start text-left">
-              <div className="text-2xl font-light mr-4 mt-1" style={{ fontFamily: 'Times New Roman, serif' }}>02</div>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              textAlign: 'left',
+              marginBottom: '64px'
+            }}>
+              <div style={{
+                fontFamily: 'Times New Roman, serif',
+                fontSize: '24px',
+                fontWeight: 200,
+                marginRight: '32px',
+                marginTop: '8px',
+                color: '#757575'
+              }}>02</div>
               <div>
-                <h4 className="font-medium text-[#0a0a0a] mb-1">Upload Your Selfies</h4>
-                <p className="text-sm text-[#666666]">Start your AI training or upload your existing photos.</p>
+                <h4 style={{
+                  fontSize: '17px',
+                  fontWeight: 300,
+                  color: '#000000',
+                  marginBottom: '8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  Meet Maya, Your AI Photographer
+                </h4>
+                <p style={{
+                  fontSize: '15px',
+                  color: '#757575',
+                  lineHeight: 1.6,
+                  fontWeight: 300
+                }}>
+                  Maya will understand your style and create professional photos that represent who you are.
+                </p>
               </div>
             </div>
-            <div className="flex items-start text-left">
-              <div className="text-2xl font-light mr-4 mt-1" style={{ fontFamily: 'Times New Roman, serif' }}>03</div>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              textAlign: 'left'
+            }}>
+              <div style={{
+                fontFamily: 'Times New Roman, serif',
+                fontSize: '24px',
+                fontWeight: 200,
+                marginRight: '32px',
+                marginTop: '8px',
+                color: '#757575'
+              }}>03</div>
               <div>
-                <h4 className="font-medium text-[#0a0a0a] mb-1">Access Your STUDIO</h4>
-                <p className="text-sm text-[#666666]">Enter your personalized workspace and start building your brand.</p>
+                <h4 style={{
+                  fontSize: '17px',
+                  fontWeight: 300,
+                  color: '#000000',
+                  marginBottom: '8px',
+                  letterSpacing: '0.05em'
+                }}>
+                  Generate 100 Monthly Photos
+                </h4>
+                <p style={{
+                  fontSize: '15px',
+                  color: '#757575',
+                  lineHeight: 1.6,
+                  fontWeight: 300
+                }}>
+                  Create professional photos for LinkedIn, Instagram, websites, and more.
+                </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="text-center mt-16">
+        {/* CTA Button - Luxury Design */}
+        <div style={{ textAlign: 'center' }}>
           <button 
             onClick={() => {
-              // Redirect to our branded login page
-              window.location.href = '/login';
+              if (isAuthenticated && user) {
+                setLocation('/simple-training');
+              } else {
+                window.location.href = '/simple-training';
+              }
             }}
-            className="bg-[#0a0a0a] text-white hover:bg-[#333] transition-colors touch-manipulation px-8 py-4 min-h-[44px] text-xs uppercase tracking-wider flex items-center justify-center"
+            style={{
+              background: '#000000',
+              color: '#ffffff',
+              border: 'none',
+              padding: '48px 96px',
+              fontSize: '11px',
+              fontWeight: 400,
+              letterSpacing: '0.3em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              transition: 'all 300ms ease',
+              display: 'inline-block'
+            }}
+            onMouseEnter={(e) => e.target.style.background = '#757575'}
+            onMouseLeave={(e) => e.target.style.background = '#000000'}
           >
-            Begin Your Journey
+            START YOUR AI TRAINING
           </button>
+          
+          <p style={{
+            fontSize: '13px',
+            color: '#757575',
+            marginTop: '48px',
+            fontWeight: 300
+          }}>
+            {isAuthenticated && user ? 'Redirecting automatically in a few moments...' : 'Please sign in to begin your training'}
+          </p>
         </div>
       </main>
     </div>
