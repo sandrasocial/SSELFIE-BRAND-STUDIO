@@ -133,7 +133,7 @@ function logUserAbandonment(event: 'ONBOARDING_ABANDON' | 'CHAT_ABANDON' | 'GENE
   });
 }
 
-// LUXURY ONBOARDING INITIALIZATION - Start Maya's personalized experience
+// CONVERSATIONAL ONBOARDING - Maya's intelligent onboarding experience
 router.post('/start-onboarding', requireStackAuth, async (req: AdminContextRequest, res) => {
   const startTime = Date.now();
   const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
@@ -144,30 +144,23 @@ router.post('/start-onboarding', requireStackAuth, async (req: AdminContextReque
   }
 
   try {
-    console.log(`🎯 MAYA ONBOARDING: Starting luxury onboarding experience for user ${userId}`);
+    console.log(`🎯 MAYA CONVERSATIONAL ONBOARDING: Starting intelligent onboarding for user ${userId}`);
     
-    // Get the first onboarding question from Maya's personality
-    const firstQuestion = MAYA_PERSONALITY.onboarding.questions[0];
-    
-    const response = {
-      type: 'onboarding',
-      introduction: MAYA_PERSONALITY.onboarding.introduction,
-      question: firstQuestion.question,
-      fieldName: firstQuestion.fieldName,
-      options: firstQuestion.options,
-      explanation: firstQuestion.explanation,
-      step: firstQuestion.step,
-      totalSteps: MAYA_PERSONALITY.onboarding.questions.length,
-      isOnboardingComplete: false
-    };
+    // Use conversational onboarding service instead of static questions
+    const onboardingService = new OnboardingConversationService();
+    const onboardingResponse = await onboardingService.processOnboardingMessage(
+      userId,
+      'Let\'s begin your personalized onboarding',
+      1
+    );
 
     logMayaAPI('/start-onboarding', startTime, true);
-    res.json(response);
+    res.json(onboardingResponse);
     
   } catch (error) {
-    console.error('❌ MAYA ONBOARDING ERROR:', error);
+    console.error('❌ MAYA CONVERSATIONAL ONBOARDING ERROR:', error);
     logMayaAPI('/start-onboarding', startTime, false, error);
-    res.status(500).json({ error: 'Failed to start onboarding' });
+    res.status(500).json({ error: 'Failed to start conversational onboarding' });
   }
 });
 
@@ -183,35 +176,14 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       });
     }
 
-    // PHASE 3: Profile Completion Check - Mandatory before any Maya interaction
+    // Load user context - Maya handles incomplete profiles intelligently
     const user = await storage.getUser(userId);
     if (!user) {
       logMayaAPI('/chat', startTime, false, new Error('User not found'));
       return res.status(404).json({ error: 'User not found' });
     }
     
-    // Check if user needs onboarding
-    if (!user.profileCompleted) {
-      const onboardingStep = user.onboardingStep || 0;
-      const onboardingQuestions = MAYA_PERSONALITY.onboarding.questions;
-      
-      if (onboardingStep < onboardingQuestions.length) {
-        const currentQuestion = onboardingQuestions[onboardingStep];
-        
-        // Return onboarding question with brand voice
-        return res.json({
-          type: 'onboarding',
-          step: onboardingStep + 1,
-          totalSteps: onboardingQuestions.length,
-          question: currentQuestion.question,
-          fieldName: currentQuestion.fieldName,
-          required: currentQuestion.required,
-          options: currentQuestion.options,
-          explanation: currentQuestion.explanation,
-          isOnboardingComplete: false
-        });
-      }
-    }
+    // Maya can handle incomplete profiles conversationally - no blocking
 
     const { message, context = 'styling', chatId, conversationHistory = [], onboardingField, userState, userStats } = req.body;
 
@@ -282,7 +254,7 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
         message.toLowerCase().includes(trigger)
       ) || onboardingField;
       
-      if (isOnboardingRequest || !user.profileCompleted) {
+      if (isOnboardingRequest) {
         try {
           // Get current onboarding step from user data or start fresh
           const currentStep = user.onboardingStep || 1;
@@ -883,14 +855,7 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
       return res.status(404).json({ error: 'User not found' });
     }
     
-    if (!user.profileCompleted) {
-      logMayaAPI('/generate', startTime, false, new Error('Profile incomplete'));
-      return res.status(400).json({ 
-        error: 'Profile incomplete',
-        message: 'Please complete your profile setup before generating images',
-        requiresOnboarding: true 
-      });
-    }
+    // Maya can guide users conversationally even with incomplete profiles
     
     const userType = req.userType || 'member';
     const { prompt, chatId, seed, count, conceptName } = req.body || {};
@@ -2898,7 +2863,7 @@ router.post('/learn-from-favorites', requireStackAuth, async (req, res) => {
   }
 });
 
-// PHASE 3: Onboarding Response Handler - Process user profile completion answers
+// CONVERSATIONAL ONBOARDING RESPONSE - Maya's intelligent response processing
 router.post('/onboarding-response', requireStackAuth, async (req, res) => {
   try {
     const userId = (req.user as any)?.id || (req.user as any)?.claims?.sub;
@@ -2907,8 +2872,8 @@ router.post('/onboarding-response', requireStackAuth, async (req, res) => {
     }
 
     const { fieldName, answer } = req.body;
-    if (!fieldName || !answer) {
-      return res.status(400).json({ error: 'Field name and answer are required' });
+    if (!answer) {
+      return res.status(400).json({ error: 'Answer is required' });
     }
 
     // Get current user data
@@ -2917,53 +2882,31 @@ router.post('/onboarding-response', requireStackAuth, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Update the specific profile field
-    const updateData: any = {};
-    updateData[fieldName] = answer;
-    updateData.onboardingStep = (user.onboardingStep || 0) + 1;
+    // Use conversational onboarding service for intelligent response processing
+    const onboardingService = new OnboardingConversationService();
+    const currentStep = user.onboardingStep || 1;
     
-    // Check if onboarding is complete
-    const totalSteps = MAYA_PERSONALITY.onboarding.questions.length;
-    const isComplete = updateData.onboardingStep >= totalSteps;
+    const onboardingResponse = await onboardingService.processOnboardingMessage(
+      userId,
+      answer,
+      currentStep
+    );
     
-    if (isComplete) {
-      updateData.profileCompleted = true;
+    // Update user's onboarding progress if moving to next step
+    if (onboardingResponse.currentStep > currentStep) {
+      await storage.updateUser(userId, { onboardingStep: onboardingResponse.currentStep });
+    }
+    
+    // Mark profile as completed if onboarding is done
+    if (onboardingResponse.nextAction === 'complete_onboarding') {
+      await storage.updateUser(userId, { profileCompleted: true, onboardingStep: 6 });
     }
 
-    // Update user profile in database
-    await storage.updateUserProfile(userId, updateData);
-
-    if (isComplete) {
-      // Send completion message with brand voice
-      return res.json({
-        type: 'onboarding_complete',
-        message: MAYA_PERSONALITY.onboarding.completionMessage,
-        isOnboardingComplete: true,
-        profileData: {
-          gender: user.gender || answer,
-          profession: user.profession,
-          brandStyle: user.brandStyle,
-          photoGoals: user.photoGoals
-        }
-      });
-    } else {
-      // Get next question
-      const nextQuestion = MAYA_PERSONALITY.onboarding.questions[updateData.onboardingStep];
-      return res.json({
-        type: 'onboarding',
-        step: updateData.onboardingStep + 1,
-        totalSteps: totalSteps,
-        question: nextQuestion.question,
-        fieldName: nextQuestion.fieldName,
-        required: nextQuestion.required,
-        options: nextQuestion.options,
-        explanation: nextQuestion.explanation,
-        isOnboardingComplete: false
-      });
-    }
+    return res.json(onboardingResponse);
+    
   } catch (error) {
-    console.error('Onboarding response error:', error);
-    res.status(500).json({ error: 'Failed to process onboarding response' });
+    console.error('Conversational onboarding response error:', error);
+    res.status(500).json({ error: 'Failed to process conversational onboarding response' });
   }
 });
 
