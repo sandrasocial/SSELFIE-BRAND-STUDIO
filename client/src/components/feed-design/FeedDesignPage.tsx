@@ -40,6 +40,7 @@ export function FeedDesignPage() {
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [selectedPlatform, setSelectedPlatform] = useState<string>('instagram');
   const [selectedMessageType, setSelectedMessageType] = useState<string>('motivational');
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('estetica-luxury');
   const [showPreview, setShowPreview] = useState(false);
   const [createdPosts, setCreatedPosts] = useState<BrandedPost[]>([]);
   const [isCreatingBatch, setIsCreatingBatch] = useState(false);
@@ -70,6 +71,52 @@ export function FeedDesignPage() {
     { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'text-blue-600' },
     { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'text-blue-700' },
     { id: 'twitter', name: 'Twitter', icon: Twitter, color: 'text-sky-500' }
+  ];
+
+  // Visual templates for luxury branding
+  const visualTemplates = [
+    { 
+      id: 'estetica-luxury', 
+      name: 'Estética Luxury', 
+      description: 'Sophisticated black/brown/beige with serif elegance',
+      businessAlignment: 'Beauty, luxury services, premium consulting',
+      preview: '#1C1C1C, #8B4513, #D4A574'
+    },
+    { 
+      id: 'nature-luxo', 
+      name: 'Nature Luxo', 
+      description: 'Organic forest green/cream with natural typography',
+      businessAlignment: 'Wellness, organic products, sustainability',
+      preview: '#2F4F2F, #F5E6D3, #8FBC8F'
+    },
+    { 
+      id: 'dark-luxury', 
+      name: 'Dark Luxury', 
+      description: 'Modern charcoal/silver sophistication',
+      businessAlignment: 'Tech, modern business, architecture',
+      preview: '#2C2C2C, #A9A9A9, #C0C0C0'
+    },
+    { 
+      id: 'red-luxury', 
+      name: 'Red Luxury', 
+      description: 'Bold deep red/white elegance',
+      businessAlignment: 'Fashion, beauty, luxury goods',
+      preview: '#8B0000, #FFFFFF, #DC143C'
+    },
+    { 
+      id: 'white-gold', 
+      name: 'White Gold', 
+      description: 'Minimal cream/gold luxury',
+      businessAlignment: 'Luxury services, wedding, premium consulting',
+      preview: '#FFFFFF, #FFD700, #F5F5DC'
+    },
+    { 
+      id: 'rose-luxo', 
+      name: 'Rose Luxo', 
+      description: 'Romantic blush/cream sophistication',
+      businessAlignment: 'Beauty, wellness, feminine brands',
+      preview: '#DDA0DD, #F5F5DC, #E6E6FA'
+    }
   ];
 
   const messageTypes = [
@@ -116,7 +163,8 @@ export function FeedDesignPage() {
           userId: user.id,
           imageUrls,
           messageType: selectedMessageType,
-          platform: selectedPlatform
+          platform: selectedPlatform,
+          visualTemplate: selectedTemplate
         })
       });
       
@@ -173,6 +221,59 @@ export function FeedDesignPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Image Selection & Controls */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Visual Template Selection */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-purple-600" />
+                  Visual Brand Template
+                </CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Choose your luxury aesthetic for consistent branded posts
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {visualTemplates.map((template) => (
+                    <div
+                      key={template.id}
+                      onClick={() => setSelectedTemplate(template.id)}
+                      className={cn(
+                        "p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md",
+                        selectedTemplate === template.id
+                          ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
+                      )}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-4 h-4 rounded-full border"
+                            style={{ backgroundColor: template.preview.split(',')[0] }}
+                          />
+                          <div 
+                            className="w-4 h-4 rounded-full border"
+                            style={{ backgroundColor: template.preview.split(',')[1] }}
+                          />
+                          <div 
+                            className="w-4 h-4 rounded-full border"
+                            style={{ backgroundColor: template.preview.split(',')[2] }}
+                          />
+                        </div>
+                        <h3 className="font-semibold text-sm">{template.name}</h3>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          {template.description}
+                        </p>
+                        <Badge variant="secondary" className="text-xs">
+                          {template.businessAlignment.split(',')[0]}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Platform & Message Type Selection */}
             <Card>
               <CardHeader>
@@ -339,7 +440,8 @@ export function FeedDesignPage() {
                   profession: user.profession,
                   brandStyle: user.brandStyle,
                   photoGoals: user.photoGoals,
-                  industry: user.profession
+                  industry: user.profession,
+                  visualTemplate: selectedTemplate
                 }}
                 onBrandedPostCreate={handleBrandedPostCreate}
                 className="sticky top-8"
