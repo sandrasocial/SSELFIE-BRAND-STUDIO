@@ -8,6 +8,7 @@ import sharp from 'sharp';
 import { createCanvas, loadImage, registerFont } from 'canvas';
 import { storage } from '../storage';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { LUXURY_VISUAL_TEMPLATES, getTemplateById, generatePlaceholderFromTemplate } from '../config/visual-brand-templates.js';
 
 export interface TextOverlayOptions {
   text: string;
@@ -19,6 +20,7 @@ export interface TextOverlayOptions {
   fontWeight: 'normal' | 'bold';
   textColor: string;
   brandColors?: string[];
+  visualTemplate?: string; // Template ID for luxury styling
 }
 
 export interface ImageAnalysis {
@@ -53,6 +55,12 @@ export class CanvasTextOverlayService {
   ): Promise<string> {
     try {
       console.log('🎨 CANVAS: Creating branded post with text overlay');
+      
+      // NO STOCK PHOTOS RULE: Only use user's actual photos
+      if (!baseImageUrl || baseImageUrl.includes('stock') || baseImageUrl.includes('placeholder')) {
+        console.log('🚫 NO STOCK PHOTOS: Creating branded graphic with template colors');
+        return this.createBrandedGraphic(text, userBrandContext, options);
+      }
       
       // 1. Analyze image for optimal text placement
       const imageAnalysis = await this.analyzeImageForTextPlacement(baseImageUrl);
@@ -138,7 +146,29 @@ export class CanvasTextOverlayService {
     brandContext: any, 
     userOptions: Partial<TextOverlayOptions>
   ): TextOverlayOptions {
-    // Default luxury typography settings
+    // Apply visual template styling if available
+    const visualTemplate = userOptions.visualTemplate ? getTemplateById(userOptions.visualTemplate) : null;
+    
+    let templateDefaults: Partial<TextOverlayOptions> = {};
+    
+    if (visualTemplate) {
+      console.log(`🎨 TEMPLATE: Applying ${visualTemplate.name} styling`);
+      templateDefaults = {
+        fontFamily: visualTemplate.typography.headlineFont,
+        fontWeight: visualTemplate.typography.fontWeight,
+        textColor: visualTemplate.colorPalette.text,
+        position: visualTemplate.positioning.preferredPosition,
+        overlayType: visualTemplate.overlayStyle.type,
+        overlayOpacity: visualTemplate.overlayStyle.opacity,
+        brandColors: [
+          visualTemplate.colorPalette.primary,
+          visualTemplate.colorPalette.secondary,
+          visualTemplate.colorPalette.accent
+        ]
+      };
+    }
+    
+    // Default luxury typography settings (fallback)
     const defaultOptions: TextOverlayOptions = {
       text: userOptions.text || 'SAMPLE TEXT',
       position: (userOptions.position || analysis.recommendedPosition) as any,
@@ -151,16 +181,19 @@ export class CanvasTextOverlayService {
       brandColors: userOptions.brandColors || ['#000000', '#FFFFFF']
     };
 
+    // Merge: defaults < template styling < provided options (provided options have highest priority)
+    const finalOptions = { ...defaultOptions, ...templateDefaults, ...userOptions };
+
     // Adjust based on brand context
     if (brandContext?.brandStyle === 'luxury') {
-      defaultOptions.fontSize += 8;
-      defaultOptions.fontFamily = 'Times New Roman';
+      finalOptions.fontSize += 8;
+      finalOptions.fontFamily = 'Times New Roman';
     } else if (brandContext?.brandStyle === 'modern') {
-      defaultOptions.fontFamily = 'Helvetica';
-      defaultOptions.fontWeight = 'normal';
+      finalOptions.fontFamily = 'Helvetica';
+      finalOptions.fontWeight = 'normal';
     }
 
-    return defaultOptions;
+    return finalOptions;
   }
 
   /**
@@ -243,7 +276,11 @@ export class CanvasTextOverlayService {
         overlayColor = `rgba(255, 255, 255, ${overlayOpacity})`;
         break;
       case 'brand-color':
-        overlayColor = `rgba(0, 0, 0, ${overlayOpacity})`; // Fallback to dark
+        // Use template's primary color if available, otherwise fallback to user brand colors
+        const templateColor = options.visualTemplate ? 
+          getTemplateById(options.visualTemplate)?.colorPalette.primary : 
+          (options.brandColors?.[0] || '#000000');
+        overlayColor = `${templateColor}${Math.round(overlayOpacity * 255).toString(16)}`;
         break;
       default:
         return;

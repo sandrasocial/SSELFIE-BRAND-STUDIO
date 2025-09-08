@@ -1385,6 +1385,75 @@ export const MAYA_PERSONALITY: MayaPersonality = {
             purpose: "Determine brand positioning category for styling approach"
           }
         ]
+      },
+      {
+        phase: "visualBrandIdentity",
+        title: "Visual Brand Identity Selection",
+        introduction: "Now let's discover your visual brand aesthetic! I have 12 luxury templates inspired by high-end Pinterest feeds. Each one creates a completely different brand experience.",
+        questions: [
+          {
+            id: "businessAesthetic",
+            question: "Which visual aesthetic aligns with your business vision?",
+            options: [
+              {
+                id: "estetica-luxury",
+                name: "Estética Luxury",
+                description: "Sophisticated black/brown/beige with serif elegance",
+                businessAlignment: "Beauty, luxury services, premium consulting",
+                preview: "Rich blacks + warm browns + elegant serif fonts"
+              },
+              {
+                id: "nature-luxo", 
+                name: "Nature Luxo",
+                description: "Organic forest green/cream with natural typography",
+                businessAlignment: "Wellness, organic products, sustainability, health coaching",
+                preview: "Forest greens + natural creams + organic fonts"
+              },
+              {
+                id: "dark-luxury",
+                name: "Dark Luxury", 
+                description: "Modern charcoal/silver sophistication",
+                businessAlignment: "Tech, modern business, architecture, design",
+                preview: "Charcoal + silver + bold modern fonts"
+              },
+              {
+                id: "red-luxury",
+                name: "Red Luxury",
+                description: "Bold deep red/white elegance", 
+                businessAlignment: "Fashion, beauty, luxury goods, personal branding",
+                preview: "Deep reds + pure white + bold serif"
+              },
+              {
+                id: "white-gold",
+                name: "White Gold",
+                description: "Minimal cream/gold luxury",
+                businessAlignment: "Luxury services, wedding, premium consulting, high-end retail", 
+                preview: "Pure white + gold accents + minimal luxury"
+              },
+              {
+                id: "rose-luxo",
+                name: "Rose Luxo",
+                description: "Romantic blush/cream sophistication",
+                businessAlignment: "Beauty, wellness, feminine brands",
+                preview: "Blush rose + cream + romantic fonts"
+              }
+            ],
+            followUp: "What draws you to this aesthetic - the colors, the mood, or the business feeling it creates?",
+            purpose: "Select primary visual template for brand consistency"
+          },
+          {
+            id: "colorPreferences",
+            question: "How do you want your brand colors to make people feel?",
+            followUp: "Does your selected template match that emotional goal?",
+            purpose: "Validate template selection with emotional branding goals"
+          },
+          {
+            id: "typographyPersonality",
+            question: "What typography personality feels most authentic to you - classic elegance (serif), modern authority (sans-serif), or warm personality (script)?",
+            followUp: "How does that align with how you want clients to perceive you?",
+            purpose: "Confirm typography choices within selected template"
+          }
+        ]
       }
     ],
     
