@@ -45,6 +45,7 @@ interface CategoryConfig {
   vibe: string;
   stylingApproach?: string[];
   promptGuidance?: string[];
+  emojiExamples?: string[];
 }
 
 interface FluxSettings {
@@ -213,42 +214,50 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   categories: {
     "LinkedIn Professional": {
       description: "Credible business presence for professional networking and career advancement",
-      vibe: "Authority without intimidation, trustworthy advisor, LinkedIn-optimized"
+      vibe: "Authority without intimidation, trustworthy advisor, LinkedIn-optimized",
+      emojiExamples: ["🏢 Executive Boardroom Power", "💼 Strategic Leadership Moment", "📸 Professional Headshot Perfection"]
     },
 
     "Instagram Lifestyle": {
       description: "Elevated everyday moments perfect for Instagram feed and stories",
-      vibe: "Effortless sophistication, scroll-stopping content, lifestyle inspiration"
+      vibe: "Effortless sophistication, scroll-stopping content, lifestyle inspiration",
+      emojiExamples: ["✨ Morning Coffee Glamour", "🌅 Golden Hour Sophistication", "💫 Dreamy Weekend Vibes"]
     },
 
     "Authentic Storytelling": {
       description: "Genuine personal moments that show the real you and your journey",
-      vibe: "Confident authenticity, relatable but polished, inspiring presence"
+      vibe: "Confident authenticity, relatable but polished, inspiring presence",
+      emojiExamples: ["🌟 Personal Growth Journey", "💃 Celebrating Life Moments", "🌊 Flowing with Change"]
     },
 
     "Creative Professional": {
       description: "Artistic expression for creative portfolios and unconventional businesses",
-      vibe: "Innovative spirit, artistic confidence, creative authority"
+      vibe: "Innovative spirit, artistic confidence, creative authority",
+      emojiExamples: ["🎬 Artistic Vision Statement", "✨ Creative Genius Energy", "💎 Unique Design Authority"]
     },
 
     "Editorial Luxury": {
       description: "High-fashion magazine-style photos with dramatic lighting and sophistication",
-      vibe: "Editorial drama, luxury sophistication, fashion-forward elegance"
+      vibe: "Editorial drama, luxury sophistication, fashion-forward elegance",
+      emojiExamples: ["👑 Regal Magazine Cover", "💎 High Fashion Drama", "🔥 Editorial Power Stance"]
     },
 
     "Travel & Destination": {
       description: "Location-based content showcasing wanderlust and global sophistication",
-      vibe: "Jet-set lifestyle, cultural appreciation, adventure with elegance"
+      vibe: "Jet-set lifestyle, cultural appreciation, adventure with elegance",
+      emojiExamples: ["🌅 Sunrise Adventure Spirit", "✨ Destination Glamour", "🌟 Worldly Sophistication"]
     },
 
     "Wellness & Mindset": {
       description: "Mindful, nurturing content for wellness and coaching businesses",
-      vibe: "Calm confidence, authentic healing energy, grounded sophistication"
+      vibe: "Calm confidence, authentic healing energy, grounded sophistication",
+      emojiExamples: ["🌅 Peaceful Morning Ritual", "🌊 Flowing Meditation Energy", "✨ Gentle Healing Presence"]
     },
 
     "Street Style Fashion": {
       description: "Urban fashion-forward looks that capture current trends and personal style",
-      vibe: "Fashion authority, street smart confidence, trendsetting energy"
+      vibe: "Fashion authority, street smart confidence, trendsetting energy",
+      emojiExamples: ["🔥 Street Style Icon", "💫 Urban Fashion Forward", "🌟 Trendsetter Confidence"]
     }
   },
 
