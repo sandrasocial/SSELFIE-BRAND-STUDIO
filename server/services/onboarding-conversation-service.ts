@@ -43,9 +43,9 @@ export class OnboardingConversationService {
       description: "Getting to know your transformation journey",
       focus: "Build connection and understand their story",
       questions: [
-        "What brought you here today?",
-        "Tell me about where you are in your journey right now?",
-        "What's your biggest challenge when it comes to feeling confident?"
+        "What brought you my way today?",
+        "Where are you at in your journey right now?",
+        "What's your biggest styling challenge?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -56,9 +56,9 @@ export class OnboardingConversationService {
       description: "Understanding where you are today",
       focus: "Understand their current situation and challenges",
       questions: [
-        "What's your current situation like?",
-        "What challenges are you facing right now?",
-        "What's working well for you, and what isn't?"
+        "Tell me what's happening in your world right now?",
+        "What's your biggest challenge at the moment?",
+        "What's working for you, and what isn't?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -69,9 +69,9 @@ export class OnboardingConversationService {
       description: "Exploring your dreams and goals",
       focus: "Help them visualize their powerful future self",
       questions: [
-        "Close your eyes and imagine yourself 2 years from now, successful and confident. What do you see?",
+        "Picture yourself 2 years from now - successful and confident. What do you see?",
         "What would your life look like if you achieved your biggest dreams?",
-        "Who is the woman you're becoming?"
+        "Who are you becoming?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -82,9 +82,9 @@ export class OnboardingConversationService {
       description: "Understanding your professional world",
       focus: "Capture their business context and goals",
       questions: [
-        "What are you building or wanting to build?",
-        "Who do you serve or want to serve?",
-        "What's your mission or what impact do you want to make?"
+        "What are you building (or wanting to build)?",
+        "Who do you serve?",
+        "What impact do you want to make?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -95,9 +95,9 @@ export class OnboardingConversationService {
       description: "Discovering your authentic style",
       focus: "Understand their style preferences and visual identity",
       questions: [
-        "How do you want to be seen and remembered?",
-        "What styles or aesthetics speak to you?",
-        "When you imagine your future self, what is she wearing?"
+        "How do you want people to see and remember you?",
+        "What styles speak to you?",
+        "When you imagine your future self, what are you wearing?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -109,8 +109,8 @@ export class OnboardingConversationService {
       focus: "Understand how they want to use their photos",
       questions: [
         "Where will you use these photos?",
-        "What story do you want your images to tell?",
-        "How do you want people to feel when they see your photos?"
+        "What story should your images tell?",
+        "How do you want people to feel when they see you?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     }
