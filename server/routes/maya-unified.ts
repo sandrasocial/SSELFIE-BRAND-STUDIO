@@ -774,9 +774,9 @@ Use this strategic context to create photo concepts that directly support their 
       console.log('🎯 ONBOARDING INTENT DETECTED: Maya wants to start onboarding flow');
       console.log('🔄 REDIRECTING: From conversational to structured onboarding');
       
-      // Import onboarding service
-      const { OnboardingService } = await import('../services/onboarding-service');
-      const onboardingService = new OnboardingService();
+      // Import onboarding conversation service
+      const { OnboardingConversationService } = await import('../services/onboarding-conversation-service');
+      const onboardingService = new OnboardingConversationService();
       
       // Start structured onboarding
       const onboardingResponse = await onboardingService.processOnboardingMessage(

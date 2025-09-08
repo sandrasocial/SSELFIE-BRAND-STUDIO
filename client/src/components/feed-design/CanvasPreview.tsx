@@ -4,12 +4,12 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Card } from '@/components/ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Slider } from '../ui/slider';
+import { Card } from '../ui/card';
 import { Loader2, RefreshCw, Download, Eye } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
 interface CanvasPreviewProps {
   imageUrl: string;
