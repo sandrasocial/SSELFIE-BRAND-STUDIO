@@ -964,10 +964,11 @@ export default function Maya() {
           </div>
 
           <div ref={messagesEndRef} />
-        </div>
+          </div>
 
-        {/* Luxury Editorial Input - Mobile Optimized */}
-        <div className="border-t border-gray-100 bg-white">
+          {/* Mode-specific input areas */}
+          {(activeMode === 'creation' || activeMode === 'business' || activeMode === 'support') && (
+            <div className="border-t border-gray-100 bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-8 py-4 sm:py-8">
             <div className="flex items-end space-x-3 sm:space-x-6">
               <div className="flex-1">
@@ -975,7 +976,12 @@ export default function Maya() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Describe the photos you need for your business..."
+                  placeholder={
+                    activeMode === 'creation' ? "Describe the photos you need for your business..." :
+                    activeMode === 'business' ? "Tell me about your business goals and challenges..." :
+                    activeMode === 'support' ? "How can I help you today?" :
+                    "Type your message..."
+                  }
                   className="w-full resize-none border border-gray-200 focus:border-black focus:outline-none px-4 sm:px-6 py-3 sm:py-4 bg-white transition-colors"
                   rows={1}
                   disabled={isTyping}
