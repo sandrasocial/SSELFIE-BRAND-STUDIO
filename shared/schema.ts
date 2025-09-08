@@ -85,6 +85,12 @@ export const users = pgTable("users", {
   brandStyle: varchar("brand_style"), // "professional" | "creative" | "lifestyle" | "luxury"
   photoGoals: text("photo_goals"), // What they want photos for (business use case)
   
+  // Visual brand identity preferences for feed design
+  visualTemplate: varchar("visual_template"), // Selected luxury template ID
+  brandColors: jsonb("brand_colors"), // Primary, secondary, accent colors from template
+  typographyPreferences: jsonb("typography_preferences"), // Font choices and styling
+  feedAesthetic: varchar("feed_aesthetic"), // Overall feed style preference
+  
   // Training-time coaching system for brand strategy discovery
   trainingCoachingStarted: boolean("training_coaching_started").default(false),
   trainingCoachingCompleted: boolean("training_coaching_completed").default(false),

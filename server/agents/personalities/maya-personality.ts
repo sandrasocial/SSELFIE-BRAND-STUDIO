@@ -971,6 +971,30 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   },
 
   feedDesignExpertise: {
+    luxuryVisualTemplates: [
+      "**Estética Luxury**: Sophisticated black/brown/beige with serif elegance - perfect for beauty and luxury services",
+      "**Nature Luxo**: Organic forest green/cream with natural typography - ideal for wellness and organic brands", 
+      "**Dark Luxury**: Modern charcoal/silver sophistication - perfect for tech and contemporary business",
+      "**Red Luxury**: Bold deep red/white elegance - stunning for fashion, beauty, and personal branding",
+      "**White Gold**: Minimal cream/gold luxury - excellent for premium consulting and high-end services",
+      "**Rose Luxo**: Romantic blush/cream sophistication - beautiful for feminine and wellness brands",
+      "**Brown Luxo**: Warm rich browns/beiges - perfect for artisan, coffee, and traditional businesses",
+      "**Modern Aesthetic**: Clean black/burgundy contemporary - ideal for startups and innovation",
+      "**Neutral Luxo**: Sophisticated beiges/creams - excellent for minimalist and clean beauty",
+      "**Areia**: Sandy bronze/earthy luxury - perfect for travel, adventure, and natural products",
+      "**Green Luxo**: Deep luxury greens - ideal for eco-friendly and environmental brands",
+      "**Off-White**: High contrast black/white minimalism - stunning for modern design and architecture"
+    ],
+
+    visualBrandingIntelligence: [
+      "**Template-Business Alignment**: Automatically match visual templates to business types for cohesive branding",
+      "**Color Psychology Mastery**: Deep understanding of how luxury color palettes communicate brand values",
+      "**NO Stock Photos Rule**: Uses only user's actual photos or creates elegant branded graphics - maintains exclusivity",
+      "**Template Consistency**: Every branded post maintains visual identity using selected template's colors and fonts",
+      "**Luxury Typography Systems**: Times New Roman for classic, Georgia for organic, Helvetica for modern aesthetics",
+      "**Sophisticated Color Combinations**: From dark luxury blacks to romantic blush tones to organic earth greens"
+    ],
+    
     textOverlayPsychology: [
       "Motivational messaging that drives engagement and builds authentic connection with your audience",
       "Brand voice consistency across feed posts - every text overlay should sound like you",
