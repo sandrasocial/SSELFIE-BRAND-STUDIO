@@ -88,6 +88,68 @@ export function SimplifiedWorkspace() {
 
   // Get user's first name for display
   const userName = user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'User';
+
+  // USER STATE DETECTION: Intelligent context awareness
+  const getUserState = () => {
+    const hasModel = userModel?.status === 'completed';
+    const isTraining = userModel?.status === 'training' || userModel?.status === 'processing';
+    const imageCount = aiImages.length;
+    const hasConversationHistory = messages.length > 0;
+    const hasStoredChats = localStorage.getItem('maya-workspace-chat') !== null;
+    
+    if (isTraining) {
+      return 'training';
+    } else if (!hasModel && imageCount === 0) {
+      return 'new';
+    } else if (hasModel && imageCount > 50) {
+      return 'experienced';
+    } else if (hasConversationHistory || hasStoredChats) {
+      return 'returning';
+    } else {
+      return 'getting-started';
+    }
+  };
+
+  const userState = getUserState();
+
+  // CONTEXT-AWARE WELCOME MESSAGES
+  const getWelcomeMessage = () => {
+    const imageCount = aiImages.length;
+    switch (userState) {
+      case 'new':
+        return {
+          greeting: `Welcome, ${userName}!`,
+          message: "I'm Maya, your AI photographer. Ready to create your first professional photos?",
+          suggestion: "Tell me about the photos you need for your business"
+        };
+      case 'training':
+        return {
+          greeting: `Great progress, ${userName}!`,
+          message: "Your AI model is training. Once ready, we'll create stunning professional photos together.",
+          suggestion: "What style of photos are you most excited to create?"
+        };
+      case 'experienced':
+        return {
+          greeting: `Welcome back, ${userName}!`,
+          message: `Impressive! You have ${imageCount} professional photos. Your brand is really growing.`,
+          suggestion: "What new photo styles should we explore today?"
+        };
+      case 'returning':
+        return {
+          greeting: `Good to see you again, ${userName}!`,
+          message: "How can I help with your brand photos today?",
+          suggestion: "Continue where we left off or start something new?"
+        };
+      default:
+        return {
+          greeting: `Hello, ${userName}!`,
+          message: "Your AI is ready. Let's create some amazing professional photos.",
+          suggestion: "What photos do you need for your business?"
+        };
+    }
+  };
+
+  const welcomeContent = getWelcomeMessage();
   
   // Use actual user images or fallback to sample images
   const userImages = aiImages.length > 0 
@@ -127,6 +189,13 @@ export function SimplifiedWorkspace() {
       const response = await apiRequest('/api/maya/chat', 'POST', {
         message: userMessage,
         context: 'dashboard',
+        userState,
+        userStats: {
+          imageCount: aiImages.length,
+          modelStatus: userModel?.status,
+          planType: usage.planType || 'sselfie-studio',
+          isFirstMessage: messages.length === 0
+        },
         conversationHistory: messages.slice(-6).map(msg => ({
           role: msg.role,
           content: msg.content
@@ -204,13 +273,29 @@ export function SimplifiedWorkspace() {
         {/* Maya Chat Interface */}
         <div className="max-w-2xl mx-auto mb-32">
           <div className="bg-gray-50 border border-gray-200 p-8 mb-8">
-            {/* Maya Introduction */}
-            <p 
-              className="text-gray-800 mb-6 text-center"
-              style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
-            >
-              Maya's chat to get started
-            </p>
+            {/* Context-Aware Maya Welcome */}
+            <div className="text-center mb-6">
+              <h3 
+                className="text-lg text-black mb-2"
+                style={{ fontFamily: 'Times New Roman, serif', fontWeight: 400, letterSpacing: '0.1em' }}
+              >
+                {welcomeContent.greeting}
+              </h3>
+              <p 
+                className="text-gray-800 mb-4"
+                style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+              >
+                {welcomeContent.message}
+              </p>
+              {messages.length === 0 && (
+                <p 
+                  className="text-gray-600 text-sm italic"
+                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                >
+                  {welcomeContent.suggestion}
+                </p>
+              )}
+            </div>
             
             {/* Conversation Display */}
             {messages.length > 0 && (
@@ -254,7 +339,7 @@ export function SimplifiedWorkspace() {
                 value={chatMessage}
                 onChange={(e) => setChatMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="What photos do you need today?"
+                placeholder={messages.length === 0 ? welcomeContent.suggestion : "Continue your conversation..."}
                 className="flex-1 px-6 py-4 border border-gray-200 focus:border-black focus:outline-none bg-white transition-colors"
                 style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
                 disabled={isTyping}
