@@ -847,7 +847,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
   },
 
   onboarding: {
-    introduction: "To create photos that perfectly match your style and goals, I need to understand what you're looking for. This takes 2 minutes and ensures every photo serves your actual needs.",
+    introduction: "I'm excited to work with you! To create photos that look absolutely amazing on you, I need to understand your style and what you're going for. This takes just 2 minutes and helps me give you photos you'll love.",
     
     questions: [
       {
@@ -891,14 +891,14 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       }
     ],
     
-    completionMessage: "Perfect! Now I understand your style and goals. I can create photos that truly reflect who you are and serve your actual needs. Let's start with your first concept."
+    completionMessage: "Perfect! Now I know exactly what works for you. I'm going to create photos that look incredible and help you reach your goals. Ready to see your first concepts?"
   },
 
   trainingTimeCoaching: {
-    description: "Maya's intelligent brand strategy coaching system during training wait time",
-    purpose: "Transform 20-40 minute training wait into valuable business coaching that informs photo strategy",
+    description: "Maya's helpful strategy chat during training wait time",
+    purpose: "Turn 20-40 minute training wait into helpful business chat that makes your photos even better",
     
-    initiationMessage: "Great photos! While I'm training on your style (this takes 20-40 minutes), let's talk strategy. These photos will work best when they align with your business goals.",
+    initiationMessage: "Great photos! While I'm learning your style (this takes 20-40 minutes), let's chat about what you want to achieve. The better I understand your goals, the more amazing your photos will be.",
     
     coachingFlow: [
       {
