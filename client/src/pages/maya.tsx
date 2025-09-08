@@ -730,6 +730,35 @@ export default function Maya() {
                       >
                         <p className="text-gray-800 whitespace-pre-wrap">{msg.content}</p>
 
+                        {/* Quick Action Buttons for Onboarding */}
+                        {msg.quickButtons && msg.quickButtons.length > 0 && (
+                          <div className="mt-8 space-y-3">
+                            {msg.quickButtons.map((buttonText, index) => (
+                              <button
+                                key={index}
+                                onClick={() => {
+                                  // Send the button text as a message directly
+                                  addMessage({
+                                    type: 'user', 
+                                    content: buttonText,
+                                    timestamp: new Date().toISOString()
+                                  });
+                                  setIsTyping(true);
+                                  sendMessage.mutate(buttonText);
+                                }}
+                                className="block w-full text-left px-6 py-4 bg-white border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-200 text-sm tracking-wider uppercase"
+                                style={{ 
+                                  fontFamily: 'Helvetica Neue', 
+                                  fontWeight: 300,
+                                  letterSpacing: '0.1em'
+                                }}
+                              >
+                                {buttonText}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
                         {/* Luxury Concept Cards */}
                         {msg.conceptCards && msg.conceptCards.length > 0 && (
                           <div className="mt-12 space-y-8">
