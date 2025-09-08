@@ -484,8 +484,8 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     // Keep last 30 messages for extended context (was 20)
     fullConversationHistory = fullConversationHistory.slice(-30);
 
-    // Get unified user context
-    const userContext = await getUnifiedUserContext(userId);
+    // Get unified user context for styling
+    const unifiedUserContext = await getUnifiedUserContext(userId);
     
     // Check generation capability
     const generationInfo = await checkGenerationCapability(userId);
