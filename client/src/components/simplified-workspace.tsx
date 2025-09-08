@@ -163,11 +163,35 @@ export function SimplifiedWorkspace() {
         "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face"
       ];
 
-  // Maya profile suggestion based on user's best image
-  const profileSuggestion = {
-    image: userImages[0],
-    bio: "✨ Empowering entrepreneurs through authentic storytelling\n📸 Professional photos that actually look like you\n🎯 Building credibility one image at a time\n👇 Book your brand session"
+  // Context-aware profile suggestion based on user state
+  const getProfileSuggestion = () => {
+    const imageCount = aiImages.length;
+    switch (userState) {
+      case 'experienced':
+        return {
+          image: userImages[0],
+          bio: `✨ Entrepreneur with ${imageCount}+ professional photos\n📸 Authentic brand storytelling expert\n🎯 Scaling credibility through visual consistency\n👇 Book your next brand session`
+        };
+      case 'new':
+      case 'getting-started':
+        return {
+          image: userImages[0],
+          bio: "✨ Ready to transform your business presence\n📸 Professional photos that build trust\n🎯 Your authentic brand story starts here\n👇 Let's create your first session"
+        };
+      case 'training':
+        return {
+          image: userImages[0],
+          bio: "✨ AI training in progress - exciting!\n📸 Personalized photos coming soon\n🎯 Building your unique brand identity\n👇 Preview your upcoming session"
+        };
+      default:
+        return {
+          image: userImages[0],
+          bio: "✨ Empowering entrepreneurs through storytelling\n📸 Professional photos that reflect you\n🎯 Building credibility one image at a time\n👇 Continue your brand journey"
+        };
+    }
   };
+
+  const profileSuggestion = getProfileSuggestion();
 
   // Handle Maya chat inline
   const handleSendMessage = async () => {
@@ -356,21 +380,80 @@ export function SimplifiedWorkspace() {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Context-Aware Action Buttons */}
           <div className="grid grid-cols-2 gap-6">
             <button 
               onClick={() => setLocation('/maya')}
               className="bg-black text-white px-8 py-6 hover:bg-gray-800 transition-colors text-xs uppercase tracking-[0.3em] font-light"
             >
-              STYLE
+              {userState === 'new' ? 'START' : userState === 'experienced' ? 'CREATE MORE' : 'STYLE'}
             </button>
             <button 
               onClick={() => setLocation('/sselfie-gallery')}
               className="border border-black text-black px-8 py-6 hover:bg-black hover:text-white transition-colors text-xs uppercase tracking-[0.3em] font-light"
             >
-              GALLERY
+              {aiImages.length > 0 ? `VIEW ${aiImages.length}` : 'GALLERY'}
             </button>
           </div>
+          
+          {/* Smart Suggestions Based on User State */}
+          {messages.length === 0 && (
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-xs text-gray-500 uppercase tracking-wider text-center mb-4">
+                Quick Start
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {userState === 'experienced' && (
+                  <>
+                    <button 
+                      onClick={() => setChatMessage('Create new headshots for LinkedIn')}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                    >
+                      New Headshots
+                    </button>
+                    <button 
+                      onClick={() => setChatMessage('I need photos for an upcoming event')}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                    >
+                      Event Photos
+                    </button>
+                  </>
+                )}
+                {userState === 'new' && (
+                  <>
+                    <button 
+                      onClick={() => setChatMessage('I need professional headshots')}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                    >
+                      Headshots
+                    </button>
+                    <button 
+                      onClick={() => setChatMessage('Photos for my website')}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                    >
+                      Website Photos
+                    </button>
+                  </>
+                )}
+                {(userState === 'returning' || userState === 'getting-started') && (
+                  <>
+                    <button 
+                      onClick={() => setChatMessage('Show me my recent photos')}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                    >
+                      Recent Work
+                    </button>
+                    <button 
+                      onClick={() => setChatMessage('What new styles can we try?')}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                    >
+                      New Styles
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Branding Section - Mobile Optimized */}
