@@ -597,7 +597,7 @@ function SimpleTraining() {
                 </div>
               </div>
               
-              <Link href="/studio">
+              <Link href="/maya">
                 <div style={{
                   display: 'inline-block',
                   padding: '16px 32px',
@@ -623,7 +623,7 @@ function SimpleTraining() {
                   target.style.color = '#ffffff';
                 }}
                 >
-                  CONTINUE TO STUDIO
+                  START WITH MAYA
                 </div>
               </Link>
             </div>

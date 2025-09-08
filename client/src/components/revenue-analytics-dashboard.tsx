@@ -109,7 +109,7 @@ export function RevenueAnalyticsDashboard() {
 
         <div className="border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <Calendar size={24} className="text-purple-600" />
+            <Calendar size={24} className="text-gray-600" />
           </div>
           <div className="text-3xl font-serif font-light mb-2">
             €{revenue?.yearlyRevenue?.toLocaleString() || 0}

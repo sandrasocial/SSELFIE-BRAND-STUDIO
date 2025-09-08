@@ -135,7 +135,7 @@ export function SystemHealthMonitor() {
             <div className="text-xs uppercase tracking-wide text-gray-500">Insights Today</div>
           </div>
           <div className="text-center p-4 bg-gray-50 rounded">
-            <div className="text-2xl font-light text-purple-600">{health?.notifications.deliveryRate || 100}%</div>
+            <div className="text-2xl font-light text-gray-600">{health?.notifications.deliveryRate || 100}%</div>
             <div className="text-xs uppercase tracking-wide text-gray-500">Delivery Rate</div>
           </div>
           <div className="text-center p-4 bg-gray-50 rounded">
@@ -217,7 +217,7 @@ export function SystemHealthMonitor() {
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Preferences Respected</span>
-              <span className="font-medium text-purple-600">{health?.notifications.preferencesRespected || 100}%</span>
+              <span className="font-medium text-gray-600">{health?.notifications.preferencesRespected || 100}%</span>
             </div>
           </div>
         </div>
