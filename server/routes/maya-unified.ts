@@ -2483,19 +2483,7 @@ async function createDetailedPromptFromConcept(conceptName: string, triggerWord:
 🎯 CATEGORY-SPECIFIC STYLING FOCUS: ${category.toUpperCase()}
 CRITICAL: Use your ${category} styling approaches loaded in your personality. Reference the specific styling techniques, outfit formulas, and aesthetic principles for this category.`;
       
-      // Add shot type intelligence based on category
-      const contextLower = cleanOriginalContext.toLowerCase();
-      if (contextLower.includes('business') || contextLower.includes('corporate') || category === 'Business') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Business styling typically works best with half-body or close-up shots to show professional attire and confident expression.';
-      } else if (contextLower.includes('lifestyle') || contextLower.includes('elevated everyday') || category === 'Lifestyle') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Lifestyle concepts work beautifully as full scene environmental shots or relaxed half-body poses.';
-      } else if (contextLower.includes('travel') || category === 'Travel') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Travel concepts shine with environmental storytelling - full scene shots that capture location and outfit together.';
-      } else if (contextLower.includes('instagram') || category === 'Instagram') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Instagram concepts work well with dynamic half-body shots or engaging environmental scenes for social media appeal.';
-      } else if (contextLower.includes('event') || contextLower.includes('social') || category === 'Events') {
-        categorySpecificGuidance += '\n🎯 SHOT TYPE HINT: Event styling benefits from full-body or half-body shots that showcase the complete look and occasion appropriateness.';
-      }
+      // ✅ MAYA PURE INTELLIGENCE: Let Maya decide the perfect shot type for each concept naturally
       
       // PHASE 1 DEBUG: Log category guidance
       console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
