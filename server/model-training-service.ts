@@ -641,34 +641,24 @@ export class ModelTrainingService {
       
       console.log(`🎯 [${promptId}] BASE PROMPT: "${basePrompt.substring(0, 300)}"`);      
       
-      // PHASE 4: MANDATORY GENDER INJECTION - Critical for accurate representation
+      // PHASE 4: SECURE GENDER VALIDATION - Maya handles representation through intelligence
       const user = await storage.getUser(userId);
       if (!user) {
         throw new Error('User not found for image generation');
       }
       
-      // CRITICAL: Inject gender for proper AI representation
-      let genderEnhancedPrompt = basePrompt;
-      if (user.gender) {
-        // Ensure gender is properly represented in the prompt
-        const genderTerm = user.gender === 'woman' ? 'woman' : user.gender === 'man' ? 'man' : user.gender;
-        
-        // Smart gender injection - add if not already present
-        if (!basePrompt.toLowerCase().includes(genderTerm.toLowerCase())) {
-          genderEnhancedPrompt = `${genderTerm} ${basePrompt}`;
-          console.log(`👤 [${promptId}] GENDER INJECTED: Added "${genderTerm}" for accurate representation`);
-        } else {
-          console.log(`👤 [${promptId}] GENDER PRESENT: "${genderTerm}" already in prompt`);
-        }
+      // SECURE: Validate user gender is legitimate value (no injection possible)
+      const validGenders = ['woman', 'man', 'non-binary'] as const;
+      const secureGender = validGenders.includes(user.gender as any) ? user.gender : null;
+      
+      if (secureGender) {
+        console.log(`👤 [${promptId}] SECURE GENDER: User is "${secureGender}" - Maya handled representation in prompt generation`);
       } else {
-        console.log(`⚠️ [${promptId}] WARNING: No gender data available - may affect representation accuracy`);
+        console.log(`⚠️ [${promptId}] WARNING: No valid gender data - Maya will use neutral representation`);
       }
       
-      // Additional profile enhancement
-      if (user.profession && !genderEnhancedPrompt.toLowerCase().includes('professional')) {
-        genderEnhancedPrompt = `professional ${genderEnhancedPrompt}`;
-        console.log(`💼 [${promptId}] PROFESSION ENHANCED: Added professional context`);
-      }
+      // Maya's intelligence already included gender naturally in prompt - no injection needed
+      let genderEnhancedPrompt = basePrompt;
       
       console.log(`🎯 [${promptId}] ENHANCED PROMPT: "${genderEnhancedPrompt.substring(0, 300)}"`);      
       
