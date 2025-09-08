@@ -672,7 +672,14 @@ Use this strategic context to create photo concepts that directly support their 
     });
 
     if (!claudeResponse.ok) {
-      throw new Error(`Claude API error: ${claudeResponse.status}`);
+      const errorBody = await claudeResponse.text();
+      console.log('🚨 CLAUDE API ERROR DETAILS:');
+      console.log('- Status:', claudeResponse.status);
+      console.log('- Error body:', errorBody);
+      console.log('- System prompt length:', mayaPersonality.length);
+      console.log('- Conversation history length:', fullConversationHistory.length);
+      console.log('- Request context length:', requestContext.length);
+      throw new Error(`Claude API error: ${claudeResponse.status} - ${errorBody}`);
     }
 
     const data = await claudeResponse.json();
