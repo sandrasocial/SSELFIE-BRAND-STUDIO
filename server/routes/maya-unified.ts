@@ -2069,26 +2069,13 @@ const parseConceptsFromResponse = async (response: string, userId?: string): Pro
       
     console.log(`🎯 CLEANED CONCEPT NAME: "${conceptName}"`);
     
-    // Enhanced validation for styling concepts
+    // ✅ MAYA PURE INTELLIGENCE: Trust Maya's concept creation without hardcoded keyword restrictions
     const isStyleConcept = conceptName.length >= 8 && 
                           conceptName.length <= 80 &&
                           !conceptName.match(/^(the|a|an|and|or|but|if|when|where|how|what|why)\s/i) &&
                           !conceptName.match(/^\d+$/) &&
                           conceptName.match(/[a-zA-Z]/) &&
-                          // Look for styling-related keywords
-                          (conceptName.toLowerCase().includes('look') ||
-                           conceptName.toLowerCase().includes('style') ||
-                           conceptName.toLowerCase().includes('vibe') ||
-                           conceptName.toLowerCase().includes('power') ||
-                           conceptName.toLowerCase().includes('glam') ||
-                           conceptName.toLowerCase().includes('chic') ||
-                           conceptName.toLowerCase().includes('boss') ||
-                           conceptName.toLowerCase().includes('elegance') ||
-                           conceptName.toLowerCase().includes('confident') ||
-                           conceptName.toLowerCase().includes('luxury') ||
-                           conceptName.toLowerCase().includes('professional') ||
-                           conceptName.toLowerCase().includes('business') ||
-                           conceptContent.length > 50); // Or has substantial content
+                          conceptContent.length > 20; // Maya knows what makes good styling concepts
     
     if (!isStyleConcept || foundConcepts.has(conceptName.toLowerCase())) {
       continue;
