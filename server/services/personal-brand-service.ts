@@ -4,7 +4,6 @@ import {
   onboardingData,
   brandOnboarding,
   userProfiles,
-  users,
   type OnboardingData,
   type BrandOnboarding,
   type UserProfile,
@@ -482,54 +481,6 @@ export class PersonalBrandService {
     }
     
     return [brandData.colorScheme];
-  }
-  /**
-   * Save gender to user profile
-   */
-  async saveGender(userId: string, gender: string): Promise<void> {
-    try {
-      await db
-        .update(users)
-        .set({ 
-          gender: gender,
-          updatedAt: new Date()
-        })
-        .where(eq(users.id, userId));
-      
-      console.log(`✅ GENDER SAVED: ${gender} for user ${userId}`);
-      
-    } catch (error) {
-      console.error('❌ Error saving gender:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Save visual template selection to user profile
-   */
-  async saveVisualTemplate(userId: string, templateData: {
-    templateId: string;
-    templateName: string;
-    selectedAt: string;
-  }): Promise<void> {
-    try {
-      // Import users table and update visual template
-      const { users } = await import("../../shared/schema");
-      
-      await db
-        .update(users)
-        .set({ 
-          visualTemplate: templateData.templateId,
-          updatedAt: new Date()
-        })
-        .where(eq(users.id, userId));
-      
-      console.log(`✅ VISUAL TEMPLATE SAVED: ${templateData.templateName} (${templateData.templateId}) for user ${userId}`);
-      
-    } catch (error) {
-      console.error('❌ Error saving visual template:', error);
-      throw error;
-    }
   }
 }
 

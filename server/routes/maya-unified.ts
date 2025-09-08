@@ -248,12 +248,10 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
         });
       }
       
-      // Check if this is an onboarding trigger or continuation - EXPANDED for legacy users
+      // Check if this is an onboarding trigger or continuation
       const onboardingTriggers = [
         'onboarding', 'getting started', 'tell me about', 'what brought you here',
-        'setup', 'discovery', 'through the onboarding', 'start over', 'business context',
-        'questions', 'brand discovery', 'profile setup', 'tell me more about your business',
-        'help me understand', 'customization', 'personalize', 'brand strategy'
+        'setup', 'discovery', 'through the onboarding', 'start over', 'business context'
       ];
       
       const isOnboardingRequest = onboardingTriggers.some(trigger => 
@@ -530,17 +528,8 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     // Check generation capability
     const generationInfo = await checkGenerationCapability(userId);
     
-    // CONTEXT-AWARE: Load personality based on context (consultation vs creation vs support)
-    // Map legacy contexts to new context-aware system
-    let effectiveContext = context;
-    if (context === 'dashboard' || context === 'workspace') {
-      effectiveContext = 'consultation';
-    } else if (context === 'styling' || context === 'creation') {
-      effectiveContext = 'creation';
-    }
-    
-    console.log(`🧠 CONTEXT-AWARE PERSONALITY: Loading Maya for ${effectiveContext} mode (original: ${context})`);
-    let mayaPersonality = PersonalityManager.getContextPrompt('maya', effectiveContext);
+    // CONTEXT-AWARE: Load personality based on context (styling vs support)
+    let mayaPersonality = PersonalityManager.getContextPrompt('maya', context);
     
     // PHASE 2: Add support intelligence for support context
     if (context === 'support') {
@@ -783,9 +772,9 @@ Use this strategic context to create photo concepts that directly support their 
       console.log('🎯 ONBOARDING INTENT DETECTED: Maya wants to start onboarding flow');
       console.log('🔄 REDIRECTING: From conversational to structured onboarding');
       
-      // Import onboarding conversation service
-      const { OnboardingConversationService } = await import('../services/onboarding-conversation-service');
-      const onboardingService = new OnboardingConversationService();
+      // Import onboarding service
+      const { OnboardingService } = await import('../services/onboarding-service');
+      const onboardingService = new OnboardingService();
       
       // Start structured onboarding
       const onboardingResponse = await onboardingService.processOnboardingMessage(
@@ -2309,41 +2298,64 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
       await extractAndSaveNaturalOnboardingData(userId, userMessage, mayaResponse.message);
     }
     
-    // Use enhanced Maya memory service for context-aware chat management
-    const mayaMemoryService = new MayaMemoryService();
-    const conversationResult = await mayaMemoryService.saveMayaConversation(
-      userId,
-      userMessage,
-      mayaResponse.message || JSON.stringify(mayaResponse),
-      false, // hasImageGeneration
-      currentChatId,
-      context
-    );
-    
-    // Use the chat ID from the memory service
-    currentChatId = conversationResult.chatId;
-    
-    console.log(`🧠 CONTEXT-AWARE SAVE: Conversation saved in ${context} mode (chatId: ${currentChatId})`);
-    
-    // Note: The MayaMemoryService has already saved the basic conversation
-    // We only need to update the Maya response if it has additional structured data
-    if (mayaResponse.generatedPrompt || mayaResponse.conceptCards || mayaResponse.quickButtons) {
-      // Update the last Maya message with structured data
-      const recentMessages = await storage.getMayaChatMessages(currentChatId);
-      const lastMayaMessage = recentMessages
-        .filter(msg => msg.role === 'maya')
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    // Create new chat if needed
+    if (!currentChatId) {
+      // Generate intelligent chat titles based on user intent and Maya's response
+      let chatTitle = 'Personal Brand Photos';
       
-      if (lastMayaMessage) {
-        // Update the existing message with structured data
-        await storage.updateMayaChatMessage(lastMayaMessage.id, {
-          generatedPrompt: mayaResponse.generatedPrompt,
-          conceptCards: mayaResponse.conceptCards,
-          quickButtons: mayaResponse.quickButtons ? JSON.stringify(mayaResponse.quickButtons) : null,
-          canGenerate: mayaResponse.canGenerate || false
-        });
+      if (context === 'onboarding') {
+        chatTitle = 'Personal Brand Discovery';
+      } else {
+        // Analyze user message for specific styling intent
+        const lowerMessage = userMessage.toLowerCase();
+        if (lowerMessage.includes('business') || lowerMessage.includes('professional') || lowerMessage.includes('corporate')) {
+          chatTitle = 'Business Professional Shoot';
+        } else if (lowerMessage.includes('lifestyle') || lowerMessage.includes('casual') || lowerMessage.includes('everyday')) {
+          chatTitle = 'Lifestyle Brand Session';
+        } else if (lowerMessage.includes('instagram') || lowerMessage.includes('social media') || lowerMessage.includes('insta')) {
+          chatTitle = 'Instagram Content Creation';
+        } else if (lowerMessage.includes('headshot') || lowerMessage.includes('portrait')) {
+          chatTitle = 'Professional Headshots';
+        } else if (lowerMessage.includes('travel') || lowerMessage.includes('vacation')) {
+          chatTitle = 'Travel Brand Photos';
+        } else if (lowerMessage.includes('outfit') || lowerMessage.includes('fashion') || lowerMessage.includes('style')) {
+          chatTitle = 'Fashion & Style Session';
+        } else if (lowerMessage.includes('story') || lowerMessage.includes('brand story')) {
+          chatTitle = 'Brand Storytelling Shoot';
+        } else if (mayaResponse.chatCategory && mayaResponse.chatCategory !== 'general') {
+          chatTitle = `${mayaResponse.chatCategory} Brand Photos`;
+        }
       }
+      
+      // Only add admin prefix for platform owner's development sessions
+      const contextPrefix = userType === 'admin' ? '[DEV] ' : '';
+      const chatSummary = userMessage.length > 100 ? `${userMessage.substring(0, 100)}...` : userMessage;
+      
+      const newChat = await storage.createMayaChat({
+        userId,
+        chatTitle: contextPrefix + chatTitle,
+        chatSummary
+      });
+      currentChatId = newChat.id;
     }
+
+    // Save both messages
+    await storage.saveMayaChatMessage({
+      chatId: currentChatId,
+      role: 'user',
+      content: userMessage
+    });
+
+    // Save Maya response with proper field separation for historical loading
+    await storage.saveMayaChatMessage({
+      chatId: currentChatId,
+      role: 'maya',
+      content: mayaResponse.message, // Store actual message content
+      generatedPrompt: mayaResponse.generatedPrompt,
+      conceptCards: mayaResponse.conceptCards, // ENHANCED: Store concept cards as JSONB directly
+      quickButtons: mayaResponse.quickButtons ? JSON.stringify(mayaResponse.quickButtons) : null, // CRITICAL: Store quick buttons in proper field
+      canGenerate: mayaResponse.canGenerate || false // CRITICAL: Store generation capability flag
+    });
 
     // 💾 CONCEPT STORAGE DEBUG: Log what's being stored to database
     if (mayaResponse.conceptCards && mayaResponse.conceptCards.length > 0) {
@@ -2604,7 +2616,7 @@ CRITICAL: Use your ${category} styling approaches loaded in your personality. Re
       console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
     }
 
-    const mayaPromptPersonality = PersonalityManager.getContextPrompt('maya', 'creation') + `
+    const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
 
 🎯 MAYA'S TECHNICAL PROMPT MODE - 2025 FLUX OPTIMIZATION:
 You are creating a FLUX 1.1 Pro image generation prompt. This is TECHNICAL PROMPT CREATION, not conversation.
@@ -3244,335 +3256,5 @@ router.post('/chat-history', requireStackAuth, async (req: AdminContextRequest, 
     });
   }
 });
-
-// ✅ PHASE 3: Brand Voice Text Generation Endpoint
-// Generates branded text overlays based on user's business context and brand voice
-router.post('/generate-text-overlay', requireStackAuth, async (req: AdminContextRequest, res) => {
-  try {
-    const { userId, imageUrl, messageType, platform, regenerate } = req.body;
-
-    if (!userId || !messageType) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: userId and messageType are required' 
-      });
-    }
-
-    // Get user's business context and brand information
-    const user = await storage.getUser(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const userContext = {
-      profession: user.profession || 'entrepreneur',
-      brandStyle: user.brandStyle || 'professional',
-      photoGoals: user.photoGoals || 'business',
-      industry: user.profession || 'business'
-    };
-
-    // Generate context-aware text using Maya's brand voice intelligence
-    const contextPrompt = `
-Generate ${regenerate ? 'alternative' : 'initial'} text overlay options for a ${messageType} post.
-
-User Context:
-- Profession: ${userContext.profession}
-- Brand Style: ${userContext.brandStyle}
-- Photo Goals: ${userContext.photoGoals}
-- Platform: ${platform || 'instagram'}
-
-Requirements:
-- Generate 3-5 short, impactful text options
-- Match the user's brand voice and industry
-- Use luxury typography style (Times New Roman aesthetic)
-- Ensure text works well for ${messageType} messaging
-- Keep each option under 4 words for visual impact
-- Use uppercase for luxury brand feeling
-
-Text should feel authentic to their business and match their brand personality.
-Return as a JSON array of text options with overlay suggestions.
-`;
-
-    const mayaResponse = await PersonalityManager.getNaturalPrompt(
-      'maya',
-      contextPrompt,
-      { context: 'feed_design', userId }
-    );
-
-    // Parse Maya's response to extract text options
-    let textOptions;
-    try {
-      // Try to extract JSON from Maya's response
-      const jsonMatch = mayaResponse.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        textOptions = JSON.parse(jsonMatch[0]);
-      } else {
-        // Fallback: generate structured options based on user context
-        textOptions = generateFallbackTextOptions(messageType, userContext);
-      }
-    } catch (parseError) {
-      console.log('Maya response parsing fallback:', parseError);
-      textOptions = generateFallbackTextOptions(messageType, userContext);
-    }
-
-    // Add overlay design recommendations
-    const overlayRecommendations = {
-      darkOverlay: "Semi-transparent black (40% opacity) for text readability",
-      lightOverlay: "Semi-transparent white (50% opacity) for dark backgrounds", 
-      placement: "Lower third or upper third for optimal engagement",
-      typography: "Times New Roman bold, luxury serif feeling"
-    };
-
-    res.json({
-      success: true,
-      textOptions,
-      overlayRecommendations,
-      userContext,
-      messageType,
-      platform: platform || 'instagram'
-    });
-
-  } catch (error) {
-    console.error('Text overlay generation error:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate text overlay',
-      message: error.message 
-    });
-  }
-});
-
-// ✅ PHASE 3A: Canvas Text Overlay Endpoint  
-// Creates actual branded images with text overlays using canvas system
-router.post('/create-branded-post', requireStackAuth, async (req: AdminContextRequest, res) => {
-  try {
-    const { userId, imageUrl, text, messageType, platform, overlayOptions } = req.body;
-
-    if (!userId || !imageUrl || !text) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: userId, imageUrl, and text are required' 
-      });
-    }
-
-    // Get user's brand context
-    const user = await storage.getUser(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const userBrandContext = {
-      profession: user.profession || 'entrepreneur',
-      brandStyle: user.brandStyle || 'professional',
-      photoGoals: user.photoGoals || 'business',
-      industry: user.profession || 'business'
-    };
-
-    // Import canvas service dynamically to avoid startup issues
-    const { canvasTextOverlayService } = await import('../services/canvas-text-overlay-service');
-
-    // Create branded post with canvas system
-    const brandedPostUrl = await canvasTextOverlayService.createBrandedPost(
-      imageUrl,
-      text,
-      userBrandContext,
-      overlayOptions || {}
-    );
-
-    // Save to database using our new branded_posts table
-    const brandedPost = await storage.createBrandedPost({
-      userId,
-      templateId: null, // Will add template support later
-      originalImageUrl: imageUrl,
-      processedImageUrl: brandedPostUrl,
-      textOverlay: text,
-      overlayPosition: overlayOptions?.position || 'lower-third',
-      overlayStyle: overlayOptions ? JSON.stringify(overlayOptions) : null,
-      socialPlatform: platform || 'instagram',
-      engagementData: null,
-      isPublished: false
-    });
-
-    res.json({
-      success: true,
-      brandedPostUrl,
-      brandedPostId: brandedPost.id,
-      originalImageUrl: imageUrl,
-      textOverlay: text,
-      overlayOptions: overlayOptions || {},
-      userBrandContext,
-      messageType,
-      platform: platform || 'instagram'
-    });
-
-  } catch (error) {
-    console.error('Branded post creation error:', error);
-    res.status(500).json({ 
-      error: 'Failed to create branded post',
-      message: error.message 
-    });
-  }
-});
-
-// ✅ PHASE 3D: Automatic Text Overlay Service
-// Fully automated branded post creation with Maya intelligence
-router.post('/auto-create-branded-post', requireStackAuth, async (req: AdminContextRequest, res) => {
-  try {
-    const { userId, imageUrl, messageType, platform, brandColorOverride, customText, regenerateVariation } = req.body;
-
-    if (!userId || !imageUrl) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: userId and imageUrl are required' 
-      });
-    }
-
-    // Import automatic text overlay service dynamically
-    const { automaticTextOverlayService } = await import('../services/automatic-text-overlay-service');
-
-    // Create automatic branded post with full AI pipeline
-    const result = await automaticTextOverlayService.createAutomaticBrandedPost({
-      userId,
-      imageUrl,
-      messageType: messageType || 'motivational',
-      platform: platform || 'instagram',
-      brandColorOverride,
-      customText,
-      regenerateVariation: regenerateVariation || false
-    });
-
-    res.json({
-      success: true,
-      ...result,
-      message: 'Automatic branded post created successfully'
-    });
-
-  } catch (error) {
-    console.error('Automatic branded post creation error:', error);
-    res.status(500).json({ 
-      error: 'Failed to create automatic branded post',
-      message: error.message 
-    });
-  }
-});
-
-// ✅ PHASE 3D: Batch Branded Post Creation
-// Create multiple branded posts from image gallery
-router.post('/batch-create-branded-posts', requireStackAuth, async (req: AdminContextRequest, res) => {
-  try {
-    const { userId, imageUrls, messageType, platform } = req.body;
-
-    if (!userId || !imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: userId and imageUrls array are required' 
-      });
-    }
-
-    // Import automatic text overlay service dynamically
-    const { automaticTextOverlayService } = await import('../services/automatic-text-overlay-service');
-
-    // Create multiple branded posts
-    const results = await automaticTextOverlayService.batchCreateBrandedPosts(
-      userId,
-      imageUrls,
-      messageType || 'motivational',
-      platform || 'instagram'
-    );
-
-    const successCount = results.length;
-    const avgQuality = results.reduce((sum, r) => sum + r.qualityScore, 0) / results.length;
-    const totalTime = results.reduce((sum, r) => sum + r.processingTime, 0);
-
-    res.json({
-      success: true,
-      results,
-      stats: {
-        totalProcessed: imageUrls.length,
-        successCount,
-        averageQualityScore: Math.round(avgQuality * 100) / 100,
-        totalProcessingTime: totalTime,
-        averagePerImage: Math.round(totalTime / successCount)
-      }
-    });
-
-  } catch (error) {
-    console.error('Batch branded post creation error:', error);
-    res.status(500).json({ 
-      error: 'Failed to create batch branded posts',
-      message: error.message 
-    });
-  }
-});
-
-// ✅ PHASE 3A: Image Analysis for Text Placement
-// Analyzes images to recommend optimal text placement and overlay settings
-router.post('/analyze-image-placement', requireStackAuth, async (req: AdminContextRequest, res) => {
-  try {
-    const { imageUrl } = req.body;
-
-    if (!imageUrl) {
-      return res.status(400).json({ 
-        error: 'Missing required field: imageUrl' 
-      });
-    }
-
-    // Import canvas service dynamically
-    const { canvasTextOverlayService } = await import('../services/canvas-text-overlay-service');
-
-    // Analyze image for optimal text placement
-    const imageAnalysis = await canvasTextOverlayService.analyzeImageForTextPlacement(imageUrl);
-
-    // Provide recommendations based on analysis
-    const recommendations = {
-      textPosition: imageAnalysis.recommendedPosition,
-      overlayType: imageAnalysis.recommendedOverlay,
-      overlayOpacity: imageAnalysis.recommendedOverlay === 'dark' ? 0.4 : 0.5,
-      textColor: imageAnalysis.recommendedOverlay === 'dark' ? '#FFFFFF' : '#000000',
-      fontSize: imageAnalysis.brightness > 200 ? 52 : 48, // Larger text for very bright images
-      fontFamily: 'Times New Roman',
-      fontWeight: 'bold'
-    };
-
-    res.json({
-      success: true,
-      imageAnalysis,
-      recommendations,
-      imageUrl
-    });
-
-  } catch (error) {
-    console.error('Image analysis error:', error);
-    res.status(500).json({ 
-      error: 'Failed to analyze image',
-      message: error.message 
-    });
-  }
-});
-
-// Helper function for fallback text generation
-function generateFallbackTextOptions(messageType: string, userContext: any) {
-  const { profession, brandStyle } = userContext;
-  
-  const textLibrary = {
-    motivational: {
-      coaching: ["UNLOCK potential", "BREAKTHROUGH moment", "EMPOWER yourself", "CREATE change"],
-      consulting: ["EXPERT solutions", "STRATEGIC thinking", "RESULTS driven", "TRANSFORM business"],
-      entrepreneur: ["BOSS moves", "BUILD empire", "SCALE success", "DREAM big"],
-      creative: ["ARTISTIC vision", "INSPIRE creativity", "UNIQUE perspective", "DESIGN thinking"],
-      default: ["LEVEL up", "TRUST process", "STAY focused", "CHOOSE growth"]
-    },
-    business: {
-      coaching: ["PROVEN methods", "AUTHENTIC growth", "MINDSET shifts", "DISCOVER strength"],
-      consulting: ["STRATEGIC insights", "OPTIMIZE performance", "ELEVATE strategy", "DELIVER value"],
-      entrepreneur: ["GROWTH mindset", "BUSINESS vision", "ACHIEVE goals", "HUSTLE smart"],
-      creative: ["INNOVATIVE ideas", "BEAUTIFUL possibilities", "CREATIVE expression", "INSPIRE others"],
-      default: ["PROFESSIONAL excellence", "QUALITY first", "TRUST experience", "RESULTS matter"]
-    },
-    lifestyle: {
-      default: ["LIVE beautifully", "STYLE matters", "MOMENTS count", "GRACE daily", "LUXURY mindset"]
-    }
-  };
-
-  const categoryOptions = textLibrary[messageType] || textLibrary.motivational;
-  const professionKey = profession?.toLowerCase() || 'default';
-  
-  return categoryOptions[professionKey] || categoryOptions.default || categoryOptions[Object.keys(categoryOptions)[0]];
-}
 
 export default router;

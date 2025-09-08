@@ -85,18 +85,15 @@ export const users = pgTable("users", {
   brandStyle: varchar("brand_style"), // "professional" | "creative" | "lifestyle" | "luxury"
   photoGoals: text("photo_goals"), // What they want photos for (business use case)
   
-  // Visual brand identity preferences for feed design
-  visualTemplate: varchar("visual_template"), // Selected luxury template ID
-  brandColors: jsonb("brand_colors"), // Primary, secondary, accent colors from template
-  typographyPreferences: jsonb("typography_preferences"), // Font choices and styling
-  feedAesthetic: varchar("feed_aesthetic"), // Overall feed style preference
-  
   // Training-time coaching system for brand strategy discovery
   trainingCoachingStarted: boolean("training_coaching_started").default(false),
   trainingCoachingCompleted: boolean("training_coaching_completed").default(false),
   trainingCoachingPhase: varchar("training_coaching_phase"), // businessGoals, platformStrategy, brandPositioning, completed
   trainingCoachingStep: integer("training_coaching_step").default(0),
   brandStrategyContext: jsonb("brand_strategy_context"), // Stores coaching responses and brand strategy insights
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Email management for Ava agent
@@ -248,9 +245,6 @@ export const aiImages = pgTable("ai_images", {
   generationStatus: varchar("generation_status").default("pending"), // pending, processing, completed, failed
   isSelected: boolean("is_selected").default(false),
   isFavorite: boolean("is_favorite").default(false),
-  // Feed design capabilities
-  supportsTextOverlay: boolean("supports_text_overlay").default(true),
-  textOverlayAreas: jsonb("text_overlay_areas"), // suggested text placement zones
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -552,10 +546,6 @@ export const brandOnboarding = pgTable("brand_onboarding", {
   colorScheme: varchar("color_scheme").default("black-white-editorial"),
   typographyStyle: varchar("typography_style").default("times-editorial"),
   designPersonality: varchar("design_personality").default("sophisticated"),
-  // Feed Design Preferences
-  feedPersonality: varchar("feed_personality").default("sophisticated"),
-  preferredTypography: varchar("preferred_typography").default("editorial-serif"),
-  brandMessagingStyle: varchar("brand_messaging_style").default("inspirational"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -578,47 +568,6 @@ export const userLandingPages = pgTable("user_landing_pages", {
   seoDescription: text("seo_description"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Feed Design Templates for branded social media posts
-export const feedTemplates = pgTable("feed_templates", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  templateName: varchar("template_name").notNull(),
-  typographyStyle: varchar("typography_style"), // serif, sans-serif, script
-  colorPalette: jsonb("color_palette"), // {primary, secondary, accent, background}
-  textOverlayStyle: varchar("text_overlay_style"), // minimal, bold, editorial, luxury
-  brandVoice: varchar("brand_voice"), // motivational, professional, authentic, bold
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Branded Post Designs with text overlays
-export const brandedPosts = pgTable("branded_posts", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  baseImageId: integer("base_image_id").references(() => aiImages.id, { onDelete: "cascade" }),
-  templateId: integer("template_id").references(() => feedTemplates.id, { onDelete: "set null" }),
-  overlayText: text("overlay_text").notNull(),
-  fontFamily: varchar("font_family"),
-  fontSize: integer("font_size"),
-  textPosition: jsonb("text_position"), // {x, y, width, height}
-  textColor: varchar("text_color"),
-  backgroundOverlay: jsonb("background_overlay"), // opacity, color for text readability
-  finalImageUrl: varchar("final_image_url"), // rendered post with text overlay
-  platform: varchar("platform"), // instagram, linkedin, pinterest
-  postCategory: varchar("post_category"), // motivational, educational, personal, business
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Feed Collections for cohesive branded content
-export const feedCollections = pgTable("feed_collections", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
-  collectionName: varchar("collection_name").notNull(),
-  postIds: jsonb("post_ids"), // array of branded_post ids
-  feedStrategy: varchar("feed_strategy"), // storytelling_arc, product_showcase, personal_brand
-  targetPlatform: varchar("target_platform"),
-  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Maya Personal Brand data for onboarding - SIMPLIFIED 8 FIELDS
@@ -775,11 +724,6 @@ export const insertPhotoSelectionSchema = createInsertSchema(photoSelections).om
 export const insertLandingPageSchema = createInsertSchema(landingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertBrandOnboardingSchema = createInsertSchema(brandOnboarding).omit({ id: true, createdAt: true, updatedAt: true });
 
-// Feed Design schemas
-export const insertFeedTemplateSchema = createInsertSchema(feedTemplates).omit({ id: true, createdAt: true });
-export const insertBrandedPostSchema = createInsertSchema(brandedPosts).omit({ id: true, createdAt: true });
-export const insertFeedCollectionSchema = createInsertSchema(feedCollections).omit({ id: true, createdAt: true });
-
 export const insertUserLandingPageSchema = createInsertSchema(userLandingPages).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserPersonalBrandSchema = createInsertSchema(userPersonalBrand).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMayaPersonalMemorySchema = createInsertSchema(mayaPersonalMemory).omit({ id: true, createdAt: true, updatedAt: true });
@@ -830,14 +774,6 @@ export type UserStyleMemory = typeof userStyleMemory.$inferSelect;
 export type InsertUserStyleMemory = typeof userStyleMemory.$inferInsert;
 export type PromptAnalysis = typeof promptAnalysis.$inferSelect;
 export type InsertPromptAnalysis = typeof promptAnalysis.$inferInsert;
-
-// Feed Design types
-export type FeedTemplate = typeof feedTemplates.$inferSelect;
-export type InsertFeedTemplate = typeof feedTemplates.$inferInsert;
-export type BrandedPost = typeof brandedPosts.$inferSelect;
-export type InsertBrandedPost = typeof brandedPosts.$inferInsert;
-export type FeedCollection = typeof feedCollections.$inferSelect;
-export type InsertFeedCollection = typeof feedCollections.$inferInsert;
 
 // Claude API types
 export type ClaudeConversation = typeof claudeConversations.$inferSelect;

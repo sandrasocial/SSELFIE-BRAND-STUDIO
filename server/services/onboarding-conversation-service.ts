@@ -1,7 +1,6 @@
 import { personalBrandService, type PersonalBrandProfile } from './personal-brand-service';
 import { mayaMemoryService } from './maya-memory-service';
 import { PersonalityManager } from '../agents/personalities/personality-config';
-import { LUXURY_VISUAL_TEMPLATES } from '../config/visual-brand-templates';
 
 interface OnboardingStep {
   stepNumber: number;
@@ -41,12 +40,12 @@ export class OnboardingConversationService {
     1: {
       stepNumber: 1,
       title: "Welcome & Connection",
-      description: "Getting to know you and your business goals",
-      focus: "Build connection and understand their story and identity",
+      description: "Getting to know your transformation journey",
+      focus: "Build connection and understand their story",
       questions: [
-        "Hey! I'm so excited to style you! What's going on with your business that made you want stunning photos?",
-        "Are you looking for professional photos as a man or woman? This helps me make sure your photos represent you perfectly!",
-        "Tell me about your business - what are you building that's got you excited?"
+        "What brought you here today?",
+        "Tell me about where you are in your journey right now?",
+        "What's your biggest challenge when it comes to feeling confident?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -57,9 +56,9 @@ export class OnboardingConversationService {
       description: "Understanding where you are today",
       focus: "Understand their current situation and challenges",
       questions: [
-        "What's your biggest challenge when it comes to attracting the right clients?",
-        "How are your current photos working for you? Are they helping you book the clients you want?",
-        "What's the gap between where you are now and where you want your business to be?"
+        "What's your current situation like?",
+        "What challenges are you facing right now?",
+        "What's working well for you, and what isn't?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -70,9 +69,9 @@ export class OnboardingConversationService {
       description: "Exploring your dreams and goals",
       focus: "Help them visualize their powerful future self",
       questions: [
-        "Picture this: it's 2 years from now and you're absolutely crushing it in business. What does that version of you look like?",
-        "When potential clients see your photos, what do you want them to think? 'I need to work with this person because...'",
-        "What kind of energy do you want your photos to give off? Trustworthy expert? Creative visionary? Approachable authority?"
+        "Close your eyes and imagine yourself 2 years from now, successful and confident. What do you see?",
+        "What would your life look like if you achieved your biggest dreams?",
+        "Who is the woman you're becoming?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -83,22 +82,22 @@ export class OnboardingConversationService {
       description: "Understanding your professional world",
       focus: "Capture their business context and goals",
       questions: [
-        "Tell me about your ideal clients - who are the people you're dying to work with?",
-        "What's the main thing you do that transforms people's lives or businesses?",
-        "Where do you want to be seen as THE expert? LinkedIn? Instagram? Your website? Client meetings?"
+        "What are you building or wanting to build?",
+        "Who do you serve or want to serve?",
+        "What's your mission or what impact do you want to make?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
     
     5: {
       stepNumber: 5,
-      title: "Visual Brand Identity Selection",
-      description: "Discovering your luxury brand aesthetic",
-      focus: "Help them select from 17 luxury visual templates that align with their business vision",
+      title: "Style & Visual Identity",
+      description: "Discovering your authentic style",
+      focus: "Understand their style preferences and visual identity",
       questions: [
-        "Okay, this is the fun part! Let's find your visual vibe. I have these gorgeous luxury aesthetics - each one tells a completely different business story.",
-        "Which one makes you go 'YES, that's exactly how I want my clients to see me!'?",
-        "What is it about this aesthetic that feels perfect for your business? The sophistication? The approachability? The authority?"
+        "How do you want to be seen and remembered?",
+        "What styles or aesthetics speak to you?",
+        "When you imagine your future self, what is she wearing?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -109,9 +108,9 @@ export class OnboardingConversationService {
       description: "Planning your visual storytelling",
       focus: "Understand how they want to use their photos",
       questions: [
-        "Perfect! Now let's talk about where these photos are going to work their magic - LinkedIn header? Website about page? Instagram? Speaking events?",
-        "What's the main thing you want these photos to accomplish? Book more clients? Get speaking gigs? Build trust before sales calls?",
-        "When someone sees your photo and thinks 'I need to work with this person,' what do you want that moment to feel like?"
+        "Where will you use these photos?",
+        "What story do you want your images to tell?",
+        "How do you want people to feel when they see your photos?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     }
@@ -233,7 +232,7 @@ export class OnboardingConversationService {
 
 🌟 MAYA'S ONBOARDING MODE - PERSONAL BRAND DISCOVERY JOURNEY
 
-You're helping them discover their personal brand and photo goals! You're their stylish friend who's brilliant at business strategy - someone who genuinely wants them to succeed. Use your styling expertise to connect their vision to photos that will actually build their business.
+You're guiding a woman through discovering her personal brand and "Future Self Vision." This is about transformation - helping her see the confident, successful woman she's becoming.
 
 CURRENT ONBOARDING CONTEXT:
 - Step: ${step.stepNumber}/6 - ${step.title}
@@ -252,18 +251,17 @@ ${this.formatPersonalBrandContext(context.personalBrandData)}
 CONVERSATION APPROACH FOR THIS STEP:
 ${step.questions.join('\n- ')}
 
-${context.currentStep === 5 ? this.getVisualTemplateOptions() : ''}
-
-MAYA'S AUTHENTIC VOICE - YOUR STYLISH BEST FRIEND:
-- WARM BEST FRIEND: Talk like their most stylish friend who genuinely wants them to succeed
-- CASUAL BUT KNOWLEDGEABLE: Say "Let's try this look" not "Our algorithm suggests" - high-end advice in everyday language
-- SPECIFIC BUT SIMPLE: "That blazer will photograph beautifully for LinkedIn" not "Optimize your professional aesthetic" 
-- ALWAYS CONNECT TO BUSINESS: Every suggestion should connect to their business goals - "This will help you book more clients"
-- USE HIGH-IMPACT PHRASES: "This will photograph beautifully", "Perfect for your brand", "Let's try this instead", "Here's a styling trick"
-- ENCOURAGING BUT REALISTIC: Build confidence without overwhelming - "You already have great style, let's just refine it"
-- BUSINESS-FOCUSED QUESTIONS: Connect every styling choice to how it helps their business and attracts their ideal clients
-- CLEAR GUIDANCE: In EVERY response, include "You can click one of my suggestions below or share your own thoughts!"
-- STAY ON CURRENT STEP: Don't jump to future topics, focus on gathering info for this step only
+MAYA'S ONBOARDING VOICE:
+- Warm, encouraging friend who truly listens
+- Celebrate their dreams and validate their experiences  
+- Ask thoughtful follow-up questions to go deeper
+- Use "we" language - you're in this journey together
+- Reference specific details they've shared to show you're listening
+- Help them see their powerful future self
+- VARY YOUR OPENINGS: Mix up your conversation starters - "I love this!", "This is exciting!", "Perfect!", "Tell me more about this", "Amazing!", "Yes!", "Absolutely!", etc.
+- CLEAR GUIDANCE: In EVERY response, include the phrase "You can click one of my suggestions below or share your own thoughts - whatever feels right!"
+- STEP PROGRESSION: Stay focused on the current step only, don't jump to future topics
+- STEP TRANSITIONS: When ready to move to next step, clearly say "I think we're ready for step X" and explain what's coming next
 
 RESPONSE FORMAT REQUIREMENTS:
 You MUST respond with valid JSON in this exact format:
@@ -295,7 +293,7 @@ Examples of BAD quick actions (never use these):
 - Assumptions about personal situations
 - One-size-fits-all responses
 
-Remember: You're helping her clarify her brand direction and photo goals using your styling expertise. Keep the conversation focused and professional while maintaining your natural warmth.`;
+Remember: You're helping her see herself as the confident, successful woman she's becoming. Every conversation should leave her feeling more empowered and excited about her transformation journey.`;
   }
 
   /**
@@ -399,22 +397,8 @@ Remember: You're helping her clarify her brand direction and photo goals using y
     // Save insights based on step
     switch (currentStep) {
       case 1:
-        // Gender and story from step 1
-        if (insights.gender) {
-          await personalBrandService.saveGender(userId, insights.gender);
-        }
-        if (insights.transformationJourney || insights.currentSituation || insights.strugglesStory) {
-          await personalBrandService.savePersonalBrandStory(userId, {
-            currentSituation: insights.currentSituation || '',
-            strugglesStory: insights.strugglesStory || '',
-            transformationJourney: insights.transformationJourney || '',
-            dreamOutcome: insights.dreamOutcome || ''
-          });
-        }
-        break;
-        
       case 2:
-        // Story and current situation from step 2
+        // Story and current situation
         if (insights.transformationJourney || insights.currentSituation || insights.strugglesStory) {
           await personalBrandService.savePersonalBrandStory(userId, {
             currentSituation: insights.currentSituation || '',
@@ -454,8 +438,18 @@ Remember: You're helping her clarify her brand direction and photo goals using y
         break;
         
       case 5:
-        // Visual brand identity - template selection
-        await this.handleVisualTemplateSelection(userId, userMessage);
+        // Style preferences
+        if (insights.styleCategories || insights.brandPersonality) {
+          await personalBrandService.saveStylePreferences(userId, {
+            styleCategories: insights.styleCategories || [],
+            colorPreferences: insights.colorPreferences || [],
+            settingsPreferences: insights.settingsPreferences || [],
+            avoidances: insights.avoidances || [],
+            brandPersonality: insights.brandPersonality,
+            stylePreference: insights.stylePreference,
+            colorScheme: insights.colorScheme
+          });
+        }
         break;
     }
   }
@@ -507,30 +501,8 @@ Remember: You're helping her clarify her brand direction and photo goals using y
     
     switch (stepNumber) {
       case 1:
-        // Extract gender from step 1 response
-        if (lowerMessage.includes('woman') || lowerMessage.includes('female')) {
-          insights.gender = 'woman';
-        } else if (lowerMessage.includes('man') || lowerMessage.includes('male')) {
-          insights.gender = 'man';
-        } else if (lowerMessage.includes('non-binary') || lowerMessage.includes('non binary')) {
-          insights.gender = 'non-binary';
-        }
-        
-        // Extract story elements
-        if (lowerMessage.includes('single mom') || lowerMessage.includes('divorce')) {
-          insights.currentSituation = 'Single mom rebuilding life after major life change';
-          insights.strugglesStory = 'Navigating single motherhood and personal transformation';
-        }
-        if (lowerMessage.includes('starting over') || lowerMessage.includes('rock bottom')) {
-          insights.transformationJourney = 'Starting over and rebuilding from the ground up';
-        }
-        if (lowerMessage.includes('business') || lowerMessage.includes('entrepreneur')) {
-          insights.currentSituation = 'Building a business while managing other responsibilities';
-        }
-        break;
-        
       case 2:
-        // Extract story elements from step 2
+        // Extract story elements
         if (lowerMessage.includes('single mom') || lowerMessage.includes('divorce')) {
           insights.currentSituation = 'Single mom rebuilding life after major life change';
           insights.strugglesStory = 'Navigating single motherhood and personal transformation';
@@ -653,103 +625,6 @@ Remember: You're helping her clarify her brand direction and photo goals using y
   private calculateProgress(currentStep: number, isCompleted: boolean): number {
     if (isCompleted) return 100;
     return Math.min((currentStep - 1) * 16.67, 83.33); // Each step is ~16.67%, max 83.33% until completed
-  }
-
-  /**
-   * Handle visual template selection in step 5
-   */
-  private async handleVisualTemplateSelection(userId: string, userMessage: string): Promise<void> {
-    console.log('🎨 VISUAL TEMPLATE: Processing template selection for user:', userId);
-    console.log('🎨 USER MESSAGE:', userMessage);
-    
-    // Detect template selection from user message
-    const selectedTemplate = this.detectTemplateSelection(userMessage);
-    
-    if (selectedTemplate) {
-      console.log('🎨 TEMPLATE DETECTED:', selectedTemplate.id, selectedTemplate.name);
-      
-      // Save selected template to user profile
-      try {
-        await personalBrandService.saveVisualTemplate(userId, {
-          templateId: selectedTemplate.id,
-          templateName: selectedTemplate.name,
-          selectedAt: new Date().toISOString()
-        });
-        
-        console.log('✅ TEMPLATE SAVED: Visual template saved successfully');
-      } catch (error) {
-        console.error('❌ TEMPLATE SAVE ERROR:', error);
-      }
-    } else {
-      console.log('🔍 TEMPLATE: No specific template detected, continuing conversation');
-    }
-  }
-
-  /**
-   * Detect which visual template user selected
-   */
-  private detectTemplateSelection(message: string): any {
-    const lowercaseMessage = message.toLowerCase();
-    
-    // Check each template for mentions
-    for (const template of LUXURY_VISUAL_TEMPLATES) {
-      const templateName = template.name.toLowerCase();
-      const templateId = template.id.toLowerCase();
-      
-      // Check for direct name mentions
-      if (lowercaseMessage.includes(templateName) || lowercaseMessage.includes(templateId)) {
-        return template;
-      }
-      
-      // Check for color/description keywords
-      if (template.id === 'estetica-luxury' && (lowercaseMessage.includes('black') || lowercaseMessage.includes('brown') || lowercaseMessage.includes('elegant'))) {
-        return template;
-      }
-      
-      if (template.id === 'nature-luxo' && (lowercaseMessage.includes('green') || lowercaseMessage.includes('natural') || lowercaseMessage.includes('organic'))) {
-        return template;
-      }
-      
-      if (template.id === 'dark-luxury' && (lowercaseMessage.includes('dark') || lowercaseMessage.includes('charcoal') || lowercaseMessage.includes('modern'))) {
-        return template;
-      }
-      
-      if (template.id === 'red-luxury' && (lowercaseMessage.includes('red') || lowercaseMessage.includes('bold'))) {
-        return template;
-      }
-      
-      if (template.id === 'white-gold' && (lowercaseMessage.includes('white') || lowercaseMessage.includes('gold') || lowercaseMessage.includes('minimal'))) {
-        return template;
-      }
-      
-      if (template.id === 'rose-luxo' && (lowercaseMessage.includes('rose') || lowercaseMessage.includes('blush') || lowercaseMessage.includes('romantic'))) {
-        return template;
-      }
-    }
-    
-    return null;
-  }
-
-  /**
-   * Get visual template options for Maya in step 5
-   */
-  private getVisualTemplateOptions(): string {
-    const templates = LUXURY_VISUAL_TEMPLATES.slice(0, 6); // Show first 6 main templates
-    
-    return `🎨 VISUAL TEMPLATE OPTIONS TO PRESENT:
-${templates.map(template => `
-• **${template.name}** (${template.id})
-  Description: ${template.description}
-  Colors: ${template.colorPalette.primary}, ${template.colorPalette.secondary}, ${template.colorPalette.accent}
-  Best for: ${template.businessAlignment.join(', ')}
-`).join('')}
-
-TEMPLATE PRESENTATION RULES:
-- Present these as conversational options, not a formal list
-- Connect templates to their business context discovered in earlier steps
-- Help them visualize how each template aligns with their brand goals
-- When they show interest in a template, explain why it's perfect for their business
-- Use the template names and descriptions naturally in conversation`;
   }
 }
 

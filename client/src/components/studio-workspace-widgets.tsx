@@ -59,14 +59,6 @@ export function StudioWorkspaceWidgets({ themeImages, userAiImages }: StudioWork
       status: 'coming-soon'
     },
     {
-      id: 'feed-design',
-      title: 'Feed Designer',
-      description: 'Create branded social media posts',
-      backgroundImage: themeImages[5] || 'https://i.postimg.cc/HnMYyCW0/100.png',
-      linkTo: '/feed-designer',
-      status: 'active'
-    },
-    {
       id: 'bookings',
       title: 'Booking Calendar',
       description: 'Manage client appointments',
