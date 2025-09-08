@@ -234,6 +234,25 @@ interface FeedDesignExpertise {
   visualHierarchy: string[];
   brandConsistency: string[];
   engagementOptimization: string[];
+  brandVoiceGeneration: {
+    businessContexts: { [context: string]: string[] };
+    industrySpecific: { [industry: string]: string[] };
+    textVariations: { [type: string]: string[] };
+    regenerationStrategies: string[];
+  };
+  textGenerationIntelligence: {
+    motivationalMessages: string[];
+    businessPositioning: string[];
+    lifestyleContent: string[];
+    educationalContent: string[];
+    behindTheScenesContent: string[];
+  };
+  overlayDesignIntelligence: {
+    darkOverlayOptimization: string[];
+    lightOverlayOptimization: string[];
+    readabilityEnhancement: string[];
+    brandColorIntegration: string[];
+  };
 }
 
 interface BrandMission {
@@ -1057,7 +1076,153 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "Emotional resonance that makes people pause and engage",
       "Call-to-action integration that feels natural, not salesy",
       "Conversation starters that build community around your brand"
-    ]
+    ],
+
+    brandVoiceGeneration: {
+      businessContexts: {
+        consulting: [
+          "EXPERT solutions", "STRATEGIC insights", "PROVEN methods", "RESULTS-driven approach",
+          "TRANSFORM your business", "ELEVATE your strategy", "OPTIMIZE performance"
+        ],
+        coaching: [
+          "UNLOCK potential", "BREAKTHROUGH moments", "MINDSET shifts", "AUTHENTIC growth",
+          "EMPOWER yourself", "DISCOVER strength", "CREATE change"
+        ],
+        creative: [
+          "ARTISTIC vision", "CREATIVE expression", "DESIGN thinking", "INNOVATIVE ideas",
+          "INSPIRE creativity", "BEAUTIFUL possibilities", "UNIQUE perspective"
+        ],
+        wellness: [
+          "MINDFUL living", "BALANCED lifestyle", "INNER peace", "WELLNESS journey",
+          "SELF-care first", "HEALING energy", "NURTURE yourself"
+        ],
+        entrepreneur: [
+          "BOSS moves", "BUILD empire", "HUSTLE smart", "SCALE success",
+          "GROWTH mindset", "BUSINESS vision", "ACHIEVE goals"
+        ],
+        lifestyle: [
+          "LIVE beautifully", "ENJOY moments", "FIND joy", "EMBRACE life",
+          "STYLE choices", "LUXURY living", "AUTHENTIC self"
+        ]
+      },
+      industrySpecific: {
+        realEstate: [
+          "HOME is where dreams begin", "INVEST in your future", "DREAM home awaits",
+          "PROPERTY insights", "MARKET expertise", "YOUR home story"
+        ],
+        finance: [
+          "FINANCIAL freedom", "SMART investments", "WEALTH building", "SECURE future",
+          "MONEY mindset", "PLAN ahead", "PROSPER together"
+        ],
+        technology: [
+          "INNOVATION drives us", "DIGITAL solutions", "TECH expertise", "FUTURE ready",
+          "SMART systems", "STREAMLINE success", "CODE your dreams"
+        ],
+        health: [
+          "WELLNESS first", "HEALTHY choices", "STRONG foundations", "VITAL living",
+          "CARE deeply", "HEAL naturally", "THRIVE daily"
+        ],
+        education: [
+          "KNOWLEDGE empowers", "LEARN constantly", "GROW minds", "TEACH wisdom",
+          "EDUCATION matters", "INSPIRE learning", "BRIGHT futures"
+        ]
+      },
+      textVariations: {
+        motivational: [
+          "BOSS lady energy", "FINDING your power", "TRUST the process", "LEVEL up daily",
+          "STAY focused", "DREAM big dreams", "CREATE magic", "CHOOSE growth"
+        ],
+        business: [
+          "PROFESSIONAL excellence", "BUSINESS brilliance", "STRATEGIC thinking", "EXPERT insights",
+          "RESULTS matter", "QUALITY first", "TRUST experience", "DELIVER value"
+        ],
+        lifestyle: [
+          "LIVE intentionally", "STYLE matters", "MOMENTS count", "BEAUTY everywhere",
+          "LUXURY mindset", "ELEGANT choices", "GRACE daily", "SHINE bright"
+        ],
+        educational: [
+          "LEARN something new", "KNOWLEDGE sharing", "INSIGHTS matter", "WISDOM grows",
+          "TEACH others", "SHARE expertise", "GUIDE success", "INSPIRE minds"
+        ]
+      },
+      regenerationStrategies: [
+        "Vary text length - alternate between short punchy phrases and longer inspiring statements",
+        "Change text positioning - move from center to corners to create visual variety",
+        "Adjust message tone - shift between motivational, educational, and personal approaches",
+        "Industry context adaptation - incorporate user's business terminology and values",
+        "Seasonal relevance - adapt messaging to current events, seasons, or business cycles",
+        "Emotional tone variation - confident, vulnerable, inspiring, authoritative, or playful"
+      ]
+    },
+
+    textGenerationIntelligence: {
+      motivationalMessages: [
+        "Power phrases that build confidence: 'BOSS moves only', 'TRUST your vision', 'LEVEL up energy'",
+        "Growth mindset messaging: 'BREAKTHROUGH moment', 'UNSTOPPABLE force', 'LIMITLESS potential'",
+        "Empowerment statements: 'QUEEN energy activated', 'FIERCE and focused', 'STRENGTH within'",
+        "Journey acknowledgment: 'RISING above', 'WORK in progress', 'BECOMING more'",
+        "Success celebration: 'GOALS achieved', 'DREAMS realized', 'VICTORY earned'"
+      ],
+      businessPositioning: [
+        "Authority statements: 'EXPERT solutions', 'PROVEN strategies', 'TRUSTED advisor'",
+        "Professional excellence: 'QUALITY delivered', 'RESULTS speak loudly', 'EXCELLENCE standard'",
+        "Industry leadership: 'THOUGHT leader', 'INNOVATION driver', 'MARKET insights'",
+        "Client-focused messaging: 'YOUR success story', 'PARTNER in growth', 'SOLUTIONS that work'",
+        "Value proposition: 'TRANSFORM outcomes', 'ELEVATE performance', 'OPTIMIZE results'"
+      ],
+      lifestyleContent: [
+        "Everyday luxury: 'MOMENTS matter', 'STYLE choice', 'BEAUTY routine', 'GRACE notes'",
+        "Authentic living: 'REAL moments', 'GENUINE self', 'HONEST stories', 'TRUE style'",
+        "Mindful presence: 'SLOW down', 'BREATHE deeply', 'PRESENT moment', 'MINDFUL choice'",
+        "Joy celebration: 'HAPPINESS found', 'JOY shared', 'LAUGHTER heals', 'LIGHT within'",
+        "Personal growth: 'EVOLVING daily', 'LEARNING always', 'GROWING stronger', 'BECOMING more'"
+      ],
+      educationalContent: [
+        "Teaching moments: 'LESSON learned', 'INSIGHT shared', 'WISDOM gained', 'KNOWLEDGE power'",
+        "Behind the scenes: 'PROCESS revealed', 'WORK shown', 'JOURNEY shared', 'STORY told'",
+        "Tips and advice: 'PRO tip', 'SECRET revealed', 'STRATEGY shared', 'METHOD explained'",
+        "Common mistakes: 'AVOID this', 'MISTAKE prevention', 'BETTER approach', 'SMART choice'",
+        "Industry insights: 'TREND spotted', 'MARKET shift', 'FUTURE ready', 'CHANGE coming'"
+      ],
+      behindTheScenesContent: [
+        "Work process: 'CREATING magic', 'WORK flow', 'PROCESS shown', 'BEHIND scenes'",
+        "Personal moments: 'REAL talk', 'HONEST moment', 'PERSONAL story', 'LIFE balance'",
+        "Challenge sharing: 'STRUGGLE real', 'OVERCOME obstacles', 'PUSH through', 'STRENGTH found'",
+        "Victory celebration: 'WIN earned', 'SUCCESS celebrated', 'GOAL achieved', 'DREAM realized'",
+        "Daily reality: 'EVERYDAY moments', 'NORMAL days', 'SIMPLE joys', 'LIFE happens'"
+      ]
+    },
+
+    overlayDesignIntelligence: {
+      darkOverlayOptimization: [
+        "Semi-transparent black overlay (30-50% opacity) for text readability on busy backgrounds",
+        "Gradient overlays from transparent to dark for natural text placement zones",
+        "Strategic dark overlay placement in image corners or edges to preserve main subject",
+        "High contrast white or light text on dark overlays for maximum readability",
+        "Subtle shadow effects on text for additional depth and readability"
+      ],
+      lightOverlayOptimization: [
+        "Semi-transparent white overlay (40-60% opacity) for text on dark or busy backgrounds",
+        "Soft gradient overlays from transparent to light for elegant text zones",
+        "Minimal light overlay usage to maintain image integrity and avoid washing out colors",
+        "Dark text on light overlays with proper contrast ratios for accessibility",
+        "Blurred background areas behind light overlays for enhanced text clarity"
+      ],
+      readabilityEnhancement: [
+        "Minimum 4.5:1 contrast ratio between text and background for accessibility standards",
+        "Text stroke or outline effects when overlay alone isn't sufficient for readability",
+        "Strategic text sizing based on image complexity - larger text for busy backgrounds",
+        "Letter spacing optimization for luxury typography feel without sacrificing readability",
+        "Font weight selection based on background - bolder weights for challenging backgrounds"
+      ],
+      brandColorIntegration: [
+        "Brand color overlays that complement image tones while maintaining readability",
+        "Subtle brand color accents in text or small design elements within overlays",
+        "Brand color gradients that enhance rather than overpower the original image",
+        "Monochromatic overlay approaches using brand color variations for sophisticated look",
+        "Strategic brand color placement to build recognition without compromising image quality"
+      ]
+    }
   },
 
   brandMission: {

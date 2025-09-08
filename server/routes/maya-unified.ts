@@ -3259,4 +3259,129 @@ router.post('/chat-history', requireStackAuth, async (req: AdminContextRequest, 
   }
 });
 
+// ✅ PHASE 3: Brand Voice Text Generation Endpoint
+// Generates branded text overlays based on user's business context and brand voice
+router.post('/generate-text-overlay', requireStackAuth, async (req: AdminContextRequest, res) => {
+  try {
+    const { userId, imageUrl, messageType, platform, regenerate } = req.body;
+
+    if (!userId || !messageType) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: userId and messageType are required' 
+      });
+    }
+
+    // Get user's business context and brand information
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userContext = {
+      profession: user.profession || 'entrepreneur',
+      brandStyle: user.brandStyle || 'professional',
+      photoGoals: user.photoGoals || 'business',
+      industry: user.profession || 'business'
+    };
+
+    // Generate context-aware text using Maya's brand voice intelligence
+    const contextPrompt = `
+Generate ${regenerate ? 'alternative' : 'initial'} text overlay options for a ${messageType} post.
+
+User Context:
+- Profession: ${userContext.profession}
+- Brand Style: ${userContext.brandStyle}
+- Photo Goals: ${userContext.photoGoals}
+- Platform: ${platform || 'instagram'}
+
+Requirements:
+- Generate 3-5 short, impactful text options
+- Match the user's brand voice and industry
+- Use luxury typography style (Times New Roman aesthetic)
+- Ensure text works well for ${messageType} messaging
+- Keep each option under 4 words for visual impact
+- Use uppercase for luxury brand feeling
+
+Text should feel authentic to their business and match their brand personality.
+Return as a JSON array of text options with overlay suggestions.
+`;
+
+    const mayaResponse = await PersonalityManager.getNaturalPrompt(
+      'maya',
+      contextPrompt,
+      { context: 'feed_design', userId }
+    );
+
+    // Parse Maya's response to extract text options
+    let textOptions;
+    try {
+      // Try to extract JSON from Maya's response
+      const jsonMatch = mayaResponse.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        textOptions = JSON.parse(jsonMatch[0]);
+      } else {
+        // Fallback: generate structured options based on user context
+        textOptions = generateFallbackTextOptions(messageType, userContext);
+      }
+    } catch (parseError) {
+      console.log('Maya response parsing fallback:', parseError);
+      textOptions = generateFallbackTextOptions(messageType, userContext);
+    }
+
+    // Add overlay design recommendations
+    const overlayRecommendations = {
+      darkOverlay: "Semi-transparent black (40% opacity) for text readability",
+      lightOverlay: "Semi-transparent white (50% opacity) for dark backgrounds", 
+      placement: "Lower third or upper third for optimal engagement",
+      typography: "Times New Roman bold, luxury serif feeling"
+    };
+
+    res.json({
+      success: true,
+      textOptions,
+      overlayRecommendations,
+      userContext,
+      messageType,
+      platform: platform || 'instagram'
+    });
+
+  } catch (error) {
+    console.error('Text overlay generation error:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate text overlay',
+      message: error.message 
+    });
+  }
+});
+
+// Helper function for fallback text generation
+function generateFallbackTextOptions(messageType: string, userContext: any) {
+  const { profession, brandStyle } = userContext;
+  
+  const textLibrary = {
+    motivational: {
+      coaching: ["UNLOCK potential", "BREAKTHROUGH moment", "EMPOWER yourself", "CREATE change"],
+      consulting: ["EXPERT solutions", "STRATEGIC thinking", "RESULTS driven", "TRANSFORM business"],
+      entrepreneur: ["BOSS moves", "BUILD empire", "SCALE success", "DREAM big"],
+      creative: ["ARTISTIC vision", "INSPIRE creativity", "UNIQUE perspective", "DESIGN thinking"],
+      default: ["LEVEL up", "TRUST process", "STAY focused", "CHOOSE growth"]
+    },
+    business: {
+      coaching: ["PROVEN methods", "AUTHENTIC growth", "MINDSET shifts", "DISCOVER strength"],
+      consulting: ["STRATEGIC insights", "OPTIMIZE performance", "ELEVATE strategy", "DELIVER value"],
+      entrepreneur: ["GROWTH mindset", "BUSINESS vision", "ACHIEVE goals", "HUSTLE smart"],
+      creative: ["INNOVATIVE ideas", "BEAUTIFUL possibilities", "CREATIVE expression", "INSPIRE others"],
+      default: ["PROFESSIONAL excellence", "QUALITY first", "TRUST experience", "RESULTS matter"]
+    },
+    lifestyle: {
+      default: ["LIVE beautifully", "STYLE matters", "MOMENTS count", "GRACE daily", "LUXURY mindset"]
+    }
+  };
+
+  const categoryOptions = textLibrary[messageType] || textLibrary.motivational;
+  const professionKey = profession?.toLowerCase() || 'default';
+  
+  return categoryOptions[professionKey] || categoryOptions.default || categoryOptions[Object.keys(categoryOptions)[0]];
+}
+
 export default router;
