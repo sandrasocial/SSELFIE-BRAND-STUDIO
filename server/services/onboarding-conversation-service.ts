@@ -1,6 +1,7 @@
 import { personalBrandService, type PersonalBrandProfile } from './personal-brand-service';
 import { mayaMemoryService } from './maya-memory-service';
 import { PersonalityManager } from '../agents/personalities/personality-config';
+import { LUXURY_VISUAL_TEMPLATES } from '../config/visual-brand-templates';
 
 interface OnboardingStep {
   stepNumber: number;
@@ -91,13 +92,13 @@ export class OnboardingConversationService {
     
     5: {
       stepNumber: 5,
-      title: "Style & Visual Identity",
-      description: "Discovering your authentic style",
-      focus: "Understand their style preferences and visual identity",
+      title: "Visual Brand Identity Selection",
+      description: "Discovering your luxury brand aesthetic",
+      focus: "Help them select from 17 luxury visual templates that align with their business vision",
       questions: [
-        "How do you want to be seen and remembered?",
-        "What styles or aesthetics speak to you?",
-        "When you imagine your future self, what is she wearing?"
+        "Now let's discover your visual brand aesthetic! I have luxury templates inspired by high-end Pinterest feeds. Each creates a completely different brand experience.",
+        "Which visual aesthetic aligns with your business vision?",
+        "What draws you to this aesthetic - the colors, the mood, or the business feeling it creates?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -250,6 +251,8 @@ ${this.formatPersonalBrandContext(context.personalBrandData)}
 
 CONVERSATION APPROACH FOR THIS STEP:
 ${step.questions.join('\n- ')}
+
+${context.currentStep === 5 ? this.getVisualTemplateOptions() : ''}
 
 MAYA'S ONBOARDING VOICE:
 - Warm, encouraging friend who truly listens
@@ -438,18 +441,8 @@ Remember: You're helping her see herself as the confident, successful woman she'
         break;
         
       case 5:
-        // Style preferences
-        if (insights.styleCategories || insights.brandPersonality) {
-          await personalBrandService.saveStylePreferences(userId, {
-            styleCategories: insights.styleCategories || [],
-            colorPreferences: insights.colorPreferences || [],
-            settingsPreferences: insights.settingsPreferences || [],
-            avoidances: insights.avoidances || [],
-            brandPersonality: insights.brandPersonality,
-            stylePreference: insights.stylePreference,
-            colorScheme: insights.colorScheme
-          });
-        }
+        // Visual brand identity - template selection
+        await this.handleVisualTemplateSelection(userId, userMessage);
         break;
     }
   }
@@ -625,6 +618,103 @@ Remember: You're helping her see herself as the confident, successful woman she'
   private calculateProgress(currentStep: number, isCompleted: boolean): number {
     if (isCompleted) return 100;
     return Math.min((currentStep - 1) * 16.67, 83.33); // Each step is ~16.67%, max 83.33% until completed
+  }
+
+  /**
+   * Handle visual template selection in step 5
+   */
+  private async handleVisualTemplateSelection(userId: string, userMessage: string): Promise<void> {
+    console.log('🎨 VISUAL TEMPLATE: Processing template selection for user:', userId);
+    console.log('🎨 USER MESSAGE:', userMessage);
+    
+    // Detect template selection from user message
+    const selectedTemplate = this.detectTemplateSelection(userMessage);
+    
+    if (selectedTemplate) {
+      console.log('🎨 TEMPLATE DETECTED:', selectedTemplate.id, selectedTemplate.name);
+      
+      // Save selected template to user profile
+      try {
+        await personalBrandService.saveVisualTemplate(userId, {
+          templateId: selectedTemplate.id,
+          templateName: selectedTemplate.name,
+          selectedAt: new Date().toISOString()
+        });
+        
+        console.log('✅ TEMPLATE SAVED: Visual template saved successfully');
+      } catch (error) {
+        console.error('❌ TEMPLATE SAVE ERROR:', error);
+      }
+    } else {
+      console.log('🔍 TEMPLATE: No specific template detected, continuing conversation');
+    }
+  }
+
+  /**
+   * Detect which visual template user selected
+   */
+  private detectTemplateSelection(message: string): any {
+    const lowercaseMessage = message.toLowerCase();
+    
+    // Check each template for mentions
+    for (const template of LUXURY_VISUAL_TEMPLATES) {
+      const templateName = template.name.toLowerCase();
+      const templateId = template.id.toLowerCase();
+      
+      // Check for direct name mentions
+      if (lowercaseMessage.includes(templateName) || lowercaseMessage.includes(templateId)) {
+        return template;
+      }
+      
+      // Check for color/description keywords
+      if (template.id === 'estetica-luxury' && (lowercaseMessage.includes('black') || lowercaseMessage.includes('brown') || lowercaseMessage.includes('elegant'))) {
+        return template;
+      }
+      
+      if (template.id === 'nature-luxo' && (lowercaseMessage.includes('green') || lowercaseMessage.includes('natural') || lowercaseMessage.includes('organic'))) {
+        return template;
+      }
+      
+      if (template.id === 'dark-luxury' && (lowercaseMessage.includes('dark') || lowercaseMessage.includes('charcoal') || lowercaseMessage.includes('modern'))) {
+        return template;
+      }
+      
+      if (template.id === 'red-luxury' && (lowercaseMessage.includes('red') || lowercaseMessage.includes('bold'))) {
+        return template;
+      }
+      
+      if (template.id === 'white-gold' && (lowercaseMessage.includes('white') || lowercaseMessage.includes('gold') || lowercaseMessage.includes('minimal'))) {
+        return template;
+      }
+      
+      if (template.id === 'rose-luxo' && (lowercaseMessage.includes('rose') || lowercaseMessage.includes('blush') || lowercaseMessage.includes('romantic'))) {
+        return template;
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Get visual template options for Maya in step 5
+   */
+  private getVisualTemplateOptions(): string {
+    const templates = LUXURY_VISUAL_TEMPLATES.slice(0, 6); // Show first 6 main templates
+    
+    return `🎨 VISUAL TEMPLATE OPTIONS TO PRESENT:
+${templates.map(template => `
+• **${template.name}** (${template.id})
+  Description: ${template.description}
+  Colors: ${template.colorPalette.primary}, ${template.colorPalette.secondary}, ${template.colorPalette.accent}
+  Best for: ${template.businessAlignment.join(', ')}
+`).join('')}
+
+TEMPLATE PRESENTATION RULES:
+- Present these as conversational options, not a formal list
+- Connect templates to their business context discovered in earlier steps
+- Help them visualize how each template aligns with their brand goals
+- When they show interest in a template, explain why it's perfect for their business
+- Use the template names and descriptions naturally in conversation`;
   }
 }
 
