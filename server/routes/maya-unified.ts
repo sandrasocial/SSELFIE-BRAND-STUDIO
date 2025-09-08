@@ -530,8 +530,17 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
     // Check generation capability
     const generationInfo = await checkGenerationCapability(userId);
     
-    // CONTEXT-AWARE: Load personality based on context (styling vs support)
-    let mayaPersonality = PersonalityManager.getContextPrompt('maya', context);
+    // CONTEXT-AWARE: Load personality based on context (consultation vs creation vs support)
+    // Map legacy contexts to new context-aware system
+    let effectiveContext = context;
+    if (context === 'dashboard' || context === 'workspace') {
+      effectiveContext = 'consultation';
+    } else if (context === 'styling' || context === 'creation') {
+      effectiveContext = 'creation';
+    }
+    
+    console.log(`🧠 CONTEXT-AWARE PERSONALITY: Loading Maya for ${effectiveContext} mode (original: ${context})`);
+    let mayaPersonality = PersonalityManager.getContextPrompt('maya', effectiveContext);
     
     // PHASE 2: Add support intelligence for support context
     if (context === 'support') {
@@ -2618,7 +2627,7 @@ CRITICAL: Use your ${category} styling approaches loaded in your personality. Re
       console.log('🎯 CATEGORY SPECIFIC GUIDANCE:', categorySpecificGuidance);
     }
 
-    const mayaPromptPersonality = PersonalityManager.getNaturalPrompt('maya') + `
+    const mayaPromptPersonality = PersonalityManager.getContextPrompt('maya', 'creation') + `
 
 🎯 MAYA'S TECHNICAL PROMPT MODE - 2025 FLUX OPTIMIZATION:
 You are creating a FLUX 1.1 Pro image generation prompt. This is TECHNICAL PROMPT CREATION, not conversation.
