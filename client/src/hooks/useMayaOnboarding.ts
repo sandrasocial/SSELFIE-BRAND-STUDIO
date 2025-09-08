@@ -62,9 +62,9 @@ export const useMayaOnboarding = () => {
   const initializeOnboarding = (setMessages: (messages: ChatMessage[]) => void) => {
     const welcomeMessage: ChatMessage = {
       role: 'maya',
-      content: "Hey gorgeous! I'm Maya - Sandra's AI bestie with all her styling secrets from fashion week to building her empire. I'm here to help you see your future self and create photos that show the world your power! Tell me what brought you here today - I love hearing about women's transformation journeys. What's happening in your world right now?",
+      content: "I'm Maya, your personal brand strategist! I help you create powerful photos that actually get results - whether it's LinkedIn, Instagram, or your website. Let's figure out exactly what you need. What brought you my way today?",
       timestamp: new Date().toISOString(),
-      quickButtons: ["Starting over", "Building my brand", "Need confidence", "Ready to create photos"],
+      quickButtons: ["Starting my business", "Building my brand", "Need better photos", "Ready to level up"],
       isOnboarding: true // Enable structured onboarding for new users
     };
     setMessages([welcomeMessage]);
