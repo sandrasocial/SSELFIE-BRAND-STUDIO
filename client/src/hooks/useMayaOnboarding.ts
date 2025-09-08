@@ -64,7 +64,7 @@ export const useMayaOnboarding = () => {
       role: 'maya',
       content: "Hey! I'm Maya. Ready to create some stunning photos? I help you look incredible in everything you need - LinkedIn, Instagram, websites. What are we working on today?",
       timestamp: new Date().toISOString(),
-      quickButtons: ["Starting my business", "Building my brand", "Need better photos", "Ready to level up"],
+      quickButtons: ["Just starting out", "Need work photos", "Want to look better", "Ready to try this"],
       isOnboarding: true // Enable structured onboarding for new users
     };
     setMessages([welcomeMessage]);
