@@ -2309,64 +2309,41 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
       await extractAndSaveNaturalOnboardingData(userId, userMessage, mayaResponse.message);
     }
     
-    // Create new chat if needed
-    if (!currentChatId) {
-      // Generate intelligent chat titles based on user intent and Maya's response
-      let chatTitle = 'Personal Brand Photos';
+    // Use enhanced Maya memory service for context-aware chat management
+    const mayaMemoryService = new MayaMemoryService();
+    const conversationResult = await mayaMemoryService.saveMayaConversation(
+      userId,
+      userMessage,
+      mayaResponse.message || JSON.stringify(mayaResponse),
+      false, // hasImageGeneration
+      currentChatId,
+      context
+    );
+    
+    // Use the chat ID from the memory service
+    currentChatId = conversationResult.chatId;
+    
+    console.log(`🧠 CONTEXT-AWARE SAVE: Conversation saved in ${context} mode (chatId: ${currentChatId})`);
+    
+    // Note: The MayaMemoryService has already saved the basic conversation
+    // We only need to update the Maya response if it has additional structured data
+    if (mayaResponse.generatedPrompt || mayaResponse.conceptCards || mayaResponse.quickButtons) {
+      // Update the last Maya message with structured data
+      const recentMessages = await storage.getMayaChatMessages(currentChatId);
+      const lastMayaMessage = recentMessages
+        .filter(msg => msg.role === 'maya')
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
       
-      if (context === 'onboarding') {
-        chatTitle = 'Personal Brand Discovery';
-      } else {
-        // Analyze user message for specific styling intent
-        const lowerMessage = userMessage.toLowerCase();
-        if (lowerMessage.includes('business') || lowerMessage.includes('professional') || lowerMessage.includes('corporate')) {
-          chatTitle = 'Business Professional Shoot';
-        } else if (lowerMessage.includes('lifestyle') || lowerMessage.includes('casual') || lowerMessage.includes('everyday')) {
-          chatTitle = 'Lifestyle Brand Session';
-        } else if (lowerMessage.includes('instagram') || lowerMessage.includes('social media') || lowerMessage.includes('insta')) {
-          chatTitle = 'Instagram Content Creation';
-        } else if (lowerMessage.includes('headshot') || lowerMessage.includes('portrait')) {
-          chatTitle = 'Professional Headshots';
-        } else if (lowerMessage.includes('travel') || lowerMessage.includes('vacation')) {
-          chatTitle = 'Travel Brand Photos';
-        } else if (lowerMessage.includes('outfit') || lowerMessage.includes('fashion') || lowerMessage.includes('style')) {
-          chatTitle = 'Fashion & Style Session';
-        } else if (lowerMessage.includes('story') || lowerMessage.includes('brand story')) {
-          chatTitle = 'Brand Storytelling Shoot';
-        } else if (mayaResponse.chatCategory && mayaResponse.chatCategory !== 'general') {
-          chatTitle = `${mayaResponse.chatCategory} Brand Photos`;
-        }
+      if (lastMayaMessage) {
+        // Update the existing message with structured data
+        await storage.updateMayaChatMessage(lastMayaMessage.id, {
+          generatedPrompt: mayaResponse.generatedPrompt,
+          conceptCards: mayaResponse.conceptCards,
+          quickButtons: mayaResponse.quickButtons ? JSON.stringify(mayaResponse.quickButtons) : null,
+          canGenerate: mayaResponse.canGenerate || false
+        });
       }
-      
-      // Only add admin prefix for platform owner's development sessions
-      const contextPrefix = userType === 'admin' ? '[DEV] ' : '';
-      const chatSummary = userMessage.length > 100 ? `${userMessage.substring(0, 100)}...` : userMessage;
-      
-      const newChat = await storage.createMayaChat({
-        userId,
-        chatTitle: contextPrefix + chatTitle,
-        chatSummary
-      });
-      currentChatId = newChat.id;
     }
-
-    // Save both messages
-    await storage.saveMayaChatMessage({
-      chatId: currentChatId,
-      role: 'user',
-      content: userMessage
-    });
-
-    // Save Maya response with proper field separation for historical loading
-    await storage.saveMayaChatMessage({
-      chatId: currentChatId,
-      role: 'maya',
-      content: mayaResponse.message, // Store actual message content
-      generatedPrompt: mayaResponse.generatedPrompt,
-      conceptCards: mayaResponse.conceptCards, // ENHANCED: Store concept cards as JSONB directly
-      quickButtons: mayaResponse.quickButtons ? JSON.stringify(mayaResponse.quickButtons) : null, // CRITICAL: Store quick buttons in proper field
-      canGenerate: mayaResponse.canGenerate || false // CRITICAL: Store generation capability flag
-    });
 
     // 💾 CONCEPT STORAGE DEBUG: Log what's being stored to database
     if (mayaResponse.conceptCards && mayaResponse.conceptCards.length > 0) {
