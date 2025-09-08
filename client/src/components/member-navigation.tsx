@@ -41,7 +41,7 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
 
   // Member navigation items - SIMPLIFIED TO STUDIO, GALLERY, ACCOUNT SETTINGS, LOGOUT  
   const navItems = [
-    { path: '/workspace', label: 'Studio' },
+    { path: '/maya', label: 'Studio' },
     { path: '/sselfie-gallery', label: 'Gallery' },
     { path: '/account-settings', label: 'Account' },
   ];
@@ -61,11 +61,11 @@ export function MemberNavigation({ transparent = true, darkText = false }: Membe
           <button 
             onClick={(e) => {
               e.preventDefault();
-              // If already on workspace, just scroll to top instead of navigating
-              if (location === '/workspace' || location === '/studio') {
+              // If already on maya/studio, just scroll to top instead of navigating
+              if (location === '/maya' || location === '/studio') {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               } else {
-                setLocation("/workspace");
+                setLocation("/maya");
               }
             }}
             className={`font-serif text-xl font-light tracking-wide ${darkText ? 'text-black' : 'text-white'} hover:opacity-70 transition-opacity duration-300`}
