@@ -31,6 +31,7 @@ import { UserStyleMemoryService } from '../services/user-style-memory';
 import { SupportIntelligenceService } from '../services/support-intelligence';
 import { EscalationHandler, escalationHandler } from '../services/escalation-handler';
 import { OnboardingConversationService } from '../services/onboarding-conversation-service';
+import { mayaPersonalizationService } from '../services/maya-personalization-service';
 
 const router = Router();
 
@@ -176,12 +177,15 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       });
     }
 
-    // Load user context - Maya handles incomplete profiles intelligently
+    // Load comprehensive user context for Maya's personalized intelligence
     const user = await storage.getUser(userId);
     if (!user) {
       logMayaAPI('/chat', startTime, false, new Error('User not found'));
       return res.status(404).json({ error: 'User not found' });
     }
+    
+    // Get Maya's personalization context for intelligent, personalized responses
+    const userContext = await mayaPersonalizationService.getUserPersonalizationContext(userId);
     
     // Maya can handle incomplete profiles conversationally - no blocking
 
@@ -502,6 +506,37 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
         console.error('❌ PHASE 2: Error loading support intelligence:', error);
         // Continue without support context
       }
+    }
+    
+    // PHASE 3: Add user personalization context for intelligent, personalized responses
+    if (userContext) {
+      const personalizedGreeting = mayaPersonalizationService.generatePersonalizedGreeting(userContext);
+      const brandingContent = mayaPersonalizationService.generateBrandingContent(userContext);
+      
+      const personalizationContext = `
+
+PERSONALIZED USER CONTEXT (USE FOR INTELLIGENT RESPONSES):
+- User: ${userContext.profileData.name || userContext.profileData.email?.split('@')[0] || 'User'}
+- Email: ${userContext.profileData.email}
+- Profession: ${userContext.profileData.profession || 'Not specified'}
+- Plan: ${userContext.subscriptionData.planDisplayName} (€${userContext.subscriptionData.monthlyPrice}/month)
+- Monthly Generations: ${userContext.usageStats.generationsThisMonth}/${userContext.subscriptionData.monthlyLimit === -1 ? 'Unlimited' : userContext.subscriptionData.monthlyLimit}
+- Remaining: ${userContext.usageStats.remainingGenerations === -1 ? 'Unlimited' : userContext.usageStats.remainingGenerations} generations
+- Account Type: ${userContext.subscriptionData.accountType}
+- Brand Style: ${userContext.profileData.brandStyle || 'Not specified'}
+- Photo Goals: ${userContext.profileData.photoGoals || 'Not specified'}
+- Joined: ${userContext.profileData.joinedDate ? new Date(userContext.profileData.joinedDate).toLocaleDateString() : 'Recently'}
+
+PERSONALIZED SUGGESTIONS:
+- Greeting: ${personalizedGreeting}
+- Brand Voice: ${brandingContent.brandVoice}
+- Visual Style: ${brandingContent.visualStyle}
+- Target Audience: ${brandingContent.targetAudience}
+
+Use this context to provide personalized, intelligent responses instead of generic templates. Reference their actual usage, plan details, and preferences when relevant.`;
+
+      mayaPersonality += personalizationContext;
+      console.log('✨ PHASE 3: User personalization context added to Maya - she now has access to real user data for intelligent responses');
     }
     
     // Add only essential request context

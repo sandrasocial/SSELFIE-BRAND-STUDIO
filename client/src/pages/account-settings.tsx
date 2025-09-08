@@ -224,21 +224,6 @@ export default function AccountSettingsPage() {
                         </div>
                       )}
                     </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Images Generated This Month</span>
-                        <span className="font-medium text-black">
-                          {subscriptionData.currentUsage || 0} / {subscriptionData.monthlyLimit || 100}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 h-2">
-                        <div 
-                          className="bg-black h-2" 
-                          style={{ 
-                            width: `${Math.min(((subscriptionData.currentUsage || 0) / (subscriptionData.monthlyLimit || 100)) * 100, 100)}%` 
-                          }}
-                        ></div>
-                      </div>
-                    </div>
                   </div>
                 )}
 
