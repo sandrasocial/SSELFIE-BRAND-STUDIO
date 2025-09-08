@@ -231,70 +231,13 @@ export class OnboardingConversationService {
     
     return `${baseMayaPersonality}
 
-🌟 MAYA'S ONBOARDING MODE - PERSONAL BRAND DISCOVERY JOURNEY
+🎯 ONBOARDING CONTEXT:
+This is step ${step.stepNumber} of 6 in getting to know this user better. 
+Focus: ${step.focus}
 
-You're guiding a woman through discovering her personal brand and "Future Self Vision." This is about transformation - helping her see the confident, successful woman she's becoming.
+${context.personalBrandData ? 'Previous conversation context: ' + this.formatPersonalBrandContext(context.personalBrandData) : ''}
 
-CURRENT ONBOARDING CONTEXT:
-- Step: ${step.stepNumber}/6 - ${step.title}
-- Focus: ${step.focus}
-- Description: ${step.description}
-
-ONBOARDING FLOW RULES:
-1. STAY ON CURRENT STEP: Don't jump ahead to future topics
-2. CLEAR INSTRUCTIONS: Always mention users can "click a suggestion below or share your own thoughts"
-3. STEP COMPLETION: When you have enough information for this step, guide them to the next step
-4. PROGRESS TRACKING: Reference their progress through the 6 steps when appropriate
-
-PERSONAL BRAND CONTEXT WE'VE DISCOVERED:
-${this.formatPersonalBrandContext(context.personalBrandData)}
-
-CONVERSATION APPROACH FOR THIS STEP:
-${step.questions.join('\n- ')}
-
-MAYA'S ONBOARDING VOICE:
-- Warm, encouraging friend who truly listens
-- Celebrate their dreams and validate their experiences  
-- Ask thoughtful follow-up questions to go deeper
-- Use "we" language - you're in this journey together
-- Reference specific details they've shared to show you're listening
-- Help them see their powerful future self
-- VARY YOUR OPENINGS: Mix up your conversation starters - "I love this!", "This is exciting!", "Perfect!", "Tell me more about this", "Amazing!", "Yes!", "Absolutely!", etc.
-- CLEAR GUIDANCE: In EVERY response, include the phrase "You can click one of my suggestions below or share your own thoughts - whatever feels right!"
-- STEP PROGRESSION: Stay focused on the current step only, don't jump to future topics
-- STEP TRANSITIONS: When ready to move to next step, clearly say "I think we're ready for step X" and explain what's coming next
-
-RESPONSE FORMAT REQUIREMENTS:
-You MUST respond with valid JSON in this exact format:
-{
-  "message": "Your warm, encouraging response + guidance about clicking suggestions or sharing thoughts",
-  "questions": ["Follow-up question 1", "Follow-up question 2"],
-  "quickButtons": ["Contextual action 1", "Contextual action 2", "Contextual action 3"],
-  "stepGuidance": "Brief guidance about current step ${step.stepNumber}/6",
-  "nextAction": "continue",
-  "currentStep": ${step.stepNumber},
-  "progress": ${this.calculateProgress(context.currentStep, false)}
-}
-
-🎯 INTELLIGENT QUICK ACTIONS:
-For quickButtons, generate 3-4 contextual, personalized options based on:
-- What they just shared with you
-- Natural next steps in the conversation
-- Specific to their situation, NOT generic templates
-- Written conversationally, as if you're suggesting the next thing to explore
-
-Examples of GOOD quick actions:
-- "Tell me about your coaching business"
-- "I need LinkedIn authority photos" 
-- "Help me see my CEO future self"
-- "What about behind-the-scenes content"
-
-Examples of BAD quick actions (never use these):
-- Generic templates or category labels
-- Assumptions about personal situations
-- One-size-fits-all responses
-
-Remember: You're helping her see herself as the confident, successful woman she's becoming. Every conversation should leave her feeling more empowered and excited about her transformation journey.`;
+Be yourself - warm, helpful Maya. Ask natural follow-up questions and be genuinely interested in their story. This conversation helps you understand how to create amazing photos for them later.`;
   }
 
   /**
@@ -335,31 +278,20 @@ Remember: You're helping her see herself as the confident, successful woman she'
       const data = await response.json();
       const responseText = data.content[0].text;
 
-      // Parse JSON response
-      try {
-        const parsedResponse = JSON.parse(responseText);
-        
-        // Validate response structure
-        return {
-          message: parsedResponse.message || "I'm here to help you discover your amazing future self!",
-          questions: Array.isArray(parsedResponse.questions) ? parsedResponse.questions : [],
-          quickButtons: Array.isArray(parsedResponse.quickButtons) ? parsedResponse.quickButtons : [],
-          stepGuidance: parsedResponse.stepGuidance || this.ONBOARDING_STEPS[context.currentStep].description,
-          nextAction: parsedResponse.nextAction || 'continue',
-          currentStep: context.currentStep,
-          progress: this.calculateProgress(context.currentStep, false)
-        };
-        
-      } catch (parseError) {
-        console.error('Maya JSON parsing error:', parseError);
-        
-        // Fallback response if JSON parsing fails
-        return this.createFallbackResponse(responseText, context);
-      }
+      // Maya responds naturally - create structured response from her natural conversation
+      return {
+        message: responseText,
+        questions: [], // Maya asks questions naturally within her response
+        quickButtons: this.generateStepButtons(context.currentStep, userMessage),
+        stepGuidance: `Step ${context.currentStep}/6: ${this.ONBOARDING_STEPS[context.currentStep].title}`,
+        nextAction: 'continue',
+        currentStep: context.currentStep,
+        progress: this.calculateProgress(context.currentStep, false)
+      };
       
     } catch (error) {
       console.error('Maya onboarding conversation error:', error);
-      return this.createFallbackResponse("I'm having trouble connecting right now, but I'm so excited to help you discover your future self!", context);
+      return this.createFallbackResponse("I'm having trouble connecting right now, but I'd love to hear more about you! What brings you here today?", context);
     }
   }
 
@@ -367,17 +299,37 @@ Remember: You're helping her see herself as the confident, successful woman she'
    * Create fallback response when API fails
    */
   private createFallbackResponse(message: string, context: ConversationContext): OnboardingResponse {
-    const step = this.ONBOARDING_STEPS[context.currentStep];
-    
     return {
-      message: message || "I'm here to help you see your amazing future self! Tell me more about your journey.",
-      questions: step.questions.slice(0, 2),
-      quickButtons: [], // No fallback templates - Maya should generate her own intelligent suggestions
-      stepGuidance: step.description,
+      message: message || "I'm here to help you! What would you like to know about your photos?",
+      questions: [],
+      quickButtons: this.generateStepButtons(context.currentStep, ''),
+      stepGuidance: `Step ${context.currentStep}/6: ${this.ONBOARDING_STEPS[context.currentStep].title}`,
       nextAction: 'continue',
       currentStep: context.currentStep,
       progress: this.calculateProgress(context.currentStep, false)
     };
+  }
+
+  /**
+   * Generate contextual buttons for current step
+   */
+  private generateStepButtons(stepNumber: number, userMessage: string): string[] {
+    switch (stepNumber) {
+      case 1:
+        return ["I'm just starting out", "I need work photos", "I want to look more confident", "Tell me more"];
+      case 2:  
+        return ["I'm building my business", "I'm changing careers", "I need better photos", "What do you suggest?"];
+      case 3:
+        return ["I want to be seen as an expert", "I want more confidence", "I want to grow my business", "Help me see my potential"];
+      case 4:
+        return ["I help entrepreneurs", "I'm a coach", "I work in corporate", "I'm creative"];
+      case 5:
+        return ["I'm a woman", "I'm a man", "I prefer non-binary", "Classic style", "Modern look"];
+      case 6:
+        return ["LinkedIn photos", "Instagram content", "Website images", "All platforms"];
+      default:
+        return ["Tell me more", "That sounds interesting", "What else?", "I'm ready"];
+    }
   }
 
   /**
