@@ -351,7 +351,7 @@ export default function Maya() {
 
     addMessage({
       type: 'maya',
-      content: "I'm Maya, your personal brand strategist. I help you create photo concepts that tell your unique story and grow your brand. What kind of photos are you looking to create today?",
+      content: "I'm Maya, your photo creation specialist. Describe the professional photos you need and I'll create custom concepts with instant generation. What type of images are you looking to create?",
       timestamp: new Date().toISOString()
     });
   };
@@ -450,23 +450,23 @@ export default function Maya() {
                     lineHeight: 1.2
                   }}
                 >
-                  PROFESSIONAL PHOTOS
+                  CREATE YOUR
                   <br />
-                  THAT TELL YOUR STORY
+                  PROFESSIONAL PHOTOS
                 </h2>
                 <p 
                   className="text-gray-600 mb-16 leading-relaxed max-w-xl mx-auto"
                   style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.8 }}
                 >
-                  I create photo concepts that build credibility and grow your business. From LinkedIn headshots to Instagram content that converts.
+                  Describe the professional photos you need and I'll create custom concepts with instant generation.
                 </p>
 
-                {/* Elegant Quick Start Options */}
+                {/* Creation-Focused Quick Start Options */}
                 <div className="space-y-3 max-w-md mx-auto">
                   {[
-                    "Professional headshots for LinkedIn",
-                    "Instagram content for my business", 
-                    "Website photos that convert"
+                    "Corporate headshots with confidence",
+                    "Creative lifestyle content", 
+                    "Professional portraits that convert"
                   ].map((suggestion, index) => (
                     <button
                       key={index}
@@ -571,7 +571,7 @@ export default function Maya() {
                     </div>
                   </div>
                 ) : (
-                  // Maya Message - Editorial Magazine Style
+                  // Maya Creation Response - Concept & Generation Focused
                   <div className="flex justify-start">
                     <div className="max-w-2xl">
                       <div className="mb-4">
