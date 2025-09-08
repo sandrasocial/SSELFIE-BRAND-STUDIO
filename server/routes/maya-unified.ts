@@ -284,16 +284,17 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       console.log('🔍 STEP 2.3 CACHE MISS: Processing new Maya response');
     }
 
-    // CRITICAL FIX: Use frontend conversation history or load from database
-    let fullConversationHistory: any[] = conversationHistory || [];
+    // 🧠 ENHANCED MEMORY FIX: Intelligent context merging (frontend + database)
+    let frontendHistory: any[] = conversationHistory || [];
+    let databaseHistory: any[] = [];
     
-    // If no frontend history but we have a chatId, load from database as backup
-    if (fullConversationHistory.length === 0 && chatId) {
+    // Always load database history as backup/foundation
+    if (chatId) {
       try {
         const chatMessages = await storage.getMayaChatMessages(Number(chatId));
-        // Transform to Claude API format, keeping last 10 messages for context
-        fullConversationHistory = chatMessages
-          .slice(-20)
+        // Transform to Claude API format, keeping last 30 messages for extended context
+        databaseHistory = chatMessages
+          .slice(-30)
           .map(msg => {
             let content = msg.content;
             
@@ -310,16 +311,52 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
             
             return {
               role: msg.role === 'assistant' || msg.role === 'maya' ? 'assistant' : 'user',
-              content
+              content,
+              timestamp: new Date(msg.createdAt).getTime()
             };
           });
-        console.log(`📖 PHASE 1.3: Loaded ${fullConversationHistory.length} previous messages from database (enhanced to 20 messages)`);
+        console.log(`📖 MEMORY: Loaded ${databaseHistory.length} database messages as foundation`);
       } catch (error) {
-        console.log('No previous conversation history found, starting fresh');
+        console.log('No database conversation history found');
       }
-    } else if (fullConversationHistory.length > 0) {
-      console.log(`📖 MAYA CONTEXT: Using ${fullConversationHistory.length} messages from frontend`);
     }
+    
+    // 🔄 INTELLIGENT MERGING: Combine frontend + database avoiding duplicates
+    let fullConversationHistory: any[] = [];
+    
+    if (frontendHistory.length > 0 && databaseHistory.length > 0) {
+      // Merge strategy: Use database as foundation, overlay frontend for recent messages
+      const frontendTimestamp = Date.now() - (5 * 60 * 1000); // Last 5 minutes from frontend
+      
+      // Use database history as base (older messages)
+      fullConversationHistory = [...databaseHistory];
+      
+      // Add recent frontend messages that might not be in database yet
+      for (const frontendMsg of frontendHistory.slice(-5)) { // Last 5 frontend messages
+        const isDuplicate = databaseHistory.some(dbMsg => 
+          dbMsg.content === frontendMsg.content && 
+          Math.abs((dbMsg.timestamp || 0) - Date.now()) < 60000 // Within 1 minute
+        );
+        
+        if (!isDuplicate) {
+          fullConversationHistory.push({
+            ...frontendMsg,
+            timestamp: Date.now()
+          });
+        }
+      }
+      
+      console.log(`🧠 MEMORY MERGE: Combined ${databaseHistory.length} database + ${frontendHistory.length} frontend messages`);
+    } else if (frontendHistory.length > 0) {
+      fullConversationHistory = frontendHistory;
+      console.log(`📖 MEMORY: Using ${frontendHistory.length} frontend messages only`);
+    } else if (databaseHistory.length > 0) {
+      fullConversationHistory = databaseHistory;
+      console.log(`📖 MEMORY: Using ${databaseHistory.length} database messages only`);
+    }
+    
+    // Keep last 30 messages for extended context (was 20)
+    fullConversationHistory = fullConversationHistory.slice(-30);
 
     // Get unified user context
     const userContext = await getUnifiedUserContext(userId);
