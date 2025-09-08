@@ -22,6 +22,7 @@ import { Router } from 'express';
 import { requireStackAuth } from '../stack-auth';
 import { storage } from '../storage';
 import { PersonalityManager } from '../agents/personalities/personality-config';
+import { MayaMemoryService } from '../services/maya-memory-service';
 import { MAYA_PERSONALITY } from '../agents/personalities/maya-personality';
 import { ModelTrainingService } from '../model-training-service';
 // ✅ REMOVED: All validation imports - Maya's intelligence needs no validation
@@ -2326,24 +2327,8 @@ async function saveUnifiedConversation(userId: string, userMessage: string, maya
     console.log(`🧠 CONTEXT-AWARE SAVE: Conversation saved in ${context} mode (chatId: ${currentChatId})`);
     
     // Note: The MayaMemoryService has already saved the basic conversation
-    // We only need to update the Maya response if it has additional structured data
-    if (mayaResponse.generatedPrompt || mayaResponse.conceptCards || mayaResponse.quickButtons) {
-      // Update the last Maya message with structured data
-      const recentMessages = await storage.getMayaChatMessages(currentChatId);
-      const lastMayaMessage = recentMessages
-        .filter(msg => msg.role === 'maya')
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
-      
-      if (lastMayaMessage) {
-        // Update the existing message with structured data
-        await storage.updateMayaChatMessage(lastMayaMessage.id, {
-          generatedPrompt: mayaResponse.generatedPrompt,
-          conceptCards: mayaResponse.conceptCards,
-          quickButtons: mayaResponse.quickButtons ? JSON.stringify(mayaResponse.quickButtons) : null,
-          canGenerate: mayaResponse.canGenerate || false
-        });
-      }
-    }
+    // For now, the basic conversation saving from memory service is sufficient
+    // TODO: Enhance memory service to handle structured data (concept cards, quick buttons) directly
 
     // 💾 CONCEPT STORAGE DEBUG: Log what's being stored to database
     if (mayaResponse.conceptCards && mayaResponse.conceptCards.length > 0) {

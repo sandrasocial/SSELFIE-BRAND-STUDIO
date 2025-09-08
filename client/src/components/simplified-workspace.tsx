@@ -573,6 +573,30 @@ export function SimplifiedWorkspace() {
     <div className="min-h-screen bg-white">
       <MemberNavigation transparent={false} />
 
+      {/* Maya Mode Indicator - Consultation Mode */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-blue-700" style={{ fontFamily: 'Times New Roman, serif' }}>
+                Maya - Business Strategy Mode
+              </span>
+              <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                Consultation & Planning
+              </span>
+            </div>
+            <button
+              onClick={() => setLocation('/maya')}
+              className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+              style={{ fontFamily: 'Times New Roman, serif' }}
+            >
+              Switch to Photo Creation →
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Welcome Section - Luxury Brand Aligned */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-16" style={{ paddingTop: '128px' }}>
         <div className="text-center mb-8 sm:mb-16">
