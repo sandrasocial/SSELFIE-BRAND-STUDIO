@@ -2817,44 +2817,11 @@ router.get('/generated-images', requireStackAuth, async (req, res) => {
   }
 });
 
-// Helper function to detect category from prompt
+// ✅ MAYA PURE INTELLIGENCE: Let Maya naturally determine categories without hardcoded constraints
 function detectCategoryFromPrompt(prompt: string): string {
-  const categories = ['business', 'fashion', 'lifestyle', 'travel'];
-  const lowerPrompt = prompt.toLowerCase();
-  
-  for (const category of categories) {
-    if (lowerPrompt.includes(category)) {
-      return category.charAt(0).toUpperCase() + category.slice(1);
-    }
-  }
-  
-  // Check for business-related keywords
-  if (lowerPrompt.includes('professional') || lowerPrompt.includes('corporate') || 
-      lowerPrompt.includes('office') || lowerPrompt.includes('suit') ||
-      lowerPrompt.includes('executive')) {
-    return 'Business';
-  }
-  
-  // Check for lifestyle keywords
-  if (lowerPrompt.includes('casual') || lowerPrompt.includes('home') || 
-      lowerPrompt.includes('morning') || lowerPrompt.includes('wellness') ||
-      lowerPrompt.includes('luxury routine')) {
-    return 'Lifestyle';
-  }
-  
-  // Check for fashion keywords
-  if (lowerPrompt.includes('dress') || lowerPrompt.includes('style') || 
-      lowerPrompt.includes('fashion') || lowerPrompt.includes('elegant')) {
-    return 'Fashion';
-  }
-  
-  // Check for travel keywords
-  if (lowerPrompt.includes('travel') || lowerPrompt.includes('city') || 
-      lowerPrompt.includes('urban') || lowerPrompt.includes('street')) {
-    return 'Travel';
-  }
-  
-  return 'Lifestyle'; // Default category
+  // Maya's intelligence will determine the most appropriate category naturally
+  // No hardcoded keyword matching - trust Maya's styling expertise
+  return 'General'; // Let Maya's personality-driven intelligence handle categorization
 }
 
 // 🧠 DEVELOPMENT ROUTE: View user style memory (safe testing endpoint)
