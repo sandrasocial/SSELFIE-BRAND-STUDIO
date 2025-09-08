@@ -25,8 +25,8 @@ export function NavigationButton({
     gap: clamp(6px, 1.5vw, 8px);
     padding: clamp(12px, 3vw, 16px) clamp(24px, 6vw, 32px);
     min-height: 44px;
-    font-size: clamp(10px, 2.5vw, 11px);
-    font-weight: 400;
+    font-size: 12px;
+    font-weight: 300;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     text-decoration: none;
