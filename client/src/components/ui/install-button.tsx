@@ -40,7 +40,7 @@ export function InstallButton({ variant = 'default', className = '' }: InstallBu
     return (
       <button
         onClick={handleInstall}
-        className={`text-xs text-gray-600 hover:text-black transition-colors underline ${className}`}
+        className={`text-xs uppercase tracking-[0.3em] font-light text-gray-600 hover:text-black transition-colors underline ${className}`}
       >
         Install App
       </button>
@@ -52,7 +52,7 @@ export function InstallButton({ variant = 'default', className = '' }: InstallBu
       onClick={handleInstall}
       className={`
         bg-black text-white px-6 py-3
-        font-serif text-sm letter-spacing-wider uppercase
+        text-xs uppercase tracking-[0.3em] font-light
         border-0 hover:bg-gray-800 transition-colors
         ${className}
       `}
