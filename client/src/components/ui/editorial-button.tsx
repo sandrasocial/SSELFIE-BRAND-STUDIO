@@ -45,9 +45,9 @@ const EditorialButton = forwardRef<HTMLButtonElement, EditorialButtonProps>(
 
     // Size variations
     const sizeClasses = {
-      'sm': ["text-[11px]", "tracking-[0.3em]", "px-4", "py-3"],
-      'md': ["text-[12px]", "tracking-[0.35em]", "px-6", "py-4"],
-      'lg': ["text-[13px]", "tracking-[0.4em]", "px-8", "py-5"]
+      'sm': ["text-xs", "tracking-[0.3em]", "font-light", "px-4", "py-3"],
+      'md': ["text-xs", "tracking-[0.3em]", "font-light", "px-6", "py-4"],
+      'lg': ["text-xs", "tracking-[0.3em]", "font-light", "px-8", "py-5"]
     };
 
     // Variant styles - minimal, editorial, no fills
