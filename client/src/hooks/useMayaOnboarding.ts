@@ -41,14 +41,20 @@ export const useMayaOnboarding = () => {
         };
         setOnboardingStatus(status);
         
-        // Always start with direct Maya interface - no welcome gate
-        setShowWelcome(false);
-        setIsOnboardingMode(false);
+        // Enable onboarding for users who haven't completed it
+        if (!status.isCompleted) {
+          setIsOnboardingMode(true);
+          setShowWelcome(true);
+        } else {
+          setIsOnboardingMode(false);
+          setShowWelcome(false);
+        }
       }
     } catch (error) {
       // If onboarding endpoint doesn't exist, proceed with regular Maya
       console.log('❌ Maya: Onboarding status error:', error);
       console.log('Onboarding system not available, proceeding with regular Maya');
+      // Default to no onboarding if service unavailable
       setIsOnboardingMode(false);
     }
   };
@@ -59,7 +65,7 @@ export const useMayaOnboarding = () => {
       content: "Hey gorgeous! I'm Maya - Sandra's AI bestie with all her styling secrets from fashion week to building her empire. I'm here to help you see your future self and create photos that show the world your power! Tell me what brought you here today - I love hearing about women's transformation journeys. What's happening in your world right now?",
       timestamp: new Date().toISOString(),
       quickButtons: ["Starting over", "Building my brand", "Need confidence", "Ready to create photos"],
-      isOnboarding: false // No longer treating as structured onboarding
+      isOnboarding: true // Enable structured onboarding for new users
     };
     setMessages([welcomeMessage]);
   };
