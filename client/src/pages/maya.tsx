@@ -10,6 +10,15 @@ import { MayaUploadComponent } from '../components/maya/MayaUploadComponent';
 import { MayaExamplesGallery } from '../components/maya/MayaExamplesGallery';
 import { useLocation } from 'wouter';
 
+// Import feed design components for integration
+import { CanvasPreview } from '../components/feed-design/CanvasPreview';
+import { Badge } from '../components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Loader2, Image, Instagram, Linkedin, Facebook, Twitter, Sparkles, Zap } from 'lucide-react';
+import { cn } from '../lib/utils';
+
 // Maya luxury workspace - aligned with SSELFIE brand guidelines
 
 // Unified message types for all Maya modes
@@ -103,6 +112,393 @@ const cleanDisplayTitle = (title: string): string => {
   // Remove Maya's styling emojis but keep the concept name for clean display
   return title.replace(/[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖]/g, '').trim();
 };
+
+// Feed Design Tab Component - Luxury Integration
+function FeedDesignMayaTab() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  // State management
+  const [selectedImage, setSelectedImage] = useState<string>('');
+  const [selectedPlatform, setSelectedPlatform] = useState<string>('instagram');
+  const [selectedMessageType, setSelectedMessageType] = useState<string>('motivational');
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('estetica-luxury');
+  const [showPreview, setShowPreview] = useState(false);
+  const [createdPosts, setCreatedPosts] = useState<any[]>([]);
+  const [isCreatingBatch, setIsCreatingBatch] = useState(false);
+
+  // Fetch user's images from gallery
+  const { data: userImages, isLoading: imagesLoading } = useQuery({
+    queryKey: ['/api/images', user?.id],
+    enabled: !!user?.id,
+    staleTime: 30000,
+  });
+
+  // Fetch user's branded posts
+  const { data: brandedPosts, refetch: refetchPosts } = useQuery({
+    queryKey: ['/api/branded-posts', user?.id],
+    enabled: !!user?.id,
+    staleTime: 10000,
+  });
+
+  useEffect(() => {
+    if (brandedPosts?.posts) {
+      setCreatedPosts(brandedPosts.posts);
+    }
+  }, [brandedPosts]);
+
+  // Platform configurations
+  const platforms = [
+    { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'text-pink-600' },
+    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'text-blue-600' },
+    { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'text-blue-700' },
+    { id: 'twitter', name: 'Twitter', icon: Twitter, color: 'text-sky-500' }
+  ];
+
+  // Visual templates for luxury branding
+  const visualTemplates = [
+    { 
+      id: 'estetica-luxury', 
+      name: 'Estética Luxury', 
+      description: 'Sophisticated black/brown/beige with serif elegance',
+      businessAlignment: 'Beauty, luxury services, premium consulting',
+      preview: '#1C1C1C, #8B4513, #D4A574'
+    },
+    { 
+      id: 'nature-luxo', 
+      name: 'Nature Luxo', 
+      description: 'Organic forest green/cream with natural typography',
+      businessAlignment: 'Wellness, organic products, sustainability',
+      preview: '#2F4F2F, #F5E6D3, #8FBC8F'
+    },
+    { 
+      id: 'dark-luxury', 
+      name: 'Dark Luxury', 
+      description: 'Modern charcoal/silver sophistication',
+      businessAlignment: 'Tech, modern business, architecture',
+      preview: '#2C2C2C, #A9A9A9, #C0C0C0'
+    }
+  ];
+
+  const messageTypes = [
+    { id: 'motivational', name: 'Motivational', description: 'Inspiring and empowering content' },
+    { id: 'business', name: 'Business', description: 'Professional and authoritative' },
+    { id: 'lifestyle', name: 'Lifestyle', description: 'Authentic and personal' }
+  ];
+
+  const handleImageSelect = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+    setShowPreview(true);
+  };
+
+  const handleBrandedPostCreate = (newPost: any) => {
+    setCreatedPosts(prev => [newPost, ...prev]);
+    refetchPosts();
+    toast({ title: "Branded Post Created", description: "Your content is ready for sharing!" });
+  };
+
+  const handleBatchCreate = async () => {
+    if (!userImages?.images?.length) return;
+    
+    setIsCreatingBatch(true);
+    try {
+      const response = await fetch('/api/branded-posts/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageIds: userImages.images.slice(0, 5).map((img: any) => img.id),
+          platform: selectedPlatform,
+          messageType: selectedMessageType,
+          template: selectedTemplate
+        })
+      });
+
+      if (response.ok) {
+        refetchPosts();
+        toast({ title: "Batch Created", description: "5 branded posts created automatically!" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to create batch posts" });
+    } finally {
+      setIsCreatingBatch(false);
+    }
+  };
+
+  return (
+    <div className="flex-1 max-w-6xl mx-auto px-8 py-16">
+      {/* Luxury Header */}
+      <div className="text-center mb-16">
+        <h2 
+          className="text-2xl md:text-3xl text-black mb-6"
+          style={{ 
+            fontFamily: 'Times New Roman, serif', 
+            fontWeight: 200, 
+            letterSpacing: '0.2em',
+            lineHeight: 1.2
+          }}
+        >
+          BRANDED CONTENT
+          <br />
+          CREATION
+        </h2>
+        <p 
+          className="text-gray-600 mb-8 max-w-2xl mx-auto"
+          style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.8 }}
+        >
+          Transform your professional photos into sophisticated branded content for social media platforms.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Configuration */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          {/* Configuration Card */}
+          <div className="bg-white border border-gray-100 p-8">
+            <h3 
+              className="text-lg tracking-wider uppercase text-black mb-8"
+              style={{ 
+                fontFamily: 'Times New Roman, serif', 
+                fontWeight: 200, 
+                letterSpacing: '0.3em' 
+              }}
+            >
+              Content Configuration
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Platform Selection */}
+              <div>
+                <label 
+                  className="text-xs tracking-wider uppercase text-gray-500 mb-3 block"
+                  style={{ letterSpacing: '0.2em' }}
+                >
+                  Platform
+                </label>
+                <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
+                  <SelectTrigger className="border-gray-200 focus:border-black">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {platforms.map((platform) => (
+                      <SelectItem key={platform.id} value={platform.id}>
+                        <div className="flex items-center gap-2">
+                          <platform.icon className={`h-4 w-4 ${platform.color}`} />
+                          {platform.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Message Type */}
+              <div>
+                <label 
+                  className="text-xs tracking-wider uppercase text-gray-500 mb-3 block"
+                  style={{ letterSpacing: '0.2em' }}
+                >
+                  Message Type
+                </label>
+                <Select value={selectedMessageType} onValueChange={setSelectedMessageType}>
+                  <SelectTrigger className="border-gray-200 focus:border-black">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {messageTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.id}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Visual Template */}
+              <div>
+                <label 
+                  className="text-xs tracking-wider uppercase text-gray-500 mb-3 block"
+                  style={{ letterSpacing: '0.2em' }}
+                >
+                  Visual Template
+                </label>
+                <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                  <SelectTrigger className="border-gray-200 focus:border-black">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {visualTemplates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Batch Action */}
+            <div className="pt-8 border-t border-gray-100 mt-8">
+              <Button
+                onClick={handleBatchCreate}
+                disabled={isCreatingBatch || !userImages?.images?.length}
+                className="w-full bg-black text-white hover:bg-gray-800 text-xs uppercase tracking-wider py-4"
+                style={{ letterSpacing: '0.2em' }}
+              >
+                {isCreatingBatch ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Zap className="h-4 w-4 mr-2" />
+                )}
+                Create 5 Branded Posts Automatically
+              </Button>
+            </div>
+          </div>
+
+          {/* Image Gallery */}
+          <div className="bg-white border border-gray-100 p-8">
+            <div className="flex items-center justify-between mb-8">
+              <h3 
+                className="text-lg tracking-wider uppercase text-black"
+                style={{ 
+                  fontFamily: 'Times New Roman, serif', 
+                  fontWeight: 200, 
+                  letterSpacing: '0.3em' 
+                }}
+              >
+                Your Gallery
+              </h3>
+              {userImages?.images?.length && (
+                <span 
+                  className="text-xs tracking-wider uppercase text-gray-500"
+                  style={{ letterSpacing: '0.2em' }}
+                >
+                  {userImages.images.length} Images
+                </span>
+              )}
+            </div>
+            
+            {imagesLoading ? (
+              <div className="flex items-center justify-center h-48">
+                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+              </div>
+            ) : userImages?.images?.length ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {userImages.images.map((image: any) => (
+                  <button
+                    key={image.id}
+                    onClick={() => handleImageSelect(image.imageUrl)}
+                    className={cn(
+                      "relative aspect-square overflow-hidden border-2 transition-all hover:opacity-80",
+                      selectedImage === image.imageUrl 
+                        ? "border-black" 
+                        : "border-transparent hover:border-gray-300"
+                    )}
+                  >
+                    <img
+                      src={image.imageUrl}
+                      alt="Gallery image"
+                      className="w-full h-full object-cover"
+                    />
+                    {image.isGenerated && (
+                      <div className="absolute top-2 left-2 bg-black text-white text-xs px-2 py-1">
+                        AI
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <Image className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}>
+                  No images found. Generate some images first!
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Created Posts Gallery */}
+          {createdPosts.length > 0 && (
+            <div className="bg-white border border-gray-100 p-8">
+              <div className="flex items-center justify-between mb-8">
+                <h3 
+                  className="text-lg tracking-wider uppercase text-black"
+                  style={{ 
+                    fontFamily: 'Times New Roman, serif', 
+                    fontWeight: 200, 
+                    letterSpacing: '0.3em' 
+                  }}
+                >
+                  Your Branded Posts
+                </h3>
+                <span 
+                  className="text-xs tracking-wider uppercase text-gray-500"
+                  style={{ letterSpacing: '0.2em' }}
+                >
+                  {createdPosts.length} Posts
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {createdPosts.slice(0, 6).map((post) => (
+                  <div key={post.id} className="relative group">
+                    <img
+                      src={post.processedImageUrl}
+                      alt="Branded post"
+                      className="w-full aspect-square object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="text-center text-white p-4">
+                        <p 
+                          className="text-sm mb-2"
+                          style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                        >
+                          {post.textOverlay}
+                        </p>
+                        <div className="text-xs uppercase tracking-wider">
+                          {post.socialPlatform}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Canvas Preview */}
+        <div className="lg:col-span-1">
+          {showPreview && selectedImage && user?.id ? (
+            <CanvasPreview
+              imageUrl={selectedImage}
+              userId={user.id}
+              userBrandContext={{
+                profession: user.profession,
+                brandStyle: user.brandStyle,
+                photoGoals: user.photoGoals,
+                industry: user.profession,
+                visualTemplate: selectedTemplate
+              }}
+              onBrandedPostCreate={handleBrandedPostCreate}
+              className="sticky top-8"
+            />
+          ) : (
+            <div className="sticky top-8 bg-white border border-gray-100 p-8 min-h-[400px] flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <Image className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}>
+                  Select an image to start creating your branded post
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Maya mode types for sophisticated interface
 type MayaMode = 'creation' | 'business' | 'feed-design' | 'support';
@@ -965,10 +1361,11 @@ export default function Maya() {
 
           <div ref={messagesEndRef} />
           </div>
+        )}
 
-          {/* Mode-specific input areas */}
-          {(activeMode === 'creation' || activeMode === 'business' || activeMode === 'support') && (
-            <div className="border-t border-gray-100 bg-white">
+        {/* Mode-specific input areas */}
+        {(activeMode === 'creation' || activeMode === 'business' || activeMode === 'support') && (
+          <div className="border-t border-gray-100 bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-8 py-4 sm:py-8">
             <div className="flex items-end space-x-3 sm:space-x-6">
               <div className="flex-1">
@@ -1038,31 +1435,7 @@ export default function Maya() {
           </div>
         )}
         
-        {activeMode === 'feed-design' && (
-          <div className="flex-1 max-w-4xl mx-auto px-8 py-16">
-            <div className="text-center py-24">
-              <h2 
-                className="text-2xl md:text-3xl text-black mb-8"
-                style={{ 
-                  fontFamily: 'Times New Roman, serif', 
-                  fontWeight: 200, 
-                  letterSpacing: '0.2em',
-                  lineHeight: 1.2
-                }}
-              >
-                BRANDED CONTENT
-                <br />
-                CREATION
-              </h2>
-              <p 
-                className="text-gray-600 mb-8 max-w-xl mx-auto"
-                style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.8 }}
-              >
-                Transform your photos into branded social media content.
-              </p>
-            </div>
-          </div>
-        )}
+        {activeMode === 'feed-design' && <FeedDesignMayaTab />}
         
         {activeMode === 'support' && (
           <div className="flex-1 max-w-4xl mx-auto px-8 py-16">
