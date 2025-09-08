@@ -494,16 +494,16 @@ export default function Maya() {
               <div className="flex items-center justify-center space-x-8">
                 <button
                   onClick={handleNewSession}
-                  className="text-xs tracking-widest uppercase text-gray-600 hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1"
-                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, letterSpacing: '0.2em' }}
+                  className="text-xs uppercase tracking-[0.3em] font-light text-gray-600 hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1"
+                  style={{ fontFamily: 'Helvetica Neue' }}
                 >
                   New Session
                 </button>
                 <div className="w-px h-4 bg-gray-200"></div>
                 <button
                   onClick={() => setLocation('/sselfie-gallery')}
-                  className="text-xs tracking-widest uppercase text-gray-600 hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1"
-                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, letterSpacing: '0.2em' }}
+                  className="text-xs uppercase tracking-[0.3em] font-light text-gray-600 hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1"
+                  style={{ fontFamily: 'Helvetica Neue' }}
                 >
                   Gallery
                 </button>
@@ -938,8 +938,8 @@ export default function Maya() {
               <button
                 onClick={handleSendMessage}
                 disabled={!message.trim() || isTyping}
-                className="bg-black text-white px-4 sm:px-8 py-3 sm:py-4 text-xs tracking-wider uppercase hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
-                style={{ letterSpacing: '0.2em', minHeight: '52px', minWidth: '80px' }}
+                className="bg-black text-white px-4 sm:px-8 py-3 sm:py-4 text-xs uppercase tracking-[0.3em] font-light hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                style={{ minHeight: '52px', minWidth: '80px' }}
                 aria-label={isTyping ? 'Sending message...' : 'Send message'}
               >
                 {isTyping ? 'Sending...' : 'Send'}
