@@ -68,20 +68,24 @@ export default function SimpleCheckout() {
     }}>
       <MemberNavigation />
       
-      {/* Luxury Header Section - Following Voice Guide Design System */}
+      {/* Luxury Header Section - Mobile Responsive */}
       <header style={{ 
-        padding: '200px 0 128px', 
+        padding: 'clamp(80px, 20vw, 200px) 0 clamp(64px, 15vw, 128px)', 
         textAlign: 'center',
         background: '#fafafa'
       }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 96px' }}>
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto', 
+          padding: '0 clamp(20px, 5vw, 96px)' 
+        }}>
           <div style={{
-            fontSize: '11px',
+            fontSize: 'clamp(10px, 2.5vw, 11px)',
             fontWeight: 400,
-            letterSpacing: '0.25em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: '#757575',
-            marginBottom: '64px'
+            marginBottom: 'clamp(32px, 8vw, 64px)'
           }}>
             SECURE CHECKOUT
           </div>
@@ -89,17 +93,17 @@ export default function SimpleCheckout() {
           <h1 style={{
             fontFamily: 'Times New Roman, serif',
             fontWeight: 200,
-            lineHeight: 0.9,
-            letterSpacing: '0.3em',
+            lineHeight: 0.95,
+            letterSpacing: 'clamp(0.1em, 2vw, 0.3em)',
             textTransform: 'uppercase',
-            fontSize: 'clamp(2.8rem, 7vw, 5rem)',
-            marginBottom: '96px'
+            fontSize: 'clamp(2rem, 8vw, 5rem)',
+            marginBottom: 'clamp(48px, 12vw, 96px)'
           }}>
             COMPLETE YOUR<br />TRANSFORMATION
           </h1>
           
           <p style={{
-            fontSize: '17px',
+            fontSize: 'clamp(15px, 3.5vw, 17px)',
             lineHeight: 1.7,
             fontWeight: 300,
             color: '#757575',
@@ -113,23 +117,27 @@ export default function SimpleCheckout() {
         </div>
       </header>
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 96px 200px' }}>
+      <main style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        padding: '0 clamp(20px, 5vw, 96px) clamp(80px, 20vw, 200px)' 
+      }}>
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          {/* Order Summary Card - Luxury Design */}
+          {/* Order Summary Card - Mobile Responsive */}
           <div style={{
             background: '#ffffff',
             border: '1px solid #e8e8e8',
-            padding: '128px 96px',
-            marginBottom: '128px',
+            padding: 'clamp(48px, 12vw, 128px) clamp(24px, 6vw, 96px)',
+            marginBottom: 'clamp(64px, 16vw, 128px)',
             transition: 'all 400ms ease'
           }}>
             <h2 style={{
               fontFamily: 'Times New Roman, serif',
               fontWeight: 200,
-              letterSpacing: '0.25em',
+              letterSpacing: 'clamp(0.15em, 3vw, 0.25em)',
               textTransform: 'uppercase',
-              fontSize: '24px',
-              marginBottom: '96px',
+              fontSize: 'clamp(18px, 4.5vw, 24px)',
+              marginBottom: 'clamp(48px, 12vw, 96px)',
               lineHeight: 1.1,
               textAlign: 'center'
             }}>
@@ -138,36 +146,39 @@ export default function SimpleCheckout() {
             
             <div style={{
               display: 'flex',
+              flexWrap: 'wrap',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
-              marginBottom: '64px',
-              paddingBottom: '64px',
+              gap: '16px',
+              marginBottom: 'clamp(32px, 8vw, 64px)',
+              paddingBottom: 'clamp(32px, 8vw, 64px)',
               borderBottom: '1px solid #f0f0f0'
             }}>
-              <div>
+              <div style={{ flex: '1 1 250px', minWidth: '250px' }}>
                 <div style={{
-                  fontSize: '17px',
+                  fontSize: 'clamp(15px, 3.5vw, 17px)',
                   fontWeight: 300,
                   color: '#000000',
-                  marginBottom: '20px',
+                  marginBottom: '16px',
                   letterSpacing: '0.05em'
                 }}>
                   SSELFIE STUDIO
                 </div>
                 <div style={{
-                  fontSize: '15px',
+                  fontSize: 'clamp(13px, 3vw, 15px)',
                   color: '#757575',
-                  lineHeight: 1.6,
-                  maxWidth: '30ch'
+                  lineHeight: 1.6
                 }}>
                   Personal AI model training + Maya AI photographer + 100 monthly professional photos
                 </div>
               </div>
               <div style={{
                 fontFamily: 'Times New Roman, serif',
-                fontSize: '24px',
+                fontSize: 'clamp(20px, 5vw, 24px)',
                 fontWeight: 200,
-                color: '#000000'
+                color: '#000000',
+                whiteSpace: 'nowrap',
+                alignSelf: 'flex-start'
               }}>
                 €47/month
               </div>
@@ -179,7 +190,7 @@ export default function SimpleCheckout() {
               alignItems: 'center'
             }}>
               <div style={{
-                fontSize: '17px',
+                fontSize: 'clamp(15px, 3.5vw, 17px)',
                 fontWeight: 300,
                 letterSpacing: '0.05em'
               }}>
@@ -187,7 +198,7 @@ export default function SimpleCheckout() {
               </div>
               <div style={{
                 fontFamily: 'Times New Roman, serif',
-                fontSize: '30px',
+                fontSize: 'clamp(24px, 6vw, 30px)',
                 fontWeight: 200,
                 color: '#000000'
               }}>
@@ -196,8 +207,8 @@ export default function SimpleCheckout() {
             </div>
           </div>
 
-          {/* Payment Button - Luxury Style */}
-          <div style={{ marginBottom: '96px' }}>
+          {/* Payment Button - Mobile Optimized */}
+          <div style={{ marginBottom: 'clamp(48px, 12vw, 96px)' }}>
             <button
               onClick={handleStripeCheckout}
               disabled={isProcessing}
@@ -206,14 +217,16 @@ export default function SimpleCheckout() {
                 background: '#000000',
                 color: '#ffffff',
                 border: 'none',
-                padding: '48px 96px',
-                fontSize: '11px',
+                padding: 'clamp(20px, 5vw, 48px) clamp(32px, 8vw, 96px)',
+                fontSize: 'clamp(10px, 2.5vw, 11px)',
                 fontWeight: 400,
-                letterSpacing: '0.3em',
+                letterSpacing: 'clamp(0.2em, 1vw, 0.3em)',
                 textTransform: 'uppercase',
                 cursor: isProcessing ? 'not-allowed' : 'pointer',
                 transition: 'all 300ms ease',
-                opacity: isProcessing ? 0.5 : 1
+                opacity: isProcessing ? 0.5 : 1,
+                minHeight: '48px', // Touch-friendly minimum
+                touchAction: 'manipulation' // Prevent zoom on double-tap
               }}
               onMouseEnter={!isProcessing ? (e) => e.target.style.background = '#757575' : undefined}
               onMouseLeave={!isProcessing ? (e) => e.target.style.background = '#000000' : undefined}
@@ -223,33 +236,39 @@ export default function SimpleCheckout() {
 
             <div style={{
               textAlign: 'center',
-              marginTop: '48px',
-              fontSize: '13px',
+              marginTop: 'clamp(24px, 6vw, 48px)',
+              fontSize: 'clamp(12px, 2.8vw, 13px)',
               color: '#757575'
             }}>
               <div style={{
                 display: 'flex',
+                flexWrap: 'wrap',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '20px'
+                gap: '12px'
               }}>
                 <span style={{ fontSize: '16px' }}>🔒</span>
-                <span>256-bit SSL encryption • Secure payment powered by Stripe</span>
+                <span style={{ 
+                  textAlign: 'center',
+                  lineHeight: 1.4
+                }}>
+                  256-bit SSL encryption • Secure payment powered by Stripe
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Terms - Luxury Typography */}
+          {/* Terms - Mobile Responsive Typography */}
           <div style={{
             textAlign: 'center',
-            fontSize: '13px',
+            fontSize: 'clamp(12px, 2.8vw, 13px)',
             color: '#757575',
             lineHeight: 1.6,
             maxWidth: '50ch',
             margin: '0 auto'
           }}>
             <p>By proceeding, you agree to our Terms of Service and Privacy Policy.</p>
-            <p style={{ marginTop: '20px' }}>
+            <p style={{ marginTop: '16px' }}>
               Cancel anytime with one click. No long-term commitment required.
             </p>
           </div>
