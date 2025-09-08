@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../hooks/use-auth';
 import { useMayaGeneration } from '../hooks/useMayaGeneration';
 import { useMayaPersistence } from '../hooks/useMayaPersistence';
-import { useMayaOnboarding } from '../hooks/useMayaOnboarding';
 import { useToast } from '../hooks/use-toast';
 import { MayaCategorizedGallery } from '../components/maya-categorized-gallery';
 import { MemberNavigation } from '../components/member-navigation';
