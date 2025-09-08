@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
@@ -6,13 +6,49 @@ import { MemberNavigation } from './member-navigation';
 import { apiRequest } from '../lib/queryClient';
 import { useToast } from '../hooks/use-toast';
 
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
 export function SimplifiedWorkspace() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [chatMessage, setChatMessage] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('luxury-dark');
   const [isTyping, setIsTyping] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Load persisted Maya conversation on mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('maya-workspace-chat');
+    if (savedMessages) {
+      try {
+        const parsedMessages = JSON.parse(savedMessages).map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+        setMessages(parsedMessages);
+      } catch (error) {
+        console.error('Failed to load Maya workspace messages:', error);
+      }
+    }
+  }, []);
+
+  // Persist conversations to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('maya-workspace-chat', JSON.stringify(messages));
+    }
+  }, [messages]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
   
   // Fetch user data
   const { data: aiImages = [] } = useQuery({
@@ -71,27 +107,40 @@ export function SimplifiedWorkspace() {
     bio: "✨ Empowering entrepreneurs through authentic storytelling\n📸 Professional photos that actually look like you\n🎯 Building credibility one image at a time\n👇 Book your brand session"
   };
 
-  // Handle Maya chat
+  // Handle Maya chat inline
   const handleSendMessage = async () => {
     if (!chatMessage.trim() || isTyping) return;
 
-    const message = chatMessage.trim();
+    const userMessage = chatMessage.trim();
     setChatMessage('');
     setIsTyping(true);
 
+    // Add user message immediately
+    const newUserMessage: ChatMessage = {
+      role: 'user',
+      content: userMessage,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, newUserMessage]);
+
     try {
       const response = await apiRequest('/api/maya/chat', 'POST', {
-        message: message,
-        context: 'dashboard'
+        message: userMessage,
+        context: 'dashboard',
+        conversationHistory: messages.slice(-6).map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
       });
 
-      // For now, redirect to Maya page for full conversation
-      setLocation('/maya');
+      const assistantMessage: ChatMessage = {
+        role: 'assistant',
+        content: response.content || response.message,
+        timestamp: new Date()
+      };
       
-      toast({
-        title: "Starting Maya Session",
-        description: "Opening your personalized photo session with Maya",
-      });
+      setMessages(prev => [...prev, assistantMessage]);
+      
     } catch (error) {
       console.error('Maya chat error:', error);
       toast({
@@ -155,12 +204,50 @@ export function SimplifiedWorkspace() {
         {/* Maya Chat Interface */}
         <div className="max-w-2xl mx-auto mb-32">
           <div className="bg-gray-50 border border-gray-200 p-8 mb-8">
+            {/* Maya Introduction */}
             <p 
               className="text-gray-800 mb-6 text-center"
               style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
             >
               Maya's chat to get started
             </p>
+            
+            {/* Conversation Display */}
+            {messages.length > 0 && (
+              <div className="mb-6 max-h-60 overflow-y-auto space-y-3">
+                {messages.map((message, index) => (
+                  <div 
+                    key={index} 
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div 
+                      className={`max-w-xs px-4 py-2 rounded-lg ${
+                        message.role === 'user'
+                          ? 'bg-black text-white'
+                          : 'bg-white border border-gray-200 text-gray-800'
+                      }`}
+                      style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, fontSize: '14px' }}
+                    >
+                      {message.content}
+                    </div>
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-white border border-gray-200 px-4 py-2 rounded-lg">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.1s'}}></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+            
+            {/* Chat Input */}
             <div className="flex items-center space-x-4">
               <input
                 type="text"
