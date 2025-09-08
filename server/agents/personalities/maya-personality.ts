@@ -141,6 +141,15 @@ interface BrandPositioning {
   businessIntelligence: {
     [key: string]: string;
   };
+  industrySpecificStyling?: {
+    [industry: string]: {
+      keyPrinciples: string;
+      mustHave: string;
+      avoid: string;
+      colorPalette: string;
+      businessContext: string;
+    };
+  };
 }
 
 interface FashionExpertise {
@@ -617,6 +626,57 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "speakers": "Require thought leadership imagery that positions them as industry experts",
       "authors": "Need credibility-building content that establishes expertise and thought leadership",
       "executives": "Require leadership presence imagery that communicates authority and vision"
+    },
+    industrySpecificStyling: {
+      "finance": {
+        keyPrinciples: "Conservative elegance, trustworthiness, attention to detail, classic sophistication",
+        mustHave: "Structured blazers, classic shirts, minimal jewelry, professional watches, neutral palettes",
+        avoid: "Trendy pieces, bold patterns, casual fabrics, excessive accessories",
+        colorPalette: "Navy, charcoal, white, cream, subtle burgundy accents",
+        businessContext: "Client trust is paramount - styling must communicate competence and reliability"
+      },
+      "technology": {
+        keyPrinciples: "Modern minimalism, innovation, approachable expertise, forward-thinking",
+        mustHave: "Clean lines, quality basics, modern silhouettes, subtle tech accessories, contemporary cuts",
+        avoid: "Overly formal suits, dated styles, fussy details, heavy traditional pieces",
+        colorPalette: "Black, white, grey, navy with strategic pops of color",
+        businessContext: "Innovation and approachability - need to look cutting-edge but not intimidating"
+      },
+      "healthcare": {
+        keyPrinciples: "Professional trust, cleanliness, competence, caring authority",
+        mustHave: "Crisp whites, structured pieces, minimal accessories, quality fabrics, professional grooming",
+        avoid: "Busy patterns, casual fabrics, excessive jewelry, overly trendy pieces",
+        colorPalette: "White, navy, light blue, soft grey, minimal accent colors",
+        businessContext: "Patient trust requires impeccable presentation and professional reliability"
+      },
+      "education": {
+        keyPrinciples: "Intellectual authority, approachability, respectability, classic style",
+        mustHave: "Blazers, cardigans, classic trousers, quality knitwear, timeless accessories",
+        avoid: "Overly casual pieces, distracting patterns, trendy fast fashion, revealing cuts",
+        colorPalette: "Earth tones, navy, burgundy, forest green, classic neutrals",
+        businessContext: "Respect from students and colleagues requires polished, appropriate presentation"
+      },
+      "retail": {
+        keyPrinciples: "Customer connection, brand representation, style authority, commercial appeal",
+        mustHave: "On-trend pieces, brand-aligned styling, customer-friendly colors, accessible luxury",
+        avoid: "Overly avant-garde pieces, intimidating styling, brand-conflicting colors",
+        colorPalette: "Brand-specific but generally customer-friendly and commercially viable",
+        businessContext: "Must balance personal style with brand representation and customer connection"
+      },
+      "law": {
+        keyPrinciples: "Traditional authority, conservative elegance, attention to detail, courtroom-appropriate",
+        mustHave: "Classic suits, structured pieces, minimal jewelry, traditional colors, quality fabrics",
+        avoid: "Trendy pieces, casual fabrics, bold colors, distracting accessories, revealing cuts",
+        colorPalette: "Navy, charcoal, black, white, minimal accent colors",
+        businessContext: "Courtroom and client respect requires traditional, conservative presentation"
+      },
+      "creative": {
+        keyPrinciples: "Artistic expression, creative authority, sophisticated edge, visual storytelling",
+        mustHave: "Unique pieces, interesting textures, artistic accessories, quality with personality",
+        avoid: "Overly conservative pieces, generic styling, bland colors, restrictive cuts",
+        colorPalette: "Rich colors, unexpected combinations, artistic neutrals with creative pops",
+        businessContext: "Creative credibility while maintaining professional business relationships"
+      }
     }
   },
 
