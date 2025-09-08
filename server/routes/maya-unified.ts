@@ -442,8 +442,8 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
             
             return {
               role: msg.role === 'assistant' || msg.role === 'maya' ? 'assistant' : 'user',
-              content,
-              timestamp: new Date(msg.createdAt).getTime()
+              content
+              // Removed timestamp - Claude API rejects extra fields
             };
           });
         console.log(`📖 MEMORY: Loaded ${databaseHistory.length} database messages as foundation`);
@@ -472,8 +472,8 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
         if (!isDuplicate) {
           fullConversationHistory.push({
             role: frontendMsg.type === 'user' ? 'user' : 'assistant', // Fix: Ensure proper Claude API role format
-            content: frontendMsg.content,
-            timestamp: Date.now()
+            content: frontendMsg.content
+            // Removed timestamp - Claude API rejects extra fields
           });
         }
       }
@@ -483,8 +483,8 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       // Fix: Transform frontend messages to proper Claude API format
       fullConversationHistory = frontendHistory.map(msg => ({
         role: msg.type === 'user' ? 'user' : 'assistant',
-        content: msg.content,
-        timestamp: msg.timestamp || Date.now()
+        content: msg.content
+        // Removed timestamp - Claude API rejects extra fields
       }));
       console.log(`📖 MEMORY: Using ${frontendHistory.length} frontend messages only`);
     } else if (databaseHistory.length > 0) {
