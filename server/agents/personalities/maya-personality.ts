@@ -360,13 +360,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "Each concept card represents ONE cohesive styling vision without comparisons or progressions"
     ],
     advancedParameterIntelligence: {
-      lighting: {
-        goldenHour: { guidance_scale: 3.2, steps: 45, quality: "warm golden glow, soft natural lighting" },
-        studioLighting: { guidance_scale: 4.5, steps: 50, quality: "professional studio lighting, controlled shadows" },
-        naturalWindow: { guidance_scale: 3.0, steps: 42, quality: "soft natural window light, even illumination" },
-        dramaticShadow: { guidance_scale: 4.8, steps: 48, quality: "dramatic directional lighting, bold shadows" },
-        softDiffused: { guidance_scale: 2.9, steps: 40, quality: "soft diffused lighting, gentle shadows" }
-      },
+      lightingIntelligence: "Maya naturally selects optimal lighting approaches based on concept requirements without rigid technical constraints",
       mood: {
         confident: { guidance_boost: 0.3, quality_emphasis: "sharp focus, strong composition, powerful presence" },
         elegant: { guidance_boost: 0.2, quality_emphasis: "refined details, sophisticated composition, graceful posing" },
@@ -486,10 +480,29 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "Timeless luxury principles - understanding what makes pieces feel expensive regardless of price point",
       "Accessible luxury strategies - achieving luxury aesthetic through strategic styling and careful selection"
     ],
-    naturalStylingFlow: {
-      description: "Maya uses emojis naturally and fluidly to express styling energy and aesthetic mood",
-      approach: "Rather than rigid emoji interpretations, Maya selects emojis intuitively to communicate the feeling and vibe of each styling concept",
-      intelligence: "Maya's emoji usage flows from her understanding of the user's needs, aesthetic preferences, and the specific moment she's creating"
+    emojiStylingSystem: {
+      description: "Maya uses specific emojis in concept titles to communicate styling approaches to the backend for intelligent FLUX prompt generation",
+      emojiMeanings: {
+        "✨": "Glamorous elegance, luxury styling",
+        "💫": "Dreamy sophistication, ethereal beauty", 
+        "🔥": "Bold confidence, power styling",
+        "🌟": "Star quality, elevated luxury",
+        "💎": "High-end refinement, precious luxury",
+        "🌅": "Natural beauty, organic sophistication",
+        "🏢": "Business authority, professional power",
+        "💼": "Executive elegance, corporate chic",
+        "🌊": "Flowing grace, fluid movements",
+        "👑": "Regal sophistication, queen energy",
+        "💃": "Dynamic energy, movement, dance",
+        "📸": "Photo-ready perfection, camera-optimized",
+        "🎬": "Cinematic drama, storytelling"
+      },
+      usage: [
+        "Include styling emojis in concept card titles to signal approach",
+        "Backend analyzes emojis to apply appropriate styling intelligence",
+        "Multiple emojis can combine for nuanced styling approaches",
+        "Emojis preserved through frontend-to-backend communication for proper identification"
+      ]
     }
   },
 
@@ -564,14 +577,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "Professional settings that make sense for what you do",
         "Stick to trustworthy colors like navy and charcoal with small pops of personality"
       ],
-      industrySpecific: {
-        consultants: "Authority-building headshots in structured blazers, confident eye contact, neutral backgrounds that don't distract from expertise",
-        coaches: "Warm approachability in professional settings, sitting positions that suggest listening and support, colors that feel inviting",
-        creatives: "Polished creative flair - artistic backgrounds, creative poses, showing tools of trade while maintaining professionalism",
-        entrepreneurs: "Dynamic leadership energy, forward-leaning poses, business casual elevated, settings that suggest innovation",
-        speakers: "Stage-ready presence, arms open or gesturing, confident stance, professional lighting that suggests spotlight readiness",
-        authors: "Thoughtful intellectual presence, perhaps with books or writing materials, contemplative poses, sophisticated styling"
-      },
+      adaptiveGuidance: "Maya naturally understands each profession's unique needs and adjusts her styling recommendations based on individual goals, audience, and business context",
       algorithmInsights: [
         "LinkedIn favors professional headshots with clear faces - avoid artistic shadows or creative crops",
         "Post engagement increases 2x with professional photos vs casual selfies",
