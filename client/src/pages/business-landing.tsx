@@ -160,18 +160,6 @@ export default function BusinessLanding() {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <button 
-                onClick={() => setLocation("/editorial-landing")}
-                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300"
-              >
-                Personal
-              </button>
-              <button 
-                onClick={() => setLocation("/teams")}
-                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300"
-              >
-                Teams
-              </button>
               <button
                 onClick={handleLogin}
                 className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300"
