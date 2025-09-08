@@ -3425,6 +3425,95 @@ router.post('/create-branded-post', requireStackAuth, async (req: AdminContextRe
   }
 });
 
+// ✅ PHASE 3D: Automatic Text Overlay Service
+// Fully automated branded post creation with Maya intelligence
+router.post('/auto-create-branded-post', requireStackAuth, async (req: AdminContextRequest, res) => {
+  try {
+    const { userId, imageUrl, messageType, platform, brandColorOverride, customText, regenerateVariation } = req.body;
+
+    if (!userId || !imageUrl) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: userId and imageUrl are required' 
+      });
+    }
+
+    // Import automatic text overlay service dynamically
+    const { automaticTextOverlayService } = await import('../services/automatic-text-overlay-service');
+
+    // Create automatic branded post with full AI pipeline
+    const result = await automaticTextOverlayService.createAutomaticBrandedPost({
+      userId,
+      imageUrl,
+      messageType: messageType || 'motivational',
+      platform: platform || 'instagram',
+      brandColorOverride,
+      customText,
+      regenerateVariation: regenerateVariation || false
+    });
+
+    res.json({
+      success: true,
+      ...result,
+      message: 'Automatic branded post created successfully'
+    });
+
+  } catch (error) {
+    console.error('Automatic branded post creation error:', error);
+    res.status(500).json({ 
+      error: 'Failed to create automatic branded post',
+      message: error.message 
+    });
+  }
+});
+
+// ✅ PHASE 3D: Batch Branded Post Creation
+// Create multiple branded posts from image gallery
+router.post('/batch-create-branded-posts', requireStackAuth, async (req: AdminContextRequest, res) => {
+  try {
+    const { userId, imageUrls, messageType, platform } = req.body;
+
+    if (!userId || !imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: userId and imageUrls array are required' 
+      });
+    }
+
+    // Import automatic text overlay service dynamically
+    const { automaticTextOverlayService } = await import('../services/automatic-text-overlay-service');
+
+    // Create multiple branded posts
+    const results = await automaticTextOverlayService.batchCreateBrandedPosts(
+      userId,
+      imageUrls,
+      messageType || 'motivational',
+      platform || 'instagram'
+    );
+
+    const successCount = results.length;
+    const avgQuality = results.reduce((sum, r) => sum + r.qualityScore, 0) / results.length;
+    const totalTime = results.reduce((sum, r) => sum + r.processingTime, 0);
+
+    res.json({
+      success: true,
+      results,
+      stats: {
+        totalProcessed: imageUrls.length,
+        successCount,
+        averageQualityScore: Math.round(avgQuality * 100) / 100,
+        totalProcessingTime: totalTime,
+        averagePerImage: Math.round(totalTime / successCount)
+      }
+    });
+
+  } catch (error) {
+    console.error('Batch branded post creation error:', error);
+    res.status(500).json({ 
+      error: 'Failed to create batch branded posts',
+      message: error.message 
+    });
+  }
+});
+
 // ✅ PHASE 3A: Image Analysis for Text Placement
 // Analyzes images to recommend optimal text placement and overlay settings
 router.post('/analyze-image-placement', requireStackAuth, async (req: AdminContextRequest, res) => {
