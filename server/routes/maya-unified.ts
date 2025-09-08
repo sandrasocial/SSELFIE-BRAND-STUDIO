@@ -857,14 +857,11 @@ Use this strategic context to create photo concepts that directly support their 
     
     logMayaAPI('/chat', startTime, false, error);
     
-    // CRITICAL: Always return proper JSON with Maya's professional guidance
-    return res.status(200).json({ 
+    // Let Maya's intelligence flow through - no template override
+    return res.status(500).json({ 
       success: false,
-      content: "Photo creation encountered an issue. I'm ready to help you create professional photos. What style works best for your business goals?",
-      message: "Photo creation encountered an issue. I'm ready to help you create professional photos. What style works best for your business goals?",
-      canGenerate: false,
-      quickButtons: ["Lifestyle photography", "Creative portraits", "Personal branding photos", "Tell me what happened"],
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Chat system unavailable',
+      canGenerate: false
     });
   }
 });
@@ -1368,11 +1365,9 @@ router.post('/generate', requireStackAuth, adminContextDetection, async (req: Ad
     
     logMayaAPI('/generate', startTime, false, error);
     
-    return res.status(200).json({ 
+    return res.status(500).json({ 
       success: false,
-      error: "Photo creation encountered an error. Let me help troubleshoot this - what specific type of professional photo do you need? I'll help resolve this issue.",
-      message: "Oops! Something went wonky when I tried to start creating your photos. Let me help you troubleshoot this - what specific type of photo are you trying to create? I'll make sure we get it working!",
-      quickButtons: ["Try professional headshot", "Try lifestyle photo", "Check my training", "Tell me what's wrong"],
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Generation system unavailable',
       canGenerate: false 
     });
   }
@@ -1609,8 +1604,7 @@ router.get('/check-generation/:predictionId', requireStackAuth, adminContextDete
     
     res.status(200).json({ 
       status: 'error',
-      error: 'Status check failed',
-      message: "Unable to check photo status right now. Let me create new professional photos for you instead. What style works best for your business goals?"
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Status check unavailable'
     });
   }
 });

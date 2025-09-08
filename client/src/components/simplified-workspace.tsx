@@ -55,7 +55,7 @@ export function SimplifiedWorkspace() {
   useEffect(() => {
     const savedMessages = localStorage.getItem('maya-workspace-chat');
     const savedContext = localStorage.getItem('maya-business-context');
-    
+
     if (savedMessages) {
       try {
         const parsedMessages = JSON.parse(savedMessages).map((msg: any) => ({
@@ -67,7 +67,7 @@ export function SimplifiedWorkspace() {
         console.error('Failed to load Maya workspace messages:', error);
       }
     }
-    
+
     if (savedContext) {
       try {
         const parsedContext = JSON.parse(savedContext);
@@ -84,12 +84,12 @@ export function SimplifiedWorkspace() {
       localStorage.setItem('maya-workspace-chat', JSON.stringify(messages));
     }
   }, [messages]);
-  
+
   useEffect(() => {
     localStorage.setItem('maya-business-context', JSON.stringify(businessContext));
   }, [businessContext]);
 
-  // Smart auto-scroll system (same as Maya's page)
+  // Smart auto-scroll system
   const checkIfNearBottom = () => {
     if (!chatContainerRef.current) return false;
     const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
@@ -123,7 +123,7 @@ export function SimplifiedWorkspace() {
   useEffect(() => {
     scrollToNewContent();
   }, [messages]);
-  
+
   // Fetch user data
   const { data: aiImages = [] } = useQuery({
     queryKey: ['/api/ai-images'],
@@ -170,7 +170,7 @@ export function SimplifiedWorkspace() {
     const imageCount = aiImages.length;
     const hasConversationHistory = messages.length > 0;
     const hasStoredChats = localStorage.getItem('maya-workspace-chat') !== null;
-    
+
     if (isTraining) {
       return 'training';
     } else if (!hasModel && imageCount === 0) {
@@ -256,7 +256,7 @@ export function SimplifiedWorkspace() {
       if (response.type === 'onboarding' || response.type === 'onboarding_complete') {
         setIsOnboarding(response.type === 'onboarding');
         setCurrentOnboardingData(response);
-        
+
         // Update business context
         if (response.businessContext) {
           setBusinessContext(prev => ({ ...prev, ...response.businessContext }));
@@ -302,7 +302,7 @@ export function SimplifiedWorkspace() {
     const confirmMessage = totalMessages > 5 
       ? `Clear conversation? This will remove ${totalMessages} messages but keep your business context and preferences.`
       : "Start a new conversation? Your business context will be preserved.";
-      
+
     if (confirm(confirmMessage)) {
       setMessages([]);
       setIsOnboarding(false);
@@ -323,19 +323,19 @@ export function SimplifiedWorkspace() {
       setIsOnboarding(false);
       localStorage.removeItem('maya-workspace-chat');
       localStorage.removeItem('maya-business-context');
-      
+
       // Send initial onboarding trigger
       const initialMessage = "I'd like to go through the onboarding process again";
       setChatMessage(initialMessage);
       setTimeout(() => handleSendMessage(), 100);
-      
+
       toast({ 
         title: "Onboarding Restarted", 
         description: "Let's rediscover your business needs and style preferences!" 
       });
     }
   };
-  
+
   // Use actual user images or fallback to sample images
   const userImages = aiImages.length > 0 
     ? aiImages.slice(0, 9).map((img: any) => img.imageUrl || img.url)
@@ -345,7 +345,10 @@ export function SimplifiedWorkspace() {
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-        "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face"
+        "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=400&h=400&fit=crop&crop=face"
       ];
 
   // Context-aware profile suggestion based on user state
@@ -386,7 +389,7 @@ export function SimplifiedWorkspace() {
       'create concept', 'photo ideas', 'picture concepts', 'maya create',
       'show me concepts', 'generate photos', 'design photos', 'create content'
     ];
-    
+
     return mayaPageTriggers.some(trigger => 
       message.toLowerCase().includes(trigger.toLowerCase())
     );
@@ -397,7 +400,7 @@ export function SimplifiedWorkspace() {
     if (!chatMessage.trim() || isTyping) return;
 
     const userMessage = chatMessage.trim();
-    
+
     // Check for Maya page handoff triggers
     if (detectMayaPageTriggers(userMessage)) {
       // Store handoff context and redirect
@@ -407,9 +410,9 @@ export function SimplifiedWorkspace() {
         businessContext,
         conversationHistory: messages.slice(-3)
       };
-      
+
       localStorage.setItem('maya-handoff-context', JSON.stringify(handoffContext));
-      
+
       // Add transition message
       const transitionMessage: ChatMessage = {
         id: Date.now().toString() + '_transition',
@@ -424,15 +427,15 @@ export function SimplifiedWorkspace() {
         content: userMessage,
         timestamp: new Date()
       }, transitionMessage]);
-      
+
       // Redirect to Maya page after brief delay
       setTimeout(() => {
         setLocation('/maya');
       }, 1500);
-      
+
       return;
     }
-    
+
     setChatMessage('');
     setIsTyping(true);
 
@@ -473,7 +476,7 @@ export function SimplifiedWorkspace() {
           isFormatted: true
         };
         setMessages(prev => [...prev, handoffMessage]);
-        
+
         // Continue with workspace conversation
         setTimeout(() => {
           const followUpMessage: ChatMessage = {
@@ -485,11 +488,11 @@ export function SimplifiedWorkspace() {
           };
           setMessages(prev => [...prev, followUpMessage]);
         }, 1500);
-        
+
       } else if (response.type === 'onboarding' || response.type === 'onboarding_complete') {
         setIsOnboarding(response.type === 'onboarding');
         setCurrentOnboardingData(response);
-        
+
         // Update business context
         if (response.businessContext) {
           setBusinessContext(prev => ({ ...prev, ...response.businessContext }));
@@ -514,7 +517,7 @@ export function SimplifiedWorkspace() {
         };
         setMessages(prev => [...prev, assistantMessage]);
       }
-      
+
     } catch (error) {
       console.error('Maya chat error:', error);
       toast({
@@ -541,7 +544,15 @@ export function SimplifiedWorkspace() {
             <div className="absolute inset-0 border-2 border-gray-200 rounded-full"></div>
             <div className="absolute inset-0 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <div className="font-serif text-lg font-light uppercase tracking-[0.3em] text-black mb-2">
+          <div 
+            className="text-lg text-black mb-2"
+            style={{
+              fontFamily: 'Times New Roman, serif',
+              fontWeight: 200,
+              letterSpacing: '0.3em',
+              textTransform: 'uppercase'
+            }}
+          >
             Loading Studio
           </div>
         </div>
@@ -550,14 +561,14 @@ export function SimplifiedWorkspace() {
   }
 
   return (
-    <div className="min-h-screen bg-white font-light">
+    <div className="min-h-screen bg-white">
       <MemberNavigation transparent={false} />
 
-      {/* Welcome Section */}
-      <section className="max-w-7xl mx-auto px-8 py-16 pt-32">
-        <div className="text-center mb-16">
+      {/* Welcome Section - Luxury Brand Aligned */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-16" style={{ paddingTop: '128px' }}>
+        <div className="text-center mb-8 sm:mb-16">
           <h1 
-            className="text-4xl md:text-5xl text-black mb-4"
+            className="text-3xl sm:text-4xl md:text-5xl text-black mb-3 sm:mb-4"
             style={{ 
               fontFamily: 'Times New Roman, serif', 
               fontWeight: 200, 
@@ -569,30 +580,38 @@ export function SimplifiedWorkspace() {
           </h1>
           <p 
             className="text-gray-600 tracking-wider text-sm"
-            style={{ letterSpacing: '0.1em' }}
+            style={{ 
+              fontFamily: 'Helvetica Neue',
+              fontWeight: 300,
+              letterSpacing: '0.1em' 
+            }}
           >
             {userName}
           </p>
         </div>
 
-        {/* Maya Chat Interface */}
-        <div className="max-w-2xl mx-auto mb-32">
-          <div className="bg-gray-50 border border-gray-200 p-8 mb-8">
+        {/* Maya Chat Interface - Mobile Optimized */}
+        <div className="max-w-2xl mx-auto mb-16 sm:mb-32">
+          <div className="bg-gray-50 border border-gray-200 p-4 sm:p-8 mb-6 sm:mb-8">
             {/* Enhanced Maya Welcome with Controls */}
-            <div className="text-center mb-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <h3 
-                  className="text-lg text-black flex-1"
-                  style={{ fontFamily: 'Times New Roman, serif', fontWeight: 400, letterSpacing: '0.1em' }}
+                  className="text-base sm:text-lg text-black flex-1"
+                  style={{ 
+                    fontFamily: 'Times New Roman, serif', 
+                    fontWeight: 200, 
+                    letterSpacing: '0.1em' 
+                  }}
                 >
                   {welcomeContent.greeting}
                 </h3>
-                
+
                 {/* Chat Controls */}
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={handleClearChat}
-                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                     title="Clear conversation"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -601,7 +620,7 @@ export function SimplifiedWorkspace() {
                   </button>
                   <button
                     onClick={handleReOnboarding}
-                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                     title="Restart onboarding"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -610,18 +629,27 @@ export function SimplifiedWorkspace() {
                   </button>
                 </div>
               </div>
-              
+
               <p 
-                className="text-gray-800 mb-4"
-                style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+                className="text-gray-800 mb-3 sm:mb-4 text-sm sm:text-base"
+                style={{ 
+                  fontFamily: 'Helvetica Neue', 
+                  fontWeight: 300, 
+                  lineHeight: 1.7 
+                }}
               >
                 {welcomeContent.message}
               </p>
-              
+
               {/* Business Context Display */}
               {Object.keys(businessContext).length > 0 && (
-                <div className="bg-black/5 rounded-lg px-4 py-3 mb-4">
-                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Your Business Context</p>
+                <div className="bg-black/5 rounded-lg px-3 sm:px-4 py-3 mb-3 sm:mb-4">
+                  <p 
+                    className="text-xs text-gray-500 mb-2 uppercase tracking-wider"
+                    style={{ letterSpacing: '0.15em' }}
+                  >
+                    Your Business Context
+                  </p>
                   <div className="space-y-1 text-sm text-gray-700">
                     {businessContext.industry && <span>• {businessContext.industry}</span>}
                     {businessContext.targetAudience && <span>• {businessContext.targetAudience}</span>}
@@ -629,7 +657,7 @@ export function SimplifiedWorkspace() {
                   </div>
                 </div>
               )}
-              
+
               {messages.length === 0 && (
                 <p 
                   className="text-gray-600 text-sm italic"
@@ -639,10 +667,10 @@ export function SimplifiedWorkspace() {
                 </p>
               )}
             </div>
-            
+
             {/* Optimized Conversation Display */}
             {messages.length > 0 && (
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 <div 
                   ref={chatContainerRef}
                   onScroll={handleScroll}
@@ -653,41 +681,51 @@ export function SimplifiedWorkspace() {
                     scrollbarColor: '#e5e7eb transparent'
                   }}
                 >
-                  <div className="space-y-6 p-1">
+                  <div className="space-y-4 sm:space-y-6 p-1">
                     {messages.map((message, index) => {
                       if (message.type === 'onboarding') {
-                        // Enhanced Onboarding Message UI
                         return (
                           <div key={message.id} className="flex justify-start">
                             <div className="max-w-full w-full">
-                              <div className="mb-4 flex items-center">
-                                <span className="text-xs text-gray-400 tracking-wider uppercase mr-4" style={{ letterSpacing: '0.2em' }}>Maya</span>
+                              <div className="mb-3 sm:mb-4 flex items-center">
+                                <span 
+                                  className="text-xs text-gray-400 tracking-wider uppercase mr-4" 
+                                  style={{ letterSpacing: '0.2em' }}
+                                >
+                                  Maya
+                                </span>
                                 <div className="flex-1 h-px bg-gray-200"></div>
                                 {message.onboardingData && (
-                                  <span className="text-xs text-gray-400 tracking-wider uppercase ml-4" style={{ letterSpacing: '0.2em' }}>
+                                  <span 
+                                    className="text-xs text-gray-400 tracking-wider uppercase ml-4" 
+                                    style={{ letterSpacing: '0.2em' }}
+                                  >
                                     Step {message.onboardingData.step} of {message.onboardingData.totalSteps}
                                   </span>
                                 )}
                               </div>
-                              
-                              <div className="bg-gray-50 border border-gray-100 px-6 py-6 mb-4 rounded-lg">
-                                <p className="text-gray-800 mb-4" style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.6 }}>
+
+                              <div className="bg-gray-50 border border-gray-100 px-4 sm:px-6 py-4 sm:py-6 mb-3 sm:mb-4 rounded-lg">
+                                <p 
+                                  className="text-gray-800 mb-3 sm:mb-4 text-sm sm:text-base" 
+                                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.6 }}
+                                >
                                   {message.content}
                                 </p>
-                                
+
                                 {message.onboardingData?.explanation && (
-                                  <p className="text-sm text-gray-600 mb-4 italic leading-relaxed">
+                                  <p className="text-sm text-gray-600 mb-3 sm:mb-4 italic leading-relaxed">
                                     {message.onboardingData.explanation}
                                   </p>
                                 )}
-                                
+
                                 {message.onboardingData?.options ? (
                                   <div className="space-y-2">
                                     {message.onboardingData.options.map((option) => (
                                       <button
                                         key={option}
                                         onClick={() => handleOnboardingResponse(message.onboardingData!.fieldName, option)}
-                                        className="w-full text-left px-4 py-3 border border-gray-200 hover:border-black hover:bg-white transition-all duration-200 rounded-lg"
+                                        className="w-full text-left px-3 sm:px-4 py-3 border border-gray-200 hover:border-black hover:bg-white transition-all duration-200 rounded-lg touch-manipulation min-h-[48px] flex items-center"
                                         style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
                                         disabled={isTyping}
                                       >
@@ -701,8 +739,13 @@ export function SimplifiedWorkspace() {
                                   <input
                                     type="text"
                                     placeholder="Type your answer..."
-                                    className="w-full px-4 py-3 border border-gray-300 focus:border-black focus:outline-none transition-colors bg-white rounded-lg"
-                                    style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                                    className="w-full px-3 sm:px-4 py-3 border border-gray-300 focus:border-black focus:outline-none transition-colors bg-white rounded-lg text-sm sm:text-base"
+                                    style={{ 
+                                      fontFamily: 'Helvetica Neue', 
+                                      fontWeight: 300,
+                                      fontSize: '16px', // Prevents iOS zoom
+                                      minHeight: '48px'
+                                    }}
                                     disabled={isTyping}
                                     onKeyPress={(e) => {
                                       if (e.key === 'Enter') {
@@ -720,15 +763,22 @@ export function SimplifiedWorkspace() {
                           </div>
                         );
                       } else if (message.type === 'strategy') {
-                        // Enhanced Strategy Message UI
                         return (
                           <div key={message.id} className="flex justify-start">
                             <div className="max-w-full w-full">
-                              <div className="mb-3">
-                                <span className="text-xs text-gray-400 tracking-wider uppercase" style={{ letterSpacing: '0.2em' }}>Maya • Strategy</span>
+                              <div className="mb-2 sm:mb-3">
+                                <span 
+                                  className="text-xs text-gray-400 tracking-wider uppercase" 
+                                  style={{ letterSpacing: '0.2em' }}
+                                >
+                                  Maya • Strategy
+                                </span>
                               </div>
-                              <div className="bg-gradient-to-br from-black to-gray-800 text-white px-6 py-6 rounded-lg shadow-sm">
-                                <div className="break-words whitespace-pre-wrap" style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: '1.6' }}>
+                              <div className="bg-gradient-to-br from-black to-gray-800 text-white px-4 sm:px-6 py-4 sm:py-6 rounded-lg shadow-sm">
+                                <div 
+                                  className="break-words whitespace-pre-wrap text-sm sm:text-base" 
+                                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: '1.6' }}
+                                >
                                   {message.content}
                                 </div>
                               </div>
@@ -736,19 +786,23 @@ export function SimplifiedWorkspace() {
                           </div>
                         );
                       } else {
-                        // Regular conversation messages
                         return (
                           <div 
                             key={message.id} 
                             className={`flex items-end gap-2 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                           >
                             {message.type !== 'user' && (
-                              <div className="mb-8">
-                                <span className="text-xs text-gray-400 tracking-wider uppercase" style={{ letterSpacing: '0.2em' }}>Maya</span>
+                              <div className="mb-6 sm:mb-8">
+                                <span 
+                                  className="text-xs text-gray-400 tracking-wider uppercase" 
+                                  style={{ letterSpacing: '0.2em' }}
+                                >
+                                  Maya
+                                </span>
                               </div>
                             )}
                             <div 
-                              className={`max-w-[85%] sm:max-w-lg px-4 py-3 transition-all duration-200 ${
+                              className={`max-w-[85%] sm:max-w-lg px-3 sm:px-4 py-2 sm:py-3 transition-all duration-200 ${
                                 message.type === 'user'
                                   ? 'bg-black text-white rounded-2xl rounded-br-md shadow-sm'
                                   : 'bg-gray-50 border border-gray-100 text-gray-800 rounded-2xl rounded-bl-md shadow-sm'
@@ -756,7 +810,7 @@ export function SimplifiedWorkspace() {
                               style={{ 
                                 fontFamily: 'Helvetica Neue', 
                                 fontWeight: 300, 
-                                fontSize: '15px',
+                                fontSize: '14px',
                                 lineHeight: '1.6'
                               }}
                             >
@@ -768,11 +822,11 @@ export function SimplifiedWorkspace() {
                         );
                       }
                     })}
-                    
+
                     {/* Enhanced typing indicator */}
                     {isTyping && (
                       <div className="flex justify-start items-end gap-2">
-                        <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-bl-md shadow-sm">
+                        <div className="bg-white border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-bl-md shadow-sm">
                           <div className="flex items-center space-x-1">
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
@@ -781,17 +835,17 @@ export function SimplifiedWorkspace() {
                         </div>
                       </div>
                     )}
-                    
+
                     <div ref={messagesEndRef} className="h-1" />
                   </div>
                 </div>
-                
+
                 {/* Scroll to bottom indicator */}
                 {!isNearBottom && messages.length > 2 && (
                   <div className="flex justify-center mt-2">
                     <button
                       onClick={() => smartScrollToBottom(0, true)}
-                      className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs rounded-full transition-colors flex items-center gap-1"
+                      className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs rounded-full transition-colors flex items-center gap-1 touch-manipulation"
                       style={{ fontFamily: 'Helvetica Neue', fontWeight: 400 }}
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -803,9 +857,9 @@ export function SimplifiedWorkspace() {
                 )}
               </div>
             )}
-            
+
             {/* Optimized Chat Input */}
-            <div className="flex items-end space-x-3 pt-2">
+            <div className="flex items-end space-x-2 sm:space-x-3 pt-2">
               <div className="flex-1">
                 <input
                   type="text"
@@ -813,12 +867,12 @@ export function SimplifiedWorkspace() {
                   onChange={(e) => setChatMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder={messages.length === 0 ? welcomeContent.suggestion : "Continue your conversation..."}
-                  className="w-full px-4 py-3 border border-gray-300 focus:border-black focus:outline-none bg-white transition-all duration-200 rounded-2xl resize-none text-gray-800 placeholder-gray-500"
+                  className="w-full px-3 sm:px-4 py-3 border border-gray-300 focus:border-black focus:outline-none bg-white transition-all duration-200 rounded-2xl resize-none text-gray-800 placeholder-gray-500 text-sm sm:text-base"
                   style={{ 
                     fontFamily: 'Helvetica Neue', 
                     fontWeight: 300,
-                    fontSize: '15px',
-                    minHeight: '44px'
+                    fontSize: '16px', // Prevents iOS zoom
+                    minHeight: '48px'
                   }}
                   disabled={isTyping}
                 />
@@ -826,12 +880,12 @@ export function SimplifiedWorkspace() {
               <button 
                 onClick={handleSendMessage}
                 disabled={!chatMessage.trim() || isTyping}
-                className={`p-3 rounded-full transition-all duration-200 flex-shrink-0 ${
+                className={`p-3 rounded-full transition-all duration-200 flex-shrink-0 touch-manipulation ${
                   chatMessage.trim() && !isTyping
                     ? 'bg-black text-white hover:bg-gray-800 shadow-sm'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
-                style={{ minHeight: '44px', minWidth: '44px' }}
+                style={{ minHeight: '48px', minWidth: '48px' }}
               >
                 {isTyping ? (
                   <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -844,26 +898,43 @@ export function SimplifiedWorkspace() {
             </div>
           </div>
 
-          {/* Context-Aware Action Buttons */}
-          <div className="grid grid-cols-2 gap-6">
+          {/* Context-Aware Action Buttons - Mobile Optimized */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <button 
               onClick={() => setLocation('/maya')}
-              className="bg-black text-white px-8 py-6 hover:bg-gray-800 transition-colors text-xs uppercase tracking-[0.3em] font-light"
+              className="bg-black text-white px-6 sm:px-8 py-4 sm:py-6 hover:bg-gray-800 transition-colors touch-manipulation min-h-[56px]"
+              style={{ 
+                fontFamily: 'Times New Roman, serif',
+                fontWeight: 200,
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.3em'
+              }}
             >
               {userState === 'new' ? 'START' : userState === 'experienced' ? 'CREATE MORE' : 'STYLE'}
             </button>
             <button 
               onClick={() => setLocation('/sselfie-gallery')}
-              className="border border-black text-black px-8 py-6 hover:bg-black hover:text-white transition-colors text-xs uppercase tracking-[0.3em] font-light"
+              className="border border-black text-black px-6 sm:px-8 py-4 sm:py-6 hover:bg-black hover:text-white transition-colors touch-manipulation min-h-[56px]"
+              style={{ 
+                fontFamily: 'Times New Roman, serif',
+                fontWeight: 200,
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.3em'
+              }}
             >
               {aiImages.length > 0 ? `VIEW ${aiImages.length}` : 'GALLERY'}
             </button>
           </div>
-          
+
           {/* Smart Suggestions Based on User State */}
           {messages.length === 0 && (
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-xs text-gray-500 uppercase tracking-wider text-center mb-4">
+            <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200">
+              <p 
+                className="text-xs text-gray-500 uppercase tracking-wider text-center mb-3 sm:mb-4"
+                style={{ letterSpacing: '0.15em' }}
+              >
                 Quick Start
               </p>
               <div className="flex flex-wrap justify-center gap-2">
@@ -871,13 +942,13 @@ export function SimplifiedWorkspace() {
                   <>
                     <button 
                       onClick={() => setChatMessage('Create new headshots for LinkedIn')}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                      className="px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors touch-manipulation"
                     >
                       New Headshots
                     </button>
                     <button 
                       onClick={() => setChatMessage('I need photos for an upcoming event')}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                      className="px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors touch-manipulation"
                     >
                       Event Photos
                     </button>
@@ -887,13 +958,13 @@ export function SimplifiedWorkspace() {
                   <>
                     <button 
                       onClick={() => setChatMessage('I need professional headshots')}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                      className="px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors touch-manipulation"
                     >
                       Headshots
                     </button>
                     <button 
                       onClick={() => setChatMessage('Photos for my website')}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                      className="px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors touch-manipulation"
                     >
                       Website Photos
                     </button>
@@ -903,13 +974,13 @@ export function SimplifiedWorkspace() {
                   <>
                     <button 
                       onClick={() => setChatMessage('Show me my recent photos')}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                      className="px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors touch-manipulation"
                     >
                       Recent Work
                     </button>
                     <button 
                       onClick={() => setChatMessage('What new styles can we try?')}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors"
+                      className="px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded transition-colors touch-manipulation"
                     >
                       New Styles
                     </button>
@@ -920,30 +991,34 @@ export function SimplifiedWorkspace() {
           )}
         </div>
 
-        {/* Branding Section - Mobile Optimized */}
+        {/* Branding Section - Redesigned with Luxury Editorial Layout */}
         <section>
           <h2 
-            className="text-2xl sm:text-3xl text-black mb-8 sm:mb-16 text-center"
+            className="text-2xl sm:text-3xl text-black mb-12 sm:mb-16 text-center"
             style={{ 
               fontFamily: 'Times New Roman, serif', 
               fontWeight: 200, 
-              letterSpacing: '0.15em'
+              letterSpacing: '0.25em'
             }}
           >
             BRANDING
           </h2>
 
-          {/* Feed Mockup Section */}
-          <div className="mb-16">
-            <div className="max-w-md mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+            {/* Feed Mockup - Mobile First */}
+            <div className="lg:col-span-1 order-1">
               <h3 
                 className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
-                style={{ letterSpacing: '0.15em' }}
+                style={{ 
+                  fontFamily: 'Helvetica Neue',
+                  fontWeight: 400,
+                  letterSpacing: '0.2em' 
+                }}
               >
                 Feed Mockup
               </h3>
-              
-              {/* Template Selector - Mobile Optimized */}
+
+              {/* Template Selector - Touch Optimized */}
               <div className="mb-4 sm:mb-6">
                 <div className="flex justify-center space-x-3 mb-3 sm:mb-4">
                   {Object.entries(templates).map(([key, template]) => (
@@ -959,24 +1034,30 @@ export function SimplifiedWorkspace() {
                 </div>
                 <p 
                   className="text-xs text-center text-gray-500 tracking-wider uppercase"
-                  style={{ letterSpacing: '0.1em' }}
+                  style={{ 
+                    fontFamily: 'Helvetica Neue',
+                    letterSpacing: '0.15em' 
+                  }}
                 >
                   {currentTemplate.name}
                 </p>
               </div>
 
-              {/* Instagram-style Profile & Grid - Mobile Optimized */}
+              {/* Instagram Feed - Editorial Style */}
               <div className="bg-white border border-gray-200 p-3 sm:p-4">
-                {/* Maya's Profile Suggestions - Mobile Friendly */}
+                {/* Maya's Profile Suggestions */}
                 <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 border border-gray-200">
                   <p 
                     className="text-xs text-gray-500 tracking-wider uppercase mb-3 text-center"
-                    style={{ letterSpacing: '0.1em' }}
+                    style={{ 
+                      fontFamily: 'Helvetica Neue',
+                      letterSpacing: '0.15em' 
+                    }}
                   >
                     Maya's Suggestions
                   </p>
-                  
-                  {/* Suggested Profile Image - Mobile Layout */}
+
+                  {/* Profile Image Suggestion */}
                   <div className="flex items-center space-x-3 sm:space-x-4 mb-3 sm:mb-4">
                     <img 
                       src={profileSuggestion.image}
@@ -984,21 +1065,38 @@ export function SimplifiedWorkspace() {
                       className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-gray-300 flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium mb-1 truncate">{userName.toLowerCase()}_studio</p>
-                      <button className="text-xs text-blue-600 hover:text-blue-700 touch-manipulation">
+                      <p 
+                        className="text-sm font-medium mb-1 truncate"
+                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 400 }}
+                      >
+                        {userName.toLowerCase()}_studio
+                      </p>
+                      <button 
+                        className="text-xs text-black hover:text-gray-600 touch-manipulation"
+                        style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                      >
                         Use this profile photo
                       </button>
                     </div>
                   </div>
-                  
-                  {/* Maya-Written Bio - Mobile Readable */}
+
+                  {/* Bio Suggestion */}
                   <div className="border-t border-gray-200 pt-3">
-                    <p className="text-xs text-gray-500 mb-2">Suggested Bio:</p>
-                    <div className="text-xs sm:text-sm text-gray-800 leading-relaxed whitespace-pre-line">
+                    <p 
+                      className="text-xs text-gray-500 mb-2"
+                      style={{ fontFamily: 'Helvetica Neue' }}
+                    >
+                      Suggested Bio:
+                    </p>
+                    <div 
+                      className="text-xs sm:text-sm text-gray-800 leading-relaxed whitespace-pre-line mb-2"
+                      style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.6 }}
+                    >
                       {profileSuggestion.bio}
                     </div>
                     <button 
-                      className="mt-2 text-xs text-blue-600 hover:text-blue-700 touch-manipulation"
+                      className="text-xs text-black hover:text-gray-600 touch-manipulation"
+                      style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
                       onClick={() => navigator.clipboard.writeText(profileSuggestion.bio)}
                     >
                       Copy bio
@@ -1006,16 +1104,26 @@ export function SimplifiedWorkspace() {
                   </div>
                 </div>
 
-                {/* Mock Instagram Header */}
+                {/* Instagram Header */}
                 <div className="flex items-center space-x-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-100">
                   <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-300 rounded-full flex-shrink-0"></div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{userName.toLowerCase()}_studio</p>
-                    <p className="text-xs text-gray-500">Professional Photos</p>
+                    <p 
+                      className="text-sm font-medium truncate"
+                      style={{ fontFamily: 'Helvetica Neue', fontWeight: 400 }}
+                    >
+                      {userName.toLowerCase()}_studio
+                    </p>
+                    <p 
+                      className="text-xs text-gray-500"
+                      style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                    >
+                      Professional Photos
+                    </p>
                   </div>
                 </div>
 
-                {/* 3x3 Grid of Photos - Mobile Optimized */}
+                {/* 3x3 Image Grid */}
                 <div className="grid grid-cols-3 gap-1 mb-3 sm:mb-4">
                   {userImages.slice(0, 9).map((image, index) => (
                     <div key={index} className="relative aspect-square group cursor-pointer touch-manipulation">
@@ -1027,7 +1135,10 @@ export function SimplifiedWorkspace() {
                       <div className={`absolute inset-0 ${currentTemplate.overlayStyle} opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity flex items-center justify-center`}>
                         <span 
                           className="text-xs tracking-wider uppercase"
-                          style={{ letterSpacing: '0.15em' }}
+                          style={{ 
+                            fontFamily: 'Times New Roman, serif',
+                            letterSpacing: '0.2em' 
+                          }}
                         >
                           {currentTemplate.name.split(' ')[0]}
                         </span>
@@ -1036,111 +1147,166 @@ export function SimplifiedWorkspace() {
                   ))}
                 </div>
 
-                <button className="w-full py-3 sm:py-3 bg-gray-50 hover:bg-gray-100 transition-colors touch-manipulation min-h-[48px]">
+                <button className="w-full py-3 bg-gray-50 hover:bg-gray-100 transition-colors touch-manipulation min-h-[48px]">
                   <span 
                     className="text-xs tracking-wider uppercase text-gray-600"
-                    style={{ letterSpacing: '0.15em' }}
+                    style={{ 
+                      fontFamily: 'Times New Roman, serif',
+                      letterSpacing: '0.2em' 
+                    }}
                   >
                     Save Feed to Phone
                   </span>
                 </button>
               </div>
             </div>
-          </div>
 
-          {/* Calendar Widget Section */}
-          <div className="mb-16">
-            <div className="max-w-lg mx-auto px-4">
+            {/* Calendar Widget - Redesigned Editorial Luxury */}
+            <div className="lg:col-span-1 order-3 lg:order-2">
               <h3 
                 className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
-                style={{ letterSpacing: '0.15em' }}
+                style={{ 
+                  fontFamily: 'Helvetica Neue',
+                  fontWeight: 400,
+                  letterSpacing: '0.2em' 
+                }}
               >
                 Calendar Widget
               </h3>
-              
-              <div className="bg-black text-white p-6 sm:p-8">
-                <div className="text-center mb-4 sm:mb-6">
+
+              <div className="bg-white border border-gray-200 p-4 sm:p-6">
+                <div className="text-center mb-6">
                   <h4 
-                    className="text-lg sm:text-xl tracking-wider uppercase mb-2"
+                    className="text-xl sm:text-2xl tracking-wider uppercase mb-2 text-black"
                     style={{ 
                       fontFamily: 'Times New Roman, serif', 
                       fontWeight: 200,
-                      letterSpacing: '0.2em' 
+                      letterSpacing: '0.25em' 
                     }}
                   >
                     {new Date().toLocaleString('default', { month: 'long' }).toUpperCase()}
                   </h4>
-                  <p className="text-sm text-gray-300">{new Date().getFullYear()}</p>
+                  <p 
+                    className="text-sm text-gray-500"
+                    style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                  >
+                    {new Date().getFullYear()}
+                  </p>
                 </div>
-                
-                {/* Calendar Grid - Mobile Touch Friendly */}
-                <div className="grid grid-cols-7 gap-2 sm:gap-3 text-center text-sm mb-6">
+
+                {/* Editorial Calendar Grid */}
+                <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-sm mb-6 border border-gray-200">
                   {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day) => (
-                    <div key={day} className="text-gray-400 py-2 font-medium">{day}</div>
+                    <div 
+                      key={day} 
+                      className="text-gray-500 py-3 bg-gray-50 border-b border-gray-200"
+                      style={{ 
+                        fontFamily: 'Helvetica Neue', 
+                        fontWeight: 400,
+                        fontSize: '11px',
+                        letterSpacing: '0.1em'
+                      }}
+                    >
+                      {day}
+                    </div>
                   ))}
                   {Array.from({ length: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate() }, (_, i) => (
                     <div 
                       key={i} 
-                      className={`py-2 min-h-[44px] flex items-center justify-center touch-manipulation ${
-                        i + 1 === new Date().getDate() ? 'bg-white text-black' : 'text-white hover:bg-gray-800'
-                      } transition-colors cursor-pointer`}
+                      className={`py-3 min-h-[44px] flex items-center justify-center touch-manipulation transition-all cursor-pointer ${
+                        i + 1 === new Date().getDate() 
+                          ? 'bg-black text-white' 
+                          : 'text-gray-700 hover:bg-gray-100 border-b border-gray-100'
+                      }`}
+                      style={{ 
+                        fontFamily: 'Helvetica Neue', 
+                        fontWeight: 300,
+                        fontSize: '14px'
+                      }}
                     >
                       {i + 1}
                     </div>
                   ))}
                 </div>
-                
-                <div className="border-t border-gray-700 pt-4">
-                  <p className="text-xs text-gray-300 mb-2">Next photoshoot:</p>
-                  <p className="text-sm">Maya Session - {new Date(Date.now() + 86400000).toLocaleDateString()}</p>
+
+                <div className="border-t border-gray-200 pt-4">
+                  <p 
+                    className="text-xs text-gray-500 mb-2 uppercase tracking-wider"
+                    style={{ 
+                      fontFamily: 'Helvetica Neue',
+                      letterSpacing: '0.15em' 
+                    }}
+                  >
+                    Next Session:
+                  </p>
+                  <p 
+                    className="text-sm text-black"
+                    style={{ fontFamily: 'Helvetica Neue', fontWeight: 400 }}
+                  >
+                    Maya Session - {new Date(Date.now() + 86400000).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Maya's Strategy Section */}
-          <div className="mb-16">
-            <div className="max-w-lg mx-auto px-4">
+            {/* Maya's Strategy - Editorial Black */}
+            <div className="lg:col-span-1 order-2 lg:order-3">
               <h3 
                 className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
-                style={{ letterSpacing: '0.15em' }}
+                style={{ 
+                  fontFamily: 'Helvetica Neue',
+                  fontWeight: 400,
+                  letterSpacing: '0.2em' 
+                }}
               >
                 Maya's Strategy
               </h3>
-              
-              <div className="bg-black text-white p-4 sm:p-8 h-full">
+
+              <div className="bg-black text-white p-4 sm:p-6 h-full">
                 <h4 
                   className="text-base sm:text-lg tracking-wider uppercase mb-4 sm:mb-6"
                   style={{ 
                     fontFamily: 'Times New Roman, serif', 
                     fontWeight: 200,
-                    letterSpacing: '0.2em' 
+                    letterSpacing: '0.25em' 
                   }}
                 >
                   YOUR BUSINESS
                 </h4>
-                
-                <div className="space-y-4 sm:space-y-6 text-sm" style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.6 }}>
+
+                <div 
+                  className="space-y-4 sm:space-y-6 text-sm" 
+                  style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.6 }}
+                >
                   <div>
-                    <p className="text-gray-300 uppercase tracking-wider text-xs mb-2" style={{ letterSpacing: '0.15em' }}>
+                    <p 
+                      className="text-gray-300 uppercase tracking-wider text-xs mb-2" 
+                      style={{ letterSpacing: '0.2em' }}
+                    >
                       TARGET AUDIENCE
                     </p>
                     <p className="text-white text-sm">
                       Professional women seeking authentic business photography that builds credibility and trust.
                     </p>
                   </div>
-                  
+
                   <div>
-                    <p className="text-gray-300 uppercase tracking-wider text-xs mb-2" style={{ letterSpacing: '0.15em' }}>
+                    <p 
+                      className="text-gray-300 uppercase tracking-wider text-xs mb-2" 
+                      style={{ letterSpacing: '0.2em' }}
+                    >
                       COMPETITORS
                     </p>
                     <p className="text-white text-sm">
                       Traditional photographers charging €500+ per session vs your €47/month unlimited approach.
                     </p>
                   </div>
-                  
+
                   <div>
-                    <p className="text-gray-300 uppercase tracking-wider text-xs mb-2" style={{ letterSpacing: '0.15em' }}>
+                    <p 
+                      className="text-gray-300 uppercase tracking-wider text-xs mb-2" 
+                      style={{ letterSpacing: '0.2em' }}
+                    >
                       STRATEGY
                     </p>
                     <p className="text-white text-sm">
@@ -1148,10 +1314,17 @@ export function SimplifiedWorkspace() {
                     </p>
                   </div>
                 </div>
-                
+
                 <button 
                   onClick={() => setLocation('/maya')}
-                  className="w-full mt-6 sm:mt-8 py-3 border border-white hover:bg-white hover:text-black transition-colors touch-manipulation min-h-[48px] text-xs uppercase tracking-[0.3em] font-light"
+                  className="w-full mt-6 sm:mt-8 py-3 border border-white hover:bg-white hover:text-black transition-colors touch-manipulation min-h-[48px]"
+                  style={{ 
+                    fontFamily: 'Times New Roman, serif',
+                    fontWeight: 200,
+                    fontSize: '11px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.2em'
+                  }}
                 >
                   Update Strategy
                 </button>
