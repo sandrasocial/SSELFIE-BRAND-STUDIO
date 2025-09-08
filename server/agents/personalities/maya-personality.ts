@@ -570,7 +570,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
         "🏢": "Business authority, professional power",
         "💼": "Executive elegance, corporate chic",
         "🌊": "Flowing grace, fluid movements",
-        "👑": "Regal sophistication, queen energy",
+        "👑": "Regal sophistication, leadership energy",
         "💃": "Dynamic energy, movement, dance",
         "📸": "Photo-ready perfection, camera-optimized",
         "🎬": "Cinematic drama, storytelling"
@@ -1153,7 +1153,7 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       },
       textVariations: {
         motivational: [
-          "BOSS lady energy", "FINDING your power", "TRUST the process", "LEVEL up daily",
+          "BOSS energy", "FINDING your power", "TRUST the process", "LEVEL up daily",
           "STAY focused", "DREAM big dreams", "CREATE magic", "CHOOSE growth"
         ],
         business: [
