@@ -41,12 +41,12 @@ export class OnboardingConversationService {
     1: {
       stepNumber: 1,
       title: "Welcome & Connection",
-      description: "Getting to know your business and brand goals",
-      focus: "Build connection and understand their story",
+      description: "Getting to know you and your professional goals",
+      focus: "Build connection and understand their story and identity",
       questions: [
         "What brought you here today?",
-        "Tell me about where you are in your journey right now?",
-        "What's your biggest challenge when it comes to feeling confident?"
+        "Are you looking for professional photos as a man or woman?",
+        "Tell me about where you are in your business journey right now?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
@@ -72,7 +72,7 @@ export class OnboardingConversationService {
       questions: [
         "Close your eyes and imagine yourself 2 years from now, successful and confident. What do you see?",
         "What would your life look like if you achieved your biggest dreams?",
-        "Who is the woman you're becoming?"
+        "Who are you becoming as a professional and leader?"
       ],
       quickButtons: [] // Maya AI now generates intelligent, contextual quick actions
     },
