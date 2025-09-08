@@ -44,6 +44,43 @@ const cleanDisplayTitle = (title: string): string => {
   return title.replace(/[✨💫🔥🌟💎🌅🏢💼🌊👑💃📸🎬♦️🚖]/g, '').trim();
 };
 
+// Maya mode types for sophisticated interface
+type MayaMode = 'creation' | 'business' | 'feed-design' | 'support';
+
+interface MayaModeConfig {
+  id: MayaMode;
+  name: string;
+  description: string;
+  capability: string;
+}
+
+const mayaModes: MayaModeConfig[] = [
+  {
+    id: 'creation',
+    name: 'Creation',
+    description: 'Photo concepts and generation',
+    capability: 'Styling & Generation'
+  },
+  {
+    id: 'business',
+    name: 'Business',
+    description: 'Strategy and consultation',
+    capability: 'Strategy & Consultation'
+  },
+  {
+    id: 'feed-design',
+    name: 'Feed Design',
+    description: 'Branded content creation',
+    capability: 'Content & Branding'
+  },
+  {
+    id: 'support',
+    name: 'Support',
+    description: 'Help and guidance',
+    capability: 'Help & Support'
+  }
+];
+
 export default function Maya() {
   const { user } = useAuth();
   const [location, setLocation] = useLocation();
@@ -55,6 +92,7 @@ export default function Maya() {
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const [hasStartedChat, setHasStartedChat] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [activeMode, setActiveMode] = useState<MayaMode>('creation');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -407,26 +445,45 @@ export default function Maya() {
     <>
       <MemberNavigation darkText={true} />
       
-      {/* Maya Mode Indicator - Creation Mode */}
+      {/* Maya Mode Interface - Sophisticated Tab System */}
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200">
         <div className="max-w-4xl mx-auto px-8 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
               <span className="text-sm font-medium text-purple-700" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Maya - Photo Creation Mode
+                Maya - {mayaModes.find(m => m.id === activeMode)?.name} Mode
               </span>
               <span className="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded-full">
-                Styling & Generation
+                {mayaModes.find(m => m.id === activeMode)?.capability}
               </span>
             </div>
-            <button
-              onClick={() => setLocation('/workspace')}
-              className="text-xs text-purple-600 hover:text-purple-800 transition-colors"
-              style={{ fontFamily: 'Times New Roman, serif' }}
-            >
-              ← Switch to Business Strategy
-            </button>
+          </div>
+        </div>
+        
+        {/* Sophisticated Mode Tabs */}
+        <div className="border-t border-purple-100 bg-white/50">
+          <div className="max-w-4xl mx-auto px-8">
+            <div className="flex items-center space-x-0">
+              {mayaModes.map((mode) => (
+                <button
+                  key={mode.id}
+                  onClick={() => setActiveMode(mode.id)}
+                  className={`px-6 py-3 text-xs tracking-wider uppercase transition-all duration-300 border-b-2 ${
+                    activeMode === mode.id
+                      ? 'text-purple-700 border-purple-500 bg-white/80'
+                      : 'text-purple-600 border-transparent hover:text-purple-700 hover:border-purple-300 hover:bg-white/60'
+                  }`}
+                  style={{ 
+                    fontFamily: 'Helvetica Neue', 
+                    fontWeight: 300,
+                    letterSpacing: '0.2em'
+                  }}
+                >
+                  {mode.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -502,12 +559,13 @@ export default function Maya() {
           </div>
         </div>
 
-        {/* Editorial Chat Interface */}
-        <div 
-          className="flex-1 max-w-4xl mx-auto px-8 py-16 overflow-y-auto"
-          ref={chatContainerRef}
-          style={{ minHeight: 'calc(100vh - 300px)' }}
-        >
+        {/* Mode-Specific Content Areas */}
+        {activeMode === 'creation' && (
+          <div 
+            className="flex-1 max-w-4xl mx-auto px-8 py-16 overflow-y-auto"
+            ref={chatContainerRef}
+            style={{ minHeight: 'calc(100vh - 300px)' }}
+          >
           {/* Luxury Welcome State */}
           {messages.length === 0 && (
             <div className="text-center py-24">
@@ -870,6 +928,85 @@ export default function Maya() {
             </div>
           </div>
         </div>
+        )}
+
+        {activeMode === 'business' && (
+          <div className="flex-1 max-w-4xl mx-auto px-8 py-16">
+            <div className="text-center py-24">
+              <h2 
+                className="text-2xl md:text-3xl text-black mb-8"
+                style={{ 
+                  fontFamily: 'Times New Roman, serif', 
+                  fontWeight: 200, 
+                  letterSpacing: '0.2em',
+                  lineHeight: 1.2
+                }}
+              >
+                BUSINESS STRATEGY
+                <br />
+                CONSULTATION
+              </h2>
+              <p 
+                className="text-gray-600 mb-8 max-w-xl mx-auto"
+                style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.8 }}
+              >
+                Strategic business consultation and brand development coming soon.
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {activeMode === 'feed-design' && (
+          <div className="flex-1 max-w-4xl mx-auto px-8 py-16">
+            <div className="text-center py-24">
+              <h2 
+                className="text-2xl md:text-3xl text-black mb-8"
+                style={{ 
+                  fontFamily: 'Times New Roman, serif', 
+                  fontWeight: 200, 
+                  letterSpacing: '0.2em',
+                  lineHeight: 1.2
+                }}
+              >
+                BRANDED CONTENT
+                <br />
+                CREATION
+              </h2>
+              <p 
+                className="text-gray-600 mb-8 max-w-xl mx-auto"
+                style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.8 }}
+              >
+                Transform your photos into branded social media content.
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {activeMode === 'support' && (
+          <div className="flex-1 max-w-4xl mx-auto px-8 py-16">
+            <div className="text-center py-24">
+              <h2 
+                className="text-2xl md:text-3xl text-black mb-8"
+                style={{ 
+                  fontFamily: 'Times New Roman, serif', 
+                  fontWeight: 200, 
+                  letterSpacing: '0.2em',
+                  lineHeight: 1.2
+                }}
+              >
+                SUPPORT &
+                <br />
+                GUIDANCE
+              </h2>
+              <p 
+                className="text-gray-600 mb-8 max-w-xl mx-auto"
+                style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.8 }}
+              >
+                Get help and guidance for using your SSELFIE Studio platform.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Luxury Image Modal */}
         {selectedImage && (
