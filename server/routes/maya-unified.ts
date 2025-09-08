@@ -220,9 +220,57 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       return res.status(400).json({ error: 'Message required' });
     }
 
-    // DASHBOARD ONBOARDING: Use structured OnboardingConversationService for workspace
+    // INTELLIGENT CONTEXT ROUTING: Enhanced dashboard vs creation detection
     if (context === 'dashboard') {
       const onboardingService = new OnboardingConversationService();
+      
+      // REVERSE HANDOFF DETECTION: Maya page back to workspace triggers
+      const workspaceHandoffTriggers = [
+        'business strategy', 'business advice', 'help me with my business', 'marketing advice',
+        'general conversation', 'tell me about yourself', 'what do you do',
+        'brand strategy', 'business coaching', 'entrepreneur advice', 'startup advice',
+        'go back to onboarding', 'business consultation', 'strategy session'
+      ];
+      
+      const isWorkspaceHandoff = workspaceHandoffTriggers.some(trigger => 
+        message.toLowerCase().includes(trigger.toLowerCase())
+      );
+      
+      if (isWorkspaceHandoff) {
+        console.log('🔄 REVERSE HANDOFF: Maya creation → Workspace consultation detected');
+        
+        const handoffResponse = {
+          type: 'workspace_handoff',
+          message: "I understand you'd like to discuss business strategy and consultation. Let me connect you with my full consulting capabilities in the main workspace where we can explore your business needs in depth.",
+          content: "Perfect! For business strategy and consultation, I have specialized tools in the main workspace. Let me take you there...",
+          mode: context,
+          canGenerate: false,
+          handoffUrl: '/workspace',
+          handoffReason: 'business_consultation',
+          businessContext: {
+            requestType: 'consultation',
+            originalMessage: message
+          }
+        };
+        
+        // Save consultation handoff conversation  
+        const savedChatId = await saveUnifiedConversation(
+          userId, 
+          message, 
+          handoffResponse, 
+          chatId, 
+          context,
+          userType,
+          conversationId
+        );
+        
+        logMayaAPI('/chat', startTime, true);
+        return res.json({
+          success: true,
+          ...handoffResponse,
+          chatId: savedChatId
+        });
+      }
       
       // Check if this is an onboarding trigger or continuation
       const onboardingTriggers = [

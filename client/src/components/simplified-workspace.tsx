@@ -462,8 +462,31 @@ export function SimplifiedWorkspace() {
         }))
       });
 
-      // Handle different response types
-      if (response.type === 'onboarding' || response.type === 'onboarding_complete') {
+      // Enhanced response handling with reverse handoff support
+      if (response.type === 'workspace_handoff') {
+        // Handle reverse handoff from Maya page to workspace
+        const handoffMessage: ChatMessage = {
+          id: Date.now().toString() + '_handoff',
+          type: 'maya',
+          content: response.message,
+          timestamp: new Date(),
+          isFormatted: true
+        };
+        setMessages(prev => [...prev, handoffMessage]);
+        
+        // Continue with workspace conversation
+        setTimeout(() => {
+          const followUpMessage: ChatMessage = {
+            id: Date.now().toString() + '_followup',
+            type: 'maya',
+            content: "Now, let's dive deep into your business consultation needs. What specific challenges or opportunities would you like to explore?",
+            timestamp: new Date(),
+            isFormatted: true
+          };
+          setMessages(prev => [...prev, followUpMessage]);
+        }, 1500);
+        
+      } else if (response.type === 'onboarding' || response.type === 'onboarding_complete') {
         setIsOnboarding(response.type === 'onboarding');
         setCurrentOnboardingData(response);
         
