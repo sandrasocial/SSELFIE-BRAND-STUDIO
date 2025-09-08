@@ -221,10 +221,16 @@ export default function Maya() {
   useEffect(() => {
     if (user && messages.length === 0 && !conversationData) {
       console.log('🎯 Maya: New user detected, checking onboarding status...');
-      checkOnboardingStatus().then(() => {
-        if (isOnboardingMode) {
-          console.log('✅ Maya: Starting onboarding flow');
-          initializeOnboarding(setMessages);
+      checkOnboardingStatus().then(async () => {
+        // Get fresh onboarding status to avoid race condition
+        const statusResponse = await fetch('/api/maya/status', {
+          credentials: 'include'
+        }).then(r => r.json());
+        
+        if (!statusResponse.onboardingComplete) {
+          console.log('✅ Maya: Starting 6-step onboarding conversation service');
+          // Start actual onboarding conversation service
+          startOnboardingConversation();
           setHasStartedChat(true);
         } else {
           console.log('✅ Maya: User has completed onboarding, ready for concept generation');
@@ -232,7 +238,7 @@ export default function Maya() {
         }
       });
     }
-  }, [user, messages.length, conversationData, checkOnboardingStatus, isOnboardingMode, initializeOnboarding, setMessages]);
+  }, [user, messages.length, conversationData, checkOnboardingStatus, setMessages]);
 
   // ENHANCED SEAMLESS HANDOFF: Handle workspace-to-Maya transitions with user context
   useEffect(() => {
@@ -411,6 +417,40 @@ export default function Maya() {
     }
   };
 
+
+  // Start the actual 6-step onboarding conversation service
+  const startOnboardingConversation = async () => {
+    console.log('🎯 Maya: Starting 6-step onboarding conversation service');
+    try {
+      const response = await fetch('/api/maya/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          message: 'start_onboarding',
+          step: 1 
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        addMessage({
+          type: 'maya',
+          content: data.message || "Hey! I'm Maya. I need to get to know you better before we create your photos. This helps me make sure everything looks perfect for you. What brought you my way today?",
+          timestamp: new Date().toISOString(),
+          quickButtons: data.quickButtons || ["Just starting out", "Need work photos", "Want to look better"],
+          isOnboarding: true
+        });
+      } else {
+        // Fallback if onboarding service isn't available
+        console.warn('⚠️ Onboarding service unavailable, using basic flow');
+        startSimpleConversation();
+      }
+    } catch (error) {
+      console.error('❌ Failed to start onboarding:', error);
+      startSimpleConversation();
+    }
+  };
 
   const startSimpleConversation = () => {
     setHasStartedChat(true);
