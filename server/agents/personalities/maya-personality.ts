@@ -78,6 +78,37 @@ interface FluxSettings {
     halfBody: string;
     fullBody: string;
   };
+  advancedParameterIntelligence?: {
+    lighting: {
+      [condition: string]: {
+        guidance_scale: number;
+        steps: number;
+        quality: string;
+      };
+    };
+    mood: {
+      [mood: string]: {
+        guidance_boost: number;
+        quality_emphasis: string;
+      };
+    };
+    complexityAdaptation: {
+      [complexity: string]: {
+        base_steps: number;
+        guidance_modifier: number;
+      };
+    };
+  };
+  lightingConditionAdaptations?: {
+    [condition: string]: {
+      parameters: {
+        guidance_modifier: number;
+        step_modifier: number;
+      };
+      qualityTags: string[];
+      technicalSpecs: string;
+    };
+  };
 }
 
 interface StylingIntelligence {
@@ -335,10 +366,60 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "NEVER generate before/after, transition scenes, multiple outfits, or outfit changes in a single concept",
       "Each concept card represents ONE cohesive styling vision without comparisons or progressions"
     ],
+    advancedParameterIntelligence: {
+      lighting: {
+        goldenHour: { guidance_scale: 3.2, steps: 45, quality: "warm golden glow, soft natural lighting" },
+        studioLighting: { guidance_scale: 4.5, steps: 50, quality: "professional studio lighting, controlled shadows" },
+        naturalWindow: { guidance_scale: 3.0, steps: 42, quality: "soft natural window light, even illumination" },
+        dramaticShadow: { guidance_scale: 4.8, steps: 48, quality: "dramatic directional lighting, bold shadows" },
+        softDiffused: { guidance_scale: 2.9, steps: 40, quality: "soft diffused lighting, gentle shadows" }
+      },
+      mood: {
+        confident: { guidance_boost: 0.3, quality_emphasis: "sharp focus, strong composition, powerful presence" },
+        elegant: { guidance_boost: 0.2, quality_emphasis: "refined details, sophisticated composition, graceful posing" },
+        approachable: { guidance_boost: -0.2, quality_emphasis: "warm expression, natural posing, inviting energy" },
+        editorial: { guidance_boost: 0.5, quality_emphasis: "high fashion drama, artistic composition, striking presence" },
+        authentic: { guidance_boost: -0.1, quality_emphasis: "natural expression, genuine emotion, relatable presence" }
+      },
+      complexityAdaptation: {
+        simplePortrait: { base_steps: 40, guidance_modifier: 0 },
+        detailedStyling: { base_steps: 48, guidance_modifier: 0.3 },
+        complexBackground: { base_steps: 52, guidance_modifier: 0.4 },
+        multipleTextures: { base_steps: 50, guidance_modifier: 0.2 },
+        architecturalElements: { base_steps: 55, guidance_modifier: 0.5 }
+      }
+    },
     cameraSpecifications: {
       closeUp: "85mm f/1.4 lens, f/2.8 aperture, shallow depth of field, sharp focus",
       halfBody: "50mm f/1.2 lens, f/2.8 aperture, natural perspective, balanced composition", 
       fullBody: "35mm f/1.8 lens, f/4 aperture, full scene coverage, environmental context"
+    },
+    lightingConditionAdaptations: {
+      indoor: {
+        parameters: { guidance_modifier: 0.2, step_modifier: 5 },
+        qualityTags: ["soft indoor lighting", "controlled environment", "even skin tones"],
+        technicalSpecs: "Balanced for interior lighting conditions and controlled environments"
+      },
+      outdoor: {
+        parameters: { guidance_modifier: 0.3, step_modifier: 8 },
+        qualityTags: ["natural outdoor lighting", "environmental context", "dynamic shadows"],
+        technicalSpecs: "Optimized for outdoor lighting variability and environmental elements"
+      },
+      goldenHour: {
+        parameters: { guidance_modifier: 0.1, step_modifier: 3 },
+        qualityTags: ["warm golden light", "soft directional shadows", "romantic glow"],
+        technicalSpecs: "Calibrated for optimal golden hour warmth and natural glow"
+      },
+      overcast: {
+        parameters: { guidance_modifier: 0.4, step_modifier: 7 },
+        qualityTags: ["soft diffused light", "even skin tones", "subtle shadows"],
+        technicalSpecs: "Enhanced for overcast conditions with natural soft lighting"
+      },
+      dramatic: {
+        parameters: { guidance_modifier: 0.6, step_modifier: 10 },
+        qualityTags: ["dramatic lighting", "strong directional shadows", "bold contrast"],
+        technicalSpecs: "Optimized for high-contrast dramatic lighting scenarios"
+      }
     },
     qualityTags: [
       "raw photo",
