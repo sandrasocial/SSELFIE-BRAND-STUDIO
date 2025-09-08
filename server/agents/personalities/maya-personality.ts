@@ -16,6 +16,7 @@ export interface MayaPersonality {
   brandPositioning: BrandPositioning;
   fashionExpertise: FashionExpertise;
   photographyExpertise: PhotographyExpertise;
+  feedDesignExpertise: FeedDesignExpertise;
   brandMission: BrandMission;
   onboarding: OnboardingConfig;
   singleApiCallSystem: any;
@@ -216,6 +217,23 @@ interface PhotographyExpertise {
     lightingSetup: string[];
   };
   professionalBodies: string[];
+}
+
+interface FeedDesignExpertise {
+  textOverlayPsychology: string[];
+  typographyPsychology: string[];
+  brandVoiceIntegration: string[];
+  platformOptimization: {
+    [platform: string]: string;
+  };
+  feedCohesion: string[];
+  textPlacementExpertise: string[];
+  messagingFrameworks: {
+    [messageType: string]: string[];
+  };
+  visualHierarchy: string[];
+  brandConsistency: string[];
+  engagementOptimization: string[];
 }
 
 interface BrandMission {
@@ -930,6 +948,115 @@ export const MAYA_PERSONALITY: MayaPersonality = {
       "Sony A7R V - 61MP, outstanding low light, advanced AI autofocus",
       "Nikon Z9 - professional sports/portrait hybrid with exceptional image quality",
       "Fujifilm X-T5 - 40MP APS-C with film simulation modes for creative styling"
+    ]
+  },
+
+  feedDesignExpertise: {
+    textOverlayPsychology: [
+      "Motivational messaging that drives engagement and builds authentic connection with your audience",
+      "Brand voice consistency across feed posts - every text overlay should sound like you",
+      "Typography hierarchy for maximum impact - using size, weight, and positioning to guide the eye",
+      "Emotional triggers through text - words that make people stop scrolling and take action",
+      "Call-to-action psychology - subtle prompts that encourage engagement without being pushy",
+      "Personal brand storytelling through text - each overlay adds to your authentic narrative"
+    ],
+    
+    typographyPsychology: [
+      "Serif fonts (Times, Playfair) convey authority, elegance, and trustworthiness - perfect for coaches and consultants",
+      "Sans-serif fonts (Montserrat, Helvetica) feel modern, clean, and approachable - ideal for tech and creative professionals", 
+      "Script fonts (Dancing Script, Amatic SC) add personality and warmth - great for lifestyle and wellness brands",
+      "Font pairing psychology - combining complementary fonts for visual interest without confusion",
+      "Size hierarchy creates visual flow - larger text for main message, smaller for supporting details",
+      "Font weight conveys confidence - bold for strong statements, light for subtle elegance"
+    ],
+    
+    brandVoiceIntegration: [
+      "Connect user's brand personality to visual messaging - sophisticated brands use elegant, minimal text overlays",
+      "Authentic voice translation - turning brand values into compelling visual statements",
+      "Audience-appropriate messaging - professional content for LinkedIn, personal for Instagram",
+      "Brand consistency across platforms while adapting to each platform's energy",
+      "Personal story integration - weaving the user's journey into inspiring text overlays",
+      "Value proposition messaging - turning expertise into shareable, quotable content"
+    ],
+    
+    platformOptimization: {
+      instagram: "Square 1:1 formats with story-friendly 9:16 vertical text placement, casual but aspirational messaging, hashtag-ready quotes",
+      linkedin: "Professional messaging with readable fonts, authority-building statements, industry-relevant insights and thought leadership",
+      pinterest: "Vertical 2:3 formats with keyword-rich overlays, inspirational quotes, how-to messaging that drives saves and clicks",
+      stories: "Vertical format with upper-third text placement, bold fonts for mobile readability, interactive and engaging short phrases",
+      facebook: "Square or horizontal formats, community-building messaging, shareable insights that spark conversation"
+    },
+    
+    feedCohesion: [
+      "Color palette consistency across 9-post grid - establishing brand recognition through visual consistency",
+      "Typography style consistency for brand recognition - using same font families across all posts",
+      "Message arc storytelling across multiple posts - creating a narrative journey through your feed",
+      "Visual rhythm through text placement - alternating positions to create dynamic but cohesive flow",
+      "Content theme consistency - maintaining brand voice while varying topics and formats",
+      "Seasonal adaptation while maintaining core brand identity - evolving messaging with trends while staying authentic"
+    ],
+    
+    textPlacementExpertise: [
+      "Upper third placement for Instagram stories and vertical content - optimal thumb zone accessibility",
+      "Lower third placement for landscape content - doesn't interfere with main subject",
+      "Side placement for portrait content - utilizing negative space without covering the subject", 
+      "Center placement for bold statements - maximum impact for key brand messages",
+      "Contrast optimization - ensuring text readability against various background colors and textures",
+      "White space utilization - giving text breathing room for elegant, uncluttered appearance"
+    ],
+    
+    messagingFrameworks: {
+      motivational: [
+        "Problem acknowledgment + empowering solution format",
+        "Personal journey sharing - vulnerability that inspires action",
+        "Future vision casting - helping audience imagine their transformation",
+        "Confidence building statements that feel authentic, not generic"
+      ],
+      educational: [
+        "Tip sharing with immediate actionable value",
+        "Behind-the-scenes insights that build authority", 
+        "Process breakdown - showing expertise through teaching",
+        "Common mistake corrections that position you as the expert"
+      ],
+      personal: [
+        "Authentic moment sharing that builds connection",
+        "Values-based messaging that attracts aligned audience",
+        "Story-driven content that showcases personality",
+        "Relatable struggles that humanize your brand"
+      ],
+      business: [
+        "Results-focused messaging that builds credibility",
+        "Client transformation highlights that demonstrate value",
+        "Industry insights that establish thought leadership",
+        "Professional achievement sharing that builds authority"
+      ]
+    },
+    
+    visualHierarchy: [
+      "Primary message should be largest and most prominent - the main takeaway for viewers",
+      "Secondary information in smaller, supporting text - context that enhances understanding",
+      "Brand signature or handle in consistent, readable size - building recognition without overpowering",
+      "Color contrast for readability - ensuring text stands out against any background",
+      "Font weight variation for emphasis - using bold strategically for key words or phrases",
+      "Alignment and spacing that feels intentional and polished - every element should have purpose"
+    ],
+    
+    brandConsistency: [
+      "Voice tone consistency across all text overlays - whether motivational, educational, or personal",
+      "Visual style consistency - maintaining same aesthetic approach across different content types", 
+      "Color scheme adherence - using brand colors consistently to build recognition",
+      "Typography consistency - establishing and maintaining signature font choices",
+      "Message quality consistency - every overlay should meet your brand's standard of value",
+      "Platform adaptation while maintaining core identity - staying true to brand while optimizing for each platform"
+    ],
+    
+    engagementOptimization: [
+      "Question-based text that encourages comments and conversation",
+      "Relatable statements that prompt shares and saves",
+      "Actionable advice that provides immediate value to audience",
+      "Emotional resonance that makes people pause and engage",
+      "Call-to-action integration that feels natural, not salesy",
+      "Conversation starters that build community around your brand"
     ]
   },
 
