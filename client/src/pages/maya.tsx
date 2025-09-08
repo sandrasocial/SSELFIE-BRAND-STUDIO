@@ -215,26 +215,31 @@ export default function Maya() {
   useEffect(() => {
     if (user && messages.length === 0 && !conversationData) {
       console.log('🎯 Maya: New user detected, checking onboarding status...');
-      try {
-        // Get onboarding status directly from status API
-        const statusResponse = await fetch('/api/maya/status', {
-          credentials: 'include'
-        }).then(r => r.json());
-        
-        setIsOnboardingComplete(statusResponse.onboardingComplete || false);
-        
-        if (!statusResponse.onboardingComplete) {
-          console.log('✅ Maya: Starting 6-step onboarding conversation service');
-          // Start actual onboarding conversation service
-          startOnboardingConversation();
-          setHasStartedChat(true);
-        } else {
-          console.log('✅ Maya: User has completed onboarding, ready for concept generation');
-          setHasStartedChat(false);
+      
+      const checkOnboardingAndStart = async () => {
+        try {
+          // Get onboarding status directly from status API
+          const statusResponse = await fetch('/api/maya/status', {
+            credentials: 'include'
+          }).then(r => r.json());
+          
+          setIsOnboardingComplete(statusResponse.onboardingComplete || false);
+          
+          if (!statusResponse.onboardingComplete) {
+            console.log('✅ Maya: Starting 6-step onboarding conversation service');
+            // Start actual onboarding conversation service
+            startOnboardingConversation();
+            setHasStartedChat(true);
+          } else {
+            console.log('✅ Maya: User has completed onboarding, ready for concept generation');
+            setHasStartedChat(false);
+          }
+        } catch (error) {
+          console.error('❌ Maya: Failed to check onboarding status:', error);
         }
-      } catch (error) {
-        console.error('❌ Maya: Failed to check onboarding status:', error);
-      }
+      };
+      
+      checkOnboardingAndStart();
     }
   }, [user, messages.length, conversationData, setMessages]);
 
