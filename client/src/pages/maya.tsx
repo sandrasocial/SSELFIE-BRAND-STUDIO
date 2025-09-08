@@ -439,7 +439,7 @@ export default function Maya() {
 
   return (
     <>
-      <MemberNavigation />
+      <MemberNavigation darkText={true} />
       
       {/* Connection Status Indicator */}
       {!isOnline && (
