@@ -18,11 +18,11 @@ export default function BusinessLanding() {
   // Comprehensive SEO Meta Tags
   useEffect(() => {
     // Primary SEO tags
-    document.title = "SSELFIE Studio - Professional AI Photos From Selfies | Personal Branding €47/month";
+    document.title = "AI Professional Photos From Selfies €47/month | SSELFIE Studio";
 
     const metaTags = [
-      { name: 'description', content: 'Transform selfies into professional brand photos with AI. LinkedIn headshots, Instagram content, website photos. €47/month vs €1500+ photoshoots. Upload selfies, get professional photos monthly.' },
-      { name: 'keywords', content: 'AI headshots, professional photos from selfies, LinkedIn headshots, personal branding photos, AI photographer, brand photography, professional selfies, AI photo generation, business headshots, social media photos' },
+      { name: 'description', content: 'Transform your selfies into professional AI photos for €47/month. Get LinkedIn headshots, business portraits & brand photos instantly. No photoshoot needed - just upload selfies, get 100 monthly professional photos. Start your AI transformation today.' },
+      { name: 'keywords', content: 'AI professional photos, selfies to headshots, AI headshots €47, LinkedIn profile photos, business portraits AI, professional photos from selfies, AI photographer, personal branding photos, business headshots, social media photos AI, professional selfie transformation, AI photo generation, headshot photography AI' },
       { name: 'author', content: 'SSELFIE Studio' },
       { name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1.0, viewport-fit=cover' },
@@ -30,8 +30,8 @@ export default function BusinessLanding() {
       { name: 'msapplication-TileColor', content: '#000000' },
 
       // Open Graph tags for social sharing
-      { property: 'og:title', content: 'SSELFIE Studio - Professional AI Photos From Selfies | Personal Branding' },
-      { property: 'og:description', content: 'Transform selfies into professional brand photos with AI. LinkedIn headshots, Instagram content, website photos. €47/month vs €1500+ photoshoots.' },
+      { property: 'og:title', content: 'AI Professional Photos From Selfies €47/month | SSELFIE Studio' },
+      { property: 'og:description', content: 'Transform your selfies into professional AI photos for €47/month. Get LinkedIn headshots, business portraits & brand photos instantly. No photoshoot needed.' },
       { property: 'og:type', content: 'website' },
       { property: 'og:url', content: 'https://sselfie.ai/business' },
       { property: 'og:image', content: 'https://sselfie.ai/og-business.jpg' },
@@ -43,13 +43,17 @@ export default function BusinessLanding() {
 
       // Twitter Card tags
       { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:title', content: 'SSELFIE Studio - Professional AI Photos From Selfies' },
-      { name: 'twitter:description', content: 'Transform selfies into professional brand photos with AI. €47/month vs €1500+ photoshoots.' },
+      { name: 'twitter:title', content: 'AI Professional Photos From Selfies €47/month' },
+      { name: 'twitter:description', content: 'Transform your selfies into professional AI photos for €47/month. Get LinkedIn headshots & business portraits instantly. No photoshoot needed.' },
       { name: 'twitter:image', content: 'https://sselfie.ai/twitter-business.jpg' },
       { name: 'twitter:image:alt', content: 'Professional AI-generated photos from selfies' },
 
-      // Additional SEO and Mobile Optimization tags
+      // Enhanced SEO and Performance tags  
       { name: 'format-detection', content: 'telephone=no' },
+      { name: 'google-site-verification', content: '' }, // Add verification when available
+      { name: 'language', content: 'en' },
+      { name: 'revisit-after', content: '7 days' },
+      { name: 'rating', content: 'general' },
       { name: 'apple-mobile-web-app-capable', content: 'yes' },
       { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       { name: 'mobile-web-app-capable', content: 'yes' },
@@ -65,6 +69,25 @@ export default function BusinessLanding() {
       document.head.appendChild(canonical);
     }
     canonical.setAttribute('href', 'https://sselfie.ai/business');
+    
+    // Add favicon and app icons
+    const faviconLinks = [
+      { rel: 'icon', type: 'image/png', href: '/favicon.png', sizes: '32x32' },
+      { rel: 'apple-touch-icon', href: '/favicon.png', sizes: '180x180' },
+      { rel: 'manifest', href: '/site.webmanifest' }
+    ];
+    
+    faviconLinks.forEach(linkData => {
+      let link = document.querySelector(`link[rel="${linkData.rel}"]`);
+      if (!link) {
+        link = document.createElement('link');
+        link.setAttribute('rel', linkData.rel);
+        if (linkData.type) link.setAttribute('type', linkData.type);
+        if (linkData.sizes) link.setAttribute('sizes', linkData.sizes);
+        document.head.appendChild(link);
+      }
+      link.setAttribute('href', linkData.href);
+    });
 
     // Apply all meta tags
     metaTags.forEach(tag => {
@@ -79,44 +102,121 @@ export default function BusinessLanding() {
       meta.setAttribute('content', tag.content);
     });
 
-    // Add JSON-LD structured data for better SEO
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "name": "SSELFIE Studio",
-      "description": "AI-powered professional photo generation from selfies for personal branding",
-      "provider": {
+    // Add comprehensive JSON-LD structured data for enhanced SEO and rich snippets
+    const structuredData = [
+      // Organization Schema
+      {
+        "@context": "https://schema.org",
         "@type": "Organization",
         "name": "SSELFIE Studio",
-        "url": "https://sselfie.ai"
+        "url": "https://sselfie.ai",
+        "logo": "https://sselfie.ai/favicon.ico",
+        "description": "AI-powered professional photo generation platform that transforms selfies into business-quality headshots and brand photos",
+        "foundingDate": "2024",
+        "sameAs": [
+          "https://instagram.com/sandra.social"
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "hello@sselfie.ai",
+          "contactType": "customer service"
+        }
       },
-      "serviceType": "Photography Service",
-      "areaServed": "Worldwide",
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Professional Photo Packages",
-        "itemListElement": [
+      // Primary Service Schema  
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI Professional Photo Generation",
+        "description": "Transform your selfies into professional headshots and business photos using advanced AI technology. Perfect for LinkedIn profiles, business cards, and professional branding.",
+        "provider": {
+          "@type": "Organization",
+          "name": "SSELFIE Studio",
+          "url": "https://sselfie.ai"
+        },
+        "serviceType": "AI Photography Service",
+        "areaServed": "Worldwide",
+        "category": "Professional Photography",
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "Business Professionals"
+        },
+        "offers": {
+          "@type": "Offer",
+          "name": "SSELFIE Studio Monthly Subscription",
+          "description": "Monthly professional AI photos from your selfies - 100 photos per month",
+          "price": "47",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock",
+          "url": "https://sselfie.ai/simple-checkout",
+          "priceValidUntil": "2025-12-31",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "AI Professional Photo Generation Service"
+          }
+        }
+      },
+      // FAQ Schema for Voice Search & Rich Snippets
+      {
+        "@context": "https://schema.org", 
+        "@type": "FAQPage",
+        "mainEntity": [
           {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "SSELFIE Studio Monthly Subscription",
-              "description": "Monthly professional photos from selfies"
-            },
-            "price": "47",
-            "priceCurrency": "EUR"
+            "@type": "Question",
+            "name": "How does SSELFIE Studio work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Simply upload 15-25 selfies to train your personal AI model, then generate unlimited professional photos for €47/month. Our AI creates LinkedIn headshots, business portraits, and brand photos from your selfies."
+            }
+          },
+          {
+            "@type": "Question", 
+            "name": "What types of professional photos can I create?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Create LinkedIn headshots, business portraits, website photos, social media content, professional headshots for business cards, conference photos, and personal branding images."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does SSELFIE Studio cost?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "€47/month for unlimited access to Maya AI photographer and 100 monthly professional photos. No setup fees, cancel anytime. Much more affordable than traditional €1500+ photoshoots."
+            }
           }
         ]
       },
-    };
+      // Product Schema for Enhanced Visibility
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "SSELFIE Studio AI Photography Platform",
+        "description": "Professional AI photo generation platform that creates business headshots and brand photos from selfies",
+        "brand": {
+          "@type": "Brand", 
+          "name": "SSELFIE Studio"
+        },
+        "category": "Software as a Service",
+        "offers": {
+          "@type": "Offer",
+          "price": "47",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock",
+          "url": "https://sselfie.ai/simple-checkout"
+        }
+      }
+    ];
 
-    let script = document.querySelector('script[type="application/ld+json"]');
-    if (!script) {
-      script = document.createElement('script');
+    // Remove existing structured data scripts and add comprehensive schema
+    const existingScripts = document.querySelectorAll('script[type="application/ld+json"]');
+    existingScripts.forEach(script => script.remove());
+    
+    structuredData.forEach((schema, index) => {
+      const script = document.createElement('script');
       script.type = 'application/ld+json';
+      script.textContent = JSON.stringify(schema);
       document.head.appendChild(script);
-    }
-    script.textContent = JSON.stringify(structuredData);
+    });
   }, []);
 
   const handleGetStarted = () => {
@@ -148,11 +248,11 @@ export default function BusinessLanding() {
     <div className="min-h-screen bg-white">
       {/* Business Navigation with Mobile Support */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-center justify-between">
             <div 
-              className="font-serif text-xl font-light tracking-wide text-white cursor-pointer"
-              style={{ fontFamily: "Times New Roman, serif" }}
+              className="font-serif text-lg sm:text-xl font-light tracking-wide text-white cursor-pointer touch-manipulation"
+              style={{ fontFamily: "Times New Roman, serif", minHeight: '44px', display: 'flex', alignItems: 'center' }}
               onClick={() => setLocation("/")}
             >
               SSELFIE
@@ -162,13 +262,13 @@ export default function BusinessLanding() {
             <div className="hidden md:flex items-center space-x-8">
               <button
                 onClick={handleLogin}
-                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300"
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center touch-manipulation"
               >
                 Login
               </button>
               <button
                 onClick={handleGetStarted}
-                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-8 py-3"
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-8 py-3 min-h-[44px] touch-manipulation"
               >
                 Start €47
               </button>
@@ -211,20 +311,30 @@ export default function BusinessLanding() {
               </div>
 
               <h1 
-                className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light mb-6 tracking-[-0.02em] leading-none"
-                style={{ fontFamily: "Times New Roman, serif" }}
+                className="font-serif font-light mb-6 tracking-[-0.02em] leading-none"
+                style={{ 
+                  fontFamily: "Times New Roman, serif",
+                  fontSize: 'clamp(2rem, 8vw, 4.5rem)'
+                }}
               >
                 Professional photos from your selfies
               </h1>
 
-              <p className="text-lg sm:text-xl text-white/80 mb-12 font-light max-w-xl">
+              <p className="font-light max-w-xl mb-12"
+                 style={{
+                   fontSize: 'clamp(1rem, 4vw, 1.25rem)',
+                   color: 'rgba(255, 255, 255, 0.8)'
+                 }}>
                 Upload 15 selfies once. Get 100+ fresh brand photos every month.
               </p>
 
               <div className="space-y-6">
                 <button 
                   onClick={handleGetStarted}
-                  className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-10 py-3"
+                  className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light min-h-[48px] touch-manipulation"
+                  style={{
+                    padding: 'clamp(12px, 3vw, 16px) clamp(24px, 6vw, 40px)'
+                  }}
                 >
                   Get 100 Pro Photos — €47
                 </button>
@@ -277,16 +387,18 @@ export default function BusinessLanding() {
             <div className="w-16 h-px bg-gray-300 mx-auto"></div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12 lg:gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 lg:gap-16">
             {/* Step 1 */}
             <div className="text-center">
-              <div className="relative h-80 mb-8 overflow-hidden rounded-lg">
+              <div className="relative overflow-hidden rounded-lg mb-6 sm:mb-8"
+                   style={{ height: 'clamp(240px, 50vw, 320px)' }}>
                 <img
                   src="https://e33979fc-c9be-4f0d-9a7b-6a3e83046828-00-3ij9k7qy14rai.picard.replit.dev/api/proxy-image?url=https%3A%2F%2Fsselfie-training-zips.s3.eu-north-1.amazonaws.com%2Fgenerated-images%2F42585527%2Fmaya_gn5xs1grwxrme0cs3g4tfwe220_0_1757111996442.png"
                   alt="Upload process"
                   className="w-full h-full object-cover object-[center_20%]"
                 />
-                <div className="absolute top-6 left-6 w-12 h-12 bg-black text-white flex items-center justify-center text-lg font-light">
+                <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-black text-white flex items-center justify-center text-base sm:text-lg font-light"
+                     style={{ width: 'clamp(40px, 8vw, 48px)', height: 'clamp(40px, 8vw, 48px)' }}>
                   01
                 </div>
               </div>
@@ -414,7 +526,8 @@ export default function BusinessLanding() {
               </div>
               <button 
                 onClick={handleGetStarted}
-                className="w-full text-black border border-black hover:bg-black hover:text-white transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light py-4"
+                className="w-full text-black border border-black hover:bg-black hover:text-white transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light min-h-[48px] touch-manipulation"
+                style={{ padding: 'clamp(12px, 3vw, 16px) clamp(16px, 4vw, 24px)' }}
               >
                 Begin Transformation
               </button>
