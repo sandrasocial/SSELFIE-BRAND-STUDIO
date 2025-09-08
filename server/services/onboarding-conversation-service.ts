@@ -399,8 +399,22 @@ Remember: You're helping her clarify her brand direction and photo goals using y
     // Save insights based on step
     switch (currentStep) {
       case 1:
+        // Gender and story from step 1
+        if (insights.gender) {
+          await personalBrandService.saveGender(userId, insights.gender);
+        }
+        if (insights.transformationJourney || insights.currentSituation || insights.strugglesStory) {
+          await personalBrandService.savePersonalBrandStory(userId, {
+            currentSituation: insights.currentSituation || '',
+            strugglesStory: insights.strugglesStory || '',
+            transformationJourney: insights.transformationJourney || '',
+            dreamOutcome: insights.dreamOutcome || ''
+          });
+        }
+        break;
+        
       case 2:
-        // Story and current situation
+        // Story and current situation from step 2
         if (insights.transformationJourney || insights.currentSituation || insights.strugglesStory) {
           await personalBrandService.savePersonalBrandStory(userId, {
             currentSituation: insights.currentSituation || '',
@@ -493,8 +507,30 @@ Remember: You're helping her clarify her brand direction and photo goals using y
     
     switch (stepNumber) {
       case 1:
-      case 2:
+        // Extract gender from step 1 response
+        if (lowerMessage.includes('woman') || lowerMessage.includes('female')) {
+          insights.gender = 'woman';
+        } else if (lowerMessage.includes('man') || lowerMessage.includes('male')) {
+          insights.gender = 'man';
+        } else if (lowerMessage.includes('non-binary') || lowerMessage.includes('non binary')) {
+          insights.gender = 'non-binary';
+        }
+        
         // Extract story elements
+        if (lowerMessage.includes('single mom') || lowerMessage.includes('divorce')) {
+          insights.currentSituation = 'Single mom rebuilding life after major life change';
+          insights.strugglesStory = 'Navigating single motherhood and personal transformation';
+        }
+        if (lowerMessage.includes('starting over') || lowerMessage.includes('rock bottom')) {
+          insights.transformationJourney = 'Starting over and rebuilding from the ground up';
+        }
+        if (lowerMessage.includes('business') || lowerMessage.includes('entrepreneur')) {
+          insights.currentSituation = 'Building a business while managing other responsibilities';
+        }
+        break;
+        
+      case 2:
+        // Extract story elements from step 2
         if (lowerMessage.includes('single mom') || lowerMessage.includes('divorce')) {
           insights.currentSituation = 'Single mom rebuilding life after major life change';
           insights.strugglesStory = 'Navigating single motherhood and personal transformation';
