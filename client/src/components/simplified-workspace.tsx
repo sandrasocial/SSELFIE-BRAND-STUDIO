@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'wouter';
-import { SandraImages } from '../lib/sandra-images';
-import { SupportChatBubble } from './support-chat-bubble';
+import { useLocation } from 'wouter';
 import { MemberNavigation } from './member-navigation';
-import '../components/support-chat-styles.css';
-
-// Maya interface now uses the main page route instead of overlay component
+import { apiRequest } from '../lib/queryClient';
+import { useToast } from '../hooks/use-toast';
 
 export function SimplifiedWorkspace() {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const [activeStep, setActiveStep] = useState<string | null>(null);
-  const [isSupportChatOpen, setIsSupportChatOpen] = useState(false);
+  const [, setLocation] = useLocation();
+  const [chatMessage, setChatMessage] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState('luxury-dark');
+  const [isTyping, setIsTyping] = useState(false);
+  const { toast } = useToast();
   
   // Fetch user data
   const { data: aiImages = [] } = useQuery({
@@ -30,56 +30,83 @@ export function SimplifiedWorkspace() {
     enabled: isAuthenticated
   });
 
-  // Check training status
-  const hasTrainedModel = userModel && (userModel as any).trainingStatus === 'completed';
-  const isTraining = (userModel as any)?.trainingStatus === 'training' || 
-                    (userModel as any)?.trainingStatus === 'starting' ||
-                    (userModel as any)?.trainingStatus === 'processing';
-
-  // Define the three core steps
-  const steps = [
-    {
-      id: 'train',
-      number: '01',
-      title: 'TRAIN',
-      subtitle: 'Your AI Model',
-      description: 'Upload 15-20 selfies to train your AI. Takes about 15 minutes.',
-      status: hasTrainedModel ? 'complete' : isTraining ? 'progress' : 'ready',
-      statusText: hasTrainedModel ? 'MODEL READY' : isTraining ? 'TRAINING...' : 'START HERE',
-      link: '/simple-training',
-      bgImage: SandraImages.editorial.phone1
+  const templates = {
+    'luxury-dark': {
+      name: 'LUXURY DARK',
+      colors: ['#000000', '#2D2D2D', '#8B7355', '#C4A484', '#E8E8E8'],
+      overlayStyle: 'bg-black/80 text-white'
     },
-    {
-      id: 'style',
-      number: '02', 
-      title: 'STYLE',
-      subtitle: 'With Maya AI',
-      description: 'Chat with Maya, your AI photographer, to create professional photos in any style.',
-      status: hasTrainedModel ? 'ready' : 'locked',
-      statusText: hasTrainedModel ? 'MAYA READY' : 'TRAIN AI FIRST',
-      action: 'maya',
-      bgImage: SandraImages.editorial.mirror
+    'nature-luxury': {
+      name: 'NATURE LUXURY', 
+      colors: ['#000000', '#2F4F2F', '#556B2F', '#9CAF88', '#E8E8E8'],
+      overlayStyle: 'bg-green-900/80 text-white'
     },
-    {
-      id: 'gallery',
-      number: '03',
-      title: 'GALLERY', 
-      subtitle: 'Your Collection',
-      description: 'View and download your professional photos for LinkedIn, Instagram, websites.',
-      status: hasTrainedModel ? 'ready' : 'locked',
-      statusText: hasTrainedModel ? 'VIEW GALLERY' : 'COMPLETE PREVIOUS STEPS',
-      link: '/sselfie-gallery',
-      bgImage: SandraImages.editorial.laptop1
+    'white-gold': {
+      name: 'WHITE GOLD',
+      colors: ['#000000', '#8B7355', '#C4A484', '#D4AF37', '#E8E8E8'],
+      overlayStyle: 'bg-white/90 text-black'
     }
-  ];
+  };
 
-  const handleStepClick = (step: any) => {
-    if (step.status === 'locked') return;
-    
-    if (step.action === 'maya') {
-      window.location.href = '/maya';
-    } else if (step.link) {
-      window.location.href = step.link;
+  const currentTemplate = templates[selectedTemplate];
+
+  // Get user's first name for display
+  const userName = user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'User';
+  
+  // Use actual user images or fallback to sample images
+  const userImages = aiImages.length > 0 
+    ? aiImages.slice(0, 9).map((img: any) => img.imageUrl || img.url)
+    : [
+        "https://images.unsplash.com/photo-1494790108755-2616b9c1ae04?w=400&h=400&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=400&h=400&fit=crop&crop=face"
+      ];
+
+  // Maya profile suggestion based on user's best image
+  const profileSuggestion = {
+    image: userImages[0],
+    bio: `Professional ${userName} | Personal Brand Specialist\n✨ Transforming businesses through authentic photography\n📧 Book your session today`
+  };
+
+  // Handle Maya chat
+  const handleSendMessage = async () => {
+    if (!chatMessage.trim() || isTyping) return;
+
+    const message = chatMessage.trim();
+    setChatMessage('');
+    setIsTyping(true);
+
+    try {
+      const response = await apiRequest('/api/maya/chat', 'POST', {
+        message: message,
+        context: 'dashboard'
+      });
+
+      // For now, redirect to Maya page for full conversation
+      setLocation('/maya');
+      
+      toast({
+        title: "Starting Maya Session",
+        description: "Opening your personalized photo session with Maya",
+      });
+    } catch (error) {
+      console.error('Maya chat error:', error);
+      toast({
+        title: "Connection Issue",
+        description: "Unable to reach Maya right now. Please try again.",
+      });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
@@ -100,137 +127,316 @@ export function SimplifiedWorkspace() {
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-white font-light">
-        <MemberNavigation transparent={false} />
+    <div className="min-h-screen bg-white font-light">
+      <MemberNavigation transparent={false} />
 
-        {/* Editorial Workspace Header - Full Styleguide */}
-        <div className="section pt-32 pb-20 text-center bg-gray-50">
-          <div className="container max-w-6xl mx-auto px-8">
-            <div className="eyebrow text-xs font-normal tracking-[0.4em] uppercase text-gray-500 mb-8">
-              Welcome Back
-            </div>
-            <h1 className="font-serif text-[clamp(4rem,8vw,8rem)] leading-[0.9] font-extralight uppercase tracking-[0.3em] text-black mb-8">
-              Your Studio
-            </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
-              Create professional photos that make people wonder where you got them done.
+      {/* Welcome Section */}
+      <section className="max-w-7xl mx-auto px-8 py-16 pt-32">
+        <div className="text-center mb-16">
+          <h1 
+            className="text-4xl md:text-5xl text-black mb-4"
+            style={{ 
+              fontFamily: 'Times New Roman, serif', 
+              fontWeight: 200, 
+              letterSpacing: '0.25em',
+              lineHeight: 1.1
+            }}
+          >
+            WELCOME
+          </h1>
+          <p 
+            className="text-gray-600 tracking-wider text-sm"
+            style={{ letterSpacing: '0.1em' }}
+          >
+            {userName}
+          </p>
+        </div>
+
+        {/* Maya Chat Interface */}
+        <div className="max-w-2xl mx-auto mb-24">
+          <div className="bg-gray-50 border border-gray-200 p-8 mb-8">
+            <p 
+              className="text-gray-800 mb-6 text-center"
+              style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.7 }}
+            >
+              Maya's chat to get started
             </p>
+            <div className="flex items-center space-x-4">
+              <input
+                type="text"
+                value={chatMessage}
+                onChange={(e) => setChatMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="What photos do you need today?"
+                className="flex-1 px-6 py-4 border border-gray-200 focus:border-black focus:outline-none bg-white transition-colors"
+                style={{ fontFamily: 'Helvetica Neue', fontWeight: 300 }}
+                disabled={isTyping}
+              />
+              <button 
+                onClick={handleSendMessage}
+                disabled={!chatMessage.trim() || isTyping}
+                className="text-black hover:text-gray-600 transition-colors disabled:opacity-50"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-6">
+            <button 
+              onClick={() => setLocation('/maya')}
+              className="bg-black text-white px-8 py-6 hover:bg-gray-800 transition-colors text-xs uppercase tracking-[0.3em] font-light"
+            >
+              STYLE
+            </button>
+            <button 
+              onClick={() => setLocation('/sselfie-gallery')}
+              className="border border-black text-black px-8 py-6 hover:bg-black hover:text-white transition-colors text-xs uppercase tracking-[0.3em] font-light"
+            >
+              GALLERY
+            </button>
           </div>
         </div>
 
-        {/* Three Step Layout - Full Bleed Editorial Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 min-h-screen">
-          {steps.map((step, index) => (
-            <div
-              key={step.id}
-              className={`editorial-card group relative min-h-screen cursor-pointer transition-all duration-500 overflow-hidden ${
-                step.status === 'locked' ? 'cursor-not-allowed' : ''
-              } ${
-                index === 0 ? 'bg-white hover:bg-black' : 
-                index === 1 ? 'bg-gray-50 hover:bg-black' : 
-                'bg-black'
-              }`}
-              onClick={() => handleStepClick(step)}
-            >
-              {/* Full Bleed Background Image */}
-              <div className="hero-bg absolute inset-0 opacity-30 transition-opacity duration-1000 group-hover:opacity-40">
-                <img 
-                  src={step.bgImage} 
-                  alt={step.title}
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                />
-              </div>
+        {/* Branding Section - Mobile Optimized */}
+        <section>
+          <h2 
+            className="text-2xl sm:text-3xl text-black mb-8 sm:mb-16 text-center"
+            style={{ 
+              fontFamily: 'Times New Roman, serif', 
+              fontWeight: 200, 
+              letterSpacing: '0.15em'
+            }}
+          >
+            BRANDING
+          </h2>
 
-              {/* Editorial Number - Large Background */}
-              <div className={`card-number absolute top-8 right-12 font-serif text-[200px] leading-none font-extralight opacity-10 transition-all duration-500 ${
-                index === 2 ? 'text-white' : 'text-black group-hover:text-white'
-              }`}>
-                {step.number}
-              </div>
-
-              {/* Content Container */}
-              <div className="relative z-10 h-full flex flex-col justify-center px-12 py-20 text-center max-w-md mx-auto">
-                
-                {/* Editorial Eyebrow */}
-                <div className={`eyebrow text-xs font-normal tracking-[0.4em] uppercase mb-8 transition-colors duration-500 ${
-                  index === 2 ? 'text-white/70' : 'text-gray-500 group-hover:text-white/70'
-                }`}>
-                  Step {step.number}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+            {/* Feed Mockup - Mobile Priority */}
+            <div className="lg:col-span-1 order-1 lg:order-1">
+              <h3 
+                className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
+                style={{ letterSpacing: '0.15em' }}
+              >
+                Feed Mockup
+              </h3>
+              
+              {/* Template Selector - Mobile Optimized */}
+              <div className="mb-4 sm:mb-6">
+                <div className="flex justify-center space-x-3 mb-3 sm:mb-4">
+                  {Object.entries(templates).map(([key, template]) => (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedTemplate(key)}
+                      className={`w-8 h-8 sm:w-6 sm:h-6 border-2 transition-all touch-manipulation ${
+                        selectedTemplate === key ? 'border-black' : 'border-gray-300'
+                      }`}
+                      style={{ backgroundColor: template.colors[0] }}
+                    />
+                  ))}
                 </div>
-
-                {/* Main Title - Editorial Style */}
-                <h2 className={`font-serif text-[clamp(3rem,6vw,4rem)] font-extralight uppercase tracking-[0.3em] leading-[0.9] mb-6 transition-colors duration-500 ${
-                  index === 2 ? 'text-white' : 'text-black group-hover:text-white'
-                }`}>
-                  {step.title}
-                </h2>
-
-                {/* Subtitle */}
-                <div className={`text-sm tracking-[0.2em] uppercase mb-8 transition-colors duration-500 font-light ${
-                  index === 2 ? 'text-white/80' : 'text-gray-600 group-hover:text-white/80'
-                }`}>
-                  {step.subtitle}
-                </div>
-
-                {/* Description */}
-                <p className={`text-sm leading-relaxed mb-12 max-w-xs mx-auto font-light transition-colors duration-500 ${
-                  index === 2 ? 'text-white/70' : 'text-gray-600 group-hover:text-white/70'
-                }`}>
-                  {step.description}
+                <p 
+                  className="text-xs text-center text-gray-500 tracking-wider uppercase"
+                  style={{ letterSpacing: '0.1em' }}
+                >
+                  {currentTemplate.name}
                 </p>
+              </div>
 
-                {/* Status Badge - Editorial Style */}
-                <div className={`inline-flex items-center gap-2 px-6 py-3 text-xs font-normal uppercase tracking-[0.3em] border transition-all duration-500 ${
-                  step.status === 'complete' ? 
-                    (index === 2 ? 'border-white text-white' : 'border-black text-black group-hover:border-white group-hover:text-white') :
-                  step.status === 'progress' ?
-                    (index === 2 ? 'border-white text-white' : 'border-black text-black group-hover:border-white group-hover:text-white') :
-                  step.status === 'ready' ?
-                    (index === 2 ? 'border-white text-white' : 'border-black text-black group-hover:border-white group-hover:text-white') :
-                    'border-gray-400 text-gray-400'
-                }`}>
-                  {step.status === 'progress' && (
-                    <div className="w-2 h-2 bg-current rounded-full animate-pulse"></div>
-                  )}
-                  {step.statusText}
+              {/* Instagram-style Profile & Grid - Mobile Optimized */}
+              <div className="bg-white border border-gray-200 p-3 sm:p-4">
+                {/* Maya's Profile Suggestions - Mobile Friendly */}
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 border border-gray-200">
+                  <p 
+                    className="text-xs text-gray-500 tracking-wider uppercase mb-3 text-center"
+                    style={{ letterSpacing: '0.1em' }}
+                  >
+                    Maya's Suggestions
+                  </p>
+                  
+                  {/* Suggested Profile Image - Mobile Layout */}
+                  <div className="flex items-center space-x-3 sm:space-x-4 mb-3 sm:mb-4">
+                    <img 
+                      src={profileSuggestion.image}
+                      alt="Suggested profile"
+                      className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-gray-300 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium mb-1 truncate">{userName.toLowerCase()}_studio</p>
+                      <button className="text-xs text-blue-600 hover:text-blue-700 touch-manipulation">
+                        Use this profile photo
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Maya-Written Bio - Mobile Readable */}
+                  <div className="border-t border-gray-200 pt-3">
+                    <p className="text-xs text-gray-500 mb-2">Suggested Bio:</p>
+                    <div className="text-xs sm:text-sm text-gray-800 leading-relaxed whitespace-pre-line">
+                      {profileSuggestion.bio}
+                    </div>
+                    <button 
+                      className="mt-2 text-xs text-blue-600 hover:text-blue-700 touch-manipulation"
+                      onClick={() => navigator.clipboard.writeText(profileSuggestion.bio)}
+                    >
+                      Copy bio
+                    </button>
+                  </div>
                 </div>
 
-                {/* Editorial Hover CTA */}
-                {step.status !== 'locked' && (
-                  <div className={`mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-                    index === 2 ? 'text-white/60' : 'text-white/60'
-                  }`}>
-                    <div className="text-xs tracking-[0.2em] uppercase">
-                      Click to {step.action === 'maya' ? 'Open Maya' : 'Continue'}
-                    </div>
+                {/* Mock Instagram Header */}
+                <div className="flex items-center space-x-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-100">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-300 rounded-full flex-shrink-0"></div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{userName.toLowerCase()}_studio</p>
+                    <p className="text-xs text-gray-500">Professional Photos</p>
                   </div>
-                )}
+                </div>
 
-                {/* Lock overlay for disabled steps */}
-                {step.status === 'locked' && (
-                  <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
-                    <div className="text-white/70 text-center">
-                      <div className="text-xs tracking-[0.3em] uppercase mb-2">Locked</div>
-                      <div className="text-xs text-white/50">Complete previous steps</div>
+                {/* 3x3 Grid of Photos - Mobile Optimized */}
+                <div className="grid grid-cols-3 gap-1 mb-3 sm:mb-4">
+                  {userImages.slice(0, 9).map((image, index) => (
+                    <div key={index} className="relative aspect-square group cursor-pointer touch-manipulation">
+                      <img 
+                        src={image} 
+                        alt={`Professional photo ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className={`absolute inset-0 ${currentTemplate.overlayStyle} opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity flex items-center justify-center`}>
+                        <span 
+                          className="text-xs tracking-wider uppercase"
+                          style={{ letterSpacing: '0.15em' }}
+                        >
+                          {currentTemplate.name.split(' ')[0]}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+
+                <button className="w-full py-3 sm:py-3 bg-gray-50 hover:bg-gray-100 transition-colors touch-manipulation min-h-[48px]">
+                  <span 
+                    className="text-xs tracking-wider uppercase text-gray-600"
+                    style={{ letterSpacing: '0.15em' }}
+                  >
+                    Save Feed to Phone
+                  </span>
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Maya now uses dedicated page route */}
-      
-      {/* PHASE 3: Support Chat Bubble - only appears on workspace */}
-      {isAuthenticated && (
-        <SupportChatBubble 
-          isOpen={isSupportChatOpen}
-          onToggle={() => setIsSupportChatOpen(!isSupportChatOpen)}
-        />
-      )}
-    </>
+            {/* Calendar Widget - Mobile Optimized */}
+            <div className="lg:col-span-1 order-3 lg:order-2">
+              <h3 
+                className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
+                style={{ letterSpacing: '0.15em' }}
+              >
+                Calendar Widget
+              </h3>
+              
+              <div className="bg-black text-white p-4 sm:p-8">
+                <div className="text-center mb-4 sm:mb-6">
+                  <h4 
+                    className="text-lg sm:text-xl tracking-wider uppercase mb-2"
+                    style={{ 
+                      fontFamily: 'Times New Roman, serif', 
+                      fontWeight: 200,
+                      letterSpacing: '0.2em' 
+                    }}
+                  >
+                    {new Date().toLocaleString('default', { month: 'long' }).toUpperCase()}
+                  </h4>
+                  <p className="text-sm text-gray-300">{new Date().getFullYear()}</p>
+                </div>
+                
+                {/* Calendar Grid - Mobile Touch Friendly */}
+                <div className="grid grid-cols-7 gap-1 sm:gap-2 text-center text-xs sm:text-sm mb-4">
+                  {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day) => (
+                    <div key={day} className="text-gray-400 py-2">{day}</div>
+                  ))}
+                  {Array.from({ length: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate() }, (_, i) => (
+                    <div 
+                      key={i} 
+                      className={`py-2 min-h-[36px] flex items-center justify-center touch-manipulation ${
+                        i + 1 === new Date().getDate() ? 'bg-white text-black' : 'text-white hover:bg-gray-800'
+                      } transition-colors cursor-pointer`}
+                    >
+                      {i + 1}
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="border-t border-gray-700 pt-4">
+                  <p className="text-xs text-gray-300 mb-2">Next photoshoot:</p>
+                  <p className="text-sm">Maya Session - {new Date(Date.now() + 86400000).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Maya's Strategy - Mobile Optimized */}
+            <div className="lg:col-span-1 order-2 lg:order-3">
+              <h3 
+                className="text-sm tracking-wider uppercase text-gray-500 mb-4 sm:mb-6 text-center"
+                style={{ letterSpacing: '0.15em' }}
+              >
+                Maya's Strategy
+              </h3>
+              
+              <div className="bg-black text-white p-4 sm:p-8 h-full">
+                <h4 
+                  className="text-base sm:text-lg tracking-wider uppercase mb-4 sm:mb-6"
+                  style={{ 
+                    fontFamily: 'Times New Roman, serif', 
+                    fontWeight: 200,
+                    letterSpacing: '0.2em' 
+                  }}
+                >
+                  YOUR BUSINESS
+                </h4>
+                
+                <div className="space-y-4 sm:space-y-6 text-sm" style={{ fontFamily: 'Helvetica Neue', fontWeight: 300, lineHeight: 1.6 }}>
+                  <div>
+                    <p className="text-gray-300 uppercase tracking-wider text-xs mb-2" style={{ letterSpacing: '0.15em' }}>
+                      TARGET AUDIENCE
+                    </p>
+                    <p className="text-white text-sm">
+                      Professional women seeking authentic business photography that builds credibility and trust.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-gray-300 uppercase tracking-wider text-xs mb-2" style={{ letterSpacing: '0.15em' }}>
+                      COMPETITORS
+                    </p>
+                    <p className="text-white text-sm">
+                      Traditional photographers charging €500+ per session vs your €47/month unlimited approach.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-gray-300 uppercase tracking-wider text-xs mb-2" style={{ letterSpacing: '0.15em' }}>
+                      STRATEGY
+                    </p>
+                    <p className="text-white text-sm">
+                      Consistent professional content that positions you as an established expert in your field.
+                    </p>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setLocation('/maya')}
+                  className="w-full mt-6 sm:mt-8 py-3 border border-white hover:bg-white hover:text-black transition-colors touch-manipulation min-h-[48px] text-xs uppercase tracking-[0.3em] font-light"
+                >
+                  Update Strategy
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
   );
 }
