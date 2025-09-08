@@ -41,7 +41,7 @@ export class OnboardingConversationService {
     1: {
       stepNumber: 1,
       title: "Welcome & Connection",
-      description: "Getting to know your transformation journey",
+      description: "Getting to know your business and brand goals",
       focus: "Build connection and understand their story",
       questions: [
         "What brought you here today?",
@@ -233,7 +233,7 @@ export class OnboardingConversationService {
 
 🌟 MAYA'S ONBOARDING MODE - PERSONAL BRAND DISCOVERY JOURNEY
 
-You're guiding a woman through discovering her personal brand and "Future Self Vision." This is about transformation - helping her see the confident, successful woman she's becoming.
+You're guiding her through discovering her personal brand and professional vision. Use your natural styling expertise to help her clarify her brand direction and photo goals.
 
 CURRENT ONBOARDING CONTEXT:
 - Step: ${step.stepNumber}/6 - ${step.title}
@@ -295,7 +295,7 @@ Examples of BAD quick actions (never use these):
 - Assumptions about personal situations
 - One-size-fits-all responses
 
-Remember: You're helping her see herself as the confident, successful woman she's becoming. Every conversation should leave her feeling more empowered and excited about her transformation journey.`;
+Remember: You're helping her clarify her brand direction and photo goals using your styling expertise. Keep the conversation focused and professional while maintaining your natural warmth.`;
   }
 
   /**
