@@ -139,20 +139,24 @@ export default function PaymentSuccess() {
     }}>
       <PreLoginNavigationUnified />
       
-      {/* Luxury Header Section - Following Voice Guide Design System */}
+      {/* Luxury Header Section - Mobile Responsive */}
       <header style={{ 
-        padding: '200px 0 128px', 
+        padding: 'clamp(80px, 20vw, 200px) 0 clamp(64px, 15vw, 128px)', 
         textAlign: 'center',
         background: '#fafafa'
       }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 96px' }}>
+        <div style={{ 
+          maxWidth: '1200px', 
+          margin: '0 auto', 
+          padding: '0 clamp(20px, 5vw, 96px)' 
+        }}>
           <div style={{
-            fontSize: '11px',
+            fontSize: 'clamp(10px, 2.5vw, 11px)',
             fontWeight: 400,
-            letterSpacing: '0.25em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: '#757575',
-            marginBottom: '64px'
+            marginBottom: 'clamp(32px, 8vw, 64px)'
           }}>
             PAYMENT SUCCESSFUL
           </div>
@@ -160,17 +164,17 @@ export default function PaymentSuccess() {
           <h1 style={{
             fontFamily: 'Times New Roman, serif',
             fontWeight: 200,
-            lineHeight: 0.9,
-            letterSpacing: '0.3em',
+            lineHeight: 0.95,
+            letterSpacing: 'clamp(0.1em, 2vw, 0.3em)',
             textTransform: 'uppercase',
-            fontSize: 'clamp(2.8rem, 7vw, 5rem)',
-            marginBottom: '96px'
+            fontSize: 'clamp(2rem, 8vw, 5rem)',
+            marginBottom: 'clamp(48px, 12vw, 96px)'
           }}>
             WELCOME TO<br />SSELFIE STUDIO
           </h1>
           
           <p style={{
-            fontSize: '17px',
+            fontSize: 'clamp(15px, 3.5vw, 17px)',
             lineHeight: 1.7,
             fontWeight: 300,
             color: '#757575',
@@ -183,18 +187,22 @@ export default function PaymentSuccess() {
         </div>
       </header>
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 96px 200px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '160px' }}>
+      <main style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        padding: '0 clamp(20px, 5vw, 96px) clamp(80px, 20vw, 200px)' 
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(80px, 20vw, 160px)' }}>
           <div style={{
             display: 'inline-block',
             background: '#fafafa',
             color: '#000000',
-            padding: '20px 48px',
-            fontSize: '13px',
+            padding: 'clamp(16px, 4vw, 20px) clamp(32px, 8vw, 48px)',
+            fontSize: 'clamp(12px, 2.8vw, 13px)',
             fontWeight: 400,
-            letterSpacing: '0.25em',
+            letterSpacing: 'clamp(0.15em, 1.5vw, 0.25em)',
             textTransform: 'uppercase',
-            marginBottom: '64px',
+            marginBottom: 'clamp(32px, 8vw, 64px)',
             border: '1px solid #e8e8e8'
           }}>
             {getPlanName(plan)} ACTIVATED
@@ -203,17 +211,17 @@ export default function PaymentSuccess() {
           <h2 style={{
             fontFamily: 'Times New Roman, serif',
             fontWeight: 200,
-            letterSpacing: '0.25em',
+            letterSpacing: 'clamp(0.15em, 2vw, 0.25em)',
             textTransform: 'uppercase',
-            fontSize: '30px',
-            marginBottom: '64px',
+            fontSize: 'clamp(20px, 6vw, 30px)',
+            marginBottom: 'clamp(32px, 8vw, 64px)',
             lineHeight: 1.1
           }}>
             Your Investment in Yourself<br />Starts Now
           </h2>
           
           <p style={{
-            fontSize: '17px',
+            fontSize: 'clamp(15px, 3.5vw, 17px)',
             color: '#757575',
             maxWidth: '55ch',
             margin: '0 auto',
@@ -225,20 +233,20 @@ export default function PaymentSuccess() {
           </p>
         </div>
 
-        {/* Next Steps - Luxury Card Design */}
+        {/* Next Steps - Mobile Responsive Card */}
         <div style={{
           background: '#fafafa',
-          padding: '128px 96px',
-          marginBottom: '160px',
+          padding: 'clamp(48px, 12vw, 128px) clamp(24px, 6vw, 96px)',
+          marginBottom: 'clamp(80px, 20vw, 160px)',
           border: '1px solid #e8e8e8'
         }}>
           <h3 style={{
             fontFamily: 'Times New Roman, serif',
             fontWeight: 200,
-            letterSpacing: '0.25em',
+            letterSpacing: 'clamp(0.15em, 2vw, 0.25em)',
             textTransform: 'uppercase',
-            fontSize: '24px',
-            marginBottom: '96px',
+            fontSize: 'clamp(18px, 4.5vw, 24px)',
+            marginBottom: 'clamp(48px, 12vw, 96px)',
             textAlign: 'center',
             lineHeight: 1.1
           }}>
@@ -250,19 +258,20 @@ export default function PaymentSuccess() {
               display: 'flex', 
               alignItems: 'flex-start', 
               textAlign: 'left',
-              marginBottom: '64px'
+              marginBottom: 'clamp(32px, 8vw, 64px)',
+              gap: 'clamp(16px, 4vw, 32px)'
             }}>
               <div style={{
                 fontFamily: 'Times New Roman, serif',
-                fontSize: '24px',
+                fontSize: 'clamp(20px, 5vw, 24px)',
                 fontWeight: 200,
-                marginRight: '32px',
                 marginTop: '8px',
-                color: '#757575'
+                color: '#757575',
+                flexShrink: 0
               }}>01</div>
               <div>
                 <h4 style={{
-                  fontSize: '17px',
+                  fontSize: 'clamp(15px, 3.5vw, 17px)',
                   fontWeight: 300,
                   color: '#000000',
                   marginBottom: '8px',
@@ -271,7 +280,7 @@ export default function PaymentSuccess() {
                   Upload Your Training Photos
                 </h4>
                 <p style={{
-                  fontSize: '15px',
+                  fontSize: 'clamp(13px, 3vw, 15px)',
                   color: '#757575',
                   lineHeight: 1.6,
                   fontWeight: 300
@@ -285,19 +294,20 @@ export default function PaymentSuccess() {
               display: 'flex', 
               alignItems: 'flex-start', 
               textAlign: 'left',
-              marginBottom: '64px'
+              marginBottom: 'clamp(32px, 8vw, 64px)',
+              gap: 'clamp(16px, 4vw, 32px)'
             }}>
               <div style={{
                 fontFamily: 'Times New Roman, serif',
-                fontSize: '24px',
+                fontSize: 'clamp(20px, 5vw, 24px)',
                 fontWeight: 200,
-                marginRight: '32px',
                 marginTop: '8px',
-                color: '#757575'
+                color: '#757575',
+                flexShrink: 0
               }}>02</div>
               <div>
                 <h4 style={{
-                  fontSize: '17px',
+                  fontSize: 'clamp(15px, 3.5vw, 17px)',
                   fontWeight: 300,
                   color: '#000000',
                   marginBottom: '8px',
@@ -306,7 +316,7 @@ export default function PaymentSuccess() {
                   Meet Maya, Your AI Photographer
                 </h4>
                 <p style={{
-                  fontSize: '15px',
+                  fontSize: 'clamp(13px, 3vw, 15px)',
                   color: '#757575',
                   lineHeight: 1.6,
                   fontWeight: 300
@@ -319,19 +329,20 @@ export default function PaymentSuccess() {
             <div style={{ 
               display: 'flex', 
               alignItems: 'flex-start', 
-              textAlign: 'left'
+              textAlign: 'left',
+              gap: 'clamp(16px, 4vw, 32px)'
             }}>
               <div style={{
                 fontFamily: 'Times New Roman, serif',
-                fontSize: '24px',
+                fontSize: 'clamp(20px, 5vw, 24px)',
                 fontWeight: 200,
-                marginRight: '32px',
                 marginTop: '8px',
-                color: '#757575'
+                color: '#757575',
+                flexShrink: 0
               }}>03</div>
               <div>
                 <h4 style={{
-                  fontSize: '17px',
+                  fontSize: 'clamp(15px, 3.5vw, 17px)',
                   fontWeight: 300,
                   color: '#000000',
                   marginBottom: '8px',
@@ -340,7 +351,7 @@ export default function PaymentSuccess() {
                   Generate 100 Monthly Photos
                 </h4>
                 <p style={{
-                  fontSize: '15px',
+                  fontSize: 'clamp(13px, 3vw, 15px)',
                   color: '#757575',
                   lineHeight: 1.6,
                   fontWeight: 300
@@ -352,7 +363,7 @@ export default function PaymentSuccess() {
           </div>
         </div>
 
-        {/* CTA Button - Luxury Design */}
+        {/* CTA Button - Mobile Optimized */}
         <div style={{ textAlign: 'center' }}>
           <button 
             onClick={() => {
@@ -366,14 +377,16 @@ export default function PaymentSuccess() {
               background: '#000000',
               color: '#ffffff',
               border: 'none',
-              padding: '48px 96px',
-              fontSize: '11px',
+              padding: 'clamp(20px, 5vw, 48px) clamp(32px, 8vw, 96px)',
+              fontSize: 'clamp(10px, 2.5vw, 11px)',
               fontWeight: 400,
-              letterSpacing: '0.3em',
+              letterSpacing: 'clamp(0.2em, 1vw, 0.3em)',
               textTransform: 'uppercase',
               cursor: 'pointer',
               transition: 'all 300ms ease',
-              display: 'inline-block'
+              display: 'inline-block',
+              minHeight: '48px', // Touch-friendly minimum
+              touchAction: 'manipulation' // Prevent zoom on double-tap
             }}
             onMouseEnter={(e) => e.target.style.background = '#757575'}
             onMouseLeave={(e) => e.target.style.background = '#000000'}
@@ -382,9 +395,9 @@ export default function PaymentSuccess() {
           </button>
           
           <p style={{
-            fontSize: '13px',
+            fontSize: 'clamp(12px, 2.8vw, 13px)',
             color: '#757575',
-            marginTop: '48px',
+            marginTop: 'clamp(24px, 6vw, 48px)',
             fontWeight: 300
           }}>
             {isAuthenticated && user ? 'Redirecting automatically in a few moments...' : 'Please sign in to begin your training'}
