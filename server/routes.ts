@@ -3450,7 +3450,7 @@ Example: "minimalist rooftop terrace overlooking city skyline at golden hour, we
   });
 
   // Model training endpoint for workspace step 1 - Uses BulletproofUploadService
-  app.post('/api/start-model-training', requireActiveSubscription, async (req: any, res) => {
+  app.post('/api/start-model-training', requireStackAuth, async (req: any, res) => {
     try {
       const authUserId = req.user.id || req.user.claims?.sub;
       const claims = req.user.claims;
