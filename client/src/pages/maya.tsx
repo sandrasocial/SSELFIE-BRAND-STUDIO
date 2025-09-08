@@ -407,30 +407,6 @@ export default function Maya() {
     <>
       <MemberNavigation darkText={true} />
       
-      {/* Maya Mode Indicator - Creation Mode */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200">
-        <div className="max-w-4xl mx-auto px-8 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-purple-700" style={{ fontFamily: 'Times New Roman, serif' }}>
-                Maya - Photo Creation Mode
-              </span>
-              <span className="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded-full">
-                Styling & Generation
-              </span>
-            </div>
-            <button
-              onClick={() => setLocation('/workspace')}
-              className="text-xs text-purple-600 hover:text-purple-800 transition-colors"
-              style={{ fontFamily: 'Times New Roman, serif' }}
-            >
-              ← Switch to Business Strategy
-            </button>
-          </div>
-        </div>
-      </div>
-      
       {/* Connection Status Indicator */}
       {!isOnline && (
         <div className="fixed top-20 left-0 right-0 bg-red-500 text-white text-center py-2 z-50">
