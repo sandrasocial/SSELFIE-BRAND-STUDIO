@@ -162,25 +162,25 @@ export default function BusinessLanding() {
             <div className="hidden md:flex items-center space-x-8">
               <button 
                 onClick={() => setLocation("/editorial-landing")}
-                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300"
               >
                 Personal
               </button>
               <button 
                 onClick={() => setLocation("/teams")}
-                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300"
               >
                 Teams
               </button>
               <button
                 onClick={handleLogin}
-                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300"
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300"
               >
                 Login
               </button>
               <button
                 onClick={handleGetStarted}
-                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-8 py-3 font-light"
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-8 py-3"
               >
                 Start €47
               </button>
@@ -190,13 +190,13 @@ export default function BusinessLanding() {
             <div className="md:hidden flex items-center space-x-3">
               <button
                 onClick={handleLogin}
-                className="text-xs uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
+                className="text-xs uppercase tracking-[0.3em] font-light text-white/70 hover:text-white transition-all duration-300 min-h-[44px] px-3 flex items-center"
               >
                 Login
               </button>
               <button
                 onClick={handleGetStarted}
-                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-6 py-3 font-light min-h-[44px] min-w-[120px]"
+                className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-6 py-3 min-h-[44px] min-w-[120px]"
               >
                 Start €47
               </button>
@@ -236,7 +236,7 @@ export default function BusinessLanding() {
               <div className="space-y-6">
                 <button 
                   onClick={handleGetStarted}
-                  className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-10 py-3 font-light"
+                  className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-10 py-3"
                 >
                   Get 100 Pro Photos — €47
                 </button>
@@ -426,7 +426,7 @@ export default function BusinessLanding() {
               </div>
               <button 
                 onClick={handleGetStarted}
-                className="w-full text-black border border-black hover:bg-black hover:text-white transition-colors duration-300 text-sm uppercase tracking-[0.3em] py-4 font-light"
+                className="w-full text-black border border-black hover:bg-black hover:text-white transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light py-4"
               >
                 Begin Transformation
               </button>
@@ -446,7 +446,7 @@ export default function BusinessLanding() {
               </div>
               <button 
                 onClick={() => setLocation('/teams')}
-                className="w-full border border-black text-black py-4 text-sm uppercase tracking-[0.3em] hover:bg-black hover:text-white transition-all font-light"
+                className="w-full border border-black text-black py-4 text-xs uppercase tracking-[0.3em] font-light hover:bg-black hover:text-white transition-all"
               >
                 Request Custom Proposal
               </button>
@@ -585,7 +585,7 @@ export default function BusinessLanding() {
             onClick={handleGetStarted}
             className="group inline-block mb-8"
           >
-            <span className="text-sm uppercase tracking-[0.3em] text-white border border-white/30 px-12 py-4 group-hover:bg-white group-hover:text-black transition-all duration-300 font-light">
+            <span className="text-xs uppercase tracking-[0.3em] font-light text-white border border-white/30 px-12 py-4 group-hover:bg-white group-hover:text-black transition-all duration-300">
               Transform Your Brand — €47
             </span>
           </button>
@@ -616,7 +616,7 @@ export default function BusinessLanding() {
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-center">
           <button
             onClick={handleGetStarted}
-            className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs tracking-[0.3em] uppercase px-8 py-3 font-light"
+            className="text-white border border-white/30 hover:bg-white hover:text-black transition-colors duration-300 text-xs uppercase tracking-[0.3em] font-light px-8 py-3"
             style={{ minHeight: 44 }}
           >
             Get 100 Pro Photos — €47
