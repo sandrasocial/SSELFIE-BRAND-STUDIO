@@ -215,40 +215,52 @@ export default function Maya() {
     }
   }, [messages.length, conversationData]);
 
-  // SEAMLESS HANDOFF: Handle workspace-to-Maya transitions
+  // ENHANCED SEAMLESS HANDOFF: Handle workspace-to-Maya transitions with user context
   useEffect(() => {
     const handoffContext = localStorage.getItem('maya-handoff-context');
-    if (handoffContext) {
+    if (handoffContext && user) {
       try {
         const context = JSON.parse(handoffContext);
-        console.log('🔄 HANDOFF: Received context from workspace:', context.message);
+        console.log('🔄 ENHANCED HANDOFF: Received authenticated context from workspace:', context.message);
+        console.log('👤 User Profile:', context.userProfile);
+        console.log('🏢 Business Context:', context.businessContext);
         
-        // Add welcome transition message
-        addMessage({
-          type: 'maya',
-          content: `Welcome to my creation studio! I received your request: "${context.message}". Let me create professional photo concepts for you...`,
-          timestamp: new Date().toISOString()
-        });
-        
-        // Auto-start conversation with handoff message after brief delay
-        setTimeout(() => {
-          setMessage(context.message);
-          chatMutation.mutate({
-            message: context.message,
-            context: 'styling',
-            conversationHistory: []
+        // Verify user authentication matches
+        if (context.userProfile?.userId === user.id) {
+          // Add personalized welcome transition message
+          const userName = context.userProfile?.name || 'there';
+          addMessage({
+            type: 'maya',
+            content: `Welcome to my creation studio, ${userName}! I received your request from the workspace: "${context.message}". With your professional background in ${context.businessContext?.industry || 'your field'}, let me create photo concepts that perfectly showcase your expertise...`,
+            timestamp: new Date().toISOString()
           });
-        }, 1000);
+          
+          // Auto-start conversation with enhanced context after brief delay
+          setTimeout(() => {
+            setMessage(context.message);
+            chatMutation.mutate({
+              message: context.message,
+              context: 'styling',
+              conversationHistory: context.conversationHistory || [],
+              userState: context.businessContext,
+              userProfile: context.userProfile
+            });
+          }, 1000);
+          
+          console.log('✅ HANDOFF: User authentication verified, enhanced context applied');
+        } else {
+          console.warn('⚠️ HANDOFF: User authentication mismatch, proceeding with standard flow');
+        }
         
         // Clear handoff context after use
         localStorage.removeItem('maya-handoff-context');
         setHasStartedChat(true);
         
       } catch (error) {
-        console.error('Failed to process handoff context:', error);
+        console.error('Failed to process enhanced handoff context:', error);
       }
     }
-  }, []);
+  }, [user]);
 
   // Smart auto-scroll effects
   useEffect(() => {

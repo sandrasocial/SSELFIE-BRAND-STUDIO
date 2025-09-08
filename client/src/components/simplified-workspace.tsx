@@ -403,12 +403,21 @@ export function SimplifiedWorkspace() {
 
     // Check for Maya page handoff triggers
     if (detectMayaPageTriggers(userMessage)) {
-      // Store handoff context and redirect
+      // Store enhanced handoff context with user authentication data
       const handoffContext = {
         message: userMessage,
         timestamp: new Date().toISOString(),
         businessContext,
-        conversationHistory: messages.slice(-3)
+        conversationHistory: messages.slice(-3),
+        userProfile: {
+          userId: user?.id,
+          email: user?.email,
+          name: user?.firstName || user?.email?.split('@')[0],
+          profession: businessContext?.industry,
+          isAuthenticated: isAuthenticated,
+          hasActiveSubscription: user?.plan === 'sselfie-studio' || user?.role === 'admin'
+        },
+        handoffType: 'workspace_to_maya'
       };
 
       localStorage.setItem('maya-handoff-context', JSON.stringify(handoffContext));
