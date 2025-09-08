@@ -260,6 +260,21 @@ router.post('/chat', requireStackAuth, adminContextDetection, async (req: AdminC
       
       if (isOnboardingRequest) {
         try {
+          // LEGACY USER SUPPORT: Initialize onboarding fields for imported users who don't have them
+          if (!user.preferredOnboardingMode || !user.onboardingProgress) {
+            console.log(`🔧 LEGACY USER: Initializing onboarding fields for user ${userId}`);
+            await storage.updateUser(userId, {
+              preferredOnboardingMode: "conversational",
+              onboardingProgress: JSON.stringify({})
+            });
+            
+            // Refresh user data with initialized fields
+            const updatedUser = await storage.getUser(userId);
+            if (updatedUser) {
+              Object.assign(user, updatedUser);
+            }
+          }
+          
           // Get current onboarding progress from user data - Maya handles all steps conversationally
           const onboardingProgress = user.onboardingProgress ? JSON.parse(user.onboardingProgress as string) : {};
           const currentStep = onboardingProgress.currentStep || 1;
